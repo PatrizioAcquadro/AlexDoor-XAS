@@ -28,6 +28,12 @@ htmlcov/
 /outputs/door_scene/*
 !/outputs/door_scene/D[0-4].usda
 
+# Phase 4.1 binary payloads and run evidence stay machine-local.  The manifest
+# and normalization recipes next to these directories are tracked.
+/assets/doors/phase4_1/source/
+/assets/doors/phase4_1/normalized/
+/assets/doors/phase4_1/evidence/
+
 # Machine-local artifacts
 # Keep active binary formats ignored even outside datasets/ and outputs/.
 *.log

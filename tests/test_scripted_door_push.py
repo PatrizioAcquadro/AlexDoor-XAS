@@ -47,11 +47,13 @@ def _v2_calibration():
 
 def _observe(world: SyntheticDoorWorld) -> DoorPushObservation:
     ee_door = world.door_frame.point_from_world(world.ee_pos_w)
-    ee_panel = rot_z(world.angle).T @ ee_door
+    ee_panel = rot_z(world.cfg.panel_rotation_sign * world.angle).T @ ee_door
     half_height = world.cfg.panel_height_m / 2.0
     contact_sensed = bool(
         0.0 <= ee_panel[0] <= world.cfg.surface_x_m(world.cfg.contact_eps_m)
-        and 0.0 <= ee_panel[1] <= world.cfg.panel_width_m
+        and min(0.0, world.cfg.panel_rotation_sign * world.cfg.panel_width_m)
+        <= ee_panel[1]
+        <= max(0.0, world.cfg.panel_rotation_sign * world.cfg.panel_width_m)
         and -half_height <= ee_panel[2] <= half_height
     )
     return DoorPushObservation(
@@ -102,6 +104,20 @@ def test_controller_is_deterministic() -> None:
     _, _, phases_b, deltas_b = _run_episode(frame)
     assert phases_a == phases_b
     np.testing.assert_array_equal(np.stack(deltas_a), np.stack(deltas_b))
+
+
+def test_right_handed_controller_uses_negative_panel_side_and_rotation() -> None:
+    cfg = DoorPushControllerCfg(handedness="right")
+    controller, world, phases, _ = _run_episode(
+        ObjectFrame(origin=np.zeros(3), rot=np.eye(3)),
+        cfg=cfg,
+        start_door=np.array([0.7, -0.2, 0.0]),
+    )
+
+    assert cfg.push_point_y_m < 0.0
+    assert cfg.panel_rotation_sign == -1.0
+    assert phases[-1] == str(DoorPushPhase.DONE)
+    assert world.angle >= controller.cfg.target_open_angle_rad
 
 
 def test_door_frame_deltas_are_invariant_to_door_placement() -> None:

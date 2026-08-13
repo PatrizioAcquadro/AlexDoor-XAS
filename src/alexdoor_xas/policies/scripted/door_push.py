@@ -10,6 +10,7 @@ import numpy as np
 
 from alexdoor_xas.action.frames import ObjectFrame, rot_z
 from alexdoor_xas.action.spaces import EE_DELTA_DIM, ObjectCentricChunk
+from alexdoor_xas.door_qualification import handedness_sign
 
 
 class DoorPushPhase(enum.StrEnum):
@@ -41,6 +42,7 @@ class DoorPushControllerCfg:
     panel_width_m: float = 0.83
     panel_height_m: float = 2.0
     panel_thickness_m: float = 0.036
+    handedness: str = "left"
 
     push_radius_frac: float = 0.8
     push_height_m: float = -0.30
@@ -84,7 +86,11 @@ class DoorPushControllerCfg:
 
     @property
     def push_point_y_m(self) -> float:
-        return self.push_radius_frac * self.panel_width_m
+        return handedness_sign(self.handedness) * self.push_radius_frac * self.panel_width_m
+
+    @property
+    def panel_rotation_sign(self) -> float:
+        return handedness_sign(self.handedness)
 
     def surface_x_m(self, clearance_m: float) -> float:
         """Panel-frame x of the Alex V2 tool point off the +X face."""
@@ -246,7 +252,7 @@ class DoorPushController:
         }[phase]
         point_panel = np.array([cfg.surface_x_m(clearance), cfg.push_point_y_m, cfg.push_height_m])
         # Panel-frame waypoints rotate with the hinge angle into the door frame.
-        return rot_z(hinge_angle_rad) @ point_panel
+        return rot_z(cfg.panel_rotation_sign * hinge_angle_rad) @ point_panel
 
     def _phase_complete(
         self,
@@ -288,11 +294,13 @@ class DoorPushController:
 
     def _contact_inferred(self, ee_door: np.ndarray, hinge_angle_rad: float) -> bool:
         cfg = self.cfg
-        ee_panel = rot_z(hinge_angle_rad).T @ ee_door
+        ee_panel = rot_z(cfg.panel_rotation_sign * hinge_angle_rad).T @ ee_door
         on_face = ee_panel[0] <= cfg.surface_x_m(cfg.contact_eps_m)
         half_height = cfg.panel_height_m / 2.0
         within_panel = (
-            0.0 <= ee_panel[1] <= cfg.panel_width_m
+            min(0.0, cfg.panel_rotation_sign * cfg.panel_width_m)
+            <= ee_panel[1]
+            <= max(0.0, cfg.panel_rotation_sign * cfg.panel_width_m)
             and -half_height <= ee_panel[2] <= half_height
             and ee_panel[0] >= 0.0
         )

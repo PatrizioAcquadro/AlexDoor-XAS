@@ -52,16 +52,22 @@ class SyntheticDoorWorld:
         self.ee_pos_w = self.ee_pos_w + np.asarray(delta_world_pos, dtype=np.float64)
 
         ee_door = self.door_frame.point_from_world(self.ee_pos_w)
-        ee_panel = rot_z(self.angle).T @ ee_door
+        ee_panel = rot_z(self.cfg.panel_rotation_sign * self.angle).T @ ee_door
         penetration = self.cfg.surface_x_m(0.0) - float(ee_panel[0])
-        in_panel = 0.0 <= ee_panel[1] <= self.cfg.panel_width_m
+        in_panel = (
+            min(0.0, self.cfg.panel_rotation_sign * self.cfg.panel_width_m)
+            <= ee_panel[1]
+            <= max(0.0, self.cfg.panel_rotation_sign * self.cfg.panel_width_m)
+        )
         if penetration > 0.0 and in_panel:
             previous = self.angle
             self.angle = min(self.angle + self.gain * penetration, math.pi / 2.0)
             self.velocity = self.angle - previous
             # The rigid panel pushes the EE back out to its face.
             ee_panel[0] = self.cfg.surface_x_m(0.0)
-            self.ee_pos_w = self.door_frame.point_to_world(rot_z(self.angle) @ ee_panel)
+            self.ee_pos_w = self.door_frame.point_to_world(
+                rot_z(self.cfg.panel_rotation_sign * self.angle) @ ee_panel
+            )
         else:
             self.velocity = 0.0
 

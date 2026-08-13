@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -100,7 +101,15 @@ class DoorPushAlexV2Env(DirectRLEnv):
         calibration = load_alex_v2_door_calibration(cfg.calibration_path)
         _validate_tool_frame(asset.manifest, calibration)
         _configure_robot(cfg, calibration)
-        cfg.door_scene.spawn.usd_path = str(ensure_door_scene_usd(cfg.door_pose_id))
+        if cfg.qualification_scene_usd is None:
+            cfg.door_scene.spawn.usd_path = str(ensure_door_scene_usd(cfg.door_pose_id))
+        else:
+            qualification_scene = Path(cfg.qualification_scene_usd).expanduser().resolve()
+            if not qualification_scene.is_file():
+                raise FileNotFoundError(
+                    f"qualification door scene USD not found: {qualification_scene}"
+                )
+            cfg.door_scene.spawn.usd_path = str(qualification_scene)
 
         self._calibration = calibration
         self._robot_asset = runtime_asset

@@ -46,3 +46,4 @@ def test_alex_v2_env_cfg_contract_if_isaaclab_available() -> None:
     assert cfg.door_scene.prim_path == "/World/envs/env_0/DoorScene"
     assert cfg.door.prim_path == "/World/envs/env_.*/DoorScene/Door"
     assert cfg.ee_contact.prim_path.endswith("/RIGHT_GRIPPER_Z_LINK")
+    assert cfg.qualification_scene_usd is None

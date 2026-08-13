@@ -6,6 +6,12 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DATASETS_DIR = REPO_ROOT / "datasets"
 OUTPUTS_DIR = REPO_ROOT / "outputs"
+PHASE4_1_ASSETS_DIR = REPO_ROOT / "assets" / "doors" / "phase4_1"
+PHASE4_1_SOURCE_DIR = PHASE4_1_ASSETS_DIR / "source"
+PHASE4_1_NORMALIZED_DIR = PHASE4_1_ASSETS_DIR / "normalized"
+PHASE4_1_EVIDENCE_DIR = PHASE4_1_ASSETS_DIR / "evidence"
+PHASE4_1_RECIPES_DIR = PHASE4_1_ASSETS_DIR / "recipes"
+PHASE4_1_MANIFEST = PHASE4_1_ASSETS_DIR / "manifest.json"
 ALEX_V2_CALIBRATION = REPO_ROOT / "configs" / "alex_v2_door.json"
 
 _RUNTIME_CACHE_ROOT = Path(
