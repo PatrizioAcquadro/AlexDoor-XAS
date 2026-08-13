@@ -15,7 +15,7 @@ Execute the following bounded acquisition and qualification loop:
 
 0. Freeze the admission, normalization, and qualification criteria below.
 1. Implement only the local scripts required to check, normalize, and test candidates.
-2. Use an online-search agent to find 24 candidates, applying every inexpensive remote check available before download and preferring USD-family sources.
+2. Find online 24 candidates, applying every inexpensive remote check available before download and preferring USD-family sources.
 3. Download the candidates, run checks that require local files, and replace failures through another targeted online search until 24 remain.
 4. Normalize the 24 candidates to the common door contract.
 5. Run static and physics tests, replacing failures by repeating Steps 2-4 until 24 pass.
