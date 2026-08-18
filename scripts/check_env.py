@@ -37,14 +37,9 @@ OFFICIAL_ISAAC_LAB_REMOTES = {
     "git@github.com:isaac-sim/IsaacLab.git",
     "https://github.com/isaac-sim/IsaacLab.git",
 }
-ALEX_V2_EXTENSION_MODULE = "ihmc_alex_isaaclab.robots.alex_v2"
-ALEX_V2_EXTENSION_MODULE_FILE = (
-    Path("/home/pacquadr/Desktop/Alex")
-    / "source"
-    / "ihmc_alex_isaaclab"
-    / "ihmc_alex_isaaclab"
-    / "robots"
-    / "alex_v2.py"
+ALEX_V2_PACKAGE_MODULE = "ihmc_alex_isaaclab.robots.alex_v2"
+ALEX_V2_PACKAGE_MODULE_FILE = (
+    Path("/home/pacquadr/Desktop/Alex") / "src" / "ihmc_alex_isaaclab" / "robots" / "alex_v2.py"
 )
 
 
@@ -155,12 +150,12 @@ def _check_provenance() -> tuple[list[str], list[str]]:
 
 def _alex_v2_module_failure(
     find_spec: Callable[[str], Any] = util.find_spec,
-    module_file: Path = ALEX_V2_EXTENSION_MODULE_FILE,
+    module_file: Path = ALEX_V2_PACKAGE_MODULE_FILE,
 ) -> str | None:
-    """Return an actionable failure when the external Alex factory is unavailable."""
+    """Return an actionable failure when the Alex package is unavailable."""
 
     try:
-        spec = find_spec(ALEX_V2_EXTENSION_MODULE)
+        spec = find_spec(ALEX_V2_PACKAGE_MODULE)
     except (AttributeError, ImportError, ModuleNotFoundError, ValueError) as error:
         detail = f"find_spec raised {error.__class__.__name__}: {error}"
     else:
@@ -177,10 +172,10 @@ def _alex_v2_module_failure(
             detail = "find_spec returned no module origin"
     file_detail = "present" if module_file.is_file() else "missing"
     return (
-        f"{ALEX_V2_EXTENSION_MODULE} is not the installed external extension "
+        f"{ALEX_V2_PACKAGE_MODULE} is not the installed external package "
         f"({detail}; module file {file_detail}: {module_file}). Install it with "
         f"/home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e "
-        f"/home/pacquadr/Desktop/Alex/source/ihmc_alex_isaaclab."
+        f"/home/pacquadr/Desktop/Alex."
     )
 
 
@@ -228,9 +223,9 @@ def main() -> int:
     provenance_failures, provenance_warnings = _check_provenance()
     alex_v2_module_failure = _alex_v2_module_failure()
     if alex_v2_module_failure is None:
-        print(f"  [ok ] {ALEX_V2_EXTENSION_MODULE}")
+        print(f"  [ok ] {ALEX_V2_PACKAGE_MODULE}")
     else:
-        print(f"  [ERR] {ALEX_V2_EXTENSION_MODULE}")
+        print(f"  [ERR] {ALEX_V2_PACKAGE_MODULE}")
         provenance_failures.append(alex_v2_module_failure)
 
     print("-- assets --")

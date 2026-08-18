@@ -8,7 +8,7 @@ The Alex V2 benchmark needs a reproducible controller at the physical gripper co
 
 Use the fixed-base Alex V2 torso, the six calibrated right-arm joints, and position-only differential IK at the collision-derived tool point. Keep rotational A2/A3 components in data and adapter decisions, but do not command them to the robot.
 
-Use `configs/alex_v2_door.json` as the only task calibration. Generic Alex construction remains in the external `ihmc_alex_isaaclab` extension; door calibration, IK, contact selection, and safety semantics remain local.
+Use `configs/alex_v2_door.json` as the only task calibration. Generic Alex construction remains in the external `ihmc_alex_isaaclab` package; door calibration, IK, contact selection, and safety semantics remain local.
 
 Accept task force only from exact-door raw PhysX contact selection. Geometric contact may be recorded for diagnosis but cannot replace sensed force.
 

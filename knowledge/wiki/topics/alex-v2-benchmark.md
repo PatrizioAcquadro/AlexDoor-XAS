@@ -4,7 +4,7 @@ The maintained benchmark is simulated door pushing with the fixed-base IHMC Alex
 
 ## Asset and Calibration
 
-The external `~/Desktop/Alex` repository owns the Alex V2 URDF and the generic `ihmc_alex_isaaclab` extension. DoorManipulation imports `make_alex_v2_cfg` and applies the door-task calibration locally.
+The external `~/Desktop/Alex` repository owns the Alex V2 URDF and the generic `ihmc_alex_isaaclab` package. DoorManipulation imports `make_alex_v2_cfg` and applies the door-task calibration locally.
 
 `configs/alex_v2_door.json` is the only active calibration. It defines the task and robot identities, base pose, six initial right-arm joints, operational tool frame, reach shell, control parameters, and randomization bounds. There is no separate calibration-authoring workflow.
 
@@ -42,4 +42,5 @@ The benchmark is simulation-only, fixed-base, single-environment, and limited to
 
 ## Version Notes
 
+- 2026-08-18 — Updated the package install boundary and canonical Alex V2 asset path.
 - 2026-08-13 — Documented only the external Alex asset, one active calibration, D0-D4 scenes, and the concrete single-environment runtime.

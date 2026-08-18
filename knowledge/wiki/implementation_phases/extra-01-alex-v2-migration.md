@@ -12,7 +12,7 @@ Replace provisional robot assumptions with the fixed-base IHMC Alex V2 door benc
 
 This work validated the Alex V2 asset and joint order, derived the collision tool point, introduced offset-point Jacobian control, and added door-panel force sensing.
 
-Generic Alex construction later moved to the external `ihmc_alex_isaaclab` extension. The current repository retains only door-specific calibration, position-only IK, scene, contact, and task behavior.
+Generic Alex construction later moved to the external `ihmc_alex_isaaclab` package. The current repository retains only door-specific calibration, position-only IK, scene, contact, and task behavior.
 
 #### Key Decisions
 

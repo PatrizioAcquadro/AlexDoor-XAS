@@ -28,15 +28,14 @@ The next study moves to vision-and-proprioception policies and compares the comp
 
 - Python 3.11 or newer through the supported Isaac Lab runtime.
 - Isaac Sim 6.0.1 and Isaac Lab `release/3.0.0-beta2`.
-- The external Alex extension, the machine-local Alex V2, door, and hallway assets.
+- The external Alex package, the machine-local Alex V2, door, and hallway assets.
 
 Do not use bare system `python3` for Isaac code.
 
 ## Installation and validation
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e \
-  /home/pacquadr/Desktop/Alex/source/ihmc_alex_isaaclab
+/home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e /home/pacquadr/Desktop/Alex
 PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e ".[dev]"
 PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/check_env.py
 PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q

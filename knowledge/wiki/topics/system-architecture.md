@@ -10,7 +10,7 @@ The operational learned-policy path is `Door + Alex V2 -> v2_pose A2/A3 -> ACT o
 
 `src/alexdoor_xas/envs/door_task/` contains one registered simulator environment, `AlexDoor-DoorPush-AlexV2-v0`. `DoorPushAlexV2EnvCfg` and `DoorPushAlexV2Env` own the single-environment Alex V2 scene, reset, calibrated tool-point IK, task state, termination, and telemetry. The only separate environment helper aggregates raw PhysX contacts for the exact door actor.
 
-Generic Alex V2 asset construction comes from the external `ihmc_alex_isaaclab` extension. Door-specific calibration, scene composition, control, contact selection, and task semantics remain in this repository.
+Generic Alex V2 asset construction comes from the external `ihmc_alex_isaaclab` package. Door-specific calibration, scene composition, control, contact selection, and task semantics remain in this repository.
 
 No generic robot runtime, surrogate robot, sensorless path, multi-environment path, or alternate simulator task is maintained.
 

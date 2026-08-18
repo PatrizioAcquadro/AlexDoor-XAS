@@ -355,3 +355,13 @@ minimal tests, reset-repeatability gate, and adaptive Phase 4.2 rollout count.
 
 Verified the 0-8 workflow, adaptive qualification count, wiki links, index
 coverage, Markdown whitespace, and unchanged user-owned raw material.
+
+## 2026-08-18 — update : Alex V2 package boundary
+
+Updated the maintained package install boundary and canonical Alex V2 asset
+path after the external repository moved to its root `src/` layout.
+
+## 2026-08-18 — lint : Alex V2 package boundary
+
+Verified wiki links, index coverage, current paths, Markdown whitespace, and
+unchanged raw research and historical implementation records.

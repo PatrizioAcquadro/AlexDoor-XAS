@@ -124,7 +124,7 @@ def test_fixed_base_runtime_has_a_distinct_verified_identity() -> None:
         ("RIGHT_WRIST_X", 150.0, 4.0),
     )
     assert runtime_ref.manifest_fingerprint == (
-        "b8d5672bd5f1f653640d8822c27b31409697efed53c01d57907f3a161acecc96"
+        "49ae9465d619223f8c8e6f2931a5020e45fed802601e29e56cc047393156696b"
     )
     assert runtime["actuator_config_version"] == "door-alex-v2-fixedbase-right-arm-pd-v2"
     assert "actuator_config_version" not in shared
@@ -435,9 +435,9 @@ def test_alex_v2_factory_check_fails_loudly_with_install_action(tmp_path) -> Non
         module_file=tmp_path / "missing" / "alex_v2.py",
     )
 
-    assert "ihmc_alex_isaaclab.robots.alex_v2 is not the installed external extension" in failure
+    assert "ihmc_alex_isaaclab.robots.alex_v2 is not the installed external package" in failure
     assert "pip install -e" in failure
-    assert "/Desktop/Alex/source/ihmc_alex_isaaclab" in failure
+    assert "/Desktop/Alex" in failure
 
 
 def test_alex_v2_factory_check_accepts_discoverable_module(tmp_path) -> None:

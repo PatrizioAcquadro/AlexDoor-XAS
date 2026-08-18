@@ -21,7 +21,12 @@ VERIFICATION_CACHE_DIR = _RUNTIME_CACHE_ROOT / "verification"
 SCRIPTED_RUNS_CACHE_DIR = _RUNTIME_CACHE_ROOT / "scripted_runs"
 
 ALEX_V2_ASSET_ROOT = (
-    Path(os.environ.get("ALEX_V2_ASSET_ROOT", str(Path.home() / "Desktop" / "Alex")))
+    Path(
+        os.environ.get(
+            "ALEX_V2_ASSET_ROOT",
+            str(Path.home() / "Desktop" / "Alex" / "assets" / "robots" / "alex_v2"),
+        )
+    )
     .expanduser()
     .resolve()
 )
