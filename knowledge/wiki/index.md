@@ -1,6 +1,6 @@
 # AlexDoor-XAS Technical Wiki
 
-Current topic pages describe only the maintained repository. Implementation-phase pages distinguish planned work from concise historical records; experiment pages retain durable completed results.
+Topic pages distinguish the operational Purdue runtime from retained historical B0 contracts. Implementation-phase pages distinguish planned work from concise historical records; experiment pages retain durable completed results.
 
 ## Project Status
 
@@ -13,7 +13,7 @@ Planned and historical development records:
 - [[implementation_phases/phase-1-project-and-simulation-readiness|Phase 1 — Project and Simulation Readiness]] — Initial package, dependency, and simulator foundation.
 - [[implementation_phases/phase-2-scripted-baseline-and-data-engine|Phase 2 — Scripted Baseline and Data Engine]] — Scripted execution, recording, and matched export foundation.
 - [[implementation_phases/phase-3-non-vla-learned-baselines|Phase 3 — Non-VLA Learned Baselines]] — State-only policy, adapter, and evaluation foundation.
-- [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — Two planned subphases: operational Alex003/control/RGB-D, then common setup/reachability/visibility.
+- [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — Operational Alex003/control/RGB-D integration; common setup/reachability/visibility remains planned.
 - [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Two planned subphases: preparation tools before sequential URL intake, then expert qualification and split.
 - [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — Three planned subphases: observations/perception, complete A1-A4, and passed pilot followed by final data.
 - [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]] — Two planned subphases: training, then evaluation/analysis with ID/GEO before stress tests.
@@ -29,8 +29,8 @@ Planned and historical development records:
 Current technical behavior and explicitly labeled planned contracts:
 
 - [[topics/system-architecture|System Architecture]] — Maintained runtime, data, policy, evaluation, and storage flow.
-- [[topics/alex-v2-benchmark|Alex V2 Benchmark]] — Current B0 external asset, six-joint calibration, canonical scenes, control, and limits.
-- [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]] — Planned shared Purdue/WSG/ZED configuration, derived push frame, measured pedestal, and validation limits.
+- [[topics/alex-v2-benchmark|Alex V2 Benchmark]] — Historical B0 asset/calibration/data identity and retained canonical scenes; execution retired.
+- [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]] — Operational Purdue/WSG/ZED configuration, derived push frame, measured pedestal and validation limits.
 - [[topics/action-representations-and-adapters|Action Representations and Adapters]] — A1-A4 meanings and maintained execution boundaries.
 - [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — `phase2.v2`, matched exports, splits, views, normalization, and model data.
 - [[topics/learned-policy-stack|Learned Policy Stack]] — ACT/Diffusion configuration, training, checkpoint/resume, outputs, and evaluation.

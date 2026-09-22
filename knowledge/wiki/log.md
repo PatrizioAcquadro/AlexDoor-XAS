@@ -405,3 +405,11 @@ Focused software/consumer tests, Ruff, syntax/CLI checks, and host CUDA/dependen
 ## 2026-09-22 — update : Subphase 4.0 implementation contracts
 Implemented collision-derived Purdue push geometry, bounded seven-joint pose math,
 and the observed RGB-D sample contract; integrated GPU commissioning remains in progress.
+
+## 2026-09-22 — update : Subphase 4.0 GPU commissioning and B0 retirement
+Completed Purdue/WSG/pedestal integration, full-pose control, contact classification and synchronized head RGB-D with GPU evidence.
+Retired B0 execution while retaining historical readers/offline training and independently validated door-only preparation; Subphase 4.1 remains planned.
+
+## 2026-09-22 — lint : Subphase 4.0 closeout
+Verified 332 passing software tests, Ruff, wiki-link/index coverage, whitespace, and unchanged raw research after migration.
+Recorded full GPU commissioning plus focused RGB-D/contact checks and isolated door validation; historical outputs and ignored assets remain unmodified.

@@ -1,49 +1,32 @@
 # AlexDoor-XAS
 
 AlexDoor-XAS studies how action representation affects learning and execution in contact-rich humanoid manipulation. 
-Its first benchmark is simulated door pushing with the fixed-base IHMC Alex V2 torso in NVIDIA Isaac Sim and Isaac Lab.
+Its current runtime uses fixed-base Purdue Alex003 in NVIDIA Isaac Sim and Isaac Lab.
+The earlier Alex V2 door-pushing benchmark remains available as historical data and results.
 
-The benchmark records matched episodes in four action representations (A1-A4), allowing the representation to change while the robot, task, and underlying experience remain fixed.
+The study compares matched episodes in four action representations (A1-A4), allowing the representation to change while the robot, task, and underlying experience remain fixed.
 
 ## Current scope
 
-The maintained workflows are:
+Subphase 4.0 replaces B0 execution with the Purdue Alex003 operational runtime:
+WSG32/UMI v1, measured pedestal, seven-joint A1/full-pose A2/A3 control and head
+ZED RGB-D/proprioception. Synthetic collidable fixtures commission the integration;
+common door setup and learned-policy integration belong to later phases.
 
-```text
-scripted Alex V2 door baseline -> matched v2_pose A1-A4 exports
-A2/A3 datasets -> ACT or Diffusion -> adapter-v1 -> closed-loop evaluation
-```
+Historical datasets, ACT/Diffusion models, checkpoint loading and offline training
+remain available. Full generation and learned evaluation currently stop with a
+migration explanation before simulator startup. Old checkpoints cannot execute
+as Purdue policies.
 
-- A1 is export-only.
-- A2 and A3 support learned policies.
-- A4 is recorded and adapter-executable but does not have a learned policy.
-- Policies are state-only, the benchmark is simulation-only, and no command controls a physical Alex robot.
-
-The completed evaluation was success-saturated and did not identify a winning policy, representation, or dataset size. 
-See [Project Status](knowledge/wiki/status.md) for maintained capabilities, results, and current boundaries.
-
-The approved B1 study uses fixed-base Purdue Alex with WSG32/UMI v1, all seven
-right-arm joints, and head ZED RGB-D plus proprioception. It compares the complete
-A1-A4 x ACT/Diffusion matrix on held-out push doors using valid opening progress
-relative to a frozen expert. The current B0 runtime above has not migrated yet.
-
-The plan is split into [Phase 4: robot and task configuration](knowledge/wiki/implementation_phases/phase-4-robot-and-task-configuration.md),
-[Phase 5: door corpus and qualification](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md),
-[Phase 6: perception, actions, and demonstrations](knowledge/wiki/implementation_phases/phase-6-perception-actions-and-demonstrations.md),
-and [Phase 7: training and evaluation](knowledge/wiki/implementation_phases/phase-7-training-and-generalization-evaluation.md).
-These four phases contain nine subphases. Phase 5 first delivers validated
-normalization/checking tools, then processes user-provided door URLs one at a time.
-A small complete pilot precedes final data production; gaze and extra teachers
-are added only if needed. Evaluation reports ID/GEO before the stress extension.
-The preparatory code audit is complete; retained legacy tooling and its limits
-are documented in [Project Status](knowledge/wiki/status.md#pre-b1-cleanup-and-phase-4-entry).
-Phases 4–7 remain unimplemented. Handles and other articulated objects remain later studies.
+See [Project Status](knowledge/wiki/status.md) for evidence and remaining work,
+and [Phase 4](knowledge/wiki/implementation_phases/phase-4-robot-and-task-configuration.md)
+for the operational contract. No command controls physical hardware.
 
 ## Requirements
 
 - Python 3.11 or newer through the supported Isaac Lab runtime.
 - Isaac Sim 6.0.1 and Isaac Lab `release/3.0.0-beta2`.
-- The external Alex package, the machine-local Alex V2, door, and hallway assets.
+- The external Alex package with Purdue/WSG, measured pedestal and pinned ZED Wide assets.
 
 Do not use bare system `python3` for Isaac code.
 
@@ -56,38 +39,29 @@ PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/check_env.py
 PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q
 ```
 
-The complete simulator, dataset, adapter, and policy verification surface is listed in [Project Status](knowledge/wiki/status.md).
-
-## Minimal workflow
-
-Generate matched Alex V2 episodes and A1-A4 exports:
+Run the complete operational GPU gate:
 
 ```bash
 PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p \
-  scripts/run_scripted_baseline.py --viz none --device cuda:0
+  scripts/verify_purdue_runtime.py --viz none --device cuda:0
 ```
 
-Train ACT on A2 or Diffusion on A3:
+Reports, numeric traces and camera samples default to
+`~/.cache/alexdoor-xas/verification/purdue/`; `--output` selects another location.
+`--gate contacts` and `--gate rgbd` run focused diagnostic subsets; only `all`
+can establish complete Subphase 4.0 evidence. `--no-cameras` is diagnostic only.
 
-```bash
-PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/train_policy.py --policy act --space A2_ee_delta
-PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/train_policy.py --policy diffusion --space A3_obj_rel_ee_delta
-```
-
-Evaluate a completed self-contained checkpoint; the evaluator detects the policy family from
-the source run's `resolved_config.json`:
-
-```bash
-PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/eval_policy.py --checkpoint outputs/door_push_alex_v2/act/<run_id>/checkpoints/best.pt --device cuda:0
-PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/eval_policy.py --checkpoint outputs/door_push_alex_v2/diffusion/<run_id>/checkpoints/best.pt --device cuda:0
-```
+The public acquisition sample is `env.capture.sample`. It contains RGB, depth in
+meters, a valid-depth mask, seven arm and two neck positions/velocities, simulation
+time, episode and frame IDs. Model resizing, history and learning integration are
+deferred to Phase 6.
 
 ## Repository layout
 
 ```text
 src/alexdoor_xas/   package code for the benchmark, data, policies, and evaluation
-scripts/            supported generation, training, evaluation, and verification entry points
-configs/            active calibration, scripted-baseline, and policy configuration
+scripts/            operational verification, offline training and retained preparation
+configs/            historical calibration and offline policy configuration
 tests/              deterministic regression and contract tests
 knowledge/          user-owned raw research and the official technical wiki
 datasets/           reusable local episodes, splits, and normalization artifacts
