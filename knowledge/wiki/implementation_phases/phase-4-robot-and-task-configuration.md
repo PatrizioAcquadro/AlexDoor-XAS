@@ -1,7 +1,7 @@
 # Phase 4 — Robot and Task Configuration
 
-> Planned. Two subphases prepare the robot, then select its common setup.
-> Documentation approval is not implementation or runtime validation.
+> Subphase 4.0 implementation in progress; Subphase 4.1 remains planned.
+> GPU operational checks are required before declaring 4.0 complete.
 
 ## Objective
 
@@ -10,49 +10,58 @@ on synthetic doors before inspecting collected assets. Follow
 [[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]] and
 [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]].
 
-Before implementation, separately audit the superseded local qualification code.
-That cleanup is not permission to execute this phase.
-
 ## Subphase 4.0 — Operational Alex003, Control, and RGB-D
 
 #### Implementation
 
-Reuse the external Alex `full_convex` Purdue/WSG32/UMI v1 profile, measured
-Alex003 pedestal, and ZED X Mini Wide integration. Resolve seven right-arm joints,
-two neck joints, fixed closed-finger targets, and a collision-free parked left
-arm. Implement the task-owned push frame from the existing distal-finger geometry.
-Verify the assembly, fixed mounting height, joint limits, mimic behavior,
-collision geometry, and actual contact locations. Adapt force/contact selection
-to the right finger surfaces and exact door bodies, including forbidden
-robot/frame/handle/pedestal contact. Do not retain the old single-body force
-filter without checking its ownership assumptions.
+The Purdue consumer uses the external `full_convex` WSG32/UMI v1 assembly,
+measured Alex003 pedestal, and ZED X Mini Wide. Seven right-arm joints are ordered
+explicitly; the two neck joints are separate and both grippers stay closed with
+the package's leader targets and mimic followers.
 
-Implement full tool position-and-orientation control through all seven arm
-joints. Migrate the A2 executor and A3 transform, including the offset tool
-Jacobian and a deterministic redundancy/joint-margin rule. Verify actual rotation
-execution and A1 direct addressing of the same joint order. Phase 6 owns learned
-model/data/adapter integration, not this low-level controller.
+`assets/purdue.py` derives `right_push_tip` from the canonical closed-finger
+collision meshes, including the external wrist mount. Fixed-link merging is
+resolved through the imported rigid owners rather than assuming URDF link names
+survive as rigid bodies. Contact regions use the imported convex mesh, forward
+extremum (3 mm geometric tolerance), and surface normal. Raw PhysX points are
+classified against exact partner actors; internal pairs are counted once.
+Reported force is **normal-only**, not total force including friction.
 
-Connect the existing ZED left RGB/depth outputs and derive the valid-depth mask.
-Verify optical extrinsics, metric units, image/depth alignment, neck proprioception,
-synchronization, and reset. Build this capture path once and reuse it later for
-multi-door recording. Keep simulator annotations out of observed inputs.
+`kinematics/pose_control.py` provides full-pose damped IK and an exact-SVD
+nullspace joint-centering term. Position limits come from Alex; target velocity
+is limited against the previous command, not the measured state. This avoids
+artificially limiting the available PD tracking error. A1 addresses the same
+seven joints; A3 rotates both delta vectors from an explicitly supplied frame.
+
+`recording/rgbd.py` defines copied RGB/depth/mask and nine-joint position/velocity
+samples, with simulation time, episode and frame identifiers. Depth validity
+uses only finite, positive, in-range depth. Duplicate frames are rejected and
+reset invalidates the prior sample. This capture contract does not change the
+historical episode/dataset schema or implement a learned observation encoder.
 
 #### Key Decisions
 
-- The robot/contact topic owns model, fingers, surface, tool frame, collision
-  policy, limits, and measured support dimensions. Do not duplicate Alex assets,
-  camera factories, or pedestal builders in this repository.
-- This is the Purdue Alex003 composition with WSG selected explicitly; the
-  generic reference scene defaults to SAKE.
-- Use head RGB-D/proprioception without a mandatory wrist camera or GMSL emulation.
-  Ideal rendered depth remains an explicit approximation.
+- Replace B0 execution; preserve historical data/checkpoint readers and offline
+  training. Full generation and learned evaluation remain unavailable until
+  their later migration, with explicit errors before simulator startup.
+- Reuse external robot, material, mimic, collision-filter, pedestal and camera
+  factories. Keep gravity and model limits active. Use model gravity compensation
+  for arm/neck holding; retain external PD gains rather than B0 gains.
+- One GPU environment, 120 Hz physics, 60 Hz commands and RGB-D. These are
+  commissioning defaults, not the frozen data protocol.
+- Commission on small collidable panel/frame/handle fixtures. The common base,
+  contact height, neck pose and full synthetic-door expert belong to 4.1.
 
 #### Problems / Limitations
 
-Complete after GPU checks show stable reset, valid seven-joint pose control,
-correct contact/force observability, and synchronized RGB-D. Source inspection
-alone is insufficient. No physical-safety or sim-to-real claim follows.
+Pure tests verify geometric ownership, seven-joint control math and capture
+boundaries. Integration checks must additionally prove three stable resets,
+10 mm / 5 degree pose tracking sustained for 0.5 s, loaded contacts on both
+fingers, detection of forbidden contacts, and synchronized metric RGB-D.
+Subphase 4.0 is not complete until all GPU gates pass.
+
+Ideal rendered depth, rigid model-reference fingers and model gravity compensation
+are simulation approximations; no physical-safety or sim-to-real claim follows.
 
 ## Subphase 4.1 — Common Pose, Synthetic Reachability, and Visibility
 

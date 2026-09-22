@@ -401,3 +401,7 @@ Updated current status and architecture without changing the approved Phase 4–
 
 Verified all 29 wiki pages, links/index coverage, source references, append-only log, and unchanged raw research and Phase 4–7 plan files.
 Focused software/consumer tests, Ruff, syntax/CLI checks, and host CUDA/dependency preflight pass; no simulation, corpus qualification, or revised-phase execution was performed.
+
+## 2026-09-22 — update : Subphase 4.0 implementation contracts
+Implemented collision-derived Purdue push geometry, bounded seven-joint pose math,
+and the observed RGB-D sample contract; integrated GPU commissioning remains in progress.
