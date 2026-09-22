@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from types import SimpleNamespace
-
 import numpy as np
 import pytest
 
@@ -16,33 +14,7 @@ from alexdoor_xas.policies.scripted.door_push import (
     DoorPushPhase,
     sample_variation,
 )
-from alexdoor_xas.policies.scripted.door_push_alex_v2 import (
-    alex_v2_push_cfg,
-    alex_v2_variation_bounds,
-)
 from conftest import SyntheticDoorWorld
-
-
-def _v2_calibration():
-    return SimpleNamespace(
-        controller={
-            "push_radius_frac": 0.35,
-            "push_height_m": 0.15,
-            "approach_standoff_m": 0.12,
-            "align_standoff_m": 0.10,
-            "pre_contact_clearance_m": 0.01,
-            "contact_clearance_m": -0.005,
-            "contact_approach_max_step_m": 0.005,
-            "release_standoff_m": 0.30,
-            "contact_force_threshold_n": 2.5,
-        },
-        randomization_bounds={
-            "start_offset_low": (-0.04, -0.06, -0.05),
-            "start_offset_high": (0.06, 0.06, 0.05),
-            "push_radius_frac_range": (0.32, 0.40),
-            "push_height_m_range": (0.05, 0.18),
-        },
-    )
 
 
 def _observe(world: SyntheticDoorWorld) -> DoorPushObservation:
@@ -156,14 +128,6 @@ def test_contact_approach_uses_its_dedicated_step_limit(phase) -> None:
     assert np.linalg.norm(command.delta_door_frame[:3]) == pytest.approx(0.005)
 
 
-def test_alex_v2_preset_keeps_alignment_outside_contact_and_slows_final_approach() -> None:
-    cfg = alex_v2_push_cfg(_v2_calibration())
-
-    assert cfg.align_standoff_m == pytest.approx(0.10)
-    assert cfg.contact_approach_max_step_m == pytest.approx(0.005)
-    assert cfg.max_step_m == pytest.approx(0.015)
-
-
 def test_chunk_log_covers_all_phases_with_positive_durations() -> None:
     controller, _, _, _ = _run_episode(ObjectFrame(origin=np.zeros(3), rot=np.eye(3)))
     chunks = controller.finalize()
@@ -184,20 +148,6 @@ def test_phase_timeout_freezes_controller() -> None:
     assert phases[-1] == str(DoorPushPhase.APPROACH)
     assert controller.phase is DoorPushPhase.APPROACH
     np.testing.assert_array_equal(deltas[-1], np.zeros(6))
-
-
-def test_alex_v2_preset_visits_all_phases_and_opens_door() -> None:
-    cfg = alex_v2_push_cfg(_v2_calibration())
-    controller, world, phases, _ = _run_episode(
-        ObjectFrame(origin=np.zeros(3), rot=np.eye(3)),
-        cfg=cfg,
-        start_door=np.array([0.35, 0.29, 0.15]),
-    )
-    seen = list(dict.fromkeys(phases))
-    expected = [str(phase) for phase in PHASE_ORDER] + [str(DoorPushPhase.DONE)]
-    assert seen == expected
-    assert world.angle >= cfg.target_open_angle_rad
-    assert controller.phase is DoorPushPhase.DONE
 
 
 def test_contact_sensed_overrides_geometric_inference() -> None:
@@ -237,19 +187,6 @@ def test_contact_sensed_overrides_geometric_inference() -> None:
     command_b = controller_b.act(obs_b)
     assert command_b.phase is DoorPushPhase.CONTACT
     assert command_b.contact_inferred is True
-
-
-def test_alex_v2_variation_bounds_are_respected() -> None:
-    bounds = alex_v2_variation_bounds(_v2_calibration())
-    for seed in range(20):
-        variation = sample_variation(np.random.default_rng(seed), bounds)
-        low, high = bounds.push_radius_frac_range
-        assert low <= variation.push_radius_frac <= high
-        low, high = bounds.push_height_m_range
-        assert low <= variation.push_height_m <= high
-        offset = np.asarray(variation.start_offset_door_frame)
-        assert np.all(offset >= bounds.start_offset_low)
-        assert np.all(offset <= bounds.start_offset_high)
 
 
 def test_sample_variation_is_seeded_and_bounded() -> None:

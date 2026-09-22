@@ -37,9 +37,9 @@ OFFICIAL_ISAAC_LAB_REMOTES = {
     "git@github.com:isaac-sim/IsaacLab.git",
     "https://github.com/isaac-sim/IsaacLab.git",
 }
-ALEX_V2_PACKAGE_MODULE = "ihmc_alex_isaaclab.robots.alex_v2"
-ALEX_V2_PACKAGE_MODULE_FILE = (
-    Path("/home/pacquadr/Desktop/Alex") / "src" / "ihmc_alex_isaaclab" / "robots" / "alex_v2.py"
+PURDUE_PACKAGE_MODULE = "ihmc_alex_isaaclab.robots.alex_purdue"
+PURDUE_PACKAGE_MODULE_FILE = (
+    Path("/home/pacquadr/Desktop/Alex") / "src" / "ihmc_alex_isaaclab" / "robots" / "alex_purdue.py"
 )
 
 
@@ -148,14 +148,14 @@ def _check_provenance() -> tuple[list[str], list[str]]:
     return failures, warnings
 
 
-def _alex_v2_module_failure(
+def _purdue_module_failure(
     find_spec: Callable[[str], Any] = util.find_spec,
-    module_file: Path = ALEX_V2_PACKAGE_MODULE_FILE,
+    module_file: Path = PURDUE_PACKAGE_MODULE_FILE,
 ) -> str | None:
     """Return an actionable failure when the Alex package is unavailable."""
 
     try:
-        spec = find_spec(ALEX_V2_PACKAGE_MODULE)
+        spec = find_spec(PURDUE_PACKAGE_MODULE)
     except (AttributeError, ImportError, ModuleNotFoundError, ValueError) as error:
         detail = f"find_spec raised {error.__class__.__name__}: {error}"
     else:
@@ -172,7 +172,7 @@ def _alex_v2_module_failure(
             detail = "find_spec returned no module origin"
     file_detail = "present" if module_file.is_file() else "missing"
     return (
-        f"{ALEX_V2_PACKAGE_MODULE} is not the installed external package "
+        f"{PURDUE_PACKAGE_MODULE} is not the installed external package "
         f"({detail}; module file {file_detail}: {module_file}). Install it with "
         f"/home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e "
         f"/home/pacquadr/Desktop/Alex."
@@ -180,7 +180,6 @@ def _alex_v2_module_failure(
 
 
 def main() -> int:
-    from alexdoor_xas import paths
 
     print("== AlexDoor-XAS environment check ==")
     print(f"python      : {platform.python_version()}  ({sys.executable})")
@@ -221,19 +220,32 @@ def main() -> int:
 
     print("-- provenance --")
     provenance_failures, provenance_warnings = _check_provenance()
-    alex_v2_module_failure = _alex_v2_module_failure()
-    if alex_v2_module_failure is None:
-        print(f"  [ok ] {ALEX_V2_PACKAGE_MODULE}")
+    purdue_module_failure = _purdue_module_failure()
+    if purdue_module_failure is None:
+        print(f"  [ok ] {PURDUE_PACKAGE_MODULE}")
     else:
-        print(f"  [ERR] {ALEX_V2_PACKAGE_MODULE}")
-        provenance_failures.append(alex_v2_module_failure)
+        print(f"  [ERR] {PURDUE_PACKAGE_MODULE}")
+        provenance_failures.append(purdue_module_failure)
 
     print("-- assets --")
     required_pkgs = ("isaaclab", "ihmc-alex-isaaclab", "torch", "numpy")
     missing_pkgs = [n for n in required_pkgs if versions[n] == "MISSING"]
+    from ihmc_alex_isaaclab._paths import REPOSITORY_ROOT as alex_root
+    from ihmc_alex_isaaclab.sensors.zed_x_mini_dependency import resolve_zed_isaac_sim_root
+
     assets = (
-        ("Alex V2 URDF", paths.ALEX_V2_URDF),
-        ("Door USD", paths.DOOR_USD),
+        (
+            "Purdue WSG URDF",
+            alex_root
+            / "assets/robots/alex_purdue/urdf/baseline/alex_purdue_wsg32_umi_v1_full_convex.urdf",
+        ),
+        ("Alex003 measurements", alex_root / "measurements.yaml"),
+        (
+            "Pedestal URDF",
+            alex_root
+            / "assets/platforms/purdue_alex003_pedestal/urdf/purdue_alex003_pedestal.urdf",
+        ),
+        ("ZED Wide", resolve_zed_isaac_sim_root().usd_path),
     )
     missing_assets = [name for name, path in assets if not path.exists()]
     for name, path in assets:

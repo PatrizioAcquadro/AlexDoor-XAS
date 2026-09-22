@@ -1,6 +1,6 @@
 # Decision — Calibrated Position-Only Alex V2 Execution
 
-> Applies to the current/historical B0 Alex V2 implementation only. The approved
+> Applies to the retired B0 Alex V2 implementation only. The approved
 > [[decisions/visuoproprioceptive-generalization-benchmark|B1 design]] supersedes
 > this execution choice with seven-joint Purdue tool-pose control. That migration
 > remains planned; do not rewrite B0 results as seven-joint or orientation-controlled.

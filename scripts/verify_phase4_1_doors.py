@@ -2,7 +2,7 @@
 """Inspect legacy normalized USDs and measure isolated door physics.
 
 Retained commands: static, physics. Requires a legacy slot worklist and the
-B0 runtime. These limited checks are not B1 preparation or expert qualification:
+isolated door scene. These limited checks are not B1 preparation or expert qualification:
 canonical box proxies, fixed nominal physics, and non-colliding handles remain.
 No penetration measurement or collision-consistent opening claim is provided.
 """
@@ -19,9 +19,7 @@ from pathlib import Path
 from isaaclab.app import AppLauncher
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument(
-    "command", choices=("static", "physics")
-)
+parser.add_argument("command", choices=("static", "physics"))
 selection = parser.add_mutually_exclusive_group(required=False)
 selection.add_argument("--slot", type=int)
 selection.add_argument("--all", action="store_true")
@@ -33,12 +31,10 @@ app_launcher = AppLauncher(args)
 simulation_app = app_launcher.app
 
 # Isaac/runtime imports after AppLauncher.
-import gymnasium as gym  # noqa: E402
 import numpy as np  # noqa: E402
 import torch  # noqa: E402
 from pxr import Usd, UsdGeom, UsdPhysics, UsdUtils  # noqa: E402
 
-import alexdoor_xas.envs.door_task as door_task  # noqa: E402
 from alexdoor_xas import paths  # noqa: E402
 from alexdoor_xas.door_qualification import (  # noqa: E402
     HINGE_DAMPING_NM_S_RAD,
@@ -52,8 +48,9 @@ from alexdoor_xas.door_qualification import (  # noqa: E402
     load_json,
     sha256_file,
 )
-from alexdoor_xas.envs.door_task.door_push_alex_v2_env_cfg import (  # noqa: E402
-    DoorPushAlexV2EnvCfg,
+from alexdoor_xas.envs.door_task.door_inspection import (  # noqa: E402
+    DoorInspectionCfg,
+    DoorInspectionEnv,
 )
 
 WORKLIST = paths.PHASE4_1_EVIDENCE_DIR / "worklist.json"
@@ -185,9 +182,9 @@ def _static_gate(slot: dict) -> dict:
     panel_mass = float(panel_mass_api.GetMassAttr().Get())
     panel_inertia = tuple(
         float(v)
-        for v in UsdPhysics.MassAPI(
-            stage.GetPrimAtPath("/World/Door/Door")
-        ).GetDiagonalInertiaAttr().Get()
+        for v in UsdPhysics.MassAPI(stage.GetPrimAtPath("/World/Door/Door"))
+        .GetDiagonalInertiaAttr()
+        .Get()
     )
     if panel_mass != PANEL_MASS_KG or not np.allclose(
         panel_inertia, cuboid_inertia_kg_m2(dimensions), atol=1e-5
@@ -213,11 +210,10 @@ def _static_gate(slot: dict) -> dict:
 
 
 def _make_env(slot: dict):
-    cfg = DoorPushAlexV2EnvCfg()
-    cfg.seed = 4101
+    cfg = DoorInspectionCfg()
     cfg.sim.device = args.device
-    cfg.door_scene_usd = str(_normalized_path(slot))
-    return gym.make(door_task.DOOR_PUSH_ALEX_V2_ENV_ID, cfg=cfg).unwrapped
+    cfg.door_scene.spawn.usd_path = str(_normalized_path(slot))
+    return DoorInspectionEnv(cfg)
 
 
 def _body_id(env, name: str) -> int:
@@ -229,25 +225,6 @@ def _body_id(env, name: str) -> int:
     if len(matches) != 1:
         raise QualificationError(f"expected one cooked body {name!r}: {env._door.body_names}")
     return matches[0]
-
-
-def _disable_robot_collisions_for_door_gate(env) -> int:
-    stage = env.sim.stage
-    robot_root = stage.GetPrimAtPath("/World/envs/env_0/Alex")
-    if not robot_root.IsValid():
-        raise QualificationError("runtime Alex prim is missing for torque isolation")
-    disabled = 0
-    for prim in Usd.PrimRange(robot_root):
-        if prim.HasAPI(UsdPhysics.CollisionAPI):
-            collision = UsdPhysics.CollisionAPI(prim)
-            attribute = collision.GetCollisionEnabledAttr()
-            if not attribute:
-                attribute = collision.CreateCollisionEnabledAttr()
-            attribute.Set(False)
-            disabled += 1
-    if disabled <= 0:
-        raise QualificationError("torque isolation found no Alex colliders")
-    return disabled
 
 
 def _assert_reset(env) -> tuple[float, float]:
@@ -267,11 +244,10 @@ def _physics_gate(slot: dict) -> dict:
     env = _make_env(slot)
     try:
         initial_angle, initial_speed = _assert_reset(env)
-        disabled_robot_colliders = _disable_robot_collisions_for_door_gate(env)
         door = env._door  # noqa: SLF001
         frame_id = _body_id(env, "Doorframe")
         panel_id = _body_id(env, "Door")
-        frame_pos_0 = _as_torch(door.data.body_pos_w)[0, frame_id].clone()
+        frame_pos_0 = _as_torch(door.data.body_link_pos_w)[0, frame_id].clone()
         control_dt = env.cfg.sim.dt * env.cfg.decimation
         zero = torch.zeros((1, env.cfg.action_space), dtype=torch.float32, device=env.device)
         max_frame_drift = 0.0
@@ -281,13 +257,14 @@ def _physics_gate(slot: dict) -> dict:
             if not torch.isfinite(obs["policy"]).all():
                 raise QualificationError("physics observation contains NaN/Inf")
             angle, speed = env.hinge_state()
-            body_pos = _as_torch(door.data.body_pos_w)
-            body_quat = _as_torch(door.data.body_quat_w)
+            body_pos = _as_torch(door.data.body_link_pos_w)
+            body_quat = _as_torch(door.data.body_link_quat_w)
             if not torch.isfinite(angle).all() or not torch.isfinite(speed).all():
                 raise QualificationError("hinge state contains NaN/Inf")
-            if not torch.isfinite(body_pos[0, panel_id]).all() or not torch.isfinite(
-                body_quat[0, panel_id]
-            ).all():
+            if (
+                not torch.isfinite(body_pos[0, panel_id]).all()
+                or not torch.isfinite(body_quat[0, panel_id]).all()
+            ):
                 raise QualificationError("panel state contains NaN/Inf")
             max_frame_drift = max(
                 max_frame_drift,
@@ -302,7 +279,7 @@ def _physics_gate(slot: dict) -> dict:
         effort = torch.tensor([[TORQUE_NM]], dtype=torch.float32, device=env.device)
         max_angle = 0.0
         for _ in range(180):
-            door.set_joint_effort_target(effort, joint_ids=[env._hinge_joint_id])  # noqa: SLF001
+            door.set_joint_effort_target_index(target=effort, joint_ids=[env._hinge_joint_id])  # noqa: SLF001
             obs, _, _, _, _ = env.step(zero)
             if not torch.isfinite(obs["policy"]).all():
                 raise QualificationError("torque test produced NaN/Inf")
@@ -320,8 +297,7 @@ def _physics_gate(slot: dict) -> dict:
             "passive_duration_s": 120 * control_dt,
             "max_frame_drift_m": max_frame_drift,
             "max_passive_drift_deg": math.degrees(max_passive_drift),
-            "physics_robot_collision_mode": "disabled_for_door_only_gate",
-            "physics_disabled_robot_collider_count": disabled_robot_colliders,
+            "physics_robot_collision_mode": "robot_absent",
             "torque_nm": TORQUE_NM,
             "torque_duration_s": 180 * control_dt,
             "torque_max_angle_deg": math.degrees(max_angle),

@@ -1,6 +1,6 @@
 # Extra 01 — Alex V2 Migration
 
-> Historical phase record. The current benchmark is documented in [[topics/alex-v2-benchmark|Alex V2 Benchmark]].
+> Historical phase record. The historical B0 contract is documented in [[topics/alex-v2-benchmark|Alex V2 Benchmark]].
 
 ## Objective
 

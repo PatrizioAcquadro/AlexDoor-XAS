@@ -1,6 +1,7 @@
 # Learned Policy Stack
 
-AlexDoor-XAS maintains state-only ACT and Diffusion policies for A2 and A3. Both use the same dataset, run, checkpoint, and evaluation boundaries.
+AlexDoor-XAS maintains state-only ACT and Diffusion policies for A2 and A3. They retain historical B0 dataset, training and checkpoint contracts. Purdue
+learned execution and RGB-D model integration remain deferred to Phase 6.
 
 ## Configuration and Data
 
@@ -30,11 +31,11 @@ Optional W&B tracking is disabled by default. When enabled through `WANDB_MODE`,
 
 ## Closed-Loop Evaluation
 
-`scripts/eval_policy.py` accepts a training run's `checkpoints/best.pt`. It identifies the policy from `resolved_config.json`, uses the frozen D0-D4 evaluation protocol unless a complete replacement protocol is supplied, and rejects partial configuration overrides.
-
-Each evaluation creates a new immutable child under the source run's `closed_loop/` directory. The result contains its resolved configuration, factual rollout metrics, one summary plot, one report, and only the traces required by failure, force-limit, or explicit selection. The source training run and checkpoint are not modified.
-
-`scripts/verify_policy_rollout.py` is the focused Isaac gate for checkpoint loading and adapter-v1 execution.
+B0 execution has been retired. `scripts/eval_policy.py` and
+`scripts/verify_policy_rollout.py` now terminate with a migration explanation
+before simulator startup or output allocation. Existing checkpoints still load
+for offline use, and historical closed-loop results remain untouched. They
+cannot be interpreted as Purdue-compatible checkpoints.
 
 ## Limits
 

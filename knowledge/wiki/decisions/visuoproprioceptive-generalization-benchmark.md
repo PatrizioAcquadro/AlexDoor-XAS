@@ -4,7 +4,7 @@
 
 The completed state-only Phase 3 study covered A2/A3, ACT/Diffusion, one door
 family, and one training seed. Its 576 successful rollouts validated the pipeline
-but did not distinguish representations. That historical/current Alex V2 path is
+but did not distinguish representations. That historical Alex V2 path is
 **B0**; its six-joint, translation-only behavior is not the desired B1 contract.
 
 This approved 2026-09-22 decision replaces the former all-in-one Phase 4 plan.

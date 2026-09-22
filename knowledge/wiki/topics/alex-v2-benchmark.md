@@ -1,8 +1,12 @@
 # Alex V2 Benchmark
 
-This page describes the current B0 implementation: simulated door pushing with the fixed-base IHMC Alex V2 torso and a six-joint right-arm controller.
+This page preserves the retired B0 contract for interpreting historical data: simulated door pushing with the fixed-base IHMC Alex V2 torso and a six-joint right-arm controller.
 
-The approved B1 target is Purdue + WSG32/UMI v1 with seven-joint pose control and head RGB-D. It is specified separately in [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]] and is not implemented by changing this documentation.
+The operational successor uses Purdue + WSG32/UMI v1 with seven-joint pose control and head RGB-D: [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]].
+
+B0 execution was retired in Subphase 4.0. The current runtime is documented in
+[[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]].
+The behavior below is historical, not an available simulator workflow.
 
 ## Asset and Calibration
 
@@ -10,7 +14,7 @@ The external `~/Desktop/Alex` repository owns the Alex V2 URDF and the generic `
 
 `configs/alex_v2_door.json` is the only active calibration. It defines the task and robot identities, base pose, six initial right-arm joints, operational tool frame, reach shell, control parameters, and randomization bounds. There is no separate calibration-authoring workflow.
 
-`src/alexdoor_xas/assets/alex_v2_contract.py` and the benchmark gate validate the external asset, fixed-base identity, joint order, tool frame, and runtime manifest.
+`src/alexdoor_xas/assets/alex_v2_contract.py` validates the external asset, fixed-base identity, joint order, tool frame, and runtime manifest.
 
 ## Canonical Door Scenes
 
@@ -36,7 +40,9 @@ Success is the first 45-degree hinge crossing. Each runtime snapshot reads the r
 
 ## Verification
 
-`scripts/verify_benchmark_scene.py` checks the external robot, canonical door dependencies and dynamics, runtime joint order, reset state, and zero-action stability. Calibration changes also require the maintained scripted-baseline and adapter gates.
+Historical manifest, calibration and dataset/checkpoint readers retain software
+regressions. B0 GPU execution gates were retired; benchmark/adapter verification
+now routes to the Purdue operational gate. No fresh B0 simulation result is claimed.
 
 ## Limits
 

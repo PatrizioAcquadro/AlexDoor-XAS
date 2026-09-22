@@ -2,43 +2,47 @@
 
 AlexDoor-XAS changes the action representation while holding the robot, task, physical episode, and evaluation protocol fixed.
 
-The behavior below is the current B0 implementation. The approved B1 contracts
-in [[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]]
-require seven joint deltas for A1, actual 6D pose execution for A2/A3 through all
-seven arm joints, and complete learned A4 sequences. Phase 4 supplies the new
-low-level executor; Phase 6 completes every learned path. The old ignored-rotation
-behavior is a migration requirement, not acceptable B1 execution.
+Purdue now provides the low-level A1/A2/A3 executor. Phase 6 still owns learned
+A1–A4 integration, estimated object frames, and observations. Historical B0
+adapters/export structures remain readable; they are not the Purdue policy path.
 
 ## Canonical Representations
 
 | Tag | Meaning | Frame and form | Current use |
 |---|---|---|---|
-| `A1_joint_delta` | Joint-target delta | Robot joint coordinates | Matched export and interface verification only |
-| `A2_ee_delta` | End-effector delta | World-frame 6D delta | Scripted and learned execution currency |
-| `A3_obj_rel_ee_delta` | Object-relative end-effector delta | Static hinge-anchored door-frame 6D delta | Scripted and learned; transformed to A2 |
-| `A4_obj_centric_chunk` | Object-centric contact-intent chunk | Contact targets in the moving panel frame | Matched export and guarded adapter execution |
+| `A1_joint_delta` | Joint-target delta | Robot joint coordinates | Seven-joint Purdue execution; historical exports |
+| `A2_ee_delta` | End-effector delta | World-frame 6D delta | Full-pose Purdue execution; historical models |
+| `A3_obj_rel_ee_delta` | Object-relative end-effector delta | Static hinge-anchored door-frame 6D delta | Supplied-frame transform to full-pose A2 |
+| `A4_obj_centric_chunk` | Object-centric contact-intent chunk | Contact targets in the moving panel frame | Historical export/adapter structures; B1 execution deferred |
 
 Frames are Z-up, distances are meters, angles are radians, and quaternions use `(x, y, z, w)`. The A3 frame is fixed at the hinge with +Z along the hinge axis. A4 contact targets move with the panel.
 
-## Adapter Boundary
+## Purdue Execution Boundary
 
-`AdapterDecision` records whether a request was accepted, corrected, or rejected, along with the applied action and structured warnings. Corrections therefore remain visible to evaluation and replay.
+A1 uses seven deltas in the right-arm order defined by the
+[[topics/purdue-b1-robot-and-contact|robot contract]]. A2 uses six world-frame
+translation/axis-angle deltas; both position and orientation are actuated through
+the offset tool Jacobian. Damped IK includes deterministic nullspace joint
+centering. Physical position limits and command-to-command velocity limits are
+applied, with clamp and pose-error telemetry.
 
-- A2 validates shape and finiteness, clamps translation and rotation, enforces workspace and joint-related limits, and shapes contact entry.
-- A3 validates the supplied door frame, rotates the request into world coordinates, and delegates to A2. Invalid or reflected frames fail closed.
-- A4 executes guarded approach, contact, and push stages through A3 and A2. Invalid chunks, stalls, timeouts, and simulator stops terminate the stage sequence explicitly.
+A3's `step_a3(delta, frame)` rotates both vectors and executes A2. The frame must
+be explicitly supplied and a proper finite rotation. It does not read the door,
+cache simulator geometry, or impose a panel-derived orientation. A qualification
+expert may later supply truth; a learned policy must obtain its frame through
+the Phase 6 observation/perception boundary.
 
-There is no learned A1 adapter and no learned A4 policy.
-
-## Alex V2 Execution
-
-The Alex V2 runtime consumes applied A2 translation through six-joint position-only differential IK at the collision-derived tool point. A2/A3 rotational values remain represented, validated, clamped, and recorded but are not commanded.
-
-`src/alexdoor_xas/adapters/rollout.py` is the learned-policy execution boundary. It validates state, stops on simulator termination or truncation, preserves the last pre-reset terminal state, caches static door-pose terms after reset, and keeps each rollout's decisions isolated.
+The historical `AdapterDecision`, rollout and A4 data structures remain tested,
+but the old B0 simulator and calibrated scripted preset have been retired.
+There is no connected B1 learned adapter or A4 execution path yet.
 
 ## Contact and Force Semantics
 
-Task force comes from raw PhysX GPU contacts selected by the exact door actor ID. Pre-action contact belongs to the recorded step; terminal contact records the response to the final action. The runtime never silently substitutes aggregate gripper force or a geometric estimate.
+Purdue reports each physics substep's contact diagnostics separately from RGB-D
+observations. Only the authorized distal surfaces against an exact panel body
+are valid push contacts; lateral/mount, frame, handle, other robot and pedestal
+contacts are forbidden. Structural support pairs are explicit. Forces are
+normal-only. See the robot contract for geometry and approximation limits.
 
 ## Matched Comparison
 
@@ -55,5 +59,7 @@ This controls major task-distribution confounds but does not prove that represen
 - `tests/test_adapters.py`
 
 ## Version Notes
+
+- 2026-09-22 — Added operational seven-joint A1 and full-pose A2/A3; retained historical adapters without claiming B1 learned integration.
 
 - 2026-08-13 — Reduced the topic to the four active representation contracts and their maintained adapter/runtime behavior.

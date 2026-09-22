@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import builtins
 import hashlib
 import importlib
 import importlib.util
@@ -14,7 +13,6 @@ from types import SimpleNamespace
 import pytest
 
 from alexdoor_xas import paths
-from alexdoor_xas.assets import alex_v2 as alex_v2_loader
 from alexdoor_xas.assets.alex_v2_contract import (
     DOOR_NON_RIGHT_ARM_DAMPING_SCALE,
     DOOR_RIGHT_ARM_ACTUATOR_NAME,
@@ -143,156 +141,6 @@ def test_fixed_base_runtime_has_a_distinct_verified_identity() -> None:
     forged_gain["runtime_variant"]["right_arm_pd"]["ordered_gains"][3]["damping"] = 39.0
     with pytest.raises(AlexV2ContractError, match="canonical static-asset variant"):
         validate_alex_v2_manifest(forged_gain)
-
-
-def _install_fake_v2_factory(monkeypatch, tmp_path, cfg):
-    asset_path = tmp_path / "alex-v2.urdf"
-    cfg.spawn.asset_path = str(asset_path)
-    factory_calls = []
-
-    def factory(path, *, fix_base, variant):
-        factory_calls.append((path, fix_base, variant))
-        return cfg
-
-    asset = SimpleNamespace(urdf_path=asset_path)
-    monkeypatch.setattr(
-        alex_v2_loader,
-        "build_alex_v2_door_asset",
-        lambda **_kwargs: (asset, None),
-    )
-    real_import = builtins.__import__
-
-    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "ihmc_alex_isaaclab.robots.alex_v2":
-            return SimpleNamespace(make_alex_v2_cfg=factory)
-        return real_import(name, globals, locals, fromlist, level)
-
-    monkeypatch.setattr(builtins, "__import__", fake_import)
-    return factory_calls
-
-
-def _fake_shared_arms_actuator():
-    expressions = (
-        ".*SHOULDER_Y",
-        ".*SHOULDER_X",
-        ".*SHOULDER_Z",
-        ".*ELBOW_Y",
-        ".*WRIST_Z",
-        ".*WRIST_X",
-        ".*GRIPPER_Z",
-    )
-    return SimpleNamespace(
-        joint_names_expr=list(expressions),
-        stiffness={expression: 5.0 + index for index, expression in enumerate(expressions)},
-        damping={expression: 1.0 + index for index, expression in enumerate(expressions)},
-        velocity_limit_sim={
-            expression: 4.47 + index for index, expression in enumerate(expressions)
-        },
-        effort_limit_sim={
-            expression: 20.86 + index for index, expression in enumerate(expressions)
-        },
-        armature={expression: 0.01 for expression in expressions},
-        effort_limit=None,
-        velocity_limit=None,
-        friction=None,
-        dynamic_friction=None,
-        viscous_friction=None,
-    )
-
-
-def test_v2_loader_applies_production_damping_once_and_keeps_self_collision(
-    monkeypatch, tmp_path
-) -> None:
-    cfg = SimpleNamespace(
-        spawn=SimpleNamespace(
-            asset_path="",
-            self_collision=True,
-            articulation_props=SimpleNamespace(enabled_self_collisions=True),
-        ),
-        actuators={
-            "legs": SimpleNamespace(damping={".*HIP_X": 8.0, ".*KNEE_Y": 10.0}),
-            "arms": _fake_shared_arms_actuator(),
-        },
-    )
-    factory_calls = _install_fake_v2_factory(monkeypatch, tmp_path, cfg)
-
-    loaded = alex_v2_loader.load_alex_v2_articulation_cfg()
-
-    assert factory_calls == [(str(tmp_path / "alex-v2.urdf"), True, "standard")]
-    assert loaded.spawn.self_collision is True
-    assert loaded.spawn.articulation_props.enabled_self_collisions is True
-    assert loaded.actuators["legs"].damping == {
-        ".*HIP_X": 20.0,
-        ".*KNEE_Y": 25.0,
-    }
-    assert loaded.actuators["arms"].joint_names_expr == [
-        "LEFT_SHOULDER_Y",
-        "LEFT_SHOULDER_X",
-        "LEFT_SHOULDER_Z",
-        "LEFT_ELBOW_Y",
-        "LEFT_WRIST_Z",
-        "LEFT_WRIST_X",
-        "LEFT_GRIPPER_Z",
-        "RIGHT_GRIPPER_Z",
-    ]
-    assert loaded.actuators["arms"].damping == {
-        expression: (1.0 + index) * 2.5
-        for index, expression in enumerate(
-            (
-                ".*SHOULDER_Y",
-                ".*SHOULDER_X",
-                ".*SHOULDER_Z",
-                ".*ELBOW_Y",
-                ".*WRIST_Z",
-                ".*WRIST_X",
-                ".*GRIPPER_Z",
-            )
-        )
-    }
-    right_arm = loaded.actuators[DOOR_RIGHT_ARM_ACTUATOR_NAME]
-    assert tuple(right_arm.joint_names_expr) == tuple(item[0] for item in DOOR_RIGHT_ARM_PD_GAINS)
-    assert right_arm.stiffness == {
-        joint_name: stiffness for joint_name, stiffness, _damping in DOOR_RIGHT_ARM_PD_GAINS
-    }
-    assert right_arm.damping == {
-        joint_name: damping for joint_name, _stiffness, damping in DOOR_RIGHT_ARM_PD_GAINS
-    }
-    assert tuple(right_arm.velocity_limit_sim) == tuple(right_arm.joint_names_expr)
-    assert tuple(right_arm.effort_limit_sim) == tuple(right_arm.joint_names_expr)
-    assert tuple(right_arm.armature) == tuple(right_arm.joint_names_expr)
-
-
-@pytest.mark.parametrize(
-    ("spawn_self_collision", "root_self_collision", "damping", "error"),
-    [
-        (False, True, {".*HIP_X": 8.0}, "URDF self-collision enabled"),
-        (True, False, {".*HIP_X": 8.0}, "articulation self-collision enabled"),
-        (True, True, 8.0, "damping must be a non-empty mapping"),
-    ],
-)
-def test_v2_loader_rejects_disabled_self_collision_or_scalar_damping(
-    monkeypatch,
-    tmp_path,
-    spawn_self_collision,
-    root_self_collision,
-    damping,
-    error,
-) -> None:
-    cfg = SimpleNamespace(
-        spawn=SimpleNamespace(
-            asset_path="",
-            self_collision=spawn_self_collision,
-            articulation_props=SimpleNamespace(enabled_self_collisions=root_self_collision),
-        ),
-        actuators={
-            "legs": SimpleNamespace(damping=damping),
-            "arms": _fake_shared_arms_actuator(),
-        },
-    )
-    _install_fake_v2_factory(monkeypatch, tmp_path, cfg)
-
-    with pytest.raises((TypeError, ValueError), match=error):
-        alex_v2_loader.load_alex_v2_articulation_cfg()
 
 
 def test_v2_dataset_payload_embeds_and_revalidates_full_manifest(tmp_path) -> None:
@@ -430,12 +278,12 @@ def _check_env_module():
 def test_alex_v2_factory_check_fails_loudly_with_install_action(tmp_path) -> None:
     check_env = _check_env_module()
 
-    failure = check_env._alex_v2_module_failure(
+    failure = check_env._purdue_module_failure(
         find_spec=lambda _name: None,
         module_file=tmp_path / "missing" / "alex_v2.py",
     )
 
-    assert "ihmc_alex_isaaclab.robots.alex_v2 is not the installed external package" in failure
+    assert "ihmc_alex_isaaclab.robots.alex_purdue is not the installed external package" in failure
     assert "pip install -e" in failure
     assert "/Desktop/Alex" in failure
 
@@ -444,7 +292,7 @@ def test_alex_v2_factory_check_accepts_discoverable_module(tmp_path) -> None:
     check_env = _check_env_module()
     module_file = tmp_path / "alex_v2.py"
 
-    failure = check_env._alex_v2_module_failure(
+    failure = check_env._purdue_module_failure(
         find_spec=lambda _name: SimpleNamespace(origin=str(module_file)),
         module_file=module_file,
     )
