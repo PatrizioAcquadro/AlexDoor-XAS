@@ -101,15 +101,13 @@ class DoorPushAlexV2Env(DirectRLEnv):
         calibration = load_alex_v2_door_calibration(cfg.calibration_path)
         _validate_tool_frame(asset.manifest, calibration)
         _configure_robot(cfg, calibration)
-        if cfg.qualification_scene_usd is None:
+        if cfg.door_scene_usd is None:
             cfg.door_scene.spawn.usd_path = str(ensure_door_scene_usd(cfg.door_pose_id))
         else:
-            qualification_scene = Path(cfg.qualification_scene_usd).expanduser().resolve()
-            if not qualification_scene.is_file():
-                raise FileNotFoundError(
-                    f"qualification door scene USD not found: {qualification_scene}"
-                )
-            cfg.door_scene.spawn.usd_path = str(qualification_scene)
+            door_scene = Path(cfg.door_scene_usd).expanduser().resolve()
+            if not door_scene.is_file():
+                raise FileNotFoundError(f"door scene USD not found: {door_scene}")
+            cfg.door_scene.spawn.usd_path = str(door_scene)
 
         self._calibration = calibration
         self._robot_asset = runtime_asset

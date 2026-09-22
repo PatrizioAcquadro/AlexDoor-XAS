@@ -18,6 +18,10 @@ qualification. These integrations have not been implemented here.
 
 Generic Alex V2 asset construction comes from the external `ihmc_alex_isaaclab` package. Door-specific calibration, scene composition, control, contact selection, and task semantics remain in this repository.
 
+The optional `door_scene_usd` override loads a diagnostic USD with the same B0
+prim/body contract; the default remains the canonical D0–D4 scene selection.
+Retained legacy preparation tools and their limits are listed in [[status|Project Status]].
+
 No generic robot runtime, surrogate robot, sensorless path, multi-environment path, or alternate simulator task is maintained.
 
 ## Data Path

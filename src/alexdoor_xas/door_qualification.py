@@ -1,11 +1,13 @@
-"""Pure contracts and measurements for Phase 4.1 door qualification."""
+"""Reusable door preparation contracts and raw angle measurements.
+
+These helpers do not implement B1 expert qualification or corpus completion.
+"""
 
 from __future__ import annotations
 
 import hashlib
 import json
 import math
-from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -13,7 +15,6 @@ from typing import Any, Literal
 
 import numpy as np
 
-SCHEMA = "alexdoor.phase4_1_assets.v1"
 ACCEPTED_LICENSES = {"CC0-1.0", "CC-BY-4.0"}
 HANDEDNESSES = {"left", "right"}
 SOURCE_FORMAT_PRIORITY = ("usd", "usdz", "glb", "gltf", "blend", "fbx", "obj")
@@ -32,15 +33,10 @@ HINGE_DAMPING_NM_S_RAD = 4.0
 HINGE_LIMIT_DEG = (0.0, 90.0)
 FRICTION = 0.5
 RESTITUTION = 0.0
-SUSTAIN_TICKS = 30
-OPEN_ANGLE_DEG = 45.0
-REPEAT_SUSTAINED_TOL_DEG = 2.0
-REPEAT_CURVE_TOL_DEG = 3.0
-FORCE_LIMIT_N = 200.0
 
 
 class QualificationError(ValueError):
-    """A candidate, result, or manifest violates the frozen Phase 4.1 contract."""
+    """A door preparation input or measurement is invalid."""
 
 
 @dataclass(frozen=True)
@@ -89,12 +85,6 @@ def sha256_file(path: str | Path) -> str:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
-
-
-def canonical_sha256(value: Any) -> str:
-    """Hash a JSON-compatible value using a stable byte representation."""
-    payload = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
-    return hashlib.sha256(payload.encode()).hexdigest()
 
 
 def cuboid_inertia_kg_m2(
@@ -273,9 +263,13 @@ def connected_mesh_face_components(
 
 
 def maximum_sustained_angle_deg(
-    angles_rad: Sequence[float], window_ticks: int = SUSTAIN_TICKS
+    angles_rad: Sequence[float], window_ticks: int
 ) -> float:
-    """Compute ``max(min(window))`` for a fixed-width angle trace."""
+    """Compute raw ``max(min(window))``; the caller supplies the sampling window.
+
+    This does not check controlled contact, timing, safety, or release and cannot
+    establish a B1 expert reference on its own.
+    """
     values = np.degrees(np.asarray(angles_rad, dtype=np.float64).reshape(-1))
     if window_ticks <= 0:
         raise QualificationError("sustained-angle window must be positive")
@@ -287,115 +281,10 @@ def maximum_sustained_angle_deg(
     return float(np.max(minima))
 
 
-def align_angle_curves_deg(
-    first_rad: Sequence[float], second_rad: Sequence[float]
-) -> tuple[np.ndarray, np.ndarray]:
-    """Align 60 Hz traces and hold the last valid sample of the shorter trace."""
-    first = np.degrees(np.asarray(first_rad, dtype=np.float64).reshape(-1))
-    second = np.degrees(np.asarray(second_rad, dtype=np.float64).reshape(-1))
-    if not len(first) or not len(second):
-        raise QualificationError("repeatability traces must not be empty")
-    if not np.isfinite(first).all() or not np.isfinite(second).all():
-        raise QualificationError("repeatability traces must be finite")
-    size = max(len(first), len(second))
-    return (
-        np.pad(first, (0, size - len(first)), constant_values=first[-1]),
-        np.pad(second, (0, size - len(second)), constant_values=second[-1]),
-    )
-
-
-def repeatability_metrics(first: Mapping[str, Any], second: Mapping[str, Any]) -> dict[str, Any]:
-    """Compare the required clean rollout pair."""
-    first_curve, second_curve = align_angle_curves_deg(
-        first["angle_curve_rad"], second["angle_curve_rad"]
-    )
-    sustained_a = maximum_sustained_angle_deg(first["angle_curve_rad"])
-    sustained_b = maximum_sustained_angle_deg(second["angle_curve_rad"])
-    same_outcome = bool(first["passed"]) == bool(second["passed"])
-    same_termination = first["termination"] == second["termination"]
-    sustained_diff = abs(sustained_a - sustained_b)
-    curve_error = float(np.max(np.abs(first_curve - second_curve)))
-    passed = (
-        same_outcome
-        and same_termination
-        and sustained_diff <= REPEAT_SUSTAINED_TOL_DEG
-        and curve_error <= REPEAT_CURVE_TOL_DEG
-    )
-    return {
-        "passed": passed,
-        "same_outcome": same_outcome,
-        "same_termination": same_termination,
-        "first_max_sustained_deg": sustained_a,
-        "second_max_sustained_deg": sustained_b,
-        "max_sustained_difference_deg": sustained_diff,
-        "max_time_aligned_curve_error_deg": curve_error,
-        "alignment_hz": 60,
-        "shorter_trace_extension": "last_valid_angle",
-    }
-
-
-def validate_diagnostic_count(pair_passed: bool, diagnostic_rollouts: Sequence[Any]) -> None:
-    """Require no diagnostics after a passing pair and exactly three after a failed pair."""
-    expected = 0 if pair_passed else 3
-    if len(diagnostic_rollouts) != expected:
-        raise QualificationError(
-            f"repeatability pair passed={pair_passed} requires {expected} diagnostics, "
-            f"got {len(diagnostic_rollouts)}"
-        )
-
-
-def bootstrap_n_qual(
-    per_door_maxima_deg: Mapping[str, Sequence[float]],
-    *,
-    seed: int = 4101,
-    replicas: int = 10_000,
-    candidates: range = range(10, 201),
-    error_limit_deg: float = 2.0,
-) -> dict[str, Any]:
-    """Choose the smallest common sample count meeting the frozen q10 error rule."""
-    if seed != 4101 or replicas != 10_000:
-        raise QualificationError("Phase 4.1 bootstrap requires seed 4101 and 10,000 replicas")
-    observations: dict[str, np.ndarray] = {}
-    for door_id, values in sorted(per_door_maxima_deg.items()):
-        sample = np.asarray(values, dtype=np.float64).reshape(-1)
-        if len(sample) < 2 or not np.isfinite(sample).all():
-            raise QualificationError(f"{door_id} needs at least two finite rollout maxima")
-        observations[door_id] = sample
-    if not observations:
-        raise QualificationError("bootstrap requires at least one door")
-
-    rng = np.random.default_rng(seed)
-    error_by_n: dict[str, float] = {}
-    selected: int | None = None
-    for n in candidates:
-        errors: list[np.ndarray] = []
-        for values in observations.values():
-            truth = float(np.quantile(values, 0.10, method="linear"))
-            indices = rng.integers(0, len(values), size=(replicas, n))
-            estimates = np.quantile(values[indices], 0.10, axis=1, method="linear")
-            errors.append(np.abs(estimates - truth))
-        p95 = float(np.quantile(np.concatenate(errors), 0.95, method="higher"))
-        error_by_n[str(n)] = p95
-        if selected is None and p95 <= error_limit_deg:
-            selected = n
-            break
-    if selected is None:
-        raise QualificationError("no n_qual in 10..200 meets the 2 degree bootstrap rule")
-    return {
-        "recommended_n_qual": selected,
-        "seed": seed,
-        "replicas": replicas,
-        "quantile": 0.10,
-        "confidence_quantile": 0.95,
-        "absolute_error_limit_deg": error_limit_deg,
-        "p95_absolute_error_deg_by_n": error_by_n,
-    }
-
-
 def validate_remote_candidate(
     record: Mapping[str, Any], accepted: Sequence[Mapping[str, Any]] = ()
 ) -> None:
-    """Apply every frozen pre-download gate represented by the worklist schema."""
+    """Check supplied candidate metadata; this does not verify remote license evidence."""
     required = {
         "slot",
         "source_url",
@@ -460,57 +349,6 @@ def validate_remote_candidate(
         raise QualificationError("source UID/URL duplicates an accepted candidate")
 
 
-def validate_manifest(data: Mapping[str, Any], *, require_complete: bool = True) -> None:
-    """Validate the tracked Phase 4.1 manifest and its completion gate."""
-    if data.get("schema") != SCHEMA:
-        raise QualificationError(f"manifest schema must be {SCHEMA!r}")
-    records = data.get("assets")
-    if not isinstance(records, list):
-        raise QualificationError("manifest assets must be a list")
-    if require_complete and len(records) != 24:
-        raise QualificationError(f"complete manifest needs exactly 24 assets, got {len(records)}")
-    uids: set[str] = set()
-    urls: set[str] = set()
-    fingerprints: set[str] = set()
-    handedness: Counter[str] = Counter()
-    forbidden_split_keys = {"split", "train", "development", "dev", "test", "theta_primary"}
-    for index, record in enumerate(records):
-        overlap = forbidden_split_keys & record.keys()
-        if overlap:
-            raise QualificationError(f"asset {index} contains Subphase 4.2 fields: {overlap}")
-        validate_remote_candidate(record)
-        DoorDimensions.from_mapping(record["normalized"]["dimensions_m"])
-        if int(record["normalized"]["triangles"]) > MAX_TRIANGLES:
-            raise QualificationError(f"asset {index} exceeds the triangle limit")
-        if int(record["normalized"]["texture_max_px"]) > MAX_TEXTURE_EDGE_PX:
-            raise QualificationError(f"asset {index} exceeds the texture limit")
-        for key, values in (
-            ("source_uid", uids),
-            ("source_url", urls),
-            ("geometry_fingerprint", fingerprints),
-        ):
-            value = str(record[key])
-            if value in values:
-                raise QualificationError(f"duplicate {key}: {value}")
-            values.add(value)
-        handedness[str(record["handedness"])] += 1
-        if require_complete:
-            for gate in ("static", "physics", "nominal", "repeatability"):
-                if record["qualification"][gate].get("passed") is not True:
-                    raise QualificationError(f"asset {index} has not passed {gate}")
-            if record.get("final_status") != "provisional_for_phase4_2":
-                raise QualificationError(f"asset {index} has invalid final status")
-            for digest_field in ("source_sha256", "geometry_fingerprint", "evidence_sha256"):
-                if len(str(record[digest_field])) != 64:
-                    raise QualificationError(f"asset {index} has invalid {digest_field}")
-    if require_complete and handedness != Counter({"left": 12, "right": 12}):
-        raise QualificationError(f"handedness must be 12/12, got {dict(handedness)}")
-    if require_complete:
-        recommendation = data.get("n_qual_recommendation", {})
-        if not 10 <= int(recommendation.get("recommended_n_qual", 0)) <= 200:
-            raise QualificationError("manifest lacks one valid n_qual recommendation")
-
-
 def load_json(path: str | Path) -> Any:
     return json.loads(Path(path).read_text())
 
@@ -530,21 +368,13 @@ def handedness_sign(handedness: Literal["left", "right"] | str) -> float:
 __all__ = [
     "ACCEPTED_LICENSES",
     "DoorDimensions",
-    "FORCE_LIMIT_N",
     "QualificationError",
-    "SCHEMA",
-    "align_angle_curves_deg",
-    "bootstrap_n_qual",
-    "canonical_sha256",
     "cuboid_inertia_kg_m2",
     "dump_json",
     "geometry_fingerprint",
     "handedness_sign",
     "load_json",
     "maximum_sustained_angle_deg",
-    "repeatability_metrics",
     "sha256_file",
-    "validate_manifest",
-    "validate_diagnostic_count",
     "validate_remote_candidate",
 ]

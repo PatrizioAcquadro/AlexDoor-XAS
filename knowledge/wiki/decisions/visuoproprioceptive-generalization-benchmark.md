@@ -8,9 +8,9 @@ but did not distinguish representations. That historical/current Alex V2 path is
 **B0**; its six-joint, translation-only behavior is not the desired B1 contract.
 
 This approved 2026-09-22 decision replaces the former all-in-one Phase 4 plan.
-It defines **B1** across Phases 4–7. It does not claim implementation: obsolete
-qualification infrastructure exists locally and requires a separate consumer-safe
-review before Phase 4. No new phase was executed for this documentation revision.
+It defines **B1** across Phases 4–7 without claiming implementation. The separate
+preparatory code audit is recorded in [[status|Project Status]]; it does not
+implement or execute any revised phase.
 
 ## Scientific Question
 

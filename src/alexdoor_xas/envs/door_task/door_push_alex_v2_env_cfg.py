@@ -97,4 +97,5 @@ class DoorPushAlexV2EnvCfg(DirectRLEnvCfg):
     max_pos_delta_m = 0.02
     max_rot_delta_rad = 0.05
     door_pose_id: str = "D0"
-    qualification_scene_usd: str | None = None
+    # Diagnostic override; must preserve the B0 scene prim/body contract.
+    door_scene_usd: str | None = None

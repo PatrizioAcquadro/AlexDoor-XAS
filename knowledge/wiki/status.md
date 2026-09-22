@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-09-22; documentation/source inspection only, with no fresh runtime validation. Code, configurations, and deterministic tests define executable behavior. This page describes only the maintained repository; completed research is summarized separately as historical evidence.
+Current as of 2026-09-22; preparatory cleanup, software tests, and dependency/CUDA preflight only, with no fresh simulation validation. Code, configurations, and deterministic tests define executable behavior. This page describes only the maintained repository; completed research is summarized separately as historical evidence.
 
 ## Current B0 System
 
@@ -43,21 +43,87 @@ owns metrics and information boundaries. The
 [[topics/purdue-b1-robot-and-contact|robot/contact contract]] records local source
 facts and planned choices. No revised phase has been implemented or executed.
 
-## Superseded Local Infrastructure and Next Action
+## Pre-B1 Cleanup and Phase 4 Entry
 
-At the documentation baseline, `main` was three commits ahead of the local
-`origin/main` reference: `73ff306` (old plan), `6d74789` (old Phase 4.1 qualification
-tooling), and `30b2e46` (Alex package contract). The tooling includes
-`src/alexdoor_xas/door_qualification.py`, the three `phase4_1` preparation,
-normalization, and verification scripts, tests, and runtime overrides. Its
-existence is not evidence of a completed corpus or the revised robot setup.
+Audited `73ff306`, `6d74789`, and `30b2e46` against the approved plan at
+`5ccf95c`. The tracked working tree was clean; `main` was the only local branch.
+The revised Phase 4–7 pages and scientific requirements are preserved.
 
-Next, separately audit those changes and their consumers against the new plan.
-Retain reusable normalization/static/physics/measurement capabilities where
-justified; remove or isolate superseded qualification-count/bootstrap and
-shared-angle orchestration. Preserve still-needed Alex package compatibility.
-Do not blanket-revert the commits, rewrite history, or implement Phase 4 as part
-of that cleanup. The 2026-09-22 update changes documentation only.
+| Local change | Audit outcome |
+|---|---|
+| `73ff306` old acquisition plan | Already superseded by the approved documentation; no revert. |
+| `6d74789` door tooling | Keep reusable preparation and measurements; remove the old expert/corpus protocol. |
+| `30b2e46` Alex contract | Keep package discovery/install path, asset root, URDF identity, and runtime fingerprint. They match the installed external Alex package and current B0 consumers. |
+
+Retained capabilities:
+
+- `src/alexdoor_xas/door_qualification.py` retains dimensions/inertia, bounded
+  connected-component discovery and seam welding, geometry duplicate screening,
+  metadata checks, file checksums, handedness, and raw sustained-angle measurement.
+  The latter now requires an explicit sampling window; it does not establish
+  controlled-contact validity or a B1 expert reference.
+- `scripts/prepare_phase4_1_assets.py` retains only `init`, `gate`, and copy-only
+  `ingest`, because the normalization and checking scripts consume its worklist.
+  Metadata checks do not independently verify license evidence. The old slot
+  format and paths remain local intermediate formats, not a B1 manifest.
+- `scripts/normalize_phase4_1_door.py` retains mesh inspection/separation, recipe
+  transforms, material conversion, and legacy USD authoring.
+- `scripts/verify_phase4_1_doors.py` retains only `static` and `physics`: canonical
+  structure checks, reset/drift checks, and isolated torque measurements. The
+  torque sweep no longer requires an arbitrary 80-degree opening or reports an
+  unmeasured zero penetration. Durations derive from the environment cadence;
+  torque hinge state must be finite. Results explicitly identify their limited scope.
+- The diagnostic scene override is now `door_scene_usd`; its sole script consumer
+  and configuration test were updated. Default D0–D4 behavior is unchanged.
+  The existing left/right scripted geometry and its tests remain reusable.
+
+Removed the old nominal/repeatability rollout orchestration, hard-coded
+zero-or-three diagnostics, time-aligned curve acceptance, bootstrap/adaptive
+`n_qual`, old manifest completion rules/finalizer, and their protocol-specific
+tests. Removed destructive rejection cleanup, the unused rejection ledger writer,
+source-moving/browser-ingest workaround, and final workspace orchestration.
+No retained consumer references these removed APIs or commands.
+
+The B0 controller's 50-degree target and existing success/adapter semantics remain:
+current generation, recording, and evaluation consume them. Removing those would
+implement part of the B1 migration, outside this cleanup. No new B1 qualifier,
+split, expert normalization, or controller was added.
+
+### Cleanup Validation
+
+`ruff check .`, syntax compilation, CLI help/retired-command checks, and
+`git diff --check` pass. Two focused pytest runs passed: 50 tests for geometry,
+scripted behavior, Alex/environment contracts, and B0 scene assets; then 125 for
+updated preparation/source-preservation checks, documentation, data engine,
+adapters, recording, and rollout consumers. These runs overlap in preparation
+tests; they are not a full-suite or simulation claim. Wiki links/index coverage
+pass. No model training, Kit simulation, or Phase 4–7 gate was executed.
+
+### Retained Limits and Next Action
+
+The retained scripts are **legacy preparation components, not Phase 5 readiness**.
+Their authoring still assumes the B0 anchor, simple panel/jamb/header collision
+boxes, non-colliding handles, 0–90-degree stops, and the old mass/damping template.
+The static checks enforce that legacy format. The physics check disables robot
+collisions for a door-only measurement; it does not measure penetration or prove
+collision-consistent opening, robot reachability, contact validity, or safe release.
+Conversion coverage, dependency handling, and preservation of source geometry
+still need the Phase 5.0 validation specified in the approved plan.
+
+The existing ignored worklist is empty. Its rejection ledger and all local asset
+storage were preserved; no assets were downloaded, normalized, deleted, or simulated.
+
+Dependency/CUDA preflight passes on the host RTX 4090. The sandbox alone initially
+hid CUDA; no CPU fallback was used. The launcher still warns about missing
+`setup_conda_env.sh`, while its actual Python, pinned Isaac provenance, asset paths,
+and Alex module checks pass. No confirmed dependency blocker to beginning Phase 4
+was found; simulator startup and physical integration have not been revalidated.
+
+Next is the separately authorized Phase 4.0 integration and GPU validation of
+Purdue/WSG, seven-joint pose control, contact ownership, pedestal, and synchronized
+head RGB-D. Phase 4.1 then selects the common setup on synthetics. The retained
+legacy geometry limitations belong to later Phase 5.0; missing candidate URLs do
+not block Phase 4 or the Phase 5 infrastructure milestone.
 
 ## Maintained Entry Points
 
@@ -99,7 +165,7 @@ One deterministic fake environment remains for software tests. It mirrors the pr
 
 ## Boundaries
 
-- Revised Phases 4–7 and VLA work have not started; superseded local qualification tooling exists as described above.
+- Revised Phases 4–7 and VLA work have not started; only the audited legacy preparation components described above remain.
 - Learned policies are state-only; image and language inputs are absent.
 - Results cover one simulated door family and seed-0 training.
 - Simulator success and force measurements do not establish hardware safety, sim-to-real readiness, or broader generalization.
@@ -109,6 +175,8 @@ Implementation of the revised B1 plan has not started. Physical-robot,
 sim-to-real, VLA, and later articulated-object work remain separately scoped.
 
 ## Version Notes
+
+- 2026-09-22 — Audited the three pre-revision commits, removed the superseded qualification protocol, and retained scoped preparation components and Alex compatibility.
 
 - 2026-09-22 — Reduced the plan to nine subphases and made Phase 5.0 infrastructure readiness precede sequential user-provided URLs.
 

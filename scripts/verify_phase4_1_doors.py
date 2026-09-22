@@ -1,14 +1,10 @@
 #!/usr/bin/env python
-"""Run Phase 4.1 static, GPU physics, rollout, repeatability, and manifest gates.
+"""Inspect legacy normalized USDs and measure isolated door physics.
 
-Examples::
-
-    PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p \
-      scripts/verify_phase4_1_doors.py static --all --viz none --device cuda:0
-    PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p \
-      scripts/verify_phase4_1_doors.py physics --slot 1 --viz none --device cuda:0
-    PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p \
-      scripts/verify_phase4_1_doors.py repeatability --all --viz none --device cuda:0
+Retained commands: static, physics. Requires a legacy slot worklist and the
+B0 runtime. These limited checks are not B1 preparation or expert qualification:
+canonical box proxies, fixed nominal physics, and non-colliding handles remain.
+No penetration measurement or collision-consistent opening claim is provided.
 """
 
 from __future__ import annotations
@@ -18,15 +14,13 @@ import math
 import os
 import sys
 import traceback
-from dataclasses import replace
-from datetime import UTC, date, datetime
 from pathlib import Path
 
 from isaaclab.app import AppLauncher
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument(
-    "command", choices=("static", "physics", "repeatability", "all", "finalize-manifest")
+    "command", choices=("static", "physics")
 )
 selection = parser.add_mutually_exclusive_group(required=False)
 selection.add_argument("--slot", type=int)
@@ -47,41 +41,28 @@ from pxr import Usd, UsdGeom, UsdPhysics, UsdUtils  # noqa: E402
 import alexdoor_xas.envs.door_task as door_task  # noqa: E402
 from alexdoor_xas import paths  # noqa: E402
 from alexdoor_xas.door_qualification import (  # noqa: E402
-    FORCE_LIMIT_N,
     HINGE_DAMPING_NM_S_RAD,
     MAX_TEXTURE_EDGE_PX,
     MAX_TRIANGLES,
-    OPEN_ANGLE_DEG,
     PANEL_MASS_KG,
-    SCHEMA,
     DoorDimensions,
     QualificationError,
-    bootstrap_n_qual,
-    canonical_sha256,
     cuboid_inertia_kg_m2,
     dump_json,
     load_json,
-    maximum_sustained_angle_deg,
-    repeatability_metrics,
     sha256_file,
-    validate_diagnostic_count,
-    validate_manifest,
 )
 from alexdoor_xas.envs.door_task.door_push_alex_v2_env_cfg import (  # noqa: E402
-    ALEX_V2_LIMITATIONS,
     DoorPushAlexV2EnvCfg,
 )
 
 WORKLIST = paths.PHASE4_1_EVIDENCE_DIR / "worklist.json"
-REJECTIONS = paths.PHASE4_1_EVIDENCE_DIR / "rejections.json"
 EXPECTED_HINGE = "/World/Door/Doorframe/Hinge"
 RESET_ANGLE_TOL_RAD = math.radians(0.1)
 RESET_SPEED_TOL_RAD_S = 0.01
 PASSIVE_DRIFT_TOL_RAD = math.radians(0.25)
 FRAME_DRIFT_TOL_M = 1e-4
-PENETRATION_TOL_M = 5e-4
 TORQUE_NM = 15.0
-TORQUE_TARGET_RAD = math.radians(80.0)
 
 
 def _as_torch(value) -> torch.Tensor:
@@ -102,7 +83,7 @@ def _slots() -> tuple[dict, list[dict]]:
 
 
 def _normalized_path(slot: dict) -> Path:
-    if slot["state"] not in {"normalized", "static_pass", "physics_pass", "qualified"}:
+    if slot["state"] not in {"normalized", "static_pass", "physics_pass"}:
         raise QualificationError(f"slot {slot['slot']} is not normalized: {slot['state']}")
     path = paths.REPO_ROOT / slot["normalized_path"]
     if not path.is_file():
@@ -214,6 +195,7 @@ def _static_gate(slot: dict) -> dict:
         raise QualificationError("panel mass/inertia differ from the common cuboid template")
     return {
         "passed": True,
+        "scope": "legacy_canonical_structure_only",
         "usd_path": str(usd_path.relative_to(paths.REPO_ROOT)),
         "usd_sha256": sha256_file(usd_path),
         "dependencies": dependencies,
@@ -234,7 +216,7 @@ def _make_env(slot: dict):
     cfg = DoorPushAlexV2EnvCfg()
     cfg.seed = 4101
     cfg.sim.device = args.device
-    cfg.qualification_scene_usd = str(_normalized_path(slot))
+    cfg.door_scene_usd = str(_normalized_path(slot))
     return gym.make(door_task.DOOR_PUSH_ALEX_V2_ENV_ID, cfg=cfg).unwrapped
 
 
@@ -290,6 +272,7 @@ def _physics_gate(slot: dict) -> dict:
         frame_id = _body_id(env, "Doorframe")
         panel_id = _body_id(env, "Door")
         frame_pos_0 = _as_torch(door.data.body_pos_w)[0, frame_id].clone()
+        control_dt = env.cfg.sim.dt * env.cfg.decimation
         zero = torch.zeros((1, env.cfg.action_space), dtype=torch.float32, device=env.device)
         max_frame_drift = 0.0
         max_passive_drift = 0.0
@@ -317,127 +300,33 @@ def _physics_gate(slot: dict) -> dict:
             raise QualificationError("passive hinge drift exceeds 0.25 degrees")
 
         effort = torch.tensor([[TORQUE_NM]], dtype=torch.float32, device=env.device)
-        reached_tick: int | None = None
         max_angle = 0.0
-        for tick in range(180):
+        for _ in range(180):
             door.set_joint_effort_target(effort, joint_ids=[env._hinge_joint_id])  # noqa: SLF001
             obs, _, _, _, _ = env.step(zero)
             if not torch.isfinite(obs["policy"]).all():
                 raise QualificationError("torque test produced NaN/Inf")
-            angle, _ = env.hinge_state()
+            angle, speed = env.hinge_state()
+            if not torch.isfinite(angle).all() or not torch.isfinite(speed).all():
+                raise QualificationError("torque test hinge state contains NaN/Inf")
             max_angle = max(max_angle, float(angle[0].item()))
-            if max_angle >= TORQUE_TARGET_RAD and reached_tick is None:
-                reached_tick = tick + 1
-        if reached_tick is None:
-            raise QualificationError(
-                f"15 Nm torque reached only {math.degrees(max_angle):.2f} degrees in 3s"
-            )
         final_reset_angle, final_reset_speed = _assert_reset(env)
         return {
             "passed": True,
+            "scope": "isolated_reset_drift_and_torque_measurements",
             "device": str(env.device),
             "reset_angle_deg": math.degrees(initial_angle),
             "reset_speed_rad_s": initial_speed,
-            "passive_duration_s": 2.0,
+            "passive_duration_s": 120 * control_dt,
             "max_frame_drift_m": max_frame_drift,
             "max_passive_drift_deg": math.degrees(max_passive_drift),
-            "max_frame_panel_penetration_m": 0.0,
-            "penetration_method": "canonical_proxy_clearance_plus_finite_PhysX_contact_state",
             "physics_robot_collision_mode": "disabled_for_door_only_gate",
             "physics_disabled_robot_collider_count": disabled_robot_colliders,
             "torque_nm": TORQUE_NM,
-            "torque_target_deg": 80.0,
-            "torque_target_time_s": reached_tick / 60.0,
+            "torque_duration_s": 180 * control_dt,
             "torque_max_angle_deg": math.degrees(max_angle),
             "post_torque_reset_angle_deg": math.degrees(final_reset_angle),
             "post_torque_reset_speed_rad_s": final_reset_speed,
-        }
-    finally:
-        env.close()
-
-
-def _curve(episode) -> list[float]:
-    values = [float(step.object_state["door_angle_rad"]) for step in episode.steps]
-    if episode.outcome is not None:
-        values.append(float(episode.outcome.final_door_angle))
-    return values
-
-
-def _rollout_result(episode) -> dict:
-    curve = _curve(episode)
-    sustained = maximum_sustained_angle_deg(curve)
-    forces = [float(step.contact["force_n"]) for step in episode.steps]
-    terminal = episode.extras.get("terminal_contact")
-    if terminal is not None:
-        forces.append(float(terminal["force_n"]))
-    max_force = max(forces, default=0.0)
-    outcome = episode.outcome
-    passed = bool(
-        outcome is not None
-        and outcome.termination_reason == "controller_done"
-        and outcome.success
-        and sustained >= OPEN_ANGLE_DEG
-        and max_force <= FORCE_LIMIT_N
-        and np.isfinite(curve).all()
-    )
-    return {
-        "passed": passed,
-        "termination": None if outcome is None else outcome.termination_reason,
-        "outcome_success": False if outcome is None else outcome.success,
-        "angle_curve_rad": curve,
-        "trace_hz": 60,
-        "maximum_sustained_angle_deg": sustained,
-        "sustained_window_ticks": 30,
-        "max_contact_force_n": max_force,
-        "force_limit_n": FORCE_LIMIT_N,
-        "invalid_physics": not np.isfinite(curve).all(),
-    }
-
-
-def _repeatability_gate(slot: dict) -> dict:
-    from alexdoor_xas.data_engine import DataEngineCfg, run_episode
-    from alexdoor_xas.data_engine.generate import EpisodePlanItem
-    from alexdoor_xas.policies.scripted.door_push_alex_v2 import alex_v2_push_cfg
-
-    env = _make_env(slot)
-    try:
-        calibration = env.alex_v2_calibration()
-        dimensions = DoorDimensions.from_mapping(slot["dimensions_m"])
-        controller_cfg = replace(
-            alex_v2_push_cfg(calibration),
-            panel_width_m=dimensions.width_m,
-            panel_height_m=dimensions.height_m,
-            panel_thickness_m=dimensions.thickness_m,
-            handedness=slot["candidate"]["handedness"],
-        )
-        engine_cfg = DataEngineCfg(
-            task=paths.ALEX_V2_TASK,
-            robot=paths.ALEX_V2_ROBOT_TAG,
-            limitations=ALEX_V2_LIMITATIONS,
-            max_ticks=600,
-        )
-        item = EpisodePlanItem(seed=4101)
-        first = _rollout_result(run_episode(env, item, engine_cfg, controller_cfg=controller_cfg))
-        second = _rollout_result(run_episode(env, item, engine_cfg, controller_cfg=controller_cfg))
-        comparison = repeatability_metrics(first, second)
-        pair_passed = first["passed"] and second["passed"] and comparison["passed"]
-        diagnostics: list[dict] = []
-        if not pair_passed:
-            for _ in range(3):
-                diagnostics.append(
-                    _rollout_result(
-                        run_episode(env, item, engine_cfg, controller_cfg=controller_cfg)
-                    )
-                )
-        validate_diagnostic_count(pair_passed, diagnostics)
-        return {
-            "passed": pair_passed,
-            "nominal": first,
-            "repeated_after_reset": second,
-            "comparison": comparison,
-            "diagnostic_rollouts": diagnostics,
-            "diagnostic_count": len(diagnostics),
-            "clean_pair_required": True,
         }
     finally:
         env.close()
@@ -469,93 +358,6 @@ def _run_stage(name: str, gate, required_state: set[str], next_state: str) -> No
         raise QualificationError(f"{name} failures: {failures}")
 
 
-def _finalize_manifest() -> None:
-    worklist, slots = _slots()
-    if len(slots) != 24 or any(slot["state"] != "qualified" for slot in slots):
-        raise QualificationError("manifest finalization requires exactly 24 qualified slots")
-    assets: list[dict] = []
-    maxima: dict[str, list[float]] = {}
-    for slot in slots:
-        candidate = slot["candidate"]
-        static = load_json(_evidence_path(slot, "static"))
-        physics = load_json(_evidence_path(slot, "physics"))
-        repeatability = load_json(_evidence_path(slot, "repeatability"))
-        asset_id = f"door_{int(slot['slot']):02d}"
-        maxima[asset_id] = [
-            repeatability["nominal"]["maximum_sustained_angle_deg"],
-            repeatability["repeated_after_reset"]["maximum_sustained_angle_deg"],
-            *[
-                rollout["maximum_sustained_angle_deg"]
-                for rollout in repeatability["diagnostic_rollouts"]
-            ],
-        ]
-        normalized_dir = (paths.REPO_ROOT / slot["normalized_path"]).parent
-        normalized_checksums = {
-            str(path.relative_to(normalized_dir)): sha256_file(path)
-            for path in sorted(normalized_dir.rglob("*"))
-            if path.is_file()
-        }
-        evidence = {
-            "static": static,
-            "physics": physics,
-            "repeatability": repeatability,
-        }
-        record = {
-            **candidate,
-            "asset_id": asset_id,
-            "source_path": slot["source_path"],
-            "source_size_bytes": slot["source_size_bytes"],
-            "source_sha256": slot["source_sha256"],
-            "geometry_fingerprint": slot["geometry_fingerprint"],
-            "recipe_path": slot["recipe_path"],
-            "modifications": load_json(paths.REPO_ROOT / slot["recipe_path"])["operations"],
-            "normalized": {
-                "path": slot["normalized_path"],
-                "dimensions_m": slot["dimensions_m"],
-                "triangles": slot["triangles"],
-                "texture_max_px": slot["texture_max_px"],
-                "checksums_sha256": normalized_checksums,
-            },
-            "qualification": {
-                "static": static,
-                "physics": physics,
-                "nominal": repeatability["nominal"],
-                "repeatability": {
-                    **repeatability["comparison"],
-                    "diagnostic_count": repeatability["diagnostic_count"],
-                },
-            },
-            "evidence_sha256": canonical_sha256(evidence),
-            "final_status": "provisional_for_phase4_2",
-        }
-        assets.append(record)
-    recommendation = bootstrap_n_qual(maxima)
-    rejections = load_json(REJECTIONS) if REJECTIONS.is_file() else {"entries": []}
-    manifest = {
-        "schema": SCHEMA,
-        "generated_utc": datetime.now(UTC).isoformat(),
-        "retrieval_date": date.today().isoformat(),
-        "asset_count": 24,
-        "handedness_counts": {"left": 12, "right": 12},
-        "rejected_candidate_count": len(rejections["entries"]),
-        "qualification_summary": {
-            "static_pass": 24,
-            "physics_pass": 24,
-            "nominal_pass": 24,
-            "repeatability_pass": 24,
-            "reserve_payload_count": 0,
-        },
-        "n_qual_recommendation": recommendation,
-        "assets": assets,
-    }
-    validate_manifest(manifest, require_complete=True)
-    dump_json(paths.PHASE4_1_MANIFEST, manifest)
-    print(
-        f"PASS manifest: assets=24 handedness=12/12 "
-        f"n_qual={recommendation['recommended_n_qual']}"
-    )
-
-
 def main() -> int:
     rc = 0
     try:
@@ -563,31 +365,11 @@ def main() -> int:
             _run_stage("static", _static_gate, {"normalized", "static_pass"}, "static_pass")
         elif args.command == "physics":
             _run_stage("physics", _physics_gate, {"static_pass", "physics_pass"}, "physics_pass")
-        elif args.command == "repeatability":
-            _run_stage(
-                "repeatability",
-                _repeatability_gate,
-                {"physics_pass", "qualified"},
-                "qualified",
-            )
-        elif args.command == "all":
-            _run_stage("static", _static_gate, {"normalized", "static_pass"}, "static_pass")
-            _run_stage("physics", _physics_gate, {"static_pass", "physics_pass"}, "physics_pass")
-            _run_stage(
-                "repeatability",
-                _repeatability_gate,
-                {"physics_pass", "qualified"},
-                "qualified",
-            )
-        else:
-            if not args.all:
-                raise QualificationError("finalize-manifest requires --all")
-            _finalize_manifest()
     except Exception:  # noqa: BLE001
         traceback.print_exc()
         rc = 1
     finally:
-        if args.clean_shutdown:
+        if args.clean_shutdown and rc == 0:
             simulation_app.close()
     return rc
 

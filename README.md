@@ -35,8 +35,9 @@ These four phases contain nine subphases. Phase 5 first delivers validated
 normalization/checking tools, then processes user-provided door URLs one at a time.
 A small complete pilot precedes final data production; gaze and extra teachers
 are added only if needed. Evaluation reports ID/GEO before the stress extension.
-Superseded local qualification tooling requires a separate code audit before
-Phase 4. Handles and other articulated objects remain later studies.
+The preparatory code audit is complete; retained legacy tooling and its limits
+are documented in [Project Status](knowledge/wiki/status.md#pre-b1-cleanup-and-phase-4-entry).
+Phases 4–7 remain unimplemented. Handles and other articulated objects remain later studies.
 
 ## Requirements
 

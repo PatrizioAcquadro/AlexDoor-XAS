@@ -1,27 +1,21 @@
-"""Pure Phase 4.1 qualification and manifest contract tests."""
+"""Reusable door preparation and raw measurement tests."""
 
 from __future__ import annotations
 
-import copy
-import math
+import importlib.util
+from pathlib import Path
 
 import numpy as np
 import pytest
 
 from alexdoor_xas.door_qualification import (
-    SCHEMA,
     DoorDimensions,
     QualificationError,
-    align_angle_curves_deg,
-    bootstrap_n_qual,
     connected_face_components,
     connected_mesh_face_components,
     cuboid_inertia_kg_m2,
     geometry_fingerprint,
     maximum_sustained_angle_deg,
-    repeatability_metrics,
-    validate_diagnostic_count,
-    validate_manifest,
     validate_remote_candidate,
 )
 
@@ -48,43 +42,6 @@ def _remote(slot: int = 1, handedness: str = "left") -> dict:
         "ownership_dispute_check": "pass",
         "custom_terms_check": "pass",
         "retrieval_date": "2026-08-13",
-    }
-
-
-def _asset(slot: int) -> dict:
-    handedness = "left" if slot <= 12 else "right"
-    return {
-        **_remote(slot, handedness),
-        "asset_id": f"door_{slot:02d}",
-        "source_path": f"assets/doors/phase4_1/source/door_{slot:02d}/source.glb",
-        "source_size_bytes": 1024,
-        "source_sha256": f"{slot:064x}",
-        "geometry_fingerprint": f"{slot + 100:064x}",
-        "recipe_path": f"assets/doors/phase4_1/recipes/door_{slot:02d}.json",
-        "modifications": ["uniform_scale"],
-        "normalized": {
-            "path": f"assets/doors/phase4_1/normalized/door_{slot:02d}/door.usda",
-            "dimensions_m": {"width_m": 0.8, "height_m": 2.0, "thickness_m": 0.04},
-            "triangles": 2000,
-            "texture_max_px": 2048,
-            "checksums_sha256": {"door.usda": f"{slot + 200:064x}"},
-        },
-        "qualification": {
-            "static": {"passed": True},
-            "physics": {"passed": True},
-            "nominal": {"passed": True},
-            "repeatability": {"passed": True},
-        },
-        "evidence_sha256": f"{slot + 300:064x}",
-        "final_status": "provisional_for_phase4_2",
-    }
-
-
-def _manifest() -> dict:
-    return {
-        "schema": SCHEMA,
-        "n_qual_recommendation": {"recommended_n_qual": 10},
-        "assets": [_asset(slot) for slot in range(1, 25)],
     }
 
 
@@ -173,68 +130,36 @@ def test_remote_gate_rejects_duplicate_uid_and_custom_terms() -> None:
 
 def test_maximum_sustained_angle_is_max_of_window_minima() -> None:
     degrees = [10.0] * 10 + [50.0] * 29 + [44.0] + [48.0] * 30
-    assert maximum_sustained_angle_deg(np.radians(degrees)) == pytest.approx(48.0)
+    assert maximum_sustained_angle_deg(np.radians(degrees), window_ticks=30) == pytest.approx(48.0)
+    assert maximum_sustained_angle_deg(np.radians(degrees), window_ticks=20) == pytest.approx(50.0)
 
 
-def test_curve_alignment_holds_last_valid_angle() -> None:
-    first, second = align_angle_curves_deg(np.radians([0.0, 1.0]), np.radians([0.0, 1.0, 2.0]))
-    np.testing.assert_allclose(first, [0.0, 1.0, 1.0])
-    np.testing.assert_allclose(second, [0.0, 1.0, 2.0])
+@pytest.mark.parametrize("angles, window", [([0.0], 0), ([0.0], 2), ([np.nan], 1)])
+def test_raw_sustained_measurement_rejects_invalid_trace_or_window(angles, window) -> None:
+    with pytest.raises(QualificationError):
+        maximum_sustained_angle_deg(angles, window_ticks=window)
 
 
-def _rollout(offset_deg: float = 0.0, termination: str = "controller_done") -> dict:
-    curve = np.radians(np.linspace(0.0, 50.0 + offset_deg, 80))
-    return {
-        "passed": True,
-        "termination": termination,
-        "angle_curve_rad": curve.tolist(),
-    }
+def test_legacy_ingest_preserves_source_and_existing_payload(tmp_path, monkeypatch) -> None:
+    script = Path(__file__).resolve().parents[1] / "scripts" / "prepare_phase4_1_assets.py"
+    spec = importlib.util.spec_from_file_location("door_preparation", script)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    monkeypatch.setattr(module.paths, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(module.paths, "PHASE4_1_SOURCE_DIR", tmp_path / "source")
+    monkeypatch.setattr(module, "WORKLIST", tmp_path / "worklist.json")
+    worklist = {"slots": [{"slot": 1, "state": "remote_pass", "candidate": _remote()}]}
+    module.dump_json(module.WORKLIST, worklist)
+    source = tmp_path / "download.glb"
+    source.write_bytes(b"original source")
 
+    module._ingest(1, source)
 
-def test_repeatability_requires_outcome_termination_sustained_and_curve_tolerances() -> None:
-    passing = repeatability_metrics(_rollout(), _rollout(1.0))
-    assert passing["passed"] is True
-    failing = repeatability_metrics(_rollout(), _rollout(4.0))
-    assert failing["passed"] is False
-    assert failing["max_time_aligned_curve_error_deg"] == pytest.approx(4.0)
-
-
-def test_bootstrap_is_deterministic_and_selects_minimum_candidate_for_stable_pairs() -> None:
-    values = {f"door_{index:02d}": [51.0, 51.0] for index in range(1, 25)}
-    first = bootstrap_n_qual(values)
-    second = bootstrap_n_qual(values)
-    assert first == second
-    assert first["recommended_n_qual"] == 10
-    assert first["p95_absolute_error_deg_by_n"] == {"10": 0.0}
-
-
-def test_complete_manifest_requires_24_unique_assets_and_12_per_handedness() -> None:
-    manifest = _manifest()
-    validate_manifest(manifest)
-
-    duplicate = copy.deepcopy(manifest)
-    duplicate["assets"][1]["geometry_fingerprint"] = duplicate["assets"][0][
-        "geometry_fingerprint"
-    ]
-    with pytest.raises(QualificationError, match="geometry_fingerprint"):
-        validate_manifest(duplicate)
-
-    wrong_balance = copy.deepcopy(manifest)
-    wrong_balance["assets"][-1]["handedness"] = "left"
-    with pytest.raises(QualificationError, match="12/12"):
-        validate_manifest(wrong_balance)
-
-
-def test_manifest_forbids_subphase_4_2_fields() -> None:
-    manifest = _manifest()
-    manifest["assets"][0]["split"] = "train"
-    with pytest.raises(QualificationError, match="Subphase 4.2"):
-        validate_manifest(manifest)
-
-
-def test_repeatability_diagnostics_contract_is_exactly_zero_or_three() -> None:
-    validate_diagnostic_count(True, [])
-    validate_diagnostic_count(False, [{}, {}, {}])
-    with pytest.raises(QualificationError, match="requires 3 diagnostics"):
-        validate_diagnostic_count(False, [{}, {}])
-    assert math.isclose(math.degrees(math.pi / 4.0), 45.0)
+    target = tmp_path / "source" / "door_01" / "source.glb"
+    assert target.read_bytes() == source.read_bytes() == b"original source"
+    module.dump_json(module.WORKLIST, worklist)
+    source.write_bytes(b"replacement source")
+    with pytest.raises(QualificationError, match="already has a local source payload"):
+        module._ingest(1, source)
+    assert target.read_bytes() == b"original source"
+    assert source.read_bytes() == b"replacement source"

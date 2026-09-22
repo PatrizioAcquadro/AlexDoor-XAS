@@ -1,11 +1,15 @@
 #!/usr/bin/env python
-"""Inspect and normalize one admitted Phase 4.1 door into canonical USD.
+"""Inspect and normalize one legacy worklist door into the B0 canonical layout.
 
 The local source is decomposed into existing connected components.  The generated
 recipe records only component selection, one uniform scale, rigid transforms,
 material localization, pivot correction, and common physics authoring.  Meshes are
 never deformed or decimated.  Extracted GLBs are converted with the installed
 ``omni.kit.asset_converter`` extension.
+
+Retained for reuse, not B1-ready: placement, box collision proxies, non-colliding
+handles, and 0..90-degree limits still use the old template. Phase 5 must replace
+these assumptions and validate supported formats before candidate intake.
 """
 
 from __future__ import annotations

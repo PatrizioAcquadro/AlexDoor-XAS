@@ -389,3 +389,15 @@ Specified validated preparation infrastructure before sequential user URLs in 5.
 
 Verified all 29 wiki pages, links/index coverage, exactly nine subphases, current phase references, and the infrastructure-before-URL dependency.
 Checked Markdown and documentation-only changes; executable code, raw research, and prior log entries remain unchanged, with no phase execution.
+
+
+## 2026-09-22 — update : Preparatory audit of pre-revision qualification code
+
+Removed the old bootstrap/repeatability/manifest protocol and unused destructive orchestration; retained scoped normalization, static/physics measurements, handedness, and external Alex compatibility.
+Updated current status and architecture without changing the approved Phase 4–7 plans, raw research, existing local evidence, or B0 controller targets; no phase was executed.
+
+
+## 2026-09-22 — lint : Preparatory cleanup validation
+
+Verified all 29 wiki pages, links/index coverage, source references, append-only log, and unchanged raw research and Phase 4–7 plan files.
+Focused software/consumer tests, Ruff, syntax/CLI checks, and host CUDA/dependency preflight pass; no simulation, corpus qualification, or revised-phase execution was performed.
