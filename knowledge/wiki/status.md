@@ -2,7 +2,9 @@
 
 Current as of 2026-09-22. Subphase 4.0 is implemented and GPU-verified.
 Subphase 4.1 is in progress: all four articulated synthetic doors pass GPU
-reset/drift/opening checks. No common setup or expert maximum is qualified yet.
+reset/drift/opening checks. GPU screening, controlled probes, repeated-result
+comparison and RGB-D visibility diagnostics are implemented. The common setup
+candidate remains unqualified until the four-case closeout passes.
 Code and tests define executable behavior.
 
 ## Current Runtime
@@ -61,6 +63,9 @@ installation or driver modification was made.
 
 - `scripts/check_env.py` — supported runtime and Purdue/pedestal/ZED preflight.
 - `scripts/verify_purdue_runtime.py --viz none --device cuda:0` — complete operational gate.
+- `scripts/screen_synthetic_setup.py` — GPU kinematic candidate screening only.
+- `scripts/verify_synthetic_setup.py` — synthetic physics, controlled probe and candidate search;
+  see Phase 4 for arguments and the unqualified candidate boundary.
 - `scripts/verify_benchmark_scene.py` and `scripts/verify_adapters.py` — route to that same gate.
 - `scripts/verify_dataset_interface.py` — retained historical dataset interface checks.
 - `scripts/train_policy.py` — offline training on existing supported data.

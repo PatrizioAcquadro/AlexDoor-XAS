@@ -291,6 +291,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 self.velocities,
                 self.step_dt,
                 previous_targets=self.targets[:, self.arm_ids],
+                centering_gain=self.cfg.centering_gain,
+                damping=self.cfg.ik_damping,
             )
         self.targets[:, self.arm_ids] = target
         self.contact_history = []

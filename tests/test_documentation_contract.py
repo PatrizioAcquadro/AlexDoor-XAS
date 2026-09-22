@@ -91,6 +91,7 @@ def test_active_config_and_output_surfaces_are_minimal() -> None:
     assert {path.name for path in (REPO_ROOT / "configs").iterdir()} == {
         "act.yaml",
         "alex_v2_door.json",
+        "purdue_synthetic_probe.json",
         "diffusion.yaml",
         "scripted_baseline.yaml",
     }

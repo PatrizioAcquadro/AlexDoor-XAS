@@ -421,3 +421,12 @@ Common controlled reachability, visibility and setup freeze remain unqualified.
 ## 2026-09-22 — lint : Synthetic foundation documentation
 Internal wiki links, index coverage and whitespace checks pass.
 Synthetic physics claims match the four GPU reports; raw research remains unchanged.
+
+## 2026-09-22 — update : Synthetic expert and search tooling
+Documented GPU screening, controlled probes, repeated-case comparison and visibility diagnostics.
+The common configuration is explicitly provisional pending four-case qualification.
+
+## 2026-09-22 — lint : Synthetic setup tooling
+
+Checked canonical links and index, source references, Ruff and whitespace.
+Common configuration remains explicitly unqualified pending four-case GPU repeats.

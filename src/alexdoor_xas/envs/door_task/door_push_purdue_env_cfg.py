@@ -26,6 +26,8 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     synthetic_door: object | None = None
     floor_pose: tuple = (0.0, 0.0, 0.0)
     max_joint_speed: float = 0.5
+    centering_gain: float = 0.1
+    ik_damping: float = 0.05
     max_pos_delta_m: float = 0.01
     max_rot_delta_rad: float = 0.05
     # Safe commissioning pose; Phase 4.1 selects the benchmark ready/parked setup.

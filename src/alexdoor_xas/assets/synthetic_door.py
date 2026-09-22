@@ -1,6 +1,7 @@
 """Four commissioning doors in a right-handed opening-centered floor frame."""
 
 from dataclasses import dataclass
+from functools import cached_property
 
 import numpy as np
 
@@ -59,7 +60,7 @@ class SyntheticDoor:
         )
         return (points @ self.rotation(angle).T + self.hinge)[:, :2]
 
-    @property
+    @cached_property
     def mechanical_stop(self):
         """First panel/jamb intersection, resolved to 0.1 degree with a 0.2-degree gap."""
         jambs = [
@@ -175,6 +176,7 @@ def author_synthetic_door(stage, root, door):
     hinge.CreateBody0Rel().SetTargets([frame.GetPath()])
     hinge.CreateBody1Rel().SetTargets([panel.GetPath()])
     hinge.CreateAxisAttr("Z")
+    hinge.CreateCollisionEnabledAttr(True)
     rotation = Gf.Quatf(1, 0, 0, 0) if door.sign > 0 else Gf.Quatf(0, 1, 0, 0)
     hinge.CreateLocalRot0Attr(rotation)
     hinge.CreateLocalRot1Attr(rotation)

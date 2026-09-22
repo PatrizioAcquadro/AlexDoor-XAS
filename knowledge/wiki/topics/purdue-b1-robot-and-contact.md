@@ -1,8 +1,8 @@
 # Purdue B1 Robot and Contact Contract
 
 This is the implemented Purdue operational contract for Subphase 4.0. The B0
-Alex V2 runtime has been retired. Full synthetic-door setup and learned B1
-integration remain later work; current evidence is maintained in
+Alex V2 runtime has been retired. Synthetic-door setup is being qualified in Subphase 4.1; learned B1
+integration remains later work; current evidence is maintained in
 [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
 
 ## Reuse and Ownership

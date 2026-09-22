@@ -93,6 +93,55 @@ and closed reset. These are door-physics checks with the robot parked clear;
 they do not establish the common expert setup or visibility. The remaining work
 below retains the approved acceptance criteria.
 
+The reusable probe and GPU kinematic screening are now implemented. Screening
+reads the external URDF and pedestal measurements, uses deterministic multistart
+IK and coarse/refined floor grids, and rejects sampled panel/pedestal and fixed
+jamb/pedestal overlap. It is a candidate filter, not a reachability proof.
+`configs/purdue_synthetic_probe.json` is currently an **unqualified candidate**;
+it must not be reused for corpus admission until the four-case closeout passes.
+
+The probe records full approach/contact/push/hold/release traces, raw contacts,
+closed-gripper error, projected distal footprint, joint margin and optional
+RGB-D visibility. A loaded sample is required in each 60 Hz control tick; the
+120 Hz substeps may chatter. Hold allows up to three seconds to obtain one
+continuous 0.5-second valid window. Release retraces an achieved pose behind the
+panel, allowing wrist rotation to recover rather than fixing a limiting orientation.
+
+Stop reports separate mechanical stop, locally evidenced joint limit, safety
+stop, lost contact, tracking stall, timeout and invalid motion. Safety guards
+include high normal force, declining 0.1-second mean contact load after the
+five-second push transient, and half of the position/orientation tracking budget.
+The guards contain no task-angle cutoff. A safety stop only qualifies when hold
+and release pass. Local joint-limit evidence is explicitly not global IK proof.
+Clearance ranking uses a conservative robot/door AABB lower bound excluding the
+authorized distal/panel pairs; raw contacts enforce actual forbidden-contact rules.
+
+Visibility projects panel points, the contact surroundings and frame references
+against current optical-axis depth, so arm occlusion and out-of-range depth fail
+the geometric check. It requires at least 6/25 panel, 2/8 contact-surround and
+2/14 frame samples each tick. This is a geometric observability proxy, checked
+with representative RGB images; it is not validation of a learned perception model.
+
+Supported workstation entry points (all evidence stays outside datasets):
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/screen_synthetic_setup.py \
+  --fraction 0.4 --height 1.0 --center -0.425 0.25 15 --output /tmp/screen.json
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_synthetic_setup.py physics \
+  --viz none --device cuda:0 --output /tmp/synthetic-physics
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_synthetic_setup.py search \
+  --config configs/purdue_synthetic_probe.json --candidates /tmp/screen.json \
+  --cameras --viz none --device cuda:0 --output /tmp/synthetic-search
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_synthetic_setup.py probe \
+  --config configs/purdue_synthetic_probe.json --repeats 2 \
+  --cameras --viz none --device cuda:0 --output /tmp/synthetic-verification
+```
+
+Search ranks only four-case controlled completions. An angle below 45 degrees,
+an unresolved stop, or inconsistent repeats cannot freeze a setup. Search output
+always leaves `frozen: false`; physical candidate selection still requires the
+fixed-view review and final documentation closeout.
+
 Use four synthetic single-leaf doors: widths 1.20 m and 0.65 m, each left- and
 right-hinged. Record one nominal height/thickness and physics template before
 searching. Both widths participate in the complete approach/contact/push/hold/
