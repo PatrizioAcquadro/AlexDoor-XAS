@@ -23,6 +23,8 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     reset_camera_frames: int = 8
     action_mode: str = "A2"
     cameras: bool = True
+    synthetic_door: object | None = None
+    floor_pose: tuple = (0.0, 0.0, 0.0)
     max_joint_speed: float = 0.5
     max_pos_delta_m: float = 0.01
     max_rot_delta_rad: float = 0.05

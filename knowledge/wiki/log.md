@@ -413,3 +413,11 @@ Retired B0 execution while retaining historical readers/offline training and ind
 ## 2026-09-22 — lint : Subphase 4.0 closeout
 Verified 332 passing software tests, Ruff, wiki-link/index coverage, whitespace, and unchanged raw research after migration.
 Recorded full GPU commissioning plus focused RGB-D/contact checks and isolated door validation; historical outputs and ignored assets remain unmodified.
+
+## 2026-09-22 — update : Subphase 4.1 synthetic foundation
+Added articulated synthetic doors and common floor placement; four GPU physics gates pass.
+Common controlled reachability, visibility and setup freeze remain unqualified.
+
+## 2026-09-22 — lint : Synthetic foundation documentation
+Internal wiki links, index coverage and whitespace checks pass.
+Synthetic physics claims match the four GPU reports; raw research remains unchanged.

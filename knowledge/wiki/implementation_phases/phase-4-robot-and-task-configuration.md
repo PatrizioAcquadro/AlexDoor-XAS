@@ -1,7 +1,7 @@
 # Phase 4 — Robot and Task Configuration
 
 > Subphase 4.0 completed and GPU-verified on 2026-09-22.
-> Subphase 4.1 remains planned.
+> Subphase 4.1 is in progress; synthetic physics is GPU-verified, common setup is not frozen.
 
 ## Objective
 
@@ -77,6 +77,21 @@ are simulation approximations; no physical-safety or sim-to-real claim follows.
 ## Subphase 4.1 — Common Pose, Synthetic Reachability, and Visibility
 
 #### Implementation
+
+Implemented foundation: `assets/synthetic_door.py` authors the four 2.10 m high,
+0.04 m thick doors with a 25 kg panel, geometry-derived inertia, 4 Nm s/rad hinge
+damping and 0.5 friction. The collidable handle remains a separate rigid actor.
+The hinge is offset 85 mm from the frame plane; the first panel/jamb intersection
+sets a symmetric 183.2-degree mechanical stop, with 0.2-degree geometric clearance.
+The Purdue environment optionally loads these doors and moves robot/pedestal
+jointly in floor X/Y/yaw; the existing commissioning fixtures remain available.
+
+GPU foundation evidence in `~/.cache/alexdoor-xas/verification/synthetic-physics-all/`
+passes all four cases: two seconds passive drift below 0.00022 degrees, zero
+frame drift, ten seconds at 15 Nm reaching the computed stop within 0.00002 degrees,
+and closed reset. These are door-physics checks with the robot parked clear;
+they do not establish the common expert setup or visibility. The remaining work
+below retains the approved acceptance criteria.
 
 Use four synthetic single-leaf doors: widths 1.20 m and 0.65 m, each left- and
 right-hinged. Record one nominal height/thickness and physics template before

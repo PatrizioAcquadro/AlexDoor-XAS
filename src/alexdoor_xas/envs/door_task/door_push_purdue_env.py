@@ -73,7 +73,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
             self.sim,
             self.sim.stage,
             ROBOT,
-            PANEL,
+            self.panel_path,
             PEDESTAL,
             "/World/Ground/CollisionPlane",
             self.push_geometry.wrist_from_base,
@@ -95,13 +95,18 @@ class DoorPushPurdueEnv(DirectRLEnv):
 
         spec = load_purdue_alex003_pedestal_spec()
         pedestal = make_purdue_alex003_pedestal_cfg(PEDESTAL)
-        pedestal.spawn.func(PEDESTAL, pedestal.spawn)
+        x, y, yaw = self.cfg.floor_pose
+        floor_quat = (0.0, 0.0, float(np.sin(yaw / 2)), float(np.cos(yaw / 2)))
+        pedestal.spawn.func(
+            PEDESTAL, pedestal.spawn, translation=(x, y, 0.0), orientation=floor_quat
+        )
         schemas.activate_contact_sensors(PEDESTAL)
         robot_cfg = make_alex_purdue_cfg(
             fix_base=True, variant="full_convex", end_effector="wsg32_umi_v1"
         )
         robot_cfg.prim_path = ROBOT
-        robot_cfg.init_state.pos = (0, 0, spec.alex_root_world_z_m)
+        robot_cfg.init_state.pos = (x, y, spec.alex_root_world_z_m)
+        robot_cfg.init_state.rot = floor_quat
         joints = ET.parse(robot_cfg.spawn.asset_path).getroot().findall("joint")
         defaults = {j.get("name"): 0.0 for j in joints if j.get("type") != "fixed"}
         robot_cfg.init_state.joint_pos = {
@@ -119,26 +124,53 @@ class DoorPushPurdueEnv(DirectRLEnv):
         sim_utils.GroundPlaneCfg().func("/World/Ground", sim_utils.GroundPlaneCfg())
         light = sim_utils.DomeLightCfg(intensity=1800)
         light.func("/World/Light", light)
-        # Movable commissioning fixture, not a corpus or benchmark door.
-        for name, size, position, color in (
-            ("Panel", (0.05, 0.12, 0.12), (1.5, -0.3, 1.1), (0.7, 0.3, 0.1)),
-            ("Frame", (0.08, 0.08, 0.8), (1.5, 0.05, 1.1), (0.1, 0.4, 0.7)),
-            ("Handle", (0.08, 0.12, 0.06), (1.43, -0.1, 1.1), (0.2, 0.8, 0.2)),
-        ):
-            fixture_cfg = RigidObjectCfg(
-                prim_path=ROOT + "/" + name,
-                spawn=sim_utils.CuboidCfg(
-                    size=size,
-                    rigid_props=sim_utils.RigidBodyPropertiesCfg(
-                        kinematic_enabled=name != "Handle", disable_gravity=True
-                    ),
-                    collision_props=sim_utils.CollisionPropertiesCfg(),
-                    mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
-                    visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=color),
-                ),
-                init_state=RigidObjectCfg.InitialStateCfg(pos=position),
+        self.door = None
+        self.panel_path = PANEL
+        if self.cfg.synthetic_door is not None:
+            from isaaclab.actuators import ImplicitActuatorCfg
+            from isaaclab.assets import ArticulationCfg
+
+            from alexdoor_xas.assets.synthetic_door import author_synthetic_door
+
+            root = ROOT + "/Door"
+            author_synthetic_door(self.sim.stage, root, self.cfg.synthetic_door)
+            schemas.activate_contact_sensors(root)
+            self.panel_path = root + "/Panel"
+            self.door = Articulation(
+                ArticulationCfg(
+                    prim_path=root,
+                    spawn=None,
+                    actuators={
+                        "hinge": ImplicitActuatorCfg(
+                            joint_names_expr=["Hinge"],
+                            stiffness=0.0,
+                            damping=self.cfg.synthetic_door.damping,
+                        )
+                    },
+                )
             )
-            self.scene.rigid_objects[name.lower()] = RigidObject(fixture_cfg)
+            self.scene.articulations["door"] = self.door
+        else:
+            # Movable commissioning fixture, not a corpus or benchmark door.
+            for name, size, position, color in (
+                ("Panel", (0.05, 0.12, 0.12), (1.5, -0.3, 1.1), (0.7, 0.3, 0.1)),
+                ("Frame", (0.08, 0.08, 0.8), (1.5, 0.05, 1.1), (0.1, 0.4, 0.7)),
+                ("Handle", (0.08, 0.12, 0.06), (1.43, -0.1, 1.1), (0.2, 0.8, 0.2)),
+            ):
+                fixture_cfg = RigidObjectCfg(
+                    prim_path=ROOT + "/" + name,
+                    spawn=sim_utils.CuboidCfg(
+                        size=size,
+                        rigid_props=sim_utils.RigidBodyPropertiesCfg(
+                            kinematic_enabled=name != "Handle", disable_gravity=True
+                        ),
+                        collision_props=sim_utils.CollisionPropertiesCfg(),
+                        mass_props=sim_utils.MassPropertiesCfg(mass=1.0),
+                        visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=color),
+                    ),
+                    init_state=RigidObjectCfg.InitialStateCfg(pos=position),
+                )
+                self.scene.rigid_objects[name.lower()] = RigidObject(fixture_cfg)
         stage = self.sim.stage
         self._tool_body_name = "RIGHT_GRIPPER_Y_LINK"
         local = self.push_geometry.wrist_from_base
@@ -325,6 +357,11 @@ class DoorPushPurdueEnv(DirectRLEnv):
             state = tensor(fixture.data.default_root_state).clone()
             fixture.write_root_pose_to_sim_index(root_pose=state[:, :7])
             fixture.write_root_velocity_to_sim_index(root_velocity=state[:, 7:])
+        if self.door is not None:
+            door_q = tensor(self.door.data.default_joint_pos).clone()
+            self.door.write_joint_position_to_sim_index(position=door_q)
+            self.door.write_joint_velocity_to_sim_index(velocity=torch.zeros_like(door_q))
+            self.door.set_joint_effort_target_index(target=torch.zeros_like(door_q))
         q = tensor(self.robot.data.default_joint_pos).clone()
         self.robot.write_joint_position_to_sim_index(position=q)
         self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros_like(q))

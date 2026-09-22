@@ -1,6 +1,8 @@
 # Project Status
 
 Current as of 2026-09-22. Subphase 4.0 is implemented and GPU-verified.
+Subphase 4.1 is in progress: all four articulated synthetic doors pass GPU
+reset/drift/opening checks. No common setup or expert maximum is qualified yet.
 Code and tests define executable behavior.
 
 ## Current Runtime
