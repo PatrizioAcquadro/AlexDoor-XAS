@@ -1,8 +1,9 @@
 # Purdue B1 Robot and Contact Contract
 
-This is the approved **planned B1 configuration**, not the current DoorManipulation
-runtime. The existing B0 implementation still uses Alex V2 and six-joint,
-position-only IK. Phase 4 must validate this consumer integration on the GPU.
+This is the implemented Purdue operational contract for Subphase 4.0. The B0
+Alex V2 runtime has been retired. Full synthetic-door setup and learned B1
+integration remain later work; current evidence is maintained in
+[[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
 
 ## Reuse and Ownership
 
@@ -23,7 +24,8 @@ The factory defaults to SAKE when the end effector is omitted; select WSG explic
 The ordered active right-arm joints are `RIGHT_SHOULDER_Y`, `RIGHT_SHOULDER_X`,
 `RIGHT_SHOULDER_Z`, `RIGHT_ELBOW_Y`, `RIGHT_WRIST_Z`, `RIGHT_WRIST_X`, and
 `RIGHT_GRIPPER_Y`. The last is a revolute arm joint, not finger opening.
-The left arm stays in one collision-free parked pose selected in Phase 4.
+Commissioning parks each arm with shoulder X at +/-0.35 rad and elbow Y at
+-1 rad. Phase 4.1 selects the common benchmark ready/parked setup.
 `NECK_Z` and `NECK_Y` are separate vision degrees of freedom.
 
 Use the WSG 32-068 with the existing UMI v1 finger geometry. Hold both grippers
@@ -53,7 +55,7 @@ of the two forward support extrema of the closed finger contact hulls.
 Read-only URDF/STL inspection on 2026-09-22 gives translation approximately
 `(0.202000, 0, 0) m`, with identity rotation. The reference is the center of a
 finite two-finger footprint, not a material point in the gap between the fingers.
-Compute it from the canonical collision geometry when implementing the consumer;
+The consumer computes it from the canonical collision geometry;
 use the current geometry as the authority if the external asset changes.
 
 The existing `RIGHT_WSG32_TCP_FRAME` is at `(0.1305, 0, 0) m` in the same base
@@ -70,11 +72,16 @@ rotation through the seven-joint chain. Learned actions must produce their own
 motion; an adapter must not secretly restore this orientation using simulator
 door state.
 
-The numerical frame above is a geometric model result. Phase 4.0 still must
-verify actual contact locations, the closed-finger footprint, no self-penetration,
-and force sensing on the imported USD. If this prescription cannot push safely,
-resolve it on synthetic geometry before the common setup is frozen; do not
-substitute another surface per collected door.
+The consumer derives this frame from the canonical meshes and resolves their
+actual rigid owners after fixed-link merging. In the imported model the fingers
+belong to the corresponding jaw bodies, and positive/negative meshes can reuse
+leaf names. Full ownership paths, local convex geometry, a 3 mm distal tolerance
+and a normal-direction check determine authorized contact. A body-name-only or
+single-force filter is insufficient.
+
+The gate distinguishes speculative points with zero load from loaded contacts.
+Task normal force sums authorized contacts once; forbidden and structural-support
+records remain separate. Tangential friction is not included in the reported force.
 
 ## Collisions, Limits, and Physical Approximation
 
@@ -137,6 +144,15 @@ validity from finite, positive, in-range sensor depth. The mask must not encode
 door segmentation or other simulator labels. The real SDK also provides depth
 aligned with the left image ([Stereolabs depth API](https://www.stereolabs.com/docs/development/zed-sdk/modules/depth-sensing/using-the-api)).
 
+The supported Lab/Fabric runtime does not propagate the attached ZED camera's
+optical descendant pose. Before acquisition, the consumer composes the current
+physical ZED rigid-body pose with the canonical optical transform and uses the
+public camera pose setter. Independent head/mount checks and rendered targets
+verify this synchronization across neck motion and reset. No door state enters
+this bridge. Reset settles renderer history at an unchanged physics state before
+publishing a fresh sample. Each acquisition copies image and proprioception at
+one physics state.
+
 Rendered depth is an ideal geometric sensor approximation. It does not reproduce
 stereo matching failures, confidence, material-dependent holes, or calibrated
 noise. Keep that limit explicit; do not introduce an unvalidated stereo-noise
@@ -145,10 +161,10 @@ camera provides depth and it supports metric manipulation perception.
 
 ## Sources and Validation Boundary
 
-Source facts above were checked in Alex's `README.md`, `measurements.yaml`, the
+External source facts were checked in Alex's `README.md`, `measurements.yaml`, the
 Purdue WSG and standalone WSG URDFs, `robots/alex_purdue.py`,
 `robots/purdue_physics.py`, `robots/purdue_frames.py`, `end_effectors/weiss_wsg32.py`,
 `platforms/purdue_alex003_pedestal.py`, `sensors/zed_x_mini.py`, and its dependency
-record. No Alex files were changed. No simulation or hardware trial was run for
-this planning revision. Phase 4 owns consumer validation and unresolved numeric
-control tolerances, the parked/ready poses, and the common panel contact height.
+record. No Alex files were changed. Consumer commissioning uses the GPU; no hardware
+trial was performed. Operational pose tolerances are 10 mm / 5 degrees sustained
+for 0.5 s. The common setup and final probe/force/tolerance choices remain in 4.1.

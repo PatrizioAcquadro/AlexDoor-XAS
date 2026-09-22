@@ -1,7 +1,7 @@
 # Phase 4 — Robot and Task Configuration
 
-> Subphase 4.0 implementation in progress; Subphase 4.1 remains planned.
-> GPU operational checks are required before declaring 4.0 complete.
+> Subphase 4.0 completed and GPU-verified on 2026-09-22.
+> Subphase 4.1 remains planned.
 
 ## Objective
 
@@ -54,11 +54,22 @@ historical episode/dataset schema or implement a learned observation encoder.
 
 #### Problems / Limitations
 
-Pure tests verify geometric ownership, seven-joint control math and capture
-boundaries. Integration checks must additionally prove three stable resets,
-10 mm / 5 degree pose tracking sustained for 0.5 s, loaded contacts on both
-fingers, detection of forbidden contacts, and synchronized metric RGB-D.
-Subphase 4.0 is not complete until all GPU gates pass.
+The supported runtime merges fixed finger links into jaw rigid bodies and can
+reuse collider leaf names; exact ownership paths and imported geometry resolve
+that ambiguity. Speculative zero-load contacts alone do not pass the contact gate.
+The existing contact API reports normal forces only, including zero reaction on
+some fixed-support pairs; separation/ownership still detect those forbidden pairs.
+
+Target velocity limits initially applied against measured joints restricted PD
+tracking error and made pose control sluggish. Bounding against previous targets
+fixes this without changing external gains or widening physical limits.
+
+The supported Lab/Fabric runtime leaves the attached optical descendant pose
+stale. The consumer now applies the canonical optical transform to the current
+physical ZED body pose before image acquisition. Independent head/mount checks,
+metric targets, neck motion and reset verify the resulting extrinsics. Reset
+also settles renderer history with eight fresh renders at the unchanged physics
+state before publishing a sample, avoiding previous-episode ghosting.
 
 Ideal rendered depth, rigid model-reference fingers and model gravity compensation
 are simulation approximations; no physical-safety or sim-to-real claim follows.
@@ -130,13 +141,42 @@ not B1 training/test data.
 
 ## Artifacts
 
-Future outputs: operational Alex003/capture configuration, common setup/probe,
-four-case reachability and contact/force evidence, and visibility assessment.
-None was produced by this documentation revision.
+The full RTX 4090 run is recorded in
+`~/.cache/alexdoor-xas/verification/purdue-final/report.json`, with numeric
+`control_traces.npz`, raw contact records, `rgbd_sample.npz`, and representative
+RGB images before/after neck motion and reset. Final sensor-only evidence with
+reset renderer settling is in `purdue-final-rgbd/`; contact force-direction checks are in
+`purdue-final-contacts/`, under the same verification cache.
+
+- Three stable consecutive resets; shoulder height 1.266000 m, closed leaders
+  and mimic followers within 1 mm; no forbidden contact during free-space motion.
+- Seven local translation/rotation/combined targets, held for 0.5 s: maximum
+  position error 0.0204 mm and orientation error 0.00209 degrees. Return moves
+  also passed the operational 10 mm / 5 degree criterion.
+- Seven individual A1 commands: maximum joint error 0.000075 rad.
+  Full tool-point Jacobian agrees with independent URDF finite differences
+  within 0.00000286 (linear/angular components).
+- Loaded contacts on both distal fingers; frame, handle, finger side and pedestal
+  contacts are rejected. Raw points, separations and normal vectors are retained;
+  robot-internal pairs are recorded only once per physics sample.
+- RGB-D: 960 × 600 metric optical-axis depth, known-target error below 0.01 m,
+  RGB/depth fixture overlap above 0.90 IoU, correct head/mount extrinsics and
+  fresh acquisition after neck motion/reset. Representative images inspected.
+- The preserved D0 door-only GPU smoke passes reset, 2 s passive drift (zero),
+  and 3 s response to 15 Nm, reaching the historical 90-degree stop. This checks
+  the retained preparation consumer, not B1 admission or reachability.
+
+Software validation: 332 tests pass, including historical readers/model contracts,
+with Ruff, whitespace and wiki-link/index checks. No corpus, training run or
+four-case reachability result was produced.
 
 ## Files
 
-Expected consumer surfaces: `src/alexdoor_xas/assets/`, `src/alexdoor_xas/envs/`,
-`src/alexdoor_xas/adapters/`, `src/alexdoor_xas/policies/scripted/`,
-`src/alexdoor_xas/recording/`, `configs/`, and focused `scripts/` entry points.
+- `src/alexdoor_xas/envs/door_task/door_push_purdue_env.py` and configuration.
+- `src/alexdoor_xas/envs/door_task/purdue_contacts.py`.
+- `src/alexdoor_xas/assets/purdue.py`.
+- `src/alexdoor_xas/kinematics/pose_control.py` and `src/alexdoor_xas/recording/rgbd.py`.
+- `scripts/verify_purdue_runtime.py`, `scripts/check_env.py` and retired B0 entry points.
+- `src/alexdoor_xas/envs/door_task/door_inspection.py` and retained preparation checks.
+
 External component ownership is documented in the robot topic.
