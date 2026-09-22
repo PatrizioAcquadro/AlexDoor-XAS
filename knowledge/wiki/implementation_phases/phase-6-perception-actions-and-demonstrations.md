@@ -1,166 +1,139 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Planned. Requires Phases 4 and 5. No implementation, pilot, dataset generation,
-> or training was performed by the 2026-09-22 documentation revision.
+> Planned. Three subphases cover observed inputs, all action paths, and a gated
+> pilot-to-dataset workflow. Requires Phases 4 and 5; nothing is executed by this revision.
 
 ## Objective
 
-Make A1-A4 genuinely trainable and executable through the same observed RGB-D
-and proprioceptive interface, then produce matched training demonstrations.
-Follow [[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]].
+Make A1-A4 trainable and executable with the same observed RGB-D/proprioceptive
+interface, then produce matched training demonstrations. Follow
+[[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]].
 
-## Subphase 6.0 — Multi-Door Observations and Recording
+## Subphase 6.0 — Multi-Door Observations and Perception
 
 #### Implementation
 
-Complete the asset-indexed environment and synchronized RGB-D/proprioceptive
-recording using the Phase 4 sensor integration and Phase 5 corpus. Use Isaac Sim
-Replicator for shared visual conditions and annotations. Keep annotations and
-expert simulator state separate from policy observations and inference state.
-Verify every admitted door's reset, capture, and expert execution interfaces
-without changing the common robot/contact setup.
+Extend the Phase 4 capture path to the Phase 5 asset-indexed environment and
+synchronized recording. Do not rebuild camera integration. Verify reset,
+timestamps, depth/mask units, action timing, terminal state, and expert execution
+without changing the common robot/contact setup. Keep annotations and privileged
+expert state separate from observed inputs and inference state.
+
+Use one suitable shared visual backbone and explicit depth/mask processing path.
+Do not run a mandatory backbone comparison: consider alternatives only if a
+concrete train/development failure makes that work necessary. Train the door-frame
+and articulation estimator using training-door data, select it on development
+doors, then freeze preprocessing, history, features, and outputs for every cell.
+Early training-door recordings may support this engineering work; they do not
+constitute the final matched policy dataset.
+
+If Phase 4 demonstrated a fixed-view deficit, implement bounded deterministic
+gaze using observed RGB-D/estimated geometry and neck proprioception. Verify
+occlusion, loss/reacquisition, and safe behavior when estimates are missing.
+Otherwise retain the fixed neck pose and omit gaze implementation.
 
 #### Key Decisions
 
-- Asset identity, split, scene condition, and randomization seed are metadata,
-  not hidden policy inputs.
-- Synthetic configuration probes and held-out qualification traces do not enter
-  B1 learned training data. Fit observation/action normalization on training data.
+- Define estimator accuracy/closed-loop usability gates before training. Freeze
+  one shared perception/gaze stack, never tuned per representation or test door.
+- A3/A4 and gaze use estimated geometry in main evaluation. Simulator state is
+  restricted to teacher, training labels, evaluator, or a separately labeled
+  oracle diagnostic that cannot select models.
+- Asset identity, split, and randomization seed are metadata, not hidden inputs.
+  No oracle reset cache, segmentation-derived sensor mask, or silent fallback.
+- Synthetic setup probes and held-out qualification traces are not learned
+  training data. Fit normalization on training data only.
+- Use existing Replicator APIs for needed visual variation/annotations; no
+  accessory perception framework or stereo-error modeling project is required.
 
 #### Problems / Limitations
 
-Complete only when timestamps, depth units/mask, action timing, reset, and
-terminal-state recording are consistent. Ideal rendered depth retains the
-approximation stated in the robot contract.
+Complete after synchronized recording and development-set perception pass,
+including gaze only when needed. Ideal depth remains an explicit approximation;
+synthetic visibility alone does not prove learned perception works.
 
-## Subphase 6.1 — Frozen Perception and Optional Gaze
-
-#### Implementation
-
-Using training doors only, train the door-frame and articulation estimator
-needed by object-relative execution. Select preprocessing/backbone and depth
-fusion on development doors, then freeze them for every comparison cell.
-The existing DINOv3 ViT-B/16 versus SigLIP 2 Base Patch16 pilot remains a bounded
-candidate comparison; RGB-only encoders do not by themselves consume metric
-depth, so freeze an explicit shared depth/mask processing path as well.
-
-If Phase 4 found a static-view deficit, implement bounded deterministic gaze
-using RGB-D/estimated geometry and neck proprioception. Train any supporting
-perception on training doors and select it on development doors. Validate
-occlusion, loss/reacquisition, and safe behavior when estimates are unavailable.
-Otherwise retain the frozen fixed neck pose.
-
-#### Key Decisions
-
-- Define estimator accuracy and closed-loop usability criteria before training.
-- A3/A4 and gaze receive estimated geometry only in the main learned evaluation.
-  Ground-truth state is restricted to teacher, labels, evaluator, or a separately
-  labeled oracle diagnostic that cannot select models.
-- Freeze the same perception/gaze components for all representations. Never
-  retune them per test door or use simulator door pose to cache a perfect reset.
-- If perception fails, expose that failure. No silent oracle substitution.
-
-#### Problems / Limitations
-
-Complete after development-set perception and, if needed, gaze pass their
-predeclared gates. Visibility diagnosed in Phase 4 is not proof that learned
-perception works. Test assets cannot set tolerances or select this stack.
-
-## Subphase 6.2 — Complete and Verify All Four Action Paths
+## Subphase 6.1 — Complete All A1-A4 Learning and Execution Paths
 
 #### Implementation
 
-Implement the full dataset/model/normalization/adapter/rollout path for both ACT
-and Diffusion under every action representation:
+Complete dataset, model-output, normalization, adapter, and rollout support under
+both ACT and Diffusion:
 
-| Representation | Required executable behavior |
+| Representation | Required behavior |
 |---|---|
-| A1 | Seven joint-target deltas in the frozen arm order; direct joint execution without IK. |
-| A2 | World-frame 6D tool-pose deltas; both translation and rotation executed through seven-joint IK. |
-| A3 | Hinge-frame-relative 6D tool-pose deltas; estimated frame transform followed by the A2 executor. |
-| A4 | Complete object-centric approach/contact/push/hold/release sequence; explicit tensor encoding and stage boundaries, using estimated geometry. |
+| A1 | Seven joint-target deltas in the frozen arm order, executed directly without IK. |
+| A2 | World-frame 6D tool-pose deltas, with translation and rotation executed through seven-joint IK. |
+| A3 | Hinge-frame-relative 6D tool-pose deltas, transformed through estimated geometry and the A2 executor. |
+| A4 | Complete object-centric approach/contact/push/hold/release sequence, with explicit tensor encoding and stage boundaries. |
 
-Phase 4 supplies the shared low-level pose controller; this subphase completes
-its learned interfaces and the A1/A4 paths. Do not treat A2/A3 as already correct
-merely because the old translation-only learned pipeline runs. Verify action
-semantics, rotational execution, tool offset, joint order, limits, and causal
-observations across all eight paths.
+Reuse Phase 4's low-level pose controller. Verify joint order, tool offset,
+rotational execution, limits, causal observations, and action semantics through
+all eight paths. The old translation-only A2/A3 pipeline is not sufficient B1
+support. Verify matched-action replay and observed-geometry smoke rollouts before
+the data pilot.
 
 #### Key Decisions
 
-- Keep neck and finger commands outside the learned arm action arrays.
-- Adapters may validate, transform, and apply shared safety limits, but must not
-  invent missing A4 stages or append an expert push to an incomplete prediction.
-- No representation receives the expert angle, true hinge/frame state, or a
-  hidden controller that finishes the task. Predicted motion goals are allowed;
-  common benchmark stopping angles are not.
-- Learned trajectories need not reproduce the teacher's exact point or path.
-  They must obey the same push-only, authorized-surface, collision, force, and
-  controlled-contact validity rules. This permits legitimate progress above
-  the fixed expert reference without giving an adapter privileged assistance.
+- Keep neck and constant finger commands outside learned arm action arrays.
+- Adapters may validate, transform, and apply shared safety limits. They cannot
+  invent missing A4 stages, append expert motion, or read true door state.
+- Predicted motion goals are allowed; shared benchmark stopping angles and
+  expert-reference inputs are not.
+- Policies may differ from the teacher's exact point/path while obeying common
+  push-only, authorized-surface, collision, force, and controlled-contact rules.
+- Do not relabel legacy six-joint/state-only data or checkpoints as compatible B1.
 
 #### Problems / Limitations
 
-Complete only when all eight paths can replay matched actions and perform
-end-to-end smoke rollouts with observed geometry. Legacy six-joint/state-only
-datasets and checkpoints must not be relabeled as compatible B1 products.
+Complete only when all eight ACT/Diffusion x A1-A4 paths work. A partial A1/A4
+implementation cannot support the intended representation comparison.
 
-## Subphase 6.3 — Data and Evaluation-Condition Pilot
+## Subphase 6.2 — Small End-to-End Pilot and Final Dataset
 
 #### Implementation
 
-Run a small train/development-only pilot through recording, matched A1-A4 export,
-loading, training smoke, and closed-loop execution. The frozen scripted expert
-is the primary teacher. Use Replicator for visual variation; admit a bounded
-Isaac Lab Mimic trial or targeted teleoperation only for an identified coverage
-gap and after validity/pairing checks. Defer RL teachers.
+First run a small train/development-only pilot through recording, matched export,
+loading, brief training, and closed-loop execution. Diagnose validity, timing,
+coverage, pairing, and learnability before large-scale generation. The frozen
+scripted expert is the default teacher. Use Mimic or targeted teleoperation only
+for a demonstrated coverage gap; if scripted data suffice, omit both.
 
-Determine dataset size, history, A4 sequence length, randomization ranges,
-training budget, and selection rules. Define 20 meaningfully varied paired
-evaluation conditions per door/tier; repeating the identical deterministic
-episode does not create additional geometric evidence. Define the stress-test
-expert procedure before sealed test evaluation, as specified in the decision.
+Use the pilot to fix dataset size, observation history, depth processing, A4
+encoding/length, teacher mix, randomization, normalization, training budget,
+five-seed list, checkpoint selection, and paired evaluation conditions. Define
+20 meaningfully varied conditions per evaluated door/tier; identical deterministic
+repeats are not extra geometric evidence. Freeze eligibility and stress ranges
+on train/development data before any sealed test-policy results, even though
+Phase 7 reports ID/GEO first and stress results afterward.
 
-#### Key Decisions
-
-- Keep the accepted physical episodes and observations identical across A1-A4.
-- Keep teacher identity explicit; extra teachers do not redefine the frozen
-  qualification reference or use test-door results to improve the probe.
-- Fit choices on train/development only. Do not adapt base pose, contact rule,
-  or the admitted corpus in response to learned failures.
-
-#### Problems / Limitations
-
-Pilot data are engineering evidence, not the final benchmark dataset. Complete
-only after validity, coverage, pairing, synchronization, and learnability pass.
-
-## Subphase 6.4 — Protocol Freeze and Final Demonstrations
-
-#### Implementation
-
-Freeze the shared perception/gaze, observation history, accepted teacher mix,
-dataset membership/size, action encodings, normalization, randomization ranges,
-training budget, five-seed list, checkpoint-selection rule, and evaluation
-conditions. Generate the matched demonstration dataset from training doors.
-Development doors support selection/evaluation; sealed test qualification and
-evaluation evidence never become demonstration training data.
+Only after the pilot passes, freeze the protocol and generate the final matched
+demonstrations from training doors. All representations use the same accepted
+physical episodes and observations, with representation-specific action arrays.
+Verify schema, pairing, split separation, and replay. Development data support
+selection/evaluation; test evidence never becomes training demonstrations.
 
 #### Key Decisions
 
-- Use one accepted episode set for every matrix cell, with representation-specific
-  action arrays and train-only normalization.
-- Verify pairing, schema, replay, and split separation. Later protocol changes
-  require an explicit new benchmark version, not silent reranking.
+- Combining pilot and production in one subphase does not remove the pilot gate.
+  Do not generate the full dataset or launch the 40-run matrix before it passes.
+- Teacher source remains explicit. Added teachers do not redefine expert
+  qualification or tune the frozen probe from test results.
+- Learned failures cannot retune base pose/contact rules or replace admitted doors.
+- Defer RL teachers and VLA work. Alternative backbones, gaze, Mimic, and
+  teleoperation are conditional remedies, not mandatory benchmark activities.
+- Changes after protocol freeze require an explicit new benchmark version.
 
 #### Problems / Limitations
 
-Complete only when the final dataset and frozen protocol are usable by all eight
-paths. Phase 7 owns full training and sealed evaluation.
+Pilot recordings are engineering evidence. Complete only with a passed pilot,
+frozen protocol, and final dataset usable by all eight paths. Phase 7 owns full
+training and sealed evaluation.
 
 ## Artifacts
 
-Future outputs: synchronized observed-input pipeline, frozen perception/gaze,
-eight executable learning paths, pilot evidence, protocol, and matched dataset.
+Future outputs: synchronized multi-door recordings, one frozen perception stack
+and optional gaze, eight executable learning paths, pilot evidence, protocol,
+and matched dataset. None was produced by the documentation revision.
 
 ## Files
 

@@ -1,113 +1,106 @@
 # Phase 7 — Training and Generalization Evaluation
 
-> Planned. Requires the Phase 6 dataset and protocol. No training or evaluation
-> was performed by the 2026-09-22 documentation revision.
+> Planned. Two subphases train the models, then evaluate and analyze them.
+> Requires Phase 6; no training or evaluation is performed by this revision.
 
 ## Objective
 
-Compare A1-A4 x ACT/Diffusion on qualified held-out door identities, using
+Compare A1-A4 x ACT/Diffusion on qualified held-out door identities using
 expert-normalized controlled opening and explicit validity. The authoritative
-metric and stress-reference rules are in
+metrics and matched stress references are in
 [[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]].
 
 ## Subphase 7.0 — Forty-Checkpoint Training Matrix
 
 #### Implementation
 
-Train two model families x four action representations x five independent seeds
-for 40 selected checkpoints. Hold physical episode membership, observations,
-training budget, and checkpoint selection fixed. Select on development doors
-only, using the same validity-adjusted progress objective for all cells.
+After the small Phase 6 pilot passes and its dataset/protocol are frozen, train
+two models x four representations x five independent seeds. Hold physical episode
+membership, observations, training budget, and checkpoint selection fixed. Select
+on development doors only with the common validity-adjusted progress objective.
 
 #### Key Decisions
 
 - Use actual compatible GPUs. The workstation owns Isaac workloads; Gilbreth
   A100s or the available Gautschi H100 allocation can run non-Isaac training.
-- Report failed training cells and seed variation; do not silently replace
-  failures with extra favorable seeds or report only the best checkpoint.
+- Report failed cells and seed variation; do not replace failures with favorable
+  extra seeds or report only the best run.
 - Keep training independent of simulator imports and test-door data.
 
 #### Problems / Limitations
 
 Complete when all 40 planned runs have explicit outcomes and selected loadable
 checkpoints where successful. Resolve infrastructure failures transparently;
-do not call an incomplete matrix a completed comparison.
+never label an incomplete matrix a completed comparison.
 
-## Subphase 7.1 — Paired Nominal and Stress Evaluation
-
-#### Implementation
-
-Evaluate the selected checkpoints over 20 paired conditions per evaluated door
-in ID, GEO, POSE, LIGHT, DYN, and COMPOUND. Match conditions/seeds across cells and
-use only observed RGB-D/proprioception and frozen perception/gaze in inference.
-Expert and policy use the same physical scenario, validity rules, sustain
-duration, and episode time budget. Neither stops at a shared opening target.
-
-For POSE, DYN, COMPOUND, and any reset perturbation that changes physical
-reachability, compute the frozen probe reference for that exact physical
-condition before examining policy outcomes. Cache it across checkpoints.
-LIGHT-only changes may reuse the corresponding physically identical reference.
-Test expert traces remain isolated evaluation data and never tune the probe.
-
-#### Key Decisions
-
-- A zero, invalid, or unresolved expert reference is an unqualified scenario.
-  Report reference coverage and the reason for all models; do not silently omit
-  a difficult policy result or substitute a nominal denominator.
-- Do not revise test assets, randomization ranges, or common setup after seeing
-  test-policy performance. A systemic evaluation defect must be corrected and
-  the affected paired comparisons rerun transparently.
-- Preserve raw angles, whole-episode safety/physics validity, stop reasons, and
-  release status. Unsafe or otherwise invalid policy episodes receive zero valid
-  progress while staying in the aggregate denominator. A safe timeout or incomplete
-  release alone does not erase earlier controlled sustained progress; use the
-  decision's distinction between partial task performance and invalid execution.
-- Simulator truth is permitted for scoring and a common safety monitor, never
-  to produce helpful policy/gaze/adapter commands or angle-based early success.
-
-#### Problems / Limitations
-
-Complete only with interpretable paired results and declared expert-reference
-coverage. Report software/infrastructure interruptions separately from policy
-failures; they cannot be silently removed to improve a model's score.
-
-## Subphase 7.2 — Analysis and Reproducible Release
+## Subphase 7.1 — Evaluation, Analysis, and Reproducible Results
 
 #### Implementation
 
-Rank by GEO validity-adjusted expert-normalized progress, aggregated within each
-door and then equally across doors. Report raw sustained angles, per-door ratios,
-per-split/tier results, ID-minus-GEO generalization gap, and training-seed variation.
-Keep ratios above one visible. Report validity and force diagnostics alongside
-progress; they are not alternate optimization targets.
+Run and analyze **ID and GEO first** to answer the central seen-versus-unseen-door
+question. Use 20 paired conditions per evaluated door/tier, matching conditions
+and seeds across cells. Report valid expert-normalized progress, raw sustained
+angles, per-door/split scores, generalization gap, and training-seed variation.
+This is an explicit core-result milestone, not a claim that stress evaluation
+is already complete.
 
-Publish the licensed manifest/attribution, split, common setup/probe, expert
-references, observation/action/perception contracts, dataset recipe, selected
-checkpoint information, protocol, and aggregate/per-door results. Separate
-oracle diagnostics from main rankings.
+Then execute the planned POSE, LIGHT, DYN, and COMPOUND tiers using the ranges
+and eligibility rules fixed before sealed evaluation. Do not expand accessory
+experiments or retune the protocol based on ID/GEO test results. Main inference
+uses only observed RGB-D/proprioception and frozen perception/gaze.
+
+For every physically changed condition, including reset perturbations, compute
+its matched frozen-probe reference before examining the corresponding policy
+outcomes. Reuse it across checkpoints; purely visual changes may reuse the
+physically identical reference. Expert and policy share physical conditions,
+validity rules, sustain duration, and episode time budget, without a shared
+angular stopping target.
+
+Average rollout scores within each door, then weight doors equally. Rank by GEO
+validity-adjusted expert-normalized progress. Preserve ratios above one and
+report raw angles, invalid counts, force diagnostics, stop reasons, and release
+status. Analyze results as they are produced rather than opening another subphase
+for the same records.
+
+Keep the configurations, dataset recipe, licensed manifest/attribution, split,
+expert references, selected checkpoint information, and per-door/aggregate
+results needed to reproduce the comparison. Prepare a public-release checklist
+at the end; public packaging/publication is not a separate research subphase or
+a prerequisite to reading and delivering the scientific results.
 
 #### Key Decisions
 
-- Interpret the main result as progress relative to a frozen practical expert,
-  not percentage of an absolute robot optimum.
-- Describe the qualified 24-door population and excluded-domain coverage.
-  More rollout repetitions do not increase the number of independent door identities.
-- The real stereo error model, soft-finger mechanics, hardware force safety,
-  and sim-to-real transfer remain unvalidated unless separately demonstrated.
+- A zero, invalid, or unresolved expert reference means an unqualified scenario.
+  Report coverage/reason for every model; do not silently drop difficult cases
+  or substitute nominal denominators.
+- Do not replace test doors or tune ranges/common setup after policy results.
+  Correct systemic evaluation defects transparently and rerun affected comparisons.
+- Unsafe or otherwise invalid policy episodes receive zero valid progress and
+  stay in the denominator. A safe timeout or incomplete release alone does not
+  erase earlier sustained controlled progress; an unsafe release invalidates it.
+- Simulator truth may score and trigger common safety stops, never supply helpful
+  policy/gaze/adapter commands or angle-based early success.
+- Keep oracle diagnostics separate and run them only to investigate a concrete
+  failure, not as an obligatory extra matrix. Report infrastructure interruptions
+  separately from policy failures.
 
 #### Problems / Limitations
 
-Conclusions cover unseen push-door instances under the declared conditions.
-They do not establish handle operation, other object families, mobile-base
-behavior, hardware deployment, or general physical safety.
+Deliver ID/GEO conclusions before spending on the stress extension, while keeping
+that extension visible as pending until executed. Full planned evaluation closes
+only after the retained stress tiers and analysis are complete. Interpret progress
+relative to a practical expert, not an absolute robot optimum. Conclusions concern
+the qualified push-door domain; stereo errors, soft fingers, physical safety,
+sim-to-real, handle operation, and other object families remain outside the claim.
 
 ## Artifacts
 
-Future outputs: training outcomes/checkpoints, paired evaluation records,
-expert-condition references, per-door/split report, and reproducible release.
+Future outputs: training outcomes/checkpoints, core ID/GEO report followed by
+stress results, matched expert references, per-door analysis, and reproducibility
+materials. No result or public release was produced by this revision.
 
 ## Files
 
-Expected surfaces: `src/alexdoor_xas/policies/`, `src/alexdoor_xas/eval/`,
-shared rollout reporting, `scripts/train_policy.py`, `scripts/eval_policy.py`,
-`configs/`, and publication documentation.
+Expected surfaces: `src/alexdoor_xas/policies/`, `src/alexdoor_xas/eval/`, shared
+rollout reporting, `scripts/train_policy.py`, `scripts/eval_policy.py`, `configs/`,
+and result documentation.

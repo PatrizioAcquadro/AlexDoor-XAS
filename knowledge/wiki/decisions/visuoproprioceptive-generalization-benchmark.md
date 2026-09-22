@@ -57,7 +57,9 @@ state. A wrist camera is not required. RGB-D is chosen because the intended ZED
 provides metric depth useful for manipulation; the initial rendered depth remains
 an explicitly ideal geometric approximation, not a reproduced stereo-error model.
 
-Use one frozen train/development-selected perception stack. An estimator supplies
+Start with one suitable shared backbone and depth-processing path; no mandatory
+backbone comparison is required. Evaluate alternatives only for a concrete
+train/development failure. Use one frozen perception stack. An estimator supplies
 the door frame/articulation required by A3/A4. First test a fixed neck pose; add
 a common deterministic observed-input gaze controller only for a demonstrated
 visibility deficit. Never give gaze a perfect simulator door position.
@@ -97,9 +99,13 @@ authorized-surface, controlled-contact, force, and collision validity rules.
 
 ## Asset Corpus and Demonstrations
 
-Target 24 unique qualified identities, 12 left- and 12 right-hinged. The user
-provides URLs for review and downloads candidates manually. Apply the legal,
-normalization, static, and physics criteria in
+Target 24 unique qualified identities, 12 left- and 12 right-hinged. Subphase 5.0
+first delivers validated reusable normalization and static/GPU-physics checking
+tools, before candidate intake begins. Then the user provides one URL at a time:
+the model reviews it, the user manually downloads an acceptable candidate, and
+the model prepares/checks the local payload using those tools. Each prepared door
+can proceed directly to the expert check in 5.1; no initial batch of 24 downloads
+is required. Apply the legal, normalization, static, and physics criteria in
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
 Only CC0 or CC BY 4.0 assets and redistributable dependencies are admitted.
 
@@ -187,9 +193,13 @@ separately and resolve affected paired comparisons rather than hiding failures.
 | DYN | Seen identities under held-out physical parameters. |
 | COMPOUND | Sealed identities with held-out pose, illumination, and dynamics. |
 
-Define ranges and eligibility rules using train/development data, before sealed
-policy evaluation. Use 20 paired conditions per evaluated door/tier and the same
-conditions/seeds for every model/representation. Distinct conditions and training
+Run and report ID/GEO first, then the planned POSE/LIGHT/DYN/COMPOUND stress
+extension. A core result may be delivered while stress work is explicitly pending;
+it is not a completed full evaluation. Define all ranges and eligibility rules
+using train/development data before any sealed policy evaluation, so core test
+results cannot tune the later stress protocol. Use 20 paired conditions per
+evaluated door/tier and the same conditions/seeds for every model/representation.
+Distinct conditions and training
 seeds provide variation; identical deterministic repeats do not create new doors.
 
 For condition `c` that changes physical reachability, replace the nominal
@@ -211,28 +221,40 @@ resample test conditions, or replace a test door to improve learned results.
 The frozen scripted expert is the primary teacher. Replicator supplies visual
 variation and annotations. A bounded Mimic trial or targeted teleoperation may
 address demonstrated coverage gaps after validation; neither is mandatory when
-the scripted data suffice. Defer RL teachers and VLA extensions.
+the scripted data suffice. Gaze is likewise implemented only for a demonstrated
+fixed-view deficit. Defer RL teachers, VLA extensions, and unrelated experiments.
 
-Phase 6 selects/fixes perception and optional gaze, history, depth processing,
-A4 encoding/length, accepted teacher mix, dataset membership/size, randomization
+The small end-to-end pilot remains mandatory: pass it before final dataset
+production or full training. Combining pilot and production into Subphase 6.2
+does not remove this gate. Phase 6 selects/fixes perception and optional gaze,
+history, depth processing, A4 encoding/length, accepted teacher mix,
+dataset membership/size, randomization
 ranges, normalization, training budget, five seeds, checkpoint selection, and
 paired evaluation conditions using train/development doors only. Use the same
 accepted physical episodes for all representations. Full training produces
 2 x 4 x 5 = 40 selected checkpoints, without favorable replacement seeds.
 
-## Implementation Order and Release
+## Implementation Order and Essential Deliverables
 
-1. [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]]: external assets, seven-joint pose control, synthetic setup/probe, RGB-D, and visibility.
-2. [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]]: manual collection, normalization, gates, expert references, and split.
-3. [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]]: observed perception/gaze, all learned action paths, pilot, and matched data.
-4. [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]]: training matrix, paired evaluation, analysis, and release.
+The plan has nine subphases, grouped by concrete outputs:
 
-Publish licensed asset provenance, split, setup/probe and expert references,
+| Phase | Subphases | Output |
+|---|---|---|
+| [[implementation_phases/phase-4-robot-and-task-configuration|4 — Robot and Task Configuration]] | 4.0 Operational Alex003/control/RGB-D; 4.1 common pose/reachability/visibility. | Usable robot and frozen synthetic-qualified setup. |
+| [[implementation_phases/phase-5-door-corpus-and-qualification|5 — Door Corpus and Qualification]] | 5.0 tools first, then one-URL-at-a-time preparation; 5.1 expert qualification and final split. | Qualified doors, references, and 12/4/8 split. |
+| [[implementation_phases/phase-6-perception-actions-and-demonstrations|6 — Perception, Actions, and Demonstrations]] | 6.0 observations/perception; 6.1 complete A1-A4; 6.2 passed pilot followed by final dataset. | Shared observed-input stack, eight usable learning paths, and matched demonstrations. |
+| [[implementation_phases/phase-7-training-and-generalization-evaluation|7 — Training and Generalization Evaluation]] | 7.0 training; 7.1 evaluation and analysis, ID/GEO before stress tiers. | Core generalization result, subsequent stress analysis, and reproducible records. |
+
+Retain licensed asset provenance, split, setup/probe and expert references,
 observation/action contracts, dataset recipe, frozen protocol, and per-door and
-aggregate results. Claims cover this qualified push-door domain. They do not
-establish handle manipulation, other object families, physical safety, or sim-to-real.
+aggregate results. Public-release packaging is a final checklist, not a separate
+subphase or a blocker to delivering the research result. Claims cover this
+qualified push-door domain, not handle manipulation, other object families,
+physical safety, or sim-to-real.
 
 ## Version Notes
 
+- 2026-09-22 — Consolidated to nine subphases; tools precede sequential URL intake,
+  optional work is conditional, and ID/GEO reporting precedes stress analysis.
 - 2026-09-22 — Replaced the shared-angle design with Purdue/WSG32/head RGB-D,
   synthetic minimax setup, per-door/per-condition expert progress, and Phases 4–7.

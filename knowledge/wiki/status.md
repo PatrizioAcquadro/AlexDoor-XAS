@@ -24,12 +24,19 @@ and progress relative to a frozen expert. Its main score includes invalid policy
 rollouts as zero valid progress. A 45-degree expert opening is asset admission
 only; no shared opening angle stops the controller or ranks policies.
 
-The approved plan is:
+The approved plan has nine subphases (2/2/3/2):
 
-1. [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] — Reuse Alex assets, migrate pose control, select a common setup by minimax over four synthetic width/hinge cases, and validate RGB-D/visibility.
-2. [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] — Review user-provided URLs, manually acquire and qualify 24 doors, then freeze expert references and the 12/4/8 split.
-3. [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]] — Freeze observed perception/optional gaze, complete every learned action path, and generate matched training demonstrations.
-4. [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7]] — Train/evaluate the 40-checkpoint matrix with matched physical-condition expert references.
+1. [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] — 4.0 makes Purdue Alex003 with its measured pedestal, WSG, pose control, and RGB-D operational; 4.1 selects the common synthetic-qualified pose/contact setup and checks visibility.
+2. [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] — 5.0 first builds and validates preparation/checking tools, then processes one user-provided URL at a time; 5.1 qualifies each prepared door and freezes the 24-door 12/4/8 split.
+3. [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]] — 6.0 supplies observations/perception; 6.1 completes all learned A1-A4 paths; 6.2 passes a small pilot before producing final demonstrations.
+4. [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7]] — 7.0 trains the matrix; 7.1 evaluates/analyzes ID/GEO first, then the retained stress tiers.
+
+There is no mandatory backbone comparison. Gaze, Mimic, and teleoperation are
+implemented only for a demonstrated need. Public-release packaging is a final
+checklist, not an additional research subphase. The Phase 5.0 infrastructure can
+be delivered before any URL is supplied; corpus completion still requires actual
+assets to pass preparation and expert qualification. No infrastructure has been
+implemented by this documentation update.
 
 The [[decisions/visuoproprioceptive-generalization-benchmark|scientific decision]]
 owns metrics and information boundaries. The
@@ -102,6 +109,8 @@ Implementation of the revised B1 plan has not started. Physical-robot,
 sim-to-real, VLA, and later articulated-object work remain separately scoped.
 
 ## Version Notes
+
+- 2026-09-22 — Reduced the plan to nine subphases and made Phase 5.0 infrastructure readiness precede sequential user-provided URLs.
 
 - 2026-09-22 — Separated current B0 behavior, superseded local tooling, and the approved Purdue/RGB-D Phases 4–7 plan.
 - 2026-08-13 — Reconciled the wiki with the simplified current repository and separated maintained behavior from concise historical evidence.

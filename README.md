@@ -31,6 +31,10 @@ The plan is split into [Phase 4: robot and task configuration](knowledge/wiki/im
 [Phase 5: door corpus and qualification](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md),
 [Phase 6: perception, actions, and demonstrations](knowledge/wiki/implementation_phases/phase-6-perception-actions-and-demonstrations.md),
 and [Phase 7: training and evaluation](knowledge/wiki/implementation_phases/phase-7-training-and-generalization-evaluation.md).
+These four phases contain nine subphases. Phase 5 first delivers validated
+normalization/checking tools, then processes user-provided door URLs one at a time.
+A small complete pilot precedes final data production; gaze and extra teachers
+are added only if needed. Evaluation reports ID/GEO before the stress extension.
 Superseded local qualification tooling requires a separate code audit before
 Phase 4. Handles and other articulated objects remain later studies.
 

@@ -13,10 +13,10 @@ Planned and historical development records:
 - [[implementation_phases/phase-1-project-and-simulation-readiness|Phase 1 — Project and Simulation Readiness]] — Initial package, dependency, and simulator foundation.
 - [[implementation_phases/phase-2-scripted-baseline-and-data-engine|Phase 2 — Scripted Baseline and Data Engine]] — Scripted execution, recording, and matched export foundation.
 - [[implementation_phases/phase-3-non-vla-learned-baselines|Phase 3 — Non-VLA Learned Baselines]] — State-only policy, adapter, and evaluation foundation.
-- [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — Planned Purdue/WSG integration, seven-joint pose control, synthetic minimax setup, and RGB-D visibility.
-- [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Planned manual collection, normalization, expert qualification, and frozen 12/4/8 asset split.
-- [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — Planned observed perception/gaze, complete A1-A4 learning paths, and matched dataset.
-- [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]] — Planned 40-checkpoint comparison, paired expert-normalized evaluation, and release.
+- [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — Two planned subphases: operational Alex003/control/RGB-D, then common setup/reachability/visibility.
+- [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Two planned subphases: preparation tools before sequential URL intake, then expert qualification and split.
+- [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — Three planned subphases: observations/perception, complete A1-A4, and passed pilot followed by final data.
+- [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]] — Two planned subphases: training, then evaluation/analysis with ID/GEO before stress tests.
 - [[implementation_phases/extra-01-alex-v2-migration|Extra 01 — Alex V2 Migration]] — Migration from provisional assumptions to fixed-base Alex V2.
 - [[implementation_phases/extra-02-local-stabilization|Extra 02 — Local Stabilization]] — Closed-loop and force-semantics stabilization.
 - [[implementation_phases/extra-03-gilbreth-compatibility-pilot|Extra 03 — Gilbreth Compatibility Pilot]] — Completed two-cell A100 compatibility check.

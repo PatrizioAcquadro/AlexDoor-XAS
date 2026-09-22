@@ -1,171 +1,133 @@
 # Phase 4 — Robot and Task Configuration
 
-> Planned. The 2026-09-22 revision replaces the former all-in-one Phase 4.
+> Planned. Two subphases prepare the robot, then select its common setup.
 > Documentation approval is not implementation or runtime validation.
 
 ## Objective
 
-Establish one practical fixed-base Purdue Alex configuration and a measured
-expert reachability reference on synthetic doors before inspecting collected
-door assets. Follow the scientific contract in
+Make the Purdue Alex003 assembly operational and establish one fixed-base setup
+on synthetic doors before inspecting collected assets. Follow
 [[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]] and
-the source-backed [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]].
+[[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]].
 
-Before implementation, audit the superseded local qualification code separately.
-That cleanup must preserve useful capabilities and current consumers; it is not
-permission to execute this phase.
+Before implementation, separately audit the superseded local qualification code.
+That cleanup is not permission to execute this phase.
 
-## Subphase 4.0 — Adopt Purdue, WSG32, Pedestal, and Sensor Mounts
-
-#### Implementation
-
-Adopt the existing Alex `full_convex` Purdue/WSG32/UMI v1 profile, measured
-pedestal, and ZED X Mini Wide mount through the external package. Implement the
-task-owned closed-finger push frame from the canonical contact geometry. Resolve
-the seven right-arm joints, two neck joints, fixed finger targets, and one parked
-left-arm pose explicitly. Retire the old asset/calibration assumptions only as
-their consumers migrate.
-
-Verify the imported assembly, joint identities/limits, mimic behavior, fixed
-mounting height, collision geometry, and actual distal-finger contact locations.
-Adapt contact/force selection to the right finger surfaces and exact contacted
-door bodies; include forbidden robot/frame/handle/pedestal contacts in validity.
-Do not reuse the old single-gripper-body force filter without checking ownership.
-
-#### Key Decisions
-
-- The robot/contact topic owns the selected model, finger opening, surface,
-  operational frame, collision policy, limits, and measured support dimensions.
-- Reuse generic components from Alex; do not duplicate URDFs, meshes, camera
-  factories, or pedestal builders here.
-- The phase validates simulation integration, not physical safety or sim-to-real.
-
-#### Problems / Limitations
-
-Complete only after GPU checks establish stable reset, valid joint commands,
-collision/force observability, and the intended contact footprint. Current local
-source inspection supplies a prescription, not that evidence. Resolve any
-contact-model defect before searching for the common pose.
-
-## Subphase 4.1 — Seven-Joint Pose Control and Synthetic Reachability
+## Subphase 4.0 — Operational Alex003, Control, and RGB-D
 
 #### Implementation
 
-First implement full position-and-orientation control of `right_push_tip` using
-all seven arm joints. Migrate the A2 executor and A3 frame transform, including
-the offset tool Jacobian and a deterministic redundancy/joint-margin rule.
-Verify that rotation commands are actually executed and that A1 can address the
-same joint order directly; learned model support belongs to Phase 6.
+Reuse the external Alex `full_convex` Purdue/WSG32/UMI v1 profile, measured
+Alex003 pedestal, and ZED X Mini Wide integration. Resolve seven right-arm joints,
+two neck joints, fixed closed-finger targets, and a collision-free parked left
+arm. Implement the task-owned push frame from the existing distal-finger geometry.
+Verify the assembly, fixed mounting height, joint limits, mimic behavior,
+collision geometry, and actual contact locations. Adapt force/contact selection
+to the right finger surfaces and exact door bodies, including forbidden
+robot/frame/handle/pedestal contact. Do not retain the old single-body force
+filter without checking its ownership assumptions.
 
-Build four canonical synthetic single-leaf doors: widths 1.20 m and 0.65 m,
-each left- and right-hinged. Use a common nominal height/thickness and physics
-template recorded before the search. Both widths participate in the minimax
-objective and the complete approach/contact/push/hold/release check. Neither
-handedness may mirror or reposition Alex independently.
+Implement full tool position-and-orientation control through all seven arm
+joints. Migrate the A2 executor and A3 transform, including the offset tool
+Jacobian and a deterministic redundancy/joint-margin rule. Verify actual rotation
+execution and A1 direct addressing of the same joint order. Phase 6 owns learned
+model/data/adapter integration, not this low-level controller.
 
-Define the common setup relative to the center of the closed door opening at
-floor level: +Z up, +X into the opening from the robot's side, +Y completing the
-right-handed frame. Keep this task reference separate from A3's hinge-anchored
-frame. Search robot-plus-pedestal floor X/Y and yaw with measured height fixed.
-
-Use one panel-relative contact rule: a fraction of width measured from the hinge,
-one height above the floor near the nominal handle region but on the panel,
-and the distal-finger footprint/orientation. Start
-at fraction 0.90. Evaluate that choice and any justified common adjustment only
-on the synthetics. Record the selected fraction and absolute height before
-Phase 5; do not substitute each asset's actual handle location. Check that the
-whole footprint stays on the panel and clear of handle/frame geometry.
-
-The privileged expert follows the same material location along the panel's arc,
-with the tool pointing into the panel and its vertical axis upward. Preserve
-this controlled push through finite tracking tolerances, followed by a hold and
-safe release. Measure the maximum opening sustained for 0.5 seconds while
-maintaining valid controlled contact. No target angle or success crossing may
-end the opening attempt at 45 or 50 degrees.
-
-Choose the common pose that maximizes the minimum sustained expert angle across
-the four synthetic cases. Feasibility requires valid approach, contact, hold,
-release, and no forbidden contact. Treat angles within the frozen numerical
-tolerance as ties; prefer larger normalized joint-limit margins, then lower
-contact force and greater forbidden-collision clearance. Required panel contact
-is not a penalty to eliminate.
+Connect the existing ZED left RGB/depth outputs and derive the valid-depth mask.
+Verify optical extrinsics, metric units, image/depth alignment, neck proprioception,
+synchronization, and reset. Build this capture path once and reuse it later for
+multi-door recording. Keep simulator annotations out of observed inputs.
 
 #### Key Decisions
 
-- Measure a controller-qualified reachability envelope, not a global kinematic
-  optimum. A broad door is not assumed to be the worst case.
-- Respect physical hinge stops, robot limits, force limits, and a bounded common
-  episode horizon. Select the horizon on synthetics so ordinary slow progress
-  is not mistaken for a reachability limit; freeze it before collected assets.
-- Report `kinematic_limit` only with joint/workspace/pose-feasibility evidence.
-  Separate mechanical stop, safety stop, tracking/solver stall, lost contact,
-  time-budget exhaustion, and invalid physics. Timeout alone does not prove a limit.
-- A controlled limit reached with a valid hold and release is a measured result,
-  not an asset failure. An unresolved stall/horizon stop yields an incomplete
-  reachability measurement and requires diagnosis.
-- Freeze the controller, redundancy rule, ready/parked poses, force/speed limits,
-  tracking/contact tolerances, sustain duration, horizon, and stop classification
-  together with base pose and contact rule. The synthetic minimum is evidence,
-  never a controller/policy stopping target.
+- The robot/contact topic owns model, fingers, surface, tool frame, collision
+  policy, limits, and measured support dimensions. Do not duplicate Alex assets,
+  camera factories, or pedestal builders in this repository.
+- This is the Purdue Alex003 composition with WSG selected explicitly; the
+  generic reference scene defaults to SAKE.
+- Use head RGB-D/proprioception without a mandatory wrist camera or GMSL emulation.
+  Ideal rendered depth remains an explicit approximation.
 
 #### Problems / Limitations
 
-Complete after all four cases have interpretable angle/force/joint/contact traces
-and a lightweight reset repeat. No collected assets, split assignment, statistical
-qualification-count selection, or rollout-percentile threshold belongs here.
-If the setup is inadequate for the intended 45-degree admission domain, report
-that limitation and revise it on synthetics before freezing; do not hide
-the problem through asset-specific tuning. Synthetic geometry is configuration
-evidence, not B1 training or test data.
+Complete after GPU checks show stable reset, valid seven-joint pose control,
+correct contact/force observability, and synchronized RGB-D. Source inspection
+alone is insufficient. No physical-safety or sim-to-real claim follows.
 
-## Subphase 4.2 — Head RGB-D and Visibility Contract
+## Subphase 4.1 — Common Pose, Synthetic Reachability, and Visibility
 
 #### Implementation
 
-Connect the existing ZED left RGB/depth outputs to synchronized observations and
-derive a sensor-validity mask. Include neck proprioception and correct optical
-extrinsics. Verify units, alignment, timestamps, reset behavior, and separation
-of observed inputs from simulator annotations.
+Use four synthetic single-leaf doors: widths 1.20 m and 0.65 m, each left- and
+right-hinged. Record one nominal height/thickness and physics template before
+searching. Both widths participate in the complete approach/contact/push/hold/
+release check and minimax objective; neither is assumed to be the worst case.
 
-With the selected base pose, inspect visibility through the complete synthetic
-motions, including arm occlusion and near-range limits. First select one fixed
-neck pose that retains useful panel/contact/frame information; the entire door
-need not occupy the image at all times. A poor result may reopen the synthetic
-setup before Phase 4 closes, but must not lower the recorded physical angle to
-hide a sensing problem.
+Place Alex003 relative to the center of the closed door opening at floor level:
++Z up, +X into the opening from the robot side, +Y completing the right-handed
+frame. Keep this placement reference distinct from A3's hinge frame. Search
+robot-plus-pedestal floor X/Y and yaw with measured height, roll, and pitch fixed.
+Do not mirror or reposition Alex separately for each handedness.
 
-If static viewing is insufficient, specify a common bounded deterministic gaze
-controller driven only by RGB-D and robot proprioception. Implement and freeze
-its perception-dependent execution in Phase 6.1. Phase 4 must record the actual
-visibility deficit and gaze requirement, not claim that active gaze is already
-validated. If static viewing passes, no gaze controller is required.
+Use one panel contact fraction from the hinge, one absolute floor height near
+the nominal handle region but on the panel, and the frozen finger footprint.
+Start at fraction 0.90; evaluate any common adjustment only on synthetics. Keep
+the footprint on the panel and clear of frame/handle geometry. The expert follows
+that material location along the panel arc, with the tool pointing into the
+panel and its vertical axis upward, using finite tracking tolerances.
+
+Measure the maximum opening sustained for 0.5 seconds of valid controlled
+contact, followed by safe release. Never end the push at 45 or 50 degrees.
+Choose the common pose maximizing the minimum sustained expert angle over the
+four cases, subject to valid approach/contact/hold/release and no forbidden
+contact. Within a frozen numerical tie tolerance, prefer greater normalized
+joint-limit margin, then lower force and greater forbidden-collision clearance.
+
+Check useful panel/contact/frame visibility during these same motions, including
+arm occlusion and near-range limits. First seek one fixed neck pose. Visibility
+may reopen the synthetic pose search before freezing; do not conceal a visual
+failure by lowering the measured physical opening. The whole door need not stay
+in the image if the information needed for control remains observable.
+
+Only if the fixed view is insufficient, record the demonstrated deficit and
+requirements for bounded deterministic gaze driven by RGB-D/proprioception.
+Its perception-dependent implementation belongs to Subphase 6.0. Do not build
+active gaze when the fixed view passes, or claim it is validated by this phase.
 
 #### Key Decisions
 
-- Use head RGB-D plus proprioception for every representation; no mandatory
-  wrist camera and no simulated GMSL transport.
-- Simulator truth may measure visibility and drive the qualification expert.
-  It must not drive learned evaluation through gaze, adapters, hidden reset
-  state, or completion logic. Robot forward kinematics from proprioception is allowed.
-- Phase 4 freezes sensor geometry and the observation boundary. Later learned
-  perception cannot tune the common base/contact setup using collected test doors.
+- Measure a practical controller-qualified envelope, not a global kinematic optimum.
+- Respect mechanical stops, force/robot limits, and a common finite horizon.
+  Select the horizon on synthetics so ordinary slow progress is not misclassified.
+- Distinguish evidenced kinematic limit, mechanical stop, safety stop, solver/
+  tracking stall, lost contact, timeout, and invalid physics. Timeout alone
+  does not establish a limit. A valid limit is a result, not an asset failure.
+- Freeze base/contact/neck setup, ready/parked poses, probe, redundancy rule,
+  force/speed limits, tolerances, sustain duration, horizon, and stop classification
+  before collected assets. The synthetic minimum is evidence, not a motion target.
+- Simulator truth may drive the qualification expert and measure visibility.
+  It must not drive learned policies through gaze, adapters, cached door state,
+  or completion logic. Robot forward kinematics from proprioception is allowed.
 
 #### Problems / Limitations
 
-Complete after RGB-D capture and synthetic visibility are verified, with either
-a passing fixed view or an explicit Phase 6 gaze dependency. Ideal rendered
-depth is not a validated stereo-error model. No policy training or collected
-door qualification is performed in this phase.
+Complete with interpretable angle/force/joint/contact evidence and a lightweight
+reset repeat for all four cases, plus a passing fixed view or an explicit
+Subphase 6.0 gaze dependency. Resolve inadequate reach for the intended 45-degree
+admission domain on synthetics, not by per-asset tuning. Unresolved stalls or
+horizon stops cannot establish a maximum. No collected asset, split, bootstrap,
+or qualification-count selection belongs here. Synthetics are setup evidence,
+not B1 training/test data.
 
 ## Artifacts
 
-Future outputs: common setup configuration, four-case reachability measurements
-with stop reasons, contact/force evidence, and RGB-D/visibility evidence.
-None was produced by the documentation revision.
+Future outputs: operational Alex003/capture configuration, common setup/probe,
+four-case reachability and contact/force evidence, and visibility assessment.
+None was produced by this documentation revision.
 
 ## Files
 
-Expected consumer changes: `src/alexdoor_xas/assets/`, `src/alexdoor_xas/envs/`,
+Expected consumer surfaces: `src/alexdoor_xas/assets/`, `src/alexdoor_xas/envs/`,
 `src/alexdoor_xas/adapters/`, `src/alexdoor_xas/policies/scripted/`,
-`src/alexdoor_xas/recording/`, `configs/`, and focused verification entry points
-under `scripts/`. External source ownership is documented in the robot topic.
+`src/alexdoor_xas/recording/`, `configs/`, and focused `scripts/` entry points.
+External component ownership is documented in the robot topic.

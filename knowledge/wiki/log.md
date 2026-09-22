@@ -377,3 +377,15 @@ Recorded reusable Purdue/WSG/ZED sources, contact/support choices, current B0 bo
 
 Verified all 29 wiki pages, internal links, index coverage, phase structure, and source-backed Alex API/joint/collider references.
 Confirmed documentation-only scope, unchanged raw research and executable files, append-only log, and clean Markdown diff; no simulation or phase execution.
+
+
+## 2026-09-22 — update : Nine-subphase B1 plan and tools-first door intake
+
+Consolidated Phases 4–7 to 2/2/3/2 subphases, removed mandatory accessory comparisons, and prioritized ID/GEO before the retained stress extension.
+Specified validated preparation infrastructure before sequential user URLs in 5.0, preserving manual downloads, per-door expert checks, and the small pilot gate; documentation only.
+
+
+## 2026-09-22 — lint : Nine-subphase plan consistency
+
+Verified all 29 wiki pages, links/index coverage, exactly nine subphases, current phase references, and the infrastructure-before-URL dependency.
+Checked Markdown and documentation-only changes; executable code, raw research, and prior log entries remain unchanged, with no phase execution.
