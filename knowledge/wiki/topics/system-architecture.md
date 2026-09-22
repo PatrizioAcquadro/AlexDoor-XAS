@@ -6,6 +6,12 @@ AlexDoor-XAS compares action representations through one maintained boundary:
 
 The operational learned-policy path is `Door + Alex V2 -> v2_pose A2/A3 -> ACT or Diffusion -> adapter-v1 -> closed-loop evaluation`.
 
+The current path is B0. Planned B1 responsibilities and information boundaries
+are in [[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]].
+Generic Purdue/WSG/ZED/pedestal components remain in Alex; this consumer will own
+full arm pose control, RGB-D observations, estimated object frames, and task
+qualification. These integrations have not been implemented here.
+
 ## Runtime
 
 `src/alexdoor_xas/envs/door_task/` contains one registered simulator environment, `AlexDoor-DoorPush-AlexV2-v0`. `DoorPushAlexV2EnvCfg` and `DoorPushAlexV2Env` own the single-environment Alex V2 scene, reset, calibrated tool-point IK, task state, termination, and telemetry. The only separate environment helper aggregates raw PhysX contacts for the exact door actor.

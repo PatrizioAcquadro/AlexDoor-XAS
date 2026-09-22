@@ -1,229 +1,238 @@
 # Visuoproprioceptive Generalization Benchmark
 
-## Context
+## Context and Status
 
-The completed state-only Phase 3 study covered A2/A3, ACT/Diffusion, one simulated
-door family, and one training seed. All 576 closed-loop rollouts succeeded. It
-validated the pipeline, but its saturated success rate could not identify a
-better action representation or policy model.
+The completed state-only Phase 3 study covered A2/A3, ACT/Diffusion, one door
+family, and one training seed. Its 576 successful rollouts validated the pipeline
+but did not distinguish representations. That historical/current Alex V2 path is
+**B0**; its six-joint, translation-only behavior is not the desired B1 contract.
 
-The next benchmark must therefore make geometric generalization, rather than
-single-scene task completion, the main source of difficulty.
+This approved 2026-09-22 decision replaces the former all-in-one Phase 4 plan.
+It defines **B1** across Phases 4–7. It does not claim implementation: obsolete
+qualification infrastructure exists locally and requires a separate consumer-safe
+review before Phase 4. No new phase was executed for this documentation revision.
 
 ## Scientific Question
 
-Holding Alex V2, observations, physical demonstrations, dataset size, training
-budget, and evaluation protocol fixed, how do A1-A4 action representations and
-ACT/Diffusion policy models affect zero-shot success on geometrically unseen
-push doors?
+Holding the Purdue robot, observations, physical demonstrations, dataset size,
+training budget, and evaluation protocol fixed, how do A1-A4 and ACT/Diffusion
+change safe opening progress on geometrically unseen push-door assets?
 
-Zero-shot means that a policy acts on complete USD door assets excluded from its
-training data, without retraining or adaptation. The primary comparison is the
-complete `4 action representations x 2 policy models` matrix. Future VLA models
-will enter the same benchmark as an extension, not change its central question.
+Zero-shot means acting on held-out door identities without retraining or
+adaptation. The comparison covers four representations x two models, with five
+independent training seeds each. Handles and other articulated objects are later
+studies; this benchmark performs panel pushing without grasping or latch operation.
 
-## Benchmark Boundary
+## Robot and Task Boundary
 
-The current benchmark becomes **B0**, a state-only single-door regression test.
-It remains useful for software verification but not for scientific ranking.
+Use fixed-base Purdue Alex with WSG32/UMI v1, its seven right-arm joints, and the
+measured Purdue pedestal. Reuse the existing external Alex package and ZED X Mini
+Wide integration. The canonical selection, closed fingers, authorized tip
+surfaces, operational frame, physical source facts, and simulation limitations
+are in [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]].
 
-The new study is **B1**, a visuoproprioceptive multi-door generalization
-benchmark:
+Phase 4 selects one robot-plus-pedestal floor pose relative to the center of the
+closed opening, holding measured height fixed. Optimize the minimum sustained
+expert angle over four synthetic cases: widths 1.20 and 0.65 m x left/right
+hinges. Neither the common robot pose nor the contact rule changes per door.
 
-- fixed-base Alex V2 torso and the six-joint right arm;
-- push-door opening without a handle-operation subtask;
-- front RGB, wrist RGB, and robot proprioception as policy observations;
-- 24 qualified door assets split into 12 train, 4 development, and 8 sealed test
-  identities;
-- A1-A4 x ACT/Diffusion, five independent training seeds per cell;
-- no test-door data for policy or estimator training, model selection, or
-  hyperparameter tuning.
+The expert follows one panel material location, specified by a common fraction
+of width from the hinge and an absolute floor height. Start synthetic exploration
+at fraction 0.90; freeze the final fraction/height, tool orientation, controller,
+limits, and horizon before collected assets. The tool points into the panel with
+its vertical axis upward during contact/push/hold. Handles remain collidable
+obstacles rigidly attached to the panel, not targets for grasping.
 
-The robot base does not move. Pose variation changes the door frame relative to
-the robot, within an expert-qualified reachable region.
+The resulting maximum is a practical expert reference under these constraints,
+not a proof of global robot reachability. Mechanical limits, collision/force
+safety, and a common finite horizon remain necessary. No shared task-angle
+threshold ends expert or policy motion. A timeout or solver stall is not evidence
+of a kinematic limit; record the limiting cause explicitly.
 
-## Assets and Split
+## Observations, Perception, and Privilege
 
-Each door identity is a complete articulated asset, not another pose, material,
-or randomization of a training door. Assets must be suitable for a future public
-release and are accepted only under CC0 or CC BY 4.0. Assets with unclear,
-non-commercial, no-derivatives, share-alike, royalty-free, or other custom terms
-are excluded.
+All eight cells receive the same synchronized head left RGB, metric left-aligned
+depth, valid-depth mask, and robot proprioceptive history, including arm and neck
+state. A wrist camera is not required. RGB-D is chosen because the intended ZED
+provides metric depth useful for manipulation; the initial rendered depth remains
+an explicitly ideal geometric approximation, not a reproduced stereo-error model.
 
-Candidate assets are first normalized and qualified with the privileged expert.
-Only then are the 12/4/8 identities and all benchmark parameters frozen. Every
-accepted asset records its source, license, attribution, modifications, stable
-identifier, and checksum in a release manifest.
+Use one frozen train/development-selected perception stack. An estimator supplies
+the door frame/articulation required by A3/A4. First test a fixed neck pose; add
+a common deterministic observed-input gaze controller only for a demonstrated
+visibility deficit. Never give gaze a perfect simulator door position.
 
-After the split is frozen, test assets are sealed from learned-system
-development. Their only prior use is the automated expert qualification needed
-to prove task feasibility and set the common task threshold; qualification
-trajectories and images never enter a learned component.
-
-## Observations and Perception
-
-All eight main comparison cells receive the same synchronized front RGB, wrist
-RGB, and proprioceptive history. Simulator door pose, articulation state, depth,
-segmentation, and privileged contacts are not policy inputs.
-
-A frozen visual-backbone pilot will choose between DINOv3 ViT-B/16 and SigLIP 2
-Base Patch16 using only train/development assets. The selected backbone,
-preprocessing, feature dimensions, and observation history are then fixed for
-every action representation and policy model.
-
-A separate door-frame and articulation-state estimator supplies the geometric
-state required to execute A3 and A4. It is trained only on training assets,
-selected only on development assets, and frozen before test evaluation. Main
-results are end-to-end with estimated geometry. An oracle simulator-state run is
-reported only as a diagnostic to separate perception failures from action-policy
-failures; it is not a benchmark result or model-selection signal.
-
-## Action-Representation Contract
-
-Every representation must be trainable and executable under both ACT and
-Diffusion before B1 data production begins.
-
-| Representation | B1 policy output and execution contract |
+| Consumer | Allowed information |
 |---|---|
-| A1 | Deltas for the six active right-arm joint targets, executed directly in joint space without differential IK. |
-| A2 | World-frame 6D end-effector deltas, executed through the maintained robot controller. |
-| A3 | Door-frame-relative 6D end-effector deltas, transformed using the frozen estimated door frame and then executed through A2. |
-| A4 | A complete object-centric approach/contact/push sequence. The adapter validates, transforms, and executes the predicted sequence but never invents omitted phases. |
+| Qualification expert and synthetic setup search | Simulator geometry/state and measured simulation contacts. |
+| Training supervision | Labels from training-door episodes, kept distinct from model observations. |
+| Learned policy, A3/A4 adapters, and optional gaze | Sensor observations, robot proprioception/forward kinematics, and frozen perception estimates. |
+| Evaluator and common safety monitor | Simulator truth for scoring/validity and safety stops; no helpful motion commands or angle-based early success. |
+| Oracle diagnostic | Explicitly separate results, never main ranking or test-driven model selection. |
 
-All four exports come from the same accepted physical episode and synchronized
-observations. They share episode identity, split, outcome, and rollout seeds,
-while retaining representation-specific action arrays and normalization.
+No true door pose may enter through reset initialization, cached transforms,
+segmentation-derived validity masks, action adapters, or hidden completion logic.
+The expert reference angle and asset identity are evaluation metadata, not policy
+inputs. If perception loses the door, handle that observed failure explicitly.
 
-## Data Strategy
+## Action Representations
 
-The dataset is simulation-first and progressively hybrid:
-
-- a privileged scripted expert is the primary trajectory source;
-- vanilla Isaac Sim Replicator APIs provide visual randomization, annotations,
-  and synchronized capture;
-- an Isaac Lab Mimic pilot decides whether transformed demonstrations add valid
-  spatial diversity before Mimic is admitted to production;
-- targeted teleoperation covers recoveries or qualified doors the scripted
-  expert cannot cover well;
-- an RL teacher is deferred until handles or broader articulated objects expose
-  coverage that scripted, Mimic, and teleoperated data cannot provide.
-
-Teacher source is explicit for every episode. Representation comparisons use
-the same accepted underlying episodes, the same fixed dataset size, and the same
-sampling rule. Test doors produce evaluation rollouts only, never demonstrations.
-
-## Door Qualification and Success
-
-The fixed-base setup must not impose an arbitrary success angle that some doors
-cannot reach. Subphase 4.1 measures reset repeatability and uses the observed
-variation to select one common qualification rollout count `n_qual` for all
-doors. This count is frozen before Subphase 4.2 begins; it is not fixed at 20.
-For door `d`, `q_d` is the 10th percentile of the maximum opening angle sustained
-for at least 0.5 seconds across its `n_qual` trials.
-
-The primary angle is frozen before learned-policy training:
-
-`theta_primary = floor_to_5deg(min_d(q_d) - 5deg)`
-
-The subtraction provides a fixed margin and rounding makes the criterion easy
-to interpret. A candidate is replaced if its margin-adjusted reliable angle is
-below 45 degrees. A rollout succeeds when it reaches and sustains
-`theta_primary` for at least 0.5 seconds within the fixed episode horizon.
-
-## Evaluation Conditions
-
-B1 separates different kinds of distribution shift:
-
-| Tier | Purpose |
+| Representation | B1 execution contract |
 |---|---|
-| ID | Seen training-door identities under nominal pose, lighting, and dynamics. |
-| GEO | Sealed door identities with nominal pose, lighting, and dynamics; the primary generalization result. |
-| POSE | Seen identities under held-out reachable door-frame poses. |
-| LIGHT | Seen identities under held-out illumination conditions. |
-| DYN | Seen identities under held-out friction, damping, and inertial conditions. |
-| COMPOUND | Sealed identities with simultaneous held-out pose, lighting, and dynamics. |
+| A1 | Seven right-arm joint-target deltas, executed directly without IK. |
+| A2 | World-frame 6D tool-pose deltas, including actuated rotation, using seven-joint pose IK. |
+| A3 | Hinge-anchored door-frame 6D deltas transformed using estimated geometry, then executed through A2. |
+| A4 | Complete object-centric approach/contact/push/hold/release sequence with explicit encoding and boundaries. |
 
-POSE, LIGHT, and DYN isolate individual stressors before COMPOUND combines them.
-The exact ranges are derived from the train/development pilot and frozen before
-test evaluation.
+A2/A3 remain six-dimensional Cartesian representations; seven is the arm's
+actuated joint count. Fix their current ignored-rotation behavior before measuring
+reachability. Complete all dataset, model-output, normalization, adapter, and
+rollout paths under both ACT and Diffusion before final data production.
 
-Each of the eight model/representation cells uses five independent training
-seeds, producing 40 selected checkpoints. Checkpoint selection uses development
-assets only. Every checkpoint receives 20 paired rollouts per evaluated door;
-initial conditions and evaluation seeds are matched across cells.
+Finger opening is constant and neck control is common/separate. Adapters validate,
+transform, and enforce shared safety rules, but never invent missing sequence
+stages or complete a failed prediction with the expert. Learned trajectories may
+differ from the expert's exact point/path while obeying the same push-only,
+authorized-surface, controlled-contact, force, and collision validity rules.
 
-## Metrics
+## Asset Corpus and Demonstrations
 
-The scientific ranking is based on generalization, not force or motion quality.
-The benchmark reports:
+Target 24 unique qualified identities, 12 left- and 12 right-hinged. The user
+provides URLs for review and downloads candidates manually. Apply the legal,
+normalization, static, and physics criteria in
+[[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
+Only CC0 or CC BY 4.0 assets and redistributable dependencies are admitted.
 
-- primary success rate at `theta_primary`;
-- `success@45deg`, `success@60deg`, and `success@75deg`;
-- maximum door angle reached;
-- expert-normalized progress per door;
-- seen-to-held-out generalization gap;
-- per-door results and variation across training seeds.
+Apply the frozen setup/probe to every asset. A contact fraction naturally produces
+a different metric distance on a different width; this is the same rule. Moving
+that fraction or height to avoid a particular handle is per-asset tuning and is
+not permitted. Replace candidates that are legally/technically invalid or excluded
+by the predefined reachable-domain gate. Diagnose probe bugs or unresolved limits
+before deciding that a door is unsuitable.
 
-The primary result is GEO success. COMPOUND success measures robustness beyond
-geometry alone. ID and the isolated OOD tiers explain where performance is lost.
-Expert-normalized progress compares the policy's maximum angle with `q_d`, so
-policy quality can be distinguished from a door's fixed-base reachability limit.
-Safety checks remain validity gates and diagnostics, not the main ranking target.
+Freeze 12 training, 4 development, and 8 test identities, balanced left/right as
+6/6, 2/2, and 4/4. Keep related mesh families together. Mirrors/recolors are not
+new identities. Sealed test qualification proves feasibility only; its traces
+and images never enter learned training, normalization, tuning, or selection.
 
-## Pilot-Calibrated Values
+The **asset corpus** is normalized doors, provenance, qualification references,
+and splits. The **demonstration dataset** is synchronized RGB-D/proprioception
+and actions from accepted physical episodes on training doors. It is generated
+later, then exported to matched A1-A4 representations. These are distinct products.
+Synthetic doors configure the common robot setup only; they are not B1 data.
 
-The benchmark structure above is fixed. A train/development-only pilot must set
-the following once before the sealed evaluation:
+## Expert Reference and Minimum Admission
 
-- the selected frozen visual backbone and observation-history length;
-- the fixed number of accepted training episodes used by every matrix cell;
-- the A4 sequence length and fixed tensor encoding;
-- nominal and OOD randomization ranges;
-- whether Mimic data passes validity and usefulness gates;
-- the final expert-qualified assets and `theta_primary`.
+For an episode, define the maximum sustained angle as the largest angle maintained
+for a contiguous 0.5-second interval of valid controlled panel contact. In sampled
+form, this is the maximum of window minima over eligible intervals. Use measured
+seconds, not a hard-coded number of ticks when cadence changes. An uncontrolled
+impact/coasting peak does not establish controlled opening. Expert qualification
+requires a valid hold and release; the door need not remain open forever after
+release. Policy release completion is reported separately from partial progress.
 
-These values and acceptance rules are recorded before full training. They cannot
-be changed after inspecting test-policy results.
+Phase 5 runs the frozen probe twice from an identical reset. Valid outcomes and
+limiting causes must agree, and sustained maxima must differ by at most 2 degrees.
+Diagnose failures without best-of-many selection. Freeze `theta_expert_d` as the
+lower of the two valid maxima. This is a conservative deterministic reference,
+not a statistical reliability percentile or global optimum.
 
-## Public-Release Contract
+Require `theta_expert_d >= 45 deg` solely for nominal asset admission. Exclude
+lower-angle candidates as outside the chosen reachable domain, even if their
+assets are valid. Do not stop the probe at 45 degrees. An unresolved timeout/stall
+cannot establish the reference. Do not derive a shared primary angle from the
+worst asset. The old `theta_primary`, `success@45deg`, `success@60deg`,
+`success@75deg`, adaptive `n_qual`, bootstrap selection, and identical-rollout
+percentile protocol are superseded and are not part of B1.
 
-B1 is designed from the start for publication. A release includes the eligible
-asset manifest, fixed splits, benchmark configuration, observation and action
-schemas, estimator contract, dataset-generation recipe, training/evaluation
-commands, aggregate and per-door results, and required attribution. Release
-artifacts must be sufficient to reproduce the protocol without exposing test
-data to training code.
+## Metrics and Validity
 
-## Progression
+For a nominal door `d` and policy rollout `r`:
 
-1. B1: different push doors, followed by POSE, LIGHT, DYN, and COMPOUND tests.
-2. Handle operation and generalization across different handles.
-3. Doors, cabinets, drawers, and other articulated objects.
+`expert_normalized_progress_d,r = policy_max_sustained_angle_d,r / theta_expert_d`
 
-Each stage first tests unseen instances of the same task family. B1 does not
-claim transfer from pushing directly to handle operation or other objects.
+Use the same sustain definition, physical scenario, control/validity rules, and
+episode time budget for expert and policy. A valid episode with no qualifying
+sustained-opening interval has zero progress. Preserve ratios above one: a policy
+can outperform the frozen probe. Never change the denominator after seeing that
+result, and never use it as an inference stopping target.
 
-## Implementation Order
+For scientific aggregation, define `valid_progress_d,r` as this ratio when the
+whole policy episode passes the shared safety/physics/control validity gates,
+and zero when it violates them (including force or forbidden contact). Keep
+invalid episodes in the trial denominator. A safe stall, horizon exhaustion,
+or incomplete task sequence alone does not erase previously sustained valid
+progress; report its stop reason and release status. This avoids reintroducing
+binary task completion as a hidden primary gate. Uncontrolled intervals cannot
+satisfy the sustain definition, and any unsafe release invalidates the episode.
+Retain their raw angles, ratios where defined, stop reasons, and violation counts
+as diagnostics; never report a valid-only average as the main ranking.
 
-1. Collect and qualify candidate door assets.
-2. Freeze the 24 accepted assets, 12/4/8 split, sealed test set, and primary
-   success angle.
-3. Build the multi-door environment, cameras, and Replicator path.
-4. Select the visual backbone and train and freeze the door-frame and
-   articulation-state estimator.
-5. Correct and complete the learned A1/A4 action, dataset, and execution
-   contracts.
-6. Run the train/development data-generation pilot.
-7. Freeze the remaining dataset and protocol values and generate the final
-   matched B1 dataset.
-8. Train the 40 ACT/Diffusion checkpoints.
-9. Run ID, GEO, POSE, LIGHT, DYN, and COMPOUND evaluation.
+Average paired rollout scores within each door, then weight doors equally within
+a split/tier; report variation across training seeds. **Primary ranking is GEO
+validity-adjusted expert-normalized progress.** Report raw maximum sustained angle,
+per-door normalized progress, per-split/tier results, ID-minus-GEO generalization
+gap, validity rate, and force diagnostics. Force is a validity gate, not an
+alternate main optimization target. Report interruptions due to infrastructure
+separately and resolve affected paired comparisons rather than hiding failures.
 
-The execution plan and the gate for each step are recorded in
-[[implementation_phases/phase-4-visuoproprioceptive-generalization-benchmark|Phase 4 — Visuoproprioceptive Generalization Benchmark]].
+## Evaluation Conditions and Matched Expert References
 
-## Status
+| Tier | Evaluation domain |
+|---|---|
+| ID | Training identities under nominal physical and visual conditions. |
+| GEO | Sealed identities under nominal conditions; primary generalization result. |
+| POSE | Seen identities at held-out door poses within the declared domain. |
+| LIGHT | Seen identities under held-out illumination. |
+| DYN | Seen identities under held-out physical parameters. |
+| COMPOUND | Sealed identities with held-out pose, illumination, and dynamics. |
 
-This page records the approved scientific and benchmark design. B1, learned
-A1/A4 support, visual observations, multi-door assets, the perception estimator,
-the new dataset, and multi-seed evaluation have not yet been implemented.
+Define ranges and eligibility rules using train/development data, before sealed
+policy evaluation. Use 20 paired conditions per evaluated door/tier and the same
+conditions/seeds for every model/representation. Distinct conditions and training
+seeds provide variation; identical deterministic repeats do not create new doors.
+
+For condition `c` that changes physical reachability, replace the nominal
+reference with `theta_expert_d,c` from the same frozen probe and physical reset,
+using the same sustain/validity protocol. Compute it before policy outcomes and
+reuse it across all checkpoints. A purely visual change can reuse the physically
+identical reference. This includes physical reset perturbations in nominal tiers,
+not just POSE/DYN/COMPOUND. Report nominal and stress scores separately.
+
+The 45-degree rule applies to nominal asset admission; it is not reapplied to
+remove difficult stress cases. A positive valid stress reference supports the
+ratio even below 45 degrees. A zero, invalid, or unresolved reference makes that
+scenario unqualified: report its coverage/reason for every model and do not claim
+a complete comparison or silently switch denominators. Never tune the expert,
+resample test conditions, or replace a test door to improve learned results.
+
+## Data Strategy and Remaining Freeze
+
+The frozen scripted expert is the primary teacher. Replicator supplies visual
+variation and annotations. A bounded Mimic trial or targeted teleoperation may
+address demonstrated coverage gaps after validation; neither is mandatory when
+the scripted data suffice. Defer RL teachers and VLA extensions.
+
+Phase 6 selects/fixes perception and optional gaze, history, depth processing,
+A4 encoding/length, accepted teacher mix, dataset membership/size, randomization
+ranges, normalization, training budget, five seeds, checkpoint selection, and
+paired evaluation conditions using train/development doors only. Use the same
+accepted physical episodes for all representations. Full training produces
+2 x 4 x 5 = 40 selected checkpoints, without favorable replacement seeds.
+
+## Implementation Order and Release
+
+1. [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]]: external assets, seven-joint pose control, synthetic setup/probe, RGB-D, and visibility.
+2. [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]]: manual collection, normalization, gates, expert references, and split.
+3. [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]]: observed perception/gaze, all learned action paths, pilot, and matched data.
+4. [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]]: training matrix, paired evaluation, analysis, and release.
+
+Publish licensed asset provenance, split, setup/probe and expert references,
+observation/action contracts, dataset recipe, frozen protocol, and per-door and
+aggregate results. Claims cover this qualified push-door domain. They do not
+establish handle manipulation, other object families, physical safety, or sim-to-real.
+
+## Version Notes
+
+- 2026-09-22 — Replaced the shared-angle design with Purdue/WSG32/head RGB-D,
+  synthetic minimax setup, per-door/per-condition expert progress, and Phases 4–7.

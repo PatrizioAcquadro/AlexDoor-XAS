@@ -1,5 +1,10 @@
 # Decision — Calibrated Position-Only Alex V2 Execution
 
+> Applies to the current/historical B0 Alex V2 implementation only. The approved
+> [[decisions/visuoproprioceptive-generalization-benchmark|B1 design]] supersedes
+> this execution choice with seven-joint Purdue tool-pose control. That migration
+> remains planned; do not rewrite B0 results as seven-joint or orientation-controlled.
+
 ## Context
 
 The Alex V2 benchmark needs a reproducible controller at the physical gripper contact point while preserving the A2/A3 representation contract.

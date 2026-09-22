@@ -13,7 +13,10 @@ Planned and historical development records:
 - [[implementation_phases/phase-1-project-and-simulation-readiness|Phase 1 — Project and Simulation Readiness]] — Initial package, dependency, and simulator foundation.
 - [[implementation_phases/phase-2-scripted-baseline-and-data-engine|Phase 2 — Scripted Baseline and Data Engine]] — Scripted execution, recording, and matched export foundation.
 - [[implementation_phases/phase-3-non-vla-learned-baselines|Phase 3 — Non-VLA Learned Baselines]] — State-only policy, adapter, and evaluation foundation.
-- [[implementation_phases/phase-4-visuoproprioceptive-generalization-benchmark|Phase 4 — Visuoproprioceptive Generalization Benchmark]] — Planned nine-step construction and execution of B1.
+- [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — Planned Purdue/WSG integration, seven-joint pose control, synthetic minimax setup, and RGB-D visibility.
+- [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Planned manual collection, normalization, expert qualification, and frozen 12/4/8 asset split.
+- [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — Planned observed perception/gaze, complete A1-A4 learning paths, and matched dataset.
+- [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]] — Planned 40-checkpoint comparison, paired expert-normalized evaluation, and release.
 - [[implementation_phases/extra-01-alex-v2-migration|Extra 01 — Alex V2 Migration]] — Migration from provisional assumptions to fixed-base Alex V2.
 - [[implementation_phases/extra-02-local-stabilization|Extra 02 — Local Stabilization]] — Closed-loop and force-semantics stabilization.
 - [[implementation_phases/extra-03-gilbreth-compatibility-pilot|Extra 03 — Gilbreth Compatibility Pilot]] — Completed two-cell A100 compatibility check.
@@ -23,10 +26,11 @@ Planned and historical development records:
 
 ## Topics
 
-Current technical behavior:
+Current technical behavior and explicitly labeled planned contracts:
 
 - [[topics/system-architecture|System Architecture]] — Maintained runtime, data, policy, evaluation, and storage flow.
-- [[topics/alex-v2-benchmark|Alex V2 Benchmark]] — External asset, calibration, canonical scenes, control, sensing, and limits.
+- [[topics/alex-v2-benchmark|Alex V2 Benchmark]] — Current B0 external asset, six-joint calibration, canonical scenes, control, and limits.
+- [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]] — Planned shared Purdue/WSG/ZED configuration, derived push frame, measured pedestal, and validation limits.
 - [[topics/action-representations-and-adapters|Action Representations and Adapters]] — A1-A4 meanings and maintained execution boundaries.
 - [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — `phase2.v2`, matched exports, splits, views, normalization, and model data.
 - [[topics/learned-policy-stack|Learned Policy Stack]] — ACT/Diffusion configuration, training, checkpoint/resume, outputs, and evaluation.

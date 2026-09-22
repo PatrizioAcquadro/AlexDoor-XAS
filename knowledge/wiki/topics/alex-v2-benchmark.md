@@ -1,6 +1,8 @@
 # Alex V2 Benchmark
 
-The maintained benchmark is simulated door pushing with the fixed-base IHMC Alex V2 torso and a six-joint right-arm controller.
+This page describes the current B0 implementation: simulated door pushing with the fixed-base IHMC Alex V2 torso and a six-joint right-arm controller.
+
+The approved B1 target is Purdue + WSG32/UMI v1 with seven-joint pose control and head RGB-D. It is specified separately in [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]] and is not implemented by changing this documentation.
 
 ## Asset and Calibration
 

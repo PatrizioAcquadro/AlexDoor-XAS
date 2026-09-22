@@ -365,3 +365,15 @@ path after the external repository moved to its root `src/` layout.
 
 Verified wiki links, index coverage, current paths, Markdown whitespace, and
 unchanged raw research and historical implementation records.
+
+
+## 2026-09-22 — update : Purdue B1 planning across Phases 4–7
+
+Replaced the shared-angle plan with synthetic setup qualification, a separate door corpus, observed RGB-D/action development, and expert-normalized evaluation.
+Recorded reusable Purdue/WSG/ZED sources, contact/support choices, current B0 boundaries, and the required separate local-code cleanup; no phase was executed.
+
+
+## 2026-09-22 — lint : Phases 4–7 planning revision
+
+Verified all 29 wiki pages, internal links, index coverage, phase structure, and source-backed Alex API/joint/collider references.
+Confirmed documentation-only scope, unchanged raw research and executable files, append-only log, and clean Markdown diff; no simulation or phase execution.

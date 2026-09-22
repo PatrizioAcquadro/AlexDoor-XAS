@@ -1,36 +1,56 @@
 # Project Status
 
-Current as of 2026-08-13. Code, configurations, and deterministic tests define executable behavior. This page describes only the maintained repository; completed research is summarized separately as historical evidence.
+Current as of 2026-09-22; documentation/source inspection only, with no fresh runtime validation. Code, configurations, and deterministic tests define executable behavior. This page describes only the maintained repository; completed research is summarized separately as historical evidence.
 
-## Current System
+## Current B0 System
 
 AlexDoor-XAS maintains one simulation workflow:
 
 `scripted Alex V2 door push -> matched v2_pose A1-A4 exports -> A2/A3 ACT or Diffusion -> adapter-v1 -> closed-loop evaluation`
 
 - The simulator runtime is the fixed-base IHMC Alex V2 torso in the single registered `AlexDoor-DoorPush-AlexV2-v0` environment.
-- D0-D4 are the only accepted door poses. The runtime uses one calibrated six-joint, position-only right-arm controller and exact-door raw PhysX contact sensing.
+- D0-D4 are the maintained B0 door poses. The runtime uses one calibrated six-joint, position-only right-arm controller and exact-door raw PhysX contact sensing.
 - New recordings use `phase2.v2`. Existing `phase2.v1` episodes and legacy A4 records remain readable, but the repository does not write them.
 - A1 is export-only. A2 and A3 support scripted execution and state-only learned policies. A4 is exported and adapter-executable but has no learned policy.
 - ACT and Diffusion share dataset, configuration, checkpoint, run-allocation, and closed-loop reporting primitives while retaining separate models and training logic.
 
 See [[topics/system-architecture|System Architecture]] for the current data flow and [[topics/alex-v2-benchmark|Alex V2 Benchmark]] for the simulator contract.
 
-## Approved Next Study
+## Approved B1 Study and Execution Order
 
-The next study asks how A1-A4 and ACT/Diffusion affect zero-shot success on
-geometrically unseen push-door USD assets when Alex V2, vision and proprioception,
-matched demonstrations, dataset size, training budget, and evaluation protocol
-are held fixed.
+B1 compares A1-A4 x ACT/Diffusion on held-out push-door identities using fixed-base
+Purdue Alex + WSG32/UMI v1, seven right-arm joints, head ZED RGB-D/proprioception,
+and progress relative to a frozen expert. Its main score includes invalid policy
+rollouts as zero valid progress. A 45-degree expert opening is asset admission
+only; no shared opening angle stops the controller or ranks policies.
 
-It will use disjoint door-identity splits, one dataset size, multiple training
-seeds, matched A1-A4 exports, and a simulation-first hybrid data strategy. The
-primary results are success on seen and held-out doors, their generalization gap,
-and performance per door instance. Handles and other articulated objects are
-later benchmark stages.
+The approved plan is:
 
-This scope is approved but not implemented. See
-[[decisions/visuoproprioceptive-generalization-benchmark|Visuoproprioceptive Generalization Benchmark]].
+1. [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] — Reuse Alex assets, migrate pose control, select a common setup by minimax over four synthetic width/hinge cases, and validate RGB-D/visibility.
+2. [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] — Review user-provided URLs, manually acquire and qualify 24 doors, then freeze expert references and the 12/4/8 split.
+3. [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]] — Freeze observed perception/optional gaze, complete every learned action path, and generate matched training demonstrations.
+4. [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7]] — Train/evaluate the 40-checkpoint matrix with matched physical-condition expert references.
+
+The [[decisions/visuoproprioceptive-generalization-benchmark|scientific decision]]
+owns metrics and information boundaries. The
+[[topics/purdue-b1-robot-and-contact|robot/contact contract]] records local source
+facts and planned choices. No revised phase has been implemented or executed.
+
+## Superseded Local Infrastructure and Next Action
+
+At the documentation baseline, `main` was three commits ahead of the local
+`origin/main` reference: `73ff306` (old plan), `6d74789` (old Phase 4.1 qualification
+tooling), and `30b2e46` (Alex package contract). The tooling includes
+`src/alexdoor_xas/door_qualification.py`, the three `phase4_1` preparation,
+normalization, and verification scripts, tests, and runtime overrides. Its
+existence is not evidence of a completed corpus or the revised robot setup.
+
+Next, separately audit those changes and their consumers against the new plan.
+Retain reusable normalization/static/physics/measurement capabilities where
+justified; remove or isolate superseded qualification-count/bootstrap and
+shared-angle orchestration. Preserve still-needed Alex package compatibility.
+Do not blanket-revert the commits, rewrite history, or implement Phase 4 as part
+of that cleanup. The 2026-09-22 update changes documentation only.
 
 ## Maintained Entry Points
 
@@ -72,16 +92,17 @@ One deterministic fake environment remains for software tests. It mirrors the pr
 
 ## Boundaries
 
-- Phase 4 and VLA work have not started.
+- Revised Phases 4–7 and VLA work have not started; superseded local qualification tooling exists as described above.
 - Learned policies are state-only; image and language inputs are absent.
 - Results cover one simulated door family and seed-0 training.
 - Simulator success and force measurements do not establish hardware safety, sim-to-real readiness, or broader generalization.
 - No repository command controls a physical Alex robot.
 
-Implementation of the approved next study has not started. Physical-robot,
+Implementation of the revised B1 plan has not started. Physical-robot,
 sim-to-real, VLA, and later articulated-object work remain separately scoped.
 
 ## Version Notes
 
+- 2026-09-22 — Separated current B0 behavior, superseded local tooling, and the approved Purdue/RGB-D Phases 4–7 plan.
 - 2026-08-13 — Reconciled the wiki with the simplified current repository and separated maintained behavior from concise historical evidence.
 - 2026-08-13 — Recorded the approved visuoproprioceptive held-out-door generalization study without changing current implementation claims.

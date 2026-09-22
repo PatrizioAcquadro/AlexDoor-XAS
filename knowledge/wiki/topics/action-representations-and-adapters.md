@@ -2,6 +2,13 @@
 
 AlexDoor-XAS changes the action representation while holding the robot, task, physical episode, and evaluation protocol fixed.
 
+The behavior below is the current B0 implementation. The approved B1 contracts
+in [[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]]
+require seven joint deltas for A1, actual 6D pose execution for A2/A3 through all
+seven arm joints, and complete learned A4 sequences. Phase 4 supplies the new
+low-level executor; Phase 6 completes every learned path. The old ignored-rotation
+behavior is a migration requirement, not acceptable B1 execution.
+
 ## Canonical Representations
 
 | Tag | Meaning | Frame and form | Current use |

@@ -22,7 +22,17 @@ A2/A3 datasets -> ACT or Diffusion -> adapter-v1 -> closed-loop evaluation
 The completed evaluation was success-saturated and did not identify a winning policy, representation, or dataset size. 
 See [Project Status](knowledge/wiki/status.md) for maintained capabilities, results, and current boundaries.
 
-The next study moves to vision-and-proprioception policies and compares the complete A1-A4 x ACT/Diffusion matrix on geometrically unseen push-door USD assets, without retraining on those held-out doors. It will use matched A1-A4 exports, one dataset size, multiple training seeds, and a simulation-first hybrid data pipeline. Handles and other articulated objects are later benchmark stages.
+The approved B1 study uses fixed-base Purdue Alex with WSG32/UMI v1, all seven
+right-arm joints, and head ZED RGB-D plus proprioception. It compares the complete
+A1-A4 x ACT/Diffusion matrix on held-out push doors using valid opening progress
+relative to a frozen expert. The current B0 runtime above has not migrated yet.
+
+The plan is split into [Phase 4: robot and task configuration](knowledge/wiki/implementation_phases/phase-4-robot-and-task-configuration.md),
+[Phase 5: door corpus and qualification](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md),
+[Phase 6: perception, actions, and demonstrations](knowledge/wiki/implementation_phases/phase-6-perception-actions-and-demonstrations.md),
+and [Phase 7: training and evaluation](knowledge/wiki/implementation_phases/phase-7-training-and-generalization-evaluation.md).
+Superseded local qualification tooling requires a separate code audit before
+Phase 4. Handles and other articulated objects remain later studies.
 
 ## Requirements
 
