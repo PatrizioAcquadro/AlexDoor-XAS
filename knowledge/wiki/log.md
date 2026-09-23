@@ -635,3 +635,11 @@ Reusable recipe operations, viewed RTX captures and one RTX 4090 run to 176 degr
 ## 2026-09-23 — lint : Hoschu surface preparation checks
 Resolved all wiki links and index coverage; reconciled shape ownership and reconstruction limits with source cross-sections, recipe and static/GPU evidence.
 29 focused tests, Ruff/format and Git whitespace checks pass; no source download, raw knowledge, earlier accepted asset or frozen Phase 4 setup changed.
+
+## 2026-09-23 — update : Nikolayy door preparation
+
+Recorded the CC BY 4.0 source, embedded dependencies, distinct geometry and reviewed clearance/collider recipe. Promoted attempt 000007 after static, viewed front/rear RTX captures and one isolated RTX 4090 run to its 194.4-degree geometric stop. Seven doors are prepared for 5.1; source, earlier attempts and the frozen robot setup remain preserved.
+
+## 2026-09-23 — lint : Nikolayy preparation evidence
+
+Verified the source hash, seven accepted records, candidate reviews, attempt evidence hashes and static/preview/GPU reports. The focused 28-test preparation suite, Ruff/format, wiki links/index and Markdown whitespace checks pass. No raw knowledge, earlier accepted asset or frozen Phase 4 setup changed.

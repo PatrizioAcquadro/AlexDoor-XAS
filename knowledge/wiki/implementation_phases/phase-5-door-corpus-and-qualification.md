@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> Four real doors pass preparation and are ready for 5.1: one redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
+> Seven real doors pass preparation and are ready for 5.1: four redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
 
 ## Objective
 
@@ -72,6 +72,12 @@ clearance with a measured rigid translation if the thick latch edge needs it.
 The hinge-edge guard retains its 10 mm tolerance against either the fitted edge
 or the corresponding edge before clearance scaling, so a fixed source hinge
 is not incorrectly rejected just because the leaf was fitted around it.
+When two distinct moving hinge barrels visibly establish an axis, optional
+`hinge_axis_components` and `hinge_axis_review` check their compact horizontal
+bounds, centers and vertical separation instead of comparing the axis to an
+outer barrel edge. The axis must remain on the declared hinge side and within
+10 mm of each barrel center. This handles a barrel radius larger than the edge
+guard's proxy while leaving that guard unchanged for other doors.
 
 **Common task state: closed and already unlatched.** The robot pushes the leaf; it
 does not operate a lock. Source latch/lock bolts are not a reason to reject an
@@ -621,6 +627,38 @@ under CC BY 4.0; six distinct doors are prepared, with expert qualification stil
 pending. The 29 focused preparation tests and Ruff pass. The source download and
 initial inspection remain preserved; the previous five prepared assets are unchanged.
 
+**Nikolayy source review (2026-09-23).**
+[Door by Nikolayy](https://sketchfab.com/3d-models/door-5035d79771554b0a8daca21bae3ce062)
+is a rusty single leaf with upper glazed panels, a lever, kick plate and separate
+frame. The actual page and download modal show CC BY 4.0 and offer original FBX
+plus converted USDZ, glTF and GLB. The user-supplied `Door (3).usdz` contains four
+embedded 1K maps, no external dependencies and matching author/license/source
+metadata. Its inspection attempt `000001` has 988 triangles, 11 components and a
+fingerprint distinct from the six earlier accepted doors. Source animation is not
+the common push control path; its zero pose supplies a closed leaf.
+
+Components 5 and 9 are the modeled leaf and U-frame; 1–4 are paired handles,
+6–8 moving hinge hardware, 0 a moving lock-edge plate and 10 a fixed strike-side
+plate. No standalone bolt requires a collision exclusion. After 0.70 uniform
+scale and proper rotation, a reviewed 2% uniform moving-assembly fit and 18 mm
+opening-face shift clear real rebate/hinge interference. Frame collider partitions
+follow its measured narrow rear opening; all frame, leaf, handle, hinge and plate
+collisions remain. The two original hinge barrels locate the ideal joint axis.
+Default collider cooking missed 4–6 mm of leaf skin, so a single convex leaf
+collider preserves the outer contact envelope while filling decorative recesses.
+The fitted leaf is 0.929 × 1.958 × 0.071 m and left-handed in the canonical push
+convention. These are explicit simulation approximations, not recovered hardware
+dimensions.
+
+Attempt `000007` passes normalization and static checks. Front/rear RTX images
+were viewed: frame, leaf, both handles, hinges, glazing and kick plate are present
+and aligned. One isolated RTX 4090 run reaches the 194.4-degree geometric limit,
+with three exact resets, 0.000193-degree passive drift, stable frame, 1.07-micrometer
+hinge-anchor error and zero reported penetration. It is promoted under CC BY 4.0;
+seven distinct doors are ready for 5.1. The focused 28-test preparation suite and
+Ruff pass. The original download and all prior attempts remain preserved; robot
+and expert qualification remain pending.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
@@ -650,15 +688,15 @@ initial inspection remain preserved; the previous five prepared assets are uncha
 
 #### Problems / Limitations
 
-Preparation is verified on the documented fixtures and four real doors in the
+Preparation is verified on the documented fixtures and seven real doors in the
 closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
 The Ahmed sayed candidate's earlier license rejection and preparation blockers
 are superseded by local-only scope and the reviewed GLB repair. The initial batch
-now contains four technically ready doors, but only the witnessk asset is
-redistributable. Void Frame Studio's initial source-license failure and geometry
+has grown to seven technically ready doors; four are redistributable.
+Void Frame Studio's initial source-license failure and geometry
 attempt failures are superseded by its private/noncommercial admission and
 attempt `000008`. Inferred pivots and clearance fitting do not reconstruct real
 hardware; the nominal benchmark still requires the frozen 5.1 robot probe.

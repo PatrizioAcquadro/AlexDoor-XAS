@@ -1,0 +1,56 @@
+{
+  "asset_id": "door-5035d7977155",
+  "source_url": "https://sketchfab.com/3d-models/door-5035d79771554b0a8daca21bae3ce062",
+  "source_uid": "5035d79771554b0a8daca21bae3ce062",
+  "author": "Nikolayy",
+  "license": "CC-BY-4.0",
+  "distribution_scope": "redistributable",
+  "license_evidence": "assets/doors/b1/door-5035d7977155/source-evidence.json",
+  "attribution": "Door by Nikolayy (https://sketchfab.com/Nikolayy), https://sketchfab.com/3d-models/door-5035d79771554b0a8daca21bae3ce062, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Preparation changes are recorded in recipe.json.",
+  "retrieval_date": "2026-09-23",
+  "door_type": "industrial",
+  "single_leaf": true,
+  "frame_panel_separable": true,
+  "license_scope_review": "pass",
+  "license_scope_review_notes": "The actual page and download modal show CC Attribution linked to CC BY 4.0.",
+  "custom_terms_review": "pass",
+  "custom_terms_review_notes": "Page description is Door; no additional author terms observed.",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "Distinct source identity and local geometry fingerprint versus six accepted doors.",
+  "selected_format": ".usdz",
+  "reported_triangles": 458,
+  "reported_texture_max_px": 1024,
+  "dependencies": [
+    {
+      "path": "0/My_Ui_baseColor.png",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/My_Ui_metallicRoughness_metal.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/My_Ui_metallicRoughness_rough.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/My_Ui_normal.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    }
+  ],
+  "reviewed_source_sha256": "5471a8f696c4ac9ee754b5bd56fb0e0bf61a4e0101c172ebc7fc8799552a0823",
+  "local_dependency_review": "pass",
+  "local_dependency_review_notes": "Four embedded 1024 px texture maps and no external dependency; USDZ author/license/source metadata match the page.",
+  "local_duplicate_review": "pass",
+  "local_duplicate_review_notes": "Inspect attempt 000001 reports 988 triangles, 11 components and fingerprint 65f1c3daae07eeaf289a70fb4c251f7509f1fc2ce44fed2d49a46eb1b8678dbd; distinct from all six accepted fingerprints.",
+  "local_visual_review": "pass",
+  "local_visual_review_notes": "Actually viewed attempt 000007 front/rear RTX images: rusty closed leaf, separate frame, both handles, upper glazed/textured panels, kick plate and hinge barrels are present and aligned. The viewer animation is replaced by the common closed pose. Front handle is dark under this lighting but visible.",
+  "local_mechanical_review": "pass",
+  "local_mechanical_review_notes": "No separate latch bolt exists. The moving edge plate 0, fixed strike plate 10, full leaf, frame, hinge barrels and both handles all retain collision. Reviewed 2% uniform fit, 18 mm normal shift and measured hinge axis resolve source contact; attempt 000007 passes static and isolated RTX 4090 physics to 194.4 degrees.",
+  "no_latch_operation": true,
+  "initial_state": "closed_unlatched"
+}
