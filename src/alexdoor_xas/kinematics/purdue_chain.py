@@ -75,7 +75,7 @@ class PurdueChain:
         eye = torch.eye(6, device=self.device)
         for _ in range(iterations):
             transform, jac = self.forward(q)
-            # Geodesic rotation error, robust also near pi.
+            # Local rotation log; multistart screening does not prove unreachability.
             relative = rotation @ transform[:, :3, :3].transpose(-1, -2)
             cosine = ((relative.diagonal(dim1=-2, dim2=-1).sum(-1) - 1) / 2).clamp(
                 -1 + 1e-6, 1 - 1e-6

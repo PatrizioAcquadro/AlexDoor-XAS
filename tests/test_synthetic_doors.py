@@ -23,7 +23,7 @@ def test_geometric_stop_and_panel_extent():
     for door in CASES:
         assert np.rad2deg(door.mechanical_stop) > 90
         near = door.panel_rectangle(0.0)
-        np.testing.assert_allclose(near[:, 1].max() - near[:, 1].min(), door.width - 2 * door.gap)
+        np.testing.assert_allclose(near[:, 1].max() - near[:, 1].min(), door.width)
         jamb = np.array(
             [[x, y + door.width / 2 + 0.045] for x in (-0.06, 0.06) for y in (-0.04, 0.04)]
         )
@@ -32,5 +32,4 @@ def test_geometric_stop_and_panel_extent():
             assert rectangles_overlap(
                 door.panel_rectangle(door.mechanical_stop + np.deg2rad(0.3)), jamb
             )
-
 

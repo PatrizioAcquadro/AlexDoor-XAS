@@ -146,7 +146,7 @@ rows = [
         joint_margin=float(margin[i].min()),
         contact_joints=solutions[i],
     )
-    for i in order[:40]
+    for i in [i for i in order if maximum[i].min() >= 0][:40]
 ]
 args.output.parent.mkdir(parents=True, exist_ok=True)
 args.output.write_text(

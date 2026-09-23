@@ -52,6 +52,17 @@ def physics(door):
         env.reset()
         args.output.mkdir(parents=True, exist_ok=True)
         env.sim.stage.Export(str(args.output / f"{door.name}.usda"))
+        panel = env.sim.stage.GetPrimAtPath(env.panel_path)
+        dimensions = np.array(
+            env.sim.stage.GetPrimAtPath(env.panel_path + "/Collider")
+            .GetAttribute("xformOp:scale")
+            .Get()
+        )
+        inertia = np.array(panel.GetAttribute("physics:diagonalInertia").Get())
+        expected_size = np.array([door.thickness, door.width, door.height])
+        expected_inertia = (
+            door.mass * (np.dot(expected_size, expected_size) - expected_size**2) / 12
+        )
         zero = torch.zeros((1, 6), device=env.device)
         angle, speed, frame_positions = [], [], []
         for _ in range(120):
@@ -78,12 +89,16 @@ def physics(door):
             reset_deg=float(np.rad2deg(reset)),
             bodies=env.door.body_names,
             device=str(env.device),
+            panel_dimensions_m=dimensions.tolist(),
+            panel_inertia_kg_m2=inertia.tolist(),
         )
         result["passed"] = bool(
             result["passive_drift_deg"] < 0.25
             and result["frame_drift_m"] < 1e-4
             and abs(reset) < np.deg2rad(0.1)
             and abs(max(torque_angles) - door.mechanical_stop) < np.deg2rad(1)
+            and np.allclose(dimensions, expected_size, atol=1e-7)
+            and np.allclose(inertia, expected_inertia, atol=1e-6)
         )
         np.savez_compressed(
             args.output / f"{door.name}-physics.npz",
@@ -96,7 +111,7 @@ def physics(door):
         env.close()
 
 
-def probe_candidate(setup, output, cases, repeats):
+def probe_candidate(setup, output, cases, repeats, stop_on_failure=False):
     from alexdoor_xas.qualification.synthetic_probe import run_probe, summarize_trials
 
     results = []
@@ -112,7 +127,10 @@ def probe_candidate(setup, output, cases, repeats):
         result = summarize_trials(trials)
         results.append(result)
         print(json.dumps(result), flush=True)
-        (output / "report.json").write_text(json.dumps(results, indent=2) + "\n")
+        report_name = "report.json" if len(cases) == 4 else f"report-{cases[0].name}.json"
+        (output / report_name).write_text(json.dumps(results, indent=2) + "\n")
+        if stop_on_failure and not result["passed"]:
+            break
     return dict(setup=setup.to_dict(), cases=results)
 
 
@@ -142,6 +160,7 @@ def main():
         raise ValueError("Expected a kinematic screening report")
     if screen["fraction"] != setup.contact_fraction or screen["height"] != setup.contact_height:
         raise ValueError("Screen and probe contact configuration differ")
+    (args.output / "screening.json").write_text(json.dumps(screen, indent=2) + "\n")
     candidates = []
     for index, candidate in enumerate(screen["candidates"][: args.candidate_limit]):
         values = setup.to_dict()
@@ -153,7 +172,11 @@ def main():
         trial_setup = ProbeSetup(**values)
         candidates.append(
             probe_candidate(
-                trial_setup, args.output / f"candidate-{index:03d}", CASES, args.repeats
+                trial_setup,
+                args.output / f"candidate-{index:03d}",
+                CASES,
+                args.repeats,
+                stop_on_failure=True,
             )
         )
         (args.output / "candidates.json").write_text(json.dumps(candidates, indent=2) + "\n")

@@ -24,6 +24,7 @@ class ProbeSetup:
     centering_gain: float = 2.0
     ik_damping: float = 0.01
     position_tolerance: float = 0.01
+    material_drift_guard_m: float = 0.0025
     orientation_tolerance: float = float(np.deg2rad(5))
     approach_s: float = 6.0
     precontact_m: float = 0.03
@@ -32,6 +33,7 @@ class ProbeSetup:
     horizon_s: float = 60.0
     sustain_s: float = 0.5
     hold_settle_s: float = 3.0
+    hold_blend_s: float = 0.5
     angular_speed: float = float(np.deg2rad(5))
     lead_angle: float = float(np.deg2rad(0.3))
     compression_m: float = 0.003
@@ -48,6 +50,7 @@ class ProbeSetup:
             self.centering_gain,
             self.ik_damping,
             self.position_tolerance,
+            self.material_drift_guard_m,
             self.orientation_tolerance,
             self.approach_s,
             self.contact_s,
@@ -55,6 +58,7 @@ class ProbeSetup:
             self.horizon_s,
             self.sustain_s,
             self.hold_settle_s,
+            self.hold_blend_s,
             self.angular_speed,
             self.lead_angle,
             self.compression_m,
@@ -83,6 +87,8 @@ class ProbeSetup:
             )
         if self.hold_settle_s <= self.sustain_s:
             raise ValueError("Hold budget must include a complete sustain window")
+        if self.material_drift_guard_m >= self.position_tolerance:
+            raise ValueError("Material drift guard must reserve tracking margin for hold")
         if not np.isfinite(list(self.initial_joints.values())).all():
             raise ValueError("Non-finite ready joint pose")
 
@@ -123,7 +129,7 @@ def rank_candidates(results, tie_deg):
         tied = [r for r in remaining if min(c["angle_deg"] for c in r["cases"]) >= best - tie_deg]
         tied.sort(
             key=lambda r: (
-                -min(c["joint_margin"] for c in r["cases"]),
+                -max(0.0, min(c["joint_margin"] for c in r["cases"])),
                 max(c["peak_force_n"] for c in r["cases"]),
                 -min(c["clearance_m"] for c in r["cases"]),
             )
@@ -284,8 +290,8 @@ def run_probe(env, door, setup, output):
         from_hinge = -door.sign * footprint[:, 1]
         footprint_inside = bool(
             np.all(
-                (from_hinge >= door.gap)
-                & (from_hinge <= door.width - door.gap)
+                (from_hinge >= 0.0)
+                & (from_hinge <= door.width)
                 & (footprint[:, 2] >= 0.01)
                 & (footprint[:, 2] <= door.height + 0.01)
             )
@@ -420,7 +426,7 @@ def run_probe(env, door, setup, output):
                 elapsed > 5.0
                 and window.maximum is not None
                 and (
-                    traces[-1]["material_error"] > 0.5 * setup.position_tolerance
+                    traces[-1]["material_error"] > setup.material_drift_guard_m
                     or re > 0.5 * setup.orientation_tolerance
                 )
             ):
@@ -449,11 +455,17 @@ def run_probe(env, door, setup, output):
     held_angle = None
     if failure is None:
         held = SustainedAngle(setup.sustain_s)
+        initial_lead = reference - state[0]
         for tick in range(round(setup.hold_settle_s / dt)):
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
+            blend = min(1.0, (tick + 1) * dt / setup.hold_blend_s)
+            lead = initial_lead * (1.0 - blend * blend * (3.0 - 2.0 * blend))
             state = command(
                 *door.contact_pose(
-                    angle, setup.contact_fraction, setup.contact_height, setup.compression_m
+                    angle + lead,
+                    setup.contact_fraction,
+                    setup.contact_height,
+                    setup.compression_m,
                 ),
                 "hold",
             )

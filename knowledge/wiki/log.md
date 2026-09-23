@@ -430,3 +430,13 @@ The common configuration is explicitly provisional pending four-case qualificati
 
 Checked canonical links and index, source references, Ruff and whitespace.
 Common configuration remains explicitly unqualified pending four-case GPU repeats.
+
+## 2026-09-22 — update : Exact synthetic dimensions and continuous hold
+
+Corrected the leaf widths and handle inertia, and repeated the four GPU physics gates.
+Recorded continuous hold and a common drift reserve; full exact-width repeat qualification remains in progress.
+
+## 2026-09-22 — lint : Exact-width qualification boundary
+
+Checked canonical links/index, dimensions and inertia evidence, source references and whitespace.
+The 340-test suite and Ruff pass; no raw research or historical dataset was modified.

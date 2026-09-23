@@ -32,7 +32,11 @@ def measure_visibility(env, door, angle, fraction, height):
     position = tensor(camera.pos_w)[0].cpu().numpy()
     rotation = Rotation.from_quat(tensor(camera.quat_w_ros)[0].cpu().numpy()).as_matrix()
     intrinsics = tensor(camera.intrinsic_matrices)[0].cpu().numpy()
-    depth = sample.depth_m[0, ..., 0].cpu().numpy()
+    depth = np.where(
+        sample.valid_depth[0, ..., 0].cpu().numpy(),
+        sample.depth_m[0, ..., 0].cpu().numpy(),
+        np.nan,
+    )
     groups = {
         "panel": [
             door.contact_pose(angle, f, z)[0]

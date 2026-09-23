@@ -11,8 +11,9 @@ Code and tests define executable behavior.
 
 The sole registered robot environment is `AlexDoor-DoorPush-Purdue-v0`: fixed-base
 Purdue Alex003, measured pedestal, WSG32/UMI v1, seven right-arm joints and head
-ZED X Mini Wide. It currently uses small synthetic panel/frame/handle fixtures
-for operational commissioning, not the four-door setup search or a training task.
+ZED X Mini Wide. It supports the original panel/frame/handle commissioning fixtures and optional
+articulated synthetic doors for common-setup qualification. It is not a learned
+training task.
 
 - A1 addresses all seven joints; A2 actuates tool translation and rotation;
   A3 transforms an explicitly supplied frame into A2.
@@ -42,14 +43,16 @@ software contracts, without claiming B1 learned execution.
 
 ## Verification
 
-The dependency/CUDA preflight passes on the RTX 4090. All 332 software tests pass,
+The dependency/CUDA preflight passes on the RTX 4090. All 340 software tests pass,
 including historical data/model contracts, as do Ruff and wiki-link/index checks.
 GPU checks pass three stable resets, seven-joint/full-pose control, loaded distal
 contacts and forbidden-contact detection, and synchronized metric head RGB-D.
 The local pose targets remain within 0.0204 mm / 0.00209 degrees during their
 0.5 s holds; this is synthetic commissioning evidence, not hardware accuracy.
 
-The complete run is in `~/.cache/alexdoor-xas/verification/purdue-final/`.
+The complete post-integration regression passes in
+`~/.cache/alexdoor-xas/verification/purdue-after-41/`.
+The original 4.0 run is retained in the sibling `purdue-final/` directory.
 Targeted final checks in sibling `purdue-final-rgbd/` and `purdue-final-contacts/`
 verify reset renderer settling and force direction. Numerical traces, raw contact
 records and representative images are retained. The separate D0 door-only GPU

@@ -86,10 +86,12 @@ sets a symmetric 183.2-degree mechanical stop, with 0.2-degree geometric clearan
 The Purdue environment optionally loads these doors and moves robot/pedestal
 jointly in floor X/Y/yaw; the existing commissioning fixtures remain available.
 
-GPU foundation evidence in `~/.cache/alexdoor-xas/verification/synthetic-physics-all/`
+GPU foundation evidence in `~/.cache/alexdoor-xas/verification/synthetic-physics-exact-width/`
 passes all four cases: two seconds passive drift below 0.00022 degrees, zero
 frame drift, ten seconds at 15 Nm reaching the computed stop within 0.00002 degrees,
-and closed reset. These are door-physics checks with the robot parked clear;
+and closed reset. Exported USD also verifies exact 0.65/1.20 m panel widths and
+geometry-derived panel/handle inertias. The initial 30 mm panel inset was removed;
+earlier nominal-width runs are calibration evidence only. These are door-physics checks with the robot parked clear;
 they do not establish the common expert setup or visibility. The remaining work
 below retains the approved acceptance criteria.
 
@@ -106,11 +108,14 @@ RGB-D visibility. A loaded sample is required in each 60 Hz control tick; the
 120 Hz substeps may chatter. Hold allows up to three seconds to obtain one
 continuous 0.5-second valid window. Release retraces an achieved pose behind the
 panel, allowing wrist rotation to recover rather than fixing a limiting orientation.
+The signed difference between commanded and actual panel angle decays smoothly
+over 0.5 seconds on entry to hold, including when inertia puts the panel ahead
+of the reference. This prevents a discontinuous pose command and force spike.
 
 Stop reports separate mechanical stop, locally evidenced joint limit, safety
 stop, lost contact, tracking stall, timeout and invalid motion. Safety guards
 include high normal force, declining 0.1-second mean contact load after the
-five-second push transient, and half of the position/orientation tracking budget.
+five-second push transient, a 2.5 mm material-drift reserve and half of the orientation tracking budget.
 The guards contain no task-angle cutoff. A safety stop only qualifies when hold
 and release pass. Local joint-limit evidence is explicitly not global IK proof.
 Clearance ranking uses a conservative robot/door AABB lower bound excluding the
@@ -230,7 +235,7 @@ reset renderer settling is in `purdue-final-rgbd/`; contact force-direction chec
   and 3 s response to 15 Nm, reaching the historical 90-degree stop. This checks
   the retained preparation consumer, not B1 admission or reachability.
 
-Software validation: 332 tests pass, including historical readers/model contracts,
+Subphase 4.0 software validation: 332 tests passed, including historical readers/model contracts,
 with Ruff, whitespace and wiki-link/index checks. No corpus, training run or
 four-case reachability result was produced.
 

@@ -15,7 +15,6 @@ class SyntheticDoor:
     mass: float = 25.0
     damping: float = 4.0
     friction: float = 0.5
-    gap: float = 0.015
 
     def __post_init__(self):
         if self.handedness not in ("left", "right") or self.width not in (0.65, 1.20):
@@ -55,7 +54,7 @@ class SyntheticDoor:
             [
                 [x, -self.sign * y, 0.0]
                 for x in (-self.thickness / 2, self.thickness / 2)
-                for y in (self.gap, self.width - self.gap)
+                for y in (0.0, self.width)
             ]
         )
         return (points @ self.rotation(angle).T + self.hinge)[:, :2]
@@ -134,7 +133,7 @@ def author_synthetic_door(stage, root, door):
         UsdShade.MaterialBindingAPI.Apply(cube.GetPrim()).Bind(material, materialPurpose="physics")
 
     frame = body("Frame", 50.0, (0, 0, 1), (10, 10, 10))
-    width = door.width - 2 * door.gap
+    width = door.width
     t, h, m = door.thickness, door.height, door.mass
     panel = body(
         "Panel",
@@ -166,7 +165,9 @@ def author_synthetic_door(stage, root, door):
         (0.3, 0.4, 0.5),
     )
     handle_center = (-0.06, -door.sign * 0.85 * door.width, 1.05)
-    handle = body("Handle", 0.5, handle_center, (0.002, 0.002, 0.002))
+    handle_size = np.array([0.08, 0.12, 0.035])
+    handle_inertia = 0.5 * (np.dot(handle_size, handle_size) - handle_size**2) / 12
+    handle = body("Handle", 0.5, handle_center, handle_inertia)
     box(handle, "Collider", handle_center, (0.08, 0.12, 0.035), (0.7, 0.7, 0.7))
     fixed = UsdPhysics.FixedJoint.Define(stage, root + "/FixFrame")
     fixed.CreateBody1Rel().SetTargets([frame.GetPath()])

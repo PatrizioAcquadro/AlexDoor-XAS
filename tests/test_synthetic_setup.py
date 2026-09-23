@@ -41,6 +41,17 @@ def test_minimax_excludes_failures_and_ties_use_joint_margin():
     a, b, bad = candidate(60, 0.1), candidate(59.8, 0.2), candidate(90, 0.4, False)
     assert rank_candidates([a, b, bad], 0.5) == [b, a]
     assert rank_candidates([bad], 0.5) == []
+    stronger = candidate(60.6, 0.01)
+    assert rank_candidates([a, stronger], 0.5) == [stronger, a]
+    lower_force = candidate(60, -1e-8)
+    for case in lower_force["cases"]:
+        case["peak_force_n"] = 5.0
+    at_limit = candidate(60, 0.0)
+    assert rank_candidates([at_limit, lower_force], 0.5)[0] is lower_force
+    more_clearance = candidate(60, 0.0)
+    for case in more_clearance["cases"]:
+        case["clearance_m"] = 0.03
+    assert rank_candidates([at_limit, more_clearance], 0.5)[0] is more_clearance
 
 
 def test_trial_qualification_rejects_unresolved_stops_and_inconsistent_causes():
