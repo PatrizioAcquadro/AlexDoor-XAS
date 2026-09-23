@@ -1,0 +1,53 @@
+{
+  "reviewed_on": "2026-09-23",
+  "page_url": "https://sketchfab.com/3d-models/door--prison-door-metal-old-12mb-45306a46c95b44ca8369f89c6648648c",
+  "page_review": {
+    "title": "door _Prison Door_metal_old -12MB",
+    "author": "Mehdi Shahsavan",
+    "author_profile": "https://sketchfab.com/ahmagh2e",
+    "description": "prison door door _Prison Door_metal_old",
+    "license_label": "CC Attribution",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "download_modal_terms": "Author must be credited. Commercial use is allowed.",
+    "triangles_displayed": 12000,
+    "vertices_displayed": 6300,
+    "visible_geometry": "Rusty barred prison door with lever and a rectangular frame. Viewer presents two spatially separate door/frame poses; local inspection must identify one complete closed assembly and preserve the source.",
+    "downloads_displayed": [
+      "original .fbx (12 MB)",
+      "converted .usdz (6 MB)",
+      "converted .gltf (12 MB)",
+      "converted .glb (13 MB, 2K textures)",
+      "converted .glb (3 MB, 1K textures)"
+    ]
+  },
+  "local_payload": {
+    "path": "/home/pacquadr/Downloads/door__Prison_Door_metal_old_-12MB.usdz",
+    "sha256": "4753b0c581b47e92633dda789f1e43e9e0bf5c48e5d90369ceeaa2516b986e99",
+    "bytes": 6501022,
+    "archive_entries": [
+      "scene.usdc",
+      "0/prison_door_baseColor.jpg",
+      "0/prison_door_metallicRoughness_metal.jpg",
+      "0/prison_door_metallicRoughness_rough.jpg",
+      "0/prison_door_normal.jpg"
+    ]
+  },
+  "license_dependency_review": "Four embedded 2048 px texture maps, no separate map terms on page. USDZ metadata names the same account URL as adventurer and records CC-BY-4.0 and exact source URL.",
+  "duplicate_remote_review": "Selected closed assembly fingerprint differs from all seven accepted doors.",
+  "local_geometry_review": "Original USDZ has two spatially separate copies of the same door/frame: closed Null and open display copy Null_1. Selected derivative removes only Null_1, retaining the closed source meshes/UVs/materials and original USDZ. Inspect attempt 000002 inventories the selected copy.",
+  "selected_source": {
+    "source_original": "/home/pacquadr/Downloads/door__Prison_Door_metal_old_-12MB.usdz",
+    "source_original_sha256": "4753b0c581b47e92633dda789f1e43e9e0bf5c48e5d90369ceeaa2516b986e99",
+    "selected_source": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/door-prison-metal-old-45306a46/attempts/000001/selected-source/scene.usdc",
+    "selected_source_sha256": "56ebd68dd4732e716dfe57c8ef442027f09afa9977d0b68f407d6009358ba89c",
+    "operation": "Remove only the spatially separate open display-copy prim subtree Null_1; retain the original closed Null subtree, materials and embedded maps. Original USDZ remains untouched.",
+    "removed_prim": "/scene/Meshes/Sketchfab_model/_3f0619e2fd24161a81b09343f56a581_fbx/RootNode/Null_1",
+    "retained_prim": "/scene/Meshes/Sketchfab_model/_3f0619e2fd24161a81b09343f56a581_fbx/RootNode/Null",
+    "retained_dependencies": [
+      "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/door-prison-metal-old-45306a46/attempts/000001/selected-source/0/prison_door_baseColor.jpg",
+      "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/door-prison-metal-old-45306a46/attempts/000001/selected-source/0/prison_door_metallicRoughness_metal.jpg",
+      "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/door-prison-metal-old-45306a46/attempts/000001/selected-source/0/prison_door_metallicRoughness_rough.jpg",
+      "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/door-prison-metal-old-45306a46/attempts/000001/selected-source/0/prison_door_normal.jpg"
+    ]
+  }
+}
