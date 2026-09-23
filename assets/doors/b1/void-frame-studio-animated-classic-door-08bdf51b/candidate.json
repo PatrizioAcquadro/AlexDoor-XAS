@@ -16,8 +16,16 @@
   "custom_terms_review": "pass",
   "custom_terms_review_notes": "The model description gives features and contact information; no separate author-specific restriction was observed beyond its named CC license.",
   "duplicate_review": "pass",
-  "duplicate_review_notes": "The source UID and named author differ from the three accepted sources. Geometry fingerprint comparison remains pending local inspection, which the source-license gate currently stops.",
+  "duplicate_review_notes": "The source UID is unique among the three accepted doors; inspected geometry fingerprint d074253d15413ebfe40c47cd7792614f623315321cb9e161a00189faa77d5efb differs from all accepted fingerprints.",
   "selected_format": ".glb",
   "reported_triangles": 192700,
-  "dependencies": []
+  "dependencies": [],
+  "selected_payload": "attempts/_local_source/source/door_copycat_nondegenerate.glb",
+  "reviewed_source_sha256": "dc8ddadfc0985c804c7ff34b8e38ae2b82f240938465c7819166aec7cd29d14e",
+  "local_dependency_review": "pass",
+  "local_dependency_review_notes": "Original GLB has no images or external URIs; the selected local GLB retains both embedded flat materials, the node/animation structure and all nondegenerate source faces, with no external dependencies. Inspect attempt 000003 reports zero textures.",
+  "local_duplicate_review": "pass",
+  "local_duplicate_review_notes": "Inspect attempt 000003 reports 184865 triangles, 70 components and fingerprint d074253d15413ebfe40c47cd7792614f623315321cb9e161a00189faa77d5efb; all three accepted fingerprints differ.",
+  "local_visual_review": "pass",
+  "local_visual_review_notes": "Actually viewed attempt 000008 front/rear RTX previews: complete white paneled leaf, molded frame, three brass hinge positions and lever handles on both sides. No missing parts or visible hinge detachment; the white/gold local materials render consistently."
 }

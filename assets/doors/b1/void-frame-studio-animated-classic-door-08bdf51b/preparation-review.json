@@ -1,12 +1,55 @@
 {
-  "status": "unresolved",
-  "category": "technical_preparation",
-  "stage": "inspect_pending",
-  "reason": "User-approved private_noncommercial source scope passes review; technical preparation has not yet run.",
+  "status": "pass",
+  "stage": "ready_for_5.1",
+  "distribution_scope": "private_noncommercial",
   "source_evidence": "source-evidence.json",
   "candidate": "candidate.json",
-  "technical_preparation": "pending",
-  "technical_note": "The source geometry has not yet passed or failed inspection, normalization, static, visual or physics checks.",
-  "downloads_preserved": true,
-  "existing_accepted_doors_preserved": true
+  "recipe": "recipe.json",
+  "accepted_attempt": "attempts/000008",
+  "dimensions_m": {
+    "width_m": 0.8189631853890419,
+    "height_m": 2.2831635880470276,
+    "thickness_m": 0.03462637535708278
+  },
+  "handedness": "left",
+  "modifications": [
+    "Removed 7,787 negligible-area source triangles in a private local GLB copy; original GLB and USDZ preserved.",
+    "Uniformly fitted Panel and Handle by 2% and shifted the moving assembly 3.1 mm to clear witnessed closed-pose source crossings.",
+    "Used original animated hinge direction and a proper Y-up to Z-up rotation; no mirror.",
+    "Grouped planar latch-side hardware into one collidable solid; kept separate collidable lever handles, leaf and frame.",
+    "Excluded collision only for separate latch tongue component 69 in the closed-unlatched task state; retained its visual mesh."
+  ],
+  "checks": {
+    "source_review": "pass, private_noncommercial",
+    "inspect": "pass, attempt 000003; 184865 triangles, 70 components, zero textures",
+    "normalize": "pass, attempt 000008; 91.0 degree geometric opening limit",
+    "static": "pass, full component coverage and nominal physics properties",
+    "visual": "pass, actually viewed front and rear RTX previews",
+    "physics": {
+      "status": "pass",
+      "device": "cuda:0",
+      "gpu": "NVIDIA GeForce RTX 4090",
+      "resets": 3,
+      "maximum_deg": 90.99999684048139,
+      "mechanical_limit_deg": 91.0,
+      "passive_drift_deg": 0.00020199939761287444,
+      "frame_drift_m": 0.0,
+      "hinge_error_m": 1.2535588211903814e-06,
+      "penetration_m": 0.0
+    }
+  },
+  "evidence_paths": {
+    "inspect": "attempts/000003/inspect.json",
+    "normalize": "attempts/000008/normalize.json",
+    "static": "attempts/000008/static.json",
+    "preview_front": "attempts/000008/preview-front.png",
+    "preview_rear": "attempts/000008/preview-rear.png",
+    "physics": "attempts/000008/physics.json"
+  },
+  "limits": [
+    "Private noncommercial scope: do not share adapted model/USD or use commercially; release of rendered datasets needs separate rights review.",
+    "Inferred benchmark collision/clearance model does not reconstruct manufactured hinge and latch internals.",
+    "A frame convex hull received a PhysX GPU-compatibility warning during preview cooking, with rigid collision fallback; isolated cuda:0 door physics passed.",
+    "No robot/expert qualification or Phase 5.1 result is claimed."
+  ]
 }

@@ -2,7 +2,7 @@
   "reviewed_on": "2026-09-23",
   "page_url": "https://sketchfab.com/3d-models/void-frame-studio-animated-classic-door-08bdf51b9e5f4301be5de3a28c8a36ff",
   "page_review": {
-    "title": "Void Frame Studio – Animated Classic Door",
+    "title": "Void Frame Studio \u2013 Animated Classic Door",
     "author": "VOID FRAME STUDIO",
     "author_profile": "https://sketchfab.com/voidframestudio",
     "description": "Animated classic interior door created in Blender; opening/closing door and handle animation, decorative detail and brass hardware.",
@@ -37,5 +37,18 @@
     }
   ],
   "license_interpretation": "CC BY-NC-ND 4.0 permits producing and reproducing adaptations for noncommercial purposes, but not sharing them. The user authorized a narrow private_noncommercial 5.0 exception on 2026-09-23; no commercial use or sharing of modified model/USD or generated evidence is authorized. No technical result is inferred from this license review.",
-  "terms_evidence": "https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en"
+  "terms_evidence": "https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en",
+  "local_derivative": {
+    "path": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/void-frame-studio-animated-classic-door-08bdf51b/attempts/_local_source/source/door_copycat_nondegenerate.glb",
+    "sha256": "dc8ddadfc0985c804c7ff34b8e38ae2b82f240938465c7819166aec7cd29d14e",
+    "bytes": 9807244,
+    "method": "Append compacted index buffers to the original GLB, omitting only 7,787 triangles with area at most 2e-14 square meters. Preserve all remaining vertex/attribute buffers, materials, nodes and animation metadata; no original download changed.",
+    "removed_triangles": 7787,
+    "source_triangles": 192652,
+    "retained_triangles": 184865,
+    "inspection_attempt": "attempts/000003",
+    "original_glb_inspection_failure": "attempts/000001/inspect.json: degenerate geometry in component 4",
+    "usdz_inspection_failure": "attempts/000002/inspect.json: degenerate geometry in component 10"
+  },
+  "selected_dependency_review": "No images or external URI in original or selected GLB; no separate asset dependency observed."
 }

@@ -595,3 +595,11 @@ Modified source assets remain private and noncommercial, with no change to the a
 ## 2026-09-23 — lint : Private noncommercial source scope
 The focused source-scope tests, Ruff, candidate JSON, CLI review and wiki links pass.
 Markdown whitespace passes; no asset attempt or GPU claim was made at this policy milestone.
+
+## 2026-09-23 — update : Prepare Void Frame Studio door for 5.1
+Removed negligible-area triangles in a private local copy and fitted the moving door within the documented 2% limit; original downloads and failed attempts remain.
+Promoted attempt 000008 after static, viewed RTX previews and one isolated RTX 4090 run to its geometric 91-degree limit.
+
+## 2026-09-23 — lint : Void Frame Studio preparation evidence
+Validated original/selected hashes, retained GLB buffers and animation metadata, candidate JSON, accepted pointer and all required stage reports.
+Ruff, wiki links/index and Markdown whitespace pass; earlier attempts and original downloads remain preserved.

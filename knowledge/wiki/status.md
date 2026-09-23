@@ -2,18 +2,22 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Three doors pass static, visual and isolated GPU checks
+intake has started. Four doors pass static, visual and isolated GPU checks
 in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
 The fourth supplied source, `void-frame-studio-animated-classic-door-08bdf51b`,
 is CC BY-NC-ND 4.0. Its initial source-review failure is superseded by a
-user-approved `private_noncommercial` scope: private preparation and tests may
-proceed, but commercial use and sharing adapted assets remain outside that scope.
-The CLI source review now passes. Its single-leaf appearance and 192.7k reported
-triangles do not constitute technical qualification. Both downloads are preserved;
-the initial batch remains at three ready doors pending preparation checks.
+user-approved `private_noncommercial` scope: no commercial use or sharing adapted
+assets. Both original downloads have degenerate triangles; a local GLB copy omits
+only 7,787 negligible-area triangles and passes inspection with 184,865 triangles.
+After reviewed 2% moving-assembly fitting, 3.1 mm translation and grouped
+hardware collision, attempt `000008` passes static and viewed front/rear previews.
+On RTX 4090 it reaches the geometric 91-degree limit with three exact resets,
+zero frame drift and zero reported penetration. The 0.819 × 2.283 × 0.035 m leaf
+is left-handed in the canonical push convention. It is ready for 5.1 within its
+private/noncommercial scope; both downloads and earlier attempts are preserved.
 
 The next supplied source, `modern-door-2fb8d024`, has a Sketchfab Free Standard
 license. Its earlier CC-only rejection is superseded by the approved local-only
@@ -37,7 +41,7 @@ with reviewed 2% uniform fitting, 0.99 mm hinge-side translation and a corrected
 hinge-side canonical rotation. The leaf is 0.879 × 2.097 × 0.080 m and left-handed
 in the canonical push convention. Static and visual checks pass; RTX 4090 reaches
 161.2 degrees with stable resets/frame and no reported penetration. It is promoted
-as local-only; the batch now has three ready doors, with 5.1 still unrun. Flat local
+as local-only; it was the third ready door, with 5.1 still unrun. Flat local
 materials suffice for preparation; later Replicator variation must use permitted
 materials. Physics tolerances and the frozen setup are unchanged.
 
@@ -157,11 +161,11 @@ The first candidate, `door-with-frame-2f2f149f`, is technically ready for 5.1 af
 explicitly omitting latch/lock bolt collisions for the common closed-unlatched task.
 It reaches 188 degrees in isolated GPU physics with stable resets/frame and no
 reported penetration. The leaf, frame and handles retain their collisions.
-Next, prepare a small initial batch of 3–4 distinct real doors in total using the
-[[implementation_phases/phase-5-door-corpus-and-qualification|next-candidate handoff]],
-then start the unchanged common robot/expert protocol without waiting for all 24.
-This batch size is a working recommendation, not an admission requirement.
-Expert qualification, the final corpus and split are still pending.
+The initial batch of four distinct real doors is prepared. Start the unchanged
+common robot/expert protocol in 5.1 only when requested; the next-candidate
+[[implementation_phases/phase-5-door-corpus-and-qualification|handoff]] remains
+available for further sequential intake. Expert qualification, the final corpus
+and split are still pending.
 Phase 6 integrates observations and all learned A1–A4 paths, then a demonstration
 pilot. Phase 7 owns training and generalization evaluation.
 
@@ -178,6 +182,7 @@ These are historical scientific conclusions, not active workflows. See [[experim
 
 ## Version Notes
 
+- 2026-09-23 — Prepared Void Frame Studio's door under private/noncommercial scope; local removal of negligible-area triangles, 2% fitting and reviewed hardware colliders pass static, visual and one RTX 4090 run. Four doors are ready for 5.1.
 - 2026-09-23 — Recovered Theocritus door with reviewed 2% fitting and corrected hinge-side mounting; 25 focused tests and one RTX 4090 run pass. Three doors are ready for 5.1, including two local-only.
 - 2026-09-23 — Prepared a texture-free local derivative of Theocritus's door; source and inspection pass, but normalization remains blocked by a genuine leaf/frame overlap at the current 1% fitting limit.
 - 2026-09-23 — Corrected Theocritus source review to `unresolved`: NoAI alone does not show a conflict with action policies, while Poliigon-named texture rights remain unverified.

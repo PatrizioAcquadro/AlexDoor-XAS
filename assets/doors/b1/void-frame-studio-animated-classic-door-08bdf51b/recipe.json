@@ -1,0 +1,210 @@
+{
+  "handedness": "left",
+  "scale": 1.0,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    -1.210740566253662,
+    -3.1671270756363867,
+    -4.172500127566531
+  ],
+  "opening_center_source": [
+    3.1671270756363867,
+    4.172500127566531,
+    1.210740566253662
+  ],
+  "hinge_m": [
+    0.0,
+    0.4182043643355371,
+    0.0
+  ],
+  "dimensions_m": {
+    "width_m": 0.8189631853890419,
+    "height_m": 2.2831635880470276,
+    "thickness_m": 0.03462637535708278
+  },
+  "components": {
+    "Frame": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+    ],
+    "Panel": [
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      69
+    ],
+    "Handle": [
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      66,
+      67,
+      68
+    ]
+  },
+  "leaf_components": [
+    33
+  ],
+  "unlatched_components": [
+    69
+  ],
+  "unlatched_review": "Component 69 is the separate latch tongue at handle height and extends about 20 mm beyond the leaf edge toward the strike. Preserve its visual mesh while omitting only its collision for the common closed-unlatched push state. Leaf, frame, hinge and handles remain collidable.",
+  "moving_scale": 0.98,
+  "moving_scale_center_m": [
+    0.0,
+    0.0031,
+    1.2297053992622349
+  ],
+  "clearance_review": "Attempt 000006 showed proper source-surface crossings between the fitted leaf/handle hardware and both strike-side frame pieces and fixed hinge knuckles. The source leaf nearly fills the passage. Uniform 2% Panel/Handle fitting about the measured leaf center plus a 3.1 mm shift toward the latch distributes the predicted edge gaps to roughly 0.35 mm at the hinge and 0.8 mm at the strike; the opening origin is recentered on the fitted leaf. This is a bounded operating-clearance approximation to verify through the full sweep and previews, not manufacturer geometry. Runtime tolerances are unchanged.",
+  "colliders": {
+    "4": {
+      "partitions": {
+        "y": [
+          -0.42,
+          0.42
+        ],
+        "z": [
+          0.06,
+          2.395
+        ]
+      }
+    },
+    "33": "convexHull"
+  },
+  "modifications": [
+    "Use a local GLB copy with 7,787 source triangles of area at most 2e-14 square meters omitted; preserve all other source geometry, materials, node hierarchy and animation metadata. Keep original GLB/USDZ untouched.",
+    "Use the source Door animation pivot and positive opening direction: proper cyclic Y-up to Z-up rotation, left-handed canonical opening; no reflection.",
+    "Classify fixed frame and hinge hardware, moving leaf/hinge hardware, and collidable handles from the inspected component inventory.",
+    "Apply 2% uniform Panel/Handle fitting about the measured leaf center and shift the moving assembly 3.1 mm toward the latch to resolve witnessed closed-pose crossings; recenter the canonical opening on the fitted leaf.",
+    "Partition the concave frame collision mesh at measured jamb/header levels; use a convex solid-leaf envelope for the paneled leaf.",
+    "Declare the central 0.81 m clear aperture within the measured leaf envelope, allowing for fixed hinge knuckles and the strike plate that protrude at the two jamb edges; retain their collisions.",
+    "Cook the material-separated latch-side casing and escutcheon as one collidable solid to avoid standalone planar-skin thickening; keep both lever handles separately collidable.",
+    "Retain nominal closed-unlatched physical parameters; omit only the separate latch-tongue collision and derive the opening stop from geometry."
+  ],
+  "clear_aperture_m": [
+    [
+      -0.405,
+      0.09
+    ],
+    [
+      0.405,
+      2.369
+    ]
+  ],
+  "moving_translation_m": [
+    0,
+    -0.0031,
+    0
+  ],
+  "collider_groups": [
+    {
+      "components": [
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56
+      ],
+      "approximation": "convexHull",
+      "review": "The white and brass latch-side escutcheon, lock casing and handle-base fragments describe one rigid attached hardware assembly. Several are planar skins whose standalone PhysX decomposition thickens them into the fixed strike plate despite no source-surface crossings after fitting (attempt 000007). Cook a common solid envelope while retaining every visual component, the collidable assembly, and the separate lever-handle colliders. The separate latch tongue 69 remains the only excluded collider."
+    }
+  ]
+}

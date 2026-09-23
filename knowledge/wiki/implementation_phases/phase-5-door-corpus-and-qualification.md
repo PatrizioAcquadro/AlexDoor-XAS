@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> Three real doors pass preparation and are ready for 5.1: one redistributable and two local-only. Expert qualification remains planned.
+> Four real doors pass preparation and are ready for 5.1: one redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
 
 ## Objective
 
@@ -471,6 +471,38 @@ Candidate-specific evidence is in
 `assets/doors/b1/void-frame-studio-animated-classic-door-08bdf51b/`. The three
 prepared doors and both downloaded originals remain intact.
 
+The original GLB and converted USDZ both fail inspection on source triangles with
+zero or negligible area. A private local GLB copy retains the source vertex,
+material, node and animation data and omits 7,787 triangles of area at most
+2e-14 m²; 184,865 remain. Inspection attempt `000003` passes with 70 components,
+zero textures and a fingerprint distinct from the three prepared doors. The
+separate original-format inspection attempts remain as diagnostics.
+
+The source animation identifies a left-side hinge and opening direction under a
+proper Y-up to Z-up rotation. At closed pose, source-surface crossings showed the
+leaf and latch-side hardware entering fixed strike and hinge parts. Uniform 2%
+Panel/Handle fitting and a 3.1 mm shift toward the latch resolve those crossings;
+the canonical origin is recentered on the fitted leaf. The frame collider is
+partitioned at jamb/header levels, and a narrower central aperture acknowledges
+fixed hinge and strike hardware while keeping every frame collision. Several
+planar latch-side handle-base/lock-casing fragments cooked as separate thick
+colliders despite no remaining source crossings; a reviewed common solid collider
+retains their collision. Both lever handles and the leaf remain collidable. Only
+separate latch tongue component 69 loses collision in the closed-unlatched state;
+its visual mesh remains. Earlier normalization attempts document those defects.
+
+Attempt `000008` passes normalization, static coverage and inspected front/rear RTX
+previews. The white paneled leaf, molded frame, three hinge positions and handles
+on both sides are visible and aligned. The leaf measures 0.819 × 2.283 × 0.035 m.
+One isolated `cuda:0` RTX 4090 run reaches 91.0000 degrees against the
+geometry-derived 91-degree limit, with three exact resets, 0.000202-degree
+passive drift, zero frame drift, 1.25-micrometer maximum hinge error and zero
+reported penetration. Promotion records `ready_for_5.1` and
+`private_noncommercial`; no robot/expert result is implied. A frame hull emitted
+a PhysX oblong-shape CPU-collision fallback warning during preview cooking; the
+rigid-door GPU functional check passed. No particle/deformable contact is claimed.
+All prior attempts and both downloaded originals remain untouched.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
@@ -500,19 +532,18 @@ prepared doors and both downloaded originals remain intact.
 
 #### Problems / Limitations
 
-Preparation is verified on the documented fixtures and three real doors in the
+Preparation is verified on the documented fixtures and four real doors in the
 closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
 The Ahmed sayed candidate's earlier license rejection and preparation blockers
 are superseded by local-only scope and the reviewed GLB repair. The initial batch
-now contains three technically ready doors, but only the witnessk asset is
-redistributable. Inferred pivots and clearance fitting do not reconstruct real
+now contains four technically ready doors, but only the witnessk asset is
+redistributable. Void Frame Studio's initial source-license failure and geometry
+attempt failures are superseded by its private/noncommercial admission and
+attempt `000008`. Inferred pivots and clearance fitting do not reconstruct real
 hardware; the nominal benchmark still requires the frozen 5.1 robot probe.
-The Void Frame Studio source's initial license failure is superseded by the
-private/noncommercial review. It remains outside the technically ready count until
-all preparation gates pass.
 
 Conversion uses a glTF/PreviewSurface material path. Texture preservation is tested,
 but arbitrary shaders, animations and all source-format features are not guaranteed;
