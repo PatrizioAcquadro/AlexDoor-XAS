@@ -1,0 +1,31 @@
+{
+  "status": "fail",
+  "category": "source",
+  "decision": "reject_before_preparation",
+  "reason": "Sketchfab Free Standard is outside the required CC0 or CC BY 4.0 licenses. The downloaded USDZ independently identifies SKETCHFAB Standard.",
+  "source_sha256": "b1dace29575bd5b29135e537ad501d8cbf97655d1bb90067d19b44e2f58e20d0",
+  "source_review": {
+    "command": "/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review --candidate assets/doors/b1/modern-door-2fb8d024/candidate.json --viz none --device cuda:0",
+    "status": "fail",
+    "category": "source",
+    "reason": "License is outside B1 admission"
+  },
+  "observed_geometry": "The source page shows one wood leaf, frame and long handle; original handedness and separability were not verified.",
+  "leaf_dimensions_m": null,
+  "handedness": null,
+  "modifications": [],
+  "attempts_created": 0,
+  "inspect": "not_run",
+  "normalize": "not_run",
+  "static": "not_run",
+  "preview": "not_run",
+  "physics": "not_run",
+  "promote": "not_run",
+  "expert_qualification": "not_run",
+  "evidence": [
+    "candidate.json",
+    "source-evidence.json",
+    "/home/pacquadr/Downloads/modern_door.usdz"
+  ],
+  "next_step": "Request another candidate URL and user-managed download with CC0 or CC BY 4.0 covering the model and its dependencies."
+}

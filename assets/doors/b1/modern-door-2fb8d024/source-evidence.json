@@ -1,0 +1,39 @@
+{
+  "reviewed_on": "2026-09-23",
+  "page_url": "https://sketchfab.com/3d-models/modern-door-2fb8d02419b84d628cf9a4ac85360cec",
+  "page_review": {
+    "title": "modern door",
+    "author": "Ahmed sayed",
+    "author_profile": "https://sketchfab.com/Ahmed_sayed",
+    "description": "high quality modern wooden door",
+    "license_label": "Free Standard",
+    "license_url": "https://sketchfab.com/licenses",
+    "triangles_displayed": "3.6k",
+    "vertices_displayed": "2.1k",
+    "visible_geometry": "One modern wood leaf in a frame, with a long vertical pull handle and horizontal inlays. Frame and leaf separation, dimensions and original handedness were not verified.",
+    "downloads_displayed": [
+      "original .glb (10 MB)",
+      "converted .usdz (4 MB)",
+      "converted .gltf (4 MB)",
+      "converted .glb with 2K textures (5 MB)",
+      "converted .glb with 1K textures (1 MB)"
+    ]
+  },
+  "local_payload": {
+    "path": "/home/pacquadr/Downloads/modern_door.usdz",
+    "sha256": "b1dace29575bd5b29135e537ad501d8cbf97655d1bb90067d19b44e2f58e20d0",
+    "archive_entries": [
+      "scene.usdc",
+      "0/wood.001_normal_norm.jpg",
+      "0/wood.001_baseColor.jpg",
+      "0/Brown_Polished_Oak_Wood.001_normal_norm.jpg",
+      "0/Brown_Polished_Oak_Wood.001_baseColor.jpg"
+    ],
+    "embedded_usd_metadata": {
+      "author": "Ahmed sayed (https://sketchfab.com/Ahmed_sayed)",
+      "copyright": "SKETCHFAB Standard (https://sketchfab.com/licenses)",
+      "title": "modern door"
+    }
+  },
+  "conclusion": "The page and USDZ agree on a Sketchfab Standard license. It is neither CC0 nor CC BY 4.0, so the candidate fails the Phase 5.0 source-license gate before inspection or normalization. The downloaded original remains untouched."
+}

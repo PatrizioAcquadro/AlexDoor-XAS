@@ -1,0 +1,39 @@
+{
+  "asset_id": "modern-door-2fb8d024",
+  "source_url": "https://sketchfab.com/3d-models/modern-door-2fb8d02419b84d628cf9a4ac85360cec",
+  "source_uid": "2fb8d02419b84d628cf9a4ac85360cec",
+  "author": "Ahmed sayed",
+  "license": "Sketchfab-Free-Standard",
+  "license_evidence": "assets/doors/b1/modern-door-2fb8d024/source-evidence.json",
+  "attribution": "modern door by Ahmed sayed (https://sketchfab.com/Ahmed_sayed), https://sketchfab.com/3d-models/modern-door-2fb8d02419b84d628cf9a4ac85360cec, Sketchfab Free Standard (https://sketchfab.com/licenses).",
+  "retrieval_date": "2026-09-23",
+  "door_type": "interior",
+  "single_leaf": true,
+  "frame_panel_separable": null,
+  "license_scope_review": "fail",
+  "custom_terms_review": "unresolved",
+  "duplicate_review": "unresolved",
+  "selected_format": ".usdz",
+  "dependencies": [
+    {
+      "path": "0/wood.001_normal_norm.jpg",
+      "license": "Sketchfab-Free-Standard",
+      "license_evidence": "source-evidence.json: embedded USDZ texture"
+    },
+    {
+      "path": "0/wood.001_baseColor.jpg",
+      "license": "Sketchfab-Free-Standard",
+      "license_evidence": "source-evidence.json: embedded USDZ texture"
+    },
+    {
+      "path": "0/Brown_Polished_Oak_Wood.001_normal_norm.jpg",
+      "license": "Sketchfab-Free-Standard",
+      "license_evidence": "source-evidence.json: embedded USDZ texture"
+    },
+    {
+      "path": "0/Brown_Polished_Oak_Wood.001_baseColor.jpg",
+      "license": "Sketchfab-Free-Standard",
+      "license_evidence": "source-evidence.json: embedded USDZ texture"
+    }
+  ]
+}

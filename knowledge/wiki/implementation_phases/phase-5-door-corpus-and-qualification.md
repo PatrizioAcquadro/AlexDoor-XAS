@@ -272,6 +272,16 @@ Candidate records are versioned under `assets/doors/b1/door-with-frame-2f2f149f/
 payloads, earlier outcomes and current reports/images. `prepared.json` points to
 the accepted attempt, whose evidence is protected from overwrite.
 
+**Next source review (2026-09-23).** The user supplied
+[modern door by Ahmed sayed](https://sketchfab.com/3d-models/modern-door-2fb8d02419b84d628cf9a4ac85360cec)
+and `~/Downloads/modern_door.usdz`. The page lists Free Standard, original GLB and
+converted USDZ/glTF/GLB downloads, about 3.6k triangles, and shows one wooden leaf,
+frame and long handle. Embedded USDZ metadata independently says `SKETCHFAB Standard`.
+The existing `review` command fails the source-license gate. This candidate is
+rejected before inspection, recipe, GPU checks or promotion; dimensions, original
+handedness and separability were not measured. Its source and rejection evidence are
+under `assets/doors/b1/modern-door-2fb8d024/`; the original download is untouched.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
@@ -301,6 +311,9 @@ Preparation is verified on the documented fixtures and one real door in the
 closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
+
+The Ahmed sayed candidate is excluded by its source license, independently of its
+unmeasured technical suitability. The initial prepared batch remains at one door.
 
 Conversion uses a glTF/PreviewSurface material path. Texture preservation is tested,
 but arbitrary shaders, animations and all source-format features are not guaranteed;

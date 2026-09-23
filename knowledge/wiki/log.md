@@ -503,3 +503,11 @@ Recommended an initial batch of 3–4 distinct doors before early robot checks, 
 ## 2026-09-23 — lint : Next-door handoff
 Wiki links/index coverage and whitespace pass; operator instructions match the current CLI, recipe and promotion contracts.
 Documentation-only update: no simulation reruns, asset changes, raw-source edits or frozen-setup changes.
+
+## 2026-09-23 — update : Modern-door license review
+Reviewed the Ahmed sayed source page, available formats and local USDZ metadata; Sketchfab Standard fails the Phase 5.0 license gate.
+Recorded source evidence and rejection without creating a preparation attempt or changing the downloaded asset.
+
+## 2026-09-23 — lint : Modern-door source rejection
+Candidate JSON, source checksum, source-review failure, wiki links/index and whitespace checks pass.
+Only rejection records and canonical wiki text changed; raw research, prior assets and frozen Phase 4 setup are untouched.
