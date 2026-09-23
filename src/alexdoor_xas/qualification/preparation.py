@@ -79,6 +79,7 @@ def remote_review(record, existing=()):
         require(record.get(name) is not False, f"Candidate fails {name}", category="asset")
     # Source latch state is prepared locally; it is not an identity rejection.
     for name in ("license_scope_review", "custom_terms_review", "duplicate_review"):
+        require(record.get(name) != "fail", f"Review failed: {name}", category="source")
         require(
             record.get(name) == "pass",
             f"Review needed: {name}",

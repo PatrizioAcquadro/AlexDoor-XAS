@@ -79,6 +79,23 @@ def test_standard_license_is_local_only_including_dependencies():
         remote_review(data)
 
 
+@pytest.mark.parametrize(
+    "field", ["license_scope_review", "custom_terms_review", "duplicate_review"]
+)
+def test_explicit_failed_source_review_is_rejected(field):
+    data = remote()
+    data[field] = "fail"
+    with pytest.raises(PreparationError, match=f"Review failed: {field}") as failure:
+        remote_review(data)
+    assert failure.value.status == "fail"
+    assert failure.value.category == "source"
+
+    del data[field]
+    with pytest.raises(PreparationError, match=f"Review needed: {field}") as failure:
+        remote_review(data)
+    assert failure.value.status == "unresolved"
+
+
 def test_duplicate_identity_and_unsupported_format_are_explicit():
     data = remote()
     other = {**data, "asset_id": "two"}
