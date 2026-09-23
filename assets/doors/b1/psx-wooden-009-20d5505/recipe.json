@@ -1,0 +1,104 @@
+{
+  "handedness": "left",
+  "scale": 1.015,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    0,
+    0.53008375,
+    -0.0024467074154245535
+  ],
+  "opening_center_source": [
+    -0.52225,
+    0.002410549177758181,
+    0
+  ],
+  "hinge_m": [
+    0.016817587300316,
+    0.37857021605146485,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.7571404321029297,
+    "height_m": 1.8092761925478733,
+    "thickness_m": 0.08581662387679231
+  },
+  "components": {
+    "Frame": [
+      0
+    ],
+    "Panel": [
+      5
+    ],
+    "Handle": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "leaf_components": [
+    5
+  ],
+  "clear_aperture_m": [
+    [
+      -0.35857021605146483,
+      0.06499920520101542
+    ],
+    [
+      0.35857021605146483,
+      1.8542753977488888
+    ]
+  ],
+  "colliders": {
+    "0": {
+      "partitions": {
+        "y": [
+          -0.38243125,
+          0.38243125
+        ],
+        "z": [
+          1.8736077925845753
+        ]
+      }
+    }
+  },
+  "modifications": [
+    "Select this named single-leaf door and its matched source frame from the six-model USDZ pack; retain the original pack and its CC BY texture.",
+    "Apply a 1.015 uniform full-assembly scale to keep the fitted leaf within 1.80\u20132.40 m; proper Y-up to Z-up rotation centers the opening at the floor without reflection.",
+    "Infer the revolute axis on the positive-width jamb opposite the source handle, at the outer leaf face; no manufacturer hinge axis is given.",
+    "Initial 0.4% fit stopped at 1.7 degrees because the back leaf corner enters the opposite jamb during early rotation. The original leaf exceeds that inner jamb by 1.30 mm and the header by 0.57 mm. The 1.3% uniform Panel/Handle fit about the leaf center and hinge face, plus -2.20 mm width centering, yields 5.86 mm per jamb and 11.33 mm above the leaf. The inferred hinge stays on the hinge-side outer face; leaf, handles, glass (if any) and frame retain collision.",
+    "Preserve all modeled frame, leaf and handle collisions. Partition only the source U-frame, with cuts 2 mm inside the inner jamb/header boundary so coplanar jamb faces stay in side cells and the central aperture is not filled by one convex hull.",
+    "Begin closed and already unlatched; no separate projecting latch/bolt is modeled."
+  ],
+  "moving_scale": 0.987,
+  "moving_scale_center_m": [
+    0.016817587300316,
+    0.002195234030333108,
+    0.9596373014749522
+  ],
+  "moving_translation_m": [
+    0,
+    -0.002195234030333108,
+    0
+  ],
+  "clearance_review": "Initial 0.4% fit stopped at 1.7 degrees because the back leaf corner enters the opposite jamb during early rotation. The original leaf exceeds that inner jamb by 1.30 mm and the header by 0.57 mm. The 1.3% uniform Panel/Handle fit about the leaf center and hinge face, plus -2.20 mm width centering, yields 5.86 mm per jamb and 11.33 mm above the leaf. The inferred hinge stays on the hinge-side outer face; leaf, handles, glass (if any) and frame retain collision.",
+  "review_notes": [
+    "An initial 0.4% fit passed normalization but stopped geometrically at 1.7 degrees on leaf/opposite-jamb contact. The revised fit follows the measured source thickness and the early swept-corner contact; no threshold or collision mask was changed."
+  ]
+}
