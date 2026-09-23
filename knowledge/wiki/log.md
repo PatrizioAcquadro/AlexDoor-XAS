@@ -471,3 +471,11 @@ Updated status and architecture; real-door intake awaits a user URL after source
 ## 2026-09-23 — lint : Subphase 5.0 closeout
 All 350 software tests pass; wiki links/index, Ruff and whitespace checks pass.
 Verified source/code references, unchanged raw research and frozen Phase 4 configuration; no real-corpus completion claimed.
+
+## 2026-09-23 — update : First real door intake
+Recorded witnessk's CC BY 4.0 source, embedded dependencies, component inventory, proposed recipe and original RTX views.
+Retained the candidate as unresolved after diagnosing rebated-geometry and hinge-measurement limitations; no physical qualification or promotion claimed.
+
+## 2026-09-23 — lint : First candidate evidence
+Source review, JSON parsing, preserved source/evidence checksums, wiki links/index and whitespace checks pass.
+Only candidate records and canonical status changed; code, frozen setup, raw research and prior evidence are unchanged.

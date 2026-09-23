@@ -2,7 +2,8 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has not started. See [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
+intake has started with one inspected candidate, unresolved due to shared preparation
+limitations for rebated frames and projecting hinge hardware. See [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
@@ -107,8 +108,10 @@ training run or media was added to the tracked output tree.
 ## Next Phases
 
 The common floor/contact/neck setup and expert protocol are frozen on synthetics.
-Phase 5 next processes the first user-provided candidate URL, following source-site
-and pre-download guidance. Technically prepared doors then enter Subphase 5.1;
+Phase 5 next resolves the shared geometry/recipe limitations exposed by the first
+candidate, `door-with-frame-2f2f149f`, then reruns its static and GPU gates.
+Its CC BY 4.0 source and local inventory pass; it is retained, not rejected or
+promoted. Technically prepared doors then enter Subphase 5.1;
 the real corpus, expert qualification and split are still pending.
 Phase 6 integrates observations and all learned A1–A4 paths, then a demonstration
 pilot. Phase 7 owns training and generalization evaluation.
@@ -126,6 +129,7 @@ These are historical scientific conclusions, not active workflows. See [[experim
 
 ## Version Notes
 
+- 2026-09-23 — Inspected the first user-supplied real door; recorded source evidence and an unresolved preparation outcome without claiming physical qualification.
 - 2026-09-23 — Verified Subphase 5.0 preparation infrastructure, conversion paths and static/GPU gates; awaiting the first candidate URL.
 - 2026-09-22 — Implemented Purdue operational integration and retired B0 execution, preserving historical readers and isolated door preparation.
 - 2026-09-22 — Completed preparatory cleanup and revised the B1 nine-subphase plan.

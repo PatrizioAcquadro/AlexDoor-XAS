@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> Real-asset intake has not started. Subphase 5.1 remains planned.
+> The first real candidate is inspected but unresolved in preparation. Subphase 5.1 remains planned.
 
 ## Objective
 
@@ -134,6 +134,37 @@ Do not write a new standalone normalization pipeline for every door or modify
 robot/contact rules to make a candidate pass. Fix genuine shared-tool defects
 in the shared infrastructure and recheck affected results. Ordinary differences
 in scale, source prims, pivot, or allowed separation belong in the asset recipe.
+
+**First real intake (2026-09-23).** The user supplied
+[Door with frame by witnessk](https://sketchfab.com/3d-models/door-with-frame-2f2f149f3ec44d658a02c1f924dfa449)
+and `~/Downloads/Door_with_frame.usdz`. Official page/API and embedded metadata
+agree on CC BY 4.0. Inspection passes with 10,154 triangles, 22 connected
+components and two embedded 2K textures. Original front/rear RTX views were
+reviewed. A proposed uniform scale of 0.72 gives a leaf approximately
+0.891 × 2.097 × 0.042 m, with original right handedness in canonical coordinates.
+
+The candidate is **unresolved, not rejected or promoted**. The ordinary
+normalization attempt stops because dimensions measure the whole `Panel` group,
+including projecting hinge hardware, rather than the actual leaf. Further
+collision diagnostics show default hulls expanding the leaf/frame bounds by
+26.21/24.34 mm. Higher-resolution shrink-wrapped decomposition reduces but does
+not remove false intersections; convexifying the leaf also fills its rebate.
+Original mid-height mesh sections show complementary rebates with clearance,
+so these failures do not establish unsuitable source geometry. That sampled
+section does not prove clearance throughout the door. The existing clear-opening
+test also assumes a rectangular aperture inset only 1 mm from the leaf envelope,
+which is unsuitable for this frame stop.
+
+The common preparation path needs separate leaf measurement geometry, measured
+clear-aperture bounds and geometry-preserving convex partitions before this
+candidate can proceed. The refined cooker warned about oblong hulls unsupported
+by GPU collision; no door dynamics were run. Static readiness, mechanical limit,
+latch-free opening and GPU physics remain unverified. No additional download is
+needed. Source evidence, proposed recipe and reviewed outcome are versioned under
+`assets/doors/b1/door-with-frame-2f2f149f/`; preserved payloads, diagnostic probes,
+renders and failed normalization are in its ignored `attempts/000001` and `000002`.
+`preparation-review.json` distinguishes the raw recipe failure from the reviewed
+tool limitation. The frozen Phase 4 setup remains unchanged.
 
 #### Key Decisions
 

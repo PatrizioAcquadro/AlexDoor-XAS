@@ -1,0 +1,83 @@
+{
+  "handedness": "right",
+  "scale": 0.72,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    0,
+    0,
+    0
+  ],
+  "opening_center_source": [
+    0,
+    0,
+    0
+  ],
+  "hinge_m": [
+    0.1063224,
+    -0.45625679999999996,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.8912622505074257,
+    "height_m": 2.097087358989272,
+    "thickness_m": 0.04194207111576115
+  },
+  "components": {
+    "Frame": [
+      14,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+    ],
+    "Panel": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      15
+    ],
+    "Handle": [
+      0,
+      1,
+      10,
+      11,
+      12,
+      13
+    ]
+  },
+  "modifications": [
+    "Proposed only, not promoted: uniform 0.72 scale in inspected Y-up meter coordinates.",
+    "Proper cyclic rotation to canonical Z-up, with original hinge on negative Y (right).",
+    "Separate connected parts into fixed frame/lower hinge barrels, moving panel/upper barrels, and handles. Preserve all visual components and handle collisions."
+  ],
+  "preparation_status": "unresolved",
+  "review_notes": [
+    "dimensions_m measures the actual leaf (component 3), not projecting hinge hardware. Current normalizer measures the entire Panel group and cannot represent this distinction.",
+    "The original panel and frame have complementary rebates. A single convex panel hull fills its rebate; automatic convex decomposition also over-expands the frame.",
+    "The normalizer opening test assumes an aperture inset 1 mm from the full leaf bounds; the frame rebate makes this assumption unsuitable.",
+    "Hinge center is estimated from the matching cylindrical barrel bounds; it requires verification after collision preparation."
+  ]
+}

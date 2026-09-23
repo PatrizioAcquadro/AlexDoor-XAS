@@ -1,0 +1,93 @@
+{
+  "status": "unresolved",
+  "category": "tool",
+  "decision": "retain_candidate_not_rejected_not_promoted",
+  "source_sha256": "e3589a98e8c4bb46a9803e4f5cfe966cdfa9c80be94372367a7543b876345001",
+  "remote_review": "pass",
+  "local_inventory": "pass",
+  "original_visual_review": "pass",
+  "normalization": "fail",
+  "static": "not_run",
+  "physics": "not_run",
+  "expert_qualification": "not_run",
+  "summary": "The first real candidate exposes unsupported rebated frame/leaf and projecting hinge hardware in the current preparation assumptions. Source admissibility is not disproved.",
+  "measurements": {
+    "triangles": 10154,
+    "connected_components": 22,
+    "texture_max_px": 2048,
+    "proposed_uniform_scale": 0.72,
+    "leaf_dimensions_m": {
+      "width_m": 0.8912622505074257,
+      "height_m": 2.097087358989272,
+      "thickness_m": 0.04194207111576115
+    },
+    "geometry_fingerprint": "fbe3626a5effe7faf794b90d2cc407cb03c5f6b12f45878aa3d884a32858cb20"
+  },
+  "findings": [
+    {
+      "status": "pass",
+      "category": "source",
+      "detail": "Official model page/API and embedded USDZ metadata agree on witnessk, source UID and CC BY 4.0. Both texture files are embedded; no missing dependencies or additional terms found."
+    },
+    {
+      "status": "unresolved",
+      "category": "tool",
+      "detail": "normalize attempt 000002 reports Measured panel dimensions differ from recipe by >1 mm. Recipe dimensions describe the leaf (component 3); Panel also includes correctly attached upper hinge barrels (6/7) and fittings (8/9). The current implementation measures the entire rigid group. This failure is not an out-of-range leaf."
+    },
+    {
+      "status": "unresolved",
+      "category": "tool",
+      "detail": "Default PhysX decompositions exceed original visual bounds by up to 26.21 mm for the panel and 24.34 mm for the frame at scale 0.72. They introduce closed intersections; no dynamic gate was run."
+    },
+    {
+      "status": "unresolved",
+      "category": "tool",
+      "detail": "A diagnostic trial with welded collider-only vertices, shrinkWrap=true, voxelResolution=2000000, errorPercentage=1 and convex small fittings reduced intersections but did not clear them. Convexifying the entire panel fills its rebate; the frame still needs component-wise collision partitioning. The cooker also warned of non-GPU-compatible oblong hulls; no CUDA physics claim is made."
+    },
+    {
+      "status": "unresolved",
+      "category": "tool",
+      "detail": "Original mid-height mesh sections show complementary rebates with visible clearance. This sample is not proof of clearance over the entire door. The current rectangular-opening check uses the full leaf envelope inset by only 1 mm, which includes the frame stop and is not the clear aperture of a rebated frame."
+    },
+    {
+      "status": "unresolved",
+      "category": "asset",
+      "detail": "Latch component 2 remains within the leaf edge in the closed source. No latch operation is apparent from this inventory, but unobstructed opening and a geometric stop still require validated collision geometry and runtime evidence."
+    }
+  ],
+  "next_steps": [
+    "Extend the common recipe to identify leaf measurement geometry separately from attached hinge hardware.",
+    "Represent the measured clear aperture and geometry-preserving convex partitions for rebated frame/panel components; verify collider surface accuracy and GPU compatibility.",
+    "Rerun normalization, static checks, normalized visual review and isolated GPU physics before promotion to 5.1. No new download is needed."
+  ],
+  "evidence": [
+    {
+      "path": "attempts/000001/inspect.json",
+      "sha256": "20af73567ef1193efec422ae65dea5d8dd760411e23f5207ec2e819fbb79be77"
+    },
+    {
+      "path": "attempts/000001/diagnostic-hulls.json",
+      "sha256": "c6ca150b69ab4ec6e3b927e7c0fa6cacebbd74a98ad742d693be4a9f02a62d8d"
+    },
+    {
+      "path": "attempts/000001/diagnostic-refined-hulls.json",
+      "sha256": "c9f8b0701ce8470487423e1c9135f1dfed1043f17f9cfb8d073688b4ab3b394d"
+    },
+    {
+      "path": "attempts/000001/mesh-cross-sections.png",
+      "sha256": "1781e3581d2e005076328fc9ee0afc780e8887ad7c25a3bbac520cf1968081d9"
+    },
+    {
+      "path": "attempts/000001/source-preview/preview-front.png",
+      "sha256": "c67311c10bde2f61b58b19d36122ee0ea599c394eb2bf28bca2ec6b8f7ba0f7e"
+    },
+    {
+      "path": "attempts/000001/source-preview/preview-rear.png",
+      "sha256": "84b00a82540089d442fbb2d4fe52468aa5d56a3e28e0ec31ebb4a3c358363b0e"
+    },
+    {
+      "path": "attempts/000002/normalize.json",
+      "sha256": "650b26efa942a11f99aa14a3e2bdd1856d2c3363fe884026e34d648e672d0bdf"
+    }
+  ]
+}

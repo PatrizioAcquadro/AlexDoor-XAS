@@ -1,0 +1,38 @@
+{
+  "asset_id": "door-with-frame-2f2f149f",
+  "source_url": "https://sketchfab.com/3d-models/door-with-frame-2f2f149f3ec44d658a02c1f924dfa449",
+  "source_uid": "2f2f149f3ec44d658a02c1f924dfa449",
+  "author": "witnessk",
+  "license": "CC-BY-4.0",
+  "license_evidence": "assets/doors/b1/door-with-frame-2f2f149f/source-evidence.json",
+  "attribution": "Door with frame by witnessk (https://sketchfab.com/witnessk), https://sketchfab.com/3d-models/door-with-frame-2f2f149f3ec44d658a02c1f924dfa449, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Preparation changes are recorded in recipe.json when applicable.",
+  "retrieval_date": "2026-09-23",
+  "door_type": "interior",
+  "single_leaf": true,
+  "frame_panel_separable": true,
+  "no_latch_operation": null,
+  "license_scope_review": "pass",
+  "custom_terms_review": "pass",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "First real B1 candidate; no accepted real candidates exist. Source URL, source UID and embedded USDZ provenance match.",
+  "selected_format": ".usdz",
+  "reported_triangles": 10154,
+  "reported_texture_max_px": 2048,
+  "dependencies": [
+    {
+      "path": "0/Glossy_baseColor.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: packaged textures covered by model license; no separate terms or external references"
+    },
+    {
+      "path": "0/Door_normal.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: packaged textures covered by model license; no separate terms or external references"
+    }
+  ],
+  "reviewed_source_sha256": "e3589a98e8c4bb46a9803e4f5cfe966cdfa9c80be94372367a7543b876345001",
+  "local_dependency_review": "pass",
+  "local_duplicate_review": "pass",
+  "local_visual_review": "pass",
+  "local_visual_review_notes": "Original-source front/rear RTX views show a single interior leaf, frame and retained handles with textures. This is appearance review only, not mechanical acceptance."
+}
