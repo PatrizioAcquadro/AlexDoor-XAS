@@ -17,6 +17,12 @@ penetration. The initial batch has two technically ready real doors; neither has
 robot/expert qualification. Local-only source and normalized assets must remain
 with the authorized licensee and outside shared asset packages.
 
+The third supplied source, `door-with-doorframe-c29da62c`, fails source admission
+for the present B1 use. Its Free Standard page carries a NoAI restriction, while
+downloaded materials name Poliigon textures without separate AI/ML rights evidence.
+The source review fails before geometry inspection or GPU preparation. Both user
+downloads are preserved; the batch still has two technically ready doors.
+
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
 release. Paired minima are 66.15/77.91 degrees for left/right 0.65 m doors and
@@ -153,6 +159,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Rejected Theocritus's NoAI-marked door for current B1 corpus use before preparation; distinguished explicit failed source review from missing evidence.
 
 - 2026-09-23 — Inspected the supplied modern-door GLB; matching surface geometry and a separate opening obstruction leave normalization unresolved without a supported hinge/clearance correction.
 

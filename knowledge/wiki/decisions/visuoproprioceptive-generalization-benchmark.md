@@ -118,6 +118,8 @@ excluded from shared asset packages. Only CC0/CC BY 4.0 assets with matching
 dependency rights are redistributable. A later release of rendered datasets or
 other derived artifacts from local-only doors requires a separate rights review.
 The technical qualification and split rules are the same for both scopes.
+Additional model terms and embedded third-party asset rights must permit the
+planned ACT/Diffusion data and model use; local-only status does not override them.
 
 Apply the frozen setup/probe to every asset. A contact fraction naturally produces
 a different metric distance on a different width; this is the same rule. Moving

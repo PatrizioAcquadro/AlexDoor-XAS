@@ -547,3 +547,11 @@ Static and front/rear visual checks pass; RTX 4090 reaches the derived 93-degree
 ## 2026-09-23 — lint : Modern-door repair validation
 Twenty focused preparation tests, Ruff, formatting, wiki links/index, JSON/evidence and whitespace checks pass.
 Source payload and first-door accepted evidence are preserved; one new real-door GPU run, no frozen-setup changes or unrelated regressions.
+
+## 2026-09-23 — update : Theocritus door source rejection
+Reviewed the Sketchfab NoAI notice, downloadable formats and both user-supplied files; recorded the Poliigon-named dependency rights gap.
+Stopped the B1 candidate at source review, before geometry preparation, and made explicit failed reviews return `fail`.
+
+## 2026-09-23 — lint : Theocritus source evidence
+Focused source-review tests, Ruff, JSON and payload hashes, wiki links, no-attempt check and whitespace validation pass.
+Downloads and accepted doors are preserved; no GPU work, robot check or push occurred.

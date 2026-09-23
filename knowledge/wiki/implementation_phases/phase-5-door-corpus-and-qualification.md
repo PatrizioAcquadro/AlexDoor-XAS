@@ -159,6 +159,9 @@ asset packages. Their rendered datasets and other derived artifacts require a
 separate rights review before release. The preparation and expert criteria do not
 change; `prepared.json` records the scope beside technical readiness. The legacy
 Phase 4 license gate remains CC-only.
+Free Standard alone does not clear extra source terms or third-party dependencies
+for B1 training and evaluation. An explicit failed source review returns `fail`;
+missing evidence remains `unresolved`. Stop before `inspect` when source terms fail.
 
 **Usage.** Keep reviewed `candidate.json`, `recipe.json` and license evidence under
 `assets/doors/b1/<asset-id>/` in Git. Generated `attempts/` and `prepared.json` are
@@ -371,6 +374,25 @@ tests cover grouped collision ownership, common moving transforms and the zero-g
 failure/repair. No unrelated suite, format matrix or synthetic GPU runs were needed.
 The original GLB/USDZ and attempts `000001`–`000011` remain untouched. No robot
 reachability or expert qualification is claimed.
+
+**Third supplied source (2026-09-23).** The user supplied
+[Door With Doorframe by Theocritus](https://sketchfab.com/3d-models/door-with-doorframe-c29da62ca4e34dbb9801f98a4b5d3382)
+and both `~/Downloads/door_with_doorframe.glb` and
+`~/Downloads/Door_With_Doorframe.usdz`. The page shows one wood leaf, frame and
+lever, 4.7k triangles, Free Standard, available original/converted GLB and USDZ,
+and an explicit **NoAI** notice. The GLB metadata confirms author, source and
+Standard license; both downloaded files remain untouched. The nine embedded GLB
+images include materials named Poliigon wood and metal. Their separate AI/ML rights
+were not demonstrated. [Sketchfab's NoAI policy](https://help.sketchfab.com/en/articles/16152133-generative-ai-policies-tagging-and-noai-protection)
+bars use in generative-AI datasets, development and inputs;
+[Poliigon's licensing guidance](https://help.poliigon.com/it/articles/8749749-utilizzo-degli-asset-e-licenze)
+excludes ML/AI use of its assets under ordinary terms. The planned B1 ACT/Diffusion corpus
+cannot clear these terms on the evidence available. The documented `review`
+returns `fail` for `custom_terms_review`; no `inspect`, recipe, static, preview,
+GPU physics, promotion or 5.1 check was run. This is a source-rights decision,
+not a technical finding about the door's motion or dimensions. The batch remains
+at two technically ready doors. Reconsider this exact source only with rights
+covering the model and the named dependencies.
 
 #### Key Decisions
 
