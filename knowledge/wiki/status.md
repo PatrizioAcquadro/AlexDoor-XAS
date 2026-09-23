@@ -2,9 +2,9 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. The shared preparation defects exposed by the first candidate
-are corrected; that candidate is not admitted as supplied because its original
-latch intersects the frame strike plate. See [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
+intake has started. The first door passes static, visual and isolated GPU checks
+in the common closed-unlatched state and is ready for Subphase 5.1. See
+[[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
@@ -52,7 +52,9 @@ software contracts, without claiming B1 learned execution.
 The dependency/CUDA preflight passes on the RTX 4090. The last full software run
 passed 350 tests, including historical data/model contracts. The subsequent rebate
 correction passed 29 focused preparation/qualification tests, Ruff, wiki-link/index
-checks and one complete synthetic GPU regression; unrelated checks were not repeated.
+checks and one complete synthetic GPU regression. The subsequent closed-unlatched
+change passed 14 focused preparation tests and one real-door GPU run; unrelated
+checks were not repeated.
 GPU checks pass three stable resets, seven-joint/full-pose control, loaded distal
 contacts and forbidden-contact detection, and synchronized metric head RGB-D.
 The local pose targets remain within 0.0204 mm / 0.00209 degrees during their
@@ -70,7 +72,9 @@ smoke also passes; it establishes no B1 corpus qualification.
 synthetic doors with passing static/GPU reset, drift, hinge and opening checks.
 All eight supported input suffixes pass textured conversion checks; malformed
 assets and an injected physical obstruction are detected. Front/rear textured
-previews were rendered and inspected. No real door or expert reference is admitted.
+previews were rendered and inspected. A later real-door run in
+`assets/doors/b1/door-with-frame-2f2f149f/attempts/000007/` passes technical readiness
+under the closed-unlatched policy. No expert reference is qualified.
 
 The launcher still warns that `setup_conda_env.sh` is absent. Its actual Python,
 Isaac provenance, Alex assets, ZED dependency and CUDA preflight pass. No runtime
@@ -111,12 +115,12 @@ training run or media was added to the tracked output tree.
 ## Next Phases
 
 The common floor/contact/neck setup and expert protocol are frozen on synthetics.
-Phase 5 continues sequential intake after correcting the shared leaf measurement,
-aperture and convex-partition path. The first candidate, `door-with-frame-2f2f149f`,
-passes license/inventory review but is not admitted as supplied: original latch
-and strike-plate surfaces intersect. It is preserved; no dynamics were run from
-that invalid closed state. Technically prepared doors then enter Subphase 5.1;
-the real corpus, expert qualification and split are still pending.
+The first candidate, `door-with-frame-2f2f149f`, is technically ready for 5.1 after
+explicitly omitting latch/lock bolt collisions for the common closed-unlatched task.
+It reaches 188 degrees in isolated GPU physics with stable resets/frame and no
+reported penetration. The leaf, frame and handles retain their collisions.
+Next is the unchanged common robot/expert protocol, while sequential intake can
+continue. Expert qualification, the final corpus and split are still pending.
 Phase 6 integrates observations and all learned A1–A4 paths, then a demonstration
 pilot. Phase 7 owns training and generalization evaluation.
 
@@ -132,6 +136,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Adopted closed-unlatched preparation and proportionate checks; the first real door now passes and is ready for 5.1.
 
 - 2026-09-23 — Corrected rebated-frame preparation and verified the first candidate has an original latch/strike intersection; retained it without promotion.
 

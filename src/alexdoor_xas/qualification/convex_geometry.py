@@ -199,14 +199,30 @@ def opening_rotation(degrees, handedness):
 def mechanical_limit(groups, hinge, handedness):
     fixed = [Convex(p) for p in groups["Frame"]]
     moving = [Convex(p) for name in ("Panel", "Handle") for p in groups[name]]
+    fixed_lo = np.array([p.points.min(0) for p in fixed])
+    fixed_hi = np.array([p.points.max(0) for p in fixed])
+
+    def intersects(shapes):
+        for a in shapes:
+            candidates = np.flatnonzero(
+                np.all(
+                    np.minimum(a.points.max(0), fixed_hi) - np.maximum(a.points.min(0), fixed_lo)
+                    > 1e-6,
+                    axis=1,
+                )
+            )
+            if any(overlap(a, fixed[i]) for i in candidates):
+                return True
+        return False
+
     require(
-        not any(overlap(a, b) for a in moving for b in fixed),
+        not intersects(moving),
         "Closed door intersects its frame",
         category="geometry_or_recipe",
     )
     for degrees in np.arange(0.1, 270.01, 0.1):
         rotation = opening_rotation(degrees, handedness)
-        if any(overlap(a.transformed(rotation, hinge), b) for a in moving for b in fixed):
+        if intersects(a.transformed(rotation, hinge) for a in moving):
             require(
                 degrees > 0.3, "Opening is obstructed immediately", category="geometry_or_recipe"
             )

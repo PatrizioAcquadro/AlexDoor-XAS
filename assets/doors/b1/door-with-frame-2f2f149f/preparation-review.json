@@ -1,16 +1,15 @@
 {
-  "status": "fail",
-  "category": "asset",
-  "decision": "not_admitted_as_supplied",
+  "status": "pass",
+  "decision": "ready_for_5.1",
   "source_sha256": "e3589a98e8c4bb46a9803e4f5cfe966cdfa9c80be94372367a7543b876345001",
-  "remote_license_review": "pass",
-  "local_inventory": "pass",
-  "original_visual_review": "pass",
-  "normalization": "fail",
-  "static": "not_run_normalization_failed",
-  "physics": "not_run_known_source_intersection",
+  "attempt": "attempts/000007",
+  "task_model": "closed_unlatched_panel_push",
+  "summary": "The same door is usable after applying the common disengaged-latch model. Only latch/lock bolt components 2 and 4 have no collision; visual geometry, leaf, frame, strike plate and handles are retained.",
+  "normalization": "pass",
+  "static": "pass",
+  "visual_review": "pass",
+  "physics": "pass",
   "expert_qualification": "not_run",
-  "summary": "Shared leaf/aperture/collider assumptions are corrected. The unmodified source has a real latch/strike-plate intersection in its closed configuration, incompatible with the current rigid-latch push-only preparation.",
   "measurements": {
     "triangles": 10154,
     "connected_components": 22,
@@ -23,68 +22,57 @@
     },
     "geometry_fingerprint": "fbe3626a5effe7faf794b90d2cc407cb03c5f6b12f45878aa3d884a32858cb20"
   },
-  "resolved_tool_findings": [
-    "leaf_components separates the leaf dimensions and nominal center of mass from attached hardware.",
-    "clear_aperture_m measures the actual opening inside the frame rebate.",
-    "Plane-based convex partitions preserve the complementary rebates; false Panel/Frame intersections are eliminated.",
-    "Component 15 is fixed: its original node is Plane_002_Door_0, shared with frame component 14. The earlier proposed recipe assigned it incorrectly."
-  ],
-  "source_findings": [
-    {
-      "moving_component": 2,
-      "fixed_component": 15,
-      "angle_deg": 0,
-      "proper_surface_crossings": 8,
-      "evidence": "attempts/000006/source_intersections.json"
-    },
-    {
-      "moving_component": 2,
-      "fixed_component": 14,
-      "angle_deg": 0.1,
-      "proper_surface_crossings": 8,
-      "evidence": "attempts/000005/source-surface-crossings.json"
-    }
-  ],
-  "interpretation": "These are edge/triangle intersections of the imported original surfaces, independent of convex collider approximation. Correcting only the common preparator cannot remove them. Retraction or remodeling of the latch, a latch mechanism, or disabling its collisions would alter this configuration; none was performed.",
-  "validation": {
-    "software": "29 focused preparation/qualification tests pass",
-    "synthetic_gpu": "One full left-0.65 m normalization/static/GPU regression passed on RTX 4090; opening 183.19999 degrees, passive drift 0.0002086 degrees, zero frame drift/penetration.",
-    "gpu_evidence_backup": "/home/pacquadr/.cache/alexdoor-xas/verification/door-preparation-rebates/synthetic-20260923/",
-    "gpu_original_run": "/tmp/b1-rebate-regression/",
-    "scope": "No full suite or format matrix repeated; no dynamics run on the known-interpenetrating real source."
+  "physics_measurements": {
+    "device": "cuda:0",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "max_reset_deg": 0.0,
+    "max_reset_speed": 0.0,
+    "passive_drift_deg": 8.492254135323418e-16,
+    "frame_drift_m": 0.0,
+    "frame_rotation_deg": 0.0,
+    "hinge_error_m": 1.0768344509415329e-06,
+    "penetration_m": 0.0,
+    "maximum_deg": 188.0000143384955,
+    "mechanical_limit_deg": 188.0,
+    "resets": 3
   },
+  "source_interference_resolution": "Earlier latch/strike crossings are real in the original engaged geometry but irrelevant to the authorized closed-unlatched task. Their colliders are excluded explicitly, without remodeling or simulating a lock. Earlier rejected outcomes are preserved under attempt 000006.",
+  "validation_scope": "14 focused preparation tests, static coverage of every required component, front/rear RTX review and one real-door GPU functional run. No full suite, format matrix or unrelated synthetic reruns. Contacts alone no longer imply a blockage; opening progress, stability and penetration determine readiness.",
+  "limitations": [
+    "Only isolated-door technical readiness is established; robot reachability and the 45-degree expert criterion remain in 5.1.",
+    "Latch visuals remain in their original position while their collision is excluded; this is an explicit task abstraction, not a working lock model."
+  ],
   "next_steps": [
-    "Keep this source and all attempts; do not promote it to 5.1 as supplied.",
-    "Continue sequential intake with a candidate whose latch does not engage the frame; source geometry requiring latch operation is outside the current B1 task."
+    "Run the unchanged common robot/expert protocol in Subphase 5.1; do not declare expert qualification or corpus completion."
   ],
   "evidence": [
     {
-      "path": "attempts/000006/normalize.json",
-      "sha256": "089085dfa4cc14652c149cf376f6ba7a81e00ba5d6e7893030477d8979dd268b"
+      "path": "attempts/000007/recipe.json",
+      "sha256": "9213387bc4c7d1b70f2be9e83929db9211623103860bd418e9cbf4ee6b723d89"
     },
     {
-      "path": "attempts/000006/recipe.json",
-      "sha256": "4d9bc33c82ed334327c0a8709f3d7faae81001bcf24c95446f4d43a4419f1d2c"
+      "path": "attempts/000007/normalize.json",
+      "sha256": "dd73ef0bb3fd96c97f33ca1ae995529fb91823eafeca9194e2388591127cbe80"
     },
     {
-      "path": "attempts/000006/collision.json",
-      "sha256": "154b9cf11e31ff9da103fcce380ba3d04edaa078c98693d78f6129bcfa4de286"
+      "path": "attempts/000007/static.json",
+      "sha256": "f137bf16df74dba129a788b60b685229aa2c5dc358ea51ea001b55ce05894f07"
     },
     {
-      "path": "attempts/000006/collision_components.json",
-      "sha256": "9f94965c1e4dc5f60c72f38bd8e5f7cccdcc2320ba0efe50237bc332e38a03c4"
+      "path": "attempts/000007/physics.json",
+      "sha256": "c7f74e050c422c30e1c92ae23e21e2117c3c0fc7181f4fb2f6cc6f64b96d4422"
     },
     {
-      "path": "attempts/000006/source_intersections.json",
-      "sha256": "59acaa667329f93381b0f05dceae086b1b20ecd80bb9a5351d55a1ec09c0818f"
+      "path": "attempts/000007/preview.json",
+      "sha256": "b4576ce3433eb400ab6ad03ddfa7218441a9dda513a29e35e24c03e42e615d42"
     },
     {
-      "path": "attempts/000005/source-surface-crossings.json",
-      "sha256": "8bdee588428351368f7bfa2886ab07ad101a0365e182b1bca124da7f281c8620"
+      "path": "attempts/000007/preview-front.png",
+      "sha256": "3c70bc5adac2b9636a801e1a2237095e08461d8bcf6045a9a0257419be3376de"
     },
     {
-      "path": "attempts/000005/latch-source-section.png",
-      "sha256": "71657fe666c2eb749bb59498de2fedd03a3cf6875efa189a37f99915edfc4dc5"
+      "path": "attempts/000007/preview-rear.png",
+      "sha256": "eb4f629665a33ddd23533af409eaf06bb619b6b95b597699469f6ca1dbe053f5"
     }
   ]
 }

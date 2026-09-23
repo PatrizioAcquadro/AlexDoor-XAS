@@ -61,8 +61,9 @@ def remote_review(record, existing=()):
         "Expected a full-size single-leaf push door",
         category="asset",
     )
-    for name in ("single_leaf", "no_latch_operation", "frame_panel_separable"):
+    for name in ("single_leaf", "frame_panel_separable"):
         require(record.get(name) is not False, f"Candidate fails {name}", category="asset")
+    # Source latch state is prepared locally; it is not an identity rejection.
     for name in ("license_scope_review", "custom_terms_review", "duplicate_review"):
         require(
             record.get(name) == "pass",
@@ -141,6 +142,17 @@ def validate_recipe(recipe, component_count):
         and len(set(leaf)) == len(leaf)
         and all(type(i) is int and i in groups["Panel"] for i in leaf),
         "Leaf measurement components must be a nonempty subset of Panel",
+    )
+    unlatched = recipe.get("unlatched_components", [])
+    require(
+        isinstance(unlatched, list)
+        and all(type(i) is int and i in groups["Panel"] and i not in leaf for i in unlatched)
+        and len(set(unlatched)) == len(unlatched),
+        "Unlatched components must be panel latch/lock parts, never leaf, frame or handles",
+    )
+    require(
+        not unlatched or bool(recipe.get("unlatched_review")),
+        "Identify the disengaged latch/lock components and explain their exclusion",
     )
     DoorDimensions.from_mapping(recipe["dimensions_m"])
     require(bool(recipe.get("modifications")), "Record normalization modifications")

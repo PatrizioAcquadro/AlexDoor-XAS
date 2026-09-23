@@ -22,6 +22,10 @@ Zero-shot means acting on held-out door identities without retraining or
 adaptation. The comparison covers four representations x two models, with five
 independent training seeds each. Handles and other articulated objects are later
 studies; this benchmark performs panel pushing without grasping or latch operation.
+The experiment starts with the door closed and already unlatched. Preparation can
+omit collision for identified latch/lock bolts while retaining leaf, frame and
+handle collisions; the common rule and verification scope are defined in
+[[../implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
 
 ## Robot and Task Boundary
 

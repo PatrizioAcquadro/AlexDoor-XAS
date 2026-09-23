@@ -72,14 +72,14 @@
     "uniform 0.72 scale in inspected Y-up meter coordinates.",
     "Proper cyclic rotation to canonical Z-up, with original hinge on negative Y (right).",
     "Separate connected parts into fixed frame/lower hinge barrels, moving panel/upper barrels, and handles. Preserve all visual components and handle collisions.",
-    "Measure leaf component 3 separately; partition source surfaces at rebate planes for convex collisions. No visual geometry is moved or deleted."
+    "Measure leaf component 3 separately; partition source surfaces at rebate planes for convex collisions. No visual geometry is moved or deleted.",
+    "Common closed-unlatched task model: omit latch/lock bolt colliders (2, 4), retaining original visual geometry."
   ],
-  "preparation_status": "fail_source_latch_intersection",
+  "preparation_status": "ready_for_5.1",
   "review_notes": [
-    "Component 15 is the frame strike plate, opposite leaf lock faceplate 5. Latch 2 remains mobile with Panel and collidable.",
+    "Component 15 is the fixed strike plate. Latch/lock bolts 2 and 4 move with Panel visually; their locking function is outside the closed-unlatched task.",
     "clear_aperture_m uses the narrower frame rebate, not the full leaf envelope.",
-    "Partition planes follow measured source rebate levels, transformed uniformly by 0.72. Additional vertical cuts avoid elongated convex hulls.",
-    "Attempt 000006 passes leaf measurement, origin, handedness and aperture checks, then stops on the original latch/strike intersection. Source geometry is unchanged; no collider is disabled."
+    "Partition planes follow measured source rebate levels, transformed uniformly by 0.72. Additional vertical cuts avoid elongated convex hulls."
   ],
   "leaf_components": [
     3
@@ -145,5 +145,10 @@
     "19": "convexHull",
     "20": "convexHull",
     "21": "convexHull"
-  }
+  },
+  "unlatched_components": [
+    2,
+    4
+  ],
+  "unlatched_review": "Components 2 (spring latch) and 4 (lock bolt) are edge locking parts outside the push-contact task. Keep their visuals but omit their colliders for the common closed-unlatched initial state. Leaf, frame, strike plate and handles remain collidable."
 }

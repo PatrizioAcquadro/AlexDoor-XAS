@@ -13,7 +13,7 @@ WSG32/UMI v1, measured pedestal, seven-joint A1/full-pose A2/A3 control and head
 ZED RGB-D/proprioception. Synthetic collidable fixtures commission the integration;
 Subphase 4.1 freezes the common setup and probe on four synthetic doors. Subphase
 5.0 adds verified door preparation, format conversion and static/GPU checks.
-Real-door intake has started; no real door is admitted yet. Expert qualification and learned-policy integration remain pending.
+The first real door passes closed-unlatched preparation and is ready for expert qualification. Learned-policy integration remains pending.
 
 Historical datasets, ACT/Diffusion models, checkpoint loading and offline training
 remain available. Full generation and learned evaluation currently stop with a

@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> The first real candidate is not admitted as supplied: its source latch intersects the strike plate. Subphase 5.1 remains planned.
+> The first real door passes preparation in the common closed-unlatched state and is ready for 5.1. Expert qualification remains planned.
 
 ## Objective
 
@@ -30,6 +30,21 @@ A JSON recipe specifies `handedness`, positive uniform `scale`, proper `rotation
 `components` assignment to `Frame`, `Panel`, and optional `Handle`. It also records
 `modifications`. Rotation/scale/translation act on the **inspected coordinates**;
 USD/FBX pass through glTF Y-up meters. The opening center maps to the floor origin.
+
+**Common task state: closed and already unlatched.** The robot pushes the leaf; it
+does not operate a lock. Source latch/lock bolts are not a reason to reject an
+otherwise useful door. Optional `unlatched_components` lists those separate moving
+locking parts; `unlatched_review` identifies them and records the reason. Their
+visuals remain attached but no collider is generated. This explicit abstraction
+avoids modeling lock internals or retracting the visual mesh. It applies consistently
+to all candidates, not only this door. It does not represent a functioning lock.
+
+The selection cannot include measured leaf components, any frame component, or
+handles. All other components remain collidable. USD colliders retain their source
+component IDs, and static checks require exact coverage of the nonexcluded parts.
+Bounds checks compare physical geometry against the corresponding visual subset.
+The visible bolt can remain extended; its locking function is deliberately absent.
+Future tasks involving handle/lock operation must use a different preparation.
 Optional `colliders` maps component indices (JSON strings) to `auto`, `convexHull`,
 or `convexDecomposition`. Default `auto` uses the installed PhysX cooker, baking
 individual hulls so clearance checks and simulation use the same collision shapes.
@@ -94,9 +109,12 @@ states, raw contacts/separations and torque-controlled opening to the measured
 stop. Tolerances retain Phase 4 reset angle 0.1 degrees, reset speed 0.01 rad/s,
 passive drift 0.25 degrees, frame translation 0.1 mm and stop agreement 1 degree.
 Additional bounds are 0.1-degree frame rotation, 1 mm hinge-anchor error and 2 mm
-penetration, matching the authored 2 mm contact-offset scale. Loaded contact above
-0.1 N more than 2 degrees before the stop fails the unobstructed-opening check.
-Contact buffer overflow or unavailable measurements cannot pass.
+penetration, matching the authored 2 mm contact-offset scale. Contact forces and
+separations are recorded, but a contact alone does not fail readiness: rubbing or
+bearing contact can be harmless. Opening progress to the geometric limit, reset,
+stability and penetration determine the functional result. Contact buffer overflow
+or unavailable measurements cannot pass. Broad-phase bounds prune separated hull
+pairs during the geometric sweep without changing its collision criterion.
 
 Each command reports `pass`, `fail` or `unresolved` with a reason/category.
 `preview` captures front/rear RGB through the installed Isaac Lab camera renderer;
@@ -164,43 +182,47 @@ robot/contact rules to make a candidate pass. Fix genuine shared-tool defects
 in the shared infrastructure and recheck affected results. Ordinary differences
 in scale, source prims, pivot, or allowed separation belong in the asset recipe.
 
-**First real intake and correction (2026-09-23).** The user supplied
+**Proportionate per-door workflow.** Use standard preparation, one visual review
+and one short isolated GPU functional run. That run checks three resets with brief
+passive holds and one controlled opening. Diagnose further only when the result
+shows a problem relevant to robot contact, motion or stability. Ordinary source
+modeling details outside the task are handled through explicit common recipes;
+they are not grounds for repeated geometric audits or automatic rejection. Repeat
+only checks affected by an actual correction. Do not rerun the format matrix,
+unrelated software suite or synthetic regressions for routine intake. Separate
+infrastructure development cost from per-door processing.
+
+**First real door (2026-09-23).** The user supplied
 [Door with frame by witnessk](https://sketchfab.com/3d-models/door-with-frame-2f2f149f3ec44d658a02c1f924dfa449)
-and `~/Downloads/Door_with_frame.usdz`. Official page/API and embedded metadata
-agree on CC BY 4.0. Inspection passes with 10,154 triangles, 22 components and two
-embedded 2K textures. Original front/rear RTX views were reviewed. Uniform scale
-0.72 gives a leaf approximately 0.891 × 2.097 × 0.042 m, with right handedness.
+and `~/Downloads/Door_with_frame.usdz`. Official source and embedded metadata agree
+on CC BY 4.0. The asset has 10,154 triangles, 22 components and two embedded 2K
+textures. Uniform scale 0.72 gives a 0.891 × 2.097 × 0.042 m right-hinged leaf.
 
-The initial unresolved result exposed shared-tool defects: whole-assembly leaf
-measurement, a leaf-sized aperture assumption, and over-expanded convex hulls.
-The fields and partition path above correct these assumptions. The source hierarchy
-also resolves a recipe mistake: component 15 belongs to `Plane_002_Door_0`, shared
-with frame component 14; it is the fixed strike plate, not part of the panel.
-Corrected partitions eliminate the false leaf/frame intersections.
+Initial attempts exposed shared leaf/aperture/collider defects, which were corrected.
+The source hierarchy also identifies component 15 as the fixed strike plate. A
+literal rigid-lock preparation then found original latch/strike intersections.
+That finding remains valid, but its earlier interpretation as grounds to discard
+the candidate is superseded by the user-approved closed-unlatched task model.
+The source does not need to be a mechanically complete, functioning lock assembly.
 
-The final ordinary normalization attempt (`000006`) then demonstrates an **actual
-source defect in the supplied configuration**: latch component 2 crosses strike
-plate component 15 at zero angle. The common diagnostic records eight proper
-source-surface crossing witnesses. A targeted geometric check also finds the latch
-crossing the frame at 0.1 degrees. These findings are independent of the convex
-approximation. The door is not admitted as supplied under the rigid-latch,
-no-latch-operation B1 contract. No retraction, remodeling, collision suppression,
-static-readiness claim, GPU dynamics or expert qualification was performed on it.
-Source, previous attempts and the failed candidate remain available.
+The final preparation (`attempts/000007`) omits collision only for latch/lock bolts
+2 and 4. All original visuals, leaf/frame/strike geometry and collidable handles
+are preserved. Normalization, static component coverage, front/rear RTX appearance
+review and isolated RTX 4090 physics pass. Measured opening is 188.00001 degrees
+against a 188-degree geometric limit, with zero reset error, zero frame drift,
+zero reported penetration and 1.08-micrometer maximum hinge error. No contact
+samples were reported in this functional run. The candidate is promoted to
+`ready_for_5.1`; this does not establish robot reachability or expert qualification.
 
-Verification was limited to 29 focused preparation/qualification tests, Ruff,
-wiki/whitespace checks and one complete left-0.65 m synthetic GPU regression.
-That regression passes on RTX 4090: 183.19999-degree opening, 0.0002086-degree
-passive drift, zero frame drift/penetration and 1.20-micrometer maximum hinge error.
-Its original run is `/tmp/b1-rebate-regression/`, with an unchanged backup under
-`~/.cache/alexdoor-xas/verification/door-preparation-rebates/synthetic-20260923/`;
-raw reports retain the original run paths. The format matrix and unrelated suite
-were not repeated. The frozen Phase 4 setup is unchanged.
+The task-state change was checked with 14 focused preparation tests and this one
+real-door GPU run; no unrelated regressions or format runs were repeated. Earlier
+rebate corrections retain their 29-test and single synthetic GPU evidence.
+The Phase 4 common robot/contact/neck setup is unchanged.
 
 Candidate records are versioned under `assets/doors/b1/door-with-frame-2f2f149f/`.
-`preparation-review.json` records the final asset finding; ignored `attempts/`
-retain original payloads, collider/source diagnostics, earlier failures and a
-horizontal section illustrating the latch/strike intersection.
+`preparation-review.json` records current readiness; ignored `attempts/` preserve
+payloads, earlier outcomes and current reports/images. `prepared.json` points to
+the accepted attempt, whose evidence is protected from overwrite.
 
 #### Key Decisions
 
@@ -209,13 +231,14 @@ horizontal section illustrating the latch/strike intersection.
 - Accept only CC0 or CC BY 4.0 covering the asset and redistributed dependencies.
   Reject unclear or incompatible terms; retain attribution and license evidence.
 - Use full-size single-leaf interior/exterior/industrial push doors, separable
-  panel/frame, and no latch operation. Exclude gates, cabinets, sliding/double
+  panel/frame, prepared closed and already unlatched. Exclude gates, cabinets, sliding/double
   doors, and fantasy geometry. Mirrors/recolors are not independent identities.
 - Retain width 0.65–1.20 m, height 1.80–2.40 m, thickness 0.025–0.10 m, at most
   250,000 visual triangles and 4K textures. Prefer USD/USDZ, then GLB/glTF,
   Blend/FBX, and OBJ when supported conversion avoids substantial remodeling.
 - Permit format conversion, uniform scaling, simple panel/frame separation,
-  pivot correction, materials, colliders, and articulation. Preserve handedness
+  pivot correction, materials, colliders, articulation and reviewed disengaged-latch
+  collision exclusions. Preserve handedness
   and meaningful geometry; do not create reflected action frames.
 - Use the Phase 4 nominal physics template with consistently derived inertia.
   This isolates geometry rather than reconstructing every original door's dynamics.
@@ -226,7 +249,8 @@ horizontal section illustrating the latch/strike intersection.
 
 #### Problems / Limitations
 
-Preparation is verified on the documented fixtures; no real door has been admitted. Passing
+Preparation is verified on the documented fixtures and one real door in the
+closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 

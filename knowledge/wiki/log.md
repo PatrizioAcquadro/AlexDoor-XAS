@@ -487,3 +487,11 @@ A focused GPU regression passes; the real candidate remains unadmitted because i
 ## 2026-09-23 — lint : Rebated preparation correction
 All 29 focused tests, Ruff, wiki links/index, whitespace and preserved-source/evidence checks pass.
 One synthetic GPU regression passes; no unrelated suite/format reruns, real-asset dynamics or frozen-setup changes were needed.
+
+## 2026-09-23 — update : Closed-unlatched task preparation
+Adopted reviewed latch/lock collision exclusions and functional contact checks, with a proportionate per-door workflow.
+The previously rejected door now passes static/visual/GPU preparation to 188 degrees; it is ready for 5.1, not expert-qualified.
+
+## 2026-09-23 — lint : Closed-unlatched preparation readiness
+Fourteen focused preparation tests, Ruff, whitespace, wiki links/index and preserved-source/evidence checks pass.
+Verified promotion of attempt 000007 after static, front/rear visual and real-door RTX 4090 checks; the frozen setup and prior evidence are unchanged.

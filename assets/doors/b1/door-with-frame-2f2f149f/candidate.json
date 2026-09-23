@@ -5,12 +5,12 @@
   "author": "witnessk",
   "license": "CC-BY-4.0",
   "license_evidence": "assets/doors/b1/door-with-frame-2f2f149f/source-evidence.json",
-  "attribution": "Door with frame by witnessk (https://sketchfab.com/witnessk), https://sketchfab.com/3d-models/door-with-frame-2f2f149f3ec44d658a02c1f924dfa449, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Preparation changes are recorded in recipe.json when applicable.",
+  "attribution": "Door with frame by witnessk (https://sketchfab.com/witnessk), https://sketchfab.com/3d-models/door-with-frame-2f2f149f3ec44d658a02c1f924dfa449, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Preparation changes are recorded in recipe.json when applicable. Prepared for closed-unlatched panel pushing: latch/lock bolt collisions excluded, with original visual meshes retained.",
   "retrieval_date": "2026-09-23",
   "door_type": "interior",
   "single_leaf": true,
   "frame_panel_separable": true,
-  "no_latch_operation": false,
+  "no_latch_operation": true,
   "license_scope_review": "pass",
   "custom_terms_review": "pass",
   "duplicate_review": "pass",
@@ -34,7 +34,9 @@
   "local_dependency_review": "pass",
   "local_duplicate_review": "pass",
   "local_visual_review": "pass",
-  "local_visual_review_notes": "Original-source front/rear RTX views show a single interior leaf, frame and retained handles with textures. This is appearance review only, not mechanical acceptance.",
-  "local_mechanical_review": "fail",
-  "local_mechanical_review_notes": "Original latch mesh (component 2) crosses frame strike plate (15) at the closed pose. Their source ownership follows Plane_003 and frame Plane_002. B1 cannot use this configuration with a rigid latch and no latch operation."
+  "local_visual_review_notes": "Normalized attempt 000007 front/rear RTX images match the source appearance, retain all visible parts and textures, with no deformation.",
+  "local_mechanical_review": "pass",
+  "local_mechanical_review_notes": "Common B1 closed-unlatched model: omit collision of edge latch/lock bolts 2 and 4; preserve visuals and all leaf/frame/handle collisions. Attempt 000007 passes static and RTX 4090 functional readiness to 188 degrees.",
+  "source_requires_latch_release": true,
+  "initial_state": "closed_unlatched"
 }

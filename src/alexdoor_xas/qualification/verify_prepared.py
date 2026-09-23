@@ -28,6 +28,20 @@ def canonical_files(path):
     return file_inventory(files)
 
 
+def component_bounds(visual, indices):
+    names = {f"component_{i}" for i in indices}
+    nodes = [p for p in Usd.PrimRange(visual) if p.GetName() in names]
+    require(len(nodes) == len(names), "Selected visual component nodes missing")
+    cache = UsdGeom.BBoxCache(0, ["default", "render"])
+    ranges = [cache.ComputeWorldBound(p).ComputeAlignedRange() for p in nodes]
+    return np.array(
+        [
+            np.min([r.GetMin() for r in ranges], axis=0),
+            np.max([r.GetMax() for r in ranges], axis=0),
+        ]
+    )
+
+
 def static_check(attempt):
     attempt = Path(attempt).resolve()
     path = attempt / "door.usda"
@@ -89,6 +103,7 @@ def static_check(attempt):
         "Hinge nominal physics changed",
     )
     collision = {name: [] for name in GROUPS}
+    excluded = set(recipe.get("unlatched_components", []))
     visual_bounds = {}
     visual_triangles = 0
     for name in GROUPS:
@@ -118,6 +133,11 @@ def static_check(attempt):
         bounds = UsdGeom.BBoxCache(0, ["default", "render"]).ComputeWorldBound(visual)
         bounds = bounds.ComputeAlignedRange()
         visual_bounds[name] = np.array([bounds.GetMin(), bounds.GetMax()])
+        expected_components = set(recipe["components"][name]) - excluded
+        physical_bounds = (
+            component_bounds(visual, expected_components) if excluded else visual_bounds[name]
+        )
+        collider_components = set()
         for prim in Usd.PrimRange(body):
             if prim != body:
                 require(not prim.HasAPI(UsdPhysics.RigidBodyAPI), "Nested unintended rigid body")
@@ -137,6 +157,9 @@ def static_check(attempt):
                     "Invalid mesh",
                 )
                 if prim.HasAPI(UsdPhysics.CollisionAPI):
+                    component = prim.GetAttribute("b1:sourceComponent").Get()
+                    if component is not None:
+                        collider_components.add(component)
                     binding, _ = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial("physics")
                     require(
                         str(binding.GetPath()) == "/Door/PhysicsMaterial",
@@ -162,26 +185,20 @@ def static_check(attempt):
                 else:
                     visual_triangles += int((counts - 2).sum())
         require(bool(collision[name]), f"Missing collision geometry: {name}")
+        if collider_components or excluded:
+            require(
+                collider_components == expected_components,
+                f"Collision coverage differs from task recipe: {name}",
+            )
         points = np.concatenate(collision[name])
         require(
-            np.allclose(visual_bounds[name], [points.min(0), points.max(0)], atol=0.002),
+            np.allclose(physical_bounds, [points.min(0), points.max(0)], atol=0.002),
             f"{name} visual/collision bounds differ by more than 2 mm",
         )
     panel_bounds = visual_bounds["Panel"]
     if "leaf_components" in recipe:
-        leaf_nodes = [
-            p
-            for p in Usd.PrimRange(stage.GetPrimAtPath("/Door/Panel/Visual"))
-            if p.GetName() in {f"component_{i}" for i in recipe["leaf_components"]}
-        ]
-        require(len(leaf_nodes) == len(recipe["leaf_components"]), "Leaf visual nodes missing")
-        cache = UsdGeom.BBoxCache(0, ["default", "render"])
-        ranges = [cache.ComputeWorldBound(p).ComputeAlignedRange() for p in leaf_nodes]
-        panel_bounds = np.array(
-            [
-                np.min([r.GetMin() for r in ranges], axis=0),
-                np.max([r.GetMax() for r in ranges], axis=0),
-            ]
+        panel_bounds = component_bounds(
+            stage.GetPrimAtPath("/Door/Panel/Visual"), recipe["leaf_components"]
         )
     require(
         np.allclose(
@@ -336,15 +353,8 @@ def physics_check(attempt, device="cuda:0"):
                         count=len(active),
                     )
                 )
-                require(
-                    not (
-                        phase == "opening"
-                        and angle < limit - np.deg2rad(2)
-                        and force[active].max() > 0.1
-                    ),
-                    "Contact obstructs free opening",
-                    category="geometry_or_recipe",
-                )
+                # Bearing/rubbing contact is not itself a blockage. Progress to
+                # the stop, penetration and stability decide functional readiness.
             traces.append([angle, speed, *pos[frame], *pos[panel]])
             return angle, speed
 

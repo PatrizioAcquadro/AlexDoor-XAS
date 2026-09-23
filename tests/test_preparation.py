@@ -201,3 +201,24 @@ def test_original_surface_crossings_distinguish_interpenetration_from_touching()
         b = a.copy()
         b.apply_translation([shift, 0, 0])
         assert len(surface_crossings(a.vertices, a.faces, b.vertices, b.faces)) == 0
+
+
+def test_unlatched_model_excludes_only_reviewed_lock_parts():
+    data = recipe()
+    data["components"]["Panel"].append(2)
+    data["components"]["Handle"] = [3]
+    data["leaf_components"] = [0]
+    data["unlatched_components"] = [2]
+    data["unlatched_review"] = "Component 2 is the latch bolt; task starts disengaged."
+    validate_recipe(data, 4)
+    for invalid in [[0], [1], [3], [2, 2]]:
+        data["unlatched_components"] = invalid
+        with pytest.raises(PreparationError, match="Unlatched components"):
+            validate_recipe(data, 4)
+    data["unlatched_components"] = [2]
+    del data["unlatched_review"]
+    with pytest.raises(PreparationError, match="disengaged"):
+        validate_recipe(data, 4)
+    candidate = remote()
+    candidate["no_latch_operation"] = False
+    assert remote_review(candidate)["status"] == "pass"

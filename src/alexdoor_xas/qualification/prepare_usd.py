@@ -343,6 +343,8 @@ def normalize(source, recipe, output):
             matrix[:3, :3], matrix[:3, 3] = rotation * scale, translation
             mesh.apply_transform(matrix)
             groups[name].append(mesh)
+            if index in recipe.get("unlatched_components", []):
+                continue
             shapes = cooked_hulls(mesh, recipe.get("colliders", {}).get(str(index), "auto"))
             collision[name].extend(shapes)
             collision_components[name].extend([index] * len(shapes))
@@ -387,6 +389,8 @@ def normalize(source, recipe, output):
         findings = []
         for name in ("Panel", "Handle"):
             for i, moving in zip(recipe["components"][name], groups[name], strict=True):
+                if i in recipe.get("unlatched_components", []):
+                    continue
                 for j, fixed in zip(recipe["components"]["Frame"], groups["Frame"], strict=True):
                     points = surface_crossings(
                         moving.vertices, moving.faces, fixed.vertices, fixed.faces
@@ -408,7 +412,7 @@ def normalize(source, recipe, output):
         )
         raise
     canonical = output / "door.usda"
-    _author(canonical, groups, collision, hinge, recipe, limit)
+    _author(canonical, groups, collision, hinge, recipe, limit, collision_components)
     opening_to_hinge = np.eye(4)
     opening_to_hinge[:3, 3] = hinge
     if recipe["handedness"] == "right":
@@ -422,6 +426,8 @@ def normalize(source, recipe, output):
         "mechanical_limit_deg": limit,
         "dimensions_m": dimensions.to_dict(),
         "handedness": recipe["handedness"],
+        "initial_state": "closed_unlatched",
+        "noncolliding_latch_components": recipe.get("unlatched_components", []),
         "hinge_m": hinge.tolist(),
         "opening_center_m": [0, 0, 0],
         "panel_center_m": panel_bounds.mean(0).tolist(),
@@ -441,7 +447,7 @@ def normalize(source, recipe, output):
     return result
 
 
-def _author(path, groups, collision, hinge_pos, recipe, limit):
+def _author(path, groups, collision, hinge_pos, recipe, limit, collision_components):
     from scipy.spatial import ConvexHull
 
     stage = Usd.Stage.CreateNew(str(path))
@@ -457,6 +463,7 @@ def _author(path, groups, collision, hinge_pos, recipe, limit):
             "handedness": recipe["handedness"],
             "opening_center_m": Gf.Vec3d(0),
             "hinge_m": Gf.Vec3d(*hinge_pos),
+            "initial_state": "closed_unlatched",
         },
     )
     material = UsdShade.Material.Define(stage, "/Door/PhysicsMaterial")
@@ -513,6 +520,9 @@ def _author(path, groups, collision, hinge_pos, recipe, limit):
             mesh = mesh_prim(stage, f"/Door/{name}/Collision_{index}", points, shape.simplices)
             mesh.CreatePurposeAttr("guide")
             prim = mesh.GetPrim()
+            prim.CreateAttribute("b1:sourceComponent", Sdf.ValueTypeNames.Int).Set(
+                collision_components[name][index]
+            )
             UsdPhysics.CollisionAPI.Apply(prim)
             UsdPhysics.MeshCollisionAPI.Apply(prim).CreateApproximationAttr("convexHull")
             PhysxSchema.PhysxCollisionAPI.Apply(prim).CreateContactOffsetAttr(0.002)
