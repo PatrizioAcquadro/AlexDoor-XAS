@@ -1,4 +1,4 @@
-"""Reviewed surface separation and backing for static graphics assets."""
+"""Reviewed surface separation, frame fitting and backing for graphics assets."""
 
 import numpy as np
 import trimesh
@@ -33,6 +33,31 @@ def prepare_components(components, recipe):
         # Select complete existing faces, without changing their vertices or UVs.
         result[index] = mesh.submesh([np.flatnonzero(~selected)], append=True, repair=False)
         result.append(mesh.submesh([np.flatnonzero(selected)], append=True, repair=False))
+    for fit in recipe.get("frame_fits", []):
+        index = fit["component"]
+        require(
+            type(index) is int
+            and 0 <= index < len(result)
+            and index in recipe["components"]["Frame"],
+            "Opening fitting is restricted to frame components",
+        )
+        require(bool(fit.get("review")), "Review the adapted frame and its source provenance")
+        require(bool(fit["axes"]) and set(fit["axes"]) <= set("xyz"), "Invalid frame fit axes")
+        for axis, intervals in fit["axes"].items():
+            intervals = np.asarray(intervals, dtype=float)
+            require(
+                intervals.shape == (2, 2)
+                and np.isfinite(intervals).all()
+                and np.all(intervals[:, 0] < intervals[:, 1]),
+                "Frame fitting requires increasing finite source/target intervals",
+            )
+            source, target = intervals
+            # Translate the jambs/header beyond the aperture edges without thinning
+            # their profiles; resize only the spans between those edges.
+            values = result[index].vertices[:, "xyz".index(axis)]
+            result[index].vertices[:, "xyz".index(axis)] = values + np.interp(
+                values, source, target - source
+            )
     for backing in recipe.get("shell_backings", []):
         index = backing["component"]
         require(type(index) is int and 0 <= index < len(result), "Invalid backing component")

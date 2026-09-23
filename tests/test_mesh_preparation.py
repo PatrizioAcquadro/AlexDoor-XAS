@@ -46,3 +46,27 @@ def test_split_keeps_source_faces_and_uvs_and_backing_closes_only_the_selected_l
 def test_backing_rejects_closed_or_folded_geometry():
     with pytest.raises(PreparationError, match="folded"):
         close_shell(trimesh.creation.box(), 2, -1)
+
+
+def test_frame_fit_preserves_jamb_profiles_and_does_not_resize_the_leaf():
+    frame = trimesh.Trimesh(
+        vertices=[[x, y, 0] for y in [0, 3] for x in [-2, -1, 1, 2]],
+        faces=[[0, 1, 4], [1, 5, 4], [2, 3, 6], [3, 7, 6]],
+        process=False,
+    )
+    leaf = trimesh.creation.box()
+    recipe = {
+        "components": {"Frame": [0], "Panel": [1], "Handle": []},
+        "frame_fits": [
+            {"component": 0, "axes": {"x": [[-1, 1], [-2, 2]]}, "review": "Widen aperture."}
+        ],
+    }
+    fitted, unchanged = prepare_components([frame, leaf], recipe)
+    assert np.array_equal(fitted.vertices[:4, 0], [-3, -2, 2, 3])
+    assert np.array_equal(fitted.vertices[:, 1:], frame.vertices[:, 1:])
+    assert np.array_equal(fitted.faces, frame.faces)
+    assert np.array_equal(unchanged.vertices, leaf.vertices)
+    assert np.array_equal(frame.vertices[:4, 0], [-2, -1, 1, 2])
+    recipe["frame_fits"][0]["component"] = 1
+    with pytest.raises(PreparationError, match="restricted to frame"):
+        prepare_components([frame, leaf], recipe)
