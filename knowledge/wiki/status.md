@@ -7,7 +7,21 @@ in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
-The latest five doors come from Icevanilla's CC BY 4.0 PSX door pack. The
+The subsequent Icevanilla industrial PSX pack is CC BY 4.0 and contains five
+single-leaf groups plus one excluded double leaf. All five source selections
+and inspections pass, but **none is promoted under the current 5.0 rules**.
+Group `002` has no compatible modeled frame; `005` repeats the leaf, frame and
+knob geometry of `003` apart from minor placement and appearance. Diagnostic
+recipes for `001` (using a rigidly relocated, size-matched source-pack frame),
+`003` and `004` retain all collisions and use the maximum documented 2% uniform
+moving fit. Their 0.87126 m leaves still cross the approximately 0.84284 m
+frame openings at the closed pose; at least 3.262% reduction would be needed
+before any clearance margin. Source-surface crossings confirm the conflict.
+No prepared preview, isolated physics run or 5.1 qualification follows a failed
+normalization. Original source, selected derivatives and diagnostic attempts
+remain; the ready count stays at fourteen.
+
+The previously prepared five doors come from Icevanilla's CC BY 4.0 PSX door pack. The
 double-leaf closet is excluded; bathroom, two geometrically distinct wooden,
 worn wooden and front doors were selected with their matching frames and shared
 licensed texture. Each selected geometry fingerprint is distinct from the other
@@ -249,6 +263,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Reviewed the industrial PSX pack: five single-leaf selections, one double leaf excluded. Three bounded normalization attempts fail on evidenced source leaf/frame crossings; one group lacks a compatible frame and another duplicates geometry. No new door is ready; the prior fourteen remain.
 
 - 2026-09-23 — Prepared five distinct CC BY single-leaf doors from Icevanilla's PSX pack; excluded the double-leaf closet. Static, viewed previews and one RTX 4090 run per door pass. Fourteen doors are ready for 5.1; expert qualification remains pending.
 

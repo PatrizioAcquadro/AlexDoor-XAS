@@ -669,3 +669,11 @@ Recorded Icevanilla's CC BY 4.0 pack, excluded its double-leaf closet and prepar
 ## 2026-09-23 — lint : PSX pack evidence and wiki
 
 Verified all fourteen ready pointers and distribution scopes, five source fingerprints and preparation evidence hashes, passing final stage reports, and the focused duplicate-source and wiki link/index tests. Allowed wiki tree, raw knowledge boundary, Markdown whitespace and Git diff checks pass; original downloads, earlier attempts and frozen Phase 4 setup remain unchanged.
+
+## 2026-09-23 — update : Industrial PSX pack source and geometry review
+
+Reviewed Icevanilla's CC BY 4.0 USDZ, excluded the double leaf and inspected five selected single-leaf groups. Recorded the absent/unsuitable frame, near-identical geometry and three demonstrated leaf/jamb crossings after the bounded 2% fit; no new asset was promoted or expert run claimed.
+
+## 2026-09-23 — lint : Industrial PSX pack evidence and wiki
+
+Verified the original hash, five source/inspection records and their evidence hashes, three failed normalization reports with source-surface crossings, and absence of new ready pointers. The focused wiki link/index test, allowed tree, Markdown whitespace and Git diff checks pass; fourteen accepted doors and frozen Phase 4 remain unchanged.

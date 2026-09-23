@@ -775,6 +775,47 @@ component choices, failed earlier attempts and evidence paths. No robot/expert
 run or 45-degree criterion was used; the inferred axes and prepared stops remain
 to be evaluated in 5.1.
 
+**Icevanilla industrial PSX pack review (2026-09-23).**
+[Low-Poly PSX Style Industrial Metal Doors Pack](https://sketchfab.com/3d-models/low-poly-psx-style-industrial-metal-doors-pack-4f5561bbc441414587e3650ceae5593a)
+is by Icevanilla (@vanillao03), with CC Attribution/CC BY 4.0 on the page and
+download modal. It offers original FBX and converted USDZ, glTF and GLB; the
+downloaded USDZ contains matching author/license/source metadata and one
+1024 × 256 packaged atlas. The pack has five single-leaf groups, `001`–`005`,
+and a separate two-leaf `007` display excluded at review. All five selected
+groups pass source/license and dependency inspection at 140–400 triangles per
+original group; none matches a fingerprint among the fourteen prepared doors.
+Distinct source-part names alone do not settle geometric duplication.
+
+| Group | Local finding | 5.0 result |
+| --- | --- | --- |
+| `001` | Three-panel leaf without a frame. A diagnostic selected source pairs it with an exact-size original frame from the same pack, translated rigidly without mesh/UV edits. | Normalization fails on actual leaf/jamb surface crossings. |
+| `002` | Larger ornate leaf (1.021 × 2.125 m) without a modeled frame; the available single-door frame has only about 0.843 m of inner width. | Required frame/panel filter fails; no recipe or later gate. |
+| `003` | Plain leaf, two-sided knobs and its original U-frame. | Normalization fails on actual leaf/jamb surface crossings. |
+| `004` | Detailed leaf, separate lever hardware and its original U-frame. | Normalization fails on actual leaf/jamb surface crossings. |
+| `005` | Source leaf, knobs and frame align with `003` after rigid translation (frame within 2 µm); knob placement shifts about 9 mm vertically and 11 mm horizontally, and atlas appearance differs. | Duplicate geometry filter fails; no normalization or later gate. |
+
+For `001`, `003` and `004`, the source leaf width is about 0.87126 m and the
+modeled frame opening about 0.84284 m. At least **3.262% uniform leaf reduction
+before any clearance margin** would be required to fit that width, exceeding
+the documented 2% moving-fit allowance. The diagnostic recipes used the full
+2%, preserved all collisions, centered the moving assembly and partitioned
+the modeled frame. For `003`, an initial frame-cut error filled the aperture
+with a convex hull; corrected cuts cleared that artifact, but all three final
+normalization attempts still report proper intersections of original leaf and
+jamb surfaces in the closed pose. This is a source clearance conflict under
+the present recipe bounds, not a GPU runtime failure or a missing online
+dimension. No collider was removed, tolerance weakened, artificial opening
+limit assigned, or new frame invented for `002`.
+
+All five `candidate.json`, `source-evidence.json` and `preparation-review.json`
+records identify their selection/inspection attempts and exact decision. Only
+the three framed diagnostic candidates have recipes and failed normalization
+attempts. No static, prepared preview, isolated physics or promotion pass is
+claimed; the fourteen earlier ready doors remain unchanged. The original USDZ,
+selected sources and failed attempts are preserved. Additional source remodeling
+would need a separate reviewed scope; this intake does not label the original
+art generally unusable or run the 5.1 robot/expert criteria.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
