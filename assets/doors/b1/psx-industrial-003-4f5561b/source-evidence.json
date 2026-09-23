@@ -56,13 +56,14 @@
     "operation": "Keep only this source single-leaf group and its matching separate frame, when one is modeled; exclude the double-leaf display and other groups. Preserve the source meshes, UVs and packaged texture in a local selected USDC; leave the downloaded USDZ untouched."
   },
   "license_dependency_review": "One 1024 x 256 base-color atlas is packaged in the CC BY USDZ; stage metadata matches the page author, CC-BY-4.0 and source URL. No separate texture terms were found.",
-  "local_geometry_review": "Single plain metal leaf with two-sided knob hardware and its source U-frame. The source leaf crosses both jamb surfaces in the closed pose after the maximum documented 2% uniform moving fit. A first partition-cut recipe error was corrected in attempt 000004; proper source-surface crossings remain.",
-  "inspection_attempt": "attempts/000002",
+  "local_geometry_review": "Original slab and modeled frame remain separately collidable in a reviewed surface-mounted simulation assembly; source geometry and atlas are retained. Attempt 000007: reviewed surface-mounted closed-unlatched assembly passes static and one RTX 4090 run to 91.0 degrees. All frame/slab/handle collisions and physics tolerances are retained; the 2% moving-fit bound is unchanged. Robot/expert qualification remains pending.",
+  "inspection_attempt": "attempts/000007",
   "geometry_fingerprint": "79be9683769da426cfb88ef036766a207d69fa07000cfb70bbf311bc255f7e6b",
   "clearance_measurement": {
     "source_leaf_width_m": 0.871262,
     "source_frame_inner_width_m": 0.84284,
     "minimum_uniform_leaf_shrink_percent_before_clearance": 3.262,
-    "allowed_moving_fit_percent": 2.0
+    "allowed_moving_fit_percent": 2.0,
+    "interpretation": "The 3.262% minimum applies only to fitting the slab inside this opening. The final surface mount instead preserves overlap against the jamb face; no extension of the 2% shrink allowance is required."
   }
 }

@@ -2,24 +2,24 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Fourteen doors pass static, visual and isolated GPU checks
+intake has started. Eighteen doors pass static, visual and isolated GPU checks
 in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
-The subsequent Icevanilla industrial PSX pack is CC BY 4.0 and contains five
-single-leaf groups plus one excluded double leaf. All five source selections
-and inspections pass, but **none is promoted under the current 5.0 rules**.
-Group `002` has no compatible modeled frame; `005` repeats the leaf, frame and
-knob geometry of `003` apart from minor placement and appearance. Diagnostic
-recipes for `001` (using a rigidly relocated, size-matched source-pack frame),
-`003` and `004` retain all collisions and use the maximum documented 2% uniform
-moving fit. Their 0.87126 m leaves still cross the approximately 0.84284 m
-frame openings at the closed pose; at least 3.262% reduction would be needed
-before any clearance margin. Source-surface crossings confirm the conflict.
-No prepared preview, isolated physics run or 5.1 qualification follows a failed
-normalization. Original source, selected derivatives and diagnostic attempts
-remain; the ready count stays at fourteen.
+The industrial Icevanilla PSX pack now contributes four prepared single doors:
+`001`–`004`, with CC BY 4.0 source/atlas and the double door excluded. The earlier
+intersection findings applied to recessed closed poses; reviewed surface mounting
+recovers the slabs without extending the 2% moving-fit limit or disabling collision.
+`001` reuses the source pack frame already selected; `002` uses a user-approved
+adaptation of that frame's aperture while preserving its profiles; `003` retains
+its source frame; `004` retains its projecting lintel and clears it with the
+existing 2% fit. All four pass static, viewed front/rear RTX captures and one
+RTX 4090 run each to 91.0/91.1/91.0/91.0 degrees, with exact resets, stable frames
+and zero reported penetration. These are explicitly inferred simulation mounts;
+robot/expert qualification remains pending. `005` is independently confirmed as
+a geometry variant of `003` and is not counted or split as a separate identity.
+The fourteen earlier accepted doors and all original/failed attempts are preserved.
 
 The previously prepared five doors come from Icevanilla's CC BY 4.0 PSX door pack. The
 double-leaf closet is excluded; bathroom, two geometrically distinct wooden,
@@ -32,8 +32,9 @@ measured centering resolve an early source leaf/jamb contact while retaining
 frame, leaf, handles and window collision. Static checks, ten viewed RTX preview
 images and one short RTX 4090 physics run per door pass; stops range 121.2–121.4
 degrees, with three exact resets, stable frames and zero reported penetration.
-They are ready for 5.1, bringing the distribution counts to eleven
-redistributable, two local-only and one private/noncommercial. Original pack and
+At that intake milestone, distribution counts were eleven redistributable,
+two local-only and one private/noncommercial. The four industrial additions
+bring the current counts to fifteen, two and one respectively. Original pack and
 earlier attempts remain; no robot/expert qualification has run.
 
 The ninth source, `door-door-metal-b21ec273` (Mehdi Shahsavan, CC BY 4.0), is
@@ -243,7 +244,7 @@ The first candidate, `door-with-frame-2f2f149f`, is technically ready for 5.1 af
 explicitly omitting latch/lock bolt collisions for the common closed-unlatched task.
 It reaches 188 degrees in isolated GPU physics with stable resets/frame and no
 reported penetration. The leaf, frame and handles retain their collisions.
-The initial batch of eight distinct real doors is prepared. Start the unchanged
+Eighteen distinct real doors are prepared. Start the unchanged
 common robot/expert protocol in 5.1 only when requested; the next-candidate
 [[implementation_phases/phase-5-door-corpus-and-qualification|handoff]] remains
 available for further sequential intake. Expert qualification, the final corpus
@@ -263,6 +264,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Recovered four industrial PSX doors with reviewed surface mounting and a user-approved frame adaptation for 002; one RTX 4090 run per door passes around 91 degrees. Eighteen doors are ready; 005 remains a duplicate variant and the 2% moving-fit limit is unchanged.
 
 - 2026-09-23 — Reviewed the industrial PSX pack: five single-leaf selections, one double leaf excluded. Three bounded normalization attempts fail on evidenced source leaf/frame crossings; one group lacks a compatible frame and another duplicates geometry. No new door is ready; the prior fourteen remain.
 

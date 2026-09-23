@@ -1,70 +1,94 @@
 {
-  "status": "fail",
-  "decision": "not_ready_for_5.1",
+  "status": "pass",
+  "decision": "ready_for_5.1",
   "distribution_scope": "redistributable",
   "source_part": "Metal_Door_001",
   "original_source_sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
   "selected_source_sha256": "b75b469ab201f3d921e20123722853952e4c9fb4216dda15edf85ffef594fae3",
   "selection_attempt": "attempts/000005",
-  "inspection_attempt": "attempts/000006",
-  "normalization_attempt": "attempts/000007",
-  "failure_category": "geometry_or_recipe",
-  "reason": "The leaf and compatible source frame still have proper side-jamb surface crossings after the maximum documented 2% uniform moving fit. The paired frame is not a new mesh; its collision remains enabled.",
+  "inspection_attempt": "attempts/000008",
+  "normalization_attempt": "attempts/000008",
+  "previous_finding": "The leaf and compatible source frame still have proper side-jamb surface crossings after the maximum documented 2% uniform moving fit. The paired frame is not a new mesh; its collision remains enabled.",
+  "resolution": "Attempt 000008: reviewed surface-mounted closed-unlatched assembly passes static and one RTX 4090 run to 91.0 degrees. All frame/slab/handle collisions and physics tolerances are retained; the 2% moving-fit bound is unchanged. Robot/expert qualification remains pending.",
+  "mounting_review": "Surface-mounted simulation assembly: the 0.871262 m source slab is wider than the 0.84284 m clear opening. Preserve slab/frame sizes relative to one another; rigidly place the closed slab 2 mm in front of the jamb face, with its back-face hinge opposite the handle and 2 mm floor clearance. The leaf overlaps each jamb by about 13.7 mm at uniform overall scale 0.965. This is a reviewed mount inferred for static graphics, not manufacturer geometry. No moving-assembly shrink or relaxed collision/physics tolerance is used. Preserve all source geometry, atlas and collisions.",
   "measurements": {
     "source_triangles": 184,
-    "connected_components": 2,
-    "texture_max_px": 1024,
-    "geometry_fingerprint": "d964012a8dc35756dca92d739a4a228d629a8b93afc827878974da06d4498add",
-    "source_leaf_width_m": 0.871261,
-    "source_frame_inner_width_m": 0.84284
+    "prepared_visual_triangles": 184,
+    "dimensions_m": {
+      "width_m": 0.8407665271527742,
+      "height_m": 1.8162944310937572,
+      "thickness_m": 0.09977875626140154
+    },
+    "handedness": "left",
+    "geometry_fingerprint": "d964012a8dc35756dca92d739a4a228d629a8b93afc827878974da06d4498add"
   },
   "checks": {
     "source_review": "pass",
     "inspect": "pass",
-    "normalize": "fail",
-    "static": "not_run",
-    "preview": "not_run",
-    "physics": "not_run",
-    "promotion": "not_run",
+    "normalize": "pass",
+    "static": "pass",
+    "preview": "pass",
+    "physics": "pass",
+    "promotion": "ready_for_5.1",
     "expert_qualification": "not_run"
   },
+  "physics_results": {
+    "status": "pass",
+    "scope": "isolated_gpu_asset_physics_not_expert_qualification",
+    "device": "cuda:0",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "max_reset_deg": 0.0,
+    "max_reset_speed": 0.0,
+    "passive_drift_deg": 0.0001976151964639794,
+    "frame_drift_m": 0.0,
+    "frame_rotation_deg": 0.0,
+    "hinge_error_m": 8.970449698608718e-07,
+    "penetration_m": 0.0,
+    "maximum_deg": 90.99999684048139,
+    "mechanical_limit_deg": 91.0,
+    "resets": 3
+  },
   "limits": [
-    "No robot/expert or 45-degree check was run. No visual or isolated physics pass is claimed.",
-    "The original USDZ, selected source and diagnostic attempts remain preserved.",
-    "The result is specific to the documented Subphase 5.0 preparation rules, not a claim that the source art cannot be used for other purposes."
+    "Surface-mounted closed pose and back-face hinge are inferred simulation assembly choices, not recovered manufacturer installation data.",
+    "Robot reachability, expert rollouts and the 45-degree gate remain untested in 5.1.",
+    "The original USDZ and every earlier attempt remain preserved; all earlier accepted assets are unchanged."
   ],
   "evidence": [
     {
       "path": "source-evidence.json",
-      "sha256": "bb1c1c11a54bce93f48da1e4c22a8935a28e4c1a6726d75b239f1d035701056a"
-    },
-    {
-      "path": "attempts/000005/selection-review.json",
-      "sha256": "1bba9dfbe7e997568bcb5a333518de410660a2eba8c5feb6152cd6ff23f5a459"
-    },
-    {
-      "path": "attempts/000006/inspect.json",
-      "sha256": "aa0fa8cf0ad6d33912652691b51f67089cd7763d31e19cf282fea5964185a420"
+      "sha256": "b815c8737f7cf36b00c1516ea23c08e642f47b743ad70e28659086d63a2185c7"
     },
     {
       "path": "recipe.json",
-      "sha256": "ec0c1bf79df141f8a285d1f58fdeb79026ee48f2f34f88b547cc4e9d19d3b902"
+      "sha256": "07077859350f661a838eeb40951966932283384bb7356815e25d44707f3f5ddf"
     },
     {
-      "path": "attempts/000007/recipe.json",
-      "sha256": "ec0c1bf79df141f8a285d1f58fdeb79026ee48f2f34f88b547cc4e9d19d3b902"
+      "path": "attempts/000008/inspect.json",
+      "sha256": "6b2fd2ff1ef2c0ce653926b50f5d2b9fbf3ecc304d9f03185bf35c2dc826de62"
     },
     {
-      "path": "attempts/000007/normalize.json",
-      "sha256": "089085dfa4cc14652c149cf376f6ba7a81e00ba5d6e7893030477d8979dd268b"
+      "path": "attempts/000008/normalize.json",
+      "sha256": "53d452d143331d8e9341e14f8c7ab1c14b0593418c770f05ed555a269359b73f"
     },
     {
-      "path": "attempts/000007/collision.json",
-      "sha256": "da8ec7f6bdeaed34ffadfa5358541550f61adebb2e3ac34014f423e5711801b6"
+      "path": "attempts/000008/static.json",
+      "sha256": "69256df4ba1edb68d11991d1f7b391aa01ae6f44963739bdcc96a06cb96c7a91"
     },
     {
-      "path": "attempts/000007/source_intersections.json",
-      "sha256": "ddfb61234cf014413b4e2aabaa7acdd87d5db71f1cf2f63381c56ca519b57910"
+      "path": "attempts/000008/preview.json",
+      "sha256": "b463248e81f5272c074ebc05a54cdf099ab7ce7835368a5ce3edd8503f67cec2"
+    },
+    {
+      "path": "attempts/000008/physics.json",
+      "sha256": "c74113078a148e5c04bfbbc9934f804c522bed0919263d6f85f0dbaa058821e7"
+    },
+    {
+      "path": "attempts/000008/preview-front.png",
+      "sha256": "fa274baedffc01d595cb86ad68f07e85bcc721b43ff5d34f5993c906ec0ceddb"
+    },
+    {
+      "path": "attempts/000008/preview-rear.png",
+      "sha256": "73ff8996aab1cf887afd6fde06332b947b2759f5268f509ea193a9e629c496ef"
     }
   ]
 }

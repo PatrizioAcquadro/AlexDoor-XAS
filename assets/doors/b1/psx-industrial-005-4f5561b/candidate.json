@@ -32,11 +32,11 @@
   "local_dependency_review": "pass",
   "local_dependency_review_notes": "The selected USDC and packaged 1024 x 256 atlas resolve locally; USDZ metadata and source page identify CC BY 4.0, with no separately stated atlas terms.",
   "local_duplicate_review": "fail",
-  "local_duplicate_review_notes": "This is not a distinct corpus identity from 003: the 12-triangle leaf, 44-triangle frame and 204-triangle knob geometry align rigidly (frame within 2 micrometers); only atlas appearance and about 9 mm vertical and 11 mm horizontal knob placement change.",
+  "local_duplicate_review_notes": "Independent centered-component comparison confirms the same geometry as 003: nearest-vertex error below 0.02 micrometers for the slab, 0.003 micrometers for knobs and 1.91 micrometers for the frame. Relative to the slab the frame shifts 9.98 mm, knobs shift 10.88 mm horizontally and 9.22 mm vertically. These small placement and atlas changes do not define a separate corpus geometry.",
   "local_asset_shape_review": "pass",
   "local_asset_shape_review_notes": "Single plain metal leaf, two-sided knobs and its own source U-frame; visually different atlas region from 003.",
   "local_mechanical_review": "not_run",
-  "local_mechanical_review_notes": "This is not a distinct corpus identity from 003: the 12-triangle leaf, 44-triangle frame and 204-triangle knob geometry align rigidly (frame within 2 micrometers); only atlas appearance and about 9 mm vertical and 11 mm horizontal knob placement change.",
+  "local_mechanical_review_notes": "Not rerun: held as a geometry variant of 003, which is now prepared. This is not a finding of physical unusability.",
   "local_visual_review": "not_run",
-  "local_visual_review_notes": "No normalized door passed the prior gate; RTX front/rear preparation preview was not generated or claimed."
+  "local_visual_review_notes": "Original source geometry/atlas reviewed for duplication; no prepared variant or RTX captures generated."
 }

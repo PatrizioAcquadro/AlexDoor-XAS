@@ -16,7 +16,7 @@
   "custom_terms_review": "pass",
   "custom_terms_review_notes": "No added use terms or separate texture rights visible; the author says one texture atlas ships with the model.",
   "duplicate_review": "pass",
-  "duplicate_review_notes": "Named source group Metal_Door_004 is distinct from the excluded Metal_Door_007 double-leaf pair. Local fingerprint and frame ownership require inspection.",
+  "duplicate_review_notes": "Original single-leaf part identified in the pack and locally reviewed by geometry; the double-leaf display is excluded.",
   "selected_format": ".usdc",
   "reported_triangles": 1700,
   "reported_texture_max_px": 1024,
@@ -32,11 +32,12 @@
   "local_dependency_review": "pass",
   "local_dependency_review_notes": "The selected USDC and packaged 1024 x 256 atlas resolve locally; USDZ metadata and source page identify CC BY 4.0, with no separately stated atlas terms.",
   "local_duplicate_review": "pass",
-  "local_duplicate_review_notes": "Source geometry fingerprint 56972910e659b1a40033a2faf337bbc7e77f0556ea13934a6d89a7e8813480af differs from the fourteen prepared doors; distinctness against pack 003/005 was also reviewed by shape alignment.",
+  "local_duplicate_review_notes": "Selected-source fingerprint 56972910e659b1a40033a2faf337bbc7e77f0556ea13934a6d89a7e8813480af remains distinct from previously accepted geometries; original source part and visible slab details distinguish this candidate. 005 is held as a variant of 003.",
   "local_asset_shape_review": "pass",
-  "local_asset_shape_review_notes": "Single detailed industrial metal leaf with separate lever hardware and its source U-frame.",
-  "local_mechanical_review": "fail",
-  "local_mechanical_review_notes": "The source leaf crosses both jamb surfaces in the closed pose after the maximum documented 2% uniform moving fit; frame, leaf and handle collisions remain enabled.",
-  "local_visual_review": "not_run",
-  "local_visual_review_notes": "No normalized door passed the prior gate; RTX front/rear preparation preview was not generated or claimed."
+  "local_asset_shape_review_notes": "Original slab and modeled frame remain separately collidable in a reviewed surface-mounted simulation assembly; source geometry and atlas are retained.",
+  "local_mechanical_review": "pass",
+  "local_mechanical_review_notes": "Attempt 000005: reviewed surface-mounted closed-unlatched assembly passes static and one RTX 4090 run to 91.0 degrees. All frame/slab/handle collisions and physics tolerances are retained; the 2% moving-fit bound is unchanged. Robot/expert qualification remains pending.",
+  "local_visual_review": "pass",
+  "local_visual_review_notes": "Viewed front/rear RTX images in attempt 000005: original metal atlas, complete slab/frame and modeled hardware are retained. Surface mounting and the inferred back-face pivot are explicit simulation assumptions.",
+  "frame_panel_separable": true
 }

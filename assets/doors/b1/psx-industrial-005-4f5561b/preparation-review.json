@@ -1,6 +1,6 @@
 {
   "status": "fail",
-  "decision": "not_ready_for_5.1",
+  "decision": "not_promoted_duplicate_variant",
   "distribution_scope": "redistributable",
   "source_part": "Metal_Door_005",
   "original_source_sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
@@ -9,7 +9,7 @@
   "inspection_attempt": "attempts/000002",
   "normalization_attempt": null,
   "failure_category": "duplicate_identity",
-  "reason": "This is not a distinct corpus identity from 003: the 12-triangle leaf, 44-triangle frame and 204-triangle knob geometry align rigidly (frame within 2 micrometers); only atlas appearance and about 9 mm vertical and 11 mm horizontal knob placement change.",
+  "reason": "Independent centered-component comparison confirms the same geometry as 003: nearest-vertex error below 0.02 micrometers for the slab, 0.003 micrometers for knobs and 1.91 micrometers for the frame. Relative to the slab the frame shifts 9.98 mm, knobs shift 10.88 mm horizontally and 9.22 mm vertically. These small placement and atlas changes do not define a separate corpus geometry.",
   "measurements": {
     "source_triangles": 260,
     "connected_components": 4,
@@ -29,7 +29,7 @@
     "expert_qualification": "not_run"
   },
   "limits": [
-    "No robot/expert or 45-degree check was run. No visual or isolated physics pass is claimed.",
+    "No second runtime run is needed to count the same component geometry. The source may serve as an appearance variant of 003 but must not be counted or split as an independent geometry.",
     "The original USDZ, selected source and diagnostic attempts remain preserved.",
     "The result is specific to the documented Subphase 5.0 preparation rules, not a claim that the source art cannot be used for other purposes."
   ],

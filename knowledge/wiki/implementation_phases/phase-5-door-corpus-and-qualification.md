@@ -44,6 +44,16 @@ gates run. `components` uses the resulting indices; inspection/fingerprints stil
 refer to the preserved original. This is opt-in preparation, not an automatic
 repair or evidence of the author's intended working mechanism.
 
+**Reviewed frame adaptation.** For an explicitly approved composite assembly,
+`frame_fits` can adapt an existing licensed frame to a differently sized leaf.
+Each record identifies a Frame `component`, inspected-coordinate `axes` mapping
+`[[source_lo, source_hi], [target_lo, target_hi]]`, and a provenance/geometry
+`review`. Vertices outside the source opening interval translate with its edge;
+only connecting spans resize, preserving jamb/header profile thickness and depth
+on untouched axes. Source faces and UVs remain; the leaf cannot use this operation.
+This is an authored assembly change, not recovered source dimensions or a way to
+relax motion/contact checks. Keep the frame source and adaptation in the recipe.
+
 A JSON recipe specifies `handedness`, positive uniform `scale`, proper `rotation`,
 `translation_m`, `opening_center_source`, `hinge_m`, `dimensions_m`, and the complete
 `components` assignment to `Frame`, `Panel`, and optional `Handle`. It also records
@@ -72,6 +82,15 @@ clearance with a measured rigid translation if the thick latch edge needs it.
 The hinge-edge guard retains its 10 mm tolerance against either the fitted edge
 or the corresponding edge before clearance scaling, so a fixed source hinge
 is not incorrectly rejected just because the leaf was fitted around it.
+
+An overlapping slab need not fit *inside* the jamb aperture: a reviewed mounting
+may place its closed back face just in front of the jamb face, with an inferred
+back-face hinge, so the slab covers the opening. Use the existing rigid
+`moving_translation_m`, retaining all visible geometry and collision. Record
+that mounting as a simulation inference, verify the actual clear passage using
+`clear_aperture_m`, inspect both sides, and check the complete sweep/runtime.
+Do not assume width excess alone demands shrinking the slab. The common 2%
+moving-fit limit remains unchanged; mounting choice never waives collision gates.
 When two distinct moving hinge barrels visibly establish an axis, optional
 `hinge_axis_components` and `hinge_axis_review` check their compact horizontal
 bounds, centers and vertical separation instead of comparing the axis to an
@@ -313,7 +332,9 @@ URL/local payload at a time; remain within 5.0 unless 5.1 is explicitly requeste
 3. Write the smallest adequate recipe and run `normalize`. The source of recipe
    coordinates is the converted inventory (USD/FBX conversion uses glTF Y-up
    meters), not assumed raw-file units. Determine scale, handedness, pivot and
-   component indices for this asset. Use `leaf_components`, `clear_aperture_m`
+   component indices for this asset. Before shrinking a wider-than-aperture slab,
+   review whether an explicit surface mount is appropriate; width excess alone
+   does not establish unusability. Use `leaf_components`, `clear_aperture_m`
    and collider partitions only where its geometry needs them. Explicitly identify
    any latch/lock bolt collision exclusions through `unlatched_components` and
    `unlatched_review`; retain leaf, frame and handle collisions.
@@ -786,35 +807,49 @@ groups pass source/license and dependency inspection at 140–400 triangles per
 original group; none matches a fingerprint among the fourteen prepared doors.
 Distinct source-part names alone do not settle geometric duplication.
 
-| Group | Local finding | 5.0 result |
-| --- | --- | --- |
-| `001` | Three-panel leaf without a frame. A diagnostic selected source pairs it with an exact-size original frame from the same pack, translated rigidly without mesh/UV edits. | Normalization fails on actual leaf/jamb surface crossings. |
-| `002` | Larger ornate leaf (1.021 × 2.125 m) without a modeled frame; the available single-door frame has only about 0.843 m of inner width. | Required frame/panel filter fails; no recipe or later gate. |
-| `003` | Plain leaf, two-sided knobs and its original U-frame. | Normalization fails on actual leaf/jamb surface crossings. |
-| `004` | Detailed leaf, separate lever hardware and its original U-frame. | Normalization fails on actual leaf/jamb surface crossings. |
-| `005` | Source leaf, knobs and frame align with `003` after rigid translation (frame within 2 µm); knob placement shifts about 9 mm vertically and 11 mm horizontally, and atlas appearance differs. | Duplicate geometry filter fails; no normalization or later gate. |
+The initial three intersection findings were real for their recessed closed-pose
+recipes; the conclusion that shrink beyond 2% was necessary was too restrictive.
+A 3.6% diagnostic fit for `003` cleared the closed pose but stopped at 0.8 degrees.
+That diagnostic is preserved and not promoted. The final mount instead places
+the closed slab's back face 2 mm in front of the measured jamb face, with 2 mm
+floor clearance and an inferred left back-face hinge. It is an explicit
+surface-mounted simulation assembly, not a claim about the author's intended
+mechanism. All frame, slab and handle collisions remain enabled; the 2% moving
+fit limit and every static/physics tolerance are unchanged.
 
-For `001`, `003` and `004`, the source leaf width is about 0.87126 m and the
-modeled frame opening about 0.84284 m. At least **3.262% uniform leaf reduction
-before any clearance margin** would be required to fit that width, exceeding
-the documented 2% moving-fit allowance. The diagnostic recipes used the full
-2%, preserved all collisions, centered the moving assembly and partitioned
-the modeled frame. For `003`, an initial frame-cut error filled the aperture
-with a convex hull; corrected cuts cleared that artifact, but all three final
-normalization attempts still report proper intersections of original leaf and
-jamb surfaces in the closed pose. This is a source clearance conflict under
-the present recipe bounds, not a GPU runtime failure or a missing online
-dimension. No collider was removed, tolerance weakened, artificial opening
-limit assigned, or new frame invented for `002`.
+| Group | Final preparation | Attempt | Dimensions W × H × T (m) | Geometric stop |
+| --- | --- | --- | --- | --- |
+| `001` | Reuse the same-pack source frame already selected; mount the original three-panel slab in front of it, overall scale 0.965, no moving shrink. | `000008` | 0.841 × 1.816 × 0.100 | 91.0° |
+| `002` | User-approved reuse of the pack frame, with aperture spans adapted to the larger ornate leaf and jamb/header profiles retained. Original slab shape retained; overall scale 0.895, no moving shrink. | `000005` | 0.913 × 1.902 × 0.100 | 91.1° |
+| `003` | Original plain slab, knobs and frame; surface-mounted at overall scale 0.965, no moving shrink. | `000007` | 0.841 × 1.816 × 0.100 | 91.0° |
+| `004` | Original detailed slab, levers, frame and projecting lintel retained. Surface mount plus the existing 2% uniform moving fit clears the lintel; overall scale 0.98. | `000005` | 0.837 × 1.808 × 0.099 | 91.0° |
+| `005` | Geometry variant of `003`, not an independent corpus identity. | inspected `000002` | — | not rerun |
 
-All five `candidate.json`, `source-evidence.json` and `preparation-review.json`
-records identify their selection/inspection attempts and exact decision. Only
-the three framed diagnostic candidates have recipes and failed normalization
-attempts. No static, prepared preview, isolated physics or promotion pass is
-claimed; the fourteen earlier ready doors remain unchanged. The original USDZ,
-selected sources and failed attempts are preserved. Additional source remodeling
-would need a separate reviewed scope; this intake does not label the original
-art generally unusable or run the 5.1 robot/expert criteria.
+For `002`, the adapted rectangular frame sits behind the source arched upper
+outline. It is a documented reconstructed assembly from the same licensed pack;
+no new door surface, borrowed external texture or double-door component is used.
+Front/rear previews for all four prepared assemblies were actually viewed and
+retain the source metal atlas and distinct slab details. Static checks pass.
+One isolated RTX 4090 run per distinct repaired door reaches its geometric stop
+(91.0, 91.1, 91.0 and 91.0 degrees for `001`–`004`). Each passes three exact resets,
+zero frame drift/rotation and zero reported penetration; maximum passive drift is
+0.000200 degrees and maximum hinge-anchor error is below 0.96 micrometers. All
+four are promoted as redistributable CC BY assets, bringing the prepared count
+to **eighteen**. The 32 focused preparation tests, Ruff and wiki checks pass.
+No physics rerun was performed on earlier accepted assets or duplicate `005`.
+
+The `005` duplicate conclusion is independently confirmed by aligning each
+component: symmetric nearest-vertex error is below 0.02 micrometers for the slab,
+0.003 micrometers for the knobs and 1.91 micrometers for the frame. Relative to
+the slab, the frame shifts about 10 mm, and the knobs shift 10.88 mm horizontally
+and 9.22 mm vertically. These placements and the different atlas region do not
+make another independent geometry. Its source remains available as an appearance
+variant, without promotion, a second physics run or a separate train/test identity.
+
+The original USDZ, source selections and all diagnostic attempts are preserved;
+the fourteen earlier accepted assets are unchanged. Source/candidate/preparation
+records retain each part's provenance and the specific inferred changes. Robot
+reachability, expert rollouts and the 45-degree qualification remain in 5.1.
 
 #### Key Decisions
 

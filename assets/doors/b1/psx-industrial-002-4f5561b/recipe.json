@@ -1,0 +1,118 @@
+{
+  "handedness": "left",
+  "scale": 0.895,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "opening_center_source": [
+    5.0338592529296875,
+    0.018671153113245964,
+    0.3622107654809952
+  ],
+  "components": {
+    "Frame": [
+      1
+    ],
+    "Panel": [
+      0
+    ],
+    "Handle": []
+  },
+  "leaf_components": [
+    0
+  ],
+  "frame_fits": [
+    {
+      "component": 1,
+      "axes": {
+        "x": [
+          [
+            4.612441892791097,
+            5.455279350280762
+          ],
+          [
+            4.537770523986817,
+            5.529947981872558
+          ]
+        ],
+        "y": [
+          [
+            0.018671153113245964,
+            1.8991576433181763
+          ],
+          [
+            0.018671153113245964,
+            2.0907107334136965
+          ]
+        ]
+      },
+      "review": "User-approved reuse of Metal_Doorframe_002 from the same CC BY pack. Adapt its aperture to the larger standalone 002 leaf while retaining jamb/header profile widths and depth. Side rails translate outward; connecting spans lengthen. The rectangular header stays behind the arched top outline at the outer-edge height. Original leaf dimensions/shape/UV and frame UVs are preserved; this is a reconstructed mounting, not an original manufacturer assembly."
+    }
+  ],
+  "modifications": [
+    "Compose original Metal_Door_002 with the existing frame Metal_Doorframe_002 from its pack, translated to the same center and floor. Double doors excluded.",
+    "Fit the template frame aperture through reviewed source-coordinate intervals; preserve its jamb/header profiles and depth.",
+    "Uniform overall scale 0.895, proper Z-up rotation and inferred left back-face hinge opposite the expected interaction side.",
+    "Mount the original slab 2 mm ahead of the jamb face and 2 mm above the floor; no leaf shrink, collision exclusion or threshold relaxation.",
+    "Use a conservative whole-leaf hull and component-partitioned frame hulls. Start closed and already unlatched."
+  ],
+  "translation_m": [
+    -0.32417863510549066,
+    -4.50530403137207,
+    -0.01671068203635514
+  ],
+  "moving_translation_m": [
+    0.14022283663111942,
+    -4.440892098500626e-16,
+    0.002
+  ],
+  "hinge_m": [
+    0.09032501516002436,
+    0.4567173624038694,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.9134347248077388,
+    "height_m": 1.9015349732618778,
+    "thickness_m": 0.09979604303836825
+  },
+  "colliders": {
+    "0": "convexHull",
+    "1": {
+      "partitions": {
+        "y": [
+          -0.44199941240386936,
+          0.44199941240386936
+        ],
+        "z": [
+          1.8524754243689032
+        ]
+      }
+    }
+  },
+  "clear_aperture_m": [
+    [
+      -0.44299941240386936,
+      0.003
+    ],
+    [
+      0.44299941240386936,
+      1.8524754243689032
+    ]
+  ],
+  "clearance_review": "Preserve the complete 002 slab without extra moving scale. Surface-mount it in front of the explicitly adapted pack frame; about 12.7 mm overlap per jamb at overall scale 0.895, 2 mm depth/floor gaps. Frame opening has approximately 0.888 m width; no decorative surface or collision is removed."
+}

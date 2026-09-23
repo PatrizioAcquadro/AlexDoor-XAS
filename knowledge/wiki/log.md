@@ -677,3 +677,11 @@ Reviewed Icevanilla's CC BY 4.0 USDZ, excluded the double leaf and inspected fiv
 ## 2026-09-23 — lint : Industrial PSX pack evidence and wiki
 
 Verified the original hash, five source/inspection records and their evidence hashes, three failed normalization reports with source-surface crossings, and absence of new ready pointers. The focused wiki link/index test, allowed tree, Markdown whitespace and Git diff checks pass; fourteen accepted doors and frozen Phase 4 remain unchanged.
+
+## 2026-09-23 — update : Industrial pack mounting recovery
+Recovered 001–004 through documented surface mounts, retaining all collisions and the 2% moving-fit limit; added reviewed frame aperture fitting for the user-approved 002 assembly.
+Static, viewed RTX previews and one RTX 4090 run per door pass near 91 degrees; eighteen doors are prepared, while 005 remains a geometry variant and expert qualification remains pending.
+
+## 2026-09-23 — lint : Industrial recovery evidence and documentation
+Resolved wiki links/index and reconciled eighteen prepared identities, license scopes and all five industrial review evidence inventories; original USDZ checksum is unchanged.
+32 focused tests, Ruff/format and Git whitespace checks pass; no original payload, earlier accepted door, raw knowledge or frozen Phase 4 setup changed.

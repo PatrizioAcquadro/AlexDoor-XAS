@@ -1,6 +1,6 @@
 {
   "handedness": "left",
-  "scale": 0.98,
+  "scale": 0.965,
   "rotation": [
     [
       0,
@@ -19,9 +19,9 @@
     ]
   ],
   "translation_m": [
-    -0.3549668914669094,
-    -0.44099722281178355,
-    -0.02176889525582569
+    -0.34953372476078326,
+    -0.4342472653197665,
+    -0.02143569787946101
   ],
   "opening_center_source": [
     0.44999716613447305,
@@ -29,14 +29,14 @@
     0.3622111137417443
   ],
   "hinge_m": [
-    0.050664857840149985,
-    0.4183798200374962,
+    0.0972327830495403,
+    0.420383721716143,
     0
   ],
   "dimensions_m": {
-    "width_m": 0.8367596400749924,
-    "height_m": 1.8076365367213616,
-    "thickness_m": 0.09930312136669397
+    "width_m": 0.840767443432286,
+    "height_m": 1.8162945209663828,
+    "thickness_m": 0.09977875064437702
   },
   "components": {
     "Frame": [
@@ -53,46 +53,41 @@
   "leaf_components": [
     3
   ],
-  "clear_aperture_m": [
-    [
-      -0.40998882281178356,
-      0.020445263097668587
-    ],
-    [
-      0.40998882281178356,
-      1.8240817998190302
-    ]
-  ],
   "colliders": {
     "0": {
       "partitions": {
         "y": [
-          -0.41098882281178356,
-          0.41099437718821635
+          -0.4046981775646644,
+          0.4047036469251314
         ],
         "z": [
-          1.8408771047441743
+          1.8127004143654368
         ]
       }
     }
   },
-  "moving_scale": 0.98,
-  "moving_scale_center_m": [
-    0.050664857840149985,
-    -0.013819727972232765,
-    0.9222635314583495
-  ],
+  "moving_scale": 1,
   "moving_translation_m": [
-    0,
-    0.013819727972232765,
-    0
+    0.14712215837172882,
+    0.013608201523678198,
+    0.0020000075675718296
   ],
-  "clearance_review": "The source leaf is about 28 mm wider than the modeled frame aperture in its displayed pose. Apply the documented maximum 2% uniform moving fit, center it on the opening, preserve its opening-face hinge, and partition the original U-frame. This is a diagnostic bounded recipe; any residual interference remains a blocker, not a reason to remove collision or exceed the fit limit.",
+  "clearance_review": "Surface-mounted simulation assembly: the 0.871262 m source slab is wider than the 0.84284 m clear opening. Preserve slab/frame sizes relative to one another; rigidly place the closed slab 2 mm in front of the jamb face, with its back-face hinge opposite the handle and 2 mm floor clearance. The leaf overlaps each jamb by about 13.7 mm at uniform overall scale 0.965. This is a reviewed mount inferred for static graphics, not manufacturer geometry. No moving-assembly shrink or relaxed collision/physics tolerance is used. Preserve all source geometry, atlas and collisions.",
   "modifications": [
     "Select this named source leaf and its matched original frame from the CC BY USDZ pack.",
-    "Uniform 0.98 assembly scale and proper Y-up to Z-up rotation place the frame at the floor; no reflection.",
-    "Infer a hinge at the source positive-X jamb and opening-face leaf edge, opposite the modeled handle side.",
-    "The source leaf is about 28 mm wider than the modeled frame aperture in its displayed pose. Apply the documented maximum 2% uniform moving fit, center it on the opening, preserve its opening-face hinge, and partition the original U-frame. This is a diagnostic bounded recipe; any residual interference remains a blocker, not a reason to remove collision or exceed the fit limit. Frame partition cuts are placed 2 mm into the aperture from the inner jamb/header faces after the first diagnostic convexified a narrow jamb strip across the opening.",
-    "Begin closed and already unlatched; no separate projecting latch/lock bolt is modeled. Preserve all leaf, frame and handle collisions."
+    "Overall uniform scale 0.965 and proper rotation to canonical Z-up; no reflection.",
+    "Surface-mounted simulation assembly: the 0.871262 m source slab is wider than the 0.84284 m clear opening. Preserve slab/frame sizes relative to one another; rigidly place the closed slab 2 mm in front of the jamb face, with its back-face hinge opposite the handle and 2 mm floor clearance. The leaf overlaps each jamb by about 13.7 mm at uniform overall scale 0.965. This is a reviewed mount inferred for static graphics, not manufacturer geometry. No moving-assembly shrink or relaxed collision/physics tolerance is used. Preserve all source geometry, atlas and collisions.",
+    "Partition the source frame at measured jamb/header planes; keep all frame and leaf/handle collisions.",
+    "Begin closed and already unlatched. No source latch release is required."
+  ],
+  "clear_aperture_m": [
+    [
+      -0.4056703,
+      0.003
+    ],
+    [
+      0.4056703,
+      1.8127004143654368
+    ]
   ]
 }

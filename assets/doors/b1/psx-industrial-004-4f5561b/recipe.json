@@ -29,14 +29,14 @@
     0.36221080803899314
   ],
   "hinge_m": [
-    0.05066486069231786,
+    0.09871352389788965,
     0.4183798057124455,
     0
   ],
   "dimensions_m": {
     "width_m": 0.836759611424891,
     "height_m": 1.8076364472771445,
-    "thickness_m": 0.099303126956943
+    "thickness_m": 0.09930312695694299
   },
   "components": {
     "Frame": [
@@ -55,22 +55,12 @@
   "leaf_components": [
     5
   ],
-  "clear_aperture_m": [
-    [
-      -0.4099886572533232,
-      0.020445410896960836
-    ],
-    [
-      0.4099886572533232,
-      1.8240818581741054
-    ]
-  ],
   "colliders": {
     "0": {
       "partitions": {
         "y": [
-          -0.41099454274667707,
-          0.4109886572533232
+          -0.4109945427466771,
+          0.41098865725332323
         ],
         "z": [
           1.8272628630332746
@@ -79,22 +69,32 @@
     }
   },
   "moving_scale": 0.98,
-  "moving_scale_center_m": [
-    0.05066486069231786,
-    -0.004904672067391544,
-    0.9222636345355331
-  ],
   "moving_translation_m": [
-    0,
-    0.004904672067391544,
-    0
+    0.1493783845902075,
+    0.0049046720673913136,
+    0.0019998589732141085
   ],
-  "clearance_review": "The source leaf is about 28 mm wider than the modeled frame aperture in its displayed pose. Apply the documented maximum 2% uniform moving fit, center it on the opening, preserve its opening-face hinge, and partition the original U-frame. This is a diagnostic bounded recipe; any residual interference remains a blocker, not a reason to remove collision or exceed the fit limit.",
+  "clearance_review": "Surface-mounted assembly as for 001/003, with 2 mm depth/floor gaps. The original 004 frame has a forward-projecting sloped lintel. A 2% uniform moving fit about the leaf back/bottom clears that retained lintel by about 17 mm; overall scale 0.98 leaves height 1.808 m and thickness 99.30 mm. All frame/leaf/lever collisions remain enabled. No additional collider is removed and no physics tolerance is changed.",
   "modifications": [
     "Select this named source leaf and its matched original frame from the CC BY USDZ pack.",
-    "Uniform 0.98 assembly scale and proper Y-up to Z-up rotation place the frame at the floor; no reflection.",
-    "Infer a hinge at the source positive-X jamb and opening-face leaf edge, opposite the modeled handle side.",
-    "The source leaf is about 28 mm wider than the modeled frame aperture in its displayed pose. Apply the documented maximum 2% uniform moving fit, center it on the opening, preserve its opening-face hinge, and partition the original U-frame. This is a diagnostic bounded recipe; any residual interference remains a blocker, not a reason to remove collision or exceed the fit limit. Frame partition cuts are placed 2 mm into the aperture from the inner jamb/header faces after the first diagnostic convexified a narrow jamb strip across the opening.",
-    "Begin closed and already unlatched; no separate projecting latch/lock bolt is modeled. Preserve all leaf, frame and handle collisions."
+    "Overall uniform scale 0.98 and proper Z-up rotation; 2% moving fit clears the original projecting lintel.",
+    "Surface-mounted assembly as for 001/003, with 2 mm depth/floor gaps. The original 004 frame has a forward-projecting sloped lintel. A 2% uniform moving fit about the leaf back/bottom clears that retained lintel by about 17 mm; overall scale 0.98 leaves height 1.808 m and thickness 99.30 mm. All frame/leaf/lever collisions remain enabled. No additional collider is removed and no physics tolerance is changed.",
+    "Partition the source frame at measured jamb/header planes; keep all frame and leaf/handle collisions.",
+    "Begin closed and already unlatched. No source latch release is required."
+  ],
+  "clear_aperture_m": [
+    [
+      -0.4119916,
+      0.003
+    ],
+    [
+      0.4119916,
+      1.8086364472771446
+    ]
+  ],
+  "moving_scale_center_m": [
+    -0.05066486069231785,
+    -0.004904672067391536,
+    1.4102678589159034e-07
   ]
 }

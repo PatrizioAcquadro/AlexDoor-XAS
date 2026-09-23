@@ -62,13 +62,14 @@
     "operation": "Compose this single leaf with an existing size-matched frame from the same pack, rigidly relocated. This is an explicit simulation assembly; preserve original geometry, UVs, texture and downloaded USDZ. Exclude the double leaf and other displays."
   },
   "license_dependency_review": "One 1024 x 256 base-color atlas is packaged in the CC BY USDZ; stage metadata matches the page author, CC-BY-4.0 and source URL. No separate texture terms were found.",
-  "local_geometry_review": "A standalone three-panel metal leaf was paired diagnostically with the exact-size original frame from this CC BY pack, translated rigidly to the 001 display location. The leaf and compatible source frame still have proper side-jamb surface crossings after the maximum documented 2% uniform moving fit. The paired frame is not a new mesh; its collision remains enabled.",
-  "inspection_attempt": "attempts/000006",
+  "local_geometry_review": "Original slab and modeled frame remain separately collidable in a reviewed surface-mounted simulation assembly; source geometry and atlas are retained. Attempt 000008: reviewed surface-mounted closed-unlatched assembly passes static and one RTX 4090 run to 91.0 degrees. All frame/slab/handle collisions and physics tolerances are retained; the 2% moving-fit bound is unchanged. Robot/expert qualification remains pending.",
+  "inspection_attempt": "attempts/000008",
   "geometry_fingerprint": "d964012a8dc35756dca92d739a4a228d629a8b93afc827878974da06d4498add",
   "clearance_measurement": {
     "source_leaf_width_m": 0.871261,
     "source_frame_inner_width_m": 0.84284,
     "minimum_uniform_leaf_shrink_percent_before_clearance": 3.262,
-    "allowed_moving_fit_percent": 2.0
+    "allowed_moving_fit_percent": 2.0,
+    "interpretation": "The 3.262% minimum applies only to fitting the slab inside this opening. The final surface mount instead preserves overlap against the jamb face; no extension of the 2% shrink allowance is required."
   }
 }
