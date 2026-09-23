@@ -1,0 +1,37 @@
+{
+  "status": "fail",
+  "category": "source",
+  "decision": "reject_before_preparation_for_current_b1_use",
+  "distribution_scope": "local_only",
+  "reason": "The Sketchfab Free Standard model carries NoAI terms incompatible with the planned ACT/Diffusion corpus use. Poliigon-named embedded textures also lack independently verified AI/ML rights.",
+  "source_review": {
+    "command": "/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review --candidate assets/doors/b1/door-with-doorframe-c29da62c/candidate.json",
+    "status": "fail",
+    "category": "source",
+    "reason": "Review failed: custom_terms_review"
+  },
+  "source_sha256": {
+    "glb": "078f96d80dee59f0c2495055dd90d996e792b998597138f5d9a643e6580c9e78",
+    "usdz": "4f7c60de976d8bec30dc87fa63fccb001c903c64f17ef70b6f065730ad8f9d87"
+  },
+  "observed_geometry": "The page shows one wood leaf in a frame with a black lever; dimensions and source handedness were not checked after source rejection.",
+  "leaf_dimensions_m": null,
+  "handedness": null,
+  "modifications": [],
+  "attempts_created": 0,
+  "inspect": "not_run",
+  "normalize": "not_run",
+  "static": "not_run",
+  "preview": "not_run",
+  "visual_review": "not_run",
+  "physics": "not_run",
+  "promote": "not_run",
+  "expert_qualification": "not_run",
+  "evidence": [
+    "candidate.json",
+    "source-evidence.json",
+    "/home/pacquadr/Downloads/door_with_doorframe.glb",
+    "/home/pacquadr/Downloads/Door_With_Doorframe.usdz"
+  ],
+  "next_step": "Use another candidate with compatible model and texture rights, or obtain explicit rights from the model author and any third-party texture owner before reconsidering this one."
+}

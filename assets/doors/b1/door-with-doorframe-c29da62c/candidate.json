@@ -1,0 +1,40 @@
+{
+  "asset_id": "door-with-doorframe-c29da62c",
+  "source_url": "https://sketchfab.com/3d-models/door-with-doorframe-c29da62ca4e34dbb9801f98a4b5d3382",
+  "source_uid": "c29da62ca4e34dbb9801f98a4b5d3382",
+  "author": "Theocritus",
+  "license": "Sketchfab-Free-Standard",
+  "distribution_scope": "local_only",
+  "license_evidence": "assets/doors/b1/door-with-doorframe-c29da62c/source-evidence.json",
+  "attribution": "Door With Doorframe by Theocritus (https://sketchfab.com/Theocritus), https://sketchfab.com/3d-models/door-with-doorframe-c29da62ca4e34dbb9801f98a4b5d3382, Sketchfab Free Standard (https://sketchfab.com/licenses).",
+  "retrieval_date": "2026-09-23",
+  "door_type": "interior",
+  "single_leaf": true,
+  "frame_panel_separable": null,
+  "license_scope_review": "pass",
+  "license_scope_review_notes": "The page and embedded GLB metadata identify Sketchfab Standard, which the approved B1 rule permits only for authorized local work, subject to custom terms and dependency rights.",
+  "custom_terms_review": "fail",
+  "custom_terms_review_notes": "The source page marks this Standard-licensed model NoAI. B1 uses door observations and demonstrations to develop ACT/Diffusion policies, so the NoAI restriction cannot be cleared for the intended corpus use without separate rights.",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "The source UID and visible two-panel wood door with black lever differ from the two prepared candidates. No local geometry fingerprint was generated after source rejection.",
+  "selected_format": ".glb",
+  "dependencies": [
+    {
+      "path": "embedded GLB images 0-2 (material named Poliigon_WoodVeneerOak_7760_4K)",
+      "license": "unverified",
+      "license_evidence": "source-evidence.json: GLB material names; no separate Poliigon rights evidence"
+    },
+    {
+      "path": "embedded GLB images 3-5 (Handle_Bar material)",
+      "license": "Sketchfab-Free-Standard",
+      "license_evidence": "source-evidence.json: embedded Sketchfab Standard source package; no third-party identifier"
+    },
+    {
+      "path": "embedded GLB images 6-8 (material named Poliigon_MetalSteelBrushed_7174_2K)",
+      "license": "unverified",
+      "license_evidence": "source-evidence.json: GLB material names and USDZ texture paths; no separate Poliigon rights evidence"
+    }
+  ],
+  "local_dependency_review": "unresolved",
+  "local_dependency_review_notes": "Nine images are embedded in the GLB. Material names identify Poliigon assets, whose AI/ML rights are not established by the Sketchfab model license."
+}
