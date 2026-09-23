@@ -1,0 +1,56 @@
+{
+  "asset_id": "door-door-metal-b21ec273",
+  "source_url": "https://sketchfab.com/3d-models/door-door-metal-b21ec273c1a342568ab9f9ac14291c5b",
+  "source_uid": "b21ec273c1a342568ab9f9ac14291c5b",
+  "author": "Mehdi Shahsavan",
+  "license": "CC-BY-4.0",
+  "distribution_scope": "redistributable",
+  "license_evidence": "assets/doors/b1/door-door-metal-b21ec273/source-evidence.json",
+  "attribution": "door door metal by Mehdi Shahsavan (https://sketchfab.com/ahmagh2e), https://sketchfab.com/3d-models/door-door-metal-b21ec273c1a342568ab9f9ac14291c5b, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Preparation changes are recorded in recipe.json.",
+  "retrieval_date": "2026-09-23",
+  "door_type": "industrial",
+  "single_leaf": true,
+  "frame_panel_separable": true,
+  "frame_panel_review_notes": "The source main component welds the modeled U-frame and leaf at their contour; reviewed whole-face separation preserves the existing frame, leaf, UVs and materials. The narrow pane and bar are separate components.",
+  "license_scope_review": "pass",
+  "license_scope_review_notes": "Actual source page and download modal label CC Attribution and link CC BY 4.0.",
+  "custom_terms_review": "pass",
+  "custom_terms_review_notes": "The reviewed page contains only the model name as description; no additional author terms or third-party texture credit are stated.",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "New Sketchfab source UID; visible dark metal leaf with narrow vertical window and horizontal push bar differs from the eight accepted models. Local fingerprint also differs.",
+  "selected_format": ".usdz",
+  "reported_triangles": 3300,
+  "reported_texture_max_px": 2048,
+  "dependencies": [
+    {
+      "path": "0/Mat_1_baseColor.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/Mat_1_metallicRoughness_metal.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/Mat_1_metallicRoughness_rough_scale0.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/Mat_1_normal.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    }
+  ],
+  "initial_state": "closed_unlatched",
+  "reviewed_source_sha256": "fef8162cc49e9b3460cc284d69f6dff66599d1bbb67ed15315c65cc4bfe28d3c",
+  "local_dependency_review": "pass",
+  "local_dependency_review_notes": "The USDZ packages four 2048 px maps with no external dependency. Its author, CC-BY-4.0 and source URL metadata match the reviewed page; no separate map terms are stated.",
+  "local_duplicate_review": "pass",
+  "local_duplicate_review_notes": "Inspect attempt 000002 records fingerprint 73707e2e0e298e0b816b96041e803818f3f9e01dcb7099cd12c5e470b959c738, distinct from all eight accepted source fingerprints. The same author also made the accepted prison door, but these models have different source IDs and geometry.",
+  "local_visual_review": "pass",
+  "local_visual_review_notes": "Actually viewed both attempt 000004 RTX images: a plain dark face on one side and a textured dark metal face with narrow upper window, horizontal bar, lower kick plate and intact U-frame on the other. No missing part or visible misalignment.",
+  "local_mechanical_review": "pass",
+  "local_mechanical_review_notes": "The welded source leaf/frame contour is separated without changing original faces. A 0.4% moving fit provides measured jamb/header clearance; bar, pane, leaf and frame retain collisions. No separate projecting latch or bolt is modeled. Static passes and one isolated RTX 4090 run reaches the geometry-derived 59.8-degree stop with three exact resets, fixed frame and zero reported penetration; robot qualification remains pending."
+}

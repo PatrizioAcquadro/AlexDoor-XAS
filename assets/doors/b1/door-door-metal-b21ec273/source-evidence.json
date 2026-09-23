@@ -1,0 +1,25 @@
+{
+  "reviewed_on": "2026-09-23",
+  "page_url": "https://sketchfab.com/3d-models/door-door-metal-b21ec273c1a342568ab9f9ac14291c5b",
+  "page_review": {
+    "title": "door door metal",
+    "author": "Mehdi Shahsavan",
+    "author_profile": "https://sketchfab.com/ahmagh2e",
+    "description": "door door metal",
+    "license_label": "CC Attribution",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "download_modal_terms": "Author must be credited. Commercial use is allowed.",
+    "triangles_displayed": 3300,
+    "vertices_displayed": 1700,
+    "visible_geometry": "One dark metal leaf in a rectangular frame, narrow vertical upper window, horizontal push bar and lower metal kick plate. Exact component ownership, hinge and size require local inspection.",
+    "downloads_displayed": ["original .obj (2 MB)", "converted .usdz (890 kB)", "converted .gltf (2 MB)", "converted .glb (2 MB, 2K textures)", "converted .glb (787 kB, 1K textures)"]
+  },
+  "local_payload": {
+    "path": "/home/pacquadr/Downloads/door_door_metal.usdz",
+    "sha256": "fef8162cc49e9b3460cc284d69f6dff66599d1bbb67ed15315c65cc4bfe28d3c",
+    "bytes": 912307,
+    "archive_entries": ["scene.usdc", "0/Mat_1_baseColor.jpg", "0/Mat_1_metallicRoughness_metal.jpg", "0/Mat_1_metallicRoughness_rough_scale0.jpg", "0/Mat_1_normal.jpg"]
+  },
+  "license_dependency_review": "Four 2048 px texture maps are packaged inside the CC BY download; no separately stated map terms appear on the source page. USDZ metadata gives author ahmagh2e, CC-BY-4.0 and the same source URL.",
+  "local_geometry_review": "Inspection attempt 000002 has 3338 triangles and three connected components. Component 0 is the horizontal moving bar; component 2 is the narrow window plane. Component 1 welds the modeled U-frame to the leaf. Reviewed whole-face bounds select 66 original leaf faces, leaving 30 original frame faces, without changing source coordinates, UVs or materials."
+}

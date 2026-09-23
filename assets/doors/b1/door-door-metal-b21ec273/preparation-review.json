@@ -1,0 +1,97 @@
+{
+  "status": "pass",
+  "decision": "ready_for_5.1",
+  "distribution_scope": "redistributable",
+  "source_sha256": "fef8162cc49e9b3460cc284d69f6dff66599d1bbb67ed15315c65cc4bfe28d3c",
+  "inspection_attempt": "attempts/000002",
+  "attempt": "attempts/000004",
+  "summary": "One distinct CC BY 4.0 metal door passes Subphase 5.0 after reviewed separation of the source-welded leaf and frame. Static, actually viewed RTX front/rear captures and isolated RTX 4090 physics pass; robot/expert qualification remains pending.",
+  "measurements": {
+    "inspected_coordinate_system": "glTF Y-up meters before normalization",
+    "source_triangles": 3338,
+    "connected_components": 3,
+    "texture_max_px": 2048,
+    "geometry_fingerprint": "73707e2e0e298e0b816b96041e803818f3f9e01dcb7099cd12c5e470b959c738",
+    "handedness": "right",
+    "prepared_visual_triangles": 3338,
+    "prepared_dimensions_m": {
+      "width_m": 0.926129,
+      "height_m": 2.149713,
+      "thickness_m": 0.053597
+    }
+  },
+  "component_review": {
+    "0": "Original horizontal bar; moving Handle with collision.",
+    "1": "Original modeled U-frame after whole-face split; fixed Frame with all collision retained.",
+    "2": "Original narrow window plane; moving Panel with collision.",
+    "3": "Original leaf faces selected from component 1; moving solid-hull Panel with collision."
+  },
+  "modifications": [
+    "Separate the existing welded leaf and U-frame along original whole faces; preserve all source surfaces, texture coordinates and the original USDZ.",
+    "Uniform 0.75 scale and proper Y-up to Z-up rotation, placing the lower opening at the floor. Infer the hinge at the source negative-X jamb opposite the right-end bar/window detail; this maps to canonical right-handed push without mirroring geometry.",
+    "Fit Panel and Handle uniformly by 0.4% to create measured jamb/header clearance; leave the modeled fixed frame in place and collidable.",
+    "Use separate frame-part colliders around the existing concave aperture and a solid outer leaf hull. The leaf hull fills the small decorative window for contact; the original glass plane remains visible and collidable.",
+    "Start closed and already unlatched. No separate latch or lock bolt is modeled; all leaf, frame, glass and bar collisions remain enabled."
+  ],
+  "normalization": "pass",
+  "static": "pass",
+  "normalized_preview": "pass",
+  "physics": "pass",
+  "promotion": "ready_for_5.1",
+  "expert_qualification": "not_run",
+  "physics_results": {
+    "status": "pass",
+    "scope": "isolated_gpu_asset_physics_not_expert_qualification",
+    "device": "cuda:0",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "max_reset_deg": 0.0,
+    "max_reset_speed": 0.0,
+    "passive_drift_deg": 1.4693294054459353e-17,
+    "frame_drift_m": 0.0,
+    "frame_rotation_deg": 0.0,
+    "hinge_error_m": 1.030182488648279e-06,
+    "penetration_m": 0.0,
+    "maximum_deg": 59.800006900564966,
+    "mechanical_limit_deg": 59.8,
+    "resets": 3
+  },
+  "limits": [
+    "The hinge location is inferred from the source jamb and bar/window layout; no mechanical hinge geometry was measured.",
+    "The 0.4% fitting and solid leaf collider are documented simulation approximations. The latter fills the decorative narrow window for collision while retaining its visual.",
+    "The 59.8-degree isolated geometry limit is not robot opening evidence; Subphase 5.1 expert qualification was not run."
+  ],
+  "evidence": [
+    {
+      "path": "attempts/000002/inspect.json",
+      "sha256": "ce29df99a32607d473d600952429254ff0b51028e3e0538b1317bbe40c41f43b"
+    },
+    {
+      "path": "attempts/000004/recipe.json",
+      "sha256": "b858e133998d33e70be1a54cc8b2a4451fcb3115f20c7f0aebc5f08ecf31026b"
+    },
+    {
+      "path": "attempts/000004/normalize.json",
+      "sha256": "554c7155a74e3fe0e2e85e022695530d2d218cf9a31e71657f110f08ae4d049b"
+    },
+    {
+      "path": "attempts/000004/static.json",
+      "sha256": "be03a5b4dcf6c06c40c2176f07d6a951a36148ff672052e894968d1c54cb8c5a"
+    },
+    {
+      "path": "attempts/000004/preview.json",
+      "sha256": "e1d8c9de8fc16aa7fb5a2d053c8256d83d2104d8c8989431d68354bb1ef8291b"
+    },
+    {
+      "path": "attempts/000004/physics.json",
+      "sha256": "8e4d3f6b00a44d0874b2423d7c6db51856ad488fe10e7a7b25b8bcfee79f5e06"
+    },
+    {
+      "path": "attempts/000004/preview-front.png",
+      "sha256": "a21423e0f15006602c0dcdcfa26c76c692ebbc8cce85d32ce6da48292cdb8f59"
+    },
+    {
+      "path": "attempts/000004/preview-rear.png",
+      "sha256": "8cbb1f919e739ae5b1eb76f9f2c861bb62961a5dda14026598e0ad58ed0277dd"
+    }
+  ]
+}
