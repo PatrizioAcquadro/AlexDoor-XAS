@@ -119,6 +119,13 @@ def validate_recipe(recipe, component_count):
         translation.shape == hinge.shape == (3,) and np.isfinite([translation, hinge]).all(),
         "Invalid translation/hinge",
     )
+    origin = np.asarray(recipe["opening_center_source"], dtype=float)
+    require(
+        origin.shape == (3,)
+        and np.isfinite(origin).all()
+        and np.allclose(rotation @ origin * scale + translation, 0, atol=1e-7),
+        "Opening center must map to the canonical floor origin",
+    )
     groups = recipe["components"]
     require(set(groups) == set(GROUPS), "Classify Frame, Panel and Handle (possibly empty)")
     indices = [i for group in GROUPS for i in groups[group]]
@@ -168,12 +175,45 @@ def promote(attempt, candidate):
     """Only technically valid, licensed candidates become ready for expert qualification."""
     attempt, candidate = Path(attempt).resolve(), Path(candidate)
     require(attempt.parent.name == "attempts", "Expected an attempt directory")
+    stages = {}
     for name in ("normalize", "static", "physics"):
         result = json.loads((attempt / f"{name}.json").read_text())
         require(result["status"] == "pass", f"{name} has not passed")
         verify_inventory(result["release_files"])
+        stages[name] = result
+    require(
+        stages["static"]["release_files"] == stages["physics"]["release_files"],
+        "Static and physics evidence refer to different assets",
+        category="evidence",
+    )
     review = json.loads(candidate.read_text())
-    remote_review(review)
+    accepted = [
+        json.loads(p.read_text()) for p in attempt.parent.parent.parent.glob("*/prepared.json")
+    ]
+    remote_review(review, [item["candidate"] for item in accepted])
+    inspected = json.loads((attempt / "inspect.json").read_text())
+    require(
+        review.get("reviewed_source_sha256") == inspected["source_sha256"],
+        "Bind local review to the inspected source checksum",
+        status="unresolved",
+        category="source",
+    )
+    suspects = []
+    for item in accepted:
+        other = json.loads((Path(item["attempt"]) / "inspect.json").read_text())
+        require(
+            other["source_sha256"] != inspected["source_sha256"],
+            "Identical source payload",
+            category="asset",
+        )
+        if other["geometry_fingerprint"] == inspected["geometry_fingerprint"]:
+            suspects.append(item["candidate"]["asset_id"])
+    require(
+        not suspects or bool(review.get("duplicate_resolution")),
+        f"Geometry requires duplicate review against {suspects}",
+        status="unresolved",
+        category="source",
+    )
     require(review["asset_id"] == attempt.parent.parent.name, "Candidate identity mismatch")
     require(
         review.get("local_dependency_review") == "pass"

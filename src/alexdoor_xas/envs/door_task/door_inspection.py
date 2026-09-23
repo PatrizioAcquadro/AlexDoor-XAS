@@ -16,6 +16,7 @@ class DoorInspectionCfg(DirectRLEnvCfg):
     action_space = 1
     observation_space = 2
     state_space = 0
+    sense_contacts = False
     sim = SimulationCfg(device="cuda:0", dt=1 / 120, render_interval=2)
     scene = InteractiveSceneCfg(num_envs=1, env_spacing=3.0)
     door_scene = AssetBaseCfg(
@@ -45,6 +46,13 @@ class DoorInspectionEnv(DirectRLEnv):
     def _setup_scene(self):
         cfg = self.cfg.door_scene
         cfg.spawn.func(cfg.prim_path, cfg.spawn)
+        if self.cfg.sense_contacts:
+            from isaaclab.sim import schemas
+            from pxr import Usd, UsdPhysics
+
+            for prim in Usd.PrimRange(self.sim.stage.GetPrimAtPath(cfg.prim_path)):
+                if prim.HasAPI(UsdPhysics.RigidBodyAPI):
+                    schemas.activate_contact_sensors(str(prim.GetPath()))
         self._door = Articulation(self.cfg.door)
         self.scene.articulations["door"] = self._door
         self.scene.clone_environments(copy_from_source=False)

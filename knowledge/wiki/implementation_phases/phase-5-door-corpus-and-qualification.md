@@ -20,7 +20,11 @@ The reusable preparation core is implemented in `qualification/preparation.py`,
 explicit component recipes, preserves source snapshots and separate attempts,
 and bakes PhysX convex hulls before geometric opening checks. The four Phase 4
 synthetics have traversed normalization; textured USD/USDZ, GLB/glTF, FBX and OBJ
-fixtures have traversed conversion. Full infrastructure closeout is still pending.
+fixtures have traversed conversion. Static/GPU gates and `scripts/prepare_doors.py`
+are now implemented: all four doors pass isolated GPU checks, invalid assets are
+rejected, and an injected physical obstacle is detected from raw contacts. Evidence
+is in `~/.cache/alexdoor-xas/verification/door-preparation-50/`. Usage documentation
+and final regression closeout are still pending.
 
 **First, deliver and validate the reusable infrastructure before requesting or
 processing the first candidate URL.** Reuse suitable code retained by the earlier

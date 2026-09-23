@@ -123,6 +123,7 @@ def dependencies(source):
 def load_source(source, output):
     """Inventory and snapshot inputs, then inspect individual connected mesh components."""
     source, output = Path(source).resolve(), Path(output)
+    require(not output.exists() or not any(output.iterdir()), "Inspection output must be empty")
     output.mkdir(parents=True, exist_ok=True)
     files = dependencies(source)
     inventory = file_inventory(files)
@@ -134,6 +135,10 @@ def load_source(source, output):
         target = output / "source" / original.relative_to(common)
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(original, target)
+    for item in inventory:
+        item["snapshot"] = str(
+            (output / "source" / Path(item["path"]).relative_to(common)).resolve()
+        )
     local_source = output / "source" / source.relative_to(common)
     readable = local_source
     if source.suffix.lower() not in {".glb", ".gltf", ".obj"}:
@@ -178,6 +183,12 @@ def load_source(source, output):
             f"Cannot inspect converted geometry: {exc}", status="unresolved", category="tool"
         ) from exc
     require(bool(components), "No usable mesh geometry", category="asset")
+    require(
+        len(components) <= 512,
+        "More than 512 components; bounded preparation limit",
+        category="tool",
+        status="unresolved",
+    )
     triangles = sum(len(m.faces) for m in components)
     require(triangles <= 250_000, "More than 250,000 visual triangles", category="asset")
     textures = []
@@ -214,10 +225,14 @@ def load_source(source, output):
         "status": "pass",
         "scope": "local_inventory",
         "source": str(source),
+        "source_sha256": next(item["sha256"] for item in inventory if item["path"] == str(source)),
         "files": inventory,
         "triangles": triangles,
         "textures": textures,
         "components": summaries,
+        "coordinate_note": (
+            "Recipe transforms inspected mesh coordinates; USD/FBX use glTF Y-up meters"
+        ),
         "geometry_fingerprint": geometry_fingerprint(merged.vertices, merged.faces),
         "limits": [
             "glTF material conversion; review appearance before admission",
@@ -327,6 +342,10 @@ def normalize(source, recipe, output):
     write_json(
         output / "collision.json", {k: [p.tolist() for p in v] for k, v in collision.items()}
     )
+    opening_to_hinge = np.eye(4)
+    opening_to_hinge[:3, 3] = hinge
+    opening_to_panel_center = np.eye(4)
+    opening_to_panel_center[:3, 3] = panel_bounds.mean(0)
     result = {
         "status": "pass",
         "scope": "normalized_only",
@@ -337,9 +356,16 @@ def normalize(source, recipe, output):
         "hinge_m": hinge.tolist(),
         "opening_center_m": [0, 0, 0],
         "panel_center_m": panel_bounds.mean(0).tolist(),
+        "opening_to_hinge": opening_to_hinge.tolist(),
+        "opening_to_panel_center_closed": opening_to_panel_center.tolist(),
         "geometry_fingerprint": inventory["geometry_fingerprint"],
         "release_files": file_inventory(
-            p for p in output.iterdir() if p.suffix in {".usda", ".usd", ".glb"}
+            [
+                *dependencies(canonical),
+                output / "recipe.json",
+                output / "inspect.json",
+                *(Path(item["snapshot"]) for item in inventory["files"]),
+            ]
         ),
     }
     write_json(output / "normalize.json", result)

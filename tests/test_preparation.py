@@ -8,9 +8,12 @@ import pytest
 from alexdoor_xas.qualification.convex_geometry import Convex, mechanical_limit, overlap
 from alexdoor_xas.qualification.preparation import (
     PreparationError,
+    file_inventory,
     new_attempt,
+    promote,
     remote_review,
     validate_recipe,
+    write_json,
 )
 
 
@@ -20,6 +23,7 @@ def recipe():
         scale=1,
         rotation=np.eye(3).tolist(),
         translation_m=[0, 0, 0],
+        opening_center_source=[0, 0, 0],
         hinge_m=[0.085, 0.325, 0],
         components={"Panel": [0], "Frame": [1], "Handle": []},
         dimensions_m=dict(width_m=0.65, height_m=2.1, thickness_m=0.04),
@@ -103,3 +107,43 @@ def test_collision_test_does_not_fill_the_frame_opening():
         mechanical_limit(
             {"Frame": [box], "Panel": [box], "Handle": []}, np.array([0, 0.325, 0]), "left"
         )
+
+
+def promotion_fixture(tmp_path):
+    attempt = new_attempt(tmp_path, "one")
+    payload = attempt / "door.usda"
+    payload.write_text("validated payload")
+    digest = file_inventory([payload])
+    for name in ("normalize", "static", "physics"):
+        write_json(attempt / f"{name}.json", {"status": "pass", "release_files": digest})
+    write_json(
+        attempt / "inspect.json",
+        {"source_sha256": "source-checksum", "geometry_fingerprint": "geometry"},
+    )
+    candidate = attempt.parent.parent / "candidate.json"
+    write_json(
+        candidate,
+        {
+            **remote(),
+            "local_dependency_review": "pass",
+            "local_duplicate_review": "pass",
+            "local_visual_review": "pass",
+            "reviewed_source_sha256": "source-checksum",
+        },
+    )
+    return attempt, candidate, payload
+
+
+def test_promotion_requires_current_evidence_and_preserves_prepared_candidate(tmp_path):
+    attempt, candidate, payload = promotion_fixture(tmp_path)
+    payload.write_text("changed after physics")
+    with pytest.raises(PreparationError, match="Evidence no longer matches"):
+        promote(attempt, candidate)
+    pointer = attempt.parent.parent / "prepared.json"
+    assert not pointer.exists()
+    payload.write_text("validated payload")
+    promote(attempt, candidate)
+    accepted = pointer.read_bytes()
+    with pytest.raises(PreparationError):
+        promote(attempt, candidate)
+    assert pointer.read_bytes() == accepted

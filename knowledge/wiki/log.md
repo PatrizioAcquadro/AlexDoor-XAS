@@ -459,3 +459,7 @@ Aligned the benchmark decision and index; documentation only, with no tests, dat
 ## 2026-09-23 — update : B1 preparation core
 Implemented explicit recipes, preserved preparation attempts and canonical door normalization.
 Recorded synthetic conversion evidence; full static/GPU infrastructure closeout remains pending.
+
+## 2026-09-23 — update : B1 static and GPU preparation gates
+Implemented canonical asset checks, three resets, drift/opening measurements and raw-contact diagnostics.
+Four synthetic doors and eight format variants pass; negative fixtures and a GPU obstacle are detected.
