@@ -10,7 +10,7 @@
   "door_type": "interior",
   "single_leaf": true,
   "frame_panel_separable": true,
-  "no_latch_operation": null,
+  "no_latch_operation": false,
   "license_scope_review": "pass",
   "custom_terms_review": "pass",
   "duplicate_review": "pass",
@@ -34,5 +34,7 @@
   "local_dependency_review": "pass",
   "local_duplicate_review": "pass",
   "local_visual_review": "pass",
-  "local_visual_review_notes": "Original-source front/rear RTX views show a single interior leaf, frame and retained handles with textures. This is appearance review only, not mechanical acceptance."
+  "local_visual_review_notes": "Original-source front/rear RTX views show a single interior leaf, frame and retained handles with textures. This is appearance review only, not mechanical acceptance.",
+  "local_mechanical_review": "fail",
+  "local_mechanical_review_notes": "Original latch mesh (component 2) crosses frame strike plate (15) at the closed pose. Their source ownership follows Plane_003 and frame Plane_002. B1 cannot use this configuration with a rigid latch and no latch operation."
 }

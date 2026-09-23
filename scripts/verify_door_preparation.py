@@ -73,6 +73,7 @@ def synthetic_recipe(components, door):
         opening_center_source=[0, 0, 0],
         hinge_m=door.hinge.tolist(),
         components=groups,
+        leaf_components=groups["Panel"],
         dimensions_m=dict(width_m=door.width, height_m=door.height, thickness_m=door.thickness),
         modifications=["Explicit synthetic component selection; nominal B1 physics"],
         source_dependencies=[],

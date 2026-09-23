@@ -46,7 +46,8 @@
       18,
       19,
       20,
-      21
+      21,
+      15
     ],
     "Panel": [
       2,
@@ -56,8 +57,7 @@
       6,
       7,
       8,
-      9,
-      15
+      9
     ],
     "Handle": [
       0,
@@ -69,15 +69,81 @@
     ]
   },
   "modifications": [
-    "Proposed only, not promoted: uniform 0.72 scale in inspected Y-up meter coordinates.",
+    "uniform 0.72 scale in inspected Y-up meter coordinates.",
     "Proper cyclic rotation to canonical Z-up, with original hinge on negative Y (right).",
-    "Separate connected parts into fixed frame/lower hinge barrels, moving panel/upper barrels, and handles. Preserve all visual components and handle collisions."
+    "Separate connected parts into fixed frame/lower hinge barrels, moving panel/upper barrels, and handles. Preserve all visual components and handle collisions.",
+    "Measure leaf component 3 separately; partition source surfaces at rebate planes for convex collisions. No visual geometry is moved or deleted."
   ],
-  "preparation_status": "unresolved",
+  "preparation_status": "fail_source_latch_intersection",
   "review_notes": [
-    "dimensions_m measures the actual leaf (component 3), not projecting hinge hardware. Current normalizer measures the entire Panel group and cannot represent this distinction.",
-    "The original panel and frame have complementary rebates. A single convex panel hull fills its rebate; automatic convex decomposition also over-expands the frame.",
-    "The normalizer opening test assumes an aperture inset 1 mm from the full leaf bounds; the frame rebate makes this assumption unsuitable.",
-    "Hinge center is estimated from the matching cylindrical barrel bounds; it requires verification after collision preparation."
-  ]
+    "Component 15 is the frame strike plate, opposite leaf lock faceplate 5. Latch 2 remains mobile with Panel and collidable.",
+    "clear_aperture_m uses the narrower frame rebate, not the full leaf envelope.",
+    "Partition planes follow measured source rebate levels, transformed uniformly by 0.72. Additional vertical cuts avoid elongated convex hulls.",
+    "Attempt 000006 passes leaf measurement, origin, handedness and aperture checks, then stops on the original latch/strike intersection. Source geometry is unchanged; no collider is disabled."
+  ],
+  "leaf_components": [
+    3
+  ],
+  "clear_aperture_m": [
+    [
+      -0.42890264,
+      0.001
+    ],
+    [
+      0.42890264,
+      2.08035944
+    ]
+  ],
+  "colliders": {
+    "0": "auto",
+    "1": "auto",
+    "2": "convexHull",
+    "3": {
+      "partitions": {
+        "x": [
+          0.09626821199999999
+        ],
+        "z": [
+          0.5,
+          1,
+          1.5
+        ]
+      }
+    },
+    "4": "convexHull",
+    "5": "convexHull",
+    "6": "convexHull",
+    "7": "convexHull",
+    "8": "convexHull",
+    "9": "convexHull",
+    "10": "convexHull",
+    "11": "convexHull",
+    "12": "convexHull",
+    "13": "convexHull",
+    "14": {
+      "partitions": {
+        "x": [
+          -0.06295824,
+          0.06295824
+        ],
+        "y": [
+          0
+        ],
+        "z": [
+          0.5,
+          1,
+          1.5,
+          2.081359224,
+          2.091844656
+        ]
+      }
+    },
+    "15": "auto",
+    "16": "convexHull",
+    "17": "convexHull",
+    "18": "convexHull",
+    "19": "convexHull",
+    "20": "convexHull",
+    "21": "convexHull"
+  }
 }

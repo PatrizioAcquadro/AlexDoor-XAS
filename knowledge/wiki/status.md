@@ -2,8 +2,9 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started with one inspected candidate, unresolved due to shared preparation
-limitations for rebated frames and projecting hinge hardware. See [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
+intake has started. The shared preparation defects exposed by the first candidate
+are corrected; that candidate is not admitted as supplied because its original
+latch intersects the frame strike plate. See [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
@@ -48,8 +49,10 @@ software contracts, without claiming B1 learned execution.
 
 ## Verification
 
-The dependency/CUDA preflight passes on the RTX 4090. All 350 software tests pass,
-including historical data/model contracts, as do Ruff and wiki-link/index checks.
+The dependency/CUDA preflight passes on the RTX 4090. The last full software run
+passed 350 tests, including historical data/model contracts. The subsequent rebate
+correction passed 29 focused preparation/qualification tests, Ruff, wiki-link/index
+checks and one complete synthetic GPU regression; unrelated checks were not repeated.
 GPU checks pass three stable resets, seven-joint/full-pose control, loaded distal
 contacts and forbidden-contact detection, and synchronized metric head RGB-D.
 The local pose targets remain within 0.0204 mm / 0.00209 degrees during their
@@ -108,10 +111,11 @@ training run or media was added to the tracked output tree.
 ## Next Phases
 
 The common floor/contact/neck setup and expert protocol are frozen on synthetics.
-Phase 5 next resolves the shared geometry/recipe limitations exposed by the first
-candidate, `door-with-frame-2f2f149f`, then reruns its static and GPU gates.
-Its CC BY 4.0 source and local inventory pass; it is retained, not rejected or
-promoted. Technically prepared doors then enter Subphase 5.1;
+Phase 5 continues sequential intake after correcting the shared leaf measurement,
+aperture and convex-partition path. The first candidate, `door-with-frame-2f2f149f`,
+passes license/inventory review but is not admitted as supplied: original latch
+and strike-plate surfaces intersect. It is preserved; no dynamics were run from
+that invalid closed state. Technically prepared doors then enter Subphase 5.1;
 the real corpus, expert qualification and split are still pending.
 Phase 6 integrates observations and all learned A1–A4 paths, then a demonstration
 pilot. Phase 7 owns training and generalization evaluation.
@@ -128,6 +132,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Corrected rebated-frame preparation and verified the first candidate has an original latch/strike intersection; retained it without promotion.
 
 - 2026-09-23 — Inspected the first user-supplied real door; recorded source evidence and an unresolved preparation outcome without claiming physical qualification.
 - 2026-09-23 — Verified Subphase 5.0 preparation infrastructure, conversion paths and static/GPU gates; awaiting the first candidate URL.

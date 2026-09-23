@@ -147,3 +147,57 @@ def test_promotion_requires_current_evidence_and_preserves_prepared_candidate(tm
     with pytest.raises(PreparationError):
         promote(attempt, candidate)
     assert pointer.read_bytes() == accepted
+
+
+def test_leaf_measurement_can_exclude_attached_hardware_but_not_select_frame():
+    data = recipe()
+    data["components"]["Panel"].append(2)
+    data["leaf_components"] = [0]
+    validate_recipe(data, 3)
+    for invalid in [[], [1], [0, 0]]:
+        data["leaf_components"] = invalid
+        with pytest.raises(PreparationError, match="Leaf measurement"):
+            validate_recipe(data, 3)
+
+
+@pytest.mark.parametrize("tilt", [0, 1e-7])
+def test_partition_preserves_rebate_and_rejects_obstructed_aperture(tilt):
+    import trimesh
+
+    from alexdoor_xas.qualification.convex_geometry import clear_opening, partition_hulls
+
+    # A stepped jamb: convexifying the entire mesh would fill its rebate.
+    outer = trimesh.creation.box(extents=[0.04, 0.10, 2.1])
+    outer.apply_translation([0.02, 0.45, 1.05])
+    stop = trimesh.creation.box(extents=[0.02, 0.12, 2.1])
+    stop.apply_translation([-0.01, 0.44, 1.05])
+    mesh = trimesh.util.concatenate([outer, stop])
+    mesh.vertices[:, 0] += tilt * mesh.vertices[:, 2]
+    parts = partition_hulls(mesh.vertices, mesh.faces, {"x": [0], "z": [1.0]})
+    probe = trimesh.creation.box(extents=[0.01, 0.01, 0.1])
+    probe.apply_translation([0.01, 0.392, 1.05])
+    assert overlap(Convex(mesh.vertices), Convex(probe.vertices))
+    assert not any(overlap(Convex(p), Convex(probe.vertices)) for p in parts)
+    assert np.allclose(np.concatenate(parts).min(0), mesh.bounds[0])
+    assert np.allclose(np.concatenate(parts).max(0), mesh.bounds[1])
+    panel = np.array([[-0.02, -0.4, 0], [0.04, 0.4, 2.1]])
+    with pytest.raises(PreparationError, match="obstructs"):
+        clear_opening(parts, panel)
+    clear_opening(parts, panel, [[-0.379, 0.001], [0.379, 2.099]])
+    with pytest.raises(PreparationError, match="aperture"):
+        clear_opening(parts, panel, [[-0.01, 0.001], [0.01, 2.099]])
+
+
+def test_original_surface_crossings_distinguish_interpenetration_from_touching():
+    import trimesh
+
+    from alexdoor_xas.qualification.convex_geometry import surface_crossings
+
+    a = trimesh.creation.box()
+    b = a.copy()
+    b.apply_translation([0.2, 0.3, 0.4])
+    assert len(surface_crossings(a.vertices, a.faces, b.vertices, b.faces)) > 0
+    for shift in [1.0, 1.001]:
+        b = a.copy()
+        b.apply_translation([shift, 0, 0])
+        assert len(surface_crossings(a.vertices, a.faces, b.vertices, b.faces)) == 0

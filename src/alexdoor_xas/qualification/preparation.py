@@ -134,6 +134,14 @@ def validate_recipe(recipe, component_count):
         "Classify every component exactly once",
     )
     require(bool(groups["Frame"]) and bool(groups["Panel"]), "Frame and Panel are required")
+    leaf = recipe.get("leaf_components", groups["Panel"])
+    require(
+        isinstance(leaf, list)
+        and bool(leaf)
+        and len(set(leaf)) == len(leaf)
+        and all(type(i) is int and i in groups["Panel"] for i in leaf),
+        "Leaf measurement components must be a nonempty subset of Panel",
+    )
     DoorDimensions.from_mapping(recipe["dimensions_m"])
     require(bool(recipe.get("modifications")), "Record normalization modifications")
     return rotation, scale, translation, hinge

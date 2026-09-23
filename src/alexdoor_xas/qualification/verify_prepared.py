@@ -11,7 +11,7 @@ from pxr import PhysxSchema, Usd, UsdGeom, UsdPhysics, UsdShade, UsdUtils
 from alexdoor_xas.door_qualification import DoorDimensions, cuboid_inertia_kg_m2, sha256_file
 
 from .convex_geometry import clear_opening, mechanical_limit
-from .preparation import GROUPS, file_inventory, require
+from .preparation import GROUPS, file_inventory, require, validate_recipe
 
 
 def canonical_files(path):
@@ -32,6 +32,7 @@ def static_check(attempt):
     attempt = Path(attempt).resolve()
     path = attempt / "door.usda"
     recipe = json.loads((attempt / "recipe.json").read_text())
+    validate_recipe(recipe, sum(len(v) for v in recipe["components"].values()))
     inventory = canonical_files(path)
     stage = Usd.Stage.Open(str(path), Usd.Stage.LoadAll)
     require(stage is not None, "Cannot open normalized stage", category="asset")
@@ -167,6 +168,21 @@ def static_check(attempt):
             f"{name} visual/collision bounds differ by more than 2 mm",
         )
     panel_bounds = visual_bounds["Panel"]
+    if "leaf_components" in recipe:
+        leaf_nodes = [
+            p
+            for p in Usd.PrimRange(stage.GetPrimAtPath("/Door/Panel/Visual"))
+            if p.GetName() in {f"component_{i}" for i in recipe["leaf_components"]}
+        ]
+        require(len(leaf_nodes) == len(recipe["leaf_components"]), "Leaf visual nodes missing")
+        cache = UsdGeom.BBoxCache(0, ["default", "render"])
+        ranges = [cache.ComputeWorldBound(p).ComputeAlignedRange() for p in leaf_nodes]
+        panel_bounds = np.array(
+            [
+                np.min([r.GetMin() for r in ranges], axis=0),
+                np.max([r.GetMax() for r in ranges], axis=0),
+            ]
+        )
     require(
         np.allclose(
             panel_bounds[1] - panel_bounds[0],
@@ -190,7 +206,7 @@ def static_check(attempt):
         if Path(item["path"]).suffix.lower() in {".png", ".jpg", ".jpeg", ".tga", ".bmp", ".exr"}:
             with Image.open(item["path"]) as image:
                 require(max(image.size) <= 4096, "Normalized texture exceeds 4K")
-    clear_opening(collision["Frame"], panel_bounds)
+    clear_opening(collision["Frame"], panel_bounds, recipe.get("clear_aperture_m"))
     limit = mechanical_limit(collision, np.asarray(recipe["hinge_m"]), recipe["handedness"])
     require(
         abs(hinge.GetUpperLimitAttr().Get() - limit) <= 0.11,

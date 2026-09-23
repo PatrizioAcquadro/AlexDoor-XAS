@@ -24,7 +24,7 @@ from alexdoor_xas.door_qualification import (
     geometry_fingerprint,
 )
 
-from .convex_geometry import clear_opening, mechanical_limit
+from .convex_geometry import clear_opening, mechanical_limit, partition_hulls, surface_crossings
 from .preparation import (
     FORMATS,
     GROUPS,
@@ -275,6 +275,12 @@ def cooked_hulls(mesh, approximation="auto"):
     from omni.physx.bindings._physx import PhysxCollisionRepresentationResult
     from pxr import PhysicsSchemaTools
 
+    if isinstance(approximation, dict):
+        require(set(approximation) == {"partitions"}, "Unknown collider recipe option")
+        parts = partition_hulls(mesh.vertices, mesh.faces, approximation["partitions"])
+        return [h for p in parts for h in cooked_hulls(trimesh.convex.convex_hull(p), "convexHull")]
+    mesh = mesh.copy()
+    mesh.merge_vertices(merge_tex=True, merge_norm=True)
     stage = Usd.Stage.CreateInMemory()
     UsdGeom.SetStageMetersPerUnit(stage, 1)
     prim = mesh_prim(stage, "/Mesh", mesh.vertices, mesh.faces).GetPrim()
@@ -293,7 +299,9 @@ def cooked_hulls(mesh, approximation="auto"):
     if approximation == "convexHull":
         PhysxSchema.PhysxConvexHullCollisionAPI.Apply(prim).CreateHullVertexLimitAttr(64)
     else:
-        PhysxSchema.PhysxConvexDecompositionCollisionAPI.Apply(prim).CreateHullVertexLimitAttr(64)
+        decomposition = PhysxSchema.PhysxConvexDecompositionCollisionAPI.Apply(prim)
+        decomposition.CreateHullVertexLimitAttr(64)
+        decomposition.CreateShrinkWrapAttr(True)
     cache = UsdUtils.StageCache.Get()
     stage_id = cache.Insert(stage)
     answer = []
@@ -325,20 +333,33 @@ def normalize(source, recipe, output):
     )
     components, inventory = load_source(source, output, recipe.get("source_dependencies", []))
     rotation, scale, translation, hinge = validate_recipe(recipe, len(components))
-    groups, collision = {}, {}
+    groups, collision, collision_components = {}, {}, {}
     for name in GROUPS:
         groups[name], collision[name] = [], []
+        collision_components[name] = []
         for index in recipe["components"][name]:
             mesh = components[index].copy()
             matrix = np.eye(4)
             matrix[:3, :3], matrix[:3, 3] = rotation * scale, translation
             mesh.apply_transform(matrix)
             groups[name].append(mesh)
-            collision[name].extend(
-                cooked_hulls(mesh, recipe.get("colliders", {}).get(str(index), "auto"))
-            )
+            shapes = cooked_hulls(mesh, recipe.get("colliders", {}).get(str(index), "auto"))
+            collision[name].extend(shapes)
+            collision_components[name].extend([index] * len(shapes))
     dimensions = DoorDimensions.from_mapping(recipe["dimensions_m"])
-    panel_bounds = trimesh.util.concatenate(groups["Panel"]).bounds
+    leaf_indices = recipe.get("leaf_components", recipe["components"]["Panel"])
+    leaf = [
+        mesh
+        for index, mesh in zip(recipe["components"]["Panel"], groups["Panel"], strict=True)
+        if index in leaf_indices
+    ]
+    panel_bounds = trimesh.util.concatenate(leaf).bounds
+    # Retain the actual collision geometry even when a preparation gate fails.
+    write_json(output / "recipe.json", recipe)
+    write_json(output / "collision_components.json", collision_components)
+    write_json(
+        output / "collision.json", {k: [p.tolist() for p in v] for k, v in collision.items()}
+    )
     require(
         np.allclose(
             np.diff(panel_bounds, axis=0)[0],
@@ -349,7 +370,8 @@ def normalize(source, recipe, output):
     )
     sign = 1 if recipe["handedness"] == "left" else -1
     require(
-        abs(hinge[1] - panel_bounds[1 if sign > 0 else 0, 1]) <= 0.01,
+        abs(hinge[1] - trimesh.util.concatenate(groups["Panel"]).bounds[1 if sign > 0 else 0, 1])
+        <= 0.01,
         "Hinge does not match original handedness/panel edge",
     )
     require(
@@ -357,14 +379,36 @@ def normalize(source, recipe, output):
         and abs(min(m.bounds[0, 2] for m in groups["Frame"])) <= 0.001,
         "Canonical origin must center opening at floor level",
     )
-    clear_opening(collision["Frame"], panel_bounds)
-    limit = mechanical_limit(collision, hinge, recipe["handedness"])
+    clear_opening(collision["Frame"], panel_bounds, recipe.get("clear_aperture_m"))
+    try:
+        limit = mechanical_limit(collision, hinge, recipe["handedness"])
+    except PreparationError:
+        # Distinguish an approximation failure from demonstrable source crossings.
+        findings = []
+        for name in ("Panel", "Handle"):
+            for i, moving in zip(recipe["components"][name], groups[name], strict=True):
+                for j, fixed in zip(recipe["components"]["Frame"], groups["Frame"], strict=True):
+                    points = surface_crossings(
+                        moving.vertices, moving.faces, fixed.vertices, fixed.faces
+                    )
+                    if len(points):
+                        findings.append(
+                            dict(moving_component=i, fixed_component=j, crossings_m=points.tolist())
+                        )
+        write_json(
+            output / "source_intersections.json",
+            {
+                "scope": "proper_source_surface_crossings_at_closed_pose",
+                "crossings": findings,
+                "note": (
+                    "Witnesses prove intersecting faces for this grouping; absence does not "
+                    "prove clearance. Review ownership before attributing a source defect."
+                ),
+            },
+        )
+        raise
     canonical = output / "door.usda"
     _author(canonical, groups, collision, hinge, recipe, limit)
-    write_json(output / "recipe.json", recipe)
-    write_json(
-        output / "collision.json", {k: [p.tolist() for p in v] for k, v in collision.items()}
-    )
     opening_to_hinge = np.eye(4)
     opening_to_hinge[:3, 3] = hinge
     if recipe["handedness"] == "right":
@@ -438,12 +482,23 @@ def _author(path, groups, collision, hinge_pos, recipe, limit):
         inertia = mass * (np.dot(size, size) - size**2) / 12
         if name == "Panel":
             inertia = cuboid_inertia_kg_m2(DoorDimensions.from_mapping(recipe["dimensions_m"]))
+            leaf = recipe.get("leaf_components", recipe["components"]["Panel"])
+            center = (
+                trimesh.util.concatenate(
+                    [
+                        mesh
+                        for i, mesh in zip(recipe["components"][name], groups[name], strict=True)
+                        if i in leaf
+                    ]
+                ).bounds.mean(0)
+                - hinge_pos
+            )
         m = UsdPhysics.MassAPI.Apply(body.GetPrim())
         m.CreateMassAttr(mass)
         m.CreateCenterOfMassAttr(Gf.Vec3f(*center))
         m.CreateDiagonalInertiaAttr(Gf.Vec3f(*inertia))
         scene = trimesh.Scene()
-        for index, mesh in enumerate(groups[name]):
+        for index, mesh in zip(recipe["components"][name], groups[name], strict=True):
             mesh = mesh.copy()
             mesh.apply_translation(-hinge_pos)
             scene.add_geometry(mesh, node_name=f"component_{index}")

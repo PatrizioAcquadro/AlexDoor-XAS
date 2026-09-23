@@ -479,3 +479,11 @@ Retained the candidate as unresolved after diagnosing rebated-geometry and hinge
 ## 2026-09-23 — lint : First candidate evidence
 Source review, JSON parsing, preserved source/evidence checksums, wiki links/index and whitespace checks pass.
 Only candidate records and canonical status changed; code, frozen setup, raw research and prior evidence are unchanged.
+
+## 2026-09-23 — update : Rebated door preparation and source diagnosis
+Separated leaf measurements and clear aperture, added plane-based convex partitions and original-surface crossing diagnostics.
+A focused GPU regression passes; the real candidate remains unadmitted because its original latch intersects the fixed strike plate.
+
+## 2026-09-23 — lint : Rebated preparation correction
+All 29 focused tests, Ruff, wiki links/index, whitespace and preserved-source/evidence checks pass.
+One synthetic GPU regression passes; no unrelated suite/format reruns, real-asset dynamics or frozen-setup changes were needed.
