@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> The first real door passes preparation in the common closed-unlatched state and is ready for 5.1. Expert qualification remains planned.
+> Two real doors pass preparation and are ready for 5.1: one redistributable and one local-only. Expert qualification remains planned.
 
 ## Objective
 
@@ -34,6 +34,17 @@ Optional `moving_translation_m` shifts Panel and Handle together relative to Fra
 when the source's closed leaf is slightly miscentered. It moves their visuals and
 colliders together; the recorded hinge coordinates describe the corrected pose.
 
+For a graphics asset with no operating clearance, `moving_scale` may uniformly
+reduce Panel and Handle together by at most 1% about `moving_scale_center_m`
+(canonical coordinates before `moving_translation_m`). Default is 1. A nontrivial
+repair requires `clearance_review`, documenting measured interference and final
+gaps; update leaf dimensions/inertia consistently. This bounded fitting repair
+preserves proportions, visuals/collider alignment and attached hardware. It is
+not a reconstruction of manufacturer dimensions. Infer a plausible hinge from
+the opening face and jamb edge when no hinge is modeled; record the assumption.
+A mid-thickness pivot is not a mandatory default. Larger remodeling needs a
+separate scope decision; missing hardware measurements alone do not reject an asset.
+
 **Common task state: closed and already unlatched.** The robot pushes the leaf; it
 does not operate a lock. Source latch/lock bolts are not a reason to reject an
 otherwise useful door. Optional `unlatched_components` lists those separate moving
@@ -52,6 +63,17 @@ Optional `colliders` maps component indices (JSON strings) to `auto`, `convexHul
 or `convexDecomposition`. Default `auto` uses the installed PhysX cooker, baking
 individual hulls so clearance checks and simulation use the same collision shapes.
 Collider-only vertices are welded and decompositions use shrink wrapping.
+
+Connected/material-separated meshes are not necessarily separate physical solids.
+Optional `collider_groups` contains records with `components` (indices within one
+rigid body), `approximation` (`convexHull` or `convexDecomposition`), and `review`.
+Cook those surfaces together when they describe one solid; retain their individual
+visuals and source IDs on the shared collider. This avoids artificial thickness
+from independently cooking zero-volume skins. Groups cannot overlap, include
+excluded latch parts, cross body boundaries or duplicate individual collider
+recipes. A leaf's common convex envelope may fill shallow decorative grooves;
+document that approximation. Never group the frame with the leaf or fill a frame
+opening. Static coverage accepts both legacy single IDs and grouped ID arrays.
 
 For doors with projecting hardware, optional `leaf_components` selects a nonempty
 subset of `Panel` for leaf dimensions, nominal inertia and center of mass. All
@@ -255,6 +277,12 @@ remains, report the concrete blocker as `fail` or `unresolved`; do not start a b
 audit. Change shared code only for a demonstrated tool defect, with a focused
 regression. The 45-degree criterion and frozen robot/expert run belong to 5.1.
 
+Before stopping on planar-skin or immediate-opening failures, check whether mesh
+fragments actually form one solid, whether the inferred hinge lies on the opening
+face, and whether the graphics model lacks operating clearance. Use reviewed
+collider groups and bounded uniform clearance repair where justified. Requiring
+measured real hinge hardware for every graphics asset is outside 5.0's scope.
+
 **First real door (2026-09-23).** The user supplied
 [Door with frame by witnessk](https://sketchfab.com/3d-models/door-with-frame-2f2f149f3ec44d658a02c1f924dfa449)
 and `~/Downloads/Door_with_frame.usdz`. Official source and embedded metadata agree
@@ -302,9 +330,9 @@ that recipe issue. The converted USDZ also separates a hinge-edge visual skin in
 two triangles. The original closed surfaces overlap the frame by about 0.10 mm,
 and PhysX expands that skin's standalone collider several millimeters into the
 jamb. Translation aligns the main leaf but cannot make this skin cook faithfully;
-convex-hull and partition recipes retain the failure. The USDZ outcome remains
-`unresolved`, with no static, preview, physics or promotion claim. The original
-download and numbered attempts are preserved.
+convex-hull and partition recipes retain the failure. Those USDZ attempts remain
+historical unresolved evidence; the successful GLB repair below supersedes the
+candidate-level blocker. Original downloads and numbered attempts are preserved.
 
 The user then supplied `~/Downloads/modern_door.glb` (5,486,088 bytes, SHA-256
 `a457aba383e1e3fdc5863a4af7752d31db0a299be7f856054fce7fee24170ec5`).
@@ -317,13 +345,32 @@ recipe recenters that offset. Its planar hinge-edge skin still crosses the frame
 the supported convex hull intersects the jamb, while a surface partition has no
 volume. A temporary volumetric proxy for only that skin cleared the closed pose
 but exposed a separate immediate leaf/frame collision on opening. The leaf almost
-exactly fills the jamb opening, and no modeled hinge axis or measured clearance
-supports a particular leaf resize or pivot move. The proxy code was reverted;
-the candidate remains `unresolved`, not rejected as intrinsically unusable.
-Dependency and local duplicate reviews pass, but no normalization, static,
-front/rear visual, GPU physics or promotion pass is claimed. The GLB, USDZ and
-all numbered attempts are preserved. Further repair needs source-grounded hinge
-and clearance evidence; intake can continue with another distinct door.
+exactly fills the jamb opening; a mid-thickness pivot was inferred without modeled
+hinge hardware. The temporary proxy code was reverted. Those findings describe
+the original recipe, not proof that the candidate cannot be prepared.
+
+**Modern-door repair (2026-09-23).** Source-section review found that the planar
+skin's standalone cooked hull extends about 10.8 mm beyond its true side bound.
+The 52 Panel fragments describe surfaces of one solid leaf, so the revised recipe
+cooks their common convex envelope. This preserves all visual meshes and separate
+handle colliders, while filling decorative face grooves up to 6.35 mm. Frame
+partitions remain in place. Uniformly scaling Panel and Handle together by 0.996
+about the leaf center provides about 2 mm side clearance (1.895 mm at the skewed
+skin), with 4.28 mm top clearance. The inferred hinge is on the opening-face corner
+at the original right-hand edge. These are explicit benchmark approximations;
+requiring manufacturer hinge measurements was unnecessarily restrictive for 5.0.
+
+Attempt `000012` passes normalization, static coverage/material/physics-property
+checks, front/rear RTX visual review and one isolated RTX 4090 functional run.
+The prepared leaf measures 0.994 × 2.157 × 0.061 m. It reaches 93.0000 degrees
+against the geometry-derived 93-degree limit, with three exact resets, negligible
+passive drift, zero frame drift and zero reported penetration; maximum hinge error
+is 1.12 micrometers. No contact samples were reported. Promotion records
+`ready_for_5.1` and `distribution_scope=local_only`. Twenty focused preparation
+tests cover grouped collision ownership, common moving transforms and the zero-gap
+failure/repair. No unrelated suite, format matrix or synthetic GPU runs were needed.
+The original GLB/USDZ and attempts `000001`–`000011` remain untouched. No robot
+reachability or expert qualification is claimed.
 
 #### Key Decisions
 
@@ -339,8 +386,9 @@ and clearance evidence; intake can continue with another distinct door.
 - Retain width 0.65–1.20 m, height 1.80–2.40 m, thickness 0.025–0.10 m, at most
   250,000 visual triangles and 4K textures. Prefer USD/USDZ, then GLB/glTF,
   Blend/FBX, and OBJ when supported conversion avoids substantial remodeling.
-- Permit format conversion, uniform scaling, simple panel/frame separation,
-  pivot correction, materials, colliders, articulation and reviewed disengaged-latch
+- Permit format conversion, uniform scaling (including reviewed moving-assembly
+  clearance repair), simple panel/frame separation, inferred pivot correction,
+  materials, grouped solid colliders, articulation and reviewed disengaged-latch
   collision exclusions. Preserve handedness
   and meaningful geometry; do not create reflected action frames.
 - Use the Phase 4 nominal physics template with consistently derived inertia.
@@ -352,16 +400,16 @@ and clearance evidence; intake can continue with another distinct door.
 
 #### Problems / Limitations
 
-Preparation is verified on the documented fixtures and one real door in the
+Preparation is verified on the documented fixtures and two real doors in the
 closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
-The Ahmed sayed candidate's earlier license rejection is superseded by the
-local-only scope. Its USDZ preparation is unresolved due to hinge-edge skin
-geometry and convex cooking; the original GLB is pending user download. This is
-not an asset rejection or a technical pass. The initial prepared batch remains
-at one door until the preparation gates pass.
+The Ahmed sayed candidate's earlier license rejection and preparation blockers
+are superseded by local-only scope and the reviewed GLB repair. The initial batch
+now contains two technically ready doors, but only the witnessk asset is
+redistributable. Inferred pivots and clearance fitting do not reconstruct real
+hardware; the nominal benchmark still requires the frozen 5.1 robot probe.
 
 Conversion uses a glTF/PreviewSurface material path. Texture preservation is tested,
 but arbitrary shaders, animations and all source-format features are not guaranteed;

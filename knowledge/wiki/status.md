@@ -2,19 +2,19 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. The first door passes static, visual and isolated GPU checks
-in the common closed-unlatched state and is ready for Subphase 5.1. See
+intake has started. Two doors pass static, visual and isolated GPU checks
+in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
 The next supplied source, `modern-door-2fb8d024`, has a Sketchfab Free Standard
 license. Its earlier CC-only rejection is superseded by the approved local-only
-intake scope. Source review, USDZ and GLB inspection pass, but normalized
-preparation remains unresolved: a planar hinge-edge skin intersects the frame;
-when its collider is approximated, the near-zero jamb clearance obstructs opening.
-The GLB has the same component geometry as the USDZ. No static, front/rear visual,
-GPU physics or promotion pass is claimed. The initial batch still has one
-technically ready real door. Local-only source and normalized assets must remain
+intake scope. The GLB now passes preparation in attempt 000012 after grouped
+solid-leaf cooking, a documented 0.4% uniform moving-assembly reduction for side
+clearance, and an inferred opening-face hinge. Isolated RTX 4090 physics reaches
+the geometry-derived 93-degree limit with stable resets/frame and no reported
+penetration. The initial batch has two technically ready real doors; neither has
+robot/expert qualification. Local-only source and normalized assets must remain
 with the authorized licensee and outside shared asset packages.
 
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
@@ -66,6 +66,9 @@ correction passed 29 focused preparation/qualification tests, Ruff, wiki-link/in
 checks and one complete synthetic GPU regression. The subsequent closed-unlatched
 change passed 14 focused preparation tests and one real-door GPU run; unrelated
 checks were not repeated.
+The modern-door repair passes 20 focused preparation tests, static/visual checks
+and one RTX 4090 functional run. Shared recipes now support reviewed solid-surface
+collider groups and bounded uniform clearance fitting; the frozen setup is unchanged.
 GPU checks pass three stable resets, seven-joint/full-pose control, loaded distal
 contacts and forbidden-contact detection, and synchronized metric head RGB-D.
 The local pose targets remain within 0.0204 mm / 0.00209 degrees during their

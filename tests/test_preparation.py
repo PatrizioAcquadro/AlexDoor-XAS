@@ -9,6 +9,8 @@ import pytest
 from alexdoor_xas.qualification.convex_geometry import Convex, mechanical_limit, overlap
 from alexdoor_xas.qualification.preparation import (
     PreparationError,
+    collider_batches,
+    component_transform,
     file_inventory,
     new_attempt,
     promote,
@@ -110,6 +112,66 @@ def test_moving_assembly_translation_is_explicit_and_finite():
     data["moving_translation_m"] = [0, float("nan"), 0]
     with pytest.raises(PreparationError, match="moving assembly translation"):
         validate_recipe(data, 2)
+
+
+def test_clearance_repair_preserves_handle_attachment_and_fixed_frame():
+    data = recipe()
+    data.update(
+        moving_scale=0.996,
+        moving_scale_center_m=[0, 0, 1.05],
+        clearance_review="Zero side gap; introduce 1.3 mm per side.",
+    )
+    validate_recipe(data, 2)
+    panel = component_transform(data, "Panel")
+    assert np.array_equal(panel, component_transform(data, "Handle"))
+    assert np.array_equal(component_transform(data, "Frame"), np.eye(4))
+    assert np.allclose(panel @ [0, 0, 1.05, 1], [0, 0, 1.05, 1])
+    for scale in [0.9, 1.01, float("nan")]:
+        data["moving_scale"] = scale
+        with pytest.raises(PreparationError, match="clearance scale"):
+            validate_recipe(data, 2)
+    data["moving_scale"] = 0.996
+    del data["clearance_review"]
+    with pytest.raises(PreparationError, match="clearance_review"):
+        validate_recipe(data, 2)
+
+
+def test_collider_groups_cover_surfaces_without_merging_bodies_or_latches():
+    data = recipe()
+    data["components"] = {"Panel": [0, 2, 3], "Frame": [1], "Handle": [4]}
+    data["leaf_components"] = [0]
+    data["unlatched_components"] = [3]
+    data["unlatched_review"] = "Separate latch bolt."
+    batch = dict(components=[0, 2], approximation="convexHull", review="Faces of one solid leaf.")
+    data["collider_groups"] = [batch]
+    validate_recipe(data, 5)
+    assert list(collider_batches(data, "Panel")) == [([0, 2], "convexHull")]
+    assert list(collider_batches(data, "Handle")) == [([4], "auto")]
+    for members in [[0, 1], [0, 4], [0, 3], [0, 0]]:
+        batch["components"] = members
+        with pytest.raises(PreparationError, match="Collider groups"):
+            validate_recipe(data, 5)
+    batch["components"] = [0, 2]
+    data["collider_groups"].append(dict(batch))
+    with pytest.raises(PreparationError, match="Collider groups"):
+        validate_recipe(data, 5)
+
+
+def test_zero_gap_leaf_needs_clearance_and_an_opening_face_pivot():
+    from itertools import product
+
+    frame = [
+        np.array(list(product([-0.08, 0.08], ys, [0, 2.23]))) for ys in ([-0.53, -0.5], [0.5, 0.53])
+    ]
+    leaf = np.array(list(product([-0.03, 0.03], [-0.5, 0.5], [0.01, 2.21])))
+    groups = dict(Frame=frame, Panel=[leaf], Handle=[])
+    with pytest.raises(PreparationError, match="immediately"):
+        mechanical_limit(groups, np.array([0, -0.5, 0]), "right")
+    center = np.array([0, 0, 1.11])
+    groups["Panel"] = [(leaf - center) * 0.996 + center]
+    pivot = np.array([0.03 * 0.996, -0.5 * 0.996, 0])
+    limit = mechanical_limit(groups, pivot, "right")
+    assert 90 < limit < 100
 
 
 def test_attempts_never_overwrite_sources_or_previous_outputs(tmp_path):

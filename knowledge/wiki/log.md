@@ -535,3 +535,15 @@ Recorded the planar skin collision and immediate leaf/frame opening obstruction;
 ## 2026-09-23 — lint : Modern-door GLB blocker
 Candidate review, recipe validation, GLB checksum, evidence paths, JSON, wiki links and whitespace checks pass.
 Only the candidate records and canonical wiki changed; the temporary collider experiment left no shared-code change.
+
+## 2026-09-23 — update : Graphics-door preparation repairs
+Added reviewed collider groups for surfaces of one solid and bounded uniform moving-assembly clearance repair.
+Documented inferred opening-face pivots and the distinction between functional benchmark preparation and reconstructing real hinge hardware.
+
+## 2026-09-23 — update : Modern-door preparation recovered
+Promoted GLB attempt 000012 as local-only after grouped leaf cooking, 0.4% uniform clearance fitting and an opening-face hinge assumption.
+Static and front/rear visual checks pass; RTX 4090 reaches the derived 93-degree limit with stable resets/frame and no reported penetration. Expert qualification remains pending.
+
+## 2026-09-23 — lint : Modern-door repair validation
+Twenty focused preparation tests, Ruff, formatting, wiki links/index, JSON/evidence and whitespace checks pass.
+Source payload and first-door accepted evidence are preserved; one new real-door GPU run, no frozen-setup changes or unrelated regressions.

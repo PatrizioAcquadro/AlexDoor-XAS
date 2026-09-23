@@ -144,6 +144,19 @@ def validate_recipe(recipe, component_count):
         moving_translation.shape == (3,) and np.isfinite(moving_translation).all(),
         "Invalid moving assembly translation",
     )
+    moving_scale = float(recipe.get("moving_scale", 1))
+    moving_center = np.asarray(recipe.get("moving_scale_center_m", [0, 0, 0]), dtype=float)
+    require(
+        np.isfinite(moving_scale)
+        and 0.99 <= moving_scale <= 1
+        and moving_center.shape == (3,)
+        and np.isfinite(moving_center).all(),
+        "Moving clearance scale must be uniform, between 0.99 and 1, with a finite center",
+    )
+    require(
+        moving_scale == 1 or bool(recipe.get("clearance_review")),
+        "Document the source clearance defect and resulting gaps in clearance_review",
+    )
     origin = np.asarray(recipe["opening_center_source"], dtype=float)
     require(
         origin.shape == (3,)
@@ -178,9 +191,59 @@ def validate_recipe(recipe, component_count):
         not unlatched or bool(recipe.get("unlatched_review")),
         "Identify the disengaged latch/lock components and explain their exclusion",
     )
+    grouped = set()
+    for batch in recipe.get("collider_groups", []):
+        members = batch["components"]
+        require(
+            isinstance(members, list)
+            and len(members) >= 2
+            and all(type(i) is int for i in members)
+            and len(set(members)) == len(members)
+            and any(set(members) <= set(groups[name]) for name in GROUPS)
+            and not set(members) & (grouped | set(unlatched)),
+            "Collider groups must contain distinct colliding components of one rigid body",
+        )
+        require(bool(batch.get("review")), "Review the physical solid represented by each group")
+        require(
+            batch.get("approximation") in {"convexHull", "convexDecomposition"},
+            "Specify a collider group approximation",
+        )
+        require(
+            not set(map(str, members)) & set(recipe.get("colliders", {})),
+            "Grouped components cannot also have individual collider recipes",
+        )
+        grouped.update(members)
     DoorDimensions.from_mapping(recipe["dimensions_m"])
     require(bool(recipe.get("modifications")), "Record normalization modifications")
     return rotation, scale, translation, hinge
+
+
+def component_transform(recipe, name):
+    """Apply global normalization, then the same clearance repair to leaf and handles."""
+    matrix = np.eye(4)
+    matrix[:3, :3] = np.asarray(recipe["rotation"]) * recipe["scale"]
+    matrix[:3, 3] = recipe["translation_m"]
+    if name != "Frame":
+        scale = recipe.get("moving_scale", 1)
+        center = np.asarray(recipe.get("moving_scale_center_m", [0, 0, 0]))
+        matrix[:3, :3] *= scale
+        matrix[:3, 3] = (
+            (matrix[:3, 3] - center) * scale
+            + center
+            + np.asarray(recipe.get("moving_translation_m", [0, 0, 0]))
+        )
+    return matrix
+
+
+def collider_batches(recipe, name):
+    """Material-disconnected surfaces may share a collider for their physical solid."""
+    remaining = set(recipe["components"][name]) - set(recipe.get("unlatched_components", []))
+    for batch in recipe.get("collider_groups", []):
+        if set(batch["components"]) <= remaining:
+            yield batch["components"], batch["approximation"]
+            remaining.difference_update(batch["components"])
+    for index in sorted(remaining):
+        yield [index], recipe.get("colliders", {}).get(str(index), "auto")
 
 
 def new_attempt(root, asset_id):

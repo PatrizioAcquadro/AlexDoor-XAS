@@ -45,6 +45,6 @@
   "local_dependency_review_notes": "The inspected GLB contains four JPEG images in its own buffer and reports no external dependency; embedded source metadata carries the same Sketchfab Standard attribution and license.",
   "local_duplicate_review": "pass",
   "local_duplicate_review_notes": "The GLB fingerprint 0ed927caadd03f215e80048d3a0152a5612e843fcb2590d1fa2a37988024fd43 differs from the prepared door fingerprint fbe3626a5effe7faf794b90d2cc407cb03c5f6b12f45878aa3d884a32858cb20; source UID and payload hash are distinct.",
-  "local_visual_review": "not_run",
-  "local_visual_review_notes": "Normalization did not pass, so no front/rear preview exists to review."
+  "local_visual_review": "pass",
+  "local_visual_review_notes": "Reviewed attempt 000012 front/rear RTX images: complete frame, plain back, wood/slatted front, trim and long pull/keyhole are present with retained materials; alignment and clearance are plausible. Individual visual components are preserved; only their shared physical leaf collider is simplified."
 }

@@ -29,6 +29,8 @@ from .preparation import (
     FORMATS,
     GROUPS,
     PreparationError,
+    collider_batches,
+    component_transform,
     file_inventory,
     require,
     validate_recipe,
@@ -332,24 +334,21 @@ def normalize(source, recipe, output):
         status="unresolved",
     )
     components, inventory = load_source(source, output, recipe.get("source_dependencies", []))
-    rotation, scale, translation, hinge = validate_recipe(recipe, len(components))
-    moving_translation = np.asarray(recipe.get("moving_translation_m", [0, 0, 0]), dtype=float)
+    _, _, _, hinge = validate_recipe(recipe, len(components))
     groups, collision, collision_components = {}, {}, {}
     for name in GROUPS:
         groups[name], collision[name] = [], []
         collision_components[name] = []
         for index in recipe["components"][name]:
             mesh = components[index].copy()
-            matrix = np.eye(4)
-            matrix[:3, :3] = rotation * scale
-            matrix[:3, 3] = translation + (moving_translation if name != "Frame" else 0)
-            mesh.apply_transform(matrix)
+            mesh.apply_transform(component_transform(recipe, name))
             groups[name].append(mesh)
-            if index in recipe.get("unlatched_components", []):
-                continue
-            shapes = cooked_hulls(mesh, recipe.get("colliders", {}).get(str(index), "auto"))
+        selected = dict(zip(recipe["components"][name], groups[name], strict=True))
+        for indices, approximation in collider_batches(recipe, name):
+            mesh = trimesh.util.concatenate([selected[i] for i in indices])
+            shapes = cooked_hulls(mesh, approximation)
             collision[name].extend(shapes)
-            collision_components[name].extend([index] * len(shapes))
+            collision_components[name].extend([indices] * len(shapes))
     dimensions = DoorDimensions.from_mapping(recipe["dimensions_m"])
     leaf_indices = recipe.get("leaf_components", recipe["components"]["Panel"])
     leaf = [
@@ -522,7 +521,7 @@ def _author(path, groups, collision, hinge_pos, recipe, limit, collision_compone
             mesh = mesh_prim(stage, f"/Door/{name}/Collision_{index}", points, shape.simplices)
             mesh.CreatePurposeAttr("guide")
             prim = mesh.GetPrim()
-            prim.CreateAttribute("b1:sourceComponent", Sdf.ValueTypeNames.Int).Set(
+            prim.CreateAttribute("b1:sourceComponents", Sdf.ValueTypeNames.IntArray).Set(
                 collision_components[name][index]
             )
             UsdPhysics.CollisionAPI.Apply(prim)

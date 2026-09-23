@@ -160,6 +160,9 @@ def static_check(attempt):
                     component = prim.GetAttribute("b1:sourceComponent").Get()
                     if component is not None:
                         collider_components.add(component)
+                    components = prim.GetAttribute("b1:sourceComponents").Get()
+                    if components is not None:
+                        collider_components.update(components)
                     binding, _ = UsdShade.MaterialBindingAPI(prim).ComputeBoundMaterial("physics")
                     require(
                         str(binding.GetPath()) == "/Door/PhysicsMaterial",
