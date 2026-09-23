@@ -48,5 +48,13 @@
     "sketchfab_terms_section_15": "https://sketchfab.com/terms",
     "poliigon_asset_use": "https://help.poliigon.com/it/articles/8749749-utilizzo-degli-asset-e-licenze"
   },
-  "decision_basis": "NoAI concerns use with programs designed to generate new content; the B1 ACT/Diffusion policies output control actions, so this label alone does not prove incompatibility. CreatedWithAI is the separate creation label. The Poliigon-named embedded textures have unverified provenance and AI/ML rights, while Poliigon's ordinary terms prohibit ML/AI use of its assets. Downloading does not settle this dependency gap. Hold source admission until rights are documented or a reviewed derivative excludes the suspect textures from B1 use."
+  "local_derivative": {
+    "path": "assets/doors/b1/door-with-doorframe-c29da62c/attempts/_local_source/door_geometry_local_materials.glb",
+    "sha256": "c3056e7a0b1746cd6980bfa90b42ed92f489aa538b2342809d6c4e05fa043c0e",
+    "bytes": 351852,
+    "geometry_buffer_sha256": "abde993e4a92c2e74225146c88da9a3b6d392d54a2ed9ac5659069e2c2a72d0b",
+    "method": "Retain the source GLB geometry buffer and first four geometry buffer views byte-for-byte. Remove all nine source images and their buffer views, textures and samplers. Replace six material definitions with locally authored flat PBR colors; preserve mesh primitives, nodes, accessors and geometry. No source texture pixels enter the selected payload.",
+    "distribution_scope": "local_only"
+  },
+  "decision_basis": "NoAI concerns programs designed to generate new content; B1 policies output control actions. Original textured downloads have unverified Poliigon-named dependencies and are not selected for B1. The local selected derivative preserves the source door geometry while removing every embedded image and texture reference; its materials are independently authored. Any future generative-content use or reuse of original textures needs separate rights review."
 }

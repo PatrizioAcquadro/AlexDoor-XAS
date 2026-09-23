@@ -1,37 +1,58 @@
 {
-  "status": "unresolved",
-  "category": "source",
-  "decision": "hold_before_preparation_pending_dependency_rights",
+  "status": "fail",
+  "category": "geometry_or_recipe",
+  "decision": "not_ready_for_5.1_under_current_1_percent_clearance_rule",
   "distribution_scope": "local_only",
-  "reason": "NoAI alone does not establish a prohibition for B1 policies that output robot actions. The embedded Poliigon-named textures have unverified provenance and AI/ML rights; source admission for training remains unresolved.",
+  "reason": "The locally retextured source clears the source review, but the leaf still properly intersects the frame at the closed pose after the documented maximum 1% uniform moving-assembly reduction. No accepted normalization attempt exists.",
   "source_review": {
     "command": "/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review --candidate assets/doors/b1/door-with-doorframe-c29da62c/candidate.json",
-    "status": "unresolved",
-    "category": "source",
-    "reason": "Dependency license evidence missing or incompatible"
+    "status": "pass",
+    "scope": "remote_review_only"
   },
   "source_sha256": {
-    "glb": "078f96d80dee59f0c2495055dd90d996e792b998597138f5d9a643e6580c9e78",
-    "usdz": "4f7c60de976d8bec30dc87fa63fccb001c903c64f17ef70b6f065730ad8f9d87"
+    "original_glb": "078f96d80dee59f0c2495055dd90d996e792b998597138f5d9a643e6580c9e78",
+    "original_usdz": "4f7c60de976d8bec30dc87fa63fccb001c903c64f17ef70b6f065730ad8f9d87",
+    "selected_local_glb": "c3056e7a0b1746cd6980bfa90b42ed92f489aa538b2342809d6c4e05fa043c0e"
   },
-  "observed_geometry": "The page shows one wood leaf in a frame with a black lever; dimensions and source handedness have not been checked locally.",
-  "leaf_dimensions_m": null,
-  "handedness": null,
-  "modifications": [],
-  "attempts_created": 0,
-  "inspect": "not_run",
-  "normalize": "not_run",
+  "inspect": {
+    "selected_attempt": "attempts/000002",
+    "status": "pass",
+    "triangles": 4722,
+    "components": 22,
+    "textures": 0,
+    "comparison_usdz_attempt": "attempts/000008",
+    "comparison": "USDZ and selected GLB have matching 22 component and 4722 triangle inventories; maximum symmetric corresponding-component vertex distance is 9.1e-8 m."
+  },
+  "leaf_dimensions_m_at_current_recipe": [0.8881892306545051, 2.118291406273842, 0.08085506694694049],
+  "handedness": "right",
+  "modifications": [
+    "Kept original geometry and replaced source images/textures with independently authored flat materials in a local-only GLB; both original downloads are untouched.",
+    "Scaled the graphics model uniformly by 0.85 to a plausible full-size leaf, with frame and all hardware collisions retained.",
+    "Partitioned the rebated frame collider at measured jamb/header steps and assigned the twelve fixed-jamb hinge knuckles to Frame.",
+    "Tested the documented maximum 1% uniform Panel/Handle reduction; proper leaf/frame surface crossings remain in normalization attempt 000007."
+  ],
+  "normalize": {
+    "attempt": "attempts/000007",
+    "status": "fail",
+    "reason": "Closed door intersects its frame",
+    "source_intersections": "attempts/000007/source_intersections.json",
+    "implicated_components": [20, 21]
+  },
   "static": "not_run",
   "preview": "not_run",
   "visual_review": "not_run",
   "physics": "not_run",
   "promote": "not_run",
   "expert_qualification": "not_run",
+  "scope_decision_needed": "Source-surface crossings disappear near 1.8% uniform moving-assembly reduction in a geometry-only diagnostic; 2% gives approximately 1.7-2.7 mm side gaps. This exceeds the current 1% recipe limit. No threshold was changed and no larger repair was accepted.",
   "evidence": [
     "candidate.json",
     "source-evidence.json",
-    "/home/pacquadr/Downloads/door_with_doorframe.glb",
-    "/home/pacquadr/Downloads/Door_With_Doorframe.usdz"
+    "recipe.json",
+    "attempts/000002/inspect.json",
+    "attempts/000007/normalize.json",
+    "attempts/000007/source_intersections.json",
+    "attempts/000008/inspect.json"
   ],
-  "next_step": "Document rights covering the embedded textures for B1 ML use, or create and review a local derivative that excludes those textures and uses independently cleared replacements; then repeat source review and continue the technical 5.0 workflow. Do not use this source for generative-content models."
+  "next_step": "Decide whether to authorize an explicit candidate-specific geometric fitting repair beyond the documented 1% bound; if authorized, prepare a new derivative and rerun only the affected gates. Otherwise retain this candidate as unprepared without calling it an unsuitable door."
 }

@@ -10,31 +10,21 @@
   "retrieval_date": "2026-09-23",
   "door_type": "interior",
   "single_leaf": true,
-  "frame_panel_separable": null,
+  "frame_panel_separable": true,
   "license_scope_review": "pass",
   "license_scope_review_notes": "The page and embedded GLB metadata identify Sketchfab Standard, which the approved B1 rule permits only for authorized local work, subject to custom terms and dependency rights.",
   "custom_terms_review": "pass",
   "custom_terms_review_notes": "Sketchfab NoAI bars use with programs designed to generate new content; CreatedWithAI is the separate creation label. The present B1 ACT/Diffusion policies output robot actions, not generated media or 3D content, so NoAI alone does not establish a conflict for this limited use. This review does not authorize generative-content training or broader reuse.",
   "duplicate_review": "pass",
-  "duplicate_review_notes": "The source UID and visible two-panel wood door with black lever differ from the two prepared candidates. No local geometry fingerprint has been generated.",
+  "duplicate_review_notes": "The source UID and two-panel geometry differ from both accepted doors; selected GLB geometry fingerprint 58c17659e05ff5882faa20d6574887325405bcc215b64d602e513f192b6b6127 differs from their fingerprints.",
   "selected_format": ".glb",
-  "dependencies": [
-    {
-      "path": "embedded GLB images 0-2 (material named Poliigon_WoodVeneerOak_7760_4K)",
-      "license": "unverified",
-      "license_evidence": "source-evidence.json: GLB material names; no separate Poliigon rights evidence"
-    },
-    {
-      "path": "embedded GLB images 3-5 (Handle_Bar material)",
-      "license": "Sketchfab-Free-Standard",
-      "license_evidence": "source-evidence.json: embedded Sketchfab Standard source package; no third-party identifier"
-    },
-    {
-      "path": "embedded GLB images 6-8 (material named Poliigon_MetalSteelBrushed_7174_2K)",
-      "license": "unverified",
-      "license_evidence": "source-evidence.json: GLB material names and USDZ texture paths; no separate Poliigon rights evidence"
-    }
-  ],
-  "local_dependency_review": "unresolved",
-  "local_dependency_review_notes": "Nine images are embedded in the GLB. Poliigon-named materials suggest third-party textures but do not establish their provenance or sublicensing rights. Poliigon's ordinary terms prohibit ML/AI use of its assets; this dependency cannot be cleared for B1 training with the current evidence. Obtain rights evidence or prepare a reviewed texture-free/retextured derivative before admitting it."
+  "selected_payload": "attempts/_local_source/door_geometry_local_materials.glb",
+  "dependencies": [],
+  "reviewed_source_sha256": "c3056e7a0b1746cd6980bfa90b42ed92f489aa538b2342809d6c4e05fa043c0e",
+  "local_dependency_review": "pass",
+  "local_dependency_review_notes": "The selected local GLB keeps the original geometry buffer byte-for-byte but removes all nine embedded source images, texture and sampler references, and image buffer views. Six independently authored flat PBR colors replace the source materials. Inspect attempt 000002 confirms zero textures and no external dependency. This pass applies only to the selected derivative, not the original textured GLB/USDZ.",
+  "local_duplicate_review": "pass",
+  "local_duplicate_review_notes": "Inspect attempt 000002 reports 4722 triangles, 22 components and geometry fingerprint 58c17659e05ff5882faa20d6574887325405bcc215b64d602e513f192b6b6127, distinct from the two accepted door fingerprints fbe3626a5effe7faf794b90d2cc407cb03c5f6b12f45878aa3d884a32858cb20 and 0ed927caadd03f215e80048d3a0152a5612e843fcb2590d1fa2a37988024fd43.",
+  "local_visual_review": "unresolved",
+  "local_visual_review_notes": "No normalized preview exists because attempt 000007 still fails at closed-pose source surface intersection; no visual pass is claimed."
 }

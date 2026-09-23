@@ -563,3 +563,11 @@ Changed source review to unresolved for unverified texture rights, with no techn
 ## 2026-09-23 — lint : Corrected source-rights records
 The CLI now reports unresolved dependency evidence; candidate JSON, wiki links, original hashes and no-attempt state match.
 Markdown whitespace checks pass; the original downloads and two accepted doors remain unchanged.
+
+## 2026-09-23 — update : Prepare a texture-free Theocritus door source
+Removed all nine embedded images from a local geometry-identical derivative and assigned independently authored materials; source review and inspection pass.
+The 1% maximum fitting attempt still intersects the rebated frame at closed pose; the USDZ has matching geometry, so no static, preview or GPU claim was made.
+
+## 2026-09-23 — lint : Theocritus local preparation evidence
+Validated candidate JSON, source/derivative hashes, matching geometry inventories, CLI review status and the recorded component 20/21 crossing.
+Wiki links and whitespace pass; original downloads and accepted attempts remain untouched, with no threshold or frozen-setup change.

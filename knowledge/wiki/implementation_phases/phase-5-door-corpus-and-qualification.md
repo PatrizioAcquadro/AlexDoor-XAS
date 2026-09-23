@@ -396,11 +396,27 @@ not establish a conflict for this limited use. `CreatedWithAI` is the separate
 creation label. [Poliigon's licensing guidance](https://help.poliigon.com/it/articles/8749749-utilizzo-degli-asset-e-licenze)
 excludes ML/AI use of its assets under ordinary terms. The names suggest a
 third-party dependency but do not prove its licensing chain. Downloading the model
-does not clear that gap. The corrected source `review` returns `unresolved` for
-dependency evidence; no `inspect`, recipe, static, preview, GPU physics, promotion
-or 5.1 check was run. This is not a technical finding about the door. The batch
-remains at two ready doors. Resolve the texture rights or use a reviewed local
-derivative with independently cleared replacement materials before continuing 5.0.
+does not clear that gap. The user authorized this door for local preparation. A
+geometry-identical local GLB retains the original geometry buffer, removes all
+nine source images and uses independently authored flat PBR materials. Its source
+`review` passes; inspection attempt `000002` finds 4,722 triangles, 22 connected
+components and no textures. Original GLB/USDZ downloads remain untouched. The
+inspected USDZ has the same 22 components and triangle count, with corresponding
+vertices within 0.1 µm of the selected GLB.
+
+The candidate-specific recipe scales the graphics model uniformly by 0.85 and
+assigns fixed-jamb hinge knuckles to Frame, retaining their collisions. The leaf
+is right-handed from the hinge side and measures 0.888 × 2.118 × 0.081 m after
+the documented maximum 1% Panel/Handle clearance fitting. Frame partitions
+preserve the measured rebate and clear passage. Normalization attempt `000007`
+still fails because leaf component 20 properly intersects frame component 21 at
+the closed pose; `source_intersections.json` witnesses actual source-surface
+crossings. A geometry-only diagnostic finds no such crossings near 1.8% moving
+reduction, beyond the current 1% recipe rule. No shared threshold, collision
+ownership or mechanical stop was changed to force a pass. Static, front/rear
+preview, GPU physics, promotion and robot checks have not run. The candidate is
+unprepared under the current rule, not judged inherently unsuitable; the batch
+remains at two technically ready doors.
 
 #### Key Decisions
 

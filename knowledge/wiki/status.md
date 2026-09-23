@@ -17,14 +17,18 @@ penetration. The initial batch has two technically ready real doors; neither has
 robot/expert qualification. Local-only source and normalized assets must remain
 with the authorized licensee and outside shared asset packages.
 
-The third supplied source, `door-with-doorframe-c29da62c`, has unresolved
-dependency rights before technical preparation. Sketchfab's NoAI restriction
-concerns programs designed to generate new content; B1 ACT/Diffusion policies
-output robot actions, so that label alone does not establish incompatibility.
-Its downloaded materials contain Poliigon-named textures whose provenance and
-ML rights are unverified. Ordinary Poliigon terms exclude ML/AI use of its assets.
-Source `review` therefore reports `unresolved`, not `fail`. Both downloads are
-preserved; no geometry or GPU check has run, and the batch still has two ready doors.
+The third supplied source, `door-with-doorframe-c29da62c`, is in local technical
+preparation. Sketchfab's NoAI restriction concerns programs designed to generate
+new content; B1 policies output robot actions, so that label alone does not
+establish incompatibility. The original downloads contain Poliigon-named textures
+with unverified ML rights. A geometry-identical local GLB removes all nine source
+images and uses independently authored flat materials; the original downloads
+remain untouched. Source review and inspection pass for this local-only derivative.
+The 0.85 uniformly scaled right-hand leaf measures 0.888 × 2.118 × 0.081 m after
+the maximum documented 1% clearance reduction. It still properly intersects the
+rebated frame at the closed pose. Normalization attempt `000007` fails; static,
+visual and GPU checks cannot run. The USDZ has matching geometry within 0.1 µm,
+so its format does not resolve the overlap. The batch still has two ready doors.
 
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
@@ -163,6 +167,7 @@ These are historical scientific conclusions, not active workflows. See [[experim
 
 ## Version Notes
 
+- 2026-09-23 — Prepared a texture-free local derivative of Theocritus's door; source and inspection pass, but normalization remains blocked by a genuine leaf/frame overlap at the current 1% fitting limit.
 - 2026-09-23 — Corrected Theocritus source review to `unresolved`: NoAI alone does not show a conflict with action policies, while Poliigon-named texture rights remain unverified.
 - 2026-09-23 — Initially rejected Theocritus's NoAI-marked door before preparation; that source decision is superseded by the correction above.
 
