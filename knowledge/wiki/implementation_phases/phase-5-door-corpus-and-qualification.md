@@ -503,6 +503,36 @@ a PhysX oblong-shape CPU-collision fallback warning during preview cooking; the
 rigid-door GPU functional check passed. No particle/deformable contact is claimed.
 All prior attempts and both downloaded originals remain untouched.
 
+**Fifth supplied source review (2026-09-23).**
+[Door by DJMaesen](https://sketchfab.com/3d-models/door-2738468b94d74c5f827e7e5df7be8359)
+shows one dark leaf, complete frame, right-side hinges and a left-side lever.
+The page and download modal specify CC BY 4.0, 590 triangles and 2K maps;
+original FBX plus converted USDZ, glTF and GLB are available. The newly
+downloaded `Door (1).usdz` contains five embedded maps and matching author,
+source and license metadata, with no external dependency. Inspection attempt
+`000002` passes with 13 components and a geometry fingerprint distinct from
+the four prepared doors. At uniform 0.75 scale the original leaf is 0.964 ×
+2.080 × 0.051 m, right-handed in the chosen canonical push orientation.
+
+The source leaf and frame opening share side/top coordinates, so a reviewed
+uniform moving-assembly fit was tried at the documented 2% maximum.
+The separate edge latch tongue was selected for the existing closed-unlatched
+collision exclusion; leaf, frame, hinges and handles remained collidable.
+Attempt `000006` showed two fitted-leaf/fixed-hinge crossings of about 0.5 mm;
+a measured 0.8 mm shift toward the latch removes them without removing any
+collision. Attempt `000007` still fails normalization at the closed-pose gate.
+Original-surface witnesses show three moving/fixed hinge pairs crossing
+(6/11, 7/9, 7/12), including component 7 against 12 with about 27.8 mm
+vertical bounds overlap. These are source geometry crossings, not merely
+oversized cooked hulls or a missing hinge measurement. The candidate is **held without
+promotion**; static, normalized preview and GPU physics were not run. This does
+not establish that the door is intrinsically unsuitable: a separately reviewed
+hinge geometry/collision preparation would be needed. The original download and
+all attempts are preserved in
+`assets/doors/b1/door-2738468b94d74c5f/`; four earlier doors remain ready for
+5.1. An initial inspection attempt lacked CUDA only because of sandbox access;
+inspection was then completed through the host Isaac Lab runtime on `cuda:0`.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no

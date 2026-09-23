@@ -1,0 +1,61 @@
+{
+  "asset_id": "door-2738468b94d74c5f",
+  "source_url": "https://sketchfab.com/3d-models/door-2738468b94d74c5f827e7e5df7be8359",
+  "source_uid": "2738468b94d74c5f827e7e5df7be8359",
+  "author": "DJMaesen",
+  "license": "CC-BY-4.0",
+  "distribution_scope": "redistributable",
+  "license_evidence": "assets/doors/b1/door-2738468b94d74c5f/source-evidence.json",
+  "attribution": "Door by DJMaesen (https://sketchfab.com/bumstrum), https://sketchfab.com/3d-models/door-2738468b94d74c5f827e7e5df7be8359, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Preparation changes are recorded in recipe.json.",
+  "retrieval_date": "2026-09-23",
+  "door_type": "interior",
+  "single_leaf": true,
+  "frame_panel_separable": true,
+  "license_scope_review": "pass",
+  "license_scope_review_notes": "The actual Sketchfab page and download modal show CC Attribution and link to CC BY 4.0.",
+  "custom_terms_review": "pass",
+  "custom_terms_review_notes": "The visible model description contains only “low poly door” and “2k maps”; no additional author terms or third-party texture source are stated.",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "The source UID and visible door are distinct from the four previously accepted assets; local fingerprint review remains pending.",
+  "selected_format": ".usdz",
+  "reported_triangles": 590,
+  "reported_texture_max_px": 2048,
+  "dependencies": [
+    {
+      "path": "0/door1_baseColor.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
+    },
+    {
+      "path": "0/door1_metallicRoughness_metal.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
+    },
+    {
+      "path": "0/door1_metallicRoughness_rough.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
+    },
+    {
+      "path": "0/door1_normal.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
+    },
+    {
+      "path": "0/door1_metallicRoughness_occl.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
+    }
+  ],
+  "reviewed_source_sha256": "3f9a957b145e4ac61e532b01bd683bbc42f22da00cab386ac639f72faa67c5c6",
+  "local_dependency_review": "pass",
+  "local_dependency_review_notes": "USDZ contains scene.usdc and five embedded 2048 px maps, no external dependency. Its embedded CC-BY-4.0 author/source metadata matches the Sketchfab page; no separate map terms were observed.",
+  "local_duplicate_review": "pass",
+  "local_duplicate_review_notes": "Inspection attempt 000002 fingerprint 206b8785ec8f259e21142a5c12551a540da6e3bf3e2584429f0b94b895997190 differs from all four accepted doors; source UID and source hash are unique.",
+  "local_visual_review": "unresolved",
+  "local_visual_review_notes": "No normalized preview is reviewable because normalization fails at the closed-pose collision check. The source page was visually reviewed.",
+  "local_mechanical_review": "fail",
+  "local_mechanical_review_notes": "Attempt 000007 retains three proper original-surface hinge crossings after the maximum documented 2% uniform fit and a measured 0.8 mm latchward shift: moving/fixed pairs 6/11, 7/9 and 7/12. Component 7 versus 12 has about 27.8 mm vertical bounds overlap. Leaf/fixed-hinge crossings from attempt 000006 are resolved. No accepted normalized asset, static/preview/physics run, or promotion.",
+  "source_requires_latch_release": true,
+  "initial_state": "closed_unlatched"
+}

@@ -1,0 +1,72 @@
+{
+  "status": "unresolved",
+  "decision": "not_promoted",
+  "source_sha256": "3f9a957b145e4ac61e532b01bd683bbc42f22da00cab386ac639f72faa67c5c6",
+  "attempt": "attempts/000007",
+  "task_model": "closed_unlatched_panel_push",
+  "summary": "Source and local inspection pass. The current 5.0 recipe does not pass closed-pose collision: three proper original-surface hinge crossings remain after the maximum 2% moving-assembly fit and a 0.8 mm latchward shift. This is a mechanical preparation blocker, not a source license or duplicate rejection.",
+  "normalization": "fail",
+  "static": "not_run",
+  "visual_review": "not_run",
+  "physics": "not_run",
+  "expert_qualification": "not_run",
+  "measurements": {
+    "triangles": 590,
+    "connected_components": 13,
+    "texture_max_px": 2048,
+    "original_leaf_dimensions_at_uniform_0_75_m": {
+      "width_m": 0.9642857172970174,
+      "height_m": 2.08005844380838,
+      "thickness_m": 0.05071083233819744
+    },
+    "proposed_fitted_leaf_dimensions_m": {
+      "width_m": 0.945000002951077,
+      "height_m": 2.0384572749322123,
+      "thickness_m": 0.04969661569143349
+    },
+    "handedness": "right",
+    "geometry_fingerprint": "206b8785ec8f259e21142a5c12551a540da6e3bf3e2584429f0b94b895997190"
+  },
+  "mechanical_blocker": {
+    "residual_pairs": [
+      [
+        6,
+        11
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        7,
+        12
+      ]
+    ],
+    "witness": "attempts/000007/source_intersections.json",
+    "largest_relevant_overlap": "Moving hinge 7 versus fixed hinge 12: about 27.8 mm vertical AABB overlap with proper original-surface crossings. Leaf/fixed-hinge source crossings are absent after the targeted 0.8 mm shift.",
+    "interpretation": "The source hinge overlaps cannot be corrected by the supported bounded uniform fit, a small assembly shift or pivot placement while preserving leaf/frame/handle collisions and common acceptance thresholds."
+  },
+  "attempt_history": "000001 sandbox CUDA unavailable; 000002 inspection passes; 000003 incorrect pivot/floor recipe; 000004 0.4% fitting leaves source crossings; 000005 2% fitting requires aperture coordinates update; 000006 corrected aperture leaves five crossings; 000007 0.8 mm latchward shift clears leaf/fixed-hinge crossings but three hinge pairs remain. Original download and all attempts preserved.",
+  "limits": [
+    "No normalized passing USD or RTX 4090 physics outcome exists for this candidate.",
+    "An asset-specific hinge geometry repair or separately reviewed collision model would require additional scope; technical suitability is not rejected solely from this result."
+  ],
+  "evidence": [
+    {
+      "path": "attempts/000007/recipe.json",
+      "sha256": "266d42d67d7073d2be72907da7fedd86f886bc20a594a44c7c700ec1c0f6356b"
+    },
+    {
+      "path": "attempts/000007/normalize.json",
+      "sha256": "089085dfa4cc14652c149cf376f6ba7a81e00ba5d6e7893030477d8979dd268b"
+    },
+    {
+      "path": "attempts/000007/inspect.json",
+      "sha256": "39e2ad820241261b083efec17ac1a689a002a7cc137488184c6e4bc373bead74"
+    },
+    {
+      "path": "attempts/000007/source_intersections.json",
+      "sha256": "bc1f717f021221a0987e6c7e6372f584153e9401d1e21133a044c90effca91c2"
+    }
+  ]
+}

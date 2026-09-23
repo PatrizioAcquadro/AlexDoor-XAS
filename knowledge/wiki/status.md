@@ -7,6 +7,16 @@ in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
+The fifth supplied source, `door-2738468b94d74c5f`, passes CC BY 4.0 source
+review and local inspection (590 triangles, 13 components, five embedded 2K
+maps), but is held before promotion. At the documented 2% fitting bound and
+after a 0.8 mm latchward shift, its closed pose still has three original-surface
+moving/fixed hinge crossings; components 7 and 12 overlap by about 27.8 mm
+vertically. The 0.964 × 2.080 × 0.051 m original leaf at 0.75 scale is
+right-handed in the proposed push orientation. Normalization fails, so static,
+normalized preview and GPU physics have not run. This is a concrete preparation
+blocker, not an automatic source rejection. The four ready doors are unchanged.
+
 The fourth supplied source, `void-frame-studio-animated-classic-door-08bdf51b`,
 is CC BY-NC-ND 4.0. Its initial source-review failure is superseded by a
 user-approved `private_noncommercial` scope: no commercial use or sharing adapted
@@ -182,6 +192,7 @@ These are historical scientific conclusions, not active workflows. See [[experim
 
 ## Version Notes
 
+- 2026-09-23 — Reviewed DJMaesen's CC BY door and its USDZ; inspection passes, but the maximum fit and a small shift leave true internal hinge crossings. The candidate is held before static/visual/GPU gates; four doors remain ready for 5.1.
 - 2026-09-23 — Prepared Void Frame Studio's door under private/noncommercial scope; local removal of negligible-area triangles, 2% fitting and reviewed hardware colliders pass static, visual and one RTX 4090 run. Four doors are ready for 5.1.
 - 2026-09-23 — Recovered Theocritus door with reviewed 2% fitting and corrected hinge-side mounting; 25 focused tests and one RTX 4090 run pass. Three doors are ready for 5.1, including two local-only.
 - 2026-09-23 — Prepared a texture-free local derivative of Theocritus's door; source and inspection pass, but normalization remains blocked by a genuine leaf/frame overlap at the current 1% fitting limit.

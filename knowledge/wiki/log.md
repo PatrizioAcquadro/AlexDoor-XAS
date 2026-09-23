@@ -603,3 +603,11 @@ Promoted attempt 000008 after static, viewed RTX previews and one isolated RTX 4
 ## 2026-09-23 — lint : Void Frame Studio preparation evidence
 Validated original/selected hashes, retained GLB buffers and animation metadata, candidate JSON, accepted pointer and all required stage reports.
 Ruff, wiki links/index and Markdown whitespace pass; earlier attempts and original downloads remain preserved.
+
+## 2026-09-23 — update : Review DJMaesen door preparation
+Verified CC BY 4.0 source and embedded USDZ maps; inspection passes for a distinct full-size single-leaf door.
+The supported 2% fit and 0.8 mm shift leave three original-surface hinge crossings, so the candidate is held before promotion.
+
+## 2026-09-23 — lint : DJMaesen source and blocker evidence
+Checked source/attempt hashes, candidate review, unchanged four accepted pointers, wiki links/index and Markdown whitespace.
+No static, normalized visual or GPU physics pass is claimed for the blocked candidate; original download and attempts remain preserved.
