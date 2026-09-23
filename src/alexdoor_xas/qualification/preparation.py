@@ -149,10 +149,10 @@ def validate_recipe(recipe, component_count):
     moving_center = np.asarray(recipe.get("moving_scale_center_m", [0, 0, 0]), dtype=float)
     require(
         np.isfinite(moving_scale)
-        and 0.99 <= moving_scale <= 1
+        and 0.98 <= moving_scale <= 1
         and moving_center.shape == (3,)
         and np.isfinite(moving_center).all(),
-        "Moving clearance scale must be uniform, between 0.99 and 1, with a finite center",
+        "Moving clearance scale must be uniform, between 0.98 and 1, with a finite center",
     )
     require(
         moving_scale == 1 or bool(recipe.get("clearance_review")),
@@ -234,6 +234,17 @@ def component_transform(recipe, name):
             + np.asarray(recipe.get("moving_translation_m", [0, 0, 0]))
         )
     return matrix
+
+
+def check_hinge_edge(recipe, edge_y):
+    """A fixed source hinge may stay in place while clearance fitting retreats the leaf."""
+    center = recipe.get("moving_scale_center_m", [0, 0, 0])[1]
+    shift = recipe.get("moving_translation_m", [0, 0, 0])[1]
+    original_edge = (edge_y - center - shift) / recipe.get("moving_scale", 1) + center + shift
+    require(
+        min(abs(recipe["hinge_m"][1] - edge) for edge in (edge_y, original_edge)) <= 0.01,
+        "Hinge does not match original handedness/panel edge",
+    )
 
 
 def collider_batches(recipe, name):

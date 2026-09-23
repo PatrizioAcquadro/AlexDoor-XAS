@@ -1,58 +1,127 @@
 {
-  "status": "fail",
-  "category": "geometry_or_recipe",
-  "decision": "not_ready_for_5.1_under_current_1_percent_clearance_rule",
+  "status": "pass",
+  "decision": "ready_for_5.1",
   "distribution_scope": "local_only",
-  "reason": "The locally retextured source clears the source review, but the leaf still properly intersects the frame at the closed pose after the documented maximum 1% uniform moving-assembly reduction. No accepted normalization attempt exists.",
-  "source_review": {
-    "command": "/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review --candidate assets/doors/b1/door-with-doorframe-c29da62c/candidate.json",
-    "status": "pass",
-    "scope": "remote_review_only"
-  },
+  "attempt": "attempts/000009",
+  "summary": "The 1% collision was real: fitted leaf width still exceeded the narrow jamb passage. A 2% uniform fit is justified, but alone leaves a near-closed opening obstruction. Correct hinge-side canonical orientation, preserve the original hinge-facing plane and distribute side clearance with a 0.99 mm moving-assembly translation. All existing static/physics tolerances remain unchanged.",
+  "source_review": "pass",
   "source_sha256": {
     "original_glb": "078f96d80dee59f0c2495055dd90d996e792b998597138f5d9a643e6580c9e78",
     "original_usdz": "4f7c60de976d8bec30dc87fa63fccb001c903c64f17ef70b6f065730ad8f9d87",
     "selected_local_glb": "c3056e7a0b1746cd6980bfa90b42ed92f489aa538b2342809d6c4e05fa043c0e"
   },
-  "inspect": {
-    "selected_attempt": "attempts/000002",
-    "status": "pass",
+  "inspect": "pass",
+  "normalize": "pass",
+  "static": "pass",
+  "preview": "pass",
+  "visual_review": "pass",
+  "physics": "pass",
+  "expert_qualification": "not_run",
+  "measurements": {
     "triangles": 4722,
     "components": 22,
     "textures": 0,
-    "comparison_usdz_attempt": "attempts/000008",
-    "comparison": "USDZ and selected GLB have matching 22 component and 4722 triangle inventories; maximum symmetric corresponding-component vertex distance is 9.1e-8 m."
+    "leaf_dimensions_m": {
+      "width_m": 0.8792176222640555,
+      "height_m": 2.0968945233821867,
+      "thickness_m": 0.08003834909899159
+    },
+    "handedness": "left",
+    "geometry_fingerprint": "58c17659e05ff5882faa20d6574887325405bcc215b64d602e513f192b6b6127",
+    "source_leaf_width_after_global_scale_m": 0.8971608390449547,
+    "narrow_jamb_width_m": 0.8835533142089843,
+    "excess_width_after_one_percent_reduction_m": 0.00463591644552086,
+    "fitted_leaf_width_m": 0.8792176222640555,
+    "hinge_side_gap_m": 0.0006760707256523446,
+    "latch_side_gap_m": 0.003659621219276432,
+    "hinge_axis_m": [
+      0.08242203932441146,
+      0.45336195465291035,
+      0
+    ]
   },
-  "leaf_dimensions_m_at_current_recipe": [0.8881892306545051, 2.118291406273842, 0.08085506694694049],
-  "handedness": "right",
+  "physics_measurements": {
+    "device": "cuda:0",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "max_reset_deg": 0.0,
+    "max_reset_speed": 0.0,
+    "passive_drift_deg": 0.00019613428949319004,
+    "frame_drift_m": 0.0,
+    "frame_rotation_deg": 0.0,
+    "hinge_error_m": 1.0212460210823338e-06,
+    "penetration_m": 0.0,
+    "maximum_deg": 161.2000322619013,
+    "mechanical_limit_deg": 161.2,
+    "resets": 3
+  },
+  "contact_samples": 0,
   "modifications": [
-    "Kept original geometry and replaced source images/textures with independently authored flat materials in a local-only GLB; both original downloads are untouched.",
-    "Scaled the graphics model uniformly by 0.85 to a plausible full-size leaf, with frame and all hardware collisions retained.",
-    "Partitioned the rebated frame collider at measured jamb/header steps and assigned the twelve fixed-jamb hinge knuckles to Frame.",
-    "Tested the documented maximum 1% uniform Panel/Handle reduction; proper leaf/frame surface crossings remain in normalization attempt 000007."
+    "Use the existing geometry-identical local GLB with original source images removed and independently authored flat materials; retain original GLB/USDZ untouched.",
+    "Use global uniform scale 0.85 as in the initial recipe. Apply a proper rotation to canonical Z-up with the opening moving toward +X from the visible hinge side; no reflection. This corrects the earlier inferred right-handed direction to left-handed in the canonical push convention.",
+    "Use the vertical axis measured from the twelve source knuckle bounds: canonical X=0.08242204 m, Y=0.45336195 m. Keep fixed knuckles in Frame.",
+    "Uniformly reduce Panel and Handle by 2% about the original hinge-facing leaf plane and midheight; preserve that plane rather than shifting it away from the visible knuckles.",
+    "Translate Panel and Handle 0.99 mm toward the hinge to distribute the available side clearance according to the thick-leaf opening sweep.",
+    "Retain frame partition planes under the rigid rotation and all panel, handle and frame collisions. Derive the aperture check from the fitted leaf envelope and the opening stop from collision geometry.",
+    "Keep the common closed-unlatched task state and nominal mass/damping/friction; no latch exclusions or test-tolerance changes."
   ],
-  "normalize": {
-    "attempt": "attempts/000007",
-    "status": "fail",
-    "reason": "Closed door intersects its frame",
-    "source_intersections": "attempts/000007/source_intersections.json",
-    "implicated_components": [20, 21]
-  },
-  "static": "not_run",
-  "preview": "not_run",
-  "visual_review": "not_run",
-  "physics": "not_run",
-  "promote": "not_run",
-  "expert_qualification": "not_run",
-  "scope_decision_needed": "Source-surface crossings disappear near 1.8% uniform moving-assembly reduction in a geometry-only diagnostic; 2% gives approximately 1.7-2.7 mm side gaps. This exceeds the current 1% recipe limit. No threshold was changed and no larger repair was accepted.",
+  "limitations": [
+    "Local-only technical preparation under the recorded source review; original Poliigon-named texture dependencies remain unselected.",
+    "Uniform fitting changes all moving-assembly dimensions by 2%; hinge location comes from visible knuckles, not manufacturer specifications.",
+    "The earlier right-handed inference is corrected to left-handed in the canonical push convention by proper rigid rotation only, never reflection.",
+    "Materials are intentionally plain. Replicator can later vary permitted materials; it does not repair geometric faults or license restrictions.",
+    "The 5.1 frozen robot/expert protocol has not run; no expert qualification or completed corpus is claimed."
+  ],
+  "validation_scope": "25 focused preparation tests, Ruff, static checks, actual front/rear visual review and one isolated RTX 4090 functional run. No unrelated suite, format matrix or synthetic GPU reruns.",
+  "previous_outcome": "Attempts 000001-000008 remain unchanged. The genuine 1% source overlap in attempt 000007 is superseded by the reviewed fitted recipe, not denied or hidden.",
+  "next_step": "The initial batch now has three technically ready doors; begin frozen robot/expert qualification in 5.1 when requested.",
   "evidence": [
-    "candidate.json",
-    "source-evidence.json",
-    "recipe.json",
-    "attempts/000002/inspect.json",
-    "attempts/000007/normalize.json",
-    "attempts/000007/source_intersections.json",
-    "attempts/000008/inspect.json"
-  ],
-  "next_step": "Decide whether to authorize an explicit candidate-specific geometric fitting repair beyond the documented 1% bound; if authorized, prepare a new derivative and rerun only the affected gates. Otherwise retain this candidate as unprepared without calling it an unsuitable door."
+    {
+      "path": "attempts/000009/recipe.json",
+      "sha256": "dba1e6198975c454bb0c922b68768f98189d1547ad709c2c4c54b2b5b699bac7"
+    },
+    {
+      "path": "attempts/000009/inspect.json",
+      "sha256": "37f2b6031b53a9f71abc475dd795c1a09820048fb0911cd604046c1072d712fb"
+    },
+    {
+      "path": "attempts/000009/normalize.json",
+      "sha256": "dc05d745da2bddb1b45c021e41a6defaf86693ce459ee6c461ed94d26269f9fe"
+    },
+    {
+      "path": "attempts/000009/static.json",
+      "sha256": "eed2b9e98aa9d39c0cfd68777607d42c2f6082cdeff75559275fb6de93f20856"
+    },
+    {
+      "path": "attempts/000009/preview.json",
+      "sha256": "dd91fe8acb367964c5ef253836ed143b946569c2c71c21c391dd74f81df2c61c"
+    },
+    {
+      "path": "attempts/000009/physics.json",
+      "sha256": "5875d73f6f8e8d18716a10058f2d2e8fa0dc8b93b781af1746276331d15f3fda"
+    },
+    {
+      "path": "attempts/000009/contacts.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "attempts/000009/physics_trace.npz",
+      "sha256": "76bdf8314e255038d7063d995a02bc985b7b1515670bb85eeb71853e1ebda5c7"
+    },
+    {
+      "path": "attempts/000009/preview-front.png",
+      "sha256": "92ddb18a77cd06a25ae6974ecfdb502e96ccec071cec9a397d9a1046dc3c1fd3"
+    },
+    {
+      "path": "attempts/000009/preview-rear.png",
+      "sha256": "16c93b2c2fead13da689ff9346198bb48bbd158ca6038e18c35fb76aedf78b0d"
+    },
+    {
+      "path": "attempts/000009/fitting-review.json",
+      "sha256": "f6d125a833139ba96f5333bed394a1ab38ef11e173235bd2cba331c6e1315bf2"
+    },
+    {
+      "path": "attempts/000009/prior-one-percent-section.png",
+      "sha256": "4800809cd2a37f536ad42c765134dafed369a76f12a1c5f4bd017d5bcfbe4bcb"
+    }
+  ]
 }

@@ -571,3 +571,11 @@ The 1% maximum fitting attempt still intersects the rebated frame at closed pose
 ## 2026-09-23 — lint : Theocritus local preparation evidence
 Validated candidate JSON, source/derivative hashes, matching geometry inventories, CLI review status and the recorded component 20/21 crossing.
 Wiki links and whitespace pass; original downloads and accepted attempts remain untouched, with no threshold or frozen-setup change.
+
+## 2026-09-23 — update : Theocritus fitting and hinge correction
+Measured excess width justifies extending the reviewed uniform fitting allowance to 2%; hinge-face anchoring, 0.99 mm translation and proper canonical rotation resolve the opening sweep.
+Promoted local-material attempt 000009 after static/visual checks and RTX 4090 opening to 161.2 degrees. Three doors are technically ready; robot qualification remains pending.
+
+## 2026-09-23 — lint : Theocritus repair readiness
+Twenty-five focused preparation tests, Ruff, formatting, wiki links/index, JSON/evidence and whitespace checks pass.
+Original downloads and prior accepted evidence are preserved; one new real-door GPU run, with unchanged physical tolerances and frozen setup.

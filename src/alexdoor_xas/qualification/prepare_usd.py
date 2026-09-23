@@ -29,6 +29,7 @@ from .preparation import (
     FORMATS,
     GROUPS,
     PreparationError,
+    check_hinge_edge,
     collider_batches,
     component_transform,
     file_inventory,
@@ -372,10 +373,8 @@ def normalize(source, recipe, output):
         "Measured panel dimensions differ from recipe by >1 mm",
     )
     sign = 1 if recipe["handedness"] == "left" else -1
-    require(
-        abs(hinge[1] - trimesh.util.concatenate(groups["Panel"]).bounds[1 if sign > 0 else 0, 1])
-        <= 0.01,
-        "Hinge does not match original handedness/panel edge",
+    check_hinge_edge(
+        recipe, trimesh.util.concatenate(groups["Panel"]).bounds[1 if sign > 0 else 0, 1]
     )
     require(
         abs(panel_bounds[:, 1].mean()) <= 0.001

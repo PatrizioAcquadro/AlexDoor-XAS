@@ -1,18 +1,18 @@
 {
-  "handedness": "right",
+  "handedness": "left",
   "scale": 0.85,
   "rotation": [
-    [0, 0, 1],
-    [1, 0, 0],
+    [0, 0, -1],
+    [-1, 0, 0],
     [0, 1, 0]
   ],
-  "translation_m": [0, 0.0005017752468120307, 0.0005348149687051773],
+  "translation_m": [0, -0.0005017752468120307, 0.0005348149687051773],
   "opening_center_source": [-0.0005903238197788596, -0.0006291940808296204, 0],
-  "hinge_m": [-0.0816, -0.453398224753188, 0],
+  "hinge_m": [0.08242203932441146, 0.45336195465291035, 0],
   "dimensions_m": {
-    "width_m": 0.8881892306545051,
-    "height_m": 2.118291406273842,
-    "thickness_m": 0.08085506694694049
+    "width_m": 0.8792176222640555,
+    "height_m": 2.0968945233821867,
+    "thickness_m": 0.08003834909899159
   },
   "components": {
     "Frame": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21],
@@ -20,14 +20,13 @@
     "Handle": [0, 1, 2, 3, 4, 5]
   },
   "leaf_components": [20],
-  "moving_scale": 0.99,
-  "moving_scale_center_m": [-0.035310729208868, 0, 1.0847760323435067],
-  "clearance_review": "The source leaf crosses the frame's inner rebate at the closed pose, witnessed by proper source-surface intersections in attempt 000005. Test the documented 1% maximum uniform moving-assembly reduction; final clearance must be verified by normalization.",
-  "clear_aperture_m": [[-0.440, 0.027], [0.440, 2.130]],
+  "moving_scale": 0.98,
+  "moving_scale_center_m": [0.07614662160631269, 0, 1.0847760323435067],
+  "clearance_review": "The source leaf width after global scale is 0.89716185 m versus a narrow jamb passage of 0.88355331 m; even 1% shrink leaves 4.64 mm excess width, so rigid recentering alone cannot fit it. Uniform 2% Panel/Handle reduction gives width 0.87921762 m. Shift the moving assembly 0.99 mm toward the hinge: side gaps are about 0.68 mm at the hinge and 3.66 mm at the latch, giving room for the thick leaf corner to sweep. Scale about the original hinge-facing leaf plane to preserve its depth alignment with the source knuckles. This is a reviewed graphics-asset fitting approximation, not manufacturer dimensions; runtime collision tolerances are unchanged.",
   "colliders": {
     "21": {
       "partitions": {
-        "y": [-0.452, -0.441, 0.442, 0.453],
+        "y": [-0.453, -0.442, 0.441, 0.452],
         "z": [2.156]
       }
     }
@@ -35,12 +34,13 @@
   "unlatched_components": [],
   "unlatched_review": "No distinct latch or lock bolt is present in the inspected geometry. Both lever handles, the leaf, hinge pieces and frame retain their collisions in the common closed-unlatched state.",
   "modifications": [
-    "Use the reviewed geometry-identical local GLB with all original embedded images removed and locally authored flat wood/metal materials; preserve both downloaded originals.",
-    "Scale uniformly by 0.85 from the graphics model's 2.517 m leaf height to a plausible full-size 2.140 m leaf; no manufacturer size is claimed.",
-    "Rotate source Y-up to canonical Z-up, center the measured leaf width and put the frame base at floor level.",
-    "Partition the rebated frame at its measured jamb steps and header, and declare its inner passage separately from the wider leaf envelope; keep the complete frame collider.",
-    "Treat the twelve narrow left-edge knuckle meshes that occupy the fixed jamb as frame hardware; retain their visuals and collisions. The source does not separately model moving hinge leaves.",
-    "Reduce Panel and Handle uniformly by the documented 1% maximum about the measured leaf center to test whether the source's rebate overlap can be fitted.",
-    "Infer a vertical right-hand hinge through the knuckle center near the back face, as viewed from its hinge side. This is a benchmark pivot assumption, not measured hardware."
-  ]
+    "Use the existing geometry-identical local GLB with original source images removed and independently authored flat materials; retain original GLB/USDZ untouched.",
+    "Use global uniform scale 0.85 as in the initial recipe. Apply a proper rotation to canonical Z-up with the opening moving toward +X from the visible hinge side; no reflection. This corrects the earlier inferred right-handed direction to left-handed in the canonical push convention.",
+    "Use the vertical axis measured from the twelve source knuckle bounds: canonical X=0.08242204 m, Y=0.45336195 m. Keep fixed knuckles in Frame.",
+    "Uniformly reduce Panel and Handle by 2% about the original hinge-facing leaf plane and midheight; preserve that plane rather than shifting it away from the visible knuckles.",
+    "Translate Panel and Handle 0.99 mm toward the hinge to distribute the available side clearance according to the thick-leaf opening sweep.",
+    "Retain frame partition planes under the rigid rotation and all panel, handle and frame collisions. Derive the aperture check from the fitted leaf envelope and the opening stop from collision geometry.",
+    "Keep the common closed-unlatched task state and nominal mass/damping/friction; no latch exclusions or test-tolerance changes."
+  ],
+  "moving_translation_m": [0, 0.00099, 0]
 }

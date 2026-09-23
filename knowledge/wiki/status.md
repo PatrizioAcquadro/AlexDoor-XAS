@@ -2,7 +2,7 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Two doors pass static, visual and isolated GPU checks
+intake has started. Three doors pass static, visual and isolated GPU checks
 in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
@@ -13,22 +13,25 @@ intake scope. The GLB now passes preparation in attempt 000012 after grouped
 solid-leaf cooking, a documented 0.4% uniform moving-assembly reduction for side
 clearance, and an inferred opening-face hinge. Isolated RTX 4090 physics reaches
 the geometry-derived 93-degree limit with stable resets/frame and no reported
-penetration. The initial batch has two technically ready real doors; neither has
-robot/expert qualification. Local-only source and normalized assets must remain
+penetration. Robot/expert qualification remains pending. Local-only source and
+normalized assets must remain
 with the authorized licensee and outside shared asset packages.
 
-The third supplied source, `door-with-doorframe-c29da62c`, is in local technical
+The third supplied source, `door-with-doorframe-c29da62c`, now passes local technical
 preparation. Sketchfab's NoAI restriction concerns programs designed to generate
 new content; B1 policies output robot actions, so that label alone does not
 establish incompatibility. The original downloads contain Poliigon-named textures
 with unverified ML rights. A geometry-identical local GLB removes all nine source
 images and uses independently authored flat materials; the original downloads
 remain untouched. Source review and inspection pass for this local-only derivative.
-The 0.85 uniformly scaled right-hand leaf measures 0.888 × 2.118 × 0.081 m after
-the maximum documented 1% clearance reduction. It still properly intersects the
-rebated frame at the closed pose. Normalization attempt `000007` fails; static,
-visual and GPU checks cannot run. The USDZ has matching geometry within 0.1 µm,
-so its format does not resolve the overlap. The batch still has two ready doors.
+The earlier 1% recipe genuinely overlaps the frame. Attempt `000009` resolves it
+with reviewed 2% uniform fitting, 0.99 mm hinge-side translation and a corrected
+hinge-side canonical rotation. The leaf is 0.879 × 2.097 × 0.080 m and left-handed
+in the canonical push convention. Static and visual checks pass; RTX 4090 reaches
+161.2 degrees with stable resets/frame and no reported penetration. It is promoted
+as local-only; the batch now has three ready doors, with 5.1 still unrun. Flat local
+materials suffice for preparation; later Replicator variation must use permitted
+materials. Physics tolerances and the frozen setup are unchanged.
 
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
@@ -167,6 +170,7 @@ These are historical scientific conclusions, not active workflows. See [[experim
 
 ## Version Notes
 
+- 2026-09-23 — Recovered Theocritus door with reviewed 2% fitting and corrected hinge-side mounting; 25 focused tests and one RTX 4090 run pass. Three doors are ready for 5.1, including two local-only.
 - 2026-09-23 — Prepared a texture-free local derivative of Theocritus's door; source and inspection pass, but normalization remains blocked by a genuine leaf/frame overlap at the current 1% fitting limit.
 - 2026-09-23 — Corrected Theocritus source review to `unresolved`: NoAI alone does not show a conflict with action policies, while Poliigon-named texture rights remain unverified.
 - 2026-09-23 — Initially rejected Theocritus's NoAI-marked door before preparation; that source decision is superseded by the correction above.

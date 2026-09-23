@@ -25,6 +25,6 @@
   "local_dependency_review_notes": "The selected local GLB keeps the original geometry buffer byte-for-byte but removes all nine embedded source images, texture and sampler references, and image buffer views. Six independently authored flat PBR colors replace the source materials. Inspect attempt 000002 confirms zero textures and no external dependency. This pass applies only to the selected derivative, not the original textured GLB/USDZ.",
   "local_duplicate_review": "pass",
   "local_duplicate_review_notes": "Inspect attempt 000002 reports 4722 triangles, 22 components and geometry fingerprint 58c17659e05ff5882faa20d6574887325405bcc215b64d602e513f192b6b6127, distinct from the two accepted door fingerprints fbe3626a5effe7faf794b90d2cc407cb03c5f6b12f45878aa3d884a32858cb20 and 0ed927caadd03f215e80048d3a0152a5612e843fcb2590d1fa2a37988024fd43.",
-  "local_visual_review": "unresolved",
-  "local_visual_review_notes": "No normalized preview exists because attempt 000007 still fails at closed-pose source surface intersection; no visual pass is claimed."
+  "local_visual_review": "pass",
+  "local_visual_review_notes": "Reviewed attempt 000009 front/rear RTX images: both recessed leaf panels, complete molded frame, both dark lever handles and source hinge hardware remain visible; the fitted gaps are explicit and the six flat local PBR materials render consistently. Original wood/metal images are absent; appearance diversity belongs to later approved Replicator materials."
 }

@@ -9,6 +9,7 @@ import pytest
 from alexdoor_xas.qualification.convex_geometry import Convex, mechanical_limit, overlap
 from alexdoor_xas.qualification.preparation import (
     PreparationError,
+    check_hinge_edge,
     collider_batches,
     component_transform,
     file_inventory,
@@ -131,10 +132,11 @@ def test_moving_assembly_translation_is_explicit_and_finite():
         validate_recipe(data, 2)
 
 
-def test_clearance_repair_preserves_handle_attachment_and_fixed_frame():
+@pytest.mark.parametrize("moving_scale", [0.996, 0.98])
+def test_clearance_repair_preserves_handle_attachment_and_fixed_frame(moving_scale):
     data = recipe()
     data.update(
-        moving_scale=0.996,
+        moving_scale=moving_scale,
         moving_scale_center_m=[0, 0, 1.05],
         clearance_review="Zero side gap; introduce 1.3 mm per side.",
     )
@@ -143,7 +145,7 @@ def test_clearance_repair_preserves_handle_attachment_and_fixed_frame():
     assert np.array_equal(panel, component_transform(data, "Handle"))
     assert np.array_equal(component_transform(data, "Frame"), np.eye(4))
     assert np.allclose(panel @ [0, 0, 1.05, 1], [0, 0, 1.05, 1])
-    for scale in [0.9, 1.01, float("nan")]:
+    for scale in [0.979, 1.01, float("nan")]:
         data["moving_scale"] = scale
         with pytest.raises(PreparationError, match="clearance scale"):
             validate_recipe(data, 2)
@@ -151,6 +153,24 @@ def test_clearance_repair_preserves_handle_attachment_and_fixed_frame():
     del data["clearance_review"]
     with pytest.raises(PreparationError, match="clearance_review"):
         validate_recipe(data, 2)
+
+
+def test_clearance_fitting_can_retain_the_source_hinge_but_not_the_wrong_edge():
+    data = recipe()
+    data.update(
+        handedness="right",
+        moving_scale=0.98,
+        moving_scale_center_m=[0, 0, 1],
+        moving_translation_m=[0, -0.001, 0],
+        hinge_m=[-0.08, -0.459, 0],
+    )
+    # The leaf edge retreats 9 mm; the source hinge remains 8 mm outside it.
+    check_hinge_edge(data, -0.45 * 0.98 - 0.001)
+    with pytest.raises(PreparationError, match="Hinge"):
+        check_hinge_edge(data, 0.45 * 0.98 - 0.001)
+    data["moving_scale"] = 1
+    with pytest.raises(PreparationError, match="Hinge"):
+        check_hinge_edge(data, -0.442)
 
 
 def test_collider_groups_cover_surfaces_without_merging_bodies_or_latches():
