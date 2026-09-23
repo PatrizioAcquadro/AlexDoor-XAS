@@ -124,6 +124,17 @@ and current passing normalization/static/physics files. It writes only
 `ready_for_5.1`, never expert qualification or corpus completion. Accepted attempts
 cannot be overwritten by rerunning a command.
 
+**License scope.** `distribution_scope` is `redistributable` for CC0/CC BY 4.0
+sources and dependencies, or `local_only` for reviewed Sketchfab Free Standard
+sources and their packaged dependencies. Existing CC records without the field
+remain redistributable. Local-only means processing in the downloading licensee's
+authorized workspace, not permission to share files with other users. Source
+payloads, normalized geometry and textures from those doors cannot enter shared
+asset packages. Their rendered datasets and other derived artifacts require a
+separate rights review before release. The preparation and expert criteria do not
+change; `prepared.json` records the scope beside technical readiness. The legacy
+Phase 4 license gate remains CC-only.
+
 **Usage.** Keep reviewed `candidate.json`, `recipe.json` and license evidence under
 `assets/doors/b1/<asset-id>/` in Git. Generated `attempts/` and `prepared.json` are
 ignored. `review` requires asset/source IDs, source URL, author, license and its
@@ -132,7 +143,8 @@ asset-specific evidence, attribution, retrieval date, door type, selected format
 Unknown remote geometry may remain unset. Before promotion, record passing
 `local_dependency_review`, `local_duplicate_review`, `local_visual_review` and the
 `reviewed_source_sha256` from `inspect.json`; explain any fingerprint collision in
-`duplicate_resolution`. License evidence must cover the redistributed dependencies.
+`duplicate_resolution`. License evidence must cover every dependency under its
+declared distribution scope.
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review \
@@ -277,17 +289,19 @@ the accepted attempt, whose evidence is protected from overwrite.
 and `~/Downloads/modern_door.usdz`. The page lists Free Standard, original GLB and
 converted USDZ/glTF/GLB downloads, about 3.6k triangles, and shows one wooden leaf,
 frame and long handle. Embedded USDZ metadata independently says `SKETCHFAB Standard`.
-The existing `review` command fails the source-license gate. This candidate is
-rejected before inspection, recipe, GPU checks or promotion; dimensions, original
-handedness and separability were not measured. Its source and rejection evidence are
-under `assets/doors/b1/modern-door-2fb8d024/`; the original download is untouched.
+The earlier CC-only `review` rejected this source before inspection. After the
+user approved local-only intake, that rejection is superseded as a policy outcome;
+the original download and its review evidence remain preserved. Technical
+preparation is pending its own checks.
 
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
   unused reserve payload. The user controls the sequential URL intake.
-- Accept only CC0 or CC BY 4.0 covering the asset and redistributed dependencies.
-  Reject unclear or incompatible terms; retain attribution and license evidence.
+- Accept CC0/CC BY 4.0 and dependencies for redistributable assets; admit reviewed
+  Sketchfab Free Standard sources only as local-only. Reject unclear or otherwise
+  incompatible terms; retain attribution and license evidence. No local-only
+  geometry or textures enter shared packages.
 - Use full-size single-leaf interior/exterior/industrial push doors, separable
   panel/frame, prepared closed and already unlatched. Exclude gates, cabinets, sliding/double
   doors, and fantasy geometry. Mirrors/recolors are not independent identities.
@@ -312,8 +326,9 @@ closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
-The Ahmed sayed candidate is excluded by its source license, independently of its
-unmeasured technical suitability. The initial prepared batch remains at one door.
+The Ahmed sayed candidate's earlier license rejection is superseded by the
+local-only scope; its technical suitability has not yet been established. The
+initial prepared batch remains at one door until the preparation gates pass.
 
 Conversion uses a glTF/PreviewSurface material path. Texture preservation is tested,
 but arbitrary shaders, animations and all source-format features are not guaranteed;

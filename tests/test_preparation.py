@@ -1,6 +1,7 @@
 """Essential B1 recipe, admission and preservation contracts."""
 
 import copy
+import json
 
 import numpy as np
 import pytest
@@ -58,6 +59,21 @@ def test_unknown_remote_geometry_is_deferred_but_license_must_be_known():
     data = remote()
     data["frame_panel_separable"] = False
     with pytest.raises(PreparationError, match="separable"):
+        remote_review(data)
+
+
+def test_standard_license_is_local_only_including_dependencies():
+    data = remote()
+    data["license"] = "Sketchfab-Free-Standard"
+    data["dependencies"] = [
+        {"path": "texture.jpg", "license": "Sketchfab-Free-Standard", "license_evidence": "page"}
+    ]
+    with pytest.raises(PreparationError, match="License"):
+        remote_review(data)
+    data["distribution_scope"] = "local_only"
+    assert remote_review(data)["distribution_scope"] == "local_only"
+    data["dependencies"][0]["license"] = "unknown"
+    with pytest.raises(PreparationError, match="Dependency"):
         remote_review(data)
 
 
@@ -144,9 +160,20 @@ def test_promotion_requires_current_evidence_and_preserves_prepared_candidate(tm
     payload.write_text("validated payload")
     promote(attempt, candidate)
     accepted = pointer.read_bytes()
+    assert b'"distribution_scope": "redistributable"' in accepted
     with pytest.raises(PreparationError):
         promote(attempt, candidate)
     assert pointer.read_bytes() == accepted
+
+
+def test_local_only_promotion_retains_distribution_scope(tmp_path):
+    attempt, candidate, _ = promotion_fixture(tmp_path)
+    review = json.loads(candidate.read_text())
+    review.update(license="Sketchfab-Free-Standard", distribution_scope="local_only")
+    write_json(candidate, review)
+    assert promote(attempt, candidate) == "local_only"
+    pointer = json.loads((attempt.parent.parent / "prepared.json").read_text())
+    assert pointer["distribution_scope"] == "local_only"
 
 
 def test_leaf_measurement_can_exclude_attached_hardware_but_not_select_frame():

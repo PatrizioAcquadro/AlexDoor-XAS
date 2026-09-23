@@ -111,7 +111,13 @@ the model prepares/checks the local payload using those tools. Each prepared doo
 can proceed directly to the expert check in 5.1; no initial batch of 24 downloads
 is required. Apply the legal, normalization, static, and physics criteria in
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
-Only CC0 or CC BY 4.0 assets and redistributable dependencies are admitted.
+The internal B1 study may use CC0, CC BY 4.0, or explicitly marked local-only
+Sketchfab Free Standard assets. The latter require the downloading licensee's
+authorized local access; their source, normalized geometry and dependencies are
+excluded from shared asset packages. Only CC0/CC BY 4.0 assets with matching
+dependency rights are redistributable. A later release of rendered datasets or
+other derived artifacts from local-only doors requires a separate rights review.
+The technical qualification and split rules are the same for both scopes.
 
 Apply the frozen setup/probe to every asset. A contact fraction naturally produces
 a different metric distance on a different width; this is the same rule. Moving
@@ -254,7 +260,7 @@ The plan has nine subphases, grouped by concrete outputs:
 | [[implementation_phases/phase-6-perception-actions-and-demonstrations|6 — Perception, Actions, and Demonstrations]] | 6.0 observations/perception; 6.1 complete A1-A4; 6.2 passed pilot followed by final dataset. | Shared observed-input stack, eight usable learning paths, and matched demonstrations. |
 | [[implementation_phases/phase-7-training-and-generalization-evaluation|7 — Training and Generalization Evaluation]] | 7.0 training; 7.1 evaluation and analysis, ID/GEO before stress tiers. | Core generalization result, subsequent stress analysis, and reproducible records. |
 
-Retain licensed asset provenance, split, setup/probe and expert references,
+Retain licensed asset provenance and distribution scope, split, setup/probe and expert references,
 observation/action contracts, dataset recipe, frozen protocol, and per-door and
 aggregate results. Public-release packaging is a final checklist, not a separate
 subphase or a blocker to delivering the research result. Claims cover this

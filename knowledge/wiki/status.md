@@ -7,9 +7,11 @@ in the common closed-unlatched state and is ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
-The next supplied source, `modern-door-2fb8d024`, fails the CC0/CC BY 4.0 license
-gate because its page and local USDZ both identify Sketchfab Standard. It was not
-prepared or promoted; the initial batch still has one technically ready real door.
+The next supplied source, `modern-door-2fb8d024`, has a Sketchfab Free Standard
+license. Its earlier CC-only rejection is superseded by the approved local-only
+intake scope. Technical preparation remains pending; the initial batch still has
+one technically ready real door. Local-only source and normalized assets must
+remain with the authorized licensee and outside shared asset packages.
 
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
@@ -144,6 +146,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Added local-only Sketchfab Free Standard intake for internal B1 study while keeping CC-only assets as the redistributable class; modern-door technical preparation is pending.
 
 - 2026-09-23 — Rejected the Ahmed sayed modern-door source at the Phase 5.0 license gate; kept the local download intact and recorded no technical preparation claim.
 

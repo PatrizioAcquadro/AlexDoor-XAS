@@ -76,8 +76,12 @@ def main():
         elif args.command == "promote":
             if not args.attempt or not args.candidate:
                 parser.error("promote requires --attempt and --candidate")
-            promote(args.attempt, args.candidate)
-            result = {"status": "pass", "scope": "ready_for_5.1"}
+            distribution_scope = promote(args.attempt, args.candidate)
+            result = {
+                "status": "pass",
+                "scope": "ready_for_5.1",
+                "distribution_scope": distribution_scope,
+            }
         else:
             if args.command in {"inspect", "normalize"}:
                 if not args.asset_id or not args.source:

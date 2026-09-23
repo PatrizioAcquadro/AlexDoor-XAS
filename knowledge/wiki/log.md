@@ -511,3 +511,11 @@ Recorded source evidence and rejection without creating a preparation attempt or
 ## 2026-09-23 — lint : Modern-door source rejection
 Candidate JSON, source checksum, source-review failure, wiki links/index and whitespace checks pass.
 Only rejection records and canonical wiki text changed; raw research, prior assets and frozen Phase 4 setup are untouched.
+
+## 2026-09-23 — update : Local-only B1 license scope
+Added reviewed Sketchfab Free Standard intake for authorized local work while retaining CC0/CC BY 4.0 for redistributable assets.
+Technical readiness and distribution scope are recorded separately; the earlier modern-door policy rejection is superseded.
+
+## 2026-09-23 — lint : Local-only license contract
+Focused preparation and wiki-link tests, Ruff and whitespace checks pass; legacy Phase 4 license validation is unchanged.
+Canonical phase, decision, architecture and status pages agree on the local-only boundary and release limitation.

@@ -12,6 +12,7 @@ from alexdoor_xas.door_qualification import ACCEPTED_LICENSES, DoorDimensions, s
 
 FORMATS = {".usd", ".usda", ".usdc", ".usdz", ".glb", ".gltf", ".fbx", ".obj"}
 GROUPS = ("Frame", "Panel", "Handle")
+LOCAL_ONLY_LICENSES = {"Sketchfab-Free-Standard"}
 
 
 class PreparationError(ValueError):
@@ -53,8 +54,21 @@ def remote_review(record, existing=()):
         "door_type",
     ):
         require(bool(record.get(name)), f"Missing {name}", status="unresolved", category="source")
+    distribution_scope = record.get("distribution_scope", "redistributable")
     require(
-        record["license"] in ACCEPTED_LICENSES, "License is outside B1 admission", category="source"
+        distribution_scope in {"redistributable", "local_only"},
+        "Unknown distribution scope",
+        category="source",
+    )
+    permitted_licenses = (
+        ACCEPTED_LICENSES | LOCAL_ONLY_LICENSES
+        if distribution_scope == "local_only"
+        else ACCEPTED_LICENSES
+    )
+    require(
+        record["license"] in permitted_licenses,
+        "License is outside B1 admission",
+        category="source",
     )
     require(
         record["door_type"] in {"interior", "exterior", "industrial"},
@@ -73,7 +87,7 @@ def remote_review(record, existing=()):
         )
     for dep in record.get("dependencies", []):
         require(
-            dep.get("license") in ACCEPTED_LICENSES and dep.get("license_evidence"),
+            dep.get("license") in permitted_licenses and dep.get("license_evidence"),
             "Dependency license evidence missing or incompatible",
             category="source",
             status="unresolved",
@@ -100,7 +114,12 @@ def remote_review(record, existing=()):
             f"Outside admission: {key}",
             category="asset",
         )
-    return {"status": "pass", "scope": "remote_review_only", "record": record}
+    return {
+        "status": "pass",
+        "scope": "remote_review_only",
+        "distribution_scope": distribution_scope,
+        "record": record,
+    }
 
 
 def validate_recipe(recipe, component_count):
@@ -210,7 +229,9 @@ def promote(attempt, candidate):
     accepted = [
         json.loads(p.read_text()) for p in attempt.parent.parent.parent.glob("*/prepared.json")
     ]
-    remote_review(review, [item["candidate"] for item in accepted])
+    distribution_scope = remote_review(review, [item["candidate"] for item in accepted])[
+        "distribution_scope"
+    ]
     inspected = json.loads((attempt / "inspect.json").read_text())
     require(
         review.get("reviewed_source_sha256") == inspected["source_sha256"],
@@ -245,4 +266,13 @@ def promote(attempt, candidate):
     )
     pointer = attempt.parent.parent / "prepared.json"
     require(not pointer.exists(), "Prepared candidate already exists; preserve it")
-    write_json(pointer, {"status": "ready_for_5.1", "attempt": str(attempt), "candidate": review})
+    write_json(
+        pointer,
+        {
+            "status": "ready_for_5.1",
+            "distribution_scope": distribution_scope,
+            "attempt": str(attempt),
+            "candidate": review,
+        },
+    )
+    return distribution_scope

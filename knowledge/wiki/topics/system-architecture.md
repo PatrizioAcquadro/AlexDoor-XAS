@@ -53,6 +53,8 @@ the next qualification phase; preparation does not execute or retune the robot p
 evidence and recipes under `assets/doors/b1/<id>/` are versioned; source snapshots,
 generated attempts and the prepared pointer are ignored. Source/geometry duplicates
 and source-bound local review are checked before promotion to `ready_for_5.1`.
+The pointer also records whether the asset is redistributable or local-only;
+technical readiness does not grant distribution rights.
 See [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] for the
 interface, commands, supported formats, approximations and measured readiness.
 
