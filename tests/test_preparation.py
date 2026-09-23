@@ -80,6 +80,25 @@ def test_standard_license_is_local_only_including_dependencies():
         remote_review(data)
 
 
+def test_no_derivatives_license_requires_private_noncommercial_scope():
+    data = remote()
+    data["license"] = "CC-BY-NC-ND-4.0"
+    for scope in (None, "local_only"):
+        data.pop("distribution_scope", None)
+        if scope:
+            data["distribution_scope"] = scope
+        with pytest.raises(PreparationError, match="License"):
+            remote_review(data)
+    data["distribution_scope"] = "private_noncommercial"
+    data["dependencies"] = [
+        {"path": "material", "license": "CC-BY-NC-ND-4.0", "license_evidence": "page"}
+    ]
+    assert remote_review(data)["distribution_scope"] == "private_noncommercial"
+    data["dependencies"][0]["license"] = "Sketchfab-Free-Standard"
+    with pytest.raises(PreparationError, match="Dependency"):
+        remote_review(data)
+
+
 @pytest.mark.parametrize(
     "field", ["license_scope_review", "custom_terms_review", "duplicate_review"]
 )

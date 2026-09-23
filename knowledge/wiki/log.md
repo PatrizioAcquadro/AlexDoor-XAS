@@ -587,3 +587,11 @@ Recorded a source-review failure before inspection, leaving three technically re
 ## 2026-09-23 — lint : Void Frame Studio source review
 Candidate JSON, archive hashes, CLI source failure and no-attempt state match the recorded evidence.
 Wiki links/index and Markdown whitespace pass; the original downloads and three accepted doors are preserved.
+
+## 2026-09-23 — update : Allow private noncommercial source preparation
+The user authorized a narrow CC BY-NC-ND intake scope for Void Frame Studio; source review now passes with that scope recorded.
+Modified source assets remain private and noncommercial, with no change to the author's license or frozen robot criteria.
+
+## 2026-09-23 — lint : Private noncommercial source scope
+The focused source-scope tests, Ruff, candidate JSON, CLI review and wiki links pass.
+Markdown whitespace passes; no asset attempt or GPU claim was made at this policy milestone.

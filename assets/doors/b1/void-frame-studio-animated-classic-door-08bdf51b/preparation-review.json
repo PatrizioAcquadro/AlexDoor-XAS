@@ -1,12 +1,12 @@
 {
-  "status": "fail",
-  "category": "source",
-  "stage": "review",
-  "reason": "License is outside B1 admission: CC BY-NC-ND 4.0 is not in the current 5.0 permitted set for either redistributable or local-only candidates.",
+  "status": "unresolved",
+  "category": "technical_preparation",
+  "stage": "inspect_pending",
+  "reason": "User-approved private_noncommercial source scope passes review; technical preparation has not yet run.",
   "source_evidence": "source-evidence.json",
   "candidate": "candidate.json",
-  "technical_preparation": "not_run",
-  "technical_note": "The source geometry has not failed inspection, normalization, static, visual or physics checks. Processing stops at the current rights gate.",
+  "technical_preparation": "pending",
+  "technical_note": "The source geometry has not yet passed or failed inspection, normalization, static, visual or physics checks.",
   "downloads_preserved": true,
   "existing_accepted_doors_preserved": true
 }

@@ -36,6 +36,6 @@
       "archive_entries": "scene.usdc only"
     }
   ],
-  "license_interpretation": "CC BY-NC-ND 4.0 permits producing and reproducing adaptations for noncommercial purposes, but not sharing them. The current Phase 5.0 corpus rule does not admit this license. No inspect/normalization/physics result is claimed.",
+  "license_interpretation": "CC BY-NC-ND 4.0 permits producing and reproducing adaptations for noncommercial purposes, but not sharing them. The user authorized a narrow private_noncommercial 5.0 exception on 2026-09-23; no commercial use or sharing of modified model/USD or generated evidence is authorized. No technical result is inferred from this license review.",
   "terms_evidence": "https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en"
 }

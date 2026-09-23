@@ -13,6 +13,7 @@ from alexdoor_xas.door_qualification import ACCEPTED_LICENSES, DoorDimensions, s
 FORMATS = {".usd", ".usda", ".usdc", ".usdz", ".glb", ".gltf", ".fbx", ".obj"}
 GROUPS = ("Frame", "Panel", "Handle")
 LOCAL_ONLY_LICENSES = {"Sketchfab-Free-Standard"}
+PRIVATE_NONCOMMERCIAL_LICENSES = {"CC-BY-NC-ND-4.0"}
 
 
 class PreparationError(ValueError):
@@ -55,16 +56,13 @@ def remote_review(record, existing=()):
     ):
         require(bool(record.get(name)), f"Missing {name}", status="unresolved", category="source")
     distribution_scope = record.get("distribution_scope", "redistributable")
-    require(
-        distribution_scope in {"redistributable", "local_only"},
-        "Unknown distribution scope",
-        category="source",
-    )
-    permitted_licenses = (
-        ACCEPTED_LICENSES | LOCAL_ONLY_LICENSES
-        if distribution_scope == "local_only"
-        else ACCEPTED_LICENSES
-    )
+    extra_licenses = {
+        "redistributable": set(),
+        "local_only": LOCAL_ONLY_LICENSES,
+        "private_noncommercial": PRIVATE_NONCOMMERCIAL_LICENSES,
+    }
+    require(distribution_scope in extra_licenses, "Unknown distribution scope", category="source")
+    permitted_licenses = ACCEPTED_LICENSES | extra_licenses[distribution_scope]
     require(
         record["license"] in permitted_licenses,
         "License is outside B1 admission",

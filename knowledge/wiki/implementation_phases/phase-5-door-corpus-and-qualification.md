@@ -160,14 +160,17 @@ cannot be overwritten by rerunning a command.
 
 **License scope.** `distribution_scope` is `redistributable` for CC0/CC BY 4.0
 sources and dependencies, or `local_only` for reviewed Sketchfab Free Standard
-sources and their packaged dependencies. Existing CC records without the field
-remain redistributable. Local-only means processing in the downloading licensee's
-authorized workspace, not permission to share files with other users. Source
-payloads, normalized geometry and textures from those doors cannot enter shared
-asset packages. Their rendered datasets and other derived artifacts require a
-separate rights review before release. The preparation and expert criteria do not
-change; `prepared.json` records the scope beside technical readiness. The legacy
-Phase 4 license gate remains CC-only.
+sources and their packaged dependencies. The source-specific, user-approved
+`private_noncommercial` scope additionally admits CC BY-NC-ND 4.0 for private,
+noncommercial preparation and tests. It does not permit commercial use or sharing
+adapted material. Existing CC records without the field remain redistributable.
+Local-only means processing in the downloading licensee's authorized workspace,
+not permission to share files with other users. Source payloads, normalized
+geometry and textures from restricted doors cannot enter shared asset packages.
+Their rendered datasets and other derived artifacts require a separate rights
+review before release. The preparation and expert criteria do not change;
+`prepared.json` records the scope beside technical readiness. The legacy Phase 4
+license gate remains CC-only.
 Free Standard alone does not clear extra source terms or third-party dependencies
 for B1 training and evaluation. An explicit failed source review returns `fail`;
 missing evidence remains `unresolved`. Stop before `inspect` while source rights
@@ -460,23 +463,23 @@ and physics suitability were not inspected.
 The page and download modal explicitly label the source **CC BY-NC-ND 4.0**, not
 Sketchfab Free Standard. [CC's license text](https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en)
 permits private noncommercial adaptations but prohibits sharing adapted material.
-The current 5.0 source policy admits CC0/CC BY 4.0, or reviewed Free Standard for
-local-only work; it does not admit CC BY-NC-ND. The existing CLI `review` therefore
-returns `fail` in the source category, "License is outside B1 admission". This is
-an admission-policy result, not a finding that personal use is categorically
-forbidden or that the mesh failed technically. Processing stopped before `inspect`;
-no recipe, visual pass, GPU result or promotion is claimed. Candidate-specific
-evidence is in `assets/doors/b1/void-frame-studio-animated-classic-door-08bdf51b/`.
-The three prepared doors and both downloaded originals remain intact.
+The initial 5.0 `review` returned `fail` because the previous scope did not admit
+that license. The user then authorized private, noncommercial preparation of this
+source. The revised `private_noncommercial` scope passes source review, without
+changing the author's license or permitting distribution of a normalized asset.
+Candidate-specific evidence is in
+`assets/doors/b1/void-frame-studio-animated-classic-door-08bdf51b/`. The three
+prepared doors and both downloaded originals remain intact.
 
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
   unused reserve payload. The user controls the sequential URL intake.
 - Accept CC0/CC BY 4.0 and dependencies for redistributable assets; admit reviewed
-  Sketchfab Free Standard sources only as local-only. Hold unclear terms as
-  unresolved and reject demonstrated incompatibility; retain attribution and
-  license evidence. No local-only geometry or textures enter shared packages.
+  Sketchfab Free Standard sources only as local-only and the specifically approved
+  CC BY-NC-ND source as private/noncommercial. Hold unclear terms as unresolved
+  and reject demonstrated incompatibility; retain attribution and license evidence.
+  No restricted geometry or textures enter shared packages.
 - Use full-size single-leaf interior/exterior/industrial push doors, separable
   panel/frame, prepared closed and already unlatched. Exclude gates, cabinets, sliding/double
   doors, and fantasy geometry. Mirrors/recolors are not independent identities.
@@ -507,8 +510,9 @@ are superseded by local-only scope and the reviewed GLB repair. The initial batc
 now contains three technically ready doors, but only the witnessk asset is
 redistributable. Inferred pivots and clearance fitting do not reconstruct real
 hardware; the nominal benchmark still requires the frozen 5.1 robot probe.
-The Void Frame Studio source is a separate, license-gated candidate and does not
-count as the fourth technically ready door under the present admission rule.
+The Void Frame Studio source's initial license failure is superseded by the
+private/noncommercial review. It remains outside the technically ready count until
+all preparation gates pass.
 
 Conversion uses a glTF/PreviewSurface material path. Texture preservation is tested,
 but arbitrary shaders, animations and all source-format features are not guaranteed;
