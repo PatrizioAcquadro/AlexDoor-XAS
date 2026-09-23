@@ -1,6 +1,9 @@
 # Project Status
 
-Current as of 2026-09-22. Subphases 4.0 and 4.1 are implemented and GPU-verified.
+Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
+Subphase 5.0 preparation infrastructure is implemented and verified; real-door
+intake has not started. See [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
+for commands, supported formats, admission rules and evidence.
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
 release. Paired minima are 66.15/77.91 degrees for left/right 0.65 m doors and
@@ -44,7 +47,7 @@ software contracts, without claiming B1 learned execution.
 
 ## Verification
 
-The dependency/CUDA preflight passes on the RTX 4090. All 341 software tests pass,
+The dependency/CUDA preflight passes on the RTX 4090. All 350 software tests pass,
 including historical data/model contracts, as do Ruff and wiki-link/index checks.
 GPU checks pass three stable resets, seven-joint/full-pose control, loaded distal
 contacts and forbidden-contact detection, and synchronized metric head RGB-D.
@@ -58,6 +61,12 @@ Targeted final checks in sibling `purdue-final-rgbd/` and `purdue-final-contacts
 verify reset renderer settling and force direction. Numerical traces, raw contact
 records and representative images are retained. The separate D0 door-only GPU
 smoke also passes; it establishes no B1 corpus qualification.
+
+`~/.cache/alexdoor-xas/verification/door-preparation-50/` adds four normalized
+synthetic doors with passing static/GPU reset, drift, hinge and opening checks.
+All eight supported input suffixes pass textured conversion checks; malformed
+assets and an injected physical obstruction are detected. Front/rear textured
+previews were rendered and inspected. No real door or expert reference is admitted.
 
 The launcher still warns that `setup_conda_env.sh` is absent. Its actual Python,
 Isaac provenance, Alex assets, ZED dependency and CUDA preflight pass. No runtime
@@ -73,6 +82,8 @@ installation or driver modification was made.
 - `scripts/verify_benchmark_scene.py` and `scripts/verify_adapters.py` — route to that same gate.
 - `scripts/verify_dataset_interface.py` — retained historical dataset interface checks.
 - `scripts/train_policy.py` — offline training on existing supported data.
+- `scripts/prepare_doors.py` — B1 review, inspect, normalize, static, physics, preview and promote.
+- `scripts/verify_door_preparation.py` — synthetic infrastructure and format verification.
 - `scripts/prepare_phase4_1_assets.py`, `scripts/normalize_phase4_1_door.py`,
   `scripts/verify_phase4_1_doors.py` — retained legacy preparation, with the limits below.
 
@@ -85,7 +96,8 @@ Preparation still assumes the B0 anchor, simple panel/jamb/header collision boxe
 non-colliding handles, 0–90-degree stops and the previous mass/damping template.
 Its physics inspection now instantiates only the door: it measures reset, drift
 and applied-torque response, not collision-consistent robot qualification.
-Phase 5.0 must validate and replace these limitations before B1 corpus admission.
+The new Phase 5.0 workflow replaces these assumptions for B1 preparation; the
+legacy commands remain separate and cannot admit B1 candidates.
 The ignored worklist and all local assets were preserved.
 
 Historical D0–D4 layers, datasets and policy outputs are unchanged. Verification
@@ -95,7 +107,9 @@ training run or media was added to the tracked output tree.
 ## Next Phases
 
 The common floor/contact/neck setup and expert protocol are frozen on synthetics.
-Phase 5 next validates preparation infrastructure and admits a real corpus.
+Phase 5 next processes the first user-provided candidate URL, following source-site
+and pre-download guidance. Technically prepared doors then enter Subphase 5.1;
+the real corpus, expert qualification and split are still pending.
 Phase 6 integrates observations and all learned A1–A4 paths, then a demonstration
 pilot. Phase 7 owns training and generalization evaluation.
 
@@ -112,6 +126,7 @@ These are historical scientific conclusions, not active workflows. See [[experim
 
 ## Version Notes
 
+- 2026-09-23 — Verified Subphase 5.0 preparation infrastructure, conversion paths and static/GPU gates; awaiting the first candidate URL.
 - 2026-09-22 — Implemented Purdue operational integration and retired B0 execution, preserving historical readers and isolated door preparation.
 - 2026-09-22 — Completed preparatory cleanup and revised the B1 nine-subphase plan.
 - 2026-08-13 — Recorded the historical B0 system and approved held-out-door study.

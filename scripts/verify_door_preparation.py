@@ -75,6 +75,7 @@ def synthetic_recipe(components, door):
         components=groups,
         dimensions_m=dict(width_m=door.width, height_m=door.height, thickness_m=door.thickness),
         modifications=["Explicit synthetic component selection; nominal B1 physics"],
+        source_dependencies=[],
     )
     return recipe
 
@@ -331,6 +332,12 @@ def main():
         target = output / "prepared"
         target.mkdir()
         result = normalize(source, recipe, target)
+        hinge_frame = np.array(result["opening_to_hinge"])
+        require(
+            np.allclose(hinge_frame[:3, 2], [0, 0, door.sign])
+            and np.isclose(np.linalg.det(hinge_frame[:3, :3]), 1),
+            "Hinge transform must expose the actual positive joint axis without reflection",
+        )
         results.append(result)
         print(json.dumps(result), flush=True)
     if args.formats:

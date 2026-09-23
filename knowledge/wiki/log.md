@@ -463,3 +463,11 @@ Recorded synthetic conversion evidence; full static/GPU infrastructure closeout 
 ## 2026-09-23 — update : B1 static and GPU preparation gates
 Implemented canonical asset checks, three resets, drift/opening measurements and raw-contact diagnostics.
 Four synthetic doors and eight format variants pass; negative fixtures and a GPU obstacle are detected.
+
+## 2026-09-23 — update : Subphase 5.0 infrastructure readiness
+Documented commands, recipe/source review, conversion limits, preserved attempts and measured GPU evidence.
+Updated status and architecture; real-door intake awaits a user URL after source-site and download guidance.
+
+## 2026-09-23 — lint : Subphase 5.0 closeout
+All 350 software tests pass; wiki links/index, Ruff and whitespace checks pass.
+Verified source/code references, unchanged raw research and frozen Phase 4 configuration; no real-corpus completion claimed.

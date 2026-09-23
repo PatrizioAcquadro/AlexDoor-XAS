@@ -11,7 +11,9 @@ The study compares matched episodes in four action representations (A1-A4), allo
 Subphase 4.0 replaces B0 execution with the Purdue Alex003 operational runtime:
 WSG32/UMI v1, measured pedestal, seven-joint A1/full-pose A2/A3 control and head
 ZED RGB-D/proprioception. Synthetic collidable fixtures commission the integration;
-common door setup and learned-policy integration belong to later phases.
+Subphase 4.1 freezes the common setup and probe on four synthetic doors. Subphase
+5.0 adds verified door preparation, format conversion and static/GPU checks.
+Real-door intake, expert qualification and learned-policy integration remain pending.
 
 Historical datasets, ACT/Diffusion models, checkpoint loading and offline training
 remain available. Full generation and learned evaluation currently stop with a
@@ -21,6 +23,9 @@ as Purdue policies.
 See [Project Status](knowledge/wiki/status.md) for evidence and remaining work,
 and [Phase 4](knowledge/wiki/implementation_phases/phase-4-robot-and-task-configuration.md)
 for the operational contract. No command controls physical hardware.
+
+Use [Phase 5](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
+for `scripts/prepare_doors.py` commands and the pre-download candidate checklist.
 
 ## Requirements
 
@@ -60,8 +65,8 @@ deferred to Phase 6.
 
 ```text
 src/alexdoor_xas/   package code for the benchmark, data, policies, and evaluation
-scripts/            operational verification, offline training and retained preparation
-configs/            historical calibration and offline policy configuration
+scripts/            operational verification, B1 preparation and offline training
+configs/            frozen synthetic setup, historical calibration and offline policies
 tests/              deterministic regression and contract tests
 knowledge/          user-owned raw research and the official technical wiki
 datasets/           reusable local episodes, splits, and normalization artifacts

@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 import json
 import shutil
+import struct
 from pathlib import Path
 from urllib.parse import unquote
 
@@ -66,7 +67,7 @@ def convert(source, target):
     )
 
 
-def dependencies(source):
+def dependencies(source, extra=()):
     """Find local sidecars before conversion; do not download dependencies."""
     source = Path(source).resolve()
     require(
@@ -75,7 +76,7 @@ def dependencies(source):
         category="source",
         status="unresolved",
     )
-    files = {source}
+    files = {source, *((source.parent / p).resolve() for p in extra)}
     if source.suffix.lower().startswith(".usd"):
         layers, assets, missing = UsdUtils.ComputeAllDependencies(str(source))
         require(
@@ -89,8 +90,22 @@ def dependencies(source):
             item = str(item).split("[", 1)[0]
             if item:
                 files.add(Path(item).resolve())
-    elif source.suffix.lower() == ".gltf":
-        data = json.loads(source.read_text())
+    elif source.suffix.lower() in {".gltf", ".glb"}:
+        if source.suffix.lower() == ".glb":
+            with source.open("rb") as stream:
+                magic, version, total, length, kind = struct.unpack("<4sIIII", stream.read(20))
+                require(
+                    magic == b"glTF"
+                    and version == 2
+                    and kind == 0x4E4F534A
+                    and total == source.stat().st_size
+                    and length <= total - 20,
+                    "Invalid GLB header",
+                    category="asset",
+                )
+                data = json.loads(stream.read(length))
+        else:
+            data = json.loads(source.read_text())
         for entry in data.get("buffers", []) + data.get("images", []):
             uri = entry.get("uri", "")
             if not uri or uri.startswith("data:"):
@@ -120,12 +135,12 @@ def dependencies(source):
     return files
 
 
-def load_source(source, output):
+def load_source(source, output, extra_dependencies=()):
     """Inventory and snapshot inputs, then inspect individual connected mesh components."""
     source, output = Path(source).resolve(), Path(output)
     require(not output.exists() or not any(output.iterdir()), "Inspection output must be empty")
     output.mkdir(parents=True, exist_ok=True)
-    files = dependencies(source)
+    files = dependencies(source, extra_dependencies)
     inventory = file_inventory(files)
     # Preserve relative paths across layers, buffers and textures.
     import os
@@ -141,12 +156,13 @@ def load_source(source, output):
         )
     local_source = output / "source" / source.relative_to(common)
     readable = local_source
+    converted_dependencies = []
     if source.suffix.lower() not in {".glb", ".gltf", ".obj"}:
         # FBX goes through the installed FBX SDK, then the common glTF inspection route.
         if source.suffix.lower() == ".fbx":
             converted = output / "converted.usd"
-            convert(source, converted)
-            dependencies(converted)
+            convert(local_source, converted)
+            converted_dependencies = file_inventory(dependencies(converted))
             local_source = converted
         # The installed USD->glTF exporter omits analytic primitives. Tessellate
         # cubes explicitly in a derived layer, retaining their original transforms.
@@ -227,6 +243,7 @@ def load_source(source, output):
         "source": str(source),
         "source_sha256": next(item["sha256"] for item in inventory if item["path"] == str(source)),
         "files": inventory,
+        "converted_dependencies": converted_dependencies,
         "triangles": triangles,
         "textures": textures,
         "components": summaries,
@@ -300,7 +317,13 @@ def cooked_hulls(mesh, approximation="auto"):
 
 def normalize(source, recipe, output):
     output = Path(output)
-    components, inventory = load_source(source, output)
+    require(
+        Path(source).suffix.lower() != ".fbx" or "source_dependencies" in recipe,
+        "FBX requires reviewed source_dependencies (empty only for embedded textures)",
+        category="source",
+        status="unresolved",
+    )
+    components, inventory = load_source(source, output, recipe.get("source_dependencies", []))
     rotation, scale, translation, hinge = validate_recipe(recipe, len(components))
     groups, collision = {}, {}
     for name in GROUPS:
@@ -344,6 +367,8 @@ def normalize(source, recipe, output):
     )
     opening_to_hinge = np.eye(4)
     opening_to_hinge[:3, 3] = hinge
+    if recipe["handedness"] == "right":
+        opening_to_hinge[:3, :3] = np.diag([1, -1, -1])
     opening_to_panel_center = np.eye(4)
     opening_to_panel_center[:3, 3] = panel_bounds.mean(0)
     result = {

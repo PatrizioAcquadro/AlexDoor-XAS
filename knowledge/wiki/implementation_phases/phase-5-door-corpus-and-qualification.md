@@ -1,8 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
-> Subphase 5.0 implementation in progress. Preparation contracts and canonical
-> normalization are implemented; infrastructure readiness requires the complete
-> static/GPU validation and operational entry points below. No real candidate admitted.
+> Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
+> Real-asset intake has not started. Subphase 5.1 remains planned.
 
 ## Objective
 
@@ -15,47 +14,109 @@ demonstrations are generated later in Phase 6. Follow
 
 #### Implementation
 
-The reusable preparation core is implemented in `qualification/preparation.py`,
-`qualification/prepare_usd.py`, and `qualification/convex_geometry.py`. It uses
-explicit component recipes, preserves source snapshots and separate attempts,
-and bakes PhysX convex hulls before geometric opening checks. The four Phase 4
-synthetics have traversed normalization; textured USD/USDZ, GLB/glTF, FBX and OBJ
-fixtures have traversed conversion. Static/GPU gates and `scripts/prepare_doors.py`
-are now implemented: all four doors pass isolated GPU checks, invalid assets are
-rejected, and an injected physical obstacle is detected from raw contacts. Evidence
-is in `~/.cache/alexdoor-xas/verification/door-preparation-50/`. Usage documentation
-and final regression closeout are still pending.
+`scripts/prepare_doors.py` provides one local workflow: `review`, `inspect`,
+`normalize`, `static`, `physics`, `preview`, and `promote`. Reusable implementations
+live under `src/alexdoor_xas/qualification/`. The retained legacy commands do not
+admit B1 assets. No candidate-specific normalization script is needed.
 
-**First, deliver and validate the reusable infrastructure before requesting or
-processing the first candidate URL.** Reuse suitable code retained by the earlier
-cleanup. Implement a complete local path from a source asset and a small explicit
-normalization recipe to a canonical USD, static/physics results, and a concise
-candidate record. The preparation path must cover:
+**Preparation.** Inspection inventories source/dependency checksums, connected mesh
+components, materials, textures and complexity. Each inspection or normalization
+creates a new numbered attempt and copies its input files. Sources and accepted
+attempts are preserved. Geometry fingerprints flag possible duplicates; local
+review must resolve them, and identical source payloads cannot be promoted twice.
 
-- Source/dependency inventory, dimensions, complexity, separable frame/panel, and
-  duplicate identity checks; fields for URL, author, license evidence, attribution,
-  modifications, and release checksums.
-- Conversion for the explicitly supported input formats and canonical normalization:
-  meters, Z-up, closed angle zero, positive opening convention, panel/frame/hinge
-  identities, and both center-of-opening and hinge/panel transforms.
-- Colliders, one vertical hinge, mass/inertia, nominal physics, and mechanical
-  opening limits; keep handles attached/collidable and the frame opening clear.
-- Static checks for dependencies, geometry, units, articulation, colliders, and
-  positive mass properties. GPU physics checks for fixed frame, stable hinge,
-  closed reset, passive drift, interpenetration, numerical validity, and unobstructed
-  collision-consistent opening.
-- An explicit pass/fail/unresolved report, saved normalization parameters, and
-  rerun behavior that preserves the source and already accepted candidates.
+A JSON recipe specifies `handedness`, positive uniform `scale`, proper `rotation`,
+`translation_m`, `opening_center_source`, `hinge_m`, `dimensions_m`, and the complete
+`components` assignment to `Frame`, `Panel`, and optional `Handle`. It also records
+`modifications`. Rotation/scale/translation act on the **inspected coordinates**;
+USD/FBX pass through glTF Y-up meters. The opening center maps to the floor origin.
+Optional `colliders` maps component indices (JSON strings) to `auto`, `convexHull`,
+or `convexDecomposition`. Default `auto` uses the installed PhysX cooker, baking
+individual hulls so clearance checks and simulation use the same collision shapes.
 
-Validate this path with the existing synthetic fixtures and deliberately invalid
-cases appropriate to its contracts. Prove the physical checks in the supported
-GPU runtime. State the supported formats and conversion limits; do not build a
-universal format framework or collection service. The infrastructure milestone
-ends with usable entry points, concise usage instructions, and readiness evidence.
-It can be delivered before any real door URL exists; the assistant then waits
-for the user's first candidate. Do not claim that the corpus is already complete.
+Supported inputs are `.usd`, `.usda`, `.usdc`, `.usdz`, `.glb`, `.gltf`, `.fbx`,
+and `.obj`. USD cubes are tessellated in a derived layer; other analytic primitive
+types remain unresolved. Blend requires prior export. Multi-file inputs retain
+buffers, material files and textures. FBX recipes must explicitly list
+`source_dependencies`, relative to the source file; use `[]` only after confirming
+textures are embedded. `inspect --dependency PATH` inventories additional sidecars.
+The normalized USD bundle resolves its dependencies locally. A missing dependency
+or conversion limitation is unresolved rather than evidence of an unsuitable door.
 
-**After infrastructure readiness, process one user-provided URL at a time:**
+The canonical default prim is `/Door`, with `Frame`, `Panel`, optional `Handle`,
+`Hinge`, and fixed attachments. It uses meters, Z-up, zero closed angle and positive
+opening for either handedness without reflecting geometry. The report records
+opening/hinge/panel-center transforms. Nominal panel mass is 25 kg, hinge damping
+4 Nm s/rad, friction 0.5 and restitution zero. Panel inertia follows its cuboid
+reference; handle/frame inertia uses their measured bounds and 0.5/50 kg nominal
+masses. These are benchmark approximations, not reconstructed hardware dynamics.
+
+**Checks.** Static validation measures dependencies, geometry, visual/collision
+bounds, nominal mass/inertia/materials, articulation and enabled collisions. The
+frame must leave the rectangular opening clear. Panel and attached handle hulls
+are swept against frame hulls at 0.1-degree increments; the first intersection
+minus 0.2 degrees defines the upper joint limit. Initial intersection fails; no
+demonstrated stop within 270 degrees remains unresolved. No arbitrary 90-degree
+limit or qualification-angle threshold is inserted.
+
+The GPU gate uses an isolated door at 120 Hz physics / 60 Hz commands. It measures
+three closed resets, passive drift, frame pose, hinge-anchor stability, finite
+states, raw contacts/separations and torque-controlled opening to the measured
+stop. Tolerances retain Phase 4 reset angle 0.1 degrees, reset speed 0.01 rad/s,
+passive drift 0.25 degrees, frame translation 0.1 mm and stop agreement 1 degree.
+Additional bounds are 0.1-degree frame rotation, 1 mm hinge-anchor error and 2 mm
+penetration, matching the authored 2 mm contact-offset scale. Loaded contact above
+0.1 N more than 2 degrees before the stop fails the unobstructed-opening check.
+Contact buffer overflow or unavailable measurements cannot pass.
+
+Each command reports `pass`, `fail` or `unresolved` with a reason/category.
+`preview` captures front/rear RGB through the installed Isaac Lab camera renderer;
+its capture success still requires human/assistant appearance review. `promote`
+requires matching source review, local license/dependency/duplicate/visual review,
+and current passing normalization/static/physics files. It writes only
+`ready_for_5.1`, never expert qualification or corpus completion. Accepted attempts
+cannot be overwritten by rerunning a command.
+
+**Usage.** Keep reviewed `candidate.json`, `recipe.json` and license evidence under
+`assets/doors/b1/<asset-id>/` in Git. Generated `attempts/` and `prepared.json` are
+ignored. `review` requires asset/source IDs, source URL, author, license and its
+asset-specific evidence, attribution, retrieval date, door type, selected format
+(including the dot), and passing license-scope/custom-terms/duplicate reviews.
+Unknown remote geometry may remain unset. Before promotion, record passing
+`local_dependency_review`, `local_duplicate_review`, `local_visual_review` and the
+`reviewed_source_sha256` from `inspect.json`; explain any fingerprint collision in
+`duplicate_resolution`. License evidence must cover the redistributed dependencies.
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review \
+  --candidate assets/doors/b1/<id>/candidate.json
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py inspect \
+  --asset-id <id> --source /path/to/download/door.glb --viz none --device cuda:0
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py normalize \
+  --asset-id <id> --source /path/to/download/door.glb \
+  --recipe assets/doors/b1/<id>/recipe.json --viz none --device cuda:0
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py static \
+  --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py physics \
+  --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py preview \
+  --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py promote \
+  --attempt assets/doors/b1/<id>/attempts/<number> \
+  --candidate assets/doors/b1/<id>/candidate.json
+```
+
+Use the **normalization** attempt printed by the command for subsequent gates;
+inspection has its own separate attempt. Unpack downloaded archives manually and
+preserve their relative dependency layout. No network collection/downloader runs.
+
+**Sequential intake starts after readiness.** First provide the user with
+[Sketchfab](https://sketchfab.com/features/free-3d-models) and the admission filters
+below, including license, downloadable format, full-size single-leaf geometry,
+separable frame/panel, dimensions, triangle/texture limits and duplicate exclusions.
+The user chooses a candidate URL. For each candidate, repeat the download/source
+link and specific warnings before the user downloads anything:
+
 
 1. The model reviews source, license scope, format, visible geometry, available
    dimensions/complexity, and duplicates. Reject clearly unsuitable candidates
@@ -98,12 +159,30 @@ in scale, source prims, pivot, or allowed separation belong in the asset recipe.
 
 #### Problems / Limitations
 
-Infrastructure readiness and asset readiness are separate outcomes inside 5.0.
-Only after the first is demonstrated does sequential real-asset intake start.
-Passing static/physics checks does not prove robot reachability; 5.1 supplies
-that result. Work through the two subphases per candidate; freeze the split only
-when 24 doors pass both. Missing URLs are expected user input, not a tool failure.
-Insufficient eligible candidates must not silently relax admission criteria.
+Infrastructure readiness is verified; no real door has been admitted. Passing
+these checks does not establish robot reachability. Subphase 5.1 owns the frozen
+expert probe, per-door reference and 24-door split. Missing URLs are expected input.
+
+Conversion uses a glTF/PreviewSurface material path. Texture preservation is tested,
+but arbitrary shaders, animations and all source-format features are not guaranteed;
+appearance and FBX sidecar/license completeness require local review. Rectangular
+opening checks, convex collision approximations, a 270-degree search domain and a
+512-component processing limit are explicit boundaries; unsupported cases remain
+unresolved without silently changing admission rules.
+
+The initial USD converter exported centimeter layers whose references rendered
+100 times too large. This is fixed by explicit meter export and an independent
+visual/collider bounds check. Synthetic USD cubes needed explicit tessellation.
+The installed headless runtime requires its Isaac Lab camera renderer; the working
+preview uses that path rather than relying on an unpumped raw render product.
+
+Validation covers the four Phase 4 synthetics, all eight supported suffixes with
+textures, external glTF/OBJ dependencies, and concave PhysX decomposition. Negative
+fixtures detect missing dependencies, zero mass, negative inertia, absent handle
+collisions, a blocked opening, wrong limits, wrong visual scale, closed
+interpenetration and degenerate geometry. A GPU-injected obstacle is detected
+through loaded raw contact during opening. Software tests cover reflections,
+invalid recipes, duplicate identity and preservation/stale-evidence behavior.
 
 ## Subphase 5.1 — Expert Qualification and Final Split
 
@@ -149,15 +228,39 @@ collected assets.
 
 ## Artifacts
 
-Future outputs: first the reusable preparation/checking tools and their readiness
-evidence; then one candidate result per URL, normalized corpus, exclusions,
-licensed manifest, expert references, and frozen split. No learned dataset or
-training result is produced here.
+Infrastructure evidence: `~/.cache/alexdoor-xas/verification/door-preparation-50/`.
+The four `*/attempts/000001/prepared/` folders contain normalized USDs, static and
+GPU reports, numerical traces and raw-contact summaries. All four reach 183.2
+degrees; maximum passive drift is 0.000209 degrees, hinge-anchor error is below
+1.20 micrometers, fixed-frame drift is zero and measured penetration is zero.
+These are isolated synthetic simulation results, not physical-robot accuracy.
+
+`formats/formats.json` records eight successful textured format paths;
+`conversion-final/` rechecks the final explicit-sidecar inventory contract.
+`frame-recheck/` verifies proper hinge transforms and the positive joint axis for
+both handednesses; right hinges expose a proper 180-degree X rotation.
+`invalid/invalid.json` records negative cases and concave decomposition;
+`gpu-obstruction/` records the expected physical rejection. FBX front/rear preview
+images are retained under `formats/fbx/prepared/` and were visually inspected.
+No real candidate payload, expert reference, split or learned dataset was produced.
+
+All 350 software tests, Ruff and wiki link/index checks pass. The public CLI was
+also exercised through review, normalization, static/GPU checks and promotion with
+an explicitly simulated review record in `/tmp/b1-cli-proof/`; this is command
+verification only. A subsequent rerun preserved the prepared pointer and reports.
+
+Reproduce infrastructure validation in a new output directory:
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_preparation.py \
+  --formats --invalid --physics --output /path/to/new/verification \
+  --viz none --device cuda:0
+```
 
 ## Files
 
-Expected surfaces: reusable normalization/qualification under `src/alexdoor_xas/`
-and `scripts/`, normalization recipes and manifest, scene loading under
-`src/alexdoor_xas/assets/` and `src/alexdoor_xas/envs/`. The earlier cleanup
-identifies reusable legacy `phase4_1` code; new tooling is implemented only when
-Phase 5.0 is explicitly undertaken.
+- `scripts/prepare_doors.py` — sequential local preparation and review commands.
+- `scripts/verify_door_preparation.py` — synthetic conversion/negative/GPU verification.
+- `src/alexdoor_xas/qualification/` — recipes, conversion, collision geometry, gates and preview.
+- `src/alexdoor_xas/envs/door_task/door_inspection.py` — isolated GPU environment with optional contacts.
+- `tests/test_preparation.py` — admission, recipe, preservation and evidence contracts.

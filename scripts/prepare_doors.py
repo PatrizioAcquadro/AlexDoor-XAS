@@ -32,6 +32,13 @@ def main():
     parser.add_argument("--root", type=Path, default=Path("assets/doors/b1"))
     parser.add_argument("--asset-id")
     parser.add_argument("--source", type=Path)
+    parser.add_argument(
+        "--dependency",
+        type=Path,
+        action="append",
+        default=[],
+        help="Additional source sidecar for inspect; normalize reads source_dependencies in recipe",
+    )
     parser.add_argument("--recipe", type=Path)
     parser.add_argument("--candidate", type=Path)
     parser.add_argument("--attempt", type=Path)
@@ -89,7 +96,7 @@ def main():
             from alexdoor_xas.qualification.prepare_usd import load_source, normalize
 
             if args.command == "inspect":
-                _, result = load_source(args.source, output)
+                _, result = load_source(args.source, output, args.dependency)
             elif args.command == "normalize":
                 result = normalize(args.source, json.loads(args.recipe.read_text()), output)
             elif args.command == "preview":

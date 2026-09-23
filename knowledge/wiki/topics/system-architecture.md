@@ -2,8 +2,9 @@
 
 The registered runtime is `AlexDoor-DoorPush-Purdue-v0`: one fixed-base Purdue
 Alex003 with WSG32/UMI v1, measured pedestal and head ZED. It commissions control
-and sensing on synthetic collidable fixtures. The complete door expert, learned
-observation encoder and dataset integration remain later phases.
+and sensing on synthetic collidable fixtures, with a frozen synthetic-door probe.
+Real-asset expert qualification, learned observation encoding and dataset
+integration remain later phases.
 
 ## Runtime Boundary
 
@@ -42,6 +43,19 @@ software contracts, without claiming a working B1 learning workflow.
 
 ## Preparation and Storage
 
+The B1 preparation path takes an explicit source/recipe through component inspection,
+canonical USD authoring and independent static/GPU checks. It uses the Phase 4
+nominal dynamics and baked convex geometry, including collidable handles and a
+clear frame opening. Prepared assets expose opening/hinge/panel transforms for
+the next qualification phase; preparation does not execute or retune the robot probe.
+
+`scripts/prepare_doors.py` owns the local workflow. Candidate metadata, license
+evidence and recipes under `assets/doors/b1/<id>/` are versioned; source snapshots,
+generated attempts and the prepared pointer are ignored. Source/geometry duplicates
+and source-bound local review are checked before promotion to `ready_for_5.1`.
+See [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] for the
+interface, commands, supported formats, approximations and measured readiness.
+
 Legacy door preparation remains independent of robot execution. Its physics
 inspection now instantiates only the door; static checks and preparation keep
 their documented B0 geometry limitations. Neither establishes B1 qualification.
@@ -58,5 +72,6 @@ cluster orchestration or external Alex/Isaac Lab modification.
 
 ## Version Notes
 
+- 2026-09-23 — Added B1 asset preparation and isolated GPU validation, separated from real-door expert qualification.
 - 2026-09-22 — Replaced B0 execution with Purdue commissioning and separated observed capture from diagnostic truth and historical learning interfaces.
 - 2026-08-13 — Documented the maintained B0 data and learned-policy path.
