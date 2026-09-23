@@ -218,11 +218,16 @@ resample test conditions, or replace a test door to improve learned results.
 
 ## Data Strategy and Remaining Freeze
 
-The frozen scripted expert is the primary teacher. Replicator supplies visual
-variation and annotations. A bounded Mimic trial or targeted teleoperation may
-address demonstrated coverage gaps after validation; neither is mandatory when
-the scripted data suffice. Gaze is likewise implemented only for a demonstrated
-fixed-view deficit. Defer RL teachers, VLA extensions, and unrelated experiments.
+The frozen scripted expert is the primary teacher; Replicator supplies visual
+variation and training annotations through the existing capture path. Assess
+visual variety and motion coverage separately. A bounded Mimic trial or targeted
+teleoperation is conditional on a pilot-demonstrated motion gap that direct expert
+generation cannot address economically; adapted trajectories must satisfy the same
+physical validity and demonstration rules. The generation recipe belongs to
+[[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6, Subphase 6.2]],
+without a new subphase. Gaze is likewise implemented only for a
+demonstrated fixed-view deficit. Defer RL teachers, VLA extensions, and unrelated
+experiments.
 
 The small end-to-end pilot remains mandatory: pass it before final dataset
 production or full training. Combining pilot and production into Subphase 6.2
@@ -254,6 +259,8 @@ physical safety, or sim-to-real.
 
 ## Version Notes
 
+- 2026-09-23 — Specified Replicator dataset variation, separate motion-coverage
+  checks, and the pilot-dependent criterion for using Mimic within Subphase 6.2.
 - 2026-09-22 — Consolidated to nine subphases; tools precede sequential URL intake,
   optional work is conditional, and ID/GEO reporting precedes stress analysis.
 - 2026-09-22 — Replaced the shared-angle design with Purdue/WSG32/head RGB-D,

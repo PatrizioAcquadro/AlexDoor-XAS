@@ -450,3 +450,8 @@ Recorded four sustained minima, coherent repeats, fixed RGB-D visibility, calibr
 
 Checked canonical links/index, current source references, measured reports, RGB-D figures and whitespace.
 The 341-test suite, targeted closeout checks and Ruff pass; raw research, datasets and historical outputs are unchanged.
+
+## 2026-09-23 — update : Dataset variation and conditional Mimic
+
+Specified expert-led generation, Replicator visual variation, motion coverage, and pilot-dependent Mimic use in the existing Phase 6 plan.
+Aligned the benchmark decision and index; documentation only, with no tests, dataset generation, or training executed.

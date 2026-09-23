@@ -43,14 +43,18 @@ Otherwise retain the fixed neck pose and omit gaze implementation.
   No oracle reset cache, segmentation-derived sensor mask, or silent fallback.
 - Synthetic setup probes and held-out qualification traces are not learned
   training data. Fit normalization on training data only.
-- Use existing Replicator APIs for needed visual variation/annotations; no
-  accessory perception framework or stereo-error modeling project is required.
+- Reuse existing Replicator APIs and the Phase 4 camera capture for visual
+  variation/annotations, following the Subphase 6.2 dataset recipe. Keep RGB,
+  depth, valid-depth mask, proprioception, and actions synchronized; training
+  annotations remain separate from policy inputs.
 
 #### Problems / Limitations
 
 Complete after synchronized recording and development-set perception pass,
 including gaze only when needed. Ideal depth remains an explicit approximation;
-synthetic visibility alone does not prove learned perception works.
+visual randomization does not reproduce real ZED stereo errors or missing depth.
+Synthetic visibility alone does not prove learned perception works; no separate
+stereo-error modeling project is required.
 
 ## Subphase 6.1 — Complete All A1-A4 Learning and Execution Paths
 
@@ -95,8 +99,32 @@ implementation cannot support the intended representation comparison.
 First run a small train/development-only pilot through recording, matched export,
 loading, brief training, and closed-loop execution. Diagnose validity, timing,
 coverage, pairing, and learnability before large-scale generation. The frozen
-scripted expert is the default teacher. Use Mimic or targeted teleoperation only
-for a demonstrated coverage gap; if scripted data suffice, omit both.
+scripted expert is the default teacher. Generate physical demonstrations directly
+on the 12 training doors with balanced coverage of doors and permitted conditions.
+Each accepted demonstration includes approach, contact, opening, hold, and release
+under the common contact and safety rules, without a shared angular stopping target.
+
+Use Replicator for plausible variation in lighting position/intensity/color,
+surface appearance, and background elements that do not obstruct manipulation.
+Keep these settings constant within an episode by default. Visual material changes
+must not silently change friction or other physical properties. Any variation in
+initial states or dynamics uses the environment and declared training ranges,
+preserving the frozen common robot/contact setup. Keep held-out stress ranges
+distinct from training ranges and select neither from sealed test outcomes.
+
+Assess motion coverage separately from visual variety: repeated execution with
+different images does not add new corrective behavior. If recovery examples are
+needed, record safe, successful expert corrections from permitted perturbed states;
+adding random action noise alone is not a recovery demonstration. Check physical
+validity, contact, force, timing, and matched replay before accepting episodes.
+
+Use a bounded Isaac Lab Mimic trial or targeted teleoperation only when the pilot
+identifies a motion-coverage gap that direct expert generation cannot address
+economically. Mimic requires source demonstrations, subtask annotations, and
+environment/controller integration. Re-execute and validate every adapted candidate;
+do not assume trajectory transformations preserve a door's contact arc when width
+or handedness changes. Keep only candidates meeting the same demonstration rules.
+If scripted data suffice, omit Mimic and teleoperation.
 
 Use the pilot to fix dataset size, observation history, depth processing, A4
 encoding/length, teacher mix, randomization, normalization, training budget,
