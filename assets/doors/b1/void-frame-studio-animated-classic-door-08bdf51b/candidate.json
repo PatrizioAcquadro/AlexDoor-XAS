@@ -1,0 +1,23 @@
+{
+  "asset_id": "void-frame-studio-animated-classic-door-08bdf51b",
+  "source_url": "https://sketchfab.com/3d-models/void-frame-studio-animated-classic-door-08bdf51b9e5f4301be5de3a28c8a36ff",
+  "source_uid": "08bdf51b9e5f4301be5de3a28c8a36ff",
+  "author": "VOID FRAME STUDIO",
+  "license": "CC-BY-NC-ND-4.0",
+  "distribution_scope": "local_only",
+  "license_evidence": "assets/doors/b1/void-frame-studio-animated-classic-door-08bdf51b/source-evidence.json",
+  "attribution": "Void Frame Studio – Animated Classic Door by VOID FRAME STUDIO (https://sketchfab.com/voidframestudio), https://sketchfab.com/3d-models/void-frame-studio-animated-classic-door-08bdf51b9e5f4301be5de3a28c8a36ff, CC BY-NC-ND 4.0 (https://creativecommons.org/licenses/by-nc-nd/4.0/).",
+  "retrieval_date": "2026-09-23",
+  "door_type": "interior",
+  "single_leaf": true,
+  "frame_panel_separable": true,
+  "license_scope_review": "fail",
+  "license_scope_review_notes": "The page and download modal explicitly name CC BY-NC-ND 4.0. Current B1 5.0 admits CC0/CC BY 4.0 or reviewed Sketchfab Free Standard for local-only use. CC BY-NC-ND is outside that approved set. The CC terms allow private noncommercial adaptation but bar sharing adapted material; do not equate this policy failure with a blanket ban on personal use.",
+  "custom_terms_review": "pass",
+  "custom_terms_review_notes": "The model description gives features and contact information; no separate author-specific restriction was observed beyond its named CC license.",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "The source UID and named author differ from the three accepted sources. Geometry fingerprint comparison remains pending local inspection, which the source-license gate currently stops.",
+  "selected_format": ".glb",
+  "reported_triangles": 192700,
+  "dependencies": []
+}

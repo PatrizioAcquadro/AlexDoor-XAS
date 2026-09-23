@@ -7,6 +7,14 @@ in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
+The fourth supplied source, `void-frame-studio-animated-classic-door-08bdf51b`,
+is CC BY-NC-ND 4.0. The current 5.0 admission rule does not include this license;
+the CLI source review fails before inspection. Its single-leaf appearance and
+192.7k reported triangles do not constitute technical qualification. The
+downloaded GLB/USDZ are preserved, and the initial batch remains at three ready
+doors. Private noncommercial use may be permitted by that license, but it does
+not by itself change the approved corpus rule or permit sharing modified assets.
+
 The next supplied source, `modern-door-2fb8d024`, has a Sketchfab Free Standard
 license. Its earlier CC-only rejection is superseded by the approved local-only
 intake scope. The GLB now passes preparation in attempt 000012 after grouped

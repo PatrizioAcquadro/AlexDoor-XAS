@@ -579,3 +579,11 @@ Promoted local-material attempt 000009 after static/visual checks and RTX 4090 o
 ## 2026-09-23 — lint : Theocritus repair readiness
 Twenty-five focused preparation tests, Ruff, formatting, wiki links/index, JSON/evidence and whitespace checks pass.
 Original downloads and prior accepted evidence are preserved; one new real-door GPU run, with unchanged physical tolerances and frozen setup.
+
+## 2026-09-23 — update : Review Void Frame Studio license gate
+Verified the source page, CC BY-NC-ND download terms and both local payloads; the current 5.0 license rule excludes this source.
+Recorded a source-review failure before inspection, leaving three technically ready doors and the downloaded originals unchanged.
+
+## 2026-09-23 — lint : Void Frame Studio source review
+Candidate JSON, archive hashes, CLI source failure and no-attempt state match the recorded evidence.
+Wiki links/index and Markdown whitespace pass; the original downloads and three accepted doors are preserved.

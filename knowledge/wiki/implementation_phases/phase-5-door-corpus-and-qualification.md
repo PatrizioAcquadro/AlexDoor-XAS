@@ -448,6 +448,27 @@ hinge hardware. That simple appearance is adequate for preparation; Phase 6.2
 can vary approved materials with Replicator. Randomization does not replace the
 present geometry/visual review or clear rights to excluded original textures.
 
+**Fourth supplied source review (2026-09-23).** The user supplied
+[Void Frame Studio – Animated Classic Door by VOID FRAME STUDIO](https://sketchfab.com/3d-models/void-frame-studio-animated-classic-door-08bdf51b9e5f4301be5de3a28c8a36ff)
+and downloaded the original GLB archive and converted USDZ. The page shows one
+classic paneled leaf, frame, lever and hinge, with opening/handle animation and
+192.7k triangles. Original GLB, converted USDZ, glTF and GLB are available. The
+GLB archive has one file, five named mesh nodes, one animation, two materials and
+no image or external-file dependency. Exact size, handedness, geometry separation
+and physics suitability were not inspected.
+
+The page and download modal explicitly label the source **CC BY-NC-ND 4.0**, not
+Sketchfab Free Standard. [CC's license text](https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en)
+permits private noncommercial adaptations but prohibits sharing adapted material.
+The current 5.0 source policy admits CC0/CC BY 4.0, or reviewed Free Standard for
+local-only work; it does not admit CC BY-NC-ND. The existing CLI `review` therefore
+returns `fail` in the source category, "License is outside B1 admission". This is
+an admission-policy result, not a finding that personal use is categorically
+forbidden or that the mesh failed technically. Processing stopped before `inspect`;
+no recipe, visual pass, GPU result or promotion is claimed. Candidate-specific
+evidence is in `assets/doors/b1/void-frame-studio-animated-classic-door-08bdf51b/`.
+The three prepared doors and both downloaded originals remain intact.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
@@ -486,6 +507,8 @@ are superseded by local-only scope and the reviewed GLB repair. The initial batc
 now contains three technically ready doors, but only the witnessk asset is
 redistributable. Inferred pivots and clearance fitting do not reconstruct real
 hardware; the nominal benchmark still requires the frozen 5.1 robot probe.
+The Void Frame Studio source is a separate, license-gated candidate and does not
+count as the fourth technically ready door under the present admission rule.
 
 Conversion uses a glTF/PreviewSurface material path. Texture preservation is tested,
 but arbitrary shaders, animations and all source-format features are not guaranteed;
