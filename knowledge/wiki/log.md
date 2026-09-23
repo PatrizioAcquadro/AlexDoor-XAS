@@ -455,3 +455,7 @@ The 341-test suite, targeted closeout checks and Ruff pass; raw research, datase
 
 Specified expert-led generation, Replicator visual variation, motion coverage, and pilot-dependent Mimic use in the existing Phase 6 plan.
 Aligned the benchmark decision and index; documentation only, with no tests, dataset generation, or training executed.
+
+## 2026-09-23 — update : B1 preparation core
+Implemented explicit recipes, preserved preparation attempts and canonical door normalization.
+Recorded synthetic conversion evidence; full static/GPU infrastructure closeout remains pending.

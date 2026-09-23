@@ -34,6 +34,10 @@ htmlcov/
 /assets/doors/phase4_1/normalized/
 /assets/doors/phase4_1/evidence/
 
+# B1 candidate metadata and recipes are tracked; generated attempts are local.
+/assets/doors/b1/*/attempts/
+/assets/doors/b1/*/prepared.json
+
 # Machine-local artifacts
 # Keep active binary formats ignored even outside datasets/ and outputs/.
 *.log

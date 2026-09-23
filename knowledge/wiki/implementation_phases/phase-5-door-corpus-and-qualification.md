@@ -1,8 +1,8 @@
 # Phase 5 — Door Corpus and Qualification
 
-> Planned. Requires the common setup and probe from Phase 4. Build the preparation
-> infrastructure first; process user-provided URLs one at a time afterward.
-> No infrastructure or asset was implemented/executed by this documentation revision.
+> Subphase 5.0 implementation in progress. Preparation contracts and canonical
+> normalization are implemented; infrastructure readiness requires the complete
+> static/GPU validation and operational entry points below. No real candidate admitted.
 
 ## Objective
 
@@ -14,6 +14,13 @@ demonstrations are generated later in Phase 6. Follow
 ## Subphase 5.0 — Preparation Infrastructure and Incremental Door Intake
 
 #### Implementation
+
+The reusable preparation core is implemented in `qualification/preparation.py`,
+`qualification/prepare_usd.py`, and `qualification/convex_geometry.py`. It uses
+explicit component recipes, preserves source snapshots and separate attempts,
+and bakes PhysX convex hulls before geometric opening checks. The four Phase 4
+synthetics have traversed normalization; textured USD/USDZ, GLB/glTF, FBX and OBJ
+fixtures have traversed conversion. Full infrastructure closeout is still pending.
 
 **First, deliver and validate the reusable infrastructure before requesting or
 processing the first candidate URL.** Reuse suitable code retained by the earlier
