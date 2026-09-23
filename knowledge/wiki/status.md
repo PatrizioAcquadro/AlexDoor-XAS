@@ -2,10 +2,22 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Seven doors pass static, visual and isolated GPU checks
+intake has started. Eight doors pass static, visual and isolated GPU checks
 in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
+
+The eighth source, `door-prison-metal-old-45306a46` (Mehdi Shahsavan, CC BY 4.0),
+is prepared in attempt `000006`. The USDZ includes open and closed display copies;
+a documented local USDC selects the original closed single-leaf assembly without
+altering its meshes or maps. The 0.902 × 1.960 × 0.058 m leaf is left-handed.
+Reviewed 2% fitting, frame partitions and a convex leaf envelope resolve source
+contacts and collider coverage; only the small latch tongue loses collision in
+the common closed-unlatched state. Static, both viewed RTX captures and one short
+RTX 4090 run pass with three exact resets, stable frame and zero reported
+penetration. The prepared geometric stop is only **23.1 degrees**. This limitation
+is carried to 5.1; robot/expert qualification has not run. The original USDZ and
+earlier attempts remain intact.
 
 The seventh source, `door-5035d7977155` (Nikolayy, CC BY 4.0), is prepared in
 attempt `000007`. Reviewed 2% fitting, an 18 mm opening-face shift, rebated-frame
@@ -192,7 +204,7 @@ The first candidate, `door-with-frame-2f2f149f`, is technically ready for 5.1 af
 explicitly omitting latch/lock bolt collisions for the common closed-unlatched task.
 It reaches 188 degrees in isolated GPU physics with stable resets/frame and no
 reported penetration. The leaf, frame and handles retain their collisions.
-The initial batch of seven distinct real doors is prepared. Start the unchanged
+The initial batch of eight distinct real doors is prepared. Start the unchanged
 common robot/expert protocol in 5.1 only when requested; the next-candidate
 [[implementation_phases/phase-5-door-corpus-and-qualification|handoff]] remains
 available for further sequential intake. Expert qualification, the final corpus
@@ -212,6 +224,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Prepared Mehdi Shahsavan's CC BY prison door from its original closed assembly; static, viewed previews and one RTX 4090 run pass. The prepared stop is 23.1 degrees and awaits 5.1 robot qualification. Eight doors are ready for that phase.
 
 - 2026-09-23 — Prepared Nikolayy's CC BY door with measured hinge barrels, reviewed clearance fit and retained collisions; static, viewed previews and one RTX 4090 run pass at 194.4 degrees. Seven doors are ready for 5.1.
 

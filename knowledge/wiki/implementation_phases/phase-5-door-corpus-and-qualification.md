@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> Seven real doors pass preparation and are ready for 5.1: four redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
+> Eight real doors pass preparation and are ready for 5.1: five redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
 
 ## Objective
 
@@ -659,6 +659,40 @@ seven distinct doors are ready for 5.1. The focused 28-test preparation suite an
 Ruff pass. The original download and all prior attempts remain preserved; robot
 and expert qualification remain pending.
 
+**Mehdi Shahsavan prison-door review (2026-09-23).**
+[door _Prison Door_metal_old -12MB](https://sketchfab.com/3d-models/door--prison-door-metal-old-12mb-45306a46c95b44ca8369f89c6648648c)
+shows a barred metal leaf, paired levers and a separate frame. The page and download
+modal show CC BY 4.0; original FBX and converted USDZ, glTF and GLB are offered.
+The supplied USDZ packages four 2K maps without external dependencies. Its USD
+metadata records the same author account, license and source URL. The asset contains
+two spatially separate copies of this one-leaf assembly, one open for display and
+one closed. The original USDZ and first inspection are preserved; a local USDC
+selection omits only the open display copy and keeps every closed mesh, UV and map.
+Inspection `000002` reports 5,974 triangles, 20 components and a fingerprint
+distinct from the seven earlier accepted doors.
+
+In the selected assembly, component 14 is the leaf, 19 the frame, 6 and 8 the
+moving hinge barrels, and 0–3/15–18 the paired handle hardware. Component 10 is
+the projecting latch tongue: its visual remains but only its collider is omitted
+for the common closed-unlatched task. Leaf, frame, handles, bars, hinges and edge
+plates retain collision. A 0.75 overall scale followed by a reviewed 2% uniform
+moving fit resolves original edge/hinge crossings. Frame collider partitions at
+the measured aperture preserve its corner rebates. Default cooking omitted 5.3 mm
+of lower leaf skin; one convex leaf envelope restores full contact coverage while
+filling decorative window recesses. The prepared left-handed leaf is
+0.902 × 1.960 × 0.058 m.
+
+Attempt `000006` passes normalization and static checks. Both RTX views were
+inspected: one red/black leaf aligns with its frame, barred window, lower hatch
+and both levers. One isolated RTX 4090 run reaches the **23.1-degree geometric
+limit** with three exact resets, 0.000195-degree passive drift, zero frame drift,
+1.03-micrometer hinge-anchor error and zero reported penetration. The lower
+leaf/frame corner limits this prepared model; additional leaf-collider partition
+did not increase the limit. This short isolated result passes 5.0 and is promoted
+under CC BY 4.0 as the eighth door. The small opening is recorded for 5.1; no
+robot run or 45-degree qualification criterion was applied. Original/derived
+sources and prior attempts remain preserved.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
@@ -688,14 +722,14 @@ and expert qualification remain pending.
 
 #### Problems / Limitations
 
-Preparation is verified on the documented fixtures and seven real doors in the
+Preparation is verified on the documented fixtures and eight real doors in the
 closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
 The Ahmed sayed candidate's earlier license rejection and preparation blockers
 are superseded by local-only scope and the reviewed GLB repair. The initial batch
-has grown to seven technically ready doors; four are redistributable.
+has grown to eight technically ready doors; five are redistributable.
 Void Frame Studio's initial source-license failure and geometry
 attempt failures are superseded by its private/noncommercial admission and
 attempt `000008`. Inferred pivots and clearance fitting do not reconstruct real

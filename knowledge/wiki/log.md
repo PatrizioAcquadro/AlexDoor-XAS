@@ -643,3 +643,11 @@ Recorded the CC BY 4.0 source, embedded dependencies, distinct geometry and revi
 ## 2026-09-23 — lint : Nikolayy preparation evidence
 
 Verified the source hash, seven accepted records, candidate reviews, attempt evidence hashes and static/preview/GPU reports. The focused 28-test preparation suite, Ruff/format, wiki links/index and Markdown whitespace checks pass. No raw knowledge, earlier accepted asset or frozen Phase 4 setup changed.
+
+## 2026-09-23 — update : Prison metal door preparation
+
+Recorded Mehdi Shahsavan's CC BY 4.0 USDZ and selected its original closed door/frame assembly from the separate open display copy. Promoted attempt 000006 after reviewed fitting, collider correction, static and viewed RTX captures, and one isolated RTX 4090 run. The 23.1-degree prepared stop is explicit; robot qualification remains in 5.1.
+
+## 2026-09-23 — lint : Prison door evidence and wiki
+
+Verified original and selected source hashes, the two retained mesh payloads and four texture maps, eight ready pointers, nine preparation evidence hashes, and all required stage reports. Wiki links/index and Markdown whitespace pass; earlier assets, raw knowledge and frozen Phase 4 setup are unchanged.
