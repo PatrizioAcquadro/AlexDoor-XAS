@@ -611,3 +611,11 @@ The supported 2% fit and 0.8 mm shift leave three original-surface hinge crossin
 ## 2026-09-23 — lint : DJMaesen source and blocker evidence
 Checked source/attempt hashes, candidate review, unchanged four accepted pointers, wiki links/index and Markdown whitespace.
 No static, normalized visual or GPU physics pass is claimed for the blocked candidate; original download and attempts remain preserved.
+
+## 2026-09-23 — update : DJMaesen hinge preparation repair
+Replaced the held verdict with verified preparation: explicit internal hinge contact pairs, measured pin axis, corrected opening side and conservative plate colliders.
+Static, viewed RTX previews, one RTX 4090 run to 113.1 degrees and 27 preparation tests pass; five doors are ready for 5.1, with the frozen robot/expert qualification still pending.
+
+## 2026-09-23 — lint : Hinge repair documentation checks
+Resolved internal links and index coverage; reviewed current preparation results and scope claims against code and preserved runtime evidence.
+Ruff, formatting, 27 focused tests and Git whitespace checks pass; no raw sources, frozen Phase 4 setup or earlier accepted assets changed.

@@ -33,6 +33,7 @@ from .preparation import (
     collider_batches,
     component_transform,
     file_inventory,
+    hinge_collision_pairs,
     require,
     validate_recipe,
     write_json,
@@ -383,7 +384,12 @@ def normalize(source, recipe, output):
     )
     clear_opening(collision["Frame"], panel_bounds, recipe.get("clear_aperture_m"))
     try:
-        limit = mechanical_limit(collision, hinge, recipe["handedness"])
+        limit = mechanical_limit(
+            collision,
+            hinge,
+            recipe["handedness"],
+            hinge_collision_pairs(recipe, collision, collision_components),
+        )
     except PreparationError:
         # Distinguish an approximation failure from demonstrable source crossings.
         findings = []
@@ -528,6 +534,13 @@ def _author(path, groups, collision, hinge_pos, recipe, limit, collision_compone
             PhysxSchema.PhysxCollisionAPI.Apply(prim).CreateContactOffsetAttr(0.002)
             PhysxSchema.PhysxCollisionAPI.Apply(prim).CreateRestOffsetAttr(0.0)
             UsdShade.MaterialBindingAPI.Apply(prim).Bind(material, materialPurpose="physics")
+    for moving, fixed_index in sorted(
+        hinge_collision_pairs(recipe, collision, collision_components)
+    ):
+        prim = stage.GetPrimAtPath(f"/Door/Panel/Collision_{moving}")
+        UsdPhysics.FilteredPairsAPI.Apply(prim).CreateFilteredPairsRel().AddTarget(
+            Sdf.Path(f"/Door/Frame/Collision_{fixed_index}")
+        )
     fixed = UsdPhysics.FixedJoint.Define(stage, "/Door/FixFrame")
     fixed.CreateBody1Rel().SetTargets([Sdf.Path("/Door/Frame")])
     fixed.CreateLocalPos0Attr(Gf.Vec3f(*hinge_pos))

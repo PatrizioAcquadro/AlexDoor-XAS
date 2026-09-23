@@ -190,6 +190,25 @@ def validate_recipe(recipe, component_count):
         not unlatched or bool(recipe.get("unlatched_review")),
         "Identify the disengaged latch/lock components and explain their exclusion",
     )
+    pairs = recipe.get("hinge_contact_exclusions", [])
+    require(
+        isinstance(pairs, list)
+        and all(
+            isinstance(pair, list)
+            and len(pair) == 2
+            and all(type(i) is int for i in pair)
+            and pair[0] in groups["Panel"]
+            and pair[0] not in leaf + unlatched
+            and pair[1] in groups["Frame"]
+            for pair in pairs
+        )
+        and len({tuple(pair) for pair in pairs}) == len(pairs),
+        "Hinge contact exclusions must pair moving/fixed hinge hardware, never leaf or handles",
+    )
+    require(
+        not pairs or bool(recipe.get("hinge_contact_review")),
+        "Review the internal hinge interfaces represented by the revolute joint",
+    )
     grouped = set()
     for batch in recipe.get("collider_groups", []):
         members = batch["components"]
@@ -215,6 +234,34 @@ def validate_recipe(recipe, component_count):
     DoorDimensions.from_mapping(recipe["dimensions_m"])
     require(bool(recipe.get("modifications")), "Record normalization modifications")
     return rotation, scale, translation, hinge
+
+
+def hinge_collision_pairs(recipe, collision, components):
+    """Resolve reviewed bearing interfaces to hull pairs; keep all other contacts."""
+    excluded = {tuple(pair) for pair in recipe.get("hinge_contact_exclusions", [])}
+    result = set()
+    if not excluded:
+        return result
+    hardware = {i for pair in excluded for i in pair}
+    found = set()
+    for name in GROUPS:
+        for points, ids in zip(collision[name], components[name], strict=True):
+            if hardware.intersection(ids):
+                require(len(ids) == 1, "Filtered hinge hardware cannot share a collider group")
+                # A local bearing exception must never suppress a leaf or jamb collider.
+                radius = np.linalg.norm(
+                    np.asarray(points)[:, :2] - np.asarray(recipe["hinge_m"])[:2], axis=1
+                )
+                require(
+                    radius.max() <= 0.1, "Filtered hardware must lie within 10 cm of hinge axis"
+                )
+                found.update(ids)
+    require(found == hardware, "Missing filtered hinge collider")
+    for i, moving in enumerate(components["Panel"]):
+        for j, fixed in enumerate(components["Frame"]):
+            if len(moving) == len(fixed) == 1 and (moving[0], fixed[0]) in excluded:
+                result.add((i, j))
+    return result
 
 
 def component_transform(recipe, name):

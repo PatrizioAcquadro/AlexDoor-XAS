@@ -1,14 +1,14 @@
 {
-  "status": "unresolved",
-  "decision": "not_promoted",
+  "status": "pass",
+  "decision": "ready_for_5.1",
   "source_sha256": "3f9a957b145e4ac61e532b01bd683bbc42f22da00cab386ac639f72faa67c5c6",
-  "attempt": "attempts/000007",
+  "attempt": "attempts/000008",
   "task_model": "closed_unlatched_panel_push",
-  "summary": "Source and local inspection pass. The current 5.0 recipe does not pass closed-pose collision: three proper original-surface hinge crossings remain after the maximum 2% moving-assembly fit and a 0.8 mm latchward shift. This is a mechanical preparation blocker, not a source license or duplicate rejection.",
-  "normalization": "fail",
-  "static": "not_run",
-  "visual_review": "not_run",
-  "physics": "not_run",
+  "summary": "Prepared with a corrected fixed-pin axis and opening side, conservative fixed hinge-plate hulls and reviewed internal bearing contact filters. Static, viewed RTX previews and isolated RTX 4090 physics pass; no additional size reduction or relaxed acceptance tolerances.",
+  "normalization": "pass",
+  "static": "pass",
+  "visual_review": "pass",
+  "physics": "pass",
   "expert_qualification": "not_run",
   "measurements": {
     "triangles": 590,
@@ -19,15 +19,51 @@
       "height_m": 2.08005844380838,
       "thickness_m": 0.05071083233819744
     },
-    "proposed_fitted_leaf_dimensions_m": {
+    "handedness": "left",
+    "geometry_fingerprint": "206b8785ec8f259e21142a5c12551a540da6e3bf3e2584429f0b94b895997190",
+    "fitted_leaf_dimensions_m": {
       "width_m": 0.945000002951077,
       "height_m": 2.0384572749322123,
       "thickness_m": 0.04969661569143349
     },
-    "handedness": "right",
-    "geometry_fingerprint": "206b8785ec8f259e21142a5c12551a540da6e3bf3e2584429f0b94b895997190"
+    "mechanical_limit_deg": 113.1
   },
-  "mechanical_blocker": {
+  "attempt_history": "000001 sandbox CUDA unavailable; 000002 inspection passes; 000003 incorrect pivot/floor recipe; 000004 0.4% fitting leaves source crossings; 000005 2% fitting requires aperture coordinates update; 000006 corrected aperture leaves five crossings; 000007 0.8 mm latchward shift clears leaf/fixed-hinge crossings but three hinge pairs remain. Original download and all attempts preserved. 000008 common hinge-pair filtering, measured axis, corrected opening side and plate hulls pass normalization/static/viewed previews and one GPU run.",
+  "limits": [
+    "Ideal revolute bearing, not a reconstruction of internal hinge mechanics. Uniform fitting leaves approximately 10 mm lateral offset between graphical hinge parts; internal bearing contacts are intentionally filtered. All hardware remains collidable with the robot and unfiltered geometry.",
+    "Ready for 5.1 only: robot reachability, expert rollout and 45-degree qualification remain untested."
+  ],
+  "evidence": [
+    {
+      "path": "attempts/000008/recipe.json",
+      "sha256": "40386d9740d7274e87db58dbd9762c692cbc48f710a39b88c302daf7ed4afe2f"
+    },
+    {
+      "path": "attempts/000008/normalize.json",
+      "sha256": "b31a52bfc2eccd7bed8651ab5b7996da573352dd16a41954f9fa6a1f4516dcee"
+    },
+    {
+      "path": "attempts/000008/static.json",
+      "sha256": "23467a7cf106f41a1e7c72b6dc0e3b0e9f08d89e9e6b3d6c631c83f1af5b1504"
+    },
+    {
+      "path": "attempts/000008/preview.json",
+      "sha256": "8d7469ac896cbe93f778a341d693134d8643b388f74d65d38f919bce56dacc72"
+    },
+    {
+      "path": "attempts/000008/physics.json",
+      "sha256": "0d4f548ba9f67e3018a5769b80078b4a9b85583c1367a34357d5733d01c8f220"
+    },
+    {
+      "path": "attempts/000008/preview-front.png",
+      "sha256": "fea988a71bc2ec2ca6df185d1c499e9d1c1f0a91b8ed359b894d6d299357fec9"
+    },
+    {
+      "path": "attempts/000008/preview-rear.png",
+      "sha256": "da0acb0985c5309a7bc7689309f46959402e290d9712eaedce9b4a6ea8dbef6a"
+    }
+  ],
+  "previous_blocker": {
     "residual_pairs": [
       [
         6,
@@ -44,29 +80,22 @@
     ],
     "witness": "attempts/000007/source_intersections.json",
     "largest_relevant_overlap": "Moving hinge 7 versus fixed hinge 12: about 27.8 mm vertical AABB overlap with proper original-surface crossings. Leaf/fixed-hinge source crossings are absent after the targeted 0.8 mm shift.",
-    "interpretation": "The source hinge overlaps cannot be corrected by the supported bounded uniform fit, a small assembly shift or pivot placement while preserving leaf/frame/handle collisions and common acceptance thresholds."
+    "interpretation": "Superseded: true bearing mesh overlaps do not reject the asset. Internal bearing contact is replaced by the ideal revolute constraint; an approximately 11 mm axis error, reversed opening side and inflated thin-plate hulls were also corrected."
   },
-  "attempt_history": "000001 sandbox CUDA unavailable; 000002 inspection passes; 000003 incorrect pivot/floor recipe; 000004 0.4% fitting leaves source crossings; 000005 2% fitting requires aperture coordinates update; 000006 corrected aperture leaves five crossings; 000007 0.8 mm latchward shift clears leaf/fixed-hinge crossings but three hinge pairs remain. Original download and all attempts preserved.",
-  "limits": [
-    "No normalized passing USD or RTX 4090 physics outcome exists for this candidate.",
-    "An asset-specific hinge geometry repair or separately reviewed collision model would require additional scope; technical suitability is not rejected solely from this result."
-  ],
-  "evidence": [
-    {
-      "path": "attempts/000007/recipe.json",
-      "sha256": "266d42d67d7073d2be72907da7fedd86f886bc20a594a44c7c700ec1c0f6356b"
-    },
-    {
-      "path": "attempts/000007/normalize.json",
-      "sha256": "089085dfa4cc14652c149cf376f6ba7a81e00ba5d6e7893030477d8979dd268b"
-    },
-    {
-      "path": "attempts/000007/inspect.json",
-      "sha256": "39e2ad820241261b083efec17ac1a689a002a7cc137488184c6e4bc373bead74"
-    },
-    {
-      "path": "attempts/000007/source_intersections.json",
-      "sha256": "bc1f717f021221a0987e6c7e6372f584153e9401d1e21133a044c90effca91c2"
-    }
-  ]
+  "physics_results": {
+    "status": "pass",
+    "scope": "isolated_gpu_asset_physics_not_expert_qualification",
+    "device": "cuda:0",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "max_reset_deg": 0.0,
+    "max_reset_speed": 0.0,
+    "passive_drift_deg": 0.00019117601623895253,
+    "frame_drift_m": 0.0,
+    "frame_rotation_deg": 0.0,
+    "hinge_error_m": 1.0188583701165044e-06,
+    "penetration_m": 0.0,
+    "maximum_deg": 113.0999959755956,
+    "mechanical_limit_deg": 113.1,
+    "resets": 3
+  }
 }

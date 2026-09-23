@@ -68,6 +68,22 @@ component IDs, and static checks require exact coverage of the nonexcluded parts
 Bounds checks compare physical geometry against the corresponding visual subset.
 The visible bolt can remain extended; its locking function is deliberately absent.
 Future tasks involving handle/lock operation must use a different preparation.
+
+**Internal hinge contacts.** Graphics assets can use overlapping solid pins and
+barrels without modeling bearing bores. The ideal revolute joint already provides
+that bearing constraint; these internal intersections do not by themselves reject
+a push-door asset. Optional `hinge_contact_exclusions` lists explicit
+`[moving_component, fixed_component]` pairs with a `hinge_contact_review` identifying
+the interfaces and approximation. Only non-leaf, non-latch Panel hardware paired
+with Frame hardware is allowed; all participating collider vertices must lie
+within 10 cm of the hinge axis and each must retain its own component ID.
+The exclusions become USD `FilteredPairsAPI` relationships between individual
+colliders and are applied identically in the geometric sweep. Static verification
+requires exactly the reviewed relationships. All hardware still collides with the
+robot and unfiltered geometry; leaf/frame and handle/frame contacts remain active.
+Never disable whole-body self-collision to fix a bearing. Check the actual pin axis,
+opening side and collider inflation before adding an interface exception. Detailed
+bearing mechanics, wear and lock operation are outside this preparation model.
 Optional `colliders` maps component indices (JSON strings) to `auto`, `convexHull`,
 or `convexDecomposition`. Default `auto` uses the installed PhysX cooker, baking
 individual hulls so clearance checks and simulation use the same collision shapes.
@@ -512,26 +528,40 @@ downloaded `Door (1).usdz` contains five embedded maps and matching author,
 source and license metadata, with no external dependency. Inspection attempt
 `000002` passes with 13 components and a geometry fingerprint distinct from
 the four prepared doors. At uniform 0.75 scale the original leaf is 0.964 ×
-2.080 × 0.051 m, right-handed in the chosen canonical push orientation.
+2.080 × 0.051 m. The initially proposed right-handed push orientation was
+corrected from the visible hinge hardware below.
 
-The source leaf and frame opening share side/top coordinates, so a reviewed
-uniform moving-assembly fit was tried at the documented 2% maximum.
-The separate edge latch tongue was selected for the existing closed-unlatched
-collision exclusion; leaf, frame, hinges and handles remained collidable.
-Attempt `000006` showed two fitted-leaf/fixed-hinge crossings of about 0.5 mm;
-a measured 0.8 mm shift toward the latch removes them without removing any
-collision. Attempt `000007` still fails normalization at the closed-pose gate.
-Original-surface witnesses show three moving/fixed hinge pairs crossing
-(6/11, 7/9, 7/12), including component 7 against 12 with about 27.8 mm
-vertical bounds overlap. These are source geometry crossings, not merely
-oversized cooked hulls or a missing hinge measurement. The candidate is **held without
-promotion**; static, normalized preview and GPU physics were not run. This does
-not establish that the door is intrinsically unsuitable: a separately reviewed
-hinge geometry/collision preparation would be needed. The original download and
-all attempts are preserved in
-`assets/doors/b1/door-2738468b94d74c5f/`; four earlier doors remain ready for
-5.1. An initial inspection attempt lacked CUDA only because of sandbox access;
-inspection was then completed through the host Isaac Lab runtime on `cuda:0`.
+The source leaf and frame opening share side/top coordinates. A 2% uniform
+moving-assembly fit and a 0.8 mm latchward shift give a 0.945 × 2.038 × 0.050 m
+leaf. Attempt `000007` recorded genuine internal hinge surface crossings, but
+that alone did not establish a functional obstruction: the graphics model uses
+solid overlapping pins/barrels even before fitting.
+
+The corrected recipe models the bearing with the existing revolute joint and
+filters only internal hardware pairs 6/8, 6/11, 7/9 and 7/12. Hinges retain external
+collision; the leaf, frame and handles retain all contacts. Fixed plates 8/9 use
+conservative convex hulls, avoiding inflation from decomposing their thin meshes.
+The common fixed-pin XY center sets the axis, correcting an approximately 11 mm
+lateral pivot error. A proper 180-degree Z rotation selects the actual opening
+side: the prepared door is **left-handed**, not mirrored. No further shrinking
+or acceptance-tolerance relaxation is used. The fit leaves approximately 10 mm
+lateral offset between graphical moving/fixed hinge parts; the ideal bearing is
+an explicit task-level approximation, not a reconstruction of working hardware.
+
+Attempt `000008` passes normalization and static checks; front/rear RTX captures
+were visually reviewed, retaining the dark textured leaf, frame, lever and hinge
+hardware. The separate latch remains visible without collision. The opening limit
+from the final cooked geometry is 113.1 degrees. One isolated RTX 4090 run reaches
+113.099996 degrees with three exact resets, 0.000191-degree passive drift, zero
+frame drift/rotation, 1.02-micrometer hinge-anchor error and zero reported
+penetration in active contacts. Attempt `000008` is promoted for 5.1 under CC BY
+4.0; five distinct doors are now prepared, with expert qualification still pending.
+The focused preparation suite passes 27 tests, including rejection of leaf/handle
+filtering, retained leaf/handle obstructions and a nonlocal hardware exception;
+Ruff passes. The four earlier accepted assets were not changed or rerun.
+Original downloads and all earlier attempts remain preserved in
+`assets/doors/b1/door-2738468b94d74c5f/`. This repair changes the reusable preparation
+recipe, not the frozen Phase 4 setup or the robot/expert gate in 5.1.
 
 #### Key Decisions
 

@@ -11,7 +11,7 @@ from pxr import PhysxSchema, Usd, UsdGeom, UsdPhysics, UsdShade, UsdUtils
 from alexdoor_xas.door_qualification import DoorDimensions, cuboid_inertia_kg_m2, sha256_file
 
 from .convex_geometry import clear_opening, mechanical_limit
-from .preparation import GROUPS, file_inventory, require, validate_recipe
+from .preparation import GROUPS, file_inventory, hinge_collision_pairs, require, validate_recipe
 
 
 def canonical_files(path):
@@ -103,6 +103,8 @@ def static_check(attempt):
         "Hinge nominal physics changed",
     )
     collision = {name: [] for name in GROUPS}
+    collision_components = {name: [] for name in GROUPS}
+    collision_paths = {name: [] for name in GROUPS}
     excluded = set(recipe.get("unlatched_components", []))
     visual_bounds = {}
     visual_triangles = 0
@@ -185,6 +187,10 @@ def static_check(attempt):
                     )
                     matrix = np.array(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(0)).T
                     collision[name].append(points @ matrix[:3, :3].T + matrix[:3, 3])
+                    collision_components[name].append(
+                        list(components) if components is not None else [component]
+                    )
+                    collision_paths[name].append(str(prim.GetPath()))
                 else:
                     visual_triangles += int((counts - 2).sum())
         require(bool(collision[name]), f"Missing collision geometry: {name}")
@@ -227,7 +233,24 @@ def static_check(attempt):
             with Image.open(item["path"]) as image:
                 require(max(image.size) <= 4096, "Normalized texture exceeds 4K")
     clear_opening(collision["Frame"], panel_bounds, recipe.get("clear_aperture_m"))
-    limit = mechanical_limit(collision, np.asarray(recipe["hinge_m"]), recipe["handedness"])
+    excluded_pairs = hinge_collision_pairs(recipe, collision, collision_components)
+    expected_filters = {
+        frozenset((collision_paths["Panel"][i], collision_paths["Frame"][j]))
+        for i, j in excluded_pairs
+    }
+    actual_filters = {
+        frozenset((str(prim.GetPath()), str(target)))
+        for prim in stage.Traverse()
+        if prim.HasAPI(UsdPhysics.FilteredPairsAPI)
+        for target in UsdPhysics.FilteredPairsAPI(prim).GetFilteredPairsRel().GetTargets()
+    }
+    require(
+        actual_filters == expected_filters,
+        "Collision filters differ from reviewed hinge interfaces",
+    )
+    limit = mechanical_limit(
+        collision, np.asarray(recipe["hinge_m"]), recipe["handedness"], excluded_pairs
+    )
     require(
         abs(hinge.GetUpperLimitAttr().Get() - limit) <= 0.11,
         "Mechanical joint limit differs from collision geometry",

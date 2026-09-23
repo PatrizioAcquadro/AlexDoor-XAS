@@ -2,20 +2,21 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Four doors pass static, visual and isolated GPU checks
+intake has started. Five doors pass static, visual and isolated GPU checks
 in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
-The fifth supplied source, `door-2738468b94d74c5f`, passes CC BY 4.0 source
-review and local inspection (590 triangles, 13 components, five embedded 2K
-maps), but is held before promotion. At the documented 2% fitting bound and
-after a 0.8 mm latchward shift, its closed pose still has three original-surface
-moving/fixed hinge crossings; components 7 and 12 overlap by about 27.8 mm
-vertically. The 0.964 × 2.080 × 0.051 m original leaf at 0.75 scale is
-right-handed in the proposed push orientation. Normalization fails, so static,
-normalized preview and GPU physics have not run. This is a concrete preparation
-blocker, not an automatic source rejection. The four ready doors are unchanged.
+The fifth source, `door-2738468b94d74c5f` (DJMaesen, CC BY 4.0), is now
+prepared in attempt `000008`. Its internal pin/barrel mesh overlaps are represented
+by the ideal revolute joint with explicit contact-pair filters; external hinge,
+leaf, frame and handle collisions remain enabled. Correcting the measured pin
+axis, opening side and inflated plate hulls resolves the previous blocker without
+further shrinking or relaxed physics tolerances. The prepared 0.945 × 2.038 ×
+0.050 m leaf is left-handed in the canonical push convention. Static and viewed
+RTX previews pass; one RTX 4090 run reaches 113.1 degrees with exact resets,
+0.000191-degree passive drift, zero frame drift and no reported penetration.
+The detailed bearing is an approximation; robot/expert qualification remains pending.
 
 The fourth supplied source, `void-frame-studio-animated-classic-door-08bdf51b`,
 is CC BY-NC-ND 4.0. Its initial source-review failure is superseded by a
@@ -171,7 +172,7 @@ The first candidate, `door-with-frame-2f2f149f`, is technically ready for 5.1 af
 explicitly omitting latch/lock bolt collisions for the common closed-unlatched task.
 It reaches 188 degrees in isolated GPU physics with stable resets/frame and no
 reported penetration. The leaf, frame and handles retain their collisions.
-The initial batch of four distinct real doors is prepared. Start the unchanged
+The initial batch of five distinct real doors is prepared. Start the unchanged
 common robot/expert protocol in 5.1 only when requested; the next-candidate
 [[implementation_phases/phase-5-door-corpus-and-qualification|handoff]] remains
 available for further sequential intake. Expert qualification, the final corpus
@@ -191,6 +192,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Repaired DJMaesen preparation with reviewed internal hinge contact pairs, a measured pin axis and corrected opening side; static, viewed previews and one RTX 4090 run pass at 113.1 degrees. Five doors are ready for 5.1; expert qualification remains pending.
 
 - 2026-09-23 — Reviewed DJMaesen's CC BY door and its USDZ; inspection passes, but the maximum fit and a small shift leave true internal hinge crossings. The candidate is held before static/visual/GPU gates; four doors remain ready for 5.1.
 - 2026-09-23 — Prepared Void Frame Studio's door under private/noncommercial scope; local removal of negligible-area triangles, 2% fitting and reviewed hardware colliders pass static, visual and one RTX 4090 run. Four doors are ready for 5.1.

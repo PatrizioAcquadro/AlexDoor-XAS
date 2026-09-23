@@ -1,14 +1,14 @@
 {
-  "handedness": "right",
+  "handedness": "left",
   "scale": 0.75,
   "rotation": [
     [
       0,
       0,
-      -1
+      1
     ],
     [
-      -1,
+      1,
       0,
       0
     ],
@@ -29,8 +29,8 @@
     0
   ],
   "hinge_m": [
-    -0.048,
-    -0.485,
+    0.0480098,
+    0.4739435,
     0
   ],
   "dimensions_m": {
@@ -72,7 +72,7 @@
     0,
     1.0482500246771642
   ],
-  "clearance_review": "At 0.4% fitting attempt 000004 retains true source-surface crossings: leaf versus fixed hinge parts 8/9, moving hinge parts 6/7 versus frame 10 and fixed hinge parts 9/11/12. Source leaf and opening have coincident side/top edges. Test the documented maximum 2% uniform fit on the entire moving assembly: approximately 9.64 mm side clearance before the small latchward shift, 20.8 mm added top clearance and 29.0 mm total clearance below the leaf relative to the frame base. Do not accept until the complete collision sweep and previews pass; this is an explicit graphics-model fit, not a manufacturer measurement. A final 0.8 mm rigid shift toward the latch is tested to remove the residual 0.5 mm leaf/fixed-hinge edge crossing without exceeding the aperture or recentering guard; it cannot resolve the much larger hinge-barrel crossings.",
+  "clearance_review": "At 0.4% fitting attempt 000004 retains true source-surface crossings: leaf versus fixed hinge parts 8/9, moving hinge parts 6/7 versus frame 10 and fixed hinge parts 9/11/12. Source leaf and opening have coincident side/top edges. Test the documented maximum 2% uniform fit on the entire moving assembly: approximately 9.64 mm side clearance before the small latchward shift, 20.8 mm added top clearance and 29.0 mm total clearance below the leaf relative to the frame base. Do not accept until the complete collision sweep and previews pass; this is an explicit graphics-model fit, not a manufacturer measurement. A final 0.8 mm rigid shift toward the latch is tested to remove the residual 0.5 mm leaf/fixed-hinge edge crossing without exceeding the aperture or recentering guard; it cannot resolve the much larger hinge-barrel crossings. Final opening-side correction reverses canonical X/Y; the fitted assembly shifts -0.8 mm in Y. No further size reduction. Internal bearing contacts use the documented ideal-joint approximation.",
   "colliders": {
     "10": {
       "partitions": {
@@ -84,7 +84,9 @@
           2.0882792465813544
         ]
       }
-    }
+    },
+    "8": "convexHull",
+    "9": "convexHull"
   },
   "clear_aperture_m": [
     [
@@ -103,11 +105,32 @@
     "Shift the fitted moving assembly 0.8 mm toward the latch to clear the remaining leaf/fixed-hinge edge crossing; preserve original orientation and the bounded fit.",
     "Partition the connected frame surface at its measured jamb and header boundaries, preserving a central passage and fixed hinge collisions.",
     "Place a plausible front-face hinge axis at the right-side visible hinge hardware, 5.9 mm inside the outer moving hinge envelope. The pivot is a simulation approximation, not a recovered manufacturer measurement.",
-    "Prepare the closed-unlatched state by omitting only the separate edge latch tongue collider; derive the opening stop from collision geometry."
+    "Prepare the closed-unlatched state by omitting only the separate edge latch tongue collider; derive the opening stop from collision geometry.",
+    "Correct opening side with proper 180-degree Z rotation (left handed); align revolute axis to fixed pin centers.",
+    "Use convex hulls for fixed hinge plates 8/9; omit only reviewed internal hinge-pair contacts, retaining their external collisions."
   ],
   "moving_translation_m": [
     0,
-    0.0008,
+    -0.0008,
     0
-  ]
+  ],
+  "hinge_contact_exclusions": [
+    [
+      6,
+      8
+    ],
+    [
+      6,
+      11
+    ],
+    [
+      7,
+      9
+    ],
+    [
+      7,
+      12
+    ]
+  ],
+  "hinge_contact_review": "Components 6/7 are moving hinge leaves and barrels; 8/9 are fixed leaves and 11/12 fixed cylindrical pins. Their solid, unbored graphics meshes overlap even before fitting. The ideal revolute joint replaces only these internal bearing contacts; each collider remains enabled against the robot, door leaf, frame and all other geometry. Fixed hinge plates 8/9 use their conservative convex hull: automatic decomposition inflated these thin low-poly parts into the leaf. The axis is the common XY center of the two fixed pins, measured from source geometry. A proper 180-degree Z rotation selects the hardware opening side (+X canonically), hence left handedness, without mirroring. The 2% fit shifts moving hardware about 10 mm laterally relative to the original pins; this retained graphics approximation is not a detailed bearing reconstruction."
 }

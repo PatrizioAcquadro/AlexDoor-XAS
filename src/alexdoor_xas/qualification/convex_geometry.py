@@ -196,14 +196,14 @@ def opening_rotation(degrees, handedness):
     return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
 
 
-def mechanical_limit(groups, hinge, handedness):
+def mechanical_limit(groups, hinge, handedness, excluded_pairs=()):
     fixed = [Convex(p) for p in groups["Frame"]]
     moving = [Convex(p) for name in ("Panel", "Handle") for p in groups[name]]
     fixed_lo = np.array([p.points.min(0) for p in fixed])
     fixed_hi = np.array([p.points.max(0) for p in fixed])
 
     def intersects(shapes):
-        for a in shapes:
+        for moving_index, a in enumerate(shapes):
             candidates = np.flatnonzero(
                 np.all(
                     np.minimum(a.points.max(0), fixed_hi) - np.maximum(a.points.min(0), fixed_lo)
@@ -211,7 +211,9 @@ def mechanical_limit(groups, hinge, handedness):
                     axis=1,
                 )
             )
-            if any(overlap(a, fixed[i]) for i in candidates):
+            if any(
+                (moving_index, i) not in excluded_pairs and overlap(a, fixed[i]) for i in candidates
+            ):
                 return True
         return False
 

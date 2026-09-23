@@ -13,6 +13,7 @@ from alexdoor_xas.qualification.preparation import (
     collider_batches,
     component_transform,
     file_inventory,
+    hinge_collision_pairs,
     new_attempt,
     promote,
     remote_review,
@@ -228,6 +229,47 @@ def test_zero_gap_leaf_needs_clearance_and_an_opening_face_pivot():
     pivot = np.array([0.03 * 0.996, -0.5 * 0.996, 0])
     limit = mechanical_limit(groups, pivot, "right")
     assert 90 < limit < 100
+
+
+def test_hinge_interfaces_preserve_leaf_contacts_and_the_geometric_stop():
+    from itertools import product
+
+    data = recipe()
+    data.update(
+        components={"Panel": [0, 2], "Frame": [1, 3], "Handle": [4]},
+        leaf_components=[0],
+        hinge_contact_exclusions=[[2, 3]],
+        hinge_contact_review="Solid pin inside moving barrel; revolute joint models bearing.",
+        hinge_m=[0.02988, -0.498, 0],
+    )
+    validate_recipe(data, 5)
+    for pair in ([0, 3], [4, 3], [2, 0]):
+        with pytest.raises(PreparationError, match="Hinge contact"):
+            validate_recipe({**data, "hinge_contact_exclusions": [pair]}, 5)
+    frame = [
+        np.array(list(product([-0.08, 0.08], ys, [0, 2.23]))) for ys in ([-0.53, -0.5], [0.5, 0.53])
+    ]
+    leaf = np.array(list(product([-0.03, 0.03], [-0.5, 0.5], [0.01, 2.21])))
+    leaf = (leaf - [0, 0, 1.11]) * 0.996 + [0, 0, 1.11]
+    bearing = np.array(list(product([0.08, 0.09], [-0.55, -0.54], [0.3, 0.4])))
+    groups = dict(Frame=[*frame, bearing], Panel=[leaf, bearing], Handle=[])
+    ids = dict(Frame=[[1], [1], [3]], Panel=[[0], [2]], Handle=[])
+    pairs = hinge_collision_pairs(data, groups, ids)
+    assert pairs == {(1, 2)}
+    with pytest.raises(PreparationError, match="intersects"):
+        mechanical_limit(groups, data["hinge_m"], "right")
+    limit = mechanical_limit(groups, np.array(data["hinge_m"]), "right", pairs)
+    assert 0 < limit < 100
+    blocked = {**groups, "Panel": [frame[0], bearing]}
+    with pytest.raises(PreparationError, match="intersects"):
+        mechanical_limit(blocked, np.array(data["hinge_m"]), "right", pairs)
+    blocked = {**groups, "Handle": [frame[0]]}
+    with pytest.raises(PreparationError, match="intersects"):
+        mechanical_limit(blocked, np.array(data["hinge_m"]), "right", pairs)
+    # Reclassifying a complete jamb as bearing hardware must not hide it.
+    ids["Frame"][0] = [3]
+    with pytest.raises(PreparationError, match="10 cm"):
+        hinge_collision_pairs(data, groups, ids)
 
 
 def test_attempts_never_overwrite_sources_or_previous_outputs(tmp_path):
