@@ -651,3 +651,13 @@ Recorded Mehdi Shahsavan's CC BY 4.0 USDZ and selected its original closed door/
 ## 2026-09-23 — lint : Prison door evidence and wiki
 
 Verified original and selected source hashes, the two retained mesh payloads and four texture maps, eight ready pointers, nine preparation evidence hashes, and all required stage reports. Wiki links/index and Markdown whitespace pass; earlier assets, raw knowledge and frozen Phase 4 setup are unchanged.
+
+## 2026-09-23 — update : Metal door preparation
+
+Recorded the CC BY 4.0 metal door, embedded maps and distinct geometry. Reviewed whole-face frame/leaf separation and 0.4% moving fit; attempt 000004 passes static, viewed RTX captures and one isolated RTX 4090 run to the 59.8-degree geometric stop.
+It is the ninth door ready for 5.1. The inferred hinge, solid-leaf collider and unrun robot qualification are explicit; original download, earlier attempts and frozen Phase 4 setup remain preserved.
+
+## 2026-09-23 — lint : Metal door evidence and wiki
+
+Verified eight preparation evidence hashes, four passing stage reports, the ready pointer and nine-door scope counts. The focused wiki link/index test, allowed tree shape, Markdown whitespace and Git diff checks pass.
+No raw knowledge, earlier accepted asset, shared tool or frozen Phase 4 setup changed.

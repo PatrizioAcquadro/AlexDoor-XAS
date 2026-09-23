@@ -2,10 +2,20 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Eight doors pass static, visual and isolated GPU checks
+intake has started. Nine doors pass static, visual and isolated GPU checks
 in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
+
+The ninth source, `door-door-metal-b21ec273` (Mehdi Shahsavan, CC BY 4.0), is
+prepared in attempt `000004`. Its modeled U-frame and leaf are welded in the
+source mesh; reviewed whole-face separation preserves both surfaces, UVs and
+textures. A 0.4% moving fit supplies jamb clearance without removing collision
+from the leaf, frame, pane or bar. The right-handed leaf measures
+0.926 × 2.150 × 0.054 m. Both RTX previews were viewed; static and one short RTX
+4090 run pass with three exact resets, fixed frame, zero reported penetration
+and a **59.8-degree** geometric stop. The original USDZ and earlier attempts
+remain. The hinge is inferred; robot/expert qualification is still pending.
 
 The eighth source, `door-prison-metal-old-45306a46` (Mehdi Shahsavan, CC BY 4.0),
 is prepared in attempt `000006`. The USDZ includes open and closed display copies;

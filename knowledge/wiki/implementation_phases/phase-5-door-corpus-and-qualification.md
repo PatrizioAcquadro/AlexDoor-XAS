@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> Eight real doors pass preparation and are ready for 5.1: five redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
+> Nine real doors pass preparation and are ready for 5.1: six redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
 
 ## Objective
 
@@ -693,6 +693,35 @@ under CC BY 4.0 as the eighth door. The small opening is recorded for 5.1; no
 robot run or 45-degree qualification criterion was applied. Original/derived
 sources and prior attempts remain preserved.
 
+**Mehdi Shahsavan metal-door review (2026-09-23).**
+[door door metal](https://sketchfab.com/3d-models/door-door-metal-b21ec273c1a342568ab9f9ac14291c5b)
+shows a single dark metal leaf in a U-frame with a narrow upper window,
+horizontal bar and lower kick plate. The page and download modal show CC BY 4.0,
+the same author as the prison door, and original OBJ plus converted USDZ, glTF
+and GLB. The supplied USDZ embeds four 2K maps and matching author/license/source
+metadata. Inspection `000002` reports 3,338 triangles, three connected components
+and a fingerprint distinct from all eight earlier accepted doors.
+
+Source component 1 joins the modeled frame and leaf at their contour. A reviewed
+whole-face split keeps 30 frame faces and selects 66 leaf faces without moving
+source vertices or altering UVs. Component 0 is the bar; component 2 is the narrow
+window plane. All remain collidable, and no separate latch/bolt is modeled. Uniform
+0.75 scale yields a full-size leaf; a 0.4% uniform moving fit creates about 1.86 mm
+of side clearance from the originally touching jambs. The fixed frame retains
+partitioned collision around its aperture; the solid leaf collider fills the
+decorative window for contact while retaining the original visual. The ideal hinge
+is inferred at the negative-X source jamb, mapping to a right-handed canonical
+push. The leaf measures 0.926 × 2.150 × 0.054 m.
+
+Attempt `000004` passes normalization/static checks and viewed front/rear RTX
+previews: one face is plain and the other retains the textured window, bar and
+kick plate. One isolated RTX 4090 run reaches the **59.8-degree geometric stop**
+with three exact resets, fixed frame, about 1.03-micrometer hinge-anchor error
+and zero reported penetration. It is promoted under CC BY 4.0 as the ninth door.
+The source USDZ and diagnostic attempts remain. The inferred hinge and collision
+approximations are recorded; no robot run or 45-degree qualification criterion
+was applied.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
@@ -722,14 +751,14 @@ sources and prior attempts remain preserved.
 
 #### Problems / Limitations
 
-Preparation is verified on the documented fixtures and eight real doors in the
+Preparation is verified on the documented fixtures and nine real doors in the
 closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
 The Ahmed sayed candidate's earlier license rejection and preparation blockers
 are superseded by local-only scope and the reviewed GLB repair. The initial batch
-has grown to eight technically ready doors; five are redistributable.
+has grown to nine technically ready doors; six are redistributable.
 Void Frame Studio's initial source-license failure and geometry
 attempt failures are superseded by its private/noncommercial admission and
 attempt `000008`. Inferred pivots and clearance fitting do not reconstruct real
