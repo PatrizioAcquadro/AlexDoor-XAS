@@ -119,8 +119,11 @@ The first candidate, `door-with-frame-2f2f149f`, is technically ready for 5.1 af
 explicitly omitting latch/lock bolt collisions for the common closed-unlatched task.
 It reaches 188 degrees in isolated GPU physics with stable resets/frame and no
 reported penetration. The leaf, frame and handles retain their collisions.
-Next is the unchanged common robot/expert protocol, while sequential intake can
-continue. Expert qualification, the final corpus and split are still pending.
+Next, prepare a small initial batch of 3–4 distinct real doors in total using the
+[[implementation_phases/phase-5-door-corpus-and-qualification|next-candidate handoff]],
+then start the unchanged common robot/expert protocol without waiting for all 24.
+This batch size is a working recommendation, not an admission requirement.
+Expert qualification, the final corpus and split are still pending.
 Phase 6 integrates observations and all learned A1–A4 paths, then a demonstration
 pilot. Phase 7 owns training and generalization evaluation.
 

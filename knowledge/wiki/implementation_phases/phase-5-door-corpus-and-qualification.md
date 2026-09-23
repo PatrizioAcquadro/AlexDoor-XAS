@@ -144,9 +144,9 @@ Unknown remote geometry may remain unset. Before promotion, record passing
   --recipe assets/doors/b1/<id>/recipe.json --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py static \
   --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py physics \
-  --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py preview \
+  --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py physics \
   --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py promote \
   --attempt assets/doors/b1/<id>/attempts/<number> \
@@ -174,8 +174,11 @@ link and specific warnings before the user downloads anything:
    normalize the payload and run static/physics checks. Inspect unknown properties
    locally before accepting them. Report the result and concrete rejection or
    unresolved reason.
-4. Pass each technically valid door to Subphase 5.1's expert check without
-   waiting for the other candidates. Continue with the next user-provided URL.
+4. Mark each technically valid door ready for Subphase 5.1. As an initial working
+   batch, prepare **3–4 real doors in total** with distinct geometry and, where
+   available, both original handednesses before the first robot checks. This is
+   a workflow recommendation, not a new admission gate. Do not wait for all 24:
+   early 5.1 checks can expose shared issues before more intake work accumulates.
 
 Do not write a new standalone normalization pipeline for every door or modify
 robot/contact rules to make a candidate pass. Fix genuine shared-tool defects
@@ -191,6 +194,51 @@ they are not grounds for repeated geometric audits or automatic rejection. Repea
 only checks affected by an actual correction. Do not rerun the format matrix,
 unrelated software suite or synthetic regressions for routine intake. Separate
 infrastructure development cost from per-door processing.
+
+**Next-candidate operator handoff.** Follow the commands above for one user-supplied
+URL/local payload at a time; remain within 5.0 unless 5.1 is explicitly requested.
+
+1. Review the individual source page and dependency license scope. Return its
+   link, `DOWNLOAD` or `REJECT`, recommended available format, known facts and
+   local unknowns. If source/license evidence is insufficient, report `unresolved`
+   and what evidence is missing. Missing online dimensions are not a rejection.
+   If the payload is already downloaded, continue locally without another download.
+2. Create a distinct candidate record and run `inspect`. Use its component
+   inventory and geometry to identify frame, leaf, attached hardware and hinge.
+   Inspect original views only if ownership or orientation is ambiguous.
+3. Write the smallest adequate recipe and run `normalize`. The source of recipe
+   coordinates is the converted inventory (USD/FBX conversion uses glTF Y-up
+   meters), not assumed raw-file units. Determine scale, handedness, pivot and
+   component indices for this asset. Use `leaf_components`, `clear_aperture_m`
+   and collider partitions only where its geometry needs them. Explicitly identify
+   any latch/lock bolt collision exclusions through `unlatched_components` and
+   `unlatched_review`; retain leaf, frame and handle collisions.
+4. On the normalization attempt, run `static`, then `preview`; actually inspect
+   the front/rear images for orientation, materials, alignment and missing parts.
+   A successful render alone is not a visual pass. Run `physics` on RTX 4090
+   (`--device cuda:0`), requesting runtime/cache access if the sandbox blocks it.
+5. Complete the source, dependency, duplicate and visual reviews with this asset's
+   evidence. Promote only after the required results pass. Record a concise
+   `preparation-review.json` with dimensions, handedness, modifications, outcome,
+   evidence paths and remaining limits. Preserve source and prior attempts;
+   never rerun commands into an accepted attempt.
+
+Use `assets/doors/b1/door-with-frame-2f2f149f/` as the worked example. Its accepted
+attempt is `000007`; older failures are superseded diagnostics. Reuse the record
+structure and common task model, **not** its scale, component IDs, partition cuts,
+188-degree limit, license evidence, checksums or passing review values.
+
+When a gate fails, first read its reason and implicated component pair. Distinguish
+an asset defect from incorrect ownership/pivot/collider approximation or a converter
+limitation. A latch intersecting its strike plate is handled by the reviewed
+closed-unlatched rule, not by discarding the door. A collider filling a frame rebate
+calls for a geometry-preserving recipe correction, not removal of frame collision.
+Do not blindly vary parameters, force a 90-degree stop, disable required collisions
+or weaken thresholds to obtain a pass. Fix routine preparation issues, then repeat
+only affected checks. If a task-relevant obstruction or unsupported conversion
+remains, report the concrete blocker as `fail` or `unresolved`; do not start a broad
+audit. Change shared code only for a demonstrated tool defect, with a focused
+regression. The 45-degree criterion and frozen robot/expert run belong to 5.1.
 
 **First real door (2026-09-23).** The user supplied
 [Door with frame by witnessk](https://sketchfab.com/3d-models/door-with-frame-2f2f149f3ec44d658a02c1f924dfa449)

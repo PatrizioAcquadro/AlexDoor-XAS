@@ -495,3 +495,11 @@ The previously rejected door now passes static/visual/GPU preparation to 188 deg
 ## 2026-09-23 — lint : Closed-unlatched preparation readiness
 Fourteen focused preparation tests, Ruff, whitespace, wiki links/index and preserved-source/evidence checks pass.
 Verified promotion of attempt 000007 after static, front/rear visual and real-door RTX 4090 checks; the frozen setup and prior evidence are unchanged.
+
+## 2026-09-23 — update : Next-door preparation handoff
+Added a concise operator sequence, worked-example boundaries and targeted failure handling to Phase 5.
+Recommended an initial batch of 3–4 distinct doors before early robot checks, without making batch size an admission gate.
+
+## 2026-09-23 — lint : Next-door handoff
+Wiki links/index coverage and whitespace pass; operator instructions match the current CLI, recipe and promotion contracts.
+Documentation-only update: no simulation reruns, asset changes, raw-source edits or frozen-setup changes.
