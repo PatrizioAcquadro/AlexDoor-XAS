@@ -14,7 +14,7 @@ Planned and historical development records:
 - [[implementation_phases/phase-2-scripted-baseline-and-data-engine|Phase 2 — Scripted Baseline and Data Engine]] — Scripted execution, recording, and matched export foundation.
 - [[implementation_phases/phase-3-non-vla-learned-baselines|Phase 3 — Non-VLA Learned Baselines]] — State-only policy, adapter, and evaluation foundation.
 - [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — GPU-verified Alex003/control/RGB-D and frozen common synthetic setup, with repeated sustained opening and fixed-view evidence.
-- [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Verified preparation with reviewed clearance and internal hinge repairs; five real doors ready under recorded license scopes, expert qualification pending.
+- [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Verified preparation with reviewed clearance, hinge and welded-surface repairs; six real doors ready under recorded license scopes, expert qualification pending.
 - [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — Three planned subphases: observations/perception, complete A1-A4, and pilot-to-dataset generation with Replicator and conditional Mimic.
 - [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]] — Two planned subphases: training, then evaluation/analysis with ID/GEO before stress tests.
 - [[implementation_phases/extra-01-alex-v2-migration|Extra 01 — Alex V2 Migration]] — Migration from provisional assumptions to fixed-base Alex V2.

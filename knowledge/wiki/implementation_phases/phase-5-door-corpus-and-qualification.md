@@ -25,6 +25,25 @@ creates a new numbered attempt and copies its input files. Sources and accepted
 attempts are preserved. Geometry fingerprints flag possible duplicates; local
 review must resolve them, and identical source payloads cannot be promoted twice.
 
+**Welded static surfaces.** Connectivity is not physical ownership: a graphics
+asset can join a modeled U-shaped frame and leaf at their common contour. Inspect
+that contour and the cross-section before declaring the frame absent. Optional
+`component_splits` selects whole faces with all vertices inside reviewed `bounds`
+(`x`, `y`, `z` intervals in inspected coordinates). The remainder retains its
+component index; the selected surface is appended. This preserves source positions,
+UVs and materials without importing a frame. It does not authorize inventing a
+frame where no frame geometry is modeled.
+
+For a front-only leaf relief, optional `shell_backings` specifies `component`,
+`axis`, an exterior rear `plane` in inspected coordinates, and `review`. It preserves
+the front and adds a flat projected rear plus boundary walls. Thickness and rear
+appearance are explicit inferred preparation choices; rear UVs repeat the front.
+Folded/opposing surfaces and non-manifold or non-closed results are rejected.
+Splits run before backings, then the usual transforms, collider generation and
+gates run. `components` uses the resulting indices; inspection/fingerprints still
+refer to the preserved original. This is opt-in preparation, not an automatic
+repair or evidence of the author's intended working mechanism.
+
 A JSON recipe specifies `handedness`, positive uniform `scale`, proper `rotation`,
 `translation_m`, `opening_center_source`, `hinge_m`, `dimensions_m`, and the complete
 `components` assignment to `Frame`, `Panel`, and optional `Handle`. It also records
@@ -278,7 +297,9 @@ URL/local payload at a time; remain within 5.0 unless 5.1 is explicitly requeste
    If the payload is already downloaded, continue locally without another download.
 2. Create a distinct candidate record and run `inspect`. Use its component
    inventory and geometry to identify frame, leaf, attached hardware and hinge.
-   Inspect original views only if ownership or orientation is ambiguous.
+   Inspect original views only if ownership or orientation is ambiguous. A welded
+   frame/leaf requires contour review before rejection; use the documented surface
+   split/backing operations only when existing geometry supports that interpretation.
 3. Write the smallest adequate recipe and run `normalize`. The source of recipe
    coordinates is the converted inventory (USD/FBX conversion uses glTF Y-up
    meters), not assumed raw-file units. Determine scale, handedness, pivot and
@@ -571,17 +592,34 @@ glTF and GLB are offered. The user-supplied `Door (2).usdz` packages five 1K
 maps without external dependencies. Inspection attempt `000001` passes local
 inventory: 1,577 triangles, four connected components and a fingerprint
 distinct from the five accepted doors. Its unscaled converted envelope is
-1.415 m wide and 3.000 m high; no final scale or handedness was assigned.
+1.415 m wide and 3.000 m high before the preparation below.
 
-Local geometry resolves the remote visual ambiguity: component 2 contains the
-whole solid leaf and its outer decorative border. Components 0, 1 and 3 are
-localized lever/plate parts on the opposite edge; none is an independent fixed
-jamb or hinge fitting. The required `frame_panel_separable` review therefore
-fails. Assigning part of the connected leaf as the fixed frame would misrepresent
-the asset. No recipe, normalization attempt, static or normalized visual result,
-isolated GPU run or promotion was made. `candidate.json`, `source-evidence.json`,
-`preparation-review.json` and the preserved inspection attempt are under
-`assets/doors/b1/door-adf292f437f2/`. The five accepted doors are unchanged.
+A second review supersedes the initial connectivity-based rejection. Component 2
+is a static open shell containing the central relief **and modeled frame**: two
+full-height side strips and a header outside the relief contour. The original
+source is not a complete solid leaf. Source-space selection within
+Y `[-1.493612, 1.391966]` and Z `[-0.622471, 0.622471]` separates 296 central faces
+from the 70 frame faces without moving or deleting any source triangle. The
+handle/plate components 0, 1 and 3 remain attached to the moving leaf.
+
+The appended leaf component 4 receives a planar rear at inspected X=0.01 and
+boundary walls. Its front geometry/UVs remain intact; the rear is an inferred
+flat surface repeating the front texture. The frame retains its source profile;
+partitioned convex colliders supply its solid volume without closing the opening.
+Uniform scale 0.75 and 0.4% clearance fitting give a 0.930 × 2.156 × 0.053 m leaf,
+about 1.87 mm clearance at each jamb, and 1,857 prepared visual triangles.
+A left hinge is inferred opposite the source handle at the opening-face corner;
+no mirrored geometry or internal hinge-contact exception is needed.
+
+Attempt `000002` passes normalization and static checks, including a 176-degree
+geometric stop. Front/rear RTX captures were viewed: purple frame and relief,
+gold source lever, fitted gaps and the inferred flat rear are adequate for the
+push task. One isolated RTX 4090 run reaches 176.000000 degrees, with three exact
+resets, 0.000193-degree passive drift, zero frame drift/rotation, 1.11-micrometer
+hinge-anchor error and zero reported penetration. Attempt `000002` is promoted
+under CC BY 4.0; six distinct doors are prepared, with expert qualification still
+pending. The 29 focused preparation tests and Ruff pass. The source download and
+initial inspection remain preserved; the previous five prepared assets are unchanged.
 
 #### Key Decisions
 
@@ -726,3 +764,4 @@ Reproduce infrastructure validation in a new output directory:
 - `src/alexdoor_xas/qualification/` — recipes, conversion, collision geometry, gates and preview.
 - `src/alexdoor_xas/envs/door_task/door_inspection.py` — isolated GPU environment with optional contacts.
 - `tests/test_preparation.py` — admission, recipe, preservation and evidence contracts.
+- `tests/test_mesh_preparation.py` — source-face/UV preservation and closed backing checks.

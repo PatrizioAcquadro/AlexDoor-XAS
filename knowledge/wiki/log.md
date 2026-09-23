@@ -627,3 +627,11 @@ The apparent frame is part of the single connected leaf; the other three compone
 ## 2026-09-23 — lint : Hoschu source and shape evidence
 Validated the original USDZ hash, inspection component inventory, corrected CLI asset-shape failure, candidate JSON and wiki checks.
 The original download, inspection attempt and five accepted doors are preserved; no frozen setup or shared code changed.
+
+## 2026-09-23 — update : Hoschu welded frame and leaf preparation
+Superseded the connectivity-based missing-frame verdict with reviewed separation of the modeled frame and front relief plus an explicitly inferred leaf backing.
+Reusable recipe operations, viewed RTX captures and one RTX 4090 run to 176 degrees support promotion of the sixth door; originals and the frozen robot/expert setup are preserved.
+
+## 2026-09-23 — lint : Hoschu surface preparation checks
+Resolved all wiki links and index coverage; reconciled shape ownership and reconstruction limits with source cross-sections, recipe and static/GPU evidence.
+29 focused tests, Ruff/format and Git whitespace checks pass; no source download, raw knowledge, earlier accepted asset or frozen Phase 4 setup changed.

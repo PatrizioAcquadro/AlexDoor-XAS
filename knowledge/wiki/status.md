@@ -2,18 +2,20 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Five doors pass static, visual and isolated GPU checks
+intake has started. Six doors pass static, visual and isolated GPU checks
 in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
-The next supplied source, `door-adf292f437f2` (hoschu, CC BY 4.0), passes
-license, dependency, complexity and duplicate review, but fails the required
-separable frame/panel filter. Its USDZ has one connected four-panel leaf with
-the apparent outer frame built into that leaf; the other three components are
-lever/plate hardware. Inspection attempt `000001` is preserved. No valid fixed
-frame assignment, normalization, static/visual pass or GPU physics result is
-claimed for this source. The five prepared doors remain unchanged.
+The sixth source, `door-adf292f437f2` (hoschu, CC BY 4.0), is now prepared in
+attempt `000002`. The initial missing-frame verdict was incorrect: a modeled
+U-shaped frame was welded to a front-only leaf. Reviewed whole-face separation
+preserves the frame and front; an explicitly inferred flat rear supplies leaf
+thickness. A 0.4% fit gives a 0.930 × 2.156 × 0.053 m left-handed leaf. Static,
+viewed RTX previews and one RTX 4090 run pass at the 176-degree geometric stop,
+with exact resets, stable frame and zero reported penetration. Rear appearance,
+thickness and hinge placement are documented approximations; robot/expert
+qualification remains pending. The five earlier assets are unchanged.
 
 The fifth source, `door-2738468b94d74c5f` (DJMaesen, CC BY 4.0), is now
 prepared in attempt `000008`. Its internal pin/barrel mesh overlaps are represented
@@ -180,7 +182,7 @@ The first candidate, `door-with-frame-2f2f149f`, is technically ready for 5.1 af
 explicitly omitting latch/lock bolt collisions for the common closed-unlatched task.
 It reaches 188 degrees in isolated GPU physics with stable resets/frame and no
 reported penetration. The leaf, frame and handles retain their collisions.
-The initial batch of five distinct real doors is prepared. Start the unchanged
+The initial batch of six distinct real doors is prepared. Start the unchanged
 common robot/expert protocol in 5.1 only when requested; the next-candidate
 [[implementation_phases/phase-5-door-corpus-and-qualification|handoff]] remains
 available for further sequential intake. Expert qualification, the final corpus
@@ -200,6 +202,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Corrected hoschu frame ownership: separated the modeled welded frame/leaf, backed the open leaf, and passed static, viewed previews and one RTX 4090 run to 176 degrees. Six doors are ready for 5.1; original source preserved.
 
 - 2026-09-23 — Inspected hoschu's CC BY door: 1,577 triangles and four components, but no separable fixed frame. Stopped at the asset-shape filter before normalization or GPU checks; five earlier doors remain ready for 5.1.
 - 2026-09-23 — Repaired DJMaesen preparation with reviewed internal hinge contact pairs, a measured pin axis and corrected opening side; static, viewed previews and one RTX 4090 run pass at 113.1 degrees. Five doors are ready for 5.1; expert qualification remains pending.

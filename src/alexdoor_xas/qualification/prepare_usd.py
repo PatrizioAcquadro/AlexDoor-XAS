@@ -25,6 +25,7 @@ from alexdoor_xas.door_qualification import (
 )
 
 from .convex_geometry import clear_opening, mechanical_limit, partition_hulls, surface_crossings
+from .mesh_preparation import prepare_components
 from .preparation import (
     FORMATS,
     GROUPS,
@@ -336,6 +337,7 @@ def normalize(source, recipe, output):
         status="unresolved",
     )
     components, inventory = load_source(source, output, recipe.get("source_dependencies", []))
+    components = prepare_components(components, recipe)
     _, _, _, hinge = validate_recipe(recipe, len(components))
     groups, collision, collision_components = {}, {}, {}
     for name in GROUPS:

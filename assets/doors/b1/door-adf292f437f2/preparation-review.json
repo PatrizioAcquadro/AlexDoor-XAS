@@ -1,9 +1,9 @@
 {
-  "status": "fail",
-  "decision": "fails_frame_panel_separable_filter",
+  "status": "pass",
+  "decision": "ready_for_5.1",
   "source_sha256": "a5c028f200f9ef4b4487e452fd2c273cece183c5331475b0bd72b3a0d9bd4931",
   "inspection_attempt": "attempts/000001",
-  "summary": "CC BY 4.0 and local complexity/dependency/duplicate checks pass, but the USDZ has no separable fixed frame. The apparent outer frame is part of the same connected leaf mesh. The other three components are localized lever/plate geometry. No truthful Frame assignment exists for the required 5.0 recipe.",
+  "summary": "The source has modeled frame geometry welded to its front-only leaf. Whole-face separation and a documented inferred rear/thickness make it usable; static, viewed previews and isolated RTX 4090 physics pass.",
   "measurements": {
     "inspected_coordinate_system": "glTF Y-up meters, before normalization",
     "whole_leaf_with_border_bounds_m": {
@@ -15,39 +15,82 @@
     "connected_components": 4,
     "texture_max_px": 1024,
     "geometry_fingerprint": "f4ee27522e3b6b39d65ad3396fcfaa17ac37e2ef5b8be9a1855f37d4c000ed1a",
-    "handedness": "undetermined_without_hinge_or_frame"
+    "handedness": "left_inferred_opposite_handle",
+    "prepared_visual_triangles": 1857,
+    "prepared_dimensions_m": {
+      "width_m": 0.9299701198018991,
+      "height_m": 2.155525234226248,
+      "thickness_m": 0.05335300765444373
+    }
   },
-  "component_review": {
-    "2": "Complete four-panel leaf and its outer border; the central panel fills the opening and is one connected component.",
-    "0_1_3": "Localized lever/plate hardware on the same edge; no full-height, independent frame or hinge fitting."
-  },
-  "modifications": [],
-  "normalization": "not_run_invalid_frame_panel_ownership",
-  "static": "not_run",
-  "normalized_preview": "not_run",
-  "physics": "not_run",
-  "promotion": "not_run",
+  "normalization": "pass",
+  "static": "pass",
+  "normalized_preview": "pass",
+  "physics": "pass",
+  "promotion": "ready_for_5.1",
   "expert_qualification": "not_run",
+  "attempt": "attempts/000002",
+  "previous_finding": "Attempt 000001 was incorrectly interpreted as an absent frame based on connectivity. Cross-sections show two jambs and a header outside the central relief contour; no replacement frame is needed. Original inspection and prior review remain in the preserved attempt/Git history.",
+  "component_review": {
+    "2": "Original 70 frame faces outside the existing contour; fixed.",
+    "4": "296 original leaf faces selected from source component 2, plus projected rear and edge closure; moving.",
+    "0_1_3": "Original lever/plate components remain moving and collidable."
+  },
+  "modifications": [
+    "Split the existing welded frame/leaf at its visible boundary; preserve source faces, UVs and original download.",
+    "Close the front-only leaf with an explicitly inferred rear plane and boundary walls, retaining its decorative front.",
+    "Uniform scale 0.75, proper rotation to Z-up and floor-centered opening; infer left hinge opposite the original handle at the opening-face corner. No mirrored geometry.",
+    "Apply 0.4% moving-assembly fit for operating clearance; preserve handle colliders.",
+    "Use one conservative solid-leaf hull (fills decorative recesses) and separate frame-part hulls. The source has no separate latch; start closed and unlatched."
+  ],
+  "physics_results": {
+    "status": "pass",
+    "scope": "isolated_gpu_asset_physics_not_expert_qualification",
+    "device": "cuda:0",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "max_reset_deg": 0.0,
+    "max_reset_speed": 0.0,
+    "passive_drift_deg": 0.0001932007453393977,
+    "frame_drift_m": 0.0,
+    "frame_rotation_deg": 0.0,
+    "hinge_error_m": 1.1069629408666515e-06,
+    "penetration_m": 0.0,
+    "maximum_deg": 176.00000034418676,
+    "mechanical_limit_deg": 176.0,
+    "resets": 3
+  },
+  "limits": [
+    "Rear plane, physical leaf thickness and hinge placement are inferred simulation preparation choices, not recovered manufacturer geometry. Rear reuses the front texture; no rear handle is invented.",
+    "Robot/expert qualification and the 45-degree gate remain in 5.1; ready for preparation only."
+  ],
   "evidence": [
     {
-      "path": "attempts/000001/inspect.json",
-      "sha256": "99e8dd3482107f76e6029657db352a1082aad909a71273ca044fa65f46bd2d4f"
+      "path": "attempts/000002/recipe.json",
+      "sha256": "be38dcfe1776072543f304b391017589bdf27302adde9f1025ddd93c389c98f7"
     },
     {
-      "path": "attempts/000001/inspection.usda",
-      "sha256": "e3f55273387af29052108d895f5691bc4140916db2da936d8b89bb2cb8cd8e0c"
+      "path": "attempts/000002/normalize.json",
+      "sha256": "0455827880c6a56a724a36b3f09a321c44c8ae4a70ccf60522b52c48ef7c708f"
     },
     {
-      "path": "attempts/000001/inspect-front-wireframe.png",
-      "sha256": "a5c96ea302610f8b0da461efe6915ef25c31387c2fcb0c94f668ca800b11c2f9"
+      "path": "attempts/000002/static.json",
+      "sha256": "95de4dcf44621a056cd11ba1a9f458a3e2483d04149ca008237ed4195b3b8d15"
     },
     {
-      "path": "attempts/000001/inspect-side-wireframe.png",
-      "sha256": "b450bcf0402cadcb79fd28838c51fd64272bd96e682a83f3aaabdc9c9f08f46a"
+      "path": "attempts/000002/preview.json",
+      "sha256": "04b3e2b289e766c8f3e65a16d0f917c84c4aeb9d4e0c1c8bcfd136354143be46"
+    },
+    {
+      "path": "attempts/000002/physics.json",
+      "sha256": "9a6190be2b36934841cb668e95debda754450d59929b3ec92336fcc3c30978b3"
+    },
+    {
+      "path": "attempts/000002/preview-front.png",
+      "sha256": "7f53c71606f23a82bcdd872345b9c88012e21f32b38918afaf0de0f8205c429e"
+    },
+    {
+      "path": "attempts/000002/preview-rear.png",
+      "sha256": "32965d56ac7b15441bc6205415bd5279d3acf605f95fcd4c6af3e9812c9ae40e"
     }
-  ],
-  "limits": [
-    "This is an asset-shape filter failure for the current B1 corpus, not a license or GPU/runtime failure.",
-    "Adding a separately sourced frame would be a new composite asset and require its own provenance and preparation scope. The original USDZ and inspection attempt are preserved."
   ]
 }
