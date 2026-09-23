@@ -1,0 +1,56 @@
+{
+  "asset_id": "door-adf292f437f2",
+  "source_url": "https://sketchfab.com/3d-models/door-adf292f437f24151918a3b16ecef52d2",
+  "source_uid": "adf292f437f24151918a3b16ecef52d2",
+  "author": "hoschu",
+  "license": "CC-BY-4.0",
+  "distribution_scope": "redistributable",
+  "license_evidence": "assets/doors/b1/door-adf292f437f2/source-evidence.json",
+  "attribution": "Door by hoschu (https://sketchfab.com/hoschu), https://sketchfab.com/3d-models/door-adf292f437f24151918a3b16ecef52d2, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).",
+  "retrieval_date": "2026-09-23",
+  "door_type": "interior",
+  "single_leaf": true,
+  "frame_panel_separable": false,
+  "frame_panel_review_notes": "Inspect attempt 000001 finds four connected components. Component 2 is the complete solid four-panel leaf, including its outer decorative border; components 0, 1 and 3 are localized at the lever/plate. No independent fixed frame or opening remains to assign to Frame. The apparent frame in the remote viewer was part of the leaf, not a separable jamb.",
+  "license_scope_review": "pass",
+  "license_scope_review_notes": "The actual page and download modal show CC Attribution linking CC BY 4.0.",
+  "custom_terms_review": "pass",
+  "custom_terms_review_notes": "The description says \u201cstatic door\u201d; no additional author terms or separately credited texture source appear on the reviewed page.",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "Unique source identity; local inspect fingerprint f4ee27522e3b6b39d65ad3396fcfaa17ac37e2ef5b8be9a1855f37d4c000ed1a differs from all five accepted fingerprints.",
+  "selected_format": ".usdz",
+  "reported_triangles": 1600,
+  "reported_texture_max_px": 1024,
+  "reviewed_source_sha256": "a5c028f200f9ef4b4487e452fd2c273cece183c5331475b0bd72b3a0d9bd4931",
+  "local_dependency_review": "pass",
+  "local_dependency_review_notes": "USDZ embeds scene.usdc and five 1K maps, with no external converted dependency. Embedded author, CC-BY-4.0 and source URL metadata match the reviewed page; no separate map terms were found.",
+  "local_duplicate_review": "pass",
+  "local_duplicate_review_notes": "Inspect attempt 000001 reports 1577 triangles, four components and fingerprint f4ee27522e3b6b39d65ad3396fcfaa17ac37e2ef5b8be9a1855f37d4c000ed1a; all five accepted fingerprints differ.",
+  "dependencies": [
+    {
+      "path": "0/Default_baseColor.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/Default_metallicRoughness_metal.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/Default_metallicRoughness_rough_scale0.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/Default_normal_scale1_norm.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    },
+    {
+      "path": "0/Default_metallicRoughness_occl.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
+    }
+  ]
+}

@@ -7,6 +7,14 @@ in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
 
+The next supplied source, `door-adf292f437f2` (hoschu, CC BY 4.0), passes
+license, dependency, complexity and duplicate review, but fails the required
+separable frame/panel filter. Its USDZ has one connected four-panel leaf with
+the apparent outer frame built into that leaf; the other three components are
+lever/plate hardware. Inspection attempt `000001` is preserved. No valid fixed
+frame assignment, normalization, static/visual pass or GPU physics result is
+claimed for this source. The five prepared doors remain unchanged.
+
 The fifth source, `door-2738468b94d74c5f` (DJMaesen, CC BY 4.0), is now
 prepared in attempt `000008`. Its internal pin/barrel mesh overlaps are represented
 by the ideal revolute joint with explicit contact-pair filters; external hinge,
@@ -193,6 +201,7 @@ These are historical scientific conclusions, not active workflows. See [[experim
 
 ## Version Notes
 
+- 2026-09-23 — Inspected hoschu's CC BY door: 1,577 triangles and four components, but no separable fixed frame. Stopped at the asset-shape filter before normalization or GPU checks; five earlier doors remain ready for 5.1.
 - 2026-09-23 — Repaired DJMaesen preparation with reviewed internal hinge contact pairs, a measured pin axis and corrected opening side; static, viewed previews and one RTX 4090 run pass at 113.1 degrees. Five doors are ready for 5.1; expert qualification remains pending.
 
 - 2026-09-23 — Reviewed DJMaesen's CC BY door and its USDZ; inspection passes, but the maximum fit and a small shift leave true internal hinge crossings. The candidate is held before static/visual/GPU gates; four doors remain ready for 5.1.

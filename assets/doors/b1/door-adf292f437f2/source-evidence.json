@@ -1,0 +1,38 @@
+{
+  "reviewed_on": "2026-09-23",
+  "page_url": "https://sketchfab.com/3d-models/door-adf292f437f24151918a3b16ecef52d2",
+  "page_review": {
+    "title": "Door",
+    "author": "hoschu",
+    "author_profile": "https://sketchfab.com/hoschu",
+    "description": "static door",
+    "license_label": "CC Attribution",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "download_modal_terms": "Author must be credited. Commercial use is allowed.",
+    "triangles_displayed": "1.6k",
+    "vertices_displayed": 877,
+    "visible_geometry": "One purple four-panel leaf with an outer border and gold lever/plate on viewer left. The border initially resembled a frame in the remote view; inspect attempt 000001 shows it belongs to the same connected leaf mesh. No independent fixed jamb or hinge fitting is identified in the local component inventory.",
+    "downloads_displayed": [
+      "original .fbx (1 MB)",
+      "converted .usdz (741 kB)",
+      "converted .gltf (1 MB)",
+      "converted .glb (1 MB; 1K textures)"
+    ]
+  },
+  "local_payload": {
+    "path": "/home/pacquadr/Downloads/Door (2).usdz",
+    "sha256": "a5c028f200f9ef4b4487e452fd2c273cece183c5331475b0bd72b3a0d9bd4931",
+    "bytes": 759120,
+    "archive_entries": [
+      "scene.usdc",
+      "0/Default_baseColor.jpg",
+      "0/Default_metallicRoughness_metal.jpg",
+      "0/Default_metallicRoughness_rough_scale0.jpg",
+      "0/Default_normal_scale1_norm.jpg",
+      "0/Default_metallicRoughness_occl.jpg"
+    ]
+  },
+  "license_dependency_review": "The five 1K texture maps are packaged with the model; no separate creator or terms appear on the source page. Inspection reports no external dependencies, and USDZ metadata confirms the same hoschu, source URL and CC BY 4.0 license.",
+  "duplicate_remote_review": "New source UID, author and purple four-panel design differ from the five accepted doors; inspect fingerprint confirms distinct geometry.",
+  "local_shape_review": "Failed separable frame/panel filter: component 2 is one closed leaf and outer border, while components 0, 1 and 3 are all lever/plate geometry on the same edge. Assigning a fixed frame would move or freeze part of a single connected leaf."
+}

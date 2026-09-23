@@ -563,6 +563,26 @@ Original downloads and all earlier attempts remain preserved in
 `assets/doors/b1/door-2738468b94d74c5f/`. This repair changes the reusable preparation
 recipe, not the frozen Phase 4 setup or the robot/expert gate in 5.1.
 
+**Hoschu source review (2026-09-23).**
+[Door by hoschu](https://sketchfab.com/3d-models/door-adf292f437f24151918a3b16ecef52d2)
+shows a purple four-panel leaf with a gold lever. The page and USDZ metadata
+agree on hoschu, source URL and CC BY 4.0. Original FBX and converted USDZ,
+glTF and GLB are offered. The user-supplied `Door (2).usdz` packages five 1K
+maps without external dependencies. Inspection attempt `000001` passes local
+inventory: 1,577 triangles, four connected components and a fingerprint
+distinct from the five accepted doors. Its unscaled converted envelope is
+1.415 m wide and 3.000 m high; no final scale or handedness was assigned.
+
+Local geometry resolves the remote visual ambiguity: component 2 contains the
+whole solid leaf and its outer decorative border. Components 0, 1 and 3 are
+localized lever/plate parts on the opposite edge; none is an independent fixed
+jamb or hinge fitting. The required `frame_panel_separable` review therefore
+fails. Assigning part of the connected leaf as the fixed frame would misrepresent
+the asset. No recipe, normalization attempt, static or normalized visual result,
+isolated GPU run or promotion was made. `candidate.json`, `source-evidence.json`,
+`preparation-review.json` and the preserved inspection attempt are under
+`assets/doors/b1/door-adf292f437f2/`. The five accepted doors are unchanged.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no

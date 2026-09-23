@@ -1,0 +1,53 @@
+{
+  "status": "fail",
+  "decision": "fails_frame_panel_separable_filter",
+  "source_sha256": "a5c028f200f9ef4b4487e452fd2c273cece183c5331475b0bd72b3a0d9bd4931",
+  "inspection_attempt": "attempts/000001",
+  "summary": "CC BY 4.0 and local complexity/dependency/duplicate checks pass, but the USDZ has no separable fixed frame. The apparent outer frame is part of the same connected leaf mesh. The other three components are localized lever/plate geometry. No truthful Frame assignment exists for the required 5.0 recipe.",
+  "measurements": {
+    "inspected_coordinate_system": "glTF Y-up meters, before normalization",
+    "whole_leaf_with_border_bounds_m": {
+      "width": 1.4145430327188693,
+      "height": 2.999999990479183,
+      "thickness_envelope": 0.10542109804499966
+    },
+    "triangles": 1577,
+    "connected_components": 4,
+    "texture_max_px": 1024,
+    "geometry_fingerprint": "f4ee27522e3b6b39d65ad3396fcfaa17ac37e2ef5b8be9a1855f37d4c000ed1a",
+    "handedness": "undetermined_without_hinge_or_frame"
+  },
+  "component_review": {
+    "2": "Complete four-panel leaf and its outer border; the central panel fills the opening and is one connected component.",
+    "0_1_3": "Localized lever/plate hardware on the same edge; no full-height, independent frame or hinge fitting."
+  },
+  "modifications": [],
+  "normalization": "not_run_invalid_frame_panel_ownership",
+  "static": "not_run",
+  "normalized_preview": "not_run",
+  "physics": "not_run",
+  "promotion": "not_run",
+  "expert_qualification": "not_run",
+  "evidence": [
+    {
+      "path": "attempts/000001/inspect.json",
+      "sha256": "99e8dd3482107f76e6029657db352a1082aad909a71273ca044fa65f46bd2d4f"
+    },
+    {
+      "path": "attempts/000001/inspection.usda",
+      "sha256": "e3f55273387af29052108d895f5691bc4140916db2da936d8b89bb2cb8cd8e0c"
+    },
+    {
+      "path": "attempts/000001/inspect-front-wireframe.png",
+      "sha256": "a5c96ea302610f8b0da461efe6915ef25c31387c2fcb0c94f668ca800b11c2f9"
+    },
+    {
+      "path": "attempts/000001/inspect-side-wireframe.png",
+      "sha256": "b450bcf0402cadcb79fd28838c51fd64272bd96e682a83f3aaabdc9c9f08f46a"
+    }
+  ],
+  "limits": [
+    "This is an asset-shape filter failure for the current B1 corpus, not a license or GPU/runtime failure.",
+    "Adding a separately sourced frame would be a new composite asset and require its own provenance and preparation scope. The original USDZ and inspection attempt are preserved."
+  ]
+}

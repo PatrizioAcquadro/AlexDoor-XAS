@@ -619,3 +619,11 @@ Static, viewed RTX previews, one RTX 4090 run to 113.1 degrees and 27 preparatio
 ## 2026-09-23 — lint : Hinge repair documentation checks
 Resolved internal links and index coverage; reviewed current preparation results and scope claims against code and preserved runtime evidence.
 Ruff, formatting, 27 focused tests and Git whitespace checks pass; no raw sources, frozen Phase 4 setup or earlier accepted assets changed.
+
+## 2026-09-23 — update : Review hoschu door shape
+Verified the CC BY 4.0 source, packaged 1K maps, matching USDZ metadata and a distinct 1,577-triangle local inventory.
+The apparent frame is part of the single connected leaf; the other three components are lever/plate hardware. The required separable-frame filter fails, so no normalization, preview, GPU physics or promotion is claimed.
+
+## 2026-09-23 — lint : Hoschu source and shape evidence
+Validated the original USDZ hash, inspection component inventory, corrected CLI asset-shape failure, candidate JSON and wiki checks.
+The original download, inspection attempt and five accepted doors are preserved; no frozen setup or shared code changed.
