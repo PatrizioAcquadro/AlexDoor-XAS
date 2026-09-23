@@ -98,12 +98,16 @@ def remote_review(record, existing=()):
         status="unresolved",
     )
     for other in existing:
+        source_part = record.get("source_part")
+        other_part = other.get("source_part")
+        distinct_pack_parts = bool(source_part and other_part and source_part != other_part)
         require(
             other["asset_id"] == record["asset_id"]
             or not (
                 other["source_uid"] == record["source_uid"]
                 or other["source_url"] == record["source_url"]
-            ),
+            )
+            or distinct_pack_parts,
             "Duplicate source identity",
             category="asset",
         )

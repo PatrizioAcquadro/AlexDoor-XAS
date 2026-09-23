@@ -129,6 +129,16 @@ def test_duplicate_identity_and_unsupported_format_are_explicit():
     assert failure.value.status == "unresolved"
 
 
+def test_distinct_parts_of_one_pack_keep_separate_source_identities():
+    bathroom = {**remote(), "asset_id": "bathroom", "source_part": "Bathroom_Door_002_001"}
+    front = {**remote(), "asset_id": "front", "source_part": "Front_Door_006_001"}
+    assert remote_review(front, [bathroom])["status"] == "pass"
+    with pytest.raises(PreparationError, match="Duplicate source identity"):
+        remote_review({**front, "asset_id": "duplicate"}, [front])
+    with pytest.raises(PreparationError, match="Duplicate source identity"):
+        remote_review({**front, "asset_id": "whole-pack", "source_part": ""}, [bathroom])
+
+
 @pytest.mark.parametrize("change", ["reflection", "duplicate", "nonfinite", "scale"])
 def test_recipe_rejects_invalid_transforms_and_selection(change):
     data = copy.deepcopy(recipe())
