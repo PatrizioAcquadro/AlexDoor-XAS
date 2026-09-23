@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> Nine real doors pass preparation and are ready for 5.1: six redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
+> Fourteen real doors pass preparation and are ready for 5.1: eleven redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
 
 ## Objective
 
@@ -231,6 +231,10 @@ Unknown remote geometry may remain unset. Before promotion, record passing
 `reviewed_source_sha256` from `inspect.json`; explain any fingerprint collision in
 `duplicate_resolution`. License evidence must cover every dependency under its
 declared distribution scope.
+For a multi-door source pack, identify each selected assembly with `source_part`.
+The duplicate-source check permits the same source URL/UID only when both records
+name distinct, nonempty parts; the local geometry fingerprints must still be
+distinct. A whole-pack candidate or repeated part remains a duplicate.
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review \
@@ -722,6 +726,55 @@ The source USDZ and diagnostic attempts remain. The inferred hinge and collision
 approximations are recorded; no robot run or 45-degree qualification criterion
 was applied.
 
+**Icevanilla PSX door-pack review (2026-09-23).**
+[Low-Poly PSX Style Essential Doors Pack](https://sketchfab.com/3d-models/low-poly-psx-style-essential-doors-pack-20d55059056044b885a5267c2de1ec18)
+is by Icevanilla (@vanillao03). The page and download modal show CC Attribution
+(CC BY 4.0), credit required and commercial use allowed. The page offers original
+FBX and converted USDZ, glTF and GLB. The supplied USDZ has matching author,
+license and source metadata, one packaged 4096 × 1024 texture, and six named
+door/frame displays. The first closet display has two leaves and is excluded.
+Five single-leaf assemblies are selected into separate local USDC sources, each
+retaining its matching modeled frame, original surfaces, UVs and local copy of
+the packaged texture. The original USDZ is unchanged. The five source geometry
+fingerprints differ from each other and all nine previously prepared doors;
+in particular, the two brown wooden doors have different panel geometry, not
+just a changed material. `source_part` identifies each assembly so the shared
+source URL does not mask a real duplicate.
+
+| Selected door | Source triangles | Prepared leaf W × H × T (m) | Attempt | Isolated geometric stop |
+| --- | ---: | --- | --- | ---: |
+| Bathroom, white vented | 400 | 0.757 × 1.809 × 0.086 | `000006` | 121.3° |
+| Wooden 001, one large panel | 280 | 0.757 × 1.809 × 0.086 | `000005` | 121.4° |
+| Wooden 009, two panels | 340 | 0.757 × 1.809 × 0.086 | `000005` | 121.2° |
+| Worn, slatted/paneled | 452 | 0.757 × 1.809 × 0.086 | `000005` | 121.2° |
+| Front, three upper panes | 482 | 0.815 × 1.947 × 0.092 | `000005` | 121.3° |
+
+All five map to the canonical left-handed push orientation without reflection.
+Four shorter source leaves use 1.015 uniform assembly scale to remain above the
+1.80 m height minimum; the front door uses 1.0. The modeled leaves initially
+overlap the jamb/header slightly. An initial 0.4% moving fit still caused an
+early opposite-jamb collision and a 1.7-degree geometric stop. A reviewed 1.3%
+uniform fit of each moving leaf and its hardware, with measured 2.1–2.4 mm width
+centering, yields about 5.9–6.3 mm side clearance; the inferred hinge stays at
+the hinge-side outer face. Frame collision is partitioned around the aperture
+with cuts 2 mm inside the inner jamb/header boundary, so the central frame hull
+does not fill the opening. These are declared simulation approximations, not
+measurements of manufacturer hardware. Leaf, frame, handles and the front-door
+window retain collision; no separate projecting latch/bolt is modeled. Each
+door starts closed and already unlatched.
+
+Each selected source was inspected, then its final normalization attempt passed
+static checks. Both RTX 4090 preview images per door were viewed: the respective
+panels, frames, two-sided hardware, bathroom vent and front windows are visible
+without missing parts or misalignment. One short isolated RTX 4090 `cuda:0`
+physics run per door reached its geometry-derived stop with three exact resets,
+zero frame drift and zero reported penetration. All five were promoted under
+CC BY 4.0. Individual `candidate.json`, `source-evidence.json`, `recipe.json`
+and `preparation-review.json` records contain provenance, source/selection hashes,
+component choices, failed earlier attempts and evidence paths. No robot/expert
+run or 45-degree criterion was used; the inferred axes and prepared stops remain
+to be evaluated in 5.1.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
@@ -751,14 +804,14 @@ was applied.
 
 #### Problems / Limitations
 
-Preparation is verified on the documented fixtures and nine real doors in the
+Preparation is verified on the documented fixtures and fourteen real doors in the
 closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
 The Ahmed sayed candidate's earlier license rejection and preparation blockers
 are superseded by local-only scope and the reviewed GLB repair. The initial batch
-has grown to nine technically ready doors; six are redistributable.
+has grown to fourteen technically ready doors; eleven are redistributable.
 Void Frame Studio's initial source-license failure and geometry
 attempt failures are superseded by its private/noncommercial admission and
 attempt `000008`. Inferred pivots and clearance fitting do not reconstruct real
@@ -843,7 +896,10 @@ both handednesses; right hinges expose a proper 180-degree X rotation.
 `invalid/invalid.json` records negative cases and concave decomposition;
 `gpu-obstruction/` records the expected physical rejection. FBX front/rear preview
 images are retained under `formats/fbx/prepared/` and were visually inspected.
-No real candidate payload, expert reference, split or learned dataset was produced.
+That infrastructure run produced no real candidate payload, expert reference,
+split or learned dataset. Fourteen real candidate records now have prepared
+attempts under `assets/doors/b1/`; their accepted pointers and individual
+preparation reviews carry the current per-door evidence.
 
 All 350 software tests, Ruff and wiki link/index checks pass. The public CLI was
 also exercised through review, normalization, static/GPU checks and promotion with

@@ -661,3 +661,11 @@ It is the ninth door ready for 5.1. The inferred hinge, solid-leaf collider and 
 
 Verified eight preparation evidence hashes, four passing stage reports, the ready pointer and nine-door scope counts. The focused wiki link/index test, allowed tree shape, Markdown whitespace and Git diff checks pass.
 No raw knowledge, earlier accepted asset, shared tool or frozen Phase 4 setup changed.
+
+## 2026-09-23 — update : Five distinct PSX pack doors prepared
+
+Recorded Icevanilla's CC BY 4.0 pack, excluded its double-leaf closet and prepared five distinct single-leaf assemblies. Documented the selected-source identities, measured clearance recipes, viewed previews, isolated RTX 4090 checks and fourteen-door scope counts; 5.1 robot qualification remains pending.
+
+## 2026-09-23 — lint : PSX pack evidence and wiki
+
+Verified all fourteen ready pointers and distribution scopes, five source fingerprints and preparation evidence hashes, passing final stage reports, and the focused duplicate-source and wiki link/index tests. Allowed wiki tree, raw knowledge boundary, Markdown whitespace and Git diff checks pass; original downloads, earlier attempts and frozen Phase 4 setup remain unchanged.

@@ -2,10 +2,25 @@
 
 Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Nine doors pass static, visual and isolated GPU checks
+intake has started. Fourteen doors pass static, visual and isolated GPU checks
 in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
+
+The latest five doors come from Icevanilla's CC BY 4.0 PSX door pack. The
+double-leaf closet is excluded; bathroom, two geometrically distinct wooden,
+worn wooden and front doors were selected with their matching frames and shared
+licensed texture. Each selected geometry fingerprint is distinct from the other
+four and the nine earlier doors. All five are left-handed in the canonical push
+convention, with prepared leaves 0.757 × 1.809 × 0.086 m (four) or
+0.815 × 1.947 × 0.092 m (front). Reviewed 1.3% moving-assembly fitting and
+measured centering resolve an early source leaf/jamb contact while retaining
+frame, leaf, handles and window collision. Static checks, ten viewed RTX preview
+images and one short RTX 4090 physics run per door pass; stops range 121.2–121.4
+degrees, with three exact resets, stable frames and zero reported penetration.
+They are ready for 5.1, bringing the distribution counts to eleven
+redistributable, two local-only and one private/noncommercial. Original pack and
+earlier attempts remain; no robot/expert qualification has run.
 
 The ninth source, `door-door-metal-b21ec273` (Mehdi Shahsavan, CC BY 4.0), is
 prepared in attempt `000004`. Its modeled U-frame and leaf are welded in the
@@ -234,6 +249,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Prepared five distinct CC BY single-leaf doors from Icevanilla's PSX pack; excluded the double-leaf closet. Static, viewed previews and one RTX 4090 run per door pass. Fourteen doors are ready for 5.1; expert qualification remains pending.
 
 - 2026-09-23 — Prepared Mehdi Shahsavan's CC BY prison door from its original closed assembly; static, viewed previews and one RTX 4090 run pass. The prepared stop is 23.1 degrees and awaits 5.1 robot qualification. Eight doors are ready for that phase.
 
