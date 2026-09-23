@@ -9,9 +9,12 @@ for commands, supported formats, admission rules and evidence.
 
 The next supplied source, `modern-door-2fb8d024`, has a Sketchfab Free Standard
 license. Its earlier CC-only rejection is superseded by the approved local-only
-intake scope. Technical preparation remains pending; the initial batch still has
-one technically ready real door. Local-only source and normalized assets must
-remain with the authorized licensee and outside shared asset packages.
+intake scope. Source review and USDZ inspection pass, but normalized preparation
+is unresolved: a planar hinge-edge skin intersects the frame and produces an
+inflated PhysX collider. The original GLB is the next targeted check; no static,
+visual, physics or promotion pass is claimed. The initial batch still has one
+technically ready real door. Local-only source and normalized assets must remain
+with the authorized licensee and outside shared asset packages.
 
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
@@ -147,7 +150,7 @@ These are historical scientific conclusions, not active workflows. See [[experim
 
 ## Version Notes
 
-- 2026-09-23 — Added local-only Sketchfab Free Standard intake for internal B1 study while keeping CC-only assets as the redistributable class; modern-door technical preparation is pending.
+- 2026-09-23 — Added local-only Sketchfab Free Standard intake for internal B1 study while keeping CC-only assets as the redistributable class; the modern-door USDZ has an unresolved closed-pose collider issue.
 
 - 2026-09-23 — Rejected the Ahmed sayed modern-door source at the Phase 5.0 license gate; kept the local download intact and recorded no technical preparation claim.
 

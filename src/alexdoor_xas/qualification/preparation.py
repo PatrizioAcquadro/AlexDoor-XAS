@@ -127,6 +127,7 @@ def validate_recipe(recipe, component_count):
     rotation = np.asarray(recipe["rotation"], dtype=float)
     scale = float(recipe["scale"])
     translation = np.asarray(recipe["translation_m"], dtype=float)
+    moving_translation = np.asarray(recipe.get("moving_translation_m", [0, 0, 0]), dtype=float)
     hinge = np.asarray(recipe["hinge_m"], dtype=float)
     require(rotation.shape == (3, 3) and np.isfinite(rotation).all(), "Invalid rotation")
     require(
@@ -138,6 +139,10 @@ def validate_recipe(recipe, component_count):
     require(
         translation.shape == hinge.shape == (3,) and np.isfinite([translation, hinge]).all(),
         "Invalid translation/hinge",
+    )
+    require(
+        moving_translation.shape == (3,) and np.isfinite(moving_translation).all(),
+        "Invalid moving assembly translation",
     )
     origin = np.asarray(recipe["opening_center_source"], dtype=float)
     require(

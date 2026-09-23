@@ -519,3 +519,11 @@ Technical readiness and distribution scope are recorded separately; the earlier 
 ## 2026-09-23 — lint : Local-only license contract
 Focused preparation and wiki-link tests, Ruff and whitespace checks pass; legacy Phase 4 license validation is unchanged.
 Canonical phase, decision, architecture and status pages agree on the local-only boundary and release limitation.
+
+## 2026-09-23 — update : Modern-door USDZ inspection
+Measured the leaf and frame, corrected frame convex partitioning and source centering, then isolated a planar hinge-edge skin that blocks faithful USDZ normalization.
+Retained all attempts and recorded an unresolved outcome; no static, visual, physics or promotion pass is claimed.
+
+## 2026-09-23 — lint : Modern-door USDZ blocker
+Eighteen focused preparation/wiki tests, Ruff, candidate JSON, source hash and whitespace checks pass.
+Failed attempts remain ignored and preserved; no prior asset, raw research or Phase 4 configuration changed.

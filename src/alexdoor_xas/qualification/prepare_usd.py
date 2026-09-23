@@ -333,6 +333,7 @@ def normalize(source, recipe, output):
     )
     components, inventory = load_source(source, output, recipe.get("source_dependencies", []))
     rotation, scale, translation, hinge = validate_recipe(recipe, len(components))
+    moving_translation = np.asarray(recipe.get("moving_translation_m", [0, 0, 0]), dtype=float)
     groups, collision, collision_components = {}, {}, {}
     for name in GROUPS:
         groups[name], collision[name] = [], []
@@ -340,7 +341,8 @@ def normalize(source, recipe, output):
         for index in recipe["components"][name]:
             mesh = components[index].copy()
             matrix = np.eye(4)
-            matrix[:3, :3], matrix[:3, 3] = rotation * scale, translation
+            matrix[:3, :3] = rotation * scale
+            matrix[:3, 3] = translation + (moving_translation if name != "Frame" else 0)
             mesh.apply_transform(matrix)
             groups[name].append(mesh)
             if index in recipe.get("unlatched_components", []):

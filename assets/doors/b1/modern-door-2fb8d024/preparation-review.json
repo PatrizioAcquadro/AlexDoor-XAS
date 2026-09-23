@@ -1,31 +1,43 @@
 {
-  "status": "fail",
-  "category": "source",
-  "decision": "reject_before_preparation",
-  "reason": "Sketchfab Free Standard is outside the required CC0 or CC BY 4.0 licenses. The downloaded USDZ independently identifies SKETCHFAB Standard.",
+  "status": "unresolved",
+  "category": "geometry_and_conversion",
+  "decision": "not_promoted",
+  "distribution_scope": "local_only",
   "source_sha256": "b1dace29575bd5b29135e537ad501d8cbf97655d1bb90067d19b44e2f58e20d0",
-  "source_review": {
-    "command": "/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review --candidate assets/doors/b1/modern-door-2fb8d024/candidate.json --viz none --device cuda:0",
-    "status": "fail",
-    "category": "source",
-    "reason": "License is outside B1 admission"
-  },
-  "observed_geometry": "The source page shows one wood leaf, frame and long handle; original handedness and separability were not verified.",
-  "leaf_dimensions_m": null,
-  "handedness": null,
-  "modifications": [],
-  "attempts_created": 0,
-  "inspect": "not_run",
-  "normalize": "not_run",
+  "source_review": "pass",
+  "inspect": "pass",
+  "normalization": "unresolved",
   "static": "not_run",
   "preview": "not_run",
+  "visual_review": "not_run",
   "physics": "not_run",
   "promote": "not_run",
   "expert_qualification": "not_run",
-  "evidence": [
-    "candidate.json",
-    "source-evidence.json",
-    "/home/pacquadr/Downloads/modern_door.usdz"
+  "measurements": {
+    "triangles": 3622,
+    "connected_components": 55,
+    "texture_max_px": 2048,
+    "leaf_dimensions_m": {
+      "width_m": 0.9978727903217077,
+      "height_m": 2.1654283336829403,
+      "thickness_m": 0.06100880418671298
+    },
+    "handedness": "right",
+    "geometry_fingerprint": "cec77ec883a5e1e8102457b656dc0c49b117af797a7947434e8ad83956133060"
+  },
+  "modifications_attempted": [
+    "Partitioned the U-shaped frame collision at measured jamb and header boundaries.",
+    "Shifted the moving assembly 0.10149 mm toward the hinge to align the core leaf with the opening.",
+    "Tested collision recipes for the thin hinge-edge visual skin without deleting leaf, frame or handle collision."
   ],
-  "next_step": "Request another candidate URL and user-managed download with CC0 or CC BY 4.0 covering the model and its dependencies."
+  "blocker": "In the converted USDZ, component 46 is a two-triangle hinge-edge skin. Source-surface crossings remain at the frame after centering. PhysX expands its default and convex-hull colliders into the jamb by about 7-11 mm; a surface partition has no volumetric cell. No supported recipe has yet preserved its collision and passed the closed-pose gate.",
+  "evidence": [
+    "attempts/000002/inspect.json",
+    "attempts/000003/normalize.json",
+    "attempts/000004/source_intersections.json",
+    "attempts/000005/source_intersections.json",
+    "attempts/000006/collision.json",
+    "attempts/000007/normalize.json"
+  ],
+  "next_step": "Inspect the original GLB from the same source if the user supplies it manually; otherwise retain this USDZ result as unresolved without asset rejection."
 }

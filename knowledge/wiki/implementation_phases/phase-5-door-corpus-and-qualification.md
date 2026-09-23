@@ -30,6 +30,9 @@ A JSON recipe specifies `handedness`, positive uniform `scale`, proper `rotation
 `components` assignment to `Frame`, `Panel`, and optional `Handle`. It also records
 `modifications`. Rotation/scale/translation act on the **inspected coordinates**;
 USD/FBX pass through glTF Y-up meters. The opening center maps to the floor origin.
+Optional `moving_translation_m` shifts Panel and Handle together relative to Frame
+when the source's closed leaf is slightly miscentered. It moves their visuals and
+colliders together; the recorded hinge coordinates describe the corrected pose.
 
 **Common task state: closed and already unlatched.** The robot pushes the leaf; it
 does not operate a lock. Source latch/lock bolts are not a reason to reject an
@@ -284,15 +287,25 @@ Candidate records are versioned under `assets/doors/b1/door-with-frame-2f2f149f/
 payloads, earlier outcomes and current reports/images. `prepared.json` points to
 the accepted attempt, whose evidence is protected from overwrite.
 
-**Next source review (2026-09-23).** The user supplied
+**Next source and USDZ review (2026-09-23).** The user supplied
 [modern door by Ahmed sayed](https://sketchfab.com/3d-models/modern-door-2fb8d02419b84d628cf9a4ac85360cec)
 and `~/Downloads/modern_door.usdz`. The page lists Free Standard, original GLB and
 converted USDZ/glTF/GLB downloads, about 3.6k triangles, and shows one wooden leaf,
 frame and long handle. Embedded USDZ metadata independently says `SKETCHFAB Standard`.
 The earlier CC-only `review` rejected this source before inspection. After the
 user approved local-only intake, that rejection is superseded as a policy outcome;
-the original download and its review evidence remain preserved. Technical
-preparation is pending its own checks.
+`review` now passes with `distribution_scope=local_only`. Local USDZ inspection
+finds 3,622 triangles, 55 components, four embedded 2K textures and a measured
+0.998 × 2.165 × 0.061 m right-hinged leaf. The U-shaped frame's default convex
+approximation filled the opening; a surface-preserving frame partition resolves
+that recipe issue. The converted USDZ also separates a hinge-edge visual skin into
+two triangles. The original closed surfaces overlap the frame by about 0.10 mm,
+and PhysX expands that skin's standalone collider several millimeters into the
+jamb. Translation aligns the main leaf but cannot make this skin cook faithfully;
+convex-hull and partition recipes retain the failure. The USDZ outcome remains
+`unresolved`, with no static, preview, physics or promotion claim. The original
+download and numbered attempts are preserved. An original GLB from this source
+may avoid the conversion split and is the next targeted input to check.
 
 #### Key Decisions
 
@@ -327,8 +340,10 @@ these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
 The Ahmed sayed candidate's earlier license rejection is superseded by the
-local-only scope; its technical suitability has not yet been established. The
-initial prepared batch remains at one door until the preparation gates pass.
+local-only scope. Its USDZ preparation is unresolved due to hinge-edge skin
+geometry and convex cooking; the original GLB is pending user download. This is
+not an asset rejection or a technical pass. The initial prepared batch remains
+at one door until the preparation gates pass.
 
 Conversion uses a glTF/PreviewSurface material path. Texture preservation is tested,
 but arbitrary shaders, animations and all source-format features are not guaranteed;

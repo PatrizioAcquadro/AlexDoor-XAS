@@ -103,6 +103,15 @@ def test_recipe_rejects_invalid_transforms_and_selection(change):
         validate_recipe(data, 2)
 
 
+def test_moving_assembly_translation_is_explicit_and_finite():
+    data = recipe()
+    data["moving_translation_m"] = [0, -0.0001, 0]
+    validate_recipe(data, 2)
+    data["moving_translation_m"] = [0, float("nan"), 0]
+    with pytest.raises(PreparationError, match="moving assembly translation"):
+        validate_recipe(data, 2)
+
+
 def test_attempts_never_overwrite_sources_or_previous_outputs(tmp_path):
     a = new_attempt(tmp_path, "door")
     (a / "door.usda").write_text("accepted")

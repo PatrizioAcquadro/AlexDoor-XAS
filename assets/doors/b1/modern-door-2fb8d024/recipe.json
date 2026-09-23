@@ -1,0 +1,52 @@
+{
+  "handedness": "right",
+  "scale": 1.0,
+  "rotation": [
+    [0, 0, 1],
+    [1, 0, 0],
+    [0, 1, 0]
+  ],
+  "translation_m": [0, 0, 0.00004923378583043814],
+  "moving_translation_m": [0, -0.00010149, 0],
+  "opening_center_source": [0, -0.00004923378583043814, 0],
+  "hinge_m": [0.003919467417290373, -0.4989363104642534, 0],
+  "dimensions_m": {
+    "width_m": 0.9978727903217077,
+    "height_m": 2.1654283336829403,
+    "thickness_m": 0.06100880418671298
+  },
+  "components": {
+    "Frame": [54],
+    "Panel": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53],
+    "Handle": [25, 26]
+  },
+  "leaf_components": [6],
+  "colliders": {
+    "0": "convexHull",
+    "1": "convexHull",
+    "2": "convexHull",
+    "3": "convexHull",
+    "5": "convexHull",
+    "30": "convexHull",
+    "46": {
+      "partitions": {
+        "z": [0.55, 1.10, 1.65]
+      }
+    },
+    "54": {
+      "partitions": {
+        "y": [-0.4989362880587578, 0.4989364556968212],
+        "z": [2.172379307448865]
+      }
+    }
+  },
+  "modifications": [
+    "Use the inspected Y-up meter coordinates at their original scale and rotate them to canonical Z-up without reflection.",
+    "Center the opening at floor level; place the hinge at the original negative-width leaf edge and mid-thickness.",
+    "Assign the separate frame, complete moving leaf/trim and front pull/keyhole hardware without deleting any visual or required collision parts.",
+    "Partition the U-shaped frame collider at its measured inner jamb edges and header bottom, preserving its original triangular surfaces and opening.",
+    "Shift the complete leaf and handle 0.10149 mm toward the hinge so the original equal-width leaf and frame opening align without resizing either part.",
+    "Use single convex hulls for six thin decorative skins and divide the tall hinge-edge skin into short surface cells so PhysX need not inflate an oblong hull; retain every collision.",
+    "Use the common closed-unlatched push model; no separate latch or lock bolt was identified for collision exclusion."
+  ]
+}
