@@ -190,6 +190,19 @@ def validate_recipe(recipe, component_count):
         not unlatched or bool(recipe.get("unlatched_review")),
         "Identify the disengaged latch/lock components and explain their exclusion",
     )
+    axis_parts = recipe.get("hinge_axis_components", [])
+    require(
+        isinstance(axis_parts, list)
+        and all(type(i) is int for i in axis_parts)
+        and len(set(axis_parts)) == len(axis_parts)
+        and (not axis_parts or len(axis_parts) >= 2)
+        and all(i in groups["Panel"] and i not in leaf + unlatched for i in axis_parts),
+        "Hinge axis components must be distinct moving hinge hardware, never leaf or latch",
+    )
+    require(
+        not axis_parts or bool(recipe.get("hinge_axis_review")),
+        "Review the hinge hardware used to locate the axis",
+    )
     pairs = recipe.get("hinge_contact_exclusions", [])
     require(
         isinstance(pairs, list)
@@ -289,6 +302,30 @@ def check_hinge_edge(recipe, edge_y):
     require(
         min(abs(recipe["hinge_m"][1] - edge) for edge in (edge_y, original_edge)) <= 0.01,
         "Hinge does not match original handedness/panel edge",
+    )
+
+
+def check_hinge_axis_components(recipe, bounds_by_component, leaf_bounds):
+    """Check a reviewed axis against two compact, vertically separated hinge barrels."""
+    axis = np.asarray(recipe["hinge_m"])[:2]
+    bounds = [np.asarray(bounds_by_component[i]) for i in recipe["hinge_axis_components"]]
+    sign = 1 if recipe["handedness"] == "left" else -1
+    require(
+        sign * (axis[1] - np.asarray(leaf_bounds)[:, 1].mean()) > 0,
+        "Hinge axis is on the wrong side of the leaf",
+    )
+    for box in bounds:
+        center = box[:, :2].mean(axis=0)
+        require(
+            np.all(box[0, :2] <= axis)
+            and np.all(axis <= box[1, :2])
+            and np.all(box[1, :2] - box[0, :2] <= 0.1)
+            and np.linalg.norm(axis - center) <= 0.01,
+            "Hinge axis does not match compact hinge barrel centers",
+        )
+    require(
+        max(box[:, 2].mean() for box in bounds) - min(box[:, 2].mean() for box in bounds) >= 0.1,
+        "Hinge axis components must be vertically separated",
     )
 
 

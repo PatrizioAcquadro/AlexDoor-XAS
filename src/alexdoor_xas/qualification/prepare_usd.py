@@ -30,6 +30,7 @@ from .preparation import (
     FORMATS,
     GROUPS,
     PreparationError,
+    check_hinge_axis_components,
     check_hinge_edge,
     collider_batches,
     component_transform,
@@ -376,9 +377,20 @@ def normalize(source, recipe, output):
         "Measured panel dimensions differ from recipe by >1 mm",
     )
     sign = 1 if recipe["handedness"] == "left" else -1
-    check_hinge_edge(
-        recipe, trimesh.util.concatenate(groups["Panel"]).bounds[1 if sign > 0 else 0, 1]
-    )
+    if recipe.get("hinge_axis_components"):
+        panel_component_bounds = {
+            index: mesh.bounds
+            for index, mesh in zip(recipe["components"]["Panel"], groups["Panel"], strict=True)
+        }
+        check_hinge_axis_components(
+            recipe,
+            panel_component_bounds,
+            panel_bounds,
+        )
+    else:
+        check_hinge_edge(
+            recipe, trimesh.util.concatenate(groups["Panel"]).bounds[1 if sign > 0 else 0, 1]
+        )
     require(
         abs(panel_bounds[:, 1].mean()) <= 0.001
         and abs(min(m.bounds[0, 2] for m in groups["Frame"])) <= 0.001,

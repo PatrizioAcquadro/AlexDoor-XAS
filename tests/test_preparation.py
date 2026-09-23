@@ -9,6 +9,7 @@ import pytest
 from alexdoor_xas.qualification.convex_geometry import Convex, mechanical_limit, overlap
 from alexdoor_xas.qualification.preparation import (
     PreparationError,
+    check_hinge_axis_components,
     check_hinge_edge,
     collider_batches,
     component_transform,
@@ -191,6 +192,37 @@ def test_clearance_fitting_can_retain_the_source_hinge_but_not_the_wrong_edge():
     data["moving_scale"] = 1
     with pytest.raises(PreparationError, match="Hinge"):
         check_hinge_edge(data, -0.442)
+
+
+def test_measured_wide_hinge_barrels_locate_axis_without_relaxing_edge_guard():
+    data = recipe()
+    data.update(
+        hinge_m=[0.05, 0.52, 0],
+        components={"Panel": [0, 2, 3], "Frame": [1], "Handle": []},
+        leaf_components=[0],
+        hinge_axis_components=[2, 3],
+        hinge_axis_review="Two source hinge barrels share the measured rotation axis.",
+    )
+    validate_recipe(data, 4)
+    leaf = np.array([[-0.05, -0.45, 0], [0.05, 0.45, 2]])
+    barrels = {
+        2: np.array([[0.03, 0.50, 0.3], [0.07, 0.54, 0.5]]),
+        3: np.array([[0.03, 0.50, 1.5], [0.07, 0.54, 1.7]]),
+    }
+    with pytest.raises(PreparationError, match="Hinge"):
+        check_hinge_edge(data, 0.54)
+    check_hinge_axis_components(data, barrels, leaf)
+    data["hinge_m"] = [0.05, 0.55, 0]
+    with pytest.raises(PreparationError, match="hinge barrel centers"):
+        check_hinge_axis_components(data, barrels, leaf)
+    data["hinge_m"] = [0.05, 0.52, 0]
+    data["handedness"] = "right"
+    with pytest.raises(PreparationError, match="wrong side"):
+        check_hinge_axis_components(data, barrels, leaf)
+    data["handedness"] = "left"
+    data["hinge_axis_components"] = [0, 3]
+    with pytest.raises(PreparationError, match="Hinge axis components"):
+        validate_recipe(data, 4)
 
 
 def test_collider_groups_cover_surfaces_without_merging_bodies_or_latches():
