@@ -1,0 +1,62 @@
+{
+  "reviewed_on": "2026-09-23",
+  "page_url": "https://sketchfab.com/3d-models/low-poly-psx-style-industrial-metal-doors-pack-4f5561bbc441414587e3650ceae5593a",
+  "page_review": {
+    "title": "Low-Poly PSX Style Industrial Metal Doors Pack",
+    "author": "Icevanilla",
+    "author_profile": "https://sketchfab.com/vanillao03",
+    "description": "A pack of 6 low-poly PSX-style industrial metal doors for utility, service and industrial environments, with clean, worn, rusty, reinforced and heavy variants.",
+    "license_label": "CC Attribution",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "download_modal_terms": "Author must be credited. Commercial use is allowed.",
+    "triangles_displayed": 1700,
+    "vertices_displayed": 918,
+    "visible_geometry": "A row of industrial metal door variants including plain, windowed, worn and heavy leaves; the modeled Metal_Door_007 pair forms a double-leaf display and is excluded.",
+    "downloads_displayed": [
+      "original .fbx (1 MB)",
+      "converted .usdz (162 kB)",
+      "converted .gltf (435 kB)",
+      "converted .glb (539 kB, 1K texture)"
+    ],
+    "author_dependency_comment": "The author says the model uses one texture atlas included with the FBX; local USDZ contains one atlas."
+  },
+  "source_part": "Metal_Door_002",
+  "local_payload": {
+    "path": "/home/pacquadr/Downloads/Low-Poly_PSX_Style_Industrial_Metal_Doors_Pack.usdz",
+    "sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
+    "bytes": 166610,
+    "archive_entries": [
+      "scene.usdc",
+      "0/Metal_Doors_baseColor.jpg"
+    ]
+  },
+  "selected_source": {
+    "original_source": "/home/pacquadr/Downloads/Low-Poly_PSX_Style_Industrial_Metal_Doors_Pack.usdz",
+    "original_source_sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
+    "source_part": "Metal_Door_002",
+    "retained_root_children": [
+      "Metal_Door_002"
+    ],
+    "excluded_root_children": [
+      "Metal_Door_001",
+      "Metal_Door_003",
+      "Metal_Door_004",
+      "Metal_Door_005",
+      "Metal_Door_007",
+      "Metal_Door_007_001",
+      "Metal_Doorframe_002",
+      "Metal_Doorframe_002_001",
+      "Metal_Doorframe_003",
+      "Metal_Doorframe_005"
+    ],
+    "selected_source": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/psx-industrial-002-4f5561b/attempts/000001/selected-source/scene.usdc",
+    "selected_source_sha256": "4dcd275a57a30f342bb47f153a67a93144df550787a140a8d9a915bb697704a6",
+    "retained_texture": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/psx-industrial-002-4f5561b/attempts/000001/selected-source/0/Metal_Doors_baseColor.jpg",
+    "retained_texture_sha256": "76d97b93f617e4fe04726a81b73adcd89e23394ceb4d52dc61829c9600c032f4",
+    "operation": "Keep only this source single-leaf group; no separate frame group is present in the stage. Inspect the grouped mesh for modeled frame surfaces before deciding preparation. Exclude the double-leaf display and other groups; preserve original meshes, UVs, texture and downloaded USDZ."
+  },
+  "license_dependency_review": "One 1024 x 256 base-color atlas is packaged in the CC BY USDZ; stage metadata matches the page author, CC-BY-4.0 and source URL. No separate texture terms were found.",
+  "local_geometry_review": "One 1.021 x 2.125 m ornate metal leaf is modeled, with no source frame group for it. The pack single-door frame has about 0.843 m inner width, far below this leaf even after the 2% allowed fit. The required separately collidable frame is absent and the available pack frame is not size-compatible without substantial resizing or reconstruction.",
+  "inspection_attempt": "attempts/000002",
+  "geometry_fingerprint": "ab6c85dcb24412a05dbbbd8ee9e1f5db44fabe2b81c7bf44bf16609e49fa9873"
+}

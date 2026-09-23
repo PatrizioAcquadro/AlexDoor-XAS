@@ -1,0 +1,70 @@
+{
+  "status": "fail",
+  "decision": "not_ready_for_5.1",
+  "distribution_scope": "redistributable",
+  "source_part": "Metal_Door_001",
+  "original_source_sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
+  "selected_source_sha256": "b75b469ab201f3d921e20123722853952e4c9fb4216dda15edf85ffef594fae3",
+  "selection_attempt": "attempts/000005",
+  "inspection_attempt": "attempts/000006",
+  "normalization_attempt": "attempts/000007",
+  "failure_category": "geometry_or_recipe",
+  "reason": "The leaf and compatible source frame still have proper side-jamb surface crossings after the maximum documented 2% uniform moving fit. The paired frame is not a new mesh; its collision remains enabled.",
+  "measurements": {
+    "source_triangles": 184,
+    "connected_components": 2,
+    "texture_max_px": 1024,
+    "geometry_fingerprint": "d964012a8dc35756dca92d739a4a228d629a8b93afc827878974da06d4498add",
+    "source_leaf_width_m": 0.871261,
+    "source_frame_inner_width_m": 0.84284
+  },
+  "checks": {
+    "source_review": "pass",
+    "inspect": "pass",
+    "normalize": "fail",
+    "static": "not_run",
+    "preview": "not_run",
+    "physics": "not_run",
+    "promotion": "not_run",
+    "expert_qualification": "not_run"
+  },
+  "limits": [
+    "No robot/expert or 45-degree check was run. No visual or isolated physics pass is claimed.",
+    "The original USDZ, selected source and diagnostic attempts remain preserved.",
+    "The result is specific to the documented Subphase 5.0 preparation rules, not a claim that the source art cannot be used for other purposes."
+  ],
+  "evidence": [
+    {
+      "path": "source-evidence.json",
+      "sha256": "bb1c1c11a54bce93f48da1e4c22a8935a28e4c1a6726d75b239f1d035701056a"
+    },
+    {
+      "path": "attempts/000005/selection-review.json",
+      "sha256": "1bba9dfbe7e997568bcb5a333518de410660a2eba8c5feb6152cd6ff23f5a459"
+    },
+    {
+      "path": "attempts/000006/inspect.json",
+      "sha256": "aa0fa8cf0ad6d33912652691b51f67089cd7763d31e19cf282fea5964185a420"
+    },
+    {
+      "path": "recipe.json",
+      "sha256": "ec0c1bf79df141f8a285d1f58fdeb79026ee48f2f34f88b547cc4e9d19d3b902"
+    },
+    {
+      "path": "attempts/000007/recipe.json",
+      "sha256": "ec0c1bf79df141f8a285d1f58fdeb79026ee48f2f34f88b547cc4e9d19d3b902"
+    },
+    {
+      "path": "attempts/000007/normalize.json",
+      "sha256": "089085dfa4cc14652c149cf376f6ba7a81e00ba5d6e7893030477d8979dd268b"
+    },
+    {
+      "path": "attempts/000007/collision.json",
+      "sha256": "da8ec7f6bdeaed34ffadfa5358541550f61adebb2e3ac34014f423e5711801b6"
+    },
+    {
+      "path": "attempts/000007/source_intersections.json",
+      "sha256": "ddfb61234cf014413b4e2aabaa7acdd87d5db71f1cf2f63381c56ca519b57910"
+    }
+  ]
+}

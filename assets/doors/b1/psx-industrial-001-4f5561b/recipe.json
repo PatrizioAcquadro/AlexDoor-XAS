@@ -1,0 +1,95 @@
+{
+  "handedness": "left",
+  "scale": 0.98,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    -0.35496670428023774,
+    4.992536839099876,
+    -0.02176889525582569
+  ],
+  "opening_center_source": [
+    -5.094425346020282,
+    0.02221315842431193,
+    0.3622109227349365
+  ],
+  "hinge_m": [
+    0.05066486069231786,
+    0.41837936408161874,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.8367587281632375,
+    "height_m": 1.8076364472771445,
+    "thickness_m": 0.099303126956943
+  },
+  "components": {
+    "Frame": [
+      0
+    ],
+    "Panel": [
+      1
+    ],
+    "Handle": []
+  },
+  "leaf_components": [
+    1
+  ],
+  "clear_aperture_m": [
+    [
+      -0.4099863609001235,
+      0.020445294166300254
+    ],
+    [
+      0.4099863609001235,
+      1.824081741443445
+    ]
+  ],
+  "colliders": {
+    "0": {
+      "partitions": {
+        "y": [
+          -0.4109863609001235,
+          0.41098703909987666
+        ],
+        "z": [
+          1.8408771047441743
+        ]
+      }
+    }
+  },
+  "moving_scale": 0.98,
+  "moving_scale_center_m": [
+    0.05066486069231786,
+    -0.013820318333069537,
+    0.9222635178048726
+  ],
+  "moving_translation_m": [
+    0,
+    0.013820318333069537,
+    0
+  ],
+  "clearance_review": "The source leaf is about 28 mm wider than the modeled frame aperture in its displayed pose. Apply the documented maximum 2% uniform moving fit, center it on the opening, preserve its opening-face hinge, and partition the original U-frame. This is a diagnostic bounded recipe; any residual interference remains a blocker, not a reason to remove collision or exceed the fit limit.",
+  "modifications": [
+    "Select source leaf 001 and reuse the original size-matched frame 002 from the same pack, relocating only that frame by the measured source display offset.",
+    "Uniform 0.98 assembly scale and proper Y-up to Z-up rotation place the frame at the floor; no reflection.",
+    "Infer a hinge at the source positive-X jamb and opening-face leaf edge, opposite the modeled handle side.",
+    "The source leaf is about 28 mm wider than the modeled frame aperture in its displayed pose. Apply the documented maximum 2% uniform moving fit, center it on the opening, preserve its opening-face hinge, and partition the original U-frame. This is a diagnostic bounded recipe; any residual interference remains a blocker, not a reason to remove collision or exceed the fit limit. Frame partition cuts are placed 2 mm into the aperture from the inner jamb/header faces after the first diagnostic convexified a narrow jamb strip across the opening.",
+    "Begin closed and already unlatched; no separate projecting latch/lock bolt is modeled. Preserve all leaf, frame and handle collisions."
+  ]
+}

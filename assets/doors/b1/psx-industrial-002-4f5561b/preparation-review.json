@@ -1,0 +1,50 @@
+{
+  "status": "fail",
+  "decision": "not_ready_for_5.1",
+  "distribution_scope": "redistributable",
+  "source_part": "Metal_Door_002",
+  "original_source_sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
+  "selected_source_sha256": "4dcd275a57a30f342bb47f153a67a93144df550787a140a8d9a915bb697704a6",
+  "selection_attempt": "attempts/000001",
+  "inspection_attempt": "attempts/000002",
+  "normalization_attempt": null,
+  "failure_category": "asset_shape",
+  "reason": "The required separately collidable frame is absent and the available pack frame is not size-compatible without substantial resizing or reconstruction.",
+  "measurements": {
+    "source_triangles": 400,
+    "connected_components": 1,
+    "texture_max_px": 1024,
+    "geometry_fingerprint": "ab6c85dcb24412a05dbbbd8ee9e1f5db44fabe2b81c7bf44bf16609e49fa9873",
+    "source_leaf_width_m": null,
+    "source_frame_inner_width_m": null
+  },
+  "checks": {
+    "source_review": "pass",
+    "inspect": "pass",
+    "normalize": "not_run",
+    "static": "not_run",
+    "preview": "not_run",
+    "physics": "not_run",
+    "promotion": "not_run",
+    "expert_qualification": "not_run"
+  },
+  "limits": [
+    "No robot/expert or 45-degree check was run. No visual or isolated physics pass is claimed.",
+    "The original USDZ, selected source and diagnostic attempts remain preserved.",
+    "The result is specific to the documented Subphase 5.0 preparation rules, not a claim that the source art cannot be used for other purposes."
+  ],
+  "evidence": [
+    {
+      "path": "source-evidence.json",
+      "sha256": "e643ee4798ef87b1ff188acbbd5e17101583da381b832bd85d760564d8866e04"
+    },
+    {
+      "path": "attempts/000001/selection-review.json",
+      "sha256": "de4df44664e3ebce7eac1938c38791846579400679781754f1aa51d44c479489"
+    },
+    {
+      "path": "attempts/000002/inspect.json",
+      "sha256": "59f1b927ad92901e9a058205435ae4623623be952644939d4b1a4015c1ff62f9"
+    }
+  ]
+}

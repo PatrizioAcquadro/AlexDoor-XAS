@@ -1,0 +1,50 @@
+{
+  "status": "fail",
+  "decision": "not_ready_for_5.1",
+  "distribution_scope": "redistributable",
+  "source_part": "Metal_Door_005",
+  "original_source_sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
+  "selected_source_sha256": "fa6fce77c01aa0f8010ccec1f66a4ebf72c9dd0c43c674e32c021750c903ae6c",
+  "selection_attempt": "attempts/000001",
+  "inspection_attempt": "attempts/000002",
+  "normalization_attempt": null,
+  "failure_category": "duplicate_identity",
+  "reason": "This is not a distinct corpus identity from 003: the 12-triangle leaf, 44-triangle frame and 204-triangle knob geometry align rigidly (frame within 2 micrometers); only atlas appearance and about 9 mm vertical and 11 mm horizontal knob placement change.",
+  "measurements": {
+    "source_triangles": 260,
+    "connected_components": 4,
+    "texture_max_px": 1024,
+    "geometry_fingerprint": "78aa5f0fe10980543dd89866f6b642cc2e23a447cbec79717a2b6e20b29a9e9f",
+    "source_leaf_width_m": null,
+    "source_frame_inner_width_m": null
+  },
+  "checks": {
+    "source_review": "pass",
+    "inspect": "pass",
+    "normalize": "not_run",
+    "static": "not_run",
+    "preview": "not_run",
+    "physics": "not_run",
+    "promotion": "not_run",
+    "expert_qualification": "not_run"
+  },
+  "limits": [
+    "No robot/expert or 45-degree check was run. No visual or isolated physics pass is claimed.",
+    "The original USDZ, selected source and diagnostic attempts remain preserved.",
+    "The result is specific to the documented Subphase 5.0 preparation rules, not a claim that the source art cannot be used for other purposes."
+  ],
+  "evidence": [
+    {
+      "path": "source-evidence.json",
+      "sha256": "f6fa3550d261cdc90a348916cde7890e632c185a9ba5043362a89f672ef09e3a"
+    },
+    {
+      "path": "attempts/000001/selection-review.json",
+      "sha256": "02edb0eca57aeb72cd8c9a73bc65c822dce2f89644bd058955f9a3b52cce1df9"
+    },
+    {
+      "path": "attempts/000002/inspect.json",
+      "sha256": "a065c0140666e1614c5caa454758881364d9c13be59204ed2697b2c8dca73aae"
+    }
+  ]
+}

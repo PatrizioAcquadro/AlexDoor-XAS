@@ -1,0 +1,70 @@
+{
+  "status": "fail",
+  "decision": "not_ready_for_5.1",
+  "distribution_scope": "redistributable",
+  "source_part": "Metal_Door_004",
+  "original_source_sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
+  "selected_source_sha256": "b5ff085703a2393b19c5bfb003de7d64e038df24a1935d7151ac789f727c455f",
+  "selection_attempt": "attempts/000001",
+  "inspection_attempt": "attempts/000002",
+  "normalization_attempt": "attempts/000003",
+  "failure_category": "geometry_or_recipe",
+  "reason": "The source leaf crosses both jamb surfaces in the closed pose after the maximum documented 2% uniform moving fit; frame, leaf and handle collisions remain enabled.",
+  "measurements": {
+    "source_triangles": 280,
+    "connected_components": 6,
+    "texture_max_px": 1024,
+    "geometry_fingerprint": "56972910e659b1a40033a2faf337bbc7e77f0556ea13934a6d89a7e8813480af",
+    "source_leaf_width_m": 0.871262,
+    "source_frame_inner_width_m": 0.84284
+  },
+  "checks": {
+    "source_review": "pass",
+    "inspect": "pass",
+    "normalize": "fail",
+    "static": "not_run",
+    "preview": "not_run",
+    "physics": "not_run",
+    "promotion": "not_run",
+    "expert_qualification": "not_run"
+  },
+  "limits": [
+    "No robot/expert or 45-degree check was run. No visual or isolated physics pass is claimed.",
+    "The original USDZ, selected source and diagnostic attempts remain preserved.",
+    "The result is specific to the documented Subphase 5.0 preparation rules, not a claim that the source art cannot be used for other purposes."
+  ],
+  "evidence": [
+    {
+      "path": "source-evidence.json",
+      "sha256": "efe0a77f11078de71289c512b1fcbfbd5558903146c807a65544c2d259e6385a"
+    },
+    {
+      "path": "attempts/000001/selection-review.json",
+      "sha256": "b7bd85d3e137953cdbf6cbf36aefb5361feaab9c8ba81326647bcda15bb2a23e"
+    },
+    {
+      "path": "attempts/000002/inspect.json",
+      "sha256": "e406a734763700e7fdf5510005e07824d87847ac45a7cb7263407b904a9b4792"
+    },
+    {
+      "path": "recipe.json",
+      "sha256": "268df62ae341a39790b7d87a74d364bfaba522bfdf1aef3973fb752af1bcb2e3"
+    },
+    {
+      "path": "attempts/000003/recipe.json",
+      "sha256": "268df62ae341a39790b7d87a74d364bfaba522bfdf1aef3973fb752af1bcb2e3"
+    },
+    {
+      "path": "attempts/000003/normalize.json",
+      "sha256": "089085dfa4cc14652c149cf376f6ba7a81e00ba5d6e7893030477d8979dd268b"
+    },
+    {
+      "path": "attempts/000003/collision.json",
+      "sha256": "3bf4ddbc6269edff5dc828de43088c7cb7436534b213297432770ccccac108a3"
+    },
+    {
+      "path": "attempts/000003/source_intersections.json",
+      "sha256": "5283d33bd936c6bec369f5dab707cd8471a2c79b4429d5ddfd43ab437cde5a6f"
+    }
+  ]
+}

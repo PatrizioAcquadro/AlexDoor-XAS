@@ -1,0 +1,74 @@
+{
+  "reviewed_on": "2026-09-23",
+  "page_url": "https://sketchfab.com/3d-models/low-poly-psx-style-industrial-metal-doors-pack-4f5561bbc441414587e3650ceae5593a",
+  "page_review": {
+    "title": "Low-Poly PSX Style Industrial Metal Doors Pack",
+    "author": "Icevanilla",
+    "author_profile": "https://sketchfab.com/vanillao03",
+    "description": "A pack of 6 low-poly PSX-style industrial metal doors for utility, service and industrial environments, with clean, worn, rusty, reinforced and heavy variants.",
+    "license_label": "CC Attribution",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "download_modal_terms": "Author must be credited. Commercial use is allowed.",
+    "triangles_displayed": 1700,
+    "vertices_displayed": 918,
+    "visible_geometry": "A row of industrial metal door variants including plain, windowed, worn and heavy leaves; the modeled Metal_Door_007 pair forms a double-leaf display and is excluded.",
+    "downloads_displayed": [
+      "original .fbx (1 MB)",
+      "converted .usdz (162 kB)",
+      "converted .gltf (435 kB)",
+      "converted .glb (539 kB, 1K texture)"
+    ],
+    "author_dependency_comment": "The author says the model uses one texture atlas included with the FBX; local USDZ contains one atlas."
+  },
+  "source_part": "Metal_Door_001",
+  "local_payload": {
+    "path": "/home/pacquadr/Downloads/Low-Poly_PSX_Style_Industrial_Metal_Doors_Pack.usdz",
+    "sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
+    "bytes": 166610,
+    "archive_entries": [
+      "scene.usdc",
+      "0/Metal_Doors_baseColor.jpg"
+    ]
+  },
+  "selected_source": {
+    "original_source": "/home/pacquadr/Downloads/Low-Poly_PSX_Style_Industrial_Metal_Doors_Pack.usdz",
+    "original_source_sha256": "4e389b89271cba9e2232aa869fb0b5af37ee5fc7d333aba96e8bf3661ace3175",
+    "source_part": "Metal_Door_001",
+    "retained_root_children": [
+      "Metal_Door_001",
+      "Metal_Doorframe_002"
+    ],
+    "excluded_root_children": [
+      "Metal_Door_002",
+      "Metal_Door_003",
+      "Metal_Door_004",
+      "Metal_Door_005",
+      "Metal_Door_007",
+      "Metal_Door_007_001",
+      "Metal_Doorframe_002_001",
+      "Metal_Doorframe_003",
+      "Metal_Doorframe_005"
+    ],
+    "selected_source": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/psx-industrial-001-4f5561b/attempts/000005/selected-source/scene.usdc",
+    "selected_source_sha256": "b75b469ab201f3d921e20123722853952e4c9fb4216dda15edf85ffef594fae3",
+    "retained_texture": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/psx-industrial-001-4f5561b/attempts/000005/selected-source/0/Metal_Doors_baseColor.jpg",
+    "retained_texture_sha256": "76d97b93f617e4fe04726a81b73adcd89e23394ceb4d52dc61829c9600c032f4",
+    "frame_reuse_review": "The 001 leaf has no source frame. Reuse the original Metal_Doorframe_002 mesh from the same CC BY pack; its 003 leaf and the 001 leaf share the same 0.8713 x 1.8822 x 0.1034 m envelope. Translate the frame rigidly by the measured source-display offset so its modeled aperture surrounds the 001 leaf. Do not alter either mesh, UV or map.",
+    "frame_translation_stage_units": [
+      -554.4422636082259,
+      0,
+      0
+    ],
+    "operation": "Compose this single leaf with an existing size-matched frame from the same pack, rigidly relocated. This is an explicit simulation assembly; preserve original geometry, UVs, texture and downloaded USDZ. Exclude the double leaf and other displays."
+  },
+  "license_dependency_review": "One 1024 x 256 base-color atlas is packaged in the CC BY USDZ; stage metadata matches the page author, CC-BY-4.0 and source URL. No separate texture terms were found.",
+  "local_geometry_review": "A standalone three-panel metal leaf was paired diagnostically with the exact-size original frame from this CC BY pack, translated rigidly to the 001 display location. The leaf and compatible source frame still have proper side-jamb surface crossings after the maximum documented 2% uniform moving fit. The paired frame is not a new mesh; its collision remains enabled.",
+  "inspection_attempt": "attempts/000006",
+  "geometry_fingerprint": "d964012a8dc35756dca92d739a4a228d629a8b93afc827878974da06d4498add",
+  "clearance_measurement": {
+    "source_leaf_width_m": 0.871261,
+    "source_frame_inner_width_m": 0.84284,
+    "minimum_uniform_leaf_shrink_percent_before_clearance": 3.262,
+    "allowed_moving_fit_percent": 2.0
+  }
+}
