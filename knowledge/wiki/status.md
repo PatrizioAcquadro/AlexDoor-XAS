@@ -9,10 +9,11 @@ for commands, supported formats, admission rules and evidence.
 
 The next supplied source, `modern-door-2fb8d024`, has a Sketchfab Free Standard
 license. Its earlier CC-only rejection is superseded by the approved local-only
-intake scope. Source review and USDZ inspection pass, but normalized preparation
-is unresolved: a planar hinge-edge skin intersects the frame and produces an
-inflated PhysX collider. The original GLB is the next targeted check; no static,
-visual, physics or promotion pass is claimed. The initial batch still has one
+intake scope. Source review, USDZ and GLB inspection pass, but normalized
+preparation remains unresolved: a planar hinge-edge skin intersects the frame;
+when its collider is approximated, the near-zero jamb clearance obstructs opening.
+The GLB has the same component geometry as the USDZ. No static, front/rear visual,
+GPU physics or promotion pass is claimed. The initial batch still has one
 technically ready real door. Local-only source and normalized assets must remain
 with the authorized licensee and outside shared asset packages.
 
@@ -149,6 +150,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-23 — Inspected the supplied modern-door GLB; matching surface geometry and a separate opening obstruction leave normalization unresolved without a supported hinge/clearance correction.
 
 - 2026-09-23 — Added local-only Sketchfab Free Standard intake for internal B1 study while keeping CC-only assets as the redistributable class; the modern-door USDZ has an unresolved closed-pose collider issue.
 

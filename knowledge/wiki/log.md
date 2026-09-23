@@ -527,3 +527,11 @@ Retained all attempts and recorded an unresolved outcome; no static, visual, phy
 ## 2026-09-23 — lint : Modern-door USDZ blocker
 Eighteen focused preparation/wiki tests, Ruff, candidate JSON, source hash and whitespace checks pass.
 Failed attempts remain ignored and preserved; no prior asset, raw research or Phase 4 configuration changed.
+
+## 2026-09-23 — update : Modern-door GLB inspection
+Inspected the user-supplied GLB and updated its source, dependency and duplicate evidence; its geometry matches the USDZ up to a source offset.
+Recorded the planar skin collision and immediate leaf/frame opening obstruction; static, preview, GPU physics and promotion remain unrun.
+
+## 2026-09-23 — lint : Modern-door GLB blocker
+Candidate review, recipe validation, GLB checksum, evidence paths, JSON, wiki links and whitespace checks pass.
+Only the candidate records and canonical wiki changed; the temporary collider experiment left no shared-code change.

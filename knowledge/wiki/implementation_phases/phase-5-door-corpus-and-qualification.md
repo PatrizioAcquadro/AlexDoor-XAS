@@ -304,8 +304,26 @@ and PhysX expands that skin's standalone collider several millimeters into the
 jamb. Translation aligns the main leaf but cannot make this skin cook faithfully;
 convex-hull and partition recipes retain the failure. The USDZ outcome remains
 `unresolved`, with no static, preview, physics or promotion claim. The original
-download and numbered attempts are preserved. An original GLB from this source
-may avoid the conversion split and is the next targeted input to check.
+download and numbered attempts are preserved.
+
+The user then supplied `~/Downloads/modern_door.glb` (5,486,088 bytes, SHA-256
+`a457aba383e1e3fdc5863a4af7752d31db0a299be7f856054fce7fee24170ec5`).
+Its embedded Sketchfab author, source and Standard license match the page; all
+four JPEG dependencies are internal. The size suggests the displayed converted
+2K GLB option, though the file does not identify its download option. Inspection
+finds the same 55 components and 3,622 triangles as the USDZ; their bounds differ
+only by a source-coordinate offset within conversion precision. The revised GLB
+recipe recenters that offset. Its planar hinge-edge skin still crosses the frame;
+the supported convex hull intersects the jamb, while a surface partition has no
+volume. A temporary volumetric proxy for only that skin cleared the closed pose
+but exposed a separate immediate leaf/frame collision on opening. The leaf almost
+exactly fills the jamb opening, and no modeled hinge axis or measured clearance
+supports a particular leaf resize or pivot move. The proxy code was reverted;
+the candidate remains `unresolved`, not rejected as intrinsically unusable.
+Dependency and local duplicate reviews pass, but no normalization, static,
+front/rear visual, GPU physics or promotion pass is claimed. The GLB, USDZ and
+all numbered attempts are preserved. Further repair needs source-grounded hinge
+and clearance evidence; intake can continue with another distinct door.
 
 #### Key Decisions
 
