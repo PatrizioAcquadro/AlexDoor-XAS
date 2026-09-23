@@ -6,9 +6,9 @@
     [1, 0, 0],
     [0, 1, 0]
   ],
-  "translation_m": [0, 0, 0.00004923378583043814],
+  "translation_m": [0.14840330166043708, -1.2221135813742876, 0.00004923378583043814],
   "moving_translation_m": [0, -0.00010149, 0],
-  "opening_center_source": [0, -0.00004923378583043814, 0],
+  "opening_center_source": [1.2221135813742876, -0.00004923378583043814, -0.14840330166043708],
   "hinge_m": [0.003919467417290373, -0.4989363104642534, 0],
   "dimensions_m": {
     "width_m": 0.9978727903217077,
@@ -21,6 +21,8 @@
     "Handle": [25, 26]
   },
   "leaf_components": [6],
+  "unlatched_components": [],
+  "unlatched_review": "No distinct protruding latch or lock bolt was found; the visible keyhole and long pull remain in the colliding Handle group.",
   "colliders": {
     "0": "convexHull",
     "1": "convexHull",
@@ -28,11 +30,7 @@
     "3": "convexHull",
     "5": "convexHull",
     "30": "convexHull",
-    "46": {
-      "partitions": {
-        "z": [0.55, 1.10, 1.65]
-      }
-    },
+    "46": "convexHull",
     "54": {
       "partitions": {
         "y": [-0.4989362880587578, 0.4989364556968212],
@@ -41,12 +39,12 @@
     }
   },
   "modifications": [
-    "Use the inspected Y-up meter coordinates at their original scale and rotate them to canonical Z-up without reflection.",
+    "Use inspected GLB Y-up meter coordinates at scale 1; recenter its x/z offset and rotate to canonical Z-up without reflection.",
     "Center the opening at floor level; place the hinge at the original negative-width leaf edge and mid-thickness.",
     "Assign the separate frame, complete moving leaf/trim and front pull/keyhole hardware without deleting any visual or required collision parts.",
     "Partition the U-shaped frame collider at its measured inner jamb edges and header bottom, preserving its original triangular surfaces and opening.",
     "Shift the complete leaf and handle 0.10149 mm toward the hinge so the original equal-width leaf and frame opening align without resizing either part.",
-    "Use single convex hulls for six thin decorative skins and divide the tall hinge-edge skin into short surface cells so PhysX need not inflate an oblong hull; retain every collision.",
+    "Use a single convex hull for the planar hinge-edge skin; its cooked bounds intersect the frame and block this candidate pending supported repair.",
     "Use the common closed-unlatched push model; no separate latch or lock bolt was identified for collision exclusion."
   ]
 }

@@ -1,12 +1,15 @@
 {
   "status": "unresolved",
-  "category": "geometry_and_conversion",
+  "category": "source_geometry_and_hinge_recipe",
   "decision": "not_promoted",
   "distribution_scope": "local_only",
-  "source_sha256": "b1dace29575bd5b29135e537ad501d8cbf97655d1bb90067d19b44e2f58e20d0",
+  "selected_format": ".glb",
+  "source_sha256": "a457aba383e1e3fdc5863a4af7752d31db0a299be7f856054fce7fee24170ec5",
   "source_review": "pass",
   "inspect": "pass",
-  "normalization": "unresolved",
+  "local_dependency_review": "pass",
+  "local_duplicate_review": "pass",
+  "normalization": "fail",
   "static": "not_run",
   "preview": "not_run",
   "visual_review": "not_run",
@@ -22,22 +25,24 @@
       "height_m": 2.1654283336829403,
       "thickness_m": 0.06100880418671298
     },
-    "handedness": "right",
-    "geometry_fingerprint": "cec77ec883a5e1e8102457b656dc0c49b117af797a7947434e8ad83956133060"
+    "inferred_handedness": "right",
+    "geometry_fingerprint": "0ed927caadd03f215e80048d3a0152a5612e843fcb2590d1fa2a37988024fd43"
   },
   "modifications_attempted": [
-    "Partitioned the U-shaped frame collision at measured jamb and header boundaries.",
-    "Shifted the moving assembly 0.10149 mm toward the hinge to align the core leaf with the opening.",
-    "Tested collision recipes for the thin hinge-edge visual skin without deleting leaf, frame or handle collision."
+    "Recentered the GLB coordinate offset, keeping measured size and all visible components.",
+    "Retained the U-shaped frame partition and 0.10149 mm moving-assembly alignment from measured GLB geometry.",
+    "A temporary six-box proxy for the zero-volume hinge-edge skin removed the closed-pose collider intersection but exposed an immediate opening obstruction; the unsupported proxy option was reverted."
   ],
-  "blocker": "In the converted USDZ, component 46 is a two-triangle hinge-edge skin. Source-surface crossings remain at the frame after centering. PhysX expands its default and convex-hull colliders into the jamb by about 7-11 mm; a surface partition has no volumetric cell. No supported recipe has yet preserved its collision and passed the closed-pose gate.",
+  "blocker": "The GLB has the same 55 connected parts and essentially the same surface geometry as the USDZ, shifted in source coordinates. Component 46 (two-triangle hinge-edge skin) crosses the frame and its PhysX convex hull intersects the jamb at the closed pose. A temporary volumetric proxy cleared that collision, but the main leaf then hit the frame immediately on rotation because it fills the jamb opening with effectively no side clearance. The source provides no modeled hinge axis or measured clearance to justify resizing the leaf or moving the pivot. No supported recipe has passed normalization.",
   "evidence": [
-    "attempts/000002/inspect.json",
-    "attempts/000003/normalize.json",
-    "attempts/000004/source_intersections.json",
-    "attempts/000005/source_intersections.json",
-    "attempts/000006/collision.json",
-    "attempts/000007/normalize.json"
+    "attempts/000008/inspect.json",
+    "attempts/000009/normalize.json",
+    "attempts/000010/normalize.json",
+    "attempts/000010/collision.json",
+    "attempts/000010/source_intersections.json",
+    "attempts/000011/normalize.json",
+    "attempts/000011/collision.json",
+    "attempts/000011/motion_pair_diagnostic.json"
   ],
-  "next_step": "Inspect the original GLB from the same source if the user supplies it manually; otherwise retain this USDZ result as unresolved without asset rejection."
+  "next_step": "Keep this door unresolved unless reliable source geometry or hinge/clearance evidence supports a bounded repair. Continue collecting another distinct real-door URL and manual download for the initial 3-4 door batch."
 }

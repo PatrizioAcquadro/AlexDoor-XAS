@@ -35,6 +35,19 @@
       "title": "modern door"
     }
   },
+  "glb_payload": {
+    "path": "/home/pacquadr/Downloads/modern_door.glb",
+    "sha256": "a457aba383e1e3fdc5863a4af7752d31db0a299be7f856054fce7fee24170ec5",
+    "bytes": 5486088,
+    "format_note": "Sketchfab converted GLB with 2K textures (5 MB), inferred from the displayed download sizes; the file does not identify its download option.",
+    "embedded_metadata": {
+      "author": "Ahmed sayed (https://sketchfab.com/Ahmed_sayed)",
+      "license": "SKETCHFAB Standard (https://sketchfab.com/licenses)",
+      "source": "https://sketchfab.com/3d-models/modern-door-2fb8d02419b84d628cf9a4ac85360cec",
+      "title": "modern door"
+    },
+    "embedded_images": "Four JPEG images in GLB buffer views, no external dependencies; inspected textures reach 2048 x 2048 pixels."
+  },
   "license_terms_url": "https://sketchfab.com/licenses",
   "license_scope_review": "The page and USDZ agree on Sketchfab Standard. The original CC-only Phase 5.0 rule rejected it. The subsequent local-only rule permits authorized local preparation but prohibits distributing source, normalized geometry or textures as stand-alone assets; the original download remains untouched.",
   "prior_review": "The 2026-09-23 CC-only rejection is retained in Git history and superseded solely as a policy decision."
