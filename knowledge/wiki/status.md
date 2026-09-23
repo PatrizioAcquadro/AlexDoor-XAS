@@ -17,11 +17,14 @@ penetration. The initial batch has two technically ready real doors; neither has
 robot/expert qualification. Local-only source and normalized assets must remain
 with the authorized licensee and outside shared asset packages.
 
-The third supplied source, `door-with-doorframe-c29da62c`, fails source admission
-for the present B1 use. Its Free Standard page carries a NoAI restriction, while
-downloaded materials name Poliigon textures without separate AI/ML rights evidence.
-The source review fails before geometry inspection or GPU preparation. Both user
-downloads are preserved; the batch still has two technically ready doors.
+The third supplied source, `door-with-doorframe-c29da62c`, has unresolved
+dependency rights before technical preparation. Sketchfab's NoAI restriction
+concerns programs designed to generate new content; B1 ACT/Diffusion policies
+output robot actions, so that label alone does not establish incompatibility.
+Its downloaded materials contain Poliigon-named textures whose provenance and
+ML rights are unverified. Ordinary Poliigon terms exclude ML/AI use of its assets.
+Source `review` therefore reports `unresolved`, not `fail`. Both downloads are
+preserved; no geometry or GPU check has run, and the batch still has two ready doors.
 
 The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
 exact-width synthetic doors exceed 45 degrees through sustained contact and safe
@@ -160,7 +163,8 @@ These are historical scientific conclusions, not active workflows. See [[experim
 
 ## Version Notes
 
-- 2026-09-23 — Rejected Theocritus's NoAI-marked door for current B1 corpus use before preparation; distinguished explicit failed source review from missing evidence.
+- 2026-09-23 — Corrected Theocritus source review to `unresolved`: NoAI alone does not show a conflict with action policies, while Poliigon-named texture rights remain unverified.
+- 2026-09-23 — Initially rejected Theocritus's NoAI-marked door before preparation; that source decision is superseded by the correction above.
 
 - 2026-09-23 — Inspected the supplied modern-door GLB; matching surface geometry and a separate opening obstruction leave normalization unresolved without a supported hinge/clearance correction.
 

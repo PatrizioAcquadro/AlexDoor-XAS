@@ -161,7 +161,12 @@ change; `prepared.json` records the scope beside technical readiness. The legacy
 Phase 4 license gate remains CC-only.
 Free Standard alone does not clear extra source terms or third-party dependencies
 for B1 training and evaluation. An explicit failed source review returns `fail`;
-missing evidence remains `unresolved`. Stop before `inspect` when source terms fail.
+missing evidence remains `unresolved`. Stop before `inspect` while source rights
+remain unresolved or fail. Sketchfab `NoAI` restricts use with programs designed
+to generate new content; `CreatedWithAI` separately labels how an asset was made.
+Review the actual program's output and any added author terms before deciding
+whether `NoAI` applies. A diffusion architecture alone does not settle that
+question.
 
 **Usage.** Keep reviewed `candidate.json`, `recipe.json` and license evidence under
 `assets/doors/b1/<asset-id>/` in Git. Generated `attempts/` and `prepared.json` are
@@ -382,26 +387,29 @@ and both `~/Downloads/door_with_doorframe.glb` and
 lever, 4.7k triangles, Free Standard, available original/converted GLB and USDZ,
 and an explicit **NoAI** notice. The GLB metadata confirms author, source and
 Standard license; both downloaded files remain untouched. The nine embedded GLB
-images include materials named Poliigon wood and metal. Their separate AI/ML rights
-were not demonstrated. [Sketchfab's NoAI policy](https://help.sketchfab.com/en/articles/16152133-generative-ai-policies-tagging-and-noai-protection)
-bars use in generative-AI datasets, development and inputs;
-[Poliigon's licensing guidance](https://help.poliigon.com/it/articles/8749749-utilizzo-degli-asset-e-licenze)
-excludes ML/AI use of its assets under ordinary terms. The planned B1 ACT/Diffusion corpus
-cannot clear these terms on the evidence available. The documented `review`
-returns `fail` for `custom_terms_review`; no `inspect`, recipe, static, preview,
-GPU physics, promotion or 5.1 check was run. This is a source-rights decision,
-not a technical finding about the door's motion or dimensions. The batch remains
-at two technically ready doors. Reconsider this exact source only with rights
-covering the model and the named dependencies.
+images include materials named Poliigon wood and metal. Their provenance and
+separate AI/ML rights were not demonstrated. [Sketchfab's NoAI policy](https://help.sketchfab.com/en/articles/16152133-generative-ai-policies-tagging-and-noai-protection)
+and [terms, section 15](https://sketchfab.com/terms) bar datasets, development and
+inputs for programs designed to generate new content. B1 ACT/Diffusion policies
+output robot actions, not generated media or 3D content; NoAI alone therefore does
+not establish a conflict for this limited use. `CreatedWithAI` is the separate
+creation label. [Poliigon's licensing guidance](https://help.poliigon.com/it/articles/8749749-utilizzo-degli-asset-e-licenze)
+excludes ML/AI use of its assets under ordinary terms. The names suggest a
+third-party dependency but do not prove its licensing chain. Downloading the model
+does not clear that gap. The corrected source `review` returns `unresolved` for
+dependency evidence; no `inspect`, recipe, static, preview, GPU physics, promotion
+or 5.1 check was run. This is not a technical finding about the door. The batch
+remains at two ready doors. Resolve the texture rights or use a reviewed local
+derivative with independently cleared replacement materials before continuing 5.0.
 
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
   unused reserve payload. The user controls the sequential URL intake.
 - Accept CC0/CC BY 4.0 and dependencies for redistributable assets; admit reviewed
-  Sketchfab Free Standard sources only as local-only. Reject unclear or otherwise
-  incompatible terms; retain attribution and license evidence. No local-only
-  geometry or textures enter shared packages.
+  Sketchfab Free Standard sources only as local-only. Hold unclear terms as
+  unresolved and reject demonstrated incompatibility; retain attribution and
+  license evidence. No local-only geometry or textures enter shared packages.
 - Use full-size single-leaf interior/exterior/industrial push doors, separable
   panel/frame, prepared closed and already unlatched. Exclude gates, cabinets, sliding/double
   doors, and fantasy geometry. Mirrors/recolors are not independent identities.

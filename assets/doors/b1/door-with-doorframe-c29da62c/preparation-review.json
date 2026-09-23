@@ -1,20 +1,20 @@
 {
-  "status": "fail",
+  "status": "unresolved",
   "category": "source",
-  "decision": "reject_before_preparation_for_current_b1_use",
+  "decision": "hold_before_preparation_pending_dependency_rights",
   "distribution_scope": "local_only",
-  "reason": "The Sketchfab Free Standard model carries NoAI terms incompatible with the planned ACT/Diffusion corpus use. Poliigon-named embedded textures also lack independently verified AI/ML rights.",
+  "reason": "NoAI alone does not establish a prohibition for B1 policies that output robot actions. The embedded Poliigon-named textures have unverified provenance and AI/ML rights; source admission for training remains unresolved.",
   "source_review": {
     "command": "/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review --candidate assets/doors/b1/door-with-doorframe-c29da62c/candidate.json",
-    "status": "fail",
+    "status": "unresolved",
     "category": "source",
-    "reason": "Review failed: custom_terms_review"
+    "reason": "Dependency license evidence missing or incompatible"
   },
   "source_sha256": {
     "glb": "078f96d80dee59f0c2495055dd90d996e792b998597138f5d9a643e6580c9e78",
     "usdz": "4f7c60de976d8bec30dc87fa63fccb001c903c64f17ef70b6f065730ad8f9d87"
   },
-  "observed_geometry": "The page shows one wood leaf in a frame with a black lever; dimensions and source handedness were not checked after source rejection.",
+  "observed_geometry": "The page shows one wood leaf in a frame with a black lever; dimensions and source handedness have not been checked locally.",
   "leaf_dimensions_m": null,
   "handedness": null,
   "modifications": [],
@@ -33,5 +33,5 @@
     "/home/pacquadr/Downloads/door_with_doorframe.glb",
     "/home/pacquadr/Downloads/Door_With_Doorframe.usdz"
   ],
-  "next_step": "Use another candidate with compatible model and texture rights, or obtain explicit rights from the model author and any third-party texture owner before reconsidering this one."
+  "next_step": "Document rights covering the embedded textures for B1 ML use, or create and review a local derivative that excludes those textures and uses independently cleared replacements; then repeat source review and continue the technical 5.0 workflow. Do not use this source for generative-content models."
 }

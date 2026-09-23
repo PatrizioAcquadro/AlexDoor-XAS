@@ -555,3 +555,11 @@ Stopped the B1 candidate at source review, before geometry preparation, and made
 ## 2026-09-23 — lint : Theocritus source evidence
 Focused source-review tests, Ruff, JSON and payload hashes, wiki links, no-attempt check and whitespace validation pass.
 Downloads and accepted doors are preserved; no GPU work, robot check or push occurred.
+
+## 2026-09-23 — update : Correct Theocritus source-rights decision
+Rechecked Sketchfab NoAI against action-output policies and Poliigon's broader ML/AI restriction; the earlier source rejection was too categorical.
+Changed source review to unresolved for unverified texture rights, with no technical preparation or promotion claim.
+
+## 2026-09-23 — lint : Corrected source-rights records
+The CLI now reports unresolved dependency evidence; candidate JSON, wiki links, original hashes and no-attempt state match.
+Markdown whitespace checks pass; the original downloads and two accepted doors remain unchanged.

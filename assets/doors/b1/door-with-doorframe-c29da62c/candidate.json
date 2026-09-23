@@ -13,10 +13,10 @@
   "frame_panel_separable": null,
   "license_scope_review": "pass",
   "license_scope_review_notes": "The page and embedded GLB metadata identify Sketchfab Standard, which the approved B1 rule permits only for authorized local work, subject to custom terms and dependency rights.",
-  "custom_terms_review": "fail",
-  "custom_terms_review_notes": "The source page marks this Standard-licensed model NoAI. B1 uses door observations and demonstrations to develop ACT/Diffusion policies, so the NoAI restriction cannot be cleared for the intended corpus use without separate rights.",
+  "custom_terms_review": "pass",
+  "custom_terms_review_notes": "Sketchfab NoAI bars use with programs designed to generate new content; CreatedWithAI is the separate creation label. The present B1 ACT/Diffusion policies output robot actions, not generated media or 3D content, so NoAI alone does not establish a conflict for this limited use. This review does not authorize generative-content training or broader reuse.",
   "duplicate_review": "pass",
-  "duplicate_review_notes": "The source UID and visible two-panel wood door with black lever differ from the two prepared candidates. No local geometry fingerprint was generated after source rejection.",
+  "duplicate_review_notes": "The source UID and visible two-panel wood door with black lever differ from the two prepared candidates. No local geometry fingerprint has been generated.",
   "selected_format": ".glb",
   "dependencies": [
     {
@@ -36,5 +36,5 @@
     }
   ],
   "local_dependency_review": "unresolved",
-  "local_dependency_review_notes": "Nine images are embedded in the GLB. Material names identify Poliigon assets, whose AI/ML rights are not established by the Sketchfab model license."
+  "local_dependency_review_notes": "Nine images are embedded in the GLB. Poliigon-named materials suggest third-party textures but do not establish their provenance or sublicensing rights. Poliigon's ordinary terms prohibit ML/AI use of its assets; this dependency cannot be cleared for B1 training with the current evidence. Obtain rights evidence or prepare a reviewed texture-free/retextured derivative before admitting it."
 }

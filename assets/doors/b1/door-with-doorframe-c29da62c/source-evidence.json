@@ -45,7 +45,8 @@
   "dependency_observation": "GLB materials include names Poliigon_WoodVeneerOak_7760_4K and Poliigon_MetalSteelBrushed_7174_2K. Those names and the USDZ texture paths indicate possible third-party texture dependencies; this does not by itself prove their licensing chain.",
   "terms_evidence": {
     "sketchfab_noai_policy": "https://help.sketchfab.com/en/articles/16152133-generative-ai-policies-tagging-and-noai-protection",
+    "sketchfab_terms_section_15": "https://sketchfab.com/terms",
     "poliigon_asset_use": "https://help.poliigon.com/it/articles/8749749-utilizzo-degli-asset-e-licenze"
   },
-  "decision_basis": "The source's NoAI notice conflicts with planned B1 ACT/Diffusion dataset and model-input use. Poliigon-named embedded textures lack separate AI/ML rights evidence. Downloading the files does not resolve either condition."
+  "decision_basis": "NoAI concerns use with programs designed to generate new content; the B1 ACT/Diffusion policies output control actions, so this label alone does not prove incompatibility. CreatedWithAI is the separate creation label. The Poliigon-named embedded textures have unverified provenance and AI/ML rights, while Poliigon's ordinary terms prohibit ML/AI use of its assets. Downloading does not settle this dependency gap. Hold source admission until rights are documented or a reviewed derivative excludes the suspect textures from B1 use."
 }
