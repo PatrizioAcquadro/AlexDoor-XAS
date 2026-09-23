@@ -1,10 +1,11 @@
 # Project Status
 
-Current as of 2026-09-22. Subphase 4.0 is implemented and GPU-verified.
-Subphase 4.1 is in progress: all four articulated synthetic doors pass GPU
-reset/drift/opening checks. GPU screening, controlled probes, repeated-result
-comparison and RGB-D visibility diagnostics are implemented. The common setup
-candidate remains unqualified until the four-case closeout passes.
+Current as of 2026-09-22. Subphases 4.0 and 4.1 are implemented and GPU-verified.
+The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
+exact-width synthetic doors exceed 45 degrees through sustained contact and safe
+release. Paired minima are 66.15/77.91 degrees for left/right 0.65 m doors and
+46.35/48.07 degrees for left/right 1.20 m doors. Repeats agree exactly and retain
+the same safety-stop cause. The fixed head view passes all eight full cycles.
 Code and tests define executable behavior.
 
 ## Current Runtime
@@ -43,7 +44,7 @@ software contracts, without claiming B1 learned execution.
 
 ## Verification
 
-The dependency/CUDA preflight passes on the RTX 4090. All 340 software tests pass,
+The dependency/CUDA preflight passes on the RTX 4090. All 341 software tests pass,
 including historical data/model contracts, as do Ruff and wiki-link/index checks.
 GPU checks pass three stable resets, seven-joint/full-pose control, loaded distal
 contacts and forbidden-contact detection, and synchronized metric head RGB-D.
@@ -68,7 +69,7 @@ installation or driver modification was made.
 - `scripts/verify_purdue_runtime.py --viz none --device cuda:0` — complete operational gate.
 - `scripts/screen_synthetic_setup.py` — GPU kinematic candidate screening only.
 - `scripts/verify_synthetic_setup.py` — synthetic physics, controlled probe and candidate search;
-  see Phase 4 for arguments and the unqualified candidate boundary.
+  see Phase 4 for arguments and the frozen setup/qualification boundary.
 - `scripts/verify_benchmark_scene.py` and `scripts/verify_adapters.py` — route to that same gate.
 - `scripts/verify_dataset_interface.py` — retained historical dataset interface checks.
 - `scripts/train_policy.py` — offline training on existing supported data.
@@ -93,14 +94,13 @@ training run or media was added to the tracked output tree.
 
 ## Next Phases
 
-4.1 selects a common floor pose, contact point and fixed neck view on the four
-synthetic doors. It freezes controller/force/tolerance choices before collected
-assets. Phase 5 then validates preparation infrastructure and admits a real corpus.
+The common floor/contact/neck setup and expert protocol are frozen on synthetics.
+Phase 5 next validates preparation infrastructure and admits a real corpus.
 Phase 6 integrates observations and all learned A1–A4 paths, then a demonstration
 pilot. Phase 7 owns training and generalization evaluation.
 
 There is no active gaze, wrist-camera requirement, corpus download, physical
-robot control, hardware-safety claim or sim-to-real qualification in 4.0.
+robot control, hardware-safety claim or sim-to-real qualification in 4.0–4.1.
 
 ## Historical Results
 

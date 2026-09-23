@@ -41,6 +41,8 @@ class ProbeSetup:
     soft_force_n: float = 50.0
     contact_load_guard_n: float = 0.10
     loaded_force_n: float = 0.02
+    contact_force_window_s: float = 0.1
+    contact_gap_tolerance_m: float = 0.0001
     stall_s: float = 3.0
     tie_deg: float = 0.5
 
@@ -64,6 +66,8 @@ class ProbeSetup:
             self.compression_m,
             self.precontact_m,
             self.loaded_force_n,
+            self.contact_force_window_s,
+            self.contact_gap_tolerance_m,
             self.stall_s,
             self.tie_deg,
         )
@@ -118,6 +122,24 @@ class SustainedAngle:
             self.maximum = value if self.maximum is None else max(self.maximum, value)
 
 
+class ContactLoad:
+    """Causal mean of fixed-cadence force samples, gated by actual contact distance."""
+
+    def __init__(self, duration, minimum_force, maximum_gap):
+        self.duration = duration
+        self.minimum_force = minimum_force
+        self.maximum_gap = maximum_gap
+        self.samples = deque()
+        self.force = 0.0
+
+    def update(self, time, force, gap):
+        self.samples.append((time, force))
+        while time - self.samples[0][0] >= self.duration - 1e-9:
+            self.samples.popleft()
+        self.force = sum(f for _, f in self.samples) / len(self.samples)
+        return gap is not None and gap <= self.maximum_gap and self.force >= self.minimum_force
+
+
 def rank_candidates(results, tie_deg):
     """Only complete four-case controlled candidates participate in minimax."""
     valid = [r for r in results if len(r["cases"]) == 4 and all(c["passed"] for c in r["cases"])]
@@ -160,6 +182,7 @@ def summarize_trials(trials):
     return dict(
         case=trials[0]["case"],
         passed=bool(consistent),
+        meets_45_deg=bool(consistent and min(r["angle_deg"] for r in trials) >= 45.0),
         trials=trials,
         angle_deg=min(r["angle_deg"] for r in trials) if consistent else None,
         repeat_spread_deg=spread,
@@ -222,6 +245,9 @@ def run_probe(env, door, setup, output):
         distal.extend(face - env.push_geometry.translation)
     distal = np.asarray(distal)
     window = SustainedAngle(setup.sustain_s)
+    contact_load = ContactLoad(
+        setup.contact_force_window_s, setup.loaded_force_n, setup.contact_gap_tolerance_m
+    )
     failure, reason, peak, min_margin = None, None, 0.0, 1.0
     dt = env.step_dt
     last_progress, last_angle = 0.0, 0.0
@@ -251,25 +277,30 @@ def run_probe(env, door, setup, output):
         )
         closed_error = float(tensor(env.robot.data.joint_pos)[0, gripper_ids].abs().max())
         contacts = env.contact_history
-        force = max(
+        sample_forces = [
             sum(
                 c["force_n"]
                 for c in sample["contacts"]
                 if c["category"] in ("positive", "negative")
             )
             for sample in contacts
-        )
+        ]
+        force = max(sample_forces)
         forbidden = any(sample["forbidden"] for sample in contacts)
-        # Require a loaded physical sample each control tick; tolerate substep chatter.
-        loaded = any(
-            sum(
-                c["force_n"]
-                for c in sample["contacts"]
-                if c["category"] in ("positive", "negative")
+        gaps = [
+            min(
+                (
+                    c["separation_m"]
+                    for c in sample["contacts"]
+                    if c["category"] in ("positive", "negative")
+                ),
+                default=None,
             )
-            >= setup.loaded_force_n
             for sample in contacts
-        )
+        ]
+        gap = max(gaps) if all(g is not None for g in gaps) else None
+        time = len(traces) * dt
+        loaded = contact_load.update(time, float(np.mean(sample_forces)), gap)
         peak, min_margin = max(peak, force), min(min_margin, margin)
         if not np.isfinite(np.r_[angle, speed, pe, re, joints, force]).all():
             failure = "invalid_physics"
@@ -311,7 +342,6 @@ def run_probe(env, door, setup, output):
             visibility = measure_visibility(
                 env, door, angle, setup.contact_fraction, setup.contact_height
             )
-        time = len(traces) * dt
         if len(traces) % 300 == 0:
             print(
                 f"{door.name} {phase} t={time:.1f}s angle={np.rad2deg(angle):.2f}deg "
@@ -331,6 +361,8 @@ def run_probe(env, door, setup, output):
                 footprint_inside=footprint_inside,
                 closed_gripper_error_m=closed_error,
                 force=force,
+                filtered_force_n=contact_load.force,
+                contact_gap_m=gap,
                 loaded=loaded,
                 valid=valid,
                 joint_margin=margin,

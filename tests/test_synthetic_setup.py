@@ -8,6 +8,20 @@ from scipy.spatial.transform import Rotation
 from alexdoor_xas.qualification.synthetic_probe import SustainedAngle, rank_candidates
 
 
+def test_contact_load_tolerates_impulse_chatter_but_rejects_unloaded_or_detached_points():
+    from alexdoor_xas.qualification.synthetic_probe import ContactLoad
+
+    load = ContactLoad(0.1, 0.02, 0.0001)
+    assert not load.update(0.0, 0.0, 0.0)
+    assert load.update(0.02, 0.2, 0.0)
+    assert load.update(0.04, 0.0, 0.00001)
+    assert not load.update(0.06, 0.1, 0.001)
+    assert not load.update(0.08, 0.1, None)
+    for tick in range(5, 11):
+        load.update(tick * 0.02, 0.0, 0.0)
+    assert not load.update(0.22, 0.0, 0.0)
+
+
 def test_sustain_requires_contiguous_loaded_hold_and_uses_lower_angle():
     window = SustainedAngle(0.5)
     for tick in range(5):
@@ -78,6 +92,8 @@ def test_trial_qualification_rejects_unresolved_stops_and_inconsistent_causes():
     for cause in ("kinematic_limit", "mechanical_stop"):
         assert summarize_trials([{**trial, "stop_reason": cause}])["passed"]
     assert not summarize_trials([{**trial, "released": False}])["passed"]
+    below = summarize_trials([{**trial, "angle_deg": 44.99}])
+    assert below["passed"] and not below["meets_45_deg"]
 
 
 def test_urdf_chain_jacobian_matches_finite_difference():

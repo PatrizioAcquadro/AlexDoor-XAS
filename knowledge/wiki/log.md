@@ -440,3 +440,13 @@ Recorded continuous hold and a common drift reserve; full exact-width repeat qua
 
 Checked canonical links/index, dimensions and inertia evidence, source references and whitespace.
 The 340-test suite and Ruff pass; no raw research or historical dataset was modified.
+
+## 2026-09-22 — update : Qualified common synthetic setup
+
+Froze the common floor/contact/neck setup after eight complete GPU cycles and a raw-contact sustain audit.
+Recorded four sustained minima, coherent repeats, fixed RGB-D visibility, calibrated contact criteria and rejected alternatives.
+
+## 2026-09-22 — lint : Common setup closeout
+
+Checked canonical links/index, current source references, measured reports, RGB-D figures and whitespace.
+The 341-test suite, targeted closeout checks and Ruff pass; raw research, datasets and historical outputs are unchanged.

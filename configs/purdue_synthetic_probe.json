@@ -1,23 +1,23 @@
 {
   "floor_pose": [
-    -0.375,
+    -0.4,
     0.22499999999999998,
-    0.6981317007977318
+    0.7853981633974483
   ],
   "contact_fraction": 0.4,
   "contact_height": 1.0,
   "neck": [
-    -1.05,
-    0.2
+    -0.7,
+    0.25
   ],
   "initial_joints": {
-    "RIGHT_SHOULDER_Y": 0.6638258695602417,
-    "RIGHT_SHOULDER_X": -0.5383673310279846,
-    "RIGHT_SHOULDER_Z": 0.8887732028961182,
-    "RIGHT_ELBOW_Y": -2.096349000930786,
-    "RIGHT_WRIST_Z": 2.4231224060058594,
-    "RIGHT_WRIST_X": 1.1806660890579224,
-    "RIGHT_GRIPPER_Y": 0.7853979468345642,
+    "RIGHT_SHOULDER_Y": 0.724741518497467,
+    "RIGHT_SHOULDER_X": -0.523212730884552,
+    "RIGHT_SHOULDER_Z": 0.7992749214172363,
+    "RIGHT_ELBOW_Y": -2.0988245010375977,
+    "RIGHT_WRIST_Z": 2.3959102630615234,
+    "RIGHT_WRIST_X": 1.140286922454834,
+    "RIGHT_GRIPPER_Y": 0.785398006439209,
     "LEFT_SHOULDER_X": 0.35,
     "LEFT_ELBOW_Y": -1.0
   },
@@ -41,5 +41,9 @@
   "contact_load_guard_n": 0.1,
   "loaded_force_n": 0.02,
   "stall_s": 3.0,
-  "tie_deg": 0.5
+  "tie_deg": 0.5,
+  "hold_blend_s": 0.5,
+  "material_drift_guard_m": 0.0025,
+  "contact_force_window_s": 0.1,
+  "contact_gap_tolerance_m": 0.0001
 }

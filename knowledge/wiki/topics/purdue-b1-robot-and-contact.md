@@ -1,8 +1,8 @@
 # Purdue B1 Robot and Contact Contract
 
-This is the implemented Purdue operational contract for Subphase 4.0. The B0
-Alex V2 runtime has been retired. Synthetic-door setup is being qualified in Subphase 4.1; learned B1
-integration remains later work; current evidence is maintained in
+This is the implemented Purdue operational contract for Subphases 4.0–4.1. The B0
+Alex V2 runtime has been retired. The common synthetic-door setup is GPU-qualified;
+learned B1 integration remains later work. Current evidence is maintained in
 [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
 
 ## Reuse and Ownership
@@ -25,7 +25,8 @@ The ordered active right-arm joints are `RIGHT_SHOULDER_Y`, `RIGHT_SHOULDER_X`,
 `RIGHT_SHOULDER_Z`, `RIGHT_ELBOW_Y`, `RIGHT_WRIST_Z`, `RIGHT_WRIST_X`, and
 `RIGHT_GRIPPER_Y`. The last is a revolute arm joint, not finger opening.
 Commissioning parks each arm with shoulder X at +/-0.35 rad and elbow Y at
--1 rad. Phase 4.1 selects the common benchmark ready/parked setup.
+-1 rad. The common benchmark ready/parked and fixed neck setup is frozen in
+`configs/purdue_synthetic_probe.json`; its qualification belongs to Phase 4.1.
 `NECK_Z` and `NECK_Y` are separate vision degrees of freedom.
 
 Use the WSG 32-068 with the existing UMI v1 finger geometry. Hold both grippers
@@ -167,4 +168,6 @@ Purdue WSG and standalone WSG URDFs, `robots/alex_purdue.py`,
 `platforms/purdue_alex003_pedestal.py`, `sensors/zed_x_mini.py`, and its dependency
 record. No Alex files were changed. Consumer commissioning uses the GPU; no hardware
 trial was performed. Operational pose tolerances are 10 mm / 5 degrees sustained
-for 0.5 s. The common setup and final probe/force/tolerance choices remain in 4.1.
+for 0.5 s. Phase 4.1 records the frozen common setup, probe/contact criteria and
+force limits, with repeated four-door evidence. These are controller-qualified
+simulation limits, not global kinematic bounds or hardware-safety limits.

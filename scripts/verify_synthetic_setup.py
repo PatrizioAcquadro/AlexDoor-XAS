@@ -118,10 +118,12 @@ def probe_candidate(setup, output, cases, repeats, stop_on_failure=False):
     for door in cases:
         env = make_env(door, setup.to_dict())
         try:
-            trials = [
-                run_probe(env, door, setup, output / door.name / f"repeat-{i + 1}")
-                for i in range(repeats)
-            ]
+            trials = []
+            for i in range(repeats):
+                trial = run_probe(env, door, setup, output / door.name / f"repeat-{i + 1}")
+                trials.append(trial)
+                if not trial["passed"] or trial["angle_deg"] < 45.0:
+                    break
         finally:
             env.close()
         result = summarize_trials(trials)
@@ -129,7 +131,7 @@ def probe_candidate(setup, output, cases, repeats, stop_on_failure=False):
         print(json.dumps(result), flush=True)
         report_name = "report.json" if len(cases) == 4 else f"report-{cases[0].name}.json"
         (output / report_name).write_text(json.dumps(results, indent=2) + "\n")
-        if stop_on_failure and not result["passed"]:
+        if stop_on_failure and not result["meets_45_deg"]:
             break
     return dict(setup=setup.to_dict(), cases=results)
 
@@ -152,7 +154,14 @@ def main():
     setup = ProbeSetup(**json.loads(args.config.read_text()))
     if args.command == "probe":
         result = probe_candidate(setup, args.output, cases, args.repeats)
-        return 0 if all(r["passed"] for r in result["cases"]) else 1
+        passed = all(r["meets_45_deg"] for r in result["cases"])
+        if args.cameras:
+            passed = passed and all(
+                trial["visibility"]["passed"]
+                for case in result["cases"]
+                for trial in case["trials"]
+            )
+        return 0 if passed else 1
     if args.candidates is None or args.case is not None or args.candidate_limit < 1:
         raise ValueError("Search requires --candidates, a positive limit and all four cases")
     screen = json.loads(args.candidates.read_text())

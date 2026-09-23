@@ -1,7 +1,7 @@
 # Phase 4 — Robot and Task Configuration
 
 > Subphase 4.0 completed and GPU-verified on 2026-09-22.
-> Subphase 4.1 is in progress; synthetic physics is GPU-verified, common setup is not frozen.
+> Subphase 4.1 completed and GPU-verified on 2026-09-22; common synthetic setup is frozen.
 
 ## Objective
 
@@ -78,56 +78,95 @@ are simulation approximations; no physical-safety or sim-to-real claim follows.
 
 #### Implementation
 
-Implemented foundation: `assets/synthetic_door.py` authors the four 2.10 m high,
-0.04 m thick doors with a 25 kg panel, geometry-derived inertia, 4 Nm s/rad hinge
-damping and 0.5 friction. The collidable handle remains a separate rigid actor.
-The hinge is offset 85 mm from the frame plane; the first panel/jamb intersection
-sets a symmetric 183.2-degree mechanical stop, with 0.2-degree geometric clearance.
-The Purdue environment optionally loads these doors and moves robot/pedestal
-jointly in floor X/Y/yaw; the existing commissioning fixtures remain available.
+The four synthetic doors have widths 0.65/1.20 m and both handednesses, with a
+common 2.10 m height, 0.04 m panel thickness, 25 kg panel, geometry-derived inertia,
+4 Nm s/rad hinge damping and 0.5 contact friction. Panel, frame and fixed handle
+are collidable; the handle is a separate rigid actor for contact classification.
+The hinge offset is 85 mm from the frame plane. The first panel/jamb intersection,
+resolved at 0.1 degrees with a 0.2-degree clearance, defines the 183.2-degree joint
+stop. The legacy 90-degree limit is not inherited.
 
-GPU foundation evidence in `~/.cache/alexdoor-xas/verification/synthetic-physics-exact-width/`
-passes all four cases: two seconds passive drift below 0.00022 degrees, zero
-frame drift, ten seconds at 15 Nm reaching the computed stop within 0.00002 degrees,
-and closed reset. Exported USD also verifies exact 0.65/1.20 m panel widths and
-geometry-derived panel/handle inertias. The initial 30 mm panel inset was removed;
-earlier nominal-width runs are calibration evidence only. These are door-physics checks with the robot parked clear;
-they do not establish the common expert setup or visibility. The remaining work
-below retains the approved acceptance criteria.
+The opening-center floor frame has +X into the opening, +Z up and +Y left.
+Robot and measured pedestal share one X/Y/yaw transform; root height, roll/pitch,
+model collision filters and joint limits are retained. Handedness changes the
+door geometry and material-point trajectory, not the robot placement. The old
+4.0 fixtures remain available through the same environment configuration.
 
-The reusable probe and GPU kinematic screening are now implemented. Screening
-reads the external URDF and pedestal measurements, uses deterministic multistart
-IK and coarse/refined floor grids, and rejects sampled panel/pedestal and fixed
-jamb/pedestal overlap. It is a candidate filter, not a reachability proof.
-`configs/purdue_synthetic_probe.json` is currently an **unqualified candidate**;
-it must not be reused for corpus admission until the four-case closeout passes.
+`configs/purdue_synthetic_probe.json` freezes the reusable common setup. Its
+right-arm ready vector, left parked pose and closed WSG targets apply to every
+case. The selected placement is **X = -0.400 m, Y = 0.225 m, yaw = 45 degrees**.
+Contact is at **0.40 of actual panel width from the hinge, 1.00 m above the floor**.
+The fixed neck pose is **NECK_Z = -0.70 rad, NECK_Y = 0.25 rad**.
 
-The probe records full approach/contact/push/hold/release traces, raw contacts,
-closed-gripper error, projected distal footprint, joint margin and optional
-RGB-D visibility. A loaded sample is required in each 60 Hz control tick; the
-120 Hz substeps may chatter. Hold allows up to three seconds to obtain one
-continuous 0.5-second valid window. Release retraces an achieved pose behind the
-panel, allowing wrist rotation to recover rather than fixing a limiting orientation.
-The signed difference between commanded and actual panel angle decays smoothly
-over 0.5 seconds on entry to hold, including when inertia puts the panel ahead
-of the reference. This prevents a discontinuous pose command and force spike.
+The expert uses existing full-pose control for approach → contact → push → hold
+→ release. It follows the panel material point with tool +X into the panel and
++Z upward. The target joint-speed bound is 0.5 rad/s and nominal opening reference
+speed is 1 degree/s; physics/commands remain 120/60 Hz. Damped IK uses 0.01 damping
+and 2.0 nullspace centering gain. Approach/contact/release budgets are 6/3/3 s,
+with a common 150 s push horizon. These are simulation qualification settings.
 
-Stop reports separate mechanical stop, locally evidenced joint limit, safety
-stop, lost contact, tracking stall, timeout and invalid motion. Safety guards
-include high normal force, declining 0.1-second mean contact load after the
-five-second push transient, a 2.5 mm material-drift reserve and half of the orientation tracking budget.
-The guards contain no task-angle cutoff. A safety stop only qualifies when hold
-and release pass. Local joint-limit evidence is explicitly not global IK proof.
-Clearance ranking uses a conservative robot/door AABB lower bound excluding the
-authorized distal/panel pairs; raw contacts enforce actual forbidden-contact rules.
+A valid sustain interval requires a causal 0.1-second mean normal force of at
+least 0.02 N and an authorized contact point within 0.1 mm in both 120 Hz substeps,
+an in-panel distal footprint, closed grippers, no forbidden contact,
+and material-pose errors within 10 mm / 5 degrees. The reported angle is the
+**minimum angle over a contiguous 0.5 s interval**; sustain does not require an
+exactly motionless panel. Hold has a 3 s budget. A signed reference offset decays
+smoothly over 0.5 s on entry, including when panel inertia puts it ahead of the
+command. Release retraces an achieved pose behind the panel and verifies unloaded
+separation of at least 1 cm.
 
-Visibility projects panel points, the contact surroundings and frame references
-against current optical-axis depth, so arm occlusion and out-of-range depth fail
-the geometric check. It requires at least 6/25 panel, 2/8 contact-surround and
-2/14 frame samples each tick. This is a geometric observability proxy, checked
-with representative RGB images; it is not validation of a learned perception model.
+The normal-force thresholds are 0.02 N for loaded contact, 0.10 N for declining
+mean load over 0.1 s, 50 N for a soft safety stop and 80 N for a hard failure.
+After the five-second push transient, a 2.5 mm material-drift reserve or half the
+orientation budget also triggers a safety stop. The reserve leaves room to finish
+hold and release. There is no 45- or 50-degree termination condition. Mechanical
+stop, locally evidenced joint constraint, safety stop, lost contact, solver/tracking
+stall, timeout and invalid physics remain distinct; unresolved stops cannot qualify.
 
-Supported workstation entry points (all evidence stays outside datasets):
+Screening derives GPU batched FK/Jacobians from the external URDF, checked against
+the imported runtime. Eight deterministic starts (seed 4101) and 5-degree angle
+continuation propose candidates; failed local solves are not global reachability
+proofs. The coarse domain was X [-0.50, 0.50] m, Y [-0.60, 0.80] m and yaw
+[-180, 180] degrees, at 0.10 m / 15 degrees. The final refinement was X
+[-0.525, -0.325] m, Y [0.10, 0.40] m, yaw [-15, 45] degrees, at 0.025 m / 5 degrees.
+Panel/pedestal swept overlap and fixed jamb/pedestal overlap are screened out.
+
+The initial 0.90 fraction at 1.20 m produced no common pre-contact candidate in
+the final coarse screen. Calibration explored fractions 0.30, 0.40, 0.45, 0.50,
+0.60 and 0.90 at selected heights between 1.00 and 1.50 m, not a full Cartesian
+sweep. The final 0.40/1.00 m setting yielded a 50-degree screened common envelope.
+This is filter evidence; physical probes establish the reported envelope.
+
+Three refined floor candidates were physically investigated. The candidate at
+(-0.375, 0.225 m, 40 degrees) was rejected below the required domain on the
+left-wide door (43.13 degrees with the final contact criterion).
+The (-0.375, 0.175 m, 40 degrees) candidate was rejected for wrist/torso contact
+during left-wide approach. Neither establishes a competitive qualified setup.
+The angular tie band was fixed at 0.5 degrees before comparison; normalized joint
+margin, lower peak normal force and larger collision-clearance bound are the
+subsequent criteria. Tiny negative numerical margins rank as zero; traces retain
+the measured values. Clearance is a conservative robot/door AABB lower bound,
+not an exact self-collision distance, and did not decide this selection.
+
+The following results use the lower of two complete cycles per case:
+
+| Door | Sustained angle | Repeat difference | Limiting safety guard |
+|---|---:|---:|---|
+| left-0.65 | 66.15° | 0.00° | Material tracking margin |
+| right-0.65 | 77.91° | 0.00° | Material tracking margin |
+| left-1.20 | 46.35° | 0.00° | Declining normal load |
+| right-1.20 | 48.07° | 0.00° | Material tracking margin |
+
+Every repeat has the same limiting cause as its pair and agrees within 2 degrees.
+All eight cycles satisfy the sustain/contact/release criteria and the fixed-view
+check. Visibility compares panel, contact-surround and frame points with current
+valid optical-axis depth, including arm occlusion: at least 6/25, 2/8 and 2/14
+samples, respectively, in every control frame. Representative RGB-D was inspected.
+An exploratory 20-pose neck screen guided selection; sparse pose replay is not
+qualification evidence. The continuous trajectories are authoritative. No active
+gaze or Subphase 6.0 gaze dependency is required for these four synthetics.
+
+Supported workstation entry points, with explicit configuration and cache output:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/screen_synthetic_setup.py \
@@ -142,71 +181,50 @@ Supported workstation entry points (all evidence stays outside datasets):
   --cameras --viz none --device cuda:0 --output /tmp/synthetic-verification
 ```
 
-Search ranks only four-case controlled completions. An angle below 45 degrees,
-an unresolved stop, or inconsistent repeats cannot freeze a setup. Search output
-always leaves `frozen: false`; physical candidate selection still requires the
-fixed-view review and final documentation closeout.
-
-Use four synthetic single-leaf doors: widths 1.20 m and 0.65 m, each left- and
-right-hinged. Record one nominal height/thickness and physics template before
-searching. Both widths participate in the complete approach/contact/push/hold/
-release check and minimax objective; neither is assumed to be the worst case.
-
-Place Alex003 relative to the center of the closed door opening at floor level:
-+Z up, +X into the opening from the robot side, +Y completing the right-handed
-frame. Keep this placement reference distinct from A3's hinge frame. Search
-robot-plus-pedestal floor X/Y and yaw with measured height, roll, and pitch fixed.
-Do not mirror or reposition Alex separately for each handedness.
-
-Use one panel contact fraction from the hinge, one absolute floor height near
-the nominal handle region but on the panel, and the frozen finger footprint.
-Start at fraction 0.90; evaluate any common adjustment only on synthetics. Keep
-the footprint on the panel and clear of frame/handle geometry. The expert follows
-that material location along the panel arc, with the tool pointing into the
-panel and its vertical axis upward, using finite tracking tolerances.
-
-Measure the maximum opening sustained for 0.5 seconds of valid controlled
-contact, followed by safe release. Never end the push at 45 or 50 degrees.
-Choose the common pose maximizing the minimum sustained expert angle over the
-four cases, subject to valid approach/contact/hold/release and no forbidden
-contact. Within a frozen numerical tie tolerance, prefer greater normalized
-joint-limit margin, then lower force and greater forbidden-collision clearance.
-
-Check useful panel/contact/frame visibility during these same motions, including
-arm occlusion and near-range limits. First seek one fixed neck pose. Visibility
-may reopen the synthetic pose search before freezing; do not conceal a visual
-failure by lowering the measured physical opening. The whole door need not stay
-in the image if the information needed for control remains observable.
-
-Only if the fixed view is insufficient, record the demonstrated deficit and
-requirements for bounded deterministic gaze driven by RGB-D/proprioception.
-Its perception-dependent implementation belongs to Subphase 6.0. Do not build
-active gaze when the fixed view passes, or claim it is validated by this phase.
+Search records the screening domain and rejects a candidate at its first failed
+case. It ranks only four-case controlled completions and leaves `frozen: false`:
+new searches still require repeatability, fixed-view review and documentation
+closeout. Individual `--case` probes write separate case reports and can share
+an output directory without overwriting one another's reports. With `--cameras`,
+a probe also exits unsuccessfully if the fixed-view check fails.
 
 #### Key Decisions
 
-- Measure a practical controller-qualified envelope, not a global kinematic optimum.
-- Respect mechanical stops, force/robot limits, and a common finite horizon.
-  Select the horizon on synthetics so ordinary slow progress is not misclassified.
-- Distinguish evidenced kinematic limit, mechanical stop, safety stop, solver/
-  tracking stall, lost contact, timeout, and invalid physics. Timeout alone
-  does not establish a limit. A valid limit is a result, not an asset failure.
-- Freeze base/contact/neck setup, ready/parked poses, probe, redundancy rule,
-  force/speed limits, tolerances, sustain duration, horizon, and stop classification
-  before collected assets. The synthetic minimum is evidence, not a motion target.
-- Simulator truth may drive the qualification expert and measure visibility.
-  It must not drive learned policies through gaze, adapters, cached door state,
-  or completion logic. Robot forward kinematics from proprioception is allowed.
+- Freeze one configuration and expert before collected assets. Synthetic minimum
+  opening is evidence, not a target angle for later qualification.
+- Report a controller-qualified envelope within the explored search domain,
+  not a global kinematic optimum. All selected limits are measured safety stops.
+- Keep simulator truth in the expert and diagnostics. Policy, observation and
+  dataset contracts are unchanged; no hidden door-state correction enters adapters.
+- Keep both 4.0 fixtures and articulated synthetics. Preserve the external Alex
+  assembly, measured mounting height, collision model and physical joint limits.
 
 #### Problems / Limitations
 
-Complete with interpretable angle/force/joint/contact evidence and a lightweight
-reset repeat for all four cases, plus a passing fixed view or an explicit
-Subphase 6.0 gaze dependency. Resolve inadequate reach for the intended 45-degree
-admission domain on synthetics, not by per-asset tuning. Unresolved stalls or
-horizon stops cannot establish a maximum. No collected asset, split, bootstrap,
-or qualification-count selection belongs here. Synthetics are setup evidence,
-not B1 training/test data.
+The initial mesh inset reduced leaf widths by 30 mm. The template now authors
+exact 0.65/1.20 m panels and geometry-derived handle inertia; explicit USD dimension
+and inertia checks and all physics/full-cycle gates were repeated. Earlier
+nominal-width runs remain calibration evidence only.
+
+An abrupt push-to-hold target change caused force spikes and failed sustain when
+the panel led the reference. Signed continuous blending fixed that failure.
+Waiting for 5 mm material drift left insufficient hold margin on the right-narrow
+case; the common 2.5 mm reserve fixed it without an angle cutoff or relaxed
+acceptance criterion. An initial neck pose approached the right shoulder; the
+selected fixed neck clears it and preserves the required view throughout the
+qualified motions.
+
+Instantaneous contact force produced false losses during impulse chatter. The
+final criterion combines a causal mean with actual substep separation; all final
+cycles were rerun after calibration. Zero-load speculative contact alone fails.
+
+Rendered depth is ideal geometry; finger compliance, contact friction and hinge
+properties are simulation references. Normal force excludes tangential friction.
+Visibility is a geometric observability proxy, not a learned-perception result.
+Local joint-limit diagnostics do not prove global unreachability. These four
+synthetics establish the common setup only: collected-asset admission, corpus,
+splits, demonstrations, training, hardware safety and sim-to-real validation are
+not part of this subphase.
 
 ## Artifacts
 
@@ -238,6 +256,28 @@ reset renderer settling is in `purdue-final-rgbd/`; contact force-direction chec
 Subphase 4.0 software validation: 332 tests passed, including historical readers/model contracts,
 with Ruff, whitespace and wiki-link/index checks. No corpus, training run or
 four-case reachability result was produced.
+
+Subphase 4.1 evidence is in
+`~/.cache/alexdoor-xas/verification/synthetic-calibrated-final/`: common setup,
+four paired reports, exported scenes, full angle/force/joint/contact traces,
+RGB/depth samples, `validation-traces.png` and `representative-rgbd.png`.
+An independent reconstruction from raw substep separations and normal impulses
+confirms all eight sustain windows. Representative RGB-D was inspected.
+
+The exact-width template gate in sibling `synthetic-physics-exact-width/` passes
+all four resets, passive drift below 0.00022 degrees, fixed frame, geometric stop
+within 0.00002 degrees, and exported panel dimensions/inertia. Separate exported
+USD checks verify handle cuboid inertia. `synthetic-screen/` retains coarse and
+refined domains; `synthetic-calibrated-comparison/` retains the rejected 43.13-degree
+alternative. `synthetic-comparison-rejected-exact-width/` retains the wrist/torso
+approach rejection. Earlier instantaneous-load and inset-width runs remain
+calibration evidence, not final qualification.
+
+The full 4.0 regression passes in sibling `purdue-after-41/`. The final software
+suite has 341 passing tests, including essential handedness/contact trajectory,
+sustain, force chatter/separation, stop classification, minimax and repeatability
+checks. Ruff, whitespace and wiki-link/index checks pass. No corpus or policy
+training was performed.
 
 ## Files
 
