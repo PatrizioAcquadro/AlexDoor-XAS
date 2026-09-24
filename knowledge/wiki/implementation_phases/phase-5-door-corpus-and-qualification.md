@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> Twenty-five distinct real doors pass preparation and are ready for 5.1: twenty-two redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
+> Twenty-nine distinct real doors pass preparation and are ready for 5.1: twenty-six redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
 
 ## Objective
 
@@ -933,6 +933,53 @@ The six redistributable doors bring the prepared pool to **twenty-five**. Their
 provenance, recipe, previews and physics evidence. No robot/expert qualification
 or 45-degree admission check was run; final 24-door corpus selection remains in 5.1.
 
+**Icevanilla front PSX pack review (2026-09-24).**
+[Low-Poly PSX Style Front Doors Pack](https://sketchfab.com/3d-models/low-poly-psx-style-front-doors-pack-ee7d5c6d36404849a459c84c3d004a0c)
+shows seven framed assemblies; the `003` double leaf is excluded. The actual
+page and download modal credit Icevanilla under CC BY 4.0, and the USDZ metadata
+agrees. Original FBX and converted USDZ, glTF and GLB are offered. The only
+packaged dependency is a 4096 × 1024 JPG atlas with no separate terms visible.
+Original USDZ SHA-256: `82cf4a88842596394075c87b8c922293567878de9aefeaec61b8ee55008b498a`.
+The six selected single leaves have separate modeled frames and handles.
+`Front_Door_006` has exactly the geometry fingerprint of the already prepared
+`psx-front-20d5505` and is excluded. The other five have distinct fingerprints.
+
+| Part | Outcome | Attempt | Prepared W × H × T (m) | Isolated stop |
+| --- | --- | --- | --- | ---: |
+| `001` | ready, left | `000004` | 0.814 × 1.972 × 0.067 | 84.4° |
+| `002` | ready, left | `000003` | 0.815 × 1.947 × 0.092 | 166.2° |
+| `005` | ready, right | `000004` | 0.816 × 1.969 × 0.092 | 94.1° |
+| `006` | exact duplicate | inspection `000002` | — | — |
+| `007` | unresolved visual/contact | `000006` / `000007` | — | — |
+| `008` | ready, left | `000005` | 0.815 × 1.947 × 0.092 | 121.2° |
+
+The four ready doors use a proper Y-up to Z-up transform and source-specific
+opening-face pivots. `001` and `005` need the documented maximum 2% uniform
+moving fit to clear measured jamb/sweep contact; `002` and `008` use 1.3%.
+Modeled frame profiles are partitioned without removing geometry. On `008`,
+PhysX inflated one separately cooked thin panel surface by 6.7 mm beyond its
+visual bounds; one convex hull for its two material surfaces restores the bounds
+while preserving panel collision. Fixed sidelights and glass retain collisions.
+No separate latch/lock bolt was found; the leaf, frame and handles retain theirs.
+
+Static checks pass. Both RTX front/rear images per ready door were actually
+viewed: the atlas, frames, panels, glazing and paired hardware appear complete
+and aligned. One short isolated RTX 4090 `cuda:0` run per door reaches the
+geometry-derived stop shown above, with three exact resets, stable frames and
+zero reported penetration. These four are promoted under CC BY 4.0, bringing
+the prepared pool to **twenty-nine**. Their `assets/doors/b1/psx-front-*-ee7d5c6/`
+records preserve original provenance, selected source, recipe, diagnostics,
+previews and GPU evidence.
+
+`007` remains a distinct candidate, not an automatic source rejection. Its
+original leaf crosses the header and handle plates cross a jamb. An inferred
+159.1 mm surface mount passes normalization/static but the actually viewed
+front/rear images show an implausibly detached leaf (`000006`); a 2% in-frame
+fit still has source surface crossings (`000007`). Neither attempt was promoted
+or sent to GPU physics. A future local geometry repair must keep required
+collisions and produce credible alignment before repeating affected checks.
+No robot/expert run or 45-degree criterion was used for this pack.
+
 #### Key Decisions
 
 - Target 24 expert-qualified unique identities in the final corpus, 12 left- and
@@ -1056,7 +1103,7 @@ both handednesses; right hinges expose a proper 180-degree X rotation.
 `gpu-obstruction/` records the expected physical rejection. FBX front/rear preview
 images are retained under `formats/fbx/prepared/` and were visually inspected.
 That infrastructure run produced no real candidate payload, expert reference,
-split or learned dataset. Twenty-five real candidate records now have prepared
+split or learned dataset. Twenty-nine real candidate records now have prepared
 attempts under `assets/doors/b1/`; their accepted pointers and individual
 preparation reviews carry the current per-door evidence.
 

@@ -705,3 +705,13 @@ All six pass static checks, viewed RTX previews and one isolated RTX 4090 run to
 
 Verified all six accepted pointers, RTX reports and evidence hashes; the two inspected exact duplicates remain unpromoted, and twenty-five prepared scopes reconcile to 22/2/1.
 Edited wiki links, repository references and Markdown whitespace pass focused checks; source downloads, prior accepted attempts, raw knowledge and frozen Phase 4 remain unchanged.
+
+## 2026-09-24 — update : Front PSX pack preparation
+
+Reviewed Icevanilla's CC BY 4.0 seven-assembly pack: excluded the double leaf and one exact prior-corpus duplicate; four distinct single leaves pass static, viewed RTX previews and one RTX 4090 run each.
+A fifth distinct leaf remains unresolved on source contact and visual alignment. Twenty-nine doors are prepared; robot/expert qualification was not run.
+
+## 2026-09-24 — lint : Front PSX pack evidence and wiki
+
+Verified four accepted pointers and evidence hashes, one duplicate exclusion, one unpromoted visual/contact diagnostic, the original USDZ checksum and prepared scope counts of 26/2/1.
+Focused wiki link/index tests and Markdown whitespace checks pass; the source download, prior accepted attempts, raw knowledge and frozen Phase 4 remain unchanged.
