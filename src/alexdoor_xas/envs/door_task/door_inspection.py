@@ -44,8 +44,12 @@ class DoorInspectionEnv(DirectRLEnv):
         self._hinge_joint_id = ids[0]
 
     def _setup_scene(self):
+        from isaaclab.sim import GroundPlaneCfg
+
         cfg = self.cfg.door_scene
         cfg.spawn.func(cfg.prim_path, cfg.spawn)
+        # Match the task: a floor-flush leaf can bind even when the hinge is free.
+        GroundPlaneCfg().func("/World/Ground", GroundPlaneCfg())
         if self.cfg.sense_contacts:
             from isaaclab.sim import schemas
             from pxr import Usd, UsdPhysics

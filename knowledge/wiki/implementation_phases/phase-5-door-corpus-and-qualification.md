@@ -121,7 +121,9 @@ it does not insert an arbitrary 90° stop or the 45° expert-admission threshold
 An initial intersection fails; no demonstrated stop within 270° is unresolved.
 
 Static checks cover physical ownership, dimensions, mass/inertia, clear opening,
-visual/collider agreement and collision sweep. The isolated GPU run uses three
+visual/collider agreement and collision sweep. The isolated GPU scene now includes
+the same floor as the robot task. Earlier preparation omitted it and could accept
+a leaf that binds against the floor during robot execution. The GPU run uses three
 resets, passive holds and controlled opening: reset angle 0.1°, speed 0.01 rad/s,
 passive drift 0.25°, frame translation 0.1 mm/rotation 0.1°, anchor error 1 mm,
 penetration 2 mm and stop agreement 1°. Harmless contact alone is not a failure;
@@ -237,7 +239,19 @@ this closed starting configuration is impossible. Other execution failures remai
 The loader accepts both published collider tags, scalar `b1:sourceComponent` and
 array `b1:sourceComponents`, matching preparation verification. The earlier
 `door-with-frame-2f2f149f` rejection was a loader compatibility defect; its
-existing collision meshes must be requalified, not rebuilt.
+existing collision meshes loaded correctly after this fix.
+
+That door's subsequent dynamic stall exposed a separate legacy assembly defect:
+its leaf was flush with the floor. The original fails the corrected isolated
+check with a floor; a documented 2 mm upward translation of the complete moving
+visual/collision assembly passes static and GPU checks and retains the 188-degree
+geometric stop. Source meshes, dimensions, hinge axis and robot contact point stay
+unchanged; centers of mass and the published panel center move consistently.
+Original payload and ground-contact evidence are at
+`~/.cache/alexdoor-xas/verification/qualification-repair-20260924/frame-ground/`.
+The updated asset is undergoing a fresh expert pair. A read-only pool scan also
+flags pending `interior-wood-d1-32707dc` at zero moving-floor clearance; review this
+preparation issue before routine qualification, without changing it automatically.
 
 The surface trajectory follows the actual leaf colliders at the frozen fraction
 and height, retaining tool +X into the panel and +Z upward. Actual frame/handle

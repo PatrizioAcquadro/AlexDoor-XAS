@@ -78,7 +78,7 @@
   "clear_aperture_m": [
     [
       -0.42890264,
-      0.001
+      0.003
     ],
     [
       0.42890264,
@@ -141,5 +141,11 @@
     2,
     4
   ],
-  "unlatched_review": "Only the listed latch/lock parts lose collision; their visuals remain. Leaf, frame, handles and other hardware remain collidable."
+  "unlatched_review": "Only the listed latch/lock parts lose collision; their visuals remain. Leaf, frame, handles and other hardware remain collidable.",
+  "moving_translation_m": [
+    0,
+    0,
+    0.002
+  ],
+  "clearance_review": "The original moving leaf was exactly flush with the task floor and bound under ground contact; the older isolated check omitted that floor. Raise the complete moving visual/collision assembly by 2 mm (the existing collision-offset scale), with unchanged hinge axis, dimensions, masses, inertia about the COM, friction and controller. Shift COM consistently; retain every surface and collider. This is a documented assembly-clearance repair, not a robot/contact-point adjustment."
 }

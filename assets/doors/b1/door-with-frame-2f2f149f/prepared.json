@@ -16,7 +16,7 @@
   "panel_center_m": [
     0.0896922780184536,
     -7.432327481238232e-08,
-    1.0485436824838137
+    1.0505436824838137
   ],
   "opening_to_hinge": [
     [
@@ -61,7 +61,7 @@
       0.0,
       0.0,
       1.0,
-      1.0485436824838137
+      1.0505436824838137
     ],
     [
       0.0,
@@ -80,12 +80,23 @@
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
-    "status": "invalid_asset",
+    "status": "unresolved",
     "theta_expert_d": null,
-    "reason": "invalid_prepared_asset",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-with-frame-2f2f149f/20260924T213853.832105Z",
+    "reason": "superseded_by_floor_clearance_repair",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-with-frame-2f2f149f/20260924T230116.054664Z",
     "trials": [],
     "repeat_spread_deg": null,
     "scope": "nominal_simulated_expert_reference_not_learning_data"
+  },
+  "assembly_revision": {
+    "reason": "floor_clearance_missing_in_legacy_preparation",
+    "moving_translation_m": [
+      0,
+      0,
+      0.002
+    ],
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/qualification-repair-20260924/frame-ground",
+    "static": "pass",
+    "physics_with_floor": "pass"
   }
 }

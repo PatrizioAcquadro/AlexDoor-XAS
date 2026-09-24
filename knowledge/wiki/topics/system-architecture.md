@@ -31,6 +31,10 @@ See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
 `scripts/prepare_doors.py` handles inspection, normalization, static/visual/isolated
 physics checks and promotion. `DoorInspectionEnv` remains necessary for this B1
 path. It does not execute the robot expert.
+Its isolated physics scene includes the task floor, so floor-binding leaves cannot
+pass solely because the hinge rotates in an otherwise empty scene. Older prepared
+records predate this check; diagnosed clearance repairs retain original payloads
+and require affected static/physics checks and a fresh expert pair.
 
 `scripts/qualify_door.py` loads a prepared door into the same Purdue environment
 and reuses the controlled probe. Prepared geometry supplies the material-point
