@@ -149,8 +149,9 @@ unresolved before inspection. Per-source evidence and exceptions live in the JSO
 
 All entries below retain acquired preparation passes. Expert status is recorded per door
 in `prepared.json`; the table describes preparation, not expert admission.
-The stop is geometric, not `theta_expert_d`. In particular the prison door's
-23.1° limit is preserved; 5.1 owns selection and reachable-domain decisions.
+The stop is geometric, not `theta_expert_d`. The prison door's frame approximation was corrected from a false 23.1° stop to
+a measured 47.0° stop; its previous expert pair is superseded. Phase 5.1 owns
+selection and reachable-domain decisions.
 
 | Asset ID | Hinge | Mechanical stop | Scope |
 |---|---|---:|---|
@@ -161,7 +162,7 @@ The stop is geometric, not `theta_expert_d`. In particular the prison door's
 | `door-5035d7977155` | left | 194.4° | R |
 | `door-adf292f437f2` | left | 176.0° | R |
 | `door-door-metal-b21ec273` | right | 59.8° | R |
-| `door-prison-metal-old-45306a46` | left | 23.1° | R |
+| `door-prison-metal-old-45306a46` | left | 47.0° | R |
 | `door-with-doorframe-c29da62c` | left | 161.2° | L |
 | `door-with-frame-2f2f149f` | right | 188.0° | R |
 | `interior-wood-d1-32707dc` | left | 54.2° | R |
@@ -302,13 +303,13 @@ the earlier zero-yaw setup and has not been rechecked with the final placement;
 it is not a current expert reference. The substitute left's earlier valid
 44.23-degree pair is also superseded, not combined with the new pair.
 
-The pilot's four results above remain unchanged. The subsequent-door campaign
+The following records describe the paused campaign before corrective reruns. The subsequent-door campaign
 attempted six more identities on 2026-09-24 and was then paused at user request.
 The following paths are relative to
 `~/.cache/alexdoor-xas/verification/expert/<asset-id>/`; each contains the
 complete `report.json`, captured input records and effective `setup.json`.
 
-| Door | Published status | `theta_expert_d` | Evidence directory | Finding |
+| Door | Status at campaign pause | `theta_expert_d` | Evidence directory | Finding |
 |---|---|---:|---|---|
 | `animated-door-1-88abf40` | `unresolved` | — | `20260924T212508.154992Z` | Two cycles reached 57.03° sustained, but final hold was invalid (`tracking_margin`); release completed. |
 | `animated-door-2-88abf40` | `unresolved` | — | `20260924T213207.125877Z` | Two cycles reached 56.95° sustained, but final hold was invalid (`tracking_margin`); release completed. |
@@ -327,7 +328,7 @@ composed-collider intersection evidence. The two pre-cycle errors have reports
 and error traces; they are not evidence of an expert limit. All attempt evidence
 is retained outside learning datasets.
 
-Across all 32 prepared doors there are **two qualified, three out of domain,
+At campaign pause the 32 prepared doors had **two qualified, three out of domain,
 four unresolved, one published `invalid_asset`, and 22 `not_run`**. By handedness:
 left 1 qualified / 3 out of domain / 21 not run; right 1 qualified / 4 unresolved /
 1 published `invalid_asset` / 1 not run. The right-door balance still needs at
@@ -336,6 +337,17 @@ problem and the repeated invalid final hold before resuming; no further door
 commands are part of this paused campaign. Any future common setup change
 requires fresh complete pairs for affected references; compare archived
 `setup.json` before reusing an earlier result.
+
+The prison-door stop was traced to false convex volume at the frame's lower
+hinge corner. At 23.3 degrees the colliders intersected while the actual visual
+surface sections remained separate. Repartitioning the same frame at its measured
+sill/header boundaries (Z = 0.041961/2.045949 m) moves the geometric stop to 47.0
+degrees, independently reached by the isolated GPU physics check. No source
+surface, pivot, mass, material, unlatched state or other collision was changed.
+The former payload/records and the staged static/physics evidence are retained at
+`~/.cache/alexdoor-xas/verification/qualification-repair-20260924/prison/`.
+The former 22.63268-degree expert reference is superseded; a new complete pair
+is required on the corrected collision geometry.
 
 Reviewed RGB shows the pushing hand and panel, but geometric visibility does
 not pass throughout the qualified pilot or animated-door trials, including

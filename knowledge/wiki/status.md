@@ -8,7 +8,7 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Pilot references remain right 59.33 degrees and left 46.37 degrees. Six subsequent doors were attempted; the campaign is paused pending loader compatibility and final-hold diagnosis. Across 32 doors: two qualified, three out of domain, four unresolved, one published `invalid_asset` under review, and 22 unvisited. Final corpus/split pending. |
+| 5.1 — Expert qualification | Pilot references remain right 59.33 degrees and left 46.37 degrees. Six subsequent doors were attempted; the campaign is paused pending loader compatibility and final-hold diagnosis. Prison-door collider correction passes static/GPU physics; its earlier expert reference is superseded pending a new pair. Across 32 doors: two qualified, two out of domain, five unresolved, one published `invalid_asset` under review, and 22 unvisited. Final corpus/split pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
@@ -25,7 +25,8 @@ for the final 12/12 balance.
 ## Limits
 
 Preparation does not establish robot reachability. The prison metal door retains
-its 23.1° geometric stop. The previous four pedestal exclusions belong to the
+a corrected 47.0° geometric stop: the earlier 23.1° stop came from excess convex
+volume at a frame corner. The original payload and reference remain archived. The previous four pedestal exclusions belong to the
 superseded 45-degree pose; current results are tied to their recorded setup and
 complete trial pair. Rights scopes constrain sharing independently of technical
 readiness.

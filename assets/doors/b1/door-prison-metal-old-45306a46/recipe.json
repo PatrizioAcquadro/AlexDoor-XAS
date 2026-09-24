@@ -107,12 +107,12 @@
           0.445
         ],
         "z": [
-          0.095,
-          1.993
+          0.041961,
+          2.045949
         ]
       }
     },
     "14": "convexHull"
   },
-  "clearance_review": "A 2% moving fit retreats edge and hinge hardware about 9 mm per side. Partitioning the original frame resolves cooked corner overlap without removing source surfaces."
+  "clearance_review": "A 2% moving fit retreats edge and hinge hardware about 9 mm per side. Partitioning the original frame resolves cooked corner overlap without removing source surfaces. Corrected sill/header partition heights to measured source boundaries (0.041961/2.045949 m): the former 0.095/1.993 m cuts convexified empty lower/upper hinge corners and imposed a false 23.1-degree stop. All original surfaces, pivot, mass and collision contacts are preserved."
 }

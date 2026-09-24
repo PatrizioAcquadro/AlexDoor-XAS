@@ -70,7 +70,7 @@
       1.0
     ]
   ],
-  "mechanical_limit_deg": 23.1,
+  "mechanical_limit_deg": 47.0,
   "geometry_fingerprint": "5bdb64d77427069c09492f282a0223b3bd9d25060e2ea975834ceb09f19eedf3",
   "checks": {
     "normalization": "pass",
@@ -80,9 +80,9 @@
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
-    "status": "out_of_domain",
-    "theta_expert_d": 22.632680465841624,
-    "reason": "mechanical_stop",
+    "status": "unresolved",
+    "theta_expert_d": null,
+    "reason": "collision_revision_requires_new_pair",
     "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-prison-metal-old-45306a46/20260924T214021.597645Z",
     "trials": [
       {
@@ -121,6 +121,14 @@
       }
     ],
     "repeat_spread_deg": 0.0,
-    "scope": "nominal_simulated_expert_reference_not_learning_data"
+    "scope": "nominal_simulated_expert_reference_not_learning_data",
+    "previous_theta_expert_d": 22.632680465841624
+  },
+  "collision_revision": {
+    "reason": "Remove empty corner volume introduced by former frame partition heights; preserve all source surfaces and other physics.",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/qualification-repair-20260924/prison",
+    "previous_mechanical_limit_deg": 23.1,
+    "static": "pass",
+    "physics": "pass"
   }
 }
