@@ -16,7 +16,7 @@
   "panel_center_m": [
     0.031974055582374754,
     -2.639649939739641e-07,
-    1.0364983190715502
+    1.0384983190715502
   ],
   "opening_to_hinge": [
     [
@@ -61,7 +61,7 @@
       0.0,
       0.0,
       1.0,
-      1.0364983190715502
+      1.0384983190715502
     ],
     [
       0.0,
@@ -70,7 +70,7 @@
       1.0
     ]
   ],
-  "mechanical_limit_deg": 54.2,
+  "mechanical_limit_deg": 54.3,
   "geometry_fingerprint": "c87dd0edf71d37796a5865f7785ea44b2581f0dadb4110b73ec24016b2e75b3d",
   "checks": {
     "normalization": "pass",
@@ -79,5 +79,16 @@
     "physics": "pass"
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
-  "expert_qualification": "not_run"
+  "expert_qualification": "not_run",
+  "assembly_revision": {
+    "reason": "floor_clearance_missing_in_legacy_preparation",
+    "moving_translation_m": [
+      0,
+      0,
+      0.002
+    ],
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/qualification-repair-20260924/pending-floor",
+    "static": "pass",
+    "physics_with_floor": "pass"
+  }
 }

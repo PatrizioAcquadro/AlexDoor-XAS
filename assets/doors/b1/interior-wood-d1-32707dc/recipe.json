@@ -98,7 +98,7 @@
   "clear_aperture_m": [
     [
       -0.393,
-      0.002
+      0.003
     ],
     [
       0.393,
@@ -154,5 +154,10 @@
     0,
     0
   ],
-  "clearance_review": "A 1.3% moving fit retreats each leaf edge about 5.44 mm to clear the fixed strike during opening. The opening remains centered and floor-aligned."
+  "clearance_review": "A 1.3% moving fit retreats each leaf edge about 5.44 mm to clear the fixed strike during opening. The opening remains centered and floor-aligned. The original moving leaf was exactly flush with the task floor and bound under ground contact; the older isolated check omitted that floor. Raise the complete moving visual/collision assembly by 2 mm (the existing collision-offset scale), with unchanged hinge axis, dimensions, masses, inertia about the COM, friction and controller. Shift COM consistently; retain every surface and collider. This is a documented assembly-clearance repair, not a robot/contact-point adjustment.",
+  "moving_translation_m": [
+    0,
+    0,
+    0.002
+  ]
 }

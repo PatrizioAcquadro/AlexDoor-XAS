@@ -167,7 +167,7 @@ selection and reachable-domain decisions.
 | `door-prison-metal-old-45306a46` | left | 47.0° | R |
 | `door-with-doorframe-c29da62c` | left | 161.2° | L |
 | `door-with-frame-2f2f149f` | right | 188.0° | R |
-| `interior-wood-d1-32707dc` | left | 54.2° | R |
+| `interior-wood-d1-32707dc` | left | 54.3° | R |
 | `modern-door-2fb8d024` | right | 93.0° | L |
 | `psx-bathroom-20d5505` | left | 121.3° | R |
 | `psx-front-001-ee7d5c6` | left | 84.4° | R |
@@ -249,9 +249,12 @@ geometric stop. Source meshes, dimensions, hinge axis and robot contact point st
 unchanged; centers of mass and the published panel center move consistently.
 Original payload and ground-contact evidence are at
 `~/.cache/alexdoor-xas/verification/qualification-repair-20260924/frame-ground/`.
-The updated asset is undergoing a fresh expert pair. A read-only pool scan also
-flags pending `interior-wood-d1-32707dc` at zero moving-floor clearance; review this
-preparation issue before routine qualification, without changing it automatically.
+The updated asset is undergoing a fresh expert pair. A read-only pool scan found
+the same zero-floor-clearance defect on pending `interior-wood-d1-32707dc`. The
+original also fails the floor-aware GPU check; the same documented 2 mm assembly
+fit passes static and GPU checks with a recomputed 54.3-degree stop. Its expert
+status remains `not_run`. Original/revised payloads and checks are archived under
+`qualification-repair-20260924/pending-floor/` in the verification cache.
 
 The surface trajectory follows the actual leaf colliders at the frozen fraction
 and height, retaining tool +X into the panel and +Z upward. Actual frame/handle
