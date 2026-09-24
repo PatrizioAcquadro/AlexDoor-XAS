@@ -1,0 +1,88 @@
+{
+  "status": "pass",
+  "decision": "ready_for_5.1",
+  "source_sha256": "2bb80bf8013440af3385be1c49673779e50017dcb11a73bfa8ac8d67a8185078",
+  "attempt": "attempts/000004",
+  "task_model": "closed_unlatched_panel_push",
+  "description": "dark-wood leaf with narrow vertical glazing and round gold knob",
+  "summary": "Prepared the selected animated source part as one real framed door; source animation is frozen at its closed pose for the common isolated push-door model. Frame, leaf, handles, hinge hardware and edge plates retain visuals and collisions.",
+  "normalization": "pass",
+  "static": "pass",
+  "visual_review": "pass",
+  "physics": "pass",
+  "expert_qualification": "not_run",
+  "measurements": {
+    "triangles": 9104,
+    "connected_components": 22,
+    "texture_max_px": 1024,
+    "uniform_scale": 1.65,
+    "moving_scale": 0.98,
+    "leaf_dimensions_m": {
+      "width_m": 0.839123876077958,
+      "height_m": 1.9536734508842246,
+      "thickness_m": 0.04418084109909206
+    },
+    "handedness": "right",
+    "geometry_fingerprint": "4de24c7a8904ab0d3845dbc4adf5039e3afe22ca2e5cfc0c3a89cb0d75000328",
+    "mechanical_limit_deg": 91.8
+  },
+  "modifications": [
+    "Select only the original named door/skeleton subtree; preserve the original USDZ and all seven packaged image dependencies.",
+    "Normalize the selected closed Y-up centimeter pose to Z-up meters at 1.65 uniform scale.",
+    "Apply the documented 2% uniform moving-assembly fit because 1% left a measured leaf/hinge interference; preserve all required collisions and partition the modeled frame collider around its opening.",
+    "Use the modeled negative-side hinge barrels to infer the right-handed pivot at the opening face; retain the source appearance."
+  ],
+  "physics_measurements": {
+    "device": "cuda:0",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "max_reset_deg": 0.0,
+    "max_reset_speed": 0.0,
+    "passive_drift_deg": 1.4029402452997088e-17,
+    "frame_drift_m": 0.0,
+    "frame_rotation_deg": 0.0,
+    "hinge_error_m": 1.0191392902925145e-06,
+    "penetration_m": 0.0,
+    "maximum_deg": 91.80000323758665,
+    "mechanical_limit_deg": 91.8,
+    "resets": 3
+  },
+  "validation_scope": "One source review, individual inspection, passing normalization/static, actually viewed front/rear RTX previews and one short isolated RTX 4090 cuda:0 physics run per selected part; no robot/expert qualification or unrelated test matrix.",
+  "limitations": [
+    "Hinge axis and 2% clearance fitting are documented simulation approximations, not recovered manufacturer dimensions.",
+    "The source animation is not replayed in the prepared articulation; the closed pose starts already unlatched for pushing.",
+    "Robot reachability and the expert 45-degree criterion remain untested in Subphase 5.1."
+  ],
+  "next_steps": [
+    "Use the unchanged 5.1 robot/expert protocol only when that subphase starts."
+  ],
+  "evidence": [
+    {
+      "path": "attempts/000004/recipe.json",
+      "sha256": "824300858008f45f158d2899bf8e3bfb3fcbed74df2ebb8a7efa69e6e5ba0829"
+    },
+    {
+      "path": "attempts/000004/normalize.json",
+      "sha256": "36286c772df5c8367480122a31f3fb48ca7c02bb30bd082f4058abf858661943"
+    },
+    {
+      "path": "attempts/000004/static.json",
+      "sha256": "002e70032fae79cf1918ac613fcb688e68597d3a9d1d0a34a8b3b18a461e9e2b"
+    },
+    {
+      "path": "attempts/000004/preview.json",
+      "sha256": "c919b3dab201017ce83d7068bf126b6e2ffe6350239062e785e1edabd4d2434e"
+    },
+    {
+      "path": "attempts/000004/physics.json",
+      "sha256": "ff55bcde01142918227f91326dbc684325239b148572fd51b724d8194ebde79e"
+    },
+    {
+      "path": "attempts/000004/preview-front.png",
+      "sha256": "2ee5d74222669c19e23297ee417822e059483aa0c1f3a05fedecaa026d10ea1f"
+    },
+    {
+      "path": "attempts/000004/preview-rear.png",
+      "sha256": "e58ff4ab6a958c5889604890cf6d22cf1bc9666bdde071cbbae91da3ab4fd316"
+    }
+  ]
+}

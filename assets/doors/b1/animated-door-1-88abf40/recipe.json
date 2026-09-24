@@ -1,0 +1,130 @@
+{
+  "handedness": "right",
+  "scale": 1.65,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    0.40830812459684757,
+    -1.7392801007410263,
+    2.1001356973858294
+  ],
+  "opening_center_source": [
+    1.0541091519642585,
+    -1.2728095135671693,
+    -0.24745946945263492
+  ],
+  "hinge_m": [
+    0.014903539079260342,
+    -0.42812442657038674,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.839123876077958,
+    "height_m": 1.9462398414346114,
+    "thickness_m": 0.029210936595350272
+  },
+  "components": {
+    "Frame": [
+      0,
+      6,
+      7,
+      8,
+      10,
+      13,
+      14,
+      18
+    ],
+    "Panel": [
+      1,
+      9,
+      11,
+      12,
+      17
+    ],
+    "Handle": [
+      2,
+      3,
+      4,
+      5,
+      15,
+      16
+    ]
+  },
+  "leaf_components": [
+    1
+  ],
+  "unlatched_components": [],
+  "unlatched_review": "The source has edge plates and small flush dark faces, but no separately protruding latch or lock bolt is identified; keep all of them collidable in the closed, already-unlatched task state.",
+  "moving_scale": 0.98,
+  "moving_scale_center_m": [
+    0,
+    0,
+    1.0166852582292758
+  ],
+  "clearance_review": "The source leaf exactly spans the modeled jamb opening. A 1% uniform fit left approximately 0.7 mm closed overlap between the leaf hull and three fixed source hinge knuckles (door 1 attempt 000006); a 2% fit moves the leaf edge about 8.56 mm inward and leaves about 3.5 mm geometric gap from those knuckles. Apply the same measured fit to the three pack assemblies, preserving visuals, proportions, frame, handles and all collisions. This is a simulation clearance repair, not manufacturer dimensions.",
+  "clear_aperture_m": [
+    [
+      -0.41412442657038673,
+      0.05
+    ],
+    [
+      0.41412442657038673,
+      1.98
+    ]
+  ],
+  "colliders": {
+    "0": {
+      "partitions": {
+        "y": [
+          -0.42812442657038674,
+          0.42812442657038674
+        ],
+        "z": [
+          2.009664769165302
+        ]
+      }
+    },
+    "1": "convexHull",
+    "9": "convexHull",
+    "11": "convexHull",
+    "12": "convexHull",
+    "17": "convexHull",
+    "2": "convexHull",
+    "3": "convexHull",
+    "4": "convexHull",
+    "5": "convexHull",
+    "15": "convexHull",
+    "16": "convexHull",
+    "6": "convexHull",
+    "7": "convexHull",
+    "8": "convexHull",
+    "10": "convexHull",
+    "13": "convexHull",
+    "14": "convexHull",
+    "18": "convexHull"
+  },
+  "modifications": [
+    "Select only the original Door1 animation subtree (gray two-panel leaf with gold lever) from the CC BY USDZ and retain its packaged local dependencies.",
+    "Freeze the source closed pose and normalize Y-up centimeters to canonical Z-up meters with proper rotation and uniform 1.65 scale; center the existing frame at floor level without reflection.",
+    "Keep the source frame and fixed hinge knuckles in Frame, the leaf and moving edge fittings in Panel, and the complete visible handle hardware in Handle; all remain collidable.",
+    "Infer the right-hand revolute axis from the original negative-side hinge barrels at the opening-face corner. This is a simulation pivot, not a measured manufacturer bearing.",
+    "Fit Panel and Handle together by 2% to make clearance in the otherwise exactly filled source jamb; retain the existing modeled opening and partition only the original frame collider around its jamb/header.",
+    "Start closed and already unlatched; no separate projecting latch/lock bolt was identified.",
+    "Cook each compact solid or thin decorative surface with a reviewed convex envelope to retain its collision and avoid unstable fine decomposition of the animated source meshes; the frame remains partitioned around the original aperture."
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "reviewed_on": "2026-09-24",
+  "page_url": "https://sketchfab.com/3d-models/3-doors-with-animations-88abf40577494c0c8759c9652e7749da",
+  "page_review": {
+    "title": "3 doors with animations",
+    "author": "Shakya Sidd",
+    "author_profile": "https://sketchfab.com/Siddhartha.Shakya",
+    "description": "Author says the three doors were made in Blender and include animations; FBX may need an armature modifier.",
+    "license_label": "CC Attribution",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "download_modal_terms": "Author must be credited. Commercial use is allowed.",
+    "triangles_displayed": 26100,
+    "vertices_displayed": 13400,
+    "visible_geometry": "Three distinct single-leaf framed doors: a gray two-panel leaf with gold lever, plain light wood with silver lever, and dark wood with narrow vertical glazing and round gold knob.",
+    "downloads_displayed": [
+      "original .fbx (100 MB)",
+      "converted .usdz (2 MB)",
+      "converted .gltf (3 MB)",
+      "converted .glb (5 MB, 1K textures)"
+    ]
+  },
+  "source_part": "Door2",
+  "local_payload": {
+    "path": "/home/pacquadr/Downloads/3_doors_with_animations.usdz",
+    "sha256": "f48971c01bd5371b2b26802aa2f34e4ac9042bb77358db51dcfc2206646cf8e7",
+    "bytes": 2965737,
+    "archive_entries": [
+      "scene.usdc",
+      "0/Door2_baseColor.jpg",
+      "0/Door_3_knob_normal.jpg",
+      "0/Door_3_baseColor.jpg",
+      "0/Door_3_metallicRoughness_metal_scale0.jpg",
+      "0/Door_3_metallicRoughness_rough.jpg",
+      "0/Door2_normal_norm.jpg",
+      "0/Glass_normal_norm.jpg"
+    ],
+    "embedded_metadata": "Siddhartha.Shakya, CC-BY-4.0 and exact source URL."
+  },
+  "selected_source": {
+    "retained_root_children": [
+      "Door2_Root_10"
+    ],
+    "excluded_root_children": [
+      "Door1_root_4",
+      "Door3_Root_15"
+    ],
+    "selected_source": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/animated-door-2-88abf40/attempts/000001/selected-source/scene.usdc",
+    "selected_source_sha256": "d95591f5e055f91493eadd72f3d143bdbb283b5537e83aa528797ab731bd1582",
+    "retained_dependencies": {
+      "0/Door2_baseColor.jpg": "cae6ccd0be6ef1a213dc899a4a4704c8388f2522aae7a8b97cde3ae6f44304d5",
+      "0/Door_3_knob_normal.jpg": "655ebcbb57e2842b8f249a474c606b9b6ac461a4842ce337c64179f9247e7aba",
+      "0/Door_3_baseColor.jpg": "6098bea2b72ee331cbec6a8c03007dcefbb6e64d5158ffc5bb4b040c733b1f4c",
+      "0/Door_3_metallicRoughness_metal_scale0.jpg": "d058ce7e717f97bb47cd577d5a8cc0f8efe6e7556d65fa82402cc95f38d9fa09",
+      "0/Door_3_metallicRoughness_rough.jpg": "6d5b5cb8fb68aa4d39f5fa6097b4d07ed8a3827e1699a805a68a40c2a877b6ba",
+      "0/Door2_normal_norm.jpg": "9006a765db86844192abe5fb3e19d078f7c571d6f9ecdc425c4c182b7d77bcf0",
+      "0/Glass_normal_norm.jpg": "8a48762b8654366b7fe606c53c7a62a43b3b2a22373344152c05e7ebe6ab1db9"
+    },
+    "operation": "Select one named animated single-leaf door and its entire skeleton/visual subtree; retain source material scope and all packaged textures. Other displayed assemblies are removed from this derived source only; original USDZ remains untouched."
+  },
+  "license_dependency_review": "Seven packaged JPG images, maximum 1024 x 1024, are within the CC BY 4.0 USDZ; no separately stated image terms were visible.",
+  "duplicate_resolution": "Door2 selected by its named animation subtree. Inspect fingerprint 2b05c15801257c1044d235fa651c6192ad6f3f923ce39c92a50a80d3176af98d differs from the other two parts and all 29 previously prepared doors; source UID is shared only under distinct source_part values.",
+  "local_geometry_review": {
+    "selected_part": "Door2",
+    "description": "plain light-wood leaf with silver lever",
+    "triangles": 7752,
+    "connected_components": 20,
+    "frame_component": 0,
+    "leaf_component": 1,
+    "hinge_side": "negative source X; canonical right-hand opening",
+    "source_units": "Y-up centimeters",
+    "selected_source_sha256": "d95591f5e055f91493eadd72f3d143bdbb283b5537e83aa528797ab731bd1582"
+  }
+}

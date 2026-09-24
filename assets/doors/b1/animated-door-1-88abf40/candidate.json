@@ -1,0 +1,71 @@
+{
+  "asset_id": "animated-door-1-88abf40",
+  "source_url": "https://sketchfab.com/3d-models/3-doors-with-animations-88abf40577494c0c8759c9652e7749da",
+  "source_uid": "88abf40577494c0c8759c9652e7749da",
+  "source_part": "Door1",
+  "author": "Shakya Sidd",
+  "license": "CC-BY-4.0",
+  "distribution_scope": "redistributable",
+  "license_evidence": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/animated-door-1-88abf40/source-evidence.json",
+  "attribution": "Door1 from 3 doors with animations by Shakya Sidd (https://sketchfab.com/Siddhartha.Shakya), https://sketchfab.com/3d-models/3-doors-with-animations-88abf40577494c0c8759c9652e7749da, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Selection and preparation changes are recorded in source-evidence.json and recipe.json.",
+  "retrieval_date": "2026-09-24",
+  "door_type": "interior",
+  "single_leaf": true,
+  "frame_panel_separable": true,
+  "license_scope_review": "pass",
+  "license_scope_review_notes": "Actual model page and download modal link CC Attribution to CC BY 4.0; packaged USDZ metadata agrees.",
+  "custom_terms_review": "pass",
+  "custom_terms_review_notes": "No extra source or image terms visible.",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "Separate selected source part; inspect fingerprints differ among all three and from the existing corpus.",
+  "selected_format": ".usdc",
+  "reported_triangles": 26100,
+  "reported_texture_max_px": 1024,
+  "dependencies": [
+    {
+      "path": "0/Door2_baseColor.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: image packaged in CC BY 4.0 USDZ with no separately stated terms"
+    },
+    {
+      "path": "0/Door_3_knob_normal.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: image packaged in CC BY 4.0 USDZ with no separately stated terms"
+    },
+    {
+      "path": "0/Door_3_baseColor.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: image packaged in CC BY 4.0 USDZ with no separately stated terms"
+    },
+    {
+      "path": "0/Door_3_metallicRoughness_metal_scale0.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: image packaged in CC BY 4.0 USDZ with no separately stated terms"
+    },
+    {
+      "path": "0/Door_3_metallicRoughness_rough.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: image packaged in CC BY 4.0 USDZ with no separately stated terms"
+    },
+    {
+      "path": "0/Door2_normal_norm.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: image packaged in CC BY 4.0 USDZ with no separately stated terms"
+    },
+    {
+      "path": "0/Glass_normal_norm.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: image packaged in CC BY 4.0 USDZ with no separately stated terms"
+    }
+  ],
+  "initial_state": "closed_unlatched",
+  "reviewed_source_sha256": "931474d1a94724a8efec6f083949ed947b789d683242d5614c049e4c54903015",
+  "local_dependency_review": "pass",
+  "local_duplicate_review": "pass",
+  "local_visual_review": "pass",
+  "local_visual_review_notes": "Actually viewed attempt 000009 front and rear RTX images: gray two-panel leaf with gold lever; intact modeled frame, moving leaf, visible hinges and hardware; alignment and materials are acceptable for isolated preparation.",
+  "local_mechanical_review": "pass",
+  "local_mechanical_review_notes": "Attempt 000009 passes normalized, static and RTX 4090 physics checks at its geometry-derived 90.7-degree stop, three resets, stable frame and no reported penetration. All modeled leaf/frame/handle and small hardware collisions are retained.",
+  "no_latch_operation": true,
+  "source_requires_latch_release": false
+}
