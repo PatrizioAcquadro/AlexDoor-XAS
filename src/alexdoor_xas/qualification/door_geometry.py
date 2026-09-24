@@ -71,7 +71,10 @@ class PreparedDoor:
                 matrix = np.array(UsdGeom.Xformable(prim).ComputeLocalToWorldTransform(0)).T
                 points = points @ matrix[:3, :3].T + matrix[:3, 3]
                 self.shapes[name].append(points)
-                components = prim.GetAttribute("b1:sourceComponents").Get() or []
+                components = set(prim.GetAttribute("b1:sourceComponents").Get() or [])
+                component = prim.GetAttribute("b1:sourceComponent").Get()
+                if component is not None:
+                    components.add(component)
                 if name == "Panel" and leaf.intersection(components):
                     self.leaf_shapes.append(points)
         if not self.leaf_shapes or not self.shapes["Frame"]:

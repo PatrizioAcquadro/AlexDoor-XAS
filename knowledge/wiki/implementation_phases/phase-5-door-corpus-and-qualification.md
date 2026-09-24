@@ -233,6 +233,10 @@ the preparation pass remains valid. No unsafe pair is needed to establish that
 this closed starting configuration is impossible. Other execution failures remain
 `unresolved` unless a loaded asset explicitly contradicts its structural contract
 (`invalid_asset`). A missing file or simulator failure is not proof of bad geometry.
+The loader accepts both published collider tags, scalar `b1:sourceComponent` and
+array `b1:sourceComponents`, matching preparation verification. The earlier
+`door-with-frame-2f2f149f` rejection was a loader compatibility defect; its
+existing collision meshes must be requalified, not rebuilt.
 
 The surface trajectory follows the actual leaf colliders at the frozen fraction
 and height, retaining tool +X into the panel and +Z upward. Actual frame/handle
