@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> Nineteen distinct real doors pass preparation and are ready for 5.1: sixteen redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
+> Twenty-five distinct real doors pass preparation and are ready for 5.1: twenty-two redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
 
 ## Objective
 
@@ -891,10 +891,53 @@ source/selection hashes, recipe, front/rear images and physics evidence. The
 original USDZ and all diagnostic attempts remain. This is isolated asset
 preparation; robot/expert qualification and the 45-degree criterion were not run.
 
+**Icevanilla wooden interior PSX pack review (2026-09-24).**
+[Low-Poly PSX Style Wooden Interior Doors Pack](https://sketchfab.com/3d-models/low-poly-psx-style-wooden-interior-doors-pack-02e442c6d4a24df29624808d058f010a)
+shows nine framed single leaves. The page and download modal credit Icevanilla
+under CC BY 4.0; the local USDZ metadata agrees. Original FBX and converted USDZ,
+glTF and GLB are offered. The only packaged dependency is a 4096 × 1024 atlas
+with no separately stated terms. The original USDZ checksum is
+`3d873e3183ccfab21b6b15d08240815955eddf42fd5ed020fb40cfe742be6ce0`.
+
+Source parts `001` and `009` exactly match geometry fingerprints of the earlier
+accepted Icevanilla essential-pack doors and are excluded. Parts `003` and `004`
+have identical panel geometry; `004` changes its atlas appearance and slightly
+repositions the same handle, so it is excluded as an appearance/placement
+variant. The six remaining panels `002`, `003`, `005`–`008` have distinct geometry
+from one another and from the prior accepted corpus. Each selected frame, leaf
+and pair of handles has its own component inventory and remains collidable.
+
+All six use a proper Y-up to Z-up transform, uniform 1.015 overall scale and a
+reviewed 1.3% moving assembly fit. The first recipes placed the pivot at the
+depth coordinate of a different pack; each stopped near 11 degrees on leaf/jamb
+contact. The corrected pivot comes from each selected leaf's opening face,
+without a collision mask or threshold change. The initial attempts are kept.
+There is no separately modeled projecting latch bolt, so no collision is
+excluded in the closed-unlatched task state. The inferred hinge and clearance
+fit are simulation approximations, not measurements of original hardware.
+
+| Part | Source triangles | Accepted attempt | Prepared W × H × T (m) | Isolated stop |
+| --- | ---: | --- | --- | ---: |
+| `002` | 460 | `000005` | 0.757 × 1.809 × 0.086 | 121.2° |
+| `003` | 340 | `000005` | 0.757 × 1.809 × 0.086 | 121.2° |
+| `005` | 340 | `000005` | 0.757 × 1.809 × 0.086 | 121.2° |
+| `006` | 484 | `000005` | 0.757 × 1.809 × 0.086 | 121.2° |
+| `007` | 440 | `000005` | 0.757 × 1.809 × 0.086 | 121.2° |
+| `008` | 340 | `000005` | 0.757 × 1.809 × 0.086 | 121.2° |
+
+Each accepted attempt passes static checks, both actually viewed RTX previews
+and one short isolated RTX 4090 `cuda:0` physics run. Each reaches its geometric
+stop with three exact resets, zero frame drift and zero reported penetration.
+The six redistributable doors bring the prepared pool to **twenty-five**. Their
+`assets/doors/b1/psx-interior-wood-*-02e442c/` records contain selection,
+provenance, recipe, previews and physics evidence. No robot/expert qualification
+or 45-degree admission check was run; final 24-door corpus selection remains in 5.1.
+
 #### Key Decisions
 
-- Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
-  unused reserve payload. The user controls the sequential URL intake.
+- Target 24 expert-qualified unique identities in the final corpus, 12 left- and
+  12 right-hinged, with no unused reserve payload. The 5.0 preparation pool can
+  exceed 24 before the frozen 5.1 selection. The user controls the URL intake.
 - Accept CC0/CC BY 4.0 and dependencies for redistributable assets; admit reviewed
   Sketchfab Free Standard sources only as local-only and the specifically approved
   CC BY-NC-ND source as private/noncommercial. Hold unclear terms as unresolved
@@ -920,14 +963,14 @@ preparation; robot/expert qualification and the 45-degree criterion were not run
 
 #### Problems / Limitations
 
-Preparation is verified on the documented fixtures and nineteen real doors in the
+Preparation is verified on the documented fixtures and twenty-five real doors in the
 closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
 The Ahmed sayed candidate's earlier license rejection and preparation blockers
 are superseded by local-only scope and the reviewed GLB repair. The initial batch
-has grown to nineteen technically ready doors; sixteen are redistributable.
+has grown to twenty-five technically ready doors; twenty-two are redistributable.
 Void Frame Studio's initial source-license failure and geometry
 attempt failures are superseded by its private/noncommercial admission and
 attempt `000008`. Inferred pivots and clearance fitting do not reconstruct real
@@ -1013,7 +1056,7 @@ both handednesses; right hinges expose a proper 180-degree X rotation.
 `gpu-obstruction/` records the expected physical rejection. FBX front/rear preview
 images are retained under `formats/fbx/prepared/` and were visually inspected.
 That infrastructure run produced no real candidate payload, expert reference,
-split or learned dataset. Nineteen real candidate records now have prepared
+split or learned dataset. Twenty-five real candidate records now have prepared
 attempts under `assets/doors/b1/`; their accepted pointers and individual
 preparation reviews carry the current per-door evidence.
 

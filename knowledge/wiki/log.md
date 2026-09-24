@@ -695,3 +695,13 @@ Nineteen distinct doors are ready for 5.1; original USDZ, diagnostic attempts an
 
 Verified nineteen ready pointers and scope counts, eleven D1 evidence hashes, the unchanged original USDZ checksum and passing normalize/static/preview/physics reports. Thirty-one focused tests, Ruff, wiki links/index and Git whitespace checks pass.
 No raw knowledge, earlier accepted asset or frozen Phase 4 configuration changed.
+
+## 2026-09-24 — update : Wooden interior PSX pack preparation
+
+Reviewed Icevanilla's nine-door CC BY 4.0 pack, excluded two exact prior-corpus duplicates and one appearance/handle-placement variant, and prepared six distinct framed leaves.
+All six pass static checks, viewed RTX previews and one isolated RTX 4090 run to 121.2 degrees; twenty-five doors are technically ready, with robot/expert qualification pending.
+
+## 2026-09-24 — lint : Wooden interior pack evidence and wiki
+
+Verified all six accepted pointers, RTX reports and evidence hashes; the two inspected exact duplicates remain unpromoted, and twenty-five prepared scopes reconcile to 22/2/1.
+Edited wiki links, repository references and Markdown whitespace pass focused checks; source downloads, prior accepted attempts, raw knowledge and frozen Phase 4 remain unchanged.
