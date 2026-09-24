@@ -226,6 +226,18 @@ def validate_recipe(recipe, component_count):
         not pairs or bool(recipe.get("hinge_contact_review")),
         "Review the internal hinge interfaces represented by the revolute joint",
     )
+    jamb = recipe.get("hinge_jamb_components", [])
+    require(
+        isinstance(jamb, list)
+        and len(set(jamb)) == len(jamb)
+        and all(type(i) is int and i in groups["Frame"] for i in jamb)
+        and set(jamb) <= {fixed for _, fixed in pairs},
+        "Hinge jamb components must be reviewed fixed participants in contact exclusions",
+    )
+    require(
+        not jamb or bool(recipe.get("hinge_jamb_review")),
+        "Review local hinge contact with the modeled jamb",
+    )
     grouped = set()
     for batch in recipe.get("collider_groups", []):
         members = batch["components"]
@@ -256,27 +268,37 @@ def validate_recipe(recipe, component_count):
 def hinge_collision_pairs(recipe, collision, components):
     """Resolve reviewed bearing interfaces to hull pairs; keep all other contacts."""
     excluded = {tuple(pair) for pair in recipe.get("hinge_contact_exclusions", [])}
+    jamb = set(recipe.get("hinge_jamb_components", []))
     result = set()
     if not excluded:
         return result
     hardware = {i for pair in excluded for i in pair}
     found = set()
+    local_jamb_hulls = set()
     for name in GROUPS:
-        for points, ids in zip(collision[name], components[name], strict=True):
+        for index, (points, ids) in enumerate(zip(collision[name], components[name], strict=True)):
             if hardware.intersection(ids):
                 require(len(ids) == 1, "Filtered hinge hardware cannot share a collider group")
-                # A local bearing exception must never suppress a leaf or jamb collider.
+                # Only reviewed local jamb cells may join compact bearing contacts.
                 radius = np.linalg.norm(
                     np.asarray(points)[:, :2] - np.asarray(recipe["hinge_m"])[:2], axis=1
                 )
+                if name == "Frame" and ids[0] in jamb and radius.max() > 0.1:
+                    continue
                 require(
                     radius.max() <= 0.1, "Filtered hardware must lie within 10 cm of hinge axis"
                 )
                 found.update(ids)
+                if name == "Frame" and ids[0] in jamb:
+                    local_jamb_hulls.add(index)
     require(found == hardware, "Missing filtered hinge collider")
     for i, moving in enumerate(components["Panel"]):
         for j, fixed in enumerate(components["Frame"]):
-            if len(moving) == len(fixed) == 1 and (moving[0], fixed[0]) in excluded:
+            if (
+                len(moving) == len(fixed) == 1
+                and (moving[0], fixed[0]) in excluded
+                and (fixed[0] not in jamb or j in local_jamb_hulls)
+            ):
                 result.add((i, j))
     return result
 

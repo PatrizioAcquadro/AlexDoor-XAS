@@ -314,6 +314,31 @@ def test_hinge_interfaces_preserve_leaf_contacts_and_the_geometric_stop():
         hinge_collision_pairs(data, groups, ids)
 
 
+def test_reviewed_hinge_jamb_filters_only_local_collider_pair():
+    from itertools import product
+
+    data = recipe()
+    data.update(
+        components={"Panel": [0, 2], "Frame": [1], "Handle": []},
+        leaf_components=[0],
+        hinge_m=[0.05, -0.5, 0],
+        hinge_contact_exclusions=[[2, 1]],
+        hinge_contact_review="Modeled bearing clips its jamb seat.",
+        hinge_jamb_components=[1],
+        hinge_jamb_review="Only the local jamb cell at the hinge is filtered.",
+    )
+    validate_recipe(data, 3)
+    far = np.array(list(product([-0.1, 0.1], [-0.8, -0.6], [0, 2])))
+    local = np.array(list(product([0.04, 0.06], [-0.52, -0.48], [0, 2])))
+    bearing = np.array(list(product([0.045, 0.055], [-0.51, -0.49], [0.3, 0.4])))
+    leaf = np.array(list(product([-0.02, 0.02], [-0.4, 0.4], [0, 2])))
+    groups = {"Frame": [far, local], "Panel": [leaf, bearing], "Handle": []}
+    ids = {"Frame": [[1], [1]], "Panel": [[0], [2]], "Handle": []}
+    assert hinge_collision_pairs(data, groups, ids) == {(1, 1)}
+    with pytest.raises(PreparationError, match="10 cm"):
+        hinge_collision_pairs({**data, "hinge_jamb_components": []}, groups, ids)
+
+
 def test_attempts_never_overwrite_sources_or_previous_outputs(tmp_path):
     a = new_attempt(tmp_path, "door")
     (a / "door.usda").write_text("accepted")
