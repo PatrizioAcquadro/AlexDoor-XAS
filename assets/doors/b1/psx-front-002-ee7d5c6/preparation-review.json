@@ -1,0 +1,107 @@
+{
+  "status": "pass",
+  "decision": "ready_for_5.1",
+  "distribution_scope": "redistributable",
+  "source_part": "Front_Door_002",
+  "source_sha256": "4a61ee2b8533a9a4635be61255151070a6498fb77a9593d8a27d45ff292360e8",
+  "pack_original_sha256": "82cf4a88842596394075c87b8c922293567878de9aefeaec61b8ee55008b498a",
+  "selection_attempt": "attempts/000001",
+  "inspection_attempt": "attempts/000002",
+  "attempt": "attempts/000003",
+  "summary": "Distinct CC BY 4.0 single-leaf front door passes Subphase 5.0. Brown entry leaf with two narrow upper glazed insets, lower moldings and paired pulls. Robot/expert qualification remains pending.",
+  "measurements": {
+    "source_triangles": 734,
+    "connected_components": 9,
+    "texture_max_px": 4096,
+    "geometry_fingerprint": "ae1f351a7968484e5cf374fbbb4aac95fc2494914bcce11f421bcf84b391bd85",
+    "handedness": "left",
+    "prepared_visual_triangles": 734,
+    "prepared_dimensions_m": {
+      "width_m": 0.8149539312472357,
+      "height_m": 1.9474290041791675,
+      "thickness_m": 0.09236942365821899
+    },
+    "mechanical_limit_deg": 166.2
+  },
+  "component_review": {
+    "frame": "Fixed collidable source components [0]; modeled jamb/header partitioned where specified.",
+    "panel": "Moving collidable slab/glazing components [1, 2].",
+    "handles": "Collidable source handle components [3, 4, 5, 6, 7, 8].",
+    "unlatched": "No separate projecting latch/lock bolt identified; no collision excluded."
+  },
+  "modifications": [
+    "Select original Front_Door_002 and its matching frame from the CC BY USDZ; omit the 003 double-door and other displays, retain the packaged atlas.",
+    "Apply a proper Y-up to Z-up rotation and 1.000 uniform overall scale, with the modeled frame floor and selected opening as canonical origin; no reflection.",
+    "Infer the left-hand revolute axis opposite the source handle at measured leaf opening-face x=0.051590 m; no physical hinge dimensions are claimed.",
+    "Apply 1.3% uniform Panel/Handle clearance fitting about this selected leaf center. Keep all modeled leaf, glass, frame and handle collisions.",
+    "Partition the modeled fixed frame component 0 at the measured jamb/header profile. Fixed sidelight glass/panel stays with Frame where present.",
+    "Begin closed and already unlatched; no separate projecting latch/lock bolt is identified."
+  ],
+  "normalization": "pass",
+  "static": "pass",
+  "normalized_preview": "pass, both images viewed",
+  "physics": "pass",
+  "promotion": "ready_for_5.1",
+  "expert_qualification": "not_run",
+  "physics_results": {
+    "device": "cuda:0",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "max_reset_deg": 0.0,
+    "max_reset_speed": 0.0,
+    "passive_drift_deg": 0.0002003846195179872,
+    "frame_drift_m": 0.0,
+    "frame_rotation_deg": 0.0,
+    "hinge_error_m": 1.0104330385729554e-06,
+    "penetration_m": 0.0,
+    "maximum_deg": 166.1999902815391,
+    "mechanical_limit_deg": 166.2,
+    "resets": 3
+  },
+  "limits": [
+    "Ideal pivot inferred at source opening face, not measured hinge hardware.",
+    "Uniform moving-assembly clearance fit is a documented simulation approximation.",
+    "Isolated stop is geometry evidence; no robot/expert qualification was run."
+  ],
+  "evidence": [
+    {
+      "path": "source-evidence.json",
+      "sha256": "1a03d76fe687e9fd943b1da3567dcd15d8f2016711cf248c21659a8fbf0ece64"
+    },
+    {
+      "path": "attempts/000001/selection-review.json",
+      "sha256": "6842a22ecb02125b9ce365720b8f2d7b685c91adaa5a8a91806b592cfb5fd325"
+    },
+    {
+      "path": "attempts/000002/inspect.json",
+      "sha256": "58186ab9792f1f1f0658a038c338b8fdd854c54e224c8d459a155ce8e36e04dd"
+    },
+    {
+      "path": "recipe.json",
+      "sha256": "417e90e9f5e821ad973e78580d830437fa8d64a1a9bba8951a80c3b8ca65a33a"
+    },
+    {
+      "path": "attempts/000003/normalize.json",
+      "sha256": "17a290722e1af12f5db2f8c6835f7b7f6e38a28ee23b1ff3cea0d3ecf2b1b36a"
+    },
+    {
+      "path": "attempts/000003/static.json",
+      "sha256": "d25f7131f4c1ba7c9cbd574ac7ef0c00eee1208e045e3dba4aa207a1cd5990eb"
+    },
+    {
+      "path": "attempts/000003/preview.json",
+      "sha256": "de82c9c8b05c9daca983de01163185eee7bfd633b8c61bcb05cc323348595d32"
+    },
+    {
+      "path": "attempts/000003/physics.json",
+      "sha256": "7aed925fecc49dae74b24aa7044ec41dc439897209a4ccef9ca7d8a1139db345"
+    },
+    {
+      "path": "attempts/000003/preview-front.png",
+      "sha256": "178deac337689101af5c79200aa7380d3f3aaf794c108bc648cf7571c4994374"
+    },
+    {
+      "path": "attempts/000003/preview-rear.png",
+      "sha256": "167330f36dd9af612705d180a33f7184e9c53d8f44e49a187c829af5a87d46a3"
+    }
+  ]
+}

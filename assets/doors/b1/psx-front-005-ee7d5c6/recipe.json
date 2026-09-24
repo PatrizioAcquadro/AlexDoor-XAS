@@ -1,0 +1,104 @@
+{
+  "handedness": "right",
+  "scale": 1.0,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    0,
+    4.935230443218032,
+    -0.00837271955625396
+  ],
+  "opening_center_source": [
+    -4.935230443218032,
+    0.00837271955625396,
+    0
+  ],
+  "hinge_m": [
+    0.05158918073486257,
+    -0.4110947361676907,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.8163583413259107,
+    "height_m": 1.968856981673739,
+    "thickness_m": 0.09171428629931822
+  },
+  "components": {
+    "Frame": [
+      0,
+      1,
+      2
+    ],
+    "Panel": [
+      7,
+      8
+    ],
+    "Handle": [
+      3,
+      4,
+      5,
+      6
+    ]
+  },
+  "leaf_components": [
+    8
+  ],
+  "clear_aperture_m": [
+    [
+      -0.3910947361676907,
+      0.04078199104956858
+    ],
+    [
+      0.3910947361676907,
+      2.0037022368781203
+    ]
+  ],
+  "colliders": {
+    "2": {
+      "partitions": {
+        "y": [
+          -0.4099,
+          0.4137
+        ],
+        "z": [
+          2.0167609821647314
+        ]
+      }
+    }
+  },
+  "moving_scale": 0.98,
+  "moving_scale_center_m": [
+    0.05158918073486257,
+    0.0,
+    1.0222421139638442
+  ],
+  "moving_translation_m": [
+    0,
+    -0.0,
+    0
+  ],
+  "clearance_review": "The source slab width is 0.8330 m, with a matched modeled frame. A reviewed 2% uniform Panel/Handle fit gives approximately 8.3 mm side retreat from the original leaf outline. The modeled jamb/header profile is partitioned without removing its geometry. The pivot x=0.051589 m comes from this selected leaf opening face, not another pack. The leaf/frame center offset before fit is 0.00 mm; the selected leaf is centered afterward. Verify actual sweep, visuals and GPU contact before admission. Measured opening-side jamb faces require y cuts -0.4099/0.4137 m; the previous width-based cut left an unphysical central frame collider filling the opening. The 1.3% fit left contact at the closed hinge-side jamb (001) or a near-closed sweep interference (005); the documented 2% fit is the maximum considered.",
+  "modifications": [
+    "Select original Front_Door_005 and its matching frame from the CC BY USDZ; omit the 003 double-door and other displays, retain the packaged atlas.",
+    "Apply a proper Y-up to Z-up rotation and 1.000 uniform overall scale, with the modeled frame floor and selected opening as canonical origin; no reflection.",
+    "Infer the right-hand revolute axis opposite the source handle at measured leaf opening-face x=0.051589 m; no physical hinge dimensions are claimed.",
+    "Apply 2% uniform Panel/Handle clearance fitting about this selected leaf center. Keep all modeled leaf, glass, frame and handle collisions.",
+    "Partition the intact fixed frame component 2 at y=-0.4099/0.4137 m, 2 mm inside its measured opening-side jamb faces, plus the measured header. Keep frame and fixed sidelight collisions.",
+    "Begin closed and already unlatched; no separate projecting latch/lock bolt is identified."
+  ]
+}

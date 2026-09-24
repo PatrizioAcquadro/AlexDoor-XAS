@@ -1,0 +1,113 @@
+{
+  "handedness": "left",
+  "scale": 1.0,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    0,
+    -5.317018999751498,
+    0.005505122084297209
+  ],
+  "opening_center_source": [
+    5.317018999751498,
+    -0.005505122084297209,
+    0
+  ],
+  "hinge_m": [
+    0.05158966187371118,
+    0.40747694444031424,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.8149538888806285,
+    "height_m": 1.9474288033300602,
+    "thickness_m": 0.09236938883855772
+  },
+  "components": {
+    "Frame": [
+      0
+    ],
+    "Panel": [
+      5,
+      6
+    ],
+    "Handle": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "leaf_components": [
+    6
+  ],
+  "clear_aperture_m": [
+    [
+      -0.3874769444403142,
+      0.06919855757577541
+    ],
+    [
+      0.3874769444403142,
+      1.9966273609058358
+    ]
+  ],
+  "colliders": {
+    "0": {
+      "partitions": {
+        "y": [
+          -0.41184391533973075,
+          0.41184391533973075
+        ],
+        "z": [
+          2.0094523732884553
+        ]
+      }
+    }
+  },
+  "moving_scale": 0.987,
+  "moving_scale_center_m": [
+    0.05158966187371118,
+    0.002354143634654804,
+    1.0329129592408055
+  ],
+  "moving_translation_m": [
+    0,
+    -0.002354143634654804,
+    0
+  ],
+  "clearance_review": "The source slab width is 0.8257 m, with a matched modeled frame. A reviewed 1.3% uniform Panel/Handle fit gives approximately 5.4 mm side retreat from the original leaf outline. The modeled jamb/header profile is partitioned without removing its geometry. The pivot x=0.051590 m comes from this selected leaf opening face, not another pack. The leaf/frame center offset before fit is 2.35 mm; the selected leaf is centered afterward. Verify actual sweep, visuals and GPU contact before admission.",
+  "modifications": [
+    "Select original Front_Door_008 and its matching frame from the CC BY USDZ; omit the 003 double-door and other displays, retain the packaged atlas.",
+    "Apply a proper Y-up to Z-up rotation and 1.000 uniform overall scale, with the modeled frame floor and selected opening as canonical origin; no reflection.",
+    "Infer the left-hand revolute axis opposite the source handle at measured leaf opening-face x=0.051590 m; no physical hinge dimensions are claimed.",
+    "Apply 1.3% uniform Panel/Handle clearance fitting about this selected leaf center. Keep all modeled leaf, glass, frame and handle collisions.",
+    "Partition the modeled fixed frame component 0 at the measured jamb/header profile. Fixed sidelight glass/panel stays with Frame where present.",
+    "Begin closed and already unlatched; no separate projecting latch/lock bolt is identified.",
+    "Cook the two surface-disconnected parts of the same leaf (5,6) as one collidable panel solid; retain both visuals and their collision coverage."
+  ],
+  "collider_groups": [
+    {
+      "components": [
+        5,
+        6
+      ],
+      "approximation": "convexHull",
+      "review": "Component 5 is a two-triangle decorative surface within the component-6 leaf envelope, not a separate mechanical body. Bake them together as one collidable panel solid; keep both visual components and their collision coverage. This avoids PhysX extending the separately cooked thin surface 6.7 mm beyond the visual leaf (attempt 000003 static diagnostic). The decomposition still produces the same 6.7 mm outward hull; a single convex hull of the complete solid is appropriate for this thin low-poly panel."
+    }
+  ]
+}

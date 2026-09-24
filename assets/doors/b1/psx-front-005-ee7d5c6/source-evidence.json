@@ -1,0 +1,76 @@
+{
+  "reviewed_on": "2026-09-24",
+  "page_url": "https://sketchfab.com/3d-models/low-poly-psx-style-front-doors-pack-ee7d5c6d36404849a459c84c3d004a0c",
+  "page_review": {
+    "title": "Low-Poly PSX Style Front Doors Pack",
+    "author": "Icevanilla",
+    "author_profile": "https://sketchfab.com/vanillao03",
+    "description": "Seven low-poly PSX-style front doors for exterior/entrance game scenes.",
+    "license_label": "CC Attribution",
+    "license_url": "https://creativecommons.org/licenses/by/4.0/",
+    "download_modal_terms": "Author must be credited. Commercial use is allowed.",
+    "triangles_displayed": 7800,
+    "vertices_displayed": 3800,
+    "visible_geometry": "Seven framed front-door configurations in a row; the second is double-leaf and excluded. The other six show single leaves with glass/panel styles.",
+    "downloads_displayed": [
+      "original .fbx (9 MB)",
+      "converted .usdz (1 MB)",
+      "converted .gltf (3 MB)",
+      "converted .glb (4 MB, 4K texture)",
+      "converted .glb (809 kB, 1K texture)"
+    ]
+  },
+  "source_part": "Front_Door_005",
+  "local_payload": {
+    "path": "/home/pacquadr/Downloads/Low-Poly_PSX_Style_Front_Doors_Pack.usdz",
+    "sha256": "82cf4a88842596394075c87b8c922293567878de9aefeaec61b8ee55008b498a",
+    "bytes": 1188687,
+    "archive_entries": [
+      "scene.usdc",
+      "0/Doors_baseColor.jpg"
+    ],
+    "embedded_metadata": "Author vanillao03, CC-BY-4.0 and matching source URL."
+  },
+  "selected_source": {
+    "retained_root_children": [
+      "Front_Door_005",
+      "Front_Doorframe_006"
+    ],
+    "excluded_root_children": [
+      "Front_Door_001",
+      "Front_Door_002",
+      "Front_Door_003",
+      "Front_Door_003_001",
+      "Front_Door_006",
+      "Front_Door_007",
+      "Front_Door_008",
+      "Front_Doorframe_002",
+      "Front_Doorframe_003",
+      "Front_Doorframe_005",
+      "Front_Doorframe_007",
+      "Wooden_Doorframe_001_001",
+      "Wooden_Doorframe_003_001"
+    ],
+    "selected_source": "assets/doors/b1/psx-front-005-ee7d5c6/attempts/000001/selected-source/scene.usdc",
+    "selected_source_sha256": "faa9962e0b55a34385bb8b5929dcbe43ec79e6224c9f021306ecf10b129ef973",
+    "retained_texture": "assets/doors/b1/psx-front-005-ee7d5c6/attempts/000001/selected-source/0/Doors_baseColor.jpg",
+    "retained_texture_sha256": "8e0c9834267d9f79e59f15dee5b65c150a182b63ab97d795c0d6217be5ff510f",
+    "operation": "Keep the named single leaf with its matching frame and glass meshes; exclude the separate Front_Door_003 double-door assembly. Preserve original package and shared atlas."
+  },
+  "license_dependency_review": "One 4096 x 1024 JPG atlas packaged in CC BY 4.0 USDZ, without separately stated dependency terms; metadata matches the page.",
+  "duplicate_resolution": "Geometry fingerprint 0ca69feddd7c1b6c72130e458078d6f99f2cd687313cf4bef9ea6a6ea6326e96 is distinct from the 25 previously accepted doors and the other selected parts. Double-leaf 003 is excluded; 006 is an exact duplicate of psx-front-20d5505.",
+  "inspection": {
+    "attempt": "attempts/000002",
+    "source_triangles": 1528,
+    "connected_components": 9,
+    "texture_max_px": 4096,
+    "geometry_fingerprint": "0ca69feddd7c1b6c72130e458078d6f99f2cd687313cf4bef9ea6a6ea6326e96",
+    "source_sha256": "faa9962e0b55a34385bb8b5929dcbe43ec79e6224c9f021306ecf10b129ef973"
+  },
+  "preparation": {
+    "attempt": "attempts/000004",
+    "visual": "front and rear RTX captures actually viewed",
+    "physics": "one isolated RTX 4090 pass on cuda:0",
+    "scope": "ready_for_5.1 after promotion; no robot/expert run"
+  }
+}
