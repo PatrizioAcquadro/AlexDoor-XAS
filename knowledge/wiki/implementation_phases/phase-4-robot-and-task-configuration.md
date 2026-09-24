@@ -120,20 +120,27 @@ least 0.02 N and an authorized contact point within 0.1 mm in both 120 Hz subste
 an in-panel distal footprint, closed grippers, no forbidden contact,
 and material-pose errors within 10 mm / 5 degrees. The reported angle is the
 **minimum angle over a contiguous 0.5 s interval**; sustain does not require an
-exactly motionless panel. Hold has a 3 s budget. Its reference now starts at the
-last push command and smoothly decelerates from the nominal angular speed to
-zero over 3 s, capped by the mechanical stop. It does not chase measured panel
-drift or introduce an entry target jump; a complete valid 0.5 s window is still
-required before release. Release retraces an achieved pose behind the panel and verifies unloaded
-separation of at least 1 cm.
+exactly motionless panel. Hold has a 3 s budget. It follows the same material point
+on the moving panel while smoothly removing the opening lead over 3 s. A unilateral
+push cannot brake an inertially coasting door by slowing the commanded angle alone.
+If filtered load falls below 0.10 N, bounded normal support restores contact at no
+more than 6 mm/s, up to a 7.5 mm virtual compression target; all actual contact,
+force and pose limits remain unchanged. A complete valid 0.5 s hold window is
+required before release. Release retraces an achieved pose behind the panel and
+verifies unloaded separation of at least 1 cm.
 
 The normal-force thresholds are 0.02 N for loaded contact, 0.10 N for declining
 mean load over 0.1 s, 50 N for a soft safety stop and 80 N for a hard failure.
 After the five-second push transient, a 2.5 mm material-drift reserve or half the
 orientation budget also triggers a safety stop. Material error includes a
 nonnegative linear trend over the last 0.5 s, projected through the 3 s hold budget.
-This reserves room before tracking deteriorates; decreasing error is not amplified.
-The projected error is retained in each push trace. These common revisions address
+A growing trend triggers a local IK check of the target after coasting at the
+measured angular speed through the hold budget, capped by the physical stop; early
+stopping requires that this target cannot retain the tracking reserve. A reachable
+endpoint alone does not override the original measured-error/orientation guards.
+This avoids premature stops from extrapolation alone. The forecast and checked
+endpoint errors are retained in push traces; a local solve is not a global
+unreachability proof. These common revisions address
 the repeated animated-door hold failures; earlier references need fresh pairs. There is no 45- or 50-degree termination condition. Mechanical
 stop, locally evidenced joint constraint, safety stop, lost contact, solver/tracking
 stall, timeout and invalid physics remain distinct; unresolved stops cannot qualify.

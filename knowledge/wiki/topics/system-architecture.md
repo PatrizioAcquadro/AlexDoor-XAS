@@ -40,6 +40,13 @@ cycles for an expert angle, and publishes a compact result in `prepared.json`.
 All detailed qualification evidence stays in the verification cache, never in
 learning data. The same sustained-window measurement serves synthetic and real
 doors; a valid final hold/release is required independently of the maximum angle.
+The geometry adapter accepts scalar and array collider-component tags from both
+published preparation layouts. The expert reserves local tracking margin for
+holding and follows the moving material point while removing opening lead, with
+bounded normal contact support. These simulator-truth checks belong only to the
+scripted expert; they do not extend learned-policy observations. See
+[[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] for the
+common controller and unchanged validity limits.
 
 `qualification/contracts.py` owns shared source admission limits and geometry
 validation; preparation and verification use the same bounds. Promotion stages

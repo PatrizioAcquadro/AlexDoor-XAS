@@ -297,10 +297,10 @@ source/prepared assets are preserved; only expert summaries change.
 Earlier attempts remain linked through `previous_evidence`. The original left
 candidate (`door-2738468b94d74c5f`) has a deep frame that intersects the pedestal
 at the revised placement; this is setup exclusion, not an invalid asset. The
-original right candidate (`modern-door-2fb8d024`, still `local_only`) retains its
-older unresolved pair: one of two trials failed final holding. That result used
-the earlier zero-yaw setup and has not been rechecked with the final placement;
-it is not a current expert reference. The substitute left's earlier valid
+original right candidate (`modern-door-2fb8d024`, still `local_only`) now passes
+both fresh cycles at 49.87672 degrees with the corrected common hold. Evidence is
+`expert/modern-door-2fb8d024/20260924T223701.060503Z/` under the verification cache.
+Its older unresolved pairs remain superseded. The substitute left's earlier valid
 44.23-degree pair is also superseded, not combined with the new pair.
 
 The following records describe the paused campaign before corrective reruns. The subsequent-door campaign
@@ -339,13 +339,14 @@ requires fresh complete pairs for affected references; compare archived
 `setup.json` before reusing an earlier result.
 
 The repeated animated-door hold failures exposed insufficient tracking reserve
-at the end of pushing. A fixed target lost contact with the coasting panel;
-deceleration alone still entered hold too late. The common probe now projects
-the recent material-error trend through its hold budget and decelerates the final
-command continuously. Contact/force/pose validity thresholds are unchanged; see
-[[phase-4-robot-and-task-configuration|Phase 4]]. A fresh `animated-door-1` pair
-passes at 56.96452 degrees in both trials. Other affected references are being
-rechecked under the same revised probe; earlier failed pairs remain in the cache.
+at the end of pushing. A fixed or decelerating angular target lost contact with
+the coasting panel. The common probe now checks the local reach of the projected
+coasting target and follows the moving material point while smoothly removing
+opening lead, with bounded normal support if load declines. Contact/force/pose
+validity thresholds are unchanged; see [[phase-4-robot-and-task-configuration|Phase 4]].
+The modern-door pair passes at 49.87672 degrees with complete holding and release;
+other affected references are being rechecked under the same revised probe.
+Intermediate and earlier failed pairs remain in the cache.
 
 The PSX `front-005` pre-cycle error came from leaf ownership metadata: component
 7 is existing collidable glazing, but only the surrounding component 8 was listed

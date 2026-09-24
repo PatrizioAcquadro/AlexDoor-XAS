@@ -140,11 +140,10 @@ class ContactLoad:
         return gap is not None and gap <= self.maximum_gap and self.force >= self.minimum_force
 
 
-def hold_reference(start, speed, elapsed, duration, mechanical_stop):
-    """Decelerate the commanded angle continuously, without chasing panel drift."""
+def hold_reference(angle, initial_lead, elapsed, duration, mechanical_stop):
+    """Follow the moving material point while smoothly removing opening lead."""
     u = float(np.clip(elapsed / duration, 0.0, 1.0))
-    # Integral of a smooth velocity ramp from `speed` to zero.
-    return min(start + speed * duration * (u - u**3 + 0.5 * u**4), mechanical_stop)
+    return min(angle + initial_lead * (1.0 - u * u * (3.0 - 2.0 * u)), mechanical_stop)
 
 
 def tracking_reserve(samples, horizon):
@@ -154,6 +153,15 @@ def tracking_reserve(samples, horizon):
     denominator = np.dot(centered, centered)
     slope = np.dot(centered, errors) / denominator if denominator > 0 else 0.0
     return float(errors[-1] + max(0.0, slope) * horizon)
+
+
+def hold_contact_support(compression, force, setup, dt):
+    """Restore light normal loading with bounded motion, without relaxing validity."""
+    shortage = np.clip(1.0 - force / setup.contact_load_guard_n, 0.0, 1.0)
+    increment = setup.compression_m * dt / setup.sustain_s * shortage
+    return float(
+        min(compression + increment, setup.position_tolerance - setup.material_drift_guard_m)
+    )
 
 
 def rank_candidates(results, tie_deg):
@@ -469,11 +477,33 @@ def run_probe(env, door, setup, output):
             if abs(angle - door.mechanical_stop) < np.deg2rad(0.5):
                 reason = "mechanical_stop"
                 break
+            hold_blocked = False
+            if elapsed > 5.0 and predicted_error > setup.material_drift_guard_m:
+                # A push-only contact cannot brake an inertially coasting panel.
+                endpoint = min(
+                    reference + max(0.0, traces[-1]["speed"]) * setup.hold_settle_s,
+                    door.mechanical_stop,
+                )
+                end_p, end_r = door.contact_pose(
+                    endpoint, setup.contact_fraction, setup.contact_height, setup.compression_m
+                )
+                _, end_pe, end_re = chain.solve(
+                    chain.array((end_p - root_p) @ root_r)[None],
+                    chain.array(root_r.T @ end_r)[None],
+                    tensor(env.robot.data.joint_pos)[:, env.arm_ids],
+                )
+                traces[-1]["hold_endpoint_error_m"] = float(end_pe[0])
+                traces[-1]["hold_endpoint_orientation_rad"] = float(end_re[0])
+                hold_blocked = (
+                    float(end_pe[0]) > setup.material_drift_guard_m
+                    or float(end_re[0]) > 0.5 * setup.orientation_tolerance
+                )
             if (
                 elapsed > 5.0
                 and window.maximum is not None
                 and (
-                    predicted_error > setup.material_drift_guard_m
+                    traces[-1]["material_error"] > setup.material_drift_guard_m
+                    or hold_blocked
                     or re > 0.5 * setup.orientation_tolerance
                 )
             ):
@@ -502,20 +532,25 @@ def run_probe(env, door, setup, output):
     held_angle = None
     if failure is None:
         held = SustainedAngle(setup.sustain_s)
+        compression = setup.compression_m
+        initial_lead = reference - state[0]
         for tick in range(round(setup.hold_settle_s / dt)):
+            compression = hold_contact_support(compression, contact_load.force, setup, dt)
+            angle = float(tensor(env.door.data.joint_pos)[0, 0])
             target = hold_reference(
-                reference,
-                setup.angular_speed,
+                angle,
+                initial_lead,
                 (tick + 1) * dt,
                 setup.hold_blend_s,
                 door.mechanical_stop,
             )
             state = command(
                 *door.contact_pose(
-                    target, setup.contact_fraction, setup.contact_height, setup.compression_m
+                    target, setup.contact_fraction, setup.contact_height, compression
                 ),
                 "hold",
             )
+            traces[-1]["hold_compression_m"] = compression
             held.update(tick * dt, state[0], state[6])
             if failure:
                 break

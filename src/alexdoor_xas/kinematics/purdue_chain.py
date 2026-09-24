@@ -1,4 +1,4 @@
-"""URDF-derived batched arm kinematics for synthetic expert screening only."""
+"""URDF arm kinematics for expert screening and local hold reachability checks."""
 
 import xml.etree.ElementTree as ET
 

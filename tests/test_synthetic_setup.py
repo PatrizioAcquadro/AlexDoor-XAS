@@ -8,20 +8,20 @@ from scipy.spatial.transform import Rotation
 from alexdoor_xas.qualification.synthetic_probe import SustainedAngle, rank_candidates
 
 
-def test_hold_reference_decelerates_continuously_and_stops_at_fixed_endpoint():
+def test_hold_reference_removes_lead_smoothly_but_tracks_the_moving_surface():
     from alexdoor_xas.qualification.synthetic_probe import hold_reference
 
-    start, speed, duration = 0.9, np.deg2rad(1), 3.0
+    start, lead, duration = 0.9, np.deg2rad(0.3), 3.0
     times = np.linspace(0, duration, 301)
-    angles = np.array([hold_reference(start, speed, t, duration, 2.0) for t in times])
+    angles = np.array([hold_reference(start, lead, t, duration, 2.0) for t in times])
     velocities = np.diff(angles) / np.diff(times)
-    assert angles[0] == start
-    assert velocities[0] == pytest.approx(speed, rel=1e-4)
-    assert np.all(np.diff(velocities) <= 1e-10)
-    assert 0 <= velocities[-1] < speed * 1e-4
-    assert angles[-1] == pytest.approx(start + speed * duration / 2)
-    assert hold_reference(start, speed, 10, duration, 2.0) == angles[-1]
-    assert hold_reference(start, speed, 10, duration, 0.91) == 0.91
+    assert angles[0] == pytest.approx(start + lead)
+    assert np.all(velocities <= 0)
+    assert abs(velocities[0]) < lead * 0.01
+    assert abs(velocities[-1]) < lead * 0.01
+    assert angles[-1] == start
+    assert hold_reference(start + 0.01, lead, duration, duration, 2.0) == start + 0.01
+    assert hold_reference(start, lead, 0, duration, 0.901) == 0.901
 
 
 def test_tracking_reserve_anticipates_growth_but_does_not_amplify_settling():
@@ -30,6 +30,18 @@ def test_tracking_reserve_anticipates_growth_but_does_not_amplify_settling():
     assert tracking_reserve([(0, 0.001), (0.5, 0.002)], 3) == pytest.approx(0.008)
     assert tracking_reserve([(0, 0.003), (0.5, 0.002)], 3) == pytest.approx(0.002)
     assert tracking_reserve([(0, 0.002)], 3) == pytest.approx(0.002)
+
+
+def test_hold_support_only_restores_low_load_and_is_bounded():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, hold_contact_support
+
+    setup = ProbeSetup()
+    initial = setup.compression_m
+    assert hold_contact_support(initial, setup.contact_load_guard_n, setup, 1 / 60) == initial
+    assert hold_contact_support(initial, 1.0, setup, 1 / 60) == initial
+    assert hold_contact_support(initial, 0.0, setup, 1 / 60) == pytest.approx(initial + 0.0001)
+    maximum = setup.position_tolerance - setup.material_drift_guard_m
+    assert hold_contact_support(maximum, 0.0, setup, 1 / 60) == maximum
 
 
 def test_contact_load_tolerates_impulse_chatter_but_rejects_unloaded_or_detached_points():
