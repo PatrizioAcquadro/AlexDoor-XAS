@@ -1,7 +1,8 @@
 # Phase 5 — Door Corpus and Qualification
 
 Subphase 5.0 is complete for **32 prepared doors**: 29 redistributable, two
-local-only and one private/noncommercial. Expert qualification uses the shared command below; the two-handed pilot is not yet closed.
+local-only and one private/noncommercial. The expert command is implemented, but the two-handed pilot is blocked by initial
+pedestal interference on both selected doors and both agreed substitutes.
 Subphase 5.1 selects the final 24-door, 12/4/8 identity split; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
@@ -19,7 +20,9 @@ Each `assets/doors/b1/<id>/` contains three tracked records:
 
 Local `source/` retains the used source and necessary dependencies. Local
 `prepared/` contains the final USD, materials/textures and front/rear previews.
-All paths are relative to the door folder. Explicit `source_dependencies` in
+Asset payload paths are relative to the door folder. Expert evidence locations
+are machine-local verification-cache paths, documented under 5.1 below. Explicit
+`source_dependencies` in
 recipes resolve relative to the recipe file. Payloads and previews stay outside Git;
 copy the complete folder when moving an asset. License scope lives only in the
 candidate record; technical readiness does not grant redistribution rights.
@@ -247,8 +250,34 @@ surfaces and remains a geometric diagnostic, not learned-perception qualificatio
 5. After a general fix, rerun the entire affected pair. Do not choose favorable
    repetitions. Commit only the relevant tracked result and documentation changes.
 
-This procedure is implemented; successful real-door pilot qualification and the
-final split remain separate acceptance gates.
+This procedure is implemented, but the pilot did not produce a qualified left/right
+pair. Do not call the small-model handoff validated yet. Both widest candidates
+(`modern-door-2fb8d024`, right; `door-2738468b94d74c5f`, left) and their agreed
+substitutes (`door-door-metal-b21ec273`, right; `door-adf292f437f2`, left) have
+positive-volume closed-panel/pedestal intersections under the frozen setup.
+Their records contain exclusions with null expert angles; 28 other doors remain
+unvisited. No source, prepared payload, recipe or common setting was changed.
+
+An independent linear-programming check confirms an interior ball in each
+intersection (radii 7.96–26.10 mm), and original USD vertices match the composed
+geometry. Evidence and the top-view diagram are in
+`~/.cache/alexdoor-xas/verification/expert-pilot-20260924/`. The original right-door
+probe additionally recorded actual forbidden pedestal/panel contact before push;
+its failed pair remains linked through the subsequent report.
+
+The synthetic panel begins at X = 0.065 m; the four collected panels extend back
+across the fixed pedestal's X maximum of 0.01189 m. Synthetic success therefore
+does not establish feasibility of these starting configurations. Further work
+requires either different compatible candidates or an explicitly approved global
+4.1 replan; per-door repositioning remains prohibited.
+
+The pool contains 25 left and seven right doors. After these two right exclusions,
+at most five current right identities remain eligible: at least seven additional
+qualified right identities would be needed if the setup and exclusions stand.
+The final split remains pending; no learning dataset or split has been created.
+The four synthetic pairs were reverified on GPU with independent contact/sustain
+reconstruction and reviewed images; see [[phase-4-robot-and-task-configuration|Phase 4]].
+This does not replace the missing successful real-door pilot.
 
 #### Implementation
 

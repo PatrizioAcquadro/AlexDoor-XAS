@@ -11,8 +11,10 @@ push doors with fixed-base Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
 Purdue control/sensing and the common four-door synthetic setup are implemented.
 The prepared pool contains **32 doors**: 29 redistributable, two local-only and
-one private/noncommercial. Real-door expert qualification, B1 demonstrations,
-Replicator and learned-policy integration remain future work.
+one private/noncommercial. The real-door expert command is implemented, but its
+first pilot is blocked by closed-door/pedestal interference on both selected
+doors and both substitutes. No real door has an expert reference yet. B1
+demonstrations, Replicator and learned-policy integration remain future work.
 
 B0 workflows and local data have been retired. Their scientific conclusions and
 limits remain in the wiki. Reusable action math, recording, dataset and model
@@ -49,6 +51,17 @@ Reports default to `~/.cache/alexdoor-xas/verification/purdue/`; use `--output`
 for another location. `--gate contacts`, `--gate rgbd` and `--no-cameras` are
 focused diagnostics; only the complete gate establishes full runtime evidence.
 
+Qualify one prepared door with the frozen setup:
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/qualify_door.py \
+  --asset-id <id> --device cuda:0 --headless
+```
+
+The command stores a fresh report in the verification cache and updates only the
+expert section of the door record. Read the [Phase 5 procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
+for outcomes, evidence review and the unresolved pilot boundary.
+
 Reusable numerical data APIs require an explicit dataset root and ordered
 `obs_keys` drawn from recorded proprioception. Door state and contacts remain
 diagnostics. Episodes retain `phase2.v2`; policy checkpoints use `v3` and reject
@@ -60,7 +73,7 @@ earlier formats. This is not yet the B1 RGB-D learning pipeline.
 |---|---|
 | `assets/doors/b1/` | Canonical door records and ignored source/final payloads. |
 | `src/alexdoor_xas/` | Runtime, preparation and reusable learning components. |
-| `scripts/` | Supported verification, synthetic setup and door intake. |
+| `scripts/` | Supported verification, synthetic setup, intake and expert qualification. |
 | `configs/` | Frozen common Purdue synthetic probe. |
 | `tests/` | Behavioral regressions and GPU model checks. |
 | `knowledge/` | User-owned raw research and canonical wiki. |

@@ -8,20 +8,23 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Frozen and verified on four synthetic doors. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Shared command implemented; real-door pilot and four-case regression in progress. Final corpus and 12/4/8 split pending. |
+| 5.1 — Expert qualification | Shared command implemented. Both selected doors and both agreed substitutes excluded by initial pedestal interference; no qualified pair. Four synthetic pairs reverified on GPU; final corpus/split pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Complete the pilot of [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]:
-apply the frozen common probe, obtain two valid runs per candidate, derive
-`theta_expert_d` and select the qualified domain. Preserve acquired preparation
-results; do not rerun door preparation merely because metadata was simplified.
+Resolve the initial-geometry blocker in
+[[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]] before
+handing off routine qualification. The frozen pose is incompatible with the four
+pilot doors; no controller or asset retuning was performed. A new scope decision
+must select other compatible candidates or explicitly reopen the common 4.1 setup.
+The remaining 28 doors are untested by the expert workflow.
 
 ## Limits
 
 Preparation does not establish robot reachability. The prison metal door retains
-its 23.1° geometric stop; expert selection has not been performed. Rights scopes
+its 23.1° geometric stop. Four other doors are excluded by the fixed starting
+configuration, not by a measured expert angle. Rights scopes
 constrain sharing independently of technical readiness.
 
 RGB-D acquisition is operational; learned door perception is not. Simulator

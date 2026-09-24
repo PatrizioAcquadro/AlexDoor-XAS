@@ -39,6 +39,7 @@ def test_pair_requires_two_complete_consistent_cycles(trial):
         {"safety_detail": "high_normal_force"},
         {"released": False},
         {"hold_angle_deg": None},
+        {"hold_angle_deg": float("nan")},
         {"passed": False},
     ):
         assert qualify_pair([trial, {**trial, **replacement}])["status"] == "unresolved"

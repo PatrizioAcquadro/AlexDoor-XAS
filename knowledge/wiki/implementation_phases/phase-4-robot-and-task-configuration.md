@@ -287,6 +287,15 @@ although physical traces and numeric visibility checks passed. Paired repetition
 still use one environment with identical resets. Inspect representative rendered
 robot/contact geometry as well as the numeric visibility proxy.
 
+The 5.1 integration regression passes all four paired cases on the RTX 4090,
+with sustained references 66.15/77.91/46.35/48.07 degrees and valid hold/release.
+`~/.cache/alexdoor-xas/verification/expert-synthetic-isolated-20260924/report.json`
+indexes the accepted evidence: the first scene from the initial run and fresh
+processes for the remaining three cases. Independent reconstruction from raw
+contacts confirms all eight sustain measurements. Representative hold images
+were reviewed; the superseded multi-scene visuals remain labeled in their cache.
+This revalidates the synthetic setup, not the excluded real-door pilot.
+
 ## Files
 
 - `src/alexdoor_xas/envs/door_task/door_push_purdue_env.py` and configuration.

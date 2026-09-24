@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Qualify one prepared B1 door with the frozen setup and exactly two trials."""
+"""Check the frozen starting setup, then qualify one prepared door with two trials."""
 
 import argparse
 import json
