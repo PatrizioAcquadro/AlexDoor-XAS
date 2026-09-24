@@ -4,7 +4,7 @@ AlexDoor-XAS changes the action representation while holding the robot, task, ph
 
 Purdue now provides the low-level A1/A2/A3 executor. Phase 6 still owns learned
 A1–A4 integration, estimated object frames, and observations. Reusable
-adapter/export structures remain available; they are not the Purdue policy path.
+action/export structures remain available; they are not the Purdue policy path.
 
 ## Canonical Representations
 
@@ -13,7 +13,7 @@ adapter/export structures remain available; they are not the Purdue policy path.
 | `A1_joint_delta` | Joint-target delta | Robot joint coordinates | Seven-joint Purdue execution; numerical exports |
 | `A2_ee_delta` | End-effector delta | World-frame 6D delta | Full-pose Purdue execution; numerical models |
 | `A3_obj_rel_ee_delta` | Object-relative end-effector delta | Static hinge-anchored door-frame 6D delta | Supplied-frame transform to full-pose A2 |
-| `A4_obj_centric_chunk` | Object-centric contact-intent chunk | Contact targets in the moving panel frame | Reusable export/adapter structures; B1 execution deferred |
+| `A4_obj_centric_chunk` | Object-centric contact-intent chunk | Contact targets in the moving panel frame | Numerical export structure; B1 execution deferred |
 
 Frames are Z-up, distances are meters, angles are radians, and quaternions use `(x, y, z, w)`. The A3 frame is fixed at the hinge with +Z along the hinge axis. A4 contact targets move with the panel.
 
@@ -32,8 +32,8 @@ cache simulator geometry, or impose a panel-derived orientation. A qualification
 expert may later supply truth; a learned policy must obtain its frame through
 the Phase 6 observation/perception boundary.
 
-The historical `AdapterDecision`, rollout and A4 data structures remain tested,
-but the old B0 simulator and calibrated scripted preset have been retired.
+The B0 adapters, rollout driver and scripted controller are retired. Frame
+validation lives with action math and is shared by the Purdue A3 executor.
 There is no connected B1 learned adapter or A4 execution path yet.
 
 ## Contact and Force Semantics
@@ -54,12 +54,4 @@ This controls major task-distribution confounds but does not prove that represen
 
 - `src/alexdoor_xas/action/spaces.py`
 - `src/alexdoor_xas/action/frames.py`
-- `src/alexdoor_xas/adapters/`
 - `tests/test_action_spaces.py`
-- `tests/test_adapters.py`
-
-## Version Notes
-
-- 2026-09-22 — Added operational seven-joint A1 and full-pose A2/A3; retained historical adapters without claiming B1 learned integration.
-
-- 2026-08-13 — Reduced the topic to the four active representation contracts and their maintained adapter/runtime behavior.

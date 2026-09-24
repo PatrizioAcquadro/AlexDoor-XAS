@@ -15,7 +15,7 @@ one private/noncommercial. Real-door expert qualification, B1 demonstrations,
 Replicator and learned-policy integration remain future work.
 
 B0 workflows and local data have been retired. Their scientific conclusions and
-limits remain in the wiki. Reusable action, recording, dataset and model
+limits remain in the wiki. Reusable action math, recording, dataset and model
 components remain; no repository command controls physical hardware.
 
 ## Setup and Verification

@@ -84,3 +84,14 @@ def test_point_round_trip_through_frame() -> None:
     np.testing.assert_allclose(
         frame.point_to_world(frame.point_from_world(point)), point, atol=1e-12
     )
+
+
+def test_object_frame_validation_rejects_missing_nonfinite_and_improper_frames() -> None:
+    assert frames.validate_object_frame(frames.ObjectFrame(np.zeros(3), np.eye(3))) == ""
+    for frame in (
+        None,
+        frames.ObjectFrame(np.array([np.inf, 0.0, 0.0]), np.eye(3)),
+        frames.ObjectFrame(np.zeros(3), np.eye(3) + 0.2),
+        frames.ObjectFrame(np.zeros(3), np.diag([-1.0, 1.0, 1.0])),
+    ):
+        assert frames.validate_object_frame(frame)

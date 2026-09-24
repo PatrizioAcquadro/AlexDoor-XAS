@@ -27,7 +27,7 @@ from isaaclab.utils.math import (
 )
 from pxr import Usd, UsdGeom, UsdPhysics
 
-from alexdoor_xas.action.frames import frame_delta_to_world
+from alexdoor_xas.action.frames import frame_delta_to_world, validate_object_frame
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS, derive_push_geometry
 from alexdoor_xas.kinematics.point_jacobian import link_jacobian_to_point
 from alexdoor_xas.kinematics.pose_control import bounded_joint_step, bounded_pose_step
@@ -250,8 +250,6 @@ class DoorPushPurdueEnv(DirectRLEnv):
     def step_a3(self, delta, frame):
         if self.cfg.action_mode != "A2":
             raise ValueError("A3 requires A2 execution mode")
-        from alexdoor_xas.adapters.a3 import validate_object_frame
-
         if reason := validate_object_frame(frame):
             raise ValueError(reason)
         world = frame_delta_to_world(delta, frame)

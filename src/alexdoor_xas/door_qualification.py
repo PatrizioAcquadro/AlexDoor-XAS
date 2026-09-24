@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import hashlib
 import math
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -253,23 +253,6 @@ def connected_mesh_face_components(
     )
 
 
-def maximum_sustained_angle_deg(angles_rad: Sequence[float], window_ticks: int) -> float:
-    """Compute raw ``max(min(window))``; the caller supplies the sampling window.
-
-    This does not check controlled contact, timing, safety, or release and cannot
-    establish a B1 expert reference on its own.
-    """
-    values = np.degrees(np.asarray(angles_rad, dtype=np.float64).reshape(-1))
-    if window_ticks <= 0:
-        raise QualificationError("sustained-angle window must be positive")
-    if len(values) < window_ticks or not np.isfinite(values).all():
-        raise QualificationError("angle trace is finite and at least one window long")
-    minima = np.minimum.reduce(
-        [values[offset : len(values) - window_ticks + offset + 1] for offset in range(window_ticks)]
-    )
-    return float(np.max(minima))
-
-
 def handedness_sign(handedness: Literal["left", "right"] | str) -> float:
     if handedness not in HANDEDNESSES:
         raise QualificationError(f"unknown handedness: {handedness!r}")
@@ -283,6 +266,5 @@ __all__ = [
     "cuboid_inertia_kg_m2",
     "geometry_fingerprint",
     "handedness_sign",
-    "maximum_sustained_angle_deg",
     "sha256_file",
 ]

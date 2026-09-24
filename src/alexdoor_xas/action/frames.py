@@ -56,6 +56,23 @@ class ObjectFrame:
         return self.rot.T @ np.asarray(vector_world, dtype=np.float64).reshape(3)
 
 
+def validate_object_frame(frame: ObjectFrame | None) -> str:
+    """Return a failure reason, or an empty string for a finite proper rigid frame."""
+    if frame is None:
+        return "object frame is unavailable"
+    origin = np.asarray(frame.origin, dtype=np.float64)
+    rot = np.asarray(frame.rot, dtype=np.float64)
+    if origin.shape != (3,) or not np.isfinite(origin).all():
+        return "object frame origin is invalid"
+    if rot.shape != (3, 3) or not np.isfinite(rot).all():
+        return "object frame rotation is non-finite or misshaped"
+    if not np.allclose(rot @ rot.T, np.eye(3), atol=1e-5):
+        return "object frame rotation is not orthonormal"
+    if not np.isclose(np.linalg.det(rot), 1.0, atol=1e-5):
+        return "object frame rotation is not proper (determinant must be +1)"
+    return ""
+
+
 def door_frame_from_body_pose(
     frame_pos_w: np.ndarray, frame_quat_w_xyzw: np.ndarray
 ) -> ObjectFrame:
@@ -104,5 +121,6 @@ __all__ = [
     "panel_frame",
     "quat_to_rot_matrix",
     "rot_z",
+    "validate_object_frame",
     "world_delta_to_frame",
 ]

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import math
 from copy import deepcopy
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -11,12 +11,6 @@ import torch
 
 pytest.importorskip("diffusers")
 
-from alexdoor_xas.adapters.a2 import A2Adapter  # noqa: E402
-from alexdoor_xas.adapters.rollout import (  # noqa: E402
-    read_door_frame,
-    read_step_context,
-    rollout_chunks,
-)
 from alexdoor_xas.assets.identity import RobotAssetRef  # noqa: E402
 from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats  # noqa: E402
 from alexdoor_xas.policies.common.checkpoint import (  # noqa: E402
@@ -50,7 +44,8 @@ from alexdoor_xas.policies.diffusion.train import (  # noqa: E402
     make_seeded_model,
     train_diffusion,
 )
-from conftest import TEST_ROBOT_LIMITS, FakeDoorPushEnv  # noqa: E402
+
+pytestmark = pytest.mark.usefixtures("gpu_models")
 
 ACTION_DIM = 6
 TEST_ROBOT_ASSET = RobotAssetRef("test_robot", "a" * 64)
@@ -554,30 +549,7 @@ def test_diffusion_policy_seed_makes_sampling_reproducible() -> None:
     assert not np.array_equal(first, third)
 
 
-def test_diffusion_chunk_source_receding_horizon_drives_a2_rollout() -> None:
-    env = FakeDoorPushEnv()
-    env.reset()
-    policy = _rollout_policy()
-    policy.seed(0)
-    source = diffusion_chunk_source(policy, lambda ctx: np.zeros(OBS_DIM), n_action_steps=4)
-    adapter = A2Adapter(TEST_ROBOT_LIMITS)
-
-    chunk = source(read_step_context(env, read_door_frame(env)))
-    assert chunk.shape == (4, ACTION_DIM)
-
-    result = rollout_chunks(env, source, adapter, max_ticks=20)
-
-    assert result.n_ticks == 20
-    assert len(adapter.log.decisions) == 20
-    assert math.isfinite(result.final_angle_rad)
-    # Bounded-by-construction deltas: nothing to clamp, nothing to reject.
-    assert adapter.log.count("corrected") == 0
-    assert adapter.log.count("rejected") == 0
-
-
 def test_diffusion_chunk_source_validates_inputs() -> None:
-    env = FakeDoorPushEnv()
-    env.reset()
     policy = _rollout_policy()
     with pytest.raises(ValueError, match="n_action_steps"):
         diffusion_chunk_source(
@@ -585,13 +557,11 @@ def test_diffusion_chunk_source_validates_inputs() -> None:
         )
 
 
-@pytest.fixture(autouse=True)
-def gpu_models():
-    if not torch.cuda.is_available():
-        pytest.skip("model checks require CUDA")
-    previous = torch.get_default_device()
-    torch.set_default_device("cuda")
-    try:
-        yield
-    finally:
-        torch.set_default_device(previous)
+def test_chunk_source_emits_only_the_requested_horizon() -> None:
+    policy = SimpleNamespace(
+        chunk_size=8,
+        predict=lambda obs: np.arange(56, dtype=np.float64).reshape(8, 7) + obs[0],
+    )
+    source = diffusion_chunk_source(policy, lambda context: context, n_action_steps=3)
+    for obs in (np.array([1.0]), np.array([2.0])):
+        np.testing.assert_array_equal(source(obs), policy.predict(obs)[:3])

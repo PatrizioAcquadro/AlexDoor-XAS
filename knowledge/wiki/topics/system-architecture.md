@@ -40,7 +40,7 @@ Future datasets and learned runs use ignored `datasets/` and `outputs/` payloads
 
 ## Reusable Algorithms
 
-Actions, adapters, the scripted state machine, recording, numerical dataset
+Action math, recording, numerical dataset
 loaders/export, split/normalization utilities and ACT/Diffusion tensor training
 remain available as components. Their integration with B1 is not implemented.
 Policies consume a caller-supplied observation function; they do not read door

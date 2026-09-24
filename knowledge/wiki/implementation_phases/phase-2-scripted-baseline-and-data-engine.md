@@ -12,7 +12,7 @@ Create a deterministic door-push generator and matched A1-A4 episode exports.
 
 This phase established the approach/contact/push/release controller, pre-action recording alignment, terminal-response capture, and matched representation export from one physical episode.
 
-The B0 generator, dataset identity and old-schema compatibility were retired. Numerical recording and matched-export utilities remain; B1 integration is deferred to Phase 6.
+The B0 generator, scripted controller, dataset identity and old-schema compatibility were retired. Numerical recording and matched-export utilities remain; B1 integration is deferred to Phase 6.
 
 #### Key Decisions
 
@@ -31,6 +31,5 @@ B0 local datasets and generation workspaces were removed. Their documented resul
 
 ## Files
 
-- `src/alexdoor_xas/policies/scripted/`
 - `src/alexdoor_xas/recording/`
 - `src/alexdoor_xas/dataset/export.py`

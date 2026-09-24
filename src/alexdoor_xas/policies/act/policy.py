@@ -1,4 +1,4 @@
-"""Rollout-facing ACT policy normalization and chunk-source factory."""
+"""ACT inference, normalization and optional temporal ensembling."""
 
 from __future__ import annotations
 
@@ -97,14 +97,11 @@ def act_chunk_source(
     temporal_ensemble: bool = False,
     ensemble_m: float = 0.01,
 ) -> Callable:
-    """Adapt ``policy`` to the ``rollout_chunks`` chunk-source protocol.
+    """Emit ``(H, D)`` chunks from caller-supplied observations.
 
-    Default mode reads a fresh observation and emits the full ``(H, 6)`` chunk
-    (the driver executes it delta-by-delta, so the policy is re-queried every
-    ``H`` ticks). Temporal-ensemble mode emits a single ``(1, 6)`` action per
-    call — the exponentially weighted average (``w_i = exp(-m * i)``, ``i = 0``
-    oldest) of every past chunk's prediction for the current tick, so the
-    policy is queried every tick, per the ACT paper.
+    Ensembling emits one action per call, weighting overlapping predictions by
+    ``exp(-ensemble_m * age_index)`` with the oldest first. Create a fresh source
+    per episode; call it once per tick when ensembling.
     """
 
     if not temporal_ensemble:

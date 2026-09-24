@@ -12,7 +12,6 @@ from alexdoor_xas.door_qualification import (
     connected_mesh_face_components,
     cuboid_inertia_kg_m2,
     geometry_fingerprint,
-    maximum_sustained_angle_deg,
 )
 
 
@@ -76,15 +75,3 @@ def test_connected_mesh_components_weld_duplicate_seam_vertices() -> None:
     faces = np.array([[0, 1, 2], [3, 4, 5], [6, 7, 8]], dtype=np.int64)
     components = connected_mesh_face_components(vertices, faces)
     assert [component.tolist() for component in components] == [[0, 1], [2]]
-
-
-def test_maximum_sustained_angle_is_max_of_window_minima() -> None:
-    degrees = [10.0] * 10 + [50.0] * 29 + [44.0] + [48.0] * 30
-    assert maximum_sustained_angle_deg(np.radians(degrees), window_ticks=30) == pytest.approx(48.0)
-    assert maximum_sustained_angle_deg(np.radians(degrees), window_ticks=20) == pytest.approx(50.0)
-
-
-@pytest.mark.parametrize("angles, window", [([0.0], 0), ([0.0], 2), ([np.nan], 1)])
-def test_raw_sustained_measurement_rejects_invalid_trace_or_window(angles, window) -> None:
-    with pytest.raises(QualificationError):
-        maximum_sustained_angle_deg(angles, window_ticks=window)

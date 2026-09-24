@@ -134,12 +134,10 @@ def diffusion_chunk_source(
     observe: Callable,
     n_action_steps: int | None = None,
 ) -> Callable:
-    """Adapt ``policy`` to the ``rollout_chunks`` chunk-source protocol.
+    """Emit the first ``n_action_steps`` rows of each caller-observed prediction.
 
-    Receding-horizon execution per the Diffusion Policy paper: each call reads
-    a fresh observation, samples a full ``(Tp, 6)`` chunk, and emits only its
-    first ``n_action_steps`` rows (Ta), so the driver re-queries the policy
-    every Ta ticks. ``n_action_steps=None`` executes the whole chunk.
+    The caller executes those rows before querying again. ``None`` emits the
+    complete horizon; action width is determined by the model.
     """
     steps = policy.chunk_size if n_action_steps is None else int(n_action_steps)
     if not 1 <= steps <= policy.chunk_size:

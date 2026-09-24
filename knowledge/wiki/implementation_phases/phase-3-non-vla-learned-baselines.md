@@ -12,7 +12,8 @@ Train and evaluate state-only ACT and Diffusion policies through shared data, ad
 
 This phase introduced validated A2/A3 model data, ACT, Diffusion, adapters, checkpoint loading, and matched closed-loop evaluation. The scientific study later expanded to a sixteen-cell policy/representation/data-size matrix.
 
-Tensor training, model checkpoints, resume state and generic adapters remain. B0 run creation, evaluation, reports and CLI configuration were retired; Git `9c16e3d` preserves that source state.
+Tensor training, model checkpoints and resume state remain. The B0 adapters,
+rollout driver and scripted controller were subsequently retired. B0 run creation, evaluation, reports and CLI configuration were retired; Git `9c16e3d` preserves that source state.
 
 #### Key Decisions
 
@@ -32,4 +33,3 @@ Historical conclusions are retained in [[experiments/gilbreth-nested-scale-sweep
 ## Files
 
 - `src/alexdoor_xas/policies/`
-- `src/alexdoor_xas/adapters/`

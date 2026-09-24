@@ -9,8 +9,6 @@ import numpy as np
 import pytest
 import torch
 
-from alexdoor_xas.adapters.a2 import A2Adapter
-from alexdoor_xas.adapters.rollout import read_door_frame, read_step_context, rollout_chunks
 from alexdoor_xas.assets.identity import RobotAssetRef
 from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
 from alexdoor_xas.policies.act.config import ActModelCfg, ActTrainCfg
@@ -21,10 +19,8 @@ from alexdoor_xas.policies.common.checkpoint import (
     ACT_CHECKPOINT_FORMAT,
     save_checkpoint_payload,
 )
-from conftest import (
-    TEST_ROBOT_LIMITS,
-    FakeDoorPushEnv,
-)
+
+pytestmark = pytest.mark.usefixtures("gpu_models")
 
 TINY_MODEL_CFG = ActModelCfg(
     chunk_size=8,
@@ -383,51 +379,8 @@ def test_act_policy_rejects_mismatched_stats() -> None:
         ActPolicy(model, stats, device="cuda")
 
 
-def _step_context(env):
-    return read_step_context(env, read_door_frame(env))
-
-
-def _rollout_policy() -> ActPolicy:
-    """Tiny real model whose denormalized deltas stay within the A2 clamps."""
-    stats = DatasetNormStats(
-        action=NormStats(
-            np.zeros(ACTION_DIM),
-            np.full(ACTION_DIM, 1e-3),
-            np.zeros(ACTION_DIM),
-            np.zeros(ACTION_DIM),
-            1,
-        ),
-        obs=_identity_obs_stats(),
-        obs_preset="core",
-        train_episode_ids=("ep0",),
-        action_space="A2_ee_delta",
-    )
-    return ActPolicy(_tiny_model(), stats, device="cuda")
-
-
-def test_act_chunk_source_drives_a2_adapter_rollout() -> None:
-    env = FakeDoorPushEnv()
-    env.reset()
-    policy = _rollout_policy()
-    source = act_chunk_source(policy, lambda ctx: np.zeros(OBS_DIM))
-    adapter = A2Adapter(TEST_ROBOT_LIMITS)
-
-    result = rollout_chunks(env, source, adapter, max_ticks=20)
-
-    assert result.n_ticks == 20
-    assert len(result.decisions_per_tick) == 20
-    assert len(adapter.log.decisions) == 20
-    assert math.isfinite(result.final_angle_rad)
-
-    chunk = policy.predict(np.zeros(OBS_DIM))
-    assert np.isfinite(chunk).all()
-    assert np.abs(chunk[:, :3]).max() < 0.04
-
-
 class _QueuePolicy:
     """Duck-typed policy stub emitting predetermined chunks."""
-
-    obs_preset = "core"
 
     def __init__(self, chunks: list[np.ndarray]) -> None:
         self._chunks = list(chunks)
@@ -437,9 +390,13 @@ class _QueuePolicy:
         return self._chunks.pop(0)
 
 
+def test_chunk_source_emits_the_complete_prediction() -> None:
+    chunk = np.arange(21, dtype=np.float64).reshape(3, 7)
+    source = act_chunk_source(_QueuePolicy([chunk]), lambda context: context)
+    np.testing.assert_array_equal(source(np.zeros(OBS_DIM)), chunk)
+
+
 def test_temporal_ensemble_weights_match_the_paper_scheme() -> None:
-    env = FakeDoorPushEnv()
-    env.reset()
     m = 0.5
     chunk_a = np.tile(np.array([[1.0, 0, 0, 0, 0, 0]]), (3, 1)) * np.array([[1], [2], [3]])
     chunk_b = np.tile(np.array([[10.0, 0, 0, 0, 0, 0]]), (3, 1))
@@ -449,7 +406,7 @@ def test_temporal_ensemble_weights_match_the_paper_scheme() -> None:
         temporal_ensemble=True,
         ensemble_m=m,
     )
-    ctx = _step_context(env)
+    ctx = object()
 
     first = source(ctx)
     assert first.shape == (1, 6)
@@ -459,15 +416,3 @@ def test_temporal_ensemble_weights_match_the_paper_scheme() -> None:
     weights = np.array([1.0, math.exp(-m)])  # oldest chunk first, weight exp(-m * i)
     expected = (chunk_a[1] * weights[0] + chunk_b[0] * weights[1]) / weights.sum()
     np.testing.assert_allclose(second[0], expected)
-
-
-@pytest.fixture(autouse=True)
-def gpu_models():
-    if not torch.cuda.is_available():
-        pytest.skip("model checks require CUDA")
-    previous = torch.get_default_device()
-    torch.set_default_device("cuda")
-    try:
-        yield
-    finally:
-        torch.set_default_device(previous)
