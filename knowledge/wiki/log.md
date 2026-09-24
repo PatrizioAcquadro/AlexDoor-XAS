@@ -715,3 +715,13 @@ A fifth distinct leaf remains unresolved on source contact and visual alignment.
 
 Verified four accepted pointers and evidence hashes, one duplicate exclusion, one unpromoted visual/contact diagnostic, the original USDZ checksum and prepared scope counts of 26/2/1.
 Focused wiki link/index tests and Markdown whitespace checks pass; the source download, prior accepted attempts, raw knowledge and frozen Phase 4 remain unchanged.
+
+## 2026-09-24 — update : Three animated doors prepared
+
+Reviewed Shakya Sidd's CC BY 4.0 pack and separated three distinct framed single leaves. A documented 2% moving fit clears measured hinge contact while retaining required collisions.
+Static checks, viewed front/rear RTX previews and one RTX 4090 run per door pass at 90.7°, 90.7° and 91.8°. Thirty-two doors are prepared; originals, failed attempts and frozen Phase 4 remain unchanged. Robot/expert qualification is pending.
+
+## 2026-09-24 — lint : Animated-door evidence and wiki
+
+Verified all three ready pointers, source/evidence hashes, distinct fingerprints, passing stage reports, viewed previews and prepared scope counts of 29/2/1.
+Wiki link/index tests, Markdown whitespace and Git diff checks pass; source download and prior accepted doors are unchanged.

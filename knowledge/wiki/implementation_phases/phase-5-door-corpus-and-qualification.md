@@ -980,6 +980,43 @@ or sent to GPU physics. A future local geometry repair must keep required
 collisions and produce credible alignment before repeating affected checks.
 No robot/expert run or 45-degree criterion was used for this pack.
 
+**Shakya Sidd animated-door pack (2026-09-24).**
+[3 doors with animations](https://sketchfab.com/3d-models/3-doors-with-animations-88abf40577494c0c8759c9652e7749da)
+shows three distinct single-leaf framed doors. The page identifies Shakya Sidd
+and links CC Attribution to CC BY 4.0; the USDZ metadata agrees. Original FBX
+and converted USDZ, glTF and GLB are offered. The manually downloaded USDZ has
+SHA-256 `f48971c01bd5371b2b26802aa2f34e4ac9042bb77358db51dcfc2206646cf8e7`
+and seven packaged JPGs at no more than 1024 pixels, without separate terms.
+Each named animated subtree was selected into a separate preserved source;
+fingerprints differ among these parts and the prior twenty-nine prepared doors.
+
+| Part | Appearance | Accepted attempt | Prepared W × H × T (m) | Stop |
+| --- | --- | --- | --- | ---: |
+| `Door1` | gray two-panel, gold lever | `000009` | 0.839 × 1.946 × 0.029 | 90.7° |
+| `Door2` | light wood, silver lever | `000004` | 0.839 × 1.946 × 0.029 | 90.7° |
+| `Door3` | dark wood, narrow glazing, gold knob | `000004` | 0.839 × 1.954 × 0.044 | 91.8° |
+
+All three retain original right-hand hinge geometry. A 1.65 uniform scale
+converts the centimeter source to useful B1 dimensions; proper Y-up to Z-up
+rotation does not reflect the model. The original leaf fills its jamb and a
+1% Panel/Handle fit still overlaps fixed hinge knuckles by about 0.7 mm on
+`Door1`. The documented 2% uniform fit resolves this while retaining all
+frame, leaf, handle, glazing and hardware collisions. The intact U-frame
+collider is partitioned at its measured jamb and header; compact parts use
+convex envelopes. No separate projecting latch bolt was identified or excluded.
+The source animation is frozen at its closed pose for the common already-unlatched
+push model; the pivot is inferred from the visible hinge side and opening face.
+
+Static checks pass. Front and rear RTX images were actually viewed for each
+door and show aligned frames, leaves, hardware and materials. One isolated
+RTX 4090 `cuda:0` run per door reaches the geometry-derived stop above, with
+three resets, zero frame drift and zero reported penetration. All three are
+promoted under CC BY 4.0, bringing technical readiness to **thirty-two**
+distinct doors (29 redistributable, two local-only, one private/noncommercial).
+Records and evidence are in `assets/doors/b1/animated-door-*-88abf40/`.
+The existing unresolved front-pack `007` remains unchanged. Robot/expert
+qualification and its 45-degree criterion remain in 5.1.
+
 #### Key Decisions
 
 - Target 24 expert-qualified unique identities in the final corpus, 12 left- and

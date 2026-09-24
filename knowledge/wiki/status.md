@@ -2,10 +2,22 @@
 
 Current as of 2026-09-24. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Twenty-nine distinct doors pass static, visual and isolated GPU checks
-in the common closed-unlatched state and are ready for Subphase 5.1. See
+intake has started. Thirty-two distinct doors pass static, visual and isolated
+GPU checks in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
+
+Shakya Sidd's CC BY 4.0 animated-door pack adds three distinct single leaves
+(`Door1`–`Door3`), each selected with its source frame and hinges. A 1.65
+uniform size normalization gives prepared leaves about 0.839 × 1.946–1.954 m;
+their original right-hand hinge side is retained. The source geometry has
+essentially no jamb clearance, and a measured leaf/hinge overlap remains at a
+1% moving fit, so all three use the documented 2% fit. Frame, leaf, handle,
+glass and hinge collisions are retained. Static checks, both actually viewed
+RTX images and one short RTX 4090 run per door pass at geometry-derived stops
+90.7°, 90.7° and 91.8°, with three resets, stable frames and zero reported
+penetration. The prepared scopes are now twenty-nine redistributable, two
+local-only and one private/noncommercial. Robot/expert qualification is pending.
 
 Icevanilla's CC BY 4.0 front PSX pack adds four prepared single leaves:
 `001`, `002`, `005` and `008`. The `003` double leaf is excluded; `006` exactly
@@ -20,8 +32,9 @@ frames and zero reported penetration. The prepared leaves are 0.814 × 1.972 ×
 0.092 m (`005`); only `005` is right-handed. Distinct part `007` remains
 unresolved: its in-frame surfaces intersect, while the diagnostic surface mount
 passes geometry but looks detached in both views. It was not promoted or run
-in GPU physics. The current license counts are twenty-six redistributable,
-two local-only and one private/noncommercial. Robot/expert qualification is pending.
+in GPU physics. At that intake milestone the license counts were twenty-six
+redistributable, two local-only and one private/noncommercial. Robot/expert
+qualification is pending.
 
 Icevanilla's CC BY 4.0 wooden interior PSX pack adds six distinct prepared
 single-leaf doors: `002`, `003`, `005`–`008`. Each has a separate source frame,
