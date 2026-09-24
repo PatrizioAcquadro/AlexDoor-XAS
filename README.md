@@ -1,5 +1,10 @@
 # AlexDoor-XAS
 
+[GitHub repository](https://github.com/PatrizioAcquadro/AlexDoor-XAS).
+
+The workstation checkout is `/home/pacquadr/Desktop/AlexDoor-XAS`. Python imports
+remain `alexdoor_xas`; the distribution name remains `alexdoor-xas`.
+
 AlexDoor-XAS studies how action representation affects learning and execution in
 contact-rich humanoid manipulation. B1 compares A1–A4 × ACT/Diffusion on held-out
 push doors with fixed-base Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.

@@ -9,7 +9,7 @@ learned B1 integration remains later work. Current evidence is maintained in
 
 Reuse the editable `~/Desktop/Alex` package. It owns robot/gripper assets,
 actuators, collision geometry and filters, sensor mounts, and measured pedestal
-geometry. DoorManipulation owns the task contact frame, control, sensing
+geometry. AlexDoor-XAS owns the task contact frame, control, sensing
 contracts, scene placement, and benchmark qualification. Do not copy Alex assets
 or generic integration code into this repository or Isaac Lab.
 

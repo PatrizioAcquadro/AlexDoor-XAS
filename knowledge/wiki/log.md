@@ -14,4 +14,5 @@ belong in Git history, not in agent context.
 | 5.0 intake | 32 prepared doors: 29 redistributable, two local-only, one private/noncommercial; expert qualification pending. | `9c16e3d` |
 | 2026-09-24 asset cleanup | Three canonical records and independent source/final payload folders; acquired results preserved without real-door revalidation. | `7a1ffb1` |
 | 2026-09-24 B0 retirement | Removed obsolete compatibility/orchestration and local datasets/scenes; preserved reusable numerical components and B1 runtime. | `c83cf5e` |
-| 2026-09-24 documentation cleanup | One current status, compact corpus/workflow page and historical conclusions; future specifications and raw research preserved. | Current documentation milestone |
+| 2026-09-24 documentation cleanup | One current status, compact corpus/workflow page and historical conclusions; future specifications and raw research preserved. | `3065008` |
+| 2026-09-24 repository rename | GitHub and workstation checkout use AlexDoor-XAS; Python package identifiers remain unchanged. | Repository rename milestone |
