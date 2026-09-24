@@ -2,9 +2,10 @@
 
 Subphase 5.0 is complete for **32 prepared doors**: 29 redistributable, two
 local-only and one private/noncommercial. The expert command is implemented.
-The common zero-yaw placement and ready posture now qualify one right and one
+The common zero-yaw placement and ready posture qualify one right and one
 left door on the RTX 4090. The shared infrastructure and left/right pilot are
-complete; routine qualification of the remaining doors is ready for handoff.
+complete. The subsequent-door campaign is paused after six additional identities
+pending loader compatibility and final-hold diagnosis; 22 remain unvisited.
 Subphase 5.1 selects the final 24-door, 12/4/8 identity split; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
@@ -297,16 +298,45 @@ the earlier zero-yaw setup and has not been rechecked with the final placement;
 it is not a current expert reference. The substitute left's earlier valid
 44.23-degree pair is also superseded, not combined with the new pair.
 
-There are **two qualified doors, one geometric exclusion, one unresolved door
-and 28 unvisited**. Qualification of the latter can use the procedure above with
-only the asset ID changed. Diagnosing older exclusions/failures is separate from
-routine pending-door execution. Any future common setup change requires fresh
-complete pairs for affected references; compare the archived `setup.json` before
-reusing an earlier result.
+The pilot's four results above remain unchanged. The subsequent-door campaign
+attempted six more identities on 2026-09-24 and was then paused at user request.
+The following paths are relative to
+`~/.cache/alexdoor-xas/verification/expert/<asset-id>/`; each contains the
+complete `report.json`, captured input records and effective `setup.json`.
 
-Reviewed RGB shows the pushing hand and panel, but the geometric visibility
-check does not pass throughout these trials, including insufficient sampled
-frame points. This remains diagnostic, not observed-policy readiness. No camera
+| Door | Published status | `theta_expert_d` | Evidence directory | Finding |
+|---|---|---:|---|---|
+| `animated-door-1-88abf40` | `unresolved` | — | `20260924T212508.154992Z` | Two cycles reached 57.03° sustained, but final hold was invalid (`tracking_margin`); release completed. |
+| `animated-door-2-88abf40` | `unresolved` | — | `20260924T213207.125877Z` | Two cycles reached 56.95° sustained, but final hold was invalid (`tracking_margin`); release completed. |
+| `door-with-frame-2f2f149f` | `invalid_asset` | — | `20260924T213853.832105Z` | Loader reported missing leaf or frame collision geometry before cycles. This published classification needs loader compatibility diagnosis before attributing the fault to the asset. |
+| `psx-front-005-ee7d5c6` | `unresolved` | — | `20260924T213927.306714Z` | Prescribed contact point found no collidable leaf surface before cycles; cause is unconfirmed. |
+| `door-5035d7977155` | `out_of_domain` | — | `20260924T213949.754385Z` | Closed frame intersects the pedestal lower base; no cycles or expert angle. |
+| `door-prison-metal-old-45306a46` | `out_of_domain` | 22.63268° | `20260924T214021.597645Z` | Two valid cycles, zero spread, mechanical stop, valid final hold and release; below 45°. |
+
+Representative approach, push, hold and release images were reviewed for the
+three executed pairs, along with focused traces and contacts. The animated pairs
+had valid sustained push windows but insufficient valid final holding; their
+reported push maxima are not expert angles. No actual forbidden contact was found
+in those reviewed traces. The prison-door pair had valid holding, release and no
+actual forbidden contact. The pedestal exclusion has an initial-scene image and
+composed-collider intersection evidence. The two pre-cycle errors have reports
+and error traces; they are not evidence of an expert limit. All attempt evidence
+is retained outside learning datasets.
+
+Across all 32 prepared doors there are **two qualified, three out of domain,
+four unresolved, one published `invalid_asset`, and 22 `not_run`**. By handedness:
+left 1 qualified / 3 out of domain / 21 not run; right 1 qualified / 4 unresolved /
+1 published `invalid_asset` / 1 not run. The right-door balance still needs at
+least five additional qualifiable identities. Diagnose the loader compatibility
+problem and the repeated invalid final hold before resuming; no further door
+commands are part of this paused campaign. Any future common setup change
+requires fresh complete pairs for affected references; compare archived
+`setup.json` before reusing an earlier result.
+
+Reviewed RGB shows the pushing hand and panel, but geometric visibility does
+not pass throughout the qualified pilot or animated-door trials, including
+insufficient sampled frame points. The prison-door pair passes this geometric
+diagnostic. Neither result establishes learned-perception readiness. No camera
 retuning, learning data or split was introduced. No synthetic sweep was repeated;
 the historical synthetic results belong to the original 45-degree setup.
 

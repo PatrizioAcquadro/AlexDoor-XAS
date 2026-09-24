@@ -79,5 +79,48 @@
     "physics": "pass"
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
-  "expert_qualification": "not_run"
+  "expert_qualification": {
+    "status": "out_of_domain",
+    "theta_expert_d": 22.632680465841624,
+    "reason": "mechanical_stop",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-prison-metal-old-45306a46/20260924T214021.597645Z",
+    "trials": [
+      {
+        "passed": true,
+        "angle_deg": 22.632680465841624,
+        "hold_angle_deg": 22.632680465841624,
+        "stop_reason": "mechanical_stop",
+        "safety_detail": null,
+        "peak_force_n": 5.865525722503662,
+        "joint_margin": 0.0,
+        "released": true,
+        "visibility": {
+          "passed": true,
+          "failed_frames": 0,
+          "checked_frames": 2071,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-1"
+      },
+      {
+        "passed": true,
+        "angle_deg": 22.632680465841624,
+        "hold_angle_deg": 22.632680465841624,
+        "stop_reason": "mechanical_stop",
+        "safety_detail": null,
+        "peak_force_n": 5.865525722503662,
+        "joint_margin": 0.0,
+        "released": true,
+        "visibility": {
+          "passed": true,
+          "failed_frames": 0,
+          "checked_frames": 2071,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-2"
+      }
+    ],
+    "repeat_spread_deg": 0.0,
+    "scope": "nominal_simulated_expert_reference_not_learning_data"
+  }
 }

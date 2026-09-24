@@ -8,16 +8,17 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Pilot complete: right 59.33 degrees and left 46.37 degrees, each with two valid cycles under the same setup. One geometric exclusion, one older unresolved result and 28 unvisited. Final corpus/split pending. |
+| 5.1 — Expert qualification | Pilot references remain right 59.33 degrees and left 46.37 degrees. Six subsequent doors were attempted; the campaign is paused pending loader compatibility and final-hold diagnosis. Across 32 doors: two qualified, three out of domain, four unresolved, one published `invalid_asset` under review, and 22 unvisited. Final corpus/split pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Qualify the 28 unvisited doors using the single command and review procedure in
-[[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]. This
-routine flow is ready for a smaller model: change only the asset ID, inspect the
-report/evidence and record the result. Escalate unresolved failures; no automatic
-pose, controller or asset retuning. Older results remain tied to their archived
+Keep the remaining 22 doors unvisited until the loader compatibility problem
+and repeated invalid final hold are diagnosed. The published `invalid_asset`
+result must not be attributed to source geometry before the loader is checked.
+See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]
+for per-door outcomes and retained evidence. Do not retune the pose, controller,
+camera or assets to obtain a pass. Older results remain tied to their archived
 setup. At least five additional qualifiable right identities are still needed
 for the final 12/12 balance.
 

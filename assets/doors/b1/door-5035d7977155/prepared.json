@@ -79,5 +79,13 @@
     "physics": "pass"
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
-  "expert_qualification": "not_run"
+  "expert_qualification": {
+    "status": "out_of_domain",
+    "theta_expert_d": null,
+    "reason": "closed_door_pedestal_intersection",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-5035d7977155/20260924T213949.754385Z",
+    "trials": [],
+    "repeat_spread_deg": null,
+    "scope": "nominal_simulated_expert_reference_not_learning_data"
+  }
 }
