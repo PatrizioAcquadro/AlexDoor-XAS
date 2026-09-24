@@ -7,6 +7,15 @@ import numpy as np
 from alexdoor_xas.action.frames import quat_to_rot_matrix
 
 
+def has_forbidden_contact(contacts):
+    """Reject touching/penetrating or loaded forbidden pairs, not empty-gap candidates."""
+    return any(
+        c["category"] == "forbidden"
+        and (c["separation_m"] <= 0.0 or c["force_n"] > 0.0)
+        for c in contacts
+    )
+
+
 @dataclass(frozen=True)
 class DistalSurface:
     actor: str
@@ -175,6 +184,6 @@ class ContactObserver:
             contacts=contacts,
             normal_force_per_finger_w={k: v.tolist() for k, v in forces.items()},
             normal_force_w=sum(forces.values()).tolist(),
-            forbidden=any(c["category"] == "forbidden" for c in contacts),
+            forbidden=has_forbidden_contact(contacts),
         )
         return self.last

@@ -5,9 +5,22 @@ import pytest
 import torch
 
 from alexdoor_xas.assets.purdue import ARM_JOINTS, derive_push_geometry
-from alexdoor_xas.envs.door_task.purdue_contacts import DistalSurface
+from alexdoor_xas.envs.door_task.purdue_contacts import DistalSurface, has_forbidden_contact
 from alexdoor_xas.kinematics.pose_control import bounded_joint_step, bounded_pose_step
 from alexdoor_xas.recording.rgbd import RGBDCapture
+
+
+def test_forbidden_contact_requires_touch_or_load():
+    candidate = dict(category="forbidden", separation_m=0.0033186, force_n=0.0)
+    assert not has_forbidden_contact([candidate])
+    assert has_forbidden_contact([{**candidate, "force_n": 0.01}])
+    assert has_forbidden_contact([{**candidate, "separation_m": 0.0}])
+    # Fixed obstacles may report penetration with zero reaction force.
+    assert has_forbidden_contact([{**candidate, "separation_m": -0.03}])
+    for category in ("positive", "negative", "support"):
+        assert not has_forbidden_contact(
+            [{**candidate, "category": category, "separation_m": -0.001, "force_n": 2.0}]
+        )
 
 
 def test_canonical_geometry():
