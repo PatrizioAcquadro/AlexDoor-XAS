@@ -1,13 +1,12 @@
 # Phase 5 — Door Corpus and Qualification
 
 Subphase 5.0 is complete for **32 prepared doors**: 29 redistributable, two
-local-only and one private/noncommercial. The expert command is implemented.
-The common zero-yaw placement and ready posture qualify one right and one
-left door on the RTX 4090. The shared infrastructure and left/right pilot are
-complete. The subsequent-door campaign is paused after six additional identities
-pending loader compatibility and final-hold diagnosis; 22 remain unvisited.
-Subphase 5.1 selects the final 24-door, 12/4/8 identity split; Phase 6 generates
-demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
+local-only and one private/noncommercial. The shared expert command and left/right
+pilot are implemented and GPU-verified. Corrective qualification resolved the
+paused cohort; the current pool has **5 qualified, 5 out of domain, and 22 unvisited**.
+The same common setup and command are ready for the remaining doors. Subphase 5.1 still owns the
+final 24-door, 12/4/8 identity split; Phase 6 generates demonstrations.
+See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
 ## Subphase 5.0 — Intake and Preparation
 
@@ -241,21 +240,6 @@ array `b1:sourceComponents`, matching preparation verification. The earlier
 `door-with-frame-2f2f149f` rejection was a loader compatibility defect; its
 existing collision meshes loaded correctly after this fix.
 
-That door's subsequent dynamic stall exposed a separate legacy assembly defect:
-its leaf was flush with the floor. The original fails the corrected isolated
-check with a floor; a documented 2 mm upward translation of the complete moving
-visual/collision assembly passes static and GPU checks and retains the 188-degree
-geometric stop. Source meshes, dimensions, hinge axis and robot contact point stay
-unchanged; centers of mass and the published panel center move consistently.
-Original payload and ground-contact evidence are at
-`~/.cache/alexdoor-xas/verification/qualification-repair-20260924/frame-ground/`.
-The updated asset is undergoing a fresh expert pair. A read-only pool scan found
-the same zero-floor-clearance defect on pending `interior-wood-d1-32707dc`. The
-original also fails the floor-aware GPU check; the same documented 2 mm assembly
-fit passes static and GPU checks with a recomputed 54.3-degree stop. Its expert
-status remains `not_run`. Original/revised payloads and checks are archived under
-`qualification-repair-20260924/pending-floor/` in the verification cache.
-
 The surface trajectory follows the actual leaf colliders at the frozen fraction
 and height, retaining tool +X into the panel and +Z upward. Actual frame/handle
 bounds replace synthetic dimensions. Clearance remains a conservative diagnostic;
@@ -284,123 +268,107 @@ strip is not permitted. The other seven corrective-cohort footprints pass.
 5. After a general fix, rerun the entire affected pair. Do not choose favorable
    repetitions. Commit only the relevant tracked result and documentation changes.
 
-### Pilot and Common-Pose Revision
+### Common Setup and Corrective Qualification
 
-The user-authorized revision keeps **robot and pedestal together at zero yaw**,
-with common floor position **X = -0.380 m, Y = 0.300 m** and a revised right-arm
-ready/left-arm parked posture. Relative to the first zero-yaw attempt, the common
-mount moves 2 cm forward and 7.5 cm left. The parked arm clears the frame; the
-ready posture and lateral placement clear the approaching wrist from the robot
-body. See [[phase-4-robot-and-task-configuration|Phase 4]] and
-`configs/purdue_synthetic_probe.json` for the single effective setup.
+The user-authorized setup keeps **robot and pedestal together at zero yaw**, at
+**X = -0.380 m, Y = 0.300 m**, with the shared right-arm ready and left-arm parked
+posture in `configs/purdue_synthetic_probe.json`. Contact remains at 0.40 of leaf
+width from the actual hinge and 1.00 m height. Head pose, controller gains, push
+speed and validity thresholds are unchanged. See
+[[phase-4-robot-and-task-configuration|Phase 4]] for the full effective controller.
 
-Bounded kinematic/collision checks guided this revision; complete GPU cycles on
-collected doors establish its result. Contact height/fraction, head pose, gains,
-speeds, timing and validity thresholds remain unchanged. No asset geometry or
-collision was removed. The earlier shared contact-guard correction still rejects
-actual touching/penetration or nonzero normal force, while retaining separated,
-zero-force PhysX candidates as diagnostics.
+The paused campaign exposed correctable integration/preparation defects:
 
-The final setup qualifies both agreed substitutes on 2026-09-24:
+- The loader omitted older scalar collider-component tags. Both published metadata
+  layouts are now accepted; `door-with-frame` was not a defective source asset.
+- The formerly floor-flush `door-with-frame` leaf bound against the task floor.
+  The isolated preparation check now includes that floor and reproduces the failure.
+  A documented 2 mm upward moving-assembly fit passes static and GPU checks while
+  retaining the 188-degree stop. All visual/collision surfaces move together, with
+  consistent COM/panel-center updates and unchanged dimensions, hinge axis and
+  prescribed robot contact point.
+  The same defect was reproduced and repaired on pending
+  `interior-wood-d1-32707dc`; its revised geometric stop is 54.3 degrees and its
+  expert status remains `not_run`. Both original and repaired payloads are archived.
+- The PSX `front-005` recipe omitted component 7, the existing collidable glazing,
+  from leaf selection. Adding it alongside component 8 preserves all USD bytes,
+  dimensions, inertia and the prescribed contact point. Its real wood strip still
+  protrudes 22.1 mm under one fingertip ahead of the glass; the new support-footprint
+  preflight identifies this incompatible prescribed pose before movement. No point
+  relocation or strip removal is permitted, so the geometric exclusion has no
+  expert angle.
+- The prison-door frame collider filled an empty hinge-corner region and imposed
+  a false 23.1-degree stop. Repartitioning the same surfaces at the measured
+  sill/header boundaries (Z = 0.041961/2.045949 m) gives a 47.0-degree stop.
+  Static and isolated GPU checks pass. Original visual mesh sections independently
+  confirm actual leaf/frame intersection at 47.2 degrees; further opening would
+  require changing the modeled geometry or hinge. No source surface, pivot, mass,
+  material, unlatched state or other collision was changed.
+- Abrupt removal of opening lead, or merely slowing a fixed angular target, lost
+  contact with inertially coasting doors. The shared expert now checks projected
+  local holding reach, follows the moving material point while smoothly removing
+  lead over 3 s, and provides bounded normal support if load declines. A complete
+  valid 0.5 s final hold and safe release remain separate mandatory conditions.
 
-| Door | Hinge | Trial 1 | Trial 2 | `theta_expert_d` | Consistent limit |
-|---|---|---:|---:|---:|---|
-| `door-door-metal-b21ec273` | right | 59.33077° | 59.33077° | 59.33077° | Mechanical stop |
-| `door-adf292f437f2` | left | 46.36825° | 46.36825° | 46.36825° | Tracking margin |
+The first pilot references (right 59.33077°, left 46.36825°) and the six paused
+campaign outcomes remain historical evidence. The table below contains the fresh
+corrective results from the same common implementation. Each dynamic result uses
+exactly two complete GPU cycles from reset; no repetitions are mixed across runs.
+Evidence directories are relative to
+`~/.cache/alexdoor-xas/verification/expert/<asset-id>/`.
 
-Both pairs complete valid final holding and release. In these four trials the
-final-hold angle equals the maximum sustained angle; an independent trace audit
-reproduces both measurements and finds no actual forbidden contact. Identical
-paired values establish the prescribed repeat check, not a statistical robustness
-claim. The left reference is above 45 degrees with a modest 1.37-degree margin.
+| Door | Hinge | Current status | `theta_expert_d` | Consistent limit | Evidence directory |
+|---|---|---|---:|---|---|
+| `modern-door-2fb8d024` | right | `qualified` | 49.87672° | `tracking_margin` | `20260924T223701.060503Z` |
+| `door-adf292f437f2` | left | `qualified` | 46.36825° | `tracking_margin` | `20260924T224236.598587Z` |
+| `animated-door-1-88abf40` | right | `qualified` | 58.58486° | `tracking_margin` | `20260924T224851.407233Z` |
+| `animated-door-2-88abf40` | right | `qualified` | 58.78583° | `tracking_margin` | `20260924T225459.300835Z` |
+| `door-with-frame-2f2f149f` | right | `out_of_domain` | 42.58362° | `tracking_margin` | `20260924T231212.802123Z` |
+| `psx-front-005-ee7d5c6` | right | `out_of_domain` | — | `prescribed_footprint_obstructed` | `20260924T232605.585663Z` |
+| `door-prison-metal-old-45306a46` | left | `out_of_domain` | 44.91557° | `tracking_margin` | `20260924T232615.566689Z` |
+| `door-door-metal-b21ec273` | right | `qualified` | 59.33077° | `mechanical_stop` | `20260924T233327.320423Z` |
 
-The compact audit and links to complete paired evidence are at
-`~/.cache/alexdoor-xas/verification/common-approach-pilot-20260924/report.json`.
-Each pair retains its effective setup, input records, raw contacts, time traces
-and RGB-D. Representative images were inspected. All preparation fields and
-source/prepared assets are preserved; only expert summaries change.
+The prison-door expert result is **44.91557 degrees**, 0.08443 degrees below the
+inclusive 45-degree admission threshold. It stops at the common measured 2.5 mm
+tracking guard, not at the repaired 47-degree mechanical stop. A local IK solve
+can reach the latter pose; this reference does not prove global robot
+unreachability. A later transient angle above 45 degrees is not a valid sustained
+reference. Likewise, the frame-door result is the common baseline's 42.58362-degree
+limit, not its isolated 188-degree geometric range. Neither value is rounded up,
+and no door-specific controller changes are used to obtain admission.
 
-Earlier attempts remain linked through `previous_evidence`. The original left
-candidate (`door-2738468b94d74c5f`) has a deep frame that intersects the pedestal
-at the revised placement; this is setup exclusion, not an invalid asset. The
-original right candidate (`modern-door-2fb8d024`, still `local_only`) now passes
-both fresh cycles at 49.87672 degrees with the corrected common hold. Evidence is
-`expert/modern-door-2fb8d024/20260924T223701.060503Z/` under the verification cache.
-Its older unresolved pairs remain superseded. The substitute left's earlier valid
-44.23-degree pair is also superseded, not combined with the new pair.
+An independent audit reconstructs contact loading from raw substeps, verifies
+sustained/final-hold windows and release separation, and checks for actual
+forbidden contacts. Representative hold/release images were inspected. The audit,
+frame-interference proof, and archived original/repaired payloads are under
+`~/.cache/alexdoor-xas/verification/qualification-repair-20260924/`.
+The consolidated trace/contact review is `expert-audit.json` with its `audit.py`.
+Failed and intermediate pairs remain in their original directories, connected by
+`previous_evidence`; the old 22.63268-degree prison reference is superseded.
+Identical paired values satisfy the prescribed repeat check, not statistical
+robustness or global optimality. Modern-door remains `local_only`.
 
-The following records describe the paused campaign before corrective reruns. The subsequent-door campaign
-attempted six more identities on 2026-09-24 and was then paused at user request.
-The following paths are relative to
-`~/.cache/alexdoor-xas/verification/expert/<asset-id>/`; each contains the
-complete `report.json`, captured input records and effective `setup.json`.
+Two earlier setup exclusions remain valid: `door-2738468b94d74c5f` and
+`door-5035d7977155` have actual frame surfaces penetrating the fixed pedestal.
+The review checked source-derived visual triangles inside the pedestal, not just
+convex envelopes. Recovering them would require a new common placement or an
+asset geometry change. They retain `out_of_domain` with no expert angle; another
+unsafe dynamic run is unnecessary for that unchanged initial geometry.
 
-| Door | Status at campaign pause | `theta_expert_d` | Evidence directory | Finding |
-|---|---|---:|---|---|
-| `animated-door-1-88abf40` | `unresolved` | — | `20260924T212508.154992Z` | Two cycles reached 57.03° sustained, but final hold was invalid (`tracking_margin`); release completed. |
-| `animated-door-2-88abf40` | `unresolved` | — | `20260924T213207.125877Z` | Two cycles reached 56.95° sustained, but final hold was invalid (`tracking_margin`); release completed. |
-| `door-with-frame-2f2f149f` | `invalid_asset` | — | `20260924T213853.832105Z` | Loader reported missing leaf or frame collision geometry before cycles. This published classification needs loader compatibility diagnosis before attributing the fault to the asset. |
-| `psx-front-005-ee7d5c6` | `unresolved` | — | `20260924T213927.306714Z` | Prescribed contact point found no collidable leaf surface before cycles; cause is unconfirmed. |
-| `door-5035d7977155` | `out_of_domain` | — | `20260924T213949.754385Z` | Closed frame intersects the pedestal lower base; no cycles or expert angle. |
-| `door-prison-metal-old-45306a46` | `out_of_domain` | 22.63268° | `20260924T214021.597645Z` | Two valid cycles, zero spread, mechanical stop, valid final hold and release; below 45°. |
-
-Representative approach, push, hold and release images were reviewed for the
-three executed pairs, along with focused traces and contacts. The animated pairs
-had valid sustained push windows but insufficient valid final holding; their
-reported push maxima are not expert angles. No actual forbidden contact was found
-in those reviewed traces. The prison-door pair had valid holding, release and no
-actual forbidden contact. The pedestal exclusion has an initial-scene image and
-composed-collider intersection evidence. The two pre-cycle errors have reports
-and error traces; they are not evidence of an expert limit. All attempt evidence
-is retained outside learning datasets.
-
-At campaign pause the 32 prepared doors had **two qualified, three out of domain,
-four unresolved, one published `invalid_asset`, and 22 `not_run`**. By handedness:
-left 1 qualified / 3 out of domain / 21 not run; right 1 qualified / 4 unresolved /
-1 published `invalid_asset` / 1 not run. The right-door balance still needs at
-least five additional qualifiable identities. Diagnose the loader compatibility
-problem and the repeated invalid final hold before resuming; no further door
-commands are part of this paused campaign. Any future common setup change
-requires fresh complete pairs for affected references; compare archived
-`setup.json` before reusing an earlier result.
-
-The repeated animated-door hold failures exposed insufficient tracking reserve
-at the end of pushing. A fixed or decelerating angular target lost contact with
-the coasting panel. The common probe now checks the local reach of the projected
-coasting target and follows the moving material point while smoothly removing
-opening lead, with bounded normal support if load declines. Contact/force/pose
-validity thresholds are unchanged; see [[phase-4-robot-and-task-configuration|Phase 4]].
-The modern-door pair passes at 49.87672 degrees with complete holding and release;
-other affected references are being rechecked under the same revised probe.
-Intermediate and earlier failed pairs remain in the cache.
-
-The PSX `front-005` pre-cycle error came from leaf ownership metadata: component
-7 is existing collidable glazing, but only the surrounding component 8 was listed
-as leaf geometry. Including both leaves the original bounds, inertia, contact
-fraction and all USD bytes unchanged. The prescribed contact and finger footprint
-now intersect the existing surface; the complete expert pair must be rerun.
-
-The prison-door stop was traced to false convex volume at the frame's lower
-hinge corner. At 23.3 degrees the colliders intersected while the actual visual
-surface sections remained separate. Repartitioning the same frame at its measured
-sill/header boundaries (Z = 0.041961/2.045949 m) moves the geometric stop to 47.0
-degrees, independently reached by the isolated GPU physics check. No source
-surface, pivot, mass, material, unlatched state or other collision was changed.
-The former payload/records and the staged static/physics evidence are retained at
-`~/.cache/alexdoor-xas/verification/qualification-repair-20260924/prison/`.
-The former 22.63268-degree expert reference is superseded; a new complete pair
-is required on the corrected collision geometry.
-
-Reviewed RGB shows the pushing hand and panel, but geometric visibility does
-not pass throughout the qualified pilot or animated-door trials, including
-insufficient sampled frame points. The prison-door pair passes this geometric
-diagnostic. Neither result establishes learned-perception readiness. No camera
-retuning, learning data or split was introduced. No synthetic sweep was repeated;
-the historical synthetic results belong to the original 45-degree setup.
-
-The pool contains 25 left and seven right doors. At least five additional
+Across the 32-door pool the current state is **5 qualified, 5 out of domain, and 22 unvisited**.
+Routine execution may resume on pending identities using the procedure above.
+The read-only pool scan identified only the two floor-flush moving assemblies
+repaired above; the pending wood door received preparation checks only.
+Unexpected failures still require diagnosis, never per-door retuning.
+The pool contains 25 left and seven right doors, so at least seven additional
 qualifiable right identities are needed for the final 12/12 balance, potentially
-more after actual exclusions. The final corpus selection and split remain pending.
+more after exclusions. Corpus selection and split remain pending.
+
+RGB-D capture is operational, but geometric visibility does not pass throughout
+all qualified trials, including insufficient sampled frame points. This does not
+establish learned-perception readiness. No camera retuning, learning data or split
+was introduced. No synthetic sweep was repeated; historical synthetic results
+belong to the earlier 45-degree setup.
 
 #### Implementation
 

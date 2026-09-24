@@ -83,7 +83,7 @@
     "status": "qualified",
     "theta_expert_d": 59.33077290458509,
     "reason": "mechanical_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-door-metal-b21ec273/20260924T211145.221818Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-door-metal-b21ec273/20260924T233327.320423Z",
     "trials": [
       {
         "passed": true,

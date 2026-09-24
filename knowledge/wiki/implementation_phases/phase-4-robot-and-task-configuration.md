@@ -140,8 +140,9 @@ stopping requires that this target cannot retain the tracking reserve. A reachab
 endpoint alone does not override the original measured-error/orientation guards.
 This avoids premature stops from extrapolation alone. The forecast and checked
 endpoint errors are retained in push traces; a local solve is not a global
-unreachability proof. These common revisions address
-the repeated animated-door hold failures; earlier references need fresh pairs. There is no 45- or 50-degree termination condition. Mechanical
+unreachability proof. These common revisions address the repeated animated-door
+hold failures; the affected references were rechecked in fresh complete pairs
+reported in Phase 5. There is no 45- or 50-degree termination condition. Mechanical
 stop, locally evidenced joint constraint, safety stop, lost contact, solver/tracking
 stall, timeout and invalid physics remain distinct; unresolved stops cannot qualify.
 

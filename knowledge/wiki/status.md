@@ -8,28 +8,30 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Pilot references remain right 59.33 degrees and left 46.37 degrees. Six subsequent doors were attempted; the campaign is paused pending loader compatibility and final-hold diagnosis. Prison-door collider correction passes static/GPU physics; its earlier expert reference is superseded pending a new pair. Across 32 doors: two qualified, two out of domain, five unresolved, one published `invalid_asset` under review, and 22 unvisited. Final corpus/split pending. |
+| 5.1 — Expert qualification | Corrective cohort resolved on the RTX 4090 with the common probe: **5 qualified, 5 out of domain, and 22 unvisited**. Loader compatibility, leaf ownership, holding and the artificial prison-door stop are corrected; final corpus/split pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Keep the remaining 22 doors unvisited until the loader compatibility problem
-and repeated invalid final hold are diagnosed. The published `invalid_asset`
-result must not be attributed to source geometry before the loader is checked.
-See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]
-for per-door outcomes and retained evidence. Do not retune the pose, controller,
-camera or assets to obtain a pass. Older results remain tied to their archived
-setup. At least five additional qualifiable right identities are still needed
-for the final 12/12 balance.
+Resume the routine command on the 22 pending prepared identities. Read the pair,
+limiting cause, contacts and representative images before accepting the published
+classification. See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]
+for current results, retained failed evidence and escalation rules. The pending
+`interior-wood-d1-32707dc` received the same verified floor-clearance repair and
+still needs its first expert pair. Do not modify controller or asset settings
+per door. At least seven additional qualifiable right identities are needed for
+the final 12/12 balance.
 
 ## Limits
 
-Preparation does not establish robot reachability. The prison metal door retains
-a corrected 47.0° geometric stop: the earlier 23.1° stop came from excess convex
-volume at a frame corner. The original payload and reference remain archived. The previous four pedestal exclusions belong to the
-superseded 45-degree pose; current results are tied to their recorded setup and
-complete trial pair. Rights scopes constrain sharing independently of technical
-readiness.
+Preparation does not establish robot reachability. The prison door's corrected
+geometric stop is 47.0°, while its valid common-baseline reference is 44.91557°:
+the measured tracking guard stops the push below the 45° admission threshold.
+This is not proof that the robot cannot reach 47°. The frame door likewise has a
+valid 42.58362° reference. PSX front-005 has an obstructed prescribed footprint;
+two left-door frames physically intersect the fixed pedestal. These five doors
+remain outside the current domain. Earlier outcomes and original payloads remain
+archived. Rights scopes constrain sharing independently of technical readiness.
 
 RGB-D acquisition is operational, but sampled frame visibility is insufficient in
 the qualified real-door trials; learned door perception is not established. Simulator

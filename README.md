@@ -11,11 +11,12 @@ push doors with fixed-base Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
 Purdue control/sensing and the shared expert workflow are implemented.
 The prepared pool contains **32 doors**: 29 redistributable, two local-only and
-one private/noncommercial. The real-door expert pilot is complete: a right door
-qualifies at 59.33 degrees and a left door at 46.37 degrees, each with two valid
-GPU cycles using the same zero-yaw placement and ready posture. The command and
+one private/noncommercial. Expert qualification currently has
+**5 qualified, 5 out of domain, and 22 unvisited**.
+The common zero-yaw placement, ready posture and corrected holding controller
+are verified with complete GPU pairs on both hinge directions. The command and
 [handoff procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md#procedure-for-subsequent-doors)
-are ready for remaining doors. Final corpus selection, B1 demonstrations,
+are ready for the pending doors. Final corpus selection, B1 demonstrations,
 Replicator and learned-policy integration remain future work.
 
 B0 workflows and local data have been retired. Their scientific conclusions and
