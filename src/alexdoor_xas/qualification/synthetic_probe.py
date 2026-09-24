@@ -1,4 +1,4 @@
-"""Controlled synthetic-door probe. Simulator truth never enters policy adapters."""
+"""Shared controlled door probe. Simulator truth never enters policy adapters."""
 
 from collections import deque
 from dataclasses import asdict, dataclass, field
@@ -161,16 +161,20 @@ def rank_candidates(results, tie_deg):
     return ordered
 
 
-def summarize_trials(trials):
+def summarize_trials(trials, *, required_count=None):
     """Accept only resolved stops and repeatable limiting causes within two degrees."""
     resolved = {"kinematic_limit", "mechanical_stop", "safety_stop"}
-    controlled = bool(trials) and all(
-        r["passed"]
-        and r["released"]
-        and r["stop_reason"] in resolved
-        and r["angle_deg"] is not None
-        and np.isfinite(r["angle_deg"])
-        for r in trials
+    controlled = (
+        bool(trials)
+        and (required_count is None or len(trials) == required_count)
+        and all(
+            r["passed"]
+            and r["released"]
+            and r["stop_reason"] in resolved
+            and r["angle_deg"] is not None
+            and np.isfinite(r["angle_deg"])
+            for r in trials
+        )
     )
     causes = {(r["stop_reason"], r.get("safety_detail")) for r in trials}
     spread = (
@@ -317,16 +321,7 @@ def run_probe(env, door, setup, output):
         )
         material_error = float(np.linalg.norm(p - material_p))
         orientation_error = float(Rotation.from_matrix(material_r @ actual_r.T).magnitude())
-        footprint = ((distal @ actual_r.T + p) - door.hinge) @ material_r
-        from_hinge = -door.sign * footprint[:, 1]
-        footprint_inside = bool(
-            np.all(
-                (from_hinge >= 0.0)
-                & (from_hinge <= door.width)
-                & (footprint[:, 2] >= 0.01)
-                & (footprint[:, 2] <= door.height + 0.01)
-            )
-        )
+        footprint_inside = door.footprint_inside(distal @ actual_r.T + p, angle)
         valid = (
             loaded
             and footprint_inside
@@ -540,11 +535,12 @@ def run_probe(env, door, setup, output):
         released = not state[5] and separation >= 0.01 and state[1] <= setup.position_tolerance
     if not released:
         failure = failure or "unsafe_release"
-    measured = held_angle if failure is None else window.maximum
+    measured = window.maximum
     result = dict(
         case=door.name,
         passed=failure is None and window.maximum is not None,
         angle_deg=None if measured is None else float(np.rad2deg(measured)),
+        hold_angle_deg=None if held_angle is None else float(np.rad2deg(held_angle)),
         stop_reason=failure or reason,
         limit_evidence=limit_evidence,
         safety_detail=safety_detail,
@@ -553,7 +549,7 @@ def run_probe(env, door, setup, output):
         clearance_m=min_clearance,
         clearance_scope="robot_door_AABB_lower_bound_excluding_distal_panel_pairs",
         released=released,
-        scope="synthetic_controlled_probe",
+        scope="controlled_door_probe",
         force_components="normal_only",
         visibility=None
         if env.capture is None

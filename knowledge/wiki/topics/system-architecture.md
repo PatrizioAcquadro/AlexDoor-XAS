@@ -2,7 +2,8 @@
 
 The maintained runtime is `AlexDoor-DoorPush-Purdue-v0`: fixed-base Purdue
 Alex003, WSG32/UMI v1, measured pedestal and head ZED RGB-D. Real-door expert
-qualification and learned observation integration remain future work.
+qualification has a shared executor; its pilot is in progress. Learned observation
+integration remains future work.
 
 ## Runtime and Data Boundaries
 
@@ -28,6 +29,15 @@ See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
 `scripts/prepare_doors.py` handles inspection, normalization, static/visual/isolated
 physics checks and promotion. `DoorInspectionEnv` remains necessary for this B1
 path. It does not execute the robot expert.
+
+`scripts/qualify_door.py` loads a prepared door into the same Purdue environment
+and reuses the controlled probe. Prepared geometry supplies the material-point
+trajectory and physical bounds; the common robot/controller settings stay frozen.
+The executor checks initial pedestal interference, requires two valid controlled
+cycles for an expert angle, and publishes a compact result in `prepared.json`.
+All detailed qualification evidence stays in the verification cache, never in
+learning data. The same sustained-window measurement serves synthetic and real
+doors; a valid final hold/release is required independently of the maximum angle.
 
 `qualification/contracts.py` owns shared source admission limits and geometry
 validation; preparation and verification use the same bounds. Promotion stages

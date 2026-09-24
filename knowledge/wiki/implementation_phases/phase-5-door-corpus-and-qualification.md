@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 Subphase 5.0 is complete for **32 prepared doors**: 29 redistributable, two
-local-only and one private/noncommercial. No door has expert qualification.
+local-only and one private/noncommercial. Expert qualification uses the shared command below; the two-handed pilot is not yet closed.
 Subphase 5.1 selects the final 24-door, 12/4/8 identity split; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
@@ -141,7 +141,8 @@ unresolved before inspection. Per-source evidence and exceptions live in the JSO
 
 ## Prepared Pool
 
-All entries below retain acquired preparation passes and pending expert status.
+All entries below retain acquired preparation passes. Expert status is recorded per door
+in `prepared.json`; the table describes preparation, not expert admission.
 The stop is geometric, not `theta_expert_d`. In particular the prison door's
 23.1° limit is preserved; 5.1 owns selection and reachable-domain decisions.
 
@@ -196,6 +197,59 @@ attempt narrative; original downloads remain outside this checkout.
 
 ## Subphase 5.1 — Expert Qualification and Final Split
 
+### Operational Command
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/qualify_door.py \
+  --asset-id <id> --device cuda:0 --headless
+```
+
+The command loads the published USD and the frozen common setup, acquires RGB-D
+and contact diagnostics, and runs two complete cycles. It exposes no per-door
+controller tuning. `--rerun` explicitly allows a justified recheck of an already
+qualified door. Unresolved doors may be rerun after diagnosis; every invocation
+creates a new evidence directory under `~/.cache/alexdoor-xas/verification/expert/`.
+The report records the previous evidence directory. Earlier failed pairs remain
+available and cannot be mixed into a new pair.
+
+`prepared.json` retains its preparation fields and stores a structured
+`expert_qualification`: status, reason, expert angle in degrees when defined,
+compact trial results, repeat difference and evidence location. Unvisited doors
+retain `not_run`. Full traces, raw contacts, RGB/depth samples, effective setup and
+input records remain in the cache, outside learning datasets. Only a complete
+report is published; concurrent record edits are not overwritten.
+
+A positive-volume intersection between the closed door and the fixed pedestal
+establishes initial setup infeasibility before movement. This uses the composed
+convex colliders and a 2 mm penetration tolerance, not overlapping AABBs alone.
+It records `out_of_domain`, the intersecting geometry and **no expert angle**;
+the preparation pass remains valid. No unsafe pair is needed to establish that
+this closed starting configuration is impossible. Other execution failures remain
+`unresolved` unless a loaded asset explicitly contradicts its structural contract
+(`invalid_asset`). A missing file or simulator failure is not proof of bad geometry.
+
+The surface trajectory follows the actual leaf colliders at the frozen fraction
+and height, retaining tool +X into the panel and +Z upward. Actual frame/handle
+bounds replace synthetic dimensions. Clearance remains a conservative diagnostic;
+raw contact ownership determines contact validity. Visibility samples actual
+surfaces and remains a geometric diagnostic, not learned-perception qualification.
+
+### Procedure for Subsequent Doors
+
+1. Select one prepared identity with pending expert status and run the command.
+2. Read `report.json`; a nonzero shell exit alone does not distinguish exclusion
+   from a runtime error. `qualified` requires the valid pair below. `out_of_domain`
+   means an evidenced geometric exclusion or a valid reference below 45 degrees.
+3. Inspect representative images, sustained-contact windows, limiting cause and
+   release. Retain the automatically published summary and all failed evidence.
+4. Escalate `unresolved` or contradictory evidence for diagnosis. Do not change
+   the robot pose, contact point, thresholds, colliders or controller to obtain a pass.
+5. After a general fix, rerun the entire affected pair. Do not choose favorable
+   repetitions. Commit only the relevant tracked result and documentation changes.
+
+This procedure is implemented; successful real-door pilot qualification and the
+final split remain separate acceptance gates.
+
 #### Implementation
 
 For each prepared door, run the frozen probe to its valid controlled limit,
@@ -239,6 +293,7 @@ collected assets.
 ## Maintained Entry Points
 
 - `scripts/prepare_doors.py` and `qualification/`: shared intake and promotion.
+- `scripts/qualify_door.py`: frozen real-door probe, paired decision and per-door result.
 - `scripts/verify_door_preparation.py`: synthetic format/negative/physics checks,
   run only when affected infrastructure changes justify them.
 - `DoorInspectionEnv`: robot-independent door measurement, still used by B1.

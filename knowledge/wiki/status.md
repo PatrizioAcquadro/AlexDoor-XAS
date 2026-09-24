@@ -8,12 +8,12 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Frozen and verified on four synthetic doors. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Not implemented/run on real doors; final corpus and 12/4/8 split pending. |
+| 5.1 — Expert qualification | Shared command implemented; real-door pilot and four-case regression in progress. Final corpus and 12/4/8 split pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Implement [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]:
+Complete the pilot of [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]:
 apply the frozen common probe, obtain two valid runs per candidate, derive
 `theta_expert_d` and select the qualified domain. Preserve acquired preparation
 results; do not rerun door preparation merely because metadata was simplified.
@@ -39,7 +39,7 @@ numerical model utilities. Simulation checks do not establish hardware safety.
   [[topics/learned-policy-stack|Policy components]] — reusable numerical utilities.
 
 Supported commands are `check_env.py`, `prepare_doors.py`,
-`verify_door_preparation.py`, `verify_purdue_runtime.py`, `verify_synthetic_setup.py`
+`qualify_door.py`, `verify_door_preparation.py`, `verify_purdue_runtime.py`, `verify_synthetic_setup.py`
 and `screen_synthetic_setup.py`. Verification reports stay in the runtime cache.
 
 The maintained numerical data path requires explicit, ordered proprioceptive

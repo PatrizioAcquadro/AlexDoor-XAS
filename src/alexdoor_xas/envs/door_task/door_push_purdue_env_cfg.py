@@ -24,6 +24,7 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     action_mode: str = "A2"
     cameras: bool = True
     synthetic_door: object | None = None
+    prepared_door: object | None = None
     floor_pose: tuple = (0.0, 0.0, 0.0)
     max_joint_speed: float = 0.5
     centering_gain: float = 0.1

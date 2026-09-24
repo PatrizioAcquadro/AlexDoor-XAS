@@ -59,6 +59,18 @@ class SyntheticDoor:
         )
         return (points @ self.rotation(angle).T + self.hinge)[:, :2]
 
+    def footprint_inside(self, points, angle):
+        local = (points - self.hinge) @ self.rotation(angle)
+        from_hinge = -self.sign * local[:, 1]
+        return bool(
+            np.all(
+                (from_hinge >= 0)
+                & (from_hinge <= self.width)
+                & (local[:, 2] >= 0.01)
+                & (local[:, 2] <= self.height + 0.01)
+            )
+        )
+
     @cached_property
     def mechanical_stop(self):
         """First panel/jamb intersection, resolved to 0.1 degree with a 0.2-degree gap."""

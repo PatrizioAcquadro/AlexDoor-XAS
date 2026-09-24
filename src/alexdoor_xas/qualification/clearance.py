@@ -51,20 +51,23 @@ class DoorClearance:
         from scipy.spatial.transform import Rotation
 
         poses = self.env.contacts.bodies.get_transforms().numpy()
-        panel = door.panel_rectangle(angle)
-        panel_bounds = (np.r_[panel.min(0), 0.01], np.r_[panel.max(0), door.height + 0.01])
-        handle_c = door.hinge + door.rotation(angle) @ np.array(
-            [-0.06, -door.sign * 0.85 * door.width, 1.05]
-        )
-        half = np.abs(door.rotation(angle)) @ np.array([0.04, 0.06, 0.0175])
-        targets = [("panel", panel_bounds), ("handle", (handle_c - half, handle_c + half))]
-        for side in (-1, 1):
-            c = np.array([0, side * (door.width / 2 + 0.045), door.height / 2])
-            half = np.array([0.06, 0.04, door.height / 2])
+        if hasattr(door, "collision_bounds"):
+            targets = door.collision_bounds(angle)
+        else:
+            panel = door.panel_rectangle(angle)
+            panel_bounds = (np.r_[panel.min(0), 0.01], np.r_[panel.max(0), door.height + 0.01])
+            handle_c = door.hinge + door.rotation(angle) @ np.array(
+                [-0.06, -door.sign * 0.85 * door.width, 1.05]
+            )
+            half = np.abs(door.rotation(angle)) @ np.array([0.04, 0.06, 0.0175])
+            targets = [("panel", panel_bounds), ("handle", (handle_c - half, handle_c + half))]
+            for side in (-1, 1):
+                c = np.array([0, side * (door.width / 2 + 0.045), door.height / 2])
+                half = np.array([0.06, 0.04, door.height / 2])
+                targets.append(("frame", (c - half, c + half)))
+            c = np.array([0, 0, door.height + 0.06])
+            half = np.array([0.06, (door.width + 0.17) / 2, 0.04])
             targets.append(("frame", (c - half, c + half)))
-        c = np.array([0, 0, door.height + 0.06])
-        half = np.array([0.06, (door.width + 0.17) / 2, 0.04])
-        targets.append(("frame", (c - half, c + half)))
         distal_actors = {surface.actor for surface in self.env.contacts.surfaces}
         minimum = float("inf")
         for actor, pose in zip(self.env.contacts.actors, poses, strict=True):

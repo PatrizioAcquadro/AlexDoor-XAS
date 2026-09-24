@@ -5,6 +5,8 @@ import numpy as np
 
 def visible_points(points, camera_position, camera_rotation, intrinsics, depth, tolerance=0.02):
     """Project world points and test actual optical-axis depth, including occlusion."""
+    if not len(points):
+        return np.zeros(0, dtype=bool)
     optical = (np.asarray(points) - camera_position) @ camera_rotation
     image = optical @ intrinsics.T
     h, w = depth.shape[:2]
@@ -37,14 +39,21 @@ def measure_visibility(env, door, angle, fraction, height):
         sample.depth_m[0, ..., 0].cpu().numpy(),
         np.nan,
     )
+
+    def surface(f, z):
+        try:
+            return door.contact_pose(angle, f, z)[0]
+        except ValueError:
+            return np.full(3, np.nan)
+
     groups = {
         "panel": [
-            door.contact_pose(angle, f, z)[0]
+            surface(f, z)
             for f in np.linspace(0.15, 0.85, 5)
             for z in np.linspace(height - 0.2, height + 0.2, 5)
         ],
         "contact_surround": [
-            door.contact_pose(angle, fraction + dy / door.width, height + dz)[0]
+            surface(fraction + dy / door.width, height + dz)
             for dy, dz in (
                 (-0.06, -0.06),
                 (-0.06, 0.06),
@@ -62,6 +71,8 @@ def measure_visibility(env, door, angle, fraction, height):
             for z in np.linspace(height - 0.3, height + 0.3, 7)
         ],
     }
+    if hasattr(door, "frame_points"):
+        groups["frame"] = door.frame_points
     counts = {
         name: int(visible_points(points, position, rotation, intrinsics, depth).sum())
         for name, points in groups.items()

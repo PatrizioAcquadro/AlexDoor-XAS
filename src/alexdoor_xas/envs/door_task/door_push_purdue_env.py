@@ -53,6 +53,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
             raise ValueError("Purdue commissioning requires one GPU environment")
         if cfg.action_mode not in ("A1", "A2"):
             raise ValueError("action_mode must be A1 or A2")
+        if cfg.synthetic_door is not None and cfg.prepared_door is not None:
+            raise ValueError("Select either a synthetic or a prepared door")
         cfg.action_space = 7 if cfg.action_mode == "A1" else 6
         self.capture = None
         self.contacts = None
@@ -126,14 +128,20 @@ class DoorPushPurdueEnv(DirectRLEnv):
         light.func("/World/Light", light)
         self.door = None
         self.panel_path = PANEL
-        if self.cfg.synthetic_door is not None:
+        if self.cfg.synthetic_door is not None or self.cfg.prepared_door is not None:
             from isaaclab.actuators import ImplicitActuatorCfg
             from isaaclab.assets import ArticulationCfg
 
             from alexdoor_xas.assets.synthetic_door import author_synthetic_door
 
             root = ROOT + "/Door"
-            author_synthetic_door(self.sim.stage, root, self.cfg.synthetic_door)
+            geometry = self.cfg.prepared_door or self.cfg.synthetic_door
+            if self.cfg.prepared_door is not None:
+                spawn = sim_utils.UsdFileCfg(usd_path=str(geometry.usd))
+                spawn.func(root, spawn)
+                geometry.load_stage(self.sim.stage, root)
+            else:
+                author_synthetic_door(self.sim.stage, root, geometry)
             schemas.activate_contact_sensors(root)
             self.panel_path = root + "/Panel"
             self.door = Articulation(
@@ -144,7 +152,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
                         "hinge": ImplicitActuatorCfg(
                             joint_names_expr=["Hinge"],
                             stiffness=0.0,
-                            damping=self.cfg.synthetic_door.damping,
+                            damping=geometry.damping,
                         )
                     },
                 )
