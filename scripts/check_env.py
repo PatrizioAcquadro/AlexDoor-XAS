@@ -1,14 +1,5 @@
 #!/usr/bin/env python
-"""Environment readiness preflight (fast, no Isaac app launch).
-
-Reports the official Isaac install paths, Python / package versions, and CUDA
-availability, then confirms every registered external asset exists. Exits
-non-zero if CUDA, a required package, install path, or asset is unavailable.
-
-Run through the official Isaac Lab Python::
-
-    PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/check_env.py
-"""
+"""Check workstation dependencies, CUDA, runtime provenance and external assets."""
 
 from __future__ import annotations
 
@@ -16,10 +7,8 @@ import platform
 import subprocess
 import sys
 import tomllib
-from collections.abc import Callable
-from importlib import metadata, util
+from importlib import import_module, metadata, util
 from pathlib import Path
-from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_ROOT = REPO_ROOT / "src"
@@ -41,6 +30,17 @@ PURDUE_PACKAGE_MODULE = "ihmc_alex_isaaclab.robots.alex_purdue"
 PURDUE_PACKAGE_MODULE_FILE = (
     Path("/home/pacquadr/Desktop/Alex") / "src" / "ihmc_alex_isaaclab" / "robots" / "alex_purdue.py"
 )
+
+PYTHON_PACKAGES = {
+    "numpy": "numpy",
+    "scipy": "scipy",
+    "h5py": "h5py",
+    "Pillow": "PIL",
+    "PyYAML": "yaml",
+    "trimesh": "trimesh",
+    "gymnasium": "gymnasium",
+}
+REQUIRED_PACKAGES = ("isaaclab", "ihmc-alex-isaaclab", "torch", "warp-lang", *PYTHON_PACKAGES)
 
 
 def _pkg_version(name: str) -> str:
@@ -148,14 +148,12 @@ def _check_provenance() -> tuple[list[str], list[str]]:
     return failures, warnings
 
 
-def _purdue_module_failure(
-    find_spec: Callable[[str], Any] = util.find_spec,
-    module_file: Path = PURDUE_PACKAGE_MODULE_FILE,
-) -> str | None:
+def _purdue_module_failure() -> str | None:
     """Return an actionable failure when the Alex package is unavailable."""
 
+    module_file = PURDUE_PACKAGE_MODULE_FILE
     try:
-        spec = find_spec(PURDUE_PACKAGE_MODULE)
+        spec = util.find_spec(PURDUE_PACKAGE_MODULE)
     except (AttributeError, ImportError, ModuleNotFoundError, ValueError) as error:
         detail = f"find_spec raised {error.__class__.__name__}: {error}"
     else:
@@ -179,21 +177,50 @@ def _purdue_module_failure(
     )
 
 
-def main() -> int:
+def _check_assets() -> list[str]:
+    from ihmc_alex_isaaclab._paths import REPOSITORY_ROOT as alex_root
+    from ihmc_alex_isaaclab.sensors.zed_x_mini_dependency import resolve_zed_isaac_sim_root
 
+    assets = (
+        (
+            "Purdue WSG URDF",
+            alex_root
+            / "assets/robots/alex_purdue/urdf/baseline/alex_purdue_wsg32_umi_v1_full_convex.urdf",
+        ),
+        ("Alex003 measurements", alex_root / "measurements.yaml"),
+        (
+            "Pedestal URDF",
+            alex_root
+            / "assets/platforms/purdue_alex003_pedestal/urdf/purdue_alex003_pedestal.urdf",
+        ),
+        ("ZED Wide", resolve_zed_isaac_sim_root().usd_path),
+    )
+    for name, path in assets:
+        ok = path.exists()
+        flag = "ok " if ok else "ERR"
+        print(f"  [{flag}] {name}: {path}")
+
+    return [f"Missing {name}: {path}" for name, path in assets if not path.exists()]
+
+
+def main() -> int:
     print("== AlexDoor-XAS environment check ==")
     print(f"python      : {platform.python_version()}  ({sys.executable})")
 
-    versions = {
-        name: _pkg_version(name)
-        for name in ("isaacsim", "isaaclab", "ihmc-alex-isaaclab", "torch", "numpy")
-    }
+    versions = {name: _pkg_version(name) for name in ("isaacsim", *REQUIRED_PACKAGES, "diffusers")}
     for name, ver in versions.items():
         print(f"{name:<12}: {ver}")
+    print("diffusers is optional; required only for Diffusion policy components.")
     print(f"isaacsim dir: {OFFICIAL_ISAAC_SIM_ROOT}")
     print(f"isaaclab dir: {OFFICIAL_ISAAC_LAB_ROOT}")
 
-    # CUDA (importing torch is cheap enough and is the only reliable probe).
+    import_failures = []
+    for package, module in PYTHON_PACKAGES.items():
+        try:
+            import_module(module)
+        except Exception as error:
+            import_failures.append(f"{package}: {type(error).__name__}: {error}")
+
     cuda_failure = None
     try:
         import torch
@@ -228,30 +255,15 @@ def main() -> int:
         provenance_failures.append(purdue_module_failure)
 
     print("-- assets --")
-    required_pkgs = ("isaaclab", "ihmc-alex-isaaclab", "torch", "numpy")
-    missing_pkgs = [n for n in required_pkgs if versions[n] == "MISSING"]
-    from ihmc_alex_isaaclab._paths import REPOSITORY_ROOT as alex_root
-    from ihmc_alex_isaaclab.sensors.zed_x_mini_dependency import resolve_zed_isaac_sim_root
-
-    assets = (
-        (
-            "Purdue WSG URDF",
-            alex_root
-            / "assets/robots/alex_purdue/urdf/baseline/alex_purdue_wsg32_umi_v1_full_convex.urdf",
-        ),
-        ("Alex003 measurements", alex_root / "measurements.yaml"),
-        (
-            "Pedestal URDF",
-            alex_root
-            / "assets/platforms/purdue_alex003_pedestal/urdf/purdue_alex003_pedestal.urdf",
-        ),
-        ("ZED Wide", resolve_zed_isaac_sim_root().usd_path),
-    )
-    missing_assets = [name for name, path in assets if not path.exists()]
-    for name, path in assets:
-        ok = path.exists()
-        flag = "ok " if ok else "ERR"
-        print(f"  [{flag}] {name}: {path}")
+    missing_pkgs = [name for name in REQUIRED_PACKAGES if versions[name] == "MISSING"]
+    asset_failures = []
+    if purdue_module_failure is None:
+        try:
+            asset_failures = _check_assets()
+        except (ImportError, OSError, RuntimeError, ValueError) as error:
+            asset_failures.append(f"{type(error).__name__}: {error}")
+    else:
+        print("  Skipped: external Alex package unavailable or from the wrong checkout")
 
     print("-- result --")
     if missing_pkgs:
@@ -263,15 +275,24 @@ def main() -> int:
         )
     if missing_paths:
         print(f"MISSING install paths: {missing_paths}")
-    if missing_assets:
-        print(f"MISSING required assets: {missing_assets}")
+    for failure in import_failures:
+        print(f"IMPORT FAIL: {failure}")
+    for failure in asset_failures:
+        print(f"ASSET FAIL: {failure}")
     if cuda_failure is not None:
         print(f"CUDA FAIL: {cuda_failure}")
     for warning in provenance_warnings:
         print(f"WARN: {warning}")
     for failure in provenance_failures:
         print(f"PROVENANCE FAIL: {failure}")
-    if cuda_failure or missing_pkgs or missing_paths or missing_assets or provenance_failures:
+    if (
+        cuda_failure
+        or missing_pkgs
+        or missing_paths
+        or import_failures
+        or asset_failures
+        or provenance_failures
+    ):
         print("FAIL")
         return 1
     print("PASS")

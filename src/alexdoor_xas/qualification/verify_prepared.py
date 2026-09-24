@@ -8,8 +8,13 @@ from pathlib import Path
 import numpy as np
 from pxr import PhysxSchema, Usd, UsdGeom, UsdPhysics, UsdShade, UsdUtils
 
-from alexdoor_xas.door_qualification import DoorDimensions, cuboid_inertia_kg_m2, sha256_file
-
+from .contracts import (
+    MAX_TEXTURE_EDGE_PX,
+    MAX_TRIANGLES,
+    DoorDimensions,
+    cuboid_inertia_kg_m2,
+    sha256_file,
+)
 from .convex_geometry import clear_opening, mechanical_limit
 from .preparation import GROUPS, file_inventory, hinge_collision_pairs, require, validate_recipe
 
@@ -225,13 +230,13 @@ def static_check(attempt):
             and list(map(str, joint.GetBody1Rel().GetTargets())) == ["/Door/Handle"],
             "Handle must be fixed to Panel",
         )
-    require(0 < visual_triangles <= 250_000, "Visual triangle budget exceeded")
+    require(0 < visual_triangles <= MAX_TRIANGLES, "Visual triangle budget exceeded")
     from PIL import Image
 
     for item in inventory:
         if Path(item["path"]).suffix.lower() in {".png", ".jpg", ".jpeg", ".tga", ".bmp", ".exr"}:
             with Image.open(item["path"]) as image:
-                require(max(image.size) <= 4096, "Normalized texture exceeds 4K")
+                require(max(image.size) <= MAX_TEXTURE_EDGE_PX, "Normalized texture exceeds 4K")
     clear_opening(collision["Frame"], panel_bounds, recipe.get("clear_aperture_m"))
     excluded_pairs = hinge_collision_pairs(recipe, collision, collision_components)
     expected_filters = {

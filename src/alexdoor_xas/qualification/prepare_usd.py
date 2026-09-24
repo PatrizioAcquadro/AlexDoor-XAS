@@ -17,13 +17,15 @@ import numpy as np
 import trimesh
 from pxr import Gf, PhysxSchema, Sdf, Usd, UsdGeom, UsdPhysics, UsdShade, UsdUtils
 
-from alexdoor_xas.door_qualification import (
+from .contracts import (
+    MAX_CONNECTED_COMPONENTS,
+    MAX_TEXTURE_EDGE_PX,
+    MAX_TRIANGLES,
     DoorDimensions,
     connected_mesh_face_components,
     cuboid_inertia_kg_m2,
     geometry_fingerprint,
 )
-
 from .convex_geometry import clear_opening, mechanical_limit, partition_hulls, surface_crossings
 from .mesh_preparation import prepare_components
 from .preparation import (
@@ -206,13 +208,17 @@ def load_source(source, output, extra_dependencies=()):
         ) from exc
     require(bool(components), "No usable mesh geometry", category="asset")
     require(
-        len(components) <= 512,
-        "More than 512 components; bounded preparation limit",
+        len(components) <= MAX_CONNECTED_COMPONENTS,
+        f"More than {MAX_CONNECTED_COMPONENTS} components; bounded preparation limit",
         category="tool",
         status="unresolved",
     )
     triangles = sum(len(m.faces) for m in components)
-    require(triangles <= 250_000, "More than 250,000 visual triangles", category="asset")
+    require(
+        triangles <= MAX_TRIANGLES,
+        f"More than {MAX_TRIANGLES:,} visual triangles",
+        category="asset",
+    )
     textures = []
     summaries = []
     for index, mesh in enumerate(components):
@@ -232,7 +238,9 @@ def load_source(source, output, extra_dependencies=()):
         ):
             image = getattr(material, name, None)
             if image is not None:
-                require(max(image.size) <= 4096, "Texture exceeds 4K", category="asset")
+                require(
+                    max(image.size) <= MAX_TEXTURE_EDGE_PX, "Texture exceeds 4K", category="asset"
+                )
                 textures.append({"component": index, "channel": name, "size": list(image.size)})
         summaries.append(
             {

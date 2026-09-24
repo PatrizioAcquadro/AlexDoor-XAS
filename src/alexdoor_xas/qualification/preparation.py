@@ -8,7 +8,13 @@ from pathlib import Path
 
 import numpy as np
 
-from alexdoor_xas.door_qualification import ACCEPTED_LICENSES, DoorDimensions, sha256_file
+from .contracts import (
+    ACCEPTED_LICENSES,
+    MAX_TEXTURE_EDGE_PX,
+    MAX_TRIANGLES,
+    DoorDimensions,
+    sha256_file,
+)
 
 FORMATS = {".usd", ".usda", ".usdc", ".usdz", ".glb", ".gltf", ".fbx", ".obj"}
 GROUPS = ("Frame", "Panel", "Handle")
@@ -111,7 +117,10 @@ def remote_review(record, existing=()):
             "Duplicate source identity",
             category="asset",
         )
-    for key, limit in (("reported_triangles", 250_000), ("reported_texture_max_px", 4096)):
+    for key, limit in (
+        ("reported_triangles", MAX_TRIANGLES),
+        ("reported_texture_max_px", MAX_TEXTURE_EDGE_PX),
+    ):
         require(
             record.get(key) is None or 0 < record[key] <= limit,
             f"Outside admission: {key}",

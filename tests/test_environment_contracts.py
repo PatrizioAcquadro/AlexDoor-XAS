@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+from pathlib import Path
 
 import pytest
 
@@ -45,3 +46,37 @@ def test_purdue_env_cfg_contract_if_isaaclab_available() -> None:
     assert cfg.scene.num_envs == 1
     assert cfg.cameras
     assert cfg.action_mode == "A2"
+
+
+@pytest.mark.parametrize("failure", ["alex", "zed", "h5py"])
+def test_preflight_reports_dependency_failures_without_crashing(monkeypatch, capsys, failure):
+    import torch
+
+    path = Path(__file__).resolve().parents[1] / "scripts" / "check_env.py"
+    spec = importlib.util.spec_from_file_location("check_env", path)
+    preflight = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(preflight)
+    monkeypatch.setattr(preflight, "_check_provenance", lambda: ([], []))
+    monkeypatch.setattr(preflight, "_pkg_version", lambda name: "installed")
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(torch.cuda, "get_device_name", lambda _: "preflight fixture")
+
+    def unavailable(*args):
+        raise ImportError(f"missing {failure}")
+
+    if failure == "alex":
+        monkeypatch.setattr(preflight.util, "find_spec", unavailable)
+        monkeypatch.setattr(
+            preflight, "_check_assets", lambda: pytest.fail("Alex import attempted")
+        )
+    else:
+        monkeypatch.setattr(preflight, "_purdue_module_failure", lambda: None)
+        monkeypatch.setattr(preflight, "_check_assets", unavailable if failure == "zed" else list)
+    if failure == "h5py":
+        monkeypatch.setattr(preflight, "PYTHON_PACKAGES", {"h5py": "h5py"})
+        monkeypatch.setattr(preflight, "import_module", unavailable)
+
+    assert preflight.main() == 1
+    output = capsys.readouterr().out
+    assert f"missing {failure}" in output
+    assert output.rstrip().endswith("FAIL")

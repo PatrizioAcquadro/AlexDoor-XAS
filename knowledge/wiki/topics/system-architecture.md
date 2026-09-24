@@ -29,6 +29,11 @@ See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
 physics checks and promotion. `DoorInspectionEnv` remains necessary for this B1
 path. It does not execute the robot expert.
 
+`qualification/contracts.py` owns shared source admission limits and geometry
+validation; preparation and verification use the same bounds. Promotion stages
+records and payloads together, preserves source-relative dependencies and writes
+`prepared.json` last. Failed publication restores the candidate for retry.
+
 Each promoted door has tracked `candidate.json`, `recipe.json`, `prepared.json`
 and local `source/` and `prepared/` payloads. Paths resolve from the door folder;
 no accepted asset depends on a temporary attempt. See
@@ -40,8 +45,8 @@ Future datasets and learned runs use ignored `datasets/` and `outputs/` payloads
 
 ## Reusable Algorithms
 
-Action math, recording, numerical dataset
-loaders/export, split/normalization utilities and ACT/Diffusion tensor training
+Action math, recording, numerical dataset loaders/export, split/normalization
+utilities and ACT/Diffusion tensor training
 remain available as components. Their integration with B1 is not implemented.
 Policies consume a caller-supplied observation function; they do not read door
 truth from the simulator. See [[topics/episode-and-dataset-contracts|Data Components]]
@@ -51,3 +56,8 @@ B0 calibration, manifests, generation, training/evaluation orchestration, datase
 and D0–D4 scenes were retired. Historical conclusions remain in the wiki and
 source history in Git. The workstation GPU is authoritative for Isaac; no command
 in this repository controls physical hardware.
+
+The workstation preflight checks declared Python dependencies, CUDA, the pinned
+Isaac installation and external Alex assets. Missing or broken imports and asset
+resolution errors produce a failure summary. Ordinary Python dependencies are
+packaged; Isaac, Alex, PyTorch, Warp and CUDA remain external runtime components.

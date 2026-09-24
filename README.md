@@ -22,8 +22,9 @@ components remain; no repository command controls physical hardware.
 
 Use Python 3.11+ from the supported workstation stack: Isaac Sim 6.0.1 and
 Isaac Lab `release/3.0.0-beta2`, plus the external Alex package with Purdue/WSG,
-measured pedestal and ZED Wide assets. Isaac, PyTorch and CUDA are supplied by
-that runtime, not installed as package dependencies.
+measured pedestal and ZED Wide assets. Isaac, Alex, PyTorch, Warp and CUDA are
+external runtime dependencies. Ordinary Python dependencies are declared in
+`pyproject.toml`; Diffusion and developer tooling use their respective extras.
 
 From the checkout:
 
@@ -33,6 +34,7 @@ From the checkout:
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/check_env.py
 /home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q
 ruff check src scripts tests
+ruff format --check src scripts tests
 ```
 
 Model tests use CUDA and explicitly skip if unavailable. Pure numerical tests do
@@ -46,6 +48,11 @@ not require a simulator. Run the Purdue integration gate on synthetic fixtures:
 Reports default to `~/.cache/alexdoor-xas/verification/purdue/`; use `--output`
 for another location. `--gate contacts`, `--gate rgbd` and `--no-cameras` are
 focused diagnostics; only the complete gate establishes full runtime evidence.
+
+Reusable numerical data APIs require an explicit dataset root and ordered
+`obs_keys` drawn from recorded proprioception. Door state and contacts remain
+diagnostics. Episodes retain `phase2.v2`; policy checkpoints use `v3` and reject
+earlier formats. This is not yet the B1 RGB-D learning pipeline.
 
 ## Repository Layout
 

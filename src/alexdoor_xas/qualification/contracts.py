@@ -1,7 +1,4 @@
-"""Reusable door preparation contracts and raw angle measurements.
-
-These helpers do not implement B1 expert qualification or corpus completion.
-"""
+"""Shared source admission limits and geometry contracts for door preparation."""
 
 from __future__ import annotations
 
@@ -10,12 +7,11 @@ import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 import numpy as np
 
 ACCEPTED_LICENSES = {"CC0-1.0", "CC-BY-4.0"}
-HANDEDNESSES = {"left", "right"}
 MIN_WIDTH_M = 0.65
 MAX_WIDTH_M = 1.20
 MIN_HEIGHT_M = 1.80
@@ -27,10 +23,6 @@ MAX_SOURCE_VERTICES = 1_000_000
 MAX_CONNECTED_COMPONENTS = 512
 MAX_TEXTURE_EDGE_PX = 4096
 PANEL_MASS_KG = 25.0
-HINGE_DAMPING_NM_S_RAD = 4.0
-HINGE_LIMIT_DEG = (0.0, 90.0)
-FRICTION = 0.5
-RESTITUTION = 0.0
 
 
 class QualificationError(ValueError):
@@ -148,13 +140,7 @@ def connected_face_components(
     *,
     max_components: int = MAX_CONNECTED_COMPONENTS,
 ) -> list[np.ndarray]:
-    """Return face-index groups using bounded-memory vertex union-find.
-
-    ``trimesh.Trimesh.split`` may build an unexpectedly large adjacency graph for
-    malformed imported meshes.  The qualification path only needs topological
-    components, so this implementation keeps memory linear in vertices and faces and
-    rejects pathological inputs before constructing any component meshes.
-    """
+    """Group connected faces in linear memory; reject oversized imported meshes."""
     triangles = np.asarray(faces, dtype=np.int64)
     if triangles.ndim != 2 or triangles.shape[1] != 3 or not len(triangles):
         raise QualificationError("faces must have shape (M, 3), M >= 1")
@@ -251,20 +237,3 @@ def connected_mesh_face_components(
         int(welded_indices.max()) + 1,
         max_components=max_components,
     )
-
-
-def handedness_sign(handedness: Literal["left", "right"] | str) -> float:
-    if handedness not in HANDEDNESSES:
-        raise QualificationError(f"unknown handedness: {handedness!r}")
-    return 1.0 if handedness == "left" else -1.0
-
-
-__all__ = [
-    "ACCEPTED_LICENSES",
-    "DoorDimensions",
-    "QualificationError",
-    "cuboid_inertia_kg_m2",
-    "geometry_fingerprint",
-    "handedness_sign",
-    "sha256_file",
-]

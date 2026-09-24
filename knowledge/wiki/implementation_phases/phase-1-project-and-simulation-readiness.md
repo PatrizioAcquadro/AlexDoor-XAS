@@ -30,6 +30,5 @@ No run-specific Phase 1 evidence package remains active. Current readiness is ch
 
 ## Files
 
-- `src/alexdoor_xas/paths.py`
 - `scripts/check_env.py`
 - `src/alexdoor_xas/envs/door_task/`

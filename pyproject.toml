@@ -1,7 +1,4 @@
-# AlexDoor-XAS package metadata.
-#
-# Isaac Sim, Isaac Lab, PyTorch, and CUDA are supplied by the supported
-# workstation runtime and are intentionally not resolved by pip here.
+# Isaac, Alex, PyTorch, Warp and CUDA are supplied by the workstation runtime.
 
 [build-system]
 requires = ["hatchling>=1.27"]
@@ -17,6 +14,12 @@ license = "LicenseRef-Proprietary"
 authors = [{ name = "Patrizio Acquadro", email = "pacquadr@purdue.edu" }]
 dependencies = [
     "numpy>=1.24",
+    "scipy",
+    "h5py",
+    "Pillow",
+    "PyYAML",
+    "trimesh",
+    "gymnasium",
 ]
 
 [project.optional-dependencies]

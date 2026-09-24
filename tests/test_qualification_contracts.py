@@ -1,11 +1,11 @@
-"""Reusable door preparation and raw measurement tests."""
+"""Shared door geometry and source admission contracts."""
 
 from __future__ import annotations
 
 import numpy as np
 import pytest
 
-from alexdoor_xas.door_qualification import (
+from alexdoor_xas.qualification.contracts import (
     DoorDimensions,
     QualificationError,
     connected_face_components,
