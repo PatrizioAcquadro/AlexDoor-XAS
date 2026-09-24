@@ -1,4 +1,4 @@
-"""Joint and contact validation for recorded Alex V2 episodes."""
+"""Joint and contact validation for recorded episodes."""
 
 from __future__ import annotations
 
@@ -34,9 +34,7 @@ def contact_force_summary(episode: EpisodeBuffer) -> dict[str, Any]:
     forces = np.asarray([_force_value(step.contact) for step in episode.steps], dtype=np.float64)
     finite = np.isfinite(forces)
     finite_ticks = np.flatnonzero(finite)
-    peak_tick = (
-        int(finite_ticks[np.argmax(forces[finite_ticks])]) if finite_ticks.size else None
-    )
+    peak_tick = int(finite_ticks[np.argmax(forces[finite_ticks])]) if finite_ticks.size else None
 
     terminal_raw = episode.extras.get("terminal_contact")
     terminal = None
@@ -48,9 +46,7 @@ def contact_force_summary(episode: EpisodeBuffer) -> dict[str, Any]:
             "sensed": terminal_raw.get("sensed"),
             "t_s": terminal_raw.get("t"),
             "finite": terminal_finite,
-            "within_limit": bool(
-                terminal_finite and 0.0 <= force_n <= FORCE_DATASET_LIMIT_N
-            ),
+            "within_limit": bool(terminal_finite and 0.0 <= force_n <= FORCE_DATASET_LIMIT_N),
         }
 
     return {
@@ -59,15 +55,15 @@ def contact_force_summary(episode: EpisodeBuffer) -> dict[str, Any]:
         "max_force_tick": peak_tick,
         "non_finite_ticks": np.flatnonzero(~finite).astype(int).tolist(),
         "negative_ticks": np.flatnonzero(finite & (forces < 0.0)).astype(int).tolist(),
-        "over_limit_ticks": np.flatnonzero(
-            finite & (forces > FORCE_DATASET_LIMIT_N)
-        ).astype(int).tolist(),
+        "over_limit_ticks": np.flatnonzero(finite & (forces > FORCE_DATASET_LIMIT_N))
+        .astype(int)
+        .tolist(),
         "terminal": terminal,
     }
 
 
-def check_alex_episode(episode: EpisodeBuffer) -> SanityResult:
-    """Validate recorded Alex V2 joint and contact data."""
+def check_episode(episode: EpisodeBuffer) -> SanityResult:
+    """Validate recorded joint and contact data."""
     result = SanityResult()
     if not episode.steps:
         result.errors.append("episode has no recorded steps")
@@ -80,16 +76,13 @@ def check_alex_episode(episode: EpisodeBuffer) -> SanityResult:
         return result
 
     tables = {
-        key: episode.stacked(lambda step, name=key: step.proprio[name])
-        for key in _PROPRIO_KEYS
+        key: episode.stacked(lambda step, name=key: step.proprio[name]) for key in _PROPRIO_KEYS
     }
     for key, values in tables.items():
         if not np.isfinite(values).all():
             ticks = np.nonzero(~np.isfinite(values).all(axis=1))[0]
             suffix = "..." if ticks.size > 5 else ""
-            result.errors.append(
-                f"{label}: non-finite {key} at ticks {ticks[:5].tolist()}{suffix}"
-            )
+            result.errors.append(f"{label}: non-finite {key} at ticks {ticks[:5].tolist()}{suffix}")
     if result.errors:
         return result
 
@@ -138,8 +131,7 @@ def check_alex_episode(episode: EpisodeBuffer) -> SanityResult:
             peak_column = int(np.unravel_index(np.argmax(arm_speeds), arm_speeds.shape)[1])
             joint = arm_ids[peak_column]
             result.warnings.append(
-                f"{label}: arm joint {joint_label(joint)} reached {peak:.2f} rad/s "
-                f"after settle"
+                f"{label}: arm joint {joint_label(joint)} reached {peak:.2f} rad/s after settle"
             )
 
     invalid_contacts: list[int] = []
@@ -164,8 +156,7 @@ def check_alex_episode(episode: EpisodeBuffer) -> SanityResult:
         )
     if force["negative_ticks"]:
         result.errors.append(
-            f"{label}: contact force magnitude is negative at ticks "
-            f"{force['negative_ticks'][:5]}"
+            f"{label}: contact force magnitude is negative at ticks {force['negative_ticks'][:5]}"
         )
     if force["over_limit_ticks"]:
         result.errors.append(

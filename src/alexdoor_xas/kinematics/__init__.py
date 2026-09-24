@@ -1,1 +1,1 @@
-"""Kinematics used by the Alex V2 runtime."""
+"""Kinematics used by the robot runtime."""

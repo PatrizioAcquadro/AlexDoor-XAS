@@ -8,7 +8,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from alexdoor_xas.data_engine import export_datasets, plan_episodes, run_episode
+from alexdoor_xas.dataset.export import export_datasets
 from alexdoor_xas.dataset.loader import EpisodeDataset
 from alexdoor_xas.dataset.normalize import (
     compute_norm_stats,
@@ -16,18 +16,11 @@ from alexdoor_xas.dataset.normalize import (
     view_norm_stats_path,
 )
 from alexdoor_xas.policies.common.data import PolicyDataError, load_policy_data
-from conftest import FakeDoorPushEnv, make_test_engine_cfg
+from conftest import make_episode
 
 
 def _dataset(tmp_path: Path) -> tuple[Path, EpisodeDataset]:
-    episodes = [
-        run_episode(
-            FakeDoorPushEnv(start_door_frame=(0.7, 0.2 + index * 0.01, 0.0)),
-            plan_episodes(0, 1, index)[0],
-            make_test_engine_cfg(task="door_push", door_pose_id="D0"),
-        )
-        for index in range(4)
-    ]
+    episodes = [make_episode(seed=index) for index in range(4)]
     root = tmp_path / "datasets"
     exported = export_datasets(episodes, root, version="master")
     return root, EpisodeDataset(exported["A2_ee_delta"])
@@ -46,7 +39,6 @@ def _write_view(root: Path, dataset: EpisodeDataset, *, overlap: bool = False) -
                 "view_id": "view_n2",
                 "master_version": "master",
                 "splits": {"train": train, "val": val, "test": test},
-                "view_fingerprint_sha256": "legacy-extra-field-is-ignored",
             }
         )
     )

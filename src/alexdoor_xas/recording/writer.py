@@ -13,7 +13,6 @@ from alexdoor_xas.action.spaces import EE_DELTA_DIM
 from .episode import EpisodeBuffer, EpisodeMeta, EpisodeOutcome, EpisodeStep
 
 SCHEMA_VERSION = "phase2.v2"
-LEGACY_SCHEMA_VERSION = "phase2.v1"
 _STEP_TABLES = ("proprio", "object_state", "contact", "safety")
 
 
@@ -65,32 +64,25 @@ def read_episode(path: str | Path) -> EpisodeBuffer:
 
     with h5py.File(Path(path), "r") as h5:
         schema_version = str(_from_h5(h5.attrs.get("schema_version", "")))
-        if schema_version not in (LEGACY_SCHEMA_VERSION, SCHEMA_VERSION):
+        if schema_version != SCHEMA_VERSION:
             raise ValueError(f"unsupported episode schema: {schema_version!r}")
 
         meta_raw = {k: _from_h5(v) for k, v in h5["meta"].attrs.items()}
-        meta_raw.pop("chunk_len", None)
         meta = EpisodeMeta(**meta_raw)
         outcome_raw = {k: _from_h5(v) for k, v in h5["outcome"].attrs.items()}
-        outcome_raw.pop("failure_label", None)
         outcome_raw["success"] = bool(outcome_raw["success"])
-        if schema_version == LEGACY_SCHEMA_VERSION:
-            outcome_raw.setdefault("termination_reason", "not_recorded")
-            outcome_raw.setdefault("environment_terminated", None)
-            outcome_raw.setdefault("environment_truncated", None)
-        else:
-            outcome_raw["environment_terminated"] = _optional_bool(
-                outcome_raw.get("environment_terminated")
-            )
-            outcome_raw["environment_truncated"] = _optional_bool(
-                outcome_raw.get("environment_truncated")
-            )
+        outcome_raw["environment_terminated"] = _optional_bool(
+            outcome_raw.get("environment_terminated")
+        )
+        outcome_raw["environment_truncated"] = _optional_bool(
+            outcome_raw.get("environment_truncated")
+        )
         outcome = EpisodeOutcome(**outcome_raw)
 
         steps_group = h5["steps"]
         t = np.asarray(steps_group["t"])
         action = np.asarray(steps_group["action"])
-        tables = {table: _read_step_table(steps_group, table) for table in _STEP_TABLES}
+        tables = {table: _read_step_table(steps_group, table, len(t)) for table in _STEP_TABLES}
 
         steps = [
             EpisodeStep(
@@ -99,7 +91,7 @@ def read_episode(path: str | Path) -> EpisodeBuffer:
                 proprio=tables["proprio"][i],
                 object_state=tables["object_state"][i],
                 contact=tables["contact"][i],
-                safety={"controller_phase": tables["safety"][i]["controller_phase"]},
+                safety=tables["safety"][i],
             )
             for i in range(len(t))
         ]
@@ -130,10 +122,10 @@ def _write_step_table(steps_group, table: str, steps: list[EpisodeStep]) -> None
             group.create_dataset(key, data=np.array(values, dtype=np.float64))
 
 
-def _read_step_table(steps_group, table: str) -> list[dict[str, Any]]:
+def _read_step_table(steps_group, table: str, n_steps: int) -> list[dict[str, Any]]:
     group = steps_group[table]
     columns: dict[str, np.ndarray] = {key: np.asarray(group[key]) for key in group}
-    n = max((len(col) for col in columns.values()), default=0)
+    n = n_steps
     rows: list[dict[str, Any]] = []
     for i in range(n):
         row: dict[str, Any] = {}

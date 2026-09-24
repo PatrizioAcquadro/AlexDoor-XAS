@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from alexdoor_xas.assets.alex_v2_contract import (
+from alexdoor_xas.assets.identity import (
     RobotAssetRef,
     assert_checkpoint_runtime_compatible,
 )
@@ -19,12 +19,7 @@ from alexdoor_xas.policies.common.checkpoint import (
     ACT_CHECKPOINT_FORMAT,
     load_checkpoint_payload,
 )
-from alexdoor_xas.policies.common.obs import (
-    OBS_CLIP,
-    build_rollout_obs,
-    read_door_pose_obs,
-    validate_obs_preset,
-)
+from alexdoor_xas.policies.common.model import OBS_CLIP
 
 
 class ActPolicy:
@@ -98,8 +93,7 @@ class ActPolicy:
 
 def act_chunk_source(
     policy: ActPolicy,
-    env,
-    obs_preset: str | None = None,
+    observe: Callable,
     temporal_ensemble: bool = False,
     ensemble_m: float = 0.01,
 ) -> Callable:
@@ -112,21 +106,18 @@ def act_chunk_source(
     oldest) of every past chunk's prediction for the current tick, so the
     policy is queried every tick, per the ACT paper.
     """
-    preset = obs_preset or policy.obs_preset
-    validate_obs_preset(preset)
-    door_pose = read_door_pose_obs(env) if preset == "core_door_pose" else None
 
     if not temporal_ensemble:
 
         def source(ctx):
-            return policy.predict(build_rollout_obs(ctx, preset, door_pose))
+            return policy.predict(observe(ctx))
 
         return source
 
     pending: list[np.ndarray] = []  # oldest first; each holds its remaining future rows
 
     def ensemble_source(ctx):
-        pending.append(policy.predict(build_rollout_obs(ctx, preset, door_pose)))
+        pending.append(policy.predict(observe(ctx)))
         current = np.stack([chunk[0] for chunk in pending])
         weights = np.exp(-ensemble_m * np.arange(len(pending), dtype=np.float64))
         action = (current * weights[:, None]).sum(axis=0) / weights.sum()

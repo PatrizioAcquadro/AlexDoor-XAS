@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from alexdoor_xas import paths
-from alexdoor_xas.assets.alex_v2_contract import AlexV2ContractError, RobotAssetRef
+from alexdoor_xas.assets.identity import RobotAssetRef
 from alexdoor_xas.dataset.loader import EpisodeDataset
 from alexdoor_xas.dataset.normalize import (
     DatasetNormStats,
@@ -62,12 +62,10 @@ def load_policy_data(cfg, datasets_root: str | Path = paths.DATASETS_DIR) -> Pol
         raise PolicyDataError(str(error)) from error
 
     try:
-        robot_asset, _ = load_dataset_robot_asset(
-            dataset_dir, require=cfg.task == paths.ALEX_V2_TASK
-        )
-        if cfg.task == paths.ALEX_V2_TASK and robot_asset is not None:
+        robot_asset = load_dataset_robot_asset(dataset_dir)
+        if robot_asset is not None:
             validate_dataset_episode_robot_asset(dataset, robot_asset)
-    except AlexV2ContractError as error:
+    except ValueError as error:
         raise PolicyDataError(f"invalid robot asset provenance: {error}") from error
 
     selected_view = getattr(cfg, "view_id", None)
@@ -76,10 +74,7 @@ def load_policy_data(cfg, datasets_root: str | Path = paths.DATASETS_DIR) -> Pol
     else:
         split_file = view_path(datasets_root, cfg.task, selected_view)
     if not split_file.is_file():
-        raise PolicyDataError(
-            f"splits file missing: {split_file} "
-            "(run scripts/verify_dataset_interface.py --write-artifacts)"
-        )
+        raise PolicyDataError(f"splits file missing: {split_file}")
     try:
         if selected_view is None:
             splits = load_splits(split_file, episode_ids=dataset.episode_ids)
@@ -100,10 +95,7 @@ def load_policy_data(cfg, datasets_root: str | Path = paths.DATASETS_DIR) -> Pol
         else view_norm_stats_path(dataset_dir, selected_view)
     )
     if not stats_file.is_file():
-        raise PolicyDataError(
-            f"norm stats missing: {stats_file} "
-            "(run scripts/verify_dataset_interface.py --write-artifacts)"
-        )
+        raise PolicyDataError(f"norm stats missing: {stats_file}")
     official = load_norm_stats(stats_file)
     official_errors = validate_norm_stats(
         official,

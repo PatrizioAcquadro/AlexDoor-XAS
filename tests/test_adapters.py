@@ -4,36 +4,30 @@ from __future__ import annotations
 
 import json
 import math
-from types import SimpleNamespace
 
 import numpy as np
 import pytest
 import torch
 
-from alexdoor_xas import paths
 from alexdoor_xas.action.frames import ObjectFrame, frame_delta_to_world, rot_z
 from alexdoor_xas.action.spaces import A4_PHASE_VOCAB, EE_DELTA_DIM, ObjectCentricChunk
 from alexdoor_xas.adapters.a2 import A2Adapter
 from alexdoor_xas.adapters.a3 import A3Adapter, validate_object_frame
-from alexdoor_xas.adapters.a4 import A4Adapter, A4AdapterCfg, alex_v2_a4_cfg
+from alexdoor_xas.adapters.a4 import A4Adapter, A4AdapterCfg
 from alexdoor_xas.adapters.base import AdapterStatus, StepContext
 from alexdoor_xas.adapters.limits import (
     MAX_HINGE_ANGLE_RAD,
     DoorPanelGeometry,
     RobotLimitsCfg,
     WorkspaceSphere,
-    alex_v2_limits,
-    limits_for_robot,
 )
-from alexdoor_xas.adapters.rollout import replay_source, rollout_chunks
-from alexdoor_xas.data_engine import plan_episodes, run_episode
 from alexdoor_xas.policies.scripted.door_push import (
     PHASE_ORDER,
     DoorPushController,
     DoorPushControllerCfg,
     DoorPushPhase,
 )
-from conftest import TEST_ROBOT_LIMITS, FakeDoorPushEnv, make_test_engine_cfg
+from conftest import TEST_ROBOT_LIMITS, FakeDoorPushEnv
 
 FACE_X_M = DoorPanelGeometry().surface_x_m(0.0)
 
@@ -69,18 +63,6 @@ def _ctx(
 
 def _identity_frame(origin=(0.0, 0.0, 0.0)) -> ObjectFrame:
     return ObjectFrame(origin=np.asarray(origin, dtype=np.float64), rot=np.eye(3))
-
-
-def _v2_limits(center=(1.0, 2.0, 3.0), reach_shell=(0.2, 0.8)):
-    calibration = SimpleNamespace(
-        reach_shell_m=reach_shell,
-        controller={
-            "align_standoff_m": 0.060,
-            "pre_contact_clearance_m": 0.010,
-            "contact_approach_max_step_m": 0.005,
-        },
-    )
-    return alex_v2_limits(calibration, workspace_center_w=center)
 
 
 def _chunk(
@@ -120,10 +102,10 @@ def test_a2_clamps_and_logs_correction():
 
 
 def test_a2_shapes_calibrated_alex_first_contact_without_changing_request() -> None:
-    limits = _v2_limits(center=(0.0, 0.0, 0.0), reach_shell=(0.01, 2.0))
+    limits = _contact_limits(center=(0.0, 0.0, 0.0), reach_shell=(0.01, 2.0))
     adapter = A2Adapter(limits, contact_entry_shaping=True)
     frame = _identity_frame()
-    # Alex V2 exposes the collision-derived tool point, so panel contact is at
+    # robot exposes the collision-derived tool point, so panel contact is at
     # x=panel_thickness (0.036 m). This state is inside the calibrated 60 mm
     # align-to-contact corridor but has not sensed contact yet.
     ctx = _ctx(ee_pos_w=(0.040, 0.30, 0.0), door_frame=frame, contact_sensed=False)
@@ -140,7 +122,7 @@ def test_a2_shapes_calibrated_alex_first_contact_without_changing_request() -> N
 
 
 def test_a2_contact_entry_shaping_is_opt_in_for_scripted_replay() -> None:
-    limits = _v2_limits(center=(0.0, 0.0, 0.0), reach_shell=(0.01, 2.0))
+    limits = _contact_limits(center=(0.0, 0.0, 0.0), reach_shell=(0.01, 2.0))
     requested = np.array([-0.015, 0.0, 0.0, 0.0, 0.0, 0.0])
     ctx = _ctx(
         ee_pos_w=(0.040, 0.30, 0.0),
@@ -155,7 +137,7 @@ def test_a2_contact_entry_shaping_is_opt_in_for_scripted_replay() -> None:
 
 
 def test_a2_does_not_shape_free_space_or_established_contact() -> None:
-    limits = _v2_limits(center=(0.0, 0.0, 0.0), reach_shell=(0.01, 2.0))
+    limits = _contact_limits(center=(0.0, 0.0, 0.0), reach_shell=(0.01, 2.0))
     frame = _identity_frame()
     requested = np.array([-0.015, 0.0, 0.0, 0.0, 0.0, 0.0])
 
@@ -173,7 +155,7 @@ def test_a2_does_not_shape_free_space_or_established_contact() -> None:
 
 
 def test_a2_does_not_shape_subthreshold_sensor_dropout_command() -> None:
-    limits = _v2_limits(center=(0.0, 0.0, 0.0), reach_shell=(0.01, 2.0))
+    limits = _contact_limits(center=(0.0, 0.0, 0.0), reach_shell=(0.01, 2.0))
     adapter = A2Adapter(limits, contact_entry_shaping=True)
     frame = _identity_frame()
     requested = np.array([-0.0098, 0.0, 0.0, 0.0, 0.0, 0.0])
@@ -196,7 +178,7 @@ def test_a2_rejects_malformed_deltas(bad):
 
 
 def test_a2_rejects_out_of_workspace_command():
-    limits = _v2_limits()
+    limits = _contact_limits()
     adapter = A2Adapter(limits)
     center = np.asarray(limits.workspace.center_w)
     ee = center + np.array([limits.workspace.max_reach_m + 0.01, 0.0, 0.0])
@@ -210,7 +192,7 @@ def test_a2_rejects_out_of_workspace_command():
 
 
 def test_a2_warns_near_min_reach_but_accepts():
-    limits = _v2_limits(reach_shell=(0.24, 0.8))
+    limits = _contact_limits(reach_shell=(0.24, 0.8))
     adapter = A2Adapter(limits)
     center = np.asarray(limits.workspace.center_w)
     ee = center + np.array([0.22, 0.0, 0.0])
@@ -333,44 +315,6 @@ def test_a2_tracks_secondary_velocity_violation_per_joint_across_ticks() -> None
     assert [warning.evidence["count"] for warning in secondary_records] == [1, 2]
 
 
-def test_limits_for_robot_rejects_unknown_tag():
-    with pytest.raises(ValueError, match="workspace_center_w"):
-        limits_for_robot(paths.ALEX_V2_ROBOT_TAG)
-    with pytest.raises(KeyError, match="no adapter limits"):
-        limits_for_robot("test_double")
-
-
-def test_alex_v2_limits_use_calibrated_shell_and_caller_center() -> None:
-    calibration = SimpleNamespace(
-        reach_shell_m=(0.31, 0.77),
-        controller={
-            "align_standoff_m": 0.060,
-            "pre_contact_clearance_m": 0.010,
-            "contact_approach_max_step_m": 0.005,
-        },
-    )
-    center = (4.0, -2.0, 1.25)
-
-    limits = limits_for_robot(
-        paths.ALEX_V2_ROBOT_TAG,
-        calibration=calibration,
-        workspace_center_w=center,
-    )
-
-    assert limits.workspace.center_w == center
-    assert limits.workspace.min_reach_m == pytest.approx(0.31)
-    assert limits.workspace.max_reach_m == pytest.approx(0.77)
-    assert limits.contact_surface_x_m == pytest.approx(0.036)
-    assert limits.contact_approach_start_clearance_m == pytest.approx(0.060)
-    assert limits.contact_approach_max_step_m == pytest.approx(0.005)
-
-
-@pytest.mark.parametrize("center", [(1.0, 2.0), (1.0, float("nan"), 3.0)])
-def test_alex_v2_limits_reject_invalid_caller_center(center) -> None:
-    with pytest.raises(ValueError, match="three finite"):
-        _v2_limits(center=center)
-
-
 def test_a3_matches_frame_conversion():
     frame = ObjectFrame(origin=np.array([1.0, -2.0, 0.5]), rot=rot_z(0.7))
     adapter = A3Adapter(A2Adapter(TEST_ROBOT_LIMITS))
@@ -445,20 +389,6 @@ def _a4_cfg(**overrides) -> A4AdapterCfg:
 
 def _a4(limits=TEST_ROBOT_LIMITS, cfg: A4AdapterCfg | None = None) -> A4Adapter:
     return A4Adapter(A3Adapter(A2Adapter(limits)), cfg=cfg or _a4_cfg())
-
-
-def test_a4_cfg_is_sourced_from_alex_v2_calibration() -> None:
-    calibration = SimpleNamespace(
-        controller={
-            "approach_standoff_m": 0.12,
-            "align_standoff_m": 0.10,
-            "pre_contact_clearance_m": 0.010,
-            "contact_clearance_m": -0.002,
-            "release_standoff_m": 0.30,
-        }
-    )
-
-    assert alex_v2_a4_cfg(calibration) == _a4_cfg()
 
 
 @pytest.mark.parametrize(
@@ -693,30 +623,12 @@ def test_a4_rejection_commands_no_motion(chunks, reason, requested_hinge_delta):
     assert env.world.angle == 0.0
 
 
-def test_a2_replay_reproduces_scripted_episode():
-    item = plan_episodes(1, 0, base_seed=3)[0]
-    env = FakeDoorPushEnv(yaw_rad=0.3, origin=(0.5, 0.5, 0.0))
-    episode = run_episode(env, item, make_test_engine_cfg())
-    assert episode.outcome.success
-
-    replay_env = FakeDoorPushEnv(yaw_rad=0.3, origin=(0.5, 0.5, 0.0))
-    replay_env.reset(seed=item.seed)
-    actions = [step.action for step in episode.steps]
-    result = rollout_chunks(replay_env, replay_source(actions), A2Adapter(TEST_ROBOT_LIMITS))
-    assert result.n_ticks == episode.n_steps
-    assert result.log.n_rejected == 0
-    assert result.final_angle_rad == pytest.approx(episode.outcome.final_door_angle, abs=1e-9)
-
-
-def test_a3_replay_matches_a2_replay():
-    item = plan_episodes(1, 0, base_seed=3)[0]
-    env = FakeDoorPushEnv()
-    episode = run_episode(env, item, make_test_engine_cfg())
-    actions_door = np.asarray(episode.extras["action_door_frame"])
-
-    replay_env = FakeDoorPushEnv()
-    replay_env.reset(seed=item.seed)
-    adapter = A3Adapter(A2Adapter(TEST_ROBOT_LIMITS))
-    result = rollout_chunks(replay_env, replay_source(actions_door), adapter)
-    assert result.n_ticks == episode.n_steps
-    assert result.final_angle_rad == pytest.approx(episode.outcome.final_door_angle, abs=1e-9)
+def _contact_limits(center=(1.0, 2.0, 3.0), reach_shell=(0.2, 0.8)):
+    return RobotLimitsCfg(
+        workspace=WorkspaceSphere(
+            center_w=center, min_reach_m=reach_shell[0], max_reach_m=reach_shell[1]
+        ),
+        contact_surface_x_m=DoorPanelGeometry().surface_x_m(0.0),
+        contact_approach_start_clearance_m=0.060,
+        contact_approach_max_step_m=0.005,
+    )

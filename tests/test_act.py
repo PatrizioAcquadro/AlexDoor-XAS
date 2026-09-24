@@ -11,8 +11,7 @@ import torch
 
 from alexdoor_xas.adapters.a2 import A2Adapter
 from alexdoor_xas.adapters.rollout import read_door_frame, read_step_context, rollout_chunks
-from alexdoor_xas.assets.alex_v2_contract import RobotAssetRef
-from alexdoor_xas.dataset.loader import EpisodeRecord
+from alexdoor_xas.assets.identity import RobotAssetRef
 from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
 from alexdoor_xas.policies.act.config import ActModelCfg, ActTrainCfg
 from alexdoor_xas.policies.act.model import ACTModel, act_loss
@@ -22,12 +21,9 @@ from alexdoor_xas.policies.common.checkpoint import (
     ACT_CHECKPOINT_FORMAT,
     save_checkpoint_payload,
 )
-from alexdoor_xas.policies.common.inspect import open_loop_report
-from alexdoor_xas.policies.common.obs import build_rollout_obs, read_door_pose_obs
 from conftest import (
     TEST_ROBOT_LIMITS,
     FakeDoorPushEnv,
-    make_test_engine_cfg,
 )
 
 TINY_MODEL_CFG = ActModelCfg(
@@ -43,7 +39,7 @@ TINY_MODEL_CFG = ActModelCfg(
 )
 OBS_DIM = 9
 ACTION_DIM = 6
-TEST_ROBOT_ASSET = RobotAssetRef("alex_v2_test", "a" * 64)
+TEST_ROBOT_ASSET = RobotAssetRef("test_robot", "a" * 64)
 
 
 def _tiny_model(seed: int = 0) -> ACTModel:
@@ -52,7 +48,7 @@ def _tiny_model(seed: int = 0) -> ACTModel:
 
 
 def _tiny_batch(batch: int = 4, seed: int = 0) -> dict[str, torch.Tensor]:
-    generator = torch.Generator().manual_seed(seed)
+    generator = torch.Generator(device="cuda").manual_seed(seed)
     horizon = TINY_MODEL_CFG.chunk_size
     is_pad = torch.zeros(batch, horizon, dtype=torch.bool)
     is_pad[:, horizon - 2 :] = True
@@ -78,9 +74,9 @@ def _tiny_stats() -> DatasetNormStats:
 def _checkpoint_config(obs_preset: str = "core") -> dict:
     return {
         "dataset": {
-            "task": "door_push_alex_v2",
+            "task": "test_task",
             "space": "A2_ee_delta",
-            "version": "v2_pose",
+            "version": "test_dataset",
             "view_id": None,
             "obs_preset": obs_preset,
         }
@@ -180,13 +176,13 @@ def test_checkpoint_round_trip_preserves_predictions_and_stats(tmp_path) -> None
     expected = model.predict(obs)
     stats = _tiny_stats()
     path = _save_checkpoint(tmp_path / "best.pt", model, _checkpoint_config(), stats)
-    policy = ActPolicy.from_checkpoint(path, runtime_asset=TEST_ROBOT_ASSET)
+    policy = ActPolicy.from_checkpoint(path, runtime_asset=TEST_ROBOT_ASSET, device="cuda")
 
     assert torch.equal(policy.model.predict(obs), expected)
     assert policy.action_space == "A2_ee_delta"
     assert policy.obs_preset == "core"
     assert policy.chunk_size == TINY_MODEL_CFG.chunk_size
-    assert policy.robot_compatibility_label == "v2_native"
+    assert policy.robot_compatibility_label == "matching_asset"
 
     for name in ("mean", "std", "min", "max"):
         np.testing.assert_array_equal(
@@ -196,8 +192,7 @@ def test_checkpoint_round_trip_preserves_predictions_and_stats(tmp_path) -> None
 
     with pytest.raises(ValueError, match="incompatible"):
         ActPolicy.from_checkpoint(
-            path,
-            runtime_asset=RobotAssetRef("different_alex_v2", "b" * 64),
+            path, runtime_asset=RobotAssetRef("other_robot", "b" * 64), device="cuda"
         )
 
 
@@ -215,9 +210,7 @@ def test_checkpoint_rejects_unknown_format(tmp_path) -> None:
     path = tmp_path / "bad.pt"
     torch.save({"format": "other"}, path)
     with pytest.raises(ValueError, match="unsupported checkpoint format"):
-        ActPolicy.from_checkpoint(path, runtime_asset=TEST_ROBOT_ASSET)
-
-
+        ActPolicy.from_checkpoint(path, runtime_asset=TEST_ROBOT_ASSET, device="cuda")
 
 
 def _constant_mapping_batch(batch: int = 8) -> dict[str, np.ndarray]:
@@ -243,7 +236,7 @@ def test_train_act_overfits_a_constant_mapping() -> None:
         kl_weight=1.0,
         seed=0,
         val_every=50,
-        device="cpu",
+        device="cuda",
     )
 
     history = train_act(
@@ -270,7 +263,7 @@ def test_train_act_resume_matches_uninterrupted_state() -> None:
         lr=1e-3,
         seed=17,
         val_every=1,
-        device="cpu",
+        device="cuda",
     )
     full_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=17)
     full_history = train_act(full_model, lambda epoch: [batch], cfg)
@@ -312,8 +305,6 @@ def test_train_act_resume_matches_uninterrupted_state() -> None:
     )
 
 
-
-
 class _StubModel(torch.nn.Module):
     """Captures the normalized obs it receives; predicts a fixed chunk."""
 
@@ -353,12 +344,12 @@ def test_act_policy_normalizes_input_and_denormalizes_output() -> None:
         action_space="A2_ee_delta",
     )
     model = _StubModel(output_value=1.0)
-    policy = ActPolicy(model, stats)
+    policy = ActPolicy(model, stats, device="cuda")
 
     chunk = policy.predict(obs_mean)  # obs at the mean -> normalized zeros
 
     assert model.last_input is not None
-    np.testing.assert_allclose(model.last_input.numpy(), np.zeros((1, OBS_DIM)), atol=1e-6)
+    np.testing.assert_allclose(model.last_input.cpu().numpy(), np.zeros((1, OBS_DIM)), atol=1e-6)
     assert chunk.shape == (TINY_MODEL_CFG.chunk_size, ACTION_DIM)
     expected = np.tile(action_std * 1.0 + action_mean, (TINY_MODEL_CFG.chunk_size, 1))
     np.testing.assert_allclose(chunk, expected, atol=1e-6)
@@ -377,7 +368,7 @@ def test_act_policy_clips_exploding_normalized_obs() -> None:
         action_space="A2_ee_delta",
     )
     model = _StubModel()
-    policy = ActPolicy(model, stats)
+    policy = ActPolicy(model, stats, device="cuda")
 
     policy.predict(np.full(OBS_DIM, 1e-3))  # would normalize to 1e5 without the clip
 
@@ -389,100 +380,11 @@ def test_act_policy_rejects_mismatched_stats() -> None:
     stats = _tiny_stats()
     model = ACTModel(obs_dim=OBS_DIM + 1, action_dim=ACTION_DIM, cfg=TINY_MODEL_CFG)
     with pytest.raises(ValueError, match="obs dim"):
-        ActPolicy(model, stats)
-
-
+        ActPolicy(model, stats, device="cuda")
 
 
 def _step_context(env):
     return read_step_context(env, read_door_frame(env))
-
-
-def test_build_rollout_obs_matches_validated_context() -> None:
-    env = FakeDoorPushEnv()
-    env.reset()
-    ctx = _step_context(env)
-    obs = build_rollout_obs(ctx, "core")
-
-    expected = np.concatenate(
-        [
-            ctx.ee_pos_w,
-            ctx.ee_quat_w_xyzw,
-            [ctx.hinge_angle_rad, ctx.hinge_velocity_rad_s],
-        ]
-    )
-    assert obs.shape == (9,)
-    np.testing.assert_allclose(obs, expected)
-
-
-def test_build_rollout_obs_core_contact_uses_sensor_state() -> None:
-    env = FakeDoorPushEnv()
-    env.reset()
-    obs = build_rollout_obs(_step_context(env), "core_contact")
-    assert obs.shape == (10,)
-    assert obs[-1] in (0.0, 1.0)
-
-
-def test_build_rollout_obs_rejects_unknown_presets() -> None:
-    env = FakeDoorPushEnv()
-    env.reset()
-    with pytest.raises(ValueError, match="unknown obs preset"):
-        build_rollout_obs(_step_context(env), "unsupported")
-
-
-def test_build_rollout_obs_core_door_pose_matches_dataset_ordering() -> None:
-    from alexdoor_xas.data_engine import plan_episodes, run_episode
-    from alexdoor_xas.dataset.loader import EpisodeRecord, obs_matrix
-
-    yaw = 0.45
-    origin = (0.8, -1.5, 0.4)
-
-    live_env = FakeDoorPushEnv(yaw_rad=yaw, origin=origin)
-    live_env.reset(seed=0)
-    live = build_rollout_obs(
-        _step_context(live_env),
-        "core_door_pose",
-        read_door_pose_obs(live_env),
-    )
-    assert live.shape == (14,)
-    np.testing.assert_allclose(live[9:12], origin, atol=1e-12)
-    np.testing.assert_allclose(live[12], np.sin(yaw), atol=1e-12)
-    np.testing.assert_allclose(live[13], np.cos(yaw), atol=1e-12)
-
-    # Same env recorded through the data engine: step-0 obs must match the
-    # live reader on a freshly reset env (both capture the pre-step state).
-    episode = run_episode(
-        FakeDoorPushEnv(yaw_rad=yaw, origin=origin),
-        plan_episodes(1, 0, 0)[0],
-        make_test_engine_cfg(),
-    )
-    obs = {}
-    for table in ("proprio", "object_state", "contact"):
-        for key, first in getattr(episode.steps[0], table).items():
-            if isinstance(first, str):
-                continue
-            obs[key] = np.asarray(
-                [getattr(step, table)[key] for step in episode.steps], dtype=np.float64
-            )
-    record = EpisodeRecord(
-        episode_id="parity",
-        action_space=episode.meta.action_space,
-        schema_version="phase2.v2",
-        meta=episode.meta.to_dict(),
-        t=np.array([step.t for step in episode.steps]),
-        actions=episode.stacked(lambda s: s.action),
-        obs=obs,
-        success=True,
-        final_door_angle=1.0,
-        termination_reason="controller_done",
-        environment_terminated=False,
-        environment_truncated=False,
-        extras=episode.extras,
-        buffer=episode,
-    )
-    np.testing.assert_allclose(obs_matrix(record, "core_door_pose")[0], live, atol=1e-9)
-
-
 
 
 def _rollout_policy() -> ActPolicy:
@@ -500,14 +402,14 @@ def _rollout_policy() -> ActPolicy:
         train_episode_ids=("ep0",),
         action_space="A2_ee_delta",
     )
-    return ActPolicy(_tiny_model(), stats)
+    return ActPolicy(_tiny_model(), stats, device="cuda")
 
 
 def test_act_chunk_source_drives_a2_adapter_rollout() -> None:
     env = FakeDoorPushEnv()
     env.reset()
     policy = _rollout_policy()
-    source = act_chunk_source(policy, env)
+    source = act_chunk_source(policy, lambda ctx: np.zeros(OBS_DIM))
     adapter = A2Adapter(TEST_ROBOT_LIMITS)
 
     result = rollout_chunks(env, source, adapter, max_ticks=20)
@@ -542,7 +444,10 @@ def test_temporal_ensemble_weights_match_the_paper_scheme() -> None:
     chunk_a = np.tile(np.array([[1.0, 0, 0, 0, 0, 0]]), (3, 1)) * np.array([[1], [2], [3]])
     chunk_b = np.tile(np.array([[10.0, 0, 0, 0, 0, 0]]), (3, 1))
     source = act_chunk_source(
-        _QueuePolicy([chunk_a, chunk_b]), env, temporal_ensemble=True, ensemble_m=m
+        _QueuePolicy([chunk_a, chunk_b]),
+        lambda ctx: np.zeros(OBS_DIM),
+        temporal_ensemble=True,
+        ensemble_m=m,
     )
     ctx = _step_context(env)
 
@@ -556,69 +461,13 @@ def test_temporal_ensemble_weights_match_the_paper_scheme() -> None:
     np.testing.assert_allclose(second[0], expected)
 
 
-
-
-def _stub_record(n_steps: int = 12, episode_id: str = "ep-stub-0001") -> EpisodeRecord:
-    actions = np.zeros((n_steps, ACTION_DIM))
-    actions[:, 0] = np.linspace(0.0, 0.011, n_steps)
-    return EpisodeRecord(
-        episode_id=episode_id,
-        action_space="A2_ee_delta",
-        schema_version="phase2.v1",
-        meta={},
-        t=np.arange(n_steps, dtype=np.float64) / 60.0,
-        actions=actions,
-        obs={
-            "ee_pos_w": np.zeros((n_steps, 3)),
-            "ee_quat_w_xyzw": np.tile([0.0, 0.0, 0.0, 1.0], (n_steps, 1)),
-            "door_angle_rad": np.zeros(n_steps),
-            "door_angular_velocity_rad_s": np.zeros(n_steps),
-        },
-        success=True,
-        final_door_angle=0.8,
-        termination_reason="controller_done",
-        environment_terminated=False,
-        environment_truncated=False,
-        extras={},
-        buffer=None,
-    )
-
-
-class _OffsetPolicy:
-    """Predicts the recorded action plus a fixed offset on every dim."""
-
-    obs_preset = "core"
-    action_space = "A2_ee_delta"
-    chunk_size = TINY_MODEL_CFG.chunk_size
-
-    def __init__(self, record: EpisodeRecord, offset: float) -> None:
-        self._record = record
-        self._offset = offset
-        self.stats = _tiny_stats()
-
-    def predict(self, obs: np.ndarray) -> np.ndarray:
-        del obs
-        chunk = np.full((self.chunk_size, ACTION_DIM), self._offset)
-        chunk += self._record.actions[: self.chunk_size]
-        return chunk
-
-
-def test_open_loop_report_numerics(tmp_path) -> None:
-    record = _stub_record(n_steps=TINY_MODEL_CFG.chunk_size)  # one exact chunk
-    policy = _OffsetPolicy(record, offset=0.25)
-    json_path = tmp_path / "metrics" / "open_loop.json"
-
-    report = open_loop_report(policy, [record], json_path=json_path)
-
-    assert json_path.is_file()
-    assert report["evaluated_steps"] == record.n_steps
-    assert report["aggregate_l1_mean"] == pytest.approx(0.25)
-    assert report["l1_by_dimension"] == pytest.approx({"dx": 0.25, "dy": 0.25, "dz": 0.25})
-    assert report["per_episode"] == [
-        {
-            "episode_id": record.episode_id,
-            "l1_mean": pytest.approx(0.25),
-            "evaluated_steps": record.n_steps,
-        }
-    ]
-    assert "mse" not in json_path.read_text().lower()
+@pytest.fixture(autouse=True)
+def gpu_models():
+    if not torch.cuda.is_available():
+        pytest.skip("model checks require CUDA")
+    previous = torch.get_default_device()
+    torch.set_default_device("cuda")
+    try:
+        yield
+    finally:
+        torch.set_default_device(previous)

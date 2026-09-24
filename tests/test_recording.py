@@ -27,7 +27,7 @@ def _make_episode(n_steps: int = 3) -> EpisodeBuffer:
         task="door_push",
         action_space=A2_EE_DELTA,
         robot="synthetic_test_double",
-        scene="outputs/door_scene/D0.usda",
+        scene="synthetic_fixture",
         policy="scripted",
         seed=7,
         sim_dt=1 / 120,
@@ -155,7 +155,7 @@ def test_episode_round_trip(tmp_path) -> None:
 
 
 @requires_h5py
-def test_legacy_episode_reads_without_failure_label(tmp_path) -> None:
+def test_obsolete_episode_schema_is_rejected(tmp_path) -> None:
     import h5py
 
     path = write_episode(_make_episode(), tmp_path)
@@ -171,12 +171,8 @@ def test_legacy_episode_reads_without_failure_label(tmp_path) -> None:
         del outcome["environment_truncated"]
         outcome["failure_label"] = "obsolete_interpretation"
 
-    loaded = read_episode(path)
-    assert loaded.outcome.termination_reason == "not_recorded"
-    assert loaded.outcome.environment_terminated is None
-    assert loaded.outcome.environment_truncated is None
-    assert "failure_label" not in loaded.outcome.to_dict()
-    assert loaded.steps[0].safety == {"controller_phase": "approach"}
+    with pytest.raises(ValueError, match="schema"):
+        read_episode(path)
 
 
 @requires_h5py
@@ -185,3 +181,13 @@ def test_write_requires_outcome(tmp_path) -> None:
     buffer.outcome = None
     with pytest.raises(ValueError, match="outcome must be set"):
         write_episode(buffer, tmp_path)
+
+
+@requires_h5py
+@pytest.mark.parametrize("safety", [{}, {"controller_phase": "push", "limit_margin": 0.1}])
+def test_safety_fields_round_trip(tmp_path, safety):
+    from dataclasses import replace
+
+    episode = _make_episode(1)
+    episode.steps[0] = replace(episode.steps[0], safety=safety)
+    assert read_episode(write_episode(episode, tmp_path)).steps[0].safety == safety

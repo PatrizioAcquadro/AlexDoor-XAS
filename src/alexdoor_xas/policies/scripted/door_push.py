@@ -93,7 +93,7 @@ class DoorPushControllerCfg:
         return handedness_sign(self.handedness)
 
     def surface_x_m(self, clearance_m: float) -> float:
-        """Panel-frame x of the Alex V2 tool point off the +X face."""
+        """Panel-frame x of the robot tool point off the +X face."""
         return self.panel_thickness_m + clearance_m
 
 

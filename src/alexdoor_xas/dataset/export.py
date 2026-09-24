@@ -27,7 +27,6 @@ def export_datasets(
     if not episodes:
         raise ValueError("cannot export an empty episode list")
     # Validate the complete batch before replacing any existing dataset dirs.
-    # This rejects mixed tasks and catches a V2 episode regardless of position.
     robot_asset = dataset_robot_asset_payload(episodes)
     task = episodes[0].meta.task
     root = Path(datasets_root)

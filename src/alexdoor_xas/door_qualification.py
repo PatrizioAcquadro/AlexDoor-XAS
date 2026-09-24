@@ -6,7 +6,6 @@ These helpers do not implement B1 expert qualification or corpus completion.
 from __future__ import annotations
 
 import hashlib
-import json
 import math
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -17,7 +16,6 @@ import numpy as np
 
 ACCEPTED_LICENSES = {"CC0-1.0", "CC-BY-4.0"}
 HANDEDNESSES = {"left", "right"}
-SOURCE_FORMAT_PRIORITY = ("usd", "usdz", "glb", "gltf", "blend", "fbx", "obj")
 MIN_WIDTH_M = 0.65
 MAX_WIDTH_M = 1.20
 MIN_HEIGHT_M = 1.80
@@ -135,9 +133,9 @@ def geometry_fingerprint(vertices: np.ndarray, faces: np.ndarray) -> str:
         raise QualificationError("geometry is degenerate")
     scale = float(np.median(positive))
     edge_rows = np.sort(np.round(edges / scale, 7), axis=1)
-    area = np.linalg.norm(
-        np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0]), axis=1
-    ) / (2.0 * scale * scale)
+    area = np.linalg.norm(np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0]), axis=1) / (
+        2.0 * scale * scale
+    )
     descriptors = np.column_stack((edge_rows, np.round(area, 7)))
     descriptors = descriptors[np.lexsort(descriptors.T[::-1])]
     header = np.asarray([len(points), len(triangles)], dtype="<i8").tobytes()
@@ -163,15 +161,11 @@ def connected_face_components(
     if len(triangles) > MAX_TRIANGLES:
         raise QualificationError(f"source mesh exceeds {MAX_TRIANGLES} triangles")
     if not 3 <= vertex_count <= MAX_SOURCE_VERTICES:
-        raise QualificationError(
-            f"source vertex count must be in [3, {MAX_SOURCE_VERTICES}]"
-        )
+        raise QualificationError(f"source vertex count must be in [3, {MAX_SOURCE_VERTICES}]")
     if triangles.min() < 0 or triangles.max() >= vertex_count:
         raise QualificationError("face indices are outside the vertex array")
     if not 1 <= max_components <= MAX_CONNECTED_COMPONENTS:
-        raise QualificationError(
-            f"max_components must be in [1, {MAX_CONNECTED_COMPONENTS}]"
-        )
+        raise QualificationError(f"max_components must be in [1, {MAX_CONNECTED_COMPONENTS}]")
 
     parent = np.arange(vertex_count, dtype=np.int32)
     rank = np.zeros(vertex_count, dtype=np.uint8)
@@ -209,8 +203,7 @@ def connected_face_components(
     unique_roots = np.unique(roots)
     if len(unique_roots) > max_components:
         raise QualificationError(
-            f"source mesh has {len(unique_roots)} connected components; "
-            f"limit is {max_components}"
+            f"source mesh has {len(unique_roots)} connected components; limit is {max_components}"
         )
     order = np.argsort(roots, kind="stable")
     sorted_roots = roots[order]
@@ -235,9 +228,7 @@ def connected_mesh_face_components(
     if points.ndim != 2 or points.shape[1] != 3:
         raise QualificationError("vertices must have shape (N, 3)")
     if not 3 <= len(points) <= MAX_SOURCE_VERTICES:
-        raise QualificationError(
-            f"source vertex count must be in [3, {MAX_SOURCE_VERTICES}]"
-        )
+        raise QualificationError(f"source vertex count must be in [3, {MAX_SOURCE_VERTICES}]")
     if not np.isfinite(points).all():
         raise QualificationError("geometry contains non-finite vertices")
     if not math.isfinite(relative_weld_tolerance) or not 0.0 < relative_weld_tolerance <= 1e-6:
@@ -262,9 +253,7 @@ def connected_mesh_face_components(
     )
 
 
-def maximum_sustained_angle_deg(
-    angles_rad: Sequence[float], window_ticks: int
-) -> float:
+def maximum_sustained_angle_deg(angles_rad: Sequence[float], window_ticks: int) -> float:
     """Compute raw ``max(min(window))``; the caller supplies the sampling window.
 
     This does not check controlled contact, timing, safety, or release and cannot
@@ -281,84 +270,6 @@ def maximum_sustained_angle_deg(
     return float(np.max(minima))
 
 
-def validate_remote_candidate(
-    record: Mapping[str, Any], accepted: Sequence[Mapping[str, Any]] = ()
-) -> None:
-    """Check supplied candidate metadata; this does not verify remote license evidence."""
-    required = {
-        "slot",
-        "source_url",
-        "source_uid",
-        "author",
-        "license",
-        "license_url",
-        "attribution",
-        "dependencies",
-        "selected_format",
-        "archive_size_bytes",
-        "reported_triangles",
-        "reported_texture_max_px",
-        "reported_dimensions_m",
-        "door_type",
-        "handedness",
-        "frame_panel_separable",
-        "visual_duplicate_check",
-        "ownership_dispute_check",
-        "custom_terms_check",
-        "retrieval_date",
-    }
-    missing = sorted(required - record.keys())
-    if missing:
-        raise QualificationError(f"remote record is missing fields: {missing}")
-    if record["license"] not in ACCEPTED_LICENSES:
-        raise QualificationError(f"ineligible license: {record['license']!r}")
-    if not str(record["license_url"]).startswith("https://creativecommons.org/"):
-        raise QualificationError("license evidence must be a canonical Creative Commons URL")
-    if record["handedness"] not in HANDEDNESSES:
-        raise QualificationError("handedness must be left or right")
-    if str(record["selected_format"]).lower() not in SOURCE_FORMAT_PRIORITY:
-        raise QualificationError("selected format is unsupported")
-    if record["door_type"] not in {"interior", "exterior", "industrial"}:
-        raise QualificationError("candidate is not a full-size single-leaf push door")
-    if record["frame_panel_separable"] is not True:
-        raise QualificationError("frame and panel are not visibly separable")
-    for field in ("visual_duplicate_check", "ownership_dispute_check", "custom_terms_check"):
-        if record[field] != "pass":
-            raise QualificationError(f"remote gate failed: {field}={record[field]!r}")
-    if record["archive_size_bytes"] is not None and int(record["archive_size_bytes"]) <= 0:
-        raise QualificationError("reported archive size must be positive")
-    triangles = record["reported_triangles"]
-    if triangles is not None and int(triangles) > MAX_TRIANGLES:
-        raise QualificationError("reported triangle count exceeds 250,000")
-    texture = record["reported_texture_max_px"]
-    if texture is not None and int(texture) > MAX_TEXTURE_EDGE_PX:
-        raise QualificationError("reported texture resolution exceeds 4K")
-    dimensions = record["reported_dimensions_m"]
-    if dimensions is not None:
-        DoorDimensions.from_mapping(dimensions)
-    dependencies = record["dependencies"]
-    if not isinstance(dependencies, list) or any(
-        dependency.get("license") not in ACCEPTED_LICENSES for dependency in dependencies
-    ):
-        raise QualificationError("every redistributed dependency must have CC0 or CC BY 4.0")
-    if any(
-        other.get("source_uid") == record["source_uid"]
-        or other.get("source_url") == record["source_url"]
-        for other in accepted
-    ):
-        raise QualificationError("source UID/URL duplicates an accepted candidate")
-
-
-def load_json(path: str | Path) -> Any:
-    return json.loads(Path(path).read_text())
-
-
-def dump_json(path: str | Path, value: Any) -> None:
-    target = Path(path)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
-
-
 def handedness_sign(handedness: Literal["left", "right"] | str) -> float:
     if handedness not in HANDEDNESSES:
         raise QualificationError(f"unknown handedness: {handedness!r}")
@@ -370,11 +281,8 @@ __all__ = [
     "DoorDimensions",
     "QualificationError",
     "cuboid_inertia_kg_m2",
-    "dump_json",
     "geometry_fingerprint",
     "handedness_sign",
-    "load_json",
     "maximum_sustained_angle_deg",
     "sha256_file",
-    "validate_remote_candidate",
 ]

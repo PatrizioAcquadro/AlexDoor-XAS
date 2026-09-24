@@ -1,79 +1,53 @@
 # System Architecture
 
-The registered runtime is `AlexDoor-DoorPush-Purdue-v0`: one fixed-base Purdue
-Alex003 with WSG32/UMI v1, measured pedestal and head ZED. It commissions control
-and sensing on synthetic collidable fixtures, with a frozen synthetic-door probe.
-Real-asset expert qualification, learned observation encoding and dataset
-integration remain later phases.
+The maintained runtime is `AlexDoor-DoorPush-Purdue-v0`: fixed-base Purdue
+Alex003, WSG32/UMI v1, measured pedestal and head ZED RGB-D. Real-door expert
+qualification and learned observation integration remain future work.
 
-## Runtime Boundary
+## Runtime and Data Boundaries
 
-`DoorPushPurdueEnv` owns scene composition, reset, seven-joint A1 addressing,
-full-pose A2 execution and explicitly framed A3 conversion. The external Alex
-package owns assets, PD profiles, physical limits, mimic constraints, collision
-filters, pedestal and ZED factories. The consumer adds model gravity compensation;
-no simulator door state restores or replaces a requested action.
+`DoorPushPurdueEnv` owns scene composition, reset, seven-joint A1, full-pose A2
+and explicitly framed A3. The external Alex package owns robot assets, physical
+limits, mimic constraints, collision filters, pedestal and camera factories.
+The consumer adds gravity compensation; simulation truth never replaces an action.
 
-`purdue_contacts.py` resolves imported rigid owners and classifies raw contact
-points against distal-finger geometry and exact partner actors. Its reports are
-diagnostics, separate from observed inputs. They include normal forces only,
-forbidden contacts, and separation; no friction-inclusive force claim is made.
+`purdue_contacts.py` classifies raw contacts against distal-finger geometry and
+exact partner actors. Normal force, forbidden contacts and separation are
+**diagnostics**, separate from policy observations; tangential force is not measured.
 
-`recording/rgbd.py` supplies copied, synchronized RGB, metric optical-axis depth,
-valid-depth mask and seven-arm/two-neck proprioception. `env.capture.sample` is
-the acquisition interface; the Gym `policy` tensor currently exposes only the
-18 position/velocity values. Phase 6 owns their learned-model integration.
+`env.capture.sample` provides copied, synchronized RGB, metric optical-axis depth,
+valid-depth mask, seven-arm/two-neck proprioception, timestamps and frame IDs.
+The Gym policy tensor contains the 18 joint positions/velocities. Phase 6 owns
+image encoding, histories and the observed-only learning interface.
 
 See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
-[[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] for geometry,
-commissioning defaults and evidence.
-
-## Historical Data and Models
-
-The dataset loaders, `phase2.v1/v2` readers, matched A1–A4 export structures,
-normalization, ACT/Diffusion models and checkpoint formats remain readable.
-Offline training on existing B0 data remains available. Historical calibration
-and manifest validation are retained for interpreting those contracts.
-
-B0 simulator execution and its robot-specific controller/asset loader were
-retired. Full generation and learned evaluation commands fail explicitly before
-Isaac startup; they do not silently execute B0 checkpoints on Purdue. Generic
-scripted/data/adapter components remain for the planned migration and their
-software contracts, without claiming a working B1 learning workflow.
+[[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
 
 ## Preparation and Storage
 
-The B1 preparation path takes an explicit source/recipe through component inspection,
-canonical USD authoring and independent static/GPU checks. It uses the Phase 4
-nominal dynamics and baked convex geometry, including collidable handles and a
-clear frame opening. Prepared assets expose opening/hinge/panel transforms for
-the next qualification phase; preparation does not execute or retune the robot probe.
+`scripts/prepare_doors.py` handles inspection, normalization, static/visual/isolated
+physics checks and promotion. `DoorInspectionEnv` remains necessary for this B1
+path. It does not execute the robot expert.
 
-`scripts/prepare_doors.py` owns the local workflow. Candidate metadata, license
-evidence and recipes under `assets/doors/b1/<id>/` are versioned; source snapshots,
-generated attempts and the prepared pointer are ignored. Source/geometry duplicates
-and source-bound local review are checked before promotion to `ready_for_5.1`.
-The pointer also records whether the asset is redistributable or local-only;
-technical readiness does not grant distribution rights.
-See [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] for the
-interface, commands, supported formats, approximations and measured readiness.
+Each promoted door has tracked `candidate.json`, `recipe.json`, `prepared.json`
+and local `source/` and `prepared/` payloads. Paths resolve from the door folder;
+no accepted asset depends on a temporary attempt. See
+[[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] for the
+contract, corpus, rights scopes and pending qualification.
 
-Legacy door preparation remains independent of robot execution. Its physics
-inspection now instantiates only the door; static checks and preparation keep
-their documented B0 geometry limitations. Neither establishes B1 qualification.
+Runtime caches and verification reports belong under `~/.cache/alexdoor-xas/`.
+Future datasets and learned runs use ignored `datasets/` and `outputs/` payloads.
 
-Datasets and learned-policy runs remain untouched. Canonical D0–D4 USD layers
-and historical results retain their B0 identity. Verification reports and images
-belong in `~/.cache/alexdoor-xas/verification/`, not in the tracked output tree.
+## Reusable Algorithms
 
-## Deployment Boundary
+Actions, adapters, the scripted state machine, recording, numerical dataset
+loaders/export, split/normalization utilities and ACT/Diffusion tensor training
+remain available as components. Their integration with B1 is not implemented.
+Policies consume a caller-supplied observation function; they do not read door
+truth from the simulator. See [[topics/episode-and-dataset-contracts|Data Components]]
+and [[topics/learned-policy-stack|Learned Policy Stack]].
 
-The workstation GPU is authoritative for Isaac integration. No repository
-command controls physical hardware. There is no added dependency, robot copy,
-cluster orchestration or external Alex/Isaac Lab modification.
-
-## Version Notes
-
-- 2026-09-23 — Added B1 asset preparation and isolated GPU validation, separated from real-door expert qualification.
-- 2026-09-22 — Replaced B0 execution with Purdue commissioning and separated observed capture from diagnostic truth and historical learning interfaces.
-- 2026-08-13 — Documented the maintained B0 data and learned-policy path.
+B0 calibration, manifests, generation, training/evaluation orchestration, datasets
+and D0–D4 scenes were retired. Historical conclusions remain in the wiki and
+source history in Git. The workstation GPU is authoritative for Isaac; no command
+in this repository controls physical hardware.

@@ -19,7 +19,6 @@ TERMINATION_REASONS = (
     "environment_truncated",
     "step_error",
 )
-LEGACY_TERMINATION_REASON = "not_recorded"
 
 
 @dataclass(frozen=True)
@@ -98,7 +97,7 @@ class EpisodeOutcome:
     notes: str = ""
 
     def __post_init__(self) -> None:
-        if self.termination_reason not in (*TERMINATION_REASONS, LEGACY_TERMINATION_REASON):
+        if self.termination_reason not in TERMINATION_REASONS:
             raise ValueError(f"unknown factual termination reason: {self.termination_reason!r}")
 
     def to_dict(self) -> dict[str, Any]:

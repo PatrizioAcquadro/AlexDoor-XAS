@@ -1,38 +1,38 @@
 # Episode and Dataset Contracts
 
-The maintained data path records one physical Alex V2 door episode and exports matched A1-A4 representations under the `door_push_alex_v2/v2_pose` identity.
+These are reusable numerical recording/export utilities. The B0 dataset and its
+robot-specific provenance compatibility were removed. The B1 observation, truth,
+action and demonstration integration is specified in
+[[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 
-## Recording Schema
+## Recording and Export
 
-New A1-A3 HDF5 episodes use `phase2.v2`. Each step contains the non-duplicated pre-action state, requested and applied action, adapter decision, controller phase, and contact information. The terminal response is stored separately so the final action is not left without an outcome.
+`EpisodeBuffer` stores metadata, timestamped actions, proprioception, object state,
+contact and safety fields. `EpisodeOutcome` records factual termination, success,
+final angle and simulator termination/truncation flags. Serialization supports
+`phase2.v2` HDF5 only; old schemas are rejected rather than upgraded implicitly.
 
-`EpisodeOutcome` records success, final door angle, step count, notes, factual termination reason, environment termination/truncation flags, and controller completion/timeout state. The writer does not invent failure labels from those facts.
+`dataset.export.export_datasets` exports one explicitly recorded episode set:
+A2 HDF5, A3 using its recorded frame actions, A4 JSONL chunks and A1 when joint
+targets plus the terminal target are present. IDs and outcomes remain matched.
+Callers own recording alignment and must provide those fields; this function
+does not generate demonstrations or infer missing B1 supervision.
 
-`phase2.v1` HDF5 files remain readable and are upgraded in memory where necessary. The repository never rewrites them in place and no longer emits v1.
+Robot identity is an asset ID plus source fingerprint. Export rejects mixed
+tasks, robots or identities; no Alex V2 manifest or URDF is required.
 
-## Matched Exports
+## Splits, Normalization and Batches
 
-One recorded physical episode can produce:
+Datasets use `datasets/<task>/<action_space>/<version>/`. Split and optional view
+files assign disjoint episode IDs. Content grouping prevents duplicate numerical
+trajectories leaking across splits. Normalization uses only the selected training
+IDs and is validated by recomputation.
 
-- A1, A2, and A3 as one HDF5 file per episode;
-- A4 as structured chunks in `episodes.jsonl`.
+`EpisodeDataset`, `A4ChunkDataset`, `ChunkSampler` and `BatchIterator` provide
+validated records, padded windows and seeded batches. The retained numerical
+presets `core`, `core_contact`, `core_door_pose` encode state-vector fields; they
+are **not the B1 observed-only policy interface**. B1 must keep simulated hinge,
+contact and door truth out of model observations, as defined in Phase 6.
 
-All representations share the physical episode ID and outcome. Representation-specific actions and metadata remain separate. `scripts/verify_dataset_interface.py` checks the four exports and the numerical distinction between A2 and A3.
-
-## Dataset Layout
-
-The active path is `datasets/<task>/<action_space>/<version>/`. For this benchmark, task is `door_push_alex_v2` and version is `v2_pose`.
-
-`datasets/door_push_alex_v2/splits/v2_pose.json` assigns shared episode IDs to disjoint train, validation, and test sets. Retained view files select nested training subsets without changing validation or test membership. Normalization is computed from the selected training IDs and validated by direct recomputation.
-
-The repository loads existing splits, views, and normalization. Completed scale-dataset construction, pose-plan, merge, ledger, and publication workflows are not maintained.
-
-## Model-Facing Data
-
-`EpisodeDataset`, `A4ChunkDataset`, and `ChunkSampler` expose validated records. Learned policies support `core`, `core_contact`, and `core_door_pose` observation presets. Training batches contain only `obs`, `actions`, and `is_pad`.
-
-ACT and Diffusion train on A2 or A3. A1 remains export-only and A4 remains non-learned.
-
-## Version Notes
-
-- 2026-08-13 — Documented `phase2.v2`, read-only v1 compatibility, matched `v2_pose` exports, and the minimal model-facing dataset path.
+Tests use explicit small arrays and synthetic identities. No local B0 recordings
+or external robot asset are needed to verify these contracts.

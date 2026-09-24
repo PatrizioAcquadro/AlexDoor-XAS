@@ -12,7 +12,7 @@ import torch
 from alexdoor_xas.dataset.sampling import collate_torch
 from alexdoor_xas.policies.act.config import ActModelCfg, ActTrainCfg
 from alexdoor_xas.policies.act.model import ACTModel, act_loss
-from alexdoor_xas.policies.common.runs import capture_rng_states, restore_rng_states
+from alexdoor_xas.policies.common.training import capture_rng_states, restore_rng_states
 
 TrainBatchFactory = Callable[[int], Iterable[dict]]
 ValBatchFactory = Callable[[], Iterable[dict]]
@@ -78,20 +78,20 @@ class TrainHistory:
             EpochStats(
                 epoch=int(entry["epoch"]),
                 train_l1=float(entry["train_l1"]),
-                train_kl=float(entry.get("kl", entry.get("train_kl"))),
-                train_loss=float(entry.get("total_loss", entry.get("train_loss"))),
-                n_batches=int(entry.get("batch_count", entry.get("n_batches"))),
+                train_kl=float(entry.get("kl")),
+                train_loss=float(entry.get("total_loss")),
+                n_batches=int(entry.get("batch_count")),
                 val_l1=(
                     None
-                    if entry.get("validation_l1", entry.get("val_l1")) is None
-                    else float(entry.get("validation_l1", entry.get("val_l1")))
+                    if entry.get("validation_l1") is None
+                    else float(entry.get("validation_l1"))
                 ),
                 duration_s=float(entry.get("duration_s", 0.0)),
             )
             for entry in payload.get("epochs", [])
         ]
         best_epoch = int(payload.get("best_epoch", -1))
-        best_value = payload.get("best_value", payload.get("best_val_l1"))
+        best_value = payload.get("best_value")
         return cls(
             epochs=epochs,
             best_epoch=best_epoch,

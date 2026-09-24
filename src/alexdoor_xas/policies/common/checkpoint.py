@@ -10,10 +10,9 @@ from typing import Any
 import numpy as np
 import torch
 
-from alexdoor_xas import paths
-from alexdoor_xas.assets.alex_v2_contract import RobotAssetRef
+from alexdoor_xas.assets.identity import RobotAssetRef
 from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
-from alexdoor_xas.policies.common.runs import torch_save_atomic
+from alexdoor_xas.policies.common.training import torch_save_atomic
 
 DATASET_FIELDS = ("task", "space", "version", "obs_preset", "view_id")
 ACT_CHECKPOINT_FORMAT = "alexdoor_xas.act.v2"
@@ -110,8 +109,8 @@ def _validate_checkpoint_contract(
             raise ValueError(f"checkpoint weight {name!r} is not a tensor")
         if (value.is_floating_point() or value.is_complex()) and not torch.isfinite(value).all():
             raise ValueError(f"checkpoint weight {name!r} contains non-finite values")
-    if dataset.get("task") == paths.ALEX_V2_TASK and robot_asset is None:
-        raise ValueError("Alex V2 checkpoints require robot identity")
+    if robot_asset is None:
+        raise ValueError("checkpoints require robot identity")
 
 
 def _robot_asset_from_payload(payload: Any) -> RobotAssetRef | None:

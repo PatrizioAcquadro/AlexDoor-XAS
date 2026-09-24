@@ -11,10 +11,8 @@ from alexdoor_xas.action.spaces import (
     A4_PHASE_VOCAB,
     EE_DELTA_DIM,
 )
-from alexdoor_xas.eval.sanity import SanityResult, check_alex_episode
+from alexdoor_xas.eval.sanity import SanityResult, check_episode
 from alexdoor_xas.recording import (
-    LEGACY_SCHEMA_VERSION,
-    LEGACY_TERMINATION_REASON,
     SCHEMA_VERSION,
     TERMINATION_REASONS,
 )
@@ -28,7 +26,7 @@ from .loader import (
     obs_matrix,
 )
 
-_KNOWN_SCHEMA_VERSIONS = (LEGACY_SCHEMA_VERSION, SCHEMA_VERSION)
+_KNOWN_SCHEMA_VERSIONS = (SCHEMA_VERSION,)
 REQUIRED_DATASET_META_KEYS = (
     "task",
     "action_space",
@@ -101,18 +99,18 @@ def validate_episode(record: EpisodeRecord, expected_space: str | None = None) -
             result.errors.append(f"{label}: non-finite obs {key!r} values")
     _check_timestamps(record.t, control_dt, result, label)
     _check_contact_flags(record, result, label)
-    is_alex = "joint_pos" in record.obs
-    if not is_alex:
+    has_joint_state = "joint_pos" in record.obs
+    if not has_joint_state:
         _check_contact_semantics(record, result, label)
     try:
         obs_matrix(record, "core")
     except ValueError as exc:
         result.errors.append(f"{label}: core obs preset failed: {exc}")
 
-    _check_termination_data(record, result, label, legacy=record.schema_version != SCHEMA_VERSION)
+    _check_termination_data(record, result, label)
 
-    if is_alex:
-        sanity = check_alex_episode(record.buffer)
+    if has_joint_state:
+        sanity = check_episode(record.buffer)
         _merge(result, sanity)
 
     return result
@@ -389,21 +387,13 @@ def _check_a4_outcome(record: A4EpisodeRecord, result: SanityResult, label: str)
         result.errors.append(f"{label}: final_door_angle must be finite")
     if record.n_steps <= 0:
         result.errors.append(f"{label}: outcome.n_steps must be positive")
-    _check_termination_data(
-        record, result, label, legacy=record.termination_reason == "not_recorded"
-    )
+    _check_termination_data(record, result, label)
 
 
-def _check_termination_data(record, result: SanityResult, label: str, *, legacy: bool) -> None:
-    allowed = (*TERMINATION_REASONS, LEGACY_TERMINATION_REASON)
+def _check_termination_data(record, result: SanityResult, label: str) -> None:
+    allowed = TERMINATION_REASONS
     if record.termination_reason not in allowed:
         result.errors.append(f"{label}: unknown termination_reason {record.termination_reason!r}")
-    if legacy:
-        if record.termination_reason != LEGACY_TERMINATION_REASON:
-            result.errors.append(f"{label}: legacy episode termination_reason must be not_recorded")
-        if record.environment_terminated is not None or record.environment_truncated is not None:
-            result.errors.append(f"{label}: legacy environment termination flags must be unknown")
-        return
     if not isinstance(record.environment_terminated, bool) or not isinstance(
         record.environment_truncated, bool
     ):

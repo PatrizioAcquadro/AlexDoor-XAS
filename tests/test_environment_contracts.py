@@ -45,21 +45,3 @@ def test_purdue_env_cfg_contract_if_isaaclab_available() -> None:
     assert cfg.scene.num_envs == 1
     assert cfg.cameras
     assert cfg.action_mode == "A2"
-
-
-def test_retired_execution_stops_before_isaac_or_output(tmp_path):
-    import subprocess
-    import sys
-    from pathlib import Path
-
-    root = Path(__file__).resolve().parents[1]
-    for name in ("eval_policy", "run_scripted_baseline", "verify_policy_rollout"):
-        result = subprocess.run(
-            [sys.executable, str(root / "scripts" / (name + ".py"))],
-            cwd=tmp_path,
-            capture_output=True,
-            text=True,
-        )
-        assert result.returncode != 0
-        assert "B0 robot execution has been retired" in result.stderr
-    assert not list(tmp_path.iterdir())

@@ -21,12 +21,9 @@ htmlcov/
 /datasets/*
 !/datasets/README.md
 
-# Learned-policy runs stay local. The five canonical source layers are tracked.
+# Generated runs stay local.
 /outputs/*
 !/outputs/README.md
-!/outputs/door_scene/
-/outputs/door_scene/*
-!/outputs/door_scene/D[0-4].usda
 
 # Door metadata is tracked; sources, prepared payloads and attempts stay local.
 /assets/doors/b1/*/source/

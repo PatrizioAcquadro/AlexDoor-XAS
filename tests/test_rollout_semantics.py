@@ -344,21 +344,16 @@ def test_non_finite_a3_frame_state_is_an_explicit_simulator_failure(field: str) 
 
 
 def test_calibrated_first_contact_correction_is_enforced_in_execution() -> None:
-    from types import SimpleNamespace
-
-    from alexdoor_xas.adapters.limits import alex_v2_limits
+    from alexdoor_xas.adapters.limits import RobotLimitsCfg, WorkspaceSphere
 
     env = FirstContactImpactEnv()
     env.reset(seed=112)
-    calibration = SimpleNamespace(
-        reach_shell_m=(0.01, 2.0),
-        controller={
-            "align_standoff_m": 0.060,
-            "pre_contact_clearance_m": 0.010,
-            "contact_approach_max_step_m": 0.005,
-        },
+    limits = RobotLimitsCfg(
+        workspace=WorkspaceSphere((0.0, 0.0, 0.0), 0.01, 2.0),
+        contact_surface_x_m=0.036,
+        contact_approach_start_clearance_m=0.060,
+        contact_approach_max_step_m=0.005,
     )
-    limits = alex_v2_limits(calibration, workspace_center_w=(0.0, 0.0, 0.0))
     result = rollout_chunks(
         env,
         lambda ctx: np.array([[-0.015, 0.0, 0.0, 0.0, 0.0, 0.0]]),
@@ -373,7 +368,7 @@ def test_calibrated_first_contact_correction_is_enforced_in_execution() -> None:
     assert decision.applied[0] == pytest.approx(-0.005)
 
 
-def test_success_angle_none_preserves_legacy_semantics() -> None:
+def test_success_threshold_is_optional() -> None:
     # Replay-style callers (adapter gate) pass no threshold: success stays
     # None, per-tick capture covers every executed tick, budget semantics hold.
     result = _run(FakeDoorPushEnv(), 5, max_ticks=15)

@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from alexdoor_xas.assets.alex_v2_contract import (
+from alexdoor_xas.assets.identity import (
     RobotAssetRef,
     assert_checkpoint_runtime_compatible,
 )
@@ -17,12 +17,7 @@ from alexdoor_xas.policies.common.checkpoint import (
     DIFFUSION_CHECKPOINT_FORMAT,
     load_checkpoint_payload,
 )
-from alexdoor_xas.policies.common.obs import (
-    OBS_CLIP,
-    build_rollout_obs,
-    read_door_pose_obs,
-    validate_obs_preset,
-)
+from alexdoor_xas.policies.common.model import OBS_CLIP
 from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg
 from alexdoor_xas.policies.diffusion.data import MinMaxNormalizer
 from alexdoor_xas.policies.diffusion.model import DiffusionTransformer
@@ -76,9 +71,7 @@ class DiffusionPolicy:
         *,
         runtime_asset: RobotAssetRef,
     ) -> DiffusionPolicy:
-        loaded = load_checkpoint_payload(
-            path, DIFFUSION_CHECKPOINT_FORMAT, "Diffusion", device
-        )
+        loaded = load_checkpoint_payload(path, DIFFUSION_CHECKPOINT_FORMAT, "Diffusion", device)
         try:
             model_cfg = DiffusionModelCfg(**loaded.model_cfg)
         except (TypeError, ValueError) as error:
@@ -138,8 +131,7 @@ class DiffusionPolicy:
 
 def diffusion_chunk_source(
     policy: DiffusionPolicy,
-    env,
-    obs_preset: str | None = None,
+    observe: Callable,
     n_action_steps: int | None = None,
 ) -> Callable:
     """Adapt ``policy`` to the ``rollout_chunks`` chunk-source protocol.
@@ -149,14 +141,11 @@ def diffusion_chunk_source(
     first ``n_action_steps`` rows (Ta), so the driver re-queries the policy
     every Ta ticks. ``n_action_steps=None`` executes the whole chunk.
     """
-    preset = obs_preset or policy.obs_preset
-    validate_obs_preset(preset)
     steps = policy.chunk_size if n_action_steps is None else int(n_action_steps)
     if not 1 <= steps <= policy.chunk_size:
         raise ValueError(f"n_action_steps must be in [1, {policy.chunk_size}], got {steps}")
-    door_pose = read_door_pose_obs(env) if preset == "core_door_pose" else None
 
     def source(ctx):
-        return policy.predict(build_rollout_obs(ctx, preset, door_pose))[:steps]
+        return policy.predict(observe(ctx))[:steps]
 
     return source

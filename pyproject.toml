@@ -17,7 +17,6 @@ license = "LicenseRef-Proprietary"
 authors = [{ name = "Patrizio Acquadro", email = "pacquadr@purdue.edu" }]
 dependencies = [
     "numpy>=1.24",
-    "omegaconf>=2.3,<2.4",
 ]
 
 [project.optional-dependencies]
@@ -26,7 +25,6 @@ dev = [
     "ruff>=0.5",
 ]
 diffusion = ["diffusers>=0.39,<1.0"]
-tracking = ["wandb>=0.28.1,<0.29"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/alexdoor_xas"]

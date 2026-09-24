@@ -1,54 +1,25 @@
 # Alex V2 Benchmark
 
-This page preserves the retired B0 contract for interpreting historical data: simulated door pushing with the fixed-base IHMC Alex V2 torso and a six-joint right-arm controller.
+Historical B0 record, preserved at Git `9c16e3d`; code, calibration, D0–D4 scenes,
+dataset payloads and compatibility readers were retired during the B1 cleanup.
+The active successor is [[topics/purdue-b1-robot-and-contact|Purdue B1]].
 
-The operational successor uses Purdue + WSG32/UMI v1 with seven-joint pose control and head RGB-D: [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]].
+B0 used a fixed-base IHMC Alex V2 torso, six right-arm joints and a calibrated
+collision-derived tool point. Physics ran at 120 Hz and control at 60 Hz.
+Position-only differential IK limited translation to 0.02 m per tick; A2/A3
+rotation was represented but not actuated. Success was the first 45° crossing.
 
-B0 execution was retired in Subphase 4.0. The current runtime is documented in
-[[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]].
-The behavior below is historical, not an available simulator workflow.
+The five poses shared one door family: D0 nominal, D1/D2 yaw ±0.05 rad and
+centimeter translations, D3/D4 yaw ±0.10 rad and centimeter translations.
+Raw GPU contacts were filtered by the exact panel actor; net robot force and
+geometric contact were not substitutes for measured panel force.
 
-## Asset and Calibration
+The completed 550-episode study trained sixteen ACT/Diffusion × A2/A3 ×
+N50/N100/N250/N500 cells. All 576 evaluation rollouts succeeded, selecting no
+winner. One 219.95 N event remains `REVIEW_REQUIRED`; see
+[[experiments/phase-3-unified-evaluation|Unified Evaluation]] and
+[[experiments/act-a3-n50-seed-112-force-diagnostic|Force Diagnostic]].
 
-The external `~/Desktop/Alex` repository owns the Alex V2 URDF and the generic `ihmc_alex_isaaclab` package. DoorManipulation imports `make_alex_v2_cfg` and applies the door-task calibration locally.
-
-`configs/alex_v2_door.json` is the only active calibration. It defines the task and robot identities, base pose, six initial right-arm joints, operational tool frame, reach shell, control parameters, and randomization bounds. There is no separate calibration-authoring workflow.
-
-`src/alexdoor_xas/assets/alex_v2_contract.py` validates the external asset, fixed-base identity, joint order, tool frame, and runtime manifest.
-
-## Canonical Door Scenes
-
-`src/alexdoor_xas/assets/door_scene.py` defines the only accepted pose registry:
-
-| Pose | Yaw | XY offset |
-|---|---:|---:|
-| D0 | 0.00 | (0.00, 0.00) |
-| D1 | +0.05 | (+0.02, 0.00) |
-| D2 | -0.05 | (0.00, -0.02) |
-| D3 | +0.10 | (+0.02, +0.02) |
-| D4 | -0.10 | (+0.02, -0.02) |
-
-`outputs/door_scene/` contains exactly one USD layer per pose. D0 is the default. Noncanonical scenes must use an explicit path under the runtime cache and are not benchmark poses.
-
-## Control and Sensing
-
-`DoorPushAlexV2Env` is a single-environment Isaac Lab `DirectRLEnv`; construction rejects any other environment count. It resolves the calibrated six-joint right arm, gripper link, shoulder link, hinge, and exact door actor.
-
-Control runs at 120 Hz with decimation 2. Position-only differential IK commands the collision-derived tool point. Translation is limited to 0.02 m per control tick. Rotational components remain represented in A2/A3 data and adapter decisions but are not actuated.
-
-Success is the first 45-degree hinge crossing. Each runtime snapshot reads the raw GPU contact buffer once and retains only contacts whose opposite actor is the exact door panel. Unfiltered net force and geometric contact are not accepted as task-force substitutes; geometry remains diagnostic only.
-
-## Verification
-
-Historical manifest, calibration and dataset/checkpoint readers retain software
-regressions. B0 GPU execution gates were retired; benchmark/adapter verification
-now routes to the Purdue operational gate. No fresh B0 simulation result is claimed.
-
-## Limits
-
-The benchmark is simulation-only, fixed-base, single-environment, and limited to one door family. It has no physical-robot command, hardware-calibration, or hardware-safety layer.
-
-## Version Notes
-
-- 2026-08-18 — Updated the package install boundary and canonical Alex V2 asset path.
-- 2026-08-13 — Documented only the external Alex asset, one active calibration, D0-D4 scenes, and the concrete single-environment runtime.
+These results concern one simulated door family, state-only inputs and seed-0
+training. They do not establish held-out geometry generalization, hardware
+safety, physical deployment or Purdue checkpoint compatibility.

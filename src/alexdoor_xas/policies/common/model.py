@@ -6,6 +6,8 @@ import math
 
 import torch
 
+OBS_CLIP = 10.0  # Bound normalization of near-constant observations.
+
 
 def sinusoidal_table(n_positions: int, d_model: int) -> torch.Tensor:
     positions = torch.arange(n_positions, dtype=torch.float32).unsqueeze(1)

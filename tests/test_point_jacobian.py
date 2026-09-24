@@ -1,4 +1,4 @@
-"""Physical invariants for the Alex V2 tool-point Jacobian."""
+"""Physical invariants for the robot tool-point Jacobian."""
 
 from __future__ import annotations
 

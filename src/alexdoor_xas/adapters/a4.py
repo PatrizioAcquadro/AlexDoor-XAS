@@ -15,7 +15,6 @@ import numpy as np
 
 from alexdoor_xas.action.frames import rot_z
 from alexdoor_xas.action.spaces import A4_PHASE_VOCAB, EE_DELTA_DIM, ObjectCentricChunk
-from alexdoor_xas.calibration.alex_v2_door import AlexV2DoorCalibration
 
 from .a3 import A3Adapter
 from .base import AdapterDecision, AdapterLog, AdapterStatus, AdapterWarning
@@ -46,19 +45,6 @@ class A4AdapterCfg:
     push_stall_min_vel_rad_s: float = 1e-3
     target_nudge_tol_m: float = 0.02  # larger off-panel errors are rejected
     target_x_face_tol_m: float = 0.05  # warning threshold for emitter convention
-
-
-def alex_v2_a4_cfg(calibration: AlexV2DoorCalibration) -> A4AdapterCfg:
-    """Build A4 execution geometry from the validated Alex V2 calibration."""
-
-    values = calibration.controller
-    return A4AdapterCfg(
-        approach_standoff_m=float(values["approach_standoff_m"]),
-        align_standoff_m=float(values["align_standoff_m"]),
-        pre_contact_clearance_m=float(values["pre_contact_clearance_m"]),
-        contact_clearance_m=float(values["contact_clearance_m"]),
-        release_standoff_m=float(values["release_standoff_m"]),
-    )
 
 
 _PHASE_CLEARANCE_ATTR = {

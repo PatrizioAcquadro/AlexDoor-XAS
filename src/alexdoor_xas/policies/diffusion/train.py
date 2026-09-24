@@ -12,7 +12,7 @@ from typing import Any
 import torch
 
 from alexdoor_xas.dataset.sampling import collate_torch
-from alexdoor_xas.policies.common.runs import capture_rng_states, restore_rng_states
+from alexdoor_xas.policies.common.training import capture_rng_states, restore_rng_states
 from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg, DiffusionTrainCfg
 from alexdoor_xas.policies.diffusion.model import DiffusionTransformer, diffusion_loss
 from alexdoor_xas.policies.diffusion.schedulers import (
@@ -119,19 +119,19 @@ class TrainHistory:
             EpochStats(
                 epoch=int(entry["epoch"]),
                 train_mse=float(entry["train_mse"]),
-                n_batches=int(entry.get("batch_count", entry.get("n_batches"))),
-                lr=float(entry.get("learning_rate", entry.get("lr"))),
+                n_batches=int(entry.get("batch_count")),
+                lr=float(entry.get("learning_rate")),
                 val_sampled_l1=(
                     None
-                    if entry.get("sampled_validation_l1", entry.get("val_sampled_l1")) is None
-                    else float(entry.get("sampled_validation_l1", entry.get("val_sampled_l1")))
+                    if entry.get("sampled_validation_l1") is None
+                    else float(entry.get("sampled_validation_l1"))
                 ),
                 duration_s=float(entry.get("duration_s", 0.0)),
             )
             for entry in payload.get("epochs", [])
         ]
         best_epoch = int(payload.get("best_epoch", -1))
-        best_value = payload.get("best_value", payload.get("best_val_l1"))
+        best_value = payload.get("best_value")
         return cls(
             epochs=epochs,
             best_epoch=best_epoch,

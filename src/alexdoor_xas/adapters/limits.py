@@ -1,7 +1,4 @@
-"""Alex V2 adapter limits and door-panel geometry.
-
-Panel geometry mirrors the scripted controller and is pinned by tests.
-"""
+"""Adapter limits and door-panel geometry."""
 
 from __future__ import annotations
 
@@ -10,13 +7,10 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from alexdoor_xas import paths
-from alexdoor_xas.calibration.alex_v2_door import AlexV2DoorCalibration
-
 
 @dataclass(frozen=True)
 class WorkspaceSphere:
-    """Reachable shell around a fixed point (the fixed-base Alex shoulder)."""
+    """Reachable shell around a fixed point (for example, the shoulder)."""
 
     center_w: tuple[float, float, float]
     min_reach_m: float
@@ -46,61 +40,6 @@ class RobotLimitsCfg:
     contact_approach_max_step_m: float | None = None
 
 
-def alex_v2_limits(
-    calibration: AlexV2DoorCalibration,
-    *,
-    workspace_center_w,
-) -> RobotLimitsCfg:
-    """Build V2 limits from calibrated reach bounds and a live shoulder center."""
-
-    center = np.asarray(workspace_center_w, dtype=np.float64).reshape(-1)
-    if center.shape != (3,) or not np.isfinite(center).all():
-        raise ValueError("workspace_center_w must contain exactly three finite values")
-    min_reach_m, max_reach_m = calibration.reach_shell_m
-    if not (
-        np.isfinite(min_reach_m) and np.isfinite(max_reach_m) and 0.0 < min_reach_m < max_reach_m
-    ):
-        raise ValueError("calibration reach_shell_m must be finite, positive, and increasing")
-    controller = calibration.controller
-    contact_approach_start_clearance_m = float(controller["align_standoff_m"])
-    contact_approach_max_step_m = float(controller["contact_approach_max_step_m"])
-    if not (
-        np.isfinite(contact_approach_start_clearance_m)
-        and np.isfinite(contact_approach_max_step_m)
-        and 0.0 < contact_approach_start_clearance_m
-        and 0.0 < contact_approach_max_step_m <= 0.015
-    ):
-        raise ValueError("calibrated contact-approach limits are invalid")
-    return RobotLimitsCfg(
-        workspace=WorkspaceSphere(
-            center_w=tuple(float(value) for value in center),
-            min_reach_m=float(min_reach_m),
-            max_reach_m=float(max_reach_m),
-        ),
-        # Alex exposes the collision-derived tool point at the panel surface.
-        contact_surface_x_m=DoorPanelGeometry().panel_thickness_m,
-        contact_approach_start_clearance_m=contact_approach_start_clearance_m,
-        contact_approach_max_step_m=contact_approach_max_step_m,
-    )
-
-
-def limits_for_robot(
-    robot_tag: str,
-    *,
-    calibration: AlexV2DoorCalibration | None = None,
-    workspace_center_w=None,
-) -> RobotLimitsCfg:
-    """Limits for a frozen robot tag, requiring live inputs for Alex V2."""
-
-    if robot_tag == paths.ALEX_V2_ROBOT_TAG:
-        if calibration is None or workspace_center_w is None:
-            raise ValueError("Alex V2 limits require validated calibration and workspace_center_w")
-        return alex_v2_limits(calibration, workspace_center_w=workspace_center_w)
-    raise KeyError(
-        f"no adapter limits for robot {robot_tag!r} (known: {[paths.ALEX_V2_ROBOT_TAG]})"
-    )
-
-
 @dataclass(frozen=True)
 class DoorPanelGeometry:
     """Panel-frame geometry: hinge origin, Z axis, and +X push face."""
@@ -113,7 +52,7 @@ class DoorPanelGeometry:
     contact_eps_m: float = 0.002
 
     def surface_x_m(self, clearance_m: float) -> float:
-        """Panel-frame x of the Alex V2 tool point off the +X face."""
+        """Panel-frame x of the tool point off the +X face."""
         return self.panel_thickness_m + clearance_m
 
     def on_panel(self, point_panel: np.ndarray, tol_m: float = 0.0) -> bool:

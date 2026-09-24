@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import argparse
 import dataclasses
 import importlib.util
 import json
@@ -20,7 +19,7 @@ from alexdoor_xas.action.spaces import (
     A4_PHASE_VOCAB,
     EE_DELTA_DIM,
 )
-from alexdoor_xas.data_engine import export_datasets, plan_episodes, run_episode
+from alexdoor_xas.dataset.export import export_datasets
 from alexdoor_xas.dataset.loader import A4ChunkDataset, EpisodeDataset, obs_matrix
 from alexdoor_xas.dataset.normalize import (
     compute_norm_stats,
@@ -30,14 +29,13 @@ from alexdoor_xas.dataset.normalize import (
     validate_norm_stats,
 )
 from alexdoor_xas.dataset.sampling import BatchIterator, ChunkSampler
-from alexdoor_xas.dataset.splits import splits_path
 from alexdoor_xas.dataset.validate import (
     validate_a4_dataset,
     validate_dataset,
     validate_episode,
     validate_matched_action_space_datasets,
 )
-from conftest import FakeDoorPushEnv, make_test_engine_cfg
+from conftest import make_episode
 
 requires_h5py = pytest.mark.skipif(
     importlib.util.find_spec("h5py") is None, reason="h5py is not installed"
@@ -61,48 +59,20 @@ def _write_jsonl_records(path: Path, records: list[dict]) -> None:
     path.write_text("\n".join(json.dumps(record) for record in records) + "\n")
 
 
-def _load_script(path: str):
-    script_path = Path(__file__).resolve().parents[1] / path
-    spec = importlib.util.spec_from_file_location(script_path.stem, script_path)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
-def _export(tmp_root, env_factory):
-    # Distinct start poses per seed: the fake env is deterministic, so equal
-    # fixed episodes would collapse into one content-equivalence group and the
-    # grouped split contract would (correctly) refuse to split them 3 ways.
-    episodes = [
-        run_episode(
-            env_factory(start_door_frame=(0.7, 0.2 + 0.005 * seed, 0.0)),
-            plan_episodes(1, 0, seed)[0],
-            make_test_engine_cfg(),
-        )
-        for seed in range(N_EPISODES)
-    ]
-    return export_datasets(episodes, tmp_root, version="v0")
+def _export(tmp_root):
+    return export_datasets(
+        [make_episode(seed=seed) for seed in range(N_EPISODES)], tmp_root, version="v0"
+    )
 
 
 @pytest.fixture(scope="module")
 def synthetic_exports(tmp_path_factory):
-    return _export(tmp_path_factory.mktemp("synthetic"), FakeDoorPushEnv)
-
-
-@pytest.fixture(scope="module")
-def alex_exports(tmp_path_factory):
-    return _export(tmp_path_factory.mktemp("alex"), FakeDoorPushEnv)
+    return _export(tmp_path_factory.mktemp("synthetic"))
 
 
 @pytest.fixture(scope="module")
 def synthetic_a2(synthetic_exports) -> EpisodeDataset:
     return EpisodeDataset(synthetic_exports[A2_EE_DELTA])
-
-
-@pytest.fixture(scope="module")
-def alex_a2(alex_exports) -> EpisodeDataset:
-    return EpisodeDataset(alex_exports[A2_EE_DELTA])
 
 
 def test_dataset_loads_records_with_stacked_arrays(synthetic_a2) -> None:
@@ -122,36 +92,35 @@ def test_dataset_loads_records_with_stacked_arrays(synthetic_a2) -> None:
         synthetic_a2.by_id("no-such-episode")
 
 
-def test_a1_dataset_has_joint_wide_actions(alex_exports) -> None:
-    a1 = EpisodeDataset(alex_exports[A1_JOINT_DELTA])
-    assert a1.action_dim == FakeDoorPushEnv.N_JOINTS
+def test_a1_dataset_has_joint_wide_actions(synthetic_exports) -> None:
+    a1 = EpisodeDataset(synthetic_exports[A1_JOINT_DELTA])
+    assert a1.action_dim == 7
     assert validate_dataset(a1).ok
 
 
-def test_episode_ids_shared_across_action_spaces(alex_exports) -> None:
+def test_episode_ids_shared_across_action_spaces(synthetic_exports) -> None:
     ids = {
         space: sorted(EpisodeDataset(path).episode_ids)
-        for space, path in alex_exports.items()
+        for space, path in synthetic_exports.items()
         if space != A4_OBJ_CENTRIC_CHUNK
     }
-    a4_ids = sorted(A4ChunkDataset(alex_exports[A4_OBJ_CENTRIC_CHUNK]).episode_ids)
+    a4_ids = sorted(A4ChunkDataset(synthetic_exports[A4_OBJ_CENTRIC_CHUNK]).episode_ids)
     reference = ids[A2_EE_DELTA]
     assert all(episode_ids == reference for episode_ids in ids.values())
     assert a4_ids == reference
 
 
-def test_core_preset_is_9dim_everywhere(synthetic_a2, alex_a2) -> None:
-    for dataset in (synthetic_a2, alex_a2):
-        obs = obs_matrix(dataset[0], "core")
-        assert obs.shape == (dataset[0].n_steps, 9)
-        assert np.isfinite(obs).all()
+def test_core_preset_is_9dim_everywhere(synthetic_a2) -> None:
+    obs = obs_matrix(synthetic_a2[0], "core")
+    assert obs.shape == (synthetic_a2[0].n_steps, 9)
+    assert np.isfinite(obs).all()
 
 
-def test_core_contact_uses_sensed_when_available(synthetic_a2, alex_a2) -> None:
+def test_core_contact_uses_sensed_when_available(synthetic_a2) -> None:
     assert obs_matrix(synthetic_a2[0], "core_contact").shape[1] == 10
-    alex_obs = obs_matrix(alex_a2[0], "core_contact")
-    assert alex_obs.shape[1] == 10
-    np.testing.assert_array_equal(alex_obs[:, -1], alex_a2[0].obs["sensed"])
+    contact_obs = obs_matrix(synthetic_a2[0], "core_contact")
+    assert contact_obs.shape[1] == 10
+    np.testing.assert_array_equal(contact_obs[:, -1], synthetic_a2[0].obs["sensed"])
 
 
 def test_unknown_obs_preset_is_rejected(synthetic_a2) -> None:
@@ -162,11 +131,7 @@ def test_unknown_obs_preset_is_rejected(synthetic_a2) -> None:
 def test_core_door_pose_preset_is_14dim_and_encodes_yaw(tmp_path) -> None:
     yaw = 0.6
     origin = (1.0, -2.0, 0.5)
-    episode = run_episode(
-        FakeDoorPushEnv(yaw_rad=yaw, origin=origin),
-        plan_episodes(1, 0, 0)[0],
-        make_test_engine_cfg(),
-    )
+    episode = make_episode(yaw=yaw, origin=origin)
     exported = export_datasets([episode], tmp_path, version="v0")
     dataset = EpisodeDataset(exported[A2_EE_DELTA])
     obs = obs_matrix(dataset[0], "core_door_pose")
@@ -179,11 +144,11 @@ def test_core_door_pose_preset_is_14dim_and_encodes_yaw(tmp_path) -> None:
     np.testing.assert_allclose(obs[:, 13], np.cos(yaw), atol=1e-12)
 
 
-def test_core_door_pose_preset_fails_clearly_on_old_episodes(alex_a2) -> None:
+def test_core_door_pose_preset_fails_clearly_on_old_episodes(synthetic_a2) -> None:
     """Episodes recorded before the door-pose terms existed must be rejected."""
     import dataclasses
 
-    record = alex_a2[0]
+    record = synthetic_a2[0]
     stripped_obs = {
         key: value
         for key, value in record.obs.items()
@@ -194,16 +159,16 @@ def test_core_door_pose_preset_fails_clearly_on_old_episodes(alex_a2) -> None:
         obs_matrix(old_record, "core_door_pose")
 
 
-def test_a4_dataset_parses_and_validates_chunks(alex_exports) -> None:
-    a4 = A4ChunkDataset(alex_exports[A4_OBJ_CENTRIC_CHUNK])
+def test_a4_dataset_parses_and_validates_chunks(synthetic_exports) -> None:
+    a4 = A4ChunkDataset(synthetic_exports[A4_OBJ_CENTRIC_CHUNK])
     assert len(a4) == N_EPISODES
     record = a4[0]
     assert record.chunks and all(c.phase in A4_PHASE_VOCAB for c in record.chunks)
     assert validate_a4_dataset(a4).ok
 
 
-def test_a4_validation_fails_closed_on_missing_outcome(alex_exports, tmp_path) -> None:
-    a4_dir = _copy_dataset(alex_exports[A4_OBJ_CENTRIC_CHUNK], tmp_path, "a4_missing_outcome")
+def test_a4_validation_fails_closed_on_missing_outcome(synthetic_exports, tmp_path) -> None:
+    a4_dir = _copy_dataset(synthetic_exports[A4_OBJ_CENTRIC_CHUNK], tmp_path, "a4_missing_outcome")
     jsonl = a4_dir / "episodes.jsonl"
     records = _jsonl_records(jsonl)
     records[0]["outcome"] = None
@@ -213,8 +178,8 @@ def test_a4_validation_fails_closed_on_missing_outcome(alex_exports, tmp_path) -
         A4ChunkDataset(a4_dir)
 
 
-def test_a4_validation_rejects_duplicate_ids(alex_exports, tmp_path) -> None:
-    a4_dir = _copy_dataset(alex_exports[A4_OBJ_CENTRIC_CHUNK], tmp_path, "a4_duplicate")
+def test_a4_validation_rejects_duplicate_ids(synthetic_exports, tmp_path) -> None:
+    a4_dir = _copy_dataset(synthetic_exports[A4_OBJ_CENTRIC_CHUNK], tmp_path, "a4_duplicate")
     jsonl = a4_dir / "episodes.jsonl"
     records = _jsonl_records(jsonl)
     records[1]["meta"]["episode_id"] = records[0]["meta"]["episode_id"]
@@ -226,8 +191,8 @@ def test_a4_validation_rejects_duplicate_ids(alex_exports, tmp_path) -> None:
     assert any("duplicate episode ids" in error for error in result.errors)
 
 
-def test_a4_validation_rejects_bad_target_width(alex_exports, tmp_path) -> None:
-    a4_dir = _copy_dataset(alex_exports[A4_OBJ_CENTRIC_CHUNK], tmp_path, "a4_bad_target")
+def test_a4_validation_rejects_bad_target_width(synthetic_exports, tmp_path) -> None:
+    a4_dir = _copy_dataset(synthetic_exports[A4_OBJ_CENTRIC_CHUNK], tmp_path, "a4_bad_target")
     jsonl = a4_dir / "episodes.jsonl"
     records = _jsonl_records(jsonl)
     records[0]["chunks"][0]["contact_target_panel"] = [0.1, 0.2]
@@ -239,10 +204,9 @@ def test_a4_validation_rejects_bad_target_width(alex_exports, tmp_path) -> None:
     assert any("contact_target_panel" in error for error in result.errors)
 
 
-def test_validate_passes_on_exported_datasets(synthetic_a2, alex_a2, alex_exports) -> None:
+def test_validate_passes_on_exported_datasets(synthetic_a2, synthetic_exports) -> None:
     assert validate_dataset(synthetic_a2, A2_EE_DELTA).ok
-    assert validate_dataset(alex_a2, A2_EE_DELTA).ok
-    assert validate_dataset(EpisodeDataset(alex_exports[A3_OBJ_REL_EE_DELTA])).ok
+    assert validate_dataset(EpisodeDataset(synthetic_exports[A3_OBJ_REL_EE_DELTA])).ok
 
 
 def test_validate_catches_planted_defects(synthetic_a2) -> None:
@@ -312,8 +276,8 @@ def test_validate_episode_reports_malformed_observation_shape(synthetic_a2) -> N
     assert any("obs 'door_angle_rad'" in error and "shape" in error for error in result.errors)
 
 
-def test_validate_rejects_mislabeled_a3_actions(alex_exports) -> None:
-    a3 = EpisodeDataset(alex_exports[A3_OBJ_REL_EE_DELTA])
+def test_validate_rejects_mislabeled_a3_actions(synthetic_exports) -> None:
+    a3 = EpisodeDataset(synthetic_exports[A3_OBJ_REL_EE_DELTA])
     record = a3[0]
     bad_actions = record.actions.copy()
     bad_actions[0, 0] += 0.25
@@ -351,9 +315,11 @@ def test_validate_dataset_reports_malformed_meta_and_action_rank(
     assert any("rank 2" in error for error in result.errors)
 
 
-def test_matched_action_space_validation_rejects_same_id_mismatched_content(alex_exports) -> None:
-    a2 = EpisodeDataset(alex_exports[A2_EE_DELTA])
-    a3 = EpisodeDataset(alex_exports[A3_OBJ_REL_EE_DELTA])
+def test_matched_action_space_validation_rejects_same_id_mismatched_content(
+    synthetic_exports,
+) -> None:
+    a2 = EpisodeDataset(synthetic_exports[A2_EE_DELTA])
+    a3 = EpisodeDataset(synthetic_exports[A3_OBJ_REL_EE_DELTA])
     a3.records = list(a3.records)
     bad_meta = dict(a3[0].meta)
     bad_meta["seed"] = int(bad_meta["seed"]) + 1000
@@ -420,56 +386,6 @@ def test_norm_stats_validation_rejects_stale_or_wrong_dimension_stats(synthetic_
     wrong_dim = dataclasses.replace(stats, action=bad_action)
     assert any(
         "action dim" in error for error in validate_norm_stats(wrong_dim, synthetic_a2, train_ids)
-    )
-
-
-def test_verify_dataset_interface_default_does_not_rewrite_artifacts(alex_exports) -> None:
-    verify = _load_script("scripts/verify_dataset_interface.py")
-    root = alex_exports[A2_EE_DELTA].parents[2]
-    args = argparse.Namespace(
-        datasets_root=root,
-        version="v0",
-        horizon=20,
-        batch_size=8,
-        seed=0,
-        write_artifacts=True,
-    )
-    assert verify.verify_task(args, "door_push") == []
-
-    artifact_paths = [splits_path(root, "door_push", "v0")]
-    artifact_paths.extend(
-        norm_stats_path(path)
-        for space, path in alex_exports.items()
-        if space != A4_OBJ_CENTRIC_CHUNK
-    )
-    before = {path: path.read_bytes() for path in artifact_paths}
-    args.write_artifacts = False
-
-    failures = verify.verify_task(args, "door_push")
-
-    assert failures == []
-    assert {path: path.read_bytes() for path in artifact_paths} == before
-
-
-def test_verify_dataset_interface_requires_a4_by_default(alex_exports, tmp_path) -> None:
-    verify = _load_script("scripts/verify_dataset_interface.py")
-    source_root = alex_exports[A2_EE_DELTA].parents[2]
-    root = tmp_path / "datasets"
-    shutil.copytree(source_root, root)
-    shutil.rmtree(root / "door_push" / A4_OBJ_CENTRIC_CHUNK)
-    args = argparse.Namespace(
-        datasets_root=root,
-        version="v0",
-        horizon=20,
-        batch_size=8,
-        seed=0,
-        write_artifacts=False,
-    )
-
-    failures = verify.verify_task(args, "door_push")
-
-    assert any(
-        "missing required" in failure and A4_OBJ_CENTRIC_CHUNK in failure for failure in failures
     )
 
 

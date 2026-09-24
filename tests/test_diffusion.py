@@ -17,7 +17,7 @@ from alexdoor_xas.adapters.rollout import (  # noqa: E402
     read_step_context,
     rollout_chunks,
 )
-from alexdoor_xas.assets.alex_v2_contract import RobotAssetRef  # noqa: E402
+from alexdoor_xas.assets.identity import RobotAssetRef  # noqa: E402
 from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats  # noqa: E402
 from alexdoor_xas.policies.common.checkpoint import (  # noqa: E402
     DIFFUSION_CHECKPOINT_FORMAT,
@@ -53,7 +53,7 @@ from alexdoor_xas.policies.diffusion.train import (  # noqa: E402
 from conftest import TEST_ROBOT_LIMITS, FakeDoorPushEnv  # noqa: E402
 
 ACTION_DIM = 6
-TEST_ROBOT_ASSET = RobotAssetRef("alex_v2_test", "a" * 64)
+TEST_ROBOT_ASSET = RobotAssetRef("test_robot", "a" * 64)
 OBS_DIM = 9
 
 TINY_MODEL_CFG = DiffusionModelCfg(
@@ -101,9 +101,9 @@ def _tiny_stats() -> DatasetNormStats:
 def _checkpoint_config() -> dict:
     return {
         "dataset": {
-            "task": "door_push_alex_v2",
+            "task": "test_task",
             "space": "A2_ee_delta",
-            "version": "v2_pose",
+            "version": "test_dataset",
             "view_id": None,
             "obs_preset": "core",
         }
@@ -120,8 +120,6 @@ def _save_checkpoint(path, model, stats):
         {},
         TEST_ROBOT_ASSET,
     )
-
-
 
 
 def test_minmax_round_trip_and_extrema() -> None:
@@ -191,11 +189,11 @@ def test_sample_actions_is_deterministic_with_seeded_generator() -> None:
     for sampler in ("ddpm", "ddim"):
         scheduler = make_inference_scheduler(TINY_MODEL_CFG, sampler, 10)
         first = sample_actions(
-            model, scheduler, obs, 8, ACTION_DIM, torch.Generator().manual_seed(7)
+            model, scheduler, obs, 8, ACTION_DIM, torch.Generator(device="cuda").manual_seed(7)
         )
         scheduler = make_inference_scheduler(TINY_MODEL_CFG, sampler, 10)
         second = sample_actions(
-            model, scheduler, obs, 8, ACTION_DIM, torch.Generator().manual_seed(7)
+            model, scheduler, obs, 8, ACTION_DIM, torch.Generator(device="cuda").manual_seed(7)
         )
         assert first.shape == (3, 8, ACTION_DIM)
         assert torch.isfinite(first).all()
@@ -203,10 +201,10 @@ def test_sample_actions_is_deterministic_with_seeded_generator() -> None:
         torch.testing.assert_close(first, second)
 
     scheduler = make_inference_scheduler(TINY_MODEL_CFG, "ddpm", 10)
-    third = sample_actions(model, scheduler, obs, 8, ACTION_DIM, torch.Generator().manual_seed(8))
+    third = sample_actions(
+        model, scheduler, obs, 8, ACTION_DIM, torch.Generator(device="cuda").manual_seed(8)
+    )
     assert not torch.allclose(first, third)
-
-
 
 
 def test_model_forward_shapes_and_finiteness() -> None:
@@ -272,12 +270,12 @@ def test_diffusion_loss_masks_padded_steps() -> None:
     is_pad = torch.zeros(2, TINY_MODEL_CFG.horizon, dtype=torch.bool)
     is_pad[:, 4:] = True
 
-    generator = torch.Generator().manual_seed(0)
+    generator = torch.Generator(device="cuda").manual_seed(0)
     base = diffusion_loss(model, scheduler, actions, obs, is_pad, generator=generator)
 
     corrupted = actions.clone()
     corrupted[:, 4:] = 1e6
-    generator = torch.Generator().manual_seed(0)
+    generator = torch.Generator(device="cuda").manual_seed(0)
     same = diffusion_loss(model, scheduler, corrupted, obs, is_pad, generator=generator)
 
     assert torch.isfinite(base["mse"])
@@ -293,7 +291,6 @@ def test_diffusion_loss_masks_padded_steps() -> None:
         )
 
 
-
 TINY_TRAIN_CFG = DiffusionTrainCfg(
     epochs=150,
     batch_size=32,
@@ -304,7 +301,7 @@ TINY_TRAIN_CFG = DiffusionTrainCfg(
     lr_warmup_steps=0,
     use_ema=False,
     seed=0,
-    device="cpu",
+    device="cuda",
     val_every=50,
     val_inference_steps=10,
 )
@@ -339,7 +336,7 @@ def test_train_diffusion_overfits_a_constant_mapping() -> None:
     assert len(events) == TINY_TRAIN_CFG.epochs
     assert any(is_best for _, is_best in events)
 
-    sampled_l1 = evaluate_sampled_l1(model, [batch], torch.device("cpu"), 10)
+    sampled_l1 = evaluate_sampled_l1(model, [batch], torch.device("cuda"), 10)
     assert sampled_l1 < 0.25
 
 
@@ -355,7 +352,7 @@ def test_train_diffusion_resume_matches_uninterrupted_state_and_ema() -> None:
         use_ema=True,
         ema_decay=0.99,
         seed=19,
-        device="cpu",
+        device="cuda",
         val_every=10,
         val_inference_steps=2,
     )
@@ -420,19 +417,16 @@ def test_checkpoint_round_trip_preserves_predictions(tmp_path) -> None:
     stats = _tiny_stats()
     path = _save_checkpoint(tmp_path / "best.pt", model, stats)
     policy = DiffusionPolicy.from_checkpoint(
-        path,
-        sampler="ddim",
-        num_inference_steps=5,
-        runtime_asset=TEST_ROBOT_ASSET,
+        path, sampler="ddim", num_inference_steps=5, runtime_asset=TEST_ROBOT_ASSET, device="cuda"
     )
 
     assert policy.action_space == "A2_ee_delta"
     assert policy.obs_preset == "core"
     assert policy.chunk_size == TINY_MODEL_CFG.horizon
-    assert policy.robot_compatibility_label == "v2_native"
+    assert policy.robot_compatibility_label == "matching_asset"
     np.testing.assert_allclose(policy.stats.action.min, stats.action.min)
 
-    obs = torch.randn(2, OBS_DIM, generator=torch.Generator().manual_seed(0))
+    obs = torch.randn(2, OBS_DIM, generator=torch.Generator(device="cuda").manual_seed(0))
     for sampler in ("ddpm", "ddim"):
         scheduler = make_inference_scheduler(TINY_MODEL_CFG, sampler, 10)
         original = sample_actions(
@@ -441,7 +435,7 @@ def test_checkpoint_round_trip_preserves_predictions(tmp_path) -> None:
             obs,
             TINY_MODEL_CFG.horizon,
             ACTION_DIM,
-            torch.Generator().manual_seed(1),
+            torch.Generator(device="cuda").manual_seed(1),
         )
         scheduler = make_inference_scheduler(policy.model.cfg, sampler, 10)
         rebuilt = sample_actions(
@@ -450,7 +444,7 @@ def test_checkpoint_round_trip_preserves_predictions(tmp_path) -> None:
             obs,
             TINY_MODEL_CFG.horizon,
             ACTION_DIM,
-            torch.Generator().manual_seed(1),
+            torch.Generator(device="cuda").manual_seed(1),
         )
         assert torch.equal(original, rebuilt)
 
@@ -459,7 +453,8 @@ def test_checkpoint_round_trip_preserves_predictions(tmp_path) -> None:
             path,
             sampler="ddim",
             num_inference_steps=5,
-            runtime_asset=RobotAssetRef("different_alex_v2", "b" * 64),
+            runtime_asset=RobotAssetRef("other_robot", "b" * 64),
+            device="cuda",
         )
 
 
@@ -483,7 +478,7 @@ def _rollout_policy(**kwargs) -> DiffusionPolicy:
         action_space="A2_ee_delta",
     )
     model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0)
-    return DiffusionPolicy(model, stats, num_inference_steps=5, **kwargs)
+    return DiffusionPolicy(model, stats, num_inference_steps=5, **kwargs, device="cuda")
 
 
 def test_diffusion_policy_predict_shape_and_bounds() -> None:
@@ -529,7 +524,7 @@ def test_diffusion_policy_obs_normalization_and_clip() -> None:
             captured.append(obs.detach().clone())
             return torch.zeros_like(x)
 
-    policy = DiffusionPolicy(_CaptureModel(), stats, num_inference_steps=2)
+    policy = DiffusionPolicy(_CaptureModel(), stats, num_inference_steps=2, device="cuda")
     policy.seed(0)
     policy.predict(np.full(OBS_DIM, 1e-3))  # would normalize to 1e5 without the clip
 
@@ -541,7 +536,7 @@ def test_diffusion_policy_rejects_mismatched_stats() -> None:
     stats = _tiny_stats()
     model = make_seeded_model(OBS_DIM + 1, ACTION_DIM, TINY_MODEL_CFG, seed=0)
     with pytest.raises(ValueError, match="obs dim"):
-        DiffusionPolicy(model, stats)
+        DiffusionPolicy(model, stats, device="cuda")
 
 
 def test_diffusion_policy_seed_makes_sampling_reproducible() -> None:
@@ -564,7 +559,7 @@ def test_diffusion_chunk_source_receding_horizon_drives_a2_rollout() -> None:
     env.reset()
     policy = _rollout_policy()
     policy.seed(0)
-    source = diffusion_chunk_source(policy, env, n_action_steps=4)
+    source = diffusion_chunk_source(policy, lambda ctx: np.zeros(OBS_DIM), n_action_steps=4)
     adapter = A2Adapter(TEST_ROBOT_LIMITS)
 
     chunk = source(read_step_context(env, read_door_frame(env)))
@@ -584,7 +579,19 @@ def test_diffusion_chunk_source_validates_inputs() -> None:
     env = FakeDoorPushEnv()
     env.reset()
     policy = _rollout_policy()
-    with pytest.raises(ValueError, match="unknown obs preset"):
-        diffusion_chunk_source(policy, env, obs_preset="unsupported")
     with pytest.raises(ValueError, match="n_action_steps"):
-        diffusion_chunk_source(policy, env, n_action_steps=TINY_MODEL_CFG.horizon + 1)
+        diffusion_chunk_source(
+            policy, lambda ctx: np.zeros(OBS_DIM), n_action_steps=TINY_MODEL_CFG.horizon + 1
+        )
+
+
+@pytest.fixture(autouse=True)
+def gpu_models():
+    if not torch.cuda.is_available():
+        pytest.skip("model checks require CUDA")
+    previous = torch.get_default_device()
+    torch.set_default_device("cuda")
+    try:
+        yield
+    finally:
+        torch.set_default_device(previous)

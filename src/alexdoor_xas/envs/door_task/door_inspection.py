@@ -1,4 +1,4 @@
-"""Door-only legacy preparation measurement, independent of robot execution."""
+"""Door-only preparation measurement, independent of robot execution."""
 
 import torch
 from isaaclab.actuators import ImplicitActuatorCfg

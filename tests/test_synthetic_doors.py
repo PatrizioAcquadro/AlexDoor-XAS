@@ -32,4 +32,3 @@ def test_geometric_stop_and_panel_extent():
             assert rectangles_overlap(
                 door.panel_rectangle(door.mechanical_stop + np.deg2rad(0.3)), jamb
             )
-
