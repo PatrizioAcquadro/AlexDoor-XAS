@@ -11,12 +11,12 @@ push doors with fixed-base Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
 Purdue control/sensing and the shared expert workflow are implemented.
 The prepared pool contains **32 doors**: 29 redistributable, two local-only and
-one private/noncommercial. The real-door expert command now uses a shared
-robot/pedestal yaw of zero degrees, revised from 45 degrees. The initial
-pedestal interference is resolved and one right door is qualified at 59.32 degrees.
-Both tested left doors still have approach collisions; the left/right pilot is
-incomplete. B1 demonstrations, Replicator and learned-policy integration remain
-future work.
+one private/noncommercial. The real-door expert pilot is complete: a right door
+qualifies at 59.33 degrees and a left door at 46.37 degrees, each with two valid
+GPU cycles using the same zero-yaw placement and ready posture. The command and
+[handoff procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md#procedure-for-subsequent-doors)
+are ready for remaining doors. Final corpus selection, B1 demonstrations,
+Replicator and learned-policy integration remain future work.
 
 B0 workflows and local data have been retired. Their scientific conclusions and
 limits remain in the wiki. Reusable action math, recording, dataset and model

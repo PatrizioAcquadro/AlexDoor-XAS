@@ -2,9 +2,9 @@
 
 Subphase 5.0 is complete for **32 prepared doors**: 29 redistributable, two
 local-only and one private/noncommercial. The expert command is implemented.
-The zero-yaw revision resolves initial pedestal interference and qualifies one
-right door. Both tested left doors still fail approach, so the left/right pilot
-remains incomplete.
+The common zero-yaw placement and ready posture now qualify one right and one
+left door on the RTX 4090. The shared infrastructure and left/right pilot are
+complete; routine qualification of the remaining doors is ready for handoff.
 Subphase 5.1 selects the final 24-door, 12/4/8 identity split; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
@@ -254,61 +254,65 @@ surfaces and remains a geometric diagnostic, not learned-perception qualificatio
 
 ### Pilot and Common-Pose Revision
 
-The original 45-degree setup excluded both widest candidates and both agreed
-substitutes through positive-volume closed-panel/pedestal intersections. Those
-results remain in earlier Git records and linked cache reports. The independent
-geometry audit and diagram remain at
-`~/.cache/alexdoor-xas/verification/expert-pilot-20260924/`.
+The user-authorized revision keeps **robot and pedestal together at zero yaw**,
+with common floor position **X = -0.380 m, Y = 0.300 m** and a revised right-arm
+ready/left-arm parked posture. Relative to the first zero-yaw attempt, the common
+mount moves 2 cm forward and 7.5 cm left. The parked arm clears the frame; the
+ready posture and lateral placement clear the approaching wrist from the robot
+body. See [[phase-4-robot-and-task-configuration|Phase 4]] and
+`configs/purdue_synthetic_probe.json` for the single effective setup.
 
-On 2026-09-24 the user approved rotating **robot and pedestal together to zero
-yaw**, preserving their physical mounting. X/Y, ready joints, neck, contact point,
-controller and timing parameters remain unchanged. All four doors clear the
-initial pedestal-intersection check under this revised pose. Validation uses
-collected doors directly; the previous synthetic results apply only to 45 degrees.
+Bounded kinematic/collision checks guided this revision; complete GPU cycles on
+collected doors establish its result. Contact height/fraction, head pose, gains,
+speeds, timing and validity thresholds remain unchanged. No asset geometry or
+collision was removed. The earlier shared contact-guard correction still rejects
+actual touching/penetration or nonzero normal force, while retaining separated,
+zero-force PhysX candidates as diagnostics.
 
-A real-door run exposed an unrelated contact diagnostic defect: PhysX supplied a
-separated distal/panel candidate at 3.32 mm with zero force, which was treated as
-a forbidden collision. The shared guard now aborts on actual touching/penetration
-or nonzero normal force, including either actor sign; it retains all raw records.
-The original failed pair is preserved and the right candidate was rerun as a
-complete pair. No collision geometry, controller or threshold was relaxed.
+The final setup qualifies both agreed substitutes on 2026-09-24:
 
-The revised pose qualifies the right substitute `door-door-metal-b21ec273`:
-the two sustained/final-hold angles are 59.32154 and 59.32261 degrees, both with
-`mechanical_stop` and valid release. Thus `theta_expert_d = 59.32154 deg` and the
-pair spread is 0.00107 degrees. Raw contacts contain no actual forbidden contact;
-trace windows independently reproduce the reported angles.
+| Door | Hinge | Trial 1 | Trial 2 | `theta_expert_d` | Consistent limit |
+|---|---|---:|---:|---:|---|
+| `door-door-metal-b21ec273` | right | 59.33077° | 59.33077° | 59.33077° | Mechanical stop |
+| `door-adf292f437f2` | left | 46.36825° | 46.36825° | 46.36825° | Tracking margin |
 
-There is **one qualified right door, three unresolved doors and 28 unvisited**.
-The revised pose has not yet established a qualified left/right pair. The original
-right candidate (`modern-door-2fb8d024`) produced 49.03 and 49.19 degrees sustained:
-the first trial failed final holding, while the second completed holding and
-release. Its pair remains `unresolved`; the successful repetition is not selected
-on its own. The original left candidate (`door-2738468b94d74c5f`) starts with
-parked-left-wrist/frame penetration (up to 31 mm in the first contact sample).
-The left substitute (`door-adf292f437f2`) hits the robot base with its right wrist
-during approach, around 3.5 seconds. Both left pairs remain `unresolved`, with no
-expert angle; these are observed collisions, not evidence of malformed assets.
+Both pairs complete valid final holding and release. In these four trials the
+final-hold angle equals the maximum sustained angle; an independent trace audit
+reproduces both measurements and finds no actual forbidden contact. Identical
+paired values establish the prescribed repeat check, not a statistical robustness
+claim. The left reference is above 45 degrees with a modest 1.37-degree margin.
 
-Reviewed RGB frames show the hand and panel, but geometric visibility does not
-pass throughout the right trials; the metal door has no visible sampled frame
-points. This is retained as diagnostic evidence, not hidden or promoted to
-observed-policy readiness. No camera retuning or learning data collection occurred.
+The compact audit and links to complete paired evidence are at
+`~/.cache/alexdoor-xas/verification/common-approach-pilot-20260924/report.json`.
+Each pair retains its effective setup, input records, raw contacts, time traces
+and RGB-D. Representative images were inspected. All preparation fields and
+source/prepared assets are preserved; only expert summaries change.
 
-Current results and the compact trace audit are at
-`~/.cache/alexdoor-xas/verification/straight-pilot-20260924/report.json`; each
-entry points to its complete pair, setup, raw contacts and images. All preparation
-fields and source/prepared assets are preserved. No new synthetic sweep was run.
+Earlier attempts remain linked through `previous_evidence`. The original left
+candidate (`door-2738468b94d74c5f`) has a deep frame that intersects the pedestal
+at the revised placement; this is setup exclusion, not an invalid asset. The
+original right candidate (`modern-door-2fb8d024`, still `local_only`) retains its
+older unresolved pair: one of two trials failed final holding. That result used
+the earlier zero-yaw setup and has not been rechecked with the final placement;
+it is not a current expert reference. The substitute left's earlier valid
+44.23-degree pair is also superseded, not combined with the new pair.
 
-The next bounded change is a common collision-free parked/ready posture and
-approach for left doors, followed by their paired qualification. The original
-right door also needs a robust hold before admission. Do not extrapolate from
-the qualified metal door or change settings independently for each door.
+There are **two qualified doors, one geometric exclusion, one unresolved door
+and 28 unvisited**. Qualification of the latter can use the procedure above with
+only the asset ID changed. Diagnosing older exclusions/failures is separate from
+routine pending-door execution. Any future common setup change requires fresh
+complete pairs for affected references; compare the archived `setup.json` before
+reusing an earlier result.
+
+Reviewed RGB shows the pushing hand and panel, but the geometric visibility
+check does not pass throughout these trials, including insufficient sampled
+frame points. This remains diagnostic, not observed-policy readiness. No camera
+retuning, learning data or split was introduced. No synthetic sweep was repeated;
+the historical synthetic results belong to the original 45-degree setup.
 
 The pool contains 25 left and seven right doors. At least five additional
 qualifiable right identities are needed for the final 12/12 balance, potentially
-more after actual exclusions. The final split remains pending; no learning
-dataset or split has been created.
+more after actual exclusions. The final corpus selection and split remain pending.
 
 #### Implementation
 

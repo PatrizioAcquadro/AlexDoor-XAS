@@ -81,46 +81,46 @@
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
     "status": "qualified",
-    "theta_expert_d": 59.32153848882724,
+    "theta_expert_d": 59.33077290458509,
     "reason": "mechanical_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-door-metal-b21ec273/20260924T203515.599334Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-door-metal-b21ec273/20260924T211145.221818Z",
     "trials": [
       {
         "passed": true,
-        "angle_deg": 59.32153848882724,
-        "hold_angle_deg": 59.32153848882724,
+        "angle_deg": 59.33077290458509,
+        "hold_angle_deg": 59.33077290458509,
         "stop_reason": "mechanical_stop",
         "safety_detail": null,
-        "peak_force_n": 7.566131114959717,
-        "joint_margin": 7.649813051102683e-05,
+        "peak_force_n": 6.3496928215026855,
+        "joint_margin": 0.014832643792033195,
         "released": true,
         "visibility": {
           "passed": false,
-          "failed_frames": 4271,
-          "checked_frames": 4271,
+          "failed_frames": 4273,
+          "checked_frames": 4273,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-1"
       },
       {
         "passed": true,
-        "angle_deg": 59.322610828526926,
-        "hold_angle_deg": 59.322610828526926,
+        "angle_deg": 59.33077290458509,
+        "hold_angle_deg": 59.33077290458509,
         "stop_reason": "mechanical_stop",
         "safety_detail": null,
-        "peak_force_n": 7.563070774078369,
-        "joint_margin": 7.649813051102683e-05,
+        "peak_force_n": 6.3496928215026855,
+        "joint_margin": 0.014832643792033195,
         "released": true,
         "visibility": {
           "passed": false,
-          "failed_frames": 4271,
-          "checked_frames": 4271,
+          "failed_frames": 4273,
+          "checked_frames": 4273,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-2"
       }
     ],
-    "repeat_spread_deg": 0.0010723396996894508,
+    "repeat_spread_deg": 0.0,
     "scope": "nominal_simulated_expert_reference_not_learning_data"
   }
 }

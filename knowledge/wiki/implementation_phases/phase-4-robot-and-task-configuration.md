@@ -2,7 +2,7 @@
 
 > Subphase 4.0 completed and GPU-verified on 2026-09-22.
 > Subphase 4.1 originally verified at 45-degree yaw on synthetic doors.
-> On 2026-09-24 the shared robot/pedestal yaw was revised to zero for real-door qualification; see Phase 5.
+> On 2026-09-24 the common zero-yaw placement and ready posture were revised for real-door qualification; see Phase 5.
 
 ## Objective
 
@@ -94,12 +94,17 @@ door geometry and material-point trajectory, not the robot placement. The old
 
 `configs/purdue_synthetic_probe.json` defines the reusable common setup. Its
 right-arm ready vector, left parked pose and closed WSG targets apply to every
-case. The current placement is **X = -0.400 m, Y = 0.225 m, yaw = 0 degrees**.
-The user approved rotating robot and pedestal together because their physical
-mounting is fixed. Only yaw changed; the previous 45-degree synthetic results
-below remain historical and do not validate the revised pose. The revision is
-assessed directly on collected doors in [[phase-5-door-corpus-and-qualification|Phase 5]],
-without repeating the synthetic sweep.
+case. The current placement is **X = -0.380 m, Y = 0.300 m, yaw = 0 degrees**.
+Robot and pedestal rotate/translate together, preserving their physical mounting.
+The ready right hand is horizontal, facing the closed panel, 0.10 m above the
+contact height; its world position is approximately (-0.12, -0.175, 1.10) m.
+The parked left arm uses shoulder X = 0, shoulder Y = 0.5 and elbow Y = -1 rad,
+keeping the wrist behind the door frame. The common joint vector is in the config.
+These revisions address observed wrist/body and parked-arm/frame collisions;
+contact height/fraction, head pose, controller gains, speeds and validity limits
+are unchanged. The previous 45-degree synthetic results below remain historical.
+The current configuration is assessed directly on collected doors in
+[[phase-5-door-corpus-and-qualification|Phase 5]], without repeating the synthetic sweep.
 Contact is at **0.40 of actual panel width from the hinge, 1.00 m above the floor**.
 The fixed neck pose is **NECK_Z = -0.70 rad, NECK_Y = 0.25 rad**.
 
@@ -162,7 +167,7 @@ The following results use the lower of two complete cycles per case:
 | left-1.20 | 46.35° | 0.00° | Declining normal load |
 | right-1.20 | 48.07° | 0.00° | Material tracking margin |
 
-Every repeat has the same limiting cause as its pair and agrees within 2 degrees.
+Every historical repeat above has the same limiting cause as its pair and agrees within 2 degrees.
 All eight cycles satisfy the sustain/contact/release criteria and the fixed-view
 check. Visibility compares panel, contact-surround and frame points with current
 valid optical-axis depth, including arm occlusion: at least 6/25, 2/8 and 2/14
@@ -171,7 +176,9 @@ An exploratory 20-pose neck screen guided selection; sparse pose replay is not
 qualification evidence. The continuous trajectories are authoritative. No active
 gaze or Subphase 6.0 gaze dependency is required for these four synthetics.
 
-Supported workstation entry points, with explicit configuration and cache output:
+Supported workstation entry points, with explicit configuration and cache output.
+These commands use the current configuration; reproducing the historical table
+requires its archived 45-degree `setup.json`, not the revised common config:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/screen_synthetic_setup.py \
@@ -195,8 +202,10 @@ a probe also exits unsuccessfully if the fixed-view check fails.
 
 #### Key Decisions
 
-- Freeze one configuration and expert before collected assets. Synthetic minimum
-  opening is evidence, not a target angle for later qualification.
+- Use one common configuration and expert across doors. The original synthetic
+  freeze was reopened during the authorized real-door pilot to resolve physical
+  interference; the revised setup must be shared by both handednesses. Synthetic
+  minimum opening remains historical evidence, not a target for qualification.
 - Report a controller-qualified envelope within the explored search domain,
   not a global kinematic optimum. All selected limits are measured safety stops.
 - Keep simulator truth in the expert and diagnostics. Policy, observation and

@@ -80,46 +80,11 @@
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
-    "status": "unresolved",
+    "status": "out_of_domain",
     "theta_expert_d": null,
-    "reason": "invalid_controlled_cycle",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-2738468b94d74c5f/20260924T202619.645027Z",
-    "trials": [
-      {
-        "passed": false,
-        "angle_deg": null,
-        "hold_angle_deg": null,
-        "stop_reason": "forbidden_contact",
-        "safety_detail": null,
-        "peak_force_n": 0.0,
-        "joint_margin": 7.528387504862621e-05,
-        "released": false,
-        "visibility": {
-          "passed": true,
-          "failed_frames": 0,
-          "checked_frames": 181,
-          "scope": "geometric_panel_contact_surround_frame_observability"
-        },
-        "directory": "repeat-1"
-      },
-      {
-        "passed": false,
-        "angle_deg": null,
-        "hold_angle_deg": null,
-        "stop_reason": "forbidden_contact",
-        "safety_detail": null,
-        "peak_force_n": 0.0,
-        "joint_margin": 7.528387504862621e-05,
-        "released": false,
-        "visibility": {
-          "passed": true,
-          "failed_frames": 0,
-          "checked_frames": 181,
-          "scope": "geometric_panel_contact_surround_frame_observability"
-        },
-        "directory": "repeat-2"
-      }
-    ],
+    "reason": "closed_door_pedestal_intersection",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-2738468b94d74c5f/20260924T211824.466094Z",
+    "trials": [],
     "repeat_spread_deg": null,
     "scope": "nominal_simulated_expert_reference_not_learning_data"
   }
