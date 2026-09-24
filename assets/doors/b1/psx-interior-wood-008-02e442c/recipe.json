@@ -89,13 +89,9 @@
     0.003679346913354262,
     0
   ],
-  "clearance_review": "Selected frame and rectangular leaf have the same measured jamb profile (0.8970 m outer width), slab width (0.7558 m), height (1.8060 m) and thickness (0.0857 m) as the accepted same-author PSX family; the nominal slab overlaps the inner jamb. A 1.3% uniform Panel/Handle fit, centered at the measured leaf width center, inferred hinge-side depth and leaf height center, retains the paneled geometry while giving operating clearance. The measured leaf/frame center offset (-3.68 mm) is removed after fitting. Verify the swept stop and contact on this individual source; no collision is disabled. The first normalization used x=0.012698 m from the older pack, but this source has a different depth offset: the pivot fell inside the slab and the sweep hit the jamb after 11 degrees. The corrected x=0.043473 m is measured from this leaf front face.",
+  "clearance_review": "A 1.3% moving fit and measured width centering clear the original inner jamb. Infer the hinge from this selected leaf\u2019s opening face; retain every collider.",
   "modifications": [
-    "Select the original Wooden_Door_008 single-leaf assembly with matching source frame and retain the original 4K CC BY atlas.",
-    "Apply uniform 1.015 full-assembly scale and proper Y-up to Z-up rotation; recenter on this source frame opening, with no reflection.",
-    "Infer a left-side revolute axis opposite the source handle on this leaf opening face (x=0.043473 m after overall scaling); no modeled hinge hardware or manufacturer pivot is claimed.",
-    "Apply 1.3% uniform Panel/Handle clearance fit about this leaf center; measured post-fit width 0.7571 m and height 1.8093 m. The original frame is unaltered.",
-    "Partition the intact U-frame at measured jamb/header profile boundaries; retain all frame, leaf and both-side handle collisions.",
-    "Start closed and already unlatched. No separate projecting latch/lock bolt is modeled; no collision exclusion is needed."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ]
 }

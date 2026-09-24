@@ -2,6 +2,7 @@
 
 import copy
 import json
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -368,9 +369,33 @@ def promotion_fixture(tmp_path):
     digest = file_inventory([payload])
     for name in ("normalize", "static", "physics"):
         write_json(attempt / f"{name}.json", {"status": "pass", "release_files": digest})
+    source = attempt / "source" / "input.glb"
+    source.parent.mkdir()
+    source.write_bytes(b"original source")
+    write_json(attempt / "recipe.json", recipe())
+    normalized = json.loads((attempt / "normalize.json").read_text())
+    normalized.update(
+        dimensions_m=recipe()["dimensions_m"],
+        handedness="left",
+        initial_state="closed_unlatched",
+        hinge_m=[0, 0.325, 0],
+        panel_center_m=[0, 0, 1],
+        opening_to_hinge=np.eye(4).tolist(),
+        opening_to_panel_center_closed=np.eye(4).tolist(),
+        mechanical_limit_deg=90,
+        geometry_fingerprint="geometry",
+    )
+    write_json(attempt / "normalize.json", normalized)
+    for side in ("front", "rear"):
+        (attempt / f"preview-{side}.png").write_bytes(b"reviewed image")
     write_json(
         attempt / "inspect.json",
-        {"source_sha256": "source-checksum", "geometry_fingerprint": "geometry"},
+        {
+            "source": "/download/input.glb",
+            "source_sha256": "source-checksum",
+            "geometry_fingerprint": "geometry",
+            "files": [{"path": "/download/input.glb", "snapshot": str(source)}],
+        },
     )
     candidate = attempt.parent.parent / "candidate.json"
     write_json(
@@ -396,7 +421,9 @@ def test_promotion_requires_current_evidence_and_preserves_prepared_candidate(tm
     payload.write_text("validated payload")
     promote(attempt, candidate)
     accepted = pointer.read_bytes()
-    assert b'"distribution_scope": "redistributable"' in accepted
+    assert json.loads(candidate.read_text())["distribution_scope"] == "redistributable"
+    assert "candidate" not in json.loads(accepted)
+    assert (pointer.parent / "prepared/door.usda").read_bytes() == payload.read_bytes()
     with pytest.raises(PreparationError):
         promote(attempt, candidate)
     assert pointer.read_bytes() == accepted
@@ -408,8 +435,7 @@ def test_local_only_promotion_retains_distribution_scope(tmp_path):
     review.update(license="Sketchfab-Free-Standard", distribution_scope="local_only")
     write_json(candidate, review)
     assert promote(attempt, candidate) == "local_only"
-    pointer = json.loads((attempt.parent.parent / "prepared.json").read_text())
-    assert pointer["distribution_scope"] == "local_only"
+    assert json.loads(candidate.read_text())["distribution_scope"] == "local_only"
 
 
 def test_leaf_measurement_can_exclude_attached_hardware_but_not_select_frame():
@@ -485,3 +511,46 @@ def test_unlatched_model_excludes_only_reviewed_lock_parts():
     candidate = remote()
     candidate["no_latch_operation"] = False
     assert remote_review(candidate)["status"] == "pass"
+
+
+def test_published_records_survive_attempt_removal_and_relocation(tmp_path):
+    import shutil
+
+    from alexdoor_xas.qualification.prepared import prepared_candidates
+
+    attempt, candidate, _ = promotion_fixture(tmp_path)
+    promote(attempt, candidate)
+    shutil.rmtree(attempt.parent)
+    moved = tmp_path / "renamed"
+    candidate.parent.rename(moved)
+    identity, prepared = next(prepared_candidates(tmp_path))
+    assert (moved / identity["source"]).read_bytes() == b"original source"
+    assert (moved / prepared["usd"]).read_text() == "validated payload"
+    assert prepared["expert_qualification"] == "not_run"
+
+
+def test_publication_localizes_external_usd_texture_paths(tmp_path):
+    from pxr import Sdf, Usd, UsdUtils
+
+    from alexdoor_xas.qualification.prepared import _copy_sources
+
+    original = tmp_path / "original"
+    original.mkdir()
+    texture = tmp_path / "external.png"
+    texture.write_bytes(b"texture")
+    source = original / "source.usda"
+    stage = Usd.Stage.CreateNew(str(source))
+    prim = stage.DefinePrim("/Material")
+    prim.CreateAttribute("texture", Sdf.ValueTypeNames.Asset).Set(Sdf.AssetPath(str(texture)))
+    stage.GetRootLayer().Save()
+    before = source.read_bytes()
+    inspected = {
+        "source": str(source),
+        "files": [{"path": str(p), "snapshot": str(p)} for p in (source, texture)],
+    }
+    destination = tmp_path / "published"
+    relative = _copy_sources(inspected, destination)
+    assert source.read_bytes() == before
+    _, dependencies, missing = UsdUtils.ComputeAllDependencies(str(destination / relative))
+    assert not missing
+    assert all(Path(p).is_relative_to(destination) for p in dependencies)

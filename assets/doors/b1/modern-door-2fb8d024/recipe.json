@@ -2,49 +2,195 @@
   "handedness": "right",
   "scale": 1.0,
   "rotation": [
-    [0, 0, 1],
-    [1, 0, 0],
-    [0, 1, 0]
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
   ],
-  "translation_m": [0.14840330166043708, -1.2221135813742876, 4.923378583043814e-05],
-  "moving_translation_m": [0, -0.00010149, 0],
-  "opening_center_source": [1.2221135813742876, -4.923378583043814e-05, -0.14840330166043708],
-  "hinge_m": [0.03430185132147739, -0.49704154687534813, 0],
+  "translation_m": [
+    0.14840330166043708,
+    -1.2221135813742876,
+    4.923378583043814e-05
+  ],
+  "moving_translation_m": [
+    0,
+    -0.00010149,
+    0
+  ],
+  "opening_center_source": [
+    1.2221135813742876,
+    -4.923378583043814e-05,
+    -0.14840330166043708
+  ],
+  "hinge_m": [
+    0.03430185132147739,
+    -0.49704154687534813,
+    0
+  ],
   "dimensions_m": {
     "width_m": 0.9938812991604209,
     "height_m": 2.1567666203482085,
     "thickness_m": 0.060764768969966125
   },
   "components": {
-    "Frame": [54],
-    "Panel": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53],
-    "Handle": [25, 26]
+    "Frame": [
+      54
+    ],
+    "Panel": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53
+    ],
+    "Handle": [
+      25,
+      26
+    ]
   },
-  "leaf_components": [6],
+  "leaf_components": [
+    6
+  ],
   "unlatched_components": [],
-  "unlatched_review": "No distinct protruding latch or lock bolt was found; the visible keyhole and long pull remain in the colliding Handle group.",
+  "unlatched_review": "No projecting latch/lock bolt was identified; all modeled parts retain collision.",
   "colliders": {
     "54": {
       "partitions": {
-        "y": [-0.4989362880587578, 0.4989364556968212],
-        "z": [2.172379307448865]
+        "y": [
+          -0.4989362880587578,
+          0.4989364556968212
+        ],
+        "z": [
+          2.172379307448865
+        ]
       }
     }
   },
   "modifications": [
-    "Normalize the GLB with a proper rotation to canonical Z-up meters; preserve original frame and all materials.",
-    "Keep the measured 0.10149 mm moving-assembly recentering.",
-    "Uniformly scale Panel and Handle together by 0.996 about the original leaf center to introduce approximately 2 mm side clearance; no nonuniform deformation.",
-    "Place the inferred vertical hinge on the opening-face corner at the original right-hand edge, rather than the unsupported mid-thickness axis. This is a benchmark hinge assumption, not recovered real hardware.",
-    "Cook the solid leaf from all its material-separated surfaces together; do not inflate disconnected planar skins independently. Frame partitions and separate handle collisions remain active.",
-    "Use nominal closed-unlatched physics and derive the opening limit from the corrected collision geometry; no arbitrary angle cap."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
   "moving_scale": 0.996,
-  "moving_scale_center_m": [0.003919467155355905, 0.000101564452052079, 1.0897144082700834],
-  "clearance_review": "The source leaf fills the jamb opening, leaving effectively zero side clearance. Uniformly reduce the complete moving assembly by 0.4% about the measured leaf center, retaining its shape and handle attachment: 1.9957 mm leaf side gaps, 1.8947 mm at the skewed hinge-edge skin, and 4.28 mm top clearance. This is an explicit simulation fitting repair, not a measured manufacturer clearance.",
+  "moving_scale_center_m": [
+    0.003919467155355905,
+    0.000101564452052079,
+    1.0897144082700834
+  ],
+  "clearance_review": "A 0.4% moving fit supplies about 2 mm side gaps and 4.28 mm top clearance while preserving shape and handle attachment.",
   "collider_groups": [
     {
-      "components": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53],
+      "components": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53
+      ],
       "approximation": "convexHull",
       "review": "All Panel components are disconnected/material-separated surfaces of one solid rectangular leaf with shallow front decoration, not independent solids. Use their common convex envelope; retain all visual surfaces and separately collidable pull/keyhole hardware. This fills up to 6.35 mm decorative face grooves, while preserving the physical leaf envelope and eliminating invented thickness on planar skins."
     }

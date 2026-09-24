@@ -69,17 +69,8 @@
     ]
   },
   "modifications": [
-    "uniform 0.72 scale in inspected Y-up meter coordinates.",
-    "Proper cyclic rotation to canonical Z-up, with original hinge on negative Y (right).",
-    "Separate connected parts into fixed frame/lower hinge barrels, moving panel/upper barrels, and handles. Preserve all visual components and handle collisions.",
-    "Measure leaf component 3 separately; partition source surfaces at rebate planes for convex collisions. No visual geometry is moved or deleted.",
-    "Common closed-unlatched task model: omit latch/lock bolt colliders (2, 4), retaining original visual geometry."
-  ],
-  "preparation_status": "ready_for_5.1",
-  "review_notes": [
-    "Component 15 is the fixed strike plate. Latch/lock bolts 2 and 4 move with Panel visually; their locking function is outside the closed-unlatched task.",
-    "clear_aperture_m uses the narrower frame rebate, not the full leaf envelope.",
-    "Partition planes follow measured source rebate levels, transformed uniformly by 0.72. Additional vertical cuts avoid elongated convex hulls."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
   "leaf_components": [
     3
@@ -150,5 +141,5 @@
     2,
     4
   ],
-  "unlatched_review": "Components 2 (spring latch) and 4 (lock bolt) are edge locking parts outside the push-contact task. Keep their visuals but omit their colliders for the common closed-unlatched initial state. Leaf, frame, strike plate and handles remain collidable."
+  "unlatched_review": "Only the listed latch/lock parts lose collision; their visuals remain. Leaf, frame, handles and other hardware remain collidable."
 }

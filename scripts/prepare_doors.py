@@ -2,7 +2,7 @@
 """B1 door intake: review, inspect, normalize, static, physics and promote.
 
 Run through Isaac Lab. Each inspection/normalization creates a new attempt.
-Sources and previously prepared candidates are never overwritten.
+Sources and published candidates are never overwritten.
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from alexdoor_xas.qualification.preparation import (
     remote_review,
     write_json,
 )
+from alexdoor_xas.qualification.prepared import prepared_candidates
 
 
 def main():
@@ -51,21 +52,19 @@ def main():
     protected = False
     try:
         if output:
-            pointer = output.resolve().parent.parent / "prepared.json"
-            protected = pointer.is_file() and (
-                Path(json.loads(pointer.read_text())["attempt"]).resolve() == output.resolve()
+            resolved = output.resolve()
+            protected = any(
+                (parent / "prepared.json").is_file() and resolved.is_relative_to(parent / name)
+                for parent in resolved.parents
+                for name in ("source", "prepared")
             )
-            if protected and args.command != "promote":
-                raise PreparationError(
-                    "Accepted attempt is preserved; create a new attempt to rerun"
-                )
+            if protected:
+                raise PreparationError("Published payload is preserved; create a new attempt")
         if args.command == "review":
             if not args.candidate:
                 parser.error("review requires --candidate")
             record = json.loads(args.candidate.read_text())
-            existing = [
-                json.loads(p.read_text())["candidate"] for p in args.root.glob("*/prepared.json")
-            ]
+            existing = [record for record, _ in prepared_candidates(args.root)]
             result = remote_review(record, existing)
             target = args.root / record["asset_id"]
             target.mkdir(parents=True, exist_ok=True)

@@ -4,58 +4,15 @@
   "source_uid": "2738468b94d74c5f827e7e5df7be8359",
   "author": "DJMaesen",
   "license": "CC-BY-4.0",
-  "distribution_scope": "redistributable",
-  "license_evidence": "assets/doors/b1/door-2738468b94d74c5f/source-evidence.json",
-  "attribution": "Door by DJMaesen (https://sketchfab.com/bumstrum), https://sketchfab.com/3d-models/door-2738468b94d74c5f827e7e5df7be8359, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Preparation changes are recorded in recipe.json.",
+  "license_evidence": "https://sketchfab.com/3d-models/door-2738468b94d74c5f827e7e5df7be8359",
+  "attribution": "DJMaesen \u2014 https://sketchfab.com/3d-models/door-2738468b94d74c5f827e7e5df7be8359 \u2014 CC-BY-4.0. Modified for closed-unlatched simulation; see recipe.json.",
   "retrieval_date": "2026-09-23",
   "door_type": "interior",
-  "single_leaf": true,
-  "frame_panel_separable": true,
-  "license_scope_review": "pass",
-  "license_scope_review_notes": "The actual Sketchfab page and download modal show CC Attribution and link to CC BY 4.0.",
-  "custom_terms_review": "pass",
-  "custom_terms_review_notes": "The visible model description contains only \u201clow poly door\u201d and \u201c2k maps\u201d; no additional author terms or third-party texture source are stated.",
-  "duplicate_review": "pass",
-  "duplicate_review_notes": "The source UID and visible door are distinct from the four previously accepted assets; local fingerprint review remains pending.",
-  "selected_format": ".usdz",
-  "reported_triangles": 590,
-  "reported_texture_max_px": 2048,
-  "dependencies": [
-    {
-      "path": "0/door1_baseColor.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
-    },
-    {
-      "path": "0/door1_metallicRoughness_metal.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
-    },
-    {
-      "path": "0/door1_metallicRoughness_rough.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
-    },
-    {
-      "path": "0/door1_normal.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
-    },
-    {
-      "path": "0/door1_metallicRoughness_occl.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: packaged model map with no separately stated third-party terms"
-    }
-  ],
+  "usage_notes": "Source and packaged dependencies share the recorded license; no separate dependency terms were recorded during intake.",
+  "distribution_scope": "redistributable",
   "reviewed_source_sha256": "3f9a957b145e4ac61e532b01bd683bbc42f22da00cab386ac639f72faa67c5c6",
-  "local_dependency_review": "pass",
-  "local_dependency_review_notes": "USDZ contains scene.usdc and five embedded 2048 px maps, no external dependency. Its embedded CC-BY-4.0 author/source metadata matches the Sketchfab page; no separate map terms were observed.",
-  "local_duplicate_review": "pass",
-  "local_duplicate_review_notes": "Source UID/hash and inspection fingerprint differ from the four accepted doors; viewed textured panel, frame and hardware are visibly distinct.",
-  "local_visual_review": "pass",
-  "local_visual_review_notes": "Viewed both RTX front/rear captures in attempt 000008: dark textured single leaf, frame, lever handles and hinge fittings retained. Fitted clearances and idealized hinge graphics are adequate for closed-unlatched pushing.",
-  "local_mechanical_review": "pass",
-  "local_mechanical_review_notes": "Attempt 000008 passes static and isolated RTX 4090 physics at the geometry-derived 113.1-degree stop. Correct fixed-pin axis and opening side (left handed under a proper rotation); four reviewed internal hinge contact pairs filtered, with all leaf/frame/handle and external hinge collisions retained. No further scaling or tolerance relaxation; robot/expert qualification pending.",
-  "source_requires_latch_release": true,
-  "initial_state": "closed_unlatched"
+  "dependency_licenses": [
+    "CC-BY-4.0"
+  ],
+  "source": "source/Door (1).usdz"
 }

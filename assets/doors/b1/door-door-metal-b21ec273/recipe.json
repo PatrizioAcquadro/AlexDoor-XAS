@@ -1,33 +1,112 @@
 {
   "handedness": "right",
   "scale": 0.75,
-  "rotation": [[0, 0, 1], [1, 0, 0], [0, 1, 0]],
-  "translation_m": [0, 0, 0],
-  "opening_center_source": [0, 0, 0],
-  "hinge_m": [-0.0386169, -0.4630646, 0],
-  "dimensions_m": {"width_m": 0.926129, "height_m": 2.149713, "thickness_m": 0.053597},
-  "components": {"Frame": [1], "Panel": [2, 3], "Handle": [0]},
-  "leaf_components": [3],
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    0,
+    0,
+    0
+  ],
+  "opening_center_source": [
+    0,
+    0,
+    0
+  ],
+  "hinge_m": [
+    -0.0386169,
+    -0.4630646,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.926129,
+    "height_m": 2.149713,
+    "thickness_m": 0.053597
+  },
+  "components": {
+    "Frame": [
+      1
+    ],
+    "Panel": [
+      2,
+      3
+    ],
+    "Handle": [
+      0
+    ]
+  },
+  "leaf_components": [
+    3
+  ],
   "component_splits": [
     {
       "component": 1,
-      "bounds": {"x": [-0.6201, 0.6201], "y": [-0.001, 2.878], "z": [-0.1146, -0.0427]},
+      "bounds": {
+        "x": [
+          -0.6201,
+          0.6201
+        ],
+        "y": [
+          -0.001,
+          2.878
+        ],
+        "z": [
+          -0.1146,
+          -0.0427
+        ]
+      },
       "review": "The source's 96-face connected body contains a modeled U-frame and leaf joined at their contour. Whole-face selection takes 66 original leaf/window-surround faces and leaves 30 original jamb/header faces at component 1. Preserve all original vertices, UVs and material."
     }
   ],
   "moving_scale": 0.996,
-  "moving_scale_center_m": [-0.0386169, 0, 1.0789725],
-  "clearance_review": "The source leaf spans exactly the frame inner width (source x +/-0.619899 m) and reaches the header at source y 2.87726 m, giving no operating clearance. A uniform 0.4% Panel/Handle fit around the opening middle yields about 1.86 mm per jamb and 4.32 mm at the top, with all visuals and collisions fitted together.",
-  "clear_aperture_m": [[-0.45, 0.02], [0.45, 2.14]],
+  "moving_scale_center_m": [
+    -0.0386169,
+    0,
+    1.0789725
+  ],
+  "clearance_review": "A 0.4% moving fit supplies about 1.86 mm per jamb and 4.32 mm top clearance in the original zero-clearance opening.",
+  "clear_aperture_m": [
+    [
+      -0.45,
+      0.02
+    ],
+    [
+      0.45,
+      2.14
+    ]
+  ],
   "colliders": {
-    "1": {"partitions": {"y": [-0.4649243, 0.4649243], "z": [2.1579449]}},
+    "1": {
+      "partitions": {
+        "y": [
+          -0.4649243,
+          0.4649243
+        ],
+        "z": [
+          2.1579449
+        ]
+      }
+    },
     "3": "convexHull"
   },
   "modifications": [
-    "Separate the existing welded leaf and U-frame along original whole faces; preserve all source surfaces, texture coordinates and the original USDZ.",
-    "Uniform 0.75 scale and proper Y-up to Z-up rotation, placing the lower opening at the floor. Infer the hinge at the source negative-X jamb opposite the right-end bar/window detail; this maps to canonical right-handed push without mirroring geometry.",
-    "Fit Panel and Handle uniformly by 0.4% to create measured jamb/header clearance; leave the modeled fixed frame in place and collidable.",
-    "Use separate frame-part colliders around the existing concave aperture and a solid outer leaf hull. The leaf hull fills the small decorative window for contact; the original glass plane remains visible and collidable.",
-    "Start closed and already unlatched. No separate latch or lock bolt is modeled; all leaf, frame, glass and bar collisions remain enabled."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Separate the original welded leaf and frame along the recorded whole-face selections.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ]
 }

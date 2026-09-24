@@ -4,53 +4,15 @@
   "source_uid": "45306a46c95b44ca8369f89c6648648c",
   "author": "Mehdi Shahsavan",
   "license": "CC-BY-4.0",
-  "distribution_scope": "redistributable",
-  "license_evidence": "assets/doors/b1/door-prison-metal-old-45306a46/source-evidence.json",
-  "attribution": "door _Prison Door_metal_old -12MB by Mehdi Shahsavan (https://sketchfab.com/ahmagh2e), https://sketchfab.com/3d-models/door--prison-door-metal-old-12mb-45306a46c95b44ca8369f89c6648648c, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Preparation changes are recorded in recipe.json.",
+  "license_evidence": "https://sketchfab.com/3d-models/door--prison-door-metal-old-12mb-45306a46c95b44ca8369f89c6648648c",
+  "attribution": "Mehdi Shahsavan \u2014 https://sketchfab.com/3d-models/door--prison-door-metal-old-12mb-45306a46c95b44ca8369f89c6648648c \u2014 CC-BY-4.0. Modified for closed-unlatched simulation; see recipe.json.",
   "retrieval_date": "2026-09-23",
   "door_type": "industrial",
-  "single_leaf": true,
-  "frame_panel_separable": true,
-  "license_scope_review": "pass",
-  "license_scope_review_notes": "The actual page and download modal link CC Attribution to CC BY 4.0.",
-  "custom_terms_review": "pass",
-  "custom_terms_review_notes": "Short page description contains no additional use terms.",
-  "duplicate_review": "pass",
-  "duplicate_review_notes": "Original source UID is new. Selected closed assembly has a distinct local fingerprint versus seven accepted doors.",
-  "selected_format": ".usdc",
-  "reported_triangles": 12000,
-  "reported_texture_max_px": 2048,
-  "dependencies": [
-    {
-      "path": "0/prison_door_baseColor.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
-    },
-    {
-      "path": "0/prison_door_metallicRoughness_metal.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
-    },
-    {
-      "path": "0/prison_door_metallicRoughness_rough.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
-    },
-    {
-      "path": "0/prison_door_normal.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
-    }
-  ],
-  "no_latch_operation": true,
-  "initial_state": "closed_unlatched",
+  "usage_notes": "Source and packaged dependencies share the recorded license; no separate dependency terms were recorded during intake.",
+  "distribution_scope": "redistributable",
   "reviewed_source_sha256": "56ebd68dd4732e716dfe57c8ef442027f09afa9977d0b68f407d6009358ba89c",
-  "local_dependency_review": "pass",
-  "local_dependency_review_notes": "Selected local USDC retains four 2048 px maps and no external or separately licensed dependency; original USDZ and selected source hashes are recorded in source-evidence.json.",
-  "local_duplicate_review": "pass",
-  "local_duplicate_review_notes": "Selected closed assembly has 5974 triangles, 20 components and fingerprint 5bdb64d77427069c09492f282a0223b3bd9d25060e2ea975834ceb09f19eedf3, distinct from seven accepted doors.",
-  "local_visual_review": "pass",
-  "local_visual_review_notes": "Actually viewed attempt 000006 front and rear RTX images: one red/black barred prison leaf sits within the full separate frame, with both levers, upper bars and lower hatch visible. The open display duplicate is absent as intended; textures and handedness remain coherent.",
-  "local_mechanical_review": "pass",
-  "local_mechanical_review_notes": "The closed-unlatched source tongue 10 retains its visual but no collision. Leaf 14, frame 19, both handles, edge plates and hinge barrels retain collision. Reviewed 2% uniform fitting and frame partitions resolve closed source/collider contacts. Static and one isolated RTX 4090 run pass at the prepared geometry limit of 23.1 degrees; the low limit is explicit and no 45-degree robot criterion was applied."
+  "dependency_licenses": [
+    "CC-BY-4.0"
+  ],
+  "source": "source/scene.usdc"
 }

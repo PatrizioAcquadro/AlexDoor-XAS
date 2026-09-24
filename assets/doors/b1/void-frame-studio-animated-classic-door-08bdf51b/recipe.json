@@ -122,14 +122,14 @@
   "unlatched_components": [
     69
   ],
-  "unlatched_review": "Component 69 is the separate latch tongue at handle height and extends about 20 mm beyond the leaf edge toward the strike. Preserve its visual mesh while omitting only its collision for the common closed-unlatched push state. Leaf, frame, hinge and handles remain collidable.",
+  "unlatched_review": "Only the listed latch/lock parts lose collision; their visuals remain. Leaf, frame, handles and other hardware remain collidable.",
   "moving_scale": 0.98,
   "moving_scale_center_m": [
     0.0,
     0.0031,
     1.2297053992622349
   ],
-  "clearance_review": "Attempt 000006 showed proper source-surface crossings between the fitted leaf/handle hardware and both strike-side frame pieces and fixed hinge knuckles. The source leaf nearly fills the passage. Uniform 2% Panel/Handle fitting about the measured leaf center plus a 3.1 mm shift toward the latch distributes the predicted edge gaps to roughly 0.35 mm at the hinge and 0.8 mm at the strike; the opening origin is recentered on the fitted leaf. This is a bounded operating-clearance approximation to verify through the full sweep and previews, not manufacturer geometry. Runtime tolerances are unchanged.",
+  "clearance_review": "A 2% moving fit and 3.1 mm latchward shift give about 0.35 mm hinge-side and 0.8 mm strike-side gaps. Recenter the opening on the fitted leaf; retain runtime tolerances.",
   "colliders": {
     "4": {
       "partitions": {
@@ -146,14 +146,9 @@
     "33": "convexHull"
   },
   "modifications": [
-    "Use a local GLB copy with 7,787 source triangles of area at most 2e-14 square meters omitted; preserve all other source geometry, materials, node hierarchy and animation metadata. Keep original GLB/USDZ untouched.",
-    "Use the source Door animation pivot and positive opening direction: proper cyclic Y-up to Z-up rotation, left-handed canonical opening; no reflection.",
-    "Classify fixed frame and hinge hardware, moving leaf/hinge hardware, and collidable handles from the inspected component inventory.",
-    "Apply 2% uniform Panel/Handle fitting about the measured leaf center and shift the moving assembly 3.1 mm toward the latch to resolve witnessed closed-pose crossings; recenter the canonical opening on the fitted leaf.",
-    "Partition the concave frame collision mesh at measured jamb/header levels; use a convex solid-leaf envelope for the paneled leaf.",
-    "Declare the central 0.81 m clear aperture within the measured leaf envelope, allowing for fixed hinge knuckles and the strike plate that protrude at the two jamb edges; retain their collisions.",
-    "Cook the material-separated latch-side casing and escutcheon as one collidable solid to avoid standalone planar-skin thickening; keep both lever handles separately collidable.",
-    "Retain nominal closed-unlatched physical parameters; omit only the separate latch-tongue collision and derive the opening stop from geometry."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Use the source derivative with negligible-area triangles removed.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
   "clear_aperture_m": [
     [

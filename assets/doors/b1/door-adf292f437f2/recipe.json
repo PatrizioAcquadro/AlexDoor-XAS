@@ -55,7 +55,7 @@
     0,
     1.0868828656043923
   ],
-  "clearance_review": "Separate the source leaf from its modeled U-shaped trim at the existing face boundary. The surfaces initially share that boundary; a 0.4% uniform fit gives about 1.87 mm clearance per jamb and 4.33 mm additional top/bottom clearance. No frame is imported or invented.",
+  "clearance_review": "A 0.4% moving fit separates the welded leaf/trim boundary: about 1.87 mm per jamb and 4.33 mm additional top/bottom clearance. The original frame is retained.",
   "component_splits": [
     {
       "component": 2,
@@ -95,11 +95,10 @@
     "4": "convexHull"
   },
   "modifications": [
-    "Split the existing welded frame/leaf at its visible boundary; preserve source faces, UVs and original download.",
-    "Close the front-only leaf with an explicitly inferred rear plane and boundary walls, retaining its decorative front.",
-    "Uniform scale 0.75, proper rotation to Z-up and floor-centered opening; infer left hinge opposite the original handle at the opening-face corner. No mirrored geometry.",
-    "Apply 0.4% moving-assembly fit for operating clearance; preserve handle colliders.",
-    "Use one conservative solid-leaf hull (fills decorative recesses) and separate frame-part hulls. The source has no separate latch; start closed and unlatched."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Separate the original welded leaf and frame along the recorded whole-face selections.",
+    "Add the recorded inferred rear surface to the front-only leaf; preserve its original appearance.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
   "dimensions_m": {
     "width_m": 0.9299701198018991,

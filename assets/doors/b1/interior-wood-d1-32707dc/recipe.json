@@ -71,12 +71,12 @@
   "unlatched_components": [
     4
   ],
-  "unlatched_review": "Component 4 is the small projecting latch tongue at the far leaf edge (source z 3.459-3.509, y 1.427-1.479). It remains visible and attached, but its collision is excluded in the common closed-already-unlatched push state. Component 5 is the long edge plate, component 14 the fixed strike plate; both remain collidable. Leaf, frame, lever handles and hinge hardware retain collision.",
+  "unlatched_review": "Only the listed latch/lock parts lose collision; their visuals remain. Leaf, frame, handles and other hardware remain collidable.",
   "hinge_axis_components": [
     9,
     10
   ],
-  "hinge_axis_review": "Two moving barrel components 9 and 10 at the source hinge edge locate a shared vertical axis. The left-hand push orientation is obtained by a proper Y-up to Z-up rotation, without mirroring. Use their measured centers to infer the axis; no manufacturer hardware dimensions are claimed.",
+  "hinge_axis_review": "The listed vertically separated source barrels locate the axis. Their centers satisfy the 10 mm axis check; geometry is inferred, not manufacturer calibration.",
   "colliders": {
     "13": {
       "partitions": {
@@ -106,13 +106,8 @@
     ]
   ],
   "modifications": [
-    "Select the original D1 frame and closed leaf from the CC BY USDZ; exclude the identical-geometry D2 material variant and two display preview meshes. Preserve original download and maps.",
-    "Apply proper Y-up to Z-up rotation, uniform 0.743 overall scale and 180-degree scene-facing choice that opens toward the modeled hinge front; no reflection. Center the modeled frame opening at the floor.",
-    "Place the ideal right-hand revolute axis at the two modeled hinge barrels near the hinge-side opening face; this is an inferred simulation axis.",
-    "Partition the source U-frame at the measured jamb/header planes and the x=-0.011 m rebate transition. The leaf back face is at x=-0.0107 m, just ahead of the source rebate lip; preserve the intact source profiles and all frame collision.",
-    "Begin closed and already unlatched. Keep the projecting latch tongue visual, exclude only its collision; retain leaf, handles, edge plate, frame, strike plate and hinge collisions.",
-    "Represent source hinge bearings and their local unrelieved jamb seat through reviewed collision-pair filters; all hardware colliders remain present and all unlisted contacts remain enabled.",
-    "The source slab has about 2 mm per side at the front jamb, but its sweep contacts the fixed strike plate after 0.5 degree and a 0.4% fit still contacts at 1.7 degrees. A measured 1.3% uniform Panel/Handle fit about the leaf width center, hinge-face depth and floor retreats each side by about 5.44 mm, preserving the centered floor-aligned opening. Verify the complete sweep, appearance and physics; this is a bounded simulation clearance repair, not manufacturer dimensions."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
   "hinge_contact_exclusions": [
     [
@@ -148,16 +143,16 @@
       18
     ]
   ],
-  "hinge_contact_review": "Source-surface crossings in attempt 000006 identify solid hinge leaves/barrels meeting their fixed leaves/barrels and the nearby unrelieved jamb seat. The ideal revolute joint represents the bearing. Filter only these reviewed hinge-component pairs; retain every collider and all unlisted contacts, including leaf/frame and handles/frame.",
+  "hinge_contact_review": "The ideal revolute joint replaces only the listed internal bearing contacts in solid, unbored source hardware. All colliders and unlisted contacts remain enabled.",
   "hinge_jamb_components": [
     13
   ],
-  "hinge_jamb_review": "Two moving barrels 9/10 clip the modeled fixed jamb component 13 by about 2 mm at the hinge seat; the source has no mortise. Only frame collider cell 18 in attempt 000010, within 0.0998 m of the measured hinge axis, is locally filtered against those two barrels. The other 21 frame-13 colliders, and all frame collision with leaf and handles, remain active. This is an explicit bearing/jamb modeling approximation, not an enlarged clearance tolerance.",
+  "hinge_jamb_review": "The source has no mortise: moving barrels clip the jamb by about 2 mm. Filter only local jamb cells within 10 cm of the hinge axis against the listed barrels; retain all other frame contacts.",
   "moving_scale": 0.987,
   "moving_scale_center_m": [
     0.0821015,
     0,
     0
   ],
-  "clearance_review": "The source slab has about 2 mm per side at the front jamb, but its sweep contacts the fixed strike plate after 0.5 degree and a 0.4% fit still contacts at 1.7 degrees. A measured 1.3% uniform Panel/Handle fit about the leaf width center, hinge-face depth and floor retreats each side by about 5.44 mm, preserving the centered floor-aligned opening. Verify the complete sweep, appearance and physics; this is a bounded simulation clearance repair, not manufacturer dimensions."
+  "clearance_review": "A 1.3% moving fit retreats each leaf edge about 5.44 mm to clear the fixed strike during opening. The opening remains centered and floor-aligned."
 }

@@ -1,5 +1,13 @@
 # Phase 5 — Door Corpus and Qualification
 
+> Storage update (2026-09-24): the 32 prepared doors now use tracked
+> `candidate.json`, `recipe.json` and `prepared.json`, with local `source/` and
+> `prepared/` payloads. Records resolve paths relative to their candidate folder.
+> Published USD/material payloads are byte-identical to the accepted attempts;
+> source copies localize external texture paths. Preparation results are carried
+> forward without rerunning door validation. Superseded attempts and excluded
+> candidate folders have been removed; the intake history below is historical.
+
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
 > Twenty-nine distinct real doors pass preparation and are ready for 5.1: twenty-six redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
 

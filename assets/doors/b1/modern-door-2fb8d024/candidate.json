@@ -4,47 +4,15 @@
   "source_uid": "2fb8d02419b84d628cf9a4ac85360cec",
   "author": "Ahmed sayed",
   "license": "Sketchfab-Free-Standard",
-  "distribution_scope": "local_only",
-  "license_evidence": "assets/doors/b1/modern-door-2fb8d024/source-evidence.json",
-  "attribution": "modern door by Ahmed sayed (https://sketchfab.com/Ahmed_sayed), https://sketchfab.com/3d-models/modern-door-2fb8d02419b84d628cf9a4ac85360cec, Sketchfab Free Standard (https://sketchfab.com/licenses).",
+  "license_evidence": "https://sketchfab.com/3d-models/modern-door-2fb8d02419b84d628cf9a4ac85360cec",
+  "attribution": "Ahmed sayed \u2014 https://sketchfab.com/3d-models/modern-door-2fb8d02419b84d628cf9a4ac85360cec \u2014 Sketchfab-Free-Standard. Modified for closed-unlatched simulation; see recipe.json.",
   "retrieval_date": "2026-09-23",
   "door_type": "interior",
-  "single_leaf": true,
-  "frame_panel_separable": true,
-  "license_scope_review": "pass",
-  "license_scope_review_notes": "Sketchfab Free Standard is allowed only for the downloading licensee's authorized local work. Source, normalized asset and packaged textures remain outside shared asset packages; downstream rendered-data release needs separate rights review.",
-  "custom_terms_review": "pass",
-  "custom_terms_review_notes": "The model page names Free Standard and shows no model-specific additional terms; the linked Sketchfab license prohibits stand-alone redistribution.",
-  "duplicate_review": "pass",
-  "duplicate_review_notes": "Distinct source UID and visible wood/slatted design versus the prepared witnessk door; local fingerprints are also different.",
-  "selected_format": ".glb",
-  "dependencies": [
-    {
-      "path": "embedded GLB image 0",
-      "license": "Sketchfab-Free-Standard",
-      "license_evidence": "source-evidence.json: embedded GLB image"
-    },
-    {
-      "path": "embedded GLB image 1",
-      "license": "Sketchfab-Free-Standard",
-      "license_evidence": "source-evidence.json: embedded GLB image"
-    },
-    {
-      "path": "embedded GLB image 2",
-      "license": "Sketchfab-Free-Standard",
-      "license_evidence": "source-evidence.json: embedded GLB image"
-    },
-    {
-      "path": "embedded GLB image 3",
-      "license": "Sketchfab-Free-Standard",
-      "license_evidence": "source-evidence.json: embedded GLB image"
-    }
-  ],
+  "usage_notes": "Recorded approval covers the authorized licensee\u2019s local work only. Do not redistribute source or adapted assets; rendered-data release requires a separate rights review.",
+  "distribution_scope": "local_only",
   "reviewed_source_sha256": "a457aba383e1e3fdc5863a4af7752d31db0a299be7f856054fce7fee24170ec5",
-  "local_dependency_review": "pass",
-  "local_dependency_review_notes": "The inspected GLB contains four JPEG images in its own buffer and reports no external dependency; embedded source metadata carries the same Sketchfab Standard attribution and license.",
-  "local_duplicate_review": "pass",
-  "local_duplicate_review_notes": "The GLB fingerprint 0ed927caadd03f215e80048d3a0152a5612e843fcb2590d1fa2a37988024fd43 differs from the prepared door fingerprint fbe3626a5effe7faf794b90d2cc407cb03c5f6b12f45878aa3d884a32858cb20; source UID and payload hash are distinct.",
-  "local_visual_review": "pass",
-  "local_visual_review_notes": "Reviewed attempt 000012 front/rear RTX images: complete frame, plain back, wood/slatted front, trim and long pull/keyhole are present with retained materials; alignment and clearance are plausible. Individual visual components are preserved; only their shared physical leaf collider is simplified."
+  "dependency_licenses": [
+    "Sketchfab-Free-Standard"
+  ],
+  "source": "source/modern_door.glb"
 }

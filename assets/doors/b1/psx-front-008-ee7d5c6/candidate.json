@@ -5,39 +5,15 @@
   "source_part": "Front_Door_008",
   "author": "Icevanilla",
   "license": "CC-BY-4.0",
-  "distribution_scope": "redistributable",
-  "license_evidence": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/psx-front-008-ee7d5c6/source-evidence.json",
-  "attribution": "Front_Door_008 from Low-Poly PSX Style Front Doors Pack by Icevanilla (https://sketchfab.com/vanillao03), https://sketchfab.com/3d-models/low-poly-psx-style-front-doors-pack-ee7d5c6d36404849a459c84c3d004a0c, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Selection and preparation changes are in source-evidence.json and recipe.json.",
+  "license_evidence": "https://sketchfab.com/3d-models/low-poly-psx-style-front-doors-pack-ee7d5c6d36404849a459c84c3d004a0c",
+  "attribution": "Icevanilla \u2014 https://sketchfab.com/3d-models/low-poly-psx-style-front-doors-pack-ee7d5c6d36404849a459c84c3d004a0c \u2014 CC-BY-4.0. Modified for closed-unlatched simulation; see recipe.json.",
   "retrieval_date": "2026-09-24",
   "door_type": "exterior",
-  "single_leaf": true,
-  "frame_panel_separable": true,
-  "license_scope_review": "pass",
-  "license_scope_review_notes": "Actual model page and download modal state CC Attribution and link CC BY 4.0; embedded USDZ metadata agrees.",
-  "custom_terms_review": "pass",
-  "custom_terms_review_notes": "No additional use terms or separate atlas license visible.",
-  "duplicate_review": "pass",
-  "duplicate_review_notes": "Named source single-leaf assembly with matching frame; double-leaf 003 excluded. Final local fingerprint comparison follows inspect.",
-  "selected_format": ".usdc",
-  "reported_triangles": 7800,
-  "reported_texture_max_px": 4096,
-  "dependencies": [
-    {
-      "path": "0/Doors_baseColor.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: JPG packaged with CC BY USDZ, no separate terms visible"
-    }
-  ],
-  "initial_state": "closed_unlatched",
+  "usage_notes": "Source and packaged dependencies share the recorded license; no separate dependency terms were recorded during intake.",
+  "distribution_scope": "redistributable",
   "reviewed_source_sha256": "e19f59204fae3dda0616d68f68a565edeb5b9967fe04fa27c4a1d8d742c60d69",
-  "local_dependency_review": "pass",
-  "local_dependency_review_notes": "Selected USDC resolves the packaged 4096 x 1024 JPG atlas. The source USDZ metadata and actual page agree on CC BY 4.0; no separate atlas terms were observed.",
-  "local_duplicate_review": "pass",
-  "local_duplicate_review_notes": "Geometry fingerprint 0b1821356039a84dae921c3cd7de6ffbe2777491aba715408ce764798837534a is distinct from the 25 previously accepted doors and the other selected parts. Double-leaf 003 is excluded; 006 is an exact duplicate of psx-front-20d5505.",
-  "local_asset_shape_review": "pass",
-  "local_asset_shape_review_notes": "Dark entry leaf with twelve glazed lights, lower panel and paired lever handles. Separate matched frame and source leaf; both-side handle geometry remains.",
-  "local_visual_review": "pass",
-  "local_visual_review_notes": "Actually viewed front and rear RTX captures in attempt 000005: Dark entry leaf with twelve glazed lights, lower panel and paired lever handles. Source atlas resolves; no missing or grossly misaligned part.",
-  "local_mechanical_review": "pass",
-  "local_mechanical_review_notes": "Attempt 000005 passes static and one isolated RTX 4090 cuda:0 functional run to the geometry-derived 121.2-degree stop; three exact resets, stable frame and zero reported penetration. Frame, leaf and handles retain collision; robot/expert qualification not run."
+  "dependency_licenses": [
+    "CC-BY-4.0"
+  ],
+  "source": "source/scene.usdc"
 }

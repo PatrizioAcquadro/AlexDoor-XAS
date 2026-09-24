@@ -4,58 +4,15 @@
   "source_uid": "adf292f437f24151918a3b16ecef52d2",
   "author": "hoschu",
   "license": "CC-BY-4.0",
-  "distribution_scope": "redistributable",
-  "license_evidence": "assets/doors/b1/door-adf292f437f2/source-evidence.json",
-  "attribution": "Door by hoschu (https://sketchfab.com/hoschu), https://sketchfab.com/3d-models/door-adf292f437f24151918a3b16ecef52d2, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Preparation changes: separation of modeled frame and leaf, inferred rear/thickness and hinge, scale and clearance fit; see recipe.json.",
+  "license_evidence": "https://sketchfab.com/3d-models/door-adf292f437f24151918a3b16ecef52d2",
+  "attribution": "hoschu \u2014 https://sketchfab.com/3d-models/door-adf292f437f24151918a3b16ecef52d2 \u2014 CC-BY-4.0. Modified for closed-unlatched simulation; see recipe.json.",
   "retrieval_date": "2026-09-23",
   "door_type": "interior",
-  "single_leaf": true,
-  "frame_panel_separable": true,
-  "frame_panel_review_notes": "Supersedes initial connectivity-based rejection: source component 2 contains a modeled U-shaped frame (70 faces) welded to the central leaf relief (296 faces). The existing contour supports a whole-face split with original vertices/UVs retained. The front-only leaf needs an explicitly inferred rear and edge closure; recipe records this reconstruction. No external frame is added.",
-  "license_scope_review": "pass",
-  "license_scope_review_notes": "The actual page and download modal show CC Attribution linking CC BY 4.0.",
-  "custom_terms_review": "pass",
-  "custom_terms_review_notes": "The description says \u201cstatic door\u201d; no additional author terms or separately credited texture source appear on the reviewed page.",
-  "duplicate_review": "pass",
-  "duplicate_review_notes": "Unique source identity; local inspect fingerprint f4ee27522e3b6b39d65ad3396fcfaa17ac37e2ef5b8be9a1855f37d4c000ed1a differs from all five accepted fingerprints.",
-  "selected_format": ".usdz",
-  "reported_triangles": 1600,
-  "reported_texture_max_px": 1024,
+  "usage_notes": "Source and packaged dependencies share the recorded license; no separate dependency terms were recorded during intake.",
+  "distribution_scope": "redistributable",
   "reviewed_source_sha256": "a5c028f200f9ef4b4487e452fd2c273cece183c5331475b0bd72b3a0d9bd4931",
-  "local_dependency_review": "pass",
-  "local_dependency_review_notes": "USDZ embeds scene.usdc and five 1K maps, with no external converted dependency. Embedded author, CC-BY-4.0 and source URL metadata match the reviewed page; no separate map terms were found.",
-  "local_duplicate_review": "pass",
-  "local_duplicate_review_notes": "Inspect attempt 000001 reports 1577 triangles, four components and fingerprint f4ee27522e3b6b39d65ad3396fcfaa17ac37e2ef5b8be9a1855f37d4c000ed1a; all five accepted fingerprints differ.",
-  "dependencies": [
-    {
-      "path": "0/Default_baseColor.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
-    },
-    {
-      "path": "0/Default_metallicRoughness_metal.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
-    },
-    {
-      "path": "0/Default_metallicRoughness_rough_scale0.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
-    },
-    {
-      "path": "0/Default_normal_scale1_norm.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
-    },
-    {
-      "path": "0/Default_metallicRoughness_occl.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: map packaged in the CC BY model with no separately stated terms"
-    }
+  "dependency_licenses": [
+    "CC-BY-4.0"
   ],
-  "local_visual_review": "pass",
-  "local_visual_review_notes": "Viewed attempt 000002 front/rear RTX captures. Purple frame and decorative front, gold lever, fitted gaps and inferred flat textured rear are intact. Rear repeats source UVs and has no added handle; this documented reconstruction is adequate for pushing.",
-  "local_mechanical_review": "pass",
-  "local_mechanical_review_notes": "Attempt 000002 passes static and one isolated RTX 4090 run to the 176-degree geometric limit: three exact resets, stable frame, zero reported penetration. Left hinge is inferred opposite the handle. Source leaf is backed to 53.35 mm final thickness; 0.4% fit leaves jamb clearance. Expert qualification remains pending.",
-  "initial_state": "closed_unlatched"
+  "source": "source/Door (2).usdz"
 }

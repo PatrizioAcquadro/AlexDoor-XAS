@@ -2,77 +2,18 @@
   "asset_id": "interior-wood-d1-32707dc",
   "source_url": "https://sketchfab.com/3d-models/interior-wood-doors-pack-1-32707dcfa6304f49bf99148d0211f5f7",
   "source_uid": "32707dcfa6304f49bf99148d0211f5f7",
-  "source_part": "D1_Frame + D1_Door",
-  "author": "Hawtor Studio (Toni García Vilche)",
+  "source_part": "D1_Frame + D1_Door; D2 is an appearance variant",
+  "author": "Hawtor Studio (Toni Garc\u00eda Vilche)",
   "license": "CC-BY-4.0",
-  "distribution_scope": "redistributable",
-  "license_evidence": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/interior-wood-d1-32707dc/source-evidence.json",
-  "attribution": "D1 single-leaf door from Interior Wood Doors Pack 1 by Hawtor Studio (Toni García Vilche, https://sketchfab.com/zul_gv), https://sketchfab.com/3d-models/interior-wood-doors-pack-1-32707dcfa6304f49bf99148d0211f5f7, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Selection and normalization are documented in source-evidence.json and recipe.json.",
+  "license_evidence": "https://sketchfab.com/3d-models/interior-wood-doors-pack-1-32707dcfa6304f49bf99148d0211f5f7",
+  "attribution": "Hawtor Studio (Toni Garc\u00eda Vilche) \u2014 https://sketchfab.com/3d-models/interior-wood-doors-pack-1-32707dcfa6304f49bf99148d0211f5f7 \u2014 CC-BY-4.0. Modified for closed-unlatched simulation; see recipe.json.",
   "retrieval_date": "2026-09-24",
   "door_type": "interior",
-  "single_leaf": true,
-  "frame_panel_separable": true,
-  "license_scope_review": "pass",
-  "license_scope_review_notes": "Actual page and download modal show CC Attribution and link CC BY 4.0; packaged USDZ metadata agrees.",
-  "custom_terms_review": "pass",
-  "custom_terms_review_notes": "Author asks for credit, which CC BY already requires; no separate texture terms visible.",
-  "duplicate_review": "pass",
-  "duplicate_review_notes": "D1 chosen as one source geometry. D2 is a material-only copy of the same frame and leaf and is excluded from corpus count. Compare D1 fingerprint with existing accepted assets after inspection.",
-  "selected_format": ".usdc",
-  "reported_triangles": 10200,
-  "reported_texture_max_px": 2048,
-  "dependencies": [
-    {
-      "path": "0/material_baseColor.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: JPG embedded in the CC BY USDZ with no separate terms"
-    },
-    {
-      "path": "0/material_metallicRoughness_metal.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: JPG embedded in the CC BY USDZ with no separate terms"
-    },
-    {
-      "path": "0/material_metallicRoughness_rough_scale0.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: JPG embedded in the CC BY USDZ with no separate terms"
-    },
-    {
-      "path": "0/material_normal.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: JPG embedded in the CC BY USDZ with no separate terms"
-    },
-    {
-      "path": "0/material_1_baseColor.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: JPG embedded in the CC BY USDZ with no separate terms"
-    },
-    {
-      "path": "0/material_1_metallicRoughness_metal.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: JPG embedded in the CC BY USDZ with no separate terms"
-    },
-    {
-      "path": "0/material_1_metallicRoughness_rough_scale0.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: JPG embedded in the CC BY USDZ with no separate terms"
-    },
-    {
-      "path": "0/material_1_normal.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: JPG embedded in the CC BY USDZ with no separate terms"
-    }
-  ],
-  "initial_state": "closed_unlatched",
+  "usage_notes": "Source and packaged dependencies share the recorded license; no separate dependency terms were recorded during intake.",
+  "distribution_scope": "redistributable",
   "reviewed_source_sha256": "e5562222367a9952e85c39e22ef9b323f615f4be354240679e797de26adbedb2",
-  "local_dependency_review": "pass",
-  "local_dependency_review_notes": "The USDZ custom metadata and source page both state CC BY 4.0. Eight embedded 2K maps carry no separate stated terms; D1 binds its four maps. The selected USDC resolves the original USDZ as a local dependency; both original and normalized release snapshot are retained.",
-  "local_duplicate_review": "pass",
-  "local_duplicate_review_notes": "D1 fingerprint c87dd0edf71d37796a5865f7785ea44b2581f0dadb4110b73ec24016b2e75b3d differs from all 18 accepted geometries. D2 leaf points/faces are identical; D2 frame differs by at most 0.72 micrometers in points with identical faces, and only material/texture binding changes. D2 is excluded as a geometry duplicate.",
-  "local_asset_shape_review": "pass",
-  "local_asset_shape_review_notes": "D1 is one full-size single-leaf interior door with a modeled matching frame, separate leaf, two handles, visible upper/lower hinges and fixed strike plate. The preview display meshes and D2 are excluded.",
-  "local_mechanical_review": "pass",
-  "local_mechanical_review_notes": "Attempt 000016 passes static and one isolated RTX 4090 run to 54.2 degrees with three exact resets, zero frame drift and zero reported penetration. Bounded 1.3% Panel/Handle fit, frame profile partitions and reviewed local hinge contact-pair filters retain leaf/frame/handle collision. Robot/expert qualification is pending.",
-  "local_visual_review": "pass",
-  "local_visual_review_notes": "Actually viewed front and rear RTX images in attempt 000016: complete dark wood slab/frame, paired lever handles and rear upper/lower hinges; material resolves and no missing or grossly misaligned parts. A small top reveal from the 1.3% fit remains visible."
+  "dependency_licenses": [
+    "CC-BY-4.0"
+  ],
+  "source": "source/scene.usdc"
 }

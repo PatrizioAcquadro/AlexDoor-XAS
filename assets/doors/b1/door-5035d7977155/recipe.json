@@ -64,23 +64,10 @@
     6,
     8
   ],
-  "hinge_axis_review": "The two source animated hinge barrels are circular, centered at inspected x=0.69588 m and z=0.05341 m, and separated vertically. Their radius extends 18.1 mm beyond the measured axis after 0.70 scale, so the generic outer-edge proxy fails although the axis crosses both barrels. Use the unchanged 10 mm axis-to-barrel-center check; retain all hinge collisions.",
+  "hinge_axis_review": "The listed vertically separated source barrels locate the axis. Their centers satisfy the 10 mm axis check; geometry is inferred, not manufacturer calibration.",
   "modifications": [
-    "Uniform 0.70 scale of the inspected Y-up meter geometry, giving a roughly 2.0 m leaf.",
-    "Proper cyclic rotation to canonical Z-up; original right-side visible hinge maps to positive canonical Y and left-handed push.",
-    "Use the source USDZ zero animation pose, in which the leaf is closed inside the separate frame. Keep original frame, leaf, strike-side plate, lever plates and hinge hardware as visuals and collisions.",
-    "Infer the ideal revolute axis from the centers of the two visible moving hinge barrels; the original animation is not the B1 control path. No standalone latch bolt is identified for collision exclusion.",
-    "Partition the fixed U-frame collider at its measured rear/rebate, narrow jamb and opening-head/sill planes; retain all original frame surfaces and collisions. Declare the narrowest source aperture with a 0.5 mm inward review margin.",
-    "Uniform 2% fit of Panel and Handle around the measured hinge depth, opening center and mid-height, then rigidly shift both 18 mm toward the opening face to clear the source rebate/hinge interference. Recompute leaf dimensions, aperture and joint axis; no source mesh is deleted or collision excluded.",
-    "Use one convex leaf collider for component 5: default cooking in attempt 000006 omitted 4-6 mm of the outer door skin, violating the 2 mm visual/collision bound. The envelope fills the two decorative glazed recesses but retains full leaf contact and visual meshes."
-  ],
-  "preparation_status": "ready_for_5.1",
-  "review_notes": [
-    "Component 5 is the leaf; 9 is the fixed full frame and 10 the fixed strike-side plate. Components 6-8 are moving hinge hardware, 0 is moving lock-edge plate; 1-4 are paired handles and escutcheons.",
-    "No moving scale/translation, collider partition, latch exclusion or hinge pair filter is introduced before a demonstrated issue.",
-    "Frame component 9 has a rear narrow opening at source width x=\u00b10.650884 m and a wider front rebate at x=\u00b10.689719 m. Attempt 000004 cut exactly on the common source-depth plane and placed rear-face vertices into front cooked hulls; the frame cut is 0.5 mm inside the front side of that plane to keep rear surfaces in the rear partition while preserving all original faces.",
-    "The original source has no separate latch bolt: moving edge plate 0 and fixed strike plate 10 retain their colliders. Full leaf/frame contact also remains active.",
-    "The leaf convex envelope is a collision approximation for push contact, not a material edit or a claim that the glass openings are solid panels."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
   "clear_aperture_m": [
     [
@@ -121,5 +108,5 @@
     0,
     0
   ],
-  "clearance_review": "Attempt 000005 has four cooked leaf/frame corner overlaps inside the sloped rebate plus proper original-surface crossings between moving hinge cylinders 6-8 and fixed jamb 9. The front opening is wider than the rear but the source leaf is too large/deep at its closed pose. A uniform 2% moving-assembly fit about the original hinge-depth and opening center, followed by an 18 mm outward normal shift, is a documented graphics-model clearance repair. Direct closed-hull evaluation leaves hinge/frame overlaps at 15 mm, while 18 mm clears every pair; the next normalization and GPU checks must confirm the sweep and stability. Frame, leaf, strike plate, hinges and handles all retain collision."
+  "clearance_review": "A 2% moving fit and 18 mm outward shift clear the sloped rebate and hinge/jamb crossings. All leaf, frame, strike, hinge and handle collisions remain enabled."
 }

@@ -74,11 +74,8 @@
   ],
   "clearance_review": "Surface-mounted simulation assembly: the 0.871262 m source slab is wider than the 0.84284 m clear opening. Preserve slab/frame sizes relative to one another; rigidly place the closed slab 2 mm in front of the jamb face, with its back-face hinge opposite the handle and 2 mm floor clearance. The leaf overlaps each jamb by about 13.7 mm at uniform overall scale 0.965. This is a reviewed mount inferred for static graphics, not manufacturer geometry. No moving-assembly shrink or relaxed collision/physics tolerance is used. Preserve all source geometry, atlas and collisions.",
   "modifications": [
-    "Select this named source leaf and its matched original frame from the CC BY USDZ pack.",
-    "Overall uniform scale 0.965 and proper rotation to canonical Z-up; no reflection.",
-    "Surface-mounted simulation assembly: the 0.871262 m source slab is wider than the 0.84284 m clear opening. Preserve slab/frame sizes relative to one another; rigidly place the closed slab 2 mm in front of the jamb face, with its back-face hinge opposite the handle and 2 mm floor clearance. The leaf overlaps each jamb by about 13.7 mm at uniform overall scale 0.965. This is a reviewed mount inferred for static graphics, not manufacturer geometry. No moving-assembly shrink or relaxed collision/physics tolerance is used. Preserve all source geometry, atlas and collisions.",
-    "Partition the source frame at measured jamb/header planes; keep all frame and leaf/handle collisions.",
-    "Begin closed and already unlatched. No source latch release is required."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
   "clear_aperture_m": [
     [

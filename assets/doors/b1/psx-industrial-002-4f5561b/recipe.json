@@ -64,11 +64,9 @@
     }
   ],
   "modifications": [
-    "Compose original Metal_Door_002 with the existing frame Metal_Doorframe_002 from its pack, translated to the same center and floor. Double doors excluded.",
-    "Fit the template frame aperture through reviewed source-coordinate intervals; preserve its jamb/header profiles and depth.",
-    "Uniform overall scale 0.895, proper Z-up rotation and inferred left back-face hinge opposite the expected interaction side.",
-    "Mount the original slab 2 mm ahead of the jamb face and 2 mm above the floor; no leaf shrink, collision exclusion or threshold relaxation.",
-    "Use a conservative whole-leaf hull and component-partitioned frame hulls. Start closed and already unlatched."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Adapt the reused source frame aperture with the reviewed piecewise fit; retain its profiles and collisions.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
   "translation_m": [
     -0.32417863510549066,

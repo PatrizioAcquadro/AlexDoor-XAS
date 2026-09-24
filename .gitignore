@@ -28,15 +28,11 @@ htmlcov/
 /outputs/door_scene/*
 !/outputs/door_scene/D[0-4].usda
 
-# Legacy preparation payloads and evidence stay machine-local.
-# Keep existing local artifacts ignored while the B1 workflow is still planned.
-/assets/doors/phase4_1/source/
-/assets/doors/phase4_1/normalized/
-/assets/doors/phase4_1/evidence/
-
-# B1 candidate metadata and recipes are tracked; generated attempts are local.
+# Door metadata is tracked; sources, prepared payloads and attempts stay local.
+/assets/doors/b1/*/source/
+/assets/doors/b1/*/prepared/
 /assets/doors/b1/*/attempts/
-/assets/doors/b1/*/prepared.json
+/assets/doors/b1/*/.publish/
 
 # Machine-local artifacts
 # Keep active binary formats ignored even outside datasets/ and outputs/.

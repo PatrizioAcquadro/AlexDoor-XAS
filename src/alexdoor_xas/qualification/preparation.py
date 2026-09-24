@@ -1,4 +1,4 @@
-"""B1 candidate records, explicit recipes and non-destructive preparation attempts."""
+"""B1 source admission, normalization recipes and preparation attempts."""
 
 from __future__ import annotations
 
@@ -414,10 +414,10 @@ def promote(attempt, candidate):
         category="evidence",
     )
     review = json.loads(candidate.read_text())
-    accepted = [
-        json.loads(p.read_text()) for p in attempt.parent.parent.parent.glob("*/prepared.json")
-    ]
-    distribution_scope = remote_review(review, [item["candidate"] for item in accepted])[
+    from .prepared import prepared_candidates, publish_prepared
+
+    accepted = list(prepared_candidates(attempt.parent.parent.parent))
+    distribution_scope = remote_review(review, [record for record, _ in accepted])[
         "distribution_scope"
     ]
     inspected = json.loads((attempt / "inspect.json").read_text())
@@ -428,15 +428,17 @@ def promote(attempt, candidate):
         category="source",
     )
     suspects = []
-    for item in accepted:
-        other = json.loads((Path(item["attempt"]) / "inspect.json").read_text())
+    for record, other in accepted:
         require(
-            other["source_sha256"] != inspected["source_sha256"],
+            record["asset_id"] == review["asset_id"]
+            or record["reviewed_source_sha256"] != inspected["source_sha256"],
             "Identical source payload",
             category="asset",
         )
-        if other["geometry_fingerprint"] == inspected["geometry_fingerprint"]:
-            suspects.append(item["candidate"]["asset_id"])
+        if record["asset_id"] != review["asset_id"] and (
+            other["geometry_fingerprint"] == inspected["geometry_fingerprint"]
+        ):
+            suspects.append(record["asset_id"])
     require(
         not suspects or bool(review.get("duplicate_resolution")),
         f"Geometry requires duplicate review against {suspects}",
@@ -452,15 +454,5 @@ def promote(attempt, candidate):
         category="source",
         status="unresolved",
     )
-    pointer = attempt.parent.parent / "prepared.json"
-    require(not pointer.exists(), "Prepared candidate already exists; preserve it")
-    write_json(
-        pointer,
-        {
-            "status": "ready_for_5.1",
-            "distribution_scope": distribution_scope,
-            "attempt": str(attempt),
-            "candidate": review,
-        },
-    )
+    publish_prepared(attempt, review)
     return distribution_scope

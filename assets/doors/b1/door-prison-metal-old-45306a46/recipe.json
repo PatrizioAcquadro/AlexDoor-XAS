@@ -73,27 +73,15 @@
     6,
     8
   ],
-  "hinge_axis_review": "Two original cylindrical moving hinge barrels at source z about -0.621 m and x about 0.031 m locate the revolute axis; they are vertically separated. Their 15 mm scaled width exceeds the generic outer-edge proxy, so use their measured centers without relaxing its 10 mm center check.",
+  "hinge_axis_review": "The listed vertically separated source barrels locate the axis. Their centers satisfy the 10 mm axis check; geometry is inferred, not manufacturer calibration.",
   "unlatched_components": [
     10
   ],
-  "unlatched_review": "Component 10 is the small projecting latch tongue at the handle-side edge (source z 0.615-0.637 m, y 1.239-1.292 m). The task starts closed and unlatched; keep its visual mesh, omit only its collider. Components 4-5 are the moving edge/lock plate and remain collidable, as do the leaf, frame, handles and hinges.",
+  "unlatched_review": "Only the listed latch/lock parts lose collision; their visuals remain. Leaf, frame, handles and other hardware remain collidable.",
   "modifications": [
-    "Select the source closed Null door/frame assembly from an USDZ that also displays a spatially separate open duplicate Null_1; preserve the original USDZ, all selected meshes, UVs and four maps.",
-    "Uniform 0.75 scale, proper Y-up to Z-up rotation and floor-centered opening. Source hinge at negative width maps to left-handed canonical push with no reflection.",
-    "Infer the ideal revolute joint from the two original moving hinge barrels. Original viewer animation is not used for B1 push control.",
-    "Begin closed and already unlatched: retain the original latch tongue visual but omit only its collision, with all other contact meshes retained.",
-    "Declare the reviewed central aperture above the modeled bottom corner and below the rebated header; this preserves the frame sill and corner geometry rather than treating the full leaf bounds as empty passage.",
-    "Uniform 2% moving-assembly fit, including all handle and hinge visuals/colliders, around opening center and mid-height to resolve measured source edge/hinge crossings.",
-    "Partition the existing frame collider at canonical width Y ±0.445 m and height Z 0.095/1.993 m to represent the modeled corner rebates while retaining all frame collision and visual geometry.",
-    "Use one convex outer-envelope collider for leaf 14 because default PhysX cooking omitted 5.3 mm of its bottom skin; this preserves its visual/collision bounds and full solid push surface while approximating decorative window recesses."
-  ],
-  "review_notes": [
-    "Inspect attempt 000002 on the selected local USDC identifies leaf 14, frame 19, bars/window/edge/hinges 4-13 and paired lever/escutcheon hardware 0-3,15-18.",
-    "The initial recipe keeps source dimensions and colliders; any clearance fit or frame partitions require a demonstrated normalized gate failure.",
-    "Attempt 000003 obstructed the full-leaf rectangular aperture because corner/threshold frame hulls occupy its lower 49 mm and upper 49 mm; the actual central opening remains 0.890 x 1.898 m, over 90% of the leaf footprint.",
-    "Direct convex analysis with the measured frame partition and 2% fit clears the closed pose and predicts a limited geometric opening; no threshold angle is imposed or tuned.",
-    "Static attempt 000005 measured panel visual lower bound Z=0.06442 m versus cooked collider Z=0.06974 m, beyond the 2 mm gate. A direct convex-envelope check retains the same 23.1-degree geometric stop without disabling collisions."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Select the original closed display assembly; exclude the open display copy.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
   "clear_aperture_m": [
     [
@@ -126,5 +114,5 @@
     },
     "14": "convexHull"
   },
-  "clearance_review": "Attempt 000004 witnesses original-surface intersections of moving edge plate 5 and hinge barrels 6/8 with the fixed frame 19; default cooked leaf/frame corner hulls also overlap. A uniform 2% Panel/Handle fit around the opening center and 1.05 m height reduces the protruding edge and hinge hardware by about 9 mm per side. Direct closed-hull analysis after this fit removes all edge/hinge intersections. The frame is partitioned at its measured corner/central aperture boundaries without moving or deleting source surfaces; it clears remaining cooked-hull corner overlap. No collision tolerance is relaxed. The geometric opening limit is determined by the actual sweep, not a desired angle."
+  "clearance_review": "A 2% moving fit retreats edge and hinge hardware about 9 mm per side. Partitioning the original frame resolves cooked corner overlap without removing source surfaces."
 }

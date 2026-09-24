@@ -1,0 +1,83 @@
+{
+  "status": "ready_for_5.1",
+  "usd": "prepared/door.usda",
+  "dimensions_m": {
+    "width_m": 0.8149539312472357,
+    "height_m": 1.9474290041791675,
+    "thickness_m": 0.09236942365821899
+  },
+  "handedness": "left",
+  "initial_state": "closed_unlatched",
+  "hinge_m": [
+    0.0515896798743913,
+    0.40747696562361785,
+    0.0
+  ],
+  "panel_center_m": [
+    0.005404968045281809,
+    -2.220446049250313e-16,
+    1.0433670956311367
+  ],
+  "opening_to_hinge": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.0515896798743913
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      0.40747696562361785
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "opening_to_panel_center_closed": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.005404968045281809
+    ],
+    [
+      0.0,
+      1.0,
+      0.0,
+      -2.220446049250313e-16
+    ],
+    [
+      0.0,
+      0.0,
+      1.0,
+      1.0433670956311367
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "mechanical_limit_deg": 166.2,
+  "geometry_fingerprint": "ae1f351a7968484e5cf374fbbb4aac95fc2494914bcce11f421bcf84b391bd85",
+  "checks": {
+    "normalization": "pass",
+    "static": "pass",
+    "visual": "pass",
+    "physics": "pass"
+  },
+  "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
+  "expert_qualification": "not_run"
+}

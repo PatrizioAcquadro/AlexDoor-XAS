@@ -2,45 +2,107 @@
   "handedness": "left",
   "scale": 0.85,
   "rotation": [
-    [0, 0, -1],
-    [-1, 0, 0],
-    [0, 1, 0]
+    [
+      0,
+      0,
+      -1
+    ],
+    [
+      -1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
   ],
-  "translation_m": [0, -0.0005017752468120307, 0.0005348149687051773],
-  "opening_center_source": [-0.0005903238197788596, -0.0006291940808296204, 0],
-  "hinge_m": [0.08242203932441146, 0.45336195465291035, 0],
+  "translation_m": [
+    0,
+    -0.0005017752468120307,
+    0.0005348149687051773
+  ],
+  "opening_center_source": [
+    -0.0005903238197788596,
+    -0.0006291940808296204,
+    0
+  ],
+  "hinge_m": [
+    0.08242203932441146,
+    0.45336195465291035,
+    0
+  ],
   "dimensions_m": {
     "width_m": 0.8792176222640555,
     "height_m": 2.0968945233821867,
     "thickness_m": 0.08003834909899159
   },
   "components": {
-    "Frame": [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21],
-    "Panel": [6, 7, 20],
-    "Handle": [0, 1, 2, 3, 4, 5]
+    "Frame": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      21
+    ],
+    "Panel": [
+      6,
+      7,
+      20
+    ],
+    "Handle": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
   },
-  "leaf_components": [20],
+  "leaf_components": [
+    20
+  ],
   "moving_scale": 0.98,
-  "moving_scale_center_m": [0.07614662160631269, 0, 1.0847760323435067],
-  "clearance_review": "The source leaf width after global scale is 0.89716185 m versus a narrow jamb passage of 0.88355331 m; even 1% shrink leaves 4.64 mm excess width, so rigid recentering alone cannot fit it. Uniform 2% Panel/Handle reduction gives width 0.87921762 m. Shift the moving assembly 0.99 mm toward the hinge: side gaps are about 0.68 mm at the hinge and 3.66 mm at the latch, giving room for the thick leaf corner to sweep. Scale about the original hinge-facing leaf plane to preserve its depth alignment with the source knuckles. This is a reviewed graphics-asset fitting approximation, not manufacturer dimensions; runtime collision tolerances are unchanged.",
+  "moving_scale_center_m": [
+    0.07614662160631269,
+    0,
+    1.0847760323435067
+  ],
+  "clearance_review": "A 2% moving fit and 0.99 mm hingeward shift fit the oversized leaf: about 0.68 mm hinge-side and 3.66 mm latch-side gaps. The scale center retains hinge-face depth.",
   "colliders": {
     "21": {
       "partitions": {
-        "y": [-0.453, -0.442, 0.441, 0.452],
-        "z": [2.156]
+        "y": [
+          -0.453,
+          -0.442,
+          0.441,
+          0.452
+        ],
+        "z": [
+          2.156
+        ]
       }
     }
   },
   "unlatched_components": [],
-  "unlatched_review": "No distinct latch or lock bolt is present in the inspected geometry. Both lever handles, the leaf, hinge pieces and frame retain their collisions in the common closed-unlatched state.",
+  "unlatched_review": "No projecting latch/lock bolt was identified; all modeled parts retain collision.",
   "modifications": [
-    "Use the existing geometry-identical local GLB with original source images removed and independently authored flat materials; retain original GLB/USDZ untouched.",
-    "Use global uniform scale 0.85 as in the initial recipe. Apply a proper rotation to canonical Z-up with the opening moving toward +X from the visible hinge side; no reflection. This corrects the earlier inferred right-handed direction to left-handed in the canonical push convention.",
-    "Use the vertical axis measured from the twelve source knuckle bounds: canonical X=0.08242204 m, Y=0.45336195 m. Keep fixed knuckles in Frame.",
-    "Uniformly reduce Panel and Handle by 2% about the original hinge-facing leaf plane and midheight; preserve that plane rather than shifting it away from the visible knuckles.",
-    "Translate Panel and Handle 0.99 mm toward the hinge to distribute the available side clearance according to the thick-leaf opening sweep.",
-    "Retain frame partition planes under the rigid rotation and all panel, handle and frame collisions. Derive the aperture check from the fitted leaf envelope and the opening stop from collision geometry.",
-    "Keep the common closed-unlatched task state and nominal mass/damping/friction; no latch exclusions or test-tolerance changes."
+    "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
+    "Use the geometry-identical derivative with independently authored flat materials.",
+    "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
   ],
-  "moving_translation_m": [0, 0.00099, 0]
+  "moving_translation_m": [
+    0,
+    0.00099,
+    0
+  ]
 }

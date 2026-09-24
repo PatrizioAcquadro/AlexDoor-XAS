@@ -5,39 +5,15 @@
   "source_part": "Metal_Door_003",
   "author": "Icevanilla",
   "license": "CC-BY-4.0",
-  "distribution_scope": "redistributable",
-  "license_evidence": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/psx-industrial-003-4f5561b/source-evidence.json",
-  "attribution": "Metal_Door_003 from Low-Poly PSX Style Industrial Metal Doors Pack by Icevanilla (https://sketchfab.com/vanillao03), https://sketchfab.com/3d-models/low-poly-psx-style-industrial-metal-doors-pack-4f5561bbc441414587e3650ceae5593a, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Selection and preparation changes are recorded in source-evidence.json and recipe.json.",
+  "license_evidence": "https://sketchfab.com/3d-models/low-poly-psx-style-industrial-metal-doors-pack-4f5561bbc441414587e3650ceae5593a",
+  "attribution": "Icevanilla \u2014 https://sketchfab.com/3d-models/low-poly-psx-style-industrial-metal-doors-pack-4f5561bbc441414587e3650ceae5593a \u2014 CC-BY-4.0. Modified for closed-unlatched simulation; see recipe.json.",
   "retrieval_date": "2026-09-23",
   "door_type": "industrial",
-  "single_leaf": true,
-  "license_scope_review": "pass",
-  "license_scope_review_notes": "Actual model page and download modal label CC Attribution and link CC BY 4.0; packaged USDZ metadata agrees.",
-  "custom_terms_review": "pass",
-  "custom_terms_review_notes": "No added use terms or separate texture rights visible; the author says one texture atlas ships with the model.",
-  "duplicate_review": "pass",
-  "duplicate_review_notes": "Original single-leaf part identified in the pack and locally reviewed by geometry; the double-leaf display is excluded.",
-  "selected_format": ".usdc",
-  "reported_triangles": 1700,
-  "reported_texture_max_px": 1024,
-  "dependencies": [
-    {
-      "path": "0/Metal_Doors_baseColor.jpg",
-      "license": "CC-BY-4.0",
-      "license_evidence": "source-evidence.json: sole texture packaged in the CC BY USDZ with no separately stated terms"
-    }
-  ],
-  "initial_state": "closed_unlatched",
+  "usage_notes": "Source and packaged dependencies share the recorded license; no separate dependency terms were recorded during intake.",
+  "distribution_scope": "redistributable",
   "reviewed_source_sha256": "477a392bc488876060d0cbac08c8e3886cf08669b63dae4783964d4afd406c2d",
-  "local_dependency_review": "pass",
-  "local_dependency_review_notes": "The selected USDC and packaged 1024 x 256 atlas resolve locally; USDZ metadata and source page identify CC BY 4.0, with no separately stated atlas terms.",
-  "local_duplicate_review": "pass",
-  "local_duplicate_review_notes": "Selected-source fingerprint 79be9683769da426cfb88ef036766a207d69fa07000cfb70bbf311bc255f7e6b remains distinct from previously accepted geometries; original source part and visible slab details distinguish this candidate. 005 is held as a variant of 003.",
-  "local_asset_shape_review": "pass",
-  "local_asset_shape_review_notes": "Original slab and modeled frame remain separately collidable in a reviewed surface-mounted simulation assembly; source geometry and atlas are retained.",
-  "local_mechanical_review": "pass",
-  "local_mechanical_review_notes": "Attempt 000007: reviewed surface-mounted closed-unlatched assembly passes static and one RTX 4090 run to 91.0 degrees. All frame/slab/handle collisions and physics tolerances are retained; the 2% moving-fit bound is unchanged. Robot/expert qualification remains pending.",
-  "local_visual_review": "pass",
-  "local_visual_review_notes": "Viewed front/rear RTX images in attempt 000007: original metal atlas, complete slab/frame and modeled hardware are retained. Surface mounting and the inferred back-face pivot are explicit simulation assumptions.",
-  "frame_panel_separable": true
+  "dependency_licenses": [
+    "CC-BY-4.0"
+  ],
+  "source": "source/scene.usdc"
 }
