@@ -10,9 +10,9 @@ Produce one matched A2/A3 dataset supporting controlled N50-N500 comparisons.
 
 #### Implementation
 
-The completed `v3_scale_master` contains 550 matched episodes, 110 per D0-D4 pose, with nested N50, N100, N250, and N500 training memberships and fixed 25-episode validation and test sets.
+The completed `v3_scale_master` contained 550 matched episodes, 110 per D0-D4 pose, with nested N50, N100, N250, and N500 training memberships and fixed 25-episode validation and test sets.
 
-Current loaders can consume and directly validate the retained products. The repository no longer creates or publishes the master or its views.
+B0 payloads and their orchestration were removed. Generic grouping, split and normalization algorithms remain; the historical contract is recorded at Git `9c16e3d`.
 
 #### Key Decisions
 
@@ -26,10 +26,9 @@ Current loaders can consume and directly validate the retained products. The rep
 
 ## Artifacts
 
-Existing local dataset, split, view, and normalization files remain reusable. Construction workspaces are historical and outside the active repository contract.
+No local B0 dataset payload remains. The counts, memberships strategy and conclusions are retained as documentation, not as an active generation workflow.
 
 ## Files
 
 - `datasets/README.md`
 - `src/alexdoor_xas/dataset/`
-- `scripts/verify_dataset_interface.py`

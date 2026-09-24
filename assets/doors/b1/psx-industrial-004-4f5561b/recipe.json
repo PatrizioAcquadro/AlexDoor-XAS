@@ -74,7 +74,7 @@
     0.0049046720673913136,
     0.0019998589732141085
   ],
-  "clearance_review": "Surface-mounted assembly as for 001/003, with 2 mm depth/floor gaps. The original 004 frame has a forward-projecting sloped lintel. A 2% uniform moving fit about the leaf back/bottom clears that retained lintel by about 17 mm; overall scale 0.98 leaves height 1.808 m and thickness 99.30 mm. All frame/leaf/lever collisions remain enabled. No additional collider is removed and no physics tolerance is changed.",
+  "clearance_review": "Inferred surface mount with 2 mm depth/floor gaps. A 2% moving fit about the leaf back/bottom clears the retained projecting lintel by about 17 mm; preserve all frame/leaf/lever collisions.",
   "modifications": [
     "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
     "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."

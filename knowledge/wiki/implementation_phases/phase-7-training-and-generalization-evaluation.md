@@ -102,5 +102,5 @@ materials. No result or public release was produced by this revision.
 ## Files
 
 Expected surfaces: `src/alexdoor_xas/policies/`, `src/alexdoor_xas/eval/`, shared
-rollout reporting, `scripts/train_policy.py`, `scripts/eval_policy.py`, `configs/`,
+rollout reporting, future training/evaluation entry points, `configs/`,
 and result documentation.

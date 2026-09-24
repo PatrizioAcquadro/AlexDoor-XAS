@@ -12,7 +12,7 @@ Stabilize learned-policy rollout, contact entry, force reporting, and terminal-s
 
 This work hardened first-crossing success, settle behavior, adapter correction/rejection, terminal-state preservation, and force admission. A local four-cell N50 smoke matrix completed 144 successful rollouts with no adapter rejection.
 
-The smoke-matrix runner was removed after its behavior-level contracts moved into the maintained adapter, rollout, evaluation, and test paths.
+The smoke-matrix runner was removed after its behavior-level contracts moved into the maintained adapter, rollout and test paths.
 
 #### Key Decisions
 
@@ -26,10 +26,9 @@ The smoke-matrix runner was removed after its behavior-level contracts moved int
 
 ## Artifacts
 
-No local smoke-matrix artifact is part of the active output contract. Git retains the historical implementation.
+No local smoke-matrix artifact is part of the active output contract. Git `9c16e3d` retains the historical implementation.
 
 ## Files
 
 - `src/alexdoor_xas/adapters/rollout.py`
-- `src/alexdoor_xas/policies/common/closed_loop.py`
 - `tests/test_rollout_semantics.py`

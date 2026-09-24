@@ -41,9 +41,8 @@ historical episode/dataset schema or implement a learned observation encoder.
 
 #### Key Decisions
 
-- Replace B0 execution; preserve historical data/checkpoint readers and offline
-  training. Full generation and learned evaluation remain unavailable until
-  their later migration, with explicit errors before simulator startup.
+- Replace B0 execution. Subsequent cleanup retired B0 compatibility and CLI
+  orchestration; numerical learning components remain for later B1 integration.
 - Reuse external robot, material, mimic, collision-filter, pedestal and camera
   factories. Keep gravity and model limits active. Use model gravity compensation
   for arm/neck holding; retain external PD gains rather than B0 gains.
@@ -249,9 +248,8 @@ reset renderer settling is in `purdue-final-rgbd/`; contact force-direction chec
 - RGB-D: 960 × 600 metric optical-axis depth, known-target error below 0.01 m,
   RGB/depth fixture overlap above 0.90 IoU, correct head/mount extrinsics and
   fresh acquisition after neck motion/reset. Representative images inspected.
-- The preserved D0 door-only GPU smoke passes reset, 2 s passive drift (zero),
-  and 3 s response to 15 Nm, reaching the historical 90-degree stop. This checks
-  the retained preparation consumer, not B1 admission or reachability.
+- The historical D0 door-only smoke established the isolated preparation consumer;
+  D0 payloads were subsequently retired. `DoorInspectionEnv` remains in B1 preparation.
 
 Subphase 4.0 software validation: 332 tests passed, including historical readers/model contracts,
 with Ruff, whitespace and wiki-link/index checks. No corpus, training run or
@@ -285,7 +283,7 @@ training was performed.
 - `src/alexdoor_xas/envs/door_task/purdue_contacts.py`.
 - `src/alexdoor_xas/assets/purdue.py`.
 - `src/alexdoor_xas/kinematics/pose_control.py` and `src/alexdoor_xas/recording/rgbd.py`.
-- `scripts/verify_purdue_runtime.py`, `scripts/check_env.py` and retired B0 entry points.
+- `scripts/verify_purdue_runtime.py`, `scripts/check_env.py`.
 - `src/alexdoor_xas/envs/door_task/door_inspection.py` and retained preparation checks.
 
 External component ownership is documented in the robot topic.

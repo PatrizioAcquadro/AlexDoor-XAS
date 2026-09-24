@@ -1,92 +1,69 @@
 # AlexDoor-XAS
 
-AlexDoor-XAS studies how action representation affects learning and execution in contact-rich humanoid manipulation. 
-Its current runtime uses fixed-base Purdue Alex003 in NVIDIA Isaac Sim and Isaac Lab.
-The earlier Alex V2 door-pushing benchmark remains available as historical data and results.
+AlexDoor-XAS studies how action representation affects learning and execution in
+contact-rich humanoid manipulation. B1 compares A1–A4 × ACT/Diffusion on held-out
+push doors with fixed-base Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
-The study compares matched episodes in four action representations (A1-A4), allowing the representation to change while the robot, task, and underlying experience remain fixed.
+Purdue control/sensing and the common four-door synthetic setup are implemented.
+The prepared pool contains **32 doors**: 29 redistributable, two local-only and
+one private/noncommercial. Real-door expert qualification, B1 demonstrations,
+Replicator and learned-policy integration remain future work.
 
-## Current scope
+B0 workflows and local data have been retired. Their scientific conclusions and
+limits remain in the wiki. Reusable action, recording, dataset and model
+components remain; no repository command controls physical hardware.
 
-Subphase 4.0 replaces B0 execution with the Purdue Alex003 operational runtime:
-WSG32/UMI v1, measured pedestal, seven-joint A1/full-pose A2/A3 control and head
-ZED RGB-D/proprioception. Synthetic collidable fixtures commission the integration;
-Subphase 4.1 freezes the common setup and probe on four synthetic doors. Subphase
-5.0 adds verified door preparation, format conversion and static/GPU checks.
-The first real door passes closed-unlatched preparation and is ready for expert qualification. Learned-policy integration remains pending.
+## Setup and Verification
 
-Historical datasets, ACT/Diffusion models, checkpoint loading and offline training
-remain available. Full generation and learned evaluation currently stop with a
-migration explanation before simulator startup. Old checkpoints cannot execute
-as Purdue policies.
+Use Python 3.11+ from the supported workstation stack: Isaac Sim 6.0.1 and
+Isaac Lab `release/3.0.0-beta2`, plus the external Alex package with Purdue/WSG,
+measured pedestal and ZED Wide assets. Isaac, PyTorch and CUDA are supplied by
+that runtime, not installed as package dependencies.
 
-See [Project Status](knowledge/wiki/status.md) for evidence and remaining work,
-and [Phase 4](knowledge/wiki/implementation_phases/phase-4-robot-and-task-configuration.md)
-for the operational contract. No command controls physical hardware.
-
-Use [Phase 5](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
-for `scripts/prepare_doors.py` commands and the pre-download candidate checklist.
-
-## Requirements
-
-- Python 3.11 or newer through the supported Isaac Lab runtime.
-- Isaac Sim 6.0.1 and Isaac Lab `release/3.0.0-beta2`.
-- The external Alex package with Purdue/WSG, measured pedestal and pinned ZED Wide assets.
-
-Do not use bare system `python3` for Isaac code.
-
-## Installation and validation
+From the checkout:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e /home/pacquadr/Desktop/Alex
-PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e ".[dev]"
-PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/check_env.py
-PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q
+/home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e '.[dev,diffusion]'
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/check_env.py
+/home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q
+ruff check src scripts tests
 ```
 
-Run the complete operational GPU gate:
+Model tests use CUDA and explicitly skip if unavailable. Pure numerical tests do
+not require a simulator. Run the Purdue integration gate on synthetic fixtures:
 
 ```bash
-PYTHONPATH=$PWD /home/pacquadr/IsaacLab/isaaclab.sh -p \
-  scripts/verify_purdue_runtime.py --viz none --device cuda:0
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_purdue_runtime.py \
+  --viz none --device cuda:0
 ```
 
-Reports, numeric traces and camera samples default to
-`~/.cache/alexdoor-xas/verification/purdue/`; `--output` selects another location.
-`--gate contacts` and `--gate rgbd` run focused diagnostic subsets; only `all`
-can establish complete Subphase 4.0 evidence. `--no-cameras` is diagnostic only.
+Reports default to `~/.cache/alexdoor-xas/verification/purdue/`; use `--output`
+for another location. `--gate contacts`, `--gate rgbd` and `--no-cameras` are
+focused diagnostics; only the complete gate establishes full runtime evidence.
 
-The public acquisition sample is `env.capture.sample`. It contains RGB, depth in
-meters, a valid-depth mask, seven arm and two neck positions/velocities, simulation
-time, episode and frame IDs. Model resizing, history and learning integration are
-deferred to Phase 6.
+## Repository Layout
 
-## Repository layout
-
-```text
-src/alexdoor_xas/   package code for the benchmark, data, policies, and evaluation
-scripts/            operational verification, B1 preparation and offline training
-configs/            frozen synthetic setup, historical calibration and offline policies
-tests/              deterministic regression and contract tests
-knowledge/          user-owned raw research and the official technical wiki
-datasets/           reusable local episodes, splits, and normalization artifacts
-outputs/            canonical D0-D4 scenes and learned-policy runs
-```
-
-Machine-local assets, datasets, checkpoints, videos, logs, and runtime caches remain outside Git.
+| Path | Purpose |
+|---|---|
+| `assets/doors/b1/` | Canonical door records and ignored source/final payloads. |
+| `src/alexdoor_xas/` | Runtime, preparation and reusable learning components. |
+| `scripts/` | Supported verification, synthetic setup and door intake. |
+| `configs/` | Frozen common Purdue synthetic probe. |
+| `tests/` | Behavioral regressions and GPU model checks. |
+| `knowledge/` | User-owned raw research and canonical wiki. |
+| `datasets/`, `outputs/` | Local future datasets/results; payloads ignored. |
 
 ## Documentation
 
-- [Technical Wiki](knowledge/wiki/index.md)
-- [Project Status](knowledge/wiki/status.md)
-- [System Architecture](knowledge/wiki/topics/system-architecture.md)
-- [Action Representations and Adapters](knowledge/wiki/topics/action-representations-and-adapters.md)
-- [Episode and Dataset Contracts](knowledge/wiki/topics/episode-and-dataset-contracts.md)
-- [Learned Policy Stack](knowledge/wiki/topics/learned-policy-stack.md)
-- [Alex V2 Benchmark](knowledge/wiki/topics/alex-v2-benchmark.md)
-- [Output Contract](outputs/README.md)
+- [Project Status](knowledge/wiki/status.md) — current state, limits and next action.
+- [Technical Wiki](knowledge/wiki/index.md) — canonical navigation.
+- [Phase 5](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md) — asset contract, corpus, intake commands and qualification protocol.
+- [Architecture](knowledge/wiki/topics/system-architecture.md) — runtime and data boundaries.
+- [Data Components](knowledge/wiki/topics/episode-and-dataset-contracts.md) and [Policy Components](knowledge/wiki/topics/learned-policy-stack.md) — maintained interfaces.
 
 ## License
 
-This repository is proprietary. 
-No license grant is provided unless a separate license file or written agreement states otherwise.
+This repository is proprietary. No license grant is provided unless a separate
+license file or written agreement states otherwise. Individual door assets retain
+their recorded third-party terms and distribution scopes.

@@ -1,367 +1,47 @@
 # Project Status
 
-Current as of 2026-09-24. Subphases 4.0 and 4.1 are implemented and GPU-verified.
-Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Thirty-two distinct doors pass static, visual and isolated
-GPU checks in the common closed-unlatched state and are ready for Subphase 5.1. See
-[[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
-for commands, supported formats, admission rules and evidence.
+Current as of 2026-09-24. The maintained project is **B1**; B0 execution,
+compatibility, dataset payloads and run orchestration are retired.
 
-Shakya Sidd's CC BY 4.0 animated-door pack adds three distinct single leaves
-(`Door1`–`Door3`), each selected with its source frame and hinges. A 1.65
-uniform size normalization gives prepared leaves about 0.839 × 1.946–1.954 m;
-their original right-hand hinge side is retained. The source geometry has
-essentially no jamb clearance, and a measured leaf/hinge overlap remains at a
-1% moving fit, so all three use the documented 2% fit. Frame, leaf, handle,
-glass and hinge collisions are retained. Static checks, both actually viewed
-RTX images and one short RTX 4090 run per door pass at geometry-derived stops
-90.7°, 90.7° and 91.8°, with three resets, stable frames and zero reported
-penetration. The prepared scopes are now twenty-nine redistributable, two
-local-only and one private/noncommercial. Robot/expert qualification is pending.
+| Area | Current state |
+|---|---|
+| 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
+| 4.1 — Common setup | Frozen and verified on four synthetic doors. |
+| 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
+| 5.1 — Expert qualification | Not implemented/run on real doors; final corpus and 12/4/8 split pending. |
+| 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
-Icevanilla's CC BY 4.0 front PSX pack adds four prepared single leaves:
-`001`, `002`, `005` and `008`. The `003` double leaf is excluded; `006` exactly
-duplicates an earlier prepared door. Parts `001` and `005` use a reviewed 2%
-moving fit; `002` and `008` use 1.3%. All preserve modeled frame, leaf,
-glass and handle collisions. `008` joins two material surfaces into one panel
-collider to remove a 6.7 mm PhysX thin-surface inflation. Both RTX views were
-actually inspected, and one RTX 4090 run per door passes at geometric stops
-84.4°, 166.2°, 94.1° and 121.2°, respectively, with three resets, stable
-frames and zero reported penetration. The prepared leaves are 0.814 × 1.972 ×
-0.067 m (`001`), 0.815 × 1.947 × 0.092 m (`002` and `008`) and 0.816 × 1.969 ×
-0.092 m (`005`); only `005` is right-handed. Distinct part `007` remains
-unresolved: its in-frame surfaces intersect, while the diagnostic surface mount
-passes geometry but looks detached in both views. It was not promoted or run
-in GPU physics. At that intake milestone the license counts were twenty-six
-redistributable, two local-only and one private/noncommercial. Robot/expert
-qualification is pending.
+## Next Action
 
-Icevanilla's CC BY 4.0 wooden interior PSX pack adds six distinct prepared
-single-leaf doors: `002`, `003`, `005`–`008`. Each has a separate source frame,
-leaf and paired collidable handles. The prepared left-handed leaves are
-0.757 × 1.809 × 0.086 m. The pivot is inferred from each opening face and a
-1.3% uniform moving fit supplies clearance; no latch collision is removed.
-Static checks, both viewed RTX previews and one short RTX 4090 run per door
-pass at a geometry-derived 121.2° stop, with three exact resets, stable frames
-and zero reported penetration. Pack parts `001` and `009` exactly duplicate
-earlier accepted doors; `004` repeats `003` panel geometry with an appearance
-and minor handle-placement change. They are excluded from the identity count.
-The current license counts are twenty-two redistributable, two local-only and
-one private/noncommercial. The prepared pool can exceed the final 24-door
-expert-qualified corpus; 5.1 selection and the robot probe are still pending.
+Implement [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]:
+apply the frozen common probe, obtain two valid runs per candidate, derive
+`theta_expert_d` and select the qualified domain. Preserve acquired preparation
+results; do not rerun door preparation merely because metadata was simplified.
 
-Hawtor Studio's CC BY 4.0 interior wood pack contributes **one** new geometric
-door, `interior-wood-d1-32707dc`. The second advertised door changes material
-but has the same leaf and frame geometry, so it is recorded as an appearance
-variant and excluded from the identity count. D1 retains its original frame,
-paired handles and hinges. Reviewed frame-rebate colliders, local hinge contact
-filters and a 1.3% uniform moving fit resolve source contact without dropping
-leaf, frame or handle collision. Only its latch tongue loses collision in the
-closed-unlatched task state. Attempt `000016` passes static checks, both viewed
-RTX previews and one short RTX 4090 run to the geometry-derived **54.2°** stop,
-with three exact resets, stable frame and zero reported penetration. The prepared
-left-handed leaf is 0.826 × 2.073 × 0.083 m. The previous license counts were
-sixteen redistributable, two local-only and one private/noncommercial. Original
-USDZ and prior attempts are preserved; robot/expert qualification remains pending.
+## Limits
 
-The industrial Icevanilla PSX pack now contributes four prepared single doors:
-`001`–`004`, with CC BY 4.0 source/atlas and the double door excluded. The earlier
-intersection findings applied to recessed closed poses; reviewed surface mounting
-recovers the slabs without extending the 2% moving-fit limit or disabling collision.
-`001` reuses the source pack frame already selected; `002` uses a user-approved
-adaptation of that frame's aperture while preserving its profiles; `003` retains
-its source frame; `004` retains its projecting lintel and clears it with the
-existing 2% fit. All four pass static, viewed front/rear RTX captures and one
-RTX 4090 run each to 91.0/91.1/91.0/91.0 degrees, with exact resets, stable frames
-and zero reported penetration. These are explicitly inferred simulation mounts;
-robot/expert qualification remains pending. `005` is independently confirmed as
-a geometry variant of `003` and is not counted or split as a separate identity.
-The fourteen earlier accepted doors and all original/failed attempts are preserved.
+Preparation does not establish robot reachability. The prison metal door retains
+its 23.1° geometric stop; expert selection has not been performed. Rights scopes
+constrain sharing independently of technical readiness.
 
-The previously prepared five doors come from Icevanilla's CC BY 4.0 PSX door pack. The
-double-leaf closet is excluded; bathroom, two geometrically distinct wooden,
-worn wooden and front doors were selected with their matching frames and shared
-licensed texture. Each selected geometry fingerprint is distinct from the other
-four and the nine earlier doors. All five are left-handed in the canonical push
-convention, with prepared leaves 0.757 × 1.809 × 0.086 m (four) or
-0.815 × 1.947 × 0.092 m (front). Reviewed 1.3% moving-assembly fitting and
-measured centering resolve an early source leaf/jamb contact while retaining
-frame, leaf, handles and window collision. Static checks, ten viewed RTX preview
-images and one short RTX 4090 physics run per door pass; stops range 121.2–121.4
-degrees, with three exact resets, stable frames and zero reported penetration.
-At that intake milestone, distribution counts were eleven redistributable,
-two local-only and one private/noncommercial. The four industrial additions
-bring the current counts to fifteen, two and one respectively. Original pack and
-earlier attempts remain; no robot/expert qualification has run.
+RGB-D acquisition is operational; learned door perception is not. Simulator
+contact/hinge truth remains diagnostic and cannot become policy input. B1 action,
+perception and training contracts are defined in Phases 6–7, not by retained
+state-vector model utilities. Simulation checks do not establish hardware safety.
 
-The ninth source, `door-door-metal-b21ec273` (Mehdi Shahsavan, CC BY 4.0), is
-prepared in attempt `000004`. Its modeled U-frame and leaf are welded in the
-source mesh; reviewed whole-face separation preserves both surfaces, UVs and
-textures. A 0.4% moving fit supplies jamb clearance without removing collision
-from the leaf, frame, pane or bar. The right-handed leaf measures
-0.926 × 2.150 × 0.054 m. Both RTX previews were viewed; static and one short RTX
-4090 run pass with three exact resets, fixed frame, zero reported penetration
-and a **59.8-degree** geometric stop. The original USDZ and earlier attempts
-remain. The hinge is inferred; robot/expert qualification is still pending.
+## Maintained Surfaces
 
-The eighth source, `door-prison-metal-old-45306a46` (Mehdi Shahsavan, CC BY 4.0),
-is prepared in attempt `000006`. The USDZ includes open and closed display copies;
-a documented local USDC selects the original closed single-leaf assembly without
-altering its meshes or maps. The 0.902 × 1.960 × 0.058 m leaf is left-handed.
-Reviewed 2% fitting, frame partitions and a convex leaf envelope resolve source
-contacts and collider coverage; only the small latch tongue loses collision in
-the common closed-unlatched state. Static, both viewed RTX captures and one short
-RTX 4090 run pass with three exact resets, stable frame and zero reported
-penetration. The prepared geometric stop is only **23.1 degrees**. This limitation
-is carried to 5.1; robot/expert qualification has not run. The original USDZ and
-earlier attempts remain intact.
+- [[topics/system-architecture|Architecture]] — runtime and storage boundaries.
+- [[topics/purdue-b1-robot-and-contact|Purdue contract]] — control, sensing and physics.
+- [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] — asset
+  contract, 32-door table, intake and qualification protocol.
+- [[topics/episode-and-dataset-contracts|Data components]] and
+  [[topics/learned-policy-stack|Policy components]] — reusable numerical utilities.
 
-The seventh source, `door-5035d7977155` (Nikolayy, CC BY 4.0), is prepared in
-attempt `000007`. Reviewed 2% fitting, an 18 mm opening-face shift, rebated-frame
-collider partitions and a convex leaf collider resolve source/modeling clearance
-and cooking defects while retaining leaf, frame, handle and hardware collision.
-The visible hinge barrels locate the ideal axis. The 0.929 × 1.958 × 0.071 m leaf
-is left-handed. Static and both viewed RTX previews pass; one RTX 4090 run reaches
-the 194.4-degree geometric stop with exact resets, stable frame and zero reported
-penetration. The original and prior attempts remain; robot/expert qualification
-is pending.
+Supported commands are `check_env.py`, `prepare_doors.py`,
+`verify_door_preparation.py`, `verify_purdue_runtime.py`, `verify_synthetic_setup.py`
+and `screen_synthetic_setup.py`. Verification reports stay in the runtime cache.
 
-The sixth source, `door-adf292f437f2` (hoschu, CC BY 4.0), is now prepared in
-attempt `000002`. The initial missing-frame verdict was incorrect: a modeled
-U-shaped frame was welded to a front-only leaf. Reviewed whole-face separation
-preserves the frame and front; an explicitly inferred flat rear supplies leaf
-thickness. A 0.4% fit gives a 0.930 × 2.156 × 0.053 m left-handed leaf. Static,
-viewed RTX previews and one RTX 4090 run pass at the 176-degree geometric stop,
-with exact resets, stable frame and zero reported penetration. Rear appearance,
-thickness and hinge placement are documented approximations; robot/expert
-qualification remains pending. The five earlier assets are unchanged.
-
-The fifth source, `door-2738468b94d74c5f` (DJMaesen, CC BY 4.0), is now
-prepared in attempt `000008`. Its internal pin/barrel mesh overlaps are represented
-by the ideal revolute joint with explicit contact-pair filters; external hinge,
-leaf, frame and handle collisions remain enabled. Correcting the measured pin
-axis, opening side and inflated plate hulls resolves the previous blocker without
-further shrinking or relaxed physics tolerances. The prepared 0.945 × 2.038 ×
-0.050 m leaf is left-handed in the canonical push convention. Static and viewed
-RTX previews pass; one RTX 4090 run reaches 113.1 degrees with exact resets,
-0.000191-degree passive drift, zero frame drift and no reported penetration.
-The detailed bearing is an approximation; robot/expert qualification remains pending.
-
-The fourth supplied source, `void-frame-studio-animated-classic-door-08bdf51b`,
-is CC BY-NC-ND 4.0. Its initial source-review failure is superseded by a
-user-approved `private_noncommercial` scope: no commercial use or sharing adapted
-assets. Both original downloads have degenerate triangles; a local GLB copy omits
-only 7,787 negligible-area triangles and passes inspection with 184,865 triangles.
-After reviewed 2% moving-assembly fitting, 3.1 mm translation and grouped
-hardware collision, attempt `000008` passes static and viewed front/rear previews.
-On RTX 4090 it reaches the geometric 91-degree limit with three exact resets,
-zero frame drift and zero reported penetration. The 0.819 × 2.283 × 0.035 m leaf
-is left-handed in the canonical push convention. It is ready for 5.1 within its
-private/noncommercial scope; both downloads and earlier attempts are preserved.
-
-The next supplied source, `modern-door-2fb8d024`, has a Sketchfab Free Standard
-license. Its earlier CC-only rejection is superseded by the approved local-only
-intake scope. The GLB now passes preparation in attempt 000012 after grouped
-solid-leaf cooking, a documented 0.4% uniform moving-assembly reduction for side
-clearance, and an inferred opening-face hinge. Isolated RTX 4090 physics reaches
-the geometry-derived 93-degree limit with stable resets/frame and no reported
-penetration. Robot/expert qualification remains pending. Local-only source and
-normalized assets must remain
-with the authorized licensee and outside shared asset packages.
-
-The third supplied source, `door-with-doorframe-c29da62c`, now passes local technical
-preparation. Sketchfab's NoAI restriction concerns programs designed to generate
-new content; B1 policies output robot actions, so that label alone does not
-establish incompatibility. The original downloads contain Poliigon-named textures
-with unverified ML rights. A geometry-identical local GLB removes all nine source
-images and uses independently authored flat materials; the original downloads
-remain untouched. Source review and inspection pass for this local-only derivative.
-The earlier 1% recipe genuinely overlaps the frame. Attempt `000009` resolves it
-with reviewed 2% uniform fitting, 0.99 mm hinge-side translation and a corrected
-hinge-side canonical rotation. The leaf is 0.879 × 2.097 × 0.080 m and left-handed
-in the canonical push convention. Static and visual checks pass; RTX 4090 reaches
-161.2 degrees with stable resets/frame and no reported penetration. It is promoted
-as local-only; it was the third ready door, with 5.1 still unrun. Flat local
-materials suffice for preparation; later Replicator variation must use permitted
-materials. Physics tolerances and the frozen setup are unchanged.
-
-The common setup is frozen in `configs/purdue_synthetic_probe.json`: all four
-exact-width synthetic doors exceed 45 degrees through sustained contact and safe
-release. Paired minima are 66.15/77.91 degrees for left/right 0.65 m doors and
-46.35/48.07 degrees for left/right 1.20 m doors. Repeats agree exactly and retain
-the same safety-stop cause. The fixed head view passes all eight full cycles.
-Code and tests define executable behavior.
-
-## Current Runtime
-
-The sole registered robot environment is `AlexDoor-DoorPush-Purdue-v0`: fixed-base
-Purdue Alex003, measured pedestal, WSG32/UMI v1, seven right-arm joints and head
-ZED X Mini Wide. It supports the original panel/frame/handle commissioning fixtures and optional
-articulated synthetic doors for common-setup qualification. It is not a learned
-training task.
-
-- A1 addresses all seven joints; A2 actuates tool translation and rotation;
-  A3 transforms an explicitly supplied frame into A2.
-- Gravity compensation uses the model, with external PD gains and physical limits.
-- Raw contact diagnostics resolve imported rigid owners and distal-finger points.
-  Exact panel partners are authorized; other contact surfaces/partners are rejected.
-  Force reports include normal components only.
-- RGB-D at 960 × 600 is captured with arm/neck proprioception, time and frame IDs.
-  Valid depth contains no segmentation or simulator object labels. The Gym policy
-  tensor remains proprioception-only until Phase 6; capture is reusable separately.
-
-See [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] and
-[[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] for
-interfaces, numerical defaults, verification and approximation limits.
-
-## Migration Boundary
-
-B0 robot execution, calibrated scripted preset and simulator asset loader are
-retired. Existing datasets, checkpoint loading, model training and historical
-results remain available. Calibration/manifests needed to interpret the historical
-offline contracts are retained; they are not Purdue configuration.
-
-Full generation and learned-policy evaluation commands now fail clearly before
-simulator startup or output creation. B0 checkpoints are never reinterpreted as
-Purdue-compatible models. Generic data/adapter components remain tested for their
-software contracts, without claiming B1 learned execution.
-
-## Verification
-
-The dependency/CUDA preflight passes on the RTX 4090. The last full software run
-passed 350 tests, including historical data/model contracts. The subsequent rebate
-correction passed 29 focused preparation/qualification tests, Ruff, wiki-link/index
-checks and one complete synthetic GPU regression. The subsequent closed-unlatched
-change passed 14 focused preparation tests and one real-door GPU run; unrelated
-checks were not repeated.
-The modern-door repair passes 20 focused preparation tests, static/visual checks
-and one RTX 4090 functional run. Shared recipes now support reviewed solid-surface
-collider groups and bounded uniform clearance fitting; the frozen setup is unchanged.
-GPU checks pass three stable resets, seven-joint/full-pose control, loaded distal
-contacts and forbidden-contact detection, and synchronized metric head RGB-D.
-The local pose targets remain within 0.0204 mm / 0.00209 degrees during their
-0.5 s holds; this is synthetic commissioning evidence, not hardware accuracy.
-
-The complete post-integration regression passes in
-`~/.cache/alexdoor-xas/verification/purdue-after-41/`.
-The original 4.0 run is retained in the sibling `purdue-final/` directory.
-Targeted final checks in sibling `purdue-final-rgbd/` and `purdue-final-contacts/`
-verify reset renderer settling and force direction. Numerical traces, raw contact
-records and representative images are retained. The separate D0 door-only GPU
-smoke also passes; it establishes no B1 corpus qualification.
-
-`~/.cache/alexdoor-xas/verification/door-preparation-50/` adds four normalized
-synthetic doors with passing static/GPU reset, drift, hinge and opening checks.
-All eight supported input suffixes pass textured conversion checks; malformed
-assets and an injected physical obstruction are detected. Front/rear textured
-previews were rendered and inspected. A later real-door run in
-`assets/doors/b1/door-with-frame-2f2f149f/attempts/000007/` passes technical readiness
-under the closed-unlatched policy. No expert reference is qualified.
-
-The launcher still warns that `setup_conda_env.sh` is absent. Its actual Python,
-Isaac provenance, Alex assets, ZED dependency and CUDA preflight pass. No runtime
-installation or driver modification was made.
-
-## Maintained Entry Points
-
-- `scripts/check_env.py` — supported runtime and Purdue/pedestal/ZED preflight.
-- `scripts/verify_purdue_runtime.py --viz none --device cuda:0` — complete operational gate.
-- `scripts/screen_synthetic_setup.py` — GPU kinematic candidate screening only.
-- `scripts/verify_synthetic_setup.py` — synthetic physics, controlled probe and candidate search;
-  see Phase 4 for arguments and the frozen setup/qualification boundary.
-- `scripts/verify_benchmark_scene.py` and `scripts/verify_adapters.py` — route to that same gate.
-- `scripts/verify_dataset_interface.py` — retained historical dataset interface checks.
-- `scripts/train_policy.py` — offline training on existing supported data.
-- `scripts/prepare_doors.py` — B1 review, inspect, normalize, static, physics, preview and promote.
-- `scripts/verify_door_preparation.py` — synthetic infrastructure and format verification.
-- `scripts/prepare_phase4_1_assets.py`, `scripts/normalize_phase4_1_door.py`,
-  `scripts/verify_phase4_1_doors.py` — retained legacy preparation, with the limits below.
-
-`eval_policy.py`, `run_scripted_baseline.py`, `verify_policy_rollout.py` and
-`verify_scripted_baseline.py` are explicit migration stops, not available B1 workflows.
-
-## Legacy Preparation and Storage
-
-Preparation still assumes the B0 anchor, simple panel/jamb/header collision boxes,
-non-colliding handles, 0–90-degree stops and the previous mass/damping template.
-Its physics inspection now instantiates only the door: it measures reset, drift
-and applied-torque response, not collision-consistent robot qualification.
-The new Phase 5.0 workflow replaces these assumptions for B1 preparation; the
-legacy commands remain separate and cannot admit B1 candidates.
-The ignored worklist and all local assets were preserved.
-
-Historical D0–D4 layers, datasets and policy outputs are unchanged. Verification
-reports and images live in the project cache; no generated dataset, corpus,
-training run or media was added to the tracked output tree.
-
-## Next Phases
-
-The common floor/contact/neck setup and expert protocol are frozen on synthetics.
-The first candidate, `door-with-frame-2f2f149f`, is technically ready for 5.1 after
-explicitly omitting latch/lock bolt collisions for the common closed-unlatched task.
-It reaches 188 degrees in isolated GPU physics with stable resets/frame and no
-reported penetration. The leaf, frame and handles retain their collisions.
-Twenty-nine distinct real doors are prepared. Start the unchanged
-common robot/expert protocol in 5.1 only when requested; the next-candidate
-[[implementation_phases/phase-5-door-corpus-and-qualification|handoff]] remains
-available for further sequential intake. Expert qualification, the final corpus
-and split are still pending.
-Phase 6 integrates observations and all learned A1–A4 paths, then a demonstration
-pilot. Phase 7 owns training and generalization evaluation.
-
-There is no active gaze, wrist-camera requirement, corpus download, physical
-robot control, hardware-safety claim or sim-to-real qualification in 4.0–4.1.
-
-## Historical Results
-
-The completed scale study used 550 matched A2/A3 episodes across D0-D4 with nested N50, N100, N250, and N500 training views. Sixteen ACT/Diffusion x A2/A3 x data-size cells were evaluated over 576 rollouts. Every rollout succeeded, so the benchmark did not select a policy family, representation, or dataset size.
-
-One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick peak. Two +/-1 mm door-position perturbations reduced the peak, but the original cell remains `REVIEW_REQUIRED`.
-
-These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
-
-## Version Notes
-
-- 2026-09-24 — Prepared four distinct CC BY 4.0 Icevanilla front PSX doors, with viewed RTX previews and one passing RTX 4090 run each. Excluded the double door and one exact duplicate; a fifth distinct single leaf remains unresolved on visual alignment and closed contact. Twenty-nine doors are ready; no robot/expert qualification ran.
-
-- 2026-09-24 — Prepared six distinct CC BY 4.0 Icevanilla wooden interior PSX doors; three pack parts were excluded as duplicates or appearance variants. Static checks, viewed front/rear RTX previews and one RTX 4090 run per door pass at 121.2 degrees. Twenty-five doors are ready; robot/expert qualification remains pending.
-
-- 2026-09-24 — Prepared one distinct CC BY 4.0 door from Hawtor Studio's two-style interior wood pack; D2 is a material-only duplicate. D1 passes static, viewed front/rear RTX previews and one RTX 4090 run to its 54.2-degree geometric stop. Nineteen doors are ready; robot/expert qualification remains pending.
-
-- 2026-09-23 — Recovered four industrial PSX doors with reviewed surface mounting and a user-approved frame adaptation for 002; one RTX 4090 run per door passes around 91 degrees. Eighteen doors are ready; 005 remains a duplicate variant and the 2% moving-fit limit is unchanged.
-
-- 2026-09-23 — Reviewed the industrial PSX pack: five single-leaf selections, one double leaf excluded. Three bounded normalization attempts fail on evidenced source leaf/frame crossings; one group lacks a compatible frame and another duplicates geometry. No new door is ready; the prior fourteen remain.
-
-- 2026-09-23 — Prepared five distinct CC BY single-leaf doors from Icevanilla's PSX pack; excluded the double-leaf closet. Static, viewed previews and one RTX 4090 run per door pass. Fourteen doors are ready for 5.1; expert qualification remains pending.
-
-- 2026-09-23 — Prepared Mehdi Shahsavan's CC BY prison door from its original closed assembly; static, viewed previews and one RTX 4090 run pass. The prepared stop is 23.1 degrees and awaits 5.1 robot qualification. Eight doors are ready for that phase.
-
-- 2026-09-23 — Prepared Nikolayy's CC BY door with measured hinge barrels, reviewed clearance fit and retained collisions; static, viewed previews and one RTX 4090 run pass at 194.4 degrees. Seven doors are ready for 5.1.
-
-- 2026-09-23 — Corrected hoschu frame ownership: separated the modeled welded frame/leaf, backed the open leaf, and passed static, viewed previews and one RTX 4090 run to 176 degrees. Six doors are ready for 5.1; original source preserved.
-
-- 2026-09-23 — Inspected hoschu's CC BY door: 1,577 triangles and four components, but no separable fixed frame. Stopped at the asset-shape filter before normalization or GPU checks; five earlier doors remain ready for 5.1.
-- 2026-09-23 — Repaired DJMaesen preparation with reviewed internal hinge contact pairs, a measured pin axis and corrected opening side; static, viewed previews and one RTX 4090 run pass at 113.1 degrees. Five doors are ready for 5.1; expert qualification remains pending.
-
-- 2026-09-23 — Reviewed DJMaesen's CC BY door and its USDZ; inspection passes, but the maximum fit and a small shift leave true internal hinge crossings. The candidate is held before static/visual/GPU gates; four doors remain ready for 5.1.
-- 2026-09-23 — Prepared Void Frame Studio's door under private/noncommercial scope; local removal of negligible-area triangles, 2% fitting and reviewed hardware colliders pass static, visual and one RTX 4090 run. Four doors are ready for 5.1.
-- 2026-09-23 — Recovered Theocritus door with reviewed 2% fitting and corrected hinge-side mounting; 25 focused tests and one RTX 4090 run pass. Three doors are ready for 5.1, including two local-only.
-- 2026-09-23 — Prepared a texture-free local derivative of Theocritus's door; source and inspection pass, but normalization remains blocked by a genuine leaf/frame overlap at the current 1% fitting limit.
-- 2026-09-23 — Corrected Theocritus source review to `unresolved`: NoAI alone does not show a conflict with action policies, while Poliigon-named texture rights remain unverified.
-- 2026-09-23 — Initially rejected Theocritus's NoAI-marked door before preparation; that source decision is superseded by the correction above.
-
-- 2026-09-23 — Inspected the supplied modern-door GLB; matching surface geometry and a separate opening obstruction leave normalization unresolved without a supported hinge/clearance correction.
-
-- 2026-09-23 — Added local-only Sketchfab Free Standard intake for internal B1 study while keeping CC-only assets as the redistributable class; the modern-door USDZ has an unresolved closed-pose collider issue.
-
-- 2026-09-23 — Rejected the Ahmed sayed modern-door source at the Phase 5.0 license gate; kept the local download intact and recorded no technical preparation claim.
-
-- 2026-09-23 — Adopted closed-unlatched preparation and proportionate checks; the first real door now passes and is ready for 5.1.
-
-- 2026-09-23 — Corrected rebated-frame preparation and verified the first candidate has an original latch/strike intersection; retained it without promotion.
-
-- 2026-09-23 — Inspected the first user-supplied real door; recorded source evidence and an unresolved preparation outcome without claiming physical qualification.
-- 2026-09-23 — Verified Subphase 5.0 preparation infrastructure, conversion paths and static/GPU gates; awaiting the first candidate URL.
-- 2026-09-22 — Implemented Purdue operational integration and retired B0 execution, preserving historical readers and isolated door preparation.
-- 2026-09-22 — Completed preparatory cleanup and revised the B1 nine-subphase plan.
-- 2026-08-13 — Recorded the historical B0 system and approved held-out-door study.
+Historical B0 scientific conclusions and their limits remain in
+[[topics/alex-v2-benchmark|B0 record]] and the experiment pages. The saturated
+576-rollout study selected no winner; its 219.95 N event remains under review.

@@ -12,12 +12,12 @@ Replace provisional robot assumptions with the fixed-base IHMC Alex V2 door benc
 
 This work validated the Alex V2 asset and joint order, derived the collision tool point, introduced offset-point Jacobian control, and added door-panel force sensing.
 
-Generic Alex construction later moved to the external `ihmc_alex_isaaclab` package. The current repository retains only door-specific calibration, position-only IK, scene, contact, and task behavior.
+Generic robot construction moved to the external Alex package. B0 task calibration, manifests and execution are historical at Git `9c16e3d`; Purdue replaces that runtime.
 
 #### Key Decisions
 
 - Requested rotation remains represented but is not actuated.
-- `configs/alex_v2_door.json` is the only active task calibration.
+- The historical task used one calibration, with exact-panel contact filtering.
 
 #### Problems / Limitations
 
@@ -26,10 +26,8 @@ Generic Alex construction later moved to the external `ihmc_alex_isaaclab` packa
 
 ## Artifacts
 
-The current calibration JSON and canonical D0-D4 layers are operational inputs, not historical phase packages.
+The calibration and D0–D4 layers were retired. Git retains their source; scientific results remain in the experiment pages.
 
 ## Files
 
-- `configs/alex_v2_door.json`
-- `src/alexdoor_xas/assets/alex_v2.py`
-- `src/alexdoor_xas/envs/door_task/`
+No B0-specific implementation remains active.

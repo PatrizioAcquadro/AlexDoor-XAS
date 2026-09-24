@@ -24,7 +24,7 @@ All sixteen seed-0 cells completed on Gilbreth and returned checkpoints that loa
 
 ## Artifacts
 
-The historical checkpoints and run packages are not part of the active repository tree. Their code history remains in Git.
+The historical checkpoints and run packages are not part of the active repository tree. The study record remains in Git at `7f1fc8c`.
 
 ## Files
 

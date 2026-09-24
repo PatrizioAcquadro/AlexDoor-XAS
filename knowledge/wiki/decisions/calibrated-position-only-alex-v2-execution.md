@@ -2,8 +2,8 @@
 
 > Applies to the retired B0 Alex V2 implementation only. The approved
 > [[decisions/visuoproprioceptive-generalization-benchmark|B1 design]] supersedes
-> this execution choice with seven-joint Purdue tool-pose control. That migration
-> remains planned; do not rewrite B0 results as seven-joint or orientation-controlled.
+> this execution choice with seven-joint Purdue tool-pose control. Purdue control is implemented; do not reinterpret B0 results as seven-joint
+> or orientation-controlled. The B0 source is historical at Git `9c16e3d`.
 
 ## Context
 
@@ -13,14 +13,14 @@ The Alex V2 benchmark needs a reproducible controller at the physical gripper co
 
 Use the fixed-base Alex V2 torso, the six calibrated right-arm joints, and position-only differential IK at the collision-derived tool point. Keep rotational A2/A3 components in data and adapter decisions, but do not command them to the robot.
 
-Use `configs/alex_v2_door.json` as the only task calibration. Generic Alex construction remains in the external `ihmc_alex_isaaclab` package; door calibration, IK, contact selection, and safety semantics remain local.
+The historical implementation used one task calibration and external Alex construction. Its calibration, manifests and B0 runtime were retired.
 
 Accept task force only from exact-door raw PhysX contact selection. Geometric contact may be recorded for diagnosis but cannot replace sensed force.
 
 ## Consequences
 
-- The current action execution is intentionally translation-only.
-- Calibration changes require the benchmark, scripted-baseline, and adapter gates.
+- The historical B0 execution is intentionally translation-only.
+- Calibration and contact checks were required before interpreting B0 results.
 - The controller is specialized to the single-environment simulated Alex V2 benchmark.
 - Simulator force thresholds and success do not establish physical-robot safety.
 

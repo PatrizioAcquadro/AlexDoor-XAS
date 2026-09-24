@@ -70,7 +70,7 @@
           -0.0427
         ]
       },
-      "review": "The source's 96-face connected body contains a modeled U-frame and leaf joined at their contour. Whole-face selection takes 66 original leaf/window-surround faces and leaves 30 original jamb/header faces at component 1. Preserve all original vertices, UVs and material."
+      "review": "Split the welded body into 66 leaf/window-surround faces and 30 U-frame faces; preserve all original vertices, UVs and material."
     }
   ],
   "moving_scale": 0.996,

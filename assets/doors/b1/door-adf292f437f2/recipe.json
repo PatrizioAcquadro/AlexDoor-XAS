@@ -69,7 +69,7 @@
           0.622471
         ]
       },
-      "review": "The outer U comprises two jambs and a header; select all original central leaf faces inside the visible molding boundary. Retain outside faces as Frame at index 2; append the leaf as index 4. Source geometry is welded at this seam; connectivity alone does not establish missing frame."
+      "review": "Separate original central leaf faces from the welded U-frame at the molding boundary; preserve vertices, UVs and materials."
     }
   ],
   "shell_backings": [
@@ -77,7 +77,7 @@
       "component": 4,
       "axis": "x",
       "plane": 0.01,
-      "review": "Source leaf is a front-only relief. Preserve every front triangle/UV; add a flat rear at inspected X=0.01 and close its boundary. The inferred thickness is about 53.6 mm at 0.75 scale. Rear repeats the source front UVs; this is an explicit simulation reconstruction, not recovered source geometry. Frame retains its original profile and bounded volumetric colliders."
+      "review": "Infer a flat rear at inspected X=0.01 and closed boundary, giving 53.6 mm thickness at scale 0.75. Preserve front geometry/UVs; rear reuses front UVs, not recovered source geometry."
     }
   ],
   "colliders": {

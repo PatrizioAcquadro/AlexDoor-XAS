@@ -12,13 +12,13 @@ Train and evaluate state-only ACT and Diffusion policies through shared data, ad
 
 This phase introduced validated A2/A3 model data, ACT, Diffusion, adapters, checkpoint loading, and matched closed-loop evaluation. The scientific study later expanded to a sixteen-cell policy/representation/data-size matrix.
 
-The maintained successor keeps only direct training, compact self-contained checkpoints, resumable runs, adapter-v1 execution, and immutable per-run closed-loop evaluation. Completed pilot, sweep, transfer, and matrix orchestration were removed.
+Tensor training, model checkpoints, resume state and generic adapters remain. B0 run creation, evaluation, reports and CLI configuration were retired; Git `9c16e3d` preserves that source state.
 
 #### Key Decisions
 
-- Learned policies cover A2 and A3 only.
+- The completed study learned A2 and A3 only.
 - Training/open-loop metrics do not replace simulator evaluation.
-- Checkpoints must match the active Alex V2 robot identity.
+- Runtime execution requires a matching robot identity.
 
 #### Problems / Limitations
 
@@ -33,4 +33,3 @@ Historical conclusions are retained in [[experiments/gilbreth-nested-scale-sweep
 
 - `src/alexdoor_xas/policies/`
 - `src/alexdoor_xas/adapters/`
-- `scripts/train_policy.py`

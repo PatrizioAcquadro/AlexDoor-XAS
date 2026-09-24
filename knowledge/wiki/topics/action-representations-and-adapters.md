@@ -3,17 +3,17 @@
 AlexDoor-XAS changes the action representation while holding the robot, task, physical episode, and evaluation protocol fixed.
 
 Purdue now provides the low-level A1/A2/A3 executor. Phase 6 still owns learned
-A1–A4 integration, estimated object frames, and observations. Historical B0
-adapters/export structures remain readable; they are not the Purdue policy path.
+A1–A4 integration, estimated object frames, and observations. Reusable
+adapter/export structures remain available; they are not the Purdue policy path.
 
 ## Canonical Representations
 
 | Tag | Meaning | Frame and form | Current use |
 |---|---|---|---|
-| `A1_joint_delta` | Joint-target delta | Robot joint coordinates | Seven-joint Purdue execution; historical exports |
-| `A2_ee_delta` | End-effector delta | World-frame 6D delta | Full-pose Purdue execution; historical models |
+| `A1_joint_delta` | Joint-target delta | Robot joint coordinates | Seven-joint Purdue execution; numerical exports |
+| `A2_ee_delta` | End-effector delta | World-frame 6D delta | Full-pose Purdue execution; numerical models |
 | `A3_obj_rel_ee_delta` | Object-relative end-effector delta | Static hinge-anchored door-frame 6D delta | Supplied-frame transform to full-pose A2 |
-| `A4_obj_centric_chunk` | Object-centric contact-intent chunk | Contact targets in the moving panel frame | Historical export/adapter structures; B1 execution deferred |
+| `A4_obj_centric_chunk` | Object-centric contact-intent chunk | Contact targets in the moving panel frame | Reusable export/adapter structures; B1 execution deferred |
 
 Frames are Z-up, distances are meters, angles are radians, and quaternions use `(x, y, z, w)`. The A3 frame is fixed at the hinge with +Z along the hinge axis. A4 contact targets move with the panel.
 

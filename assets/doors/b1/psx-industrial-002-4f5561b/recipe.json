@@ -60,7 +60,7 @@
           ]
         ]
       },
-      "review": "User-approved reuse of Metal_Doorframe_002 from the same CC BY pack. Adapt its aperture to the larger standalone 002 leaf while retaining jamb/header profile widths and depth. Side rails translate outward; connecting spans lengthen. The rectangular header stays behind the arched top outline at the outer-edge height. Original leaf dimensions/shape/UV and frame UVs are preserved; this is a reconstructed mounting, not an original manufacturer assembly."
+      "review": "Adapt the user-approved frame from the same licensed pack to leaf 002: translate rails and extend connecting spans, preserving profiles, depth, UVs and leaf geometry. Mounting is inferred."
     }
   ],
   "modifications": [
@@ -112,5 +112,5 @@
       1.8524754243689032
     ]
   ],
-  "clearance_review": "Preserve the complete 002 slab without extra moving scale. Surface-mount it in front of the explicitly adapted pack frame; about 12.7 mm overlap per jamb at overall scale 0.895, 2 mm depth/floor gaps. Frame opening has approximately 0.888 m width; no decorative surface or collision is removed."
+  "clearance_review": "Surface-mount the unchanged leaf on the adapted pack frame: about 12.7 mm jamb overlap, 2 mm depth/floor gaps and 0.888 m clear width. Preserve all decorative geometry and collisions."
 }

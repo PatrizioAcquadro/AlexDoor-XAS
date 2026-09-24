@@ -102,7 +102,7 @@
         6
       ],
       "approximation": "convexHull",
-      "review": "Component 5 is a two-triangle decorative surface within the component-6 leaf envelope, not a separate mechanical body. Bake them together as one collidable panel solid; keep both visual components and their collision coverage. This avoids PhysX extending the separately cooked thin surface 6.7 mm beyond the visual leaf (attempt 000003 static diagnostic). The decomposition still produces the same 6.7 mm outward hull; a single convex hull of the complete solid is appropriate for this thin low-poly panel."
+      "review": "Components 5/6 form one leaf solid. A common convex hull preserves coverage and avoids the 6.7 mm artificial thickness from separately cooked planar surfaces."
     }
   ]
 }

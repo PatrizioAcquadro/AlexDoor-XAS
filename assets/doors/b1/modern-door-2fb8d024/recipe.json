@@ -192,7 +192,7 @@
         53
       ],
       "approximation": "convexHull",
-      "review": "All Panel components are disconnected/material-separated surfaces of one solid rectangular leaf with shallow front decoration, not independent solids. Use their common convex envelope; retain all visual surfaces and separately collidable pull/keyhole hardware. This fills up to 6.35 mm decorative face grooves, while preserving the physical leaf envelope and eliminating invented thickness on planar skins."
+      "review": "Cook material-separated leaf skins as one convex solid, filling decorative grooves up to 6.35 mm. Preserve visuals and separate pull/keyhole collisions; avoid invented skin thickness."
     }
   ]
 }

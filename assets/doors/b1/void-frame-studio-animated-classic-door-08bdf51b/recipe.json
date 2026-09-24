@@ -199,7 +199,7 @@
         56
       ],
       "approximation": "convexHull",
-      "review": "The white and brass latch-side escutcheon, lock casing and handle-base fragments describe one rigid attached hardware assembly. Several are planar skins whose standalone PhysX decomposition thickens them into the fixed strike plate despite no source-surface crossings after fitting (attempt 000007). Cook a common solid envelope while retaining every visual component, the collidable assembly, and the separate lever-handle colliders. The separate latch tongue 69 remains the only excluded collider."
+      "review": "Cook the attached escutcheon/lock/handle-base skins as one envelope to avoid artificial strike-plate interference. Preserve visuals and separate lever collisions; only latch tongue 69 is excluded."
     }
   ]
 }

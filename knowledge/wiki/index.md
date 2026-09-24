@@ -1,6 +1,6 @@
 # AlexDoor-XAS Technical Wiki
 
-Topic pages distinguish the operational Purdue runtime from retained historical B0 contracts. Implementation-phase pages distinguish planned work from concise historical records; experiment pages retain durable completed results.
+Topic pages distinguish the operational Purdue runtime from historical B0 results. Implementation-phase pages distinguish planned work from concise historical records; experiment pages retain durable completed results.
 
 ## Project Status
 
@@ -14,7 +14,7 @@ Planned and historical development records:
 - [[implementation_phases/phase-2-scripted-baseline-and-data-engine|Phase 2 — Scripted Baseline and Data Engine]] — Scripted execution, recording, and matched export foundation.
 - [[implementation_phases/phase-3-non-vla-learned-baselines|Phase 3 — Non-VLA Learned Baselines]] — State-only policy, adapter, and evaluation foundation.
 - [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — GPU-verified Alex003/control/RGB-D and frozen common synthetic setup, with repeated sustained opening and fixed-view evidence.
-- [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Verified preparation with reviewed mounting, frame, hinge and welded-surface repairs; eighteen real doors ready under recorded license scopes, expert qualification pending.
+- [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — 32 prepared doors, compact asset contract, intake workflow and pending expert qualification.
 - [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — Three planned subphases: observations/perception, complete A1-A4, and pilot-to-dataset generation with Replicator and conditional Mimic.
 - [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]] — Two planned subphases: training, then evaluation/analysis with ID/GEO before stress tests.
 - [[implementation_phases/extra-01-alex-v2-migration|Extra 01 — Alex V2 Migration]] — Migration from provisional assumptions to fixed-base Alex V2.
@@ -29,11 +29,11 @@ Planned and historical development records:
 Current technical behavior and explicitly labeled planned contracts:
 
 - [[topics/system-architecture|System Architecture]] — Maintained runtime, data, policy, evaluation, and storage flow.
-- [[topics/alex-v2-benchmark|Alex V2 Benchmark]] — Historical B0 asset/calibration/data identity and retained canonical scenes; execution retired.
+- [[topics/alex-v2-benchmark|Alex V2 Benchmark]] — Retired B0 protocol, results and scientific limits.
 - [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]] — Operational Purdue/WSG/ZED configuration, derived push frame, measured pedestal and validation limits.
 - [[topics/action-representations-and-adapters|Action Representations and Adapters]] — A1-A4 meanings and maintained execution boundaries.
 - [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — `phase2.v2`, matched exports, splits, views, normalization, and model data.
-- [[topics/learned-policy-stack|Learned Policy Stack]] — ACT/Diffusion configuration, training, checkpoint/resume, outputs, and evaluation.
+- [[topics/learned-policy-stack|Learned Policy Stack]] — Reusable ACT/Diffusion models, tensor training, checkpoints and explicit observation boundary.
 
 ## Key Decisions
 
@@ -41,8 +41,8 @@ Current architectural and scientific contracts:
 
 - [[decisions/door-relative-task-and-matched-representations|Door-Relative Task and Matched Representations]] — Hold physical experience and task geometry aligned across A1-A4.
 - [[decisions/visuoproprioceptive-generalization-benchmark|Visuoproprioceptive Generalization Benchmark]] — Approved question, held-out door benchmark, matched data strategy, and articulated-object progression.
-- [[decisions/calibrated-position-only-alex-v2-execution|Calibrated Position-Only Alex V2 Execution]] — Use one calibration, tool-point IK, and exact-door contact sensing.
-- [[decisions/one-scale-master-with-nested-views|One Scale Master with Nested Views]] — Reuse fixed holdouts and nested training memberships for the completed scale data.
+- [[decisions/calibrated-position-only-alex-v2-execution|Calibrated Position-Only Alex V2 Execution]] — Historical B0 rationale for translation-only IK and exact-panel contact.
+- [[decisions/one-scale-master-with-nested-views|One Scale Master with Nested Views]] — Historical rationale for fixed holdouts and nested memberships.
 
 ## Experiments
 

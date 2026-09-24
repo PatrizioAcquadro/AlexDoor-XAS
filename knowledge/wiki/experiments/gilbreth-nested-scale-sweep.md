@@ -8,13 +8,13 @@ Can ACT/Diffusion, A2/A3, and N50/N100/N250/N500 be compared from one matched da
 
 ## Method and Result
 
-All sixteen seed-0 cells trained on the retained `v3_scale_master` views using Gilbreth A100 GPUs. Every checkpoint returned and loaded on the workstation, establishing a complete matrix for closed-loop evaluation.
+All sixteen seed-0 cells trained on the historical `v3_scale_master` views using Gilbreth A100 GPUs. Every checkpoint returned and loaded on the workstation, establishing a complete matrix for closed-loop evaluation.
 
 Training loss alone did not identify a winner. The later [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] also found no monotonic data-scale advantage under its saturated protocol.
 
 ## Limits
 
-The study used one simulated door family and one training seed. Cluster, transfer, Slurm, return, and sweep tooling were removed after completion; Git retains their history.
+The study used one simulated door family and one training seed. Cluster, transfer, Slurm, return, and sweep tooling were removed after completion; Git `7f1fc8c` retains the study record; local B0 datasets were later removed.
 
 ## Version Notes
 

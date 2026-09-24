@@ -24,7 +24,7 @@ One ACT-A2 and one Diffusion-A3 N50 cell completed on Gilbreth, and their checkp
 
 ## Artifacts
 
-Pilot packages are historical and are not present in the active repository. Git retains their implementation history.
+Pilot packages are historical and are not present in the active repository. Git `7f1fc8c` retains the historical study record.
 
 ## Files
 

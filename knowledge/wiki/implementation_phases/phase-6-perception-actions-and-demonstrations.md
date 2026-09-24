@@ -167,5 +167,5 @@ and matched dataset. None was produced by the documentation revision.
 
 Expected surfaces: `src/alexdoor_xas/envs/`, `src/alexdoor_xas/action/`,
 `src/alexdoor_xas/adapters/`, `src/alexdoor_xas/recording/`,
-`src/alexdoor_xas/data_engine/`, `src/alexdoor_xas/dataset/`,
+`src/alexdoor_xas/dataset/`,
 `src/alexdoor_xas/policies/`, `configs/`, and supported `scripts/` entry points.

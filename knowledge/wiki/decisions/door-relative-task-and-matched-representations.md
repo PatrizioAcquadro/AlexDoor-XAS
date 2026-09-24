@@ -8,7 +8,7 @@ Comparing action representations is meaningful only when task geometry, physical
 
 Represent the door task around an explicit hinge frame and derive matched A1-A4 products from the same physical episode. A2 uses world-frame end-effector deltas; A3 uses a static hinge-anchored frame; A4 uses contact targets in the moving panel frame.
 
-Use only the D0-D4 registry. Door variants rotate and translate the same task around the hinge rather than introducing independent scene definitions. Runtime APIs reject other pose IDs.
+The completed B0 study used the D0–D4 registry, now retired. B1 replaces that single-family protocol with qualified held-out identities under [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
 Matched A2/A3 products share physical outcome, episode identity, split, pose distribution, and evaluation seeds. Their action arrays and train-only normalization remain representation-specific.
 
@@ -24,9 +24,8 @@ Completed pose-plan, dataset-publication, and unified-matrix orchestration are h
 ## Evidence
 
 - `src/alexdoor_xas/action/frames.py`
-- `src/alexdoor_xas/assets/door_scene.py`
-- `src/alexdoor_xas/data_engine/export.py`
-- `scripts/verify_dataset_interface.py`
+- `src/alexdoor_xas/dataset/export.py`
+- `tests/test_dataset_interface.py`
 
 ## Version Notes
 
