@@ -67,6 +67,14 @@ class PushGeometry:
     wrist_from_base: np.ndarray
     finger_vertices: dict[str, np.ndarray]
 
+    @property
+    def distal_faces(self):
+        """Closed forward contact faces, expressed relative to the push frame."""
+        return tuple(
+            points[np.abs(points[:, 0] - points[:, 0].max()) < 1e-6] - self.translation
+            for points in self.finger_vertices.values()
+        )
+
 
 def derive_push_geometry(urdf: str | Path) -> PushGeometry:
     """Average the closed fingers' forward support-face centers in the WSG base."""

@@ -259,6 +259,15 @@ bounds replace synthetic dimensions. Clearance remains a conservative diagnostic
 raw contact ownership determines contact validity. Visibility samples actual
 surfaces and remains a geometric diagnostic, not learned-perception qualification.
 
+The initial contact check intersects each actual distal support footprint with
+the convex leaf surfaces, including narrow features between support vertices.
+A surface protruding ahead of the prescribed fingertip pose by more than the
+10 mm position budget establishes `prescribed_footprint_obstructed`, an
+`out_of_domain` geometric result without an expert angle. The PSX front-005
+has a real wood strip 22.1 mm ahead of the glass under one finger, independently
+confirmed on the original visual mesh. Moving the contact point or removing the
+strip is not permitted. The other seven corrective-cohort footprints pass.
+
 ### Procedure for Subsequent Doors
 
 1. Select one prepared identity with pending expert status and run the command.

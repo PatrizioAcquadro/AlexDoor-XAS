@@ -80,10 +80,10 @@
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
-    "status": "unresolved",
+    "status": "out_of_domain",
     "theta_expert_d": null,
-    "reason": "execution_error",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-front-005-ee7d5c6/20260924T213927.306714Z",
+    "reason": "prescribed_footprint_obstructed",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-front-005-ee7d5c6/20260924T232605.585663Z",
     "trials": [],
     "repeat_spread_deg": null,
     "scope": "nominal_simulated_expert_reference_not_learning_data"

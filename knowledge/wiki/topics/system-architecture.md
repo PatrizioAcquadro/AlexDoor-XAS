@@ -41,6 +41,9 @@ and reuses the controlled probe. Prepared geometry supplies the material-point
 trajectory and physical bounds; the common robot/controller settings stay frozen.
 The executor checks initial pedestal interference, requires two valid controlled
 cycles for an expert angle, and publishes a compact result in `prepared.json`.
+It also checks the actual distal support footprints for raised leaf features
+incompatible with the prescribed pose; evidenced initial exclusions have no expert
+angle and need no unsafe dynamic pair.
 All detailed qualification evidence stays in the verification cache, never in
 learning data. The same sustained-window measurement serves synthetic and real
 doors; a valid final hold/release is required independently of the maximum angle.

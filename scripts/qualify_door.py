@@ -24,6 +24,16 @@ from alexdoor_xas.qualification.expert import (  # noqa: E402
 from alexdoor_xas.qualification.synthetic_probe import ProbeSetup  # noqa: E402
 
 
+def capture_initial(env, output):
+    from PIL import Image
+
+    env.reset()
+    env.sim.stage.Export(str(output / "initial-scene.usda"))
+    Image.fromarray(env.capture.sample.rgb[0].cpu().numpy()[..., :3]).save(
+        output / "initial-rgb.png"
+    )
+
+
 def main():
     from isaaclab.app import AppLauncher
 
@@ -78,13 +88,7 @@ def main():
 
         intersections = door.pedestal_intersections(env.sim.stage, PEDESTAL)
         if intersections:
-            env.reset()
-            env.sim.stage.Export(str(output / "initial-scene.usda"))
-            from PIL import Image
-
-            Image.fromarray(env.capture.sample.rgb[0].cpu().numpy()[..., :3]).save(
-                output / "initial-rgb.png"
-            )
+            capture_initial(env, output)
             report.update(
                 status="out_of_domain",
                 reason="closed_door_pedestal_intersection",
@@ -93,7 +97,20 @@ def main():
             )
             return 2
         # Missing prescribed surface is diagnosed, never silently relocated.
-        door.contact_pose(0.0, setup.contact_fraction, setup.contact_height)
+        contact, _ = door.contact_pose(0.0, setup.contact_fraction, setup.contact_height)
+        obstructions = door.footprint_obstructions(
+            [face + contact for face in env.push_geometry.distal_faces],
+            setup.position_tolerance,
+        )
+        if obstructions:
+            capture_initial(env, output)
+            report.update(
+                status="out_of_domain",
+                reason="prescribed_footprint_obstructed",
+                geometry_evidence=obstructions,
+                qualification_scope="nominal_contact_pose_infeasible_no_expert_angle",
+            )
+            return 2
         for number in (1, 2):
             trial = run_probe(env, door, setup, output / f"repeat-{number}")
             trials.append(trial)

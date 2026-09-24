@@ -119,6 +119,25 @@ def test_publication_preserves_preparation_and_detects_concurrent_edit(tmp_path)
         publish_expert(tmp_path, original, report, tmp_path / "other")
 
 
+@pytest.mark.parametrize("support", ["face", "edge", "point"])
+def test_footprint_rejects_raised_strip_between_pad_corners(tmp_path, support):
+    door = make_door(tmp_path, "right")
+    face = np.array(list(product([0.04], [-0.02, 0.02], [0.98, 1.02])))
+    if support == "edge":
+        face = np.array([[0.04, -0.02, 1], [0.04, 0.02, 1]])
+    elif support == "point":
+        face = np.array([[0.04, 0, 1]])
+    assert door.footprint_obstructions([face], 0.01) == []
+    # Every corner still sees the flat base; the bar crosses the pad interior.
+    strip = np.array(list(product([0.015, 0.04], [-0.002, 0.002], [0.99, 1.01])))
+    door._leaf_planes.append(ConvexHull(strip).equations)
+    witnesses = door.footprint_obstructions([face], 0.01)
+    assert len(witnesses) == 1
+    assert witnesses[0]["protrusion_m"] == pytest.approx(0.025)
+    assert door.footprint_obstructions([face], 0.025) == []
+    assert door.footprint_obstructions([face + [0, 0.1, 0]], 0.01) == []
+
+
 def test_pedestal_gate_requires_positive_volume_not_touching(tmp_path):
     from pxr import Usd, UsdGeom, UsdPhysics
 

@@ -136,6 +136,45 @@ class PreparedDoor:
             return False
         return True
 
+    def footprint_obstructions(self, faces, tolerance):
+        """Witness leaf relief ahead of a prescribed closed-door fingertip face.
+
+        Intersect each convex support footprint with each leaf shape, including
+        edge/point supports. Corners alone miss narrow bars inside a footprint.
+        """
+        from scipy.optimize import linprog
+
+        witnesses = []
+        for finger, face in enumerate(faces):
+            face = np.unique(face, axis=0)
+            for shape, planes in enumerate(self._leaf_planes):
+                # Convex weights handle flat pads, sloped fingertip edges and points.
+                result = linprog(
+                    [1, *np.zeros(len(face))],
+                    A_ub=np.c_[planes[:, 0], planes[:, 1:3] @ face[:, 1:].T],
+                    b_ub=-planes[:, 3],
+                    A_eq=[[0, *np.ones(len(face))]],
+                    b_eq=[1],
+                    bounds=[(None, None), *[(0, None)] * len(face)],
+                    method="highs",
+                )
+                if result.status == 2:  # Disjoint projected surfaces.
+                    continue
+                if not result.success:
+                    raise ValueError("Cannot establish prescribed footprint clearance")
+                protrusion = float(np.min(face[:, 0]) - result.x[0])
+                if protrusion > tolerance + 1e-6:
+                    witnesses.append(
+                        dict(
+                            finger_index=finger,
+                            leaf_shape_index=shape,
+                            surface_point_m=[result.x[0], *(result.x[1:] @ face[:, 1:])],
+                            protrusion_m=protrusion,
+                            position_tolerance_m=tolerance,
+                        )
+                    )
+        return witnesses
+
     def collision_bounds(self, angle):
         rotation = self.rotation(angle)
         targets = []

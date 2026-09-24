@@ -267,11 +267,7 @@ def run_probe(env, door, setup, output):
     clearance = DoorClearance(env)
     min_clearance = float("inf")
     traces, raw, images = [], [], []
-    distal = []
-    for vertices in env.push_geometry.finger_vertices.values():
-        face = vertices[np.abs(vertices[:, 0] - vertices[:, 0].max()) < 1e-6]
-        distal.extend(face - env.push_geometry.translation)
-    distal = np.asarray(distal)
+    distal = np.concatenate(env.push_geometry.distal_faces)
     window = SustainedAngle(setup.sustain_s)
     contact_load = ContactLoad(
         setup.contact_force_window_s, setup.loaded_force_n, setup.contact_gap_tolerance_m
