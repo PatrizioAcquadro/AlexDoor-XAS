@@ -338,6 +338,12 @@ commands are part of this paused campaign. Any future common setup change
 requires fresh complete pairs for affected references; compare archived
 `setup.json` before reusing an earlier result.
 
+The PSX `front-005` pre-cycle error came from leaf ownership metadata: component
+7 is existing collidable glazing, but only the surrounding component 8 was listed
+as leaf geometry. Including both leaves the original bounds, inertia, contact
+fraction and all USD bytes unchanged. The prescribed contact and finger footprint
+now intersect the existing surface; the complete expert pair must be rerun.
+
 The prison-door stop was traced to false convex volume at the frame's lower
 hinge corner. At 23.3 degrees the colliders intersected while the actual visual
 surface sections remained separate. Repartitioning the same frame at its measured

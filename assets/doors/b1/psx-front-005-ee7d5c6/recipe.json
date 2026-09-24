@@ -56,6 +56,7 @@
     ]
   },
   "leaf_components": [
+    7,
     8
   ],
   "clear_aperture_m": [
@@ -96,5 +97,6 @@
   "modifications": [
     "Normalize the selected source to a centered, floor-aligned Z-up meter frame without reflection.",
     "Apply only the recorded clearance, collider and hinge approximations; start closed and already unlatched."
-  ]
+  ],
+  "leaf_component_review": "Component 7 is the existing collidable glazing inset in component 8. Both are leaf surfaces; their union preserves the original leaf bounds, inertia, contact fraction and all USD geometry."
 }
