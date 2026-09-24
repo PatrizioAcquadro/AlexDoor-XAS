@@ -19,7 +19,8 @@ Each `assets/doors/b1/<id>/` contains three tracked records:
 
 Local `source/` retains the used source and necessary dependencies. Local
 `prepared/` contains the final USD, materials/textures and front/rear previews.
-All paths are relative to the door folder. Payloads and previews stay outside Git;
+All paths are relative to the door folder. Explicit `source_dependencies` in
+recipes resolve relative to the recipe file. Payloads and previews stay outside Git;
 copy the complete folder when moving an asset. License scope lives only in the
 candidate record; technical readiness does not grant redistribution rights.
 

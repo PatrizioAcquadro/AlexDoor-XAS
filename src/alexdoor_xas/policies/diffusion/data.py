@@ -10,7 +10,6 @@ import numpy as np
 from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
 from alexdoor_xas.policies.common.data import (
     PolicyData,
-    load_policy_data,
 )
 from alexdoor_xas.policies.common.data import (
     make_eval_factory as _make_eval_factory,
@@ -18,7 +17,6 @@ from alexdoor_xas.policies.common.data import (
 from alexdoor_xas.policies.common.data import (
     make_train_factory as _make_train_factory,
 )
-from alexdoor_xas.policies.common.types import PolicyDatasetCfg
 
 RANGE_EPS = 1e-8
 
@@ -49,11 +47,6 @@ class MinMaxNormalizer:
 
     def denormalize(self, x: np.ndarray) -> np.ndarray:
         return np.asarray(x, dtype=np.float64) / self.scale + self.center
-
-
-def load_diffusion_data(cfg: PolicyDatasetCfg, **kwargs) -> PolicyData:
-    """The shared dataset/splits/stats loader (staleness checks included)."""
-    return load_policy_data(cfg, **kwargs)
 
 
 def make_diffusion_normalizer(stats: DatasetNormStats):

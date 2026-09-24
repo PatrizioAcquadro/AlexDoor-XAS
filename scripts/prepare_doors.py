@@ -101,7 +101,13 @@ def main():
             if args.command == "inspect":
                 _, result = load_source(args.source, output, args.dependency)
             elif args.command == "normalize":
-                result = normalize(args.source, json.loads(args.recipe.read_text()), output)
+                recipe = json.loads(args.recipe.read_text())
+                if "source_dependencies" in recipe:
+                    recipe["source_dependencies"] = [
+                        str((args.recipe.parent / path).resolve())
+                        for path in recipe["source_dependencies"]
+                    ]
+                result = normalize(args.source, recipe, output)
             elif args.command == "preview":
                 from alexdoor_xas.qualification.preview_prepared import preview
 

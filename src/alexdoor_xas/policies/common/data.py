@@ -24,6 +24,7 @@ from alexdoor_xas.dataset.robot_asset import (
 )
 from alexdoor_xas.dataset.sampling import BatchIterator, ChunkSampler
 from alexdoor_xas.dataset.splits import load_splits, load_view_splits, splits_path, view_path
+from alexdoor_xas.policies.common.types import PolicyDatasetCfg
 
 EPOCH_SEED_STRIDE = 10_000
 
@@ -53,7 +54,9 @@ class PolicyData:
         return self.stats.action.dim
 
 
-def load_policy_data(cfg, datasets_root: str | Path = paths.DATASETS_DIR) -> PolicyData:
+def load_policy_data(
+    cfg: PolicyDatasetCfg, datasets_root: str | Path = paths.DATASETS_DIR
+) -> PolicyData:
     """Load and validate dataset, splits, robot identity, and statistics."""
     dataset_dir = Path(datasets_root) / cfg.task / cfg.space / cfg.version
     try:

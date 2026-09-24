@@ -549,8 +549,25 @@ def test_publication_localizes_external_usd_texture_paths(tmp_path):
         "files": [{"path": str(p), "snapshot": str(p)} for p in (source, texture)],
     }
     destination = tmp_path / "published"
-    relative = _copy_sources(inspected, destination)
+    relative = _copy_sources(inspected, destination)[str(source)]
     assert source.read_bytes() == before
     _, dependencies, missing = UsdUtils.ComputeAllDependencies(str(destination / relative))
     assert not missing
     assert all(Path(p).is_relative_to(destination) for p in dependencies)
+
+
+def test_published_recipe_localizes_explicit_source_sidecars(tmp_path):
+    attempt, candidate, _ = promotion_fixture(tmp_path)
+    sidecar = tmp_path / "texture.png"
+    sidecar.write_bytes(b"texture")
+    inspected = json.loads((attempt / "inspect.json").read_text())
+    inspected["files"].append({"path": str(sidecar), "snapshot": str(sidecar)})
+    write_json(attempt / "inspect.json", inspected)
+    data = recipe()
+    data["source_dependencies"] = [str(sidecar)]
+    write_json(attempt / "recipe.json", data)
+    promote(attempt, candidate)
+    published = json.loads((candidate.parent / "recipe.json").read_text())
+    path = Path(published["source_dependencies"][0])
+    assert not path.is_absolute()
+    assert (candidate.parent / path).read_bytes() == b"texture"

@@ -55,7 +55,7 @@ def _copy_sources(inspected, destination):
 
         UsdUtils.ModifyAssetPaths(layer, localize)
         layer.Save()
-    return targets[str(source)].relative_to(destination)
+    return {original: target.relative_to(destination) for original, target in targets.items()}
 
 
 def publish_prepared(attempt, candidate):
@@ -87,6 +87,7 @@ def publish_prepared(attempt, candidate):
             "retrieval_date",
             "door_type",
             "usage_notes",
+            "duplicate_resolution",
         )
         if key in candidate
     }
@@ -119,8 +120,13 @@ def publish_prepared(attempt, candidate):
     staging = root / ".publish"
     staging.mkdir()
     try:
-        source_path = _copy_sources(inspected, staging / "source")
-        record["source"] = (Path("source") / source_path).as_posix()
+        source_paths = _copy_sources(inspected, staging / "source")
+        record["source"] = (Path("source") / source_paths[inspected["source"]]).as_posix()
+        if "source_dependencies" in recipe:
+            recipe["source_dependencies"] = [
+                (Path("source") / source_paths[str(Path(path).resolve())]).as_posix()
+                for path in recipe["source_dependencies"]
+            ]
         payloads = [Path(item["path"]) for item in checked["release_files"]]
         payloads += [attempt / f"preview-{side}.png" for side in ("front", "rear")]
         for path in payloads:

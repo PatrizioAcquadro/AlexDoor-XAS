@@ -133,7 +133,7 @@ def save_norm_stats(path: str | Path, stats: DatasetNormStats) -> Path:
 
 
 def load_norm_stats(path: str | Path) -> DatasetNormStats:
-    """Load the minimal fields, tolerating administrative fields in legacy files."""
+    """Read normalization values and their training membership."""
 
     payload = json.loads(Path(path).read_text())
     if not isinstance(payload, dict):
