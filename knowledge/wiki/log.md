@@ -12,7 +12,7 @@ belong in Git history, not in agent context.
 | Dataset strategy | Replicator changes observations; Mimic is conditional on a demonstrated motion-coverage gap. | `d2c584d` |
 | 5.0 infrastructure | Shared recipes, conversion and isolated preparation gates before URL intake. | `d12f0b2` |
 | 5.0 intake | 32 prepared doors: 29 redistributable, two local-only, one private/noncommercial; expert qualification pending. | `9c16e3d` |
-| 2026-09-24 asset cleanup | Three canonical records and independent source/final payload folders; acquired results preserved without real-door revalidation. | `7a1ffb1` |
-| 2026-09-24 B0 retirement | Removed obsolete compatibility/orchestration and local datasets/scenes; preserved reusable numerical components and B1 runtime. | `c83cf5e` |
-| 2026-09-24 documentation cleanup | One current status, compact corpus/workflow page and historical conclusions; future specifications and raw research preserved. | `3065008` |
+| 2026-09-24 B1 cleanup | Compact asset records and wiki; obsolete B0 orchestration, datasets and scenes retired. Preparation results, numerical components, scientific history and future specifications preserved. | `7a1ffb1`, `c83cf5e`, `3065008` |
 | 2026-09-24 repository rename | GitHub and workstation checkout use AlexDoor-XAS; Python package identifiers remain unchanged. | Repository rename milestone |
+| 2026-09-24 publication robustness | Recoverable asset promotion with relative source dependencies; validated, staged dataset exports refuse existing destinations. | `0045924`, `05d53fd` |
+| 2026-09-24 maintenance revision | Removed B0 executors and fake simulator; explicit proprioceptive observation keys, shared normalization and v3 checkpoints; consolidated preparation contracts and dependency preflight. | `8e03566`, `6562ae9`, `3b45998` |

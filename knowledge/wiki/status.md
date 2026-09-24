@@ -27,7 +27,7 @@ constrain sharing independently of technical readiness.
 RGB-D acquisition is operational; learned door perception is not. Simulator
 contact/hinge truth remains diagnostic and cannot become policy input. B1 action,
 perception and training contracts are defined in Phases 6–7, not by retained
-state-vector model utilities. Simulation checks do not establish hardware safety.
+numerical model utilities. Simulation checks do not establish hardware safety.
 
 ## Maintained Surfaces
 
@@ -41,6 +41,11 @@ state-vector model utilities. Simulation checks do not establish hardware safety
 Supported commands are `check_env.py`, `prepare_doors.py`,
 `verify_door_preparation.py`, `verify_purdue_runtime.py`, `verify_synthetic_setup.py`
 and `screen_synthetic_setup.py`. Verification reports stay in the runtime cache.
+
+The maintained numerical data path requires explicit, ordered proprioceptive
+`obs_keys` and a caller-supplied dataset root. Diagnostics are separate, episodes
+retain `phase2.v2`, and checkpoints use `v3` with no legacy conversion. Dataset
+export refuses existing destinations; preparation publication supports rollback.
 
 Historical B0 scientific conclusions and their limits remain in
 [[topics/alex-v2-benchmark|B0 record]] and the experiment pages. The saturated

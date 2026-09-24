@@ -25,7 +25,9 @@ Each ACT/Diffusion x A2/A3 x N50/N100/N250/N500 cell ran 36 D0-D4 rollouts, for 
 
 ## Artifacts
 
-Canonical experiment pages retain the conclusions. Detailed removed files remain recoverable from Git history through commit `7f1fc8c`.
+Canonical experiment pages retain the conclusions. Commit `7f1fc8c` preserves
+the tracked curated reports and aggregate JSON. Ignored rollout payloads and
+checkpoints were not archived in Git.
 
 ## Files
 

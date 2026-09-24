@@ -14,7 +14,9 @@ Exact replay reproduced success at tick 93 and a 219.953 N peak at tick 55. Chan
 
 The event is reproducible and locally sensitive to door-normal position and contact-entry motion. The diagnostic does not establish root cause, validate a controller change, clear the original `REVIEW_REQUIRED` status, or provide hardware-safety evidence.
 
-The former structured results remain recoverable from Git history through commit `7f1fc8c`.
+The tracked `outputs/curated/phase3_seed112_force_diagnostic/report.md` and
+`results.json` remain recoverable at commit `7f1fc8c`. Ignored runtime payloads
+were not archived in Git.
 
 ## Version Notes
 

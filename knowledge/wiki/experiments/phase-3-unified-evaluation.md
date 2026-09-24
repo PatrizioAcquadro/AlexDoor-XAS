@@ -18,7 +18,9 @@ One ACT-A3-N50 D0 randomized rollout at seed 112 peaked at 219.95 N for one tick
 
 The result covers one simulated door family, state-only policies, and seed-0 training. It is not hardware, generalization, sim-to-real, or VLA evidence.
 
-The former report and aggregate remain recoverable from Git history through commit `7f1fc8c`.
+The tracked `outputs/curated/phase3_unified_evaluation/report.md` and
+`aggregate_summary.json` remain recoverable at commit `7f1fc8c`. This does not
+archive the ignored rollout payloads or checkpoints.
 
 ## Version Notes
 

@@ -2,6 +2,8 @@
 
 Historical B0 record, preserved at Git `9c16e3d`; code, calibration, D0–D4 scenes,
 dataset payloads and compatibility readers were retired during the B1 cleanup.
+Git retains tracked code and curated reports, not the deleted ignored datasets
+or checkpoints.
 The active successor is [[topics/purdue-b1-robot-and-contact|Purdue B1]].
 
 B0 used a fixed-base IHMC Alex V2 torso, six right-arm joints and a calibrated

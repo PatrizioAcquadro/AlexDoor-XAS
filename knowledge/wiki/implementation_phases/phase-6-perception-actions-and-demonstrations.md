@@ -166,6 +166,7 @@ and matched dataset. None was produced by the documentation revision.
 ## Files
 
 Expected surfaces: `src/alexdoor_xas/envs/`, `src/alexdoor_xas/action/`,
-`src/alexdoor_xas/adapters/`, `src/alexdoor_xas/recording/`,
-`src/alexdoor_xas/dataset/`,
+`src/alexdoor_xas/recording/`, `src/alexdoor_xas/dataset/`,
 `src/alexdoor_xas/policies/`, `configs/`, and supported `scripts/` entry points.
+Learned-action integration will be implemented against the B1 runtime; no B0
+adapter package remains to be extended.

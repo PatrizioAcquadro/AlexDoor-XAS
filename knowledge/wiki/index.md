@@ -28,7 +28,7 @@ Planned and historical development records:
 
 Current technical behavior and explicitly labeled planned contracts:
 
-- [[topics/system-architecture|System Architecture]] — Maintained runtime, data, policy, evaluation, and storage flow.
+- [[topics/system-architecture|System Architecture]] — Operational runtime/preparation, reusable algorithms and storage boundaries.
 - [[topics/alex-v2-benchmark|Alex V2 Benchmark]] — Retired B0 protocol, results and scientific limits.
 - [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]] — Operational Purdue/WSG/ZED configuration, derived push frame, measured pedestal and validation limits.
 - [[topics/action-representations-and-adapters|Action Representations and Adapters]] — A1-A4 meanings and maintained execution boundaries.

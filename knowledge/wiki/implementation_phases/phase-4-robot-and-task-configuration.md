@@ -227,7 +227,7 @@ not part of this subphase.
 
 ## Artifacts
 
-The full RTX 4090 run is recorded in
+The original Subphase 4.0 RTX 4090 run is recorded in
 `~/.cache/alexdoor-xas/verification/purdue-final/report.json`, with numeric
 `control_traces.npz`, raw contact records, `rgbd_sample.npz`, and representative
 RGB images before/after neck motion and reset. Final sensor-only evidence with
@@ -251,9 +251,7 @@ reset renderer settling is in `purdue-final-rgbd/`; contact force-direction chec
 - The historical D0 door-only smoke established the isolated preparation consumer;
   D0 payloads were subsequently retired. `DoorInspectionEnv` remains in B1 preparation.
 
-Subphase 4.0 software validation: 332 tests passed, including historical readers/model contracts,
-with Ruff, whitespace and wiki-link/index checks. No corpus, training run or
-four-case reachability result was produced.
+Subphase 4.0 did not produce a corpus, training run or four-case reachability result.
 
 Subphase 4.1 evidence is in
 `~/.cache/alexdoor-xas/verification/synthetic-calibrated-final/`: common setup,
@@ -271,11 +269,17 @@ alternative. `synthetic-comparison-rejected-exact-width/` retains the wrist/tors
 approach rejection. Earlier instantaneous-load and inset-width runs remain
 calibration evidence, not final qualification.
 
-The full 4.0 regression passes in sibling `purdue-after-41/`. The final software
-suite has 341 passing tests, including essential handedness/contact trajectory,
-sustain, force chatter/separation, stop classification, minimax and repeatability
-checks. Ruff, whitespace and wiki-link/index checks pass. No corpus or policy
-training was performed.
+The full 4.0 regression after the common-setup work passed in sibling
+`purdue-after-41/`. Essential numerical tests cover handedness/contact trajectory,
+sustain, force chatter/separation, stop classification, minimax and repeatability.
+No corpus or policy training was performed.
+
+The complete Purdue gate was rerun after the 2026-09-24 maintenance revision on
+the RTX 4090. `~/.cache/alexdoor-xas/verification/quality-20260924/report.json`
+passes assembly/reset, tool Jacobian, full-pose control, seven-joint A1, contact
+classification and RGB-D checks. RGB/depth overlap is 0.988 IoU; acquisition
+refreshes after neck motion and reset. This is synthetic runtime regression
+evidence, not expert qualification of the 32 prepared doors.
 
 ## Files
 

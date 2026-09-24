@@ -101,6 +101,6 @@ materials. No result or public release was produced by this revision.
 
 ## Files
 
-Expected surfaces: `src/alexdoor_xas/policies/`, `src/alexdoor_xas/eval/`, shared
-rollout reporting, future training/evaluation entry points, `configs/`,
-and result documentation.
+Expected surfaces: `src/alexdoor_xas/policies/`, future B1 rollout/evaluation
+and reporting modules, training/evaluation entry points, `configs/`, and result
+documentation. The retired B0 evaluation package is not a maintained dependency.

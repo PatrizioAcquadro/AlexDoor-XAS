@@ -28,7 +28,7 @@ rollout driver and scripted controller were subsequently retired. B0 run creatio
 
 ## Artifacts
 
-Historical conclusions are retained in [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] and [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]]. Removed runner and evidence files remain available through Git history.
+Historical conclusions are retained in [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] and [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]]. Git preserves tracked source and curated reports. Deleted ignored datasets, checkpoints and run payloads cannot be recovered from Git.
 
 ## Files
 
