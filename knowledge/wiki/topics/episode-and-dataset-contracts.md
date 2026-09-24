@@ -18,6 +18,11 @@ targets plus the terminal target are present. IDs and outcomes remain matched.
 Callers own recording alignment and must provide those fields; this function
 does not generate demonstrations or infer missing B1 supervision.
 
+Export validates every representation in staging before publication and refuses
+existing version directories. A failed publication removes only its new outputs;
+previous datasets remain untouched. Episode filenames use full IDs and recording
+refuses an existing filename, so distinct IDs sharing a prefix cannot collide.
+
 Robot identity is an asset ID plus source fingerprint. Export rejects mixed
 tasks, robots or identities; no Alex V2 manifest or URDF is required.
 

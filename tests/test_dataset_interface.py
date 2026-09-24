@@ -110,6 +110,49 @@ def test_episode_ids_shared_across_action_spaces(synthetic_exports) -> None:
     assert a4_ids == reference
 
 
+def test_export_preserves_existing_versions_and_rejects_incomplete_recording(tmp_path):
+    existing = _export(tmp_path)
+    before = {p: p.read_bytes() for folder in existing.values() for p in folder.iterdir()}
+    incomplete = make_episode()
+    incomplete.extras.pop("action_door_frame")
+    with pytest.raises(FileExistsError, match="already exists"):
+        export_datasets([incomplete], tmp_path)
+    assert all(p.read_bytes() == contents for p, contents in before.items())
+    with pytest.raises(ValueError, match="incomplete matched-action"):
+        export_datasets([incomplete], tmp_path, version="next")
+    assert not any(tmp_path.rglob("next"))
+
+
+@pytest.mark.parametrize("failure", ["validation", "publication"])
+def test_export_failure_leaves_no_partial_version(tmp_path, monkeypatch, failure):
+    episode = make_episode()
+    if failure == "validation":
+        episode.extras["a4_chunks"][0]["duration_ticks"] = 0
+    else:
+        rename = Path.rename
+
+        def fail_a3(path, target):
+            if Path(target).parent.name == A3_OBJ_REL_EE_DELTA:
+                raise OSError("publication interrupted")
+            return rename(path, target)
+
+        monkeypatch.setattr(Path, "rename", fail_a3)
+    with pytest.raises((ValueError, OSError)):
+        export_datasets([episode], tmp_path)
+    assert not any(tmp_path.rglob("v0"))
+    assert not any(tmp_path.rglob(".export-*"))
+
+
+def test_export_rejects_duplicate_ids_and_keeps_distinct_shared_prefixes(tmp_path):
+    first, second = make_episode(1), make_episode(2)
+    with pytest.raises(ValueError, match="ids must be unique"):
+        export_datasets([first, first], tmp_path)
+    first.meta = dataclasses.replace(first.meta, episode_id="samehead-one")
+    second.meta = dataclasses.replace(second.meta, episode_id="samehead-two")
+    paths = export_datasets([first, second], tmp_path)
+    assert len(EpisodeDataset(paths[A2_EE_DELTA])) == 2
+
+
 def test_core_preset_is_9dim_everywhere(synthetic_a2) -> None:
     obs = obs_matrix(synthetic_a2[0], "core")
     assert obs.shape == (synthetic_a2[0].n_steps, 9)

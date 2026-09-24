@@ -25,9 +25,12 @@ def write_episode(buffer: EpisodeBuffer, directory: str | Path) -> Path:
 
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=True)
-    h5_path = directory / f"episode_{buffer.meta.episode_id[:8]}.hdf5"
+    episode_id = buffer.meta.episode_id
+    if not episode_id or Path(episode_id).name != episode_id or episode_id in {".", ".."}:
+        raise ValueError("episode id must be a non-empty filename component")
+    h5_path = directory / f"episode_{episode_id}.hdf5"
 
-    with h5py.File(h5_path, "w") as h5:
+    with h5py.File(h5_path, "x") as h5:
         h5.attrs["schema_version"] = SCHEMA_VERSION
         meta_group = h5.create_group("meta")
         for key, value in buffer.meta.to_dict().items():

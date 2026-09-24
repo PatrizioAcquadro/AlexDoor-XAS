@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import shutil
 import subprocess
+import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -16,35 +18,82 @@ from alexdoor_xas.action.spaces import (
     A3_OBJ_REL_EE_DELTA,
     A4_OBJ_CENTRIC_CHUNK,
 )
+from alexdoor_xas.dataset.loader import A4ChunkDataset, EpisodeDataset
 from alexdoor_xas.dataset.robot_asset import dataset_robot_asset_payload
+from alexdoor_xas.dataset.validate import (
+    validate_a4_dataset,
+    validate_dataset,
+    validate_matched_action_space_datasets,
+)
 from alexdoor_xas.recording import EpisodeBuffer, write_episode
 
 
 def export_datasets(
     episodes: list[EpisodeBuffer], datasets_root: str | Path, version: str = "v0"
 ) -> dict[str, Path]:
-    """Replace one dataset version with matched action-space exports."""
+    """Validate and publish a new matched version without replacing existing data."""
     if not episodes:
         raise ValueError("cannot export an empty episode list")
-    # Validate the complete batch before replacing any existing dataset dirs.
     robot_asset = dataset_robot_asset_payload(episodes)
     task = episodes[0].meta.task
-    root = Path(datasets_root)
+    for name in (task, version):
+        if not name or Path(name).name != name or name in {".", ".."}:
+            raise ValueError("task and version must be single directory names")
+    ids = [episode.meta.episode_id for episode in episodes]
+    if len(set(ids)) != len(ids):
+        raise ValueError("episode ids must be unique")
+    if any(episode.meta.action_space != A2_EE_DELTA for episode in episodes):
+        raise ValueError("matched export requires recorded A2 actions")
+    if any(episode.outcome is None for episode in episodes):
+        raise ValueError("every exported episode requires an outcome")
+    task_root = Path(datasets_root) / task
+    spaces = [A2_EE_DELTA, A3_OBJ_REL_EE_DELTA, A4_OBJ_CENTRIC_CHUNK]
+    joint_targets = [_has_joint_targets(episode) for episode in episodes]
+    if any(joint_targets):
+        if not all(joint_targets):
+            raise ValueError("joint-target recording must be consistent across episodes")
+        spaces.append(A1_JOINT_DELTA)
+    exported = {space: task_root / space / version for space in spaces}
+    for destination in exported.values():
+        if destination.exists():
+            raise FileExistsError(f"dataset version already exists: {destination}")
+    try:
+        relabeled = {
+            A2_EE_DELTA: episodes,
+            A3_OBJ_REL_EE_DELTA: [_relabel_to_door_frame(episode) for episode in episodes],
+        }
+        if A1_JOINT_DELTA in exported:
+            relabeled[A1_JOINT_DELTA] = [_relabel_to_joint_delta(episode) for episode in episodes]
+    except (KeyError, IndexError, ValueError) as error:
+        raise ValueError(f"incomplete matched-action recording: {error}") from error
 
-    exported: dict[str, Path] = {}
-    exported[A2_EE_DELTA] = _export_hdf5(episodes, root / task / A2_EE_DELTA / version, robot_asset)
-    a3_episodes = [_relabel_to_door_frame(episode) for episode in episodes]
-    exported[A3_OBJ_REL_EE_DELTA] = _export_hdf5(
-        a3_episodes, root / task / A3_OBJ_REL_EE_DELTA / version, robot_asset
-    )
-    exported[A4_OBJ_CENTRIC_CHUNK] = _export_a4(
-        episodes, root / task / A4_OBJ_CENTRIC_CHUNK / version, robot_asset
-    )
-    if all(_has_joint_targets(episode) for episode in episodes):
-        a1_episodes = [_relabel_to_joint_delta(episode) for episode in episodes]
-        exported[A1_JOINT_DELTA] = _export_hdf5(
-            a1_episodes, root / task / A1_JOINT_DELTA / version, robot_asset
+    task_root.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(prefix=".export-", dir=task_root) as temporary:
+        staging = Path(temporary)
+        datasets = {}
+        for space, buffers in relabeled.items():
+            path = _export_hdf5(buffers, staging / space, robot_asset)
+            datasets[space] = EpisodeDataset(path)
+        a4 = A4ChunkDataset(_export_a4(episodes, staging / A4_OBJ_CENTRIC_CHUNK, robot_asset))
+        checks = [validate_dataset(data, space) for space, data in datasets.items()]
+        checks.extend(
+            (validate_a4_dataset(a4), validate_matched_action_space_datasets(datasets, a4))
         )
+        errors = [error for check in checks for error in check.errors]
+        if errors:
+            raise ValueError("invalid matched dataset: " + "; ".join(errors))
+        published = []
+        try:
+            for space, destination in exported.items():
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                if destination.exists():
+                    raise FileExistsError(f"dataset version already exists: {destination}")
+                (staging / space).rename(destination)
+                published.append(destination)
+        except BaseException:
+            for destination in reversed(published):
+                shutil.rmtree(destination)
+            raise
     return exported
 
 
@@ -53,7 +102,7 @@ def _export_hdf5(
     directory: Path,
     robot_asset: dict | None,
 ) -> Path:
-    _fresh_dir(directory)
+    directory.mkdir(parents=True)
     for episode in episodes:
         write_episode(episode, directory)
     _write_dataset_meta(episodes, directory, episodes[0].meta.action_space, robot_asset)
@@ -65,7 +114,7 @@ def _export_a4(
     directory: Path,
     robot_asset: dict | None,
 ) -> Path:
-    _fresh_dir(directory)
+    directory.mkdir(parents=True)
     lines = []
     for episode in episodes:
         meta = dataclasses.replace(episode.meta, action_space=A4_OBJ_CENTRIC_CHUNK)
@@ -145,14 +194,6 @@ def _write_dataset_meta(
         "created_utc": datetime.now(UTC).isoformat(),
     }
     (directory / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
-
-
-def _fresh_dir(directory: Path) -> None:
-    import shutil
-
-    if directory.exists():
-        shutil.rmtree(directory)
-    directory.mkdir(parents=True)
 
 
 def _git_commit() -> str:
