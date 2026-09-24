@@ -1,0 +1,80 @@
+{
+  "status": "unresolved",
+  "decision": "not_promoted",
+  "distribution_scope": "redistributable",
+  "source_part": "Front_Door_007",
+  "source_sha256": "04a508e8c8e0d28868457781a69b4127e1eb68054ba8080f7317c5ea1ef8306e",
+  "pack_original_sha256": "82cf4a88842596394075c87b8c922293567878de9aefeaec61b8ee55008b498a",
+  "selection_attempt": "attempts/000001",
+  "inspection_attempt": "attempts/000002",
+  "summary": "A distinct CC BY 4.0 single-leaf door remains unprepared: in-frame source surfaces cross; the passing 159.1 mm surface-mount approximation looks visibly detached. This is an unresolved recipe/assembly issue, not a license or automatic door-suitability rejection.",
+  "measurements": {
+    "source_triangles": 378,
+    "connected_components": 7,
+    "geometry_fingerprint": "805de2adb51e6b38c70d5259f0c615d32f8893f8a65c54bb172adf0aec147310",
+    "handedness": "left"
+  },
+  "component_review": {
+    "frame": "Fixed modeled U-frame [0], collision retained.",
+    "panel": "Glazed moving slab [5,6], collision retained.",
+    "handles": "Both-side handle components [1,2,3,4], collisions retained.",
+    "unlatched": "No separately modeled latch/bolt; no collision excluded."
+  },
+  "attempts": {
+    "000005": "1.3% fit, proper source crossings at closed pose",
+    "000006": "159.1 mm inferred surface mount passed geometry/static; front/rear visual review failed due obvious detachment",
+    "000007": "2% in-frame fit still fails closed contact at header and handle/jamb"
+  },
+  "normalization": "fail_on_current_recipe",
+  "static": "not_run_on_current_recipe",
+  "normalized_preview": "fail_on_previous_mount_after_actual_review",
+  "physics": "not_run",
+  "expert_qualification": "not_run",
+  "next_step": "Review a local geometry/handle-plate repair that preserves all required collisions and yields credible closed alignment; repeat affected checks only.",
+  "evidence": [
+    {
+      "path": "source-evidence.json",
+      "sha256": "b62005ad733133e6077c532a7332667ced1c6aec4b3d51e018af830d441130f3"
+    },
+    {
+      "path": "attempts/000001/selection-review.json",
+      "sha256": "68e204e7149d985e172ed2664378fec0625a50a919961aeba308596a5aa61558"
+    },
+    {
+      "path": "attempts/000002/inspect.json",
+      "sha256": "cf1294e4901de7a9ef2953fc240fcc16bfb02ff73c2f09e91438609af6a65596"
+    },
+    {
+      "path": "recipe.json",
+      "sha256": "f1ea0973619e09a0b8fa9e3daf4fce733bd19117753c75a8f194da5cfea6a83e"
+    },
+    {
+      "path": "attempts/000005/source_intersections.json",
+      "sha256": "a6d62dfe74535243ceba40034cf17f30257915972e0c7ccbdb80dc54f389714a"
+    },
+    {
+      "path": "attempts/000006/normalize.json",
+      "sha256": "b841618f1a3447fff55e0009d0b56b1a087556196f450d2e6f673bb7f6816240"
+    },
+    {
+      "path": "attempts/000006/static.json",
+      "sha256": "9e255ff20343dca6bcc263a6ad58df588fff1b2866d3bd6a001ca398c89b2363"
+    },
+    {
+      "path": "attempts/000006/preview-front.png",
+      "sha256": "38b3bdbd19824533edeaf6c79a272c73a2a90d3753827efe4f3b2855406d4b0b"
+    },
+    {
+      "path": "attempts/000006/preview-rear.png",
+      "sha256": "0cb436ee27e53da70c7b2aae3b0c8474abbef60785a4e0f6e7643d47c00ee75a"
+    },
+    {
+      "path": "attempts/000007/source_intersections.json",
+      "sha256": "aa1ec5aab5e4eb4675167b9ef968860218f50137d254116bd2574d572ec38a6c"
+    },
+    {
+      "path": "attempts/000007/normalize.json",
+      "sha256": "089085dfa4cc14652c149cf376f6ba7a81e00ba5d6e7893030477d8979dd268b"
+    }
+  ]
+}

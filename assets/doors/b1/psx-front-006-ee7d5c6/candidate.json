@@ -1,0 +1,43 @@
+{
+  "asset_id": "psx-front-006-ee7d5c6",
+  "source_url": "https://sketchfab.com/3d-models/low-poly-psx-style-front-doors-pack-ee7d5c6d36404849a459c84c3d004a0c",
+  "source_uid": "ee7d5c6d36404849a459c84c3d004a0c",
+  "source_part": "Front_Door_006",
+  "author": "Icevanilla",
+  "license": "CC-BY-4.0",
+  "distribution_scope": "redistributable",
+  "license_evidence": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/psx-front-006-ee7d5c6/source-evidence.json",
+  "attribution": "Front_Door_006 from Low-Poly PSX Style Front Doors Pack by Icevanilla (https://sketchfab.com/vanillao03), https://sketchfab.com/3d-models/low-poly-psx-style-front-doors-pack-ee7d5c6d36404849a459c84c3d004a0c, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Selection and preparation changes are in source-evidence.json and recipe.json.",
+  "retrieval_date": "2026-09-24",
+  "door_type": "exterior",
+  "single_leaf": true,
+  "frame_panel_separable": true,
+  "license_scope_review": "pass",
+  "license_scope_review_notes": "Actual model page and download modal state CC Attribution and link CC BY 4.0; embedded USDZ metadata agrees.",
+  "custom_terms_review": "pass",
+  "custom_terms_review_notes": "No additional use terms or separate atlas license visible.",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "Named source single-leaf assembly with matching frame; double-leaf 003 excluded. Final local fingerprint comparison follows inspect.",
+  "selected_format": ".usdc",
+  "reported_triangles": 7800,
+  "reported_texture_max_px": 4096,
+  "dependencies": [
+    {
+      "path": "0/Doors_baseColor.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: JPG packaged with CC BY USDZ, no separate terms visible"
+    }
+  ],
+  "initial_state": "closed_unlatched",
+  "reviewed_source_sha256": "f8a14b8475e851835184b5f4c028d4d6aa4a53635cfe6d71949e105ee93ef6ca",
+  "local_dependency_review": "pass",
+  "local_dependency_review_notes": "Selected USDC resolves the packaged 4096 x 1024 JPG atlas. The source USDZ metadata and actual page agree on CC BY 4.0; no separate atlas terms were observed.",
+  "local_duplicate_review": "fail",
+  "local_duplicate_review_notes": "Exact geometry fingerprint 658079d10f332123b674ec1830cc708cb47b72eb0a8715f56faaac42facd421a matches previously prepared psx-front-20d5505. Excluded as a repeated source assembly; no normalization or promotion.",
+  "local_asset_shape_review": "pass",
+  "local_asset_shape_review_notes": "Single-leaf source assembly with separate frame and handle, but already represented in the accepted corpus.",
+  "local_visual_review": "not_run",
+  "local_visual_review_notes": "Excluded after exact duplicate inspection.",
+  "local_mechanical_review": "not_run",
+  "local_mechanical_review_notes": "No normalization or GPU physics for an exact duplicate."
+}

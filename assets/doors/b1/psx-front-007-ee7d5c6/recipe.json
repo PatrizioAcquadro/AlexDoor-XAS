@@ -1,0 +1,103 @@
+{
+  "handedness": "left",
+  "scale": 1.0,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    0,
+    -0.9030818476650815,
+    0.007797313908513015
+  ],
+  "opening_center_source": [
+    0.9030818476650815,
+    -0.007797313908513015,
+    0
+  ],
+  "hinge_m": [
+    0.051589675217348085,
+    0.40747700092912437,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.8091741862422328,
+    "height_m": 1.933616852684108,
+    "thickness_m": 0.09171427432595224
+  },
+  "components": {
+    "Frame": [
+      0
+    ],
+    "Panel": [
+      5,
+      6
+    ],
+    "Handle": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "leaf_components": [
+    6
+  ],
+  "clear_aperture_m": [
+    [
+      -0.38747700092912435,
+      0.08536849844029758
+    ],
+    [
+      0.38747700092912435,
+      1.9873
+    ]
+  ],
+  "colliders": {
+    "0": {
+      "partitions": {
+        "y": [
+          -0.4057,
+          0.4057
+        ],
+        "z": [
+          2.02562190980934
+        ]
+      }
+    }
+  },
+  "moving_scale": 0.98,
+  "moving_scale_center_m": [
+    0.05158967521734809,
+    -0.003380161186093411,
+    1.0490826992562234
+  ],
+  "moving_translation_m": [
+    0,
+    0.003380161186093411,
+    0
+  ],
+  "clearance_review": "The original leaf touches the header and handle plates cross the far jamb (attempt 000005 source_intersections.json). The visually excessive 159.1 mm surface mount passed normalization but is not accepted after actual front/rear review (attempt 000006 previews). Retry the documented maximum 2% uniform Panel/Handle fit, preserving collisions and keeping the original in-frame depth and hinge face. The opening review aperture ends 2 mm below the measured header.",
+  "modifications": [
+    "Select original Front_Door_007 and its matching frame from the CC BY USDZ; omit the 003 double-door and other displays, retain the packaged atlas.",
+    "Apply a proper Y-up to Z-up rotation and 1.000 uniform overall scale, with the modeled frame floor and selected opening as canonical origin; no reflection.",
+    "Infer the left-hand revolute axis opposite the source handle at measured leaf opening-face x=0.051590 m; no physical hinge dimensions are claimed.",
+    "Apply 2% uniform Panel/Handle clearance fitting about this selected leaf center. Keep all modeled leaf, glass, frame and handle collisions.",
+    "Partition the intact fixed frame component 0 at y=-0.4057/0.4057 m, 2 mm inside its measured opening-side jamb faces, plus the measured header. Keep frame and fixed sidelight collisions.",
+    "Begin closed and already unlatched; no separate projecting latch/lock bolt is identified.",
+    "Keep the original in-frame depth; reject the 159.1 mm surface-mount diagnostic after visual review."
+  ]
+}
