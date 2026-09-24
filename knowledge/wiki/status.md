@@ -1,11 +1,25 @@
 # Project Status
 
-Current as of 2026-09-23. Subphases 4.0 and 4.1 are implemented and GPU-verified.
+Current as of 2026-09-24. Subphases 4.0 and 4.1 are implemented and GPU-verified.
 Subphase 5.0 preparation infrastructure is implemented and verified; real-door
-intake has started. Eighteen doors pass static, visual and isolated GPU checks
+intake has started. Nineteen distinct doors pass static, visual and isolated GPU checks
 in the common closed-unlatched state and are ready for Subphase 5.1. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]]
 for commands, supported formats, admission rules and evidence.
+
+Hawtor Studio's CC BY 4.0 interior wood pack contributes **one** new geometric
+door, `interior-wood-d1-32707dc`. The second advertised door changes material
+but has the same leaf and frame geometry, so it is recorded as an appearance
+variant and excluded from the identity count. D1 retains its original frame,
+paired handles and hinges. Reviewed frame-rebate colliders, local hinge contact
+filters and a 1.3% uniform moving fit resolve source contact without dropping
+leaf, frame or handle collision. Only its latch tongue loses collision in the
+closed-unlatched task state. Attempt `000016` passes static checks, both viewed
+RTX previews and one short RTX 4090 run to the geometry-derived **54.2°** stop,
+with three exact resets, stable frame and zero reported penetration. The prepared
+left-handed leaf is 0.826 × 2.073 × 0.083 m. The current license counts are
+sixteen redistributable, two local-only and one private/noncommercial. Original
+USDZ and prior attempts are preserved; robot/expert qualification remains pending.
 
 The industrial Icevanilla PSX pack now contributes four prepared single doors:
 `001`–`004`, with CC BY 4.0 source/atlas and the double door excluded. The earlier
@@ -244,7 +258,7 @@ The first candidate, `door-with-frame-2f2f149f`, is technically ready for 5.1 af
 explicitly omitting latch/lock bolt collisions for the common closed-unlatched task.
 It reaches 188 degrees in isolated GPU physics with stable resets/frame and no
 reported penetration. The leaf, frame and handles retain their collisions.
-Eighteen distinct real doors are prepared. Start the unchanged
+Nineteen distinct real doors are prepared. Start the unchanged
 common robot/expert protocol in 5.1 only when requested; the next-candidate
 [[implementation_phases/phase-5-door-corpus-and-qualification|handoff]] remains
 available for further sequential intake. Expert qualification, the final corpus
@@ -264,6 +278,8 @@ One ACT-A3-N50 rollout at seed 112 produced a reproducible 219.95 N one-tick pea
 These are historical scientific conclusions, not active workflows. See [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] and [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]]. Git retains removed implementation and evidence files.
 
 ## Version Notes
+
+- 2026-09-24 — Prepared one distinct CC BY 4.0 door from Hawtor Studio's two-style interior wood pack; D2 is a material-only duplicate. D1 passes static, viewed front/rear RTX previews and one RTX 4090 run to its 54.2-degree geometric stop. Nineteen doors are ready; robot/expert qualification remains pending.
 
 - 2026-09-23 — Recovered four industrial PSX doors with reviewed surface mounting and a user-approved frame adaptation for 002; one RTX 4090 run per door passes around 91 degrees. Eighteen doors are ready; 005 remains a duplicate variant and the 2% moving-fit limit is unchanged.
 

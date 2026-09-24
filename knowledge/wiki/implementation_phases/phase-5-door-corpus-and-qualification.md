@@ -1,7 +1,7 @@
 # Phase 5 — Door Corpus and Qualification
 
 > Subphase 5.0 infrastructure is implemented and verified on the RTX 4090.
-> Fourteen real doors pass preparation and are ready for 5.1: eleven redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
+> Nineteen distinct real doors pass preparation and are ready for 5.1: sixteen redistributable, two local-only and one private/noncommercial. Expert qualification remains planned.
 
 ## Objective
 
@@ -128,6 +128,13 @@ robot and unfiltered geometry; leaf/frame and handle/frame contacts remain activ
 Never disable whole-body self-collision to fix a bearing. Check the actual pin axis,
 opening side and collider inflation before adding an interface exception. Detailed
 bearing mechanics, wear and lock operation are outside this preparation model.
+If a modeled hinge barrel intersects an unrecessed jamb, reviewed
+`hinge_jamb_components` may identify that fixed Frame component with
+`hinge_jamb_review`. Only its individual collider cells whose every vertex lies
+within 10 cm of the hinge axis can be filtered against the named moving hinge
+hardware. Distant cells, all leaf/frame and handle/frame pairs, and all unlisted
+contacts remain active. This handles a demonstrated graphics mortise omission
+without classifying the entire jamb as bearing hardware or changing the bound.
 Optional `colliders` maps component indices (JSON strings) to `auto`, `convexHull`,
 or `convexDecomposition`. Default `auto` uses the installed PhysX cooker, baking
 individual hulls so clearance checks and simulation use the same collision shapes.
@@ -851,6 +858,39 @@ the fourteen earlier accepted assets are unchanged. Source/candidate/preparation
 records retain each part's provenance and the specific inferred changes. Robot
 reachability, expert rollouts and the 45-degree qualification remain in 5.1.
 
+**Hawtor Studio interior wood pack review (2026-09-24).**
+[Interior Wood Doors Pack 1](https://sketchfab.com/3d-models/interior-wood-doors-pack-1-32707dcfa6304f49bf99148d0211f5f7)
+by Hawtor Studio (Toni García Vilche) is CC BY 4.0 on the page, download
+modal and local USDZ metadata. The author asks for credit; all eight packaged
+2K maps have no separately stated terms. Original FBX and converted USDZ,
+glTF and GLB are available. The viewer shows two framed wooden doors with
+levers, but local meshes establish one geometry: D1/D2 leaf vertices and faces
+are identical, the frame vertices differ by at most 0.72 micrometers with
+identical faces, and they bind different materials. D2 is an appearance variant,
+excluded as a separate identity. Preview-display copies are also excluded.
+
+The selected dark D1 assembly has 2,542 triangles, 19 connected components and
+a geometry fingerprint distinct from all eighteen prior accepted doors. Its
+source frame, leaf, paired handles and upper/lower hinges remain visible and
+collidable. Only the projecting latch tongue loses collision in the common
+closed-unlatched state; the fixed strike plate and moving edge plate keep it.
+The original frame has a narrow rebate. Profile-based collider partitions keep
+the passage clear without removing the frame. Source hinge parts intersect their
+fixed bearings and the unrecessed jamb seat; reviewed local pair filters model
+that bearing while preserving all other contacts. An initial source slab contacts
+the strike plate during opening. A 1.3% uniform moving fit, within the existing
+2% bound, supplies sweep clearance; the visible small top reveal is recorded.
+
+Attempt `000016` passes static checks and both actually viewed RTX captures.
+One short RTX 4090 `cuda:0` run reaches the measured **54.2-degree** stop with
+three exact resets, zero frame drift and zero reported penetration. The prepared
+left-handed leaf measures **0.826 × 2.073 × 0.083 m**. D1 is promoted as
+redistributable and ready for 5.1, bringing the current count to **nineteen**.
+The local records under `assets/doors/b1/interior-wood-d1-32707dc/` carry
+source/selection hashes, recipe, front/rear images and physics evidence. The
+original USDZ and all diagnostic attempts remain. This is isolated asset
+preparation; robot/expert qualification and the 45-degree criterion were not run.
+
 #### Key Decisions
 
 - Target 24 accepted unique identities, 12 left- and 12 right-hinged, with no
@@ -880,14 +920,14 @@ reachability, expert rollouts and the 45-degree qualification remain in 5.1.
 
 #### Problems / Limitations
 
-Preparation is verified on the documented fixtures and fourteen real doors in the
+Preparation is verified on the documented fixtures and nineteen real doors in the
 closed-unlatched state. No real door has expert qualification yet. Passing
 these checks does not establish robot reachability. Subphase 5.1 owns the frozen
 expert probe, per-door reference and 24-door split. Missing URLs are expected input.
 
 The Ahmed sayed candidate's earlier license rejection and preparation blockers
 are superseded by local-only scope and the reviewed GLB repair. The initial batch
-has grown to fourteen technically ready doors; eleven are redistributable.
+has grown to nineteen technically ready doors; sixteen are redistributable.
 Void Frame Studio's initial source-license failure and geometry
 attempt failures are superseded by its private/noncommercial admission and
 attempt `000008`. Inferred pivots and clearance fitting do not reconstruct real
@@ -973,7 +1013,7 @@ both handednesses; right hinges expose a proper 180-degree X rotation.
 `gpu-obstruction/` records the expected physical rejection. FBX front/rear preview
 images are retained under `formats/fbx/prepared/` and were visually inspected.
 That infrastructure run produced no real candidate payload, expert reference,
-split or learned dataset. Fourteen real candidate records now have prepared
+split or learned dataset. Nineteen real candidate records now have prepared
 attempts under `assets/doors/b1/`; their accepted pointers and individual
 preparation reviews carry the current per-door evidence.
 

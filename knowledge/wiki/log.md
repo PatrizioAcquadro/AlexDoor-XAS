@@ -685,3 +685,13 @@ Static, viewed RTX previews and one RTX 4090 run per door pass near 91 degrees; 
 ## 2026-09-23 — lint : Industrial recovery evidence and documentation
 Resolved wiki links/index and reconciled eighteen prepared identities, license scopes and all five industrial review evidence inventories; original USDZ checksum is unchanged.
 32 focused tests, Ruff/format and Git whitespace checks pass; no original payload, earlier accepted door, raw knowledge or frozen Phase 4 setup changed.
+
+## 2026-09-24 — update : Interior wood pack geometry and preparation
+
+Reviewed Hawtor Studio's CC BY 4.0 pack: D1 and D2 share geometry and differ in material, so D2 is an appearance variant. Prepared D1 with reviewed rebate collision, local hinge contact pairs and a 1.3% moving fit; static, viewed previews and one RTX 4090 run pass to 54.2 degrees.
+Nineteen distinct doors are ready for 5.1; original USDZ, diagnostic attempts and the frozen Phase 4 setup remain unchanged. Robot/expert qualification was not run.
+
+## 2026-09-24 — lint : Interior wood evidence and wiki
+
+Verified nineteen ready pointers and scope counts, eleven D1 evidence hashes, the unchanged original USDZ checksum and passing normalize/static/preview/physics reports. Thirty-one focused tests, Ruff, wiki links/index and Git whitespace checks pass.
+No raw knowledge, earlier accepted asset or frozen Phase 4 configuration changed.
