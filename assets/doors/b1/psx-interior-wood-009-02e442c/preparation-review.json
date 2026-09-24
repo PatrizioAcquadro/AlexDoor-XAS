@@ -1,0 +1,17 @@
+{
+  "status": "excluded_duplicate",
+  "decision": "not_promoted",
+  "source_part": "Wooden_Door_009",
+  "duplicate_of": "psx-wooden-009-20d5505",
+  "source_sha256": "72603d8866ae67d87318e3926cd0656b11b2c592405e716558611a7f61a5b773",
+  "pack_original_sha256": "3d873e3183ccfab21b6b15d08240815955eddf42fd5ed020fb40cfe742be6ce0",
+  "selection_attempt": "attempts/000002",
+  "inspection_attempt": "attempts/000003",
+  "geometry_fingerprint": "74ec4c57b9eb20de0c1b5ef743f35e42ab71fe07fa45eea6d8dcfd6abd29e970",
+  "reason": "Exact prepared-corpus geometry duplicate; no normalization, preview or physics is needed.",
+  "evidence": [
+    "attempts/000002/selection-review.json",
+    "attempts/000003/inspect.json",
+    "source-evidence.json"
+  ]
+}

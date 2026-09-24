@@ -1,0 +1,37 @@
+{
+  "asset_id": "psx-interior-wood-001-02e442c",
+  "source_url": "https://sketchfab.com/3d-models/low-poly-psx-style-wooden-interior-doors-pack-02e442c6d4a24df29624808d058f010a",
+  "source_uid": "02e442c6d4a24df29624808d058f010a",
+  "source_part": "Wooden_Door_001",
+  "author": "Icevanilla",
+  "license": "CC-BY-4.0",
+  "distribution_scope": "redistributable",
+  "license_evidence": "/home/pacquadr/Desktop/DoorManipulation/assets/doors/b1/psx-interior-wood-001-02e442c/source-evidence.json",
+  "attribution": "Wooden_Door_001 from Low-Poly PSX Style Wooden Interior Doors Pack by Icevanilla (https://sketchfab.com/vanillao03), https://sketchfab.com/3d-models/low-poly-psx-style-wooden-interior-doors-pack-02e442c6d4a24df29624808d058f010a, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Selection and preparation changes are recorded in source-evidence.json and recipe.json.",
+  "retrieval_date": "2026-09-24",
+  "door_type": "interior",
+  "single_leaf": true,
+  "frame_panel_separable": true,
+  "license_scope_review": "pass",
+  "license_scope_review_notes": "Actual page and download modal state CC Attribution with CC BY 4.0 link; embedded USDZ metadata agrees.",
+  "custom_terms_review": "pass",
+  "custom_terms_review_notes": "No additional terms or separate atlas license visible.",
+  "duplicate_review": "pass",
+  "duplicate_review_notes": "Named source leaf and matching frame selected. Panel 004 repeats panel 003 and is excluded; geometry fingerprints and prior corpus identities will be reviewed after inspection.",
+  "selected_format": ".usdc",
+  "reported_triangles": 3400,
+  "reported_texture_max_px": 4096,
+  "dependencies": [
+    {
+      "path": "0/Doors_baseColor.jpg",
+      "license": "CC-BY-4.0",
+      "license_evidence": "source-evidence.json: only JPG embedded in the CC BY USDZ, without separate stated terms"
+    }
+  ],
+  "initial_state": "closed_unlatched",
+  "reviewed_source_sha256": "9fbc406da8503bf4da3b28938b172ebb5c499b0762ce76c8c005d956258c52dd",
+  "local_dependency_review": "pass",
+  "local_dependency_review_notes": "Selected USDC resolves its packaged 4096 x 1024 atlas; original USDZ metadata and page agree on CC BY 4.0; no separate atlas terms observed.",
+  "local_duplicate_review": "fail",
+  "local_duplicate_review_notes": "Exact geometry fingerprint 5e89e499771700af48f0113f73da5dbf597e3fc3c2e8577457e58bf56d251da1 matches already accepted psx-wooden-001-20d5505; exclude this repeated source assembly from the corpus."
+}
