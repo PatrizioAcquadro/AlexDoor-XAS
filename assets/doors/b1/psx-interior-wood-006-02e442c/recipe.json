@@ -1,0 +1,101 @@
+{
+  "handedness": "left",
+  "scale": 1.015,
+  "rotation": [
+    [
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ]
+  ],
+  "translation_m": [
+    0,
+    1.3218787264400256,
+    -0.0024467074154232013
+  ],
+  "opening_center_source": [
+    -1.302343572847316,
+    0.002410549177756849,
+    0
+  ],
+  "hinge_m": [
+    0.043473492819376444,
+    0.3785702878490068,
+    0
+  ],
+  "dimensions_m": {
+    "width_m": 0.7571405756980136,
+    "height_m": 1.8092763791485924,
+    "thickness_m": 0.08581663004395965
+  },
+  "components": {
+    "Frame": [
+      0
+    ],
+    "Panel": [
+      5
+    ],
+    "Handle": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "leaf_components": [
+    5
+  ],
+  "clear_aperture_m": [
+    [
+      -0.35857021605146483,
+      0.06499920520101542
+    ],
+    [
+      0.35857021605146483,
+      1.8542753977488888
+    ]
+  ],
+  "colliders": {
+    "0": {
+      "partitions": {
+        "y": [
+          -0.38243125,
+          0.38243125
+        ],
+        "z": [
+          1.8736077925845753
+        ]
+      }
+    }
+  },
+  "moving_scale": 0.987,
+  "moving_scale_center_m": [
+    0.043473492819376444,
+    0.004916351680042479,
+    0.9596373117597335
+  ],
+  "moving_translation_m": [
+    0,
+    -0.004916351680042479,
+    0
+  ],
+  "clearance_review": "Selected frame and rectangular leaf have the same measured jamb profile (0.8970 m outer width), slab width (0.7558 m), height (1.8060 m) and thickness (0.0857 m) as the accepted same-author PSX family; the nominal slab overlaps the inner jamb. A 1.3% uniform Panel/Handle fit, centered at the measured leaf width center, inferred hinge-side depth and leaf height center, retains the paneled geometry while giving operating clearance. The measured leaf/frame center offset (4.92 mm) is removed after fitting. Verify the swept stop and contact on this individual source; no collision is disabled. The first normalization used x=0.012698 m from the older pack, but this source has a different depth offset: the pivot fell inside the slab and the sweep hit the jamb after 11 degrees. The corrected x=0.043473 m is measured from this leaf front face.",
+  "modifications": [
+    "Select the original Wooden_Door_006 single-leaf assembly with matching source frame and retain the original 4K CC BY atlas.",
+    "Apply uniform 1.015 full-assembly scale and proper Y-up to Z-up rotation; recenter on this source frame opening, with no reflection.",
+    "Infer a left-side revolute axis opposite the source handle on this leaf opening face (x=0.043473 m after overall scaling); no modeled hinge hardware or manufacturer pivot is claimed.",
+    "Apply 1.3% uniform Panel/Handle clearance fit about this leaf center; measured post-fit width 0.7571 m and height 1.8093 m. The original frame is unaltered.",
+    "Partition the intact U-frame at measured jamb/header profile boundaries; retain all frame, leaf and both-side handle collisions.",
+    "Start closed and already unlatched. No separate projecting latch/lock bolt is modeled; no collision exclusion is needed."
+  ]
+}
