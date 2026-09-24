@@ -338,6 +338,15 @@ commands are part of this paused campaign. Any future common setup change
 requires fresh complete pairs for affected references; compare archived
 `setup.json` before reusing an earlier result.
 
+The repeated animated-door hold failures exposed insufficient tracking reserve
+at the end of pushing. A fixed target lost contact with the coasting panel;
+deceleration alone still entered hold too late. The common probe now projects
+the recent material-error trend through its hold budget and decelerates the final
+command continuously. Contact/force/pose validity thresholds are unchanged; see
+[[phase-4-robot-and-task-configuration|Phase 4]]. A fresh `animated-door-1` pair
+passes at 56.96452 degrees in both trials. Other affected references are being
+rechecked under the same revised probe; earlier failed pairs remain in the cache.
+
 The PSX `front-005` pre-cycle error came from leaf ownership metadata: component
 7 is existing collidable glazing, but only the surrounding component 8 was listed
 as leaf geometry. Including both leaves the original bounds, inertia, contact

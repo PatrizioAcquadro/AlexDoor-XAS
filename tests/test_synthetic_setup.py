@@ -8,6 +8,30 @@ from scipy.spatial.transform import Rotation
 from alexdoor_xas.qualification.synthetic_probe import SustainedAngle, rank_candidates
 
 
+def test_hold_reference_decelerates_continuously_and_stops_at_fixed_endpoint():
+    from alexdoor_xas.qualification.synthetic_probe import hold_reference
+
+    start, speed, duration = 0.9, np.deg2rad(1), 3.0
+    times = np.linspace(0, duration, 301)
+    angles = np.array([hold_reference(start, speed, t, duration, 2.0) for t in times])
+    velocities = np.diff(angles) / np.diff(times)
+    assert angles[0] == start
+    assert velocities[0] == pytest.approx(speed, rel=1e-4)
+    assert np.all(np.diff(velocities) <= 1e-10)
+    assert 0 <= velocities[-1] < speed * 1e-4
+    assert angles[-1] == pytest.approx(start + speed * duration / 2)
+    assert hold_reference(start, speed, 10, duration, 2.0) == angles[-1]
+    assert hold_reference(start, speed, 10, duration, 0.91) == 0.91
+
+
+def test_tracking_reserve_anticipates_growth_but_does_not_amplify_settling():
+    from alexdoor_xas.qualification.synthetic_probe import tracking_reserve
+
+    assert tracking_reserve([(0, 0.001), (0.5, 0.002)], 3) == pytest.approx(0.008)
+    assert tracking_reserve([(0, 0.003), (0.5, 0.002)], 3) == pytest.approx(0.002)
+    assert tracking_reserve([(0, 0.002)], 3) == pytest.approx(0.002)
+
+
 def test_contact_load_tolerates_impulse_chatter_but_rejects_unloaded_or_detached_points():
     from alexdoor_xas.qualification.synthetic_probe import ContactLoad
 

@@ -43,7 +43,7 @@
   "loaded_force_n": 0.02,
   "stall_s": 3.0,
   "tie_deg": 0.5,
-  "hold_blend_s": 0.5,
+  "hold_blend_s": 3.0,
   "material_drift_guard_m": 0.0025,
   "contact_force_window_s": 0.1,
   "contact_gap_tolerance_m": 0.0001

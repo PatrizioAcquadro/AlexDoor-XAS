@@ -80,47 +80,47 @@
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
-    "status": "unresolved",
-    "theta_expert_d": null,
-    "reason": "invalid_controlled_cycle",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/animated-door-1-88abf40/20260924T212508.154992Z",
+    "status": "qualified",
+    "theta_expert_d": 56.96451875343129,
+    "reason": "safety_stop",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/animated-door-1-88abf40/20260924T220609.717170Z",
     "trials": [
       {
-        "passed": false,
-        "angle_deg": 57.02959679584317,
-        "hold_angle_deg": null,
-        "stop_reason": "invalid_hold",
+        "passed": true,
+        "angle_deg": 56.96451875343129,
+        "hold_angle_deg": 56.96451875343129,
+        "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
         "peak_force_n": 8.567710876464844,
-        "joint_margin": -4.098120029993879e-07,
+        "joint_margin": 0.026595886796712875,
         "released": true,
         "visibility": {
           "passed": false,
           "failed_frames": 398,
-          "checked_frames": 4300,
+          "checked_frames": 4128,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-1"
       },
       {
-        "passed": false,
-        "angle_deg": 57.02959679584317,
-        "hold_angle_deg": null,
-        "stop_reason": "invalid_hold",
+        "passed": true,
+        "angle_deg": 56.96451875343129,
+        "hold_angle_deg": 56.96451875343129,
+        "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
         "peak_force_n": 8.567710876464844,
-        "joint_margin": -4.098120029993879e-07,
+        "joint_margin": 0.026595886796712875,
         "released": true,
         "visibility": {
           "passed": false,
           "failed_frames": 398,
-          "checked_frames": 4300,
+          "checked_frames": 4128,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-2"
       }
     ],
-    "repeat_spread_deg": null,
+    "repeat_spread_deg": 0.0,
     "scope": "nominal_simulated_expert_reference_not_learning_data"
   }
 }

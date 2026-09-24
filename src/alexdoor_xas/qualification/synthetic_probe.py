@@ -140,6 +140,22 @@ class ContactLoad:
         return gap is not None and gap <= self.maximum_gap and self.force >= self.minimum_force
 
 
+def hold_reference(start, speed, elapsed, duration, mechanical_stop):
+    """Decelerate the commanded angle continuously, without chasing panel drift."""
+    u = float(np.clip(elapsed / duration, 0.0, 1.0))
+    # Integral of a smooth velocity ramp from `speed` to zero.
+    return min(start + speed * duration * (u - u**3 + 0.5 * u**4), mechanical_stop)
+
+
+def tracking_reserve(samples, horizon):
+    """Reserve hold time for a growing tracking error; ignore declining trends."""
+    times, errors = np.asarray(samples, dtype=float).T
+    centered = times - times.mean()
+    denominator = np.dot(centered, centered)
+    slope = np.dot(centered, errors) / denominator if denominator > 0 else 0.0
+    return float(errors[-1] + max(0.0, slope) * horizon)
+
+
 def rank_candidates(results, tie_deg):
     """Only complete four-case controlled candidates participate in minimax."""
     valid = [r for r in results if len(r["cases"]) == 4 and all(c["passed"] for c in r["cases"])]
@@ -259,6 +275,7 @@ def run_probe(env, door, setup, output):
     limit_evidence = None
     load_window = deque(maxlen=max(1, round(0.1 / dt)))
     safety_detail = None
+    tracking = deque(maxlen=max(2, round(setup.sustain_s / dt) + 1))
     start_p, start_q = [v[0].cpu().numpy() for v in env.tool_pose()]
 
     def command(goal_p, goal_r, phase):
@@ -418,6 +435,9 @@ def run_probe(env, door, setup, output):
                 "push",
             )
             angle, pe, re, force, margin, loaded, valid = state
+            tracking.append((tick * dt, traces[-1]["material_error"]))
+            predicted_error = tracking_reserve(tracking, setup.hold_settle_s)
+            traces[-1]["predicted_hold_error_m"] = predicted_error
             elapsed = tick * dt
             if angle > last_angle + np.deg2rad(0.25):
                 last_progress, last_angle = elapsed, angle
@@ -453,7 +473,7 @@ def run_probe(env, door, setup, output):
                 elapsed > 5.0
                 and window.maximum is not None
                 and (
-                    traces[-1]["material_error"] > setup.material_drift_guard_m
+                    predicted_error > setup.material_drift_guard_m
                     or re > 0.5 * setup.orientation_tolerance
                 )
             ):
@@ -482,17 +502,17 @@ def run_probe(env, door, setup, output):
     held_angle = None
     if failure is None:
         held = SustainedAngle(setup.sustain_s)
-        initial_lead = reference - state[0]
         for tick in range(round(setup.hold_settle_s / dt)):
-            angle = float(tensor(env.door.data.joint_pos)[0, 0])
-            blend = min(1.0, (tick + 1) * dt / setup.hold_blend_s)
-            lead = initial_lead * (1.0 - blend * blend * (3.0 - 2.0 * blend))
+            target = hold_reference(
+                reference,
+                setup.angular_speed,
+                (tick + 1) * dt,
+                setup.hold_blend_s,
+                door.mechanical_stop,
+            )
             state = command(
                 *door.contact_pose(
-                    angle + lead,
-                    setup.contact_fraction,
-                    setup.contact_height,
-                    setup.compression_m,
+                    target, setup.contact_fraction, setup.contact_height, setup.compression_m
                 ),
                 "hold",
             )

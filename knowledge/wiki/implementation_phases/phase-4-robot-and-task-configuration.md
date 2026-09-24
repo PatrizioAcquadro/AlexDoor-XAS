@@ -120,16 +120,21 @@ least 0.02 N and an authorized contact point within 0.1 mm in both 120 Hz subste
 an in-panel distal footprint, closed grippers, no forbidden contact,
 and material-pose errors within 10 mm / 5 degrees. The reported angle is the
 **minimum angle over a contiguous 0.5 s interval**; sustain does not require an
-exactly motionless panel. Hold has a 3 s budget. A signed reference offset decays
-smoothly over 0.5 s on entry, including when panel inertia puts it ahead of the
-command. Release retraces an achieved pose behind the panel and verifies unloaded
+exactly motionless panel. Hold has a 3 s budget. Its reference now starts at the
+last push command and smoothly decelerates from the nominal angular speed to
+zero over 3 s, capped by the mechanical stop. It does not chase measured panel
+drift or introduce an entry target jump; a complete valid 0.5 s window is still
+required before release. Release retraces an achieved pose behind the panel and verifies unloaded
 separation of at least 1 cm.
 
 The normal-force thresholds are 0.02 N for loaded contact, 0.10 N for declining
 mean load over 0.1 s, 50 N for a soft safety stop and 80 N for a hard failure.
 After the five-second push transient, a 2.5 mm material-drift reserve or half the
-orientation budget also triggers a safety stop. The reserve leaves room to finish
-hold and release. There is no 45- or 50-degree termination condition. Mechanical
+orientation budget also triggers a safety stop. Material error includes a
+nonnegative linear trend over the last 0.5 s, projected through the 3 s hold budget.
+This reserves room before tracking deteriorates; decreasing error is not amplified.
+The projected error is retained in each push trace. These common revisions address
+the repeated animated-door hold failures; earlier references need fresh pairs. There is no 45- or 50-degree termination condition. Mechanical
 stop, locally evidenced joint constraint, safety stop, lost contact, solver/tracking
 stall, timeout and invalid physics remain distinct; unresolved stops cannot qualify.
 
@@ -220,7 +225,7 @@ exact 0.65/1.20 m panels and geometry-derived handle inertia; explicit USD dimen
 and inertia checks and all physics/full-cycle gates were repeated. Earlier
 nominal-width runs remain calibration evidence only.
 
-An abrupt push-to-hold target change caused force spikes and failed sustain when
+During the original synthetic setup, an abrupt push-to-hold target change caused force spikes and failed sustain when
 the panel led the reference. Signed continuous blending fixed that failure.
 Waiting for 5 mm material drift left insufficient hold margin on the right-narrow
 case; the common 2.5 mm reserve fixed it without an angle cutoff or relaxed
