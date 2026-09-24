@@ -9,12 +9,14 @@ AlexDoor-XAS studies how action representation affects learning and execution in
 contact-rich humanoid manipulation. B1 compares A1–A4 × ACT/Diffusion on held-out
 push doors with fixed-base Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
-Purdue control/sensing and the common four-door synthetic setup are implemented.
+Purdue control/sensing and the shared expert workflow are implemented.
 The prepared pool contains **32 doors**: 29 redistributable, two local-only and
-one private/noncommercial. The real-door expert command is implemented, but its
-first pilot is blocked by closed-door/pedestal interference on both selected
-doors and both substitutes. No real door has an expert reference yet. B1
-demonstrations, Replicator and learned-policy integration remain future work.
+one private/noncommercial. The real-door expert command now uses a shared
+robot/pedestal yaw of zero degrees, revised from 45 degrees. The initial
+pedestal interference is resolved and one right door is qualified at 59.32 degrees.
+Both tested left doors still have approach collisions; the left/right pilot is
+incomplete. B1 demonstrations, Replicator and learned-policy integration remain
+future work.
 
 B0 workflows and local data have been retired. Their scientific conclusions and
 limits remain in the wiki. Reusable action math, recording, dataset and model

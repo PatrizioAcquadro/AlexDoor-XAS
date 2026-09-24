@@ -10,8 +10,7 @@ from alexdoor_xas.action.frames import quat_to_rot_matrix
 def has_forbidden_contact(contacts):
     """Reject touching/penetrating or loaded forbidden pairs, not empty-gap candidates."""
     return any(
-        c["category"] == "forbidden"
-        and (c["separation_m"] <= 0.0 or c["force_n"] > 0.0)
+        c["category"] == "forbidden" and (c["separation_m"] <= 0.0 or abs(c["force_n"]) > 0.0)
         for c in contacts
     )
 

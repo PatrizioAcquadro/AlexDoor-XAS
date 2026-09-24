@@ -14,6 +14,7 @@ def test_forbidden_contact_requires_touch_or_load():
     candidate = dict(category="forbidden", separation_m=0.0033186, force_n=0.0)
     assert not has_forbidden_contact([candidate])
     assert has_forbidden_contact([{**candidate, "force_n": 0.01}])
+    assert has_forbidden_contact([{**candidate, "force_n": -0.01}])
     assert has_forbidden_contact([{**candidate, "separation_m": 0.0}])
     # Fixed obstacles may report penetration with zero reaction force.
     assert has_forbidden_contact([{**candidate, "separation_m": -0.03}])

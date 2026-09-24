@@ -2,8 +2,9 @@
 
 The maintained runtime is `AlexDoor-DoorPush-Purdue-v0`: fixed-base Purdue
 Alex003, WSG32/UMI v1, measured pedestal and head ZED RGB-D. Real-door expert
-qualification has a shared executor; its first pilot is blocked by initial
-closed-door/pedestal interference. Learned observation
+qualification has a shared executor. Robot and pedestal now share zero yaw;
+initial pedestal interference is resolved and one right door is qualified.
+Left-door approach collisions still block the left/right pilot. Learned observation
 integration remains future work.
 
 ## Runtime and Data Boundaries

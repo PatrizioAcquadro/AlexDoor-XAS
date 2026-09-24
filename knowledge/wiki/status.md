@@ -6,26 +6,27 @@ compatibility, dataset payloads and run orchestration are retired.
 | Area | Current state |
 |---|---|
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
-| 4.1 — Common setup | Frozen and verified on four synthetic doors. |
+| 4.1 — Common setup | Shared robot/pedestal yaw revised to zero; other settings retained. Earlier synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Shared command implemented. Both selected doors and both agreed substitutes excluded by initial pedestal interference; no qualified pair. Four synthetic pairs reverified on GPU; final corpus/split pending. |
+| 5.1 — Expert qualification | One right door qualified at 59.32 degrees with zero yaw; three unresolved and 28 unvisited. Initial pedestal interference resolved. Left approach collisions still block the left/right pilot; final corpus/split pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Resolve the initial-geometry blocker in
+Resolve the remaining common approach/posture and hold problems in
 [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]] before
-handing off routine qualification. The frozen pose is incompatible with the four
-pilot doors; no controller or asset retuning was performed. A new scope decision
-must select other compatible candidates or explicitly reopen the common 4.1 setup.
-The remaining 28 doors are untested by the expert workflow.
+handing off routine qualification. Keep the physically coupled robot/pedestal
+orientation; diagnose the parked left arm/frame and approaching right wrist/body
+contacts, then the inconsistent final hold. No per-door tuning or corpus-wide
+qualification campaign has been started. The remaining 28 doors are untested.
 
 ## Limits
 
 Preparation does not establish robot reachability. The prison metal door retains
-its 23.1° geometric stop. Four other doors are excluded by the fixed starting
-configuration, not by a measured expert angle. Rights scopes
-constrain sharing independently of technical readiness.
+its 23.1° geometric stop. The previous four pedestal exclusions belong to the
+superseded 45-degree pose; current results are tied to their recorded setup and
+complete trial pair. Rights scopes constrain sharing independently of technical
+readiness.
 
 RGB-D acquisition is operational; learned door perception is not. Simulator
 contact/hinge truth remains diagnostic and cannot become policy input. B1 action,

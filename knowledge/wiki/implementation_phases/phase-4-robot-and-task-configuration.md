@@ -1,7 +1,8 @@
 # Phase 4 — Robot and Task Configuration
 
 > Subphase 4.0 completed and GPU-verified on 2026-09-22.
-> Subphase 4.1 completed and GPU-verified on 2026-09-22; common synthetic setup is frozen.
+> Subphase 4.1 originally verified at 45-degree yaw on synthetic doors.
+> On 2026-09-24 the shared robot/pedestal yaw was revised to zero for real-door qualification; see Phase 5.
 
 ## Objective
 
@@ -91,9 +92,14 @@ model collision filters and joint limits are retained. Handedness changes the
 door geometry and material-point trajectory, not the robot placement. The old
 4.0 fixtures remain available through the same environment configuration.
 
-`configs/purdue_synthetic_probe.json` freezes the reusable common setup. Its
+`configs/purdue_synthetic_probe.json` defines the reusable common setup. Its
 right-arm ready vector, left parked pose and closed WSG targets apply to every
-case. The selected placement is **X = -0.400 m, Y = 0.225 m, yaw = 45 degrees**.
+case. The current placement is **X = -0.400 m, Y = 0.225 m, yaw = 0 degrees**.
+The user approved rotating robot and pedestal together because their physical
+mounting is fixed. Only yaw changed; the previous 45-degree synthetic results
+below remain historical and do not validate the revised pose. The revision is
+assessed directly on collected doors in [[phase-5-door-corpus-and-qualification|Phase 5]],
+without repeating the synthetic sweep.
 Contact is at **0.40 of actual panel width from the hinge, 1.00 m above the floor**.
 The fixed neck pose is **NECK_Z = -0.70 rad, NECK_Y = 0.25 rad**.
 

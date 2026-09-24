@@ -82,8 +82,8 @@ single-force filter is insufficient.
 
 The gate distinguishes speculative points with zero load from loaded contacts.
 A forbidden pair triggers an abort only when its separation is nonpositive or
-its normal force is positive. Separated, zero-force candidates remain in raw
-diagnostics; touching or penetrating fixed obstacles still abort even at zero force.
+its normal force is nonzero (either actor sign). Separated, zero-force candidates
+remain in raw diagnostics; touching or penetrating fixed obstacles still abort even at zero force.
 Task normal force sums authorized contacts once; forbidden and structural-support
 records remain separate. Tangential friction is not included in the reported force.
 

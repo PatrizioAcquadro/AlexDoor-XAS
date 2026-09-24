@@ -80,11 +80,46 @@
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
-    "status": "out_of_domain",
+    "status": "unresolved",
     "theta_expert_d": null,
-    "reason": "closed_door_pedestal_intersection",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/modern-door-2fb8d024/20260924T193630.136486Z",
-    "trials": [],
+    "reason": "invalid_controlled_cycle",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/modern-door-2fb8d024/20260924T202750.421681Z",
+    "trials": [
+      {
+        "passed": false,
+        "angle_deg": 49.02988116443831,
+        "hold_angle_deg": null,
+        "stop_reason": "invalid_hold",
+        "safety_detail": "tracking_margin",
+        "peak_force_n": 6.89976692199707,
+        "joint_margin": -5.008812991036393e-07,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 643,
+          "checked_frames": 3818,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-1"
+      },
+      {
+        "passed": true,
+        "angle_deg": 49.18651106248504,
+        "hold_angle_deg": 49.18651106248504,
+        "stop_reason": "safety_stop",
+        "safety_detail": "tracking_margin",
+        "peak_force_n": 6.875172138214111,
+        "joint_margin": 7.649813051102683e-05,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 530,
+          "checked_frames": 3665,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-2"
+      }
+    ],
     "repeat_spread_deg": null,
     "scope": "nominal_simulated_expert_reference_not_learning_data"
   }

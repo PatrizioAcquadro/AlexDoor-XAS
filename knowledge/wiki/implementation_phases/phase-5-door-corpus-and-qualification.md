@@ -1,8 +1,10 @@
 # Phase 5 — Door Corpus and Qualification
 
 Subphase 5.0 is complete for **32 prepared doors**: 29 redistributable, two
-local-only and one private/noncommercial. The expert command is implemented, but the two-handed pilot is blocked by initial
-pedestal interference on both selected doors and both agreed substitutes.
+local-only and one private/noncommercial. The expert command is implemented.
+The zero-yaw revision resolves initial pedestal interference and qualifies one
+right door. Both tested left doors still fail approach, so the left/right pilot
+remains incomplete.
 Subphase 5.1 selects the final 24-door, 12/4/8 identity split; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
@@ -207,7 +209,7 @@ attempt narrative; original downloads remain outside this checkout.
   --asset-id <id> --device cuda:0 --headless
 ```
 
-The command loads the published USD and the frozen common setup, acquires RGB-D
+The command loads the published USD and the current common setup, acquires RGB-D
 and contact diagnostics, and runs two complete cycles. It exposes no per-door
 controller tuning. `--rerun` explicitly allows a justified recheck of an already
 qualified door. Unresolved doors may be rerun after diagnosis; every invocation
@@ -250,34 +252,63 @@ surfaces and remains a geometric diagnostic, not learned-perception qualificatio
 5. After a general fix, rerun the entire affected pair. Do not choose favorable
    repetitions. Commit only the relevant tracked result and documentation changes.
 
-This procedure is implemented, but the pilot did not produce a qualified left/right
-pair. Do not call the small-model handoff validated yet. Both widest candidates
-(`modern-door-2fb8d024`, right; `door-2738468b94d74c5f`, left) and their agreed
-substitutes (`door-door-metal-b21ec273`, right; `door-adf292f437f2`, left) have
-positive-volume closed-panel/pedestal intersections under the frozen setup.
-Their records contain exclusions with null expert angles; 28 other doors remain
-unvisited. No source, prepared payload, recipe or common setting was changed.
+### Pilot and Common-Pose Revision
 
-An independent linear-programming check confirms an interior ball in each
-intersection (radii 7.96–26.10 mm), and original USD vertices match the composed
-geometry. Evidence and the top-view diagram are in
-`~/.cache/alexdoor-xas/verification/expert-pilot-20260924/`. The original right-door
-probe additionally recorded actual forbidden pedestal/panel contact before push;
-its failed pair remains linked through the subsequent report.
+The original 45-degree setup excluded both widest candidates and both agreed
+substitutes through positive-volume closed-panel/pedestal intersections. Those
+results remain in earlier Git records and linked cache reports. The independent
+geometry audit and diagram remain at
+`~/.cache/alexdoor-xas/verification/expert-pilot-20260924/`.
 
-The synthetic panel begins at X = 0.065 m; the four collected panels extend back
-across the fixed pedestal's X maximum of 0.01189 m. Synthetic success therefore
-does not establish feasibility of these starting configurations. Further work
-requires either different compatible candidates or an explicitly approved global
-4.1 replan; per-door repositioning remains prohibited.
+On 2026-09-24 the user approved rotating **robot and pedestal together to zero
+yaw**, preserving their physical mounting. X/Y, ready joints, neck, contact point,
+controller and timing parameters remain unchanged. All four doors clear the
+initial pedestal-intersection check under this revised pose. Validation uses
+collected doors directly; the previous synthetic results apply only to 45 degrees.
 
-The pool contains 25 left and seven right doors. After these two right exclusions,
-at most five current right identities remain eligible: at least seven additional
-qualified right identities would be needed if the setup and exclusions stand.
-The final split remains pending; no learning dataset or split has been created.
-The four synthetic pairs were reverified on GPU with independent contact/sustain
-reconstruction and reviewed images; see [[phase-4-robot-and-task-configuration|Phase 4]].
-This does not replace the missing successful real-door pilot.
+A real-door run exposed an unrelated contact diagnostic defect: PhysX supplied a
+separated distal/panel candidate at 3.32 mm with zero force, which was treated as
+a forbidden collision. The shared guard now aborts on actual touching/penetration
+or nonzero normal force, including either actor sign; it retains all raw records.
+The original failed pair is preserved and the right candidate was rerun as a
+complete pair. No collision geometry, controller or threshold was relaxed.
+
+The revised pose qualifies the right substitute `door-door-metal-b21ec273`:
+the two sustained/final-hold angles are 59.32154 and 59.32261 degrees, both with
+`mechanical_stop` and valid release. Thus `theta_expert_d = 59.32154 deg` and the
+pair spread is 0.00107 degrees. Raw contacts contain no actual forbidden contact;
+trace windows independently reproduce the reported angles.
+
+There is **one qualified right door, three unresolved doors and 28 unvisited**.
+The revised pose has not yet established a qualified left/right pair. The original
+right candidate (`modern-door-2fb8d024`) produced 49.03 and 49.19 degrees sustained:
+the first trial failed final holding, while the second completed holding and
+release. Its pair remains `unresolved`; the successful repetition is not selected
+on its own. The original left candidate (`door-2738468b94d74c5f`) starts with
+parked-left-wrist/frame penetration (up to 31 mm in the first contact sample).
+The left substitute (`door-adf292f437f2`) hits the robot base with its right wrist
+during approach, around 3.5 seconds. Both left pairs remain `unresolved`, with no
+expert angle; these are observed collisions, not evidence of malformed assets.
+
+Reviewed RGB frames show the hand and panel, but geometric visibility does not
+pass throughout the right trials; the metal door has no visible sampled frame
+points. This is retained as diagnostic evidence, not hidden or promoted to
+observed-policy readiness. No camera retuning or learning data collection occurred.
+
+Current results and the compact trace audit are at
+`~/.cache/alexdoor-xas/verification/straight-pilot-20260924/report.json`; each
+entry points to its complete pair, setup, raw contacts and images. All preparation
+fields and source/prepared assets are preserved. No new synthetic sweep was run.
+
+The next bounded change is a common collision-free parked/ready posture and
+approach for left doors, followed by their paired qualification. The original
+right door also needs a robust hold before admission. Do not extrapolate from
+the qualified metal door or change settings independently for each door.
+
+The pool contains 25 left and seven right doors. At least five additional
+qualifiable right identities are needed for the final 12/12 balance, potentially
+more after actual exclusions. The final split remains pending; no learning
+dataset or split has been created.
 
 #### Implementation
 
