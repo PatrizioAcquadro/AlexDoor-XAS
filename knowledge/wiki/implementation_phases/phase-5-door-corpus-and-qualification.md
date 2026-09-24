@@ -27,6 +27,10 @@ candidate record; technical readiness does not grant redistribution rights.
 Promotion copies the accepted result into that structure. Numbered `attempts/`
 are disposable workspaces, separate from published source/payloads. No published
 asset depends on them. Published folders cannot be mutated by preparation commands.
+Source copies preserve relative glTF/OBJ dependencies and localize USD asset paths.
+Promotion stages every payload and record, then publishes `prepared.json` last.
+On a publication error it restores prior records and removes its partial outputs,
+so the same reviewed attempt can be retried.
 
 The 2026-09-24 cleanup carried forward all acquired results without new real-door
 normalization, static/visual checks or physics runs. Final USD/material/texture

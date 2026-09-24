@@ -20,21 +20,14 @@ def prepared_candidates(root):
 
 
 def _copy_sources(inspected, destination):
-    """Localize USD asset paths while preserving geometry and original downloads."""
-    source = Path(inspected["source"])
+    """Preserve relative dependencies and localize absolute USD asset paths."""
+    common = Path(
+        os.path.commonpath([str(Path(item["path"]).parent) for item in inspected["files"]])
+    )
     targets = {}
-    used = set()
-    for index, item in enumerate(inspected["files"]):
+    for item in inspected["files"]:
         original = Path(item["path"])
-        relative = (
-            original.relative_to(source.parent)
-            if original.is_relative_to(source.parent)
-            else Path("dependencies") / original.name
-        )
-        if relative in used:
-            relative = Path("dependencies") / str(index) / original.name
-        used.add(relative)
-        targets[str(original)] = destination / relative
+        targets[str(original)] = destination / original.relative_to(common)
         target = targets[str(original)]
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(item["snapshot"], target)
@@ -119,6 +112,7 @@ def publish_prepared(attempt, candidate):
     }
     staging = root / ".publish"
     staging.mkdir()
+    published = []
     try:
         source_paths = _copy_sources(inspected, staging / "source")
         record["source"] = (Path("source") / source_paths[inspected["source"]]).as_posix()
@@ -133,11 +127,31 @@ def publish_prepared(attempt, candidate):
             target = staging / "prepared" / path.relative_to(attempt)
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, target)
-        for name in ("source", "prepared"):
-            (staging / name).rename(root / name)
-        write_json(root / "recipe.json", recipe)
-        write_json(root / "candidate.json", record)
-        write_json(root / "prepared.json", ready)
+        for name, value in (
+            ("recipe.json", recipe),
+            ("candidate.json", record),
+            ("prepared.json", ready),
+        ):
+            write_json(staging / name, value)
+            if (root / name).exists():
+                backup = staging / "previous" / name
+                backup.parent.mkdir(exist_ok=True)
+                shutil.copy2(root / name, backup)
+        # The readiness marker is visible only after every payload and record is installed.
+        for name in ("source", "prepared", "recipe.json", "candidate.json", "prepared.json"):
+            (staging / name).replace(root / name)
+            published.append(name)
+    except BaseException:
+        for name in reversed(published):
+            destination = root / name
+            backup = staging / "previous" / name
+            if backup.exists():
+                backup.replace(destination)
+            elif destination.is_dir():
+                shutil.rmtree(destination)
+            else:
+                destination.unlink()
+        raise
     finally:
         shutil.rmtree(staging)
     return ready

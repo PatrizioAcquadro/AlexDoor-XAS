@@ -571,3 +571,65 @@ def test_published_recipe_localizes_explicit_source_sidecars(tmp_path):
     path = Path(published["source_dependencies"][0])
     assert not path.is_absolute()
     assert (candidate.parent / path).read_bytes() == b"texture"
+
+
+@pytest.mark.parametrize("failed_name", ["prepared", "candidate.json", "prepared.json"])
+def test_failed_publication_restores_records_and_can_retry(tmp_path, monkeypatch, failed_name):
+    attempt, candidate, _ = promotion_fixture(tmp_path)
+    root = candidate.parent
+    original = candidate.read_bytes()
+    prior_recipe = root / "recipe.json"
+    prior_recipe.write_text("original draft recipe")
+    replace = Path.replace
+
+    def fail_publication(path, target):
+        if Path(target) == root / failed_name:
+            raise OSError("publication interrupted")
+        return replace(path, target)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(Path, "replace", fail_publication)
+        with pytest.raises(OSError, match="publication interrupted"):
+            promote(attempt, candidate)
+    assert candidate.read_bytes() == original
+    assert prior_recipe.read_text() == "original draft recipe"
+    assert not any(
+        (root / name).exists() for name in ("source", "prepared", "prepared.json", ".publish")
+    )
+    promote(attempt, candidate)
+    assert (root / "prepared.json").is_file()
+
+
+@pytest.mark.parametrize("format", ["gltf", "obj"])
+def test_publication_preserves_relative_source_dependencies(tmp_path, format):
+    from alexdoor_xas.qualification.prepared import _copy_sources
+
+    original = tmp_path / "download"
+    source = original / "model" / f"door.{format}"
+    texture = original / "textures" / "door.png"
+    material = original / "materials" / "door.mtl"
+    for path in (source, texture, material):
+        path.parent.mkdir(parents=True, exist_ok=True)
+    texture.write_bytes(b"texture")
+    if format == "gltf":
+        source.write_text(json.dumps({"images": [{"uri": "../textures/door.png"}]}))
+        files = (source, texture)
+    else:
+        source.write_text("mtllib ../materials/door.mtl\n")
+        material.write_text("newmtl door\nmap_Kd ../textures/door.png\n")
+        files = (source, material, texture)
+    contents = {path: path.read_bytes() for path in files}
+    destination = tmp_path / "published"
+    copied = _copy_sources(
+        {"source": str(source), "files": [{"path": str(p), "snapshot": str(p)} for p in files]},
+        destination,
+    )
+    published = destination / copied[str(source)]
+    if format == "gltf":
+        target = published.parent / json.loads(published.read_text())["images"][0]["uri"]
+    else:
+        mtl = published.parent / published.read_text().strip().split(maxsplit=1)[1]
+        target = mtl.parent / mtl.read_text().splitlines()[1].split(maxsplit=1)[1]
+    assert target.read_bytes() == b"texture"
+    assert target.resolve().is_relative_to(destination)
+    assert all(path.read_bytes() == contents[path] for path in files)
