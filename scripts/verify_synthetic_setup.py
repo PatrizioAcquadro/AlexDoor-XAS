@@ -4,6 +4,7 @@
 import argparse
 import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -20,6 +21,26 @@ parser.add_argument("--candidate-limit", type=int, default=3)
 parser.add_argument("--repeats", type=int, default=2)
 AppLauncher.add_app_launcher_args(parser)
 args = parser.parse_args()
+# Kit can retain stale robot visuals when multiple scenes are rebuilt in one
+# process. A paired case reuses one environment; different cases need fresh Kit.
+if args.command == "probe" and args.case is None:
+    args.output.mkdir(parents=True, exist_ok=True)
+    from alexdoor_xas.assets.synthetic_door import CASES
+
+    results = []
+    return_codes = []
+    for case, door in enumerate(CASES):
+        name = door.name
+        completed = subprocess.run(
+            [sys.executable, __file__, *sys.argv[1:], "--case", str(case)], check=False
+        )
+        return_codes.append(completed.returncode)
+        report = args.output / f"report-{name}.json"
+        if not report.is_file():
+            raise RuntimeError(f"Case {name} did not produce its report")
+        results.extend(json.loads(report.read_text()))
+        (args.output / "report.json").write_text(json.dumps(results, indent=2) + "\n")
+    sys.exit(0 if all(code == 0 for code in return_codes) else 1)
 args.enable_cameras = args.cameras
 app = AppLauncher(args).app
 

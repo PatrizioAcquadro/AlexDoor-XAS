@@ -281,6 +281,12 @@ classification and RGB-D checks. RGB/depth overlap is 0.988 IoU; acquisition
 refreshes after neck motion and reset. This is synthetic runtime regression
 evidence, not expert qualification of the 32 prepared doors.
 
+The synthetic `probe` command now runs each door case in a separate Kit process.
+Recreating successive robot scenes inside one process retained stale robot visuals
+although physical traces and numeric visibility checks passed. Paired repetitions
+still use one environment with identical resets. Inspect representative rendered
+robot/contact geometry as well as the numeric visibility proxy.
+
 ## Files
 
 - `src/alexdoor_xas/envs/door_task/door_push_purdue_env.py` and configuration.
