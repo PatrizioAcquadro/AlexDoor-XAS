@@ -23,14 +23,17 @@ and training/evaluation orchestration to
 ## Data and Checkpoints
 
 The shared data loader checks split membership, train-only normalization,
-observation preset and per-episode robot identity against dataset metadata.
+ordered observation keys and per-episode robot identity against dataset metadata.
 A dataset/view cannot silently reuse stale statistics.
 
 Inference checkpoints contain weights, dimensions, model configuration, dataset
-descriptor, normalization and robot identity. Formats remain
-`alexdoor_xas.act.v2` and `alexdoor_xas.diffusion.v2`. Invalid dimensions,
+descriptor, normalization and robot identity. Formats are
+`alexdoor_xas.act.v3` and `alexdoor_xas.diffusion.v3`, with explicit `obs_keys`.
+Earlier checkpoint formats are rejected without migration. Invalid dimensions,
 non-finite weights, incompatible normalization, missing identity and mismatched
-runtime identity are rejected. Saving is atomic.
+runtime identity are rejected. Saving is atomic. Normalization serialization is
+shared with dataset statistics; matching dimensions alone cannot hide reordered
+observation fields.
 
 There is no maintained B0 training CLI, W&B wrapper, run-directory protocol or
 closed-loop evaluator. No old checkpoint is claimed to be a B1 policy. Numerical

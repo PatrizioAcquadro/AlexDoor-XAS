@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 
@@ -16,7 +16,10 @@ from alexdoor_xas.dataset.normalize import (
     view_norm_stats_path,
 )
 from alexdoor_xas.policies.common.data import PolicyDataError, load_policy_data
+from alexdoor_xas.policies.common.types import PolicyDatasetCfg
 from conftest import make_episode
+
+OBS_KEYS = ("joint_pos", "joint_vel")
 
 
 def _dataset(tmp_path: Path) -> tuple[Path, EpisodeDataset]:
@@ -42,17 +45,17 @@ def _write_view(root: Path, dataset: EpisodeDataset, *, overlap: bool = False) -
             }
         )
     )
-    stats = compute_norm_stats(dataset, train, obs_preset="core_door_pose", view_id="view_n2")
+    stats = compute_norm_stats(dataset, train, obs_keys=OBS_KEYS, view_id="view_n2")
     save_norm_stats(view_norm_stats_path(dataset.dataset_dir, "view_n2"), stats)
 
 
-def _cfg() -> SimpleNamespace:
-    return SimpleNamespace(
+def _cfg() -> PolicyDatasetCfg:
+    return PolicyDatasetCfg(
         task="door_push",
         space="A2_ee_delta",
         version="master",
         view_id="view_n2",
-        obs_preset="core_door_pose",
+        obs_keys=OBS_KEYS,
     )
 
 
@@ -64,6 +67,8 @@ def test_policy_data_loads_a_valid_view(tmp_path) -> None:
 
     assert tuple(map(len, (data.train_ids, data.val_ids))) == (2, 1)
     assert data.stats.view_id == "view_n2"
+    with pytest.raises(PolicyDataError, match="obs_keys"):
+        load_policy_data(replace(_cfg(), obs_keys=tuple(reversed(OBS_KEYS))), root)
 
 
 def test_policy_data_rejects_overlap_and_stale_stats(tmp_path) -> None:

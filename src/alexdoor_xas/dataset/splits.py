@@ -29,8 +29,8 @@ class SplitEntry:
 def episode_content_key(record) -> str:
     """Content-equivalence key for one loaded :class:`EpisodeRecord`.
 
-    Hashes only trajectory content: step times, actions, every numeric
-    observation array (sorted by key), and the outcome. Two episodes generated
+    Hashes step times, actions, recorded proprioception, numeric diagnostics
+    (sorted by qualified key), and the outcome. Two episodes generated
     from different seeds that produced the same rollout hash identically;
     any numeric difference (however small) produces a different key.
     """
@@ -38,9 +38,12 @@ def episode_content_key(record) -> str:
     digest.update(np.asarray(record.t, dtype=np.float64).tobytes())
     digest.update(b"\0actions\0")
     digest.update(np.asarray(record.actions, dtype=np.float64).tobytes())
-    for key in sorted(record.obs):
-        digest.update(b"\0obs:" + key.encode() + b"\0")
-        digest.update(np.asarray(record.obs[key], dtype=np.float64).tobytes())
+    for table in ("obs", "diagnostics"):
+        arrays = getattr(record, table)
+        for key in sorted(arrays):
+            values = np.asarray(arrays[key], dtype=np.float64)
+            digest.update(f"\0{table}:{key}:{values.shape}\0".encode())
+            digest.update(values.tobytes())
     digest.update(b"\0outcome\0")
     digest.update(str(bool(record.success)).encode())
     digest.update(np.asarray([record.final_door_angle], dtype=np.float64).tobytes())

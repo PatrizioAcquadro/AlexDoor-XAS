@@ -10,7 +10,7 @@ from typing import Any
 
 import numpy as np
 
-from .loader import DEFAULT_OBS_PRESET, EpisodeDataset, obs_matrix
+from .loader import EpisodeDataset, obs_matrix, validate_obs_keys
 from .splits import _safe_view_id
 
 _STD_FLOOR = 1e-8
@@ -26,6 +26,19 @@ class NormStats:
     min: np.ndarray
     max: np.ndarray
     count: int
+
+    def validate(self) -> None:
+        arrays = (self.mean, self.std, self.min, self.max)
+        if (
+            self.mean.ndim != 1
+            or not self.mean.size
+            or any(a.shape != self.mean.shape for a in arrays)
+        ):
+            raise ValueError("normalization arrays must be matching non-empty vectors")
+        if not all(np.isfinite(a).all() for a in arrays):
+            raise ValueError("normalization arrays must be finite")
+        if (self.std < _STD_FLOOR).any() or (self.min > self.max).any() or self.count <= 0:
+            raise ValueError("normalization requires positive count/std and min <= max")
 
     @classmethod
     def from_rows(cls, arrays: list[np.ndarray]) -> NormStats:
@@ -58,6 +71,7 @@ class NormStats:
         return np.asarray(x, dtype=np.float64) * self.std + self.mean
 
     def to_dict(self) -> dict[str, Any]:
+        self.validate()
         return {
             "mean": self.mean.tolist(),
             "std": self.std.tolist(),
@@ -69,13 +83,15 @@ class NormStats:
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> NormStats:
         try:
-            return cls(
+            result = cls(
                 mean=np.asarray(data["mean"], dtype=np.float64),
                 std=np.asarray(data["std"], dtype=np.float64),
                 min=np.asarray(data["min"], dtype=np.float64),
                 max=np.asarray(data["max"], dtype=np.float64),
                 count=int(data["count"]),
             )
+            result.validate()
+            return result
         except (KeyError, TypeError, ValueError) as error:
             raise ValueError(f"invalid normalization block: {error}") from error
 
@@ -86,26 +102,54 @@ class DatasetNormStats:
 
     action: NormStats
     obs: NormStats
-    obs_preset: str
+    obs_keys: tuple[str, ...]
     train_episode_ids: tuple[str, ...]
     action_space: str
     view_id: str | None = None
+
+    def __post_init__(self):
+        object.__setattr__(self, "obs_keys", validate_obs_keys(self.obs_keys))
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "action": self.action.to_dict(),
+            "obs": self.obs.to_dict(),
+            "obs_keys": list(self.obs_keys),
+            "train_episode_ids": list(self.train_episode_ids),
+            "action_space": self.action_space,
+            "view_id": self.view_id,
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict[str, Any]) -> DatasetNormStats:
+        try:
+            return cls(
+                action=NormStats.from_dict(payload["action"]),
+                obs=NormStats.from_dict(payload["obs"]),
+                obs_keys=validate_obs_keys(payload["obs_keys"]),
+                train_episode_ids=tuple(payload["train_episode_ids"]),
+                action_space=payload["action_space"],
+                view_id=payload.get("view_id"),
+            )
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError(f"invalid normalization artifact: {error}") from error
 
 
 def compute_norm_stats(
     dataset: EpisodeDataset,
     train_episode_ids: list[str],
-    obs_preset: str = DEFAULT_OBS_PRESET,
+    obs_keys: tuple[str, ...],
     *,
     view_id: str | None = None,
 ) -> DatasetNormStats:
+    obs_keys = validate_obs_keys(obs_keys)
     records = [dataset.by_id(episode_id) for episode_id in train_episode_ids]
     if not records:
         raise ValueError("train split is empty")
     return DatasetNormStats(
         action=NormStats.from_rows([record.actions for record in records]),
-        obs=NormStats.from_rows([obs_matrix(record, obs_preset) for record in records]),
-        obs_preset=obs_preset,
+        obs=NormStats.from_rows([obs_matrix(record, obs_keys) for record in records]),
+        obs_keys=obs_keys,
         train_episode_ids=tuple(train_episode_ids),
         action_space=dataset.action_space,
         view_id=view_id,
@@ -125,7 +169,7 @@ def save_norm_stats(path: str | Path, stats: DatasetNormStats) -> Path:
     target.parent.mkdir(parents=True, exist_ok=True)
     temporary = target.with_name(f".{target.name}.{os.getpid()}.tmp")
     try:
-        temporary.write_text(json.dumps(_stats_payload(stats), indent=2, sort_keys=True) + "\n")
+        temporary.write_text(json.dumps(stats.to_dict(), indent=2, sort_keys=True) + "\n")
         os.replace(temporary, target)
     finally:
         temporary.unlink(missing_ok=True)
@@ -138,30 +182,19 @@ def load_norm_stats(path: str | Path) -> DatasetNormStats:
     payload = json.loads(Path(path).read_text())
     if not isinstance(payload, dict):
         raise ValueError("normalization artifact must be a JSON object")
-    try:
-        view_id = payload.get("view_id")
-        return DatasetNormStats(
-            action=NormStats.from_dict(payload["action"]),
-            obs=NormStats.from_dict(payload["obs"]),
-            obs_preset=str(payload["obs_preset"]),
-            train_episode_ids=tuple(str(item) for item in payload["train_episode_ids"]),
-            action_space=str(payload["action_space"]),
-            view_id=str(view_id) if view_id is not None else None,
-        )
-    except (KeyError, TypeError, ValueError) as error:
-        raise ValueError(f"invalid normalization artifact: {error}") from error
+    return DatasetNormStats.from_dict(payload)
 
 
 def validate_norm_stats(
     stats: DatasetNormStats,
     dataset: EpisodeDataset,
     train_episode_ids: list[str],
-    obs_preset: str = DEFAULT_OBS_PRESET,
+    obs_keys: tuple[str, ...],
     *,
     view_id: str | None = None,
 ) -> list[str]:
     """Validate schema-level compatibility and recompute every statistic."""
-
+    obs_keys = validate_obs_keys(obs_keys)
     errors: list[str] = []
     if stats.action_space != dataset.action_space:
         errors.append(
@@ -169,31 +202,22 @@ def validate_norm_stats(
         )
     if stats.train_episode_ids != tuple(train_episode_ids):
         errors.append("norm stats train_episode_ids do not match the train split")
-    if stats.obs_preset != obs_preset:
-        errors.append(f"norm stats obs_preset {stats.obs_preset!r} != {obs_preset!r}")
+    if stats.obs_keys != obs_keys:
+        errors.append(f"norm stats obs_keys {stats.obs_keys!r} != {obs_keys!r}")
     if stats.view_id != view_id:
         errors.append(f"norm stats view_id {stats.view_id!r} != {view_id!r}")
-    expected_obs_dim = obs_matrix(dataset[0], obs_preset).shape[1]
+    expected_obs_dim = obs_matrix(dataset[0], obs_keys).shape[1]
     if stats.action.dim != dataset.action_dim:
         errors.append(f"norm stats action dim {stats.action.dim} != dataset {dataset.action_dim}")
     if stats.obs.dim != expected_obs_dim:
-        errors.append(f"norm stats obs dim {stats.obs.dim} != preset {expected_obs_dim}")
+        errors.append(f"norm stats obs dim {stats.obs.dim} != selected fields {expected_obs_dim}")
     for name, block in (("action", stats.action), ("obs", stats.obs)):
-        shapes = {block.mean.shape, block.std.shape, block.min.shape, block.max.shape}
-        if len(shapes) != 1 or block.mean.ndim != 1:
-            errors.append(f"norm stats {name} arrays must be 1-D with matching shapes")
-        if not all(
-            np.isfinite(value).all() for value in (block.mean, block.std, block.min, block.max)
-        ):
-            errors.append(f"norm stats {name} arrays must be finite")
-        if (block.std < _STD_FLOOR).any():
-            errors.append(f"norm stats {name} std is below {_STD_FLOOR}")
-        if (block.min > block.max).any():
-            errors.append(f"norm stats {name} min exceeds max")
-        if block.count <= 0:
-            errors.append(f"norm stats {name} count must be positive")
+        try:
+            block.validate()
+        except ValueError as error:
+            errors.append(f"norm stats {name}: {error}")
     try:
-        recomputed = compute_norm_stats(dataset, train_episode_ids, obs_preset, view_id=view_id)
+        recomputed = compute_norm_stats(dataset, train_episode_ids, obs_keys, view_id=view_id)
     except (IndexError, KeyError, TypeError, ValueError) as error:
         errors.append(f"normalization numerical recomputation failed: {error}")
     else:
@@ -206,14 +230,3 @@ def validate_norm_stats(
                 if not np.array_equal(getattr(stored, field), getattr(expected, field)):
                     errors.append(f"norm stats recomputed {name} {field} mismatch")
     return errors
-
-
-def _stats_payload(stats: DatasetNormStats) -> dict[str, Any]:
-    return {
-        "action": stats.action.to_dict(),
-        "obs": stats.obs.to_dict(),
-        "obs_preset": stats.obs_preset,
-        "train_episode_ids": list(stats.train_episode_ids),
-        "action_space": stats.action_space,
-        "view_id": stats.view_id,
-    }

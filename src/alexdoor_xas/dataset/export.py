@@ -185,10 +185,6 @@ def _write_dataset_meta(
         "robot": episodes[0].meta.robot,
         "scene": episodes[0].meta.scene,
         "policy": episodes[0].meta.policy,
-        "generator": {
-            "engine_cfg": episodes[0].extras.get("engine_cfg"),
-            "controller_cfg": episodes[0].extras.get("controller_cfg"),
-        },
         "robot_asset": robot_asset,
         "git_commit": _git_commit(),
         "created_utc": datetime.now(UTC).isoformat(),

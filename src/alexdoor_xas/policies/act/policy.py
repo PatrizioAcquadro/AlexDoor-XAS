@@ -73,8 +73,8 @@ class ActPolicy:
         return self.stats.action_space
 
     @property
-    def obs_preset(self) -> str:
-        return self.stats.obs_preset
+    def obs_keys(self) -> tuple[str, ...]:
+        return self.stats.obs_keys
 
     @property
     def chunk_size(self) -> int:

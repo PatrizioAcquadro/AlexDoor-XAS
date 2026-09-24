@@ -1,4 +1,4 @@
-"""Pure tests for the ACT baseline package (Phase 3.2). No Isaac imports."""
+"""ACT numerical model and inference contracts without Isaac imports."""
 
 from __future__ import annotations
 
@@ -33,7 +33,8 @@ TINY_MODEL_CFG = ActModelCfg(
     decoder_layers=1,
     dropout=0.0,
 )
-OBS_DIM = 9
+OBS_DIM = 14
+OBS_KEYS = ("joint_pos", "joint_vel")
 ACTION_DIM = 6
 TEST_ROBOT_ASSET = RobotAssetRef("test_robot", "a" * 64)
 
@@ -57,24 +58,24 @@ def _tiny_batch(batch: int = 4, seed: int = 0) -> dict[str, torch.Tensor]:
 
 def _tiny_stats() -> DatasetNormStats:
     rows_a = [np.arange(12, dtype=np.float64).reshape(2, ACTION_DIM) * 0.01]
-    rows_o = [np.arange(18, dtype=np.float64).reshape(2, OBS_DIM) * 0.1]
+    rows_o = [np.arange(2 * OBS_DIM, dtype=np.float64).reshape(2, OBS_DIM) * 0.1]
     return DatasetNormStats(
         action=NormStats.from_rows(rows_a),
         obs=NormStats.from_rows(rows_o),
-        obs_preset="core",
+        obs_keys=OBS_KEYS,
         train_episode_ids=("ep0",),
         action_space="A2_ee_delta",
     )
 
 
-def _checkpoint_config(obs_preset: str = "core") -> dict:
+def _checkpoint_config(obs_keys: tuple[str, ...] = OBS_KEYS) -> dict:
     return {
         "dataset": {
             "task": "test_task",
             "space": "A2_ee_delta",
             "version": "test_dataset",
             "view_id": None,
-            "obs_preset": obs_preset,
+            "obs_keys": obs_keys,
         }
     }
 
@@ -176,7 +177,7 @@ def test_checkpoint_round_trip_preserves_predictions_and_stats(tmp_path) -> None
 
     assert torch.equal(policy.model.predict(obs), expected)
     assert policy.action_space == "A2_ee_delta"
-    assert policy.obs_preset == "core"
+    assert policy.obs_keys == OBS_KEYS
     assert policy.chunk_size == TINY_MODEL_CFG.chunk_size
     assert policy.robot_compatibility_label == "matching_asset"
 
@@ -192,19 +193,20 @@ def test_checkpoint_round_trip_preserves_predictions_and_stats(tmp_path) -> None
         )
 
 
-def test_checkpoint_creation_rejects_config_stats_preset_mismatch(tmp_path) -> None:
-    with pytest.raises(ValueError, match="observation preset"):
+def test_checkpoint_creation_rejects_config_stats_key_order_mismatch(tmp_path) -> None:
+    with pytest.raises(ValueError, match="observation keys"):
         _save_checkpoint(
             tmp_path / "bad.pt",
             _tiny_model(),
-            _checkpoint_config("core_door_pose"),
+            _checkpoint_config(tuple(reversed(OBS_KEYS))),
             _tiny_stats(),
         )
 
 
-def test_checkpoint_rejects_unknown_format(tmp_path) -> None:
+@pytest.mark.parametrize("checkpoint_format", ["other", "alexdoor_xas.act.v2"])
+def test_checkpoint_rejects_unknown_format(tmp_path, checkpoint_format) -> None:
     path = tmp_path / "bad.pt"
-    torch.save({"format": "other"}, path)
+    torch.save({"format": checkpoint_format}, path)
     with pytest.raises(ValueError, match="unsupported checkpoint format"):
         ActPolicy.from_checkpoint(path, runtime_asset=TEST_ROBOT_ASSET, device="cuda")
 
@@ -335,7 +337,7 @@ def test_act_policy_normalizes_input_and_denormalizes_output() -> None:
     stats = DatasetNormStats(
         action=NormStats(action_mean, action_std, action_mean, action_mean, 1),
         obs=NormStats(obs_mean, obs_std, obs_mean, obs_mean, 1),
-        obs_preset="core",
+        obs_keys=OBS_KEYS,
         train_episode_ids=("ep0",),
         action_space="A2_ee_delta",
     )
@@ -359,7 +361,7 @@ def test_act_policy_clips_exploding_normalized_obs() -> None:
         obs=NormStats(
             np.zeros(OBS_DIM), np.full(OBS_DIM, 1e-8), np.zeros(OBS_DIM), np.zeros(OBS_DIM), 1
         ),
-        obs_preset="core",
+        obs_keys=OBS_KEYS,
         train_episode_ids=("ep0",),
         action_space="A2_ee_delta",
     )

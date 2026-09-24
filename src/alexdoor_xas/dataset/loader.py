@@ -13,42 +13,7 @@ from alexdoor_xas.action.spaces import (
     ALL_ACTION_SPACES,
     ObjectCentricChunk,
 )
-from alexdoor_xas.recording import EpisodeBuffer, read_episode
-
-_OBS_TABLES = ("proprio", "object_state", "contact")
-
-_CONTACT_FLAG_KEY = "contact_flag"
-_DOOR_YAW_SIN_KEY = "door_yaw_sin"
-_DOOR_YAW_COS_KEY = "door_yaw_cos"
-
-OBS_PRESETS: dict[str, tuple[str, ...]] = {
-    "core": (
-        "ee_pos_w",
-        "ee_quat_w_xyzw",
-        "door_angle_rad",
-        "door_angular_velocity_rad_s",
-    ),
-    "core_contact": (
-        "ee_pos_w",
-        "ee_quat_w_xyzw",
-        "door_angle_rad",
-        "door_angular_velocity_rad_s",
-        _CONTACT_FLAG_KEY,
-    ),
-    # Core plus door origin relative to the robot base and wrap-free door yaw.
-    "core_door_pose": (
-        "ee_pos_w",
-        "ee_quat_w_xyzw",
-        "door_angle_rad",
-        "door_angular_velocity_rad_s",
-        "door_rel_pos_x",
-        "door_rel_pos_y",
-        "door_rel_pos_z",
-        _DOOR_YAW_SIN_KEY,
-        _DOOR_YAW_COS_KEY,
-    ),
-}
-DEFAULT_OBS_PRESET = "core"
+from alexdoor_xas.recording import SCHEMA_VERSION, EpisodeBuffer, read_episode
 
 
 @dataclass(frozen=True)
@@ -61,14 +26,15 @@ class EpisodeRecord:
     meta: dict[str, Any]
     t: np.ndarray  # (N,) seconds from episode start
     actions: np.ndarray  # (N, D) in `action_space`
-    obs: dict[str, np.ndarray]  # per-step arrays, float64 (bools become 0/1)
+    obs: dict[str, np.ndarray]  # recorded proprioception only
+    diagnostics: dict[str, np.ndarray]  # qualified object_state/contact fields
     success: bool
     final_door_angle: float
     termination_reason: str
     environment_terminated: bool | None
     environment_truncated: bool | None
     extras: dict[str, Any]
-    buffer: EpisodeBuffer = field(repr=False)  # source buffer (sanity checks)
+    buffer: EpisodeBuffer = field(repr=False)  # original tables, including strings
 
     @property
     def n_steps(self) -> int:
@@ -94,32 +60,26 @@ def _read_dataset_meta(dataset_dir: str | Path) -> dict[str, Any]:
 
 
 def _load_episode_record(path: str | Path) -> EpisodeRecord:
-    import h5py
-
-    path = Path(path)
-    with h5py.File(path, "r") as h5:
-        schema_version = str(h5.attrs.get("schema_version", ""))
     buffer = read_episode(path)
     if buffer.outcome is None:
         raise ValueError(f"episode {path} has no outcome")
 
-    obs: dict[str, np.ndarray] = {}
-    if buffer.steps:
-        for table in _OBS_TABLES:
-            for key, first in getattr(buffer.steps[0], table).items():
-                if isinstance(first, str):
-                    continue
-                values = [getattr(step, table)[key] for step in buffer.steps]
-                obs[key] = np.asarray(values, dtype=np.float64)
+    obs = _numeric_table(buffer, "proprio")
+    diagnostics = {
+        f"{table}.{key}": values
+        for table in ("object_state", "contact")
+        for key, values in _numeric_table(buffer, table).items()
+    }
 
     return EpisodeRecord(
         episode_id=buffer.meta.episode_id,
         action_space=buffer.meta.action_space,
-        schema_version=schema_version,
+        schema_version=SCHEMA_VERSION,
         meta=buffer.meta.to_dict(),
         t=np.array([step.t for step in buffer.steps], dtype=np.float64),
         actions=buffer.stacked(lambda s: s.action) if buffer.steps else np.zeros((0, 0)),
         obs=obs,
+        diagnostics=diagnostics,
         success=buffer.outcome.success,
         final_door_angle=buffer.outcome.final_door_angle,
         termination_reason=buffer.outcome.termination_reason,
@@ -130,36 +90,39 @@ def _load_episode_record(path: str | Path) -> EpisodeRecord:
     )
 
 
-def obs_matrix(record: EpisodeRecord, preset: str = DEFAULT_OBS_PRESET) -> np.ndarray:
-    """Concatenate a frozen observation preset into one ``(N, obs_dim)`` matrix."""
-    keys = _preset_keys(preset)
-    columns: list[np.ndarray] = []
-    for key in keys:
-        array = _obs_key(record, key)
-        if array is None:
-            raise ValueError(
-                f"episode {record.episode_id[:8]} (schema {record.schema_version!r}) "
-                f"has no observation {key!r} required by preset {preset!r}"
-            )
+def _numeric_table(buffer: EpisodeBuffer, table: str) -> dict[str, np.ndarray]:
+    if not buffer.steps:
+        return {}
+    return {
+        key: np.asarray([getattr(step, table)[key] for step in buffer.steps], dtype=np.float64)
+        for key, first in getattr(buffer.steps[0], table).items()
+        if not isinstance(first, str)
+    }
+
+
+def validate_obs_keys(value) -> tuple[str, ...]:
+    """Require an explicit, non-empty ordered selection without duplicate fields."""
+    if (
+        not isinstance(value, (tuple, list))
+        or not value
+        or any(not isinstance(key, str) or not key for key in value)
+        or len(set(value)) != len(value)
+    ):
+        raise ValueError("obs_keys must be a non-empty ordered list of unique field names")
+    return tuple(value)
+
+
+def obs_matrix(record: EpisodeRecord, obs_keys: tuple[str, ...]) -> np.ndarray:
+    """Concatenate explicitly selected proprioception into an ``(N, D)`` matrix."""
+    columns = []
+    for key in validate_obs_keys(obs_keys):
+        if key not in record.obs:
+            raise ValueError(f"episode {record.episode_id}: missing proprioceptive field {key!r}")
+        array = np.asarray(record.obs[key], dtype=np.float64)
+        if array.ndim == 0 or array.shape[0] != record.n_steps or not np.isfinite(array).all():
+            raise ValueError(f"episode {record.episode_id}: invalid proprioceptive field {key!r}")
         columns.append(array.reshape(record.n_steps, -1))
-    return np.concatenate(columns, axis=1) if columns else np.zeros((record.n_steps, 0))
-
-
-def _preset_keys(preset: str) -> tuple[str, ...]:
-    if preset not in OBS_PRESETS:
-        raise ValueError(f"unknown obs preset {preset!r} (known: {sorted(OBS_PRESETS)})")
-    return OBS_PRESETS[preset]
-
-
-def _obs_key(record: EpisodeRecord, key: str) -> np.ndarray | None:
-    if key == _CONTACT_FLAG_KEY:
-        return record.obs.get("sensed", record.obs.get("inferred"))
-    if key in (_DOOR_YAW_SIN_KEY, _DOOR_YAW_COS_KEY):
-        yaw = record.obs.get("door_yaw_rad")
-        if yaw is None:
-            return None
-        return np.sin(yaw) if key == _DOOR_YAW_SIN_KEY else np.cos(yaw)
-    return record.obs.get(key)
+    return np.concatenate(columns, axis=1)
 
 
 class EpisodeDataset:

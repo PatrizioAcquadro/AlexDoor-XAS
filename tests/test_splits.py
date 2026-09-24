@@ -30,6 +30,7 @@ class _Record:
     t: np.ndarray
     actions: np.ndarray
     obs: dict[str, np.ndarray]
+    diagnostics: dict[str, np.ndarray] = field(default_factory=dict)
     success: bool = True
     final_door_angle: float = 0.9
     extras: dict[str, Any] = field(default_factory=dict)
@@ -44,8 +45,8 @@ def _record(episode_id: str, seed: int, pose: str | None = None, jitter: float =
         actions=rng.standard_normal((n, 6)) + jitter,
         obs={
             "ee_pos_w": rng.standard_normal((n, 3)),
-            "door_angle_rad": np.linspace(0.0, 0.9, n),
         },
+        diagnostics={"object_state.door_angle_rad": np.linspace(0.0, 0.9, n)},
         extras={"door_pose_id": pose} if pose else {},
     )
 
@@ -86,7 +87,9 @@ def test_content_key_distinguishes_near_identical_trajectories() -> None:
 def test_content_key_sensitive_to_obs_and_outcome() -> None:
     base = _record("id-a", seed=3)
     changed_obs = _record("id-b", seed=3)
-    changed_obs.obs["door_angle_rad"] = base.obs["door_angle_rad"] + 1e-9
+    changed_obs.diagnostics["object_state.door_angle_rad"] = (
+        base.diagnostics["object_state.door_angle_rad"] + 1e-9
+    )
     assert episode_content_key(base) != episode_content_key(changed_obs)
     changed_outcome = _record("id-c", seed=3)
     changed_outcome.success = False

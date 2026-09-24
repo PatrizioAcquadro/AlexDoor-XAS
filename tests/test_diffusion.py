@@ -49,7 +49,8 @@ pytestmark = pytest.mark.usefixtures("gpu_models")
 
 ACTION_DIM = 6
 TEST_ROBOT_ASSET = RobotAssetRef("test_robot", "a" * 64)
-OBS_DIM = 9
+OBS_DIM = 14
+OBS_KEYS = ("joint_pos", "joint_vel")
 
 TINY_MODEL_CFG = DiffusionModelCfg(
     horizon=8,
@@ -63,8 +64,7 @@ TINY_MODEL_CFG = DiffusionModelCfg(
 
 
 def _tiny_action_stats() -> NormStats:
-    # Position dims span a real range; rotation dims are constant zero,
-    # matching the frozen A2/A3 export.
+    # Exercise both varying and constant action dimensions.
     low = np.array([-0.015, -0.01, 0.0, 0.0, 0.0, 0.0])
     high = np.array([0.005, 0.013, 0.015, 0.0, 0.0, 0.0])
     return NormStats(
@@ -87,7 +87,7 @@ def _tiny_stats() -> DatasetNormStats:
     return DatasetNormStats(
         action=_tiny_action_stats(),
         obs=obs,
-        obs_preset="core",
+        obs_keys=OBS_KEYS,
         train_episode_ids=("ep-a",),
         action_space="A2_ee_delta",
     )
@@ -100,7 +100,7 @@ def _checkpoint_config() -> dict:
             "space": "A2_ee_delta",
             "version": "test_dataset",
             "view_id": None,
-            "obs_preset": "core",
+            "obs_keys": OBS_KEYS,
         }
     }
 
@@ -416,7 +416,7 @@ def test_checkpoint_round_trip_preserves_predictions(tmp_path) -> None:
     )
 
     assert policy.action_space == "A2_ee_delta"
-    assert policy.obs_preset == "core"
+    assert policy.obs_keys == OBS_KEYS
     assert policy.chunk_size == TINY_MODEL_CFG.horizon
     assert policy.robot_compatibility_label == "matching_asset"
     np.testing.assert_allclose(policy.stats.action.min, stats.action.min)
@@ -463,12 +463,19 @@ def _identity_obs_stats() -> NormStats:
     )
 
 
-def _rollout_policy(**kwargs) -> DiffusionPolicy:
-    """Tiny real model whose denormalized deltas stay within the A2 clamps."""
+def test_checkpoint_rejects_the_retired_observation_contract(tmp_path) -> None:
+    path = tmp_path / "old.pt"
+    torch.save({"format": "alexdoor_xas.diffusion.v2"}, path)
+    with pytest.raises(ValueError, match="unsupported checkpoint format"):
+        DiffusionPolicy.from_checkpoint(path, runtime_asset=TEST_ROBOT_ASSET, device="cuda")
+
+
+def _tiny_policy(**kwargs) -> DiffusionPolicy:
+    """Tiny inference policy with bounded numerical actions."""
     stats = DatasetNormStats(
         action=_tiny_action_stats(),  # position range ±0.015 m < 0.02 m clamp
         obs=_identity_obs_stats(),
-        obs_preset="core",
+        obs_keys=OBS_KEYS,
         train_episode_ids=("ep0",),
         action_space="A2_ee_delta",
     )
@@ -477,7 +484,7 @@ def _rollout_policy(**kwargs) -> DiffusionPolicy:
 
 
 def test_diffusion_policy_predict_shape_and_bounds() -> None:
-    policy = _rollout_policy()
+    policy = _tiny_policy()
     policy.seed(0)
 
     chunk = policy.predict(np.zeros(OBS_DIM))
@@ -503,7 +510,7 @@ def test_diffusion_policy_obs_normalization_and_clip() -> None:
             max=np.zeros(OBS_DIM),
             count=1,
         ),
-        obs_preset="core",
+        obs_keys=OBS_KEYS,
         train_episode_ids=("ep0",),
         action_space="A2_ee_delta",
     )
@@ -535,7 +542,7 @@ def test_diffusion_policy_rejects_mismatched_stats() -> None:
 
 
 def test_diffusion_policy_seed_makes_sampling_reproducible() -> None:
-    policy = _rollout_policy()
+    policy = _tiny_policy()
     obs = np.zeros(OBS_DIM)
 
     policy.seed(11)
@@ -550,7 +557,7 @@ def test_diffusion_policy_seed_makes_sampling_reproducible() -> None:
 
 
 def test_diffusion_chunk_source_validates_inputs() -> None:
-    policy = _rollout_policy()
+    policy = _tiny_policy()
     with pytest.raises(ValueError, match="n_action_steps"):
         diffusion_chunk_source(
             policy, lambda ctx: np.zeros(OBS_DIM), n_action_steps=TINY_MODEL_CFG.horizon + 1

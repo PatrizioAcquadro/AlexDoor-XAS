@@ -7,16 +7,16 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 import torch
 
 from alexdoor_xas.assets.identity import RobotAssetRef
-from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
+from alexdoor_xas.dataset.loader import validate_obs_keys
+from alexdoor_xas.dataset.normalize import DatasetNormStats
 from alexdoor_xas.policies.common.training import torch_save_atomic
 
-DATASET_FIELDS = ("task", "space", "version", "obs_preset", "view_id")
-ACT_CHECKPOINT_FORMAT = "alexdoor_xas.act.v2"
-DIFFUSION_CHECKPOINT_FORMAT = "alexdoor_xas.diffusion.v2"
+DATASET_FIELDS = ("task", "space", "version", "obs_keys", "view_id")
+ACT_CHECKPOINT_FORMAT = "alexdoor_xas.act.v3"
+DIFFUSION_CHECKPOINT_FORMAT = "alexdoor_xas.diffusion.v3"
 
 
 @dataclass(frozen=True)
@@ -36,39 +36,14 @@ def _dataset_descriptor(config: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(source, Mapping):
         raise ValueError("checkpoint config requires a dataset mapping")
     descriptor = {field: source.get(field) for field in DATASET_FIELDS}
-    for field in ("task", "space", "version", "obs_preset"):
+    for field in ("task", "space", "version"):
         if not isinstance(descriptor[field], str) or not descriptor[field]:
             raise ValueError(f"checkpoint dataset {field} must be a non-empty string")
+    descriptor["obs_keys"] = validate_obs_keys(descriptor["obs_keys"])
     view_id = descriptor["view_id"]
     if view_id is not None and (not isinstance(view_id, str) or not view_id):
         raise ValueError("checkpoint dataset view_id must be null or a non-empty string")
     return descriptor
-
-
-def _stats_payload(stats: DatasetNormStats) -> dict[str, Any]:
-    return {
-        "action": stats.action.to_dict(),
-        "obs": stats.obs.to_dict(),
-        "obs_preset": stats.obs_preset,
-        "train_episode_ids": list(stats.train_episode_ids),
-        "action_space": stats.action_space,
-        "view_id": stats.view_id,
-    }
-
-
-def _stats_from_payload(payload: Mapping[str, Any]) -> DatasetNormStats:
-    try:
-        view_id = payload.get("view_id")
-        return DatasetNormStats(
-            action=NormStats.from_dict(dict(payload["action"])),
-            obs=NormStats.from_dict(dict(payload["obs"])),
-            obs_preset=str(payload["obs_preset"]),
-            train_episode_ids=tuple(str(item) for item in payload["train_episode_ids"]),
-            action_space=str(payload["action_space"]),
-            view_id=str(view_id) if view_id is not None else None,
-        )
-    except (KeyError, TypeError, ValueError) as error:
-        raise ValueError(f"invalid checkpoint normalization stats: {error}") from error
 
 
 def _validate_checkpoint_contract(
@@ -84,24 +59,16 @@ def _validate_checkpoint_contract(
         raise ValueError("checkpoint dimensions must be positive")
     if dataset.get("space") != stats.action_space:
         raise ValueError("checkpoint action space does not match normalization stats")
-    if dataset.get("obs_preset") != stats.obs_preset:
-        raise ValueError("checkpoint observation preset does not match normalization stats")
+    if dataset.get("obs_keys") != stats.obs_keys:
+        raise ValueError("checkpoint observation keys do not match normalization stats")
     if dataset.get("view_id") != stats.view_id:
         raise ValueError("checkpoint dataset view does not match normalization stats")
     if stats.obs.dim != obs_dim or stats.action.dim != action_dim:
         raise ValueError("checkpoint dimensions do not match normalization stats")
     if not stats.train_episode_ids:
         raise ValueError("checkpoint normalization train split is empty")
-    for label, block in (("action", stats.action), ("obs", stats.obs)):
-        shapes = {block.mean.shape, block.std.shape, block.min.shape, block.max.shape}
-        if len(shapes) != 1 or block.mean.ndim != 1:
-            raise ValueError(f"checkpoint {label} stats arrays must be matching vectors")
-        if not all(
-            np.isfinite(value).all() for value in (block.mean, block.std, block.min, block.max)
-        ):
-            raise ValueError(f"checkpoint {label} stats must be finite")
-        if (block.std <= 0.0).any() or (block.min > block.max).any() or block.count <= 0:
-            raise ValueError(f"checkpoint {label} stats are invalid")
+    stats.action.validate()
+    stats.obs.validate()
     if not isinstance(state_dict, Mapping) or not state_dict:
         raise ValueError("checkpoint state_dict must be a non-empty mapping")
     for name, value in state_dict.items():
@@ -132,7 +99,7 @@ def save_checkpoint_payload(
     meta: Mapping[str, Any] | None = None,
     robot_asset: RobotAssetRef | None = None,
 ) -> Path:
-    """Validate and atomically write the shared v2 checkpoint payload."""
+    """Validate and atomically write the shared v3 checkpoint payload."""
     dataset = _dataset_descriptor(config)
     state_dict = model.state_dict()
     _validate_checkpoint_contract(
@@ -154,7 +121,7 @@ def save_checkpoint_payload(
             "action_dim": model.action_dim,
             "model_cfg": asdict(model.cfg),
             "dataset": dataset,
-            "norm_stats": _stats_payload(stats),
+            "norm_stats": stats.to_dict(),
             "robot_asset": robot_asset.to_dict() if robot_asset is not None else None,
             "meta": dict(meta or {}),
         },
@@ -168,7 +135,7 @@ def load_checkpoint_payload(
     checkpoint_label: str,
     map_location: str = "cpu",
 ) -> CheckpointPayload:
-    """Load and validate model-neutral v2 checkpoint fields."""
+    """Load and validate model-neutral v3 checkpoint fields."""
     payload = torch.load(Path(path), map_location=map_location, weights_only=True)
     if not isinstance(payload, dict):
         raise ValueError(f"checkpoint {path} must contain a mapping")
@@ -184,7 +151,7 @@ def load_checkpoint_payload(
         model_cfg = dict(raw_model_cfg)
         state_dict = payload["state_dict"]
         dataset = _dataset_descriptor({"dataset": payload["dataset"]})
-        stats = _stats_from_payload(payload["norm_stats"])
+        stats = DatasetNormStats.from_dict(payload["norm_stats"])
         robot_asset = _robot_asset_from_payload(payload.get("robot_asset"))
     except (KeyError, TypeError, ValueError) as error:
         raise ValueError(f"invalid {checkpoint_label} checkpoint {path}: {error}") from error

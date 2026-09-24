@@ -7,12 +7,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from alexdoor_xas import paths
 from alexdoor_xas.assets.identity import RobotAssetRef
 from alexdoor_xas.dataset.loader import EpisodeDataset
 from alexdoor_xas.dataset.normalize import (
     DatasetNormStats,
-    compute_norm_stats,
     load_norm_stats,
     norm_stats_path,
     validate_norm_stats,
@@ -54,9 +52,7 @@ class PolicyData:
         return self.stats.action.dim
 
 
-def load_policy_data(
-    cfg: PolicyDatasetCfg, datasets_root: str | Path = paths.DATASETS_DIR
-) -> PolicyData:
+def load_policy_data(cfg: PolicyDatasetCfg, datasets_root: str | Path) -> PolicyData:
     """Load and validate dataset, splits, robot identity, and statistics."""
     dataset_dir = Path(datasets_root) / cfg.task / cfg.space / cfg.version
     try:
@@ -71,7 +67,7 @@ def load_policy_data(
     except ValueError as error:
         raise PolicyDataError(f"invalid robot asset provenance: {error}") from error
 
-    selected_view = getattr(cfg, "view_id", None)
+    selected_view = cfg.view_id
     if selected_view is None:
         split_file = splits_path(datasets_root, cfg.task, cfg.version)
     else:
@@ -99,28 +95,17 @@ def load_policy_data(
     )
     if not stats_file.is_file():
         raise PolicyDataError(f"norm stats missing: {stats_file}")
-    official = load_norm_stats(stats_file)
-    official_errors = validate_norm_stats(
-        official,
-        dataset,
-        train_ids,
-        obs_preset=official.obs_preset,
-        view_id=selected_view,
-    )
-    if official_errors:
-        raise PolicyDataError(
-            f"norm stats {stats_file} do not match the dataset: " + "; ".join(official_errors)
+    try:
+        stats = load_norm_stats(stats_file)
+        errors = validate_norm_stats(
+            stats, dataset, train_ids, obs_keys=cfg.obs_keys, view_id=selected_view
         )
-    if official.obs_preset == cfg.obs_preset:
-        stats = official
-    elif selected_view is not None:
+    except (OSError, KeyError, TypeError, ValueError) as error:
+        raise PolicyDataError(f"invalid normalization {stats_file}: {error}") from error
+    if errors:
         raise PolicyDataError(
-            f"view normalization {stats_file} uses {official.obs_preset!r}, not "
-            f"requested preset {cfg.obs_preset!r}; view runs must use their committed "
-            "train-only normalization artifact"
+            f"norm stats {stats_file} do not match the dataset: " + "; ".join(errors)
         )
-    else:
-        stats = compute_norm_stats(dataset, train_ids, obs_preset=cfg.obs_preset)
 
     return PolicyData(
         dataset=dataset,
@@ -149,9 +134,7 @@ def make_train_factory(
 ):
     """Per-epoch reshuffled, normalized train batches (``TrainBatchFactory``)."""
     ids = list(episode_ids if episode_ids is not None else data.train_ids)
-    sampler = ChunkSampler(
-        data.dataset, chunk_size, obs_preset=data.stats.obs_preset, episode_ids=ids
-    )
+    sampler = ChunkSampler(data.dataset, chunk_size, obs_keys=data.stats.obs_keys, episode_ids=ids)
     drop_last = len(sampler) >= batch_size
 
     def factory(epoch: int):
@@ -176,7 +159,7 @@ def make_eval_factory(
 ):
     """Fixed-order normalized batches over a split (``ValBatchFactory``)."""
     sampler = ChunkSampler(
-        data.dataset, chunk_size, obs_preset=data.stats.obs_preset, episode_ids=list(episode_ids)
+        data.dataset, chunk_size, obs_keys=data.stats.obs_keys, episode_ids=list(episode_ids)
     )
 
     def factory():

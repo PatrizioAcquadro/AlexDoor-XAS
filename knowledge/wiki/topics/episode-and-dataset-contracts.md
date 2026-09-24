@@ -34,10 +34,22 @@ trajectories leaking across splits. Normalization uses only the selected trainin
 IDs and is validated by recomputation.
 
 `EpisodeDataset`, `A4ChunkDataset`, `ChunkSampler` and `BatchIterator` provide
-validated records, padded windows and seeded batches. The retained numerical
-presets `core`, `core_contact`, `core_door_pose` encode state-vector fields; they
-are **not the B1 observed-only policy interface**. B1 must keep simulated hinge,
-contact and door truth out of model observations, as defined in Phase 6.
+records, padded windows and seeded batches. Callers must supply ordered `obs_keys`,
+for example `("joint_pos", "joint_vel")`, to observation assembly, normalization
+and sampling. Only recorded proprioception is selectable. Numeric object-state
+and contact fields live in `record.diagnostics`; the original tables remain in
+`record.buffer`. Matching and content grouping include diagnostics independently
+of policy observations. The caller remains responsible for recording provenance.
+
+`DatasetNormStats` owns serialization shared by files and checkpoints. Loading
+requires the same observation keys in the same order, selected training IDs and
+optional view; no preset conversion or normalization fallback occurs. Policy data
+loading requires an explicit `datasets_root`, independent of the package location.
+
+Numerical validation checks shapes, finite values, timing, factual termination,
+declared contact source and any recorded joint-target position limits. It imposes
+no historical force threshold: physical admission belongs to B1 qualification.
+These utilities do not implement the Phase 6 RGB-D recording or learning path.
 
 Tests use explicit small arrays and synthetic identities. No local B0 recordings
 or external robot asset are needed to verify these contracts.

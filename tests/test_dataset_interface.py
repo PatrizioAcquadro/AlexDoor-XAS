@@ -43,6 +43,7 @@ requires_h5py = pytest.mark.skipif(
 pytestmark = requires_h5py
 
 N_EPISODES = 4
+OBS_KEYS = ("joint_pos", "joint_vel")
 
 
 def _copy_dataset(src: Path, tmp_path: Path, name: str) -> Path:
@@ -86,7 +87,10 @@ def test_dataset_loads_records_with_stacked_arrays(synthetic_a2) -> None:
     assert record.schema_version == "phase2.v2"
     assert record.success and record.termination_reason == "controller_done"
     assert "failure_label" not in record.__dataclass_fields__
-    assert {"ee_pos_w", "ee_quat_w_xyzw", "door_angle_rad", "inferred"} <= set(record.obs)
+    assert {"joint_pos", "joint_vel"} <= set(record.obs)
+    assert "door_angle_rad" not in record.obs
+    assert "object_state.door_angle_rad" in record.diagnostics
+    assert "contact.inferred" in record.diagnostics
     assert synthetic_a2.by_id(record.episode_id) is record
     with pytest.raises(KeyError):
         synthetic_a2.by_id("no-such-episode")
@@ -153,53 +157,25 @@ def test_export_rejects_duplicate_ids_and_keeps_distinct_shared_prefixes(tmp_pat
     assert len(EpisodeDataset(paths[A2_EE_DELTA])) == 2
 
 
-def test_core_preset_is_9dim_everywhere(synthetic_a2) -> None:
-    obs = obs_matrix(synthetic_a2[0], "core")
-    assert obs.shape == (synthetic_a2[0].n_steps, 9)
-    assert np.isfinite(obs).all()
-
-
-def test_core_contact_uses_sensed_when_available(synthetic_a2) -> None:
-    assert obs_matrix(synthetic_a2[0], "core_contact").shape[1] == 10
-    contact_obs = obs_matrix(synthetic_a2[0], "core_contact")
-    assert contact_obs.shape[1] == 10
-    np.testing.assert_array_equal(contact_obs[:, -1], synthetic_a2[0].obs["sensed"])
-
-
-def test_unknown_obs_preset_is_rejected(synthetic_a2) -> None:
-    with pytest.raises(ValueError, match="unknown obs preset"):
-        obs_matrix(synthetic_a2[0], "nope")
-
-
-def test_core_door_pose_preset_is_14dim_and_encodes_yaw(tmp_path) -> None:
-    yaw = 0.6
-    origin = (1.0, -2.0, 0.5)
-    episode = make_episode(yaw=yaw, origin=origin)
-    exported = export_datasets([episode], tmp_path, version="v0")
-    dataset = EpisodeDataset(exported[A2_EE_DELTA])
-    obs = obs_matrix(dataset[0], "core_door_pose")
-    assert obs.shape == (dataset[0].n_steps, 14)
-    assert np.isfinite(obs).all()
-    # First 9 dims identical to core; door-pose block is constant per episode.
-    np.testing.assert_array_equal(obs[:, :9], obs_matrix(dataset[0], "core"))
-    np.testing.assert_allclose(obs[:, 9:12], np.tile(origin, (obs.shape[0], 1)), atol=1e-12)
-    np.testing.assert_allclose(obs[:, 12], np.sin(yaw), atol=1e-12)
-    np.testing.assert_allclose(obs[:, 13], np.cos(yaw), atol=1e-12)
-
-
-def test_core_door_pose_preset_fails_clearly_on_old_episodes(synthetic_a2) -> None:
-    """Episodes recorded before the door-pose terms existed must be rejected."""
-    import dataclasses
-
+def test_observations_select_proprioception_in_explicit_order(synthetic_a2) -> None:
     record = synthetic_a2[0]
-    stripped_obs = {
-        key: value
-        for key, value in record.obs.items()
-        if not key.startswith("door_rel_pos") and key != "door_yaw_rad"
-    }
-    old_record = dataclasses.replace(record, obs=stripped_obs)
-    with pytest.raises(ValueError, match="core_door_pose"):
-        obs_matrix(old_record, "core_door_pose")
+    obs = obs_matrix(record, OBS_KEYS)
+    assert obs.shape == (record.n_steps, 14)
+    np.testing.assert_array_equal(obs[:, :7], record.obs["joint_pos"])
+    reversed_obs = obs_matrix(record, tuple(reversed(OBS_KEYS)))
+    np.testing.assert_array_equal(reversed_obs[:, 7:], obs[:, :7])
+
+
+@pytest.mark.parametrize("keys", [(), "core", ("joint_pos", "joint_pos")])
+def test_observations_require_an_ordered_unique_selection(synthetic_a2, keys) -> None:
+    with pytest.raises(ValueError, match="obs_keys"):
+        obs_matrix(synthetic_a2[0], keys)
+
+
+@pytest.mark.parametrize("key", ["door_angle_rad", "object_state.door_angle_rad", "contact.sensed"])
+def test_diagnostics_cannot_be_selected_as_observations(synthetic_a2, key) -> None:
+    with pytest.raises(ValueError, match="missing proprioceptive field"):
+        obs_matrix(synthetic_a2[0], (key,))
 
 
 def test_a4_dataset_parses_and_validates_chunks(synthetic_exports) -> None:
@@ -294,29 +270,41 @@ def test_validate_rejects_bad_timing_and_control_dt(synthetic_a2) -> None:
 
 def test_validate_rejects_bad_contact_flags_and_sources(synthetic_a2) -> None:
     record = synthetic_a2[0]
-    bad_obs = dict(record.obs)
-    bad_obs["inferred"] = bad_obs["inferred"].copy()
-    bad_obs["inferred"][0] = 0.5
-    result = validate_episode(dataclasses.replace(record, obs=bad_obs))
-    assert any("contact flag" in error for error in result.errors)
-
-    bad_contact = dict(record.buffer.steps[0].contact)
-    bad_contact["source"] = "mystery_sensor"
-    bad_step = dataclasses.replace(record.buffer.steps[0], contact=bad_contact)
-    bad_buffer = dataclasses.replace(record.buffer, steps=[bad_step, *record.buffer.steps[1:]])
-    result = validate_episode(dataclasses.replace(record, buffer=bad_buffer))
-    assert any("contact source" in error for error in result.errors)
+    for change, message in (
+        ({"sensed": 0.5}, "contact flag"),
+        ({"source": ""}, "contact source"),
+        ({"force_n": -1}, "force_n"),
+    ):
+        contact = {**record.buffer.steps[0].contact, **change}
+        step = dataclasses.replace(record.buffer.steps[0], contact=contact)
+        buffer = dataclasses.replace(record.buffer, steps=[step, *record.buffer.steps[1:]])
+        result = validate_episode(dataclasses.replace(record, buffer=buffer))
+        assert any(message in error for error in result.errors)
 
 
 def test_validate_episode_reports_malformed_observation_shape(synthetic_a2) -> None:
     record = synthetic_a2[0]
     bad_obs = dict(record.obs)
-    bad_obs["door_angle_rad"] = np.asarray(0.0)
+    bad_obs["joint_pos"] = np.asarray(0.0)
 
     result = validate_episode(dataclasses.replace(record, obs=bad_obs))
 
     assert not result.ok
-    assert any("obs 'door_angle_rad'" in error and "shape" in error for error in result.errors)
+    assert any("obs 'joint_pos'" in error and "shape" in error for error in result.errors)
+
+
+def test_numerical_validation_uses_explicit_limits_without_a_force_admission_default(synthetic_a2):
+    record = synthetic_a2[0]
+    step = dataclasses.replace(
+        record.buffer.steps[0], contact={"source": "recorded_normal_force", "force_n": 250.0}
+    )
+    buffer = dataclasses.replace(record.buffer, steps=[step, *record.buffer.steps[1:]])
+    assert validate_episode(dataclasses.replace(record, buffer=buffer)).ok
+    obs = dict(record.obs)
+    obs["joint_pos_target"] = np.full_like(obs["joint_pos_target"], 2.0)
+    extras = {**record.extras, "joint_pos_limits": np.tile([-1.0, 1.0], (7, 1))}
+    result = validate_episode(dataclasses.replace(record, obs=obs, extras=extras))
+    assert any("targets exceed" in error for error in result.errors)
 
 
 def test_validate_rejects_mislabeled_a3_actions(synthetic_exports) -> None:
@@ -366,23 +354,23 @@ def test_matched_action_space_validation_rejects_same_id_mismatched_content(
     a3.records = list(a3.records)
     bad_meta = dict(a3[0].meta)
     bad_meta["seed"] = int(bad_meta["seed"]) + 1000
-    bad_obs = dict(a3[0].obs)
-    bad_obs["door_angle_rad"] = bad_obs["door_angle_rad"].copy()
-    bad_obs["door_angle_rad"][0] += 1.0
-    a3.records[0] = dataclasses.replace(a3[0], meta=bad_meta, obs=bad_obs)
+    diagnostics = dict(a3[0].diagnostics)
+    diagnostics["object_state.door_angle_rad"] = diagnostics["object_state.door_angle_rad"].copy()
+    diagnostics["object_state.door_angle_rad"][0] += 1.0
+    a3.records[0] = dataclasses.replace(a3[0], meta=bad_meta, diagnostics=diagnostics)
 
     result = validate_matched_action_space_datasets({A2_EE_DELTA: a2, A3_OBJ_REL_EE_DELTA: a3})
 
     assert not result.ok
     assert any("meta.seed differs" in error for error in result.errors)
-    assert any("core low-dim observations differ" in error for error in result.errors)
+    assert any("diagnostics field" in error for error in result.errors)
 
 
 def test_norm_stats_roundtrip_and_positive_std(synthetic_a2, tmp_path) -> None:
     train_ids = synthetic_a2.episode_ids[:3]
-    stats = compute_norm_stats(synthetic_a2, train_ids)
+    stats = compute_norm_stats(synthetic_a2, train_ids, OBS_KEYS)
     assert stats.action.dim == EE_DELTA_DIM
-    assert stats.obs.dim == 9 and stats.obs_preset == "core"
+    assert stats.obs.dim == 14 and stats.obs_keys == OBS_KEYS
     assert (stats.action.std > 0.0).all()
 
     actions = synthetic_a2[0].actions
@@ -395,16 +383,20 @@ def test_norm_stats_roundtrip_and_positive_std(synthetic_a2, tmp_path) -> None:
     np.testing.assert_array_equal(loaded.action.mean, stats.action.mean)
     np.testing.assert_array_equal(loaded.obs.std, stats.obs.std)
     assert loaded.train_episode_ids == tuple(train_ids)
-    assert validate_norm_stats(loaded, synthetic_a2, train_ids) == []
+    assert validate_norm_stats(loaded, synthetic_a2, train_ids, OBS_KEYS) == []
 
-    pose_stats = compute_norm_stats(synthetic_a2, train_ids, obs_preset="core_door_pose")
-    assert pose_stats.obs_preset == "core_door_pose"
-    assert pose_stats.obs.dim > stats.obs.dim
+    errors = validate_norm_stats(stats, synthetic_a2, train_ids, tuple(reversed(OBS_KEYS)))
+    assert any("obs_keys" in error for error in errors)
+    payload = json.loads(path.read_text())
+    payload["obs_preset"] = payload.pop("obs_keys")
+    path.write_text(json.dumps(payload))
+    with pytest.raises(ValueError, match="obs_keys"):
+        load_norm_stats(path)
 
 
 def test_norm_stats_validation_rejects_stale_or_wrong_dimension_stats(synthetic_a2) -> None:
     train_ids = synthetic_a2.episode_ids[:3]
-    stats = compute_norm_stats(synthetic_a2, train_ids)
+    stats = compute_norm_stats(synthetic_a2, train_ids, OBS_KEYS)
 
     stale_action = dataclasses.replace(
         stats.action,
@@ -413,10 +405,10 @@ def test_norm_stats_validation_rejects_stale_or_wrong_dimension_stats(synthetic_
     stale = dataclasses.replace(stats, action=stale_action)
     assert any(
         "recomputed action mean" in error
-        for error in validate_norm_stats(stale, synthetic_a2, train_ids)
+        for error in validate_norm_stats(stale, synthetic_a2, train_ids, OBS_KEYS)
     )
 
-    wrong_train = validate_norm_stats(stats, synthetic_a2, list(reversed(train_ids)))
+    wrong_train = validate_norm_stats(stats, synthetic_a2, list(reversed(train_ids)), OBS_KEYS)
     assert any("train_episode_ids" in error for error in wrong_train)
 
     bad_action = dataclasses.replace(
@@ -428,21 +420,22 @@ def test_norm_stats_validation_rejects_stale_or_wrong_dimension_stats(synthetic_
     )
     wrong_dim = dataclasses.replace(stats, action=bad_action)
     assert any(
-        "action dim" in error for error in validate_norm_stats(wrong_dim, synthetic_a2, train_ids)
+        "action dim" in error
+        for error in validate_norm_stats(wrong_dim, synthetic_a2, train_ids, OBS_KEYS)
     )
 
 
 def test_chunk_sampler_windows_and_pads(synthetic_a2) -> None:
     horizon = 10
-    sampler = ChunkSampler(synthetic_a2, horizon=horizon)
+    sampler = ChunkSampler(synthetic_a2, obs_keys=OBS_KEYS, horizon=horizon)
     assert len(sampler) == sum(r.n_steps for r in synthetic_a2.records)
-    assert sampler.obs_dim == 9 and sampler.action_dim == EE_DELTA_DIM
+    assert sampler.obs_dim == 14 and sampler.action_dim == EE_DELTA_DIM
 
     record = synthetic_a2[0]
     mid = sampler.sample(5)
     np.testing.assert_array_equal(mid.actions, record.actions[5 : 5 + horizon])
     assert not mid.is_pad.any()
-    np.testing.assert_array_equal(mid.obs, obs_matrix(record, "core")[5])
+    np.testing.assert_array_equal(mid.obs, obs_matrix(record, OBS_KEYS)[5])
 
     last = sampler.sample(record.n_steps - 1)
     np.testing.assert_array_equal(last.actions[0], record.actions[-1])
@@ -452,7 +445,7 @@ def test_chunk_sampler_windows_and_pads(synthetic_a2) -> None:
 
 def test_chunk_sampler_respects_split_restriction(synthetic_a2) -> None:
     chosen = [synthetic_a2.episode_ids[1]]
-    sampler = ChunkSampler(synthetic_a2, horizon=4, episode_ids=chosen)
+    sampler = ChunkSampler(synthetic_a2, obs_keys=OBS_KEYS, horizon=4, episode_ids=chosen)
     assert len(sampler) == sum(synthetic_a2.by_id(e).n_steps for e in chosen)
     np.testing.assert_array_equal(
         sampler.sample(0).actions[0], synthetic_a2.by_id(chosen[0]).actions[0]
@@ -460,7 +453,7 @@ def test_chunk_sampler_respects_split_restriction(synthetic_a2) -> None:
 
 
 def test_batch_iterator_is_seeded_and_shaped(synthetic_a2) -> None:
-    sampler = ChunkSampler(synthetic_a2, horizon=8)
+    sampler = ChunkSampler(synthetic_a2, obs_keys=OBS_KEYS, horizon=8)
     iterator = BatchIterator(sampler, batch_size=16, seed=3)
     first_pass = list(iterator)
     second_pass = list(BatchIterator(sampler, batch_size=16, seed=3))
@@ -472,7 +465,7 @@ def test_batch_iterator_is_seeded_and_shaped(synthetic_a2) -> None:
 
     batch = first_pass[0]
     assert set(batch) == {"obs", "actions", "is_pad"}
-    assert batch["obs"].shape == (16, 9)
+    assert batch["obs"].shape == (16, 14)
     assert batch["actions"].shape == (16, 8, EE_DELTA_DIM)
     assert batch["is_pad"].shape == (16, 8) and batch["is_pad"].dtype == bool
     dropped = list(BatchIterator(sampler, batch_size=100, seed=0, drop_last=True))

@@ -7,7 +7,7 @@ from typing import Any
 
 import numpy as np
 
-from .loader import DEFAULT_OBS_PRESET, EpisodeDataset, obs_matrix
+from .loader import EpisodeDataset, obs_matrix, validate_obs_keys
 
 
 @dataclass(frozen=True)
@@ -26,19 +26,19 @@ class ChunkSampler:
         self,
         dataset: EpisodeDataset,
         horizon: int,
-        obs_preset: str = DEFAULT_OBS_PRESET,
+        obs_keys: tuple[str, ...],
         episode_ids: list[str] | None = None,
     ):
         if horizon < 1:
             raise ValueError(f"horizon must be >= 1, got {horizon}")
         self.dataset = dataset
         self.horizon = horizon
-        self.obs_preset = obs_preset
+        self.obs_keys = validate_obs_keys(obs_keys)
         ids = dataset.episode_ids if episode_ids is None else episode_ids
         self._records = [dataset.by_id(episode_id) for episode_id in ids]
         if not self._records:
             raise ValueError("sampler has no episodes")
-        self._obs = [obs_matrix(record, obs_preset) for record in self._records]
+        self._obs = [obs_matrix(record, obs_keys) for record in self._records]
         self._index: list[tuple[int, int]] = [
             (rec_idx, t)
             for rec_idx, record in enumerate(self._records)
