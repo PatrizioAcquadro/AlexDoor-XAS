@@ -79,5 +79,48 @@
     "physics": "pass"
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
-  "expert_qualification": "not_run"
+  "expert_qualification": {
+    "status": "out_of_domain",
+    "theta_expert_d": 38.957319233150464,
+    "reason": "safety_stop",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-with-doorframe-c29da62c/20260924T235916.871403Z",
+    "trials": [
+      {
+        "passed": true,
+        "angle_deg": 38.957319233150464,
+        "hold_angle_deg": 38.957319233150464,
+        "stop_reason": "safety_stop",
+        "safety_detail": "declining_contact_load",
+        "peak_force_n": 5.975060939788818,
+        "joint_margin": 0.0,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 1457,
+          "checked_frames": 3053,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-1"
+      },
+      {
+        "passed": true,
+        "angle_deg": 38.957319233150464,
+        "hold_angle_deg": 38.957319233150464,
+        "stop_reason": "safety_stop",
+        "safety_detail": "declining_contact_load",
+        "peak_force_n": 5.975060939788818,
+        "joint_margin": 0.0,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 1457,
+          "checked_frames": 3053,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-2"
+      }
+    ],
+    "repeat_spread_deg": 0.0,
+    "scope": "nominal_simulated_expert_reference_not_learning_data"
+  }
 }

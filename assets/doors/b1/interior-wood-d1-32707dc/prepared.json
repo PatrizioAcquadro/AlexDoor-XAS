@@ -79,7 +79,50 @@
     "physics": "pass"
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
-  "expert_qualification": "not_run",
+  "expert_qualification": {
+    "status": "qualified",
+    "theta_expert_d": 48.05293530178929,
+    "reason": "safety_stop",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/interior-wood-d1-32707dc/20260925T000522.606847Z",
+    "trials": [
+      {
+        "passed": true,
+        "angle_deg": 48.05293530178929,
+        "hold_angle_deg": 48.05293530178929,
+        "stop_reason": "safety_stop",
+        "safety_detail": "tracking_margin",
+        "peak_force_n": 6.418163776397705,
+        "joint_margin": 0.0,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 55,
+          "checked_frames": 3631,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-1"
+      },
+      {
+        "passed": true,
+        "angle_deg": 48.05293530178929,
+        "hold_angle_deg": 48.05293530178929,
+        "stop_reason": "safety_stop",
+        "safety_detail": "tracking_margin",
+        "peak_force_n": 6.418163776397705,
+        "joint_margin": 0.0,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 55,
+          "checked_frames": 3631,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-2"
+      }
+    ],
+    "repeat_spread_deg": 0.0,
+    "scope": "nominal_simulated_expert_reference_not_learning_data"
+  },
   "assembly_revision": {
     "reason": "floor_clearance_missing_in_legacy_preparation",
     "moving_translation_m": [
