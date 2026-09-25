@@ -79,5 +79,48 @@
     "physics": "pass"
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
-  "expert_qualification": "not_run"
+  "expert_qualification": {
+    "status": "qualified",
+    "theta_expert_d": 54.24173555779199,
+    "reason": "safety_stop",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-interior-wood-007-02e442c/20260925T012549.709852Z",
+    "trials": [
+      {
+        "passed": true,
+        "angle_deg": 54.24173555779199,
+        "hold_angle_deg": 54.24173555779199,
+        "stop_reason": "safety_stop",
+        "safety_detail": "tracking_margin",
+        "peak_force_n": 6.362964630126953,
+        "joint_margin": -4.55346658156941e-08,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 4040,
+          "checked_frames": 4040,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-1"
+      },
+      {
+        "passed": true,
+        "angle_deg": 54.24173555779199,
+        "hold_angle_deg": 54.24173555779199,
+        "stop_reason": "safety_stop",
+        "safety_detail": "tracking_margin",
+        "peak_force_n": 6.362964630126953,
+        "joint_margin": -4.55346658156941e-08,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 4040,
+          "checked_frames": 4040,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-2"
+      }
+    ],
+    "repeat_spread_deg": 0.0,
+    "scope": "nominal_simulated_expert_reference_not_learning_data"
+  }
 }
