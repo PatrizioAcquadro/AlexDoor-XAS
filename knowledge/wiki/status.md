@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-09-24. The maintained project is **B1**; B0 execution,
+Current as of 2026-09-25. The maintained project is **B1**; B0 execution,
 compatibility, dataset payloads and run orchestration are retired.
 
 | Area | Current state |
@@ -8,30 +8,27 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | All 32 prepared doors have outcomes from the common RTX 4090 probe: **15 qualified, 15 out of domain, two unresolved, none unvisited**. Loader compatibility, leaf ownership, holding and the artificial prison-door stop were corrected before the routine campaign. Final corpus/split pending. |
+| 5.1 — Expert qualification | Full-pool recovery in progress after the first 15 qualified / 15 out-of-domain / two unresolved outcomes. Recovery is focused on the 17 problematic doors; the user deferred fresh pairs for the 15 previous passes to the smaller model. Final corpus/split pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Diagnose the two unresolved pairs without per-door retuning: actual forbidden
-jaw/panel contact on `psx-front-001-ee7d5c6`, and early contact loss with no
-valid final hold on `void-frame-studio-animated-classic-door-08bdf51b`. See
-[[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]
-for their retained evidence and all published outcomes. At least seven additional
-qualifiable right-door identities are still needed for the final 12/12 balance;
-corpus selection and the split remain separate future work.
+Resolve and recheck the 17 problematic doors with the revised common setup.
+Defer the 15 previously qualified doors to the smaller model, retain their old
+evidence and require fresh pairs before treating their references as current. See
+[[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]].
+The pool has seven right identities, so at least five additional qualifying right
+doors will still be needed for the final 12/12 balance. Corpus selection and the
+split remain separate future work.
 
 ## Limits
 
-Preparation does not establish robot reachability. The prison door's corrected
-geometric stop is 47.0°, while its valid common-baseline reference is 44.91557°:
-the measured tracking guard stops the push below the 45° admission threshold.
-This is not proof that the robot cannot reach 47°. Six other valid paired
-references also remain below 45°. PSX front-005 has an obstructed prescribed
-footprint, and seven left-door frames physically intersect the fixed pedestal.
-These 15 doors remain outside the current domain. Earlier outcomes and original
-payloads remain archived. Rights scopes constrain sharing independently of
-technical readiness.
+Earlier outcomes belong to the previous common placement/controller. The recovery
+moves robot and pedestal together 6 cm back, changes the common contact fraction
+from 0.40 to 0.24 and corrects tracking/holding defects without lowering the
+45-degree gate or physical validity thresholds. All affected expert references
+must be remeasured. Preparation alone does not establish robot reachability;
+rights scopes constrain sharing independently of technical readiness.
 
 RGB-D acquisition is operational, but sampled frame visibility fails in several
 qualified real-door trials. Visibility remains a geometric diagnostic; learned

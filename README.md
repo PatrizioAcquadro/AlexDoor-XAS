@@ -11,13 +11,14 @@ push doors with fixed-base Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
 Purdue control/sensing and the shared expert workflow are implemented.
 The prepared pool contains **32 doors**: 29 redistributable, two local-only and
-one private/noncommercial. Expert qualification currently has
-**5 qualified, 5 out of domain, and 22 unvisited**.
-The common zero-yaw placement, ready posture and corrected holding controller
-are verified with complete GPU pairs on both hinge directions. The command and
-[handoff procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md#procedure-for-subsequent-doors)
-are ready for the pending doors. Final corpus selection, B1 demonstrations,
-Replicator and learned-policy integration remain future work.
+one private/noncommercial. The first full campaign produced 15 qualified,
+15 out-of-domain and two unresolved outcomes. A shared setup/controller recovery
+now targets the 17 problematic doors. The user deferred rechecking the 15 previous
+passes to a later campaign. See the
+[qualification procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md#procedure-for-subsequent-doors)
+and current [project status](knowledge/wiki/status.md).
+Final corpus selection, B1 demonstrations, Replicator and learned-policy
+integration remain future work.
 
 B0 workflows and local data have been retired. Their scientific conclusions and
 limits remain in the wiki. Reusable action math, recording, dataset and model
