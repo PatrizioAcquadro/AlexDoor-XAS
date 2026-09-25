@@ -360,7 +360,8 @@ holding valid, no forbidden contacts and safe release. Complete pairs are being
 checked with the selected compromise; local IK screens are not proof of global
 infeasibility. Missing initial fingertip support now raises a diagnostic
 error before motion instead of running known-invalid cycles. A diagnostic void-frame
-cycle recovered controlled contact; a new full pair remains mandatory.
+cycle recovered controlled contact, but the latest pair stops below admission and
+requires further diagnosis.
 
 Complete pairs with the revised setup recovered front-001, industrial-001,
 the right frame-door and the largest left door. Front-005 then exposed a release
@@ -374,13 +375,34 @@ reproduces the old defect and verifies the correction. Contact rules, geometry
 and the admission threshold are unchanged. The corrected release is
 verified by a complete GPU diagnostic at 59.71330 degrees, with all 180 holding
 ticks valid, no forbidden contact and safe release. Opening/holding reproduce
-the failed case exactly; only release changes. Fresh complete pairs are now
-required for all 17 recovery doors, including the four earlier passes affected
-by this common correction. The user's 15 deferred doors remain untouched.
+the failed case exactly; only release changes. Uniform scaling preserves the commanded
+joint-step direction; it does not guarantee a straight measured hand path or
+smaller transient error during free release. The release endpoint, separation and
+contact conditions are independently checked.
 
-The 17-door recovery remains in progress. Earlier pairs are retained in each
-record's evidence chain; no repetitions are mixed across runs. Diagnostics and
-independent audits remain under
+Six complete pairs finished before the user switched recovery to single-cycle
+diagnostics. Their traces, contacts and representative hold/release images were
+audited without another simulation:
+
+| Recovered door | Sustained expert angle (degrees) |
+|---|---:|
+| `psx-front-005-ee7d5c6` | 59.71330 |
+| `door-with-frame-2f2f149f` | 45.08919 |
+| `psx-industrial-001-4f5561b` | 46.99394 |
+| `door-2738468b94d74c5f` | 57.83911 |
+| `psx-front-001-ee7d5c6` | 60.63801 |
+| `door-prison-metal-old-45306a46` | 47.00000 |
+
+These pairs used `a46ed1a`; evidence paths remain in their prepared records.
+Void-frame's subsequent pair remained below admission at 32.45180 degrees,
+triggered by the tracking guard. Recovery now targets the remaining 11 known
+failures with **one diagnostic cycle per correction/door**. Do not rerun these
+six recovered doors or the 15 baseline-qualified doors during this fix campaign.
+Formal pairs under the final shared code are deferred; a single diagnostic never
+creates an expert reference or overwrites a published outcome.
+
+Earlier pairs are retained in each record's evidence chain; no repetitions are
+mixed across runs. Diagnostics and independent audits remain under
 `~/.cache/alexdoor-xas/verification/corpus-recovery-20260925/`.
 
 The 15 deferred rechecks are the three `animated-door-*`, `modern-door-2fb8d024`,
