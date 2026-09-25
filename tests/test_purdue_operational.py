@@ -58,6 +58,25 @@ def test_pose_control_rotates_and_centers_without_changing_primary_task():
     assert torch.equal(target, repeat)
 
 
+def test_pose_velocity_limit_preserves_nullspace_motion():
+    jac = torch.zeros(1, 6, 7)
+    jac[0, :, :6] = torch.eye(6)
+    jac[0, 0, 6] = 1
+    q = torch.zeros(1, 7)
+    q[0, 0], q[0, 6] = 0.5, -0.5
+    limits = torch.tensor([[[-1.0, 1.0]] * 7])
+    velocities = torch.ones_like(q) * 0.2
+    velocities[0, 0] = 0.1
+    target, clipped = bounded_pose_step(
+        jac, torch.zeros(1, 6), q, limits, velocities, 0.1, centering_gain=2.0
+    )
+    # Centering may move joints, but cannot move the hand when the pose error is zero.
+    assert not torch.equal(target, q)
+    torch.testing.assert_close(jac @ (target - q).unsqueeze(-1), torch.zeros(1, 6, 1))
+    assert bool(((target - q).abs() <= velocities * 0.1 + 1e-7).all())
+    assert float(clipped.max()) > 0
+
+
 def test_joint_command_bounds_and_invalid_input():
     q = torch.ones(1, 7) * 0.99
     limits = torch.tensor([[[-1.0, 1.0]] * 7])

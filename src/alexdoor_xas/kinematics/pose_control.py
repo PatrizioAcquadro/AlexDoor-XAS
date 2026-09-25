@@ -34,7 +34,20 @@ def bounded_pose_step(
     delta = primary.squeeze(-1) + centering_gain * dt * (projector @ center.unsqueeze(-1)).squeeze(
         -1
     )
-    return bounded_joint_step(delta, positions, limits, velocities, dt, previous_targets)
+    # Independent velocity clipping leaks nullspace motion into the hand pose.
+    # Scale the whole target step to preserve its direction within the bounds.
+    reference = positions if previous_targets is None else previous_targets
+    step = torch.clamp(positions + delta, lo, hi) - reference
+    scale = (step.abs() / (velocities * dt)).amax(dim=-1, keepdim=True).clamp(min=1.0)
+    targets, _ = bounded_joint_step(
+        reference + step / scale - positions,
+        positions,
+        limits,
+        velocities,
+        dt,
+        previous_targets,
+    )
+    return targets, (positions + delta - targets).abs()
 
 
 def bounded_joint_step(delta, positions, limits, velocities, dt, previous_targets=None):

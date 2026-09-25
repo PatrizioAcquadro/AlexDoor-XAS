@@ -76,6 +76,31 @@ def test_tangential_bias_correction_freezes_when_disabled_and_limits_rate_and_ex
     assert correction[0] == 0
 
 
+@pytest.mark.parametrize("sign", [-1, 1])
+def test_release_clears_surface_before_rotating_in_either_opening_direction(sign):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, release_reference
+
+    setup = ProbeSetup()
+    start = np.array([0.2, -0.15 * sign, 1.09])
+    rotation = Rotation.from_euler("z", sign * 60, degrees=True).as_matrix()
+    retreat = start + rotation @ np.array([-0.05, 0.01, 0.0])
+    retreat_rotation = Rotation.from_euler("z", sign * 55, degrees=True).as_matrix()
+    for elapsed in np.linspace(0, setup.release_s / 2, 31):
+        point, orientation = release_reference(
+            start, rotation, retreat, retreat_rotation, elapsed, setup
+        )
+        displacement = (point - start) @ rotation
+        np.testing.assert_allclose(displacement[1:], 0, atol=1e-12)
+        assert -setup.precontact_m - 1e-12 <= displacement[0] <= 0
+        np.testing.assert_allclose(orientation, rotation, atol=1e-12)
+    assert displacement[0] == pytest.approx(-setup.precontact_m)
+    point, orientation = release_reference(
+        start, rotation, retreat, retreat_rotation, setup.release_s, setup
+    )
+    np.testing.assert_allclose(point, retreat, atol=1e-12)
+    np.testing.assert_allclose(orientation, retreat_rotation, atol=1e-12)
+
+
 def test_contact_load_tolerates_impulse_chatter_but_rejects_unloaded_or_detached_points():
     from alexdoor_xas.qualification.synthetic_probe import ContactLoad
 

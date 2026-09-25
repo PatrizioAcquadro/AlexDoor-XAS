@@ -118,7 +118,10 @@ relief is handled from geometry without per-door settings. During pushing the an
 angle, within the existing lead budget and physical stop, so an inertially coasting
 panel cannot leave the commanded pose behind. The target joint-speed bound is 0.5 rad/s and nominal opening reference
 speed is 1 degree/s; physics/commands remain 120/60 Hz. Damped IK uses 0.01 damping
-and 2.0 nullspace centering gain. Approach/contact/release budgets are 6/3/3 s,
+and 2.0 nullspace centering gain. Pose control uniformly scales a joint target
+step to respect velocity bounds: independent joint clipping can turn nullspace
+centering into unwanted hand motion. Direct A1 joint commands retain independent
+bounds. Approach/contact/release budgets are 6/3/3 s,
 with a common 150 s push horizon. These are simulation qualification settings.
 
 A valid sustain interval requires a causal 0.1-second mean normal force of at
@@ -133,8 +136,13 @@ If filtered load falls below 0.10 N, bounded normal support restores contact at 
 more than 6 mm/s, up to a 7.5 mm virtual compression target; all actual contact,
 force and pose limits remain unchanged. The full 3 s transition must complete;
 the final 0.5 s must be valid before release. An earlier valid holding window
-does not rescue an invalid ending. Release retraces an achieved pose behind the panel and
-verifies unloaded separation of at least 1 cm.
+does not rescue an invalid ending. After valid holding, release first withdraws
+3 cm along the measured finger axis without rotating, then retraces an achieved
+pose behind the panel to release wrist limits. The two stages share the existing
+3 s budget; each uses smooth motion followed by settling. Separating withdrawal
+from rotation prevents a finger side from scraping nearby relief. Failed-cycle
+retreat retains the previous path. Admission still requires unloaded separation
+of at least 1 cm and no forbidden contact.
 
 The expert also compensates persistent servo bias along the panel surface during
 contact approach, loaded push and hold. The bounded integral correction starts

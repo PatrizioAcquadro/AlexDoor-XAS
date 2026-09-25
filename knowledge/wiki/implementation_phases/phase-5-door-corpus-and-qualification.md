@@ -362,19 +362,25 @@ infeasibility. Missing initial fingertip support now raises a diagnostic
 error before motion instead of running known-invalid cycles. A diagnostic void-frame
 cycle recovered controlled contact; a new full pair remains mandatory.
 
-The first three complete pairs with the revised setup qualify PSX front-001 at
-60.63801 degrees, industrial-001 at 46.99394 degrees and the right frame-door at
-45.08919 degrees. Each pair has two valid cycles, the same limiting cause
-(`tracking_margin`) and zero spread. Independent raw-contact/pose audits verify
-sustained windows, full valid final holding and unloaded release; representative
-images were inspected. The right frame-door has little margin above 45 degrees,
-so this establishes nominal simulated admission, not robustness to perturbations.
+Complete pairs with the revised setup recovered front-001, industrial-001,
+the right frame-door and the largest left door. Front-005 then exposed a release
+path defect: rotating while retreating scraped a finger side against its retained
+wood relief after valid pushing/holding. Both cycles reproduced the forbidden
+contact. Release now withdraws along the measured finger axis before rotating
+toward the previously achieved pose, within the same 3 s budget. A follow-up isolated a velocity-limiting defect: clipping each pose-control
+joint step separately could create lateral hand drift from nullspace centering.
+Pose control now scales the bounded target step uniformly; numerical regression
+reproduces the old defect and verifies the correction. Contact rules, geometry
+and the admission threshold are unchanged. The corrected release is
+verified by a complete GPU diagnostic at 59.71330 degrees, with all 180 holding
+ticks valid, no forbidden contact and safe release. Opening/holding reproduce
+the failed case exactly; only release changes. Fresh complete pairs are now
+required for all 17 recovery doors, including the four earlier passes affected
+by this common correction. The user's 15 deferred doors remain untouched.
 
-The remaining 14 previously problematic doors are being checked with complete
-pairs. Earlier recovery pairs used a lower contact and are superseded by the
-configuration change; their reports remain in the evidence chain. The user
-deferred the 15 previous passes to a later run by the smaller model. No repetitions
-are mixed across runs. Diagnostics and independent audits remain under
+The 17-door recovery remains in progress. Earlier pairs are retained in each
+record's evidence chain; no repetitions are mixed across runs. Diagnostics and
+independent audits remain under
 `~/.cache/alexdoor-xas/verification/corpus-recovery-20260925/`.
 
 The 15 deferred rechecks are the three `animated-door-*`, `modern-door-2fb8d024`,

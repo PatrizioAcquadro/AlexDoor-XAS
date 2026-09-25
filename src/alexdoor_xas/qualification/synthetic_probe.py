@@ -193,6 +193,21 @@ def tangential_compensation(offset, error, enabled, setup, dt):
     return corrected * min(1.0, bound / max(np.linalg.norm(corrected), 1e-12))
 
 
+def release_reference(start_p, start_r, retreat_p, retreat_r, elapsed, setup):
+    """Withdraw along the fingers before rotating back toward an achieved pose."""
+    from scipy.spatial.transform import Rotation, Slerp
+
+    halfway = setup.release_s / 2
+    withdrawn = start_p - setup.precontact_m * start_r[:, 0]
+    if elapsed <= halfway:
+        u = float(np.clip(elapsed / (halfway * 0.7), 0.0, 1.0))
+        return start_p + (withdrawn - start_p) * u * u * (3 - 2 * u), start_r
+    u = float(np.clip((elapsed - halfway) / (halfway * 0.7), 0.0, 1.0))
+    blend = u * u * (3 - 2 * u)
+    rotation = Slerp([0, 1], Rotation.from_matrix([start_r, retreat_r]))(blend).as_matrix()
+    return withdrawn + (retreat_p - withdrawn) * blend, rotation
+
+
 def rank_candidates(results, tie_deg):
     """Only complete four-case controlled candidates participate in minimax."""
     valid = [r for r in results if len(r["cases"]) == 4 and all(c["passed"] for c in r["cases"])]
@@ -598,7 +613,7 @@ def run_probe(env, door, setup, output):
         held_angle = held.current if failure is None else None
         if held_angle is None:
             failure = failure or "invalid_hold"
-    # Retrace a previously achieved pose behind the moving panel, releasing wrist limits.
+    # Clear raised relief before rotating toward a pose that releases wrist limits.
     released = False
     if failure != "invalid_physics":
         final_angle = float(tensor(env.door.data.joint_pos)[0, 0])
@@ -616,9 +631,17 @@ def run_probe(env, door, setup, output):
         release_slerp = Slerp([0, 1], Rotation.from_quat([current_q, retreat_q]))
         for tick in range(round(setup.release_s / dt)):
             a = min(1.0, (tick + 1) * dt / (setup.release_s * 0.7))
-            state = command(
-                current_p + (retreat_p - current_p) * a, release_slerp(a).as_matrix(), "release"
-            )
+            goal_p, goal_r = current_p + (retreat_p - current_p) * a, release_slerp(a).as_matrix()
+            if held_angle is not None:
+                goal_p, goal_r = release_reference(
+                    current_p,
+                    Rotation.from_quat(current_q).as_matrix(),
+                    retreat_p,
+                    Rotation.from_quat(retreat_q).as_matrix(),
+                    (tick + 1) * dt,
+                    setup,
+                )
+            state = command(goal_p, goal_r, "release")
             if failure == "invalid_physics":
                 break
         actual_p = env.tool_pose()[0][0].cpu().numpy()
