@@ -515,8 +515,12 @@ def run_probe(env, door, setup, output):
                 reason = "mechanical_stop"
                 break
             hold_blocked = False
-            if elapsed > 5.0 and predicted_error > setup.material_drift_guard_m:
+            if elapsed > 5.0 and (
+                tick % max(1, round(setup.contact_force_window_s / dt)) == 0
+                or predicted_error > setup.material_drift_guard_m
+            ):
                 # A push-only contact cannot brake an inertially coasting panel.
+                # Check future reach even while present tracking is still accurate.
                 endpoint = min(
                     reference + max(0.0, traces[-1]["speed"]) * setup.hold_settle_s,
                     door.mechanical_stop,

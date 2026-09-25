@@ -272,8 +272,8 @@ strip is not permitted. The other seven corrective-cohort footprints pass.
 ### Common Setup and Corrective Qualification
 
 The user-authorized setup keeps **robot and pedestal together at zero yaw**, at
-**X = -0.380 m, Y = 0.300 m**, with the shared right-arm ready and left-arm parked
-posture in `configs/purdue_synthetic_probe.json`. Contact remains at 0.40 of leaf
+**X = -0.440 m, Y = 0.300 m**, with the shared right-arm ready and left-arm parked
+posture in `configs/purdue_synthetic_probe.json`. Contact is now at 0.24 of leaf
 width from the actual hinge and 1.00 m height. Head pose, controller gains, push
 speed and validity thresholds are unchanged. See
 [[phase-4-robot-and-task-configuration|Phase 4]] for the full effective controller.
@@ -423,8 +423,12 @@ Admission requires the final 0.5 s of that transition to be valid, not an earlie
 window. The original material point, 10 mm / 5 degree validity limits, 2.5 mm
 stopping reserve, contact limits and inclusive 45-degree admission are retained.
 One diagnostic industrial-door cycle with the candidate common placement reaches
-46.10640 degrees with all 3 s of holding valid and safe release. A right frame-door
-cycle still has an invalid hold; the candidate is not yet frozen or qualified.
+46.10640 degrees with all 3 s of holding valid and safe release. Checking future holding reach only after present tracking error grows was too
+late on the right frame-door. Periodic anticipation with the same tolerances
+gives a valid 45.21945-degree diagnostic cycle, with the full hold and release.
+The common placement/contact above is now selected for fresh paired qualification;
+single diagnostics do not qualify either door. The earlier tables are historical
+while all 32 pairs are repeated with the revised setup.
 The authorized recovery may revise the common placement/contact before any split;
 it requires fresh pairs for all affected doors, including prior qualifications.
 
@@ -478,8 +482,8 @@ family leakage. Record the common setup/probe and each door's expert result.
 
 Complete with 24 eligible nominally reachable doors, stable expert references,
 and the frozen split. Conclusions apply to this qualified domain; neither the
-corpus size nor repeated trials prove broad coverage. Never retune Phase 4 from
-collected assets.
+corpus size nor repeated trials prove broad coverage. The 2026-09-25 user-authorized recovery revises the common setup before any split.
+After corpus/split freeze, do not retune it from held-out assets.
 
 ## Maintained Entry Points
 

@@ -94,18 +94,19 @@ door geometry and material-point trajectory, not the robot placement. The old
 
 `configs/purdue_synthetic_probe.json` defines the reusable common setup. Its
 right-arm ready vector, left parked pose and closed WSG targets apply to every
-case. The current placement is **X = -0.380 m, Y = 0.300 m, yaw = 0 degrees**.
+case. The current placement is **X = -0.440 m, Y = 0.300 m, yaw = 0 degrees**.
 Robot and pedestal rotate/translate together, preserving their physical mounting.
 The ready right hand is horizontal, facing the closed panel, 0.10 m above the
-contact height; its world position is approximately (-0.12, -0.175, 1.10) m.
+contact height; its world position is approximately (-0.18, -0.175, 1.10) m.
 The parked left arm uses shoulder X = 0, shoulder Y = 0.5 and elbow Y = -1 rad,
 keeping the wrist behind the door frame. The common joint vector is in the config.
 These revisions address observed wrist/body and parked-arm/frame collisions;
-contact height/fraction, head pose, controller gains, speeds and validity limits
-are unchanged. The previous 45-degree synthetic results below remain historical.
+the later user-authorized corpus recovery also moves contact from 0.40 to 0.24
+of leaf width. Contact height, head pose, controller gains, speeds and validity
+limits are unchanged. The previous 45-degree synthetic results below remain historical.
 The current configuration is assessed directly on collected doors in
 [[phase-5-door-corpus-and-qualification|Phase 5]], without repeating the synthetic sweep.
-Contact is at **0.40 of actual panel width from the hinge, 1.00 m above the floor**.
+Contact is at **0.24 of actual panel width from the hinge, 1.00 m above the floor**.
 The fixed neck pose is **NECK_Z = -0.70 rad, NECK_Y = 0.25 rad**.
 
 The expert uses existing full-pose control for approach → contact → push → hold
@@ -147,9 +148,10 @@ mean load over 0.1 s, 50 N for a soft safety stop and 80 N for a hard failure.
 After the five-second push transient, a 2.5 mm material-drift reserve or half the
 orientation budget also triggers a safety stop. Material error includes a
 nonnegative linear trend over the last 0.5 s, projected through the 3 s hold budget.
-A growing trend triggers a local IK check of the target after coasting at the
-measured angular speed through the hold budget, capped by the physical stop; early
-stopping requires that this target cannot retain the tracking reserve. A reachable
+A local IK check runs every 0.1 s even while current tracking is accurate, and
+also when the trend exceeds the reserve. It checks the target after coasting at
+the measured angular speed through the hold budget, capped by the physical stop.
+An infeasible future target triggers early stopping before current error grows. A reachable
 endpoint alone does not override the original measured-error/orientation guards.
 This avoids premature stops from extrapolation alone. The forecast and checked
 endpoint errors are retained in push traces; a local solve is not a global
