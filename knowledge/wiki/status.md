@@ -8,14 +8,18 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Full-pool recovery in progress after the first 15 qualified / 15 out-of-domain / two unresolved outcomes. Recovery is focused on the 17 problematic doors; the user deferred fresh pairs for the 15 previous passes to the smaller model. Final corpus/split pending. |
+| 5.1 — Expert qualification | Shared defects corrected through static screening and targeted GPU diagnostics. Six recovery pairs predate the latest control fixes; representative single cycles validate the fixes without publishing new references. Systematic requalification is deferred to the smaller model. Final corpus/split pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Resolve and recheck the 17 problematic doors with the revised common setup.
-Defer the 15 previously qualified doors to the smaller model, retain their old
-evidence and require fresh pairs before treating their references as current. See
+Run systematic paired requalification with the smaller model under the revised
+common setup/controller. The four representative single cycles passed:
+void-frame 66.92 degrees, door-with-doorframe 54.73, door-5035 56.70 and
+industrial-002 47.20. Keep the 15 original
+passes, six recovered pairs and all older excluded outcomes intact until those
+runs replace them. Do not treat successful single diagnostics as expert references.
+Seven other corrected candidates have not had a post-fix dynamic recheck. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]].
 The pool has seven right identities, so at least five additional qualifying right
 doors will still be needed for the final 12/12 balance. Corpus selection and the

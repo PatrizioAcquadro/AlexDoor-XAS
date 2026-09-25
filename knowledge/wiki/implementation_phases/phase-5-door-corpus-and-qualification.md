@@ -4,9 +4,11 @@ Subphase 5.0 is complete for **32 prepared doors**: 29 redistributable, two
 local-only and one private/noncommercial. The common expert executor is implemented.
 The first full campaign produced 15 qualified, 15 out-of-domain and two unresolved
 outcomes. A user-authorized recovery now corrects shared control defects and
-revises one common placement/contact before any split. **Recovery now focuses on the 17 problematic doors. The user deferred reruns of
-the 15 previously qualified doors to the smaller model; those references remain
-tied to the old setup until rechecked.**
+revises one common placement/contact before any split. Six recovery pairs and
+four successful representative single cycles support the corrections. **Systematic
+paired requalification is deferred to the smaller model: seven other corrected
+candidates have static checks but no post-fix dynamic rerun, and the 21 existing
+qualified records predate the final controller revision.**
 Subphase 5.1 still owns the final 24-door, 12/4/8 identity split; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
@@ -269,7 +271,9 @@ contact revision below avoids the strip while preserving it.
 
 ### Procedure for Subsequent Doors
 
-1. Select one prepared identity with pending expert status and run the command.
+1. Select a prepared identity awaiting qualification or an explicitly deferred
+   post-fix recheck. Run the command without `--diagnostic` for a formal pair;
+   add `--rerun` when its retained historical status is already `qualified`.
 2. Read `report.json`; a nonzero shell exit alone does not distinguish exclusion
    from a runtime error. `qualified` requires the valid pair below. `out_of_domain`
    means an evidenced geometric exclusion or a valid reference below 45 degrees.
@@ -363,9 +367,9 @@ contact required wrist/body interpenetration in all 18 locally solved precontact
 configurations examined against the actual URDF collision meshes. Rerouting the
 approach alone did not resolve it. A higher common contact and lateral placement
 clear this collision in the diagnostic run. The right frame-door constrains the
-remaining reach; its latest diagnostic sustains 45.08919 degrees with all 3 s of
-holding valid, no forbidden contacts and safe release. Complete pairs are being
-checked with the selected compromise; local IK screens are not proof of global
+remaining reach; its latest diagnostic sustains 45.09 degrees with all 3 s of
+holding valid, no forbidden contacts and safe release. The completed recovery
+pairs below use this common compromise; local IK screens are not proof of global
 infeasibility. Missing initial fingertip support now raises a diagnostic
 error before motion instead of running known-invalid cycles. A diagnostic void-frame
 cycle recovered controlled contact, but the latest pair stops below admission and
@@ -381,7 +385,7 @@ joint step separately could create lateral hand drift from nullspace centering.
 Pose control now scales the bounded target step uniformly; numerical regression
 reproduces the old defect and verifies the correction. Contact rules, geometry
 and the admission threshold are unchanged. The corrected release is
-verified by a complete GPU diagnostic at 59.71330 degrees, with all 180 holding
+verified by a complete GPU diagnostic at 59.71 degrees, with all 180 holding
 ticks valid, no forbidden contact and safe release. Opening/holding reproduce
 the failed case exactly; only release changes. Uniform scaling preserves the commanded
 joint-step direction; it does not guarantee a straight measured hand path or
@@ -394,17 +398,18 @@ audited without another simulation:
 
 | Recovered door | Sustained expert angle (degrees) |
 |---|---:|
-| `psx-front-005-ee7d5c6` | 59.71330 |
-| `door-with-frame-2f2f149f` | 45.08919 |
-| `psx-industrial-001-4f5561b` | 46.99394 |
-| `door-2738468b94d74c5f` | 57.83911 |
-| `psx-front-001-ee7d5c6` | 60.63801 |
-| `door-prison-metal-old-45306a46` | 47.00000 |
+| `psx-front-005-ee7d5c6` | 59.71 |
+| `door-with-frame-2f2f149f` | 45.09 |
+| `psx-industrial-001-4f5561b` | 46.99 |
+| `door-2738468b94d74c5f` | 57.84 |
+| `psx-front-001-ee7d5c6` | 60.64 |
+| `door-prison-metal-old-45306a46` | 47.00 |
 
 These pairs used `a46ed1a`; evidence paths remain in their prepared records.
-Void-frame's subsequent pair remained below admission at 32.45180 degrees,
-triggered by the tracking guard. Recovery now targets the remaining 11 known
-failures with **one diagnostic cycle per correction/door**. Do not rerun these
+Void-frame's subsequent pair remained below admission at 32.45 degrees,
+triggered by the tracking guard. The user then limited recovery to **single-cycle
+representatives of distinct failures**, preceded by static checks. No complete
+campaign follows a small correction. Do not rerun these
 six recovered doors or the 15 baseline-qualified doors during this fix campaign.
 Formal pairs under the final shared code are deferred; a single diagnostic never
 creates an expert reference or overwrites a published outcome.
@@ -418,12 +423,32 @@ load: push now uses the same bounded support as hold before declaring a declinin
 load stop. The 0.25 s detachment failure, 10 mm/5 degree validity, force limits and
 complete final holding/release conditions remain unchanged. See Phase 4 for the
 exact common controller; no door-specific settings were introduced. The corrected
-void-frame single cycle sustains **66.91685 degrees**, completes holding, has no
+void-frame single cycle sustains **66.92 degrees**, completes holding, has no
 actual forbidden contacts and releases with 22.2 mm normal separation. Its
 unpublished diagnostic is
 `~/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260925T202136.654999Z/`.
-The old 32.45180-degree paired record is deliberately retained until a separately
+The old 32.45-degree paired record is deliberately retained until a separately
 authorized formal rerun.
+
+`door-with-doorframe-c29da62c` subsequently completes a single cycle at **54.73
+degrees**, and `door-5035d7977155` at **56.70 degrees**, with valid final hold and
+release. These are unpublished diagnostics, not new expert references. The first
+checks another low-load stop; the second represents the former pedestal
+intersections. Reports are under their expert-cache directories at
+`20260925T202545.111364Z` and `20260925T202912.129189Z`, respectively.
+
+The current static screen clears pedestal/contact geometry on all 32 doors.
+The three remaining industrial doors also have local IK solutions at 45–47
+degrees; this is not dynamic validation. Only industrial-002 is selected for a
+further dynamic diagnostic, which completes at **47.20 degrees** with valid hold
+and release (`expert/psx-industrial-002-4f5561b/20260925T203313.100427Z/`).
+Industrial-003/004 and front-002, front-20d5505,
+wooden-001, wooden-009 and worn-20d5505 are deferred to systematic requalification.
+Their known failure causes are covered by shared corrections, but individual
+post-fix dynamic success remains unverified. Routine successes use the saved
+cycle diagnostics; detailed image/raw-contact audits target failures and the
+representative evidence needed to validate a correction. Display angles to two
+decimals; admission still uses unrounded measurements and the report status.
 
 Earlier pairs are retained in each record's evidence chain; no repetitions are
 mixed across runs. Diagnostics and independent audits remain under

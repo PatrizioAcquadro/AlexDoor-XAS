@@ -13,8 +13,9 @@ Purdue control/sensing and the shared expert workflow are implemented.
 The prepared pool contains **32 doors**: 29 redistributable, two local-only and
 one private/noncommercial. The first full campaign produced 15 qualified,
 15 out-of-domain and two unresolved outcomes. A shared setup/controller recovery
-now targets the 17 problematic doors. The user deferred rechecking the 15 previous
-passes to a later campaign. See the
+targets the 17 problematic doors through static checks and representative single
+cycles. Formal requalification and routine reruns are deferred to the smaller
+model; old published statuses are retained until that campaign. See the
 [qualification procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md#procedure-for-subsequent-doors)
 and current [project status](knowledge/wiki/status.md).
 Final corpus selection, B1 demonstrations, Replicator and learned-policy
