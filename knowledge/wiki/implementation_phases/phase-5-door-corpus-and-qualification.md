@@ -275,9 +275,9 @@ contact revision below avoids the strip while preserving it.
 ### Common Setup and Corrective Qualification
 
 The user-authorized setup keeps **robot and pedestal together at zero yaw**, at
-**X = -0.440 m, Y = 0.300 m**, with the shared right-arm ready and left-arm parked
-posture in `configs/purdue_synthetic_probe.json`. Contact is now at 0.24 of leaf
-width from the actual hinge and 1.00 m height. Head pose, controller gains, push
+**X = -0.437 m, Y = 0.380 m**, with the shared right-arm ready and left-arm parked
+posture in `configs/purdue_synthetic_probe.json`. Contact is now at 0.295 of leaf
+width from the actual hinge and 1.09 m height. Head pose, controller gains, push
 speed and validity thresholds are unchanged. See
 [[phase-4-robot-and-task-configuration|Phase 4]] for the full effective controller.
 
@@ -320,10 +320,12 @@ The paused campaign exposed correctable integration/preparation defects:
 The first full campaign is retained in Git at `cf73eb0` and in each record's
 previous evidence chain: 15 qualified, 15 out of domain and two unresolved.
 The seven initial pedestal exclusions were real frame intersections, including
-independent visual-surface checks for the two large left doors. The common 6 cm
-backward move clears the composed geometry of all 32 doors. Contact moves from
-0.40 to 0.24 of width for every door, restoring arm reach and clearing the PSX
-front-005 strip. The contact height, zero yaw, ready/parked joints, head, gains,
+independent visual-surface checks for the two large left doors. The common
+placement moves robot/pedestal 5.7 cm back and 8 cm laterally from the first full
+campaign. Contact moves from 0.40 to 0.295 of width and from 1.00 to 1.09 m height
+for every door. This clears the composed pedestal geometry and prescribed finger
+footprint of all 32 assets while providing a compromise between left/right arm
+reach and wrist/body clearance. Zero yaw, ready/parked joints, head, gains,
 nominal speed, collision geometry and admission/validity thresholds are retained.
 Local multistart IK and footprint screening support the candidate; they do not
 replace dynamic qualification or prove global reachability.
@@ -343,28 +345,29 @@ that geometric offset as tracking drift. The shared adapter now derives the
 contact orientation from the actual convex surface at the prescribed point;
 fraction, height and position remain fixed. The support-footprint preflight
 uses the same orientation and checks protrusions along its actual approach axis.
-No surface or threshold is modified. A GPU diagnostic now sustains 58.94525
-degrees with full valid holding/release and no forbidden contact. Its fresh pair
-is pending. Industrial-001 also has a small surface inclination, so its earlier
-45.19232-degree pair requires replacement; the flat right frame-door trajectory
-is bit-identical and its pair remains applicable.
+No surface or threshold is modified. Single-cycle diagnostics verified this
+correction; complete pairs must use the current common configuration.
 
 The front-001 leaf metadata also omitted its existing glazing component 3.
 Including it with component 10 preserves USD bytes, leaf bounds, inertia and the
-prescribed point. Missing initial fingertip support now raises a diagnostic error
-before motion instead of running known-invalid cycles. A diagnostic void-frame
+prescribed point. Its subsequent full pair exposed a different problem: the low
+contact required wrist/body interpenetration in all 18 locally solved precontact
+configurations examined against the actual URDF collision meshes. Rerouting the
+approach alone did not resolve it. A higher common contact and lateral placement
+clear this collision in the diagnostic run. The right frame-door constrains the
+remaining reach; its latest diagnostic sustains 45.08919 degrees with all 3 s of
+holding valid, no forbidden contacts and safe release. Complete pairs are being
+checked with the selected compromise; local IK screens are not proof of global
+infeasibility. Missing initial fingertip support now raises a diagnostic
+error before motion instead of running known-invalid cycles. A diagnostic void-frame
 cycle recovered controlled contact; a new full pair remains mandatory.
 
-The first fresh pairs qualify industrial-001 at **45.19232 degrees** and the
-right frame-door at **45.21945 degrees**. Both cycles of each pair are valid,
-with matching limiting cause (`tracking_margin`) and zero angle spread. Raw
-contact/pose audits confirm sustained and final windows, no actual forbidden
-contact, and safe release; representative holding/release images were inspected.
-Single earlier diagnostics and failed candidates remain superseded evidence.
-The 17 previously problematic doors are being checked with complete pairs;
-the user deferred the 15 previous passes to a later run by the smaller model.
-No repetitions are mixed across runs. Diagnostics and independent audits remain
-under `~/.cache/alexdoor-xas/verification/corpus-recovery-20260925/`.
+The 17 previously problematic doors are being checked with complete pairs under
+the revised common setup. Earlier recovery pairs used a lower contact and are
+superseded by this configuration change; their reports remain in the evidence
+chain. The user deferred the 15 previous passes to a later run by the smaller
+model. No repetitions are mixed across runs. Diagnostics and independent audits
+remain under `~/.cache/alexdoor-xas/verification/corpus-recovery-20260925/`.
 
 The 15 deferred rechecks are the three `animated-door-*`, `modern-door-2fb8d024`,
 `door-door-metal-b21ec273`, `door-adf292f437f2`, `interior-wood-d1-32707dc`,

@@ -94,19 +94,20 @@ door geometry and material-point trajectory, not the robot placement. The old
 
 `configs/purdue_synthetic_probe.json` defines the reusable common setup. Its
 right-arm ready vector, left parked pose and closed WSG targets apply to every
-case. The current placement is **X = -0.440 m, Y = 0.300 m, yaw = 0 degrees**.
+case. The current placement is **X = -0.437 m, Y = 0.380 m, yaw = 0 degrees**.
 Robot and pedestal rotate/translate together, preserving their physical mounting.
-The ready right hand is horizontal, facing the closed panel, 0.10 m above the
-contact height; its world position is approximately (-0.18, -0.175, 1.10) m.
+The ready right hand is horizontal, facing the closed panel, approximately
+0.01 m above the contact height; its world position is approximately (-0.177, -0.095, 1.10) m.
 The parked left arm uses shoulder X = 0, shoulder Y = 0.5 and elbow Y = -1 rad,
 keeping the wrist behind the door frame. The common joint vector is in the config.
 These revisions address observed wrist/body and parked-arm/frame collisions;
-the later user-authorized corpus recovery also moves contact from 0.40 to 0.24
-of leaf width. Contact height, head pose, controller gains, speeds and validity
-limits are unchanged. The previous 45-degree synthetic results below remain historical.
+the later user-authorized corpus recovery also moves contact from 0.40 to 0.295
+of leaf width and raises it from 1.00 to 1.09 m to clear the wrist/body collision.
+Head pose, controller gains, speeds and validity limits are unchanged. The previous
+45-degree synthetic results below remain historical.
 The current configuration is assessed directly on collected doors in
 [[phase-5-door-corpus-and-qualification|Phase 5]], without repeating the synthetic sweep.
-Contact is at **0.24 of actual panel width from the hinge, 1.00 m above the floor**.
+Contact is at **0.295 of actual panel width from the hinge, 1.09 m above the floor**.
 The fixed neck pose is **NECK_Z = -0.70 rad, NECK_Y = 0.25 rad**.
 
 The expert uses existing full-pose control for approach → contact → push → hold
@@ -124,8 +125,8 @@ A valid sustain interval requires a causal 0.1-second mean normal force of at
 least 0.02 N and an authorized contact point within 0.1 mm in both 120 Hz substeps,
 an in-panel distal footprint, closed grippers, no forbidden contact,
 and material-pose errors within 10 mm / 5 degrees. The reported angle is the
-**minimum angle over a contiguous 0.5 s interval**; sustain does not require an
-exactly motionless panel. Hold has a 3 s budget. It follows the same material point
+**maximum of the minimum angles over all valid contiguous 0.5 s windows** during push/hold; sustain does not require an exactly
+motionless panel. Hold has a 3 s budget. It follows the same material point
 on the moving panel while smoothly removing the opening lead over 3 s. A unilateral
 push cannot brake an inertially coasting door by slowing the commanded angle alone.
 If filtered load falls below 0.10 N, bounded normal support restores contact at no

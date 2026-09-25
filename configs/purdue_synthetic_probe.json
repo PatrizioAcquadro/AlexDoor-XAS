@@ -1,11 +1,11 @@
 {
   "floor_pose": [
-    -0.44,
-    0.3,
+    -0.437,
+    0.38,
     0
   ],
-  "contact_fraction": 0.24,
-  "contact_height": 1.0,
+  "contact_fraction": 0.295,
+  "contact_height": 1.09,
   "neck": [
     -0.7,
     0.25

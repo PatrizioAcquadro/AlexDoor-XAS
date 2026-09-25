@@ -24,9 +24,9 @@ split remain separate future work.
 ## Limits
 
 Earlier outcomes belong to the previous common placement/controller. The recovery
-moves robot and pedestal together 6 cm back, changes the common contact fraction
-from 0.40 to 0.24 and corrects tracking/holding defects without lowering the
-45-degree gate or physical validity thresholds. All affected expert references
+moves robot and pedestal together 5.7 cm back and 8 cm laterally, changes the
+common fraction/height from 0.40/1.00 m to 0.295/1.09 m, and corrects
+tracking/holding defects without lowering the 45-degree gate or physical validity thresholds. All affected expert references
 must be remeasured. Preparation alone does not establish robot reachability;
 rights scopes constrain sharing independently of technical readiness.
 
