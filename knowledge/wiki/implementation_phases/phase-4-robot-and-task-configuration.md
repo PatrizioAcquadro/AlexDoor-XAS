@@ -148,7 +148,11 @@ The expert also compensates persistent servo bias along the panel surface during
 contact approach, loaded push and hold. The bounded integral correction starts
 before contact friction pins a displaced landing point, uses at most 6 mm/s and
 7.5 mm tangential target offset, and does not change the prescribed material point.
-Normal compression is controlled separately. Actual pose/contact validity and the
+Normal compression is controlled separately. The same bounded support operates
+in push and hold: when filtered load is below 0.10 N it increases compression at
+at most 6 mm/s, capped at 7.5 mm, and carries the attained value into hold.
+Declining load triggers a safety stop after support reaches its bound; detachment
+longer than 0.25 s remains an invalid cycle. Actual pose/contact validity and the
 2.5 mm stopping reserve continue to use the original material point. Compensation
 is reset between trials and recorded in traces; it is absent during free approach
 and release. These corrections address common controller defects, not per-door
@@ -156,15 +160,19 @@ gains or thresholds.
 
 The normal-force thresholds are 0.02 N for loaded contact, 0.10 N for declining
 mean load over 0.1 s, 50 N for a soft safety stop and 80 N for a hard failure.
-After the five-second push transient, a 2.5 mm material-drift reserve or half the
-orientation budget also triggers a safety stop. Material error includes a
-nonnegative linear trend over the last 0.5 s, projected through the 3 s hold budget.
+After the five-second push transient, holding begins if measured material error
+reaches 7.5 mm, reserving 2.5 mm before the unchanged 10 mm validity limit.
+Earlier stopping also occurs when error remains above 2.5 mm for a complete
+0.5 s window and its nonnegative linear trend predicts consuming that reserve
+during the 3 s hold. A stable small bias and isolated contact transients do not
+establish a reach limit. Half the orientation budget still triggers a safety stop.
 A local IK check runs every 0.1 s even while current tracking is accurate, and
-also when the trend exceeds the reserve. It checks the target after coasting at
-the measured angular speed through the hold budget, capped by the physical stop.
-An infeasible future target triggers early stopping before current error grows. A reachable
-endpoint alone does not override the original measured-error/orientation guards.
-This avoids premature stops from extrapolation alone. The forecast and checked
+also when the trend exceeds 2.5 mm. It checks the target after coasting at the
+measured angular speed through the hold budget, capped by the physical stop.
+An infeasible future target triggers early stopping before current error grows.
+The solver stops iterating once every Cartesian error component is below 1e-6;
+otherwise it retains the same iteration budget and bounds.
+The forecast and checked
 endpoint errors are retained in push traces; a local solve is not a global
 unreachability proof. These common revisions address the repeated animated-door
 hold failures; the affected references were rechecked in fresh complete pairs

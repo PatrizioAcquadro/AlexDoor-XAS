@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Check the frozen starting setup, then qualify one prepared door with two trials."""
+"""Qualify a prepared door with two trials, or diagnose it with one unpublished trial."""
 
 import argparse
 import json
@@ -40,6 +40,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--asset-id", required=True)
     parser.add_argument("--rerun", action="store_true", help="Recheck an already qualified door")
+    parser.add_argument(
+        "--diagnostic", action="store_true", help="Run one cycle without changing prepared.json"
+    )
     AppLauncher.add_app_launcher_args(parser)
     args = parser.parse_args()
     if Path(args.asset_id).name != args.asset_id or args.asset_id in (".", ".."):
@@ -69,8 +72,11 @@ def main():
         reason="incomplete_execution",
         trials=[],
         device=args.device,
-        scope="nominal_simulated_expert_reference_not_learning_data",
+        scope="single_diagnostic_not_learning_data"
+        if args.diagnostic
+        else "nominal_simulated_expert_reference_not_learning_data",
         previous_evidence=previous.get("evidence") if isinstance(previous, dict) else None,
+        diagnostic_only=args.diagnostic,
     )
     write_result(output / "report.json", report)
     app, env = None, None
@@ -113,13 +119,15 @@ def main():
                 qualification_scope="nominal_contact_pose_infeasible_no_expert_angle",
             )
             return 2
-        for number in (1, 2):
+        for number in ((1,) if args.diagnostic else (1, 2)):
             trial = run_probe(env, door, setup, output / f"repeat-{number}")
             trials.append(trial)
             report["trials"].append(trial_summary(trial, number))
             write_result(output / "report.json", report)
             print(json.dumps(report["trials"][-1]), flush=True)
         report.update(qualify_pair(trials))
+        if args.diagnostic:
+            report["reason"] = "single_diagnostic_no_expert_reference"
     except Exception as exc:
         traceback.print_exc()
         report.update(
@@ -133,7 +141,8 @@ def main():
         (output / "error.txt").write_text(traceback.format_exc())
     finally:
         write_result(output / "report.json", report)
-        publish_expert(folder, original, report, output)
+        if not args.diagnostic:
+            publish_expert(folder, original, report, output)
         print(
             json.dumps({k: v for k, v in report.items() if k != "geometry_evidence"}, indent=2),
             flush=True,
@@ -142,6 +151,10 @@ def main():
             env.close()
         # Match maintained Kit CLIs: flush and exit without unreliable teardown.
         del app
+    if args.diagnostic and len(trials) == 1:
+        trial = trials[0]
+        if trial["passed"] and trial["released"] and trial["hold_angle_deg"] is not None:
+            return 0 if trial["angle_deg"] >= 45 else 2
     return {"qualified": 0, "out_of_domain": 2, "invalid_asset": 3}.get(report["status"], 1)
 
 

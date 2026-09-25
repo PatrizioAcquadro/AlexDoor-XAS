@@ -170,7 +170,20 @@ def tracking_reserve(samples, horizon):
     return float(errors[-1] + max(0.0, slope) * horizon)
 
 
-def hold_contact_support(compression, force, setup, dt):
+def tracking_margin_exhausted(samples, setup):
+    """Reserve space for holding without treating a small stable bias as lost reach."""
+    margin = setup.position_tolerance - setup.material_drift_guard_m
+    if samples[-1][1] >= margin:
+        return True
+    recent = [s for s in samples if samples[-1][0] - s[0] <= setup.sustain_s + 1e-9]
+    sustained = (
+        recent[-1][0] - recent[0][0] >= setup.sustain_s - 1e-9
+        and all(error > setup.material_drift_guard_m for _, error in recent)
+    )
+    return sustained and tracking_reserve(recent, setup.hold_settle_s) >= margin
+
+
+def normal_contact_support(compression, force, setup, dt):
     """Restore light normal loading with bounded motion, without relaxing validity."""
     shortage = np.clip(1.0 - force / setup.contact_load_guard_n, 0.0, 1.0)
     increment = setup.compression_m * dt / setup.sustain_s * shortage
@@ -485,15 +498,18 @@ def run_probe(env, door, setup, output):
             failure = "no_loaded_contact"
     if not failure:
         reference = state[0]
+        compression = setup.compression_m
         for tick in range(round(setup.horizon_s / dt)):
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
             reference = push_reference(reference, angle, setup, dt, door.mechanical_stop)
+            compression = normal_contact_support(compression, contact_load.force, setup, dt)
             state = command(
                 *door.contact_pose(
-                    reference, setup.contact_fraction, setup.contact_height, setup.compression_m
+                    reference, setup.contact_fraction, setup.contact_height, compression
                 ),
                 "push",
             )
+            traces[-1]["push_compression_m"] = compression
             angle, pe, re, force, margin, loaded, valid = state
             tracking.append((tick * dt, traces[-1]["material_error"]))
             predicted_error = tracking_reserve(tracking, setup.hold_settle_s)
@@ -541,7 +557,7 @@ def run_probe(env, door, setup, output):
                     door.mechanical_stop,
                 )
                 end_p, end_r = door.contact_pose(
-                    endpoint, setup.contact_fraction, setup.contact_height, setup.compression_m
+                    endpoint, setup.contact_fraction, setup.contact_height, compression
                 )
                 _, end_pe, end_re = chain.solve(
                     chain.array((end_p - root_p) @ root_r)[None],
@@ -558,7 +574,7 @@ def run_probe(env, door, setup, output):
                 elapsed > 5.0
                 and window.maximum is not None
                 and (
-                    traces[-1]["material_error"] > setup.material_drift_guard_m
+                    tracking_margin_exhausted(tracking, setup)
                     or hold_blocked
                     or re > 0.5 * setup.orientation_tolerance
                 )
@@ -571,6 +587,7 @@ def run_probe(env, door, setup, output):
                 elapsed > 5.0
                 and window.maximum is not None
                 and np.mean(load_window) < setup.contact_load_guard_n
+                and compression >= setup.position_tolerance - setup.material_drift_guard_m
             ):
                 reason = "safety_stop"
                 safety_detail = "declining_contact_load"
@@ -588,10 +605,9 @@ def run_probe(env, door, setup, output):
     held_angle = None
     if failure is None:
         held = SustainedAngle(setup.sustain_s)
-        compression = setup.compression_m
         initial_lead = reference - state[0]
         for tick in range(round(setup.hold_settle_s / dt)):
-            compression = hold_contact_support(compression, contact_load.force, setup, dt)
+            compression = normal_contact_support(compression, contact_load.force, setup, dt)
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
             target = hold_reference(
                 angle,

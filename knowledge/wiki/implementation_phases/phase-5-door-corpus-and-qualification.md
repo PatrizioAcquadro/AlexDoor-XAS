@@ -222,6 +222,14 @@ creates a new evidence directory under `~/.cache/alexdoor-xas/verification/exper
 The report records the previous evidence directory. Earlier failed pairs remain
 available and cannot be mixed into a new pair.
 
+For fixing a known failure, add `--diagnostic` to run exactly one complete cycle
+with the same preflight, setup and evidence. It never writes `prepared.json` or
+creates `theta_expert_d`. Read `trials[0]` for the measured outcome; the report
+remains `unresolved` with `diagnostic_only: true` because no pair was collected.
+A zero exit code means a valid single cycle at or above 45 degrees; otherwise
+read the report for an exclusion, a lower angle or an execution failure. A successful diagnostic is evidence for a correction,
+not formal qualification. Run a complete pair separately when authorized.
+
 `prepared.json` retains its preparation fields and stores a structured
 `expert_qualification`: status, reason, expert angle in degrees when defined,
 compact trial results, repeat difference and evidence location. Unvisited doors
@@ -361,7 +369,7 @@ checked with the selected compromise; local IK screens are not proof of global
 infeasibility. Missing initial fingertip support now raises a diagnostic
 error before motion instead of running known-invalid cycles. A diagnostic void-frame
 cycle recovered controlled contact, but the latest pair stops below admission and
-requires further diagnosis.
+led to the further diagnosis below.
 
 Complete pairs with the revised setup recovered front-001, industrial-001,
 the right frame-door and the largest left door. Front-005 then exposed a release
@@ -400,6 +408,22 @@ failures with **one diagnostic cycle per correction/door**. Do not rerun these
 six recovered doors or the 15 baseline-qualified doors during this fix campaign.
 Formal pairs under the final shared code are deferred; a single diagnostic never
 creates an expert reference or overwrites a published outcome.
+
+The void-frame diagnosis separated two common defects. The old guard stopped on
+a stable 2.53 mm material-point bias although the future pose was locally
+reachable and the validity budget remained 10 mm. The revised guard reserves
+2.5 mm before that budget and anticipates sustained growing error, rather than
+stopping on a small stable offset. A further run exposed brief loss of normal
+load: push now uses the same bounded support as hold before declaring a declining
+load stop. The 0.25 s detachment failure, 10 mm/5 degree validity, force limits and
+complete final holding/release conditions remain unchanged. See Phase 4 for the
+exact common controller; no door-specific settings were introduced. The corrected
+void-frame single cycle sustains **66.91685 degrees**, completes holding, has no
+actual forbidden contacts and releases with 22.2 mm normal separation. Its
+unpublished diagnostic is
+`~/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260925T202136.654999Z/`.
+The old 32.45180-degree paired record is deliberately retained until a separately
+authorized formal rerun.
 
 Earlier pairs are retained in each record's evidence chain; no repetitions are
 mixed across runs. Diagnostics and independent audits remain under

@@ -44,16 +44,30 @@ def test_tracking_reserve_anticipates_growth_but_does_not_amplify_settling():
     assert tracking_reserve([(0, 0.002)], 3) == pytest.approx(0.002)
 
 
-def test_hold_support_only_restores_low_load_and_is_bounded():
-    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, hold_contact_support
+def test_normal_support_only_restores_low_load_and_is_bounded():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_contact_support
 
     setup = ProbeSetup()
     initial = setup.compression_m
-    assert hold_contact_support(initial, setup.contact_load_guard_n, setup, 1 / 60) == initial
-    assert hold_contact_support(initial, 1.0, setup, 1 / 60) == initial
-    assert hold_contact_support(initial, 0.0, setup, 1 / 60) == pytest.approx(initial + 0.0001)
+    assert normal_contact_support(initial, setup.contact_load_guard_n, setup, 1 / 60) == initial
+    assert normal_contact_support(initial, 1.0, setup, 1 / 60) == initial
+    assert normal_contact_support(initial, 0.0, setup, 1 / 60) == pytest.approx(initial + 0.0001)
     maximum = setup.position_tolerance - setup.material_drift_guard_m
-    assert hold_contact_support(maximum, 0.0, setup, 1 / 60) == maximum
+    assert normal_contact_support(maximum, 0.0, setup, 1 / 60) == maximum
+
+
+def test_tracking_guard_reserves_hold_margin_but_accepts_stable_bias_and_contact_chatter():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, tracking_margin_exhausted
+
+    setup = ProbeSetup()
+    stable = [(tick / 60, 0.00253) for tick in range(31)]
+    assert not tracking_margin_exhausted(stable, setup)
+    transient = stable[:-1] + [(0.5, 0.0035)]
+    assert not tracking_margin_exhausted(transient, setup)
+    growing = [(tick / 60, 0.003 + 0.002 * tick / 60) for tick in range(31)]
+    assert tracking_margin_exhausted(growing, setup)
+    assert not tracking_margin_exhausted(growing[-2:], setup)
+    assert tracking_margin_exhausted([(0, 0.0075)], setup)
 
 
 def test_tangential_bias_correction_freezes_when_disabled_and_limits_rate_and_extent():

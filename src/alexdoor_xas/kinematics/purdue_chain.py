@@ -91,6 +91,8 @@ class PurdueChain:
             )
             re = skew * (angle / (2 * angle.sin())).unsqueeze(-1)
             error = torch.cat((position - transform[:, :3, 3], re), -1)
+            if bool((error.abs().amax(dim=-1) < 1e-6).all()):
+                break
             delta = jac.transpose(-1, -2) @ torch.linalg.solve(
                 jac @ jac.transpose(-1, -2) + 0.01**2 * eye, error.unsqueeze(-1)
             )

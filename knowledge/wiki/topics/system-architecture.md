@@ -43,6 +43,8 @@ robot/controller settings stay frozen. Tool orientation follows the collidable
 surface normal at the prescribed fraction/height, with projected vertical as up.
 The executor checks initial pedestal interference, requires two valid controlled
 cycles for an expert angle, and publishes a compact result in `prepared.json`.
+The optional `--diagnostic` runs one cycle and writes cache evidence only; it
+cannot replace or publish a formal expert reference.
 It also checks the actual distal support footprints for raised leaf features
 incompatible with the prescribed pose; evidenced initial exclusions have no expert
 angle and need no unsafe dynamic pair.
@@ -52,7 +54,7 @@ doors; a valid final hold/release is required independently of the maximum angle
 The geometry adapter accepts scalar and array collider-component tags from both
 published preparation layouts. The expert reserves local tracking margin for
 holding and follows the moving material point while removing opening lead, with
-bounded normal contact support and tangential servo-bias compensation. The full
+bounded normal contact support during push/hold and tangential servo-bias compensation. The full
 holding transition completes before the last 0.5 s is assessed. Actual validity
 always uses the prescribed material point, not the compensated command. After
 valid holding, release withdraws along the fingers before rotating toward an
