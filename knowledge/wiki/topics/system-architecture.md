@@ -50,7 +50,9 @@ doors; a valid final hold/release is required independently of the maximum angle
 The geometry adapter accepts scalar and array collider-component tags from both
 published preparation layouts. The expert reserves local tracking margin for
 holding and follows the moving material point while removing opening lead, with
-bounded normal contact support. These simulator-truth checks belong only to the
+bounded normal contact support and tangential servo-bias compensation. The full
+holding transition completes before the last 0.5 s is assessed. Actual validity
+always uses the prescribed material point, not the compensated command. These simulator-truth checks belong only to the
 scripted expert; they do not extend learned-policy observations. See
 [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] for the
 common controller and unchanged validity limits.

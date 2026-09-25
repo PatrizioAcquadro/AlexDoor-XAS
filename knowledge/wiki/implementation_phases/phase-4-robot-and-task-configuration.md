@@ -127,9 +127,20 @@ on the moving panel while smoothly removing the opening lead over 3 s. A unilate
 push cannot brake an inertially coasting door by slowing the commanded angle alone.
 If filtered load falls below 0.10 N, bounded normal support restores contact at no
 more than 6 mm/s, up to a 7.5 mm virtual compression target; all actual contact,
-force and pose limits remain unchanged. A complete valid 0.5 s hold window is
-required before release. Release retraces an achieved pose behind the panel and
+force and pose limits remain unchanged. The full 3 s transition must complete;
+the final 0.5 s must be valid before release. An earlier valid holding window
+does not rescue an invalid ending. Release retraces an achieved pose behind the panel and
 verifies unloaded separation of at least 1 cm.
+
+The expert also compensates persistent servo bias along the panel surface during
+contact approach, loaded push and hold. The bounded integral correction starts
+before contact friction pins a displaced landing point, uses at most 6 mm/s and
+7.5 mm tangential target offset, and does not change the prescribed material point.
+Normal compression is controlled separately. Actual pose/contact validity and the
+2.5 mm stopping reserve continue to use the original material point. Compensation
+is reset between trials and recorded in traces; it is absent during free approach
+and release. These corrections address common controller defects, not per-door
+gains or thresholds.
 
 The normal-force thresholds are 0.02 N for loaded contact, 0.10 N for declining
 mean load over 0.1 s, 50 N for a soft safety stop and 80 N for a hard failure.

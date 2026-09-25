@@ -56,6 +56,26 @@ def test_hold_support_only_restores_low_load_and_is_bounded():
     assert hold_contact_support(maximum, 0.0, setup, 1 / 60) == maximum
 
 
+def test_tangential_bias_correction_freezes_when_disabled_and_limits_rate_and_extent():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, tangential_compensation
+
+    setup = ProbeSetup()
+    offset = np.zeros(3)
+    np.testing.assert_array_equal(
+        tangential_compensation(offset, [1, 1, 1], False, setup, 0.1), offset
+    )
+    offset = tangential_compensation(offset, [1, 1, 1], True, setup, 0.1)
+    assert offset[0] == 0
+    assert np.linalg.norm(offset) == pytest.approx(setup.compression_m * 0.1 / setup.sustain_s)
+    for _ in range(100):
+        offset = tangential_compensation(offset, [1, 1, 1], True, setup, 0.1)
+    bound = setup.position_tolerance - setup.material_drift_guard_m
+    assert np.linalg.norm(offset) == pytest.approx(bound)
+    correction = tangential_compensation(offset, [1, -1, -1], True, setup, 0.1)
+    assert np.linalg.norm(correction) < bound
+    assert correction[0] == 0
+
+
 def test_contact_load_tolerates_impulse_chatter_but_rejects_unloaded_or_detached_points():
     from alexdoor_xas.qualification.synthetic_probe import ContactLoad
 
@@ -83,6 +103,18 @@ def test_sustain_requires_contiguous_loaded_hold_and_uses_lower_angle():
     assert window.maximum == pytest.approx(0.9)
     window.update(1.2, 2.0, True)
     assert window.maximum == pytest.approx(2.0)
+
+
+def test_final_hold_requires_a_valid_window_at_the_end_not_only_an_earlier_maximum():
+    window = SustainedAngle(0.5)
+    for tick in range(6):
+        window.update(tick / 10, 1.0, True)
+    assert window.current == 1.0
+    window.update(0.6, 1.1, False)
+    assert window.current is None and window.maximum == 1.0
+    for tick in range(7, 13):
+        window.update(tick / 10, 0.9, True)
+    assert window.current == 0.9 and window.maximum == 1.0
 
 
 def test_minimax_excludes_failures_and_ties_use_joint_margin():

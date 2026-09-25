@@ -417,6 +417,17 @@ Evidence is under `verification/corpus-recovery-20260925/` in the runtime cache.
 This single diagnostic does not replace the required pair. Published campaign
 results below remain tied to their archived implementation pending corrective pairs.
 
+Recovery also corrects persistent tangential servo bias before friction fixes an
+offset contact point, and completes the entire configured 3 s holding transition.
+Admission requires the final 0.5 s of that transition to be valid, not an earlier
+window. The original material point, 10 mm / 5 degree validity limits, 2.5 mm
+stopping reserve, contact limits and inclusive 45-degree admission are retained.
+One diagnostic industrial-door cycle with the candidate common placement reaches
+46.10640 degrees with all 3 s of holding valid and safe release. A right frame-door
+cycle still has an invalid hold; the candidate is not yet frozen or qualified.
+The authorized recovery may revise the common placement/contact before any split;
+it requires fresh pairs for all affected doors, including prior qualifications.
+
 The 32-door pool now contains **10 qualified, 13 out of domain and two
 unresolved left doors**, plus **five qualified and two out-of-domain right
 doors**. All 32 have an outcome. The right side still needs at least seven

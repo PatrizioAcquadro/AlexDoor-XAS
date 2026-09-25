@@ -108,6 +108,13 @@ class SustainedAngle:
         self.samples = deque()
         self.maximum = None
 
+    @property
+    def current(self):
+        """Minimum of the valid window ending at the most recent sample."""
+        if self.samples and self.samples[-1][0] - self.samples[0][0] >= self.duration - 1e-9:
+            return min(a for _, a in self.samples)
+        return None
+
     def update(self, time, angle, valid):
         if not valid:
             self.samples.clear()
@@ -117,8 +124,7 @@ class SustainedAngle:
         self.samples.append((time, angle))
         while len(self.samples) > 1 and time - self.samples[1][0] >= self.duration - 1e-9:
             self.samples.popleft()
-        if time - self.samples[0][0] >= self.duration - 1e-9:
-            value = min(a for _, a in self.samples)
+        if (value := self.current) is not None:
             self.maximum = value if self.maximum is None else max(self.maximum, value)
 
 
@@ -171,6 +177,20 @@ def hold_contact_support(compression, force, setup, dt):
     return float(
         min(compression + increment, setup.position_tolerance - setup.material_drift_guard_m)
     )
+
+
+def tangential_compensation(offset, error, enabled, setup, dt):
+    """Bounded integral correction of tracking bias along the leaf surface."""
+    if not enabled:
+        return offset.copy()
+    error = np.asarray(error).copy()
+    error[0] = 0.0  # Normal loading remains the separate compression controller.
+    increment = error * dt / setup.sustain_s
+    rate_bound = setup.compression_m * dt / setup.sustain_s
+    increment *= min(1.0, rate_bound / max(np.linalg.norm(increment), 1e-12))
+    corrected = offset + increment
+    bound = setup.position_tolerance - setup.material_drift_guard_m
+    return corrected * min(1.0, bound / max(np.linalg.norm(corrected), 1e-12))
 
 
 def rank_candidates(results, tie_deg):
@@ -290,9 +310,14 @@ def run_probe(env, door, setup, output):
     safety_detail = None
     tracking = deque(maxlen=max(2, round(setup.sustain_s / dt) + 1))
     start_p, start_q = [v[0].cpu().numpy() for v in env.tool_pose()]
+    compensation = np.zeros(3)
 
     def command(goal_p, goal_r, phase):
-        nonlocal failure, peak, min_margin, min_clearance
+        nonlocal failure, peak, min_margin, min_clearance, compensation
+        applied_compensation = (
+            compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
+        )
+        goal_p = goal_p + goal_r @ applied_compensation
         env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
         env.step(zero)
         angle = float(tensor(env.door.data.joint_pos)[0, 0])
@@ -359,6 +384,14 @@ def run_probe(env, door, setup, output):
             and material_error <= setup.position_tolerance
             and orientation_error <= setup.orientation_tolerance
         )
+        if phase in ("contact", "push", "hold") and failure is None:
+            compensation = tangential_compensation(
+                compensation,
+                (material_p - p) @ material_r,
+                (phase == "contact" or loaded) and orientation_error <= setup.orientation_tolerance,
+                setup,
+                dt,
+            )
         min_clearance = min(min_clearance, clearance.measure(door, angle))
         visibility = None
         if env.capture is not None:
@@ -383,6 +416,7 @@ def run_probe(env, door, setup, output):
                 position_error=pe,
                 orientation_error=re,
                 material_error=material_error,
+                tangential_compensation_m=applied_compensation.tolist(),
                 footprint_inside=footprint_inside,
                 closed_gripper_error_m=closed_error,
                 force=force,
@@ -557,9 +591,7 @@ def run_probe(env, door, setup, output):
             held.update(tick * dt, state[0], state[6])
             if failure:
                 break
-            if held.maximum is not None:
-                held_angle = held.maximum
-                break
+        held_angle = held.current if failure is None else None
         if held_angle is None:
             failure = failure or "invalid_hold"
     # Retrace a previously achieved pose behind the moving panel, releasing wrist limits.
