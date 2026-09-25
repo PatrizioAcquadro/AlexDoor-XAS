@@ -80,12 +80,47 @@
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
-    "status": "out_of_domain",
-    "theta_expert_d": null,
-    "reason": "closed_door_pedestal_intersection",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-wooden-009-20d5505/20260925T014002.639890Z",
-    "trials": [],
-    "repeat_spread_deg": null,
+    "status": "qualified",
+    "theta_expert_d": 65.38697186804117,
+    "reason": "safety_stop",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-wooden-009-20d5505/20260925T211949.936782Z",
+    "trials": [
+      {
+        "passed": true,
+        "angle_deg": 65.38697186804117,
+        "hold_angle_deg": 65.38697186804117,
+        "stop_reason": "safety_stop",
+        "safety_detail": "tracking_margin",
+        "peak_force_n": 6.5888543128967285,
+        "joint_margin": -3.902965204360953e-07,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 3062,
+          "checked_frames": 4325,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-1"
+      },
+      {
+        "passed": true,
+        "angle_deg": 65.38697186804117,
+        "hold_angle_deg": 65.38697186804117,
+        "stop_reason": "safety_stop",
+        "safety_detail": "tracking_margin",
+        "peak_force_n": 6.5888543128967285,
+        "joint_margin": -3.902965204360953e-07,
+        "released": true,
+        "visibility": {
+          "passed": false,
+          "failed_frames": 3062,
+          "checked_frames": 4325,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-2"
+      }
+    ],
+    "repeat_spread_deg": 0.0,
     "scope": "nominal_simulated_expert_reference_not_learning_data"
   }
 }
