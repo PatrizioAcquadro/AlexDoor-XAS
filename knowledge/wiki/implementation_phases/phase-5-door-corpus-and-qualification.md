@@ -3,12 +3,13 @@
 Subphase 5.0 is complete for **32 prepared doors**: 29 redistributable, two
 local-only and one private/noncommercial. The common expert executor is implemented.
 The first full campaign produced 15 qualified, 15 out-of-domain and two unresolved
-outcomes. A user-authorized recovery now corrects shared control defects and
-revises one common placement/contact before any split. Six recovery pairs and
-four successful representative single cycles support the corrections. **Systematic
-paired requalification is deferred to the smaller model: seven other corrected
-candidates have static checks but no post-fix dynamic rerun, and the 21 existing
-qualified records predate the final controller revision.**
+outcomes. A user-authorized recovery corrected shared control defects and
+revised one common placement/contact before any split. Six recovery pairs and
+four successful representative single cycles supported the corrections. Formal
+paired requalification then completed seven doors under the final controller:
+six qualified and `psx-worn-20d5505` was published `out_of_domain` at 17.92°.
+The campaign stopped at that result; **25 doors still need fresh pairs**. Their
+retained 21 qualified and four out-of-domain statuses predate the final revision.
 Subphase 5.1 still owns the final 24-door, 12/4/8 identity split; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
@@ -409,10 +410,10 @@ These pairs used `a46ed1a`; evidence paths remain in their prepared records.
 Void-frame's subsequent pair remained below admission at 32.45 degrees,
 triggered by the tracking guard. The user then limited recovery to **single-cycle
 representatives of distinct failures**, preceded by static checks. No complete
-campaign follows a small correction. Do not rerun these
-six recovered doors or the 15 baseline-qualified doors during this fix campaign.
-Formal pairs under the final shared code are deferred; a single diagnostic never
-creates an expert reference or overwrites a published outcome.
+campaign followed that small correction. The six recovered doors and 15
+baseline-qualified doors were not rerun during the fix campaign. Formal pairs
+under the final shared code were deferred at that stage; a single diagnostic
+never creates an expert reference or overwrites a published outcome.
 
 The void-frame diagnosis separated two common defects. The old guard stopped on
 a stable 2.53 mm material-point bias although the future pose was locally
@@ -443,9 +444,8 @@ degrees; this is not dynamic validation. Only industrial-002 is selected for a
 further dynamic diagnostic, which completes at **47.20 degrees** with valid hold
 and release (`expert/psx-industrial-002-4f5561b/20260925T203313.100427Z/`).
 Industrial-003/004 and front-002, front-20d5505,
-wooden-001, wooden-009 and worn-20d5505 are deferred to systematic requalification.
-Their known failure causes are covered by shared corrections, but individual
-post-fix dynamic success remains unverified. Routine successes use the saved
+wooden-001, wooden-009 and worn-20d5505 were deferred to systematic requalification
+at that recovery stage. Routine successes use the saved
 cycle diagnostics; detailed image/raw-contact audits target failures and the
 representative evidence needed to validate a correction. Display angles to two
 decimals; admission still uses unrounded measurements and the report status.
@@ -454,7 +454,49 @@ Earlier pairs are retained in each record's evidence chain; no repetitions are
 mixed across runs. Diagnostics and independent audits remain under
 `~/.cache/alexdoor-xas/verification/corpus-recovery-20260925/`.
 
-The 15 deferred rechecks are the three `animated-door-*`, `modern-door-2fb8d024`,
+### Formal Requalification Started 2026-09-25
+
+The first seven doors were run once each, in the prescribed order, with two
+complete cycles per invocation on `cuda:0`. Reports are under
+`~/.cache/alexdoor-xas/verification/expert/<id>/<timestamp>/report.json`;
+the exact paths are published in each `prepared.json`. The result records were
+committed at `cdd3204`. The lower sustained angle is the published reference;
+the table rounds only for display.
+
+| Door | Hand | New status | `theta_expert_d` | Report timestamp |
+|---|---|---|---:|---|
+| `psx-industrial-003-4f5561b` | left | `qualified` | 48.03° | `20260925T204643.280842Z` |
+| `psx-industrial-004-4f5561b` | left | `qualified` | 47.92° | `20260925T205324.978919Z` |
+| `psx-front-002-ee7d5c6` | left | `qualified` | 59.10° | `20260925T205830.755088Z` |
+| `psx-front-20d5505` | left | `qualified` | 64.89° | `20260925T210606.477452Z` |
+| `psx-wooden-001-20d5505` | left | `qualified` | 63.84° | `20260925T211254.703702Z` |
+| `psx-wooden-009-20d5505` | left | `qualified` | 65.39° | `20260925T211949.936782Z` |
+| `psx-worn-20d5505` | left | `out_of_domain` | 17.92° | `20260925T212634.130486Z` |
+
+All seven reports agree with their published records. Each pair has two valid
+holds and releases, consistent limiting causes and at most 0.10° sustained-angle
+spread. The six qualified references meet the unrounded 45° gate. The seventh
+pair consistently stops under the gate with `safety_stop / tracking_margin`.
+At the push stop, orientation error was 0.04510 rad against the controller's
+0.04363 rad preventive guard; the material-point error was 0.00515 m against
+its 0.00750 m reserve. Contact stayed loaded and valid, local hold-endpoint IK
+error was negligible, and no actual forbidden contact was recorded. The final
+hold sustained 17.92° and released safely in both cycles. Preparation reports a
+121.2° mechanical limit. This is a nominal controller/setup-domain exclusion,
+not proof that the asset is defective or that 45° is physically unreachable.
+Whether the early orientation guard reflects an unavoidable task constraint or
+a controller limitation remains unresolved. No setting or threshold was changed.
+
+Sampled geometric RGB-D visibility failed for both cycles of
+`psx-industrial-004-4f5561b`, `psx-front-20d5505` and
+`psx-wooden-009-20d5505`. These are separate perception limitations, not
+expert-admission failures. The other four had no failed sampled frames.
+The campaign stopped after the first non-qualified result; the remaining 25
+doors were not invoked under the final controller. No corpus split or learning
+data was created.
+
+The 15 previously deferred rechecks are the three `animated-door-*`,
+`modern-door-2fb8d024`,
 `door-door-metal-b21ec273`, `door-adf292f437f2`, `interior-wood-d1-32707dc`,
 `psx-bathroom-20d5505`, `psx-front-008-ee7d5c6`, and the six
 `psx-interior-wood-*` identities (002, 003, 005, 006, 007, 008). Keep their current
