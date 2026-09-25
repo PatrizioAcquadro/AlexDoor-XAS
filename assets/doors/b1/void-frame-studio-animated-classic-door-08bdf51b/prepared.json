@@ -79,5 +79,48 @@
     "physics": "pass"
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
-  "expert_qualification": "not_run"
+  "expert_qualification": {
+    "status": "unresolved",
+    "theta_expert_d": null,
+    "reason": "invalid_controlled_cycle",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260925T014119.153120Z",
+    "trials": [
+      {
+        "passed": false,
+        "angle_deg": 2.4156799613089537,
+        "hold_angle_deg": null,
+        "stop_reason": "lost_contact",
+        "safety_detail": null,
+        "peak_force_n": 6.062540531158447,
+        "joint_margin": 0.0,
+        "released": true,
+        "visibility": {
+          "passed": true,
+          "failed_frames": 0,
+          "checked_frames": 864,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-1"
+      },
+      {
+        "passed": false,
+        "angle_deg": null,
+        "hold_angle_deg": null,
+        "stop_reason": "lost_contact",
+        "safety_detail": null,
+        "peak_force_n": 7.114830017089844,
+        "joint_margin": 0.0,
+        "released": true,
+        "visibility": {
+          "passed": true,
+          "failed_frames": 0,
+          "checked_frames": 745,
+          "scope": "geometric_panel_contact_surround_frame_observability"
+        },
+        "directory": "repeat-2"
+      }
+    ],
+    "repeat_spread_deg": null,
+    "scope": "nominal_simulated_expert_reference_not_learning_data"
+  }
 }
