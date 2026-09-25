@@ -8,33 +8,34 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Corrective cohort resolved on the RTX 4090 with the common probe: **5 qualified, 5 out of domain, and 22 unvisited**. Loader compatibility, leaf ownership, holding and the artificial prison-door stop are corrected; final corpus/split pending. |
+| 5.1 — Expert qualification | All 32 prepared doors have outcomes from the common RTX 4090 probe: **15 qualified, 15 out of domain, two unresolved, none unvisited**. Loader compatibility, leaf ownership, holding and the artificial prison-door stop were corrected before the routine campaign. Final corpus/split pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Resume the routine command on the 22 pending prepared identities. Read the pair,
-limiting cause, contacts and representative images before accepting the published
-classification. See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]
-for current results, retained failed evidence and escalation rules. The pending
-`interior-wood-d1-32707dc` received the same verified floor-clearance repair and
-still needs its first expert pair. Do not modify controller or asset settings
-per door. At least seven additional qualifiable right identities are needed for
-the final 12/12 balance.
+Diagnose the two unresolved pairs without per-door retuning: actual forbidden
+jaw/panel contact on `psx-front-001-ee7d5c6`, and early contact loss with no
+valid final hold on `void-frame-studio-animated-classic-door-08bdf51b`. See
+[[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]]
+for their retained evidence and all published outcomes. At least seven additional
+qualifiable right-door identities are still needed for the final 12/12 balance;
+corpus selection and the split remain separate future work.
 
 ## Limits
 
 Preparation does not establish robot reachability. The prison door's corrected
 geometric stop is 47.0°, while its valid common-baseline reference is 44.91557°:
 the measured tracking guard stops the push below the 45° admission threshold.
-This is not proof that the robot cannot reach 47°. The frame door likewise has a
-valid 42.58362° reference. PSX front-005 has an obstructed prescribed footprint;
-two left-door frames physically intersect the fixed pedestal. These five doors
-remain outside the current domain. Earlier outcomes and original payloads remain
-archived. Rights scopes constrain sharing independently of technical readiness.
+This is not proof that the robot cannot reach 47°. Six other valid paired
+references also remain below 45°. PSX front-005 has an obstructed prescribed
+footprint, and seven left-door frames physically intersect the fixed pedestal.
+These 15 doors remain outside the current domain. Earlier outcomes and original
+payloads remain archived. Rights scopes constrain sharing independently of
+technical readiness.
 
-RGB-D acquisition is operational, but sampled frame visibility is insufficient in
-the qualified real-door trials; learned door perception is not established. Simulator
+RGB-D acquisition is operational, but sampled frame visibility fails in several
+qualified real-door trials. Visibility remains a geometric diagnostic; learned
+door perception is not established. Simulator
 contact/hinge truth remains diagnostic and cannot become policy input. B1 action,
 perception and training contracts are defined in Phases 6–7, not by retained
 numerical model utilities. Simulation checks do not establish hardware safety.
