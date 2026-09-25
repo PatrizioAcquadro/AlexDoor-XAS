@@ -146,6 +146,15 @@ def hold_reference(angle, initial_lead, elapsed, duration, mechanical_stop):
     return min(angle + initial_lead * (1.0 - u * u * (3.0 - 2.0 * u)), mechanical_stop)
 
 
+def push_reference(reference, angle, setup, dt, mechanical_stop):
+    """Advance within the lead budget without falling behind a coasting panel."""
+    return min(
+        max(reference + setup.angular_speed * dt, angle),
+        angle + setup.lead_angle,
+        mechanical_stop,
+    )
+
+
 def tracking_reserve(samples, horizon):
     """Reserve hold time for a growing tracking error; ignore declining trends."""
     times, errors = np.asarray(samples, dtype=float).T
@@ -429,9 +438,7 @@ def run_probe(env, door, setup, output):
         reference = state[0]
         for tick in range(round(setup.horizon_s / dt)):
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
-            reference = min(
-                reference + setup.angular_speed * dt, angle + setup.lead_angle, door.mechanical_stop
-            )
+            reference = push_reference(reference, angle, setup, dt, door.mechanical_stop)
             state = command(
                 *door.contact_pose(
                     reference, setup.contact_fraction, setup.contact_height, setup.compression_m

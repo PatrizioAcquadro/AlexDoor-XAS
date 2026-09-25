@@ -403,6 +403,20 @@ loses contact after only a short push, with no final hold; the second cycle has
 no sustained angle. Neither result establishes an asset defect or admission.
 These cases need targeted diagnosis before any fresh complete pair.
 
+The 2026-09-25 recovery review found that front-001's leaf metadata omitted its
+existing glazing component 3. Including it with component 10 preserves the USD,
+leaf bounds, inertia and prescribed point; the previous footprint test was
+incorrectly treating that glass as absent. Its earlier failed pair remains
+archived and requires a fresh complete run. Missing initial fingertip support now
+raises a diagnostic error before motion instead of running known-invalid cycles.
+The push reference also cannot lag behind the measured panel angle while contact
+is maintained. This changes neither the lead budget nor the validity/admission
+thresholds. A diagnostic void-frame cycle reaches 55.97924 degrees with valid
+hold/release and no forbidden contact, versus the earlier loss near 3 degrees.
+Evidence is under `verification/corpus-recovery-20260925/` in the runtime cache.
+This single diagnostic does not replace the required pair. Published campaign
+results below remain tied to their archived implementation pending corrective pairs.
+
 The 32-door pool now contains **10 qualified, 13 out of domain and two
 unresolved left doors**, plus **five qualified and two out-of-domain right
 doors**. All 32 have an outcome. The right side still needs at least seven

@@ -8,6 +8,18 @@ from scipy.spatial.transform import Rotation
 from alexdoor_xas.qualification.synthetic_probe import SustainedAngle, rank_candidates
 
 
+def test_push_reference_follows_coasting_panel_without_exceeding_lead_or_stop():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, push_reference
+
+    setup = ProbeSetup()
+    assert push_reference(0.2, 0.3, setup, 1 / 60, 1.0) == 0.3
+    assert push_reference(0.2, 0.2, setup, 1 / 60, 1.0) == pytest.approx(
+        0.2 + setup.angular_speed / 60
+    )
+    assert push_reference(0.4, 0.3, setup, 1 / 60, 1.0) == 0.3 + setup.lead_angle
+    assert push_reference(0.999, 0.999, setup, 1 / 60, 1.0) == 1.0
+
+
 def test_hold_reference_removes_lead_smoothly_but_tracks_the_moving_surface():
     from alexdoor_xas.qualification.synthetic_probe import hold_reference
 

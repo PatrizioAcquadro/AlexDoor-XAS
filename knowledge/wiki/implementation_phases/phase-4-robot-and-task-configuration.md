@@ -110,7 +110,9 @@ The fixed neck pose is **NECK_Z = -0.70 rad, NECK_Y = 0.25 rad**.
 
 The expert uses existing full-pose control for approach → contact → push → hold
 → release. It follows the panel material point with tool +X into the panel and
-+Z upward. The target joint-speed bound is 0.5 rad/s and nominal opening reference
++Z upward. During pushing the angular reference stays at or ahead of the measured
+angle, within the existing lead budget and physical stop, so an inertially coasting
+panel cannot leave the commanded pose behind. The target joint-speed bound is 0.5 rad/s and nominal opening reference
 speed is 1 degree/s; physics/commands remain 120/60 Hz. Damped IK uses 0.01 damping
 and 2.0 nullspace centering gain. Approach/contact/release budgets are 6/3/3 s,
 with a common 150 s push horizon. These are simulation qualification settings.
