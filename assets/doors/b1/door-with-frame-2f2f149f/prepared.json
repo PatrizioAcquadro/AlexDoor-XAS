@@ -81,40 +81,40 @@
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
     "status": "qualified",
-    "theta_expert_d": 45.21945181517701,
+    "theta_expert_d": 45.0891932775157,
     "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-with-frame-2f2f149f/20260925T145630.118450Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-with-frame-2f2f149f/20260925T161318.217982Z",
     "trials": [
       {
         "passed": true,
-        "angle_deg": 45.21945181517701,
-        "hold_angle_deg": 45.21945181517701,
+        "angle_deg": 45.0891932775157,
+        "hold_angle_deg": 45.0891932775157,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 15.710855484008789,
-        "joint_margin": 0.06303819268941879,
+        "peak_force_n": 7.179733753204346,
+        "joint_margin": 0.06306004524230957,
         "released": true,
         "visibility": {
           "passed": true,
           "failed_frames": 0,
-          "checked_frames": 2587,
+          "checked_frames": 2491,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-1"
       },
       {
         "passed": true,
-        "angle_deg": 45.21945181517701,
-        "hold_angle_deg": 45.21945181517701,
+        "angle_deg": 45.0891932775157,
+        "hold_angle_deg": 45.0891932775157,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 15.710855484008789,
-        "joint_margin": 0.06303819268941879,
+        "peak_force_n": 7.179733753204346,
+        "joint_margin": 0.06306004524230957,
         "released": true,
         "visibility": {
           "passed": true,
           "failed_frames": 0,
-          "checked_frames": 2587,
+          "checked_frames": 2491,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-2"

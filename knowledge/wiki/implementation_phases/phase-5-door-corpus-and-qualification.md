@@ -362,12 +362,20 @@ infeasibility. Missing initial fingertip support now raises a diagnostic
 error before motion instead of running known-invalid cycles. A diagnostic void-frame
 cycle recovered controlled contact; a new full pair remains mandatory.
 
-The 17 previously problematic doors are being checked with complete pairs under
-the revised common setup. Earlier recovery pairs used a lower contact and are
-superseded by this configuration change; their reports remain in the evidence
-chain. The user deferred the 15 previous passes to a later run by the smaller
-model. No repetitions are mixed across runs. Diagnostics and independent audits
-remain under `~/.cache/alexdoor-xas/verification/corpus-recovery-20260925/`.
+The first three complete pairs with the revised setup qualify PSX front-001 at
+60.63801 degrees, industrial-001 at 46.99394 degrees and the right frame-door at
+45.08919 degrees. Each pair has two valid cycles, the same limiting cause
+(`tracking_margin`) and zero spread. Independent raw-contact/pose audits verify
+sustained windows, full valid final holding and unloaded release; representative
+images were inspected. The right frame-door has little margin above 45 degrees,
+so this establishes nominal simulated admission, not robustness to perturbations.
+
+The remaining 14 previously problematic doors are being checked with complete
+pairs. Earlier recovery pairs used a lower contact and are superseded by the
+configuration change; their reports remain in the evidence chain. The user
+deferred the 15 previous passes to a later run by the smaller model. No repetitions
+are mixed across runs. Diagnostics and independent audits remain under
+`~/.cache/alexdoor-xas/verification/corpus-recovery-20260925/`.
 
 The 15 deferred rechecks are the three `animated-door-*`, `modern-door-2fb8d024`,
 `door-door-metal-b21ec273`, `door-adf292f437f2`, `interior-wood-d1-32707dc`,

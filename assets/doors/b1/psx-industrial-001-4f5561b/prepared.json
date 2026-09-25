@@ -81,40 +81,40 @@
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
     "status": "qualified",
-    "theta_expert_d": 45.192322303793716,
+    "theta_expert_d": 46.993938376640905,
     "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-industrial-001-4f5561b/20260925T145123.721471Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-industrial-001-4f5561b/20260925T160728.101507Z",
     "trials": [
       {
         "passed": true,
-        "angle_deg": 45.192322303793716,
-        "hold_angle_deg": 45.192322303793716,
+        "angle_deg": 46.993938376640905,
+        "hold_angle_deg": 46.993938376640905,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 7.149467468261719,
-        "joint_margin": 2.2539659767062403e-05,
+        "peak_force_n": 7.281335830688477,
+        "joint_margin": 0.0,
         "released": true,
         "visibility": {
           "passed": false,
-          "failed_frames": 1947,
-          "checked_frames": 2773,
+          "failed_frames": 1103,
+          "checked_frames": 3109,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-1"
       },
       {
         "passed": true,
-        "angle_deg": 45.192322303793716,
-        "hold_angle_deg": 45.192322303793716,
+        "angle_deg": 46.993938376640905,
+        "hold_angle_deg": 46.993938376640905,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 7.149467468261719,
-        "joint_margin": 2.2539659767062403e-05,
+        "peak_force_n": 7.281335830688477,
+        "joint_margin": 0.0,
         "released": true,
         "visibility": {
           "passed": false,
-          "failed_frames": 1947,
-          "checked_frames": 2773,
+          "failed_frames": 1103,
+          "checked_frames": 3109,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-2"
