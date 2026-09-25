@@ -17,6 +17,7 @@ class PreparedDoor:
     def __init__(self, folder, record, recipe):
         self.folder = Path(folder).resolve()
         self._contacts = {}
+        self._contact_frames = {}
         self.record = record
         self.recipe = recipe
         self.name = self.folder.name
@@ -87,8 +88,8 @@ class PreparedDoor:
             raise PreparedAssetError("Prepared record and physical hinge stop disagree")
         self.damping = float(UsdPhysics.DriveAPI(joint.GetPrim(), "angular").GetDampingAttr().Get())
 
-    def front_x(self, y, z):
-        """First intersection along +X with the actual leaf convex union."""
+    def front_surface(self, y, z):
+        """First +X leaf intersection and its outward convex-surface normal."""
         hits = []
         for planes in self._leaf_planes:
             a = planes[:, 0]
@@ -96,13 +97,20 @@ class PreparedDoor:
             flat = np.abs(a) < 1e-10
             if np.any(b[flat] > 1e-7):
                 continue
-            lower = np.max(-b[a < -1e-10] / a[a < -1e-10], initial=-np.inf)
+            entering = np.flatnonzero(a < -1e-10)
+            if not len(entering):
+                continue
+            index = entering[np.argmax(-b[entering] / a[entering])]
+            lower = -b[index] / a[index]
             upper = np.min(-b[a > 1e-10] / a[a > 1e-10], initial=np.inf)
             if np.isfinite(lower) and lower <= upper + 1e-7:
-                hits.append(lower)
+                hits.append((lower, planes[index, :3]))
         if not hits:
             raise ValueError("Prescribed point has no collidable leaf surface")
-        return min(hits)
+        return min(hits, key=lambda hit: hit[0])
+
+    def front_x(self, y, z):
+        return self.front_surface(y, z)[0]
 
     def closed_contact(self, fraction, height):
         if not 0 < fraction < 1:
@@ -119,9 +127,20 @@ class PreparedDoor:
 
     def contact_pose(self, angle, fraction, height, normal_offset=0.0):
         point = self.closed_contact(fraction, height).copy()
-        point[0] += normal_offset
+        key = (fraction, height)
+        if key not in self._contact_frames:
+            normal = -self.front_surface(float(point[1]), float(point[2]))[1].copy()
+            normal[np.abs(normal) < 1e-6] = 0.0  # Ignore sub-microradian mesh noise.
+            normal /= np.linalg.norm(normal)
+            lateral = np.cross([0.0, 0.0, 1.0], normal)
+            lateral /= np.linalg.norm(lateral)
+            self._contact_frames[key] = np.column_stack(
+                (normal, lateral, np.cross(normal, lateral))
+            )
+        frame = self._contact_frames[key]
+        point += normal_offset * frame[:, 0]
         rotation = self.rotation(angle)
-        return self.hinge + rotation @ (point - self.hinge), rotation
+        return self.hinge + rotation @ (point - self.hinge), rotation @ frame
 
     def footprint_inside(self, points, angle):
         closed = (points - self.hinge) @ self.rotation(angle) + self.hinge
@@ -136,7 +155,7 @@ class PreparedDoor:
             return False
         return True
 
-    def footprint_obstructions(self, faces, tolerance):
+    def footprint_obstructions(self, faces, tolerance, direction=(1.0, 0.0, 0.0)):
         """Witness leaf relief ahead of a prescribed closed-door fingertip face.
 
         Intersect each convex support footprint with each leaf shape, including
@@ -144,6 +163,8 @@ class PreparedDoor:
         """
         from scipy.optimize import linprog
 
+        direction = np.array(direction, dtype=float)
+        direction /= np.linalg.norm(direction)
         witnesses = []
         for finger, face in enumerate(faces):
             face = np.unique(face, axis=0)
@@ -151,7 +172,7 @@ class PreparedDoor:
                 # Convex weights handle flat pads, sloped fingertip edges and points.
                 result = linprog(
                     [1, *np.zeros(len(face))],
-                    A_ub=np.c_[planes[:, 0], planes[:, 1:3] @ face[:, 1:].T],
+                    A_ub=np.c_[planes[:, :3] @ direction, planes[:, :3] @ face.T],
                     b_ub=-planes[:, 3],
                     A_eq=[[0, *np.ones(len(face))]],
                     b_eq=[1],
@@ -162,13 +183,15 @@ class PreparedDoor:
                     continue
                 if not result.success:
                     raise ValueError("Cannot establish prescribed footprint clearance")
-                protrusion = float(np.min(face[:, 0]) - result.x[0])
+                protrusion = float(-result.x[0])
                 if protrusion > tolerance + 1e-6:
                     witnesses.append(
                         dict(
                             finger_index=finger,
                             leaf_shape_index=shape,
-                            surface_point_m=[result.x[0], *(result.x[1:] @ face[:, 1:])],
+                            surface_point_m=(
+                                result.x[1:] @ face + result.x[0] * direction
+                            ).tolist(),
                             protrusion_m=protrusion,
                             position_tolerance_m=tolerance,
                         )

@@ -119,6 +119,34 @@ def test_publication_preserves_preparation_and_detects_concurrent_edit(tmp_path)
         publish_expert(tmp_path, original, report, tmp_path / "other")
 
 
+@pytest.mark.parametrize("hand", ["left", "right"])
+def test_sloped_surface_orients_tool_without_moving_prescribed_point(tmp_path, hand):
+    door = make_door(tmp_path, hand)
+    points = door.shapes["Panel"][0].copy()
+    points[:, 0] += 0.15 * points[:, 1] + 0.02 * points[:, 2]
+    door._leaf_planes = [ConvexHull(points).equations]
+    closed, frame = door.contact_pose(0, 0.4, 1)
+    assert closed[1] == pytest.approx(door.hinge[1] - door.sign * 0.36)
+    assert closed[2] == 1
+    assert closed[0] == pytest.approx(0.04 + 0.15 * closed[1] + 0.02)
+    normal = np.array([1.0, -0.15, -0.02])
+    normal /= np.linalg.norm(normal)
+    np.testing.assert_allclose(frame[:, 0], normal)
+    np.testing.assert_allclose(frame.T @ frame, np.eye(3), atol=1e-12)
+    assert np.linalg.det(frame) == pytest.approx(1)
+    opened, rotated = door.contact_pose(0.7, 0.4, 1, 0.003)
+    panel = door.rotation(0.7)
+    np.testing.assert_allclose(opened, door.hinge + panel @ (closed + 0.003 * normal - door.hinge))
+    np.testing.assert_allclose(rotated, panel @ frame)
+    face = np.array(list(product([0], [-0.02, 0.02], [-0.02, 0.02]))) @ frame.T + closed
+    assert door.footprint_obstructions([face], 0.001, normal) == []
+    strip = np.array(list(product([-0.02, 0], [-0.002, 0.002], [-0.01, 0.01])))
+    door._leaf_planes.append(ConvexHull(strip @ frame.T + closed).equations)
+    witnesses = door.footprint_obstructions([face], 0.01, normal)
+    assert len(witnesses) == 1
+    assert witnesses[0]["protrusion_m"] == pytest.approx(0.02)
+
+
 @pytest.mark.parametrize("support", ["face", "edge", "point"])
 def test_footprint_rejects_raised_strip_between_pad_corners(tmp_path, support):
     door = make_door(tmp_path, "right")

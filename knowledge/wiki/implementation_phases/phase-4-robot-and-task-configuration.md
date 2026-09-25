@@ -110,8 +110,10 @@ Contact is at **0.24 of actual panel width from the hinge, 1.00 m above the floo
 The fixed neck pose is **NECK_Z = -0.70 rad, NECK_Y = 0.25 rad**.
 
 The expert uses existing full-pose control for approach → contact → push → hold
-→ release. It follows the panel material point with tool +X into the panel and
-+Z upward. During pushing the angular reference stays at or ahead of the measured
+→ release. It follows the prescribed material point with tool +X along the local
+collidable surface normal into the leaf. Tool +Z is the projection of vertical
+onto that surface. Flat panels retain the original upright orientation; sloped
+relief is handled from geometry without per-door settings. During pushing the angular reference stays at or ahead of the measured
 angle, within the existing lead budget and physical stop, so an inertially coasting
 panel cannot leave the commanded pose behind. The target joint-speed bound is 0.5 rad/s and nominal opening reference
 speed is 1 degree/s; physics/commands remain 120/60 Hz. Damped IK uses 0.01 damping

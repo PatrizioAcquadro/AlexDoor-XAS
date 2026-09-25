@@ -97,13 +97,13 @@ def main():
             )
             return 2
         # Missing prescribed surface is diagnosed, never silently relocated.
-        contact, _ = door.contact_pose(0.0, setup.contact_fraction, setup.contact_height)
-        faces = [face + contact for face in env.push_geometry.distal_faces]
+        contact, rotation = door.contact_pose(0.0, setup.contact_fraction, setup.contact_height)
+        faces = [face @ rotation.T + contact for face in env.push_geometry.distal_faces]
         import numpy as np
 
         if not door.footprint_inside(np.concatenate(faces), 0.0):
             raise ValueError("Prescribed fingertip footprint has missing leaf surface")
-        obstructions = door.footprint_obstructions(faces, setup.position_tolerance)
+        obstructions = door.footprint_obstructions(faces, setup.position_tolerance, rotation[:, 0])
         if obstructions:
             capture_initial(env, output)
             report.update(

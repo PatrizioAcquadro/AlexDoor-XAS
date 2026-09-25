@@ -243,7 +243,8 @@ array `b1:sourceComponents`, matching preparation verification. The earlier
 existing collision meshes loaded correctly after this fix.
 
 The surface trajectory follows the actual leaf colliders at the frozen fraction
-and height, retaining tool +X into the panel and +Z upward. Actual frame/handle
+and height, with tool +X into the local collidable surface and +Z aligned with
+projected vertical. Actual frame/handle
 bounds replace synthetic dimensions. Clearance remains a conservative diagnostic;
 raw contact ownership determines contact validity. Visibility samples actual
 surfaces and remains a geometric diagnostic, not learned-perception qualification.
@@ -335,6 +336,18 @@ present tracking is accurate, reserving space for inertial motion. The final
 0.5 s of the complete transition must be valid. Actual errors always refer to the
 prescribed material point, never the compensated command. See
 [[phase-4-robot-and-task-configuration|Phase 4]] for the controller.
+
+A further PSX front-005 diagnostic found a constant 3.55 mm normal offset on
+sloped relief. Treating every collected surface as a flat slab incorrectly used
+that geometric offset as tracking drift. The shared adapter now derives the
+contact orientation from the actual convex surface at the prescribed point;
+fraction, height and position remain fixed. The support-footprint preflight
+uses the same orientation and checks protrusions along its actual approach axis.
+No surface or threshold is modified. A GPU diagnostic now sustains 58.94525
+degrees with full valid holding/release and no forbidden contact. Its fresh pair
+is pending. Industrial-001 also has a small surface inclination, so its earlier
+45.19232-degree pair requires replacement; the flat right frame-door trajectory
+is bit-identical and its pair remains applicable.
 
 The front-001 leaf metadata also omitted its existing glazing component 3.
 Including it with component 10 preserves USD bytes, leaf bounds, inertia and the

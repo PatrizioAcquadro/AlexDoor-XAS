@@ -38,7 +38,9 @@ and require affected static/physics checks and a fresh expert pair.
 
 `scripts/qualify_door.py` loads a prepared door into the same Purdue environment
 and reuses the controlled probe. Prepared geometry supplies the material-point
-trajectory and physical bounds; the common robot/controller settings stay frozen.
+trajectory, local surface orientation and physical bounds; the common
+robot/controller settings stay frozen. Tool orientation follows the collidable
+surface normal at the prescribed fraction/height, with projected vertical as up.
 The executor checks initial pedestal interference, requires two valid controlled
 cycles for an expert angle, and publishes a compact result in `prepared.json`.
 It also checks the actual distal support footprints for raised leaf features
