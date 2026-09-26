@@ -165,7 +165,11 @@ reaches 7.5 mm, reserving 2.5 mm before the unchanged 10 mm validity limit.
 Earlier stopping also occurs when error remains above 2.5 mm for a complete
 0.5 s window and its nonnegative linear trend predicts consuming that reserve
 during the 3 s hold. A stable small bias and isolated contact transients do not
-establish a reach limit. Half the orientation budget still triggers a safety stop.
+establish a reach limit. Orientation uses the same sustained-trend check: exceeding
+half of its 5-degree budget activates forecasting, and a predicted violation during
+hold triggers stopping. Reaching 5 degrees also stops immediately after the push
+transient. This uses error relative to the actual material surface, separately
+from command-target error; a stable 2.6-degree servo bias is not lost reach.
 A local IK check runs every 0.1 s even while current tracking is accurate, and
 also when the trend exceeds 2.5 mm. It checks the target after coasting at the
 measured angular speed through the hold budget, capped by the physical stop.

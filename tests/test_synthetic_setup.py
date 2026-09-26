@@ -70,6 +70,20 @@ def test_tracking_guard_reserves_hold_margin_but_accepts_stable_bias_and_contact
     assert tracking_margin_exhausted([(0, 0.0075)], setup)
 
 
+def test_angular_guard_accepts_stable_bias_but_stops_growth_before_invalid_hold():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, tracking_margin_exhausted
+
+    setup = ProbeSetup()
+    slow = [(tick / 60, np.deg2rad(2.6 + 0.026 * tick / 60)) for tick in range(31)]
+    assert not tracking_margin_exhausted(slow, setup, orientation=True)
+    stable = [(tick / 60, np.deg2rad(4.0)) for tick in range(31)]
+    assert not tracking_margin_exhausted(stable, setup, orientation=True)
+    growing = [(tick / 60, np.deg2rad(3.0 + tick / 60)) for tick in range(31)]
+    assert tracking_margin_exhausted(growing, setup, orientation=True)
+    assert not tracking_margin_exhausted(growing[-2:], setup, orientation=True)
+    assert tracking_margin_exhausted([(0, setup.orientation_tolerance)], setup, orientation=True)
+
+
 def test_tangential_bias_correction_freezes_when_disabled_and_limits_rate_and_extent():
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, tangential_compensation
 

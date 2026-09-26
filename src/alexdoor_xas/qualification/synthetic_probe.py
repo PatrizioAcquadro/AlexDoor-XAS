@@ -170,15 +170,20 @@ def tracking_reserve(samples, horizon):
     return float(errors[-1] + max(0.0, slope) * horizon)
 
 
-def tracking_margin_exhausted(samples, setup):
-    """Reserve space for holding without treating a small stable bias as lost reach."""
-    margin = setup.position_tolerance - setup.material_drift_guard_m
+def tracking_margin_exhausted(samples, setup, *, orientation=False):
+    """Stop sustained growth that threatens holding, not a stable servo bias."""
+    guard = 0.5 * setup.orientation_tolerance if orientation else setup.material_drift_guard_m
+    margin = (
+        setup.orientation_tolerance
+        if orientation
+        else setup.position_tolerance - setup.material_drift_guard_m
+    )
     if samples[-1][1] >= margin:
         return True
     recent = [s for s in samples if samples[-1][0] - s[0] <= setup.sustain_s + 1e-9]
     sustained = (
         recent[-1][0] - recent[0][0] >= setup.sustain_s - 1e-9
-        and all(error > setup.material_drift_guard_m for _, error in recent)
+        and all(error > guard for _, error in recent)
     )
     return sustained and tracking_reserve(recent, setup.hold_settle_s) >= margin
 
@@ -337,6 +342,7 @@ def run_probe(env, door, setup, output):
     load_window = deque(maxlen=max(1, round(0.1 / dt)))
     safety_detail = None
     tracking = deque(maxlen=max(2, round(setup.sustain_s / dt) + 1))
+    angular_tracking = deque(maxlen=tracking.maxlen)
     start_p, start_q = [v[0].cpu().numpy() for v in env.tool_pose()]
     compensation = np.zeros(3)
 
@@ -443,6 +449,7 @@ def run_probe(env, door, setup, output):
                 speed=speed,
                 position_error=pe,
                 orientation_error=re,
+                material_orientation_error=orientation_error,
                 material_error=material_error,
                 tangential_compensation_m=applied_compensation.tolist(),
                 footprint_inside=footprint_inside,
@@ -512,8 +519,12 @@ def run_probe(env, door, setup, output):
             traces[-1]["push_compression_m"] = compression
             angle, pe, re, force, margin, loaded, valid = state
             tracking.append((tick * dt, traces[-1]["material_error"]))
+            angular_tracking.append((tick * dt, traces[-1]["material_orientation_error"]))
             predicted_error = tracking_reserve(tracking, setup.hold_settle_s)
             traces[-1]["predicted_hold_error_m"] = predicted_error
+            traces[-1]["predicted_hold_orientation_rad"] = tracking_reserve(
+                angular_tracking, setup.hold_settle_s
+            )
             elapsed = tick * dt
             if angle > last_angle + np.deg2rad(0.25):
                 last_progress, last_angle = elapsed, angle
@@ -576,7 +587,7 @@ def run_probe(env, door, setup, output):
                 and (
                     tracking_margin_exhausted(tracking, setup)
                     or hold_blocked
-                    or re > 0.5 * setup.orientation_tolerance
+                    or tracking_margin_exhausted(angular_tracking, setup, orientation=True)
                 )
             ):
                 reason = "safety_stop"

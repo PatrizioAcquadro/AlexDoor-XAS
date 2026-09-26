@@ -484,8 +484,15 @@ error was negligible, and no actual forbidden contact was recorded. The final
 hold sustained 17.92° and released safely in both cycles. Preparation reports a
 121.2° mechanical limit. This is a nominal controller/setup-domain exclusion,
 not proof that the asset is defective or that 45° is physically unreachable.
-Whether the early orientation guard reflects an unavoidable task constraint or
-a controller limitation remains unresolved. No setting or threshold was changed.
+The targeted follow-up identified a premature controller stop: the angular error
+grew only about 0.026 degrees/s near that guard. The common guard now forecasts
+sustained material-orientation error over the hold duration, preserving the
+5-degree validity limit and the local hold-reach check. One unpublished RTX 4090
+diagnostic, `psx-worn-20d5505/20260926T012738.474735Z`, sustained **67.42 degrees**
+with all 180 hold samples valid, safe release and no actual forbidden contacts.
+The final stop came from the local hold-endpoint position reserve, not the old
+half-budget angular comparison. The published 17.92-degree pair remains intact
+as historical evidence; a fresh pair under the corrected controller is pending.
 
 Sampled geometric RGB-D visibility failed for both cycles of
 `psx-industrial-004-4f5561b`, `psx-front-20d5505` and
