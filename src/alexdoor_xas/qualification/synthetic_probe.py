@@ -181,9 +181,8 @@ def tracking_margin_exhausted(samples, setup, *, orientation=False):
     if samples[-1][1] >= margin:
         return True
     recent = [s for s in samples if samples[-1][0] - s[0] <= setup.sustain_s + 1e-9]
-    sustained = (
-        recent[-1][0] - recent[0][0] >= setup.sustain_s - 1e-9
-        and all(error > guard for _, error in recent)
+    sustained = recent[-1][0] - recent[0][0] >= setup.sustain_s - 1e-9 and all(
+        error > guard for _, error in recent
     )
     return sustained and tracking_reserve(recent, setup.hold_settle_s) >= margin
 
@@ -470,8 +469,18 @@ def run_probe(env, door, setup, output):
             raw.append(dict(time=time, samples=contacts))
         if env.capture is not None and len(traces) % 30 == 0:
             sample = env.capture.sample
+            camera = env.camera.data
             images.append(
-                (len(traces), sample.rgb[0].cpu().numpy(), sample.depth_m[0].cpu().numpy())
+                (
+                    len(traces),
+                    sample.rgb[0].cpu().numpy(),
+                    sample.depth_m[0].cpu().numpy(),
+                    dict(
+                        position_m=tensor(camera.pos_w)[0].cpu().tolist(),
+                        quaternion_ros_xyzw=tensor(camera.quat_w_ros)[0].cpu().tolist(),
+                        intrinsics=tensor(camera.intrinsic_matrices)[0].cpu().tolist(),
+                    ),
+                )
             )
         return angle, pe, re, force, margin, loaded, valid
 
@@ -710,7 +719,10 @@ def run_probe(env, door, setup, output):
     if images:
         from PIL import Image
 
-        for tick, rgb, depth in images:
+        for tick, rgb, depth, _ in images:
             Image.fromarray(rgb[..., :3]).save(output / f"rgb-{tick:05d}.png")
             np.save(output / f"depth-{tick:05d}.npy", depth)
+        (output / "camera.json").write_text(
+            json.dumps({str(tick): camera for tick, _, _, camera in images}) + "\n"
+        )
     return result

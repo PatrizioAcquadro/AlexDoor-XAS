@@ -63,6 +63,13 @@ simulator-truth checks belong only to the scripted expert; they do not extend le
 [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]] for the
 common controller and unchanged validity limits.
 
+The geometric visibility diagnostic uses rendered panel/frame triangles;
+collision hulls remain authoritative only for physical contact and clearance.
+Prepared-door samples are cached in the closed frame and rotate with the leaf;
+frame samples cover the contact-height band. The depth test retains occlusion
+rejection. Saved RGB-D samples have measured camera poses/intrinsics for offline
+inspection. These geometry and camera diagnostics never become policy inputs.
+
 `qualification/contracts.py` owns shared source admission limits and geometry
 validation; preparation and verification use the same bounds. Promotion stages
 records and payloads together, preserves source-relative dependencies and writes

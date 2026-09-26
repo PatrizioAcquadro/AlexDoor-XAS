@@ -8,19 +8,19 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Formal paired requalification under the corrected controller completed seven left-handed doors: six `qualified`, one `out_of_domain` at 17.92°. The campaign stopped at that first non-qualified result. The other 25 doors still require fresh pairs; final corpus/split pending. |
+| 5.1 — Expert qualification | Seven paired rechecks published six `qualified` and one `out_of_domain`. A targeted angular-guard correction now recovers that last door at 67.42° in one unpublished GPU cycle. RGB-D sampling defects are corrected on three affected doors. Fresh formal pairs and final corpus/split remain pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Review the `psx-worn-20d5505` paired trace and the early orientation safety
-guard before deciding how to resume formal qualification. Both valid cycles
-stopped below the 45-degree gate; the result does not establish an asset defect
-or global unreachability. Do not rerun this door automatically or launch another
-door in the current campaign. The ignored `TODO.md` records seven completed
-invocations and 25 remaining identities in order. Their retained 21 qualified
-and four out-of-domain statuses predate the final controller, as do the six
-recovery pairs. Four successful single-cycle diagnostics remain unpublished.
+Hand formal qualification back to the smaller model: run a fresh complete pair
+for `psx-worn-20d5505`, then resume the pending campaign with the common command.
+The other 25 doors were not rerun during these targeted fixes; their retained
+21 qualified and four out-of-domain statuses predate earlier controller
+corrections. The six newer qualified pairs also predate the angular-guard revision;
+published references remain tied to their saved code/setup and evidence. The
+current fix round ran only one unpublished worn diagnostic and three RGB-D pose
+snapshots per affected visibility door, without publishing any new references.
 See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]].
 The pool has only seven right identities, so even if all seven qualify, at least
 five additional qualifying right identities are needed for the intended 12/12
@@ -36,10 +36,12 @@ validity thresholds. All affected expert references must be remeasured before
 final selection. Preparation alone does not establish robot reachability; rights
 scopes constrain sharing independently of technical readiness.
 
-RGB-D acquisition is operational, but sampled geometric visibility failed in
-both new cycles of industrial-004, front-20d5505 and wooden-009. Visibility
-remains a diagnostic separate from expert admission; learned door perception is
-not established. Simulator contact/hinge truth remains diagnostic and cannot
+RGB-D acquisition is operational. The visibility diagnostic now samples rendered
+surfaces rather than convex collision proxies, and distributes frame points near
+contact height. All nine targeted GPU snapshots on industrial-004, front-20d5505
+and wooden-009 passed; their complete trajectories were not rerun. Visibility
+remains separate from expert admission; learned door perception is not
+established. Simulator contact/hinge truth remains diagnostic and cannot
 become policy input. B1 action,
 perception and training contracts are defined in Phases 6–7, not by retained
 numerical model utilities. Simulation checks do not establish hardware safety.

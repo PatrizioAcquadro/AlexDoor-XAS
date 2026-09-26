@@ -97,7 +97,6 @@ def test_prepared_contact_uses_surface_and_actual_hinge(tmp_path, hand):
     with pytest.raises(ValueError, match="no collidable"):
         door.front_x(0.5, 1)
     assert all(name != "handle" for name, _ in door.collision_bounds(0.7))
-    assert np.isfinite(door.frame_points).all()
 
 
 def test_publication_preserves_preparation_and_detects_concurrent_edit(tmp_path):

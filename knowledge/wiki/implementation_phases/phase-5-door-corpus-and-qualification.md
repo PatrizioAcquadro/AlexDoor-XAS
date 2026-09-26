@@ -6,10 +6,15 @@ The first full campaign produced 15 qualified, 15 out-of-domain and two unresolv
 outcomes. A user-authorized recovery corrected shared control defects and
 revised one common placement/contact before any split. Six recovery pairs and
 four successful representative single cycles supported the corrections. Formal
-paired requalification then completed seven doors under the final controller:
+paired requalification then completed seven doors under that controller:
 six qualified and `psx-worn-20d5505` was published `out_of_domain` at 17.92°.
-The campaign stopped at that result; **25 doors still need fresh pairs**. Their
-retained 21 qualified and four out-of-domain statuses predate the final revision.
+The campaign stopped at that result. A targeted angular-guard fix now recovers
+worn at **67.42 degrees in one unpublished cycle**; its new formal pair remains
+pending. The other **25 doors were not rerun** during this fix. Their retained
+21 qualified and four out-of-domain statuses predate earlier corrections. The
+six newer qualified pairs also precede this angular-guard revision. RGB-D
+sampling was corrected and checked at three poses each on the three affected
+doors, without repeating their qualification cycles.
 Subphase 5.1 still owns the final 24-door, 12/4/8 identity split; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
@@ -237,7 +242,9 @@ not formal qualification. Run a complete pair separately when authorized.
 `expert_qualification`: status, reason, expert angle in degrees when defined,
 compact trial results, repeat difference and evidence location. Unvisited doors
 retain `not_run`. Full traces, raw contacts, RGB/depth samples, effective setup and
-input records remain in the cache, outside learning datasets. Only a complete
+input records remain in the cache, outside learning datasets. New runs also save
+`camera.json`, indexed by image tick, with measured camera pose and intrinsics
+for reproducing visibility checks against the saved depth. Only a complete
 report is published; concurrent record edits are not overwritten.
 
 A positive-volume intersection between the closed door and the fixed pedestal
@@ -494,10 +501,25 @@ The final stop came from the local hold-endpoint position reserve, not the old
 half-budget angular comparison. The published 17.92-degree pair remains intact
 as historical evidence; a fresh pair under the corrected controller is pending.
 
-Sampled geometric RGB-D visibility failed for both cycles of
+The previous sampled geometric RGB-D diagnostic failed for both cycles of
 `psx-industrial-004-4f5561b`, `psx-front-20d5505` and
-`psx-wooden-009-20d5505`. These are separate perception limitations, not
-expert-admission failures. The other four had no failed sampled frames.
+`psx-wooden-009-20d5505`. Targeted diagnosis found two sampling defects: convex
+collision points can sit ahead of recessed visible surfaces, and sparse frame
+facet centroids miss the visible height band. The diagnostic now intersects the
+actual rendered triangles for the same 25 panel and eight contact-surround
+locations, and samples the visual frame at seven heights around contact, capped
+at 40 points. The existing depth tolerance, occlusion check and minimum counts
+(6 panel, 2 surround, 2 frame) are unchanged. Physical contacts, assets, camera
+pose and common setup are unchanged.
+
+Three RTX 4090 pose snapshots per affected door all passed the corrected check.
+The front and wooden hold/release snapshots reproduce failures with the old
+proxy on the same RGB-D, while seven surround points pass with the corrected
+surface. Evidence, overlays and the snapshot script are under
+`~/.cache/alexdoor-xas/verification/visibility-targeted/20260926-fix/`.
+These nine snapshots establish the targeted fix, not visibility over every frame
+of a new trajectory; the smaller model's full runs remain pending. No new expert
+reference was published, and the historical reports were preserved.
 The campaign stopped after the first non-qualified result; the remaining 25
 doors were not invoked under the final controller. No corpus split or learning
 data was created.
@@ -517,9 +539,9 @@ qualifies, at least five additional qualifying right identities are needed for
 the planned 12/12 balance. No final corpus, train/development/test split, new asset
 downloads or learning data were introduced. Modern-door remains `local_only`.
 
-RGB-D capture is operational, but geometric visibility fails in several qualified
-trials, including insufficient sampled frame points. It is a diagnostic, not an
-expert-admission gate, and does not establish learned-perception readiness. No
+RGB-D capture is operational and the diagnosed sampling defects are corrected.
+Full-trajectory checks of the revised diagnostic remain pending. It is not an
+expert-admission gate and does not establish learned-perception readiness. No
 synthetic sweep was repeated; historical synthetic results belong to the earlier
 45-degree setup. Runtime qualification remains nominal simulated evidence, not
 hardware safety, statistical robustness or a global optimum.

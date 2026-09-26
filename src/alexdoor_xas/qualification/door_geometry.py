@@ -1,6 +1,5 @@
 """Prepared-door geometry in the canonical opening frame; no asset rewriting."""
 
-from functools import cached_property
 from pathlib import Path
 
 import numpy as np
@@ -87,6 +86,12 @@ class PreparedDoor:
         ):
             raise PreparedAssetError("Prepared record and physical hinge stop disagree")
         self.damping = float(UsdPhysics.DriveAPI(joint.GetPrim(), "angular").GetDampingAttr().Get())
+        from .visibility import read_visual_triangles
+
+        self.visual_triangles = {
+            name: read_visual_triangles(stage, root + "/" + name) for name in ("Panel", "Frame")
+        }
+        self._visibility_samples = {}
 
     def front_surface(self, y, z):
         """First +X leaf intersection and its outward convex-surface normal."""
@@ -207,17 +212,6 @@ class PreparedDoor:
                     points = (points - self.hinge) @ rotation.T + self.hinge
                 targets.append((name.lower(), (points.min(0), points.max(0))))
         return targets
-
-    @cached_property
-    def frame_points(self):
-        # Actual front-facing hull facet centroids, sampled deterministically.
-        samples = []
-        for points in self.shapes["Frame"]:
-            hull = ConvexHull(points)
-            faces = hull.simplices[hull.equations[:, 0] < -0.5]
-            samples.extend(points[faces].mean(1))
-        points = np.asarray(samples)
-        return points[np.linspace(0, len(points) - 1, min(len(points), 40), dtype=int)]
 
     def pedestal_intersections(self, stage, pedestal_root):
         """Positive-volume initial overlap with the fixed pedestal, using convex SAT."""
