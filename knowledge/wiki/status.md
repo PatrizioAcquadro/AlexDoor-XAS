@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-09-25. The maintained project is **B1**; B0 execution,
+Current as of 2026-09-26. The maintained project is **B1**; B0 execution,
 compatibility, dataset payloads and run orchestration are retired.
 
 | Area | Current state |
@@ -8,19 +8,18 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Seven paired rechecks published six `qualified` and one `out_of_domain`. A targeted angular-guard correction now recovers that last door at 67.42° in one unpublished GPU cycle. RGB-D sampling defects are corrected on three affected doors. Fresh formal pairs and final corpus/split remain pending. |
+| 5.1 — Expert qualification | Seven doors now have published paired results: all seven are `qualified`. The corrected `psx-worn-20d5505` pair supersedes its earlier 17.92° `out_of_domain` result with a 67.42° reference. RGB-D sampling defects are corrected on three affected doors. The other 25 reruns and final corpus/split remain pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Hand formal qualification back to the smaller model: run a fresh complete pair
-for `psx-worn-20d5505`, then resume the pending campaign with the common command.
-The other 25 doors were not rerun during these targeted fixes; their retained
+Resume the pending campaign with the common command. The other 25 doors were not
+rerun during these targeted fixes; their retained
 21 qualified and four out-of-domain statuses predate earlier controller
-corrections. The six newer qualified pairs also predate the angular-guard revision;
-published references remain tied to their saved code/setup and evidence. The
-current fix round ran only one unpublished worn diagnostic and three RGB-D pose
-snapshots per affected visibility door, without publishing any new references.
+corrections. The first six newer qualified pairs also predate the angular-guard
+revision; published references remain tied to their saved code/setup and evidence.
+The corrected worn pair used the revised guard and visibility implementation. The
+current fix round also ran three RGB-D pose snapshots per affected visibility door.
 See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]].
 The pool has only seven right identities, so even if all seven qualify, at least
 five additional qualifying right identities are needed for the intended 12/12

@@ -6,13 +6,13 @@ The first full campaign produced 15 qualified, 15 out-of-domain and two unresolv
 outcomes. A user-authorized recovery corrected shared control defects and
 revised one common placement/contact before any split. Six recovery pairs and
 four successful representative single cycles supported the corrections. Formal
-paired requalification then completed seven doors under that controller:
-six qualified and `psx-worn-20d5505` was published `out_of_domain` at 17.92°.
-The campaign stopped at that result. A targeted angular-guard fix now recovers
-worn at **67.42 degrees in one unpublished cycle**; its new formal pair remains
-pending. The other **25 doors were not rerun** during this fix. Their retained
+paired requalification now has seven qualified doors. The first six passed under
+the recovered controller; `psx-worn-20d5505` initially published an
+`out_of_domain` result at 17.92 degrees, then qualified at **67.42 degrees** in a
+fresh pair after the shared angular-guard correction. The other **25 doors were
+not rerun** during this fix. Their retained
 21 qualified and four out-of-domain statuses predate earlier corrections. The
-six newer qualified pairs also precede this angular-guard revision. RGB-D
+first six newer qualified pairs also precede this angular-guard revision. RGB-D
 sampling was corrected and checked at three poses each on the three affected
 doors, without repeating their qualification cycles.
 Subphase 5.1 still owns the final 24-door, 12/4/8 identity split; Phase 6 generates
@@ -463,12 +463,13 @@ mixed across runs. Diagnostics and independent audits remain under
 
 ### Formal Requalification Started 2026-09-25
 
-The first seven doors were run once each, in the prescribed order, with two
-complete cycles per invocation on `cuda:0`. Reports are under
+Seven doors have published paired results, with two complete cycles per
+invocation on `cuda:0`. Reports are under
 `~/.cache/alexdoor-xas/verification/expert/<id>/<timestamp>/report.json`;
-the exact paths are published in each `prepared.json`. The result records were
-committed at `cdd3204`. The lower sustained angle is the published reference;
-the table rounds only for display.
+the exact paths are published in each `prepared.json`. The first seven invocations
+were committed at `cdd3204`; the corrected worn pair supersedes its earlier
+published outcome without removing that historical evidence. The lower sustained
+angle is the published reference; the table rounds only for display.
 
 | Door | Hand | New status | `theta_expert_d` | Report timestamp |
 |---|---|---|---:|---|
@@ -478,12 +479,13 @@ the table rounds only for display.
 | `psx-front-20d5505` | left | `qualified` | 64.89° | `20260925T210606.477452Z` |
 | `psx-wooden-001-20d5505` | left | `qualified` | 63.84° | `20260925T211254.703702Z` |
 | `psx-wooden-009-20d5505` | left | `qualified` | 65.39° | `20260925T211949.936782Z` |
-| `psx-worn-20d5505` | left | `out_of_domain` | 17.92° | `20260925T212634.130486Z` |
+| `psx-worn-20d5505` | left | `qualified` | 67.42° | `20260926T060507.800125Z` |
 
-All seven reports agree with their published records. Each pair has two valid
-holds and releases, consistent limiting causes and at most 0.10° sustained-angle
-spread. The six qualified references meet the unrounded 45° gate. The seventh
-pair consistently stops under the gate with `safety_stop / tracking_margin`.
+All seven current reports agree with their published records. Each pair has two
+valid holds and releases, consistent limiting causes and at most 0.10°
+sustained-angle spread. All seven qualified references meet the unrounded 45°
+gate. Worn's superseded pair consistently stopped under the gate with
+`safety_stop / tracking_margin`.
 At the push stop, orientation error was 0.04510 rad against the controller's
 0.04363 rad preventive guard; the material-point error was 0.00515 m against
 its 0.00750 m reserve. Contact stayed loaded and valid, local hold-endpoint IK
@@ -494,12 +496,15 @@ not proof that the asset is defective or that 45° is physically unreachable.
 The targeted follow-up identified a premature controller stop: the angular error
 grew only about 0.026 degrees/s near that guard. The common guard now forecasts
 sustained material-orientation error over the hold duration, preserving the
-5-degree validity limit and the local hold-reach check. One unpublished RTX 4090
+5-degree validity limit and the local hold-reach check. One diagnostic RTX 4090
 diagnostic, `psx-worn-20d5505/20260926T012738.474735Z`, sustained **67.42 degrees**
 with all 180 hold samples valid, safe release and no actual forbidden contacts.
 The final stop came from the local hold-endpoint position reserve, not the old
-half-budget angular comparison. The published 17.92-degree pair remains intact
-as historical evidence; a fresh pair under the corrected controller is pending.
+half-budget angular comparison. The 17.92-degree pair remains intact as historical
+evidence. The subsequent formal pair,
+`psx-worn-20d5505/20260926T060507.800125Z`, repeated 67.42 degrees in both cycles,
+completed valid holds and releases, passed the corrected RGB-D check on all 4,445
+sampled frames per cycle and published `qualified` with zero repeat spread.
 
 The previous sampled geometric RGB-D diagnostic failed for both cycles of
 `psx-industrial-004-4f5561b`, `psx-front-20d5505` and
@@ -518,11 +523,9 @@ proxy on the same RGB-D, while seven surround points pass with the corrected
 surface. Evidence, overlays and the snapshot script are under
 `~/.cache/alexdoor-xas/verification/visibility-targeted/20260926-fix/`.
 These nine snapshots establish the targeted fix, not visibility over every frame
-of a new trajectory; the smaller model's full runs remain pending. No new expert
-reference was published, and the historical reports were preserved.
-The campaign stopped after the first non-qualified result; the remaining 25
-doors were not invoked under the final controller. No corpus split or learning
-data was created.
+of a new trajectory. The corrected worn pair subsequently exercised the revised
+diagnostic across its complete trajectories. The remaining 25 doors were not
+invoked under the final controller. No corpus split or learning data was created.
 
 The 15 previously deferred rechecks are the three `animated-door-*`,
 `modern-door-2fb8d024`,
