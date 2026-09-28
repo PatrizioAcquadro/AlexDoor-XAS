@@ -100,7 +100,9 @@ First run a small train/development-only pilot through recording, matched export
 loading, brief training, and closed-loop execution. Diagnose validity, timing,
 coverage, pairing, and learnability before large-scale generation. The frozen
 scripted expert is the default teacher. Generate physical demonstrations directly
-on the 12 training doors with balanced coverage of doors and permitted conditions.
+on all training doors assigned by the Phase 5 frozen split, with balanced coverage
+of those doors and permitted conditions. Using the full qualified corpus across
+the three partitions does not make development/test doors training data.
 Each accepted demonstration includes approach, contact, opening, hold, and release
 under the common contact and safety rules, without a shared angular stopping target.
 

@@ -103,12 +103,18 @@ authorized-surface, controlled-contact, force, and collision validity rules.
 
 ## Asset Corpus and Demonstrations
 
-Target 24 unique qualified identities, 12 left- and 12 right-hinged. Subphase 5.0
-first delivers validated reusable normalization and static/GPU-physics checking
+Use all eligible unique qualified identities available at corpus freeze; do not
+discard qualified doors to meet a fixed size or equal left/right counts. This
+2026-09-28 user-approved revision replaces the 24-door, 12-left/12-right target.
+Prefer the existing pool. Add doors only for a documented coverage gap that
+prevents a useful split with both handednesses represented and related mesh
+families kept together; five additional right doors are not a mandatory quota.
+
+Subphase 5.0 first delivers validated reusable normalization and static/GPU-physics checking
 tools, before candidate intake begins. Then the user provides one URL at a time:
 the model reviews it, the user manually downloads an acceptable candidate, and
 the model prepares/checks the local payload using those tools. Each prepared door
-can proceed directly to the expert check in 5.1; no initial batch of 24 downloads
+can proceed directly to the expert check in 5.1; no initial batch of downloads
 is required. Apply the legal, normalization, static, and physics criteria in
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
 The internal B1 study may use CC0, CC BY 4.0, or explicitly marked local-only
@@ -128,10 +134,18 @@ not permitted. Replace candidates that are legally/technically invalid or exclud
 by the predefined reachable-domain gate. Diagnose probe bugs or unresolved limits
 before deciding that a door is unsuitable.
 
-Freeze 12 training, 4 development, and 8 test identities, balanced left/right as
-6/6, 2/2, and 4/4. Keep related mesh families together. Mirrors/recolors are not
-new identities. Sealed test qualification proves feasibility only; its traces
-and images never enter learned training, normalization, tuning, or selection.
+Freeze a disjoint training/development/test partition covering the full qualified
+corpus. Choose and record counts after reviewing source families and handedness;
+the former 12/4/8 counts are not binding. Represent both handednesses in every
+partition and keep related mesh families together. Exact left/right parity is
+not required. If these constraints cannot be met with the existing pool, identify
+the specific gap and the minimum useful additions before requesting downloads.
+Report handedness counts and separate left/right results alongside the existing
+equal-per-door aggregate, and limit conclusions where coverage is sparse.
+Mirrors/recolors are not new identities. Freeze membership before learned-model
+results; any later expansion requires an explicit protocol revision.
+Sealed test qualification proves feasibility only; its traces and images never
+enter learned training, normalization, tuning, or selection.
 
 The **asset corpus** is normalized doors, provenance, qualification references,
 and splits. The **demonstration dataset** is synchronized RGB-D/proprioception
@@ -258,7 +272,7 @@ The plan has nine subphases, grouped by concrete outputs:
 | Phase | Subphases | Output |
 |---|---|---|
 | [[implementation_phases/phase-4-robot-and-task-configuration|4 — Robot and Task Configuration]] | 4.0 Operational Alex003/control/RGB-D; 4.1 common pose/reachability/visibility. | Usable robot and frozen synthetic-qualified setup. |
-| [[implementation_phases/phase-5-door-corpus-and-qualification|5 — Door Corpus and Qualification]] | 5.0 tools first, then one-URL-at-a-time preparation; 5.1 expert qualification and final split. | Qualified doors, references, and 12/4/8 split. |
+| [[implementation_phases/phase-5-door-corpus-and-qualification|5 — Door Corpus and Qualification]] | 5.0 tools first, then one-URL-at-a-time preparation; 5.1 expert qualification and final split. | All eligible qualified doors, references, and a frozen identity/family-separated split. |
 | [[implementation_phases/phase-6-perception-actions-and-demonstrations|6 — Perception, Actions, and Demonstrations]] | 6.0 observations/perception; 6.1 complete A1-A4; 6.2 passed pilot followed by final dataset. | Shared observed-input stack, eight usable learning paths, and matched demonstrations. |
 | [[implementation_phases/phase-7-training-and-generalization-evaluation|7 — Training and Generalization Evaluation]] | 7.0 training; 7.1 evaluation and analysis, ID/GEO before stress tiers. | Core generalization result, subsequent stress analysis, and reproducible records. |
 

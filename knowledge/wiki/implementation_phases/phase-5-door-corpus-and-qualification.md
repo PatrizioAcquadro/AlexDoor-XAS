@@ -15,7 +15,8 @@ received one formal invocation and qualified. These results are not yet one
 unchanged-implementation corpus: remeasure the earlier seven before final
 selection. RGB-D sampling was corrected and checked at three poses each on
 three affected doors, without repeating their qualification cycles.
-Subphase 5.1 still owns the final 24-door, 12/4/8 identity split; Phase 6 generates
+Subphase 5.1 owns the frozen identity split using all eligible qualified doors,
+without a 24-door cap or mandatory left/right parity; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
 ## Subphase 5.0 — Intake and Preparation
@@ -658,10 +659,13 @@ The 15 previously deferred rechecks were the three `animated-door-*`,
 qualified with `--rerun` and fresh-process pairs; their historical evidence is
 preserved. The earlier `qualified` status alone did not certify the revised setup.
 
-The pool contains 25 left and seven right identities. Even if every current door
-qualifies, at least five additional qualifying right identities are needed for
-the planned 12/12 balance. No final corpus, train/development/test split, new asset
-downloads or learning data were introduced. Modern-door remains `local_only`.
+The pool contains 25 left and seven right identities. The 2026-09-28 user-approved
+corpus revision retains all eligible qualified doors and removes the former
+24-door selection and mandatory 12/12 balance. Additional right identities are
+conditional on a documented split/coverage gap, not an automatic five-door intake.
+Source-family and handedness feasibility, final corpus freeze and the
+train/development/test assignment remain pending. No new downloads or learning
+data were introduced. Modern-door remains `local_only`.
 
 #### Offline review of the three new visibility warnings
 
@@ -726,9 +730,16 @@ as outside the reachable benchmark domain even when their assets are valid.
 A stall or timeout without an evidenced limit remains unresolved, not an automatic
 asset rejection. Ask for another candidate URL when a door is conclusively excluded.
 
-After 24 doors pass, freeze the manifest and 12/4/8 train/development/test split,
-with left/right counts 6/6, 2/2, and 4/4. Group related source geometry to prevent
-family leakage. Record the common setup/probe and each door's expert result.
+After same-implementation qualification is complete, freeze a manifest containing
+all eligible qualified identities and a disjoint train/development/test split
+covering that corpus. Do not discard qualified doors to reach 24 or equal
+left/right counts. Choose counts after auditing source families and handedness;
+represent both handednesses in each partition and keep related source geometry
+together to prevent family leakage. Request additional identities only when a
+specific coverage gap makes them necessary, and justify the minimum number.
+Record partition counts, coverage limits, the common setup/probe and each door's
+expert result. The exact split remains to be established, not executed by this
+documentation revision.
 
 #### Key Decisions
 
@@ -743,9 +754,10 @@ family leakage. Record the common setup/probe and each door's expert result.
 
 #### Problems / Limitations
 
-Complete with 24 eligible nominally reachable doors, stable expert references,
-and the frozen split. Conclusions apply to this qualified domain; neither the
-corpus size nor repeated trials prove broad coverage. The 2026-09-25 user-authorized recovery revises the common setup before any split.
+Complete with all eligible qualified identities included, stable expert references
+under the same implementation, and the frozen split. Conclusions apply to this
+qualified domain; neither corpus size nor repeated trials prove broad coverage.
+The 2026-09-25 user-authorized recovery revises the common setup before any split.
 After corpus/split freeze, do not retune it from held-out assets.
 
 ## Maintained Entry Points

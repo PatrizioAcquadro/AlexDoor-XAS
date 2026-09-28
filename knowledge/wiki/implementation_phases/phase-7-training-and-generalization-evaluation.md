@@ -56,8 +56,10 @@ physically identical reference. Expert and policy share physical conditions,
 validity rules, sustain duration, and episode time budget, without a shared
 angular stopping target.
 
-Average rollout scores within each door, then weight doors equally. Rank by GEO
-validity-adjusted expert-normalized progress. Preserve ratios above one and
+Average rollout scores within each door, then weight doors equally. Report
+handedness counts and separate left/right results alongside that aggregate;
+unequal coverage limits conclusions about the less represented handedness.
+Rank by GEO validity-adjusted expert-normalized progress. Preserve ratios above one and
 report raw angles, invalid counts, force diagnostics, stop reasons, and release
 status. Analyze results as they are produced rather than opening another subphase
 for the same records.

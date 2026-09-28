@@ -23,9 +23,13 @@ pairs predate process isolation, and the first six also predate the angular-guar
 revision. Revalidate those seven under one implementation before final corpus
 selection; keep each historical reference tied to its own saved code and evidence.
 See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]].
-The pool has only seven right identities, all qualified; at least five additional
-qualifying right identities are needed for the intended 12/12 balance. Corpus
-selection and the split remain future work.
+The pool has 25 left and seven right identities, all with published qualifications.
+Use all eligible qualified doors at corpus freeze; the user-approved revision
+removes the 24-door cap and mandatory 12/12 balance. Audit source families and
+handedness before choosing split counts, with both handednesses represented in
+each partition and related families kept together. Additional doors require a
+concrete coverage gap; five new right identities are not mandatory. Corpus freeze
+and the actual split remain future work.
 
 ## Limits
 
