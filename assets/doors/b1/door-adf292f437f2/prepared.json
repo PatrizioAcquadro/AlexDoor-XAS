@@ -81,40 +81,40 @@
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
     "status": "qualified",
-    "theta_expert_d": 46.36824865243813,
+    "theta_expert_d": 58.87685902291356,
     "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-adf292f437f2/20260924T224236.598587Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-adf292f437f2/20260928T183349.176113Z",
     "trials": [
       {
         "passed": true,
-        "angle_deg": 46.36824865243813,
-        "hold_angle_deg": 46.36824865243813,
+        "angle_deg": 58.87685902291356,
+        "hold_angle_deg": 58.87685902291356,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 6.829706192016602,
-        "joint_margin": 0.0,
+        "peak_force_n": 5.850396156311035,
+        "joint_margin": -1.3660400099979597e-07,
         "released": true,
         "visibility": {
           "passed": false,
-          "failed_frames": 3515,
-          "checked_frames": 3515,
+          "failed_frames": 556,
+          "checked_frames": 3949,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-1"
       },
       {
         "passed": true,
-        "angle_deg": 46.36824865243813,
-        "hold_angle_deg": 46.36824865243813,
+        "angle_deg": 58.87685902291356,
+        "hold_angle_deg": 58.87685902291356,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 6.829706192016602,
-        "joint_margin": 0.0,
+        "peak_force_n": 5.850396156311035,
+        "joint_margin": -1.3660400099979597e-07,
         "released": true,
         "visibility": {
           "passed": false,
-          "failed_frames": 3515,
-          "checked_frames": 3515,
+          "failed_frames": 556,
+          "checked_frames": 3949,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-2"

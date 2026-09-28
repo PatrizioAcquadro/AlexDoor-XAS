@@ -14,7 +14,8 @@ was unresolved at a 32.69-degree spread. Isolating the two cycles in fresh Isaac
 processes subsequently qualified it at **66.92 degrees** with zero spread. Three
 further left-handed doors qualified at 54.73°, 56.70° and 47.20° under process
 isolation. Three `animated-door` right-handed identities then qualified at
-61.39°, 61.48° and 61.78°, each with zero spread. The other **18 doors
+61.39°, 61.48° and 61.78°, each with zero spread. Four further identities
+qualified at 57.84°, 58.88°, 59.80° and 47.00°. The other **14 doors
 remain pending**; their retained qualified statuses predate earlier corrections.
 The first six newer qualified pairs also precede this angular-guard revision. RGB-D
 sampling was corrected and checked at three poses each on the three affected
@@ -470,7 +471,7 @@ mixed across runs. Diagnostics and independent audits remain under
 
 ### Formal Requalification Started 2026-09-25
 
-Fourteen doors have published paired results, with two complete cycles per
+Eighteen doors have published paired results, with two complete cycles per
 invocation on `cuda:0`. Reports are under
 `~/.cache/alexdoor-xas/verification/expert/<id>/<timestamp>/report.json`;
 the exact paths are published in each `prepared.json`. The first seven invocations
@@ -494,11 +495,19 @@ angle is the published reference; the table rounds only for display.
 | `animated-door-1-88abf40` | right | `qualified` | 61.39° | `20260928T181142.560713Z` |
 | `animated-door-2-88abf40` | right | `qualified` | 61.48° | `20260928T181637.948391Z` |
 | `animated-door-3-88abf40` | right | `qualified` | 61.78° | `20260928T182144.459603Z` |
+| `door-2738468b94d74c5f` | left | `qualified` | 57.84° | `20260928T182721.985793Z` |
+| `door-adf292f437f2` | left | `qualified` | 58.88° | `20260928T183349.176113Z` |
+| `door-door-metal-b21ec273` | right | `qualified` | 59.80° | `20260928T184039.310056Z` |
+| `door-prison-metal-old-45306a46` | left | `qualified` | 47.00° | `20260928T184604.720361Z` |
 
-All fourteen current reports agree with their published records. Each pair has two
+All eighteen current reports agree with their published records. Each pair has two
 valid holds and releases, consistent limiting causes and at most 0.10°
-sustained-angle spread. All fourteen qualified references meet the unrounded 45°
-gate. Worn's superseded pair consistently stopped under the gate with
+sustained-angle spread. All eighteen qualified references meet the unrounded 45°
+gate. Geometric visibility separately warned on `door-adf292f437f2` (556 of
+3,949 frames per cycle) and `door-door-metal-b21ec273` (all 3,453 frames per
+cycle). Representative RGB frames for the metal door show a visible panel and
+robot hand; these warnings do not invalidate expert qualification and require
+separate visibility evaluation. Worn's superseded pair consistently stopped under the gate with
 `safety_stop / tracking_margin`.
 At the push stop, orientation error was 0.04510 rad against the controller's
 0.04363 rad preventive guard; the material-point error was 0.00515 m against

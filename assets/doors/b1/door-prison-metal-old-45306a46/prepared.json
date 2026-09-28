@@ -83,7 +83,7 @@
     "status": "qualified",
     "theta_expert_d": 47.000000169529294,
     "reason": "mechanical_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-prison-metal-old-45306a46/20260925T172119.425345Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/door-prison-metal-old-45306a46/20260928T184604.720361Z",
     "trials": [
       {
         "passed": true,
