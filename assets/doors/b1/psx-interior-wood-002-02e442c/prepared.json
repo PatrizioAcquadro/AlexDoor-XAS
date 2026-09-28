@@ -81,40 +81,40 @@
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
     "status": "qualified",
-    "theta_expert_d": 54.23717982161559,
+    "theta_expert_d": 62.68305706998403,
     "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-interior-wood-002-02e442c/20260925T005640.609678Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-interior-wood-002-02e442c/20260928T194222.735949Z",
     "trials": [
       {
         "passed": true,
-        "angle_deg": 54.23717982161559,
-        "hold_angle_deg": 54.23717982161559,
+        "angle_deg": 62.68305706998403,
+        "hold_angle_deg": 62.68305706998403,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 6.372413158416748,
-        "joint_margin": -4.55346658156941e-08,
+        "peak_force_n": 5.1445183753967285,
+        "joint_margin": -1.463612022689631e-07,
         "released": true,
         "visibility": {
           "passed": true,
           "failed_frames": 0,
-          "checked_frames": 4041,
+          "checked_frames": 4165,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-1"
       },
       {
         "passed": true,
-        "angle_deg": 54.23717982161559,
-        "hold_angle_deg": 54.23717982161559,
+        "angle_deg": 62.68305706998403,
+        "hold_angle_deg": 62.68305706998403,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 6.372413158416748,
-        "joint_margin": -4.55346658156941e-08,
+        "peak_force_n": 5.1445183753967285,
+        "joint_margin": -1.463612022689631e-07,
         "released": true,
         "visibility": {
           "passed": true,
           "failed_frames": 0,
-          "checked_frames": 4041,
+          "checked_frames": 4165,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-2"

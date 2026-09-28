@@ -17,7 +17,8 @@ isolation. Three `animated-door` right-handed identities then qualified at
 61.39°, 61.48° and 61.78°, each with zero spread. Four further identities
 qualified at 57.84°, 58.88°, 59.80° and 47.00°. Four more qualified at 45.09°,
 54.30°, 54.41° and 62.66°. The next four qualified at 60.64°, 59.71°,
-60.45° and 46.99°. The other **six doors
+60.45° and 46.99°. Three `psx-interior-wood` identities then qualified at
+62.68°, 62.62° and 62.11°. The other **three doors
 remain pending**; their retained qualified statuses predate earlier corrections.
 The first six newer qualified pairs also precede this angular-guard revision. RGB-D
 sampling was corrected and checked at three poses each on the three affected
@@ -473,7 +474,7 @@ mixed across runs. Diagnostics and independent audits remain under
 
 ### Formal Requalification Started 2026-09-25
 
-Twenty-six doors have published paired results, with two complete cycles per
+Twenty-nine doors have published paired results, with two complete cycles per
 invocation on `cuda:0`. Reports are under
 `~/.cache/alexdoor-xas/verification/expert/<id>/<timestamp>/report.json`;
 the exact paths are published in each `prepared.json`. The first seven invocations
@@ -509,10 +510,13 @@ angle is the published reference; the table rounds only for display.
 | `psx-front-005-ee7d5c6` | right | `qualified` | 59.71° | `20260928T192411.520178Z` |
 | `psx-front-008-ee7d5c6` | left | `qualified` | 60.45° | `20260928T193000.882108Z` |
 | `psx-industrial-001-4f5561b` | left | `qualified` | 46.99° | `20260928T193623.002470Z` |
+| `psx-interior-wood-002-02e442c` | left | `qualified` | 62.68° | `20260928T194222.735949Z` |
+| `psx-interior-wood-003-02e442c` | left | `qualified` | 62.62° | `20260928T194935.898468Z` |
+| `psx-interior-wood-005-02e442c` | left | `qualified` | 62.11° | `20260928T195646.540133Z` |
 
-All twenty-six current reports agree with their published records. Each pair has two
+All twenty-nine current reports agree with their published records. Each pair has two
 valid holds and releases, consistent limiting causes and at most 0.10°
-sustained-angle spread. All twenty-six qualified references meet the unrounded 45°
+sustained-angle spread. All twenty-nine qualified references meet the unrounded 45°
 gate. Geometric visibility separately warned on `door-adf292f437f2` (556 of
 3,949 frames per cycle) and `door-door-metal-b21ec273` (all 3,453 frames per
 cycle), and on `psx-front-008-ee7d5c6` (844 of 3,895 frames per cycle).
