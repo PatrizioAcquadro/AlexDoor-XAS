@@ -6,11 +6,12 @@ The first full campaign produced 15 qualified, 15 out-of-domain and two unresolv
 outcomes. A user-authorized recovery corrected shared control defects and
 revised one common placement/contact before any split. Six recovery pairs and
 four successful representative single cycles supported the corrections. Formal
-paired requalification now has seven qualified doors and one unresolved pair. The first six passed under
+paired requalification now has eight qualified doors. The first six passed under
 the recovered controller; `psx-worn-20d5505` initially published an
 `out_of_domain` result at 17.92 degrees, then qualified at **67.42 degrees** in a
-fresh pair after the shared angular-guard correction. The fresh `void-frame` pair
-is unresolved at a 32.69-degree spread. The other **24 doors remain pending**;
+fresh pair after the shared angular-guard correction. The first fresh `void-frame` pair
+was unresolved at a 32.69-degree spread. Isolating the two cycles in fresh Isaac
+processes subsequently qualified it at **66.92 degrees** with zero spread. The other **24 doors remain pending**;
 their retained 21 qualified and three out-of-domain statuses predate earlier corrections. The
 first six newer qualified pairs also precede this angular-guard revision. RGB-D
 sampling was corrected and checked at three poses each on the three affected
@@ -223,8 +224,11 @@ attempt narrative; original downloads remain outside this checkout.
 ```
 
 The command loads the published USD and the current common setup, acquires RGB-D
-and contact diagnostics, and runs two complete cycles. It exposes no per-door
-controller tuning. `--rerun` explicitly allows a justified recheck of an already
+and contact diagnostics, and runs two complete cycles. Each cycle starts in a
+fresh Isaac process and physics scene loaded from the same prepared asset and
+common setup. Joint
+position/velocity resets alone do not isolate PhysX contact history between
+reference trials. It exposes no per-door controller tuning. `--rerun` explicitly allows a justified recheck of an already
 qualified door. Unresolved doors may be rerun after diagnosis; every invocation
 creates a new evidence directory under `~/.cache/alexdoor-xas/verification/expert/`.
 The report records the previous evidence directory. Earlier failed pairs remain
@@ -480,11 +484,11 @@ angle is the published reference; the table rounds only for display.
 | `psx-wooden-001-20d5505` | left | `qualified` | 63.84° | `20260925T211254.703702Z` |
 | `psx-wooden-009-20d5505` | left | `qualified` | 65.39° | `20260925T211949.936782Z` |
 | `psx-worn-20d5505` | left | `qualified` | 67.42° | `20260926T060507.800125Z` |
-| `void-frame-studio-animated-classic-door-08bdf51b` | left | `unresolved` | — | `20260928T170246.207228Z` |
+| `void-frame-studio-animated-classic-door-08bdf51b` | left | `qualified` | 66.92° | `20260928T173830.453850Z` |
 
-All seven current reports agree with their published records. Each pair has two
+All eight current reports agree with their published records. Each pair has two
 valid holds and releases, consistent limiting causes and at most 0.10°
-sustained-angle spread. All seven qualified references meet the unrounded 45°
+sustained-angle spread. All eight qualified references meet the unrounded 45°
 gate. Worn's superseded pair consistently stopped under the gate with
 `safety_stop / tracking_margin`.
 At the push stop, orientation error was 0.04510 rad against the controller's
@@ -525,14 +529,14 @@ surface. Evidence, overlays and the snapshot script are under
 `~/.cache/alexdoor-xas/verification/visibility-targeted/20260926-fix/`.
 These nine snapshots establish the targeted fix, not visibility over every frame
 of a new trajectory. The corrected worn pair subsequently exercised the revised
-diagnostic across its complete trajectories. The remaining 25 doors have no
-complete new pair under the final controller. No corpus split or learning data
+diagnostic across its complete trajectories. At that point, the remaining 25 doors had no
+complete new pair under the revised controller. No corpus split or learning data
 was created.
 
-Repeated `void-frame` starts were interrupted by memory exhaustion. The latest
-report, `expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T164437.649868Z/report.json`
-under the verification cache, is `unresolved / incomplete_execution` with zero
-trials; the historical published record is unchanged. The user journal records
+Repeated `void-frame` starts were interrupted by memory exhaustion. The last
+interrupted report, `expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T164437.649868Z/report.json`
+under the verification cache, records `unresolved / incomplete_execution` with zero
+trials; that interruption did not change the historical published record. The user journal records
 an OOM kill in the desktop app scope at 2026-09-28 12:45:27 EDT. The user service
 cgroup has a 59.70 GiB peak since boot and one OOM kill; its current memory limits
 are unlimited. Kernel OOM victim details are not readable by the current account.
@@ -561,11 +565,11 @@ regression also checks hits, misses, edges and nearest surfaces with only 128 Mi
 additional virtual memory available. `validation.json` and the validation script
 are beside the diagnosis evidence.
 
-Those checks preceded a fresh complete formal pair on `cuda:0`. The new
-`void-frame` report is `unresolved / inconsistent_or_unresolved_pair`, and the
-published summary matches it. Both cycles passed valid hold and release, with
+Those checks preceded a fresh complete formal pair on `cuda:0`. That
+`void-frame` report was `unresolved / inconsistent_or_unresolved_pair`, matching
+its then-published summary. Both cycles passed valid hold and release, with
 `safety_stop / tracking_margin`, but sustained angles were 66.92° and 34.23°:
-the unrounded 32.690094745097674° spread exceeds the 2° limit. There is no
+the unrounded 32.690094745097674° spread exceeds the 2° limit. That pair has no
 `theta_expert_d`. Geometric visibility passed all 4,081 and 1,684 checked frames.
 
 The first push stopped at 65.63° when predicted hold-endpoint position error
@@ -574,11 +578,46 @@ reached 4.21 mm against the 2.50 mm reserve, while measured material error was
 against the 7.50 mm position margin, while measured error was 3.98 mm. Both
 stops occurred with valid loaded contact; targeted contact records show no
 forbidden contact. The second push began faster and with a larger contact impulse
-than the first. The cause of this variation between resets remains uncertain;
-the pair does not establish an asset defect. All evidence remains under
-`~/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T170246.207228Z/`.
-The campaign stopped here with 24 doors still awaiting fresh pairs. No extra
-cycle, controller change or corpus split was made.
+than the first. This pair did not establish an asset defect. Its evidence remains
+under `~/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T170246.207228Z/`.
+The campaign stopped with 24 doors still awaiting fresh pairs.
+
+A targeted reset diagnosis reproduced the divergence after one complete cycle.
+The first 531 recorded physical states match exactly. At 8.85 s, the same contact
+geometry produces 0.717 N in the first cycle and 36.844 N after the reused-scene
+reset. Instrumented robot/door joint positions, velocities, root poses, command
+targets and gravity compensation agree before this impulse; joint states diverge
+on the next sample. Two shortened 10 s cycles instead match exactly. This
+isolates a dependence on the preceding simulation history, not a different
+commanded initial pose. The specific internal PhysX cache responsible is not
+identified. NVIDIA documents persistent internal contact state as a
+[simulation-resume limitation](https://docs.omniverse.nvidia.com/kit/docs/omni_physics/107.3/dev_guide/guides/current_limitations.html).
+
+A scene-only reconstruction produced two identical physical trajectories at
+66.92 degrees (`20260928T172510.288301Z`), but image inspection exposed displaced
+robot visual geometry in the second scene. That intermediate pair remains in
+the evidence chain; its RGB-D must not be treated as a clean rendering reference.
+
+The qualification runner now restarts the Isaac process before the second cycle,
+isolating physics and rendering state together. Both cycles stay in one evidence
+directory and only the completed pair publishes. Internal continuation requires
+the same saved input records/setup, exactly one matching completed trial and no
+existing second attempt; it cannot retry an interrupted second cycle. The controller,
+geometry, material properties, prescribed pose and all acceptance thresholds
+remain unchanged. This isolates nominal reference trials; it does not establish
+history-independent resets for a reused training environment. Diagnostic scripts,
+state arrays and original-trace comparisons are preserved under
+`~/.cache/alexdoor-xas/verification/reset-diagnosis/20260928-void-frame/`.
+
+The final fresh-process pair (`20260928T173830.453850Z`) is **qualified at
+66.91685227985398 degrees**, with zero spread. Both 4,081-step physical traces
+match each other and the original first cycle exactly. Every one of the 180 hold
+samples is valid in each trial, releases pass, and no forbidden contact is
+recorded. Geometric visibility passes all frames; representative hold/release
+images show coherent robot geometry after process isolation. The report and
+published record agree, with preparation fields unchanged. The seven other newer
+references predate process isolation and were not rerun in this targeted repair.
+The 24 pending pairs, corpus selection and learning work remain separate.
 
 The 15 previously deferred rechecks are the three `animated-door-*`,
 `modern-door-2fb8d024`,
@@ -607,7 +646,7 @@ hardware safety, statistical robustness or a global optimum.
 For each prepared door, run the frozen probe to its valid controlled limit,
 including approach, sustained contact, hold, and safe release. Continue past
 45 degrees. Record sustained angle, force/contact validity, stop reason, and
-joint margins. Repeat once from the same reset.
+joint margins. Repeat once from the same initial conditions in a fresh Isaac process.
 
 Require valid controlled completion, consistent limiting causes, and sustained
 maxima within 2 degrees. Diagnose inconsistent pairs without favorable best-of-

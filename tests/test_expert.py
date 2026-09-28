@@ -8,7 +8,12 @@ import pytest
 from scipy.spatial import ConvexHull
 
 from alexdoor_xas.qualification.door_geometry import PreparedDoor
-from alexdoor_xas.qualification.expert import publish_expert, qualify_pair
+from alexdoor_xas.qualification.expert import (
+    continue_pair,
+    publish_expert,
+    qualify_pair,
+    trial_summary,
+)
 from alexdoor_xas.qualification.synthetic_probe import SustainedAngle
 
 
@@ -51,6 +56,51 @@ def test_admission_is_inclusive_and_uses_lower_maximum(trial):
     assert result["status"] == "qualified" and result["theta_expert_d"] == 45.0
     low["angle_deg"] = 44.99
     assert qualify_pair([low, low])["status"] == "out_of_domain"
+
+
+@pytest.mark.parametrize(
+    "change", [None, "input", "setup", "device", "completed", "diagnostic", "summary", "second"]
+)
+def test_process_continuation_cannot_mix_inputs_or_retry_a_second_trial(tmp_path, trial, change):
+    folder, output = tmp_path / "door", tmp_path / "evidence"
+    folder.mkdir()
+    (output / "repeat-1").mkdir(parents=True)
+    config = tmp_path / "setup.json"
+    config.write_text("{}")
+    (output / "setup.json").write_text("{}")
+    for name in ("prepared.json", "recipe.json", "candidate.json"):
+        (folder / name).write_text("{}")
+        (output / name).write_text("{}")
+    trial = {**trial, "visibility": None}
+    report = dict(
+        asset_id="door",
+        device="cuda:0",
+        diagnostic_only=False,
+        status="unresolved",
+        reason="incomplete_execution",
+        trials=[trial_summary(trial, 1)],
+    )
+    (output / "repeat-1/result.json").write_text(json.dumps(trial))
+    if change == "input":
+        (folder / "recipe.json").write_text('{"changed": true}')
+    elif change == "setup":
+        config.write_text('{"changed": true}')
+    elif change == "device":
+        report["device"] = "cuda:1"
+    elif change == "completed":
+        report["status"] = "qualified"
+    elif change == "diagnostic":
+        report["diagnostic_only"] = True
+    elif change == "summary":
+        report["trials"][0]["angle_deg"] += 1
+    elif change == "second":
+        (output / "repeat-2").mkdir()
+    (output / "report.json").write_text(json.dumps(report))
+    if change is None:
+        assert continue_pair(output, folder, config, "cuda:0") == (report, [trial])
+    else:
+        with pytest.raises(ValueError):
+            continue_pair(output, folder, config, "cuda:0")
 
 
 def test_sustained_maximum_survives_lower_hold_and_release():

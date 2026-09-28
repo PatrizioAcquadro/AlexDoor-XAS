@@ -14,6 +14,7 @@ sys.path.insert(0, str(REPO / "src"))
 
 from alexdoor_xas.qualification.door_geometry import PreparedAssetError  # noqa: E402
 from alexdoor_xas.qualification.expert import (  # noqa: E402
+    continue_pair,
     probe_config,
     publish_expert,
     qualify_pair,
@@ -43,6 +44,7 @@ def main():
     parser.add_argument(
         "--diagnostic", action="store_true", help="Run one cycle without changing prepared.json"
     )
+    parser.add_argument("--_continue-pair", type=Path, help=argparse.SUPPRESS)
     AppLauncher.add_app_launcher_args(parser)
     args = parser.parse_args()
     if Path(args.asset_id).name != args.asset_id or args.asset_id in (".", ".."):
@@ -56,31 +58,39 @@ def main():
     previous = original.get("expert_qualification", "not_run")
     if isinstance(previous, dict) and previous.get("status") == "qualified" and not args.rerun:
         parser.error("Door already qualified; use --rerun only for a justified recheck")
-    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
-    output = Path.home() / ".cache/alexdoor-xas/verification/expert" / args.asset_id / stamp
-    output.mkdir(parents=True, exist_ok=False)
-    print(f"Evidence: {output}", flush=True)
-    for name in ("prepared.json", "recipe.json", "candidate.json"):
-        (output / name).write_bytes((folder / name).read_bytes())
     config = REPO / "configs/purdue_synthetic_probe.json"
-    (output / "setup.json").write_bytes(config.read_bytes())
     setup = ProbeSetup(**json.loads(config.read_text()))
-    report = dict(
-        asset_id=args.asset_id,
-        status="unresolved",
-        theta_expert_d=None,
-        reason="incomplete_execution",
-        trials=[],
-        device=args.device,
-        scope="single_diagnostic_not_learning_data"
-        if args.diagnostic
-        else "nominal_simulated_expert_reference_not_learning_data",
-        previous_evidence=previous.get("evidence") if isinstance(previous, dict) else None,
-        diagnostic_only=args.diagnostic,
-    )
-    write_result(output / "report.json", report)
+    if args._continue_pair is not None:
+        if args.diagnostic:
+            parser.error("A diagnostic cannot continue a formal pair")
+        output = args._continue_pair
+        report, trials = continue_pair(output, folder, config, args.device)
+        print(f"Continue pair: {output}", flush=True)
+    else:
+        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
+        output = Path.home() / ".cache/alexdoor-xas/verification/expert" / args.asset_id / stamp
+        output.mkdir(parents=True, exist_ok=False)
+        print(f"Evidence: {output}", flush=True)
+        for name in ("prepared.json", "recipe.json", "candidate.json"):
+            (output / name).write_bytes((folder / name).read_bytes())
+        (output / "setup.json").write_bytes(config.read_bytes())
+        report = dict(
+            asset_id=args.asset_id,
+            status="unresolved",
+            theta_expert_d=None,
+            reason="incomplete_execution",
+            trials=[],
+            device=args.device,
+            scope="single_diagnostic_not_learning_data"
+            if args.diagnostic
+            else "nominal_simulated_expert_reference_not_learning_data",
+            previous_evidence=previous.get("evidence") if isinstance(previous, dict) else None,
+            diagnostic_only=args.diagnostic,
+            trial_isolation="fresh_process",
+        )
+        write_result(output / "report.json", report)
+        trials = []
     app, env = None, None
-    trials = []
     try:
         args.enable_cameras = True
         app = AppLauncher(args).app
@@ -119,12 +129,28 @@ def main():
                 qualification_scope="nominal_contact_pose_infeasible_no_expert_angle",
             )
             return 2
-        for number in ((1,) if args.diagnostic else (1, 2)):
+        for number in range(len(trials) + 1, 2 if args.diagnostic else 3):
             trial = run_probe(env, door, setup, output / f"repeat-{number}")
             trials.append(trial)
             report["trials"].append(trial_summary(trial, number))
             write_result(output / "report.json", report)
             print(json.dumps(report["trials"][-1]), flush=True)
+            if number == 1 and not args.diagnostic:
+                # Isolate both PhysX contact history and renderer state between trials.
+                env.close()
+                env = None
+                sys.stdout.flush()
+                sys.stderr.flush()
+                os.execv(
+                    sys.executable,
+                    [
+                        sys.executable,
+                        str(Path(__file__).resolve()),
+                        *sys.argv[1:],
+                        "--_continue-pair",
+                        str(output),
+                    ],
+                )
         report.update(qualify_pair(trials))
         if args.diagnostic:
             report["reason"] = "single_diagnostic_no_expert_reference"

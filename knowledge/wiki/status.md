@@ -8,20 +8,22 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Eight doors have fresh complete pairs: seven `qualified`, one `unresolved` (`void-frame`, 32.69° spread). The corrected worn pair remains qualified at 67.42°. Another 24 pairs and the final corpus/split remain pending. |
+| 5.1 — Expert qualification | Eight doors have qualified pairs. `void-frame` qualifies at 66.92° with zero spread after isolating trials in fresh Isaac processes; worn remains qualified at 67.42°. Another 24 pairs and the final corpus/split remain pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-The campaign stopped at the first new nonqualified pair. `void-frame` completed
-two valid holds/releases but reached 66.92° and 34.23°, so the official result is
-`unresolved`; it has no expert angle. The different tracking-margin stops need a
-focused controller/reset diagnosis before more doors are launched. The other 24
-identities retain 21 qualified and three out-of-domain historical outcomes from
-earlier controller revisions. The first six newer qualified pairs also predate
-the angular-guard revision; published references remain tied to their saved
-code/setup and evidence. The corrected worn pair used the revised guard and
-visibility implementation.
+The focused `void-frame` repair is complete. Reusing the same physics scene
+caused history-dependent contact impulses despite identical reset states.
+Fresh Isaac processes now isolate both physics and renderer state between the
+two trials; the final pair qualifies at 66.92° with valid holds/releases and
+zero spread. Controller, geometry and admission thresholds are unchanged.
+Resume the 24 pending pairs when the campaign is authorized. Those identities
+retain 21 qualified and three out-of-domain historical outcomes from earlier
+controller revisions. The first six newer qualified pairs predate the angular-guard
+revision; all seven other newer references predate process isolation and were
+not rerun here. Published references remain tied to their saved code/setup and
+evidence; all affected references need current validation before final selection.
 See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]].
 The pool has only seven right identities, so even if all seven qualify, at least
 five additional qualifying right identities are needed for the intended 12/12
