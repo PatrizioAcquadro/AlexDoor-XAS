@@ -51,6 +51,8 @@ def test_causal_terminal_roundtrip_and_truth_separation(tmp_path):
 
 def test_invalid_masks_time_and_incomplete_recording(tmp_path):
     writer = B1Writer(tmp_path / "partial.hdf5", {}, dict(depth_interval_m=[0.1, 5]))
+    with pytest.raises(ValueError, match="reset"):
+        writer.observe(obs(1.0), {})
     observation = obs()
     observation["depth_m"][0, 0] = np.nan
     with pytest.raises(ValueError, match="mask"):

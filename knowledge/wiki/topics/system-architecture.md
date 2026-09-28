@@ -4,8 +4,9 @@ The maintained runtime is `AlexDoor-DoorPush-Purdue-v0`: fixed-base Purdue
 Alex003, WSG32/UMI v1, measured pedestal and head ZED RGB-D. Real-door expert
 qualification has a shared executor and one common zero-yaw mounting/ready
 configuration, validated by two complete GPU cycles each on a right and a left
-door. Routine qualification changes only the asset ID. Learned observation
-integration remains future work.
+door. Routine qualification changes only the asset ID. Shared RGB-D perception
+preparation is implemented but untrained; integration with ACT/Diffusion remains
+future work.
 
 ## Runtime and Data Boundaries
 
@@ -21,7 +22,10 @@ exact partner actors. Normal force, forbidden contacts and separation are
 `env.capture.sample` provides copied, synchronized RGB, metric optical-axis depth,
 valid-depth mask, seven-arm/two-neck proprioception, timestamps and frame IDs.
 The Gym policy tensor contains the 18 joint positions/velocities. Phase 6 owns
-image encoding, histories and the observed-only learning interface.
+image encoding, histories and the observed-only learning interface. The separate
+`perception` package now provides frozen DINOv2 features, a four-sample causal
+estimator, train/development loaders and training/evaluation entry points. See
+[[topics/shared-door-perception|Shared Door Perception]] for the pretraining boundary.
 
 See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
 [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
@@ -32,7 +36,7 @@ See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
 train/development/test assignments, setup and expert references. The numerical
 `qualification.corpus.load_corpus` validates the tracked records; the CLI
 `verify_door_corpus.py` optionally also verifies local evidence. This metadata
-selects assets for future Phase 6 recording; it is separate from episode splits
+selects assets for Phase 6 recording; it is separate from episode splits
 and cannot enter policy observations. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Frozen corpus]].
 
@@ -91,7 +95,8 @@ no accepted asset depends on a temporary attempt. See
 contract, frozen corpus, rights scopes and completed qualification.
 
 Runtime caches and verification reports belong under `~/.cache/alexdoor-xas/`.
-Future datasets and learned runs use ignored `datasets/` and `outputs/` payloads.
+Perception engineering recordings and frozen features use ignored `datasets/`
+payloads; backbone weights, preparation reports and later learned runs use `outputs/`.
 
 ## Reusable Algorithms
 

@@ -65,6 +65,8 @@ class B1Writer:
         observation["time_s"] = np.float64(observation["time_s"])
         observation["frame"] = np.int64(observation["frame"])
         t, frame = float(observation["time_s"]), int(observation["frame"])
+        if self.last_time is None and abs(t) > 1e-9:
+            raise ValueError("Initial observation must come from episode reset at t=0")
         if not np.isfinite(t) or (self.last_time is not None and t <= self.last_time):
             raise ValueError("Non-increasing observation timestamp")
         if self.last_frame is not None and frame <= self.last_frame:
@@ -90,7 +92,7 @@ class B1Writer:
         return json.loads(self.file.attrs["calibration"])["depth_interval_m"]
 
     def transition(self, command, observation, annotation):
-        if self.count == 0 or not np.isclose(command["time_s"], self.last_time, atol=1e-9):
+        if self.count == 0 or not np.isclose(command["time_s"], self.last_time, atol=1e-9, rtol=0):
             raise ValueError("Command must follow its initial observation")
         self.observe(observation, annotation)
         self._append("commands", command)
@@ -125,6 +127,8 @@ def validate_episode(path, *, images=True):
         ):
             raise ValueError("Transition/annotation lengths differ")
         times = obs["time_s"][:]
+        if len(times) < 2 or abs(times[0]) > 1e-9:
+            raise ValueError("Episode must include reset and terminal observations")
         if not np.allclose(np.diff(times), meta["control_dt"], atol=1e-7):
             raise ValueError("Dropped or mis-timed control observation")
         if not np.array_equal(commands["time_s"][:], times[:-1]):
