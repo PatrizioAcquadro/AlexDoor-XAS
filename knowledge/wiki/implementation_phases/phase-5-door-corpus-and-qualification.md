@@ -6,12 +6,12 @@ The first full campaign produced 15 qualified, 15 out-of-domain and two unresolv
 outcomes. A user-authorized recovery corrected shared control defects and
 revised one common placement/contact before any split. Six recovery pairs and
 four successful representative single cycles supported the corrections. Formal
-paired requalification now has seven qualified doors. The first six passed under
+paired requalification now has seven qualified doors and one unresolved pair. The first six passed under
 the recovered controller; `psx-worn-20d5505` initially published an
 `out_of_domain` result at 17.92 degrees, then qualified at **67.42 degrees** in a
-fresh pair after the shared angular-guard correction. The other **25 doors were
-not rerun** during this fix. Their retained
-21 qualified and four out-of-domain statuses predate earlier corrections. The
+fresh pair after the shared angular-guard correction. The fresh `void-frame` pair
+is unresolved at a 32.69-degree spread. The other **24 doors remain pending**;
+their retained 21 qualified and three out-of-domain statuses predate earlier corrections. The
 first six newer qualified pairs also precede this angular-guard revision. RGB-D
 sampling was corrected and checked at three poses each on the three affected
 doors, without repeating their qualification cycles.
@@ -463,7 +463,7 @@ mixed across runs. Diagnostics and independent audits remain under
 
 ### Formal Requalification Started 2026-09-25
 
-Seven doors have published paired results, with two complete cycles per
+Eight doors have published paired results, with two complete cycles per
 invocation on `cuda:0`. Reports are under
 `~/.cache/alexdoor-xas/verification/expert/<id>/<timestamp>/report.json`;
 the exact paths are published in each `prepared.json`. The first seven invocations
@@ -480,6 +480,7 @@ angle is the published reference; the table rounds only for display.
 | `psx-wooden-001-20d5505` | left | `qualified` | 63.84° | `20260925T211254.703702Z` |
 | `psx-wooden-009-20d5505` | left | `qualified` | 65.39° | `20260925T211949.936782Z` |
 | `psx-worn-20d5505` | left | `qualified` | 67.42° | `20260926T060507.800125Z` |
+| `void-frame-studio-animated-classic-door-08bdf51b` | left | `unresolved` | — | `20260928T170246.207228Z` |
 
 All seven current reports agree with their published records. Each pair has two
 valid holds and releases, consistent limiting causes and at most 0.10°
@@ -560,9 +561,24 @@ regression also checks hits, misses, edges and nearest surfaces with only 128 Mi
 additional virtual memory available. `validation.json` and the validation script
 are beside the diagnosis evidence.
 
-These are offline geometry checks, with no new simulation cycles or published
-qualification. A fresh complete formal pair remains the next runtime check.
-Preserve incomplete evidence; the interruption does not establish an asset defect.
+Those checks preceded a fresh complete formal pair on `cuda:0`. The new
+`void-frame` report is `unresolved / inconsistent_or_unresolved_pair`, and the
+published summary matches it. Both cycles passed valid hold and release, with
+`safety_stop / tracking_margin`, but sustained angles were 66.92° and 34.23°:
+the unrounded 32.690094745097674° spread exceeds the 2° limit. There is no
+`theta_expert_d`. Geometric visibility passed all 4,081 and 1,684 checked frames.
+
+The first push stopped at 65.63° when predicted hold-endpoint position error
+reached 4.21 mm against the 2.50 mm reserve, while measured material error was
+0.78 mm. The second stopped at 30.97° with predicted material error 8.17 mm
+against the 7.50 mm position margin, while measured error was 3.98 mm. Both
+stops occurred with valid loaded contact; targeted contact records show no
+forbidden contact. The second push began faster and with a larger contact impulse
+than the first. The cause of this variation between resets remains uncertain;
+the pair does not establish an asset defect. All evidence remains under
+`~/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T170246.207228Z/`.
+The campaign stopped here with 24 doors still awaiting fresh pairs. No extra
+cycle, controller change or corpus split was made.
 
 The 15 previously deferred rechecks are the three `animated-door-*`,
 `modern-door-2fb8d024`,
@@ -580,7 +596,7 @@ the planned 12/12 balance. No final corpus, train/development/test split, new as
 downloads or learning data were introduced. Modern-door remains `local_only`.
 
 RGB-D capture is operational and the diagnosed sampling defects are corrected.
-Full-trajectory checks of the revised diagnostic remain pending. It is not an
+Full-trajectory checks of the revised diagnostic remain pending on the other doors. It is not an
 expert-admission gate and does not establish learned-perception readiness. No
 synthetic sweep was repeated; historical synthetic results belong to the earlier
 45-degree setup. Runtime qualification remains nominal simulated evidence, not

@@ -8,23 +8,20 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Seven doors now have published paired results: all seven are `qualified`. The corrected `psx-worn-20d5505` pair supersedes its earlier 17.92° `out_of_domain` result with a 67.42° reference. RGB-D sampling defects are corrected on three affected doors. The other 25 reruns and final corpus/split remain pending. |
+| 5.1 — Expert qualification | Eight doors have fresh complete pairs: seven `qualified`, one `unresolved` (`void-frame`, 32.69° spread). The corrected worn pair remains qualified at 67.42°. Another 24 pairs and the final corpus/split remain pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Resume the pending campaign with the common command, starting with `void-frame`.
-The visibility allocation that exhausted memory is corrected with bounded ray
-batches. On the saved scene, the complete sample calculation finished at
-264.64 MiB process peak RSS; checked intersections exactly match the prior
-calculation. This offline check does not qualify the door: 25 complete pairs
-remain pending, and the interrupted reports are preserved. See the Phase 5
-interruption note for evidence and runtime limits. Their retained
-21 qualified and four out-of-domain statuses predate earlier controller
-corrections. The first six newer qualified pairs also predate the angular-guard
-revision; published references remain tied to their saved code/setup and evidence.
-The corrected worn pair used the revised guard and visibility implementation. The
-current fix round also ran three RGB-D pose snapshots per affected visibility door.
+The campaign stopped at the first new nonqualified pair. `void-frame` completed
+two valid holds/releases but reached 66.92° and 34.23°, so the official result is
+`unresolved`; it has no expert angle. The different tracking-margin stops need a
+focused controller/reset diagnosis before more doors are launched. The other 24
+identities retain 21 qualified and three out-of-domain historical outcomes from
+earlier controller revisions. The first six newer qualified pairs also predate
+the angular-guard revision; published references remain tied to their saved
+code/setup and evidence. The corrected worn pair used the revised guard and
+visibility implementation.
 See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]].
 The pool has only seven right identities, so even if all seven qualify, at least
 five additional qualifying right identities are needed for the intended 12/12
@@ -32,7 +29,7 @@ balance. Corpus selection and the split remain future work.
 
 ## Limits
 
-The 25 unrerun outcomes belong to the previous common placement/controller.
+The 24 pending outcomes belong to the previous common placement/controller.
 The recovery moves robot and pedestal together 5.7 cm back and 8 cm laterally,
 changes the common fraction/height from 0.40/1.00 m to 0.295/1.09 m, and
 corrects tracking/holding defects without lowering the 45-degree gate or physical

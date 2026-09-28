@@ -80,15 +80,15 @@
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
-    "status": "out_of_domain",
-    "theta_expert_d": 32.4517962751451,
-    "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260925T172803.461009Z",
+    "status": "unresolved",
+    "theta_expert_d": null,
+    "reason": "inconsistent_or_unresolved_pair",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T170246.207228Z",
     "trials": [
       {
         "passed": true,
-        "angle_deg": 32.4517962751451,
-        "hold_angle_deg": 32.4517962751451,
+        "angle_deg": 66.91685227985398,
+        "hold_angle_deg": 66.91685227985398,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
         "peak_force_n": 31.246767044067383,
@@ -97,15 +97,15 @@
         "visibility": {
           "passed": true,
           "failed_frames": 0,
-          "checked_frames": 1611,
+          "checked_frames": 4081,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-1"
       },
       {
         "passed": true,
-        "angle_deg": 33.32656250781073,
-        "hold_angle_deg": 33.32656250781073,
+        "angle_deg": 34.22675753475631,
+        "hold_angle_deg": 34.22675753475631,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
         "peak_force_n": 36.843505859375,
@@ -114,13 +114,13 @@
         "visibility": {
           "passed": true,
           "failed_frames": 0,
-          "checked_frames": 1593,
+          "checked_frames": 1684,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-2"
       }
     ],
-    "repeat_spread_deg": 0.8747662326656283,
+    "repeat_spread_deg": 32.690094745097674,
     "scope": "nominal_simulated_expert_reference_not_learning_data"
   }
 }
