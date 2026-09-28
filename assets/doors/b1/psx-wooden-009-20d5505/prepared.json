@@ -83,7 +83,7 @@
     "status": "qualified",
     "theta_expert_d": 65.38697186804117,
     "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-wooden-009-20d5505/20260925T211949.936782Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-wooden-009-20d5505/20260928T213612.989613Z",
     "trials": [
       {
         "passed": true,
@@ -95,8 +95,8 @@
         "joint_margin": -3.902965204360953e-07,
         "released": true,
         "visibility": {
-          "passed": false,
-          "failed_frames": 3062,
+          "passed": true,
+          "failed_frames": 0,
           "checked_frames": 4325,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
@@ -112,8 +112,8 @@
         "joint_margin": -3.902965204360953e-07,
         "released": true,
         "visibility": {
-          "passed": false,
-          "failed_frames": 3062,
+          "passed": true,
+          "failed_frames": 0,
           "checked_frames": 4325,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
