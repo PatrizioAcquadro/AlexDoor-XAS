@@ -534,10 +534,24 @@ under the verification cache, is `unresolved / incomplete_execution` with zero
 trials; the historical published record is unchanged. The user journal records
 an OOM kill in the desktop app scope at 2026-09-28 12:45:27 EDT. The user service
 cgroup has a 59.70 GiB peak since boot and one OOM kill; its current memory limits
-are unlimited. This supports memory exhaustion but does not identify the
-responsible allocation or process. Kernel OOM details are not readable by the
-current account. Preserve the incomplete evidence and diagnose memory usage
-before another invocation; this interruption does not establish an asset defect.
+are unlimited. Kernel OOM victim details are not readable by the current account.
+
+A read-only reproduction on the saved scene identifies the oversized allocation
+in `front_mesh_points`, introduced by `51742ca`: 6,965 lateral frame coordinates
+at seven heights produce 48,755 rays against 73,735 nondegenerate triangles.
+The first broadcast array alone requires 53.57 GiB; each following scalar matrix
+requires another 26.78 GiB. The 40-point selection happens only after this work.
+A child process with a restricted address space reproduced the exact allocation
+error at 227.33 MiB peak RSS, without Kit or qualification cycles. The four doors
+used for the corrected visibility checks have much simpler frames; their
+corresponding arrays require less than 0.1 MiB. Evidence and the safe reproducer
+are in `~/.cache/alexdoor-xas/verification/memory-diagnosis/20260928-void-frame/`.
+
+The proposed correction is bounded batches of the same intersections, preserving
+all candidates, tolerances, nearest hits, ordering and final point selection. It
+has not been implemented. Verify numerical equivalence and bounded memory before
+another formal invocation. Preserve incomplete evidence; the interruption does
+not establish an asset defect.
 
 The 15 previously deferred rechecks are the three `animated-door-*`,
 `modern-door-2fb8d024`,

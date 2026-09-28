@@ -13,11 +13,13 @@ compatibility, dataset payloads and run orchestration are retired.
 
 ## Next Action
 
-Diagnose the memory exhaustion before resuming the pending campaign. The latest
-`void-frame` invocation ended with zero completed cycles when the desktop app
-scope reported an OOM kill on September 28 at 12:45:27 EDT. No new qualification
-was published; 25 complete pairs remain pending. See the Phase 5 interruption
-note for evidence and attribution limits. Their retained
+Bound the visibility intersection calculation before resuming the pending
+campaign. A read-only reproduction on the saved `void-frame` scene confirms a
+53.57 GiB temporary allocation, before additional matrices, in `front_mesh_points`.
+The latest invocation ended with zero completed cycles and an app-scope OOM kill;
+no new qualification was published and 25 complete pairs remain pending. The
+correction is proposed, not implemented. See the Phase 5 interruption note for
+evidence and attribution limits. Their retained
 21 qualified and four out-of-domain statuses predate earlier controller
 corrections. The first six newer qualified pairs also predate the angular-guard
 revision; published references remain tied to their saved code/setup and evidence.
