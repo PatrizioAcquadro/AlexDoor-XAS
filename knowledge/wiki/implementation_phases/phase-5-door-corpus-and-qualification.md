@@ -6,15 +6,16 @@ The first full campaign produced 15 qualified, 15 out-of-domain and two unresolv
 outcomes. A user-authorized recovery corrected shared control defects and
 revised one common placement/contact before any split. Six recovery pairs and
 four successful representative single cycles supported the corrections. Formal
-paired requalification now has **32 published qualified doors: 25 left and seven
-right**. The first six pairs precede the angular-guard correction; the seventh,
-`psx-worn-20d5505`, qualified after it. All seven precede fresh-process trial
-isolation. The other 25 pairs used fresh Isaac processes for both cycles, including
-the repaired `void-frame` pair. The 24 pending pairs after that repair each
-received one formal invocation and qualified. These results are not yet one
-unchanged-implementation corpus: remeasure the earlier seven before final
-selection. RGB-D sampling was corrected and checked at three poses each on
-three affected doors, without repeating their qualification cycles.
+paired requalification has **32 published qualified doors: 25 left and seven
+right**. Of these, 31 have completed pairs with fresh Isaac processes for both
+cycles under the current common implementation. Six of the seven older pairs
+were remeasured in one formal invocation each and qualified. The seventh,
+`psx-industrial-004-4f5561b`, was externally terminated while serializing the
+second cycle's images; its older qualified pair remains published, but it has no
+completed current-process reference. The final same-implementation corpus and
+split therefore remain pending. The other 25 doors were not rerun in this
+targeted work. Earlier RGB-D sampling work checked three poses on each of three
+affected doors; those snapshots alone were not formal pairs.
 Subphase 5.1 owns the frozen identity split using all eligible qualified doors,
 without a 24-door cap or mandatory left/right parity; Phase 6 generates
 demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
@@ -467,23 +468,23 @@ mixed across runs. Diagnostics and independent audits remain under
 
 ### Formal Requalification Started 2026-09-25
 
-All 32 doors have published paired results, with two complete cycles per
-invocation on `cuda:0`. Reports are under
+All 32 doors retain published paired results. Thirty-one have completed pairs
+under the current fresh-process runner on `cuda:0`; the published
+`psx-industrial-004-4f5561b` result is older. Reports are under
 `~/.cache/alexdoor-xas/verification/expert/<id>/<timestamp>/report.json`;
-the exact paths are published in each `prepared.json`. The first seven invocations
-were committed at `cdd3204`; the corrected worn pair supersedes its earlier
-published outcome without removing that historical evidence. The lower sustained
-angle is the published reference; the table rounds only for display.
+each `prepared.json` points to its published report. The first seven invocations
+were committed at `cdd3204`; six now have newer published references. The lower
+sustained angle is the published reference; the table rounds only for display.
 
-| Door | Hand | New status | `theta_expert_d` | Report timestamp |
+| Door | Hand | Published status | `theta_expert_d` | Report timestamp |
 |---|---|---|---:|---|
-| `psx-industrial-003-4f5561b` | left | `qualified` | 48.03° | `20260925T204643.280842Z` |
-| `psx-industrial-004-4f5561b` | left | `qualified` | 47.92° | `20260925T205324.978919Z` |
-| `psx-front-002-ee7d5c6` | left | `qualified` | 59.10° | `20260925T205830.755088Z` |
-| `psx-front-20d5505` | left | `qualified` | 64.89° | `20260925T210606.477452Z` |
-| `psx-wooden-001-20d5505` | left | `qualified` | 63.84° | `20260925T211254.703702Z` |
-| `psx-wooden-009-20d5505` | left | `qualified` | 65.39° | `20260925T211949.936782Z` |
-| `psx-worn-20d5505` | left | `qualified` | 67.42° | `20260926T060507.800125Z` |
+| `psx-industrial-003-4f5561b` | left | `qualified` | 48.03° | `20260928T211606.862614Z` |
+| `psx-industrial-004-4f5561b` | left | historical `qualified`; current attempt incomplete | 47.92° historical | `20260925T205324.978919Z` |
+| `psx-front-002-ee7d5c6` | left | `qualified` | 59.10° | `20260928T210017.321466Z` |
+| `psx-front-20d5505` | left | `qualified` | 64.89° | `20260928T210838.551205Z` |
+| `psx-wooden-001-20d5505` | left | `qualified` | 63.84° | `20260928T212805.876123Z` |
+| `psx-wooden-009-20d5505` | left | `qualified` | 65.39° | `20260928T213612.989613Z` |
+| `psx-worn-20d5505` | left | `qualified` | 67.42° | `20260928T214349.631152Z` |
 | `void-frame-studio-animated-classic-door-08bdf51b` | left | `qualified` | 66.92° | `20260928T173830.453850Z` |
 | `door-with-doorframe-c29da62c` | left | `qualified` | 54.73° | `20260928T175236.896147Z` |
 | `door-5035d7977155` | left | `qualified` | 56.70° | `20260928T175916.343847Z` |
@@ -510,18 +511,36 @@ angle is the published reference; the table rounds only for display.
 | `psx-interior-wood-007-02e442c` | left | `qualified` | 62.81° | `20260928T201145.437578Z` |
 | `psx-interior-wood-008-02e442c` | left | `qualified` | 62.46° | `20260928T201907.191003Z` |
 
-All 32 current reports agree with their published records. Each pair has two
+The 31 current-process reports agree with their published records. Each has two
 valid holds and releases, consistent limiting causes and at most 0.10°
-sustained-angle spread. All 32 qualified references meet the unrounded 45°
-gate. Geometric visibility separately warned on `door-adf292f437f2` (556 of
+sustained-angle spread. All 32 published references meet the unrounded 45°
+gate, but the industrial-004 reference is historical. Geometric visibility
+separately warns on `door-adf292f437f2` (556 of
 3,949 frames per cycle) and `door-door-metal-b21ec273` (all 3,453 frames per
 cycle), and on `psx-front-008-ee7d5c6` (844 of 3,895 frames per cycle).
 The offline review below distinguishes occlusion from sampling limitations;
-these warnings do not invalidate expert qualification. The first seven reports
-predate process isolation; earlier full-trajectory visibility warnings also remain on
-`psx-industrial-004-4f5561b`, `psx-front-20d5505` and
-`psx-wooden-009-20d5505`. Worn's superseded pair consistently stopped under
-the gate with `safety_stop / tracking_margin`.
+these warnings do not invalidate expert qualification. The older
+industrial-004 pair also had a visibility warning; fresh closed pairs for
+`psx-front-20d5505` and `psx-wooden-009-20d5505` pass the revised diagnostic
+across both trajectories.
+
+The 2026-09-28 targeted recheck invoked the seven older doors once each, with
+`--rerun`, one formal pair per invocation and a fresh Isaac process for each
+trial. Six pairs qualified with zero angle spread, two valid holds/releases and
+no geometric RGB-D warning; their reports link the previous evidence. The
+other 25 published `prepared.json` files are byte-for-byte unchanged.
+`psx-industrial-004-4f5561b` received a `SIGTERM` during serialization of the
+second trial's images. Both physical cycles wrote passing results, full traces
+and contact records at 47.91933338652925 degrees, but the second cycle saved
+only 100 RGB and 99 depth images versus 104 of each in the first. Its new report
+at `20260928T212125.630905Z` remains `unresolved / incomplete_execution` with
+one trial summarized; `prepared.json` still points to the older qualified pair.
+The cause of the external termination is not established by the report. No
+second invocation or favorable-result selection was made. Complete the current
+formal gate before freezing a corpus with this identity.
+
+Worn's superseded pair consistently stopped under the gate with
+`safety_stop / tracking_margin`.
 At the push stop, orientation error was 0.04510 rad against the controller's
 0.04363 rad preventive guard; the material-point error was 0.00515 m against
 its 0.00750 m reserve. Contact stayed loaded and valid, local hold-endpoint IK
@@ -663,9 +682,33 @@ The pool contains 25 left and seven right identities. The 2026-09-28 user-approv
 corpus revision retains all eligible qualified doors and removes the former
 24-door selection and mandatory 12/12 balance. Additional right identities are
 conditional on a documented split/coverage gap, not an automatic five-door intake.
-Source-family and handedness feasibility, final corpus freeze and the
-train/development/test assignment remain pending. No new downloads or learning
-data were introduced. Modern-door remains `local_only`.
+Modern-door remains `local_only`.
+
+#### Split feasibility before freeze
+
+The 32 prepared identities have 32 distinct geometry fingerprints and come from
+15 source URLs. Keeping every part from one URL in one partition gives this
+concrete feasibility example using all 32 published `qualified` identities:
+
+| Partition example | Complete source groups | Left | Right |
+|---|---|---:|---:|
+| Train | PSX interior wood (6), PSX essential (5), animated doors (3), `door-2738468b94d74c5f`, `door-5035d7977155`, `door-door-metal-b21ec273`, `door-with-doorframe-c29da62c`, `interior-wood-d1-32707dc` | 15 | 4 |
+| Development | PSX industrial (4), `modern-door-2fb8d024`, `void-frame-studio-animated-classic-door-08bdf51b` | 5 | 1 |
+| Test | PSX front (4), `door-with-frame-2f2f149f`, `door-adf292f437f2`, `door-prison-metal-old-45306a46` | 5 | 2 |
+
+This covers every identity once and keeps each source pack together, including
+the mixed-hand PSX front pack. Both hands occur in every partition. The right
+side of development has one identity, so later handedness-specific estimates
+there will be weak; this is a reporting limit, not a missing partition. The
+distinct fingerprints rule out exact prepared-geometry matches, not every
+cross-pack resemblance; review related shapes again before freeze. The
+current pool therefore has no demonstrated Phase 5 split gap requiring new
+right-hand doors. The incomplete current-process industrial-004 pair blocks
+corpus freeze; omitting that left-hand identity would change the example's
+development count to four left and one right without creating a right-hand gap.
+This table is a feasibility witness only: no manifest or membership is frozen,
+no Phase 6 data are generated, and rights restrictions still apply to the
+local-only and private assets.
 
 #### Offline review of the three new visibility warnings
 
@@ -705,10 +748,10 @@ justifying shared perception or gaze changes. These qualification traces are not
 learned training data, and this review does not establish perception readiness.
 
 RGB-D capture is operational and the earlier diagnosed sampling defects are corrected.
-Full-trajectory checks of the revised diagnostic remain pending on the first
-seven published pairs. It is not an expert-admission gate and does not establish
-learned-perception readiness. No
-synthetic sweep was repeated; historical synthetic results belong to the earlier
+The six completed new pairs passed full-trajectory checks of the revised
+diagnostic; industrial-004 has no closed current-process report. Visibility is
+not an expert-admission gate and does not establish learned-perception readiness.
+No synthetic sweep was repeated; historical synthetic results belong to the earlier
 45-degree setup. Runtime qualification remains nominal simulated evidence, not
 hardware safety, statistical robustness or a global optimum.
 
