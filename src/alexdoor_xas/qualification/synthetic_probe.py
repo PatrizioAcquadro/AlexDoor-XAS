@@ -281,7 +281,7 @@ def summarize_trials(trials, *, required_count=None):
     )
 
 
-def run_probe(env, door, setup, output):
+def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True):
     import json
 
     import torch
@@ -293,6 +293,8 @@ def run_probe(env, door, setup, output):
     (output / "setup.json").write_text(json.dumps(setup.to_dict(), indent=2) + "\n")
     env.reset()
     env.set_neck_target(setup.neck)
+    if recorder is not None:
+        recorder.start(env, door, setup)
     env.sim.stage.Export(str(output / "scene.usda"))
     from alexdoor_xas.kinematics.purdue_chain import PurdueChain
 
@@ -427,7 +429,7 @@ def run_probe(env, door, setup, output):
             )
         min_clearance = min(min_clearance, clearance.measure(door, angle))
         visibility = None
-        if env.capture is not None:
+        if env.capture is not None and capture_evidence:
             from alexdoor_xas.qualification.visibility import measure_visibility
 
             visibility = measure_visibility(
@@ -467,7 +469,9 @@ def run_probe(env, door, setup, output):
         )
         if any(sample["contacts"] for sample in contacts):
             raw.append(dict(time=time, samples=contacts))
-        if env.capture is not None and len(traces) % 30 == 0:
+        if recorder is not None:
+            recorder.transition(env, goal_p, goal_r, phase, traces[-1])
+        if env.capture is not None and capture_evidence and len(traces) % 30 == 0:
             sample = env.capture.sample
             camera = env.camera.data
             images.append(
@@ -705,7 +709,7 @@ def run_probe(env, door, setup, output):
         scope="controlled_door_probe",
         force_components="normal_only",
         visibility=None
-        if env.capture is None
+        if env.capture is None or not capture_evidence
         else dict(
             passed=all(t["visibility"]["passed"] for t in traces),
             failed_frames=sum(not t["visibility"]["passed"] for t in traces),
@@ -725,4 +729,6 @@ def run_probe(env, door, setup, output):
         (output / "camera.json").write_text(
             json.dumps({str(tick): camera for tick, _, _, camera in images}) + "\n"
         )
+    if recorder is not None:
+        recorder.finish(result)
     return result
