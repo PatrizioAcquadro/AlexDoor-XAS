@@ -528,7 +528,7 @@ diagnostic across its complete trajectories. The remaining 25 doors have no
 complete new pair under the final controller. No corpus split or learning data
 was created.
 
-The campaign is paused after repeated interrupted `void-frame` starts. The latest
+Repeated `void-frame` starts were interrupted by memory exhaustion. The latest
 report, `expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T164437.649868Z/report.json`
 under the verification cache, is `unresolved / incomplete_execution` with zero
 trials; the historical published record is unchanged. The user journal records
@@ -547,11 +547,22 @@ used for the corrected visibility checks have much simpler frames; their
 corresponding arrays require less than 0.1 MiB. Evidence and the safe reproducer
 are in `~/.cache/alexdoor-xas/verification/memory-diagnosis/20260928-void-frame/`.
 
-The proposed correction is bounded batches of the same intersections, preserving
-all candidates, tolerances, nearest hits, ordering and final point selection. It
-has not been implemented. Verify numerical equivalence and bounded memory before
-another formal invocation. Preserve incomplete evidence; the interruption does
-not establish an asset defect.
+The authorized correction batches rays by triangle count, with at most one
+million ray/triangle pairs per batch under the prepared-mesh limit. All candidates,
+tolerances, nearest hits, ordering and final point selection are preserved.
+Capping candidates before intersection would change the sample selection; a new
+spatial index adds unnecessary tolerance and maintenance risk for this cached
+calculation. The full saved-scene sample calculation completed in 54.76 seconds
+including reference comparisons, with 264.64 MiB process peak RSS. All 360 checked
+intersections exactly match the prior implementation, including every selected
+frame point; group sizes remain 25/8/40 and the cache is reused. A subprocess
+regression also checks hits, misses, edges and nearest surfaces with only 128 MiB
+additional virtual memory available. `validation.json` and the validation script
+are beside the diagnosis evidence.
+
+These are offline geometry checks, with no new simulation cycles or published
+qualification. A fresh complete formal pair remains the next runtime check.
+Preserve incomplete evidence; the interruption does not establish an asset defect.
 
 The 15 previously deferred rechecks are the three `animated-door-*`,
 `modern-door-2fb8d024`,

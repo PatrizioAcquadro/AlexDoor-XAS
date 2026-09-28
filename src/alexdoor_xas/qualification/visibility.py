@@ -40,12 +40,18 @@ def front_mesh_points(triangles, yz):
     nonzero = np.abs(det) > 1e-12
     a, e, f, det = (x[nonzero] for x in (a, e, f, det))
     yz = np.asarray(yz, dtype=float).reshape(-1, 2)
-    d = yz[:, None] - a[None, :, 1:]
-    u = (d[:, :, 0] * f[:, 2] - d[:, :, 1] * f[:, 1]) / det
-    v = (e[:, 1] * d[:, :, 1] - e[:, 2] * d[:, :, 0]) / det
-    inside = (u >= -1e-7) & (v >= -1e-7) & (u + v <= 1 + 1e-7)
-    xs = a[:, 0] + u * e[:, 0] + v * f[:, 0]
-    x = np.min(np.where(inside, xs, np.inf), axis=1, initial=np.inf)
+    # Bound temporary arrays by ray/triangle pairs, not the number of rays alone.
+    # Prepared meshes have at most 250,000 triangles; keep every ray and triangle.
+    batch_size = max(1, 1_000_000 // max(len(a), 1))
+    x = np.empty(len(yz))
+    for start in range(0, len(yz), batch_size):
+        batch = slice(start, start + batch_size)
+        d = yz[batch, None] - a[None, :, 1:]
+        u = (d[:, :, 0] * f[:, 2] - d[:, :, 1] * f[:, 1]) / det
+        v = (e[:, 1] * d[:, :, 1] - e[:, 2] * d[:, :, 0]) / det
+        inside = (u >= -1e-7) & (v >= -1e-7) & (u + v <= 1 + 1e-7)
+        xs = a[:, 0] + u * e[:, 0] + v * f[:, 0]
+        x[batch] = np.min(np.where(inside, xs, np.inf), axis=1, initial=np.inf)
     return np.column_stack([np.where(np.isfinite(x), x, np.nan), yz])
 
 

@@ -13,13 +13,13 @@ compatibility, dataset payloads and run orchestration are retired.
 
 ## Next Action
 
-Bound the visibility intersection calculation before resuming the pending
-campaign. A read-only reproduction on the saved `void-frame` scene confirms a
-53.57 GiB temporary allocation, before additional matrices, in `front_mesh_points`.
-The latest invocation ended with zero completed cycles and an app-scope OOM kill;
-no new qualification was published and 25 complete pairs remain pending. The
-correction is proposed, not implemented. See the Phase 5 interruption note for
-evidence and attribution limits. Their retained
+Resume the pending campaign with the common command, starting with `void-frame`.
+The visibility allocation that exhausted memory is corrected with bounded ray
+batches. On the saved scene, the complete sample calculation finished at
+264.64 MiB process peak RSS; checked intersections exactly match the prior
+calculation. This offline check does not qualify the door: 25 complete pairs
+remain pending, and the interrupted reports are preserved. See the Phase 5
+interruption note for evidence and runtime limits. Their retained
 21 qualified and four out-of-domain statuses predate earlier controller
 corrections. The first six newer qualified pairs also predate the angular-guard
 revision; published references remain tied to their saved code/setup and evidence.

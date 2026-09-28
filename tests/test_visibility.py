@@ -1,5 +1,8 @@
 """Visibility uses rendered surfaces while retaining real occlusion checks."""
 
+import subprocess
+import sys
+from textwrap import dedent
 from types import SimpleNamespace
 
 import numpy as np
@@ -32,6 +35,41 @@ def test_visual_intersections_preserve_recesses_holes_and_nearest_surface():
     k = np.array([[10, 0, 20], [0, 10, 20], [0, 0, 1]])
     assert visible_points([[0, 0, 1.04]], np.zeros(3), np.eye(3), k, depth)[0]
     assert not visible_points([[0, 0, 1]], np.zeros(3), np.eye(3), k, depth)[0]
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="Uses Linux process memory limits")
+def test_many_visual_intersections_fit_bounded_memory():
+    # The full Cartesian array would need >1 GiB before further temporaries.
+    # Run in a child so a regression fails safely without exhausting host memory.
+    subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            dedent("""\
+                import resource
+                from pathlib import Path
+
+                import numpy as np
+
+                from alexdoor_xas.qualification.visibility import front_mesh_points
+
+                triangles = np.tile([
+                    [[0, 0, 0], [0, 1, 0], [0, 0, 1]],
+                    [[-0.1, 0, 0], [-0.1, 1, 0], [-0.1, 0, 1]],
+                ], (3000, 1, 1))
+                yz = np.tile([[0.25, 0.25], [0.75, 0.75], [0, 0], [0.5, 0.5]], (3000, 1))
+                status = Path('/proc/self/status').read_text().splitlines()
+                virtual = int(next(s.split()[1] for s in status if s.startswith('VmSize:'))) * 1024
+                limit = virtual + 128 * 1024**2
+                resource.setrlimit(resource.RLIMIT_AS, (limit, limit))
+                points = front_mesh_points(triangles, yz)
+                np.testing.assert_allclose(points[:, 0], np.tile([-0.1, np.nan, -0.1, -0.1], 3000))
+                np.testing.assert_array_equal(points[:, 1:], yz)
+                """),
+        ],
+        check=True,
+        timeout=60,
+    )
 
 
 @pytest.mark.parametrize("sign", [-1, 1])

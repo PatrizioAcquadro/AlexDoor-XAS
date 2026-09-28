@@ -66,8 +66,9 @@ common controller and unchanged validity limits.
 The geometric visibility diagnostic uses rendered panel/frame triangles;
 collision hulls remain authoritative only for physical contact and clearance.
 Prepared-door samples are cached in the closed frame and rotate with the leaf;
-frame samples cover the contact-height band. The depth test retains occlusion
-rejection. Saved RGB-D samples have measured camera poses/intrinsics for offline
+frame samples cover the contact-height band. Triangle intersections use bounded
+ray batches while preserving all candidates and final sample selection. The depth
+test retains occlusion rejection. Saved RGB-D samples have measured camera poses/intrinsics for offline
 inspection. These geometry and camera diagnostics never become policy inputs.
 
 `qualification/contracts.py` owns shared source admission limits and geometry
