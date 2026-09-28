@@ -8,49 +8,45 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Twenty-nine doors have qualified pairs: twenty-two left and seven right. The latest three qualify at 62.68°, 62.62° and 62.11°, each with zero spread. Another three pairs and the final corpus/split remain pending. |
+| 5.1 — Expert qualification | All 32 prepared doors have published qualified pairs: 25 left and seven right. Twenty-five pairs used fresh-process trial isolation; the first seven precede that revision, and the first six also precede the angular-guard correction. Final same-implementation validation, corpus selection and split remain pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-The focused `void-frame` repair is complete. Reusing the same physics scene
-caused history-dependent contact impulses despite identical reset states.
-Fresh Isaac processes now isolate both physics and renderer state between the
-two trials; the final pair qualifies at 66.92° with valid holds/releases and
-zero spread. Controller, geometry and admission thresholds are unchanged.
-Continue the three pending pairs with `--rerun`, one door at a time. Their retained
-qualified outcomes predate shared controller revisions. The first six newer
-qualified pairs also predate the angular-guard revision; seven earlier newer
-references predate process isolation. Published references remain tied to their
-saved code/setup and evidence; all affected references need current validation
-before final selection.
+The 24 pairs pending after the `void-frame` process-isolation repair are complete:
+all qualified in one formal invocation each. Reports and published summaries
+agree. Reusing the same physics scene had caused history-dependent contact
+impulses despite identical reset states; fresh Isaac processes now isolate
+physics and renderer state between trials. Controller, geometry and admission
+thresholds were unchanged during the continuation. The first seven published
+pairs predate process isolation, and the first six also predate the angular-guard
+revision. Revalidate those seven under one implementation before final corpus
+selection; keep each historical reference tied to its own saved code and evidence.
 See [[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]].
-The pool has only seven right identities, so even if all seven qualify, at least
-five additional qualifying right identities are needed for the intended 12/12
-balance. Corpus selection and the split remain future work.
+The pool has only seven right identities, all qualified; at least five additional
+qualifying right identities are needed for the intended 12/12 balance. Corpus
+selection and the split remain future work.
 
 ## Limits
 
-The three pending outcomes belong to the previous common placement/controller.
-The recovery moves robot and pedestal together 5.7 cm back and 8 cm laterally,
-changes the common fraction/height from 0.40/1.00 m to 0.295/1.09 m, and
-corrects tracking/holding defects without lowering the 45-degree gate or physical
-validity thresholds. All affected expert references must be remeasured before
-final selection. Preparation alone does not establish robot reachability; rights
+The recovery moved robot and pedestal together 5.7 cm back and 8 cm laterally,
+changed the common fraction/height from 0.40/1.00 m to 0.295/1.09 m, and
+corrected tracking/holding defects without lowering the 45-degree gate or physical
+validity thresholds. The seven earlier published pairs need current remeasurement
+before final selection. Preparation alone does not establish robot reachability; rights
 scopes constrain sharing independently of technical readiness.
 
 RGB-D acquisition is operational. The visibility diagnostic now samples rendered
 surfaces rather than convex collision proxies, and distributes frame points near
-contact height. All nine targeted GPU snapshots on industrial-004, front-20d5505
-and wooden-009 passed; their complete trajectories were not rerun. Visibility
-warnings occurred on the new qualified pairs for `door-adf292f437f2` (556 of
-3,949 checked frames in each cycle) and `door-door-metal-b21ec273` (all 3,453
-checked frames in each cycle). Representative RGB frames for the latter still
-show the door and robot hand; the geometric warning needs separate evaluation.
-The newly qualified `psx-front-008-ee7d5c6` also has 844 failed geometric frames
-of 3,895 checked in each cycle.
-Visibility
-remains separate from expert admission; learned door perception is not
+contact height. Full-trajectory geometric visibility warnings remain on six
+qualified pairs: the earlier `psx-industrial-004-4f5561b`,
+`psx-front-20d5505` and `psx-wooden-009-20d5505`, plus the newer
+`door-adf292f437f2`, `door-door-metal-b21ec273` and
+`psx-front-008-ee7d5c6`. All nine targeted GPU snapshots on the first three
+passed after the visibility correction; their full trajectories were not rerun.
+Representative RGB frames for the metal door show its panel and the robot hand
+despite its geometric warning. These cases need separate visibility evaluation.
+Visibility remains separate from expert admission; learned door perception is not
 established. Simulator contact/hinge truth remains diagnostic and cannot
 become policy input. B1 action,
 perception and training contracts are defined in Phases 6–7, not by retained
