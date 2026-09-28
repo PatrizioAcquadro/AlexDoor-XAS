@@ -515,10 +515,9 @@ sustained-angle spread. All 32 qualified references meet the unrounded 45°
 gate. Geometric visibility separately warned on `door-adf292f437f2` (556 of
 3,949 frames per cycle) and `door-door-metal-b21ec273` (all 3,453 frames per
 cycle), and on `psx-front-008-ee7d5c6` (844 of 3,895 frames per cycle).
-Representative RGB frames for the metal door show a visible panel and
-robot hand; these warnings do not invalidate expert qualification and require
-separate visibility evaluation. The first seven reports predate process
-isolation; earlier full-trajectory visibility warnings also remain on
+The offline review below distinguishes occlusion from sampling limitations;
+these warnings do not invalidate expert qualification. The first seven reports
+predate process isolation; earlier full-trajectory visibility warnings also remain on
 `psx-industrial-004-4f5561b`, `psx-front-20d5505` and
 `psx-wooden-009-20d5505`. Worn's superseded pair consistently stopped under
 the gate with `safety_stop / tracking_margin`.
@@ -664,7 +663,44 @@ qualifies, at least five additional qualifying right identities are needed for
 the planned 12/12 balance. No final corpus, train/development/test split, new asset
 downloads or learning data were introduced. Modern-door remains `local_only`.
 
-RGB-D capture is operational and the diagnosed sampling defects are corrected.
+#### Offline review of the three new visibility warnings
+
+At `cd71bca`, both complete traces of `door-adf292f437f2`,
+`door-door-metal-b21ec273` and `psx-front-008-ee7d5c6` were reviewed without
+new simulation. Reprojection against saved geometry, camera poses and depth
+reproduced all three original visibility counts on all **750 saved frames**
+across the six cycles. Complete traces contain 22,594 rows; depth is saved only
+every 30th frame. Reports, scripts and representative RGB overlays are in
+`~/.cache/alexdoor-xas/verification/visibility-targeted/20260928-offline-review/`.
+
+- `door-adf292f437f2`: only the frame group fails, during approach/contact and
+  the first 18 push frames, ending near 0.93 degrees. At saved tick 300,
+  the panel hides 26 frame samples, 13 are outside the image and one is visible.
+  Before the 40-point cap, the existing candidate pool contains 10 visible
+  points out of 147: the cap underrepresents a visible strip. At tick 600
+  (1.89 degrees), the original diagnostic already sees 20 frame points.
+- `door-door-metal-b21ec273`: only the frame group fails, throughout both
+  cycles. At tick 300, the panel hides 23 frame samples and 17 are outside
+  the image; even all 56 uncapped candidates yield no visible frame points.
+  At tick 3300 the original subset sees one point, versus two without the cap.
+  The initial view lacks visibility of these sampled frame surfaces;
+  this does not establish invisibility of the entire frame.
+- `psx-front-008-ee7d5c6`: only the panel group fails, starting near 51.4
+  degrees, across 484 push, 180 hold and 180 release frames per cycle. At tick
+  3720, 22 of 25 panel samples are behind nearer surfaces; camera-ray tests
+  attribute 20 of those occlusions to the panel's own mesh within the existing
+  2 cm tolerance. Raised members hide fixed front-surface samples in the oblique
+  view, while alternative surfaces remain visible in RGB.
+
+Contact-surround checks pass throughout all six traces. Keep assets, physical
+setup, thresholds and published qualifications unchanged. The sample cap and
+fixed-surface sampling limit this diagnostic; changing it solely to remove
+warnings would not improve camera observations. Phase 6 must assess observed-only
+estimator accuracy and usability on permitted training/development data before
+justifying shared perception or gaze changes. These qualification traces are not
+learned training data, and this review does not establish perception readiness.
+
+RGB-D capture is operational and the earlier diagnosed sampling defects are corrected.
 Full-trajectory checks of the revised diagnostic remain pending on the first
 seven published pairs. It is not an expert-admission gate and does not establish
 learned-perception readiness. No

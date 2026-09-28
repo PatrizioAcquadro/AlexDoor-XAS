@@ -44,8 +44,12 @@ qualified pairs: the earlier `psx-industrial-004-4f5561b`,
 `door-adf292f437f2`, `door-door-metal-b21ec273` and
 `psx-front-008-ee7d5c6`. All nine targeted GPU snapshots on the first three
 passed after the visibility correction; their full trajectories were not rerun.
-Representative RGB frames for the metal door show its panel and the robot hand
-despite its geometric warning. These cases need separate visibility evaluation.
+Offline replay of all 750 saved RGB-D frames from the three newer pairs reproduces
+the original counts. Their warnings reflect frame occlusion/out-of-view samples,
+the 40-point sampling cap and panel self-occlusion in oblique views. No asset or
+camera correction is justified by this diagnostic alone; retain the qualifications
+and assess estimator usability in Phase 6. The scoped findings and evidence are
+in [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
 Visibility remains separate from expert admission; learned door perception is not
 established. Simulator contact/hinge truth remains diagnostic and cannot
 become policy input. B1 action,
