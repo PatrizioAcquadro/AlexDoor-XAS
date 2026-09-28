@@ -9,15 +9,18 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
-| 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
+| 6.0 — Perception preparation | Causal B1 recording and frozen-backbone estimator implemented; two train smoke episodes and no-update GPU forward verified. Full collection is in progress; no training or development qualification yet. |
+| 6.1–7 — Actions, data, learning | Planned; no matched B1 policy dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Begin [[implementation_phases/phase-6-perception-actions-and-demonstrations|Subphase 6.0]]:
-reuse the existing RGB-D capture for synchronized multi-door recording and a
-shared observed-only door estimator. Read identity membership from
-`assets/doors/b1/corpus.json`; qualification traces/images are never learning or
-model-selection data. Phase 6 has not started.
+Complete the train/development engineering collection and feature preparation for
+[[implementation_phases/phase-6-perception-actions-and-demonstrations|Subphase 6.0]].
+Then stop before training and hand the prepared commands to the smaller model,
+as requested by the user. The estimator is untrained; development accuracy and
+dynamic usability remain unvalidated. The contract and commands are in
+[[topics/shared-door-perception|Shared Door Perception]]. Qualification traces/images
+remain excluded from learning and model selection; test identities remain sealed.
 
 Phase 5 is closed with all 32 qualified identities preserved. Cross-pack mesh
 review merged the PSX essential/interior/front sources into one train family;
@@ -70,7 +73,9 @@ numerical model utilities. Simulation checks do not establish hardware safety.
 
 Supported commands are `check_env.py`, `prepare_doors.py`,
 `qualify_door.py`, `verify_door_corpus.py`, `verify_door_preparation.py`, `verify_purdue_runtime.py`, `verify_synthetic_setup.py`
-and `screen_synthetic_setup.py`. Verification reports stay in the runtime cache.
+`screen_synthetic_setup.py`, `collect_perception.py` and `perception.py`.
+Verification reports stay in the runtime cache; perception engineering data and
+local preparation evidence use ignored datasets/outputs directories.
 
 The maintained numerical data path requires explicit, ordered proprioceptive
 `obs_keys` and a caller-supplied dataset root. Diagnostics are separate, episodes

@@ -15,7 +15,10 @@ assigns 19 train, six development and seven test doors, preserving related
 geometry families and both handednesses in every partition. Rights scopes remain
 29 redistributable, two local-only and one private/noncommercial.
 
-B1 demonstrations, Replicator and learned-policy integration are Phase 6 work.
+Subphase 6.0 preparation adds synchronized B1 recording and a shared frozen-backbone
+perception estimator. Training has not started; final demonstrations and
+ACT/Diffusion integration remain Phase 6 work. See the
+[perception contract and handoff](knowledge/wiki/topics/shared-door-perception.md).
 See the [corpus and qualification procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
 and current [project status](knowledge/wiki/status.md).
 
@@ -28,7 +31,8 @@ components remain; no repository command controls physical hardware.
 Use Python 3.11+ from the supported workstation stack: Isaac Sim 6.0.1 and
 Isaac Lab `release/3.0.0-beta2`, plus the external Alex package with Purdue/WSG,
 measured pedestal and ZED Wide assets. Isaac, Alex, PyTorch, Warp and CUDA are
-external runtime dependencies. Ordinary Python dependencies are declared in
+external runtime dependencies. B1 perception uses Transformers already supplied
+by the workstation runtime. Ordinary Python dependencies are declared in
 `pyproject.toml`; Diffusion and developer tooling use their respective extras.
 
 From the checkout:

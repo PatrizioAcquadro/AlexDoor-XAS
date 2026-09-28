@@ -5,6 +5,10 @@ robot-specific provenance compatibility were removed. The B1 observation, truth,
 action and demonstration integration is specified in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 
+The separate B1 RGB-D engineering format and causal recording interface are in
+[[shared-door-perception|Shared Door Perception]]. The numerical contracts below
+remain unchanged and do not imply B1 policy-dataset compatibility.
+
 ## Recording and Export
 
 `EpisodeBuffer` stores metadata, timestamped actions, proprioception, object state,

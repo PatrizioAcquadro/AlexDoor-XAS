@@ -6,6 +6,10 @@ run orchestration is retired. B1 RGB-D/action integration belongs to
 and training/evaluation orchestration to
 [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7]].
 
+The shared B1 perception estimator is documented separately in
+[[shared-door-perception|Shared Door Perception]]. Its preparation does not connect
+RGB-D to ACT/Diffusion or complete any of the eight B1 learning paths.
+
 ## Maintained Components
 
 - `ActModelCfg` / `DiffusionModelCfg` and their training dataclasses configure the

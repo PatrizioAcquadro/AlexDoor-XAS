@@ -35,6 +35,8 @@ Current technical behavior and explicitly labeled planned contracts:
 - [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — `phase2.v2`, matched exports, splits, views, normalization, and model data.
 - [[topics/learned-policy-stack|Learned Policy Stack]] — Reusable ACT/Diffusion models, tensor training, checkpoints and explicit observation boundary.
 
+- [[topics/shared-door-perception|Shared Door Perception]] — B1 recording, frozen RGB backbone, estimator interfaces, gates and pretraining handoff.
+
 ## Key Decisions
 
 Current architectural and scientific contracts:

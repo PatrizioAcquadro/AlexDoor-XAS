@@ -1,7 +1,7 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Planned. Three subphases cover observed inputs, all action paths, and a gated
-> pilot-to-dataset workflow. Requires Phases 4 and 5; nothing is executed by this revision.
+> Subphase 6.0 preparation in progress; no estimator training has started.
+> Subphases 6.1–6.2 remain planned. Requires the completed Phases 4 and 5.
 
 ## Objective
 
@@ -10,6 +10,18 @@ interface, then produce matched training demonstrations. Follow
 [[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]].
 
 ## Subphase 6.0 — Multi-Door Observations and Perception
+
+#### Current preparation boundary
+
+The implementation adds causal B1 recording and a frozen DINOv2 ViT-S/14
+backbone with a trainable door estimator. Two nominal train smoke episodes and
+a no-update CUDA forward/loss pass. The two nominal train traces/results are identical with and without recording.
+Full collection and feature preparation are in progress. Training, development gates
+and dynamic validation remain pending; 6.0 is not complete.
+
+See [[topics/shared-door-perception|Shared Door Perception]] for interfaces,
+fixed gates and operator commands. The user requires a handoff to a smaller
+model **before training starts**; a ten-hour extension is a later decision.
 
 #### Implementation
 
@@ -163,7 +175,8 @@ training and sealed evaluation.
 
 Future outputs: synchronized multi-door recordings, one frozen perception stack
 and optional gaze, eight executable learning paths, pilot evidence, protocol,
-and matched dataset. None was produced by the documentation revision.
+and matched dataset. Current engineering recordings and the untrained estimator
+are preparation artifacts, not the final matched dataset or a qualified stack.
 
 ## Files
 
