@@ -28,6 +28,14 @@ See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
 
 ## Preparation and Storage
 
+`assets/doors/b1/corpus.json` freezes Phase 5 asset membership, geometry families,
+train/development/test assignments, setup and expert references. The numerical
+`qualification.corpus.load_corpus` validates the tracked records; the CLI
+`verify_door_corpus.py` optionally also verifies local evidence. This metadata
+selects assets for future Phase 6 recording; it is separate from episode splits
+and cannot enter policy observations. See
+[[implementation_phases/phase-5-door-corpus-and-qualification|Frozen corpus]].
+
 `scripts/prepare_doors.py` handles inspection, normalization, static/visual/isolated
 physics checks and promotion. `DoorInspectionEnv` remains necessary for this B1
 path. It does not execute the robot expert.
@@ -80,7 +88,7 @@ Each promoted door has tracked `candidate.json`, `recipe.json`, `prepared.json`
 and local `source/` and `prepared/` payloads. Paths resolve from the door folder;
 no accepted asset depends on a temporary attempt. See
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]] for the
-contract, corpus, rights scopes and pending qualification.
+contract, frozen corpus, rights scopes and completed qualification.
 
 Runtime caches and verification reports belong under `~/.cache/alexdoor-xas/`.
 Future datasets and learned runs use ignored `datasets/` and `outputs/` payloads.

@@ -1,25 +1,17 @@
 # Phase 5 — Door Corpus and Qualification
 
-Subphase 5.0 is complete for **32 prepared doors**: 29 redistributable, two
-local-only and one private/noncommercial. The common expert executor is implemented.
-The first full campaign produced 15 qualified, 15 out-of-domain and two unresolved
-outcomes. A user-authorized recovery corrected shared control defects and
-revised one common placement/contact before any split. Six recovery pairs and
-four successful representative single cycles supported the corrections. Formal
-paired requalification has **32 published qualified doors: 25 left and seven
-right**. All 32 now have completed pairs with fresh Isaac processes for both
-cycles under the current common implementation. Six of the seven older pairs
-were remeasured in one formal invocation each and qualified. The seventh,
-`psx-industrial-004-4f5561b`, completed a separately authorized pair after an
-external interruption during image serialization. Its complete new reference
-is 47.92 degrees; the interrupted attempt is preserved. The current-protocol
-qualification gate is closed; final corpus review and split freeze remain pending.
-The other 31 doors were not rerun during this final targeted completion.
-Earlier RGB-D sampling work checked three poses on each of three
-affected doors; those snapshots alone were not formal pairs.
-Subphase 5.1 owns the frozen identity split using all eligible qualified doors,
-without a 24-door cap or mandatory left/right parity; Phase 6 generates
-demonstrations. See [[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
+**Phase 5 is complete as of 2026-09-28.** The frozen corpus contains all **32
+qualified doors: 25 left and seven right**, with two fresh-process GPU trials
+per door under the same common setup. Rights scopes remain 29 redistributable,
+two local-only and one private/noncommercial.
+
+The tracked `assets/doors/b1/corpus.json` fixes the 19/6/7 train/development/test
+membership, 12 reviewed geometry families spanning 15 sources, common setup and
+expert references. Qualification records are pinned at `76658aa`; the shared
+control recovery and interrupted attempts below remain historical evidence.
+No new simulation or asset modification was needed for corpus freeze. Phase 6
+owns observed-only perception and the demonstration dataset. See
+[[decisions/visuoproprioceptive-generalization-benchmark|B1 Design]].
 
 ## Subphase 5.0 — Intake and Preparation
 
@@ -701,30 +693,76 @@ corpus revision retains all eligible qualified doors and removes the former
 conditional on a documented split/coverage gap, not an automatic five-door intake.
 Modern-door remains `local_only`.
 
-#### Split feasibility before freeze
+#### Frozen corpus and identity split
 
-The 32 prepared identities have 32 distinct geometry fingerprints and come from
-15 source URLs. Keeping every part from one URL in one partition gives this
-concrete feasibility example using all 32 published `qualified` identities:
+`assets/doors/b1/corpus.json` (`b1.corpus.v1`) is the canonical asset-level split.
+All 32 qualified identities occur exactly once. Membership was chosen from
+source/geometry relationships and handedness before learned-model results;
+expert angle or policy performance did not determine membership. This replaces
+the earlier source-URL-only feasibility example, which was never frozen.
 
-| Partition example | Complete source groups | Left | Right |
-|---|---|---:|---:|
-| Train | PSX interior wood (6), PSX essential (5), animated doors (3), `door-2738468b94d74c5f`, `door-5035d7977155`, `door-door-metal-b21ec273`, `door-with-doorframe-c29da62c`, `interior-wood-d1-32707dc` | 15 | 4 |
-| Development | PSX industrial (4), `modern-door-2fb8d024`, `void-frame-studio-animated-classic-door-08bdf51b` | 5 | 1 |
-| Test | PSX front (4), `door-with-frame-2f2f149f`, `door-adf292f437f2`, `door-prison-metal-old-45306a46` | 5 | 2 |
+| Partition | Complete reviewed families | Left | Right | Total |
+|---|---|---:|---:|---:|
+| Train | PSX residential: essential + interior wood + front (15), animated doors (3), `door-2738468b94d74c5f` | 15 | 4 | 19 |
+| Development | PSX industrial (4), `modern-door-2fb8d024`, `void-frame-studio-animated-classic-door-08bdf51b` | 5 | 1 | 6 |
+| Test | Both Mehdi Shahsavan metal-door sources (2), `door-5035d7977155`, `door-adf292f437f2`, `door-with-doorframe-c29da62c`, `door-with-frame-2f2f149f`, `interior-wood-d1-32707dc` | 5 | 2 | 7 |
 
-This covers every identity once and keeps each source pack together, including
-the mixed-hand PSX front pack. Both hands occur in every partition. The right
-side of development has one identity, so later handedness-specific estimates
-there will be weak; this is a reporting limit, not a missing partition. The
-distinct fingerprints rule out exact prepared-geometry matches, not every
-cross-pack resemblance; review related shapes again before freeze. The
-current pool therefore has no demonstrated Phase 5 split gap requiring new
-right-hand doors. The industrial-004 current-process pair is now complete,
-so that execution gap no longer blocks final corpus review and split freeze.
-This table is a feasibility witness only: no manifest or membership is frozen,
-no Phase 6 data are generated, and rights restrictions still apply to the
-local-only and private assets.
+The final review inspected all 32 prepared front previews, source records and
+composed rendered Panel/Frame/Handle meshes. It compared centered vertex sets
+in canonical axes, normalized by height, using bidirectional nearest-neighbor
+maximum distance and X/Y reflections. This detects reuse despite float noise,
+translation, uniform scale and handedness; it is a screening method, not a
+proof against every remeshed or differently rotated derivative. Whole-asset
+fingerprints alone had missed cross-pack component reuse:
+
+- The essential, interior-wood and front packs reuse residential frames. For
+  example, front-002 versus essential front differs by only `2.60e-7` of frame
+  height in the vertex-set screen. Their three source groups are therefore one
+  15-door train family. Keeping the front pack in test would leak shared geometry.
+- Bathroom versus interior-wood-008 also matches panel vertices within `1.25e-7`
+  of panel height, but the handles differ. Preserve both qualified assemblies
+  in the same family; panel reuse alone does not make them mere recolors.
+- No additional whole-assembly match appeared within `1e-5` of assembly height
+  in this screen. The industrial pack has different frame/panel construction.
+  Similar raised-panel forms from independent authors were reviewed as generic
+  resemblance, with distinct relief/frame/hardware. Both metal-door sources by
+  Mehdi Shahsavan are conservatively kept together in test.
+
+The review scripts, component comparisons and preview sheets are retained at
+`~/.cache/alexdoor-xas/verification/corpus-freeze/20260928-phase5-closeout/`.
+The manifest records the family rationale, each identity's handedness, existing
+geometry fingerprint, usage scope, exact expert angle and evidence run. A digest
+of each canonical three-record bundle and of the common setup detects silent
+changes to the freeze; the qualification revision identifies the executable
+baseline. These bindings do not package ignored USD payloads or external runtimes.
+
+`qualification.corpus.load_corpus` and `scripts/verify_door_corpus.py` validate
+full membership, family/source separation, both handednesses, frozen records,
+counts and valid paired expert summaries. The optional local-evidence check
+also compares qualification inputs/setup, detailed results, release-ended traces
+and RGB/depth/camera frame inventories. It checks inventory rather than decoding
+images or rerunning physics. The freeze audit passed all 64 trials and 7,850
+saved RGB-D pairs; previously acquired image/physics validation remains applicable.
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py \
+  --evidence-root ~/.cache/alexdoor-xas/verification/expert
+```
+
+Both hands occur in each partition, but development has only one right-hand
+identity and train is dominated by a single 15-door residential family. Test has
+six reviewed families across seven doors. Report per-door and handedness results;
+this corpus does not establish broad population coverage. No additional intake
+is required for the defined Phase 5 gate. Local-only and private restrictions
+remain in force, including private preparation/tests only for the VOID FRAME
+asset; freeze grants no new learning-use or redistribution permission.
+
+This is an asset identity split, distinct from the retained numerical episode
+split utilities. Phase 6 must take membership from this manifest, keep test
+qualification evidence out of learning/tuning, and generate matched training
+episodes only from the assigned training identities. No demonstrations or
+learned-perception claims are produced by Phase 5 closeout.
 
 #### Offline review of the three new visibility warnings
 
@@ -789,7 +827,7 @@ as outside the reachable benchmark domain even when their assets are valid.
 A stall or timeout without an evidenced limit remains unresolved, not an automatic
 asset rejection. Ask for another candidate URL when a door is conclusively excluded.
 
-After same-implementation qualification is complete, freeze a manifest containing
+The completed freeze implements the following contract: a manifest containing
 all eligible qualified identities and a disjoint train/development/test split
 covering that corpus. Do not discard qualified doors to reach 24 or equal
 left/right counts. Choose counts after auditing source families and handedness;
@@ -797,8 +835,7 @@ represent both handednesses in each partition and keep related source geometry
 together to prevent family leakage. Request additional identities only when a
 specific coverage gap makes them necessary, and justify the minimum number.
 Record partition counts, coverage limits, the common setup/probe and each door's
-expert result. The exact split remains to be established, not executed by this
-documentation revision.
+expert result. The frozen manifest and reviewed membership are documented above.
 
 #### Key Decisions
 
@@ -813,7 +850,7 @@ documentation revision.
 
 #### Problems / Limitations
 
-Complete with all eligible qualified identities included, stable expert references
+Completed with all eligible qualified identities included, stable expert references
 under the same implementation, and the frozen split. Conclusions apply to this
 qualified domain; neither corpus size nor repeated trials prove broad coverage.
 The 2026-09-25 user-authorized recovery revises the common setup before any split.
@@ -823,6 +860,7 @@ After corpus/split freeze, do not retune it from held-out assets.
 
 - `scripts/prepare_doors.py` and `qualification/`: shared intake and promotion.
 - `scripts/qualify_door.py`: frozen real-door probe, paired decision and per-door result.
+- `scripts/verify_door_corpus.py`: frozen asset membership, family separation and reference checks.
 - `scripts/verify_door_preparation.py`: synthetic format/negative/physics checks,
   run only when affected infrastructure changes justify them.
 - `DoorInspectionEnv`: robot-independent door measurement, still used by B1.

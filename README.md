@@ -9,17 +9,15 @@ AlexDoor-XAS studies how action representation affects learning and execution in
 contact-rich humanoid manipulation. B1 compares A1–A4 × ACT/Diffusion on held-out
 push doors with fixed-base Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
-Purdue control/sensing and the shared expert workflow are implemented.
-The prepared pool contains **32 doors**: 29 redistributable, two local-only and
-one private/noncommercial. The first full campaign produced 15 qualified,
-15 out-of-domain and two unresolved outcomes. A shared setup/controller recovery
-targets the 17 problematic doors through static checks and representative single
-cycles. Formal requalification and routine reruns are deferred to the smaller
-model; old published statuses are retained until that campaign. See the
-[qualification procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md#procedure-for-subsequent-doors)
+Purdue control/sensing and **Phase 5 are complete**. All 32 prepared doors have
+qualified fresh-process expert pairs. The [frozen corpus](assets/doors/b1/corpus.json)
+assigns 19 train, six development and seven test doors, preserving related
+geometry families and both handednesses in every partition. Rights scopes remain
+29 redistributable, two local-only and one private/noncommercial.
+
+B1 demonstrations, Replicator and learned-policy integration are Phase 6 work.
+See the [corpus and qualification procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
 and current [project status](knowledge/wiki/status.md).
-Final corpus selection, B1 demonstrations, Replicator and learned-policy
-integration remain future work.
 
 B0 workflows and local data have been retired. Their scientific conclusions and
 limits remain in the wiki. Reusable action math, recording, dataset and model
@@ -65,7 +63,17 @@ Qualify one prepared door with the frozen setup:
 
 The command stores a fresh report in the verification cache and updates only the
 expert section of the door record. Read the [Phase 5 procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
-for outcomes, evidence review and the unresolved pilot boundary.
+for outcomes, evidence review and the separate Phase 6 pilot boundary.
+
+Verify frozen membership and references without starting Isaac Sim:
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
+```
+
+Add `--evidence-root ~/.cache/alexdoor-xas/verification/expert` to also check
+local qualification reports, traces and capture inventories. Record-only checks
+do not require ignored asset payloads or the cache.
 
 Reusable numerical data APIs require an explicit dataset root and ordered
 `obs_keys` drawn from recorded proprioception. Door state and contacts remain
@@ -76,7 +84,7 @@ earlier formats. This is not yet the B1 RGB-D learning pipeline.
 
 | Path | Purpose |
 |---|---|
-| `assets/doors/b1/` | Canonical door records and ignored source/final payloads. |
+| `assets/doors/b1/` | Frozen corpus/split, canonical door records and ignored source/final payloads. |
 | `src/alexdoor_xas/` | Runtime, preparation and reusable learning components. |
 | `scripts/` | Supported verification, synthetic setup, intake and expert qualification. |
 | `configs/` | Frozen common Purdue synthetic probe. |

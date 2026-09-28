@@ -1,0 +1,464 @@
+{
+  "schema": "b1.corpus.v1",
+  "status": "frozen",
+  "frozen_on": "2026-09-28",
+  "qualification_revision": "76658aa7bfb68e238f924a72a7fc58d3922db5e6",
+  "scope": "nominal_simulated_expert_corpus_not_demonstration_data",
+  "setup": {
+    "path": "configs/purdue_synthetic_probe.json",
+    "sha256": "2b6b4458b708937024b2c96df10bc4e31d36c17872573899d8dae3b9b2048627"
+  },
+  "family_review": "knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md#frozen-corpus-and-identity-split",
+  "usage_limits": [
+    "Keep qualification traces/images separate from learning, normalization, tuning and selection.",
+    "Family, split, asset identity and expert angles are metadata, never policy observations.",
+    "Local-only assets require authorized local access; the private_noncommercial asset remains private preparation/tests only. Corpus freeze grants no new use or redistribution rights.",
+    "Use an explicit protocol revision for membership/setup changes; do not retune from held-out results.",
+    "Development contains one right-hand door; train is dominated by one 15-door residential family. Report per-door and handedness results without claiming broad population coverage."
+  ],
+  "counts": {
+    "train": {
+      "right": 4,
+      "left": 15
+    },
+    "development": {
+      "right": 1,
+      "left": 5
+    },
+    "test": {
+      "left": 5,
+      "right": 2
+    }
+  },
+  "families": {
+    "psx-residential": {
+      "source_uids": [
+        "02e442c6d4a24df29624808d058f010a",
+        "20d55059056044b885a5267c2de1ec18",
+        "ee7d5c6d36404849a459c84c3d004a0c"
+      ],
+      "review": "Shared PSX residential frames across essential/front/interior packs; panel reuse also links bathroom and interior-wood-008. Keep the three complete packs together."
+    },
+    "psx-industrial": {
+      "source_uids": [
+        "4f5561bbc441414587e3650ceae5593a"
+      ],
+      "review": "One industrial source pack; frame/panel construction differs from the residential packs."
+    },
+    "animated-doors": {
+      "source_uids": [
+        "88abf40577494c0c8759c9652e7749da"
+      ],
+      "review": "All three parts of the same animated-door source."
+    },
+    "djmaesen": {
+      "source_uids": [
+        "2738468b94d74c5f827e7e5df7be8359"
+      ],
+      "review": "Independent source; distinct panel, frame and hardware in the geometry/preview review."
+    },
+    "nikolayy": {
+      "source_uids": [
+        "5035d79771554b0a8daca21bae3ce062"
+      ],
+      "review": "Independent source; glazed metal panel with lower grille, distinct from the other reviewed assemblies."
+    },
+    "hoschu": {
+      "source_uids": [
+        "adf292f437f24151918a3b16ecef52d2"
+      ],
+      "review": "Independent source; distinct thin panel relief and frame in the geometry/preview review."
+    },
+    "shahsavan-metal": {
+      "source_uids": [
+        "45306a46c95b44ca8369f89c6648648c",
+        "b21ec273c1a342568ab9f9ac14291c5b"
+      ],
+      "review": "Conservatively group both metal-door sources by the same author; no claim that author alone proves shared geometry."
+    },
+    "theocritus": {
+      "source_uids": [
+        "c29da62ca4e34dbb9801f98a4b5d3382"
+      ],
+      "review": "Independent source; closest residential resemblance is generic raised-panel form, not a matching assembly."
+    },
+    "witnessk": {
+      "source_uids": [
+        "2f2f149f3ec44d658a02c1f924dfa449"
+      ],
+      "review": "Independent source; distinct panel/frame and hardware in the geometry/preview review."
+    },
+    "hawtor": {
+      "source_uids": [
+        "32707dcfa6304f49bf99148d0211f5f7"
+      ],
+      "review": "Independent source; distinct panel relief, frame and hardware in the geometry/preview review."
+    },
+    "modern": {
+      "source_uids": [
+        "2fb8d02419b84d628cf9a4ac85360cec"
+      ],
+      "review": "Independent source; distinct panel and frame in the geometry/preview review."
+    },
+    "void-frame": {
+      "source_uids": [
+        "08bdf51b9e5f4301be5de3a28c8a36ff"
+      ],
+      "review": "Independent source; distinct classic panel/hinge assembly; private preparation/tests only."
+    }
+  },
+  "doors": [
+    {
+      "asset_id": "animated-door-1-88abf40",
+      "family": "animated-doors",
+      "split": "train",
+      "handedness": "right",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "90efdac3280fd604f1809dad920b7a1f4905da05fd5c4389bf2920d6d934becb",
+      "records_sha256": "7db5dd0aff15e3a780eba05f379bbce74f5fe580b3c39b3f470102268182af43",
+      "theta_expert_d": 61.39314852447044,
+      "evidence_run": "20260928T181142.560713Z"
+    },
+    {
+      "asset_id": "animated-door-2-88abf40",
+      "family": "animated-doors",
+      "split": "train",
+      "handedness": "right",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "2b05c15801257c1044d235fa651c6192ad6f3f923ce39c92a50a80d3176af98d",
+      "records_sha256": "9466facf7c4f00cd2a7924b484f548f950ed75b477c3ba9116a44fd4d4d25f67",
+      "theta_expert_d": 61.48353241775722,
+      "evidence_run": "20260928T181637.948391Z"
+    },
+    {
+      "asset_id": "animated-door-3-88abf40",
+      "family": "animated-doors",
+      "split": "train",
+      "handedness": "right",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "4de24c7a8904ab0d3845dbc4adf5039e3afe22ca2e5cfc0c3a89cb0d75000328",
+      "records_sha256": "4138e29564d4f8e458bba4975c76b859459973ea272c83038fca10607c34157d",
+      "theta_expert_d": 61.78129451462393,
+      "evidence_run": "20260928T182144.459603Z"
+    },
+    {
+      "asset_id": "door-2738468b94d74c5f",
+      "family": "djmaesen",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "206b8785ec8f259e21142a5c12551a540da6e3bf3e2584429f0b94b895997190",
+      "records_sha256": "a4e0058cf5717065a51919de0d24714021796f604b512d16985d0eebcd4eaaa7",
+      "theta_expert_d": 57.839107401178495,
+      "evidence_run": "20260928T182721.985793Z"
+    },
+    {
+      "asset_id": "door-5035d7977155",
+      "family": "nikolayy",
+      "split": "test",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "65f1c3daae07eeaf289a70fb4c251f7509f1fc2ce44fed2d49a46eb1b8678dbd",
+      "records_sha256": "40660272cca110675751361cf03511f548ecdcaad93709417732393225c5e608",
+      "theta_expert_d": 56.70129009300817,
+      "evidence_run": "20260928T175916.343847Z"
+    },
+    {
+      "asset_id": "door-adf292f437f2",
+      "family": "hoschu",
+      "split": "test",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "f4ee27522e3b6b39d65ad3396fcfaa17ac37e2ef5b8be9a1855f37d4c000ed1a",
+      "records_sha256": "caf7f55468a72411de25cf107d42598f29238b42372bc94642a1a4ea1d403133",
+      "theta_expert_d": 58.87685902291356,
+      "evidence_run": "20260928T183349.176113Z"
+    },
+    {
+      "asset_id": "door-door-metal-b21ec273",
+      "family": "shahsavan-metal",
+      "split": "test",
+      "handedness": "right",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "73707e2e0e298e0b816b96041e803818f3f9e01dcb7099cd12c5e470b959c738",
+      "records_sha256": "d9ab082f4867b26558da66daf3bcab22842ffd68967630c81af4fc1d6be5c118",
+      "theta_expert_d": 59.800006900564966,
+      "evidence_run": "20260928T184039.310056Z"
+    },
+    {
+      "asset_id": "door-prison-metal-old-45306a46",
+      "family": "shahsavan-metal",
+      "split": "test",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "5bdb64d77427069c09492f282a0223b3bd9d25060e2ea975834ceb09f19eedf3",
+      "records_sha256": "88aad1c4a88537e4ce7326c58d3a98c1892dfcf15e78677272c892513ebc3031",
+      "theta_expert_d": 47.000000169529294,
+      "evidence_run": "20260928T184604.720361Z"
+    },
+    {
+      "asset_id": "door-with-doorframe-c29da62c",
+      "family": "theocritus",
+      "split": "test",
+      "handedness": "left",
+      "distribution_scope": "local_only",
+      "geometry_fingerprint": "58c17659e05ff5882faa20d6574887325405bcc215b64d602e513f192b6b6127",
+      "records_sha256": "f65f33e6248813d610a517b212a8307f0e6e5a8447d985cdfc29394b02b01790",
+      "theta_expert_d": 54.72959206454391,
+      "evidence_run": "20260928T175236.896147Z"
+    },
+    {
+      "asset_id": "door-with-frame-2f2f149f",
+      "family": "witnessk",
+      "split": "test",
+      "handedness": "right",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "fbe3626a5effe7faf794b90d2cc407cb03c5f6b12f45878aa3d884a32858cb20",
+      "records_sha256": "70f4ee00ba79e967187bd2daf2e2793b41c2dea30cf0f0895aca5a0f542298d2",
+      "theta_expert_d": 45.0891932775157,
+      "evidence_run": "20260928T185323.405174Z"
+    },
+    {
+      "asset_id": "interior-wood-d1-32707dc",
+      "family": "hawtor",
+      "split": "test",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "c87dd0edf71d37796a5865f7785ea44b2581f0dadb4110b73ec24016b2e75b3d",
+      "records_sha256": "33d70466387da7e6e882b76dbaac09e2a3b14234a74c68e1b170d5adbe932b00",
+      "theta_expert_d": 54.30000048650678,
+      "evidence_run": "20260928T185804.702758Z"
+    },
+    {
+      "asset_id": "modern-door-2fb8d024",
+      "family": "modern",
+      "split": "development",
+      "handedness": "right",
+      "distribution_scope": "local_only",
+      "geometry_fingerprint": "0ed927caadd03f215e80048d3a0152a5612e843fcb2590d1fa2a37988024fd43",
+      "records_sha256": "e821c6cda646182802ded2a143cba21af37f90a6169921fff4336168fe49cd53",
+      "theta_expert_d": 54.40550641861597,
+      "evidence_run": "20260928T190404.772206Z"
+    },
+    {
+      "asset_id": "psx-bathroom-20d5505",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "a0d3df9ebce8df9d1d52f0424d3194a95bfd6a61e29e38c5a0b7b15d80ecafe6",
+      "records_sha256": "11a09e8ba127dc88e76bfd2308400e066ab29c5705f08750ed8d4d159d10b2e9",
+      "theta_expert_d": 62.66479314414342,
+      "evidence_run": "20260928T190858.524911Z"
+    },
+    {
+      "asset_id": "psx-front-001-ee7d5c6",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "ae8e6d95f53f330fc340311bed2723ac0c423cb87be003d448dd47971458405e",
+      "records_sha256": "da2d69342e845fe0d803103a46791e0c965aebe871aa42f73f548b81a7d368d2",
+      "theta_expert_d": 60.638009640023,
+      "evidence_run": "20260928T191639.445074Z"
+    },
+    {
+      "asset_id": "psx-front-002-ee7d5c6",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "ae1f351a7968484e5cf374fbbb4aac95fc2494914bcce11f421bcf84b391bd85",
+      "records_sha256": "76ea07fb2526a9231fb454872e774a26d2f9b3a50210f999f289717250deac57",
+      "theta_expert_d": 59.10191375606547,
+      "evidence_run": "20260928T210017.321466Z"
+    },
+    {
+      "asset_id": "psx-front-005-ee7d5c6",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "right",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "0ca69feddd7c1b6c72130e458078d6f99f2cd687313cf4bef9ea6a6ea6326e96",
+      "records_sha256": "35061d8d7174ef4ed3dccfbbb8fe5d170aeeeaa11d6117dc79aa7ea8aaae5aac",
+      "theta_expert_d": 59.713297649051654,
+      "evidence_run": "20260928T192411.520178Z"
+    },
+    {
+      "asset_id": "psx-front-008-ee7d5c6",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "0b1821356039a84dae921c3cd7de6ffbe2777491aba715408ce764798837534a",
+      "records_sha256": "c2a94088290a718740928208127ab77aae6690fa2852b67b45ae19f2376433e5",
+      "theta_expert_d": 60.44651845645252,
+      "evidence_run": "20260928T193000.882108Z"
+    },
+    {
+      "asset_id": "psx-front-20d5505",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "658079d10f332123b674ec1830cc708cb47b72eb0a8715f56faaac42facd421a",
+      "records_sha256": "78ad7c8e7fa3a69e9f576585c8cfa10ffb69125308e40d32680a87bfd0a0be2e",
+      "theta_expert_d": 64.88607994525829,
+      "evidence_run": "20260928T210838.551205Z"
+    },
+    {
+      "asset_id": "psx-industrial-001-4f5561b",
+      "family": "psx-industrial",
+      "split": "development",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "d964012a8dc35756dca92d739a4a228d629a8b93afc827878974da06d4498add",
+      "records_sha256": "a59681a775842be885f55fd34c883a7228dcefc34af781f7e27c243527c342f6",
+      "theta_expert_d": 46.993938376640905,
+      "evidence_run": "20260928T193623.002470Z"
+    },
+    {
+      "asset_id": "psx-industrial-002-4f5561b",
+      "family": "psx-industrial",
+      "split": "development",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "47c7e3735ccc28abd1e931b1206ac313b1ee8b2b8ceabdedd0c9890e02f74d66",
+      "records_sha256": "d1ed30b2314191fc40c3fd3a31fa683ca64166dc1ed5be8e59c7bfc689849f4b",
+      "theta_expert_d": 47.204461882333625,
+      "evidence_run": "20260928T180557.417781Z"
+    },
+    {
+      "asset_id": "psx-industrial-003-4f5561b",
+      "family": "psx-industrial",
+      "split": "development",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "79be9683769da426cfb88ef036766a207d69fa07000cfb70bbf311bc255f7e6b",
+      "records_sha256": "f074cea064956d02d004f972ef0cfbf0c90ac4d18a7427a35771e136d7250b2c",
+      "theta_expert_d": 48.027769469792375,
+      "evidence_run": "20260928T211606.862614Z"
+    },
+    {
+      "asset_id": "psx-industrial-004-4f5561b",
+      "family": "psx-industrial",
+      "split": "development",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "56972910e659b1a40033a2faf337bbc7e77f0556ea13934a6d89a7e8813480af",
+      "records_sha256": "542259b0a92d32378b667549b22a0a21d714274a575b9a4262c4eaa5491880a1",
+      "theta_expert_d": 47.91933338652925,
+      "evidence_run": "20260928T220330.435086Z"
+    },
+    {
+      "asset_id": "psx-interior-wood-002-02e442c",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "94e12ff7e00aafcb3170199756fabf88aed54559fd5a31f5d4495d85dc2f1b8c",
+      "records_sha256": "303a97a1f1fd6fd4cfb2f358d717ba29ce4fa1acac788cd354074b5079ef882b",
+      "theta_expert_d": 62.68305706998403,
+      "evidence_run": "20260928T194222.735949Z"
+    },
+    {
+      "asset_id": "psx-interior-wood-003-02e442c",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "831306e707039741c97ebcfd9b8a9ce112e54ff3723bd856fed7275ec49fb970",
+      "records_sha256": "22d5156cf779c0c5d44627946ccf99adf897ef0f88fa074e94a4c4648afef48a",
+      "theta_expert_d": 62.62072476361849,
+      "evidence_run": "20260928T194935.898468Z"
+    },
+    {
+      "asset_id": "psx-interior-wood-005-02e442c",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "e7cd50bb34899cc9a2273b2ae3a87ae06df25da5a770f15b2c28b9902e0183eb",
+      "records_sha256": "32954ab4c783985199c3fb9ddc35beab6a01534302a562b21d7fa37b5e8e3d87",
+      "theta_expert_d": 62.10946461367553,
+      "evidence_run": "20260928T195646.540133Z"
+    },
+    {
+      "asset_id": "psx-interior-wood-006-02e442c",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "3d9d20e1ed8f72c1b159b2b0744b73f6f410a9c66a5d09718bde337a38489c70",
+      "records_sha256": "e1aede2e139911d78f49af678d8425af65f3d00847d89cf7f6223761ea9d2ddf",
+      "theta_expert_d": 62.7140866193834,
+      "evidence_run": "20260928T200430.841160Z"
+    },
+    {
+      "asset_id": "psx-interior-wood-007-02e442c",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "7977de47d9e3c30ce80d28d834b669b06669b62d462276c9c3a0ee903d266d5c",
+      "records_sha256": "dacce437ed1e37a0cdfd3af53833a3054cd243ae9c2898b364be049c20836aa8",
+      "theta_expert_d": 62.80666300339375,
+      "evidence_run": "20260928T201145.437578Z"
+    },
+    {
+      "asset_id": "psx-interior-wood-008-02e442c",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "58f97284aec337a775e0de31aca8aefc2e346406b62805d11d6ae8667d89f00f",
+      "records_sha256": "9e14fe6995583503006d88a667c0b24de27e74c531348e36f64e8f5ea65afe05",
+      "theta_expert_d": 62.46199799749657,
+      "evidence_run": "20260928T201907.191003Z"
+    },
+    {
+      "asset_id": "psx-wooden-001-20d5505",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "5e89e499771700af48f0113f73da5dbf597e3fc3c2e8577457e58bf56d251da1",
+      "records_sha256": "64ddd447874a125a2a03ee2de5a96640451d4e377771e91b2f744ad0116e11c6",
+      "theta_expert_d": 63.83649160569159,
+      "evidence_run": "20260928T212805.876123Z"
+    },
+    {
+      "asset_id": "psx-wooden-009-20d5505",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "74ec4c57b9eb20de0c1b5ef743f35e42ab71fe07fa45eea6d8dcfd6abd29e970",
+      "records_sha256": "85846b1fc7a92568f68e4b7d000d4473f0805ac5b62f27ab432cab9cc1c7a4ca",
+      "theta_expert_d": 65.38697186804117,
+      "evidence_run": "20260928T213612.989613Z"
+    },
+    {
+      "asset_id": "psx-worn-20d5505",
+      "family": "psx-residential",
+      "split": "train",
+      "handedness": "left",
+      "distribution_scope": "redistributable",
+      "geometry_fingerprint": "3e592145c77d02223c967b8e64bf5a6f79e9610715efd4f2ffaa63937b031d45",
+      "records_sha256": "04261643ed3e6782b9820555d0035ebdb67bc5580e9e77a6784c5fe0431c2313",
+      "theta_expert_d": 67.41777152339355,
+      "evidence_run": "20260928T214349.631152Z"
+    },
+    {
+      "asset_id": "void-frame-studio-animated-classic-door-08bdf51b",
+      "family": "void-frame",
+      "split": "development",
+      "handedness": "left",
+      "distribution_scope": "private_noncommercial",
+      "geometry_fingerprint": "d074253d15413ebfe40c47cd7792614f623315321cb9e161a00189faa77d5efb",
+      "records_sha256": "1ce45dd2f75a2cf3d00bd80dc0cebba6b0b0dbcce6ba179ca4de743eb3c3e2cd",
+      "theta_expert_d": 66.91685227985398,
+      "evidence_run": "20260928T173830.453850Z"
+    }
+  ]
+}

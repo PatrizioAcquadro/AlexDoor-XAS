@@ -8,27 +8,24 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | All 32 prepared doors have published qualified fresh-process pairs under the current common implementation: 25 left and seven right. The authorized industrial-004 completion qualified at 47.92° with complete evidence. Final corpus review and split freeze remain pending. |
+| 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Complete the final corpus review and freeze the identity split. The last open
-execution gate, `psx-industrial-004-4f5561b`, is closed: a separately authorized
-single-door invocation on `cuda:0` published two valid fresh-process cycles at
-47.92 degrees, with zero spread, complete RGB-D evidence and passing geometric
-checks. The interrupted attempt remains in the cache; no asset, controller or
-threshold change was needed. The other 31 door records are unchanged. See
-[[implementation_phases/phase-5-door-corpus-and-qualification|Subphase 5.1]].
+Begin [[implementation_phases/phase-6-perception-actions-and-demonstrations|Subphase 6.0]]:
+reuse the existing RGB-D capture for synchronized multi-door recording and a
+shared observed-only door estimator. Read identity membership from
+`assets/doors/b1/corpus.json`; qualification traces/images are never learning or
+model-selection data. Phase 6 has not started.
 
-The 32 published identities include 25 left and seven right doors from 15
-source families. A concrete, non-frozen example keeps each family together and
-covers both hands in train (15 left, four right), development (five left, one
-right) and test (five left, two right). It uses every published qualified door;
-there is no demonstrated Phase 5 need for additional right-hand intake or a
-24-door cap. Development has sparse right-hand coverage, which later results
-must disclose. No split manifest is frozen
-and Phase 6 has not started.
+Phase 5 is closed with all 32 qualified identities preserved. Cross-pack mesh
+review merged the PSX essential/interior/front sources into one train family;
+the previous source-only split example is superseded. The frozen counts are
+train 15 left/four right, development five left/one right, test five left/two
+right. Development's single right door and the 15-door residential train family
+limit coverage. The freeze and evidence review are in
+[[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
 
 ## Limits
 
@@ -37,8 +34,9 @@ changed the common fraction/height from 0.40/1.00 m to 0.295/1.09 m, and
 corrected tracking/holding defects without lowering the 45-degree gate or physical
 validity thresholds. All published pairs now use fresh processes and the current
 common implementation. Preparation alone does
-not establish robot reachability; rights scopes constrain sharing independently
-of technical readiness.
+not establish robot reachability; rights scopes constrain use and sharing
+independently of technical readiness. Local-only assets require authorized local
+access; the private/noncommercial door remains limited to private preparation/tests.
 
 RGB-D acquisition is operational. The visibility diagnostic now samples rendered
 surfaces rather than convex collision proxies, and distributes frame points near
@@ -71,7 +69,7 @@ numerical model utilities. Simulation checks do not establish hardware safety.
   [[topics/learned-policy-stack|Policy components]] — reusable numerical utilities.
 
 Supported commands are `check_env.py`, `prepare_doors.py`,
-`qualify_door.py`, `verify_door_preparation.py`, `verify_purdue_runtime.py`, `verify_synthetic_setup.py`
+`qualify_door.py`, `verify_door_corpus.py`, `verify_door_preparation.py`, `verify_purdue_runtime.py`, `verify_synthetic_setup.py`
 and `screen_synthetic_setup.py`. Verification reports stay in the runtime cache.
 
 The maintained numerical data path requires explicit, ordered proprioceptive
