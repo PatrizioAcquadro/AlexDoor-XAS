@@ -7,14 +7,15 @@ outcomes. A user-authorized recovery corrected shared control defects and
 revised one common placement/contact before any split. Six recovery pairs and
 four successful representative single cycles supported the corrections. Formal
 paired requalification has **32 published qualified doors: 25 left and seven
-right**. Of these, 31 have completed pairs with fresh Isaac processes for both
+right**. All 32 now have completed pairs with fresh Isaac processes for both
 cycles under the current common implementation. Six of the seven older pairs
 were remeasured in one formal invocation each and qualified. The seventh,
-`psx-industrial-004-4f5561b`, was externally terminated while serializing the
-second cycle's images; its older qualified pair remains published, but it has no
-completed current-process reference. The final same-implementation corpus and
-split therefore remain pending. The other 25 doors were not rerun in this
-targeted work. Earlier RGB-D sampling work checked three poses on each of three
+`psx-industrial-004-4f5561b`, completed a separately authorized pair after an
+external interruption during image serialization. Its complete new reference
+is 47.92 degrees; the interrupted attempt is preserved. The current-protocol
+qualification gate is closed; final corpus review and split freeze remain pending.
+The other 31 doors were not rerun during this final targeted completion.
+Earlier RGB-D sampling work checked three poses on each of three
 affected doors; those snapshots alone were not formal pairs.
 Subphase 5.1 owns the frozen identity split using all eligible qualified doors,
 without a 24-door cap or mandatory left/right parity; Phase 6 generates
@@ -468,18 +469,17 @@ mixed across runs. Diagnostics and independent audits remain under
 
 ### Formal Requalification Started 2026-09-25
 
-All 32 doors retain published paired results. Thirty-one have completed pairs
-under the current fresh-process runner on `cuda:0`; the published
-`psx-industrial-004-4f5561b` result is older. Reports are under
+All 32 doors have published paired results under the current fresh-process
+runner on `cuda:0`. Reports are under
 `~/.cache/alexdoor-xas/verification/expert/<id>/<timestamp>/report.json`;
 each `prepared.json` points to its published report. The first seven invocations
-were committed at `cdd3204`; six now have newer published references. The lower
+were committed at `cdd3204`; all seven now have newer published references. The lower
 sustained angle is the published reference; the table rounds only for display.
 
 | Door | Hand | Published status | `theta_expert_d` | Report timestamp |
 |---|---|---|---:|---|
 | `psx-industrial-003-4f5561b` | left | `qualified` | 48.03° | `20260928T211606.862614Z` |
-| `psx-industrial-004-4f5561b` | left | historical `qualified`; current attempt incomplete | 47.92° historical | `20260925T205324.978919Z` |
+| `psx-industrial-004-4f5561b` | left | `qualified` | 47.92° | `20260928T220330.435086Z` |
 | `psx-front-002-ee7d5c6` | left | `qualified` | 59.10° | `20260928T210017.321466Z` |
 | `psx-front-20d5505` | left | `qualified` | 64.89° | `20260928T210838.551205Z` |
 | `psx-wooden-001-20d5505` | left | `qualified` | 63.84° | `20260928T212805.876123Z` |
@@ -511,17 +511,17 @@ sustained angle is the published reference; the table rounds only for display.
 | `psx-interior-wood-007-02e442c` | left | `qualified` | 62.81° | `20260928T201145.437578Z` |
 | `psx-interior-wood-008-02e442c` | left | `qualified` | 62.46° | `20260928T201907.191003Z` |
 
-The 31 current-process reports agree with their published records. Each has two
+All 32 current-process reports agree with their published records. Each has two
 valid holds and releases, consistent limiting causes and at most 0.10°
 sustained-angle spread. All 32 published references meet the unrounded 45°
-gate, but the industrial-004 reference is historical. Geometric visibility
+gate. Geometric visibility
 separately warns on `door-adf292f437f2` (556 of
 3,949 frames per cycle) and `door-door-metal-b21ec273` (all 3,453 frames per
 cycle), and on `psx-front-008-ee7d5c6` (844 of 3,895 frames per cycle).
 The offline review below distinguishes occlusion from sampling limitations;
 these warnings do not invalidate expert qualification. The older
 industrial-004 pair also had a visibility warning; fresh closed pairs for
-`psx-front-20d5505` and `psx-wooden-009-20d5505` pass the revised diagnostic
+industrial-004, `psx-front-20d5505` and `psx-wooden-009-20d5505` pass the revised diagnostic
 across both trajectories.
 
 The 2026-09-28 targeted recheck invoked the seven older doors once each, with
@@ -534,10 +534,27 @@ second trial's images. Both physical cycles wrote passing results, full traces
 and contact records at 47.91933338652925 degrees, but the second cycle saved
 only 100 RGB and 99 depth images versus 104 of each in the first. Its new report
 at `20260928T212125.630905Z` remains `unresolved / incomplete_execution` with
-one trial summarized; `prepared.json` still points to the older qualified pair.
-The cause of the external termination is not established by the report. No
-second invocation or favorable-result selection was made. Complete the current
-formal gate before freezing a corpus with this identity.
+one trial summarized; it was not published.
+The subsequent investigation confirmed byte-identical physical traces: 3,139
+states per cycle, including 180 hold and 180 release states. The enclosing
+multi-door shell command exited with code 143 after 1,079.8 seconds. This is
+consistent with an external execution-duration limit; the signal sender is not
+identified. The incomplete report correctly withheld publication and does not
+show an asset or controller defect. The user authorized a new formal pair for
+this door alone. Run each door as its own monitored command so that preceding
+doors do not consume a shared shell execution budget; keep the controller,
+setup, thresholds and fresh-process trial isolation unchanged. Preserve the
+interrupted attempt rather than reconstructing its missing images or combining
+trials across invocations.
+
+The dedicated invocation completed and published `qualified` at
+`20260928T220330.435086Z`: both cycles sustained 47.91933338652925 degrees,
+with valid holds/releases, zero spread, no forbidden contacts and passing
+geometric visibility across all 3,139 states per trial. Both complete physical
+traces match the interrupted attempt. Each cycle has 104 readable RGB/depth
+pairs and all corresponding camera poses, including the final release frames.
+The other 31 prepared records are unchanged. No geometry, controller or
+qualification-threshold change was needed.
 
 Worn's superseded pair consistently stopped under the gate with
 `safety_stop / tracking_margin`.
@@ -703,9 +720,8 @@ there will be weak; this is a reporting limit, not a missing partition. The
 distinct fingerprints rule out exact prepared-geometry matches, not every
 cross-pack resemblance; review related shapes again before freeze. The
 current pool therefore has no demonstrated Phase 5 split gap requiring new
-right-hand doors. The incomplete current-process industrial-004 pair blocks
-corpus freeze; omitting that left-hand identity would change the example's
-development count to four left and one right without creating a right-hand gap.
+right-hand doors. The industrial-004 current-process pair is now complete,
+so that execution gap no longer blocks final corpus review and split freeze.
 This table is a feasibility witness only: no manifest or membership is frozen,
 no Phase 6 data are generated, and rights restrictions still apply to the
 local-only and private assets.
@@ -748,8 +764,8 @@ justifying shared perception or gaze changes. These qualification traces are not
 learned training data, and this review does not establish perception readiness.
 
 RGB-D capture is operational and the earlier diagnosed sampling defects are corrected.
-The six completed new pairs passed full-trajectory checks of the revised
-diagnostic; industrial-004 has no closed current-process report. Visibility is
+All seven rechecked pairs passed full-trajectory checks of the revised
+diagnostic, including the completed industrial-004 pair. Visibility is
 not an expert-admission gate and does not establish learned-perception readiness.
 No synthetic sweep was repeated; historical synthetic results belong to the earlier
 45-degree setup. Runtime qualification remains nominal simulated evidence, not
