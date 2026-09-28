@@ -7,6 +7,8 @@ import os
 import subprocess
 import sys
 import traceback
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+from datetime import UTC, datetime
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -30,6 +32,13 @@ def main():
     )
     parser.add_argument("--_worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--device", default="cuda:0")
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        choices=(1, 2),
+        default=1,
+        help="Independent fresh-process workers; default one",
+    )
     args = parser.parse_args()
     if not args.device.startswith("cuda"):
         parser.error("Collection requires CUDA")
@@ -46,28 +55,65 @@ def main():
         ]
     if not args._worker:
         args.output.mkdir(parents=True, exist_ok=True)
+        pending_tasks = []
         for entry in entries:
             for condition in [args.condition] if args.condition else ["nominal", "light"]:
                 path = args.output / entry["asset_id"] / condition / "episode.hdf5"
                 if args.resume and path.exists():
                     validate_episode(path)
                     continue
-                command = [
-                    sys.executable,
-                    str(Path(__file__).resolve()),
-                    "--_worker",
-                    "--output",
-                    str(args.output),
-                    "--asset-id",
-                    entry["asset_id"],
-                    "--condition",
-                    condition,
-                    "--device",
-                    args.device,
-                ]
-                if args.without_recorder:
-                    command.append("--without-recorder")
-                subprocess.run(command, check=True)
+                pending_tasks.append((entry, condition, path))
+        logs = args.output / "worker-logs"
+        logs.mkdir(exist_ok=True)
+
+        def collect(task):
+            entry, condition, path = task
+            command = [
+                sys.executable,
+                str(Path(__file__).resolve()),
+                "--_worker",
+                "--output",
+                str(args.output),
+                "--asset-id",
+                entry["asset_id"],
+                "--condition",
+                condition,
+                "--device",
+                args.device,
+            ]
+            if args.without_recorder:
+                command.append("--without-recorder")
+            stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
+            log = logs / f"{stamp}-{entry['asset_id']}-{condition}.log"
+            print(
+                json.dumps(dict(start=entry["asset_id"], condition=condition, log=str(log))),
+                flush=True,
+            )
+            with log.open("x") as stream:
+                subprocess.run(command, check=True, stdout=stream, stderr=subprocess.STDOUT)
+            if args.without_recorder:
+                result = json.loads((path.parent / "expert/result.json").read_text())
+                if not result["passed"] or not result["released"]:
+                    raise RuntimeError("Worker did not finish a valid expert episode")
+            else:
+                validate_episode(path)
+            print(json.dumps(dict(completed=entry["asset_id"], condition=condition)), flush=True)
+
+        tasks = iter(pending_tasks)
+        with ThreadPoolExecutor(max_workers=args.jobs) as pool:
+            active = {
+                pool.submit(collect, task)
+                for task in [next(tasks, None) for _ in range(args.jobs)]
+                if task is not None
+            }
+            while active:
+                done, active = wait(active, return_when=FIRST_COMPLETED)
+                for future in done:
+                    future.result()  # Stop admission on failure; already-running workers finish.
+                for _ in done:
+                    task = next(tasks, None)
+                    if task is not None:
+                        active.add(pool.submit(collect, task))
         return 0
     if len(entries) != 1 or not args.condition:
         parser.error("Worker needs one asset and condition")
@@ -97,6 +143,7 @@ def main():
     lighting = dict(intensity_scale=1.0, color=[1.0, 1.0, 1.0])
     if args.condition == "light":
         import numpy as np
+        import omni.graph.core as og
         import omni.replicator.core as rep
         from pxr import UsdLux
 
@@ -104,16 +151,31 @@ def main():
         lighting = dict(
             intensity_scale=float(rng.uniform(0.8, 1.2)), color=rng.uniform(0.9, 1.0, 3).tolist()
         )
-        for prim in env.sim.stage.Traverse():
-            if prim.IsA(UsdLux.DomeLight) or prim.IsA(UsdLux.DistantLight):
-                intensity = prim.GetAttribute("inputs:intensity").Get()
-                with rep.get.prim_at_path(str(prim.GetPath())):
-                    rep.modify.attribute(
-                        "inputs:intensity", intensity * lighting["intensity_scale"]
-                    )
-                    rep.modify.attribute("inputs:color", tuple(lighting["color"]))
-        # Evaluate the Replicator graph before reset; no physics is advanced.
-        rep.orchestrator.step(rt_subframes=1, delta_time=0.0, pause_timeline=False)
+        lights = [
+            prim
+            for prim in env.sim.stage.Traverse()
+            if prim.IsA(UsdLux.DomeLight) or prim.IsA(UsdLux.DistantLight)
+        ]
+        if not lights:
+            raise RuntimeError("No existing lights to vary")
+        expected = []
+        for prim in lights:
+            intensity = prim.GetAttribute("inputs:intensity").Get() * lighting["intensity_scale"]
+            item = rep.get.prim_at_path(str(prim.GetPath()))
+            with item:
+                rep.modify.attribute("inputs:intensity", intensity)
+                rep.modify.attribute("inputs:color", tuple(lighting["color"]))
+            expected.append((prim, intensity))
+        # Evaluate only the randomization graph. The existing Isaac camera owns capture;
+        # Replicator orchestrator.step would introduce a second renderer/timeline driver.
+        og.Controller.evaluate_sync(graph_id=item.node.get_graph())
+        for prim, intensity in expected:
+            if not np.isclose(prim.GetAttribute("inputs:intensity").Get(), intensity):
+                raise RuntimeError("Replicator did not apply the requested light intensity")
+            if not np.allclose(prim.GetAttribute("inputs:color").Get(), lighting["color"]):
+                raise RuntimeError("Replicator did not apply the requested light color")
+        print(json.dumps(dict(lighting=lighting, applied_lights=len(lights))), flush=True)
+
     metadata = dict(
         entry,
         condition=args.condition,
