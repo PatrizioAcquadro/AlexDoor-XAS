@@ -524,8 +524,20 @@ surface. Evidence, overlays and the snapshot script are under
 `~/.cache/alexdoor-xas/verification/visibility-targeted/20260926-fix/`.
 These nine snapshots establish the targeted fix, not visibility over every frame
 of a new trajectory. The corrected worn pair subsequently exercised the revised
-diagnostic across its complete trajectories. The remaining 25 doors were not
-invoked under the final controller. No corpus split or learning data was created.
+diagnostic across its complete trajectories. The remaining 25 doors have no
+complete new pair under the final controller. No corpus split or learning data
+was created.
+
+The campaign is paused after repeated interrupted `void-frame` starts. The latest
+report, `expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T164437.649868Z/report.json`
+under the verification cache, is `unresolved / incomplete_execution` with zero
+trials; the historical published record is unchanged. The user journal records
+an OOM kill in the desktop app scope at 2026-09-28 12:45:27 EDT. The user service
+cgroup has a 59.70 GiB peak since boot and one OOM kill; its current memory limits
+are unlimited. This supports memory exhaustion but does not identify the
+responsible allocation or process. Kernel OOM details are not readable by the
+current account. Preserve the incomplete evidence and diagnose memory usage
+before another invocation; this interruption does not establish an asset defect.
 
 The 15 previously deferred rechecks are the three `animated-door-*`,
 `modern-door-2fb8d024`,
