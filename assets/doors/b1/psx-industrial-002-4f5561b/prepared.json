@@ -80,41 +80,41 @@
   },
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
-    "status": "out_of_domain",
-    "theta_expert_d": 36.857992289855346,
+    "status": "qualified",
+    "theta_expert_d": 47.204461882333625,
     "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-industrial-002-4f5561b/20260925T004116.689550Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-industrial-002-4f5561b/20260928T180557.417781Z",
     "trials": [
       {
         "passed": true,
-        "angle_deg": 36.857992289855346,
-        "hold_angle_deg": 36.857992289855346,
+        "angle_deg": 47.204461882333625,
+        "hold_angle_deg": 47.204461882333625,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 7.604071140289307,
+        "peak_force_n": 7.134275913238525,
         "joint_margin": 0.0,
         "released": true,
         "visibility": {
-          "passed": false,
-          "failed_frames": 2937,
-          "checked_frames": 2937,
+          "passed": true,
+          "failed_frames": 0,
+          "checked_frames": 3007,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-1"
       },
       {
         "passed": true,
-        "angle_deg": 36.857992289855346,
-        "hold_angle_deg": 36.857992289855346,
+        "angle_deg": 47.204461882333625,
+        "hold_angle_deg": 47.204461882333625,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 7.604071140289307,
+        "peak_force_n": 7.134275913238525,
         "joint_margin": 0.0,
         "released": true,
         "visibility": {
-          "passed": false,
-          "failed_frames": 2937,
-          "checked_frames": 2937,
+          "passed": true,
+          "failed_frames": 0,
+          "checked_frames": 3007,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-2"

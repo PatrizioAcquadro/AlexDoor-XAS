@@ -6,13 +6,15 @@ The first full campaign produced 15 qualified, 15 out-of-domain and two unresolv
 outcomes. A user-authorized recovery corrected shared control defects and
 revised one common placement/contact before any split. Six recovery pairs and
 four successful representative single cycles supported the corrections. Formal
-paired requalification now has eight qualified doors. The first six passed under
+paired requalification now has eleven qualified doors. The first six passed under
 the recovered controller; `psx-worn-20d5505` initially published an
 `out_of_domain` result at 17.92 degrees, then qualified at **67.42 degrees** in a
 fresh pair after the shared angular-guard correction. The first fresh `void-frame` pair
 was unresolved at a 32.69-degree spread. Isolating the two cycles in fresh Isaac
-processes subsequently qualified it at **66.92 degrees** with zero spread. The other **24 doors remain pending**;
-their retained 21 qualified and three out-of-domain statuses predate earlier corrections. The
+processes subsequently qualified it at **66.92 degrees** with zero spread. Three
+further left-handed doors qualified at 54.73°, 56.70° and 47.20° under process
+isolation. The other **21 doors remain pending**; their retained qualified
+statuses predate earlier corrections. The
 first six newer qualified pairs also precede this angular-guard revision. RGB-D
 sampling was corrected and checked at three poses each on the three affected
 doors, without repeating their qualification cycles.
@@ -467,7 +469,7 @@ mixed across runs. Diagnostics and independent audits remain under
 
 ### Formal Requalification Started 2026-09-25
 
-Eight doors have published paired results, with two complete cycles per
+Eleven doors have published paired results, with two complete cycles per
 invocation on `cuda:0`. Reports are under
 `~/.cache/alexdoor-xas/verification/expert/<id>/<timestamp>/report.json`;
 the exact paths are published in each `prepared.json`. The first seven invocations
@@ -485,10 +487,13 @@ angle is the published reference; the table rounds only for display.
 | `psx-wooden-009-20d5505` | left | `qualified` | 65.39° | `20260925T211949.936782Z` |
 | `psx-worn-20d5505` | left | `qualified` | 67.42° | `20260926T060507.800125Z` |
 | `void-frame-studio-animated-classic-door-08bdf51b` | left | `qualified` | 66.92° | `20260928T173830.453850Z` |
+| `door-with-doorframe-c29da62c` | left | `qualified` | 54.73° | `20260928T175236.896147Z` |
+| `door-5035d7977155` | left | `qualified` | 56.70° | `20260928T175916.343847Z` |
+| `psx-industrial-002-4f5561b` | left | `qualified` | 47.20° | `20260928T180557.417781Z` |
 
-All eight current reports agree with their published records. Each pair has two
+All eleven current reports agree with their published records. Each pair has two
 valid holds and releases, consistent limiting causes and at most 0.10°
-sustained-angle spread. All eight qualified references meet the unrounded 45°
+sustained-angle spread. All eleven qualified references meet the unrounded 45°
 gate. Worn's superseded pair consistently stopped under the gate with
 `safety_stop / tracking_margin`.
 At the push stop, orientation error was 0.04510 rad against the controller's
@@ -617,7 +622,7 @@ recorded. Geometric visibility passes all frames; representative hold/release
 images show coherent robot geometry after process isolation. The report and
 published record agree, with preparation fields unchanged. The seven other newer
 references predate process isolation and were not rerun in this targeted repair.
-The 24 pending pairs, corpus selection and learning work remain separate.
+The 21 pending pairs, corpus selection and learning work remain separate.
 
 The 15 previously deferred rechecks are the three `animated-door-*`,
 `modern-door-2fb8d024`,
