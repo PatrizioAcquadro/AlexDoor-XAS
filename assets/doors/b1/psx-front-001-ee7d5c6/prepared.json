@@ -83,7 +83,7 @@
     "status": "qualified",
     "theta_expert_d": 60.638009640023,
     "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-front-001-ee7d5c6/20260925T171251.702880Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-front-001-ee7d5c6/20260928T191639.445074Z",
     "trials": [
       {
         "passed": true,

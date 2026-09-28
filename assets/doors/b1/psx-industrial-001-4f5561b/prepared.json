@@ -83,7 +83,7 @@
     "status": "qualified",
     "theta_expert_d": 46.993938376640905,
     "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-industrial-001-4f5561b/20260925T165951.998278Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-industrial-001-4f5561b/20260928T193623.002470Z",
     "trials": [
       {
         "passed": true,
@@ -95,8 +95,8 @@
         "joint_margin": 0.0,
         "released": true,
         "visibility": {
-          "passed": false,
-          "failed_frames": 1103,
+          "passed": true,
+          "failed_frames": 0,
           "checked_frames": 3109,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
@@ -112,8 +112,8 @@
         "joint_margin": 0.0,
         "released": true,
         "visibility": {
-          "passed": false,
-          "failed_frames": 1103,
+          "passed": true,
+          "failed_frames": 0,
           "checked_frames": 3109,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },

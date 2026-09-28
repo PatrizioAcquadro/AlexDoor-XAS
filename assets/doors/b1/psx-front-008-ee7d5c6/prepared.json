@@ -81,40 +81,40 @@
   "validation_scope": "Existing isolated-door preparation; no robot/expert qualification.",
   "expert_qualification": {
     "status": "qualified",
-    "theta_expert_d": 52.16839748428877,
+    "theta_expert_d": 60.44651845645252,
     "reason": "safety_stop",
-    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-front-008-ee7d5c6/20260925T002809.838259Z",
+    "evidence": "/home/pacquadr/.cache/alexdoor-xas/verification/expert/psx-front-008-ee7d5c6/20260928T193000.882108Z",
     "trials": [
       {
         "passed": true,
-        "angle_deg": 52.16839748428877,
-        "hold_angle_deg": 52.16839748428877,
+        "angle_deg": 60.44651845645252,
+        "hold_angle_deg": 60.44651845645252,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 6.764883041381836,
+        "peak_force_n": 6.432383060455322,
         "joint_margin": -4.55346658156941e-08,
         "released": true,
         "visibility": {
           "passed": false,
-          "failed_frames": 3897,
-          "checked_frames": 3897,
+          "failed_frames": 844,
+          "checked_frames": 3895,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-1"
       },
       {
         "passed": true,
-        "angle_deg": 52.16839748428877,
-        "hold_angle_deg": 52.16839748428877,
+        "angle_deg": 60.44651845645252,
+        "hold_angle_deg": 60.44651845645252,
         "stop_reason": "safety_stop",
         "safety_detail": "tracking_margin",
-        "peak_force_n": 6.764883041381836,
+        "peak_force_n": 6.432383060455322,
         "joint_margin": -4.55346658156941e-08,
         "released": true,
         "visibility": {
           "passed": false,
-          "failed_frames": 3897,
-          "checked_frames": 3897,
+          "failed_frames": 844,
+          "checked_frames": 3895,
           "scope": "geometric_panel_contact_surround_frame_observability"
         },
         "directory": "repeat-2"

@@ -8,7 +8,7 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Twenty-two doors have qualified pairs: sixteen left and six right. The latest four pairs qualify at 45.09°, 54.30°, 54.41° and 62.66°, each with zero spread. Another 10 pairs and the final corpus/split remain pending. |
+| 5.1 — Expert qualification | Twenty-six doors have qualified pairs: nineteen left and seven right. The latest four pairs qualify at 60.64°, 59.71°, 60.45° and 46.99°, each with zero spread. Another six pairs and the final corpus/split remain pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
@@ -18,7 +18,7 @@ caused history-dependent contact impulses despite identical reset states.
 Fresh Isaac processes now isolate both physics and renderer state between the
 two trials; the final pair qualifies at 66.92° with valid holds/releases and
 zero spread. Controller, geometry and admission thresholds are unchanged.
-Continue the 10 pending pairs with `--rerun`, one door at a time. Their retained
+Continue the six pending pairs with `--rerun`, one door at a time. Their retained
 qualified outcomes predate shared controller revisions. The first six newer
 qualified pairs also predate the angular-guard revision; seven earlier newer
 references predate process isolation. Published references remain tied to their
@@ -31,7 +31,7 @@ balance. Corpus selection and the split remain future work.
 
 ## Limits
 
-The 10 pending outcomes belong to the previous common placement/controller.
+The six pending outcomes belong to the previous common placement/controller.
 The recovery moves robot and pedestal together 5.7 cm back and 8 cm laterally,
 changes the common fraction/height from 0.40/1.00 m to 0.295/1.09 m, and
 corrects tracking/holding defects without lowering the 45-degree gate or physical
@@ -47,6 +47,8 @@ warnings occurred on the new qualified pairs for `door-adf292f437f2` (556 of
 3,949 checked frames in each cycle) and `door-door-metal-b21ec273` (all 3,453
 checked frames in each cycle). Representative RGB frames for the latter still
 show the door and robot hand; the geometric warning needs separate evaluation.
+The newly qualified `psx-front-008-ee7d5c6` also has 844 failed geometric frames
+of 3,895 checked in each cycle.
 Visibility
 remains separate from expert admission; learned door perception is not
 established. Simulator contact/hinge truth remains diagnostic and cannot
