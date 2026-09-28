@@ -8,7 +8,7 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.0 — Purdue runtime | Implemented and GPU-verified: seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head ZED RGB-D/proprioception and contact diagnostics. |
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
-| 5.1 — Expert qualification | Eleven doors have qualified pairs. The three latest left-handed doors qualified at 54.73°, 56.70° and 47.20° with zero spread and fresh-process isolation. Another 21 pairs and the final corpus/split remain pending. |
+| 5.1 — Expert qualification | Fourteen doors have qualified pairs: eleven left and three right. The latest three right-handed pairs qualify at 61.39°, 61.48° and 61.78°, each with zero spread. Another 18 pairs and the final corpus/split remain pending. |
 | 6–7 — Perception, data, learning | Approved specifications; no B1 demonstrations, Replicator dataset or learned-policy integration yet. |
 
 ## Next Action
@@ -18,7 +18,7 @@ caused history-dependent contact impulses despite identical reset states.
 Fresh Isaac processes now isolate both physics and renderer state between the
 two trials; the final pair qualifies at 66.92° with valid holds/releases and
 zero spread. Controller, geometry and admission thresholds are unchanged.
-Continue the 21 pending pairs with `--rerun`, one door at a time. Their retained
+Continue the 18 pending pairs with `--rerun`, one door at a time. Their retained
 qualified outcomes predate shared controller revisions. The first six newer
 qualified pairs also predate the angular-guard revision; seven earlier newer
 references predate process isolation. Published references remain tied to their
@@ -31,7 +31,7 @@ balance. Corpus selection and the split remain future work.
 
 ## Limits
 
-The 21 pending outcomes belong to the previous common placement/controller.
+The 18 pending outcomes belong to the previous common placement/controller.
 The recovery moves robot and pedestal together 5.7 cm back and 8 cm laterally,
 changes the common fraction/height from 0.40/1.00 m to 0.295/1.09 m, and
 corrects tracking/holding defects without lowering the 45-degree gate or physical
