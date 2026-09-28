@@ -17,5 +17,7 @@
     "valid_coverage": 0.95,
     "contact_position_p95_m": 0.01,
     "contact_orientation_p95_deg": 5.0
-  }
+  },
+  "feature_precision": "float16",
+  "geometry_precision": "float32"
 }

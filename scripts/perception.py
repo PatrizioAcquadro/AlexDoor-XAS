@@ -39,6 +39,8 @@ def main():
     if args.partial and args.command != "check":
         parser.error("Partial is only supported for diagnostic checks")
     config = json.loads(args.config.read_text())
+    if (config["feature_precision"], config["geometry_precision"]) != ("float16", "float32"):
+        parser.error("The frozen recipe requires float16 RGB features and float32 geometry")
     from alexdoor_xas.perception.data import (
         PerceptionWindows,
         episode_paths,

@@ -141,9 +141,10 @@ def validate_episode(path, *, images=True):
                 expected = np.isfinite(d) & (d > 0) & (d >= near) & (d <= far)
                 if not np.array_equal(v, expected):
                     raise ValueError("Non-sensor validity mask")
-                means.append(float(obs["rgb"][i].mean()))
-            if min(means) <= 30:
-                raise ValueError("Dark RGB recording")
+                rgb = obs["rgb"][i]
+                means.append(float(rgb.mean()))
+                if not np.any(rgb):
+                    raise ValueError("Empty RGB recording")
         outcome = json.loads(h5.attrs["outcome"])
         if not outcome["passed"] or not outcome["released"] or outcome["hold_angle_deg"] is None:
             raise ValueError("Expert episode failed physical validity/hold/release")

@@ -64,3 +64,27 @@ def test_invalid_masks_time_and_incomplete_recording(tmp_path):
     writer.close()
     with pytest.raises(ValueError, match="Incomplete"):
         validate_episode(tmp_path / "partial.hdf5")
+
+
+def test_dark_material_is_not_an_empty_camera_frame(tmp_path):
+    import h5py
+
+    path = tmp_path / "dark.hdf5"
+    writer = B1Writer(
+        path,
+        dict(asset_id="dark", split="train", condition="light", control_dt=0.1),
+        dict(depth_interval_m=[0.1, 5]),
+    )
+    observation = obs()
+    observation["rgb"][:] = 0
+    observation["rgb"][0, 0] = 100
+    writer.observe(observation, {})
+    after = dict(observation, time_s=0.1, frame=2)
+    writer.transition(dict(time_s=0.0, joint_target=np.zeros(7)), after, {})
+    writer.finish(dict(passed=True, released=True, hold_angle_deg=50.0))
+    writer.close()
+    assert max(validate_episode(path)["rgb_mean"]) < 30
+    with h5py.File(path, "r+") as h5:
+        h5["observations/rgb"][0] = np.zeros((4, 6, 3), np.uint8)
+    with pytest.raises(ValueError, match="Empty RGB"):
+        validate_episode(path)

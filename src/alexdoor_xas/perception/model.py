@@ -57,7 +57,8 @@ class FrozenBackbone(nn.Module):
     def forward(self, rgb):
         tokens = self.encoder(pixel_values=rgb).last_hidden_state[:, 1:]
         side = rgb.shape[-1] // self.encoder.config.patch_size
-        return tokens.transpose(1, 2).reshape(len(rgb), -1, side, side)
+        # Use the same frozen feature precision online and in the training cache.
+        return tokens.transpose(1, 2).reshape(len(rgb), -1, side, side).to(torch.float16)
 
 
 def rotation_6d(value):

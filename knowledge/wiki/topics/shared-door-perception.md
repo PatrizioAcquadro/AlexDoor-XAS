@@ -24,7 +24,8 @@ N+1 observations and annotations, including reset and terminal observations.
 Command t acts between observations t and t+1. The command includes the compensated
 world tool goal actually passed to `command_pose` and resulting seven joint targets;
 the placeholder zero action passed to `env.step` is not the expert command.
-Writing is incremental and refuses existing files. Interrupted files remain
+Writing is incremental and refuses existing files. Image checks reject empty black
+frames; mean brightness is diagnostic, not an arbitrary exclusion of dark materials. Interrupted files remain
 incomplete; physically invalid episodes remain preserved but are rejected by loaders.
 
 Observed inputs are RGB, left-aligned image-plane depth in meters, its finite/range
@@ -41,7 +42,9 @@ The initial backbone is `facebook/dinov2-small` (DINOv2 ViT-S/14), loaded locall
 through the workstation's existing Transformers runtime. Its parameters have no
 gradients and it stays in evaluation mode. RGB uses ImageNet normalization and
 224-pixel letterboxing; it never crops away the image edges. Depth/mask use aligned
-nearest resampling, adjusted intrinsics and masked XYZ patch features. Rendered
+nearest resampling, adjusted intrinsics and masked XYZ patch features. Cached
+RGB features and live inference both use float16; metric XYZ stays float32.
+Rendered
 depth is ideal geometry, not a ZED stereo-error simulation.
 
 A small spatial fusion module and GRU use four samples at 10 Hz. Each history is

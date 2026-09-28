@@ -60,7 +60,10 @@ def main():
             for condition in [args.condition] if args.condition else ["nominal", "light"]:
                 path = args.output / entry["asset_id"] / condition / "episode.hdf5"
                 if args.resume and path.exists():
-                    validate_episode(path)
+                    summary = validate_episode(path)
+                    report = path.parent / "validation.json"
+                    if not report.exists():
+                        report.write_text(json.dumps(summary, indent=2) + "\n")
                     continue
                 pending_tasks.append((entry, condition, path))
         logs = args.output / "worker-logs"

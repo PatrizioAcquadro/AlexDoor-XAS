@@ -104,12 +104,13 @@ def prepare_features(paths, destination, backbone, config, device):
                     # Preserve masked XYZ sums; the head divides by valid fraction.
                     geometry = F.adaptive_avg_pool2d(geometry, features.shape[-2:])
                     for key, value in (("features", features), ("geometry", geometry)):
-                        array = value.cpu().numpy().astype(np.float16)
+                        dtype = np.float16 if key == "features" else np.float32
+                        array = value.cpu().numpy().astype(dtype)
                         if key not in cache:
                             cache.create_dataset(
                                 key,
                                 shape=(len(ids), *array.shape[1:]),
-                                dtype=np.float16,
+                                dtype=dtype,
                                 chunks=(1, *array.shape[1:]),
                                 compression="lzf",
                             )
