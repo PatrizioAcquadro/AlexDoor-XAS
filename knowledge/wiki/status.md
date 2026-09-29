@@ -15,12 +15,15 @@ compatibility, dataset payloads and run orchestration are retired.
 ## Next Action
 
 The user-launched [[experiments/b1-perception-run-02|corrected full-corpus run]]
-has finished and fails development. Read-only CUDA replay confirms improving
-train fitting, worsening development geometry and excessive confidence on wrong
-estimates. Next, diagnose representation/input dependence and confidence
-calibration before selecting another bounded experiment; increasing the duration
-alone is unsupported. Preserve all attempts and keep the sealed test partition
-closed. No additional training was started during the diagnosis.
+fails development. The subsequent
+[[experiments/b1-perception-input-diagnosis|targeted input/error diagnosis]] finds
+the panel top outside the camera frustum in all 31,654 cached frames, strong RGB
+dependence with weak depth sensitivity, and train failures confined to composed
+contact position. Next, address full-geometry observation and retention, compare
+an explicit metric depth path, and test a bounded contact-fitting refinement
+before another full run. Confidence must reject inaccurate states. Preserve all
+attempts and keep the sealed test partition closed. No weights or training code
+were changed, and no additional training was started during the diagnosis.
 
 The interfaces and autonomous launch commands remain in
 [[topics/shared-door-perception|Shared Door Perception]].

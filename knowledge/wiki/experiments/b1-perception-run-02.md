@@ -77,6 +77,11 @@ doors. The offline gates correctly reject this model.
 
 ## Next decision
 
+The subsequent [[experiments/b1-perception-input-diagnosis|targeted input diagnosis]]
+now identifies an unobserved upper panel boundary, RGB-dominated
+predictions and systematic composed-contact residuals on train. Its measured
+findings and ordered fix priorities supersede the open diagnostic questions below.
+
 Keep both checkpoints as diagnostic evidence; neither is qualified for dynamic
 use. Do not merely extend this run or lower the acceptance threshold. Before
 another full trial, distinguish residual full-train fitting error from the much

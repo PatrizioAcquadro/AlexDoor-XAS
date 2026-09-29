@@ -11,6 +11,11 @@ component and contact checks on the same two train doors. The subsequent
 [[experiments/b1-perception-run-02|full-corpus run-02]] fails all six development
 doors, with worsening geometry and excessive confidence. Development accuracy
 is insufficient and closed-loop usability remains unverified.
+The [[experiments/b1-perception-input-diagnosis|input diagnosis]] also establishes
+that the current views exclude the upper panel boundary and that predictions
+depend mainly on RGB features. Full-height observation and metric-depth use are
+unresolved prerequisites for the next correction; the four-frame window does not
+retain a separate initial inspection view.
 The implementation contract is in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 

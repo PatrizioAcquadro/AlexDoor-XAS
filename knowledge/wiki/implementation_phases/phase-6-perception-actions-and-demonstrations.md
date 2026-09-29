@@ -38,6 +38,13 @@ and 0/6 development doors pass; development geometry worsens and confidence
 accepts inaccurate states. Development gates and dynamic validation remain open;
 6.0 is not complete.
 
+The [[experiments/b1-perception-input-diagnosis|targeted diagnosis]] finds that
+all recorded views exclude the panel top, while the model is strongly dependent
+on RGB and weakly sensitive to depth. Full-train failures are confined to the
+composed contact position. Observation coverage/static-state retention and metric
+input use must be addressed alongside fitting refinement before another full run;
+the proposed fixes have not yet been implemented or validated.
+
 Local preparation and readiness reports are under `outputs/b1/perception/`.
 The one-hour training launcher is autonomous, with configurable development
 stagnation stopping, checkpointed stopping state and a final analysis summary.
