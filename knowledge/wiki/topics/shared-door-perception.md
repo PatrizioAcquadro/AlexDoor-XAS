@@ -7,8 +7,10 @@ failures from the subsequent loss correction. The
 [[experiments/b1-perception-fit-check-01|two-door fitting check]] passes contact
 gates on train but exposes inaccurate articulated components. The subsequent
 [[experiments/b1-perception-fit-check-02|complete-state fit check]] passes all
-component and contact checks on the same two train doors. Development accuracy
-and closed-loop usability remain unverified.
+component and contact checks on the same two train doors. The subsequent
+[[experiments/b1-perception-run-02|full-corpus run-02]] fails all six development
+doors, with worsening geometry and excessive confidence. Development accuracy
+is insufficient and closed-loop usability remains unverified.
 The implementation contract is in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 
@@ -185,9 +187,9 @@ Subphase 6.0 completion.
 
 **Historical run-01 launch:** the commands below describe the original full-corpus
 workflow; `run-01` now exists. The service runs without an active assistant or
-scheduled task. A revised full-corpus run remains deferred until the primitive
-two-door correction has been reviewed and a full run is authorized; it must use a new output directory. An overnight
-extension is a separate decision.
+scheduled task. The corrected full-corpus `run-02` has also finished and failed
+development. Further experiments must preserve both runs and use a new output
+directory for a changed recipe. An overnight extension is a separate decision.
 
 ```bash
 "$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py launch --output outputs/b1/perception/run-01 --hours 1

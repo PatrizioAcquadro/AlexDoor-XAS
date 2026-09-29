@@ -32,7 +32,10 @@ components, uses stable angular loss/initialization and changes confidence to
 complete-state usability. The
 [[experiments/b1-perception-fit-check-02|new two-door validation]] passes at epoch
 17 with millimetric hinge-origin errors and all state/contact checks satisfied.
-Development gates and dynamic validation remain open;
+The subsequent [[experiments/b1-perception-run-02|full-corpus run-02]] stops
+normally after 15 epochs/13.60 minutes. At its last checkpoint, 5/19 train doors
+and 0/6 development doors pass; development geometry worsens and confidence
+accepts inaccurate states. Development gates and dynamic validation remain open;
 6.0 is not complete.
 
 Local preparation and readiness reports are under `outputs/b1/perception/`.
@@ -42,8 +45,9 @@ Launcher lifecycle checks were performed before the initial training run.
 
 See [[topics/shared-door-perception|Shared Door Perception]] for interfaces,
 fixed gates and operator commands. The revised objective passes the authorized
-two-door complete-state fitting check. A new full-corpus
-run and any ten-hour extension remain separate decisions.
+two-door complete-state fitting check but fails the subsequent full-corpus
+development evaluation. Further training or an extension requires a separate
+decision informed by the diagnosed generalization and confidence failures.
 
 #### Implementation
 

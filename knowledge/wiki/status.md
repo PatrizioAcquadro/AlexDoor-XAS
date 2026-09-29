@@ -9,17 +9,18 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
-| 6.0 — Perception | Preparation complete. Full-corpus run-01 fails development. Complete-state correction passes the same two-door train check in 17 epochs/2.32 minutes, including hinge/articulation, original contact gates and confidence coverage. Development and dynamic validation remain open. |
+| 6.0 — Perception | Preparation and two-door complete-state fitting check pass. Corrected full-corpus run-02 stops after 15 epochs/13.60 minutes: last checkpoint passes 5/19 train doors and 0/6 development doors, with inaccurate development estimates accepted by confidence. Development and dynamic validation remain open. |
 | 6.1–7 — Actions, data, learning | Planned; no matched B1 policy dataset or learned-policy integration yet. |
 
 ## Next Action
 
-The [[experiments/b1-perception-fit-check-02|complete-state fitting check]] passes
-on both train doors after correcting the compensating geometry and confidence
-semantics found in fit-check-01. Next, run a separately authorized full-corpus
-experiment in a new directory, reusing the current recordings/features and
-checking both the original contact gates and complete-state metrics on development.
-No full-corpus or overnight run has started. Keep the sealed test partition closed.
+The user-launched [[experiments/b1-perception-run-02|corrected full-corpus run]]
+has finished and fails development. Read-only CUDA replay confirms improving
+train fitting, worsening development geometry and excessive confidence on wrong
+estimates. Next, diagnose representation/input dependence and confidence
+calibration before selecting another bounded experiment; increasing the duration
+alone is unsupported. Preserve all attempts and keep the sealed test partition
+closed. No additional training was started during the diagnosis.
 
 The interfaces and autonomous launch commands remain in
 [[topics/shared-door-perception|Shared Door Perception]].
