@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -12,8 +13,11 @@ sys.path.insert(0, str(REPO / "src"))
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("prepare", "check", "train", "evaluate"))
+    parser.add_argument("command", choices=("prepare", "check", "train", "launch", "evaluate"))
     parser.add_argument("--config", type=Path, default=REPO / "configs/perception.json")
+    parser.add_argument(
+        "--training-config", type=Path, default=REPO / "configs/perception_training.json"
+    )
     parser.add_argument(
         "--recordings", type=Path, default=REPO / "datasets/b1/perception/engineering-v1"
     )
@@ -58,8 +62,41 @@ def main():
 
     corpus = load_corpus(REPO / "assets/doors/b1/corpus.json", REPO)
     paths = episode_paths(args.recordings, corpus, complete_campaign=not args.partial)
-    if args.command in ("train", "evaluate") or (args.command == "check" and not args.partial):
+    if args.command in ("train", "launch", "evaluate") or (
+        args.command == "check" and not args.partial
+    ):
         validate_feature_corpus(args.features, paths, config, args.backbone)
+    if args.command in ("train", "launch"):
+        from alexdoor_xas.perception.run import EarlyStopping, launch_detached
+
+        stopping = json.loads(args.training_config.read_text())
+        EarlyStopping(stopping)
+        hours = args.hours if args.hours is not None else config["max_hours"]
+        if not 0 < hours <= 10:
+            parser.error("Training budget must be in (0, 10] hours")
+        if args.command == "launch":
+            launcher = (
+                Path(os.environ.get("ISAAC_LAB_DIR", Path.home() / "IsaacLab")) / "isaaclab.sh"
+            )
+            if not launcher.is_file():
+                parser.error("Set ISAAC_LAB_DIR to the supported Isaac Lab checkout")
+            # Explicit resolved paths preserve the caller's choices in the detached worker.
+            command = [str(launcher), "-p", str(Path(__file__).resolve()), "train"]
+            for key in (
+                "config",
+                "training_config",
+                "recordings",
+                "features",
+                "backbone",
+                "output",
+            ):
+                command.extend(["--" + key.replace("_", "-"), str(getattr(args, key).resolve())])
+            command.extend(["--hours", str(hours), "--device", args.device])
+            if args.resume is not None:
+                command.extend(["--resume", str(args.resume.resolve())])
+            record = launch_detached(command, args.output, REPO, resume=args.resume is not None)
+            print(json.dumps(record, indent=2))
+            return
     if args.command in ("prepare", "check"):
         backbone = FrozenBackbone(args.backbone).to(args.device)
         if args.command == "prepare":
@@ -155,7 +192,8 @@ def main():
                 development,
                 config,
                 args.output,
-                hours=args.hours if args.hours is not None else config["max_hours"],
+                stopping=stopping,
+                hours=hours,
                 resume=args.resume,
                 device=args.device,
             )

@@ -2,6 +2,7 @@
 
 import json
 import time
+from dataclasses import asdict
 from pathlib import Path
 
 import numpy as np
@@ -9,6 +10,7 @@ import torch
 from torch.utils.data import DataLoader, WeightedRandomSampler
 
 from .model import DoorEstimator, estimator_loss, rotation_error
+from .run import EarlyStopping, save_json
 
 
 def move(batch, device):
@@ -121,11 +123,14 @@ def load_checkpoint(path, config, device):
     return model, payload
 
 
-def train(train_data, development, config, output, *, hours=1, resume=None, device="cuda:0"):
+def train(
+    train_data, development, config, output, *, stopping, hours=1, resume=None, device="cuda:0"
+):
     if not torch.cuda.is_available() or not str(device).startswith("cuda"):
         raise RuntimeError("Training requires the actual CUDA device; no CPU fallback")
     if not 0 < hours <= 10:
         raise ValueError("Training budget must be in (0, 10] hours")
+    stopper = EarlyStopping(stopping)
     output = Path(output)
     if resume is None:
         output.mkdir(parents=True, exist_ok=False)
@@ -142,6 +147,7 @@ def train(train_data, development, config, output, *, hours=1, resume=None, devi
         model.parameters(), lr=config["learning_rate"], weight_decay=config["weight_decay"]
     )
     epoch, best, total_steps = 0, float("inf"), 0
+    best_metrics = None
     if resume is not None:
         model, state = load_checkpoint(resume, config, device)
         if state["dataset"] != manifest:
@@ -151,6 +157,10 @@ def train(train_data, development, config, output, *, hours=1, resume=None, devi
         )
         optimizer.load_state_dict(state["optimizer"])
         epoch, best, total_steps = state["epoch"], state["best_score"], state["steps"]
+        stopper = EarlyStopping(**state["early_stopping"])
+        if stopper.settings != stopping:
+            raise ValueError("Resume requires the same early-stopping settings")
+        best_metrics = state["best_metrics"]
         torch.set_rng_state(state["rng_cpu"].cpu())
         torch.cuda.set_rng_state_all([s.cpu() for s in state["rng_cuda"]])
         generator.set_state(state["sampler_rng"].cpu())
@@ -160,8 +170,17 @@ def train(train_data, development, config, output, *, hours=1, resume=None, devi
     loader = DataLoader(train_data, batch_size=config["batch_size"], sampler=sampler)
     started = time.monotonic()
     deadline = started + hours * 3600
-    status = dict(state="running", device=device, budget_hours=hours, training_started=True)
-    (output / "status.json").write_text(json.dumps(status, indent=2) + "\n")
+    status = dict(
+        state="running",
+        device=device,
+        budget_hours=hours,
+        training_started=True,
+        early_stopping=asdict(stopper),
+        subphase_complete=False,
+        dynamic_validation="pending",
+    )
+    save_json(output / "status.json", status)
+    reason = None
     try:
         while epoch < config["max_epochs"] and time.monotonic() < deadline:
             model.train()
@@ -181,7 +200,7 @@ def train(train_data, development, config, output, *, hours=1, resume=None, devi
                 if not torch.isfinite(loss):
                     raise FloatingPointError("Nonfinite training loss")
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
                 optimizer.step()
                 total_steps += 1
                 losses.append(float(loss.detach()))
@@ -204,9 +223,13 @@ def train(train_data, development, config, output, *, hours=1, resume=None, devi
             epoch += int(completed_epoch)
             metrics = evaluate(model, development, config, device)
             score = metrics["selection_score"]
-            improved = np.isfinite(score) and score < best
+            if not np.isfinite(score):
+                raise FloatingPointError("Nonfinite development selection score")
+            stagnant = stopper.update(score, epoch) if completed_epoch else False
+            improved = score < best
             if improved:
                 best = score
+                best_metrics = metrics
             payload = dict(
                 schema="b1.perception.checkpoint.v1",
                 config=config,
@@ -221,6 +244,8 @@ def train(train_data, development, config, output, *, hours=1, resume=None, devi
                 rng_cuda=torch.cuda.get_rng_state_all(),
                 sampler_rng=generator.get_state(),
                 partial_epoch=not completed_epoch,
+                early_stopping=asdict(stopper),
+                best_metrics=best_metrics,
             )
             save_checkpoint(output / "last.pt", payload)
             if improved:
@@ -235,6 +260,7 @@ def train(train_data, development, config, output, *, hours=1, resume=None, devi
                             train_loss=float(np.mean(losses)),
                             elapsed_s=time.monotonic() - started,
                             gpu_memory_mb=torch.cuda.max_memory_allocated() / 1e6,
+                            early_stopping=asdict(stopper),
                             **metrics,
                         )
                     )
@@ -251,18 +277,42 @@ def train(train_data, development, config, output, *, hours=1, resume=None, devi
                 ),
                 flush=True,
             )
-            if not completed_epoch:
+            status.update(
+                epochs=epoch,
+                steps=total_steps,
+                elapsed_s=time.monotonic() - started,
+                best_score=best,
+                early_stopping=asdict(stopper),
+            )
+            save_json(output / "status.json", status)
+            if not completed_epoch or time.monotonic() >= deadline:
+                reason = "time_budget"
+                break
+            if stagnant:
+                reason = "development_stagnation"
                 break
         status.update(
             state="finished",
-            reason="budget_or_epoch_limit",
-            steps=total_steps,
-            elapsed_s=time.monotonic() - started,
-            best_score=best,
-            subphase_complete=False,
+            reason=reason or ("epoch_limit" if epoch >= config["max_epochs"] else "time_budget"),
         )
     except BaseException as error:
-        status.update(state="failed", error=f"{type(error).__name__}: {error}")
+        status.update(state="failed", reason="error", error=f"{type(error).__name__}: {error}")
         raise
     finally:
-        (output / "status.json").write_text(json.dumps(status, indent=2) + "\n")
+        status.update(
+            epochs=epoch,
+            steps=total_steps,
+            elapsed_s=time.monotonic() - started,
+            best_score=best if np.isfinite(best) else None,
+            early_stopping=asdict(stopper),
+        )
+        save_json(output / "status.json", status)
+        save_json(
+            output / "summary.json",
+            dict(
+                **status,
+                best_development=best_metrics,
+                best_checkpoint=str(output / "best.pt") if (output / "best.pt").exists() else None,
+                last_checkpoint=str(output / "last.pt") if (output / "last.pt").exists() else None,
+            ),
+        )

@@ -24,6 +24,9 @@ weights. Training, development gates and dynamic validation remain pending;
 6.0 is not complete.
 
 Local preparation and readiness reports are under `outputs/b1/perception/`.
+The one-hour training launcher is autonomous, with configurable development
+stagnation stopping, checkpointed stopping state and a final analysis summary.
+The launcher and stopping controls have been checked without training the estimator.
 
 See [[topics/shared-door-perception|Shared Door Perception]] for interfaces,
 fixed gates and operator commands. The user requires a handoff to a smaller

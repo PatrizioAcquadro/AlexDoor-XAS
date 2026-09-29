@@ -105,31 +105,61 @@ feature caches. `outputs/b1/perception/preparation.json` records the cache build
 establishes readiness to start estimator training, not development accuracy or
 Subphase 6.0 completion.
 
-**User-requested handoff:** stop before invoking `train`. A smaller model should
-launch and monitor the initial incremental run after preparation is complete.
+**User-requested handoff:** preparation does not launch training. The smaller model
+should submit one autonomous one-hour run with `launch`, confirm startup once,
+then end its turn. No active assistant, polling loop or scheduled task is needed.
+The user requests the analysis after the run ends; no overnight extension starts
+automatically.
 
 ```bash
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py train --output outputs/b1/perception/run-01 --hours 1
+"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py launch --output outputs/b1/perception/run-01 --hours 1
 "$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py evaluate --checkpoint outputs/b1/perception/run-01/best.pt --output outputs/b1/perception/development-01.json
 ```
 
-Monitor `status.json`, `metrics.jsonl` and the console in the run directory:
+`launch` validates the corpus, feature cache and CUDA before submitting a
+`systemd --user` service, then returns immediately. The service runs independently
+of the Codex task; keep the workstation awake and the desktop user session running.
+It never restarts automatically. `train` remains available for foreground execution.
+The service is `alexdoor-perception-run-01.service`; submission records and the
+persistent console are the sibling files `run-01.launch.jsonl` and
+`run-01.console.log`. An existing run directory requires explicit `--resume`.
+
+`configs/perception_training.json` controls early stopping independently of the
+frozen feature configuration, so stopping settings do not invalidate the caches.
+The initial rule stops after **10 consecutive completed development evaluations**
+without a cumulative improvement of at least **0.5%** in the equal-door selection
+score, and never before **15 completed epochs**. Small gains accumulate against
+the last significant improvement. This is an engineering stopping rule, not a
+change to the per-door accuracy gates. Every absolute best score still saves
+`best.pt`, even when its improvement is below the stopping threshold.
+
+The run stops at the first applicable time, stagnation or epoch limit; nonfinite
+loss, gradients or development score fail explicitly. The one-hour budget covers
+the training loop; finishing the current step, final development evaluation and
+checkpoint writing can add time. Final `status.json` and `summary.json` record
+`time_budget`, `development_stagnation`, `epoch_limit` or `error`. The summary
+includes the best development results and checkpoint paths. Startup failures before
+the training loop are visible in the console/service result.
+
+After completion, start the analysis from these files:
 
 ```bash
+cat outputs/b1/perception/run-01/summary.json
 cat outputs/b1/perception/run-01/status.json
 tail -n 3 outputs/b1/perception/run-01/metrics.jsonl
-nvidia-smi --query-gpu=name,utilization.gpu,memory.used --format=csv
 ```
 
 Check finite loss, CUDA memory, per-door errors, confidence coverage and the
-train/development gap. `last.pt` stores model, optimizer and random states;
-`best.pt` is selected on development only. Resume continues the same data/config;
+train/development gap. `last.pt` stores model, optimizer, random states and the
+early-stopping counter; `best.pt` is selected on development only. Resume requires
+the same data/config and stopping settings;
 an interrupted partial epoch starts a fresh weighted sample on resume. Preserve
 failed runs and diagnose missing/invalid data, NaNs or GPU failures before retrying.
 
-A later `train --resume outputs/b1/perception/run-01/last.pt --output
+A later `launch --resume outputs/b1/perception/run-01/last.pt --output
 outputs/b1/perception/run-01 --hours 10` is supported but **not authorized to run
 by preparation alone**. Decide after the first cycle whether more optimization
-addresses the measured failure. The time budget bounds optimization; the final
-development evaluation and checkpoint write also take time. Do not lower gates,
+addresses the measured failure. A resumed invocation has its own time budget and
+retains the stagnation counter;
+a run stopped for stagnation needs diagnosis before an extension. Do not lower gates,
 open test doors, change the backbone or launch policy training to make a run pass.

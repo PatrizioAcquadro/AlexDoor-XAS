@@ -1,0 +1,5 @@
+{
+  "patience_evaluations": 10,
+  "min_relative_improvement": 0.005,
+  "min_epochs": 15
+}

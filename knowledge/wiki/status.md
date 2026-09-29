@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-09-28. The maintained project is **B1**; B0 execution,
+Current as of 2026-09-29. The maintained project is **B1**; B0 execution,
 compatibility, dataset payloads and run orchestration are retired.
 
 | Area | Current state |
@@ -15,7 +15,8 @@ compatibility, dataset payloads and run orchestration are retired.
 ## Next Action
 
 Stop at the agreed boundary before training. The next step is the initial
-incremental estimator run, followed by development evaluation. The estimator
+one-hour estimator run through the autonomous launcher, followed by analysis of
+its saved summary. Time/stagnation stopping requires no continuously active assistant. The estimator
 is untrained; development accuracy and dynamic usability remain unvalidated.
 The contract and commands are in
 [[topics/shared-door-perception|Shared Door Perception]]. Qualification traces/images
