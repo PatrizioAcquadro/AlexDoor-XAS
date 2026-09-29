@@ -189,7 +189,11 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if self.cfg.cameras:
             model, left, _ = make_zed_x_mini_cfgs(ROOT + "/Zed", resolution="SVGA")
             model.spawn.func(model.prim_path, model.spawn)
-            author_alex_purdue_zed_x_mini_mount(stage, ROBOT, model.prim_path)
+            mount = author_alex_purdue_zed_x_mini_mount(stage, ROBOT, model.prim_path)
+            if self.cfg.camera_mount_pitch_rad:
+                from alexdoor_xas.perception.inspection import tilt_mount
+
+                tilt_mount(stage, mount, self.cfg.camera_mount_pitch_rad)
             schemas.activate_contact_sensors(model.prim_path)
             left.update_latest_camera_pose = True
             optic = stage.GetPrimAtPath(left.prim_path)

@@ -281,7 +281,7 @@ def summarize_trials(trials, *, required_count=None):
     )
 
 
-def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True):
+def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True, inspection=None):
     import json
 
     import torch
@@ -294,7 +294,12 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True)
     env.reset()
     env.set_neck_target(setup.neck)
     if recorder is not None:
-        recorder.start(env, door, setup)
+        recorder.start(env, door, setup, phase="inspect" if inspection else "approach")
+    if inspection:
+        from alexdoor_xas.perception.inspection import run_inspection
+
+        audit = run_inspection(env, inspection, recorder)
+        (output / "inspection.json").write_text(json.dumps(audit, indent=2) + "\n")
     env.sim.stage.Export(str(output / "scene.usda"))
     from alexdoor_xas.kinematics.purdue_chain import PurdueChain
 

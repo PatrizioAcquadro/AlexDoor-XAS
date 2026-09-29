@@ -138,7 +138,7 @@ class ExpertRecorder:
             physical_valid=np.bool_(valid),
         )
 
-    def start(self, env, door, setup):
+    def start(self, env, door, setup, phase="approach"):
         self.door, self.setup = door, setup
         if self.calibration is None:
             raise RuntimeError("Prepare camera calibration before the first reset")
@@ -148,7 +148,7 @@ class ExpertRecorder:
             purpose="perception_engineering_not_matched_policy_dataset",
         )
         self.writer = B1Writer(self.path, self.metadata, self.calibration)
-        self.writer.observe(self.observation(env), self.annotation(env, "approach"))
+        self.writer.observe(self.observation(env), self.annotation(env, phase))
 
     def transition(self, env, goal_p, goal_r, phase, trace):
         command = dict(
@@ -156,6 +156,7 @@ class ExpertRecorder:
             tool_position=np.asarray(goal_p),
             tool_rotation=np.asarray(goal_r),
             joint_target=array(env.targets)[0, env.arm_ids],
+            neck_target=array(env.targets)[0, env.neck_ids],
             phase=np.int8(PHASES.index(phase)),
         )
         self.writer.transition(

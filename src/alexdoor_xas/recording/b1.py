@@ -7,7 +7,7 @@ import h5py
 import numpy as np
 
 SCHEMA = "b1.rgbd.v1"
-PHASES = ("approach", "contact", "push", "hold", "release")
+PHASES = ("approach", "contact", "push", "hold", "release", "inspect")
 OBS_KEYS = (
     "time_s",
     "frame",

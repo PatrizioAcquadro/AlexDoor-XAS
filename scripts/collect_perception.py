@@ -24,6 +24,10 @@ def main():
     parser.add_argument("--asset-id")
     parser.add_argument("--condition", choices=("nominal", "light"))
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument("--inspection", type=Path, help="Common camera mount and neck scan config")
+    parser.add_argument(
+        "--inspection-only", action="store_true", help="Camera diagnostic, no expert"
+    )
     parser.add_argument(
         "--without-recorder", action="store_true", help="Physical equivalence check"
     )
@@ -40,6 +44,8 @@ def main():
         help="Independent fresh-process workers; default one",
     )
     args = parser.parse_args()
+    if args.inspection_only and (not args.inspection or args.resume or args.without_recorder):
+        parser.error("Inspection-only requires --inspection and fresh recorded output")
     if not args.device.startswith("cuda"):
         parser.error("Collection requires CUDA")
     corpus = load_corpus(REPO / "assets/doors/b1/corpus.json", REPO)
@@ -86,6 +92,10 @@ def main():
             ]
             if args.without_recorder:
                 command.append("--without-recorder")
+            if args.inspection:
+                command.extend(["--inspection", str(args.inspection.resolve())])
+            if args.inspection_only:
+                command.append("--inspection-only")
             stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
             log = logs / f"{stamp}-{entry['asset_id']}-{condition}.log"
             print(
@@ -94,7 +104,10 @@ def main():
             )
             with log.open("x") as stream:
                 subprocess.run(command, check=True, stdout=stream, stderr=subprocess.STDOUT)
-            if args.without_recorder:
+            if args.inspection_only:
+                if not (path.parent / "expert/inspection.json").is_file():
+                    raise RuntimeError("Worker did not finish inspection")
+            elif args.without_recorder:
                 result = json.loads((path.parent / "expert/result.json").read_text())
                 if not result["passed"] or not result["released"]:
                     raise RuntimeError("Worker did not finish a valid expert episode")
@@ -141,7 +154,16 @@ def main():
         json.loads((folder / "recipe.json").read_text()),
     )
     setup = ProbeSetup(**json.loads((REPO / corpus["setup"]["path"]).read_text()))
-    env = DoorPushPurdueEnv(probe_config(door, setup, args.device))
+    inspection = None
+    if args.inspection:
+        from alexdoor_xas.perception.inspection import load_inspection
+
+        inspection = load_inspection(args.inspection)
+        setup.neck = tuple(inspection["waypoints"][-1][1:])
+    env_config = probe_config(door, setup, args.device)
+    if inspection:
+        env_config.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
+    env = DoorPushPurdueEnv(env_config)
     seed = 6100 if entry["split"] == "train" else 6200
     lighting = dict(intensity_scale=1.0, color=[1.0, 1.0, 1.0])
     if args.condition == "light":
@@ -185,25 +207,48 @@ def main():
         seed=seed,
         lighting=lighting,
         setup=setup.to_dict(),
-        teacher="frozen_phase5_expert",
+        teacher="frozen_arm_expert_with_inspection" if inspection else "frozen_phase5_expert",
+        inspection=inspection,
     )
     recorder = None if args.without_recorder else ExpertRecorder(output / "episode.hdf5", metadata)
     if recorder is not None:
         recorder.calibration = camera_calibration(env)
     try:
-        result = run_probe(
-            env, door, setup, output / "expert", recorder=recorder, capture_evidence=False
-        )
+        if args.inspection_only:
+            from alexdoor_xas.perception.inspection import run_inspection
+
+            env.reset()
+            recorder.start(env, door, setup, phase="inspect")
+            audit = run_inspection(env, inspection, recorder)
+            result = dict(
+                passed=True,
+                released=False,
+                hold_angle_deg=None,
+                scope="inspection_only_not_training_episode",
+            )
+            recorder.finish(result)
+            (output / "expert").mkdir()
+            (output / "expert/inspection.json").write_text(json.dumps(audit, indent=2) + "\n")
+        else:
+            result = run_probe(
+                env,
+                door,
+                setup,
+                output / "expert",
+                recorder=recorder,
+                capture_evidence=False,
+                inspection=inspection,
+            )
     finally:
         if recorder is not None:
             recorder.close()
-    if recorder is not None:
+    if recorder is not None and not args.inspection_only:
         summary = validate_episode(output / "episode.hdf5")
         (output / "validation.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(dict(asset_id=door.name, condition=args.condition, result=result)), flush=True)
     env.close()
     del app
-    return 0 if result["passed"] and result["released"] else 1
+    return 0 if result["passed"] and (args.inspection_only or result["released"]) else 1
 
 
 if __name__ == "__main__":

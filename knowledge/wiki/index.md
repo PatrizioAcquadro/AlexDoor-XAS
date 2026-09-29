@@ -52,6 +52,7 @@ Current engineering and historical scientific records:
 
 - [[experiments/b1-perception-run-01|B1 Perception Run 01]] — First estimator trial, failed development gates, loss-scale diagnosis and conditional follow-up.
 - [[experiments/b1-perception-run-02|B1 Perception Run 02]] — Corrected full-corpus trial: regular stagnation stop, incomplete train fitting, worsening development geometry and confidence failure.
+- [[experiments/b1-perception-corrections|B1 Perception Corrections]] — Common inspection and ZED mount study, with bounded observed-data validation.
 - [[experiments/b1-perception-input-diagnosis|B1 Perception Input Diagnosis]] — Full-height observability gap, RGB-dominated predictions and systematic composed-contact train residuals.
 - [[experiments/b1-perception-fit-check-01|B1 Perception Two-Door Fit Check]] — Corrected loss passes train contact gates; primitive-state errors remain despite verified alignment.
 - [[experiments/b1-perception-fit-check-02|B1 Perception Complete-State Fit Check]] — Corrected geometry, validation and confidence pass all state/contact checks on the same two train doors.
