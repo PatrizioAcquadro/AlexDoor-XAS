@@ -9,18 +9,17 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
-| 6.0 — Perception | Preparation complete. Initial estimator run stopped for stagnation after 28 epochs/24.7 minutes; best epoch 18 fails all six development doors. Corrected loss passes contact gates on a two-door train subset in 3.77 minutes, but hinge/local/articulation outputs remain incorrect. Development and dynamic validation remain open. |
+| 6.0 — Perception | Preparation complete. Full-corpus run-01 fails development. Complete-state correction passes the same two-door train check in 17 epochs/2.32 minutes, including hinge/articulation, original contact gates and confidence coverage. Development and dynamic validation remain open. |
 | 6.1–7 — Actions, data, learning | Planned; no matched B1 policy dataset or learned-policy integration yet. |
 
 ## Next Action
 
-The [[experiments/b1-perception-fit-check-01|two-door fitting check]] passes the
-unchanged operational contact gates, with isolated confidence gradients, but
-finds large errors in the hinge frame and articulated components that compensate
-in the composed contact pose. A new complete-state objective, stable angular learning, state-aware confidence
-and checkpoint gates are implemented. Verify them on the same two-door subset
-before a new full-corpus run. Source/cache alignment checks pass. No new full-corpus or
-nighttime training has started; keep the fixed gates and sealed test partition.
+The [[experiments/b1-perception-fit-check-02|complete-state fitting check]] passes
+on both train doors after correcting the compensating geometry and confidence
+semantics found in fit-check-01. Next, run a separately authorized full-corpus
+experiment in a new directory, reusing the current recordings/features and
+checking both the original contact gates and complete-state metrics on development.
+No full-corpus or overnight run has started. Keep the sealed test partition closed.
 
 The interfaces and autonomous launch commands remain in
 [[topics/shared-door-perception|Shared Door Perception]].

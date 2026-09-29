@@ -5,8 +5,10 @@ The initial trained estimator is **not qualified**: run-01 fails the development
 gates. The [[experiments/b1-perception-run-01|run-01 diagnosis]] separates measured
 failures from the subsequent loss correction. The
 [[experiments/b1-perception-fit-check-01|two-door fitting check]] passes contact
-gates on train but exposes inaccurate articulated components. Passing recording
-checks or a CUDA forward/loss does not establish development accuracy or closed-loop usability.
+gates on train but exposes inaccurate articulated components. The subsequent
+[[experiments/b1-perception-fit-check-02|complete-state fit check]] passes all
+component and contact checks on the same two train doors. Development accuracy
+and closed-loop usability remain unverified.
 The implementation contract is in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 
@@ -184,7 +186,7 @@ Subphase 6.0 completion.
 **Historical run-01 launch:** the commands below describe the original full-corpus
 workflow; `run-01` now exists. The service runs without an active assistant or
 scheduled task. A revised full-corpus run remains deferred until the primitive
-state fit has been verified on the two-door diagnostic; it must use a new output directory. An overnight
+two-door correction has been reviewed and a full run is authorized; it must use a new output directory. An overnight
 extension is a separate decision.
 
 ```bash

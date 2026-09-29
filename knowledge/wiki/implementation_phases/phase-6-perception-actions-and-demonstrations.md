@@ -1,6 +1,6 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Subphase 6.0 open: train contact fit passes; articulated state and development remain unqualified.
+> Subphase 6.0 open: complete-state fit passes on two train doors; development and dynamic use remain unqualified.
 > Subphases 6.1–6.2 remain planned. Requires the completed Phases 4 and 5.
 
 ## Objective
@@ -29,7 +29,9 @@ gradients and bounded two-door train-only fitting command are implemented. The
 train after 30 epochs, but hinge/local/articulation outputs remain incorrect.
 The subsequent `articulated-state-v3` correction supervises and validates all
 components, uses stable angular loss/initialization and changes confidence to
-complete-state usability; its new two-door validation is pending.
+complete-state usability. The
+[[experiments/b1-perception-fit-check-02|new two-door validation]] passes at epoch
+17 with millimetric hinge-origin errors and all state/contact checks satisfied.
 Development gates and dynamic validation remain open;
 6.0 is not complete.
 
@@ -39,9 +41,9 @@ stagnation stopping, checkpointed stopping state and a final analysis summary.
 Launcher lifecycle checks were performed before the initial training run.
 
 See [[topics/shared-door-perception|Shared Door Perception]] for interfaces,
-fixed gates and operator commands. The authorized loss correction and small
-train-only fitting diagnostic have run. Correct primitive-state fitting before a
-new full-corpus run; any ten-hour extension remains a separate decision.
+fixed gates and operator commands. The revised objective passes the authorized
+two-door complete-state fitting check. A new full-corpus
+run and any ten-hour extension remain separate decisions.
 
 #### Implementation
 

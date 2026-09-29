@@ -97,6 +97,10 @@ this page preserves the durable result and its implementation reference.
 
 ## Next action and limits
 
+The subsequent [[experiments/b1-perception-fit-check-02|complete-state correction]]
+resolves the fitting failure on this same subset; the results above remain the
+historical outcome of `796797c`.
+
 Parts 1–2 are executed: a corrected objective is implemented and a bounded
 train-only test has run. Contact targets fit, but the complete articulated state
 does not. Resolve the primitive-state fit through a bounded loss/initialization/
