@@ -1,6 +1,6 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Subphase 6.0 preparation complete; no estimator training has started.
+> Subphase 6.0 preparation complete; initial training fails development gates.
 > Subphases 6.1–6.2 remain planned. Requires the completed Phases 4 and 5.
 
 ## Objective
@@ -20,7 +20,10 @@ contains 50 validated episodes: 38 train and 12 development, with nominal and
 light conditions for each of the 25 identities. Feature preparation produced
 50 complete caches and 31,654 sampled frames. A full-corpus CUDA forward/loss
 check passed on the RTX 4090 with frozen backbone and unchanged estimator
-weights. Training, development gates and dynamic validation remain pending;
+weights. The subsequent first training run stopped for stagnation after 28 epochs;
+its best checkpoint fails the six development doors. See the
+[[experiments/b1-perception-run-01|run-01 diagnosis]] for measured errors and the
+proposed next experiment. Development gates and dynamic validation remain open;
 6.0 is not complete.
 
 Local preparation and readiness reports are under `outputs/b1/perception/`.
@@ -184,7 +187,7 @@ training and sealed evaluation.
 
 Future outputs: synchronized multi-door recordings, one frozen perception stack
 and optional gaze, eight executable learning paths, pilot evidence, protocol,
-and matched dataset. Current engineering recordings and the untrained estimator
+and matched dataset. Current engineering recordings and the unqualified estimator
 are preparation artifacts, not the final matched dataset or a qualified stack.
 
 ## Files

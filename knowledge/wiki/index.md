@@ -48,7 +48,9 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
-Historical scientific records:
+Current engineering and historical scientific records:
+
+- [[experiments/b1-perception-run-01|B1 Perception Run 01]] — First estimator trial, failed development gates, loss-scale diagnosis and proposed next experiment.
 
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.

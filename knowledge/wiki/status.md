@@ -9,18 +9,20 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
-| 6.0 — Perception preparation | Causal B1 recording and frozen-backbone estimator implemented. All 50 train/development engineering episodes and feature caches are complete; full-corpus no-update CUDA check passed. Training, development accuracy and dynamic usability remain pending. |
+| 6.0 — Perception | Preparation complete. Initial estimator run stopped for stagnation after 28 epochs/24.7 minutes; best epoch 18 fails all six development doors. Loss balance and geometric generalization require work; dynamic validation remains pending. |
 | 6.1–7 — Actions, data, learning | Planned; no matched B1 policy dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Stop at the agreed boundary before training. The next step is the initial
-one-hour estimator run through the autonomous launcher, followed by analysis of
-its saved summary. Time/stagnation stopping requires no continuously active assistant. The estimator
-is untrained; development accuracy and dynamic usability remain unvalidated.
-The contract and commands are in
-[[topics/shared-door-perception|Shared Door Perception]]. Qualification traces/images
-remain excluded from learning and model selection; test identities remain sealed.
+Address the initial estimator recipe before extending compute. The
+[[experiments/b1-perception-run-01|run-01 diagnosis]] finds insufficient train
+position precision, a loss-scale imbalance and a further development gap. The
+proposed next step is a corrected objective and a small train-only fitting check,
+then a separate bounded full-corpus run if that check passes. No second run has
+started. Keep the fixed gates and sealed test partition unchanged.
+
+The interfaces and autonomous launch commands remain in
+[[topics/shared-door-perception|Shared Door Perception]].
 
 Phase 5 is closed with all 32 qualified identities preserved. Cross-pack mesh
 review merged the PSX essential/interior/front sources into one train family;

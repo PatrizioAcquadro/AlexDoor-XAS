@@ -5,7 +5,7 @@ Alex003, WSG32/UMI v1, measured pedestal and head ZED RGB-D. Real-door expert
 qualification has a shared executor and one common zero-yaw mounting/ready
 configuration, validated by two complete GPU cycles each on a right and a left
 door. Routine qualification changes only the asset ID. Shared RGB-D perception
-preparation is implemented but untrained; integration with ACT/Diffusion remains
+preparation is implemented; the first trained estimator fails development gates; integration with ACT/Diffusion remains
 future work.
 
 ## Runtime and Data Boundaries

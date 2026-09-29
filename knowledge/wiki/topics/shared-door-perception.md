@@ -1,8 +1,10 @@
 # Shared Door Perception
 
 Subphase 6.0 prepares one observed-only stack for every B1 model/representation.
-The initial implementation is **untrained**. Passing recording checks or a CUDA
-forward/loss does not establish development accuracy or closed-loop usability.
+The initial trained estimator is **not qualified**: run-01 fails the development
+gates. The [[experiments/b1-perception-run-01|run-01 diagnosis]] separates measured
+failures from proposed corrections. Passing recording checks or a CUDA forward/loss
+does not establish development accuracy or closed-loop usability.
 The implementation contract is in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 
@@ -105,7 +107,8 @@ feature caches. `outputs/b1/perception/preparation.json` records the cache build
 establishes readiness to start estimator training, not development accuracy or
 Subphase 6.0 completion.
 
-**User-requested handoff:** preparation does not launch training. The smaller model
+**User-requested handoff:** preparation does not launch training. The commands below
+describe the first run; `run-01` now exists. Use a new directory for a revised recipe. The smaller model
 should submit one autonomous one-hour run with `launch`, confirm startup once,
 then end its turn. No active assistant, polling loop or scheduled task is needed.
 The user requests the analysis after the run ends; no overnight extension starts
