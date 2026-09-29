@@ -7,12 +7,17 @@ import pytest
 import torch
 
 from alexdoor_xas.perception.model import (
+    STATE_CONFIDENCE,
     DoorEstimate,
     DoorEstimator,
     ObservedEstimator,
     decode,
     estimator_loss,
+    geometry_errors,
+    geometry_tolerances,
     preprocess,
+    rotation_error,
+    usable_geometry,
     z_rotation,
 )
 
@@ -66,8 +71,8 @@ def test_loss_scales_match_operational_tolerances_and_zero_error_has_finite_grad
     target["contact_position"][:, 0] += CONFIG["gates"]["contact_position_p95_m"]
     target["contact_rotation"] = z_rotation(torch.full((2,), torch.pi / 36))
     _, terms = estimator_loss(pred, target, gates=CONFIG["gates"])
-    assert float(terms["contact_position"].detach()) == pytest.approx(0.5, abs=1e-6)
-    assert float(terms["contact_rotation"].detach()) == pytest.approx(0.5, abs=1e-6)
+    assert float(terms["contact_position_m"].detach()) == pytest.approx(0.5, abs=1e-6)
+    assert float(terms["contact_rotation_deg"].detach()) == pytest.approx(0.5, abs=1e-6)
     loss, _ = estimator_loss(
         pred, {k: v.detach().clone() for k, v in pred.items()}, gates=CONFIG["gates"]
     )
@@ -115,6 +120,8 @@ def test_inference_resets_on_missing_stale_frames_and_requires_history(gpu_model
             return torch.zeros(len(rgb), 384, 16, 16)
 
     class Head(torch.nn.Module):
+        confidence_scope = STATE_CONFIDENCE
+
         def forward(self, *args):
             raw = torch.zeros(1, 24)
             raw[:, [3, 7, 10, 17, 21]] = 1
@@ -147,6 +154,62 @@ def test_inference_resets_on_missing_stale_frames_and_requires_history(gpu_model
     assert runner.update(observation).reason == "missing_depth"
     assert len(runner.history) == 0
     assert not DoorEstimate(0.0, False, "lost").fresh(0.0)
+
+
+def test_wrong_compensating_state_is_confidence_negative(gpu_models):
+    raw = torch.zeros(2, 24)
+    raw[:, [3, 7, 10, 17, 21]] = 1
+    raw[:, 14:17] = torch.tensor([0.1, 0.3, 1.0])
+    target = decode(raw)
+    pred = {k: v.clone() for k, v in target.items()}
+    angle = torch.full((2,), torch.pi / 2)
+    pred["hinge_rotation"] = z_rotation(angle)
+    pred["signed_angle"] = -angle
+    pred["panel_rotation"] = pred["hinge_rotation"] @ z_rotation(pred["signed_angle"])
+    shift = torch.tensor([1.0, 0, 0]).expand(2, -1)
+    pred["hinge_origin"] += shift
+    pred["contact_local"] -= (pred["panel_rotation"].transpose(-1, -2) @ shift[..., None])[..., 0]
+    pred["contact_position"] = (
+        pred["hinge_origin"] + (pred["panel_rotation"] @ pred["contact_local"][..., None])[..., 0]
+    )
+    pred["contact_rotation"] = pred["panel_rotation"] @ pred["contact_rotation_local"]
+    pred["confidence"] = torch.full((2,), 0.9, requires_grad=True)
+    torch.testing.assert_close(pred["contact_position"], target["contact_position"])
+    errors = geometry_errors(pred, target)
+    assert not usable_geometry(errors, geometry_tolerances(CONFIG["gates"])).any()
+    _, terms = estimator_loss(pred, target, gates=CONFIG["gates"])
+    (gradient,) = torch.autograd.grad(terms["confidence"], pred["confidence"])
+    assert (gradient > 0).all()
+    assert float(terms["hinge_origin_m"]) > 90
+
+
+@pytest.mark.parametrize("degrees", [0.0, 5.0, 175.0, 179.9])
+def test_rotation_gradients_are_finite_at_zero_and_do_not_flatten_near_pi(gpu_models, degrees):
+    angle = torch.tensor([degrees * torch.pi / 180], requires_grad=True)
+    error = rotation_error(z_rotation(angle), torch.eye(3)[None])
+    normalized = error / (torch.pi / 36)
+    loss = torch.nn.functional.smooth_l1_loss(normalized, torch.zeros_like(normalized))
+    loss.backward()
+    assert angle.grad.isfinite().all()
+    if degrees >= 5:
+        assert float(angle.grad) == pytest.approx(36 / torch.pi, rel=1e-4)
+    else:
+        assert float(angle.grad) == 0
+
+
+def test_fresh_rotation_heads_are_well_conditioned(gpu_models):
+    torch.manual_seed(CONFIG["seed"])
+    model = DoorEstimator()
+    pred = model(
+        torch.randn(2, 4, 384, 16, 16),
+        torch.ones(2, 4, 4, 16, 16),
+        torch.zeros(2, 4, 18),
+        torch.eye(4).repeat(2, 4, 1, 1),
+    )
+    for key in ("hinge_rotation", "contact_rotation_local"):
+        assert (rotation_error(pred[key], torch.eye(3)[None]) < torch.pi / 180).all()
+    assert (pred["signed_angle"].abs() < torch.pi / 180).all()
+    assert (pred["confidence"] < 0.5).all()
 
 
 def test_signed_articulation_reconstructs_both_handed_contacts(gpu_models):

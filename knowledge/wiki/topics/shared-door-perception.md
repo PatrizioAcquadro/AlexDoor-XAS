@@ -67,62 +67,76 @@ check freshness before commanding motion; there is no oracle fallback. The signe
 angle follows right-handed rotation about the estimated frame's Z axis; it is
 negative for the canonical right-hinged opening direction.
 
-## Tolerance-scaled objective and train-only fitting
+## Complete-state objective and train-only fitting
 
-The `tolerance-normalized-v2` objective divides Euclidean translation/dimension
-errors by the fixed 0.01-m operational tolerance before applying scalar Smooth L1.
-Rotation matrices use Frobenius chord distance divided by
-`2 sqrt(2) sin(5 degrees / 2)`; signed articulation uses the corresponding circular
-chord. A 1-cm position error and a 5-degree rotation error each contribute 0.5.
-The chord avoids the singular gradient of `acos` at an exact match; evaluation
-continues to use the actual angular error in degrees.
+The `articulated-state-v3` recipe corrects the compensating-state failure measured
+in [[experiments/b1-perception-fit-check-01|fit-check-01]]. That historical run
+passes contact gates while its hinge and local contact geometry remain wrong;
+its old `fit_check_passed` result is not a complete-state qualification.
 
-Operational position and orientation each have weight 1. The six auxiliary
-geometry terms share weight 0.1, set in `configs/perception_training.json`.
-This prioritizes operational contact accuracy while retaining supervision of the
-articulated representation. These weights are a simple engineering recipe, not a
-claim that gradient balancing guarantees generalization. Every logged `loss_terms`
-value is its weighted contribution to total loss; confidence remains separately
-visible because its geometric-usability target changes during learning.
+Every geometric component now has weight 1 and a dimensionless Smooth L1 loss.
+Euclidean hinge-origin, dimension-vector, local-contact and world-contact errors
+are divided by 0.01 m. Hinge, local-contact, panel and world-contact rotations
+and the wrapped signed articulation error are divided by 5 degrees. These are
+engineering component budgets matched to the existing operational length/angle
+resolution; they prevent individual components hiding errors larger than the
+contact budget. They do not guarantee compound accuracy, so the original contact
+gates remain independently required. No component thresholds are inferred from
+the new fitting outcome.
 
-Confidence uses detached recurrent features. Geometry gradients are clipped
-before confidence backward, so confidence cannot change or rescale the shared
-feature gradients. Missing-input examples remain confidence-negative and have
-zero geometric loss. Parameter names/shapes and inference outputs are preserved,
-so run-01 checkpoints remain evaluable. Resuming an optimizer requires the same
-saved loss recipe and train/evaluation scope; legacy run-01 cannot resume into the
-new recipe. Start revised training in a separate directory.
+Rotational distance uses `atan2` of the relative rotation's skew norm and trace;
+signed articulation uses wrapped `atan2(sin(delta), cos(delta))`. Unlike the
+previous chord objective, the angular loss retains sensitivity near 180 degrees
+while keeping finite gradients at zero. Exact antipodal rotations still have
+an ambiguous shortest direction. Fresh output weights are small, rotational
+biases form identity bases, and the angle starts near `(sin, cos)=(0, 1)`.
+These are generic trainable initial values, shared across doors, not oracle
+initialization. Initial confidence is below the unchanged acceptance threshold.
+
+Confidence labels are positive only when **all nine** geometric errors satisfy
+their physical budgets and observations are available. The classifier still
+uses detached recurrent features; geometry is clipped before its backward pass.
+Thus confidence cannot change or rescale shared geometry gradients. Missing-input
+examples are confidence-negative with zero geometry loss. `loss_terms` logs
+each contribution separately. Measured confidence precision is reported; an
+unseen-scene calibration claim does not follow from fitting these data.
+
+For each door during contact/push/hold, the evaluator records all nine physical
+p95 errors, joint geometric coverage, confidence-valid coverage and precision
+among accepted estimates. Success requires every p95 within its budget,
+**at least 95% of frames jointly within all budgets**, and **at least 95%
+confidence-valid coverage**. Contact-only geometry success remains a separate
+field. The selection score averages each door's worst normalized p95 and adds
+its confidence-coverage deficit. A passing checkpoint always ranks ahead of a
+failing one. These same complete-state results drive selection, stagnation and
+fitting success; a good composed contact cannot hide a bad hinge.
 
 `fit-check --train-doors LEFT_ID RIGHT_ID` fits a fresh estimator on exactly one
 train identity per handedness, including both existing lighting episodes and all
-causal windows. Normalization, sampling, checkpoint selection and evaluation use
-only that subset. The command refuses development/test identities and stops at
-geometric success, train stagnation, 200 epochs or at most ten minutes of loop
-time. Final evaluation/checkpoint writing can slightly exceed the time budget.
-A passing fit check requires both per-door manipulation position p95 <= 1 cm and
-orientation p95 <= 5 degrees. Confidence coverage and the joint fraction within
-both geometric tolerances are reported separately; a geometric fit does not
-certify confidence, development accuracy or dynamic usability. The full offline
-gates still include >=95% confidence-valid coverage and are unchanged.
-
-The first fit check passes those contact gates, including confidence coverage,
-but has about 1 m of hinge-origin error and near-reversed hinge/local rotations.
-Component errors compensate in the composed contact pose. Thus
-`fit_check_passed` is strictly an operational contact-fit result: it cannot
-validate the primitive state or authorize A3 use. Auxiliary losses are logged,
-but the contact-based success condition does not gate those components. Diagnose
-primitive-state fitting before progressing to a new full-corpus experiment.
-
-Example bounded diagnostic (never a full-corpus training launch):
+causal windows. Normalization, balanced sampling, selection and evaluation use
+only that subset. It refuses development/test identities and stops at complete
+state success, train stagnation, 200 epochs or at most ten minutes of loop time.
+Final evaluation/checkpoint writing can slightly exceed that time budget. A
+passing fit is not evidence of held-out accuracy, dynamic usability or completed
+Subphase 6.0.
 
 ```bash
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py fit-check --train-doors door-2738468b94d74c5f animated-door-1-88abf40 --output outputs/b1/perception/fit-check-01
+"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py fit-check --train-doors door-2738468b94d74c5f animated-door-1-88abf40 --output outputs/b1/perception/fit-check-02
 ```
 
-The diagnostic summary uses `best_train`, `fit_check_passed` and
-`development_evaluated=false`. Full training continues to select on development
-and report `best_development`. Existing recordings and caches are reused without
-changing the frozen feature configuration, gates or split.
+New checkpoints use `b1.perception.checkpoint.v2` and explicitly declare
+`confidence_scope=articulated-state-v1`. Parameter shapes and forward predictions
+remain compatible with old weights. Version-1 checkpoints can be loaded for
+physical-error diagnostics, but are labeled `contact-only`; their confidence
+cannot grant state validity and `ObservedEstimator` rejects them. Optimizer
+resume requires the same saved recipe and train/evaluation scope. Preserve the
+old attempts and start revised training in a new directory.
+
+The diagnostic summary uses `best_train`, `fit_check_passed`,
+`development_evaluated=false` and, on success, `reason=train_state_passed`.
+Full training selects on development and reports `best_development`. Existing
+recordings and caches are reused without changing the frozen preprocessing,
+contact gates, split or backbone.
 
 ## Pretraining gates and future validation
 
@@ -131,7 +145,8 @@ during contact/push/hold: valid coverage at least 95%, operational-point positio
 error p95 at most 0.01 m and orientation error p95 at most 5 degrees. Report both
 handednesses separately, including the worst per-door positional/orientation p95
 for each side. Confidence is trained against geometric usability on train
-samples, including missing-input examples; it is not a simulator visibility flag.
+samples for the complete articulated state, including missing-input examples;
+it is not a simulator visibility flag.
 Development checkpoint selection weights doors equally and cannot use test evidence.
 
 These are offline gates. Subphase completion additionally requires demonstrated
@@ -169,7 +184,7 @@ Subphase 6.0 completion.
 **Historical run-01 launch:** the commands below describe the original full-corpus
 workflow; `run-01` now exists. The service runs without an active assistant or
 scheduled task. A revised full-corpus run remains deferred until the primitive
-state issue above is addressed; it must use a new output directory. An overnight
+state fit has been verified on the two-door diagnostic; it must use a new output directory. An overnight
 extension is a separate decision.
 
 ```bash
@@ -198,7 +213,8 @@ The run stops at the first applicable time, stagnation or epoch limit; nonfinite
 loss, gradients or development score fail explicitly. The one-hour budget covers
 the training loop; finishing the current step, final development evaluation and
 checkpoint writing can add time. Final `status.json` and `summary.json` record
-`time_budget`, `development_stagnation`, `epoch_limit` or `error`. The summary
+`time_budget`, `development_stagnation`, `epoch_limit` or `error`; the bounded
+fit check also reports `train_stagnation` or `train_state_passed`. The summary
 includes the best development results and checkpoint paths. Startup failures before
 the training loop are visible in the console/service result.
 

@@ -9,6 +9,8 @@ from torch.nn import functional as F
 
 from alexdoor_xas.action.frames import ObjectFrame, validate_object_frame
 
+STATE_CONFIDENCE = "articulated-state-v1"
+
 
 def preprocess(rgb, depth, valid, intrinsics, size=224):
     """Letterbox the whole image. Depth/mask use nearest sampling, no invalid mixing."""
@@ -94,12 +96,21 @@ def decode(raw):
 
 
 class DoorEstimator(nn.Module):
+    confidence_scope = STATE_CONFIDENCE
+
     def __init__(self, hidden=128):
         super().__init__()
         self.spatial = nn.Sequential(nn.Conv2d(388, 64, 1), nn.GELU(), nn.AdaptiveAvgPool2d((4, 4)))
         self.fusion = nn.Sequential(nn.Linear(64 * 16 + 18 + 12, hidden), nn.GELU())
         self.temporal = nn.GRU(hidden, hidden, batch_first=True)
         self.output = nn.Linear(hidden, 24)
+        # Start with well-conditioned rotation columns and a unit angle vector.
+        # These are generic initial values, not frozen scene/asset annotations.
+        with torch.no_grad():
+            self.output.weight.mul_(0.01)
+            self.output.bias.zero_()
+            self.output.bias[[3, 7, 10, 17, 21]] = 1
+            self.output.bias[23] = -2
         self.register_buffer("proprio_mean", torch.zeros(18))
         self.register_buffer("proprio_std", torch.ones(18))
 
@@ -124,58 +135,88 @@ class DoorEstimator(nn.Module):
 
 
 def rotation_error(predicted, target):
+    """Geodesic angle with finite zero-error gradients and no flattening near pi."""
     relative = predicted.transpose(-1, -2) @ target
     cosine = ((relative.diagonal(dim1=-2, dim2=-1).sum(-1) - 1) / 2).clamp(-1, 1)
-    return cosine.acos()
+    skew = torch.stack(
+        (
+            relative[..., 2, 1] - relative[..., 1, 2],
+            relative[..., 0, 2] - relative[..., 2, 0],
+            relative[..., 1, 0] - relative[..., 0, 1],
+        ),
+        -1,
+    )
+    return torch.atan2(skew.norm(dim=-1) / 2, cosine)
 
 
-def estimator_loss(prediction, target, available=None, *, gates, auxiliary_weight=0.1):
-    """Dimensionless Huber errors; auxiliary geometry has a single bounded weight."""
+def geometry_errors(prediction, target):
+    """Per-sample physical errors, shared by training, confidence labels and scoring."""
+    errors = {
+        key + "_m": (prediction[key] - target[key]).norm(dim=-1)
+        for key in ("hinge_origin", "dimensions", "contact_local", "contact_position")
+    }
+    errors.update(
+        {
+            key + "_deg": torch.rad2deg(rotation_error(prediction[key], target[key]))
+            for key in ("hinge_rotation", "contact_rotation_local", "contact_rotation")
+        }
+    )
+    panel = target["hinge_rotation"] @ z_rotation(target["signed_angle"])
+    errors["panel_rotation_deg"] = torch.rad2deg(
+        rotation_error(prediction["panel_rotation"], panel)
+    )
+    delta = prediction["signed_angle"] - target["signed_angle"]
+    errors["signed_angle_deg"] = torch.rad2deg(torch.atan2(delta.sin(), delta.cos()).abs())
+    return errors
+
+
+def geometry_tolerances(gates):
+    """Keep the contact budgets and apply the same units to primitive-state checks."""
+    position, rotation = gates["contact_position_p95_m"], gates["contact_orientation_p95_deg"]
+    if not np.isfinite([position, rotation]).all() or position <= 0 or not 0 < rotation < 180:
+        raise ValueError("Geometry requires positive finite physical tolerances")
+    return {
+        **{
+            k + "_m": position
+            for k in ("hinge_origin", "dimensions", "contact_local", "contact_position")
+        },
+        **{
+            k + "_deg": rotation
+            for k in (
+                "hinge_rotation",
+                "contact_rotation_local",
+                "contact_rotation",
+                "panel_rotation",
+                "signed_angle",
+            )
+        },
+    }
+
+
+def usable_geometry(errors, tolerances):
+    return torch.stack(
+        [torch.isfinite(errors[k]) & (errors[k] <= v) for k, v in tolerances.items()]
+    ).all(0)
+
+
+def estimator_loss(prediction, target, available=None, *, gates):
+    """Equal-weight, tolerance-normalized supervision of all articulated outputs."""
     if available is None:
         available = torch.ones_like(prediction["confidence"], dtype=torch.bool)
     mask = available.float()
     denominator = mask.sum().clamp_min(1)
-    position_scale = gates["contact_position_p95_m"]
-    angle_scale = np.deg2rad(gates["contact_orientation_p95_deg"])
-    if not position_scale > 0 or not 0 < angle_scale < np.pi or not auxiliary_weight >= 0:
-        raise ValueError("Loss requires positive physical scales and nonnegative auxiliary weight")
-
-    def huber(error):
-        return (
-            F.smooth_l1_loss(error, torch.zeros_like(error), reduction="none") * mask
-        ).sum() / denominator
-
-    terms = {}
-    auxiliary = (
-        "hinge_origin",
-        "dimensions",
-        "contact_local",
-        "hinge_rotation",
-        "contact_rotation_local",
-        "angle",
-    )
-    for key in ("hinge_origin", "dimensions", "contact_local", "contact_position"):
-        terms[key] = huber((prediction[key] - target[key]).norm(dim=-1) / position_scale)
-    # Chord distance avoids acos's singular gradient at a perfect rotation match.
-    rotation_scale = 2 * np.sqrt(2) * np.sin(angle_scale / 2)
-    for key in ("hinge_rotation", "contact_rotation_local", "contact_rotation"):
-        terms[key] = huber((prediction[key] - target[key]).norm(dim=(-1, -2)) / rotation_scale)
-    terms["angle"] = huber(
-        2
-        * ((prediction["signed_angle"] - target["signed_angle"]) / 2).sin().abs()
-        / (2 * np.sin(angle_scale / 2))
-    )
-    for key in auxiliary:
-        terms[key] = terms[key] * auxiliary_weight / len(auxiliary)
+    tolerances = geometry_tolerances(gates)
+    errors = geometry_errors(prediction, target)
+    terms = {
+        k: (
+            F.smooth_l1_loss(error / tolerances[k], torch.zeros_like(error), reduction="none")
+            * mask
+        ).sum()
+        / denominator
+        for k, error in errors.items()
+    }
     with torch.no_grad():
-        usable = (prediction["contact_position"] - target["contact_position"]).norm(
-            dim=-1
-        ) <= position_scale
-        usable &= (
-            rotation_error(prediction["contact_rotation"], target["contact_rotation"])
-            <= angle_scale
-        )
-        usable &= available
+        usable = usable_geometry(errors, tolerances) & available
     terms["confidence"] = F.binary_cross_entropy(prediction["confidence"], usable.float())
     return sum(terms.values()), terms
 
@@ -203,6 +244,8 @@ class ObservedEstimator:
     def __init__(self, backbone, estimator, config):
         from collections import deque
 
+        if getattr(estimator, "confidence_scope", None) != STATE_CONFIDENCE:
+            raise ValueError("Observed inference requires articulated-state confidence")
         self.backbone, self.estimator, self.config = backbone, estimator, config
         self.estimator.eval()
         self.history = deque(maxlen=config["history"])

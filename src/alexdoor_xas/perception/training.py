@@ -9,7 +9,13 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, WeightedRandomSampler
 
-from .model import DoorEstimator, estimator_loss, rotation_error
+from .model import (
+    STATE_CONFIDENCE,
+    DoorEstimator,
+    estimator_loss,
+    geometry_errors,
+    geometry_tolerances,
+)
 from .run import EarlyStopping, save_json
 
 
@@ -26,14 +32,16 @@ def move(batch, device):
 @torch.no_grad()
 def evaluate(model, dataset, config, device):
     model.eval()
+    gates = config["gates"]
+    tolerances = geometry_tolerances(gates)
+    keys = list(tolerances)
+    scales = np.asarray(list(tolerances.values()))
+    confidence_scope = getattr(model, "confidence_scope", "contact-only")
     rows = {e["asset_id"]: [] for e in dataset.episodes}
     for batch in DataLoader(dataset, batch_size=config["batch_size"], shuffle=False):
         inputs, target, episodes, ends = move(batch, device)
         prediction = model(**inputs)
-        position = (prediction["contact_position"] - target["contact_position"]).norm(dim=-1)
-        rotation = (
-            rotation_error(prediction["contact_rotation"], target["contact_rotation"]) * 180 / np.pi
-        )
+        errors = geometry_errors(prediction, target)
         finite = torch.stack(
             [
                 v.flatten(1).isfinite().all(1) if v.ndim > 1 else v.isfinite()
@@ -41,68 +49,65 @@ def evaluate(model, dataset, config, device):
             ]
         ).all(0)
         available = (inputs["geometry"][:, :, 3].flatten(2).sum(-1) > 0).all(-1)
-        valid = finite & available & (prediction["confidence"] >= config["confidence_threshold"])
+        confident = (
+            finite & available & (prediction["confidence"] >= config["confidence_threshold"])
+        )
+        values = torch.stack([*(errors[k] for k in keys), confident.float()], -1).cpu().numpy()
         for i, episode in enumerate(episodes.tolist()):
             entry = dataset.episodes[episode]
             # Phase is scoring metadata, never an estimator input.
             phase = dataset.window_phases[(episode, int(ends[i]))]
-            rows[entry["asset_id"]].append(
-                (float(position[i]), float(rotation[i]), bool(valid[i]), phase)
-            )
+            rows[entry["asset_id"]].append((*values[i], phase))
     result = {}
-    gates = config["gates"]
     for asset, values in rows.items():
         array = np.asarray(values)
-        manipulation = array[np.isin(array[:, 3], [1, 2, 3])]
+        manipulation = array[np.isin(array[:, -1], [1, 2, 3])]
         if not len(manipulation):
             raise ValueError(f"No manipulation samples: {asset}")
-        pe, re = np.percentile(manipulation[:, :2], 95, axis=0)
-        coverage = float(manipulation[:, 2].mean())
-        geometry_passed = bool(
+        errors = manipulation[:, : len(keys)]
+        p95 = np.percentile(errors, 95, axis=0)
+        good = (np.isfinite(errors) & (errors <= scales)).all(1)
+        coverage = float(good.mean())
+        confident = manipulation[:, -2].astype(bool)
+        valid = confident & (confidence_scope == STATE_CONFIDENCE)
+        valid_coverage = float(valid.mean())
+        physical = dict(zip(keys, map(float, p95), strict=True))
+        pe, re = physical["contact_position_m"], physical["contact_rotation_deg"]
+        contact_passed = bool(
             np.isfinite([pe, re]).all()
             and pe <= gates["contact_position_p95_m"]
             and re <= gates["contact_orientation_p95_deg"]
         )
+        geometry_passed = bool(
+            np.isfinite(p95).all() and (p95 <= scales).all() and coverage >= gates["valid_coverage"]
+        )
         entry = next(e for e in dataset.episodes if e["asset_id"] == asset)
         result[asset] = dict(
-            position_p95_m=float(pe),
-            orientation_p95_deg=float(re),
-            valid_coverage=coverage,
+            position_p95_m=pe,
+            orientation_p95_deg=re,
+            errors_p95=physical,
+            valid_coverage=valid_coverage,
+            confidence_coverage=float(confident.mean()),
+            valid_precision=float(good[valid].mean()) if valid.any() else None,
             handedness=entry["handedness"],
             frames=len(values),
             manipulation_frames=len(manipulation),
-            geometric_coverage=float(
-                (
-                    (manipulation[:, 0] <= gates["contact_position_p95_m"])
-                    & (manipulation[:, 1] <= gates["contact_orientation_p95_deg"])
-                ).mean()
-            ),
+            geometric_coverage=coverage,
+            contact_geometry_passed=contact_passed,
             geometry_passed=geometry_passed,
-            passed=geometry_passed and coverage >= gates["valid_coverage"],
+            geometry_score=float(np.max(p95 / scales)),
+            passed=geometry_passed and valid_coverage >= gates["valid_coverage"],
         )
-    score = float(
-        np.mean(
-            [
-                r["position_p95_m"] / gates["contact_position_p95_m"]
-                + r["orientation_p95_deg"] / gates["contact_orientation_p95_deg"]
-                + (1 - r["valid_coverage"])
-                for r in result.values()
-            ]
-        )
-    )
+    geometry_score = float(np.mean([r["geometry_score"] for r in result.values()]))
+    score = geometry_score + float(np.mean([1 - r["valid_coverage"] for r in result.values()]))
     return dict(
         per_door=result,
+        confidence_scope=confidence_scope,
+        geometry_tolerances=tolerances,
         selection_score=score,
+        contact_geometry_passed=all(r["contact_geometry_passed"] for r in result.values()),
         geometry_passed=all(r["geometry_passed"] for r in result.values()),
-        geometry_score=float(
-            np.mean(
-                [
-                    r["position_p95_m"] / gates["contact_position_p95_m"]
-                    + r["orientation_p95_deg"] / gates["contact_orientation_p95_deg"]
-                    for r in result.values()
-                ]
-            )
-        ),
+        geometry_score=geometry_score,
         offline_passed=all(r["passed"] for r in result.values()),
         dynamic_validation="pending",
         subphase_complete=False,
@@ -122,6 +127,7 @@ def evaluate(model, dataset, config, device):
                 ),
             )
             for side in ("left", "right")
+            if any(r["handedness"] == side for r in result.values())
         },
     )
 
@@ -134,10 +140,18 @@ def save_checkpoint(path, payload):
 
 def load_checkpoint(path, config, device):
     payload = torch.load(path, map_location=device, weights_only=False)
-    if payload["schema"] != "b1.perception.checkpoint.v1" or payload["config"] != config:
+    if (
+        payload["schema"] not in ("b1.perception.checkpoint.v1", "b1.perception.checkpoint.v2")
+        or payload["config"] != config
+    ):
         raise ValueError("Incompatible perception checkpoint")
     model = DoorEstimator(config["hidden_size"]).to(device)
     model.load_state_dict(payload["model"])
+    if payload["schema"] == "b1.perception.checkpoint.v2":
+        if payload.get("confidence_scope") != STATE_CONFIDENCE:
+            raise ValueError("Checkpoint has an incompatible confidence contract")
+    else:
+        model.confidence_scope = "contact-only"
     return model, payload
 
 
@@ -183,7 +197,7 @@ def train(
         raise ValueError("Training budget must be in (0, 10] hours")
     if fit_check and hours > 1 / 6:
         raise ValueError("A small fit check is limited to ten minutes")
-    if loss_config["recipe"] != "tolerance-normalized-v2":
+    if loss_config != {"recipe": "articulated-state-v3"}:
         raise ValueError("Unknown perception loss recipe")
     scope = training_scope(train_data, development, fit_check)
     evaluation_split = scope["evaluation_split"]
@@ -263,7 +277,6 @@ def train(
                     target,
                     available,
                     gates=config["gates"],
-                    auxiliary_weight=loss_config["auxiliary_weight"],
                 )
                 if not torch.isfinite(loss):
                     raise FloatingPointError("Nonfinite training loss")
@@ -298,20 +311,20 @@ def train(
                 break
             epoch += int(completed_epoch)
             metrics = evaluate(model, development, config, device)
-            score = metrics["geometry_score"] if fit_check else metrics["selection_score"]
+            score = metrics["selection_score"]
             if not np.isfinite(score):
-                raise FloatingPointError("Nonfinite development selection score")
+                raise FloatingPointError("Nonfinite evaluation selection score")
             stagnant = stopper.update(score, epoch) if completed_epoch else False
-            improved = score < best or (
-                fit_check
-                and metrics["geometry_passed"]
-                and not (best_metrics and best_metrics["geometry_passed"])
+            improved = best_metrics is None or (not metrics["offline_passed"], score) < (
+                not best_metrics["offline_passed"],
+                best,
             )
             if improved:
                 best = score
                 best_metrics = metrics
             payload = dict(
-                schema="b1.perception.checkpoint.v1",
+                schema="b1.perception.checkpoint.v2",
+                confidence_scope=STATE_CONFIDENCE,
                 config=config,
                 dataset=manifest,
                 scope=scope,
@@ -374,8 +387,8 @@ def train(
                 early_stopping=asdict(stopper),
             )
             save_json(output / "status.json", status)
-            if fit_check and metrics["geometry_passed"]:
-                reason = "train_geometry_passed"
+            if fit_check and metrics["offline_passed"]:
+                reason = "train_state_passed"
                 break
             if not completed_epoch or time.monotonic() >= deadline:
                 reason = "time_budget"
@@ -405,7 +418,7 @@ def train(
                 **status,
                 **{f"best_{evaluation_split}": best_metrics},
                 fit_check_passed=(
-                    bool(best_metrics and best_metrics["geometry_passed"]) if fit_check else None
+                    bool(best_metrics and best_metrics["offline_passed"]) if fit_check else None
                 ),
                 best_checkpoint=str(output / "best.pt") if (output / "best.pt").exists() else None,
                 last_checkpoint=str(output / "last.pt") if (output / "last.pt").exists() else None,

@@ -27,6 +27,9 @@ initial diagnosis. The corrected tolerance-scaled loss, detached confidence
 gradients and bounded two-door train-only fitting command are implemented. The
 [[experiments/b1-perception-fit-check-01|two-door check]] passes contact gates on
 train after 30 epochs, but hinge/local/articulation outputs remain incorrect.
+The subsequent `articulated-state-v3` correction supervises and validates all
+components, uses stable angular loss/initialization and changes confidence to
+complete-state usability; its new two-door validation is pending.
 Development gates and dynamic validation remain open;
 6.0 is not complete.
 

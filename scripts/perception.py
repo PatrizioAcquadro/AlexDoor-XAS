@@ -177,7 +177,6 @@ def main():
                     predicted,
                     labels,
                     gates=config["gates"],
-                    auxiliary_weight=recipe["loss"]["auxiliary_weight"],
                 )
             if not torch.isfinite(loss):
                 raise ValueError("Nonfinite forward/loss")

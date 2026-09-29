@@ -17,8 +17,9 @@ compatibility, dataset payloads and run orchestration are retired.
 The [[experiments/b1-perception-fit-check-01|two-door fitting check]] passes the
 unchanged operational contact gates, with isolated confidence gradients, but
 finds large errors in the hinge frame and articulated components that compensate
-in the composed contact pose. Correct that primitive-state fit before a new
-full-corpus run. Source/cache alignment checks pass. No new full-corpus or
+in the composed contact pose. A new complete-state objective, stable angular learning, state-aware confidence
+and checkpoint gates are implemented. Verify them on the same two-door subset
+before a new full-corpus run. Source/cache alignment checks pass. No new full-corpus or
 nighttime training has started; keep the fixed gates and sealed test partition.
 
 The interfaces and autonomous launch commands remain in
