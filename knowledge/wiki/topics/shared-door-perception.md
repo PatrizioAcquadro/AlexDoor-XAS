@@ -42,7 +42,8 @@ or annotations. The estimator input loader cannot select them as observations.
 ## Frozen backbone and estimator
 
 The initial backbone is `facebook/dinov2-small` (DINOv2 ViT-S/14), loaded locally
-through the workstation's existing Transformers runtime. Its parameters have no
+through the workstation's existing Transformers runtime
+([official DINOv2 reference](https://huggingface.co/docs/transformers/model_doc/dinov2)). Its parameters have no
 gradients and it stays in evaluation mode. RGB uses ImageNet normalization and
 224-pixel letterboxing; it never crops away the image edges. Depth/mask use aligned
 nearest resampling, adjusted intrinsics and masked XYZ patch features. Cached
@@ -68,7 +69,8 @@ negative for the canonical right-hinged opening direction.
 The fixed engineering gates in `configs/perception.json` apply per development door
 during contact/push/hold: valid coverage at least 95%, operational-point positional
 error p95 at most 0.01 m and orientation error p95 at most 5 degrees. Report both
-handednesses separately. Confidence is trained against geometric usability on train
+handednesses separately, including the worst per-door positional/orientation p95
+for each side. Confidence is trained against geometric usability on train
 samples, including missing-input examples; it is not a simulator visibility flag.
 Development checkpoint selection weights doors equally and cannot use test evidence.
 

@@ -89,6 +89,12 @@ def evaluate(model, dataset, config, device):
         by_handedness={
             side: dict(
                 doors=sum(r["handedness"] == side for r in result.values()),
+                max_position_p95_m=max(
+                    r["position_p95_m"] for r in result.values() if r["handedness"] == side
+                ),
+                max_orientation_p95_deg=max(
+                    r["orientation_p95_deg"] for r in result.values() if r["handedness"] == side
+                ),
                 coverage=float(
                     np.mean(
                         [r["valid_coverage"] for r in result.values() if r["handedness"] == side]
