@@ -97,6 +97,7 @@ def decode(raw):
 
 class DoorEstimator(nn.Module):
     confidence_scope = STATE_CONFIDENCE
+    confidence_qualified = False
 
     def __init__(self, hidden=128):
         super().__init__()
@@ -132,6 +133,80 @@ class DoorEstimator(nn.Module):
             state[-1].detach(), self.output.weight[23:], self.output.bias[23:]
         )
         return decode(torch.cat((geometry_raw, confidence_raw), -1))
+
+
+def metric_geometry(geometry, config):
+    """Identical cache/live depth filtering and masked XYZ pooling before encoding."""
+    if config.get("model") != "metric-memory-v1":
+        return geometry
+    valid = (geometry[:, 3:4] > 0) & (geometry[:, 2:3] <= config["max_depth_m"])
+    geometry = torch.where(valid, geometry, 0)
+    return F.adaptive_avg_pool2d(geometry, config["geometry_size"])
+
+
+def make_estimator(config):
+    if config.get("model") == "metric-memory-v1":
+        return MetricMemoryEstimator(config)
+    if config.get("model") is not None:
+        raise ValueError("Unknown perception model")
+    return DoorEstimator(config["hidden_size"])
+
+
+class MetricMemoryEstimator(DoorEstimator):
+    """Static inspection memory and a separate, calibrated metric XYZ branch."""
+
+    def __init__(self, config):
+        super().__init__(config["hidden_size"])
+        self.context_size = len(config["inspection"]["sample_times_s"])
+        self.history_size = config["history"]
+        hidden = config["hidden_size"]
+        del self.spatial
+        self.rgb = nn.Sequential(
+            nn.Conv2d(384, 32, 1),
+            nn.GELU(),
+            nn.AdaptiveAvgPool2d(4),
+            nn.Flatten(),
+            nn.LayerNorm(512),
+        )
+        self.metric = nn.Sequential(
+            nn.Conv2d(4, 32, 3, padding=1),
+            nn.GELU(),
+            nn.AdaptiveAvgPool2d(4),
+            nn.Flatten(),
+            nn.LayerNorm(512),
+        )
+        self.fusion = nn.Sequential(nn.Linear(1024 + 18 + 9, hidden), nn.GELU())
+        self.dynamic = nn.Sequential(nn.Linear(hidden * 2, hidden), nn.GELU())
+
+    def forward(self, features, geometry, proprio, camera):
+        b, t = features.shape[:2]
+        if t != self.context_size + self.history_size:
+            raise ValueError("Metric estimator requires complete inspection and recent history")
+        geo = geometry.flatten(0, 1)
+        mask = geo[:, 3:4]
+        xyz = geo[:, :3] / mask.clamp_min(1e-6)
+        cam = camera.flatten(0, 1)
+        world = torch.einsum("nij,njhw->nihw", cam[:, :3, :3], xyz) + cam[:, :3, 3, None, None]
+        center = (world * mask).sum((-2, -1)) / mask.sum((-2, -1)).clamp_min(1e-6)
+        centered = (world - center[:, :, None, None]) * mask
+        rgb = self.rgb(features.flatten(0, 1).float())
+        metric = self.metric(torch.cat((centered, mask), 1))
+        prop = ((proprio - self.proprio_mean) / self.proprio_std).flatten(0, 1)
+        fused = self.fusion(torch.cat((rgb, metric, prop, cam[:, :3, :3].flatten(1)), -1))
+        fused = fused.reshape(b, t, -1)
+        static = fused[:, : self.context_size].mean(1)
+        recent = fused[:, self.context_size :]
+        recent = self.dynamic(torch.cat((recent, static[:, None].expand_as(recent)), -1))
+        _, state = self.temporal(recent)
+        raw = F.linear(static, self.output.weight[:23], self.output.bias[:23])
+        angle = F.linear(state[-1], self.output.weight[9:11], self.output.bias[9:11])
+        # The hinge is a metric residual from observed 3-D points, not an RGB-only coordinate.
+        anchor = center.reshape(b, t, 3)[:, : self.context_size].mean(1)
+        raw = torch.cat((raw[:, :3] + anchor, raw[:, 3:9], angle, raw[:, 11:]), -1)
+        confidence = F.linear(
+            ((static + state[-1]) / 2).detach(), self.output.weight[23:], self.output.bias[23:]
+        )
+        return decode(torch.cat((raw, confidence), -1))
 
 
 def rotation_error(predicted, target):
@@ -253,6 +328,7 @@ class ObservedEstimator:
 
     def reset(self):
         self.history.clear()
+        self.context = []
         self.last_time = None
         self.last_frame = None
 
@@ -284,12 +360,28 @@ class ObservedEstimator:
             observation["intrinsics"][None],
             self.config["image_size"],
         )
+        geometry = metric_geometry(geometry, self.config)
         features = self.backbone(rgb)[0]
         prop = torch.cat((observation["joint_position"], observation["joint_velocity"]))
-        self.history.append((features, geometry[0], prop, observation["camera_world"]))
+        item = (features, geometry[0], prop, observation["camera_world"])
+        inspection = self.config.get("inspection")
+        if inspection:
+            if geometry[:, 3].mean() <= self.config["min_valid_depth_fraction"]:
+                self.reset()
+                return DoorEstimate(t, False, "insufficient_metric_depth")
+            times = inspection["sample_times_s"]
+            if len(self.context) < len(times):
+                expected = times[len(self.context)]
+                if t > expected + 1e-6:
+                    return DoorEstimate(t, False, "missing_inspection")
+                if abs(t - expected) < 1e-6:
+                    self.context.append(item)
+                return DoorEstimate(t, False, "inspecting")
+        self.history.append(item)
         if len(self.history) < self.config["history"]:
             return DoorEstimate(t, False, "warming_up")
-        inputs = [torch.stack([item[i] for item in self.history])[None].float() for i in range(4)]
+        sequence = self.context + list(self.history)
+        inputs = [torch.stack([item[i] for item in sequence])[None].float() for i in range(4)]
         predicted = self.estimator(*inputs)
         confidence = float(predicted["confidence"][0])
         if not all(torch.isfinite(v).all() for v in predicted.values()):
@@ -297,6 +389,8 @@ class ObservedEstimator:
             return DoorEstimate(t, False, "nonfinite_estimate")
         if confidence < self.config["confidence_threshold"]:
             return DoorEstimate(t, False, "low_confidence", confidence)
+        if not getattr(self.estimator, "confidence_qualified", False):
+            return DoorEstimate(t, False, "unqualified_confidence", confidence)
         values = {k: v[0].cpu().numpy() for k, v in predicted.items()}
         if validate_object_frame(ObjectFrame(values["hinge_origin"], values["hinge_rotation"])):
             self.reset()

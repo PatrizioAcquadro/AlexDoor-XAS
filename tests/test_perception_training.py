@@ -22,6 +22,8 @@ def test_fit_check_cannot_use_development_or_one_handedness():
         training_scope(train, dev, True)
     with pytest.raises(ValueError, match="development evaluation"):
         training_scope(train, train, False)
+    with pytest.raises(ValueError, match="nonempty"):
+        training_scope(train, SimpleNamespace(episodes=[]), False)
     train.episodes[1]["handedness"] = "left"
     with pytest.raises(ValueError, match="one door per handedness"):
         training_scope(train, train, True)
@@ -62,6 +64,7 @@ def test_legacy_confidence_cannot_be_used_as_observed_state(tmp_path, gpu_models
     payload.update(schema="b1.perception.checkpoint.v2", confidence_scope=STATE_CONFIDENCE)
     torch.save(payload, path)
     current, _ = load_checkpoint(path, config, "cuda:0")
+    assert not current.confidence_qualified
     ObservedEstimator(None, current, config)
     payload["confidence_scope"] = "contact-only"
     torch.save(payload, path)
@@ -112,6 +115,9 @@ def test_evaluation_requires_joint_state_accuracy_and_state_confidence(gpu_model
                 # Each primitive p95 passes, but 8% of samples have a bad state.
                 pred["hinge_origin"][features < 4, 0] += 0.1
                 pred["dimensions"][(features >= 4) & (features < 8), 0] += 0.1
+            if self.mode == "imprecise_confidence":
+                pred["contact_position"][features < 5, 0] += 0.1
+                pred["confidence"][(features >= 5) & (features < 10)] = 0
             return pred
 
     config = dict(
@@ -132,6 +138,12 @@ def test_evaluation_requires_joint_state_accuracy_and_state_confidence(gpu_model
         for k, v in result["geometry_tolerances"].items()
     )
     assert result["per_door"]["door"]["geometric_coverage"] == pytest.approx(0.92)
+    assert not result["offline_passed"]
+    model.mode = "imprecise_confidence"
+    result = evaluate(model, Windows(), config, "cuda:0")
+    assert result["geometry_passed"]
+    assert result["per_door"]["door"]["valid_coverage"] == pytest.approx(0.95)
+    assert result["per_door"]["door"]["valid_precision"] < 0.95
     assert not result["offline_passed"]
     model.mode = "correct"
     model.confidence_scope = "contact-only"

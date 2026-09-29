@@ -43,7 +43,14 @@ all recorded views exclude the panel top, while the model is strongly dependent
 on RGB and weakly sensitive to depth. Full-train failures are confined to the
 composed contact position. Observation coverage/static-state retention and metric
 input use must be addressed alongside fitting refinement before another full run;
-the proposed fixes have not yet been implemented or validated.
+the [[experiments/b1-perception-corrections|correction implementation]] now adds
+a common inspection/mount study, static memory, explicit metric encoding, bounded
+refinement and separate confidence qualification. Two nominal train observation/
+manipulation pilots, the tallest-door scan and the new two-door metric geometry
+fit pass; raw-recording replay matches cached predictions. Bounded legacy
+refinement passes all 19 train doors, but its confidence qualification correctly
+fails all six development doors. This does not qualify the new model on development. A refreshed
+full observation campaign and new full training have not started.
 
 Local preparation and readiness reports are under `outputs/b1/perception/`.
 The one-hour training launcher is autonomous, with configurable development

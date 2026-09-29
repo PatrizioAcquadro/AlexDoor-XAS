@@ -74,3 +74,20 @@ def test_fit_subset_filters_before_windows_and_normalization(tmp_path):
             PerceptionWindows(tmp_path, "train", CONFIG, asset_ids=selection)
     with pytest.raises(ValueError, match="train"):
         PerceptionWindows(tmp_path, "development", CONFIG, asset_ids=["dev"])
+
+
+def test_inspection_is_past_only_and_retained_after_recent_window_moves(tmp_path):
+    config = dict(CONFIG, inspection=dict(sample_times_s=[0.1, 0.3]))
+    entry = cache(tmp_path, "train", "a", 12, 1)
+    with h5py.File(tmp_path / entry["path"], "r+") as h5:
+        h5.attrs["metadata"] = json.dumps(dict(inspection=config["inspection"]))
+        h5["labels/phase"][:4] = 5
+    (tmp_path / "index.json").write_text(json.dumps(dict(config=config, episodes=[entry])))
+    dataset = PerceptionWindows(tmp_path, "train", config)
+    assert dataset.windows[0] == (0, 7)
+    np.testing.assert_array_equal(dataset[0][0]["features"].numpy().ravel(), [1, 3, 4, 5, 6, 7])
+    np.testing.assert_array_equal(dataset[-1][0]["features"].numpy().ravel(), [1, 3, 8, 9, 10, 11])
+    with h5py.File(tmp_path / entry["path"], "r+") as h5:
+        h5["labels/phase"][3] = 0
+    with pytest.raises(ValueError, match="inspection observation"):
+        PerceptionWindows(tmp_path, "train", config)

@@ -10,7 +10,7 @@ import torch
 from torch.nn import functional as F
 from torch.utils.data import Dataset
 
-from alexdoor_xas.perception.model import preprocess
+from alexdoor_xas.perception.model import metric_geometry, preprocess
 from alexdoor_xas.recording.b1 import validate_episode
 
 TARGETS = (
@@ -61,6 +61,8 @@ def prepare_features(paths, destination, backbone, config, device):
     for path in paths:
         with h5py.File(path, "r") as source:
             meta = json.loads(source["metadata"].attrs["episode"])
+            if config.get("inspection") and meta.get("inspection") != config["inspection"]:
+                raise ValueError("Recordings require the configured common inspection and mount")
             filename = f"{meta['asset_id']}--{meta['condition']}.hdf5"
             out = destination / filename
             obs = source["observations"]
@@ -102,7 +104,11 @@ def prepare_features(paths, destination, backbone, config, device):
                     )
                     features = backbone(rgb)
                     # Preserve masked XYZ sums; the head divides by valid fraction.
-                    geometry = F.adaptive_avg_pool2d(geometry, features.shape[-2:])
+                    geometry = (
+                        metric_geometry(geometry, config)
+                        if config.get("inspection")
+                        else F.adaptive_avg_pool2d(geometry, features.shape[-2:])
+                    )
                     for key, value in (("features", features), ("geometry", geometry)):
                         dtype = np.float16 if key == "features" else np.float32
                         array = value.cpu().numpy().astype(dtype)
@@ -150,13 +156,38 @@ class PerceptionWindows(Dataset):
                 raise ValueError("Subset contains an unknown or non-train door")
             self.episodes = [e for e in self.episodes if e["asset_id"] in selected]
         self.windows, self.groups = [], []
+        self.context_inputs = {}
         self.window_phases = {}
         for number, entry in enumerate(self.episodes):
             with h5py.File(self.root / entry["path"], "r") as h5:
                 if not h5.attrs["complete"]:
                     raise ValueError("Incomplete feature cache")
                 times, phases = h5["time_s"][:], h5["labels/phase"][:]
+                context = []
+                if config.get("inspection"):
+                    meta = json.loads(h5.attrs["metadata"])
+                    if meta.get("inspection") != config["inspection"]:
+                        raise ValueError("Missing or incompatible inspection")
+                    for sample in config["inspection"]["sample_times_s"]:
+                        found = np.flatnonzero(np.isclose(times, sample, atol=1e-6, rtol=0))
+                        if len(found) != 1 or phases[found[0]] != 5:
+                            raise ValueError("Missing causal inspection observation")
+                        context.append(int(found[0]))
+                    self.context_inputs[number] = {
+                        key: h5[key][context].astype(np.float32)
+                        for key in ("features", "geometry", "proprio", "camera")
+                    }
+                    minimum = config.get("min_valid_depth_fraction")
+                    if (
+                        minimum is not None
+                        and (
+                            self.context_inputs[number]["geometry"][:, 3].mean((-2, -1)) <= minimum
+                        ).any()
+                    ):
+                        raise ValueError("Insufficient metric depth in inspection")
                 for end in range(config["history"] - 1, len(times)):
+                    if context and end - config["history"] + 1 <= context[-1]:
+                        continue
                     timespan = times[end - config["history"] + 1 : end + 1]
                     if not np.allclose(np.diff(timespan), 1 / config["sample_hz"], atol=1e-6):
                         raise ValueError("History contains missing or noncausal samples")
@@ -175,13 +206,19 @@ class PerceptionWindows(Dataset):
         start = end - self.config["history"] + 1
         with h5py.File(self.root / entry["path"], "r") as h5:
             inputs = {
-                key: torch.from_numpy(h5[key][start : end + 1].astype(np.float32))
+                key: h5[key][start : end + 1].astype(np.float32)
                 for key in ("features", "geometry", "proprio", "camera")
             }
             target = {
                 key: torch.as_tensor(h5["labels/" + key][end], dtype=torch.float32)
                 for key in TARGETS
             }
+        if number in self.context_inputs:
+            inputs = {
+                key: np.concatenate((self.context_inputs[number][key], value))
+                for key, value in inputs.items()
+            }
+        inputs = {key: torch.from_numpy(value) for key, value in inputs.items()}
         return inputs, target, number, end
 
     def weights(self):

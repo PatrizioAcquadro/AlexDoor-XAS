@@ -11,11 +11,13 @@ component and contact checks on the same two train doors. The subsequent
 [[experiments/b1-perception-run-02|full-corpus run-02]] fails all six development
 doors, with worsening geometry and excessive confidence. Development accuracy
 is insufficient and closed-loop usability remains unverified.
-The [[experiments/b1-perception-input-diagnosis|input diagnosis]] also establishes
-that the current views exclude the upper panel boundary and that predictions
-depend mainly on RGB features. Full-height observation and metric-depth use are
-unresolved prerequisites for the next correction; the four-frame window does not
-retain a separate initial inspection view.
+The [[experiments/b1-perception-input-diagnosis|input diagnosis]] motivated the
+opt-in common inspection and camera-mount study, causal static memory, a separate
+metric encoder, bounded contact refinement and frozen-geometry confidence fitting.
+The implementation and scoped validation are tracked in
+[[experiments/b1-perception-corrections|Perception Corrections]]. A new full-corpus
+training run has not started; neither existing nor newly initialized models are
+qualified for dynamic use.
 The implementation contract is in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 
@@ -26,8 +28,8 @@ or development identities, and launches a fresh Isaac process per door/condition
 The default is one worker; `--jobs 2` permits two independent processes on the
 verified 24-GiB workstation. Each worker has its own log under `worker-logs/`.
 A missing/incomplete artifact is failure even when Isaac exits with code zero.
-It reuses the frozen scripted expert, camera, fixed neck, physical setup and safety
-rules. It does not publish new qualification references. Nominal and moderate
+The legacy mode reuses the frozen scripted expert, camera and fixed neck.
+The optional inspection mode retains the arm/contact setup and safety rules. It does not publish new qualification references. Nominal and moderate
 Replicator light conditions are constant within each episode; physics is unchanged.
 The initial campaign contains two episodes per identity: 38 train and 12 development.
 These are perception engineering recordings, not the final matched policy dataset.
@@ -38,7 +40,8 @@ calibration, outcome and collection diagnostics in a dedicated `metadata` group.
 This includes reset at episode time zero and the
 terminal observation. Missing reset observations are rejected.
 Command t acts between observations t and t+1. The command includes the compensated
-world tool goal actually passed to `command_pose` and resulting seven joint targets;
+world tool goal actually passed to `command_pose`, seven arm targets and, in new
+recordings, two neck targets;
 the placeholder zero action passed to `env.step` is not the expert command.
 Writing is incremental and refuses existing files. Image checks reject empty black
 frames; mean brightness is diagnostic, not an arbitrary exclusion of dark materials.
@@ -63,18 +66,48 @@ nearest resampling, adjusted intrinsics and masked XYZ patch features. Cached
 RGB features and live inference both use float16; metric XYZ stays float32.
 Rendered depth is ideal geometry, not a ZED stereo-error simulation.
 
-A small spatial fusion module and GRU use four samples at 10 Hz. Each history is
-causal and remains inside one episode. Train-only proprioceptive normalization
-and equal-door/phase sampling prevent development leakage and domination by long
-opening traces. The learned output includes the hinge frame, signed articulation,
-panel orientation, dimensions, contact geometry and confidence. `ObjectFrame`
-compatibility makes future A3 integration explicit; it does not implement Phase 6.1.
+`configs/perception_metric.json` is the new CLI default. RGB and metric XYZ
+have separate equal-width encoders and normalization before fusion. Metric data
+uses a 32×32 grid, excludes depths beyond 3 m before pooling, and transforms
+observed points through the calibrated camera pose. Hinge position is an observed
+3-D centroid plus a learned residual. Centered geometric features make a common
+world translation shift the predicted hinge/contact by the same metric amount.
+This structural property does not prove correct semantic localization.
 
-`ObservedEstimator` clears history on reset, missing depth, nonmonotonic input or
-a sampling gap. Warmup and low confidence produce invalid estimates. Consumers must
-check freshness before commanding motion; there is no oracle fallback. The signed
-angle follows right-handed rotation about the estimated frame's Z axis; it is
-negative for the canonical right-hinged opening direction.
+Seven timestamp-selected inspection observations remain available throughout an
+episode. Their pooled encoding predicts static hinge, dimensions and local contact;
+a GRU over the four recent 10-Hz observations, conditioned on inspection memory,
+predicts articulation. Asset identity, phase and truth never enter either encoder.
+Train-only normalization and equal-door/phase sampling remain in use. The legacy
+`configs/perception.json` and old head remain explicitly loadable for diagnostics.
+
+`ObservedEstimator` clears both memories on reset, missing/insufficient depth,
+nonmonotonic input or a sampling gap. Missing inspection samples cannot be filled
+from future frames. Warmup, low confidence and unqualified confidence produce
+invalid estimates. Consumers must check freshness before commanding motion; there
+is no oracle fallback. Signed angle is right-handed about the estimated hinge Z.
+
+## Common inspection and mount study
+
+`--inspection configs/perception_inspection.json` enables one common 25-second
+neck trajectory for all doors. The ZED rigid mount pitches upward by 10 degrees;
+the final neck pitch compensates this for manipulation. The trajectory respects
+URDF neck limits and a 0.4 rad/s command-speed bound. The parked arm holds its
+initial tool pose. Forbidden contact, excessive tool drift, door motion or neck
+tracking error aborts recording. Camera FK is checked throughout the scan.
+The mount change is a simulation study requiring a corresponding hardware bracket
+and calibration before real deployment; the external Alex package is unchanged.
+
+Inspection is appended as phase code 5, preserving existing phase numbers and one
+continuous observation/command clock from reset. It is scoring metadata only.
+New metric caches require the exact inspection config in recorded metadata; old
+fixed-view recordings cannot silently satisfy the new contract. Top/bottom coverage
+is an offline truth/depth audit, not a privileged inference input. Seeing portions
+of the boundary is distinct from seeing the entire silhouette.
+
+`--inspection-only` records a bounded camera diagnostic without the expert. Such
+files explicitly lack hold/release and are rejected by training episode validation.
+They must be stored outside an engineering campaign.
 
 ## Complete-state objective and train-only fitting
 
@@ -102,54 +135,56 @@ biases form identity bases, and the angle starts near `(sin, cos)=(0, 1)`.
 These are generic trainable initial values, shared across doors, not oracle
 initialization. Initial confidence is below the unchanged acceptance threshold.
 
-Confidence labels are positive only when **all nine** geometric errors satisfy
-their physical budgets and observations are available. The classifier still
-uses detached recurrent features; geometry is clipped before its backward pass.
-Thus confidence cannot change or rescale shared geometry gradients. Missing-input
-examples are confidence-negative with zero geometry loss. `loss_terms` logs
-each contribution separately. Measured confidence precision is reported; an
-unseen-scene calibration claim does not follow from fitting these data.
+Geometry optimization now freezes the confidence output, including weight decay.
+Selection and stagnation use only the equal-door worst normalized geometry p95;
+geometry-passing checkpoints rank before failing checkpoints. The standard
+`ReduceLROnPlateau` scheduler multiplies the step by 0.3 after four evaluations
+without a 0.5% improvement, down to 3e-6, before the existing stagnation stop.
+Scheduler state is checkpointed and resume requires the same schedule. `loss`/`train_loss` report the optimized geometry sum; `loss_terms` separately
+reports all components, including the diagnostic confidence loss. `refine` uses a
+fresh optimizer at 3e-5 from a compatible checkpoint and evaluates only train data;
+it stops when every train door passes geometry or after at most ten minutes.
 
-For each door during contact/push/hold, the evaluator records all nine physical
-p95 errors, joint geometric coverage, confidence-valid coverage and precision
-among accepted estimates. Success requires every p95 within its budget,
-**at least 95% of frames jointly within all budgets**, and **at least 95%
-confidence-valid coverage**. Contact-only geometry success remains a separate
-field. The selection score averages each door's worst normalized p95 and adds
-its confidence-coverage deficit. A passing checkpoint always ranks ahead of a
-failing one. These same complete-state results drive selection, stagnation and
-fitting success; a good composed contact cannot hide a bad hinge.
+`calibrate` freezes geometry, fits only the confidence row on train observations
+for at most four passes/ten minutes, then evaluates unchanged development doors.
+Labels require all nine physical errors within budget, with missing inputs negative.
+The implementation verifies that geometric weights and normalization are unchanged.
+Qualification requires per-door p95 errors within budget, at least 95% joint geometric
+coverage, at least 95% confidence coverage and at least 95% precision among accepted
+states. The fixed 0.5 confidence threshold is not lowered. Failed qualification
+still saves the classifier for diagnostics, with `qualified=false`; online inference
+rejects it. Evaluation scores the candidate confidence; online validity additionally requires
+qualification metadata. Geometry fitting success and confidence qualification
+are separate results.
 
 `fit-check --train-doors LEFT_ID RIGHT_ID` fits a fresh estimator on exactly one
-train identity per handedness, including both existing lighting episodes and all
-causal windows. Normalization, balanced sampling, selection and evaluation use
+train identity per handedness, using all selected episodes and causal windows. A bounded pilot may use
+`--partial`; full training and calibration always require the complete campaign. Normalization, balanced sampling, selection and evaluation use
 only that subset. It refuses development/test identities and stops at complete
-state success, train stagnation, 200 epochs or at most ten minutes of loop time.
+geometry success, train stagnation, 200 epochs or at most ten minutes of loop time.
 Final evaluation/checkpoint writing can slightly exceed that time budget. A
 passing fit is not evidence of held-out accuracy, dynamic usability or completed
 Subphase 6.0.
 
 ```bash
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py fit-check --train-doors door-2738468b94d74c5f animated-door-1-88abf40 --output outputs/b1/perception/fit-check-02
+"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py fit-check --train-doors door-2738468b94d74c5f animated-door-1-88abf40 --output outputs/b1/perception/NEW_FIT_DIRECTORY
 ```
 
-New checkpoints use `b1.perception.checkpoint.v2` and explicitly declare
-`confidence_scope=articulated-state-v1`. Parameter shapes and forward predictions
-remain compatible with old weights. Version-1 checkpoints can be loaded for
-physical-error diagnostics, but are labeled `contact-only`; their confidence
-cannot grant state validity and `ObservedEstimator` rejects them. Optimizer
-resume requires the same saved recipe and train/evaluation scope. Preserve the
-old attempts and start revised training in a new directory.
+New checkpoints use `b1.perception.checkpoint.v3` and retain the articulated-state
+confidence contract. The config selects the correct model architecture. Legacy
+v1/v2 weights remain diagnostic-loadable; absent qualification metadata means
+unqualified. A v1 contact-only confidence cannot construct `ObservedEstimator`.
+Resume requires the same recipe, scope, data and stopping settings; the new scope
+also records separate confidence fitting. Calibrated artifacts omit the geometry
+optimizer and are not resumable training checkpoints.
 
-The diagnostic summary uses `best_train`, `fit_check_passed`,
-`development_evaluated=false` and, on success, `reason=train_state_passed`.
-Full training selects on development and reports `best_development`. Existing
-recordings and caches are reused without changing the frozen preprocessing,
-contact gates, split or backbone.
+Train-only summaries report `development_evaluated=false`; full training evaluates
+development. A successful geometry fit is not development, confidence or dynamic
+qualification. Preserve all attempts and use new output directories.
 
 ## Pretraining gates and future validation
 
-The fixed engineering gates in `configs/perception.json` apply per development door
+The unchanged engineering gates in `configs/perception_metric.json` apply per development door
 during contact/push/hold: valid coverage at least 95%, operational-point positional
 error p95 at most 0.01 m and orientation error p95 at most 5 degrees. Report both
 handednesses separately, including the worst per-door positional/orientation p95
@@ -161,8 +196,8 @@ Development checkpoint selection weights doors equally and cannot use test evide
 These are offline gates. Subphase completion additionally requires demonstrated
 loss/reacquisition and dynamic use of estimates under the unchanged control/safety
 rules. The offline evaluator explicitly reports dynamic validation pending and
-cannot mark Subphase 6.0 complete. Gaze and alternate backbones remain conditional
-on a diagnosed train/development failure.
+cannot mark Subphase 6.0 complete. The initial scan addresses the diagnosed view deficit. Alternate backbones and
+closed-loop gaze remain unvalidated future changes.
 
 ## Operator commands
 
@@ -172,79 +207,37 @@ CUDA execution requires access to the real GPU and simulator caches. Never
 substitute CPU for a sandbox denial.
 
 ```bash
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/collect_perception.py --output datasets/b1/perception/engineering-v1 --smoke --condition nominal
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/collect_perception.py --output datasets/b1/perception/engineering-v1 --resume --jobs 2
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py prepare --output outputs/b1/perception/preparation.json
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py check --output outputs/b1/perception/readiness.json
+"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/collect_perception.py --output datasets/b1/perception/engineering-v2 --inspection configs/perception_inspection.json --jobs 1
+"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py prepare --output outputs/b1/perception/preparation-v2.json
+"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py check --output outputs/b1/perception/readiness-v2.json
 ```
 
-`--resume` on collection skips only validated complete recordings; incomplete
-attempts must be preserved outside the active campaign before retrying. Feature
-preparation refuses an existing destination. Check uses no optimizer or backward
-pass and verifies unchanged weights. `check --partial` is a diagnostic only and
-cannot report campaign readiness.
+These are the prospective full-campaign commands, not evidence that collection or
+training has completed. The new defaults require `engineering-v2`/`features-v2` and
+fail against old caches. A pilot supplies explicit `--recordings`, `--features`,
+`--partial` and, for `fit-check`, exactly two train door IDs. Preparation refuses
+existing destinations. Check verifies unchanged weights without optimizer updates;
+partial checks cannot claim full-campaign readiness. Collection resume skips only
+validated complete files; retain interrupted attempts in separate directories.
 
-The initial engineering campaign has 50 validated recordings and 50 complete
-feature caches. `outputs/b1/perception/preparation.json` records the cache build;
-`outputs/b1/perception/readiness.json` records the full-corpus CUDA check. This
-establishes readiness to start estimator training, not development accuracy or
-Subphase 6.0 completion.
-
-**Historical run-01 launch:** the commands below describe the original full-corpus
-workflow; `run-01` now exists. The service runs without an active assistant or
-scheduled task. The corrected full-corpus `run-02` has also finished and failed
-development. Further experiments must preserve both runs and use a new output
-directory for a changed recipe. An overnight extension is a separate decision.
+After campaign preparation and a separate decision to start full training:
 
 ```bash
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py launch --output outputs/b1/perception/run-01 --hours 1
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py evaluate --checkpoint outputs/b1/perception/run-01/best.pt --output outputs/b1/perception/development-01.json
+"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py launch --output outputs/b1/perception/run-03 --hours 1
+"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py calibrate --checkpoint outputs/b1/perception/run-03/best.pt --output outputs/b1/perception/confidence-03
 ```
 
-`launch` validates the corpus, feature cache and CUDA before submitting a
-`systemd --user` service, then returns immediately. The service runs independently
-of the Codex task; keep the workstation awake and the desktop user session running.
-It never restarts automatically. `train` remains available for foreground execution.
-The service is `alexdoor-perception-run-01.service`; submission records and the
-persistent console are the sibling files `run-01.launch.jsonl` and
-`run-01.console.log`. An existing run directory requires explicit `--resume`.
+`launch` validates the corpus/cache/CUDA and submits a persistent `systemd --user`
+service with console and launch records. It never restarts automatically. `train`
+runs in the foreground. `configs/perception_training.json` retains the geometric
+recipe and stops after ten completed evaluations without a cumulative 0.5%
+improvement, never before 15 epochs. This stopping rule does not relax physical
+gates. The loop budget excludes final evaluation/checkpoint writes. Status and
+summary report the stop reason, per-door metrics and saved checkpoints.
 
-`configs/perception_training.json` controls the loss recipe and early stopping
-independently of the frozen feature configuration; neither invalidates the caches.
-The initial rule stops after **10 consecutive completed development evaluations**
-without a cumulative improvement of at least **0.5%** in the equal-door selection
-score, and never before **15 completed epochs**. Small gains accumulate against
-the last significant improvement. This is an engineering stopping rule, not a
-change to the per-door accuracy gates. Every absolute best score still saves
-`best.pt`, even when its improvement is below the stopping threshold.
-
-The run stops at the first applicable time, stagnation or epoch limit; nonfinite
-loss, gradients or development score fail explicitly. The one-hour budget covers
-the training loop; finishing the current step, final development evaluation and
-checkpoint writing can add time. Final `status.json` and `summary.json` record
-`time_budget`, `development_stagnation`, `epoch_limit` or `error`; the bounded
-fit check also reports `train_stagnation` or `train_state_passed`. The summary
-includes the best development results and checkpoint paths. Startup failures before
-the training loop are visible in the console/service result.
-
-After completion, start the analysis from these files:
-
-```bash
-cat outputs/b1/perception/run-01/summary.json
-cat outputs/b1/perception/run-01/status.json
-tail -n 3 outputs/b1/perception/run-01/metrics.jsonl
-```
-
-Check finite loss, CUDA memory, per-door errors, confidence coverage and the
-train/development gap. `last.pt` stores model, optimizer, random states and the
-early-stopping counter; `best.pt` is selected on development only. Resume requires
-the same data/config, loss recipe, scope and stopping settings;
-an interrupted partial epoch starts a fresh weighted sample on resume. Preserve
-failed runs and diagnose missing/invalid data, NaNs or GPU failures before retrying.
-
-For a checkpoint produced by the current recipe, `launch --resume` retains its
-optimizer and stagnation counter with a new invocation time budget. Legacy
-run-01 is evaluation-only under this code; its failed recipe must not silently
-continue as a different experiment. A full-corpus run or overnight extension is
-a separate user decision after the train-only fitting result. Do not lower gates,
-open test doors, change the backbone or launch policy training to make a run pass.
+Legacy diagnostics must explicitly pass `--config configs/perception.json`,
+`--recordings datasets/b1/perception/engineering-v1` and
+`--features datasets/b1/perception/features-v1`. For example, `refine --checkpoint
+outputs/b1/perception/run-02/last.pt --output NEW_DIRECTORY` adds those three flags.
+No sealed test door, policy training, new full training or overnight extension is
+implied by a successful pilot.

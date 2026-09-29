@@ -121,6 +121,7 @@ def test_inference_resets_on_missing_stale_frames_and_requires_history(gpu_model
 
     class Head(torch.nn.Module):
         confidence_scope = STATE_CONFIDENCE
+        confidence_qualified = True
 
         def forward(self, *args):
             raw = torch.zeros(1, 24)

@@ -14,39 +14,52 @@ sys.path.insert(0, str(REPO / "src"))
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "command", choices=("prepare", "check", "train", "fit-check", "launch", "evaluate")
+        "command",
+        choices=(
+            "prepare",
+            "check",
+            "train",
+            "fit-check",
+            "refine",
+            "calibrate",
+            "launch",
+            "evaluate",
+        ),
     )
     parser.add_argument(
         "--train-doors", nargs=2, help="Fit check only: one train door per handedness"
     )
-    parser.add_argument("--config", type=Path, default=REPO / "configs/perception.json")
+    parser.add_argument("--config", type=Path, default=REPO / "configs/perception_metric.json")
     parser.add_argument(
         "--training-config", type=Path, default=REPO / "configs/perception_training.json"
     )
     parser.add_argument(
-        "--recordings", type=Path, default=REPO / "datasets/b1/perception/engineering-v1"
+        "--recordings", type=Path, default=REPO / "datasets/b1/perception/engineering-v2"
     )
     parser.add_argument(
-        "--features", type=Path, default=REPO / "datasets/b1/perception/features-v1"
+        "--features", type=Path, default=REPO / "datasets/b1/perception/features-v2"
     )
     parser.add_argument("--backbone", type=Path, default=REPO / "outputs/b1/perception/backbone")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--resume", type=Path)
     parser.add_argument("--hours", type=float)
+    parser.add_argument("--refinement-learning-rate", type=float, default=3e-5)
     parser.add_argument(
         "--partial", action="store_true", help="Diagnostic check only; no readiness claim"
     )
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
+    if args.command == "refine" and (args.checkpoint is None or args.resume is not None):
+        parser.error("Refine requires --checkpoint and a new output; resume is not supported")
     import torch
 
     if not args.device.startswith("cuda") or not torch.cuda.is_available():
         parser.error(
             "A CUDA GPU is required; rerun with runtime permissions, never fall back to CPU"
         )
-    if args.partial and args.command != "check":
-        parser.error("Partial is only supported for diagnostic checks")
+    if args.partial and args.command not in ("check", "prepare", "fit-check"):
+        parser.error("Partial is only supported for diagnostic preparation/checks/fit checks")
     if (args.train_doors is not None) != (args.command == "fit-check"):
         parser.error("Fit check requires --train-doors; other commands cannot select a subset")
     config = json.loads(args.config.read_text())
@@ -59,29 +72,35 @@ def main():
         validate_feature_corpus,
     )
     from alexdoor_xas.perception.model import (
-        DoorEstimator,
         FrozenBackbone,
         estimator_loss,
+        make_estimator,
+        metric_geometry,
         preprocess,
     )
-    from alexdoor_xas.perception.training import evaluate, load_checkpoint, train
+    from alexdoor_xas.perception.training import (
+        calibrate_confidence,
+        evaluate,
+        load_checkpoint,
+        train,
+    )
     from alexdoor_xas.qualification.corpus import load_corpus
 
     corpus = load_corpus(REPO / "assets/doors/b1/corpus.json", REPO)
     paths = episode_paths(args.recordings, corpus, complete_campaign=not args.partial)
-    if args.command in ("train", "fit-check", "launch", "evaluate") or (
+    if args.command in ("train", "fit-check", "refine", "calibrate", "launch", "evaluate") or (
         args.command == "check" and not args.partial
     ):
         validate_feature_corpus(args.features, paths, config, args.backbone)
     recipe = json.loads(args.training_config.read_text())
-    if args.command in ("train", "fit-check", "launch"):
+    if args.command in ("train", "fit-check", "refine", "launch"):
         from alexdoor_xas.perception.run import EarlyStopping, launch_detached
 
         stopping = {
             k: recipe[k] for k in ("patience_evaluations", "min_relative_improvement", "min_epochs")
         }
         EarlyStopping(stopping)
-        default_hours = 1 / 6 if args.command == "fit-check" else config["max_hours"]
+        default_hours = 1 / 6 if args.command in ("fit-check", "refine") else config["max_hours"]
         hours = args.hours if args.hours is not None else default_hours
         if not 0 < hours <= 10:
             parser.error("Training budget must be in (0, 10] hours")
@@ -124,7 +143,7 @@ def main():
             from alexdoor_xas.perception.data import TARGETS
 
             torch.manual_seed(config["seed"])
-            head = DoorEstimator(config["hidden_size"]).to(args.device).eval()
+            head = make_estimator(config).to(args.device).eval()
             if not args.partial:
                 train_windows = PerceptionWindows(args.features, "train", config)
                 mean, std = train_windows.normalization()
@@ -137,7 +156,17 @@ def main():
                     / config["sample_hz"]
                     / json.loads(source["metadata"].attrs["episode"])["control_dt"]
                 )
-                ids = [i * stride for i in range(config["history"])]
+                context = config.get("inspection", {}).get("sample_times_s", [])
+                dt = json.loads(source["metadata"].attrs["episode"])["control_dt"]
+                ids = [round(t / dt) for t in context]
+                start = ids[-1] + stride if ids else 0
+                ids += [start + i * stride for i in range(config["history"])]
+                if (
+                    context
+                    and json.loads(source["metadata"].attrs["episode"]).get("inspection")
+                    != config["inspection"]
+                ):
+                    raise ValueError("Readiness requires the configured inspection")
                 obs = source["observations"]
                 values = {
                     k: torch.as_tensor(obs[k][ids], device=args.device)
@@ -159,6 +188,7 @@ def main():
                     config["image_size"],
                 )
                 features = backbone(rgb)
+                geometry = metric_geometry(geometry, config)
                 predicted = head(
                     features[None],
                     geometry[None],
@@ -202,10 +232,10 @@ def main():
         train_data = PerceptionWindows(args.features, "train", config, asset_ids=args.train_doors)
         development = (
             train_data
-            if args.command == "fit-check"
+            if args.command in ("fit-check", "refine")
             else PerceptionWindows(args.features, "development", config)
         )
-        if args.command in ("train", "fit-check"):
+        if args.command in ("train", "fit-check", "refine"):
             train(
                 train_data,
                 development,
@@ -217,10 +247,25 @@ def main():
                 resume=args.resume,
                 device=args.device,
                 fit_check=args.command == "fit-check",
+                refine_from=args.checkpoint if args.command == "refine" else None,
+                refinement_learning_rate=args.refinement_learning_rate,
+                learning_rate_schedule=recipe.get("learning_rate_schedule"),
             )
             return
         if args.checkpoint is None:
             parser.error("Evaluation requires --checkpoint")
+        if args.command == "calibrate":
+            report = calibrate_confidence(
+                args.checkpoint,
+                train_data,
+                development,
+                config,
+                args.output,
+                device=args.device,
+                hours=args.hours if args.hours is not None else 1 / 6,
+            )
+            print(json.dumps(report, indent=2))
+            return
         model, payload = load_checkpoint(args.checkpoint, config, args.device)
         current = json.loads((args.features / "index.json").read_text())
         if payload["dataset"] != current:

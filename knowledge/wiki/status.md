@@ -9,21 +9,23 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
-| 6.0 — Perception | Preparation and two-door complete-state fitting check pass. Corrected full-corpus run-02 stops after 15 epochs/13.60 minutes: last checkpoint passes 5/19 train doors and 0/6 development doors, with inaccurate development estimates accepted by confidence. Development and dynamic validation remain open. |
+| 6.0 — Perception | Observation/mount, static-memory, metric-input and training corrections implemented. New two-door metric geometry fit passes; bounded legacy refinement passes all 19 train doors. Refreshed full-campaign data, new development accuracy and dynamic qualification remain pending. |
 | 6.1–7 — Actions, data, learning | Planned; no matched B1 policy dataset or learned-policy integration yet. |
 
 ## Next Action
 
-The user-launched [[experiments/b1-perception-run-02|corrected full-corpus run]]
-fails development. The subsequent
-[[experiments/b1-perception-input-diagnosis|targeted input/error diagnosis]] finds
-the panel top outside the camera frustum in all 31,654 cached frames, strong RGB
-dependence with weak depth sensitivity, and train failures confined to composed
-contact position. Next, address full-geometry observation and retention, compare
-an explicit metric depth path, and test a bounded contact-fitting refinement
-before another full run. Confidence must reject inaccurate states. Preserve all
-attempts and keep the sealed test partition closed. No weights or training code
-were changed, and no additional training was started during the diagnosis.
+The [[experiments/b1-perception-corrections|pretraining corrections]] implement a
+common initial inspection, a 10-degree upward ZED mount study, causal static
+memory, a separate metric-depth encoder, train-only refinement and frozen-geometry
+confidence fitting/qualification. The two nominal train inspection/manipulation
+pilots and the tallest-door observation diagnostic pass. The new metric model
+passes the same two-door geometry fitting check in 142 seconds, with raw-recording
+replay matching cache predictions. Legacy train refinement passes all 19 train
+doors, but its separate confidence check still fails all six development doors
+and the checkpoint is explicitly rejected for online use. The next step is a
+refreshed 50-episode recording campaign and new feature/readiness checks before
+a separately started full training run. Old data, checkpoints and
+failed attempts remain preserved, and the sealed test partition stays closed.
 
 The interfaces and autonomous launch commands remain in
 [[topics/shared-door-perception|Shared Door Perception]].
