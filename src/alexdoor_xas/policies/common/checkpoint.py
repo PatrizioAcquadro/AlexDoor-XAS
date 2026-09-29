@@ -29,6 +29,7 @@ class CheckpointPayload:
     model_cfg: dict[str, Any]
     stats: DatasetNormStats
     robot_asset: RobotAssetRef | None
+    meta: dict[str, Any]
 
 
 def _dataset_descriptor(config: Mapping[str, Any]) -> dict[str, Any]:
@@ -153,6 +154,9 @@ def load_checkpoint_payload(
         dataset = _dataset_descriptor({"dataset": payload["dataset"]})
         stats = DatasetNormStats.from_dict(payload["norm_stats"])
         robot_asset = _robot_asset_from_payload(payload.get("robot_asset"))
+        meta = payload.get("meta", {})
+        if not isinstance(meta, dict):
+            raise TypeError("checkpoint metadata must be a mapping")
     except (KeyError, TypeError, ValueError) as error:
         raise ValueError(f"invalid {checkpoint_label} checkpoint {path}: {error}") from error
     _validate_checkpoint_contract(
@@ -170,4 +174,5 @@ def load_checkpoint_payload(
         model_cfg=model_cfg,
         stats=stats,
         robot_asset=robot_asset,
+        meta=meta,
     )

@@ -10,7 +10,7 @@ compatibility, dataset payloads and run orchestration are retired.
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
 | 6.0 — Perception | Observation/mount, static-memory, metric-input and training corrections implemented. New two-door metric geometry fit passes; bounded legacy refinement passes all 19 train doors. Refreshed full-campaign data, new development accuracy and dynamic qualification remain pending. |
-| 6.1 — Action paths | B1 observation/action/dataset contracts implemented; model binding and rollout wiring in progress. Final integration and physical validation await qualified/frozen 6.0 perception. |
+| 6.1 — Action paths | B1 observation/action/dataset contracts and ACT/Diffusion model binding implemented; rollout wiring in progress. CUDA checks and final integration/physical validation remain pending. |
 | 6.2–7 — Policy data and learning | Not started; no matched B1 policy dataset or learned-policy result. |
 
 ## Next Action

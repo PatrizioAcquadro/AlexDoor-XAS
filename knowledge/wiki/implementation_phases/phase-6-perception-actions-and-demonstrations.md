@@ -120,7 +120,8 @@ tensor/segment contracts are implemented. See
 [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]]. Numerical
 fixtures validate these interfaces without running a model or simulator. The
 ongoing 6.0 collection, its configurations and existing artifacts are preserved.
-Model binding and rollout wiring are in progress. CUDA model checks, final
+ACT/Diffusion batch, normalization and checkpoint binding are implemented; rollout
+wiring is in progress. CUDA model checks, final
 perception integration, matched physical replay and observed-geometry smoke
 rollouts remain pending. No qualified/frozen perception release exists, no B1
 policy dataset has been generated, and 6.1 is not complete.

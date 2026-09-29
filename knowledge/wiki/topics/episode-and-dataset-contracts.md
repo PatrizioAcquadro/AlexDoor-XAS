@@ -75,5 +75,9 @@ paths, complete A4 stages, aligned boundaries and a qualified/frozen perception
 binding. Publication refuses existing destinations and stages new output before
 renaming. The new path does not reinterpret numerical `phase2.v2` artifacts.
 
+`load_b1_data` builds train-only normalization and the two family batch factories;
+see [[learned-policy-stack|Learned Policy Stack]] for fixed A4 category scaling
+and the distinct B1 checkpoint formats.
+
 Tests use explicit small arrays and synthetic identities. No local B0 recordings
 or external robot asset are needed to verify these contracts.

@@ -280,6 +280,7 @@ class B1Dataset:
 
     def __init__(self, directory, space, *, binding=None):
         directory = Path(directory)
+        self.dataset_dir = directory
         metadata = json.loads((directory / "meta.json").read_text())
         if metadata.get("schema") != SCHEMA or metadata.get("purpose") != PURPOSE:
             raise ValueError("Unsupported B1 policy dataset")

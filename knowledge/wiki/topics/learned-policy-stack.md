@@ -7,8 +7,9 @@ and training/evaluation orchestration to
 [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7]].
 
 The shared B1 perception estimator is documented separately in
-[[shared-door-perception|Shared Door Perception]]. Its preparation does not connect
-RGB-D to ACT/Diffusion or complete any of the eight B1 learning paths.
+[[shared-door-perception|Shared Door Perception]]. The B1 software path below
+connects its observed encoding to both families; qualification and physical
+validation of the eight learning paths remain pending.
 
 ## Maintained Components
 
@@ -42,3 +43,33 @@ observation fields.
 There is no maintained B0 training CLI, W&B wrapper, run-directory protocol or
 closed-loop evaluator. No old checkpoint is claimed to be a B1 policy. Numerical
 model correctness and small overfit tests do not establish manipulation quality.
+
+## B1 Family Integration
+
+`policies/b1.py` provides `load_b1_data`, `batch_factories`, `make_model`,
+`train_model`, `save_policy` and `B1Policy.from_checkpoint`. The existing ACT and
+Diffusion models/trainers consume the same observed tensor and action widths
+7/6/6/17. No model training or policy-dataset production is launched by these APIs.
+
+Statistics are computed on train identities only; batch/checkpoint preparation
+rejects changed membership or stale statistics. ACT keeps z-score scaling and
+Diffusion keeps min/max scaling. A4 stage/termination columns instead use fixed
+mean 0, std 1, min 0 and max 1: ACT sees 0/1 and Diffusion sees -1/+1. Continuous
+columns retain train-derived scaling. Padded rows remain masked by existing losses.
+
+B1 checkpoint formats are `alexdoor_xas.act.b1.v1` and
+`alexdoor_xas.diffusion.b1.v1`. They embed the exact observation/action contract,
+canonical arm/neck order, robot identity, normalization and qualified/frozen
+perception binding. A v3 numerical checkpoint cannot enter this path through
+matching dimensions. B1 inference defaults to CUDA and validates artifact
+compatibility before model construction.
+
+ACT temporal ensembling is available for A1-A3 only. A4 retains discrete segment
+boundaries and rejects ensembling. Both families expose segment chunks; the
+runner must consume their durations before moving to the next segment.
+
+CPU checks cover data, scaling, serialization envelopes and contract rejection.
+`tests/test_b1_policy_models.py` defines all eight CUDA forward/loss/gradient and
+prediction round-trip checks; they remain unexecuted while collection owns the
+GPU. The estimator encoding parity test is likewise pending. These software
+interfaces do not qualify 6.1 or establish policy performance.

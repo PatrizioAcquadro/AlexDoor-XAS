@@ -23,6 +23,26 @@ def test_common_scan_has_physical_limits_and_consistent_model_contract():
     assert config["waypoints"][0][1:] == config["waypoints"][-1][1:]
 
 
+def test_policy_encoding_preserves_predictions_and_weights(gpu_models):
+    model = make_estimator(CONFIG).eval()
+    before = {k: v.clone() for k, v in model.state_dict().items()}
+    t = model.context_size + CONFIG["history"]
+    features = torch.randn(1, t, 384, 16, 16)
+    geometry = torch.rand(1, t, 4, 32, 32)
+    geometry[:, :, 3] = 1
+    proprio = torch.zeros(1, t, 18)
+    camera = torch.eye(4).repeat(1, t, 1, 1)
+    with torch.no_grad():
+        expected = model(features, geometry, proprio, camera)
+        actual, encoding = model(features, geometry, proprio, camera, return_encoding=True)
+    for key in expected:
+        torch.testing.assert_close(actual[key], expected[key], atol=0, rtol=0)
+    assert encoding.shape == (1, 2 * CONFIG["hidden_size"])
+    assert encoding.isfinite().all()
+    for key, value in model.state_dict().items():
+        torch.testing.assert_close(value, before[key], atol=0, rtol=0)
+
+
 def test_metric_anchor_moves_with_world_and_static_memory_ignores_recent_rgb(gpu_models):
     model = make_estimator(CONFIG)
     t = model.context_size + CONFIG["history"]
