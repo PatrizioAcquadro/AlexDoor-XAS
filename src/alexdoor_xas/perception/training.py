@@ -58,6 +58,11 @@ def evaluate(model, dataset, config, device):
             raise ValueError(f"No manipulation samples: {asset}")
         pe, re = np.percentile(manipulation[:, :2], 95, axis=0)
         coverage = float(manipulation[:, 2].mean())
+        geometry_passed = bool(
+            np.isfinite([pe, re]).all()
+            and pe <= gates["contact_position_p95_m"]
+            and re <= gates["contact_orientation_p95_deg"]
+        )
         entry = next(e for e in dataset.episodes if e["asset_id"] == asset)
         result[asset] = dict(
             position_p95_m=float(pe),
@@ -65,12 +70,15 @@ def evaluate(model, dataset, config, device):
             valid_coverage=coverage,
             handedness=entry["handedness"],
             frames=len(values),
-            passed=bool(
-                np.isfinite([pe, re]).all()
-                and pe <= gates["contact_position_p95_m"]
-                and re <= gates["contact_orientation_p95_deg"]
-                and coverage >= gates["valid_coverage"]
+            manipulation_frames=len(manipulation),
+            geometric_coverage=float(
+                (
+                    (manipulation[:, 0] <= gates["contact_position_p95_m"])
+                    & (manipulation[:, 1] <= gates["contact_orientation_p95_deg"])
+                ).mean()
             ),
+            geometry_passed=geometry_passed,
+            passed=geometry_passed and coverage >= gates["valid_coverage"],
         )
     score = float(
         np.mean(
@@ -85,6 +93,16 @@ def evaluate(model, dataset, config, device):
     return dict(
         per_door=result,
         selection_score=score,
+        geometry_passed=all(r["geometry_passed"] for r in result.values()),
+        geometry_score=float(
+            np.mean(
+                [
+                    r["position_p95_m"] / gates["contact_position_p95_m"]
+                    + r["orientation_p95_deg"] / gates["contact_orientation_p95_deg"]
+                    for r in result.values()
+                ]
+            )
+        ),
         offline_passed=all(r["passed"] for r in result.values()),
         dynamic_validation="pending",
         subphase_complete=False,
@@ -123,13 +141,52 @@ def load_checkpoint(path, config, device):
     return model, payload
 
 
+def training_scope(train_data, evaluation_data, fit_check):
+    if any(e["split"] != "train" for e in train_data.episodes):
+        raise ValueError("Training requires train episodes only")
+    doors = {e["asset_id"]: e["handedness"] for e in train_data.episodes}
+    if fit_check:
+        if evaluation_data is not train_data or sorted(doors.values()) != ["left", "right"]:
+            raise ValueError(
+                "Fit check requires the same train subset with one door per handedness"
+            )
+    elif any(e["split"] != "development" for e in evaluation_data.episodes):
+        raise ValueError("Full training requires development evaluation")
+    return dict(
+        kind="train_fit_check" if fit_check else "full_training",
+        train_doors=sorted(doors),
+        evaluation_split="train" if fit_check else "development",
+    )
+
+
+def validate_resume_recipe(state, loss_config, scope):
+    if state.get("loss_config") != loss_config or state.get("scope") != scope:
+        raise ValueError("Resume requires the same loss recipe and train/evaluation scope")
+
+
 def train(
-    train_data, development, config, output, *, stopping, hours=1, resume=None, device="cuda:0"
+    train_data,
+    development,
+    config,
+    output,
+    *,
+    stopping,
+    loss_config,
+    hours=1,
+    resume=None,
+    device="cuda:0",
+    fit_check=False,
 ):
     if not torch.cuda.is_available() or not str(device).startswith("cuda"):
         raise RuntimeError("Training requires the actual CUDA device; no CPU fallback")
     if not 0 < hours <= 10:
         raise ValueError("Training budget must be in (0, 10] hours")
+    if fit_check and hours > 1 / 6:
+        raise ValueError("A small fit check is limited to ten minutes")
+    if loss_config["recipe"] != "tolerance-normalized-v2":
+        raise ValueError("Unknown perception loss recipe")
+    scope = training_scope(train_data, development, fit_check)
+    evaluation_split = scope["evaluation_split"]
     stopper = EarlyStopping(stopping)
     output = Path(output)
     if resume is None:
@@ -150,6 +207,7 @@ def train(
     best_metrics = None
     if resume is not None:
         model, state = load_checkpoint(resume, config, device)
+        validate_resume_recipe(state, loss_config, scope)
         if state["dataset"] != manifest:
             raise ValueError("Cannot resume against a different feature dataset")
         optimizer = torch.optim.AdamW(
@@ -175,6 +233,9 @@ def train(
         device=device,
         budget_hours=hours,
         training_started=True,
+        scope=scope,
+        loss_config=loss_config,
+        development_evaluated=not fit_check,
         early_stopping=asdict(stopper),
         subphase_complete=False,
         dynamic_validation="pending",
@@ -185,6 +246,7 @@ def train(
         while epoch < config["max_epochs"] and time.monotonic() < deadline:
             model.train()
             losses = []
+            contributions = []
             completed_epoch = True
             for batch in loader:
                 if time.monotonic() >= deadline:
@@ -196,14 +258,24 @@ def train(
                 inputs["features"][~available] = 0
                 inputs["geometry"][~available] = 0
                 optimizer.zero_grad(set_to_none=True)
-                loss, _ = estimator_loss(model(**inputs), target, available)
+                loss, terms = estimator_loss(
+                    model(**inputs),
+                    target,
+                    available,
+                    gates=config["gates"],
+                    auxiliary_weight=loss_config["auxiliary_weight"],
+                )
                 if not torch.isfinite(loss):
                     raise FloatingPointError("Nonfinite training loss")
-                loss.backward()
+                # Clip geometry alone so confidence cannot scale shared gradients either.
+                geometry_loss = sum(v for k, v in terms.items() if k != "confidence")
+                geometry_loss.backward(retain_graph=True)
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0, error_if_nonfinite=True)
+                terms["confidence"].backward()
                 optimizer.step()
                 total_steps += 1
                 losses.append(float(loss.detach()))
+                contributions.append({k: float(v.detach()) for k, v in terms.items()})
                 if total_steps % 25 == 0:
                     with (output / "metrics.jsonl").open("a") as log:
                         log.write(
@@ -212,6 +284,10 @@ def train(
                                     event="train",
                                     step=total_steps,
                                     loss=float(np.mean(losses[-25:])),
+                                    loss_terms={
+                                        k: float(np.mean([r[k] for r in contributions[-25:]]))
+                                        for k in terms
+                                    },
                                     elapsed_s=time.monotonic() - started,
                                     gpu_memory_mb=torch.cuda.max_memory_allocated() / 1e6,
                                 )
@@ -222,11 +298,15 @@ def train(
                 break
             epoch += int(completed_epoch)
             metrics = evaluate(model, development, config, device)
-            score = metrics["selection_score"]
+            score = metrics["geometry_score"] if fit_check else metrics["selection_score"]
             if not np.isfinite(score):
                 raise FloatingPointError("Nonfinite development selection score")
             stagnant = stopper.update(score, epoch) if completed_epoch else False
-            improved = score < best
+            improved = score < best or (
+                fit_check
+                and metrics["geometry_passed"]
+                and not (best_metrics and best_metrics["geometry_passed"])
+            )
             if improved:
                 best = score
                 best_metrics = metrics
@@ -234,6 +314,8 @@ def train(
                 schema="b1.perception.checkpoint.v1",
                 config=config,
                 dataset=manifest,
+                scope=scope,
+                loss_config=loss_config,
                 model=model.state_dict(),
                 optimizer=optimizer.state_dict(),
                 epoch=epoch,
@@ -254,10 +336,14 @@ def train(
                 log.write(
                     json.dumps(
                         dict(
-                            event="development",
+                            event=evaluation_split,
                             epoch=epoch,
                             step=total_steps,
                             train_loss=float(np.mean(losses)),
+                            loss_terms={
+                                k: float(np.mean([r[k] for r in contributions]))
+                                for k in contributions[0]
+                            },
                             elapsed_s=time.monotonic() - started,
                             gpu_memory_mb=torch.cuda.max_memory_allocated() / 1e6,
                             early_stopping=asdict(stopper),
@@ -273,6 +359,9 @@ def train(
                         step=total_steps,
                         best_score=best,
                         offline_passed=metrics["offline_passed"],
+                        geometry_passed=metrics["geometry_passed"],
+                        evaluation_split=evaluation_split,
+                        per_door=metrics["per_door"],
                     )
                 ),
                 flush=True,
@@ -285,11 +374,14 @@ def train(
                 early_stopping=asdict(stopper),
             )
             save_json(output / "status.json", status)
+            if fit_check and metrics["geometry_passed"]:
+                reason = "train_geometry_passed"
+                break
             if not completed_epoch or time.monotonic() >= deadline:
                 reason = "time_budget"
                 break
             if stagnant:
-                reason = "development_stagnation"
+                reason = evaluation_split + "_stagnation"
                 break
         status.update(
             state="finished",
@@ -311,7 +403,10 @@ def train(
             output / "summary.json",
             dict(
                 **status,
-                best_development=best_metrics,
+                **{f"best_{evaluation_split}": best_metrics},
+                fit_check_passed=(
+                    bool(best_metrics and best_metrics["geometry_passed"]) if fit_check else None
+                ),
                 best_checkpoint=str(output / "best.pt") if (output / "best.pt").exists() else None,
                 last_checkpoint=str(output / "last.pt") if (output / "last.pt").exists() else None,
             ),

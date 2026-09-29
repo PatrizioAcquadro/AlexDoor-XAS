@@ -15,7 +15,7 @@ Planned and historical development records:
 - [[implementation_phases/phase-3-non-vla-learned-baselines|Phase 3 — Non-VLA Learned Baselines]] — State-only policy, adapter, and evaluation foundation.
 - [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — GPU-verified Alex003/control/RGB-D, historical synthetic setup and the shared zero-yaw revision assessed on collected doors.
 - [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Complete: 32 qualified doors, reviewed geometry families and frozen 19/6/7 identity split.
-- [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — Subphase 6.0 preparation ready before training; A1-A4 integration and pilot-to-dataset generation remain planned.
+- [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — Subphase 6.0 initial training failed; corrected loss and train-only fitting implemented; A1-A4 integration and pilot-to-dataset generation remain planned.
 - [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]] — Two planned subphases: training, then evaluation/analysis with ID/GEO before stress tests.
 - [[implementation_phases/extra-01-alex-v2-migration|Extra 01 — Alex V2 Migration]] — Migration from provisional assumptions to fixed-base Alex V2.
 - [[implementation_phases/extra-02-local-stabilization|Extra 02 — Local Stabilization]] — Closed-loop and force-semantics stabilization.
@@ -50,7 +50,7 @@ Current architectural and scientific contracts:
 
 Current engineering and historical scientific records:
 
-- [[experiments/b1-perception-run-01|B1 Perception Run 01]] — First estimator trial, failed development gates, loss-scale diagnosis and proposed next experiment.
+- [[experiments/b1-perception-run-01|B1 Perception Run 01]] — First estimator trial, failed development gates, loss-scale diagnosis and conditional follow-up.
 
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.

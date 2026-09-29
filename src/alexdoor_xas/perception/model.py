@@ -115,7 +115,12 @@ class DoorEstimator(nn.Module):
         cam = camera[..., :3, :].flatten(-2).flatten(0, 1)
         fused = self.fusion(torch.cat((visual, prop, cam), -1)).reshape(b, t, -1)
         _, state = self.temporal(fused)
-        return decode(self.output(state[-1]))
+        # Keep checkpoint/inference layout; confidence cannot reshape geometric features.
+        geometry_raw = F.linear(state[-1], self.output.weight[:23], self.output.bias[:23])
+        confidence_raw = F.linear(
+            state[-1].detach(), self.output.weight[23:], self.output.bias[23:]
+        )
+        return decode(torch.cat((geometry_raw, confidence_raw), -1))
 
 
 def rotation_error(predicted, target):
@@ -124,28 +129,52 @@ def rotation_error(predicted, target):
     return cosine.acos()
 
 
-def estimator_loss(prediction, target, available=None):
+def estimator_loss(prediction, target, available=None, *, gates, auxiliary_weight=0.1):
+    """Dimensionless Huber errors; auxiliary geometry has a single bounded weight."""
     if available is None:
         available = torch.ones_like(prediction["confidence"], dtype=torch.bool)
     mask = available.float()
     denominator = mask.sum().clamp_min(1)
+    position_scale = gates["contact_position_p95_m"]
+    angle_scale = np.deg2rad(gates["contact_orientation_p95_deg"])
+    if not position_scale > 0 or not 0 < angle_scale < np.pi or not auxiliary_weight >= 0:
+        raise ValueError("Loss requires positive physical scales and nonnegative auxiliary weight")
+
+    def huber(error):
+        return (
+            F.smooth_l1_loss(error, torch.zeros_like(error), reduction="none") * mask
+        ).sum() / denominator
+
     terms = {}
+    auxiliary = (
+        "hinge_origin",
+        "dimensions",
+        "contact_local",
+        "hinge_rotation",
+        "contact_rotation_local",
+        "angle",
+    )
     for key in ("hinge_origin", "dimensions", "contact_local", "contact_position"):
-        terms[key] = (
-            F.smooth_l1_loss(prediction[key], target[key], reduction="none").mean(-1) * mask
-        ).sum() / denominator
+        terms[key] = huber((prediction[key] - target[key]).norm(dim=-1) / position_scale)
+    # Chord distance avoids acos's singular gradient at a perfect rotation match.
+    rotation_scale = 2 * np.sqrt(2) * np.sin(angle_scale / 2)
     for key in ("hinge_rotation", "contact_rotation_local", "contact_rotation"):
-        terms[key] = (
-            (prediction[key] - target[key]).square().mean((-1, -2)) * mask
-        ).sum() / denominator
-    terms["angle"] = (
-        (1 - (prediction["signed_angle"] - target["signed_angle"]).cos()) * mask
-    ).sum() / denominator
+        terms[key] = huber((prediction[key] - target[key]).norm(dim=(-1, -2)) / rotation_scale)
+    terms["angle"] = huber(
+        2
+        * ((prediction["signed_angle"] - target["signed_angle"]) / 2).sin().abs()
+        / (2 * np.sin(angle_scale / 2))
+    )
+    for key in auxiliary:
+        terms[key] = terms[key] * auxiliary_weight / len(auxiliary)
     with torch.no_grad():
-        usable = (prediction["contact_position"] - target["contact_position"]).norm(dim=-1) <= 0.01
-        usable &= rotation_error(
-            prediction["contact_rotation"], target["contact_rotation"]
-        ) <= np.deg2rad(5)
+        usable = (prediction["contact_position"] - target["contact_position"]).norm(
+            dim=-1
+        ) <= position_scale
+        usable &= (
+            rotation_error(prediction["contact_rotation"], target["contact_rotation"])
+            <= angle_scale
+        )
         usable &= available
     terms["confidence"] = F.binary_cross_entropy(prediction["confidence"], usable.float())
     return sum(terms.values()), terms

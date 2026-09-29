@@ -23,7 +23,9 @@ check passed on the RTX 4090 with frozen backbone and unchanged estimator
 weights. The subsequent first training run stopped for stagnation after 28 epochs;
 its best checkpoint fails the six development doors. See the
 [[experiments/b1-perception-run-01|run-01 diagnosis]] for measured errors and the
-proposed next experiment. Development gates and dynamic validation remain open;
+initial diagnosis. The corrected tolerance-scaled loss, detached confidence
+gradients and bounded two-door train-only fitting command are implemented.
+Development gates and dynamic validation remain open;
 6.0 is not complete.
 
 Local preparation and readiness reports are under `outputs/b1/perception/`.
@@ -32,8 +34,9 @@ stagnation stopping, checkpointed stopping state and a final analysis summary.
 The launcher and stopping controls have been checked without training the estimator.
 
 See [[topics/shared-door-perception|Shared Door Perception]] for interfaces,
-fixed gates and operator commands. The user requires a handoff to a smaller
-model **before training starts**; a ten-hour extension is a later decision.
+fixed gates and operator commands. Current authorized follow-up is the corrected
+loss and a small train-only fitting diagnostic. A new full-corpus run and any
+ten-hour extension remain separate decisions.
 
 #### Implementation
 

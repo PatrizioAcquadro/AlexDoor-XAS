@@ -1,5 +1,9 @@
 {
   "patience_evaluations": 10,
   "min_relative_improvement": 0.005,
-  "min_epochs": 15
+  "min_epochs": 15,
+  "loss": {
+    "recipe": "tolerance-normalized-v2",
+    "auxiliary_weight": 0.1
+  }
 }

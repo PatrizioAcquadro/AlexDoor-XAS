@@ -134,7 +134,7 @@ def prepare_features(paths, destination, backbone, config, device):
 
 
 class PerceptionWindows(Dataset):
-    def __init__(self, root, split, config):
+    def __init__(self, root, split, config, *, asset_ids=None):
         if split not in ("train", "development"):
             raise ValueError("Only train/development can be loaded")
         self.root, self.config = Path(root), config
@@ -142,6 +142,13 @@ class PerceptionWindows(Dataset):
         if manifest["config"] != config:
             raise ValueError("Feature preprocessing/config mismatch")
         self.episodes = [e for e in manifest["episodes"] if e["split"] == split]
+        if asset_ids is not None:
+            selected = set(asset_ids)
+            if split != "train" or not selected or len(selected) != len(asset_ids):
+                raise ValueError("Subset selection requires distinct train doors")
+            if not selected <= {e["asset_id"] for e in self.episodes}:
+                raise ValueError("Subset contains an unknown or non-train door")
+            self.episodes = [e for e in self.episodes if e["asset_id"] in selected]
         self.windows, self.groups = [], []
         self.window_phases = {}
         for number, entry in enumerate(self.episodes):

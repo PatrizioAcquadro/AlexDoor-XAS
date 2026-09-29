@@ -54,3 +54,23 @@ def test_windows_never_cross_episodes_and_normalization_excludes_dev(tmp_path):
         h5["time_s"][4] = 100
     with pytest.raises(ValueError, match="missing or noncausal"):
         PerceptionWindows(tmp_path, "train", CONFIG)
+
+
+def test_fit_subset_filters_before_windows_and_normalization(tmp_path):
+    entries = [
+        cache(tmp_path, "train", "left", 6, 1),
+        cache(tmp_path, "train", "right", 9, 3),
+        cache(tmp_path, "train", "unused", 5, 1000),
+        cache(tmp_path, "development", "dev", 5, 2000),
+    ]
+    entries[1]["handedness"] = "right"
+    (tmp_path / "index.json").write_text(json.dumps(dict(config=CONFIG, episodes=entries)))
+    subset = PerceptionWindows(tmp_path, "train", CONFIG, asset_ids=["left", "right"])
+    assert len(subset) == 9
+    assert {e["asset_id"] for e in subset.episodes} == {"left", "right"}
+    np.testing.assert_allclose(subset.normalization()[0], 2)
+    for selection in (["left", "dev"], ["left", "absent"], ["left", "left"]):
+        with pytest.raises(ValueError, match="train"):
+            PerceptionWindows(tmp_path, "train", CONFIG, asset_ids=selection)
+    with pytest.raises(ValueError, match="train"):
+        PerceptionWindows(tmp_path, "development", CONFIG, asset_ids=["dev"])

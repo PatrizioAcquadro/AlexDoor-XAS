@@ -13,6 +13,7 @@ from alexdoor_xas.perception.model import (
     decode,
     estimator_loss,
     preprocess,
+    z_rotation,
 )
 
 CONFIG = json.loads((Path(__file__).resolve().parents[1] / "configs/perception.json").read_text())
@@ -43,7 +44,9 @@ def test_geometry_decode_and_loss_are_finite_without_weight_update(gpu_models):
             torch.zeros(2, 4, 18),
             torch.eye(4).repeat(2, 4, 1, 1),
         )
-        loss, _ = estimator_loss(pred, {k: v.clone() for k, v in pred.items()})
+        loss, _ = estimator_loss(
+            pred, {k: v.clone() for k, v in pred.items()}, gates=CONFIG["gates"]
+        )
     assert torch.isfinite(loss)
     assert all(torch.equal(before[k], v) for k, v in model.state_dict().items())
     torch.testing.assert_close(
@@ -52,6 +55,58 @@ def test_geometry_decode_and_loss_are_finite_without_weight_update(gpu_models):
         atol=1e-5,
         rtol=1e-5,
     )
+
+
+def test_loss_scales_match_operational_tolerances_and_zero_error_has_finite_gradient(gpu_models):
+    raw = torch.zeros(2, 24)
+    raw[:, [3, 7, 10, 17, 21]] = 1
+    raw.requires_grad_()
+    pred = decode(raw)
+    target = {k: v.detach().clone() for k, v in pred.items()}
+    target["contact_position"][:, 0] += CONFIG["gates"]["contact_position_p95_m"]
+    target["contact_rotation"] = z_rotation(torch.full((2,), torch.pi / 36))
+    _, terms = estimator_loss(pred, target, gates=CONFIG["gates"])
+    assert float(terms["contact_position"].detach()) == pytest.approx(0.5, abs=1e-6)
+    assert float(terms["contact_rotation"].detach()) == pytest.approx(0.5, abs=1e-6)
+    loss, _ = estimator_loss(
+        pred, {k: v.detach().clone() for k, v in pred.items()}, gates=CONFIG["gates"]
+    )
+    loss.backward()
+    assert raw.grad.isfinite().all()
+
+
+def test_confidence_cannot_change_shared_geometry_and_inference_layout_is_preserved(gpu_models):
+    model = DoorEstimator()
+    states = []
+    hook = model.temporal.register_forward_hook(
+        lambda module, args, output: states.append(output[1])
+    )
+    pred = model(
+        torch.randn(2, 4, 384, 16, 16),
+        torch.ones(2, 4, 4, 16, 16),
+        torch.zeros(2, 4, 18),
+        torch.eye(4).repeat(2, 4, 1, 1),
+    )
+    hook.remove()
+    legacy = decode(model.output(states[0][-1]))
+    for key in pred:
+        torch.testing.assert_close(pred[key], legacy[key])
+    target = {k: v.detach().clone() for k, v in pred.items()}
+    _, terms = estimator_loss(pred, target, gates=CONFIG["gates"])
+    terms["confidence"].backward(retain_graph=True)
+    for module in (model.spatial, model.fusion, model.temporal):
+        assert all(p.grad is None or not p.grad.any() for p in module.parameters())
+    assert not model.output.weight.grad[:23].any()
+    assert model.output.weight.grad[23:].norm() > 0
+    model.zero_grad(set_to_none=True)
+    # With no observations, every geometry contribution and gradient is zero.
+    loss, terms = estimator_loss(
+        pred, target, torch.zeros(2, dtype=torch.bool), gates=CONFIG["gates"]
+    )
+    assert all(float(v.detach()) == 0 for k, v in terms.items() if k != "confidence")
+    loss.backward()
+    assert model.output.weight.grad.isfinite().all()
+    assert not model.output.weight.grad[:23].any()
 
 
 def test_inference_resets_on_missing_stale_frames_and_requires_history(gpu_models):

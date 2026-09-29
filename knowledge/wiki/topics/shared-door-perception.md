@@ -3,7 +3,7 @@
 Subphase 6.0 prepares one observed-only stack for every B1 model/representation.
 The initial trained estimator is **not qualified**: run-01 fails the development
 gates. The [[experiments/b1-perception-run-01|run-01 diagnosis]] separates measured
-failures from proposed corrections. Passing recording checks or a CUDA forward/loss
+failures from the subsequent loss correction and train-only diagnostic. Passing recording checks or a CUDA forward/loss
 does not establish development accuracy or closed-loop usability.
 The implementation contract is in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
@@ -64,6 +64,55 @@ a sampling gap. Warmup and low confidence produce invalid estimates. Consumers m
 check freshness before commanding motion; there is no oracle fallback. The signed
 angle follows right-handed rotation about the estimated frame's Z axis; it is
 negative for the canonical right-hinged opening direction.
+
+## Tolerance-scaled objective and train-only fitting
+
+The `tolerance-normalized-v2` objective divides Euclidean translation/dimension
+errors by the fixed 0.01-m operational tolerance before applying scalar Smooth L1.
+Rotation matrices use Frobenius chord distance divided by
+`2 sqrt(2) sin(5 degrees / 2)`; signed articulation uses the corresponding circular
+chord. A 1-cm position error and a 5-degree rotation error each contribute 0.5.
+The chord avoids the singular gradient of `acos` at an exact match; evaluation
+continues to use the actual angular error in degrees.
+
+Operational position and orientation each have weight 1. The six auxiliary
+geometry terms share weight 0.1, set in `configs/perception_training.json`.
+This prioritizes operational contact accuracy while retaining supervision of the
+articulated representation. These weights are a simple engineering recipe, not a
+claim that gradient balancing guarantees generalization. Every logged `loss_terms`
+value is its weighted contribution to total loss; confidence remains separately
+visible because its geometric-usability target changes during learning.
+
+Confidence uses detached recurrent features. Geometry gradients are clipped
+before confidence backward, so confidence cannot change or rescale the shared
+feature gradients. Missing-input examples remain confidence-negative and have
+zero geometric loss. Parameter names/shapes and inference outputs are preserved,
+so run-01 checkpoints remain evaluable. Resuming an optimizer requires the same
+saved loss recipe and train/evaluation scope; legacy run-01 cannot resume into the
+new recipe. Start revised training in a separate directory.
+
+`fit-check --train-doors LEFT_ID RIGHT_ID` fits a fresh estimator on exactly one
+train identity per handedness, including both existing lighting episodes and all
+causal windows. Normalization, sampling, checkpoint selection and evaluation use
+only that subset. The command refuses development/test identities and stops at
+geometric success, train stagnation, 200 epochs or at most ten minutes of loop
+time. Final evaluation/checkpoint writing can slightly exceed the time budget.
+A passing fit check requires both per-door manipulation position p95 <= 1 cm and
+orientation p95 <= 5 degrees. Confidence coverage and the joint fraction within
+both geometric tolerances are reported separately; a geometric fit does not
+certify confidence, development accuracy or dynamic usability. The full offline
+gates still include >=95% confidence-valid coverage and are unchanged.
+
+Example bounded diagnostic (never a full-corpus training launch):
+
+```bash
+"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py fit-check --train-doors door-2738468b94d74c5f animated-door-1-88abf40 --output outputs/b1/perception/fit-check-01
+```
+
+The diagnostic summary uses `best_train`, `fit_check_passed` and
+`development_evaluated=false`. Full training continues to select on development
+and report `best_development`. Existing recordings and caches are reused without
+changing the frozen feature configuration, gates or split.
 
 ## Pretraining gates and future validation
 
@@ -127,8 +176,8 @@ The service is `alexdoor-perception-run-01.service`; submission records and the
 persistent console are the sibling files `run-01.launch.jsonl` and
 `run-01.console.log`. An existing run directory requires explicit `--resume`.
 
-`configs/perception_training.json` controls early stopping independently of the
-frozen feature configuration, so stopping settings do not invalidate the caches.
+`configs/perception_training.json` controls the loss recipe and early stopping
+independently of the frozen feature configuration; neither invalidates the caches.
 The initial rule stops after **10 consecutive completed development evaluations**
 without a cumulative improvement of at least **0.5%** in the equal-door selection
 score, and never before **15 completed epochs**. Small gains accumulate against
@@ -155,14 +204,13 @@ tail -n 3 outputs/b1/perception/run-01/metrics.jsonl
 Check finite loss, CUDA memory, per-door errors, confidence coverage and the
 train/development gap. `last.pt` stores model, optimizer, random states and the
 early-stopping counter; `best.pt` is selected on development only. Resume requires
-the same data/config and stopping settings;
+the same data/config, loss recipe, scope and stopping settings;
 an interrupted partial epoch starts a fresh weighted sample on resume. Preserve
 failed runs and diagnose missing/invalid data, NaNs or GPU failures before retrying.
 
-A later `launch --resume outputs/b1/perception/run-01/last.pt --output
-outputs/b1/perception/run-01 --hours 10` is supported but **not authorized to run
-by preparation alone**. Decide after the first cycle whether more optimization
-addresses the measured failure. A resumed invocation has its own time budget and
-retains the stagnation counter;
-a run stopped for stagnation needs diagnosis before an extension. Do not lower gates,
+For a checkpoint produced by the current recipe, `launch --resume` retains its
+optimizer and stagnation counter with a new invocation time budget. Legacy
+run-01 is evaluation-only under this code; its failed recipe must not silently
+continue as a different experiment. A full-corpus run or overnight extension is
+a separate user decision after the train-only fitting result. Do not lower gates,
 open test doors, change the backbone or launch policy training to make a run pass.

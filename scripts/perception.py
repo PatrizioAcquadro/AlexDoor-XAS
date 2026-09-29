@@ -13,7 +13,12 @@ sys.path.insert(0, str(REPO / "src"))
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("prepare", "check", "train", "launch", "evaluate"))
+    parser.add_argument(
+        "command", choices=("prepare", "check", "train", "fit-check", "launch", "evaluate")
+    )
+    parser.add_argument(
+        "--train-doors", nargs=2, help="Fit check only: one train door per handedness"
+    )
     parser.add_argument("--config", type=Path, default=REPO / "configs/perception.json")
     parser.add_argument(
         "--training-config", type=Path, default=REPO / "configs/perception_training.json"
@@ -42,6 +47,8 @@ def main():
         )
     if args.partial and args.command != "check":
         parser.error("Partial is only supported for diagnostic checks")
+    if (args.train_doors is not None) != (args.command == "fit-check"):
+        parser.error("Fit check requires --train-doors; other commands cannot select a subset")
     config = json.loads(args.config.read_text())
     if (config["feature_precision"], config["geometry_precision"]) != ("float16", "float32"):
         parser.error("The frozen recipe requires float16 RGB features and float32 geometry")
@@ -62,16 +69,20 @@ def main():
 
     corpus = load_corpus(REPO / "assets/doors/b1/corpus.json", REPO)
     paths = episode_paths(args.recordings, corpus, complete_campaign=not args.partial)
-    if args.command in ("train", "launch", "evaluate") or (
+    if args.command in ("train", "fit-check", "launch", "evaluate") or (
         args.command == "check" and not args.partial
     ):
         validate_feature_corpus(args.features, paths, config, args.backbone)
-    if args.command in ("train", "launch"):
+    recipe = json.loads(args.training_config.read_text())
+    if args.command in ("train", "fit-check", "launch"):
         from alexdoor_xas.perception.run import EarlyStopping, launch_detached
 
-        stopping = json.loads(args.training_config.read_text())
+        stopping = {
+            k: recipe[k] for k in ("patience_evaluations", "min_relative_improvement", "min_epochs")
+        }
         EarlyStopping(stopping)
-        hours = args.hours if args.hours is not None else config["max_hours"]
+        default_hours = 1 / 6 if args.command == "fit-check" else config["max_hours"]
+        hours = args.hours if args.hours is not None else default_hours
         if not 0 < hours <= 10:
             parser.error("Training budget must be in (0, 10] hours")
         if args.command == "launch":
@@ -162,7 +173,12 @@ def main():
                     )[None]
                     for k in TARGETS
                 }
-                loss, terms = estimator_loss(predicted, labels)
+                loss, terms = estimator_loss(
+                    predicted,
+                    labels,
+                    gates=config["gates"],
+                    auxiliary_weight=recipe["loss"]["auxiliary_weight"],
+                )
             if not torch.isfinite(loss):
                 raise ValueError("Nonfinite forward/loss")
             if any(not torch.equal(before[k], v) for k, v in head.state_dict().items()):
@@ -184,18 +200,24 @@ def main():
                 dynamic_validation="pending",
             )
     else:
-        train_data = PerceptionWindows(args.features, "train", config)
-        development = PerceptionWindows(args.features, "development", config)
-        if args.command == "train":
+        train_data = PerceptionWindows(args.features, "train", config, asset_ids=args.train_doors)
+        development = (
+            train_data
+            if args.command == "fit-check"
+            else PerceptionWindows(args.features, "development", config)
+        )
+        if args.command in ("train", "fit-check"):
             train(
                 train_data,
                 development,
                 config,
                 args.output,
                 stopping=stopping,
+                loss_config=recipe["loss"],
                 hours=hours,
                 resume=args.resume,
                 device=args.device,
+                fit_check=args.command == "fit-check",
             )
             return
         if args.checkpoint is None:

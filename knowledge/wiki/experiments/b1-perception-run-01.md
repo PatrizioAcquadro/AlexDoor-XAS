@@ -71,7 +71,11 @@ episode match timestamps and all geometric targets exactly. No sign or cache
 alignment mismatch was found by these checks; they do not prove every target is
 visually observable or rule out architectural limits.
 
-## Proposed next experiment — not implemented or launched
+## Follow-up from this diagnosis
+
+Steps 1–2 below are now implemented in
+[[topics/shared-door-perception|Shared Door Perception]]; their measured fitting
+outcome is separate from this historical run. Steps 3–4 remain conditional.
 
 1. Normalize the principal geometric objectives to meaningful physical scales,
    log individual losses and train geometric metrics, and prevent confidence
