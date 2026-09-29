@@ -109,6 +109,10 @@ qualification. No such evidence-backed release is available yet; a confidence-
 qualified checkpoint alone is insufficient. Producing and validating the release
 belongs to the pending 6.0 integration, not to these numerical fixtures.
 
+`load_frozen_observer` verifies those artifact references before loading weights,
+requires qualified complete-state confidence, and disables perception gradients.
+The collection/estimator-training entry points and their recipes are unchanged.
+
 ## Common inspection and mount study
 
 `--inspection configs/perception_inspection.json` enables one common 25-second

@@ -1,7 +1,7 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
 > Subphase 6.0 open: complete-state fit passes on two train doors; development and dynamic use remain unqualified.
-> Subphase 6.1 implementation is in progress independently of 6.0 qualification.
+> Subphase 6.1 independent software implementation is available; validation is partial.
 > Final integration remains blocked; 6.2 is not started. Phases 4 and 5 are complete.
 
 ## Objective
@@ -114,17 +114,31 @@ stereo-error modeling project is required.
 
 #### Current implementation boundary
 
-The separate B1 observed encoding, matched dataset interface and complete action
-tensor/segment contracts are implemented. See
+The separate B1 observed encoding, matched dataset interface, complete action
+tensor/segment contracts, both model-family bindings and observed execution/replay
+runner are implemented. See
 [[topics/action-representations-and-adapters|Action Representations]] and
 [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]]. Numerical
 fixtures validate these interfaces without running a model or simulator. The
 ongoing 6.0 collection, its configurations and existing artifacts are preserved.
-ACT/Diffusion batch, normalization and checkpoint binding are implemented; rollout
-wiring is in progress. CUDA model checks, final
-perception integration, matched physical replay and observed-geometry smoke
-rollouts remain pending. No qualified/frozen perception release exists, no B1
-policy dataset has been generated, and 6.1 is not complete.
+CPU checks cover all eight paths' data/scaling contracts and numerical dispatch,
+full rotations, A4 boundaries/reconstruction and failures, stale/lost observations,
+reset, replay timing, and stop-only safety routing. Scalar checkpoint-envelope
+fixtures are not model round-trip validation.
+
+Remaining gates are explicit:
+
+- **Deferred for collection resources:** CUDA forward/loss/gradients, inference and
+  prediction checkpoint round-trips for all eight cells; unchanged estimator
+  prediction/encoding checks.
+- **Blocked by 6.0:** an evidence-backed qualified/frozen perception release,
+  raw/cache/live encoding equivalence and final integration, matched physical
+  replay, and observed-geometry rollouts including contact, hold/release and
+  loss/reacquisition on train doors of both handednesses.
+
+No GPU/simulation workload, policy training or dataset production was started for
+this implementation. No qualified/frozen perception release exists, no B1 policy
+dataset has been generated, and 6.1 is not complete. Subphase 6.2 remains unopened.
 
 #### Implementation
 

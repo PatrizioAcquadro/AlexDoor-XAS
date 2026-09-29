@@ -2,7 +2,8 @@
 
 This is the implemented Purdue operational contract for Subphases 4.0–4.1. The B0
 Alex V2 runtime has been retired. The common synthetic-door setup is GPU-qualified;
-learned B1 integration remains later work. Current evidence is maintained in
+B1 learned-action software is available, with final integration and physical
+validation still pending in Phase 6.1. Current runtime evidence is maintained in
 [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
 
 ## Reuse and Ownership

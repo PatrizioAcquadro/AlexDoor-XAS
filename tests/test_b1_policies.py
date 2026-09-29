@@ -105,7 +105,7 @@ def test_a4_sources_preserve_segments_and_forbid_ensembling(b1_data_root, family
     data = load_b1_data(b1_data_root, A4_OBJ_CENTRIC_CHUNK)
     expected = data.dataset.records[0].actions[:3]
     numerical = SimpleNamespace(stats=data.stats, chunk_size=3, predict=lambda obs: expected.copy())
-    policy = B1Policy(numerical, family, data.dataset.contract)
+    policy = B1Policy(numerical, family, data.dataset.contract, robot_asset=data.robot_asset)
     source = policy.chunk_source(lambda ctx: np.zeros(22))
     np.testing.assert_array_equal(source(None), expected)
     with pytest.raises(ValueError, match="Temporal ensembling"):

@@ -5,8 +5,9 @@ Alex003, WSG32/UMI v1, measured pedestal and head ZED RGB-D. Real-door expert
 qualification has a shared executor and one common zero-yaw mounting/ready
 configuration, validated by two complete GPU cycles each on a right and a left
 door. Routine qualification changes only the asset ID. Shared RGB-D perception
-preparation is implemented; the first trained estimator fails development gates; integration with ACT/Diffusion remains
-future work.
+preparation is implemented; estimator development/dynamic qualification remains
+open. B1 ACT/Diffusion software integration is available, with CUDA model checks
+and final observed-geometry rollout validation still pending.
 
 ## Runtime and Data Boundaries
 
@@ -29,6 +30,13 @@ estimator, train/development loaders and training/evaluation entry points. See
 
 See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
 [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
+
+The separate B1 policy path uses a shared frozen RGB-D encoding plus current
+proprioception, explicit A1-A4 tensors, and family-specific normalization.
+`B1Runner` connects the policy or labeled matched-replay source to `PurdueIO`.
+Only its stop monitor reads door truth; action adapters consume observed geometry.
+This is independent software preparation, not a completed Phase 6.1 or generated
+policy dataset. See [[topics/learned-policy-stack|Learned Policy Stack]].
 
 ## Preparation and Storage
 

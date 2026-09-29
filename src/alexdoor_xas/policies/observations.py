@@ -48,6 +48,36 @@ def observation_columns(vector, binding):
     )
 
 
+def load_frozen_observer(release_path, checkpoint_path, backbone_path, *, device="cuda:0"):
+    """Bind real artifact bytes only after 6.0 supplies its qualified/frozen release."""
+    import hashlib
+    import json
+    from pathlib import Path
+
+    from alexdoor_xas.perception.model import FrozenBackbone, ObservedEstimator
+    from alexdoor_xas.perception.training import load_checkpoint
+    from alexdoor_xas.policies.common.b1_contract import PerceptionBinding
+
+    binding = PerceptionBinding.from_dict(json.loads(Path(release_path).read_text()))
+    release = binding.to_dict()
+    for path, key in (
+        (checkpoint_path, "checkpoint_sha256"),
+        (Path(backbone_path) / "model.safetensors", "backbone_sha256"),
+    ):
+        with Path(path).open("rb") as stream:
+            digest = hashlib.file_digest(stream, "sha256").hexdigest()
+        if digest != release[key]:
+            raise ValueError(f"Frozen perception artifact mismatch: {key}")
+    estimator, _ = load_checkpoint(checkpoint_path, binding.config, device)
+    if not estimator.confidence_qualified:
+        raise ValueError("Perception checkpoint confidence is unqualified")
+    estimator.requires_grad_(False).eval()
+    backbone = FrozenBackbone(backbone_path).to(device)
+    return B1Observer(
+        ObservedEstimator(backbone, estimator, binding.config, policy_encoding=True), binding
+    )
+
+
 class B1Observer:
     def __init__(self, estimator, binding):
         if estimator.config != binding.config or not estimator.policy_encoding:

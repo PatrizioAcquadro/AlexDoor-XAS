@@ -2,9 +2,10 @@
 
 AlexDoor-XAS changes the action representation while holding the robot, task, physical episode, and evaluation protocol fixed.
 
-Purdue now provides the low-level A1/A2/A3 executor. Phase 6 still owns learned
-A1–A4 integration, estimated object frames, and observations. Reusable
-action/export structures remain available; they are not the Purdue policy path.
+Purdue provides the low-level executor. The separate B1 software path now connects
+observed inputs, ACT/Diffusion outputs and A1-A4 adapters. Final integration and
+physical rollout validation await qualified/frozen 6.0 perception. Historical
+numerical action/export structures remain available as separate contracts.
 
 ## Canonical Representations
 
@@ -13,7 +14,7 @@ action/export structures remain available; they are not the Purdue policy path.
 | `A1_joint_delta` | Joint-target delta | Robot joint coordinates | Seven-joint Purdue execution; numerical exports |
 | `A2_ee_delta` | End-effector delta | World-frame 6D delta | Full-pose Purdue execution; numerical models |
 | `A3_obj_rel_ee_delta` | Object-relative end-effector delta | Static hinge-anchored door-frame 6D delta | Supplied-frame transform to full-pose A2 |
-| `A4_obj_centric_chunk` | Object-centric contact-intent chunk | Contact targets in the moving panel frame | Numerical export structure; B1 execution deferred |
+| `A4_obj_centric_chunk` | Object-centric full-pose segment | Tool targets in the moving panel frame | B1 encoding/adapter implemented; physical validation pending |
 
 Frames are Z-up, distances are meters, angles are radians, and quaternions use `(x, y, z, w)`. The A3 frame is fixed at the hinge with +Z along the hinge axis. A4 contact targets move with the panel.
 
@@ -34,7 +35,8 @@ the Phase 6 observation/perception boundary.
 
 The B0 adapters, rollout driver and scripted controller are retired. Frame
 validation lives with action math and is shared by the Purdue A3 executor.
-There is no connected B1 learned adapter or A4 execution path yet.
+The B1 adapters are in `policies/rollout.py`; their simulator bridge is in
+`policies/purdue.py`. The old numerical chunks are not accepted as complete B1 A4.
 
 ## Contact and Force Semantics
 
@@ -50,7 +52,7 @@ A2 and A3 products derived from one physical episode share episode identity, out
 
 This controls major task-distribution confounds but does not prove that representation is the only cause of every learning difference.
 
-## B1 Learning Contracts (6.1 in progress)
+## B1 Learning Contracts (6.1 validation pending)
 
 `action/b1.py` defines separate B1 numerical contracts. A1 labels are the applied
 seven-joint target minus the **current observed joint position**, matching
@@ -75,6 +77,18 @@ estimated hinge frame. Fitting subdivides recorded commands until reconstruction
 is within 1 mm and 0.5 degrees, preserving stage boundaries and complete release.
 These are coding tolerances, not physical qualification gates. Numerical tests do
 not establish matched physical replay or observed-geometry rollout validity.
+
+The B1 bridge reconstructs A2/A3 absolute goals from observed robot FK and calls
+the same `command_pose` route used by the recorded teacher and A4. This preserves
+the recorded target instead of applying the raw Gym delta interface's additional
+component clips. All pose paths retain seven-joint IK, physical position limits,
+velocity bounds and shared contact/force monitoring. A1 dispatches directly to
+`step_a1`, without learned-action IK.
+
+`B1Runner` replans A4 at segment boundaries, executes the first predicted segment
+and discards the remaining predicted horizon. Loss/stale input, invalid outputs
+and safety stops clear pending chunks and segment state; no release is appended.
+The common neck inspection and parked-tool hold precede learned arm execution.
 
 ## Primary References
 

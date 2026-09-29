@@ -10,7 +10,7 @@ compatibility, dataset payloads and run orchestration are retired.
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
 | 6.0 — Perception | Observation/mount, static-memory, metric-input and training corrections implemented. New two-door metric geometry fit passes; bounded legacy refinement passes all 19 train doors. Refreshed full-campaign data, new development accuracy and dynamic qualification remain pending. |
-| 6.1 — Action paths | B1 observation/action/dataset contracts and ACT/Diffusion model binding implemented; rollout wiring in progress. CUDA checks and final integration/physical validation remain pending. |
+| 6.1 — Action paths | Independent software available for ACT/Diffusion × A1-A4: observed encoding, matched data, normalization/checkpoints, adapters and execution/replay runner. CPU contracts checked; CUDA checks, final integration and physical validation remain pending. **Not complete.** |
 | 6.2–7 — Policy data and learning | Not started; no matched B1 policy dataset or learned-policy result. |
 
 ## Next Action
@@ -27,6 +27,12 @@ and the checkpoint is explicitly rejected for online use. The next step is a
 refreshed 50-episode recording campaign (currently collecting) and new feature/readiness checks before
 a separately started full training run. Old data, checkpoints and
 failed attempts remain preserved, and the sealed test partition stays closed.
+
+Subphase 6.1 can now bind the eventual frozen perception artifact without using
+simulator geometry in the policy/adapters. Keep its CUDA model checks deferred
+while collection owns the GPU. Once 6.0 is qualified and frozen, validate final
+integration, matched physical replay and observed-geometry execution across all
+eight cells before closing 6.1. Do not start the 6.2 pilot yet.
 
 The interfaces and autonomous launch commands remain in
 [[topics/shared-door-perception|Shared Door Perception]].
@@ -67,9 +73,9 @@ and assess estimator usability in Phase 6. The scoped findings and evidence are
 in [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
 Visibility remains separate from expert admission; learned door perception is not
 established. Simulator contact/hinge truth remains diagnostic and cannot
-become policy input. B1 action,
-perception and training contracts are defined in Phases 6–7, not by retained
-numerical model utilities. Simulation checks do not establish hardware safety.
+become policy input. B1 action and policy software is separate from the retained
+numerical utilities; its available CPU checks do not establish perception or
+physical rollout quality. Simulation checks do not establish hardware safety.
 
 ## Maintained Surfaces
 

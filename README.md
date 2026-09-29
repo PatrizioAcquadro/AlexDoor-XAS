@@ -15,9 +15,11 @@ assigns 19 train, six development and seven test doors, preserving related
 geometry families and both handednesses in every partition. Rights scopes remain
 29 redistributable, two local-only and one private/noncommercial.
 
-Subphase 6.0 preparation adds synchronized B1 recording and a shared frozen-backbone
-perception estimator. Training has not started; final demonstrations and
-ACT/Diffusion integration remain Phase 6 work. See the
+Subphase 6.0 remains unqualified and is collecting refreshed RGB-D episodes.
+Independent 6.1 software covers ACT/Diffusion × A1-A4, including observed inputs,
+matched data interfaces and execution adapters. CUDA model checks and final
+integration/physical rollout validation remain pending; 6.1 is not complete and
+the 6.2 demonstration pilot has not started. See the
 [perception contract and handoff](knowledge/wiki/topics/shared-door-perception.md).
 See the [corpus and qualification procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
 and current [project status](knowledge/wiki/status.md).

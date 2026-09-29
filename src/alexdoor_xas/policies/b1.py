@@ -4,7 +4,7 @@ import numpy as np
 
 from alexdoor_xas.action.b1 import ACTION_DIMS, DISCRETE_COLUMNS
 from alexdoor_xas.action.spaces import A4_OBJ_CENTRIC_CHUNK
-from alexdoor_xas.assets.identity import assert_checkpoint_runtime_compatible
+from alexdoor_xas.assets.identity import RobotAssetRef, assert_checkpoint_runtime_compatible
 from alexdoor_xas.dataset.b1 import B1Dataset
 from alexdoor_xas.dataset.normalize import compute_norm_stats
 from alexdoor_xas.policies.common.b1_contract import OBS_KEYS, validate_contract
@@ -186,12 +186,15 @@ def load_policy_payload(path, family, *, binding, runtime_asset, device="cpu"):
 class B1Policy:
     """Family inference with a mandatory observed-input/robot/action contract."""
 
-    def __init__(self, policy, family, contract):
+    def __init__(self, policy, family, contract, *, robot_asset):
         if family not in FORMATS:
             raise ValueError("Unknown B1 policy family")
+        if not isinstance(robot_asset, RobotAssetRef):
+            raise ValueError("B1 policies require the runtime robot identity")
         self.binding = validate_contract(contract)
         check_stats(policy.stats, contract)
         self.policy, self.family, self.contract = policy, family, contract
+        self.robot_asset = robot_asset
         self.action_space = contract["action_space"]
         self.chunk_size = policy.chunk_size
 
@@ -219,7 +222,12 @@ class B1Policy:
         args = dict(device=device)
         if family == "diffusion":
             args.update(sampler=sampler, num_inference_steps=num_inference_steps)
-        return cls(policy_type(model, loaded.stats, **args), family, contract)
+        return cls(
+            policy_type(model, loaded.stats, **args),
+            family,
+            contract,
+            robot_asset=loaded.robot_asset,
+        )
 
     def predict(self, features):
         features = np.asarray(features)

@@ -5,6 +5,7 @@ belong in Git history, not in agent context.
 
 | Milestone | Outcome | Reference |
 |---|---|---|
+| 2026-09-29 independent 6.1 software | Shared observed encoding, matched B1 data, ACT/Diffusion × A1-A4 normalization/checkpoints and execution/replay adapters implemented. Numerical contracts checked without competing GPU/simulation work. Final qualified/frozen perception integration, CUDA model checks and physical rollout validation remain pending; 6.1 is open and 6.2 not started. | `fa6f04c`, `fe8a6cb`; [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]] |
 | B0 study closeout | 550 matched episodes, sixteen seed-0 training cells, 576 successful rollouts; no winner and one unresolved force-review event. | `7f1fc8c`; experiment pages |
 | B1 design | Purdue seven-joint visuoproprioceptive benchmark, held-out identities and expert-normalized progress. | `128c569` |
 | 4.0 runtime | Purdue full-pose control, distal-contact classification and synchronized head RGB-D commissioned on GPU. | `59d59e1` |

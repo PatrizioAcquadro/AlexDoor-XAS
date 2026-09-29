@@ -64,7 +64,7 @@ def relative_pose(world, frame):
 
 def panel_pose(hinge, angle):
     checked_pose(hinge)
-    if not np.isfinite(angle):
+    if angle is None or not np.isfinite(angle):
         raise ValueError("Nonfinite signed hinge angle")
     return ObjectFrame(hinge.origin, hinge.rot @ rot_z(angle))
 

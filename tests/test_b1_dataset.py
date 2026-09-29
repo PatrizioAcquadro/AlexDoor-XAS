@@ -70,3 +70,28 @@ def test_contract_rejects_legacy_or_reordered_joints(b1_binding):
     contract["arm_joints"].reverse()
     with pytest.raises(ValueError, match="mismatch"):
         validate_contract(contract)
+
+
+def test_raw_preparation_never_promotes_engineering_recordings(tmp_path):
+    from alexdoor_xas.dataset.b1 import prepare_recording
+    from alexdoor_xas.recording.b1 import B1Writer
+    from test_b1_recording import obs
+
+    path = tmp_path / "episode.hdf5"
+    writer = B1Writer(
+        path,
+        dict(
+            asset_id="left",
+            split="train",
+            condition="nominal",
+            control_dt=1 / 60,
+            purpose="perception_engineering_not_matched_policy_dataset",
+        ),
+        dict(depth_interval_m=[0.1, 5]),
+    )
+    writer.observe(obs(), dict(angle=0.0))
+    writer.transition(dict(time_s=0.0, joint_target=np.zeros(7)), obs(1 / 60, 2), dict(angle=0.1))
+    writer.finish(dict(passed=True, released=True, hold_angle_deg=50.0))
+    writer.close()
+    with pytest.raises(ValueError, match="engineering recordings"):
+        prepare_recording(path, None, None, {"left": "train"})

@@ -3,6 +3,7 @@
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.model import DoorEstimate
@@ -81,3 +82,29 @@ def test_nonfinite_proprioception_invalidates_immediately(b1_binding):
     obs["joint_velocity"][0] = np.nan
     assert observer.update(obs).reason == "invalid_proprioception"
     assert observer.last is None
+
+
+def test_artifact_binding_rejects_unqualified_release_before_loading_models(tmp_path, b1_binding):
+    import json
+
+    from alexdoor_xas.policies.observations import load_frozen_observer
+
+    release = b1_binding.to_dict()
+    release["dynamic_passed"] = False
+    path = tmp_path / "release.json"
+    path.write_text(json.dumps(release))
+    with pytest.raises(ValueError, match="qualified and frozen"):
+        load_frozen_observer(path, tmp_path / "absent.pt", tmp_path / "absent-backbone")
+
+
+def test_artifact_binding_rejects_changed_checkpoint_before_loading_models(tmp_path, b1_binding):
+    import json
+
+    from alexdoor_xas.policies.observations import load_frozen_observer
+
+    path = tmp_path / "release.json"
+    path.write_text(json.dumps(b1_binding.to_dict()))
+    checkpoint = tmp_path / "changed.pt"
+    checkpoint.write_bytes(b"not a model; the digest check must reject it")
+    with pytest.raises(ValueError, match="artifact mismatch"):
+        load_frozen_observer(path, checkpoint, tmp_path / "absent-backbone")

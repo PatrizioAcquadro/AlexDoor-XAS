@@ -65,11 +65,40 @@ matching dimensions. B1 inference defaults to CUDA and validates artifact
 compatibility before model construction.
 
 ACT temporal ensembling is available for A1-A3 only. A4 retains discrete segment
-boundaries and rejects ensembling. Both families expose segment chunks; the
-runner must consume their durations before moving to the next segment.
+boundaries and rejects ensembling. Both families predict segment chunks;
+`B1Runner` executes the first segment, then queries again at its boundary.
 
 CPU checks cover data, scaling, serialization envelopes and contract rejection.
 `tests/test_b1_policy_models.py` defines all eight CUDA forward/loss/gradient and
 prediction round-trip checks; they remain unexecuted while collection owns the
 GPU. The estimator encoding parity test is likewise pending. These software
 interfaces do not qualify 6.1 or establish policy performance.
+
+## Observed Execution and Replay
+
+`load_frozen_observer` checks the release gates and estimator/backbone artifact
+bytes, loads the existing estimator, rejects unqualified confidence, and freezes
+all perception parameters. It never turns a failed checkpoint into a valid one.
+`PurdueIO` accepts an already-created prepared-door environment with cameras and
+the common setup. It reconstructs camera/tool poses from calibration and observed
+joints, reuses the common inspection/parked-tool hold, and leaves constant fingers
+outside learned actions. It does not launch or modify another simulator.
+
+Once the required 6.0 release and B1 policy artifacts exist, the programmatic path
+is `load_frozen_observer(...)` → `B1Policy.from_checkpoint(...,
+binding=observer.binding, runtime_asset=robot_asset)` →
+`PurdueIO(env, binding=observer.binding, robot_asset=robot_asset, setup=setup)` →
+`B1Runner(policy, observer, io).run()`. The shared setup limits the manipulation
+budget; the inspection and causal warmup occur first. A new run resets perception,
+policy sampling, queued actions and A4 stage state.
+
+`MatchedReplay(dataset, episode_id)` can replace the policy for explicitly labeled
+recorded-action diagnostics. It enforces recorded timing and uses live estimated
+geometry for A3/A4; it does not inject recorded door transforms. A replay completion
+or predicted A4 termination reports execution only, never task success.
+
+`PurdueSafety` consumes per-substep normal-force/contact diagnostics and simulator
+geometry exclusively for stop decisions. It checks distal surfaces, forbidden
+contacts, joint/finger limits and controlled contact at the policy's actual panel
+point; it never requires the teacher's exact point, adds corrective motion, or
+uses an expert stopping angle. Physical verification remains pending.
