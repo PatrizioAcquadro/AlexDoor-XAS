@@ -32,7 +32,7 @@ def episode_paths(root, corpus, *, complete_campaign=True):
     for path in paths:
         validate_episode(path, images=False)
         with h5py.File(path, "r") as h5:
-            meta = json.loads(h5.attrs["metadata"])
+            meta = json.loads(h5["metadata"].attrs["episode"])
         entry = entries.get(meta["asset_id"])
         if entry is None or any(
             meta[k] != entry[k] for k in ("split", "handedness", "records_sha256")
@@ -60,7 +60,7 @@ def prepare_features(paths, destination, backbone, config, device):
         backbone_sha256 = hashlib.file_digest(stream, "sha256").hexdigest()
     for path in paths:
         with h5py.File(path, "r") as source:
-            meta = json.loads(source.attrs["metadata"])
+            meta = json.loads(source["metadata"].attrs["episode"])
             filename = f"{meta['asset_id']}--{meta['condition']}.hdf5"
             out = destination / filename
             obs = source["observations"]
@@ -213,7 +213,7 @@ def validate_feature_corpus(root, paths, config, backbone_path):
     sources = {}
     for path in paths:
         with h5py.File(path, "r") as h5:
-            meta = json.loads(h5.attrs["metadata"])
+            meta = json.loads(h5["metadata"].attrs["episode"])
         sources[(meta["asset_id"], meta["condition"])] = (path.resolve(), meta)
     seen = set()
     for entry in manifest["episodes"]:

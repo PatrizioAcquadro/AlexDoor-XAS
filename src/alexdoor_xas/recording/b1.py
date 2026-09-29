@@ -26,11 +26,9 @@ class B1Writer:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.file = h5py.File(self.path, "x")
-        self.file.attrs.update(
-            schema=SCHEMA,
-            complete=False,
-            metadata=json.dumps(metadata),
-            calibration=json.dumps(calibration),
+        self.file.attrs.update(schema=SCHEMA, complete=False)
+        self.file.create_group("metadata").attrs.update(
+            episode=json.dumps(metadata), calibration=json.dumps(calibration)
         )
         for name in ("observations", "commands", "annotations"):
             self.file.create_group(name)
@@ -89,7 +87,7 @@ class B1Writer:
 
     @property
     def calibration_interval(self):
-        return json.loads(self.file.attrs["calibration"])["depth_interval_m"]
+        return json.loads(self.file["metadata"].attrs["calibration"])["depth_interval_m"]
 
     def transition(self, command, observation, annotation):
         if self.count == 0 or not np.isclose(command["time_s"], self.last_time, atol=1e-9, rtol=0):
@@ -102,7 +100,7 @@ class B1Writer:
     def finish(self, outcome):
         if self.count < 2 or len(self.file["commands/time_s"]) != self.count - 1:
             raise ValueError("Incomplete causal episode")
-        self.file.attrs["outcome"] = json.dumps(outcome)
+        self.file["metadata"].attrs["outcome"] = json.dumps(outcome)
         self.file.attrs["complete"] = True
         self.file.flush()
 
@@ -115,7 +113,7 @@ def validate_episode(path, *, images=True):
     with h5py.File(path, "r") as h5:
         if h5.attrs.get("schema") != SCHEMA or not h5.attrs.get("complete", False):
             raise ValueError(f"Incomplete or unsupported B1 episode: {path}")
-        meta = json.loads(h5.attrs["metadata"])
+        meta = json.loads(h5["metadata"].attrs["episode"])
         if meta["split"] not in ("train", "development"):
             raise ValueError("Test recordings cannot enter perception preparation")
         obs, commands, labels = (h5[k] for k in ("observations", "commands", "annotations"))
@@ -139,7 +137,7 @@ def validate_episode(path, *, images=True):
             raise ValueError("Nonfinite applied command")
         means = []
         if images:
-            near, far = json.loads(h5.attrs["calibration"])["depth_interval_m"]
+            near, far = json.loads(h5["metadata"].attrs["calibration"])["depth_interval_m"]
             for i in sorted(set((0, n // 2, n - 1))):
                 d, v = obs["depth_m"][i], obs["valid_depth"][i]
                 expected = np.isfinite(d) & (d > 0) & (d >= near) & (d <= far)
@@ -149,7 +147,7 @@ def validate_episode(path, *, images=True):
                 means.append(float(rgb.mean()))
                 if not np.any(rgb):
                     raise ValueError("Empty RGB recording")
-        outcome = json.loads(h5.attrs["outcome"])
+        outcome = json.loads(h5["metadata"].attrs["outcome"])
         if not outcome["passed"] or not outcome["released"] or outcome["hold_angle_deg"] is None:
             raise ValueError("Expert episode failed physical validity/hold/release")
         return dict(

@@ -163,7 +163,7 @@ class ExpertRecorder:
         )
 
     def finish(self, result):
-        self.writer.file.attrs["camera_fk_error"] = json.dumps(
+        self.writer.file["metadata"].attrs["camera_fk_error"] = json.dumps(
             dict(position_m=self.max_camera_error_m, rotation_rad=self.max_camera_error_rad)
         )
         self.writer.finish(result)

@@ -20,7 +20,9 @@ The initial campaign contains two episodes per identity: 38 train and 12 develop
 These are perception engineering recordings, not the final matched policy dataset.
 
 `b1.rgbd.v1` HDF5 is independent of numerical `phase2.v2`. With N commands it stores
-N+1 observations and annotations, including reset at episode time zero and the
+N+1 observations and annotations in separate groups, with episode settings,
+calibration, outcome and collection diagnostics in a dedicated `metadata` group.
+This includes reset at episode time zero and the
 terminal observation. Missing reset observations are rejected.
 Command t acts between observations t and t+1. The command includes the compensated
 world tool goal actually passed to `command_pose` and resulting seven joint targets;

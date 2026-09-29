@@ -39,12 +39,13 @@ def test_causal_terminal_roundtrip_and_truth_separation(tmp_path):
     import h5py
 
     with h5py.File(path) as h5:
+        assert set(h5) == {"observations", "commands", "annotations", "metadata"}
         assert "angle" not in h5["observations"]
         np.testing.assert_array_equal(h5["commands/joint_target"][0], np.arange(7))
     with pytest.raises(FileExistsError):
         B1Writer(path, meta, {})
     with h5py.File(path, "r+") as h5:
-        h5.attrs["metadata"] = json.dumps(dict(meta, split="test"))
+        h5["metadata"].attrs["episode"] = json.dumps(dict(meta, split="test"))
     with pytest.raises(ValueError, match="Test recordings"):
         validate_episode(path)
 

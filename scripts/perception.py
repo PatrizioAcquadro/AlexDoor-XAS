@@ -85,7 +85,9 @@ def main():
             before = {k: v.clone() for k, v in head.state_dict().items()}
             with h5py.File(paths[0], "r") as source, torch.no_grad():
                 stride = round(
-                    1 / config["sample_hz"] / json.loads(source.attrs["metadata"])["control_dt"]
+                    1
+                    / config["sample_hz"]
+                    / json.loads(source["metadata"].attrs["episode"])["control_dt"]
                 )
                 ids = [i * stride for i in range(config["history"])]
                 obs = source["observations"]
