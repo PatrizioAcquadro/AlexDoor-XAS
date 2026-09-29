@@ -28,8 +28,8 @@ Command t acts between observations t and t+1. The command includes the compensa
 world tool goal actually passed to `command_pose` and resulting seven joint targets;
 the placeholder zero action passed to `env.step` is not the expert command.
 Writing is incremental and refuses existing files. Image checks reject empty black
-frames; mean brightness is diagnostic, not an arbitrary exclusion of dark materials. Interrupted files remain
-incomplete; physically invalid episodes remain preserved but are rejected by loaders.
+frames; mean brightness is diagnostic, not an arbitrary exclusion of dark materials.
+Interrupted files remain incomplete; physically invalid episodes remain preserved but are rejected by loaders.
 
 Observed inputs are RGB, left-aligned image-plane depth in meters, its finite/range
 validity mask, seven arm and two neck positions/velocities, timestamps, intrinsics
@@ -48,8 +48,7 @@ gradients and it stays in evaluation mode. RGB uses ImageNet normalization and
 224-pixel letterboxing; it never crops away the image edges. Depth/mask use aligned
 nearest resampling, adjusted intrinsics and masked XYZ patch features. Cached
 RGB features and live inference both use float16; metric XYZ stays float32.
-Rendered
-depth is ideal geometry, not a ZED stereo-error simulation.
+Rendered depth is ideal geometry, not a ZED stereo-error simulation.
 
 A small spatial fusion module and GRU use four samples at 10 Hz. Each history is
 causal and remains inside one episode. Train-only proprioceptive normalization
@@ -83,8 +82,9 @@ on a diagnosed train/development failure.
 ## Operator commands
 
 Run commands from the repository root with the supported Isaac Lab Python launcher.
-Set `ISAAC_LAB_DIR` to the local Isaac Lab checkout. CUDA execution requires access
-to the real GPU and simulator caches. Never substitute CPU for a sandbox denial.
+On the authoritative workstation, set `ISAAC_LAB_DIR=/home/pacquadr/IsaacLab`.
+CUDA execution requires access to the real GPU and simulator caches. Never
+substitute CPU for a sandbox denial.
 
 ```bash
 "$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/collect_perception.py --output datasets/b1/perception/engineering-v1 --smoke --condition nominal
@@ -99,6 +99,12 @@ preparation refuses an existing destination. Check uses no optimizer or backward
 pass and verifies unchanged weights. `check --partial` is a diagnostic only and
 cannot report campaign readiness.
 
+The initial engineering campaign has 50 validated recordings and 50 complete
+feature caches. `outputs/b1/perception/preparation.json` records the cache build;
+`outputs/b1/perception/readiness.json` records the full-corpus CUDA check. This
+establishes readiness to start estimator training, not development accuracy or
+Subphase 6.0 completion.
+
 **User-requested handoff:** stop before invoking `train`. A smaller model should
 launch and monitor the initial incremental run after preparation is complete.
 
@@ -107,7 +113,14 @@ launch and monitor the initial incremental run after preparation is complete.
 "$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py evaluate --checkpoint outputs/b1/perception/run-01/best.pt --output outputs/b1/perception/development-01.json
 ```
 
-Monitor `status.json`, `metrics.jsonl` and the console in the run directory.
+Monitor `status.json`, `metrics.jsonl` and the console in the run directory:
+
+```bash
+cat outputs/b1/perception/run-01/status.json
+tail -n 3 outputs/b1/perception/run-01/metrics.jsonl
+nvidia-smi --query-gpu=name,utilization.gpu,memory.used --format=csv
+```
+
 Check finite loss, CUDA memory, per-door errors, confidence coverage and the
 train/development gap. `last.pt` stores model, optimizer and random states;
 `best.pt` is selected on development only. Resume continues the same data/config;

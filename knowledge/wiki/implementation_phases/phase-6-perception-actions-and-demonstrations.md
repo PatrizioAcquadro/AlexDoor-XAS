@@ -1,6 +1,6 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Subphase 6.0 preparation in progress; no estimator training has started.
+> Subphase 6.0 preparation complete; no estimator training has started.
 > Subphases 6.1–6.2 remain planned. Requires the completed Phases 4 and 5.
 
 ## Objective
@@ -14,10 +14,16 @@ interface, then produce matched training demonstrations. Follow
 #### Current preparation boundary
 
 The implementation adds causal B1 recording and a frozen DINOv2 ViT-S/14
-backbone with a trainable door estimator. Two nominal train smoke episodes and
-a no-update CUDA forward/loss pass. The two nominal train traces/results are identical with and without recording.
-Full collection and feature preparation are in progress. Training, development gates
-and dynamic validation remain pending; 6.0 is not complete.
+backbone with a trainable door estimator. The two nominal train smoke traces
+and results are identical with and without recording. The engineering campaign
+contains 50 validated episodes: 38 train and 12 development, with nominal and
+light conditions for each of the 25 identities. Feature preparation produced
+50 complete caches and 31,654 sampled frames. A full-corpus CUDA forward/loss
+check passed on the RTX 4090 with frozen backbone and unchanged estimator
+weights. Training, development gates and dynamic validation remain pending;
+6.0 is not complete.
+
+Local preparation and readiness reports are under `outputs/b1/perception/`.
 
 See [[topics/shared-door-perception|Shared Door Perception]] for interfaces,
 fixed gates and operator commands. The user requires a handoff to a smaller

@@ -9,16 +9,15 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
-| 6.0 — Perception preparation | Causal B1 recording and frozen-backbone estimator implemented; two train smoke episodes and no-update GPU forward verified. Full collection is in progress; no training or development qualification yet. |
+| 6.0 — Perception preparation | Causal B1 recording and frozen-backbone estimator implemented. All 50 train/development engineering episodes and feature caches are complete; full-corpus no-update CUDA check passed. Training, development accuracy and dynamic usability remain pending. |
 | 6.1–7 — Actions, data, learning | Planned; no matched B1 policy dataset or learned-policy integration yet. |
 
 ## Next Action
 
-Complete the train/development engineering collection and feature preparation for
-[[implementation_phases/phase-6-perception-actions-and-demonstrations|Subphase 6.0]].
-Then stop before training and hand the prepared commands to the smaller model,
-as requested by the user. The estimator is untrained; development accuracy and
-dynamic usability remain unvalidated. The contract and commands are in
+Stop at the agreed boundary before training. The next step is the initial
+incremental estimator run, followed by development evaluation. The estimator
+is untrained; development accuracy and dynamic usability remain unvalidated.
+The contract and commands are in
 [[topics/shared-door-perception|Shared Door Perception]]. Qualification traces/images
 remain excluded from learning and model selection; test identities remain sealed.
 
