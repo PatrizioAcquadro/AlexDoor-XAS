@@ -178,7 +178,7 @@ class MetricMemoryEstimator(DoorEstimator):
         self.fusion = nn.Sequential(nn.Linear(1024 + 18 + 9, hidden), nn.GELU())
         self.dynamic = nn.Sequential(nn.Linear(hidden * 2, hidden), nn.GELU())
 
-    def forward(self, features, geometry, proprio, camera):
+    def forward(self, features, geometry, proprio, camera, *, return_encoding=False):
         b, t = features.shape[:2]
         if t != self.context_size + self.history_size:
             raise ValueError("Metric estimator requires complete inspection and recent history")
@@ -206,7 +206,10 @@ class MetricMemoryEstimator(DoorEstimator):
         confidence = F.linear(
             ((static + state[-1]) / 2).detach(), self.output.weight[23:], self.output.bias[23:]
         )
-        return decode(torch.cat((raw, confidence), -1))
+        prediction = decode(torch.cat((raw, confidence), -1))
+        if return_encoding:
+            return prediction, torch.cat((static, state[-1]), -1)
+        return prediction
 
 
 def rotation_error(predicted, target):
@@ -316,12 +319,15 @@ class DoorEstimate:
 class ObservedEstimator:
     """Fixed-window inference; reset/loss cannot retain a privileged or stale frame."""
 
-    def __init__(self, backbone, estimator, config):
+    def __init__(self, backbone, estimator, config, *, policy_encoding=False):
         from collections import deque
 
         if getattr(estimator, "confidence_scope", None) != STATE_CONFIDENCE:
             raise ValueError("Observed inference requires articulated-state confidence")
         self.backbone, self.estimator, self.config = backbone, estimator, config
+        if policy_encoding and not isinstance(estimator, MetricMemoryEstimator):
+            raise ValueError("B1 policy encoding requires the metric memory estimator")
+        self.policy_encoding = policy_encoding
         self.estimator.eval()
         self.history = deque(maxlen=config["history"])
         self.reset()
@@ -331,9 +337,11 @@ class ObservedEstimator:
         self.context = []
         self.last_time = None
         self.last_frame = None
+        self.encoding = None
 
     @torch.no_grad()
     def update(self, observation):
+        self.encoding = None
         t, frame = float(observation["time_s"]), int(observation["frame"])
         if self.last_time is not None and (t <= self.last_time or frame <= self.last_frame):
             self.reset()
@@ -382,7 +390,10 @@ class ObservedEstimator:
             return DoorEstimate(t, False, "warming_up")
         sequence = self.context + list(self.history)
         inputs = [torch.stack([item[i] for item in sequence])[None].float() for i in range(4)]
-        predicted = self.estimator(*inputs)
+        if self.policy_encoding:
+            predicted, encoding = self.estimator(*inputs, return_encoding=True)
+        else:
+            predicted = self.estimator(*inputs)
         confidence = float(predicted["confidence"][0])
         if not all(torch.isfinite(v).all() for v in predicted.values()):
             self.reset()
@@ -395,6 +406,8 @@ class ObservedEstimator:
         if validate_object_frame(ObjectFrame(values["hinge_origin"], values["hinge_rotation"])):
             self.reset()
             return DoorEstimate(t, False, "invalid_frame")
+        if self.policy_encoding:
+            self.encoding = encoding[0].detach().cpu().numpy().copy()
         return DoorEstimate(
             t,
             True,

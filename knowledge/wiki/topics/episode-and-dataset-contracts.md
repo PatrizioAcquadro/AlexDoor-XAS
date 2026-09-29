@@ -55,5 +55,25 @@ declared contact source and any recorded joint-target position limits. It impose
 no historical force threshold: physical admission belongs to B1 qualification.
 These utilities do not implement the Phase 6 RGB-D recording or learning path.
 
+## Separate B1 Policy Data
+
+`dataset/b1.py` adds `b1.policy-dataset.v1`: one physical episode with N+1 common
+encoded observations (including terminal), N A1/A2/A3 commands, and A4 segment
+rows with explicit start indices. The four views retain the same physical identity
+and clock. Existing samplers operate at control ticks for A1-A3 and segment
+boundaries for A4. Teacher commands/stages supply labels only.
+
+Raw preparation reuses the live observation builder and robot FK, with the
+recorded calibration and canonical arm/neck order. Only an initial inspection
+prefix is excluded from learned arm actions; missing/invalid manipulation inputs
+are rejected, not silently dropped. Raw recordings must explicitly have purpose
+`b1_matched_policy_demonstration`. The ongoing 6.0 engineering recordings are not
+promoted into this dataset, and no policy dataset has been generated.
+
+Export requires a frozen train/development identity assignment, all four action
+paths, complete A4 stages, aligned boundaries and a qualified/frozen perception
+binding. Publication refuses existing destinations and stages new output before
+renaming. The new path does not reinterpret numerical `phase2.v2` artifacts.
+
 Tests use explicit small arrays and synthetic identities. No local B0 recordings
 or external robot asset are needed to verify these contracts.

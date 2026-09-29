@@ -87,6 +87,28 @@ from future frames. Warmup, low confidence and unqualified confidence produce
 invalid estimates. Consumers must check freshness before commanding motion; there
 is no oracle fallback. Signed angle is right-handed about the estimated hinge Z.
 
+## B1 Policy Encoding Interface
+
+The metric estimator optionally returns its static inspection encoding and recent
+GRU state alongside the unchanged geometry prediction. `B1Observer` concatenates
+these two frozen encodings with the current nine joint positions and velocities,
+in the order `rgbd_static`, `rgbd_recent`, `joint_position`, `joint_velocity`.
+`DoorEstimate` remains a separate adapter input. Offline preparation and live
+rollout use this same builder; annotations and metadata are not selectable inputs.
+
+Between inference ticks only a still-fresh successful encoding/estimate is held;
+current proprioception is refreshed. Loss, unqualified/low confidence, invalid
+proprioception and reset invalidate the held output. The existing 6.0 inference
+behavior remains the default; policy encoding is opt-in. CUDA prediction parity
+and offline/live encoding equivalence remain unvalidated during collection.
+
+`b1.perception.release.v1` is the downstream release declaration required by 6.1:
+the exact perception config, estimator and backbone SHA256 references, and true
+`offline_passed`, `dynamic_passed`, `frozen` gates. It does not perform or replace
+qualification. No such evidence-backed release is available yet; a confidence-
+qualified checkpoint alone is insufficient. Producing and validating the release
+belongs to the pending 6.0 integration, not to these numerical fixtures.
+
 ## Common inspection and mount study
 
 `--inspection configs/perception_inspection.json` enables one common 25-second

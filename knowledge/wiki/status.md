@@ -10,7 +10,8 @@ compatibility, dataset payloads and run orchestration are retired.
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
 | 6.0 — Perception | Observation/mount, static-memory, metric-input and training corrections implemented. New two-door metric geometry fit passes; bounded legacy refinement passes all 19 train doors. Refreshed full-campaign data, new development accuracy and dynamic qualification remain pending. |
-| 6.1–7 — Actions, data, learning | Planned; no matched B1 policy dataset or learned-policy integration yet. |
+| 6.1 — Action paths | B1 observation/action/dataset contracts implemented; model binding and rollout wiring in progress. Final integration and physical validation await qualified/frozen 6.0 perception. |
+| 6.2–7 — Policy data and learning | Not started; no matched B1 policy dataset or learned-policy result. |
 
 ## Next Action
 
@@ -23,7 +24,7 @@ passes the same two-door geometry fitting check in 142 seconds, with raw-recordi
 replay matching cache predictions. Legacy train refinement passes all 19 train
 doors, but its separate confidence check still fails all six development doors
 and the checkpoint is explicitly rejected for online use. The next step is a
-refreshed 50-episode recording campaign and new feature/readiness checks before
+refreshed 50-episode recording campaign (currently collecting) and new feature/readiness checks before
 a separately started full training run. Old data, checkpoints and
 failed attempts remain preserved, and the sealed test partition stays closed.
 

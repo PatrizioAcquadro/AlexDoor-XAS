@@ -50,6 +50,32 @@ A2 and A3 products derived from one physical episode share episode identity, out
 
 This controls major task-distribution confounds but does not prove that representation is the only cause of every learning difference.
 
+## B1 Learning Contracts (6.1 in progress)
+
+`action/b1.py` defines separate B1 numerical contracts. A1 labels are the applied
+seven-joint target minus the **current observed joint position**, matching
+`step_a1`; differences between consecutive targets are not equivalent. A2 labels
+include world translation and left-multiplied axis-angle rotation from the
+observed tool pose to the commanded goal. A3 rotates both components into the
+causally estimated hinge frame. Tool poses include the calibrated distal offset.
+
+A4 uses explicit segments and the ordered stages `approach`, `contact`, `push`,
+`hold`, `release`. Its 17 columns are five stage scores, three panel-local tool
+coordinates, six rotation values (first two matrix columns), signed hinge motion,
+duration in control ticks, and episode termination. Training labels use one-hot
+stages and boolean termination; decoding uses argmax and a 0.5 termination
+threshold. Durations round to the nearest positive tick and must fit the remaining
+budget. Degenerate rotations, ambiguous stages and premature termination fail.
+Repeated stages are allowed; missing stages are never synthesized.
+
+Segment motion interpolates panel-local tool position and orientation. Predicted
+hinge motion is relative to the angle observed at segment admission; it is not
+repeatedly added to the moving angle. Every control tick uses the latest fresh
+estimated hinge frame. Fitting subdivides recorded commands until reconstruction
+is within 1 mm and 0.5 degrees, preserving stage boundaries and complete release.
+These are coding tolerances, not physical qualification gates. Numerical tests do
+not establish matched physical replay or observed-geometry rollout validity.
+
 ## Primary References
 
 - `src/alexdoor_xas/action/spaces.py`

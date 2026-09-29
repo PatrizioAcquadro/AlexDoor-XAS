@@ -1,7 +1,8 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
 > Subphase 6.0 open: complete-state fit passes on two train doors; development and dynamic use remain unqualified.
-> Subphases 6.1–6.2 remain planned. Requires the completed Phases 4 and 5.
+> Subphase 6.1 implementation is in progress independently of 6.0 qualification.
+> Final integration remains blocked; 6.2 is not started. Phases 4 and 5 are complete.
 
 ## Objective
 
@@ -50,7 +51,8 @@ manipulation pilots, the tallest-door scan and the new two-door metric geometry
 fit pass; raw-recording replay matches cached predictions. Bounded legacy
 refinement passes all 19 train doors, but its confidence qualification correctly
 fails all six development doors. This does not qualify the new model on development. A refreshed
-full observation campaign and new full training have not started.
+full observation campaign is collecting refreshed episodes; new full training and
+qualification remain pending.
 
 Local preparation and readiness reports are under `outputs/b1/perception/`.
 The one-hour training launcher is autonomous, with configurable development
@@ -109,6 +111,19 @@ Synthetic visibility alone does not prove learned perception works; no separate
 stereo-error modeling project is required.
 
 ## Subphase 6.1 — Complete All A1-A4 Learning and Execution Paths
+
+#### Current implementation boundary
+
+The separate B1 observed encoding, matched dataset interface and complete action
+tensor/segment contracts are implemented. See
+[[topics/action-representations-and-adapters|Action Representations]] and
+[[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]]. Numerical
+fixtures validate these interfaces without running a model or simulator. The
+ongoing 6.0 collection, its configurations and existing artifacts are preserved.
+Model binding and rollout wiring are in progress. CUDA model checks, final
+perception integration, matched physical replay and observed-geometry smoke
+rollouts remain pending. No qualified/frozen perception release exists, no B1
+policy dataset has been generated, and 6.1 is not complete.
 
 #### Implementation
 
