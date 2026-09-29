@@ -1,6 +1,6 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Subphase 6.0 open: complete-state fit passes on two train doors; development and dynamic use remain unqualified.
+> Subphase 6.0 open: run-03 passes geometry on 19/19 train doors, 0/6 development doors; dynamic use remains unqualified.
 > Subphase 6.1 independent software implementation is available; validation is partial.
 > Final integration remains blocked; 6.2 is not started. Phases 4 and 5 are complete.
 
@@ -13,6 +13,9 @@ interface, then produce matched training demonstrations. Follow
 ## Subphase 6.0 — Multi-Door Observations and Perception
 
 #### Current preparation boundary
+
+The following initial campaign results are historical; the refreshed run-03
+state and comparison are described below.
 
 The implementation adds causal B1 recording and a frozen DINOv2 ViT-S/14
 backbone with a trainable door estimator. The two nominal train smoke traces
@@ -50,9 +53,16 @@ refinement and separate confidence qualification. Two nominal train observation/
 manipulation pilots, the tallest-door scan and the new two-door metric geometry
 fit pass; raw-recording replay matches cached predictions. Bounded legacy
 refinement passes all 19 train doors, but its confidence qualification correctly
-fails all six development doors. This does not qualify the new model on development. A refreshed
-full observation campaign is collecting refreshed episodes; new full training and
-qualification remain pending.
+fails all six development doors. This does not qualify the new model on
+development. The refreshed
+`engineering-v2` campaign and `features-v2` are complete (50 episodes, 44,342 cached
+frames). Run-03 stopped for development stagnation after 15 epochs/19.67 minutes.
+Its last checkpoint passes geometry on all 19 train doors and none of the six
+development doors; the best remains epoch 1. The
+[[experiments/b1-perception-model-comparison|pretrained/custom/geometric comparison]]
+records full replay and public component screening. DINOv3/SAM 3 evaluation is
+pending user authentication; the suggested hybrid direction remains a prototype
+proposal. Complete development, confidence and dynamic qualification stay open.
 
 Local preparation and readiness reports are under `outputs/b1/perception/`.
 The one-hour training launcher is autonomous, with configurable development

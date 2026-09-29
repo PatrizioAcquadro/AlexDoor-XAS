@@ -15,9 +15,12 @@ The [[experiments/b1-perception-input-diagnosis|input diagnosis]] motivated the
 opt-in common inspection and camera-mount study, causal static memory, a separate
 metric encoder, bounded contact refinement and frozen-geometry confidence fitting.
 The implementation and scoped validation are tracked in
-[[experiments/b1-perception-corrections|Perception Corrections]]. A new full-corpus
-training run has not started; neither existing nor newly initialized models are
-qualified for dynamic use.
+[[experiments/b1-perception-corrections|Perception Corrections]]. The refreshed
+50-episode campaign and run-03 have since completed. Its last
+checkpoint passes complete geometry on all 19 train doors but none of the six
+development doors. The [[experiments/b1-perception-model-comparison|model comparison]]
+records this generalization gap and public pretrained/geometric component results.
+DINOv3/SAM 3 remain pending user access; no estimator is qualified for dynamic use.
 The implementation contract is in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 
@@ -238,19 +241,21 @@ substitute CPU for a sandbox denial.
 "$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py check --output outputs/b1/perception/readiness-v2.json
 ```
 
-These are the prospective full-campaign commands, not evidence that collection or
-training has completed. The new defaults require `engineering-v2`/`features-v2` and
+These commands produced the completed refreshed campaign and prepared caches.
+Their existing destinations must not be overwritten. The new defaults require
+`engineering-v2`/`features-v2` and
 fail against old caches. A pilot supplies explicit `--recordings`, `--features`,
 `--partial` and, for `fit-check`, exactly two train door IDs. Preparation refuses
 existing destinations. Check verifies unchanged weights without optimizer updates;
 partial checks cannot claim full-campaign readiness. Collection resume skips only
 validated complete files; retain interrupted attempts in separate directories.
 
-After campaign preparation and a separate decision to start full training:
+The historical run-03 launch is shown below. It has finished and its geometry
+fails development; do not repeat this command or calibrate it as a path to release.
+A future run requires a fresh destination and a separate decision:
 
 ```bash
 "$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py launch --output outputs/b1/perception/run-03 --hours 1
-"$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py calibrate --checkpoint outputs/b1/perception/run-03/best.pt --output outputs/b1/perception/confidence-03
 ```
 
 `launch` validates the corpus/cache/CUDA and submits a persistent `systemd --user`

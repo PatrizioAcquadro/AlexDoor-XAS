@@ -9,28 +9,26 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
-| 6.0 — Perception | Observation/mount, static-memory, metric-input and training corrections implemented. New two-door metric geometry fit passes; bounded legacy refinement passes all 19 train doors. Refreshed full-campaign data, new development accuracy and dynamic qualification remain pending. |
+| 6.0 — Perception | Refreshed 50-episode campaign and run-03 complete. Last checkpoint passes geometry on 19/19 train doors and 0/6 development doors. Public pretrained/geometric component screening is available; DINOv3/SAM 3 await user authentication. No qualified estimator. |
 | 6.1 — Action paths | Independent software available for ACT/Diffusion × A1-A4: observed encoding, matched data, normalization/checkpoints, adapters and execution/replay runner. CPU contracts checked; CUDA checks, final integration and physical validation remain pending. **Not complete.** |
 | 6.2–7 — Policy data and learning | Not started; no matched B1 policy dataset or learned-policy result. |
 
 ## Next Action
 
-The [[experiments/b1-perception-corrections|pretraining corrections]] implement a
-common initial inspection, a 10-degree upward ZED mount study, causal static
-memory, a separate metric-depth encoder, train-only refinement and frozen-geometry
-confidence fitting/qualification. The two nominal train inspection/manipulation
-pilots and the tallest-door observation diagnostic pass. The new metric model
-passes the same two-door geometry fitting check in 142 seconds, with raw-recording
-replay matching cache predictions. Legacy train refinement passes all 19 train
-doors, but its separate confidence check still fails all six development doors
-and the checkpoint is explicitly rejected for online use. The next step is a
-refreshed 50-episode recording campaign (currently collecting) and new feature/readiness checks before
-a separately started full training run. Old data, checkpoints and
-failed attempts remain preserved, and the sealed test partition stays closed.
+The [[experiments/b1-perception-model-comparison|current model comparison]] finds
+accurate train fitting but severe development error after the refreshed collection
+and run-03. Public geometric/pretrained components offer useful partial outputs;
+none has established complete hinge/contact geometry or qualified confidence.
+The proposed next direction is multi-view metric geometry with pretrained visual
+assistance, pending a controlled DINOv2/DINOv3 comparison. The user requested a
+stop before gated-model use until account access and local authentication are
+available. Do not start another full training run from these screening results.
+Existing recordings/checkpoints and failed attempts remain preserved; the sealed
+test stays closed.
 
 Subphase 6.1 can now bind the eventual frozen perception artifact without using
-simulator geometry in the policy/adapters. Keep its CUDA model checks deferred
-while collection owns the GPU. Once 6.0 is qualified and frozen, validate final
+simulator geometry in the policy/adapters. Its deferred CUDA checks remain separate
+from this perception comparison. Once 6.0 is qualified and frozen, validate final
 integration, matched physical replay and observed-geometry execution across all
 eight cells before closing 6.1. Do not start the 6.2 pilot yet.
 
