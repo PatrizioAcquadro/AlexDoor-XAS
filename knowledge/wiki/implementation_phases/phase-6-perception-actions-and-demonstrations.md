@@ -1,6 +1,6 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Subphase 6.0 preparation complete; initial training fails development gates.
+> Subphase 6.0 open: train contact fit passes; articulated state and development remain unqualified.
 > Subphases 6.1–6.2 remain planned. Requires the completed Phases 4 and 5.
 
 ## Objective
@@ -24,19 +24,21 @@ weights. The subsequent first training run stopped for stagnation after 28 epoch
 its best checkpoint fails the six development doors. See the
 [[experiments/b1-perception-run-01|run-01 diagnosis]] for measured errors and the
 initial diagnosis. The corrected tolerance-scaled loss, detached confidence
-gradients and bounded two-door train-only fitting command are implemented.
+gradients and bounded two-door train-only fitting command are implemented. The
+[[experiments/b1-perception-fit-check-01|two-door check]] passes contact gates on
+train after 30 epochs, but hinge/local/articulation outputs remain incorrect.
 Development gates and dynamic validation remain open;
 6.0 is not complete.
 
 Local preparation and readiness reports are under `outputs/b1/perception/`.
 The one-hour training launcher is autonomous, with configurable development
 stagnation stopping, checkpointed stopping state and a final analysis summary.
-The launcher and stopping controls have been checked without training the estimator.
+Launcher lifecycle checks were performed before the initial training run.
 
 See [[topics/shared-door-perception|Shared Door Perception]] for interfaces,
-fixed gates and operator commands. Current authorized follow-up is the corrected
-loss and a small train-only fitting diagnostic. A new full-corpus run and any
-ten-hour extension remain separate decisions.
+fixed gates and operator commands. The authorized loss correction and small
+train-only fitting diagnostic have run. Correct primitive-state fitting before a
+new full-corpus run; any ten-hour extension remains a separate decision.
 
 #### Implementation
 

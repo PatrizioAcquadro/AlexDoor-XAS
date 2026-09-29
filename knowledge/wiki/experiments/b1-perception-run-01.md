@@ -74,8 +74,10 @@ visually observable or rule out architectural limits.
 ## Follow-up from this diagnosis
 
 Steps 1–2 below are now implemented in
-[[topics/shared-door-perception|Shared Door Perception]]; their measured fitting
-outcome is separate from this historical run. Steps 3–4 remain conditional.
+[[topics/shared-door-perception|Shared Door Perception]]. Their
+[[experiments/b1-perception-fit-check-01|measured fitting outcome]] passes contact
+gates on train but leaves incorrect articulated components; resolve that before
+step 3. Steps 3–4 remain conditional.
 
 1. Normalize the principal geometric objectives to meaningful physical scales,
    log individual losses and train geometric metrics, and prevent confidence

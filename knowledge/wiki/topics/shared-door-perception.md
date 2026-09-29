@@ -3,8 +3,10 @@
 Subphase 6.0 prepares one observed-only stack for every B1 model/representation.
 The initial trained estimator is **not qualified**: run-01 fails the development
 gates. The [[experiments/b1-perception-run-01|run-01 diagnosis]] separates measured
-failures from the subsequent loss correction and train-only diagnostic. Passing recording checks or a CUDA forward/loss
-does not establish development accuracy or closed-loop usability.
+failures from the subsequent loss correction. The
+[[experiments/b1-perception-fit-check-01|two-door fitting check]] passes contact
+gates on train but exposes inaccurate articulated components. Passing recording
+checks or a CUDA forward/loss does not establish development accuracy or closed-loop usability.
 The implementation contract is in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 
@@ -103,6 +105,14 @@ both geometric tolerances are reported separately; a geometric fit does not
 certify confidence, development accuracy or dynamic usability. The full offline
 gates still include >=95% confidence-valid coverage and are unchanged.
 
+The first fit check passes those contact gates, including confidence coverage,
+but has about 1 m of hinge-origin error and near-reversed hinge/local rotations.
+Component errors compensate in the composed contact pose. Thus
+`fit_check_passed` is strictly an operational contact-fit result: it cannot
+validate the primitive state or authorize A3 use. Auxiliary losses are logged,
+but the contact-based success condition does not gate those components. Diagnose
+primitive-state fitting before progressing to a new full-corpus experiment.
+
 Example bounded diagnostic (never a full-corpus training launch):
 
 ```bash
@@ -156,12 +166,11 @@ feature caches. `outputs/b1/perception/preparation.json` records the cache build
 establishes readiness to start estimator training, not development accuracy or
 Subphase 6.0 completion.
 
-**User-requested handoff:** preparation does not launch training. The commands below
-describe the first run; `run-01` now exists. Use a new directory for a revised recipe. The smaller model
-should submit one autonomous one-hour run with `launch`, confirm startup once,
-then end its turn. No active assistant, polling loop or scheduled task is needed.
-The user requests the analysis after the run ends; no overnight extension starts
-automatically.
+**Historical run-01 launch:** the commands below describe the original full-corpus
+workflow; `run-01` now exists. The service runs without an active assistant or
+scheduled task. A revised full-corpus run remains deferred until the primitive
+state issue above is addressed; it must use a new output directory. An overnight
+extension is a separate decision.
 
 ```bash
 "$ISAAC_LAB_DIR/isaaclab.sh" -p scripts/perception.py launch --output outputs/b1/perception/run-01 --hours 1
