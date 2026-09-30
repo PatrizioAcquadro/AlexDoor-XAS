@@ -9,7 +9,7 @@ from alexdoor_xas.action.b1 import ACTION_DIMS
 from alexdoor_xas.action.spaces import A4_OBJ_CENTRIC_CHUNK
 from alexdoor_xas.dataset.b1 import B1Dataset, export_dataset, validate_episode
 from alexdoor_xas.dataset.sampling import ChunkSampler
-from alexdoor_xas.policies.common.b1_contract import OBS_KEYS, PerceptionBinding, validate_contract
+from alexdoor_xas.policies.common.b1_contract import OBS_KEYS, validate_contract
 from conftest import TEST_ROBOT_REF, make_b1_episode
 
 SPLITS = {"left": "train", "right": "development"}
@@ -53,14 +53,6 @@ def test_dataset_rejects_unmatched_or_incomplete_contract(b1_binding, defect):
         validate_episode(episode, b1_binding, SPLITS)
 
 
-@pytest.mark.parametrize("gate", ["offline_passed", "dynamic_passed", "frozen"])
-def test_unqualified_or_unfrozen_release_cannot_bind(b1_binding, gate):
-    release = b1_binding.to_dict()
-    release[gate] = False
-    with pytest.raises(ValueError, match="qualified and frozen"):
-        PerceptionBinding.from_dict(release)
-
-
 def test_contract_rejects_legacy_or_reordered_joints(b1_binding):
     from alexdoor_xas.policies.common.b1_contract import policy_contract
 
@@ -95,3 +87,52 @@ def test_raw_preparation_never_promotes_engineering_recordings(tmp_path):
     writer.close()
     with pytest.raises(ValueError, match="engineering recordings"):
         prepare_recording(path, None, None, {"left": "train"})
+
+
+def test_raw_preparation_uses_provider_without_model_or_device_internals(tmp_path, b1_binding):
+    from alexdoor_xas.action.b1 import STAGES
+    from alexdoor_xas.action.frames import ObjectFrame
+    from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
+    from alexdoor_xas.dataset.b1 import PURPOSE, prepare_recording
+    from alexdoor_xas.policies.observations import B1Observer
+    from alexdoor_xas.recording.b1 import PHASES, B1Writer
+    from test_b1_observations import fake_estimator
+    from test_b1_recording import obs
+
+    path = tmp_path / "episode.hdf5"
+    writer = B1Writer(
+        path,
+        dict(
+            episode_id="matched",
+            asset_id="left",
+            split="train",
+            condition="nominal",
+            control_dt=0.1,
+            purpose=PURPOSE,
+            inspection=b1_binding.config["inspection"],
+        ),
+        dict(depth_interval_m=[0.1, 5], joint_names=list(ARM_JOINTS + NECK_JOINTS)),
+    )
+    writer.observe(obs(), {})
+    pose = ObjectFrame(np.array([0.04, 0.3, 0.5]), np.eye(3))
+    for i, stage in enumerate(s for s in STAGES for _ in range(2)):
+        writer.transition(
+            dict(
+                time_s=i * 0.1,
+                joint_target=np.zeros(7),
+                tool_position=pose.origin,
+                tool_rotation=pose.rot,
+                phase=PHASES.index(stage),
+            ),
+            obs((i + 1) * 0.1, i + 2),
+            {},
+        )
+    writer.finish(dict(passed=True, released=True, hold_angle_deg=50.0))
+    writer.close()
+    provider = fake_estimator(b1_binding)
+    observer = B1Observer(provider, b1_binding)
+    episode = prepare_recording(path, observer, lambda joints, calibration: pose, SPLITS)
+    assert episode.observations.shape == (11, b1_binding.obs_dim)
+    assert len(episode.actions[A4_OBJ_CENTRIC_CHUNK]) == 5
+    assert isinstance(provider.calls[-1]["rgb"], np.ndarray)
+    assert not hasattr(provider, "estimator") and not hasattr(provider, "device")

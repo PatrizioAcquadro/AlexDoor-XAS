@@ -57,7 +57,7 @@ def observation_columns(vector, binding):
 class B1Observer:
     """Assemble a provider's two visual blocks and current proprioception.
 
-    The provider exposes binding, encoding, reset() and update(sensor)->DoorEstimate.
+    The provider exposes binding, NumPy encoding, reset() and update(sensor)->DoorEstimate.
     It owns device conversion and inference, and verifies release artifacts before
     loading. No qualified provider is supplied by this package yet.
     """

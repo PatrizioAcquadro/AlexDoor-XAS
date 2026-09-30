@@ -1,1 +1,1 @@
-"""Shared B1 observed-only door perception; no simulator dependency."""
+"""Observed geometry contracts and common inspection; no estimator backend."""

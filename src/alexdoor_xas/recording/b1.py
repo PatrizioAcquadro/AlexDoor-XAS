@@ -160,3 +160,28 @@ def validate_episode(path, *, images=True):
             rgb_mean=means,
             outcome=outcome,
         )
+
+
+def episode_paths(root, corpus, *, complete_campaign=True):
+    entries = {e["asset_id"]: e for e in corpus["doors"] if e["split"] != "test"}
+    paths = sorted(Path(root).glob("*/*/episode.hdf5"))
+    found = set()
+    for path in paths:
+        validate_episode(path, images=False)
+        with h5py.File(path, "r") as h5:
+            meta = json.loads(h5["metadata"].attrs["episode"])
+        entry = entries.get(meta["asset_id"])
+        if entry is None or any(
+            meta[k] != entry[k] for k in ("split", "handedness", "records_sha256")
+        ):
+            raise ValueError(f"Episode does not belong to the frozen corpus: {path}")
+        key = (meta["asset_id"], meta["condition"])
+        if key in found or meta["condition"] not in ("nominal", "light"):
+            raise ValueError("Duplicate or unknown perception condition")
+        found.add(key)
+    if not paths:
+        raise ValueError("No B1 recordings")
+    expected = {(asset, condition) for asset in entries for condition in ("nominal", "light")}
+    if complete_campaign and found != expected:
+        raise ValueError(f"Incomplete perception campaign: {len(found)}/{len(expected)} episodes")
+    return paths

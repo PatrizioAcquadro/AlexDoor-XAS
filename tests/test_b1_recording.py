@@ -91,3 +91,36 @@ def test_dark_material_is_not_an_empty_camera_frame(tmp_path):
         h5["observations/rgb"][0] = np.zeros((4, 6, 3), np.uint8)
     with pytest.raises(ValueError, match="Empty RGB"):
         validate_episode(path)
+
+
+def test_campaign_membership_completeness_and_duplicate_rejection(tmp_path):
+    import h5py
+
+    from alexdoor_xas.recording.b1 import episode_paths
+
+    entry = dict(asset_id="door", split="train", handedness="left", records_sha256="a" * 64)
+    corpus = dict(doors=[entry])
+    for condition in ("nominal", "light"):
+        path = tmp_path / "door" / condition / "episode.hdf5"
+        writer = B1Writer(
+            path, dict(entry, condition=condition, control_dt=0.1), dict(depth_interval_m=[0.1, 5])
+        )
+        writer.observe(obs(), {})
+        writer.transition(dict(time_s=0.0, joint_target=np.zeros(7)), obs(0.1, 2), {})
+        writer.finish(dict(passed=True, released=True, hold_angle_deg=50.0))
+        writer.close()
+    paths = episode_paths(tmp_path, corpus)
+    assert len(paths) == 2
+    with h5py.File(paths[0], "r+") as h5:
+        h5["metadata"].attrs["episode"] = json.dumps(
+            dict(entry, condition="nominal", control_dt=0.1)
+        )
+    with pytest.raises(ValueError, match="Duplicate"):
+        episode_paths(tmp_path, corpus)
+    paths[0].unlink()
+    with pytest.raises(ValueError, match="Incomplete perception campaign"):
+        episode_paths(tmp_path, corpus)
+    assert len(episode_paths(tmp_path, corpus, complete_campaign=False)) == 1
+    corpus["doors"][0]["records_sha256"] = "b" * 64
+    with pytest.raises(ValueError, match="frozen corpus"):
+        episode_paths(tmp_path, corpus, complete_campaign=False)
