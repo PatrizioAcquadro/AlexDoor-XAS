@@ -60,9 +60,10 @@ frames). Run-03 stopped for development stagnation after 15 epochs/19.67 minutes
 Its last checkpoint passes geometry on all 19 train doors and none of the six
 development doors; the best remains epoch 1. The
 [[experiments/b1-perception-model-comparison|pretrained/custom/geometric comparison]]
-records full replay and public component screening. DINOv3/SAM 3 evaluation is
-pending user authentication; the suggested hybrid direction remains a prototype
-proposal. Complete development, confidence and dynamic qualification stay open.
+records full replay and public component screening. SAM 3 weights are downloaded
+and integrity-verified; its GPU inference/comparison and the DINOv3 comparison
+remain pending. The suggested hybrid direction remains a prototype proposal.
+Complete development, confidence and dynamic qualification stay open.
 
 Local preparation and readiness reports are under `outputs/b1/perception/`.
 The one-hour training launcher is autonomous, with configurable development

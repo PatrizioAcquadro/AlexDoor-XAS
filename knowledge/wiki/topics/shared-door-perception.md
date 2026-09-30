@@ -20,7 +20,8 @@ The implementation and scoped validation are tracked in
 checkpoint passes complete geometry on all 19 train doors but none of the six
 development doors. The [[experiments/b1-perception-model-comparison|model comparison]]
 records this generalization gap and public pretrained/geometric component results.
-DINOv3/SAM 3 remain pending user access; no estimator is qualified for dynamic use.
+SAM 3 weights are now downloaded and integrity-verified; its inference and
+DINOv3 comparison remain pending. No estimator is qualified for dynamic use.
 The implementation contract is in
 [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
 

@@ -15,7 +15,7 @@ Planned and historical development records:
 - [[implementation_phases/phase-3-non-vla-learned-baselines|Phase 3 — Non-VLA Learned Baselines]] — State-only policy, adapter, and evaluation foundation.
 - [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — GPU-verified Alex003/control/RGB-D, historical synthetic setup and the shared zero-yaw revision assessed on collected doors.
 - [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Complete: 32 qualified doors, reviewed geometry families and frozen 19/6/7 identity split.
-- [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — 6.0 run-03 fits train but fails development; component comparison awaits gated-model access; 6.1 software covers all eight action paths, with CUDA/final integration/physical validation pending; 6.2 not started.
+- [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — 6.0 run-03 fits train but fails development; SAM 3 weights ready for inference checks; 6.1 software covers all eight action paths, with CUDA/final integration/physical validation pending; 6.2 not started.
 - [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]] — Two planned subphases: training, then evaluation/analysis with ID/GEO before stress tests.
 - [[implementation_phases/extra-01-alex-v2-migration|Extra 01 — Alex V2 Migration]] — Migration from provisional assumptions to fixed-base Alex V2.
 - [[implementation_phases/extra-02-local-stabilization|Extra 02 — Local Stabilization]] — Closed-loop and force-semantics stabilization.
@@ -52,7 +52,7 @@ Current engineering and historical scientific records:
 
 - [[experiments/b1-perception-run-01|B1 Perception Run 01]] — First estimator trial, failed development gates, loss-scale diagnosis and conditional follow-up.
 - [[experiments/b1-perception-run-02|B1 Perception Run 02]] — Corrected full-corpus trial: regular stagnation stop, incomplete train fitting, worsening development geometry and confidence failure.
-- [[experiments/b1-perception-model-comparison|B1 Perception Model Comparison]] — Run-03 train/development replay, fixed public pretrained/geometric screening and pending DINOv3/SAM 3 access.
+- [[experiments/b1-perception-model-comparison|B1 Perception Model Comparison]] — Run-03 train/development replay, fixed public pretrained/geometric screening; SAM 3 weights acquired, further model evaluation pending.
 - [[experiments/b1-perception-corrections|B1 Perception Corrections]] — Common inspection/mount study, metric static memory, contact refinement and separate confidence qualification.
 - [[experiments/b1-perception-input-diagnosis|B1 Perception Input Diagnosis]] — Full-height observability gap, RGB-dominated predictions and systematic composed-contact train residuals.
 - [[experiments/b1-perception-fit-check-01|B1 Perception Two-Door Fit Check]] — Corrected loss passes train contact gates; primitive-state errors remain despite verified alignment.

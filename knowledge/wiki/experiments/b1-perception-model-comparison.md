@@ -5,8 +5,10 @@
 At `main` baseline `d833b89`, compare the current estimator, public pretrained
 components and an observed RGB-D geometric approach before choosing another
 training recipe. The user subsequently requested a stop before gated-model use
-until they can authenticate. **DINOv2 versus DINOv3 remains untested.** This is
-component screening, not a qualified replacement or a complete architecture ranking.
+until they can authenticate. SAM 3 weights were subsequently downloaded after
+user approval and local authentication; its inference is still untested.
+**DINOv2 versus DINOv3 remains untested.** This is component screening, not a
+qualified replacement or a complete architecture ranking.
 
 All inference used the RTX 4090. No optimizer updates, full training, new episodes
 or sealed test access occurred. The existing best/last checkpoint files were
@@ -134,11 +136,21 @@ based on this experiment alone.
 extractor, not a complete articulated-door estimator. The official
 [ViT-S/16 model card](https://huggingface.co/facebook/dinov3-vits16-pretrain-lvd1689m)
 reports dense-feature improvements; it does not establish our 1 cm/5 degree gate.
-Our official config download returned HTTP 401 with restricted-access text and no
-local authenticated session. [SAM 3](https://huggingface.co/facebook/sam3) had the
-same access condition. These are access blockers, not model failures. No gated
-weights were obtained, and no access conditions were bypassed. The user will
-complete account access and local authentication later.
+At initial screening, our official config download returned HTTP 401 with
+restricted-access text and no local authenticated session.
+[SAM 3](https://huggingface.co/facebook/sam3) had the same access condition. These
+were access blockers, not model failures; no access conditions were bypassed.
+
+After the user reported SAM 3 approval, authenticated official download succeeded
+at revision `3c879f39826c281e95690f02c7821c4de09afae7`. The native `sam3.pt`
+checkpoint is 3,450,062,241 bytes; its SHA256 matches the official Hub ETag.
+`config.json` and `LICENSE` are retained beside it in
+`outputs/b1/perception/comparison-01/models/sam3/`. Configuration parsing and
+checkpoint archive inspection pass. Evidence is `sam3-download-verified.json`
+and `sam3-download.console.log` in the comparison directory. This establishes
+weight availability only: SAM 3 runtime integration, GPU inference and the fixed
+sample comparison remain pending. No training started. DINOv3 access was not
+rechecked or used in this SAM 3 follow-up.
 
 DINOv3 uses 16-pixel patches versus 14 for the present DINOv2 ViT-S. Changing the
 model name alone would not be a controlled comparison: preprocessing, token grid,
@@ -159,10 +171,11 @@ articulation/contact state. This is a suitability decision, not measured failure
 The current evidence favors **investigating an explicit geometric estimator with
 pretrained visual assistance**, rather than spending another full run on the same
 head. It does not select a deployable hybrid: the measured simple hybrid has
-serious failures, and DINOv3/SAM 3 are still pending.
+serious failures, and DINOv3/SAM 3 accuracy evaluations are still pending.
 
-After the requested authentication handoff, complete the matched backbone check
-and segmentation comparison. Then develop one common observed-only prototype:
+Next verify SAM 3 runtime compatibility and run the fixed segmentation comparison.
+The matched DINOv2/DINOv3 check still requires DINOv3 weights. Then develop one
+common observed-only prototype:
 associate panel face/borders across the initial scan, retain its metric geometry,
 track the panel through manipulation, and reject ambiguous or unsupported states.
 Estimate hinge/contact state from observed boundaries/motion and a common physical

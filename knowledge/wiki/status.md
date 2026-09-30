@@ -9,7 +9,7 @@ compatibility, dataset payloads and run orchestration are retired.
 | 4.1 — Common setup | Common robot/pedestal placement at zero yaw and revised ready/parked posture validated on real left/right doors. Historical synthetic verification applies to the 45-degree setup only. |
 | 5.0 — Prepared pool | **32 doors: 29 redistributable, two local-only, one private/noncommercial.** Acquired preparation results preserved; portable three-record layout. |
 | 5.1 — Expert qualification and split | **Complete.** All 32 doors qualified under the current fresh-process protocol. `assets/doors/b1/corpus.json` freezes 12 reviewed families into train 19, development 6 and test 7, with both handednesses in each. |
-| 6.0 — Perception | Refreshed 50-episode campaign and run-03 complete. Last checkpoint passes geometry on 19/19 train doors and 0/6 development doors. Public pretrained/geometric component screening is available; DINOv3/SAM 3 await user authentication. No qualified estimator. |
+| 6.0 — Perception | Refreshed 50-episode campaign and run-03 complete. Last checkpoint passes geometry on 19/19 train doors and 0/6 development doors. Public pretrained/geometric component screening is available; SAM 3 weights are downloaded and integrity-verified; its inference and the DINOv3 comparison remain pending. No qualified estimator. |
 | 6.1 — Action paths | Independent software available for ACT/Diffusion × A1-A4: observed encoding, matched data, normalization/checkpoints, adapters and execution/replay runner. CPU contracts checked; CUDA checks, final integration and physical validation remain pending. **Not complete.** |
 | 6.2–7 — Policy data and learning | Not started; no matched B1 policy dataset or learned-policy result. |
 
@@ -20,9 +20,11 @@ accurate train fitting but severe development error after the refreshed collecti
 and run-03. Public geometric/pretrained components offer useful partial outputs;
 none has established complete hinge/contact geometry or qualified confidence.
 The proposed next direction is multi-view metric geometry with pretrained visual
-assistance, pending a controlled DINOv2/DINOv3 comparison. The user requested a
-stop before gated-model use until account access and local authentication are
-available. Do not start another full training run from these screening results.
+assistance, pending a controlled DINOv2/DINOv3 comparison. SAM 3 access and local
+authentication now work; official weights are downloaded and verified. Its next
+step is GPU inference on the fixed comparison sample. The DINOv3 comparison
+remains pending access to its weights. Do not start another full training run
+from these screening results.
 Existing recordings/checkpoints and failed attempts remain preserved; the sealed
 test stays closed.
 
