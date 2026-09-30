@@ -44,7 +44,7 @@ class ProbeSetup:
     contact_force_window_s: float = 0.1
     contact_gap_tolerance_m: float = 0.0001
     stall_s: float = 3.0
-    tie_deg: float = 0.5
+    tie_deg: float = 0.5  # Historical frozen setup field; no active ranking.
 
     def __post_init__(self):
         positive = (
@@ -223,27 +223,6 @@ def release_reference(start_p, start_r, retreat_p, retreat_r, elapsed, setup):
     blend = u * u * (3 - 2 * u)
     rotation = Slerp([0, 1], Rotation.from_matrix([start_r, retreat_r]))(blend).as_matrix()
     return withdrawn + (retreat_p - withdrawn) * blend, rotation
-
-
-def rank_candidates(results, tie_deg):
-    """Only complete four-case controlled candidates participate in minimax."""
-    valid = [r for r in results if len(r["cases"]) == 4 and all(c["passed"] for c in r["cases"])]
-    if not valid:
-        return []
-    remaining, ordered = list(valid), []
-    while remaining:
-        best = max(min(c["angle_deg"] for c in r["cases"]) for r in remaining)
-        tied = [r for r in remaining if min(c["angle_deg"] for c in r["cases"]) >= best - tie_deg]
-        tied.sort(
-            key=lambda r: (
-                -max(0.0, min(c["joint_margin"] for c in r["cases"])),
-                max(c["peak_force_n"] for c in r["cases"]),
-                -min(c["clearance_m"] for c in r["cases"]),
-            )
-        )
-        ordered.extend(tied)
-        remaining = [r for r in remaining if r not in tied]
-    return ordered
 
 
 def summarize_trials(trials, *, required_count=None):

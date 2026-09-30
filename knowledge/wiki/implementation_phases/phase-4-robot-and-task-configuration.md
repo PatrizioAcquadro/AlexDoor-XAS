@@ -184,7 +184,7 @@ reported in Phase 5. There is no 45- or 50-degree termination condition. Mechani
 stop, locally evidenced joint constraint, safety stop, lost contact, solver/tracking
 stall, timeout and invalid physics remain distinct; unresolved stops cannot qualify.
 
-Screening derives GPU batched FK/Jacobians from the external URDF, checked against
+The retired screening used GPU batched FK/Jacobians from the external URDF, checked against
 the imported runtime. Eight deterministic starts (seed 4101) and 5-degree angle
 continuation propose candidates; failed local solves are not global reachability
 proofs. The coarse domain was X [-0.50, 0.50] m, Y [-0.60, 0.80] m and yaw
@@ -232,22 +232,14 @@ These commands use the current configuration; reproducing the historical table
 requires its archived 45-degree `setup.json`, not the revised common config:
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/screen_synthetic_setup.py \
-  --fraction 0.4 --height 1.0 --center -0.425 0.25 15 --output /tmp/screen.json
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_synthetic_setup.py physics \
   --viz none --device cuda:0 --output /tmp/synthetic-physics
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_synthetic_setup.py search \
-  --config configs/purdue_synthetic_probe.json --candidates /tmp/screen.json \
-  --cameras --viz none --device cuda:0 --output /tmp/synthetic-search
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_synthetic_setup.py probe \
   --config configs/purdue_synthetic_probe.json --repeats 2 \
   --cameras --viz none --device cuda:0 --output /tmp/synthetic-verification
 ```
 
-Search records the screening domain and rejects a candidate at its first failed
-case. It ranks only four-case controlled completions and leaves `frozen: false`:
-new searches still require repeatability, fixed-view review and documentation
-closeout. Individual `--case` probes write separate case reports and can share
+Candidate screening/search and ranking are retired; their acquired results remain historical. Individual `--case` probes write separate case reports and can share
 an output directory without overwriting one another's reports. With `--cameras`,
 a probe also exits unsuccessfully if the fixed-view check fails.
 

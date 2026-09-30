@@ -36,7 +36,6 @@ PYTHON_PACKAGES = {
     "scipy": "scipy",
     "h5py": "h5py",
     "Pillow": "PIL",
-    "PyYAML": "yaml",
     "trimesh": "trimesh",
     "gymnasium": "gymnasium",
 }

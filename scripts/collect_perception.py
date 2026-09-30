@@ -7,7 +7,6 @@ import os
 import subprocess
 import sys
 import traceback
-from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -29,22 +28,12 @@ def main():
         "--inspection-only", action="store_true", help="Camera diagnostic, no expert"
     )
     parser.add_argument(
-        "--without-recorder", action="store_true", help="Physical equivalence check"
-    )
-    parser.add_argument(
         "--resume", action="store_true", help="Skip only validated complete episodes"
     )
     parser.add_argument("--_worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--device", default="cuda:0")
-    parser.add_argument(
-        "--jobs",
-        type=int,
-        choices=(1, 2),
-        default=1,
-        help="Independent fresh-process workers; default one",
-    )
     args = parser.parse_args()
-    if args.inspection_only and (not args.inspection or args.resume or args.without_recorder):
+    if args.inspection_only and (not args.inspection or args.resume):
         parser.error("Inspection-only requires --inspection and fresh recorded output")
     if not args.device.startswith("cuda"):
         parser.error("Collection requires CUDA")
@@ -90,8 +79,6 @@ def main():
                 "--device",
                 args.device,
             ]
-            if args.without_recorder:
-                command.append("--without-recorder")
             if args.inspection:
                 command.extend(["--inspection", str(args.inspection.resolve())])
             if args.inspection_only:
@@ -107,29 +94,12 @@ def main():
             if args.inspection_only:
                 if not (path.parent / "expert/inspection.json").is_file():
                     raise RuntimeError("Worker did not finish inspection")
-            elif args.without_recorder:
-                result = json.loads((path.parent / "expert/result.json").read_text())
-                if not result["passed"] or not result["released"]:
-                    raise RuntimeError("Worker did not finish a valid expert episode")
             else:
                 validate_episode(path)
             print(json.dumps(dict(completed=entry["asset_id"], condition=condition)), flush=True)
 
-        tasks = iter(pending_tasks)
-        with ThreadPoolExecutor(max_workers=args.jobs) as pool:
-            active = {
-                pool.submit(collect, task)
-                for task in [next(tasks, None) for _ in range(args.jobs)]
-                if task is not None
-            }
-            while active:
-                done, active = wait(active, return_when=FIRST_COMPLETED)
-                for future in done:
-                    future.result()  # Stop admission on failure; already-running workers finish.
-                for _ in done:
-                    task = next(tasks, None)
-                    if task is not None:
-                        active.add(pool.submit(collect, task))
+        for task in pending_tasks:
+            collect(task)
         return 0
     if len(entries) != 1 or not args.condition:
         parser.error("Worker needs one asset and condition")
@@ -210,9 +180,8 @@ def main():
         teacher="frozen_arm_expert_with_inspection" if inspection else "frozen_phase5_expert",
         inspection=inspection,
     )
-    recorder = None if args.without_recorder else ExpertRecorder(output / "episode.hdf5", metadata)
-    if recorder is not None:
-        recorder.calibration = camera_calibration(env)
+    recorder = ExpertRecorder(output / "episode.hdf5", metadata)
+    recorder.calibration = camera_calibration(env)
     try:
         if args.inspection_only:
             from alexdoor_xas.perception.inspection import run_inspection
@@ -240,9 +209,8 @@ def main():
                 inspection=inspection,
             )
     finally:
-        if recorder is not None:
-            recorder.close()
-    if recorder is not None and not args.inspection_only:
+        recorder.close()
+    if not args.inspection_only:
         summary = validate_episode(output / "episode.hdf5")
         (output / "validation.json").write_text(json.dumps(summary, indent=2) + "\n")
     print(json.dumps(dict(asset_id=door.name, condition=args.condition, result=result)), flush=True)

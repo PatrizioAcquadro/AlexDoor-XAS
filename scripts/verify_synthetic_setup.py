@@ -11,15 +11,14 @@ from pathlib import Path
 from isaaclab.app import AppLauncher
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("command", choices=("physics", "probe", "search"))
-parser.add_argument("--output", type=Path, required=True)
 parser.add_argument("--config", type=Path)
 parser.add_argument("--case", type=int, choices=range(4))
 parser.add_argument("--cameras", action="store_true")
-parser.add_argument("--candidates", type=Path, help="Kinematic screening report for search")
-parser.add_argument("--candidate-limit", type=int, default=3)
 parser.add_argument("--repeats", type=int, default=2)
 AppLauncher.add_app_launcher_args(parser)
+# AppLauncher parses once while registering flags; add required arguments afterward.
+parser.add_argument("command", choices=("physics", "probe"))
+parser.add_argument("--output", type=Path, required=True)
 args = parser.parse_args()
 # Kit can retain stale robot visuals when multiple scenes are rebuilt in one
 # process. A paired case reuses one environment; different cases need fresh Kit.
@@ -132,7 +131,7 @@ def physics(door):
         env.close()
 
 
-def probe_candidate(setup, output, cases, repeats, stop_on_failure=False):
+def probe_cases(setup, output, cases, repeats):
     from alexdoor_xas.qualification.synthetic_probe import run_probe, summarize_trials
 
     results = []
@@ -152,8 +151,6 @@ def probe_candidate(setup, output, cases, repeats, stop_on_failure=False):
         print(json.dumps(result), flush=True)
         report_name = "report.json" if len(cases) == 4 else f"report-{cases[0].name}.json"
         (output / report_name).write_text(json.dumps(results, indent=2) + "\n")
-        if stop_on_failure and not result["meets_45_deg"]:
-            break
     return dict(setup=setup.to_dict(), cases=results)
 
 
@@ -167,62 +164,18 @@ def main():
             print(json.dumps(results[-1]), flush=True)
             (args.output / "report.json").write_text(json.dumps(results, indent=2) + "\n")
         return 0 if all(r["passed"] for r in results) else 1
-    from alexdoor_xas.assets.purdue import ARM_JOINTS
-    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, rank_candidates
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
 
     if args.config is None or args.repeats < 1:
         raise ValueError("--config and at least one repeat are required")
     setup = ProbeSetup(**json.loads(args.config.read_text()))
-    if args.command == "probe":
-        result = probe_candidate(setup, args.output, cases, args.repeats)
-        passed = all(r["meets_45_deg"] for r in result["cases"])
-        if args.cameras:
-            passed = passed and all(
-                trial["visibility"]["passed"]
-                for case in result["cases"]
-                for trial in case["trials"]
-            )
-        return 0 if passed else 1
-    if args.candidates is None or args.case is not None or args.candidate_limit < 1:
-        raise ValueError("Search requires --candidates, a positive limit and all four cases")
-    screen = json.loads(args.candidates.read_text())
-    if screen["scope"] != "kinematic_screen_only":
-        raise ValueError("Expected a kinematic screening report")
-    if screen["fraction"] != setup.contact_fraction or screen["height"] != setup.contact_height:
-        raise ValueError("Screen and probe contact configuration differ")
-    (args.output / "screening.json").write_text(json.dumps(screen, indent=2) + "\n")
-    candidates = []
-    for index, candidate in enumerate(screen["candidates"][: args.candidate_limit]):
-        values = setup.to_dict()
-        values["floor_pose"] = candidate["floor_pose"]
-        values["initial_joints"] = {
-            **setup.initial_joints,
-            **dict(zip(ARM_JOINTS, candidate["contact_joints"][0], strict=True)),
-        }
-        trial_setup = ProbeSetup(**values)
-        candidates.append(
-            probe_candidate(
-                trial_setup,
-                args.output / f"candidate-{index:03d}",
-                CASES,
-                args.repeats,
-                stop_on_failure=True,
-            )
+    result = probe_cases(setup, args.output, cases, args.repeats)
+    passed = all(r["meets_45_deg"] for r in result["cases"])
+    if args.cameras:
+        passed = passed and all(
+            trial["visibility"]["passed"] for case in result["cases"] for trial in case["trials"]
         )
-        (args.output / "candidates.json").write_text(json.dumps(candidates, indent=2) + "\n")
-    ranked = rank_candidates(candidates, setup.tie_deg)
-    domain_passed = bool(ranked and min(c["angle_deg"] for c in ranked[0]["cases"]) >= 45.0)
-    report = dict(
-        passed=domain_passed,
-        candidates_tested=len(candidates),
-        selected=ranked[0] if ranked else None,
-        status="physical_candidate_requires_visibility_review"
-        if domain_passed
-        else "unresolved_common_setup",
-        frozen=False,
-    )
-    (args.output / "report.json").write_text(json.dumps(report, indent=2) + "\n")
-    return 0 if domain_passed else 1
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":

@@ -17,7 +17,6 @@ dependencies = [
     "scipy",
     "h5py",
     "Pillow",
-    "PyYAML",
     "trimesh",
     "gymnasium",
 ]
