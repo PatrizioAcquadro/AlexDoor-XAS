@@ -68,7 +68,7 @@ def setup_runner(tmp_path, b1_binding):
     release = b1_binding.to_dict()
     release["config"]["inspection"]["waypoints"] = [[0, 0, 0], [0.1, 0.02, 0]]
     release["config"]["inspection"]["sample_times_s"] = [0.1]
-    release["config"]["history"] = 1
+    release["config"]["warmup_s"] = 0.1
     binding = type(b1_binding).from_dict(release)
     root = export_dataset(
         [make_b1_episode(binding)], tmp_path / "data", binding, TEST_ROBOT_REF, {"left": "train"}

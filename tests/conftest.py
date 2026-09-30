@@ -111,14 +111,19 @@ def b1_binding():
 
     from alexdoor_xas.policies.common.b1_contract import RELEASE_SCHEMA, PerceptionBinding
 
-    config = json.loads((WORKTREE_SRC.parent / "configs/perception_metric.json").read_text())
-    config["hidden_size"] = 2
+    config = dict(
+        visual_dims=[2, 2],
+        max_gap_s=0.15,
+        warmup_s=0.4,
+        inspection=json.loads(
+            (WORKTREE_SRC.parent / "configs/perception_inspection.json").read_text()
+        ),
+    )
     # Numerical fixture only: this is not a release of any existing checkpoint.
     return PerceptionBinding.from_dict(
         dict(
             schema=RELEASE_SCHEMA,
-            checkpoint_sha256="a" * 64,
-            backbone_sha256="b" * 64,
+            artifacts={"geometry": "a" * 64, "visual": "b" * 64},
             config=config,
             offline_passed=True,
             dynamic_passed=True,
@@ -132,7 +137,7 @@ def make_b1_episode(binding, *, episode_id="train-1", asset_id="left", sign=1):
 
     from alexdoor_xas.action.b1 import STAGES, panel_pose
     from alexdoor_xas.dataset.b1 import compile_episode
-    from alexdoor_xas.perception.model import DoorEstimate
+    from alexdoor_xas.perception.contracts import DoorEstimate
     from alexdoor_xas.policies.observations import PolicyObservation
 
     frames = [ObjectFrame(np.array([0.1, -0.2, 0.5]), rot_z(0.3)) for _ in range(11)]

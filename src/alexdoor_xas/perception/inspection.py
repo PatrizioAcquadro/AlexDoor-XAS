@@ -7,14 +7,24 @@ import numpy as np
 
 def load_inspection(path):
     config = json.loads(path.read_text())
+    validate_inspection(config)
+    return config
+
+
+def validate_inspection(config):
+    """Check the shared bounded neck trajectory and observation sample times."""
     points = np.asarray(config["waypoints"], dtype=float)
     times = np.asarray(config["sample_times_s"], dtype=float)
     if (
         points.ndim != 2
+        or len(points) < 2
         or points.shape[1] != 3
         or points[0, 0] != 0
         or not np.isfinite(points).all()
         or not (np.diff(points[:, 0]) > 0).all()
+        or times.ndim != 1
+        or not len(times)
+        or not np.isfinite(times).all()
         or not (np.diff(times) > 0).all()
         or times[0] <= 0
         or times[-1] > points[-1, 0]
@@ -25,7 +35,6 @@ def load_inspection(path):
         raise ValueError("Inspection exceeds the common neck speed")
     if np.abs(points[:, 1]).max() > 1.22173 or np.abs(points[:, 2]).max() > 0.488692:
         raise ValueError("Inspection exceeds physical neck limits")
-    return config
 
 
 def tilt_mount(stage, joint_path, pitch_rad):

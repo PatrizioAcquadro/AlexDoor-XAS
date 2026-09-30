@@ -1,5 +1,14 @@
 # Shared Door Perception
 
+Current integration contract: `b1.perception.release.v2` binds named artifact
+SHA256 identities, explicit static/recent `visual_dims`, `warmup_s`, inspection
+and freshness. `B1Observer` accepts a provider with matching `binding`,
+`reset()`, `update(sensor)` and `encoding`; the provider owns device conversion
+and must verify artifacts before loading. `PerceptionBinding.verify_artifacts`
+checks exact bytes. The model-specific loader is retired. No qualified provider
+is available; old release v1 is rejected. The estimator discussion below is
+historical and will be consolidated during the approved cleanup.
+
 Subphase 6.0 prepares one observed-only stack for every B1 model/representation.
 The initial trained estimator is **not qualified**: run-01 fails the development
 gates. The [[experiments/b1-perception-run-01|run-01 diagnosis]] separates measured

@@ -6,13 +6,13 @@ import numpy as np
 import pytest
 
 from alexdoor_xas.action.frames import ObjectFrame
-from alexdoor_xas.perception.model import DoorEstimate
+from alexdoor_xas.perception.contracts import DoorEstimate
 from alexdoor_xas.policies.observations import B1Observer
 from alexdoor_xas.recording.b1 import OBS_KEYS
 
 
 def fake_estimator(binding):
-    estimator = SimpleNamespace(config=binding.config, policy_encoding=True, reason="observed")
+    estimator = SimpleNamespace(binding=binding, reason="observed")
 
     def reset():
         estimator.encoding = None
@@ -84,27 +84,53 @@ def test_nonfinite_proprioception_invalidates_immediately(b1_binding):
     assert observer.last is None
 
 
-def test_artifact_binding_rejects_unqualified_release_before_loading_models(tmp_path, b1_binding):
-    import json
+@pytest.mark.parametrize("field", ["offline_passed", "dynamic_passed", "frozen"])
+def test_binding_rejects_unqualified_release(b1_binding, field):
+    release = b1_binding.to_dict()
+    release[field] = False
+    with pytest.raises(ValueError, match="qualified and frozen"):
+        type(b1_binding).from_dict(release)
 
-    from alexdoor_xas.policies.observations import load_frozen_observer
+
+def test_binding_verifies_artifacts_and_rejects_legacy(tmp_path, b1_binding):
+    import hashlib
+
+    path = tmp_path / "weights"
+    path.write_bytes(b"selected artifact")
+    release = b1_binding.to_dict()
+    release["artifacts"] = {"visual": hashlib.sha256(path.read_bytes()).hexdigest()}
+    binding = type(b1_binding).from_dict(release)
+    binding.verify_artifacts({"visual": path})
+    with pytest.raises(ValueError, match="names differ"):
+        binding.verify_artifacts({})
+    path.write_bytes(b"changed")
+    with pytest.raises(ValueError, match="artifact mismatch"):
+        binding.verify_artifacts({"visual": path})
+    release["schema"] = "b1.perception.release.v1"
+    with pytest.raises(ValueError, match="qualified and frozen"):
+        type(b1_binding).from_dict(release)
+
+
+def test_unequal_visual_blocks_and_incompatible_provider(b1_binding):
+    from alexdoor_xas.policies.observations import observation_columns
 
     release = b1_binding.to_dict()
-    release["dynamic_passed"] = False
-    path = tmp_path / "release.json"
-    path.write_text(json.dumps(release))
-    with pytest.raises(ValueError, match="qualified and frozen"):
-        load_frozen_observer(path, tmp_path / "absent.pt", tmp_path / "absent-backbone")
+    release["config"]["visual_dims"] = [1, 3]
+    binding = type(b1_binding).from_dict(release)
+    columns = observation_columns(np.arange(binding.obs_dim), binding)
+    np.testing.assert_array_equal(columns["rgbd_static"], [0])
+    np.testing.assert_array_equal(columns["rgbd_recent"], [1, 2, 3])
+    with pytest.raises(ValueError, match="provider"):
+        B1Observer(fake_estimator(b1_binding), binding)
+    provider = fake_estimator(binding)
+    observer = B1Observer(provider, binding)
+    update = provider.update
 
+    def wrong_width(sensor):
+        estimate = update(sensor)
+        provider.encoding = np.zeros(3)
+        return estimate
 
-def test_artifact_binding_rejects_changed_checkpoint_before_loading_models(tmp_path, b1_binding):
-    import json
-
-    from alexdoor_xas.policies.observations import load_frozen_observer
-
-    path = tmp_path / "release.json"
-    path.write_text(json.dumps(b1_binding.to_dict()))
-    checkpoint = tmp_path / "changed.pt"
-    checkpoint.write_bytes(b"not a model; the digest check must reject it")
-    with pytest.raises(ValueError, match="artifact mismatch"):
-        load_frozen_observer(path, checkpoint, tmp_path / "absent-backbone")
+    provider.update = wrong_width
+    with pytest.raises(ValueError):
+        observer.update(sample(0, 1))

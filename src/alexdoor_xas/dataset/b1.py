@@ -160,8 +160,6 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
     Only an initial inspection prefix may be excluded from learned arm actions.
     Existing engineering recordings are deliberately not admitted here.
     """
-    import torch
-
     from alexdoor_xas.recording.b1 import OBS_KEYS as SENSOR_KEYS
     from alexdoor_xas.recording.b1 import PHASES
     from alexdoor_xas.recording.b1 import validate_episode as validate_recording
@@ -177,7 +175,6 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
         if metadata.get("inspection") != observer.binding.config["inspection"]:
             raise ValueError("Recorded inspection differs from the frozen perception recipe")
         observer.reset()
-        device = next(observer.estimator.estimator.parameters()).device
         values, tools = [], []
         obs = source["observations"]
         commands = source["commands"]
@@ -186,7 +183,7 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
         if start == len(phases) or "inspect" in phases[start:]:
             raise ValueError("Only a common initial inspection prefix may precede manipulation")
         for index in range(len(obs["time_s"])):
-            sample = {key: torch.as_tensor(obs[key][index], device=device) for key in SENSOR_KEYS}
+            sample = {key: obs[key][index] for key in SENSOR_KEYS}
             encoded = observer.update(sample)
             if index >= start:
                 values.append(encoded)

@@ -1,13 +1,12 @@
 """Frozen spatial RGB features and a small, shared causal RGB-D door estimator."""
 
-from dataclasses import dataclass
-
 import numpy as np
 import torch
 from torch import nn
 from torch.nn import functional as F
 
 from alexdoor_xas.action.frames import ObjectFrame, validate_object_frame
+from alexdoor_xas.perception.contracts import DoorEstimate
 
 STATE_CONFIDENCE = "articulated-state-v1"
 
@@ -299,21 +298,6 @@ def estimator_loss(prediction, target, available=None, *, gates):
     return sum(terms.values()), terms
 
 
-@dataclass(frozen=True)
-class DoorEstimate:
-    timestamp_s: float
-    valid: bool
-    reason: str
-    confidence: float = 0.0
-    frame: ObjectFrame | None = None
-    panel_rotation: np.ndarray | None = None
-    signed_angle: float | None = None
-    dimensions: np.ndarray | None = None
-    contact_position: np.ndarray | None = None
-    contact_rotation: np.ndarray | None = None
-
-    def fresh(self, now_s, max_age_s=0.15):
-        return self.valid and 0 <= now_s - self.timestamp_s <= max_age_s
 
 
 class ObservedEstimator:

@@ -160,7 +160,7 @@ class B1Runner:
         """Use the common neck schedule and hold the parked tool through warmup."""
         cfg = self.observer.binding.config
         points = np.asarray(cfg["inspection"]["waypoints"])
-        end = float(points[-1, 0]) + cfg["history"] / cfg["sample_hz"]
+        end = float(points[-1, 0]) + cfg["warmup_s"]
         count = int(np.ceil(end / self.io.dt - 1e-8))
         observation = self.observer.update(self.io.observe())
         for tick in range(count):

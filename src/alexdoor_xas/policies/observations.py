@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from alexdoor_xas.action.b1 import checked_pose, finite_vector, panel_pose
-from alexdoor_xas.perception.model import DoorEstimate
+from alexdoor_xas.perception.contracts import DoorEstimate
 from alexdoor_xas.policies.common.b1_contract import OBS_KEYS
 from alexdoor_xas.recording.b1 import OBS_KEYS as SENSOR_KEYS
 
@@ -38,55 +38,38 @@ def require_estimate(estimate, now, max_age):
 
 def observation_columns(vector, binding):
     vector = finite_vector(vector, binding.obs_dim)
-    h = binding.config["hidden_size"]
+    static, recent = binding.config["visual_dims"]
+    visual = static + recent
     return dict(
         zip(
             OBS_KEYS,
-            (vector[:h], vector[h : 2 * h], vector[2 * h : 2 * h + 9], vector[2 * h + 9 :]),
+            (
+                vector[:static],
+                vector[static:visual],
+                vector[visual : visual + 9],
+                vector[visual + 9 :],
+            ),
             strict=True,
         )
     )
 
 
-def load_frozen_observer(release_path, checkpoint_path, backbone_path, *, device="cuda:0"):
-    """Bind real artifact bytes only after 6.0 supplies its qualified/frozen release."""
-    import hashlib
-    import json
-    from pathlib import Path
-
-    from alexdoor_xas.perception.model import FrozenBackbone, ObservedEstimator
-    from alexdoor_xas.perception.training import load_checkpoint
-    from alexdoor_xas.policies.common.b1_contract import PerceptionBinding
-
-    binding = PerceptionBinding.from_dict(json.loads(Path(release_path).read_text()))
-    release = binding.to_dict()
-    for path, key in (
-        (checkpoint_path, "checkpoint_sha256"),
-        (Path(backbone_path) / "model.safetensors", "backbone_sha256"),
-    ):
-        with Path(path).open("rb") as stream:
-            digest = hashlib.file_digest(stream, "sha256").hexdigest()
-        if digest != release[key]:
-            raise ValueError(f"Frozen perception artifact mismatch: {key}")
-    estimator, _ = load_checkpoint(checkpoint_path, binding.config, device)
-    if not estimator.confidence_qualified:
-        raise ValueError("Perception checkpoint confidence is unqualified")
-    estimator.requires_grad_(False).eval()
-    backbone = FrozenBackbone(backbone_path).to(device)
-    return B1Observer(
-        ObservedEstimator(backbone, estimator, binding.config, policy_encoding=True), binding
-    )
-
-
 class B1Observer:
-    def __init__(self, estimator, binding):
-        if estimator.config != binding.config or not estimator.policy_encoding:
-            raise ValueError("Observed estimator does not match the B1 encoding contract")
-        self.estimator, self.binding = estimator, binding
+    """Assemble a provider's two visual blocks and current proprioception.
+
+    The provider exposes binding, encoding, reset() and update(sensor)->DoorEstimate.
+    It owns device conversion and inference, and verifies release artifacts before
+    loading. No qualified provider is supplied by this package yet.
+    """
+
+    def __init__(self, provider, binding):
+        if provider.binding != binding:
+            raise ValueError("Perception provider does not match the B1 release")
+        self.provider, self.binding = provider, binding
         self.reset()
 
     def reset(self):
-        self.estimator.reset()
+        self.provider.reset()
         self.last = None
         self.last_time = None
         self.last_frame = None
@@ -111,11 +94,11 @@ class B1Observer:
             q = finite_vector(numpy(sensor["joint_position"]), 9)
             dq = finite_vector(numpy(sensor["joint_velocity"]), 9)
         except ValueError:
-            self.estimator.reset()
+            self.provider.reset()
             return self.invalidate(t, frame, "invalid_proprioception")
-        estimate = self.estimator.update(sensor)
+        estimate = self.provider.update(sensor)
         if estimate.valid:
-            encoding = finite_vector(self.estimator.encoding, self.binding.obs_dim - 18)
+            encoding = finite_vector(self.provider.encoding, self.binding.obs_dim - 18)
             self.last = (estimate, encoding.copy())
         elif estimate.reason != "between_inference_ticks":
             return self.invalidate(t, frame, estimate.reason)

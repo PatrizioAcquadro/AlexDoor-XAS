@@ -1,7 +1,10 @@
 """Explicit B1 compatibility and the still-pending Phase 6.0 release boundary."""
 
+import hashlib
 import json
+import math
 from dataclasses import dataclass
+from pathlib import Path
 
 from alexdoor_xas.action.b1 import ACTION_DIMS, ACTION_SCHEMA
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
@@ -9,7 +12,7 @@ from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
 OBS_KEYS = ("rgbd_static", "rgbd_recent", "joint_position", "joint_velocity")
 OBS_SCHEMA = "b1.policy-observation.v1"
 CONTRACT_SCHEMA = "b1.policy-contract.v1"
-RELEASE_SCHEMA = "b1.perception.release.v1"
+RELEASE_SCHEMA = "b1.perception.release.v2"
 
 
 def check_sha(value):
@@ -38,18 +41,48 @@ class PerceptionBinding:
             release.get(key) is not True for key in ("offline_passed", "dynamic_passed", "frozen")
         ):
             raise ValueError("B1 requires qualified and frozen Phase 6.0 perception")
-        for key in ("checkpoint_sha256", "backbone_sha256"):
-            check_sha(release.get(key))
-        cfg = release.get("config", {})
+        artifacts = release.get("artifacts")
         if (
-            cfg.get("model") != "metric-memory-v1"
+            not isinstance(artifacts, dict)
+            or not artifacts
+            or any(not isinstance(name, str) or not name for name in artifacts)
+        ):
+            raise ValueError("Perception requires named artifact identities")
+        for digest in artifacts.values():
+            check_sha(digest)
+        cfg = release.get("config", {})
+        dims = cfg.get("visual_dims")
+        if (
+            not isinstance(dims, list)
+            or len(dims) != 2
+            or any(type(v) is not int or v < 1 for v in dims)
             or not cfg.get("inspection")
-            or not isinstance(cfg.get("hidden_size"), int)
-            or cfg["hidden_size"] < 1
-            or not 0 < cfg.get("max_gap_s", 0)
-            or not 0 < cfg.get("sample_hz", 0)
         ):
             raise ValueError("Incompatible B1 perception recipe")
+        for key, positive in (("max_gap_s", True), ("warmup_s", False)):
+            value = cfg.get(key)
+            if (
+                type(value) not in (int, float)
+                or not math.isfinite(value)
+                or value < 0
+                or positive
+                and value == 0
+            ):
+                raise ValueError("Incompatible B1 perception timing")
+        from alexdoor_xas.perception.inspection import validate_inspection
+
+        validate_inspection(cfg["inspection"])
+
+    def verify_artifacts(self, paths):
+        """Verify exact release inputs before a provider loads them; this is not qualification."""
+        expected = self.to_dict()["artifacts"]
+        if set(paths) != set(expected):
+            raise ValueError("Perception artifact names differ from the release")
+        for name, path in paths.items():
+            with Path(path).open("rb") as stream:
+                digest = hashlib.file_digest(stream, "sha256").hexdigest()
+            if digest != expected[name]:
+                raise ValueError(f"Frozen perception artifact mismatch: {name}")
 
     @classmethod
     def from_dict(cls, release):
@@ -64,7 +97,7 @@ class PerceptionBinding:
 
     @property
     def obs_dim(self):
-        return 2 * self.config["hidden_size"] + 18
+        return sum(self.config["visual_dims"]) + 18
 
 
 def policy_contract(binding, space):

@@ -93,7 +93,7 @@ def test_stale_statistics_and_perception_mismatch_are_rejected(tmp_path, b1_data
     with pytest.raises(ValueError, match="training identities"):
         batch_factories(data, "act", 4, 2, 0)
     altered = b1_binding.to_dict()
-    altered["checkpoint_sha256"] = "f" * 64
+    altered["artifacts"]["geometry"] = "f" * 64
     with pytest.raises(ValueError, match="perception mismatch"):
         load_b1_data(
             b1_data_root, A4_OBJ_CENTRIC_CHUNK, binding=type(b1_binding).from_dict(altered)
