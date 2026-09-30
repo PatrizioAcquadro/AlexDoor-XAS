@@ -27,6 +27,7 @@ from alexdoor_xas.perception.geometry import (
     voxel_points,
 )
 from alexdoor_xas.perception.inspection import load_inspection
+from alexdoor_xas.perception.tracking import PixelMotionTracker, moved_surface
 from alexdoor_xas.perception.visual_worker import receive, send
 from alexdoor_xas.recording.b1 import OBS_KEYS
 
@@ -171,6 +172,7 @@ class GeometryProvider:
         self.current_candidates = []
         self.scene = np.empty((0, 3))
         self.motions = []
+        self.pixel_tracker = PixelMotionTracker()
         self.hinge = self.thickness = None
         self.hinge_uncertainty = np.inf
         self.angle = 0.0
@@ -181,10 +183,8 @@ class GeometryProvider:
 
     def due_view(self, t):
         times = self.config["inspection"]["sample_times_s"]
-        if self.scan_index < len(times):
-            if t >= times[self.scan_index]:
-                return self.scan_index
-            return None
+        if t <= times[-1] and t >= self.next_semantic:
+            return self.last_frame
         return -1 if t >= self.next_semantic else None
 
     def _fuse(self, sensor, view, cue):
@@ -413,8 +413,10 @@ class GeometryProvider:
         if self.last_time is not None and t - self.last_time > self.config["max_gap_s"] + 1e-9:
             self.engine.reset()
             self.panel = None
+            self.pixel_tracker.reset()
             self.stable_frames = 0
         self.last_time, self.last_frame = t, frame
+        self.scan_index = sum(t >= sample for sample in self.config["inspection"]["sample_times_s"])
         if any(
             np.asarray(sensor[k]).shape != (9,) or not np.isfinite(sensor[k]).all()
             for k in ("joint_position", "joint_velocity")
@@ -440,6 +442,7 @@ class GeometryProvider:
         if not np.any(valid & np.isfinite(depth) & (depth > 0)) or not np.any(sensor["rgb"]):
             self.engine.reset()
             self.panel, self.encoding = None, None
+            self.pixel_tracker.reset()
             self.stable_frames = 0
             self.lost_since = t if self.lost_since is None else self.lost_since
             self.diagnostics["state"] = "lost"
@@ -453,9 +456,23 @@ class GeometryProvider:
             self.diagnostics["available_time_s"] = ready
         view = self.due_view(t)
         if view is not None and self.engine.submit(sensor, view):
-            if view >= 0:
-                self.scan_index += 1
             self.next_semantic = t + self.config["semantic_period_s"]
+        if (
+            self.scan_index == len(self.config["inspection"]["sample_times_s"])
+            and self.closed is not None
+        ):
+            motion = self.pixel_tracker.update(sensor, self.closed)
+            self.diagnostics.update(self.pixel_tracker.diagnostics)
+            if motion is not None:
+                self.panel = moved_surface(self.closed, motion)
+                self.motions = (self.motions + [motion])[-100:]
+                hinge = hinge_from_motion(
+                    self.motions,
+                    np.deg2rad(self.config["motion_min_angle_deg"]),
+                    self.config["floor_z_m"],
+                )
+                if hinge is not None:
+                    self.hinge, self.hinge_uncertainty = hinge
         tracked = track_surface(self.panel, sensor, self.config) if self.panel is not None else None
         if tracked is None:
             if self.stable_frames > 0 and self.lost_since is None:

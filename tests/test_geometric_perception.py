@@ -367,3 +367,152 @@ def test_observed_control_stops_on_loss_and_cannot_claim_force_feedback():
         checks.check(sample, estimate, tool, limits, "approach", np.zeros(2))
         == "joint_limit_violation"
     )
+
+
+@pytest.mark.parametrize("bottom_frame", [False, True])
+def test_dense_edges_preserve_leaf_bottom_without_absorbing_fixed_frame(bottom_frame):
+    from alexdoor_xas.perception.geometry import fuse_surface
+
+    sample = sensor()
+    h, w = 400, 200
+    sample["rgb"] = np.ones((h, w, 3), np.uint8)
+    sample["depth_m"] = np.full((h, w, 1), 2.0)
+    sample["valid_depth"] = np.ones((h, w, 1), bool)
+    sample["intrinsics"] = np.array([[100, 0, 100], [0, 100, 200], [0, 0, 1]])
+    sample["camera_world"] = np.array(
+        [[0, 0, 1, 0], [1, 0, 0, 0], [0, -1, 0, 1], [0, 0, 0, 1]], float
+    )
+    sample["depth_m"][90:296, 55:146] = 1.0
+    # The segmentation includes fixed profiles. Their depth is distinct from the leaf.
+    sample["depth_m"][80:90, 50:151] = 0.94
+    if bottom_frame:
+        sample["depth_m"][296:315, 50:151] = 0.94
+    mask = np.zeros((h, w), bool)
+    mask[80:315, 50:151] = True
+    yy, xx = np.mgrid[120:250:3, 60:140:3]
+    points = deproject(
+        np.ones(xx.size),
+        np.c_[xx.ravel(), yy.ravel()],
+        sample["intrinsics"],
+        sample["camera_world"],
+    )
+    edges, edge_points = extent_edges(
+        points, np.array([1.0, 0, 0]), mask, sample, 0.004, return_points=True
+    )
+    assert edges["height_0"] == pytest.approx(0.05, abs=0.004)
+    assert edges["height_1"] == pytest.approx(2.10, abs=0.004)
+    first = Surface(
+        points,
+        np.array([1.0, 0, 0]),
+        1.0,
+        np.ones(8) / np.sqrt(8),
+        points[:4],
+        np.eye(8)[:4],
+        0.001,
+        1.0,
+        {0},
+        edges,
+        edge_points,
+    )
+    second = replace(
+        first,
+        points=points + [0, 0, 0.1],
+        anchors=points[-4:],
+        features=np.eye(8)[4:],
+        views={1},
+        edge_points={},
+    )
+    fused = fuse_surface(first, second, recipe().config, 1)
+    assert len(fused.anchors) == len(fused.features) == 8
+    np.testing.assert_allclose(fused.anchors[-4:], second.anchors)
+    assert fused.bounds[0, 2] == pytest.approx(0.05, abs=0.004)
+    assert dimensions_supported(fused, 0.01)
+    # A clipped leaf containing an internal recess must not acquire a false bottom edge.
+    sample["depth_m"][296:, 55:146] = 1.0
+    sample["depth_m"][230:240, 60:140] = 1.02
+    mask[296:, 55:146] = True
+    assert "height_0" not in extent_edges(points, np.array([1.0, 0, 0]), mask, sample, 0.004)
+
+
+def test_scan_semantics_starts_at_first_observation_and_covers_between_hold_views():
+    engine = CueEngine(EmptyWorker(), replay=True)
+    provider = GeometryProvider(recipe(), engine)
+    provider.update(sensor(0, 8))
+    assert engine.pending[0][1]["time_s"] == 0
+    provider.update(sensor(0.1, 14))
+    assert engine.pending is None
+    provider.update(sensor(0.2, 20))
+    assert engine.pending[0][1]["time_s"] == 0.2
+    provider.update(sensor(25.1, 1514))
+    assert provider.scan_index == 7
+    assert not provider.last_estimate.valid
+
+
+def test_production_surface_extraction_keeps_dense_extents_and_rejects_parallel_frame_fusion():
+    from alexdoor_xas.perception.geometry import similar_surface, surfaces
+
+    sample = sensor()
+    sample["camera_world"][:3, :3] = [[0, 0, 1], [1, 0, 0], [0, -1, 0]]
+    cue = EmptyWorker().infer(sample["rgb"])
+    cue["masks"] = [np.packbits(np.ones((16, 16), bool)).tobytes()]
+    cue["tokens"] = (np.ones((196, 384), np.float32) / np.sqrt(384)).astype(np.float32).tobytes()
+    config = dict(recipe().config, min_points=12)
+    parts = surfaces(cue, sample, config)
+    assert parts and len(parts[0].extent_points)
+    first = parts[0]
+    frame = replace(first, points=first.points + [0.02, 0, 0], offset=first.offset + 0.02)
+    assert not similar_surface(first, frame, config)
+    # Same registered geometry can associate despite different appearance descriptors.
+    same = replace(first, descriptor=-first.descriptor)
+    assert similar_surface(first, same, config)
+
+
+def test_subpixel_correspondences_are_metric_and_loss_discards_pixel_history():
+    import cv2
+
+    from alexdoor_xas.perception.tracking import PixelMotionTracker, sample_points
+
+    rng = np.random.default_rng(88)
+    sample = sensor(25, 1508)
+    h = w = 256
+    gray = cv2.GaussianBlur(rng.integers(0, 256, (h, w), dtype=np.uint8), (3, 3), 0)
+    sample["rgb"] = np.repeat(gray[:, :, None], 3, axis=2)
+    sample["depth_m"] = np.ones((h, w, 1))
+    sample["valid_depth"] = np.ones((h, w, 1), bool)
+    sample["intrinsics"] = np.array([[100, 0, 128], [0, 100, 128], [0, 0, 1]])
+    sample["camera_world"] = np.array(
+        [[0, 0, 1, 0], [1, 0, 0, 0], [0, -1, 0, 1], [0, 0, 0, 1]], float
+    )
+    yy, xx = np.mgrid[40:210:5, 40:210:5]
+    points = deproject(
+        np.ones(xx.size),
+        np.c_[xx.ravel(), yy.ravel()],
+        sample["intrinsics"],
+        sample["camera_world"],
+    )
+    surface = Surface(
+        points,
+        np.array([1.0, 0, 0]),
+        1.0,
+        np.ones(8),
+        np.empty((0, 3)),
+        np.empty((0, 8)),
+        0.001,
+        1.0,
+    )
+    tracker = PixelMotionTracker()
+    assert tracker.update(sample, surface) is None
+    sample["rgb"] = np.repeat(
+        cv2.warpAffine(gray, np.array([[1, 0, 1], [0, 1, 0]], np.float32), (w, h))[:, :, None],
+        3,
+        axis=2,
+    )
+    sample["frame"] = 1509
+    motion = tracker.update(sample, surface)
+    assert motion is not None
+    np.testing.assert_allclose(motion[0], np.eye(3), atol=0.0005)
+    np.testing.assert_allclose(motion[1], [0, 0.01, 0], atol=0.0005)
+    sample["valid_depth"][:] = False
+    assert tracker.update(sample, surface) is None
+    assert tracker.gray is None and tracker.source is None
+    assert len(sample_points(sample, np.array([[50.4, 50.4]]))[1]) == 0

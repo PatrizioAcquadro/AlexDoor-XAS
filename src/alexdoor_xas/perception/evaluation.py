@@ -176,6 +176,10 @@ def mask_evidence(path, sensor, cue, provider):
                 draw.point((int(x), int(y)), fill=color)
         geometry[f"surface_{i}"] = cloud
         geometry[f"normal_{i}"] = surface.normal
+        geometry[f"extent_{i}"] = surface.extent_points
+        if surface is provider.closed:
+            geometry["selected_surface_index"] = np.array(i)
+            geometry["selected_bounds"] = surface.bounds
     estimate = provider.last_estimate
     draw.text(
         (12, 12),
@@ -213,6 +217,7 @@ def evaluate_episode(path, provider, output):
         elapsed = np.zeros(n)
         traces, latencies = [], []
         last_cue = None
+        evidence_times = [0.0, *provider.config["inspection"]["sample_times_s"]]
         started = time.perf_counter()
         for row in range(n):
             sensor = {key: observations[key][row] for key in OBS_KEYS}
@@ -238,7 +243,13 @@ def evaluate_episode(path, provider, output):
                     diagnostics=dict(provider.diagnostics),
                 )
                 traces.append(trace)
-                if provider.last_cue is not None and (len(traces) <= 7 or len(traces) % 100 == 0):
+                capture_time = float(provider.last_cue[0]["time_s"]) if provider.last_cue else -1
+                crossed_hold = bool(evidence_times and capture_time >= evidence_times[0])
+                if crossed_hold:
+                    evidence_times.pop(0)
+                if provider.last_cue is not None and (
+                    len(traces) <= 7 or len(traces) % 100 == 0 or crossed_hold
+                ):
                     capture, cue = provider.last_cue
                     mask_evidence(
                         output / f"mask-frame-{int(capture['frame']):06d}.png",

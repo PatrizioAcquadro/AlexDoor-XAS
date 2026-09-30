@@ -65,7 +65,7 @@ commands before simulator access. These software guards do not validate dynamics
 
 ### Pilot diagnosis after the user stop
 
-`geometric-pilot-diagnosis-01` inspects existing nominal recordings and pilot-03
+`geometric-pilot-diagnosis-01` inspects existing pilot recordings and pilot-03
 clouds only; it does not evaluate another campaign or use annotations for inference.
 The selected planar support grows across the seven scan views, so single-view
 clipping alone does not establish missing evidence. Reprojection of the retained
@@ -78,23 +78,33 @@ other parallel faces become separate hypotheses; object extent is therefore not
 the same as planar support extent. A coarse raw-depth inspection of every fifth
 observation during the scan finds support beyond retained vertical bounds, including
 before the first semantic sample. These points are only proximity candidates:
-their ownership by the leaf or fixed frame has not been certified. Two targeted
-RGB-D overlays mark upper/lower candidates and separate profile support for human
-review. Do not merge frame points into the leaf or label these candidates complete
-silhouette evidence before that distinction is resolved.
+human review confirmed that upper A and lateral C belong to the fixed frame,
+while lower B is the final part of the moving leaf in these images. The user warned
+that other doors may have a bottom frame. This review is diagnostic evidence for
+the displayed regions only; labels do not enter the provider or become a general
+bottom-frame rule. Cached CUDA cues on both pilots/conditions show that most lower
+support already belongs to the mask and fitted plane. Interior sampling and pooled
+extent quantiles discard rare boundary support. Dense observed extents and certified
+silhouette lines must therefore be retained separately before sampling.
 
-The current static fusion also keeps only the first surface's DINO anchors/features;
+The earlier static fusion also kept only the first surface's DINO anchors/features;
 later-view descriptors update but later anchors are discarded. This is a concrete
 memory limitation when the first view loses overlap during motion. Its contribution
 to the zero rigid-motion fits remains to be measured independently of boundary
-visibility. Proposed common corrections are object-level association of observed
-leaf faces, causal retention of scan support and multiview feature anchors, with
-metric verification and continued rejection of ambiguity. They have not yet been
-implemented or verified. Current evidence does not justify new training.
+visibility. A common software correction now retains dense extents and measured
+edge lines, targets semantic inference from the first observation throughout the
+scan, verifies registered overlap, and keeps a bounded multiview feature bank.
+Subpixel RGB tracking with metric rigid verification refines correspondences;
+coarse DINO patch centers alone remain insufficient. Numerical regressions cover
+bottom-frame presence/absence, clipped extents/internal recesses, parallel-frame
+separation, later anchors, scan timing and metric pixel tracking/loss. These checks
+do not establish pilot geometry gates; corrected chronological pilot evaluation is
+pending. Current evidence does not justify new training.
 
 Control-local requirements and the unchanged complete-state contract are separated
-in [[topics/shared-door-perception|Shared Door Perception]]. Human review is pending;
-no pilot correction run or extended restart has been launched after the stop.
+in [[topics/shared-door-perception|Shared Door Perception]]. Human part review is
+resolved for the displayed pilot regions. Extended evaluation remains stopped;
+only verification of the shared corrections on the two pilots is authorized next.
 
 ## Custom-estimator sequence
 

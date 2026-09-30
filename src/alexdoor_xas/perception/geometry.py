@@ -79,6 +79,8 @@ class Surface:
     support_fraction: float
     views: set = field(default_factory=set)
     edges: dict = field(default_factory=dict)
+    edge_points: dict = field(default_factory=dict)
+    extent_points: np.ndarray = field(default_factory=lambda: np.empty((0, 3)))
 
     @property
     def basis(self):
@@ -87,56 +89,117 @@ class Surface:
     @property
     def bounds(self):
         local = self.points @ self.basis
-        return np.quantile(local, [0.002, 0.998], axis=0)
+        bounds = np.quantile(local, [0.002, 0.998], axis=0)
+        if len(self.extent_points):
+            dense_bounds = np.quantile(self.extent_points @ self.basis, [0.002, 0.998], axis=0)
+            bounds[0] = np.minimum(bounds[0], dense_bounds[0])
+            bounds[1] = np.maximum(bounds[1], dense_bounds[1])
+        for axis, name in ((1, "width"), (2, "height")):
+            for side in (0, 1):
+                key = f"{name}_{side}"
+                if key in self.edge_points:
+                    bounds[side, axis] = np.median(self.edge_points[key] @ self.basis[:, axis])
+        return bounds
 
     @property
     def center(self):
         return self.bounds.mean(0) @ self.basis.T
 
 
-def extent_edges(points, normal, mask, sensor, tolerance):
-    """Metric silhouette evidence inside the image; image clipping is not a panel edge."""
+def extent_edges(
+    points, normal, mask, sensor, tolerance, *, return_points=False, return_support=False
+):
+    """Keep measured RGB-D silhouette lines independently of interior point sampling.
+
+    The SAM mask can include a frame: plane membership and a measured depth
+    discontinuity establish the silhouette. Image clipping never establishes an edge.
+    """
+    from scipy.ndimage import binary_erosion
+
     basis = normal_frame(normal)
-    local = points @ basis
-    bounds = np.quantile(local, [0.002, 0.998], axis=0)
     depth = np.asarray(sensor["depth_m"]).squeeze(-1)
     valid = np.asarray(sensor["valid_depth"]).squeeze(-1)
     h, w = depth.shape
-    edges = {}
+    v, u = np.nonzero(mask & valid & np.isfinite(depth) & (depth > 0))
+    if not len(u):
+        return ({}, {}, np.empty((0, 3))) if return_support else ({}, {}) if return_points else {}
+    cloud = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
+    offset = np.median(points @ normal)
+    on_plane = abs(cloud @ normal - offset) <= tolerance
+    support = np.zeros((h, w), bool)
+    support[v[on_plane], u[on_plane]] = True
+    boundary = support & ~binary_erosion(support)
+    v, u = np.nonzero(boundary)
+    cloud = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
+    local = cloud @ basis
+    dense_extents = []
+    for axis in (1, 2):
+        for side in (0, 1):
+            extreme = (min if side == 0 else max)(local[:, axis]) if len(local) else 0.0
+            take = np.flatnonzero(abs(local[:, axis] - extreme) < 3 * tolerance)
+            if len(take) > 512:
+                take = take[np.linspace(0, len(take) - 1, 512, dtype=int)]
+            dense_extents.append(cloud[take])
+    extent_points = np.concatenate(dense_extents)
+    edges, edge_points = {}, {}
     for axis, name in ((1, "width"), (2, "height")):
         for side, sign in ((0, -1), (1, 1)):
-            selected = points[abs(local[:, axis] - bounds[side, axis]) < 0.012]
-            pixels, _ = project(selected, sensor["intrinsics"], sensor["camera_world"])
-            outside, _ = project(
-                selected + sign * 0.025 * basis[:, axis],
+            outside, optical = project(
+                cloud + sign * 0.025 * basis[:, axis],
                 sensor["intrinsics"],
                 sensor["camera_world"],
             )
-            pixels, outside = np.rint(pixels).astype(int), np.rint(outside).astype(int)
-            inside = ((pixels >= 4) & (outside >= 4)).all(1)
-            inside &= (pixels[:, 0] < w - 4) & (outside[:, 0] < w - 4)
-            inside &= (pixels[:, 1] < h - 4) & (outside[:, 1] < h - 4)
-            u, v = outside[inside].T
-            evidence = ~mask[v, u] & valid[v, u] & np.isfinite(depth[v, u]) & (depth[v, u] > 0)
-            measured_depth = np.where(valid[v, u] & np.isfinite(depth[v, u]), depth[v, u], 0)
-            cloud = deproject(
-                measured_depth, np.c_[u, v], sensor["intrinsics"], sensor["camera_world"]
+            outside = np.rint(outside).astype(int)
+            inside = (optical > 0) & (u >= 4) & (v >= 4) & (u < w - 4) & (v < h - 4)
+            inside &= (outside >= 4).all(1) & (outside[:, 0] < w - 4) & (outside[:, 1] < h - 4)
+            indices = np.flatnonzero(inside)
+            uu, vv = outside[inside].T
+            good = valid[vv, uu] & np.isfinite(depth[vv, uu]) & (depth[vv, uu] > 0)
+            indices, uu, vv = indices[good], uu[good], vv[good]
+            beyond = deproject(
+                depth[vv, uu], np.c_[uu, vv], sensor["intrinsics"], sensor["camera_world"]
             )
-            evidence &= abs(cloud @ normal - np.median(points @ normal)) > 2 * tolerance
-            boundary = selected[inside][evidence] @ basis
+            indices = indices[abs(beyond @ normal - offset) > 2 * tolerance]
+            # Horizontal/vertical metric edge lines must span observable support.
+            # Search the outermost supported line, rather than an area-weighted quantile.
+            coordinates = local[indices, axis]
+            bins = np.floor(coordinates / (2 * tolerance)).astype(int)
             other = 2 if axis == 1 else 1
-            if len(boundary) >= 10 and np.ptp(boundary[:, other]) > 0.2:
-                edges[f"{name}_{side}"] = float(bounds[side, axis])
-    return edges
+            extreme = (min if side == 0 else max)(local[:, axis]) if len(local) else 0.0
+            for cell in sorted(set(bins), reverse=side == 1):
+                chosen = indices[abs(coordinates - (cell + 0.5) * 2 * tolerance) <= 2 * tolerance]
+                if len(chosen) < 10 or np.ptp(local[chosen, other]) < 0.2:
+                    continue
+                center = np.median(local[chosen, axis])
+                if abs(center - extreme) > 3 * tolerance:
+                    continue
+                chosen = chosen[abs(local[chosen, axis] - center) <= tolerance]
+                if len(chosen) >= 10 and np.ptp(local[chosen, other]) >= 0.2:
+                    key = f"{name}_{side}"
+                    edges[key] = float(np.median(local[chosen, axis]))
+                    edge_points[key] = cloud[chosen]
+                    break
+    return (
+        (edges, edge_points, extent_points)
+        if return_support
+        else (edges, edge_points)
+        if return_points
+        else edges
+    )
 
 
 def dimensions_supported(surface, tolerance):
     bounds = surface.bounds
     return all(
-        f"{name}_{side}" in surface.edges
-        and abs(surface.edges[f"{name}_{side}"] - bounds[side, axis]) <= tolerance
+        key in surface.edge_points
+        and len(surface.edge_points[key]) >= 10
+        and np.quantile(
+            abs(surface.edge_points[key] @ surface.basis[:, axis] - bounds[side, axis]), 0.95
+        )
+        <= tolerance
         for axis, name in ((1, "width"), (2, "height"))
         for side in (0, 1)
+        for key in (f"{name}_{side}",)
     )
 
 
@@ -184,14 +247,14 @@ def surfaces(cue, sensor, config):
         mask = (
             np.unpackbits(np.frombuffer(packed, np.uint8), count=h * w).reshape(h, w).astype(bool)
         )
-        mask = binary_erosion(mask, iterations=1)
-        v, u = np.nonzero(mask & valid & np.isfinite(depth) & (depth > 0))
+        interior = binary_erosion(mask, iterations=1)
+        v, u = np.nonzero(interior & valid & np.isfinite(depth) & (depth > 0))
         if len(u) < config["min_points"]:
             continue
         take = np.linspace(0, len(u) - 1, min(len(u), config["max_points"]), dtype=int)
         u, v = u[take], v[take]
         cloud = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
-        anchors, features, descriptor = patch_anchors(cue, sensor, mask)
+        anchors, features, _ = patch_anchors(cue, sensor, interior)
         remaining = cloud
         for _ in range(3):
             fitted = plane_fit(remaining, config["plane_tolerance_m"], config["min_points"], rng)
@@ -202,6 +265,15 @@ def surfaces(cue, sensor, config):
             if normal @ (points.mean(0) - sensor["camera_world"][:3, 3]) < 0:
                 normal, offset = -normal, -offset
             near = np.abs(anchors @ normal - offset) <= config["plane_tolerance_m"] * 2
+            descriptor = features[near].mean(0) if near.any() else np.zeros(features.shape[1])
+            descriptor /= max(np.linalg.norm(descriptor), 1e-8)
+            edges, edge_points, extent_points = (
+                extent_edges(
+                    points, normal, mask, sensor, config["plane_tolerance_m"], return_support=True
+                )
+                if abs(normal[2]) < 0.3
+                else ({}, {}, np.empty((0, 3)))
+            )
             result.append(
                 Surface(
                     points,
@@ -212,9 +284,9 @@ def surfaces(cue, sensor, config):
                     features[near],
                     residual,
                     float(support.sum() / len(cloud)),
-                    edges=extent_edges(points, normal, mask, sensor, config["plane_tolerance_m"])
-                    if abs(normal[2]) < 0.3
-                    else {},
+                    edges=edges,
+                    edge_points=edge_points,
+                    extent_points=extent_points,
                 )
             )
             remaining = remaining[~support]
@@ -227,11 +299,26 @@ def similar_surface(a, b, config):
         return False
     if abs(b.points.mean(0) @ a.normal - a.offset) > config["association_distance_m"]:
         return False
-    if a.descriptor @ b.descriptor < config["descriptor_similarity"]:
-        return False
     aa, bb = a.bounds[:, 1:], np.quantile(b.points @ a.basis, [0.002, 0.998], axis=0)[:, 1:]
-    overlap = np.maximum(0, np.minimum(aa[1], bb[1]) - np.maximum(aa[0], bb[0]))
-    return bool(np.prod(overlap) > 0.1 * min(np.prod(aa[1] - aa[0]), np.prod(bb[1] - bb[0])))
+    lo, hi = np.maximum(aa[0], bb[0]), np.minimum(aa[1], bb[1])
+    overlap = np.maximum(0, hi - lo)
+    if np.prod(overlap) <= 0.1 * min(np.prod(aa[1] - aa[0]), np.prod(bb[1] - bb[0])):
+        return False
+    # Registered depth overlap can establish identity even when disjoint visual
+    # regions (window, plain lower face) have different averaged DINO descriptors.
+    local = b.points @ a.basis
+    common = ((local[:, 1:] >= lo) & (local[:, 1:] <= hi)).all(1)
+    if common.sum() < config["min_points"]:
+        return False
+    distance, index = cKDTree(a.points).query(b.points[common])
+    normal_distance = abs((a.points[index] - b.points[common]) @ a.normal)
+    return bool(
+        np.mean(
+            (distance <= config["association_distance_m"])
+            & (normal_distance <= 2 * config["plane_tolerance_m"])
+        )
+        >= 0.6
+    )
 
 
 def fuse_surface(a, b, config, view):
@@ -241,20 +328,40 @@ def fuse_surface(a, b, config, view):
         normal /= np.linalg.norm(normal)
     descriptor = a.descriptor + b.descriptor
     descriptor /= max(np.linalg.norm(descriptor), 1e-8)
+    anchors = np.r_[a.anchors, b.anchors]
+    features = np.r_[a.features, b.features]
+    if len(anchors) > 2048:
+        take = np.linspace(0, len(anchors) - 1, 2048, dtype=int)
+        anchors, features = anchors[take], features[take]
+    basis = normal_frame(normal)
+    edge_points = dict(a.edge_points)
+    for key, observed in b.edge_points.items():
+        axis = 1 if key.startswith("width") else 2
+        old = edge_points.get(key)
+        if (
+            old is None
+            or (np.median(observed @ basis[:, axis]) - np.median(old @ basis[:, axis]))
+            * (-1 if key.endswith("_0") else 1)
+            > 0
+        ):
+            edge_points[key] = observed
+    edges = {
+        key: float(np.median(value @ basis[:, 1 if key.startswith("width") else 2]))
+        for key, value in edge_points.items()
+    }
     return Surface(
         points,
         normal,
         float(np.median(points @ normal)),
         descriptor,
-        a.anchors,
-        a.features,
+        anchors,
+        features,
         max(a.residual_m, b.residual_m),
         min(a.support_fraction, b.support_fraction),
         a.views | {view},
-        {
-            key: (min if key.endswith("_0") else max)(a.edges.get(key, value), value)
-            for key, value in (a.edges | b.edges).items()
-        },
+        edges,
+        edge_points,
+        voxel_points(np.r_[a.extent_points, b.extent_points], config["voxel_m"]),
     )
 
 

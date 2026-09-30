@@ -90,13 +90,19 @@ positive normalized center/size box prompts and confidence 0.5. DINOv3 excludes
 CLS/register tokens and retains the letterbox-to-pixel mapping. Its descriptors
 propose identity and mutual matches; calibrated depth provides metric scale.
 
-The seven scan samples are fused causally in the existing calibrated world
+Observations across the seven-pose scan are fused causally in the calibrated world
 frame. RANSAC/SVD planes, measured silhouettes and visible side surfaces support
 geometry. Competing surfaces remain separate. Rank/descriptor/reprojection checks
 can reject panel/jamb/wall ambiguity; this heuristic is not a verified semantic
 part classifier. Width/height spans remain diagnostic until all four extent edges
 have interior-image metric evidence. Thickness requires an observed side face;
 an unverified parallel wall cannot supply it. No nominal dimensions are filled.
+Dense plane-compatible boundary support is retained before interior sampling and
+area-weighted quantiles. Certified edge lines remain separate from mere observed
+extent. Their world points survive fusion and are projected into the updated basis.
+Registered depth overlap can associate differently colored regions; proximity alone
+cannot merge an offset parallel frame. DINO descriptors are computed per face,
+and a bounded multiview anchor bank retains later-view features.
 
 Visible cylindrical hinge arcs can propose a floor-anchored axis. Mutual DINO
 matches and robust rigid RGB-D alignment can refine it through `(I-R)h=t`, rejecting
@@ -106,9 +112,16 @@ prototype approximates a vertical revolute door with predominantly planar faces.
 Contact uses the common fraction 0.295 and height 1.09 m on a locally measured
 surface, including its full normal. Neither teacher contact nor door coordinates
 enter inference. A hidden hinge keeps the scan invalid; no active probe is allowed.
+Patch centers are proposals, not exact physical correspondences. After the scan,
+`PixelMotionTracker` uses sparse subpixel RGB flow from OpenCV already supplied by
+the workstation. Forward/backward consistency, valid interpolated depth without
+discontinuities and rigid consensus verify fixed observed points. Loss clears pixel
+history. Current-depth support still validates each propagated surface. Recorded
+motion can diagnose/refine a hinge, but it does not authorize live motion from an
+unresolved scan.
 
-Initial semantic requests use the seven scan slots; subsequent requests target
-5 Hz. The worker permits one in-flight request and discards old generations after
+Semantic requests target 5 Hz from the first observation, including transitions
+between the seven held scan poses. The worker permits one in-flight request and discards old generations after
 reset/loss. Replay releases results at capture plus measured worker latency,
 including process transport. Live uses a background worker. Current RGB-D
 reprojection validates intermediate geometry; it cannot refresh a state by copying
