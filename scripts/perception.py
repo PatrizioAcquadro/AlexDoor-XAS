@@ -100,9 +100,23 @@ def main():
             provider = GeometryProvider(recipe, engine)
             reports = []
             for path in paths:
-                report = evaluate_episode(
-                    path, provider, args.output / path.parent.parent.name / path.parent.name
-                )
+                try:
+                    report = evaluate_episode(
+                        path, provider, args.output / path.parent.parent.name / path.parent.name
+                    )
+                except Exception as error:
+                    write_json(
+                        args.output / "failure.json",
+                        dict(
+                            path=str(path),
+                            completed_episodes=len(reports),
+                            error=f"{type(error).__name__}: {error}",
+                            complete=False,
+                            offline_passed=False,
+                            dynamic_status="not_run_incomplete_campaign",
+                        ),
+                    )
+                    raise
                 reports.append(report)
                 summary = campaign_summary(reports, args.output, len(paths))
                 print(

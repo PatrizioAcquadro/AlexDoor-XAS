@@ -215,6 +215,9 @@ class PurdueIO:
         env.step(torch.zeros((1, 6), device=env.device))
 
     def execute(self, command):
+        if before := getattr(self.safety, "before_command", None):
+            if reason := before(command.stage):
+                raise RuntimeError(reason)
         import torch
 
         env = self.env

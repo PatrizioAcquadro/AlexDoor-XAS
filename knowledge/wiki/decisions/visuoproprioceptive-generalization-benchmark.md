@@ -63,8 +63,8 @@ an explicitly ideal geometric approximation, not a reproduced stereo-error model
 
 Use the selected GroundingDINO + SAM 3 components with explicit RGB-D/multiview
 geometry, and DINOv3 when learned visual features are needed. The failed custom
-regressors and completed comparison baselines are retired; the replacement is not
-implemented or qualified. Keep one frozen perception stack across all eight cells.
+regressors and completed comparison baselines are retired; the replacement has a
+diagnostic prototype but remains unqualified. Keep one frozen perception stack across all eight cells.
 The common bounded scan addresses a measured fixed-view deficit; hardware mounting
 remains unvalidated. Future gaze may use observed inputs, never perfect simulator
 door state. See [[experiments/b1-perception-findings|the evidence and decision]].
@@ -81,6 +81,12 @@ No true door pose may enter through reset initialization, cached transforms,
 segmentation-derived validity masks, action adapters, or hidden completion logic.
 The expert reference angle and asset identity are evaluation metadata, not policy
 inputs. If perception loses the door, handle that observed failure explicitly.
+
+The September 2026 geometric prototype applies a stricter boundary: its controller
+and stop monitor also use observations only. Simulator truth is confined to a
+separate evaluator for errors and physical criteria. Geometry/proprioception cannot
+stand in for force or loaded-contact feedback. This prototype cannot qualify dynamic
+contact control if the necessary feedback is unavailable; the physical gates remain.
 
 ## Action Representations
 

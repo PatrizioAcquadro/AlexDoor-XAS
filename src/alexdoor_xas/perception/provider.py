@@ -160,6 +160,7 @@ class GeometryProvider:
 
     def reset(self):
         self.engine.reset()
+        self.last_estimate = None
         self.encoding = None
         self.last_time = None
         self.last_frame = None

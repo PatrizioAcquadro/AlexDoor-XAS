@@ -24,6 +24,7 @@ from alexdoor_xas.perception.geometry import (
     dimensions_supported,
     extent_edges,
     hinge_from_motion,
+    matched_motion,
     plane_fit,
     project,
 )
@@ -122,6 +123,38 @@ def test_clipped_extent_is_not_a_measured_dimension_and_ambiguous_identity_rejec
     assert provider.diagnostics["association_reason"] == "ambiguous_panel_jamb_wall"
     normal = np.array([1.0, 0.01, 0.1])
     np.testing.assert_allclose(contact_frame(normal)[:, 0], normal / np.linalg.norm(normal))
+
+
+def test_degenerate_consensus_motion_is_rejected_not_unpacked(monkeypatch):
+    import alexdoor_xas.perception.geometry as geometry
+
+    points = np.c_[np.ones(8), np.linspace(0, 0.01, 8), np.zeros(8)]
+    surface = Surface(
+        points, np.array([1.0, 0, 0]), 1.0, np.ones(8) / np.sqrt(8), points, np.eye(8), 0.001, 1.0
+    )
+
+    # A minimal proposal may succeed while the full consensus has degenerate covariance.
+    def solver(source, target):
+        return (np.eye(3), np.zeros(3), 0.0) if len(source) == 4 else None
+
+    monkeypatch.setattr(geometry, "rigid_fit", solver)
+    assert matched_motion(surface, surface) is None
+
+
+def test_reset_discards_public_estimate_and_unsafe_contact_never_reaches_io():
+    from types import SimpleNamespace
+
+    from alexdoor_xas.policies.purdue import PurdueIO
+
+    provider = GeometryProvider(recipe(), CueEngine(EmptyWorker(), replay=True))
+    provider.last_estimate = complete_state()
+    provider.reset()
+    assert provider.last_estimate is None and provider.encoding is None and provider.closed is None
+    io = PurdueIO.__new__(PurdueIO)
+    io.safety = SimpleNamespace(before_command=lambda stage: "force_feedback_unavailable")
+    # No environment exists: rejecting a command must happen before any simulator access.
+    with pytest.raises(RuntimeError, match="force_feedback_unavailable"):
+        io.execute(SimpleNamespace(stage="contact"))
 
 
 def test_complete_state_cannot_be_replaced_by_correct_composed_contact():

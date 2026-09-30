@@ -61,6 +61,9 @@ class ObservedPurdueSafety:
     def reset(self):
         self.checks.reset()
 
+    def before_command(self, stage):
+        return self.check(stage)
+
     def check(self, stage):
         from alexdoor_xas.recording.b1_runtime import array
 

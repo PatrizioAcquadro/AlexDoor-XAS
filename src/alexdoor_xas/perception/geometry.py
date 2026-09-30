@@ -339,7 +339,10 @@ def matched_motion(reference, current, tolerance=0.01):
             best = keep
     if best is None:
         return None
-    rotation, translation, residual = rigid_fit(source[best], target[best])
+    fitted = rigid_fit(source[best], target[best])
+    if fitted is None:
+        return None
+    rotation, translation, residual = fitted
     tree = cKDTree(current.points)
     points = reference.points[:: max(1, len(reference.points) // 2000)]
     for _ in range(3):

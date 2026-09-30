@@ -49,6 +49,16 @@ run unless all 25 train/development doors pass offline. No training, collection 
 sealed-test evaluation was started. Baseline source: `4df9a09`; current prototype
 sources and protocol identities are retained with the new runs.
 
+The first full-campaign attempt (`geometric-evaluation-01`, source `fe61935`) ended
+after eight complete episodes and a partial ninth (`modern-door-2fb8d024/light`).
+A degenerate rigid-fit consensus returned no solution; its caller incorrectly
+unpacked it. The common fix rejects that fit, preserving thresholds and gates.
+The interrupted attempt, complete reports and failure record remain intact. A
+fresh full campaign will replay all 50 episodes with the corrected source; the
+eight early results do not stand in for a complete common-source evaluation.
+Reset also clears the public estimate, and the prototype IO rejects unsafe contact
+commands before simulator access. These software guards do not validate dynamics.
+
 ## Custom-estimator sequence
 
 Run-01 (`522f1ba`, diagnosis `e160f1f`) stopped at epoch 28 after 24.7 minutes;
