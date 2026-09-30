@@ -427,6 +427,14 @@ def test_dense_edges_preserve_leaf_bottom_without_absorbing_fixed_frame(bottom_f
     np.testing.assert_allclose(fused.anchors[-4:], second.anchors)
     assert fused.bounds[0, 2] == pytest.approx(0.05, abs=0.004)
     assert dimensions_supported(fused, 0.01)
+    # The floor intersects the leaf plane in a thin line inside a leaked mask.
+    floor_rows = np.arange(296, h)
+    sample["depth_m"][296:, :, 0] = (100 / (floor_rows - 200))[:, None]
+    mask[296:] = True
+    _, _, dense = extent_edges(
+        points, np.array([1.0, 0, 0]), mask, sample, 0.004, return_support=True
+    )
+    assert dense[:, 2].min() >= 0.045
     # A clipped leaf containing an internal recess must not acquire a false bottom edge.
     sample["depth_m"][296:, 55:146] = 1.0
     sample["depth_m"][230:240, 60:140] = 1.02
@@ -502,6 +510,7 @@ def test_subpixel_correspondences_are_metric_and_loss_discards_pixel_history():
     )
     tracker = PixelMotionTracker()
     assert tracker.update(sample, surface) is None
+    tracker.pixels, tracker.source = tracker.pixels[:40], tracker.source[:40]
     sample["rgb"] = np.repeat(
         cv2.warpAffine(gray, np.array([[1, 0, 1], [0, 1, 0]], np.float32), (w, h))[:, :, None],
         3,
@@ -512,6 +521,8 @@ def test_subpixel_correspondences_are_metric_and_loss_discards_pixel_history():
     assert motion is not None
     np.testing.assert_allclose(motion[0], np.eye(3), atol=0.0005)
     np.testing.assert_allclose(motion[1], [0, 0.01, 0], atol=0.0005)
+    assert tracker.diagnostics["pixel_reseed"]
+    assert len(tracker.source) > 40
     sample["valid_depth"][:] = False
     assert tracker.update(sample, surface) is None
     assert tracker.gray is None and tracker.source is None

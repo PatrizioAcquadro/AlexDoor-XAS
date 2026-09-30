@@ -103,6 +103,8 @@ extent. Their world points survive fusion and are projected into the updated bas
 Registered depth overlap can associate differently colored regions; proximity alone
 cannot merge an offset parallel frame. DINO descriptors are computed per face,
 and a bounded multiview anchor bank retains later-view features.
+Thin intersections of floor/frame geometry with a fitted plane are removed before
+retaining dense support; being inside the segmentation mask is insufficient.
 
 Visible cylindrical hinge arcs can propose a floor-anchored axis. Mutual DINO
 matches and robust rigid RGB-D alignment can refine it through `(I-R)h=t`, rejecting
@@ -116,7 +118,10 @@ Patch centers are proposals, not exact physical correspondences. After the scan,
 `PixelMotionTracker` uses sparse subpixel RGB flow from OpenCV already supplied by
 the workstation. Forward/backward consistency, valid interpolated depth without
 discontinuities and rigid consensus verify fixed observed points. Loss clears pixel
-history. Current-depth support still validates each propagated surface. Recorded
+history. Points can be replenished only from a successfully verified current pose,
+mapping their observed depth back to the original reference and accumulating anchor
+uncertainty. Excess uncertainty rejects a complete state. Current-depth support
+still validates each propagated surface. Recorded
 motion can diagnose/refine a hinge, but it does not authorize live motion from an
 unresolved scan.
 

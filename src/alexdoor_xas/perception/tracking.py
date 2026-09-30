@@ -30,39 +30,48 @@ class PixelMotionTracker:
 
     def reset(self):
         self.gray = self.pixels = self.source = None
+        self.anchor_uncertainty = 0.0
         self.diagnostics = dict(pixel_motion="acquiring", tracked_pixels=0)
+
+    def _seed(self, sensor, gray, reference, motion=None):
+        import cv2
+
+        depth, valid = sensor["depth_m"].squeeze(-1), sensor["valid_depth"].squeeze(-1)
+        v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
+        points = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
+        local = points @ reference.basis
+        bounds = reference.bounds
+        keep = abs(points @ reference.normal - reference.offset) < 0.008
+        keep &= (
+            (local[:, 1:] > bounds[0, 1:] + 0.008) & (local[:, 1:] < bounds[1, 1:] - 0.008)
+        ).all(1)
+        mask = np.zeros(depth.shape, np.uint8)
+        mask[v[keep], u[keep]] = 255
+        pixels = cv2.goodFeaturesToTrack(gray, 300, 0.005, 8, mask=mask)
+        if pixels is None:
+            self.diagnostics.update(pixel_motion="unobserved_texture", tracked_pixels=0)
+            return False
+        pixels = pixels.reshape(-1, 2)
+        indices, source = sample_points(sensor, pixels)
+        if len(source) < 12:
+            self.diagnostics.update(
+                pixel_motion="insufficient_metric_features", tracked_pixels=len(source)
+            )
+            return False
+        self.gray, self.pixels, self.source = gray, pixels[indices], source
+        if motion is not None:
+            r, t, residual = motion
+            self.source = (self.source - t) @ r
+            self.anchor_uncertainty += residual
+        self.diagnostics.update(pixel_motion="acquiring", tracked_pixels=len(source))
+        return True
 
     def update(self, sensor, reference):
         import cv2
 
         gray = cv2.cvtColor(sensor["rgb"], cv2.COLOR_RGB2GRAY)
         if self.gray is None:
-            depth, valid = sensor["depth_m"].squeeze(-1), sensor["valid_depth"].squeeze(-1)
-            v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
-            points = deproject(
-                depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"]
-            )
-            local = points @ reference.basis
-            bounds = reference.bounds
-            keep = abs(points @ reference.normal - reference.offset) < 0.008
-            keep &= (
-                (local[:, 1:] > bounds[0, 1:] + 0.008) & (local[:, 1:] < bounds[1, 1:] - 0.008)
-            ).all(1)
-            mask = np.zeros(depth.shape, np.uint8)
-            mask[v[keep], u[keep]] = 255
-            pixels = cv2.goodFeaturesToTrack(gray, 300, 0.005, 8, mask=mask)
-            if pixels is None:
-                self.diagnostics.update(pixel_motion="unobserved_texture", tracked_pixels=0)
-                return None
-            pixels = pixels.reshape(-1, 2)
-            indices, source = sample_points(sensor, pixels)
-            if len(source) < 12:
-                self.diagnostics.update(
-                    pixel_motion="insufficient_metric_features", tracked_pixels=len(source)
-                )
-                return None
-            self.gray, self.pixels, self.source = gray, pixels[indices], source
-            self.diagnostics.update(pixel_motion="acquiring", tracked_pixels=len(source))
+            self._seed(sensor, gray, reference)
             return None
         following, status, _ = cv2.calcOpticalFlowPyrLK(
             self.gray, gray, self.pixels.astype(np.float32), None, winSize=(21, 21), maxLevel=3
@@ -109,7 +118,13 @@ class PixelMotionTracker:
             tracked_pixels=int(best.sum()),
             pixel_motion_residual_m=fitted[2],
         )
-        return fitted
+        if best.sum() < 60:
+            previous = self.gray, self.pixels, self.source, self.anchor_uncertainty
+            if not self._seed(sensor, gray, moved_surface(reference, fitted), fitted):
+                self.gray, self.pixels, self.source, self.anchor_uncertainty = previous
+            self.diagnostics.update(pixel_reseed=True, tracked_pixels=len(self.source))
+        self.diagnostics["anchor_uncertainty_m"] = self.anchor_uncertainty
+        return fitted[0], fitted[1], fitted[2] + self.anchor_uncertainty
 
 
 def moved_surface(reference, motion):

@@ -370,6 +370,11 @@ class GeometryProvider:
             failures.append("incomplete_scan")
         if current.support_fraction < 0.5 or current.residual_m > cfg["plane_tolerance_m"]:
             failures.append("unreliable_surface_support")
+        if (
+            self.pixel_tracker.diagnostics.get("anchor_uncertainty_m", 0)
+            > cfg["position_uncertainty_m"]
+        ):
+            failures.append("unreliable_motion_tracking")
         orientation_uncertainty = np.arctan2(current.residual_m, min(width, height))
         if orientation_uncertainty > np.deg2rad(cfg["rotation_uncertainty_deg"]):
             failures.append("unreliable_panel_orientation")
@@ -473,6 +478,11 @@ class GeometryProvider:
                 )
                 if hinge is not None:
                     self.hinge, self.hinge_uncertainty = hinge
+            self.diagnostics["hinge_motion_fits"] = sum(
+                abs(np.arctan2(r[1, 0], r[0, 0])) >= np.deg2rad(self.config["motion_min_angle_deg"])
+                and np.linalg.norm(r[:, 2] - [0, 0, 1]) <= 0.05
+                for r, _, _ in self.motions
+            )
         tracked = track_surface(self.panel, sensor, self.config) if self.panel is not None else None
         if tracked is None:
             if self.stable_frames > 0 and self.lost_since is None:

@@ -105,6 +105,12 @@ Control-local requirements and the unchanged complete-state contract are separat
 in [[topics/shared-door-perception|Shared Door Perception]]. Human part review is
 resolved for the displayed pilot regions. Extended evaluation remains stopped;
 only verification of the shared corrections on the two pilots is authorized next.
+`geometric-pilot-04` retains the first corrected replay attempt at `cae5afa`.
+It exposed thin floor intersections leaking into dense bounds and attrition of
+tracked points before useful rotation. Common guards now remove thin support and
+replenish points from a verified pose with accumulated uncertainty. A fresh pilot
+attempt will verify those changes; neither correction silently accepts complete
+dimensions or a hidden hinge, and no extended restart is authorized.
 
 ## Custom-estimator sequence
 

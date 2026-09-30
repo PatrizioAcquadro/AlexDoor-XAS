@@ -114,7 +114,7 @@ def extent_edges(
     The SAM mask can include a frame: plane membership and a measured depth
     discontinuity establish the silhouette. Image clipping never establishes an edge.
     """
-    from scipy.ndimage import binary_erosion
+    from scipy.ndimage import binary_erosion, binary_opening
 
     basis = normal_frame(normal)
     depth = np.asarray(sensor["depth_m"]).squeeze(-1)
@@ -128,6 +128,9 @@ def extent_edges(
     on_plane = abs(cloud @ normal - offset) <= tolerance
     support = np.zeros((h, w), bool)
     support[v[on_plane], u[on_plane]] = True
+    # A floor/frame can intersect the fitted plane in a thin line. It is not
+    # two-dimensional leaf support, even when its pixels fall inside a SAM mask.
+    support = binary_opening(support, iterations=2)
     boundary = support & ~binary_erosion(support)
     v, u = np.nonzero(boundary)
     cloud = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
