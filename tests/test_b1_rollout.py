@@ -194,6 +194,7 @@ def test_purdue_dispatch_reconstructs_absolute_teacher_goal_without_losing_rotat
 
     called = []
     io = object.__new__(PurdueIO)
+    io.safety = SimpleNamespace()
     io.env = SimpleNamespace(
         device="cpu",  # numerical command-routing fixture, not a simulator
         command_pose=lambda p, q: called.append((p, q)),
