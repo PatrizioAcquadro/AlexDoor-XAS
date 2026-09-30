@@ -333,365 +333,28 @@ The paused campaign exposed correctable integration/preparation defects:
   lead over 3 s, and provides bounded normal support if load declines. A complete
   valid 0.5 s final hold and safe release remain separate mandatory conditions.
 
-### Recovery of the Full Prepared Pool
+### Qualification history and final boundary
 
-The first full campaign is retained in Git at `cf73eb0` and in each record's
-previous evidence chain: 15 qualified, 15 out of domain and two unresolved.
-The seven initial pedestal exclusions were real frame intersections, including
-independent visual-surface checks for the two large left doors. The common
-placement moves robot/pedestal 5.7 cm back and 8 cm laterally from the first full
-campaign. Contact moves from 0.40 to 0.295 of width and from 1.00 to 1.09 m height
-for every door. This clears the composed pedestal geometry and prescribed finger
-footprint of all 32 assets while providing a compromise between left/right arm
-reach and wrist/body clearance. Zero yaw, ready/parked joints, head, gains,
-nominal speed, collision geometry and admission/validity thresholds are retained.
-Local multistart IK and footprint screening support the candidate; they do not
-replace dynamic qualification or prove global reachability.
+The initial campaign (`cf73eb0`) reported 15 qualified, 15 out of domain and two
+unresolved. The authorized common recovery corrected placement, coasting contact,
+tracking bias, support, final hold and release without weakening the 45-degree
+admission gate. Earlier exclusions and individual recovery diagnostics remain
+historical, never interchangeable with the final paired references.
 
-The recovery corrects shared control defects: a push reference that could
-lag behind a coasting panel; persistent tangential servo bias before contact;
-and a final hold that could end after its first valid window instead of completing
-the configured 3 s transition. Holding reach is checked periodically even when
-present tracking is accurate, reserving space for inertial motion. The final
-0.5 s of the complete transition must be valid. Actual errors always refer to the
-prescribed material point, never the compensated command. See
-[[phase-4-robot-and-task-configuration|Phase 4]] for the controller.
+Bounded rendered-surface ray batches fixed excessive visibility memory allocation
+(`243c2ef`) without changing criteria. Same-process reset retained contact history
+on void-frame: fresh Isaac processes (`efe1325`) isolated both physics and rendered
+state. Its final reference is 66.92 degrees, with zero paired spread. Worn's old
+17.92-degree exclusion was superseded by a complete 67.42-degree reference after
+the shared angular guard correction. Interrupted industrial-004 execution (code
+143) remains incomplete evidence; the separate fresh pair at `76658aa` closes it.
+All 32 final pairs are qualified under the common protocol, before split freeze.
 
-A further PSX front-005 diagnostic found a constant 3.55 mm normal offset on
-sloped relief. Treating every collected surface as a flat slab incorrectly used
-that geometric offset as tracking drift. The shared adapter now derives the
-contact orientation from the actual convex surface at the prescribed point;
-fraction, height and position remain fixed. The support-footprint preflight
-uses the same orientation and checks protrusions along its actual approach axis.
-No surface or threshold is modified. Single-cycle diagnostics verified this
-correction; complete pairs must use the current common configuration.
-
-The front-001 leaf metadata also omitted its existing glazing component 3.
-Including it with component 10 preserves USD bytes, leaf bounds, inertia and the
-prescribed point. Its subsequent full pair exposed a different problem: the low
-contact required wrist/body interpenetration in all 18 locally solved precontact
-configurations examined against the actual URDF collision meshes. Rerouting the
-approach alone did not resolve it. A higher common contact and lateral placement
-clear this collision in the diagnostic run. The right frame-door constrains the
-remaining reach; its latest diagnostic sustains 45.09 degrees with all 3 s of
-holding valid, no forbidden contacts and safe release. The completed recovery
-pairs below use this common compromise; local IK screens are not proof of global
-infeasibility. Missing initial fingertip support now raises a diagnostic
-error before motion instead of running known-invalid cycles. A diagnostic void-frame
-cycle recovered controlled contact, but the latest pair stops below admission and
-led to the further diagnosis below.
-
-Complete pairs with the revised setup recovered front-001, industrial-001,
-the right frame-door and the largest left door. Front-005 then exposed a release
-path defect: rotating while retreating scraped a finger side against its retained
-wood relief after valid pushing/holding. Both cycles reproduced the forbidden
-contact. Release now withdraws along the measured finger axis before rotating
-toward the previously achieved pose, within the same 3 s budget. A follow-up isolated a velocity-limiting defect: clipping each pose-control
-joint step separately could create lateral hand drift from nullspace centering.
-Pose control now scales the bounded target step uniformly; numerical regression
-reproduces the old defect and verifies the correction. Contact rules, geometry
-and the admission threshold are unchanged. The corrected release is
-verified by a complete GPU diagnostic at 59.71 degrees, with all 180 holding
-ticks valid, no forbidden contact and safe release. Opening/holding reproduce
-the failed case exactly; only release changes. Uniform scaling preserves the commanded
-joint-step direction; it does not guarantee a straight measured hand path or
-smaller transient error during free release. The release endpoint, separation and
-contact conditions are independently checked.
-
-Six complete pairs finished before the user switched recovery to single-cycle
-diagnostics. Their traces, contacts and representative hold/release images were
-audited without another simulation:
-
-| Recovered door | Sustained expert angle (degrees) |
-|---|---:|
-| `psx-front-005-ee7d5c6` | 59.71 |
-| `door-with-frame-2f2f149f` | 45.09 |
-| `psx-industrial-001-4f5561b` | 46.99 |
-| `door-2738468b94d74c5f` | 57.84 |
-| `psx-front-001-ee7d5c6` | 60.64 |
-| `door-prison-metal-old-45306a46` | 47.00 |
-
-These pairs used `a46ed1a`; evidence paths remain in their prepared records.
-Void-frame's subsequent pair remained below admission at 32.45 degrees,
-triggered by the tracking guard. The user then limited recovery to **single-cycle
-representatives of distinct failures**, preceded by static checks. No complete
-campaign followed that small correction. The six recovered doors and 15
-baseline-qualified doors were not rerun during the fix campaign. Formal pairs
-under the final shared code were deferred at that stage; a single diagnostic
-never creates an expert reference or overwrites a published outcome.
-
-The void-frame diagnosis separated two common defects. The old guard stopped on
-a stable 2.53 mm material-point bias although the future pose was locally
-reachable and the validity budget remained 10 mm. The revised guard reserves
-2.5 mm before that budget and anticipates sustained growing error, rather than
-stopping on a small stable offset. A further run exposed brief loss of normal
-load: push now uses the same bounded support as hold before declaring a declining
-load stop. The 0.25 s detachment failure, 10 mm/5 degree validity, force limits and
-complete final holding/release conditions remain unchanged. See Phase 4 for the
-exact common controller; no door-specific settings were introduced. The corrected
-void-frame single cycle sustains **66.92 degrees**, completes holding, has no
-actual forbidden contacts and releases with 22.2 mm normal separation. Its
-unpublished diagnostic is
-`~/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260925T202136.654999Z/`.
-The old 32.45-degree paired record is deliberately retained until a separately
-authorized formal rerun.
-
-`door-with-doorframe-c29da62c` subsequently completes a single cycle at **54.73
-degrees**, and `door-5035d7977155` at **56.70 degrees**, with valid final hold and
-release. These are unpublished diagnostics, not new expert references. The first
-checks another low-load stop; the second represents the former pedestal
-intersections. Reports are under their expert-cache directories at
-`20260925T202545.111364Z` and `20260925T202912.129189Z`, respectively.
-
-The current static screen clears pedestal/contact geometry on all 32 doors.
-The three remaining industrial doors also have local IK solutions at 45–47
-degrees; this is not dynamic validation. Only industrial-002 is selected for a
-further dynamic diagnostic, which completes at **47.20 degrees** with valid hold
-and release (`expert/psx-industrial-002-4f5561b/20260925T203313.100427Z/`).
-Industrial-003/004 and front-002, front-20d5505,
-wooden-001, wooden-009 and worn-20d5505 were deferred to systematic requalification
-at that recovery stage. Routine successes use the saved
-cycle diagnostics; detailed image/raw-contact audits target failures and the
-representative evidence needed to validate a correction. Display angles to two
-decimals; admission still uses unrounded measurements and the report status.
-
-Earlier pairs are retained in each record's evidence chain; no repetitions are
-mixed across runs. Diagnostics and independent audits remain under
-`~/.cache/alexdoor-xas/verification/corpus-recovery-20260925/`.
-
-### Formal Requalification Started 2026-09-25
-
-All 32 doors have published paired results under the current fresh-process
-runner on `cuda:0`. Reports are under
-`~/.cache/alexdoor-xas/verification/expert/<id>/<timestamp>/report.json`;
-each `prepared.json` points to its published report. The first seven invocations
-were committed at `cdd3204`; all seven now have newer published references. The lower
-sustained angle is the published reference; the table rounds only for display.
-
-| Door | Hand | Published status | `theta_expert_d` | Report timestamp |
-|---|---|---|---:|---|
-| `psx-industrial-003-4f5561b` | left | `qualified` | 48.03° | `20260928T211606.862614Z` |
-| `psx-industrial-004-4f5561b` | left | `qualified` | 47.92° | `20260928T220330.435086Z` |
-| `psx-front-002-ee7d5c6` | left | `qualified` | 59.10° | `20260928T210017.321466Z` |
-| `psx-front-20d5505` | left | `qualified` | 64.89° | `20260928T210838.551205Z` |
-| `psx-wooden-001-20d5505` | left | `qualified` | 63.84° | `20260928T212805.876123Z` |
-| `psx-wooden-009-20d5505` | left | `qualified` | 65.39° | `20260928T213612.989613Z` |
-| `psx-worn-20d5505` | left | `qualified` | 67.42° | `20260928T214349.631152Z` |
-| `void-frame-studio-animated-classic-door-08bdf51b` | left | `qualified` | 66.92° | `20260928T173830.453850Z` |
-| `door-with-doorframe-c29da62c` | left | `qualified` | 54.73° | `20260928T175236.896147Z` |
-| `door-5035d7977155` | left | `qualified` | 56.70° | `20260928T175916.343847Z` |
-| `psx-industrial-002-4f5561b` | left | `qualified` | 47.20° | `20260928T180557.417781Z` |
-| `animated-door-1-88abf40` | right | `qualified` | 61.39° | `20260928T181142.560713Z` |
-| `animated-door-2-88abf40` | right | `qualified` | 61.48° | `20260928T181637.948391Z` |
-| `animated-door-3-88abf40` | right | `qualified` | 61.78° | `20260928T182144.459603Z` |
-| `door-2738468b94d74c5f` | left | `qualified` | 57.84° | `20260928T182721.985793Z` |
-| `door-adf292f437f2` | left | `qualified` | 58.88° | `20260928T183349.176113Z` |
-| `door-door-metal-b21ec273` | right | `qualified` | 59.80° | `20260928T184039.310056Z` |
-| `door-prison-metal-old-45306a46` | left | `qualified` | 47.00° | `20260928T184604.720361Z` |
-| `door-with-frame-2f2f149f` | right | `qualified` | 45.09° | `20260928T185323.405174Z` |
-| `interior-wood-d1-32707dc` | left | `qualified` | 54.30° | `20260928T185804.702758Z` |
-| `modern-door-2fb8d024` | right | `qualified` | 54.41° | `20260928T190404.772206Z` |
-| `psx-bathroom-20d5505` | left | `qualified` | 62.66° | `20260928T190858.524911Z` |
-| `psx-front-001-ee7d5c6` | left | `qualified` | 60.64° | `20260928T191639.445074Z` |
-| `psx-front-005-ee7d5c6` | right | `qualified` | 59.71° | `20260928T192411.520178Z` |
-| `psx-front-008-ee7d5c6` | left | `qualified` | 60.45° | `20260928T193000.882108Z` |
-| `psx-industrial-001-4f5561b` | left | `qualified` | 46.99° | `20260928T193623.002470Z` |
-| `psx-interior-wood-002-02e442c` | left | `qualified` | 62.68° | `20260928T194222.735949Z` |
-| `psx-interior-wood-003-02e442c` | left | `qualified` | 62.62° | `20260928T194935.898468Z` |
-| `psx-interior-wood-005-02e442c` | left | `qualified` | 62.11° | `20260928T195646.540133Z` |
-| `psx-interior-wood-006-02e442c` | left | `qualified` | 62.71° | `20260928T200430.841160Z` |
-| `psx-interior-wood-007-02e442c` | left | `qualified` | 62.81° | `20260928T201145.437578Z` |
-| `psx-interior-wood-008-02e442c` | left | `qualified` | 62.46° | `20260928T201907.191003Z` |
-
-All 32 current-process reports agree with their published records. Each has two
-valid holds and releases, consistent limiting causes and at most 0.10°
-sustained-angle spread. All 32 published references meet the unrounded 45°
-gate. Geometric visibility
-separately warns on `door-adf292f437f2` (556 of
-3,949 frames per cycle) and `door-door-metal-b21ec273` (all 3,453 frames per
-cycle), and on `psx-front-008-ee7d5c6` (844 of 3,895 frames per cycle).
-The offline review below distinguishes occlusion from sampling limitations;
-these warnings do not invalidate expert qualification. The older
-industrial-004 pair also had a visibility warning; fresh closed pairs for
-industrial-004, `psx-front-20d5505` and `psx-wooden-009-20d5505` pass the revised diagnostic
-across both trajectories.
-
-The 2026-09-28 targeted recheck invoked the seven older doors once each, with
-`--rerun`, one formal pair per invocation and a fresh Isaac process for each
-trial. Six pairs qualified with zero angle spread, two valid holds/releases and
-no geometric RGB-D warning; their reports link the previous evidence. The
-other 25 published `prepared.json` files are byte-for-byte unchanged.
-`psx-industrial-004-4f5561b` received a `SIGTERM` during serialization of the
-second trial's images. Both physical cycles wrote passing results, full traces
-and contact records at 47.91933338652925 degrees, but the second cycle saved
-only 100 RGB and 99 depth images versus 104 of each in the first. Its new report
-at `20260928T212125.630905Z` remains `unresolved / incomplete_execution` with
-one trial summarized; it was not published.
-The subsequent investigation confirmed byte-identical physical traces: 3,139
-states per cycle, including 180 hold and 180 release states. The enclosing
-multi-door shell command exited with code 143 after 1,079.8 seconds. This is
-consistent with an external execution-duration limit; the signal sender is not
-identified. The incomplete report correctly withheld publication and does not
-show an asset or controller defect. The user authorized a new formal pair for
-this door alone. Run each door as its own monitored command so that preceding
-doors do not consume a shared shell execution budget; keep the controller,
-setup, thresholds and fresh-process trial isolation unchanged. Preserve the
-interrupted attempt rather than reconstructing its missing images or combining
-trials across invocations.
-
-The dedicated invocation completed and published `qualified` at
-`20260928T220330.435086Z`: both cycles sustained 47.91933338652925 degrees,
-with valid holds/releases, zero spread, no forbidden contacts and passing
-geometric visibility across all 3,139 states per trial. Both complete physical
-traces match the interrupted attempt. Each cycle has 104 readable RGB/depth
-pairs and all corresponding camera poses, including the final release frames.
-The other 31 prepared records are unchanged. No geometry, controller or
-qualification-threshold change was needed.
-
-Worn's superseded pair consistently stopped under the gate with
-`safety_stop / tracking_margin`.
-At the push stop, orientation error was 0.04510 rad against the controller's
-0.04363 rad preventive guard; the material-point error was 0.00515 m against
-its 0.00750 m reserve. Contact stayed loaded and valid, local hold-endpoint IK
-error was negligible, and no actual forbidden contact was recorded. The final
-hold sustained 17.92° and released safely in both cycles. Preparation reports a
-121.2° mechanical limit. This is a nominal controller/setup-domain exclusion,
-not proof that the asset is defective or that 45° is physically unreachable.
-The targeted follow-up identified a premature controller stop: the angular error
-grew only about 0.026 degrees/s near that guard. The common guard now forecasts
-sustained material-orientation error over the hold duration, preserving the
-5-degree validity limit and the local hold-reach check. One diagnostic RTX 4090
-diagnostic, `psx-worn-20d5505/20260926T012738.474735Z`, sustained **67.42 degrees**
-with all 180 hold samples valid, safe release and no actual forbidden contacts.
-The final stop came from the local hold-endpoint position reserve, not the old
-half-budget angular comparison. The 17.92-degree pair remains intact as historical
-evidence. The subsequent formal pair,
-`psx-worn-20d5505/20260926T060507.800125Z`, repeated 67.42 degrees in both cycles,
-completed valid holds and releases, passed the corrected RGB-D check on all 4,445
-sampled frames per cycle and published `qualified` with zero repeat spread.
-
-The previous sampled geometric RGB-D diagnostic failed for both cycles of
-`psx-industrial-004-4f5561b`, `psx-front-20d5505` and
-`psx-wooden-009-20d5505`. Targeted diagnosis found two sampling defects: convex
-collision points can sit ahead of recessed visible surfaces, and sparse frame
-facet centroids miss the visible height band. The diagnostic now intersects the
-actual rendered triangles for the same 25 panel and eight contact-surround
-locations, and samples the visual frame at seven heights around contact, capped
-at 40 points. The existing depth tolerance, occlusion check and minimum counts
-(6 panel, 2 surround, 2 frame) are unchanged. Physical contacts, assets, camera
-pose and common setup are unchanged.
-
-Three RTX 4090 pose snapshots per affected door all passed the corrected check.
-The front and wooden hold/release snapshots reproduce failures with the old
-proxy on the same RGB-D, while seven surround points pass with the corrected
-surface. Evidence, overlays and the snapshot script are under
-`~/.cache/alexdoor-xas/verification/visibility-targeted/20260926-fix/`.
-These nine snapshots establish the targeted fix, not visibility over every frame
-of a new trajectory. The corrected worn pair subsequently exercised the revised
-diagnostic across its complete trajectories. At that point, the remaining 25 doors had no
-complete new pair under the revised controller. No corpus split or learning data
-was created.
-
-Repeated `void-frame` starts were interrupted by memory exhaustion. The last
-interrupted report, `expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T164437.649868Z/report.json`
-under the verification cache, records `unresolved / incomplete_execution` with zero
-trials; that interruption did not change the historical published record. The user journal records
-an OOM kill in the desktop app scope at 2026-09-28 12:45:27 EDT. The user service
-cgroup has a 59.70 GiB peak since boot and one OOM kill; its current memory limits
-are unlimited. Kernel OOM victim details are not readable by the current account.
-
-A read-only reproduction on the saved scene identifies the oversized allocation
-in `front_mesh_points`, introduced by `51742ca`: 6,965 lateral frame coordinates
-at seven heights produce 48,755 rays against 73,735 nondegenerate triangles.
-The first broadcast array alone requires 53.57 GiB; each following scalar matrix
-requires another 26.78 GiB. The 40-point selection happens only after this work.
-A child process with a restricted address space reproduced the exact allocation
-error at 227.33 MiB peak RSS, without Kit or qualification cycles. The four doors
-used for the corrected visibility checks have much simpler frames; their
-corresponding arrays require less than 0.1 MiB. Evidence and the safe reproducer
-are in `~/.cache/alexdoor-xas/verification/memory-diagnosis/20260928-void-frame/`.
-
-The authorized correction batches rays by triangle count, with at most one
-million ray/triangle pairs per batch under the prepared-mesh limit. All candidates,
-tolerances, nearest hits, ordering and final point selection are preserved.
-Capping candidates before intersection would change the sample selection; a new
-spatial index adds unnecessary tolerance and maintenance risk for this cached
-calculation. The full saved-scene sample calculation completed in 54.76 seconds
-including reference comparisons, with 264.64 MiB process peak RSS. All 360 checked
-intersections exactly match the prior implementation, including every selected
-frame point; group sizes remain 25/8/40 and the cache is reused. A subprocess
-regression also checks hits, misses, edges and nearest surfaces with only 128 MiB
-additional virtual memory available. `validation.json` and the validation script
-are beside the diagnosis evidence.
-
-Those checks preceded a fresh complete formal pair on `cuda:0`. That
-`void-frame` report was `unresolved / inconsistent_or_unresolved_pair`, matching
-its then-published summary. Both cycles passed valid hold and release, with
-`safety_stop / tracking_margin`, but sustained angles were 66.92° and 34.23°:
-the unrounded 32.690094745097674° spread exceeds the 2° limit. That pair has no
-`theta_expert_d`. Geometric visibility passed all 4,081 and 1,684 checked frames.
-
-The first push stopped at 65.63° when predicted hold-endpoint position error
-reached 4.21 mm against the 2.50 mm reserve, while measured material error was
-0.78 mm. The second stopped at 30.97° with predicted material error 8.17 mm
-against the 7.50 mm position margin, while measured error was 3.98 mm. Both
-stops occurred with valid loaded contact; targeted contact records show no
-forbidden contact. The second push began faster and with a larger contact impulse
-than the first. This pair did not establish an asset defect. Its evidence remains
-under `~/.cache/alexdoor-xas/verification/expert/void-frame-studio-animated-classic-door-08bdf51b/20260928T170246.207228Z/`.
-The campaign stopped with 24 doors still awaiting fresh pairs.
-
-A targeted reset diagnosis reproduced the divergence after one complete cycle.
-The first 531 recorded physical states match exactly. At 8.85 s, the same contact
-geometry produces 0.717 N in the first cycle and 36.844 N after the reused-scene
-reset. Instrumented robot/door joint positions, velocities, root poses, command
-targets and gravity compensation agree before this impulse; joint states diverge
-on the next sample. Two shortened 10 s cycles instead match exactly. This
-isolates a dependence on the preceding simulation history, not a different
-commanded initial pose. The specific internal PhysX cache responsible is not
-identified. NVIDIA documents persistent internal contact state as a
-[simulation-resume limitation](https://docs.omniverse.nvidia.com/kit/docs/omni_physics/107.3/dev_guide/guides/current_limitations.html).
-
-A scene-only reconstruction produced two identical physical trajectories at
-66.92 degrees (`20260928T172510.288301Z`), but image inspection exposed displaced
-robot visual geometry in the second scene. That intermediate pair remains in
-the evidence chain; its RGB-D must not be treated as a clean rendering reference.
-
-The qualification runner now restarts the Isaac process before the second cycle,
-isolating physics and rendering state together. Both cycles stay in one evidence
-directory and only the completed pair publishes. Internal continuation requires
-the same saved input records/setup, exactly one matching completed trial and no
-existing second attempt; it cannot retry an interrupted second cycle. The controller,
-geometry, material properties, prescribed pose and all acceptance thresholds
-remain unchanged. This isolates nominal reference trials; it does not establish
-history-independent resets for a reused training environment. Diagnostic scripts,
-state arrays and original-trace comparisons are preserved under
-`~/.cache/alexdoor-xas/verification/reset-diagnosis/20260928-void-frame/`.
-
-The final fresh-process pair (`20260928T173830.453850Z`) is **qualified at
-66.91685227985398 degrees**, with zero spread. Both 4,081-step physical traces
-match each other and the original first cycle exactly. Every one of the 180 hold
-samples is valid in each trial, releases pass, and no forbidden contact is
-recorded. Geometric visibility passes all frames; representative hold/release
-images show coherent robot geometry after process isolation. The report and
-published record agree, with preparation fields unchanged. The seven other newer
-references predate process isolation and were not rerun in this targeted repair.
-At that point, 24 pairs remained pending; those later completed as reported above.
-Corpus selection and learning work remain separate.
-
-The 15 previously deferred rechecks were the three `animated-door-*`,
-`modern-door-2fb8d024`,
-`door-door-metal-b21ec273`, `door-adf292f437f2`, `interior-wood-d1-32707dc`,
-`psx-bathroom-20d5505`, `psx-front-008-ee7d5c6`, and the six
-`psx-interior-wood-*` identities (002, 003, 005, 006, 007, 008). All 15 have now
-qualified with `--rerun` and fresh-process pairs; their historical evidence is
-preserved. The earlier `qualified` status alone did not certify the revised setup.
-
-The pool contains 25 left and seven right identities. The 2026-09-28 user-approved
-corpus revision retains all eligible qualified doors and removes the former
-24-door selection and mandatory 12/12 balance. Additional right identities are
-conditional on a documented split/coverage gap, not an automatic five-door intake.
-Modern-door remains `local_only`.
+The pool contains 25 left and seven right identities. The approved corpus revision
+retains all eligible doors, replacing the former 24-door/12-per-hand proposal.
+Additional intake requires a specific coverage gap. Per-door angles, evidence runs,
+geometry and scope remain in the records and frozen corpus; original trials and
+attempts in the verification cache were not deleted by cleanup.
 
 #### Frozen corpus and identity split
 
@@ -764,50 +427,22 @@ qualification evidence out of learning/tuning, and generate matched training
 episodes only from the assigned training identities. No demonstrations or
 learned-perception claims are produced by Phase 5 closeout.
 
-#### Offline review of the three new visibility warnings
+### Visibility diagnostic limits
 
-At `cd71bca`, both complete traces of `door-adf292f437f2`,
-`door-door-metal-b21ec273` and `psx-front-008-ee7d5c6` were reviewed without
-new simulation. Reprojection against saved geometry, camera poses and depth
-reproduced all three original visibility counts on all **750 saved frames**
-across the six cycles. Complete traces contain 22,594 rows; depth is saved only
-every 30th frame. Reports, scripts and representative RGB overlays are in
+Offline replay at `cd71bca` reproduced the original counts on all 750 saved RGB-D
+frames of six complete cycles (22,594 trace rows). Reports and overlays remain in
 `~/.cache/alexdoor-xas/verification/visibility-targeted/20260928-offline-review/`.
+Frame visibility fails transiently on `door-adf292f437f2` because the 40-point cap
+underrepresents a visible strip, and throughout the metal-door pair because sampled
+frame surfaces are initially occluded/out of view. On `psx-front-008-ee7d5c6`, panel
+warnings begin around 51.4 degrees; raised members self-occlude fixed surface samples.
+Contact-surround checks pass. Alternative surfaces may still be visible in RGB.
 
-- `door-adf292f437f2`: only the frame group fails, during approach/contact and
-  the first 18 push frames, ending near 0.93 degrees. At saved tick 300,
-  the panel hides 26 frame samples, 13 are outside the image and one is visible.
-  Before the 40-point cap, the existing candidate pool contains 10 visible
-  points out of 147: the cap underrepresents a visible strip. At tick 600
-  (1.89 degrees), the original diagnostic already sees 20 frame points.
-- `door-door-metal-b21ec273`: only the frame group fails, throughout both
-  cycles. At tick 300, the panel hides 23 frame samples and 17 are outside
-  the image; even all 56 uncapped candidates yield no visible frame points.
-  At tick 3300 the original subset sees one point, versus two without the cap.
-  The initial view lacks visibility of these sampled frame surfaces;
-  this does not establish invisibility of the entire frame.
-- `psx-front-008-ee7d5c6`: only the panel group fails, starting near 51.4
-  degrees, across 484 push, 180 hold and 180 release frames per cycle. At tick
-  3720, 22 of 25 panel samples are behind nearer surfaces; camera-ray tests
-  attribute 20 of those occlusions to the panel's own mesh within the existing
-  2 cm tolerance. Raised members hide fixed front-surface samples in the oblique
-  view, while alternative surfaces remain visible in RGB.
-
-Contact-surround checks pass throughout all six traces. Keep assets, physical
-setup, thresholds and published qualifications unchanged. The sample cap and
-fixed-surface sampling limit this diagnostic; changing it solely to remove
-warnings would not improve camera observations. Phase 6 must assess observed-only
-estimator accuracy and usability on permitted training/development data before
-justifying shared perception or gaze changes. These qualification traces are not
-learned training data, and this review does not establish perception readiness.
-
-RGB-D capture is operational and the earlier diagnosed sampling defects are corrected.
-All seven rechecked pairs passed full-trajectory checks of the revised
-diagnostic, including the completed industrial-004 pair. Visibility is
-not an expert-admission gate and does not establish learned-perception readiness.
-No synthetic sweep was repeated; historical synthetic results belong to the earlier
-45-degree setup. Runtime qualification remains nominal simulated evidence, not
-hardware safety, statistical robustness or a global optimum.
+These warnings do not justify geometry changes or invalidate expert admission.
+All seven targeted rechecks, including completed industrial-004, passed the revised
+full-trajectory diagnostic. Qualification traces cannot become learning/tuning data;
+observed perception usability remains a separate Phase 6 gate. The older synthetic
+results describe the 45-degree setup and are not requalification of the current pose.
 
 #### Implementation
 

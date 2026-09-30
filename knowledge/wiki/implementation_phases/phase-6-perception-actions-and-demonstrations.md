@@ -14,68 +14,15 @@ interface, then produce matched training demonstrations. Follow
 
 #### Current preparation boundary
 
-The following initial campaign results are historical; the refreshed run-03
-state and comparison are described below.
-
-The implementation adds causal B1 recording and a frozen DINOv2 ViT-S/14
-backbone with a trainable door estimator. The two nominal train smoke traces
-and results are identical with and without recording. The engineering campaign
-contains 50 validated episodes: 38 train and 12 development, with nominal and
-light conditions for each of the 25 identities. Feature preparation produced
-50 complete caches and 31,654 sampled frames. A full-corpus CUDA forward/loss
-check passed on the RTX 4090 with frozen backbone and unchanged estimator
-weights. The subsequent first training run stopped for stagnation after 28 epochs;
-its best checkpoint fails the six development doors. See the
-[[experiments/b1-perception-run-01|run-01 diagnosis]] for measured errors and the
-initial diagnosis. The corrected tolerance-scaled loss, detached confidence
-gradients and bounded two-door train-only fitting command are implemented. The
-[[experiments/b1-perception-fit-check-01|two-door check]] passes contact gates on
-train after 30 epochs, but hinge/local/articulation outputs remain incorrect.
-The subsequent `articulated-state-v3` correction supervises and validates all
-components, uses stable angular loss/initialization and changes confidence to
-complete-state usability. The
-[[experiments/b1-perception-fit-check-02|new two-door validation]] passes at epoch
-17 with millimetric hinge-origin errors and all state/contact checks satisfied.
-The subsequent [[experiments/b1-perception-run-02|full-corpus run-02]] stops
-normally after 15 epochs/13.60 minutes. At its last checkpoint, 5/19 train doors
-and 0/6 development doors pass; development geometry worsens and confidence
-accepts inaccurate states. Development gates and dynamic validation remain open;
-6.0 is not complete.
-
-The [[experiments/b1-perception-input-diagnosis|targeted diagnosis]] finds that
-all recorded views exclude the panel top, while the model is strongly dependent
-on RGB and weakly sensitive to depth. Full-train failures are confined to the
-composed contact position. Observation coverage/static-state retention and metric
-input use must be addressed alongside fitting refinement before another full run;
-the [[experiments/b1-perception-corrections|correction implementation]] now adds
-a common inspection/mount study, static memory, explicit metric encoding, bounded
-refinement and separate confidence qualification. Two nominal train observation/
-manipulation pilots, the tallest-door scan and the new two-door metric geometry
-fit pass; raw-recording replay matches cached predictions. Bounded legacy
-refinement passes all 19 train doors, but its confidence qualification correctly
-fails all six development doors. This does not qualify the new model on
-development. The refreshed
-`engineering-v2` campaign and `features-v2` are complete (50 episodes, 44,342 cached
-frames). Run-03 stopped for development stagnation after 15 epochs/19.67 minutes.
-Its last checkpoint passes geometry on all 19 train doors and none of the six
-development doors; the best remains epoch 1. The
-[[experiments/b1-perception-model-comparison|pretrained/custom/geometric comparison]]
-records full replay and public component screening. The subsequent
-[[experiments/b1-perception-approved-models|approved DINOv3/SAM 3 GPU trials]]
-do not resolve the generalization or complete-geometry problem. Explicit
-multi-view metric geometry with visual assistance remains a prototype proposal.
-Complete development, confidence and dynamic qualification stay open.
-
-Local preparation and readiness reports are under `outputs/b1/perception/`.
-The one-hour training launcher is autonomous, with configurable development
-stagnation stopping, checkpointed stopping state and a final analysis summary.
-Launcher lifecycle checks were performed before the initial training run.
-
-See [[topics/shared-door-perception|Shared Door Perception]] for interfaces,
-fixed gates and operator commands. The revised objective passes the authorized
-two-door complete-state fitting check but fails the subsequent full-corpus
-development evaluation. Further training or an extension requires a separate
-decision informed by the diagnosed generalization and confidence failures.
+Two engineering campaigns (50 complete train/development episodes each), two pilots
+and a separate inspection diagnostic are preserved. The custom estimator and its
+training/comparison workflows are retired after run-03 fitted all 19 train doors
+but failed all six development doors. The aligned pretrained screening supports
+GroundingDINO + SAM 3 as visual components with explicit RGB-D/multiview geometry,
+and DINOv3 when learned visual features are needed; it qualified no replacement.
+The new pipeline is unimplemented. See [[experiments/b1-perception-findings|Perception
+findings]] and [[topics/shared-door-perception|the maintained contract and gates]].
+No new collection, training or sealed-test access is part of cleanup.
 
 #### Implementation
 
@@ -85,11 +32,10 @@ timestamps, depth/mask units, action timing, terminal state, and expert executio
 without changing the common robot/contact setup. Keep annotations and privileged
 expert state separate from observed inputs and inference state.
 
-Use one suitable shared visual backbone and explicit depth/mask processing path.
-Do not run a mandatory backbone comparison: consider alternatives only if a
-concrete train/development failure makes that work necessary. Train the door-frame
-and articulation estimator using training-door data, select it on development
-doors, then freeze preprocessing, history, features, and outputs for every cell.
+Implement the selected GroundingDINO + SAM 3 and explicit metric/multiview
+geometry direction; use DINOv3 only where learned visual features are needed.
+Fit any learned quantities on training doors and select on development, then
+freeze preprocessing, observation history, features and outputs for every cell.
 Early training-door recordings may support this engineering work; they do not
 constitute the final matched policy dataset.
 
@@ -126,31 +72,21 @@ stereo-error modeling project is required.
 
 #### Current implementation boundary
 
-The separate B1 observed encoding, matched dataset interface, complete action
-tensor/segment contracts, both model-family bindings and observed execution/replay
-runner are implemented. See
-[[topics/action-representations-and-adapters|Action Representations]] and
-[[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]]. Numerical
-fixtures validate these interfaces without running a model or simulator. The
-ongoing 6.0 collection, its configurations and existing artifacts are preserved.
-CPU checks cover all eight paths' data/scaling contracts and numerical dispatch,
-full rotations, A4 boundaries/reconstruction and failures, stale/lost observations,
-reset, replay timing, and stop-only safety routing. Scalar checkpoint-envelope
-fixtures are not model round-trip validation.
+The model-independent B1 observation builder, matched dataset interface, full action
+contracts, ACT/Diffusion bindings and execution/replay runner are implemented.
+Numerical checks cover all eight data/scaling/dispatch paths, rotations, A4 boundaries,
+reset, stale/lost observations, replay timing and stop-only safety. CUDA forward,
+loss/gradients, inference and checkpoint prediction checks pass for the maintained
+families without optimizer updates during cleanup. The four optimizer-based training
+regressions were deliberately not run and remain maintained.
 
-Remaining gates are explicit:
-
-- **Deferred for collection resources:** CUDA forward/loss/gradients, inference and
-  prediction checkpoint round-trips for all eight cells; unchanged estimator
-  prediction/encoding checks.
-- **Blocked by 6.0:** an evidence-backed qualified/frozen perception release,
-  raw/cache/live encoding equivalence and final integration, matched physical
-  replay, and observed-geometry rollouts including contact, hold/release and
-  loss/reacquisition on train doors of both handednesses.
-
-No GPU/simulation workload, policy training or dataset production was started for
-this implementation. No qualified/frozen perception release exists, no B1 policy
-dataset has been generated, and 6.1 is not complete. Subphase 6.2 remains unopened.
+No qualified/frozen perception provider or B1 policy dataset exists. Final raw/live
+encoding equivalence, matched physical replay and observed-geometry rollout across
+contact/hold/release and loss/reacquisition remain blocked by Phase 6.0. Numerical
+fixtures are not physical validation. Subphase 6.1 remains open and 6.2 not started.
+See [[topics/action-representations-and-adapters|Action Representations]],
+[[topics/episode-and-dataset-contracts|Data Contracts]] and
+[[topics/shared-door-perception|Perception]].
 
 #### Implementation
 

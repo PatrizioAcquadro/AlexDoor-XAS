@@ -67,7 +67,7 @@ Raw preparation reuses the live observation builder and robot FK, with the
 recorded calibration and canonical arm/neck order. Only an initial inspection
 prefix is excluded from learned arm actions; missing/invalid manipulation inputs
 are rejected, not silently dropped. Raw recordings must explicitly have purpose
-`b1_matched_policy_demonstration`. The ongoing 6.0 engineering recordings are not
+`b1_matched_policy_demonstration`. The preserved 6.0 engineering recordings are not
 promoted into this dataset, and no policy dataset has been generated.
 
 Export requires a frozen train/development identity assignment, all four action

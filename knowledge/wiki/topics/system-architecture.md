@@ -3,11 +3,10 @@
 The maintained runtime is `AlexDoor-DoorPush-Purdue-v0`: fixed-base Purdue
 Alex003, WSG32/UMI v1, measured pedestal and head ZED RGB-D. Real-door expert
 qualification has a shared executor and one common zero-yaw mounting/ready
-configuration, validated by two complete GPU cycles each on a right and a left
-door. Routine qualification changes only the asset ID. Shared RGB-D perception
-preparation is implemented; estimator development/dynamic qualification remains
-open. B1 ACT/Diffusion software integration is available, with CUDA model checks
-and final observed-geometry rollout validation still pending.
+configuration, qualified in fresh-process pairs across the frozen 32-door corpus.
+RGB-D recording is maintained; custom perception models and their orchestration
+are retired. B1 ACT/Diffusion software has numerical/CUDA checks, while qualified
+perception and final observed-geometry physical validation remain pending.
 
 ## Runtime and Data Boundaries
 
@@ -23,10 +22,10 @@ exact partner actors. Normal force, forbidden contacts and separation are
 `env.capture.sample` provides copied, synchronized RGB, metric optical-axis depth,
 valid-depth mask, seven-arm/two-neck proprioception, timestamps and frame IDs.
 The Gym policy tensor contains the 18 joint positions/velocities. Phase 6 owns
-image encoding, histories and the observed-only learning interface. The separate
-`perception` package now provides frozen DINOv2 features, a four-sample causal
-estimator, train/development loaders and training/evaluation entry points. See
-[[topics/shared-door-perception|Shared Door Perception]] for the pretraining boundary.
+image encoding, histories and the observed-only learning interface. The `perception` package retains only model-independent geometry contracts and
+bounded inspection/calibration support. No estimator is supplied. See
+[[topics/shared-door-perception|Shared Door Perception]] for the chosen direction,
+provider interface and qualification boundary.
 
 See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
 [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
@@ -103,14 +102,16 @@ no accepted asset depends on a temporary attempt. See
 contract, frozen corpus, rights scopes and completed qualification.
 
 Runtime caches and verification reports belong under `~/.cache/alexdoor-xas/`.
-Perception engineering recordings and frozen features use ignored `datasets/`
-payloads; backbone weights, preparation reports and later learned runs use `outputs/`.
+Original engineering recordings use ignored `datasets/` payloads. Selected model
+resources use `models/perception/`; historical perception evidence and relocation
+records use `outputs/b1/perception/evidence/`. Retired feature caches were removed.
 
 ## Reusable Algorithms
 
 Action math, recording, numerical dataset loaders/export, split/normalization
 utilities and ACT/Diffusion tensor training
-remain available as components. Their integration with B1 is not implemented.
+remain available as components. B1 software integration is maintained; physical
+qualification awaits the shared perception provider.
 Policies consume a caller-supplied observation function; they do not read door
 truth from the simulator. See [[topics/episode-and-dataset-contracts|Data Components]]
 and [[topics/learned-policy-stack|Learned Policy Stack]].

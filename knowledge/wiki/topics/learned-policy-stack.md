@@ -6,7 +6,7 @@ run orchestration is retired. B1 RGB-D/action integration belongs to
 and training/evaluation orchestration to
 [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7]].
 
-The shared B1 perception estimator is documented separately in
+The shared B1 perception boundary is documented separately in
 [[shared-door-perception|Shared Door Perception]]. The B1 software path below
 connects its observed encoding to both families; qualification and physical
 validation of the eight learning paths remain pending.
@@ -69,23 +69,25 @@ boundaries and rejects ensembling. Both families predict segment chunks;
 `B1Runner` executes the first segment, then queries again at its boundary.
 
 CPU checks cover data, scaling, serialization envelopes and contract rejection.
-`tests/test_b1_policy_models.py` defines all eight CUDA forward/loss/gradient and
-prediction round-trip checks; they remain unexecuted while collection owns the
-GPU. The estimator encoding parity test is likewise pending. These software
-interfaces do not qualify 6.1 or establish policy performance.
+CUDA forward/loss/gradient and prediction round-trip checks cover the eight B1
+paths and retained families. No optimizer update was performed during cleanup;
+training regressions remain maintained but were excluded. These checks do not
+qualify perception or establish physical policy performance.
 
 ## Observed Execution and Replay
 
-`load_frozen_observer` checks the release gates and estimator/backbone artifact
-bytes, loads the existing estimator, rejects unqualified confidence, and freezes
-all perception parameters. It never turns a failed checkpoint into a valid one.
+`B1Observer(provider, binding)` requires a provider bound to the exact qualified
+release. The future provider must verify its named artifact bytes before loading,
+convert sensor arrays to its device and provide geometry plus static/recent visual
+features. No qualified provider or model-specific loader is supplied. See
+[[shared-door-perception|the model-independent contract]].
 `PurdueIO` accepts an already-created prepared-door environment with cameras and
 the common setup. It reconstructs camera/tool poses from calibration and observed
 joints, reuses the common inspection/parked-tool hold, and leaves constant fingers
 outside learned actions. It does not launch or modify another simulator.
 
 Once the required 6.0 release and B1 policy artifacts exist, the programmatic path
-is `load_frozen_observer(...)` → `B1Policy.from_checkpoint(...,
+is `B1Observer(provider, binding)` → `B1Policy.from_checkpoint(...,
 binding=observer.binding, runtime_asset=robot_asset)` →
 `PurdueIO(env, binding=observer.binding, robot_asset=robot_asset, setup=setup)` →
 `B1Runner(policy, observer, io).run()`. The shared setup limits the manipulation

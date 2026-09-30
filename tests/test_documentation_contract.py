@@ -30,7 +30,12 @@ def test_documentation_links_resolve_and_index_is_complete() -> None:
                 continue
             if len(by_stem.get(relative.stem, [])) != 1:
                 failures.append(f"{page.relative_to(REPO_ROOT)}: {target}")
-    for document in (REPO_ROOT / "README.md", REPO_ROOT / "datasets" / "README.md"):
+    for document in (
+        REPO_ROOT / "README.md",
+        REPO_ROOT / "datasets" / "README.md",
+        REPO_ROOT / "outputs" / "README.md",
+        REPO_ROOT / "models" / "perception" / "README.md",
+    ):
         for raw_target in MARKDOWN_LINK_RE.findall(document.read_text()):
             target = raw_target.split("#", 1)[0]
             if not target or "://" in target or target.startswith("mailto:"):

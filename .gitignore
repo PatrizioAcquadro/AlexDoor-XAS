@@ -59,3 +59,6 @@ htmlcov/
 .idea/
 .vscode/
 .DS_Store
+
+# Selected pretrained model resources stay local; inventory is documented.
+/models/perception/*/

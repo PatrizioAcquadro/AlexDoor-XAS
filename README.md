@@ -15,12 +15,14 @@ assigns 19 train, six development and seven test doors, preserving related
 geometry families and both handednesses in every partition. Rights scopes remain
 29 redistributable, two local-only and one private/noncommercial.
 
-Subphase 6.0 remains unqualified and is collecting refreshed RGB-D episodes.
-Independent 6.1 software covers ACT/Diffusion × A1-A4, including observed inputs,
-matched data interfaces and execution adapters. CUDA model checks and final
-integration/physical rollout validation remain pending; 6.1 is not complete and
-the 6.2 demonstration pilot has not started. See the
-[perception contract and handoff](knowledge/wiki/topics/shared-door-perception.md).
+Subphase 6.0 remains unqualified. Failed custom estimators are retired; the selected
+GroundingDINO + SAM 3, RGB-D/multiview geometry and optional DINOv3 direction is not
+yet implemented. Original engineering recordings and selected weights are preserved.
+Independent 6.1 software covers ACT/Diffusion × A1–A4 through model-independent
+observed inputs, matched data and execution adapters. Numerical/CUDA model checks
+pass; qualified perception integration and physical rollout validation remain pending.
+No matched policy dataset or learned-policy result exists. See the
+[perception boundary](knowledge/wiki/topics/shared-door-perception.md).
 See the [corpus and qualification procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
 and current [project status](knowledge/wiki/status.md).
 
@@ -33,8 +35,8 @@ components remain; no repository command controls physical hardware.
 Use Python 3.11+ from the supported workstation stack: Isaac Sim 6.0.1 and
 Isaac Lab `release/3.0.0-beta2`, plus the external Alex package with Purdue/WSG,
 measured pedestal and ZED Wide assets. Isaac, Alex, PyTorch, Warp and CUDA are
-external runtime dependencies. B1 perception uses Transformers already supplied
-by the workstation runtime. Ordinary Python dependencies are declared in
+external runtime dependencies. The future perception integration has no installed
+repository-specific dependency set yet. Ordinary Python dependencies are declared in
 `pyproject.toml`; Diffusion and developer tooling use their respective extras.
 
 From the checkout:

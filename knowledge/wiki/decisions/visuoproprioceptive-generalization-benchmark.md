@@ -61,12 +61,13 @@ state. A wrist camera is not required. RGB-D is chosen because the intended ZED
 provides metric depth useful for manipulation; the initial rendered depth remains
 an explicitly ideal geometric approximation, not a reproduced stereo-error model.
 
-Start with one suitable shared backbone and depth-processing path; no mandatory
-backbone comparison is required. Evaluate alternatives only for a concrete
-train/development failure. Use one frozen perception stack. An estimator supplies
-the door frame/articulation required by A3/A4. First test a fixed neck pose; add
-a common deterministic observed-input gaze controller only for a demonstrated
-visibility deficit. Never give gaze a perfect simulator door position.
+Use the selected GroundingDINO + SAM 3 components with explicit RGB-D/multiview
+geometry, and DINOv3 when learned visual features are needed. The failed custom
+regressors and completed comparison baselines are retired; the replacement is not
+implemented or qualified. Keep one frozen perception stack across all eight cells.
+The common bounded scan addresses a measured fixed-view deficit; hardware mounting
+remains unvalidated. Future gaze may use observed inputs, never perfect simulator
+door state. See [[experiments/b1-perception-findings|the evidence and decision]].
 
 | Consumer | Allowed information |
 |---|---|

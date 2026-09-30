@@ -23,3 +23,14 @@ six development and seven test doors. Use `qualification.corpus.load_corpus`
 to validate it before Phase 6 collection. The numerical episode split helpers
 do not replace this family-separated assignment. Qualification evidence stays
 in the verification cache and must not be exported as learning demonstrations.
+
+Preserved engineering resources: `b1/perception/engineering-v1` and
+`engineering-v2` each contain 50 complete episodes; `inspection-pilot-01` has two.
+`inspection-tallest-01` contains one complete inspection diagnostic without expert
+hold/release, relocated from outputs. Preserve its diagnostic status. The earlier
+campaign lacks the newer inspection; use each recorded calibration/recipe.
+Five interrupted HDF5 payloads were explicitly removed after saving metadata,
+calibration and failure evidence. Feature caches of the retired estimator were
+removed; they are not original observations. Details and path mappings are in
+`outputs/b1/perception/evidence/cleanup.json`. No ignored payload is recoverable
+from Git. No dataset generation or collection was performed by cleanup.
