@@ -29,7 +29,7 @@ class PixelMotionTracker:
         self.reset()
 
     def reset(self):
-        self.gray = self.pixels = self.source = None
+        self.gray = self.pixels = self.source = self.source_uncertainty = None
         self.anchor_uncertainty = 0.0
         self.diagnostics = dict(pixel_motion="acquiring", tracked_pixels=0)
 
@@ -47,23 +47,35 @@ class PixelMotionTracker:
         ).all(1)
         mask = np.zeros(depth.shape, np.uint8)
         mask[v[keep], u[keep]] = 255
+        if motion is not None:
+            for x, y in self.pixels:
+                cv2.circle(mask, (int(round(x)), int(round(y))), 8, 0, -1)
         pixels = cv2.goodFeaturesToTrack(gray, 300, 0.005, 8, mask=mask)
         if pixels is None:
             self.diagnostics.update(pixel_motion="unobserved_texture", tracked_pixels=0)
             return False
         pixels = pixels.reshape(-1, 2)
         indices, source = sample_points(sensor, pixels)
-        if len(source) < 12:
+        if len(source) < (12 if motion is None else 1):
             self.diagnostics.update(
                 pixel_motion="insufficient_metric_features", tracked_pixels=len(source)
             )
             return False
-        self.gray, self.pixels, self.source = gray, pixels[indices], source
-        if motion is not None:
+        if motion is None:
+            self.gray, self.pixels, self.source = gray, pixels[indices], source
+            self.source_uncertainty = np.zeros(len(source))
+        else:
             r, t, residual = motion
-            self.source = (self.source - t) @ r
-            self.anchor_uncertainty += residual
-        self.diagnostics.update(pixel_motion="acquiring", tracked_pixels=len(source))
+            source = (source - t) @ r
+            added = max(0, 300 - len(self.source))
+            uncertainty = self.source_uncertainty.max() + residual
+            self.pixels = np.r_[self.pixels, pixels[indices][:added]]
+            self.source = np.r_[self.source, source[:added]]
+            self.source_uncertainty = np.r_[
+                self.source_uncertainty, np.full(min(added, len(source)), uncertainty)
+            ]
+            self.anchor_uncertainty = float(self.source_uncertainty.max())
+        self.diagnostics.update(pixel_motion="acquiring", tracked_pixels=len(self.source))
         return True
 
     def update(self, sensor, reference):
@@ -86,8 +98,10 @@ class PixelMotionTracker:
         good = status.ravel().astype(bool) & back_status.ravel().astype(bool)
         good &= np.linalg.norm(backward - self.pixels, axis=1) < 0.7
         source, pixels = self.source[good], following[good]
+        uncertainty = self.source_uncertainty[good]
         indices, target = sample_points(sensor, pixels)
         source, pixels = source[indices], pixels[indices]
+        uncertainty = uncertainty[indices]
         if len(source) < 12:
             self.reset()
             self.diagnostics["pixel_motion"] = "lost_metric_matches"
@@ -113,17 +127,33 @@ class PixelMotionTracker:
             self.diagnostics["pixel_motion"] = "unreliable_rigid_motion"
             return None
         self.gray, self.pixels, self.source = gray, pixels[best], source[best]
+        self.source_uncertainty = uncertainty[best]
+        self.anchor_uncertainty = float(self.source_uncertainty.max())
         self.diagnostics.update(
             pixel_motion="tracked",
             tracked_pixels=int(best.sum()),
             pixel_motion_residual_m=fitted[2],
         )
         if best.sum() < 60:
-            previous = self.gray, self.pixels, self.source, self.anchor_uncertainty
+            previous = (
+                self.gray,
+                self.pixels,
+                self.source,
+                self.source_uncertainty,
+                self.anchor_uncertainty,
+            )
             if not self._seed(sensor, gray, moved_surface(reference, fitted), fitted):
-                self.gray, self.pixels, self.source, self.anchor_uncertainty = previous
+                (
+                    self.gray,
+                    self.pixels,
+                    self.source,
+                    self.source_uncertainty,
+                    self.anchor_uncertainty,
+                ) = previous
             self.diagnostics.update(pixel_reseed=True, tracked_pixels=len(self.source))
-        self.diagnostics["anchor_uncertainty_m"] = self.anchor_uncertainty
+        self.diagnostics.update(
+            pixel_motion="tracked", anchor_uncertainty_m=self.anchor_uncertainty
+        )
         return fitted[0], fitted[1], fitted[2] + self.anchor_uncertainty
 
 

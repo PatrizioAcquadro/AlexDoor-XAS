@@ -120,7 +120,8 @@ the workstation. Forward/backward consistency, valid interpolated depth without
 discontinuities and rigid consensus verify fixed observed points. Loss clears pixel
 history. Points can be replenished only from a successfully verified current pose,
 mapping their observed depth back to the original reference and accumulating anchor
-uncertainty. Excess uncertainty rejects a complete state. Current-depth support
+uncertainty per anchor. Surviving original references remain intact; replenishment
+adds points rather than replacing the reference bank. Excess uncertainty rejects a complete state. Current-depth support
 still validates each propagated surface. Recorded
 motion can diagnose/refine a hinge, but it does not authorize live motion from an
 unresolved scan.

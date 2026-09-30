@@ -111,6 +111,12 @@ tracked points before useful rotation. Common guards now remove thin support and
 replenish points from a verified pose with accumulated uncertainty. A fresh pilot
 attempt will verify those changes; neither correction silently accepts complete
 dimensions or a hidden hinge, and no extended restart is authorized.
+The subsequent `geometric-pilot-05` attempt (`1252cbe`) is preserved with an explicit
+interruption record: replenishment replaced surviving references, causing artificial
+uncertainty growth. The corrected tracker preserves surviving references, appends
+new points, and carries uncertainty per anchor. The regression verifies continued
+metric motion in the same reference after replenishment. Final verification remains
+restricted to the same two pilots and both conditions.
 
 ## Custom-estimator sequence
 

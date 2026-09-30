@@ -511,6 +511,7 @@ def test_subpixel_correspondences_are_metric_and_loss_discards_pixel_history():
     tracker = PixelMotionTracker()
     assert tracker.update(sample, surface) is None
     tracker.pixels, tracker.source = tracker.pixels[:40], tracker.source[:40]
+    tracker.source_uncertainty = tracker.source_uncertainty[:40]
     sample["rgb"] = np.repeat(
         cv2.warpAffine(gray, np.array([[1, 0, 1], [0, 1, 0]], np.float32), (w, h))[:, :, None],
         3,
@@ -523,6 +524,17 @@ def test_subpixel_correspondences_are_metric_and_loss_discards_pixel_history():
     np.testing.assert_allclose(motion[1], [0, 0.01, 0], atol=0.0005)
     assert tracker.diagnostics["pixel_reseed"]
     assert len(tracker.source) > 40
+    assert (tracker.source_uncertainty == 0).sum() >= 35
+    sample["rgb"] = np.repeat(
+        cv2.warpAffine(gray, np.array([[1, 0, 2], [0, 1, 0]], np.float32), (w, h))[:, :, None],
+        3,
+        axis=2,
+    )
+    sample["frame"] = 1510
+    second = tracker.update(sample, surface)
+    assert second is not None
+    np.testing.assert_allclose(second[1], [0, 0.02, 0], atol=0.0005)
+    assert tracker.diagnostics["anchor_uncertainty_m"] < 0.001
     sample["valid_depth"][:] = False
     assert tracker.update(sample, surface) is None
     assert tracker.gray is None and tracker.source is None
