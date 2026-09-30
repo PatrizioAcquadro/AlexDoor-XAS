@@ -8,14 +8,17 @@ and frozen local weights; no training, collection or test evaluation is authoriz
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head RGB-D/proprioception and contact diagnostics implemented. Common zero-yaw setup supersedes the historical 45-degree synthetic setup. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights remain 29 redistributable, two local-only, one private/noncommercial. |
-| 6.0 — Perception | Unqualified. Causal GroundingDINO/native SAM 3/DINOv3 provider, RGB-D geometry and full-state replay evaluator implemented. Both pilot doors failed full-state gates. Extended evaluation stopped by the user; retained pilot multiview/association diagnosis is the next action. Dynamic use remains unvalidated. |
+| 6.0 — Perception | Unqualified. Causal GroundingDINO/native SAM 3/DINOv3 provider, RGB-D geometry and full-state replay evaluator implemented. Shared boundary/tracking corrections verified on both pilots still yield zero accepted complete states. Leaf/frame identity and unreliable hinge/motion remain unresolved. Extended evaluation stays stopped; dynamic use is unvalidated. |
 | 6.1 — Action paths | Model-independent observed-input contracts, matched data, ACT/Diffusion × A1–A4 and execution/replay software maintained. No qualified provider; final integration and physical validation remain pending. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Diagnose boundary visibility, part identity, multiview fusion and hinge associations
-on the two pilot doors. The user stopped the extended evaluation; completed and
+Correct object association on the two pilot doors: combine visible faces of the
+same leaf, keep fixed-frame/wall support separate, and verify motion-feature
+ownership before hinge fitting. Human review resolved the displayed regions;
+shared boundary/tracking corrections were replayed in `geometric-pilot-06` and
+still failed every full-state gate. The user stopped the extended evaluation; completed and
 partial evidence remains under `geometric-evaluation-02`, with an explicit stop
 record. No further campaign is authorized until the main causes are clarified and
 corrected, and common corrections are verified on both pilots. The

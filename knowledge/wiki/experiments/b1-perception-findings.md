@@ -88,35 +88,85 @@ extent quantiles discard rare boundary support. Dense observed extents and certi
 silhouette lines must therefore be retained separately before sampling.
 
 The earlier static fusion also kept only the first surface's DINO anchors/features;
-later-view descriptors update but later anchors are discarded. This is a concrete
-memory limitation when the first view loses overlap during motion. Its contribution
-to the zero rigid-motion fits remains to be measured independently of boundary
-visibility. A common software correction now retains dense extents and measured
+later-view descriptors updated but later anchors were discarded. This was a concrete
+memory limitation when the first view lost overlap during motion. A common software
+correction now retains dense extents and measured
 edge lines, targets semantic inference from the first observation throughout the
 scan, verifies registered overlap, and keeps a bounded multiview feature bank.
 Subpixel RGB tracking with metric rigid verification refines correspondences;
 coarse DINO patch centers alone remain insufficient. Numerical regressions cover
 bottom-frame presence/absence, clipped extents/internal recesses, parallel-frame
 separation, later anchors, scan timing and metric pixel tracking/loss. These checks
-do not establish pilot geometry gates; corrected chronological pilot evaluation is
-pending. Current evidence does not justify new training.
+do not establish pilot geometry gates; corrected chronological replay still fails
+as reported below. Current evidence does not justify new training.
 
 Control-local requirements and the unchanged complete-state contract are separated
 in [[topics/shared-door-perception|Shared Door Perception]]. Human part review is
 resolved for the displayed pilot regions. Extended evaluation remains stopped;
-only verification of the shared corrections on the two pilots is authorized next.
+only diagnosis and correction on the two pilots is authorized.
 `geometric-pilot-04` retains the first corrected replay attempt at `cae5afa`.
 It exposed thin floor intersections leaking into dense bounds and attrition of
 tracked points before useful rotation. Common guards now remove thin support and
-replenish points from a verified pose with accumulated uncertainty. A fresh pilot
-attempt will verify those changes; neither correction silently accepts complete
+replenish points from a verified pose with accumulated uncertainty. Neither
+correction silently accepts complete
 dimensions or a hidden hinge, and no extended restart is authorized.
 The subsequent `geometric-pilot-05` attempt (`1252cbe`) is preserved with an explicit
 interruption record: replenishment replaced surviving references, causing artificial
 uncertainty growth. The corrected tracker preserves surviving references, appends
 new points, and carries uncertainty per anchor. The regression verifies continued
-metric motion in the same reference after replenishment. Final verification remains
-restricted to the same two pilots and both conditions.
+metric motion in the same reference after replenishment.
+
+### Corrected two-pilot verification
+
+`geometric-pilot-06` completed the same two train doors and both conditions at
+`7468e0a`, using one common recipe and all three frozen models on CUDA. Both doors
+have **0% complete-state coverage and 0% accepted-state precision**; the empty
+accepted set fails. All full-state gates remain unchanged and failed. No extended
+campaign was resumed and no dynamic simulation was run. Per-phase/condition error
+quantiles, finite sample counts, overlapping rejection causes and latency remain in
+the run's reports; `geometric-pilot-diagnosis-01/pilot06-report.md` explains the
+remaining causes and preserves targeted association images.
+
+The main remaining failure is **object identity**. A selected plane is not a
+complete leaf. On the left, visible leaf relief/faces remain in competing
+hypotheses; on the right, selected support includes the human-identified fixed
+side/frame region. Dense support no longer disappears merely through interior
+sampling, but more points can produce worse dimensions when ownership is wrong.
+The right pooled height p95 improves from 16.40 cm to 3.61 cm, while width worsens
+from 6.52 cm to 11.55 cm. Left height worsens from 15.45 cm to 22.72 cm as another
+partial surface is selected. This is not a successful geometry correction.
+
+Manipulation p95 below includes **finite rejected estimates**, not usable states.
+Missing dimensions are unobserved; their error is never counted as zero.
+
+| Pilot / condition | Width | Height | Thickness | Hinge origin | Local contact | World contact |
+|---|---:|---:|---:|---:|---:|---:|
+| Left / nominal | 1.96 cm | 22.15 cm | 1.54 cm | 8.36 cm | 8.33 cm | 1.20 cm |
+| Left / light | 1.97 cm | 22.72 cm | 1.48 cm | 8.49 cm | 8.47 cm | 1.07 cm |
+| Right / nominal | 11.55 cm | 3.61 cm | unobserved | 12.67 cm | 13.15 cm | 3.25 cm |
+| Right / light | 9.48 cm | 1.91 cm | unobserved | 4.19 cm | 4.96 cm | 4.56 cm |
+
+Some rigid-motion hinge proposals now exist, but origin errors and conditioning
+remain unacceptable. Finite panel orientation/angle errors are small on partial
+intervals: panel estimates cover only 15.9% of left and 37.9% of right manipulation
+observations, and finite hinge estimates only 7.3% and 21.7%. Discontinuous motion
+is a rejection cause on 83.9% left and 61.9% right. Small angular quantiles on these
+subsets do not establish full-motion tracking or a valid hinge. No state is accepted.
+
+Semantic RPC latency p95 is 200–218 ms, above the 150 ms limit for an unrefreshed
+semantic result. Intermediate depth verification is required; the limit is not
+relaxed. The left 2.3 s recovery diagnostic describes supported surface tracking,
+not valid complete-state reacquisition. There is no accepted-state recovery.
+
+The next correction must associate observed leaf faces as one rigid object while
+preserving fixed-frame/wall hypotheses, then verify feature ownership before
+fitting motion. Plane proximity/parallelism or a rule about the bottom cannot do
+this alone. Maintained pretrained prompting and observed boundaries/adjacency
+remain to be investigated before concluding that training is necessary. If those
+cannot resolve visible ownership, **leaf/frame association** is a precise candidate
+for a learned component; this would not recover an unobserved hinge or fix latency
+or calibration. A closed scan without a resolved hinge still stops the arm; recorded
+teacher motion is diagnostic evidence, not authorization for an active probe.
 
 ## Custom-estimator sequence
 

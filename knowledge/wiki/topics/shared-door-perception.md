@@ -100,11 +100,14 @@ an unverified parallel wall cannot supply it. No nominal dimensions are filled.
 Dense plane-compatible boundary support is retained before interior sampling and
 area-weighted quantiles. Certified edge lines remain separate from mere observed
 extent. Their world points survive fusion and are projected into the updated basis.
-Registered depth overlap can associate differently colored regions; proximity alone
-cannot merge an offset parallel frame. DINO descriptors are computed per face,
+Registered depth overlap can associate differently colored regions and reject
+offset parallel support. It does not certify object identity: different relief
+faces of one leaf may remain separate, while nearby fixed support may contaminate
+the selected surface. DINO descriptors are computed per face,
 and a bounded multiview anchor bank retains later-view features.
-Thin intersections of floor/frame geometry with a fitted plane are removed before
-retaining dense support; being inside the segmentation mask is insufficient.
+Morphological opening removes thin image support before retaining dense extents;
+it does not guarantee that all floor/frame contamination is removed. Being inside
+the segmentation mask or close to a fitted plane is insufficient.
 
 Visible cylindrical hinge arcs can propose a floor-anchored axis. Mutual DINO
 matches and robust rigid RGB-D alignment can refine it through `(I-R)h=t`, rejecting
@@ -172,8 +175,11 @@ position therefore depends on a reliable total width; replacing it with an arbit
 visible patch would change the task. Total dimensions, including height and thickness,
 remain required by the existing full-state gates. A reduced local-control contract
 would be a separate user decision and validation target, not a unilateral relaxation
-of those gates. No such change has been made. Extended evaluation is stopped for
-pilot diagnosis, with targeted human part-identity review pending; see
+of those gates. No such change has been made. Human review resolved the displayed
+pilot regions: A/C are fixed frame, B is the leaf bottom; other doors may have a
+bottom frame. These diagnostic labels never enter inference. Corrected pilot replay
+still fails complete-state gates; extended evaluation remains stopped for object
+association and hinge/tracking correction. See
 [[experiments/b1-perception-findings|the retained evidence]].
 
 ### Existing full-state gates

@@ -21,9 +21,13 @@ but failed all six development doors. The aligned pretrained screening supports
 GroundingDINO + SAM 3 as visual components with explicit RGB-D/multiview geometry,
 and DINOv3 when learned visual features are needed; it qualified no replacement.
 The new causal provider and full-state replay evaluator are implemented. Frozen
-CUDA smoke passed; the two-handedness train pilot completed with zero complete
-states accepted. Extended engineering-v2 evaluation is stopped at the user's
-request. Diagnose and correct the main causes on both pilots before another
+CUDA smoke passed; shared boundary and motion-reference corrections were verified
+on both pilot doors/conditions in `geometric-pilot-06`, still with zero complete
+states accepted. Visible leaf faces remain separate or contaminated by fixed-frame
+support, and hinge/motion estimates remain unreliable. Human review resolved the
+displayed regions without adding labels to inference. Extended engineering-v2
+evaluation is stopped at the user's request. Correct object association and
+verify both pilots before another
 campaign; retain all completed and partial results. No new collection,
 training or sealed-test access is
 part of this prototype. See [[experiments/b1-perception-findings|Perception findings]]
