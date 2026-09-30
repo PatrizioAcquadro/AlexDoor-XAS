@@ -1,9 +1,10 @@
 # Shared Door Perception
 
 Phase 6.0 remains **unqualified**. The custom DINOv2 estimators and their training,
-feature-cache and comparison commands are retired. The selected direction is
+feature-cache and comparison commands are retired. The diagnostic provider uses
 GroundingDINO + SAM 3, explicit calibrated RGB-D/multiview geometry and DINOv3
-when learned visual features are useful. That pipeline is **not implemented**.
+patch features for associations. The provider and full-state evaluator are
+**implemented as a prototype**, with no qualified release or dynamic validation.
 [[experiments/b1-perception-findings|Perception findings]] records the measured
 train/development gap, corrected component screening and limitations.
 
@@ -64,8 +65,8 @@ A provider exposes `binding`, a finite NumPy `encoding`, `reset()` and `update(s
 `DoorEstimate`. It receives only recorded sensor keys and owns device conversion,
 inference and observation-dependent validity. Between inference ticks, only a
 fresh cached estimate/encoding may be reused, with current proprioception. Loss
-invalidates cached policy inputs. No production provider, fallback or registry is
-supplied yet; numerical test providers do not qualify perception.
+invalidates cached policy inputs. No qualified production provider, fallback or
+registry is supplied yet; the prototype and numerical fixtures do not qualify it.
 
 `b1.perception.release.v2` declares named SHA256 artifact identities,
 `config.visual_dims` (static/recent widths), `warmup_s`, `max_gap_s`, inspection,
@@ -80,14 +81,72 @@ No B1 policy dataset or trained policy artifact requires conversion. ACT/Diffusi
 A1–A4 adapters, normalization and stop-only execution remain maintained components,
 but final raw/live equivalence and physical integration await the qualified provider.
 
+## Geometric prototype
+
+`GeometryProvider` and `CueEngine` share capture/completion events in replay and
+live use. `ModelWorker` sends only RGB bytes to frozen CUDA models in an isolated
+process. GroundingDINO uses `door.` with 0.30/0.25 thresholds; native SAM 3 uses
+positive normalized center/size box prompts and confidence 0.5. DINOv3 excludes
+CLS/register tokens and retains the letterbox-to-pixel mapping. Its descriptors
+propose identity and mutual matches; calibrated depth provides metric scale.
+
+The seven scan samples are fused causally in the existing calibrated world
+frame. RANSAC/SVD planes, measured silhouettes and visible side surfaces support
+geometry. Competing surfaces remain separate. Rank/descriptor/reprojection checks
+can reject panel/jamb/wall ambiguity; this heuristic is not a verified semantic
+part classifier. Width/height spans remain diagnostic until all four extent edges
+have interior-image metric evidence. Thickness requires an observed side face;
+an unverified parallel wall cannot supply it. No nominal dimensions are filled.
+
+Visible cylindrical hinge arcs can propose a floor-anchored axis. Mutual DINO
+matches and robust rigid RGB-D alignment can refine it through `(I-R)h=t`, rejecting
+insufficient rotation and ill-conditioned fits. The floor origin is the existing
+calibrated robot-world z=0; panel orientation comes from the closed scan. The
+prototype approximates a vertical revolute door with predominantly planar faces.
+Contact uses the common fraction 0.295 and height 1.09 m on a locally measured
+surface, including its full normal. Neither teacher contact nor door coordinates
+enter inference. A hidden hinge keeps the scan invalid; no active probe is allowed.
+
+Initial semantic requests use the seven scan slots; subsequent requests target
+5 Hz. The worker permits one in-flight request and discards old generations after
+reset/loss. Replay releases results at capture plus measured worker latency,
+including process transport. Live uses a background worker. Current RGB-D
+reprojection validates intermediate geometry; it cannot refresh a state by copying
+its timestamp. Nonmonotonic observations reset history. Acquisition, competing
+identity, missing RGB-D, discontinuous motion, unsupported dimensions and uncertain
+fits are explicit rejection causes. A complete consumer state must be fresh within
+150 ms, finite, physically shaped and internally consistent with signed angle.
+
+`configs/perception_geometry.json` is one diagnostic recipe, represented by
+`b1.perception.prototype.v1`. It cannot satisfy `PerceptionBinding` release flags.
+`scripts/perception.py smoke` checks all three frozen models; `evaluate --pilot`
+checks left `door-2738468b94d74c5f` and right `animated-door-1-88abf40`, both
+nominal/light. Full `evaluate` consumes all 50 engineering-v2 episodes in HDF5 row
+order, keeping frame counters separate. The evaluator alone reads annotations,
+phase and metadata. Missing/rejected estimates remain in the gate denominator.
+Reports include all finite, rejected and accepted error quantiles, overlapping
+rejection causes, per-door/condition/phase rates, worker latency and support recovery.
+PNG/NPZ diagnostics preserve masks and competing/selected observed surfaces.
+
+Dynamic tests require every train/development door to pass offline first.
+`ObservedControlChecks`/`ObservedPurdueSafety` provide a prototype-only monitor
+using observations, robot limits and FK. The existing runner clears pending actions
+and latches stops on invalid estimates, requiring explicit reset to resume. The
+prototype monitor cannot certify force/load from RGB-D and reports
+`force_feedback_unavailable` before contact/push/hold. Legacy `PurdueSafety` remains
+for other maintained consumers; it must not guide this prototype. No simulator
+execution, physical force check or hardware safety is established by these tests.
+
 ## Fixed acceptance boundary
 
-Per development door, during contact/push/hold: valid coverage at least 95%,
+Per train/development door, during contact/push/hold: valid coverage at least 95%,
 contact-position p95 at most 0.01 m and orientation p95 at most 5 degrees. Preserve
 complete-state checks: hinge origin, dimensions and local/world contact position
 within 1 cm; hinge, local/world contact and panel rotation plus wrapped signed angle
 within 5 degrees. Confidence must accept accurate states and reject missing or
-incorrect states; accepted-state precision must reach 95% per door. Report coverage
+incorrect states; accepted-state precision must reach 95% per door, jointly across
+all complete-state limits. Empty accepted sets fail. Accepted p95 must satisfy every
+limit; finite rejected states are also reported. Report coverage
 and errors separately, with worst per-door results for both handednesses.
 
 Fit learned quantities/normalization on train only; use development for selection
@@ -110,4 +169,5 @@ For a separately authorized future collection, from the repository root:
 Choose a fresh output; use `--resume` only for that same campaign. Optional
 `--asset-id`, `--condition` and `--smoke` bound the selection. `--inspection-only`
 requires `--inspection` and produces a diagnostic without expert manipulation.
-There is no maintained estimator training, preparation, evaluation or launch CLI.
+The diagnostic smoke/evaluate CLI is described above. There is no maintained
+estimator training or launch CLI.

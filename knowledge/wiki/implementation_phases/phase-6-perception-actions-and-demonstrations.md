@@ -1,6 +1,6 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Subphase 6.0 open: run-03 passes geometry on 19/19 train doors, 0/6 development doors; dynamic use remains unqualified.
+> Subphase 6.0 open: geometric prototype implemented; offline full-state gates and dynamic use remain unqualified.
 > Subphase 6.1 independent software implementation is available; validation is partial.
 > Final integration remains blocked; 6.2 is not started. Phases 4 and 5 are complete.
 
@@ -20,9 +20,12 @@ training/comparison workflows are retired after run-03 fitted all 19 train doors
 but failed all six development doors. The aligned pretrained screening supports
 GroundingDINO + SAM 3 as visual components with explicit RGB-D/multiview geometry,
 and DINOv3 when learned visual features are needed; it qualified no replacement.
-The new pipeline is unimplemented. See [[experiments/b1-perception-findings|Perception
-findings]] and [[topics/shared-door-perception|the maintained contract and gates]].
-No new collection, training or sealed-test access is part of cleanup.
+The new causal provider and full-state replay evaluator are implemented. Frozen
+CUDA smoke passed; the two-handedness train pilot completed with zero complete
+states accepted. Common full engineering-v2 evaluation is next. No new collection,
+training or sealed-test access is
+part of this prototype. See [[experiments/b1-perception-findings|Perception findings]]
+and [[topics/shared-door-perception|the implementation and fixed gates]].
 
 #### Implementation
 
@@ -32,8 +35,17 @@ timestamps, depth/mask units, action timing, terminal state, and expert executio
 without changing the common robot/contact setup. Keep annotations and privileged
 expert state separate from observed inputs and inference state.
 
-Implement the selected GroundingDINO + SAM 3 and explicit metric/multiview
-geometry direction; use DINOv3 only where learned visual features are needed.
+The diagnostic implementation uses GroundingDINO + native SAM 3, explicit metric
+multiview geometry and DINOv3 patch associations. It preserves partial rejected
+states rather than filling hidden dimensions or hinge coordinates. A closed scan
+without a resolved hinge must stop the arm; active probing is not authorized.
+One recipe covers all train/development doors, including pilot geometric failures.
+Full-state per-door coverage and accepted-state joint precision must both reach
+95%, with every positional/dimension p95 within 1 cm and rotational/angle p95
+within 5 degrees. Dynamic tests on the two pilot train doors and six development
+doors are conditional on all offline gates, with truth restricted to the evaluator.
+
+For future authorized learned components,
 Fit any learned quantities on training doors and select on development, then
 freeze preprocessing, observation history, features and outputs for every cell.
 Early training-door recordings may support this engineering work; they do not

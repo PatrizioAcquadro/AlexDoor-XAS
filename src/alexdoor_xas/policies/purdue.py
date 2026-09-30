@@ -1,4 +1,4 @@
-"""Purdue IO for the B1 runner. Truth is isolated inside the stop-only monitor."""
+"""Purdue IO with legacy physical stops or observed-only prototype checks."""
 
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -137,7 +137,7 @@ class PurdueSafety:
 class PurdueIO:
     """Adapt an already-created, camera-enabled Purdue environment; never launch one."""
 
-    def __init__(self, env, *, binding, robot_asset, setup):
+    def __init__(self, env, *, binding, robot_asset, setup, observed_provider=None):
         from alexdoor_xas.recording.b1_runtime import camera_calibration
 
         if env.cfg.action_mode != "A2" or not env.cfg.cameras or env.cfg.prepared_door is None:
@@ -162,7 +162,12 @@ class PurdueIO:
         if self.calibration["joint_names"] != list(ARM_JOINTS + NECK_JOINTS):
             raise ValueError("Runtime joint order differs")
         self.tool_fk = PurdueFK(env.robot.cfg.spawn.asset_path, str(env.device))
-        self.safety = PurdueSafety(env, env.cfg.prepared_door, setup)
+        if observed_provider is None:
+            self.safety = PurdueSafety(env, env.cfg.prepared_door, setup)
+        else:
+            from alexdoor_xas.perception.control import ObservedPurdueSafety
+
+            self.safety = ObservedPurdueSafety(self, setup, observed_provider)
 
     def reset(self):
         self.env.reset()

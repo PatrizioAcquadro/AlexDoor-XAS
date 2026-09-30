@@ -151,7 +151,18 @@ def make_b1_episode(binding, *, episode_id="train-1", asset_id="left", sign=1):
                 panel.rot @ Rotation.from_rotvec([0.1, 0.2, 0.3]).as_matrix(),
             )
         )
-        estimate = DoorEstimate(i / 60, True, "observed", 0.9, frame, panel.rot, float(angle))
+        estimate = DoorEstimate(
+            i / 60,
+            True,
+            "observed",
+            0.9,
+            frame,
+            panel.rot,
+            float(angle),
+            np.array([0.9, 2.0, 0.04]),
+            tools[-1].origin,
+            tools[-1].rot,
+        )
         features = np.r_[np.full(4, 0.01 * i), np.full(9, 0.02 * i), np.zeros(9)]
         observations.append(PolicyObservation(i / 60, i, features, estimate, "observed"))
     return compile_episode(

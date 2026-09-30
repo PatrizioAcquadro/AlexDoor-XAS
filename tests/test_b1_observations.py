@@ -29,6 +29,9 @@ def fake_estimator(binding):
             ObjectFrame(np.zeros(3), np.eye(3)),
             np.eye(3),
             0.0,
+            np.array([0.9, 2.0, 0.04]),
+            np.array([0.0, 0.3, 1.09]),
+            np.eye(3),
         )
 
     estimator.reset, estimator.update = reset, update

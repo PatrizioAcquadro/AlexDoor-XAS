@@ -22,9 +22,10 @@ exact partner actors. Normal force, forbidden contacts and separation are
 `env.capture.sample` provides copied, synchronized RGB, metric optical-axis depth,
 valid-depth mask, seven-arm/two-neck proprioception, timestamps and frame IDs.
 The Gym policy tensor contains the 18 joint positions/velocities. Phase 6 owns
-image encoding, histories and the observed-only learning interface. The `perception` package retains only model-independent geometry contracts and
-bounded inspection/calibration support. No estimator is supplied. See
-[[topics/shared-door-perception|Shared Door Perception]] for the chosen direction,
+image encoding, histories and the observed-only learning interface. The `perception`
+package supplies a diagnostic geometric provider, isolated frozen image-model
+worker and full-state evaluator, alongside inspection/calibration support. See
+[[topics/shared-door-perception|Shared Door Perception]] for the implemented prototype,
 provider interface and qualification boundary.
 
 See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
@@ -33,7 +34,9 @@ See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
 The separate B1 policy path uses a shared frozen RGB-D encoding plus current
 proprioception, explicit A1-A4 tensors, and family-specific normalization.
 `B1Runner` connects the policy or labeled matched-replay source to `PurdueIO`.
-Only its stop monitor reads door truth; action adapters consume observed geometry.
+Legacy stop monitors may read door truth; action adapters consume observed geometry.
+The geometric prototype selects an observed-only monitor instead and confines
+simulator truth to its evaluator. Contact force/load cannot be certified by RGB-D.
 This is independent software preparation, not a completed Phase 6.1 or generated
 policy dataset. See [[topics/learned-policy-stack|Learned Policy Stack]].
 

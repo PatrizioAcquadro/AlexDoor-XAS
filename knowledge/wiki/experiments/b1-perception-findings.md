@@ -8,8 +8,8 @@ The custom DINOv2 estimators, SAM 2 reference, CAP-Net adapter and their trainin
 refinement and comparison workflows are retired. This supersedes the earlier
 recommendation to keep SAM 2/DINOv2 as operational comparison baselines.
 No candidate has qualified complete door/contact geometry or confidence on the
-six development doors. The new pipeline remains unimplemented; a backbone swap,
-a plane estimate or a train fit does not close Phase 6.0.
+six development doors. The new geometric pipeline is now a diagnostic prototype;
+a backbone swap, plane estimate or train fit does not close Phase 6.0.
 
 All model experiments below used the RTX 4090. Train/development identity splits
 and physical gates were unchanged; the sealed test was not used. The original
@@ -19,6 +19,35 @@ images are preserved. Source at Git `e1f98a6` retains the tracked implementation
 and detailed historical pages. Removed ignored scripts, weights, caches and
 intermediate payloads are **not recoverable from Git**; these records support
 inspection of the results, not a claim of fully executable reproduction.
+
+## Geometric prototype — September 30, 2026
+
+The implementation is described in [[topics/shared-door-perception|Shared Door
+Perception]]. Local `geometric-smoke-02` passed actual frozen CUDA inference through
+all three models; cold/warm worker-model times were 369/174 ms on the RTX 4090.
+This is model execution evidence, not a latency or complete-state gate pass.
+
+The first pilot (`geometric-pilot-01`) replayed left `door-2738468b94d74c5f` and
+right `animated-door-1-88abf40`, nominal/light. Both doors accepted zero complete
+states. Missing hinge, missing thickness and ambiguous panel/jamb association were
+explicitly rejected. The right nominal episode also exposed large panel-orientation
+errors. Common corrections preserve normal continuity and require observed extent
+edges, without changing the gates or substituting nominal dimensions. Pilot-02 was
+interrupted after a report-format defect was found; its partial evidence is preserved.
+`geometric-pilot-03` completed all four episodes and 20,108 chronological
+observations. Both doors still accepted zero complete states. On finite rejected
+partials, pooled panel-rotation p95 was 0.051 degrees left and 0.591 degrees right;
+height span errors reached 15.45/16.40 cm respectively. These do not certify full
+dimensions: edge evidence, hinge and stable associations remain unresolved, and
+discontinuous motion is now rejected explicitly. All four episodes produced zero
+accepted rigid-motion hinge fits. Worker latency p95 was 220–243 ms, above the
+150 ms freshness window for an unrefreshed model result. Intermediate estimates
+require current depth support, not a freshly stamped cache.
+
+One unchanged recipe is fixed for the full 50-episode campaign. No simulation will
+run unless all 25 train/development doors pass offline. No training, collection or
+sealed-test evaluation was started. Baseline source: `4df9a09`; current prototype
+sources and protocol identities are retained with the new runs.
 
 ## Custom-estimator sequence
 

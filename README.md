@@ -16,8 +16,9 @@ geometry families and both handednesses in every partition. Rights scopes remain
 29 redistributable, two local-only and one private/noncommercial.
 
 Subphase 6.0 remains unqualified. Failed custom estimators are retired; the selected
-GroundingDINO + SAM 3, RGB-D/multiview geometry and optional DINOv3 direction is not
-yet implemented. Original engineering recordings and selected weights are preserved.
+GroundingDINO + native SAM 3, RGB-D/multiview geometry and DINOv3 associations now
+have a causal diagnostic provider and full-state replay evaluator. The prototype
+remains unqualified; original engineering recordings and selected weights are preserved.
 Independent 6.1 software covers ACT/Diffusion × A1–A4 through model-independent
 observed inputs, matched data and execution adapters. Numerical/CUDA model checks
 pass; qualified perception integration and physical rollout validation remain pending.
@@ -35,8 +36,9 @@ components remain; no repository command controls physical hardware.
 Use Python 3.11+ from the supported workstation stack: Isaac Sim 6.0.1 and
 Isaac Lab `release/3.0.0-beta2`, plus the external Alex package with Purdue/WSG,
 measured pedestal and ZED Wide assets. Isaac, Alex, PyTorch, Warp and CUDA are
-external runtime dependencies. The future perception integration has no installed
-repository-specific dependency set yet. Ordinary Python dependencies are declared in
+external runtime dependencies. Native SAM 3 runs in a separate process with an
+ignored dependency overlay; see [local model setup](models/perception/README.md).
+Ordinary Python dependencies are declared in
 `pyproject.toml`; Diffusion and developer tooling use their respective extras.
 
 From the checkout:
@@ -49,6 +51,19 @@ From the checkout:
 ruff check src scripts tests
 ruff format --check src scripts tests
 ```
+
+Evaluate the perception prototype on the existing train/development recordings:
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py evaluate --pilot \
+  --output outputs/b1/perception/NEW_PILOT
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py evaluate \
+  --output outputs/b1/perception/NEW_EVALUATION
+```
+
+Outputs must be fresh. The pilot covers both train handednesses and both conditions;
+the full command replays all 50 engineering-v2 episodes without test access,
+training or collection. Failed geometry gates produce a nonzero exit status.
 
 Model tests use CUDA and explicitly skip if unavailable. Pure numerical tests do
 not require a simulator. Run the Purdue integration gate on synthetic fixtures:

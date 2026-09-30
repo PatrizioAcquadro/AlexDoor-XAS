@@ -1,25 +1,24 @@
 # Project Status
 
-Current as of 2026-09-29. B1 is maintained; B0 execution and the failed custom
-perception workflows are retired. No new training or collection occurred during
-cleanup.
+Current as of 2026-09-30. B1 is maintained; B0 execution and the failed custom
+perception workflows are retired. The geometric prototype uses existing recordings
+and frozen local weights; no training, collection or test evaluation is authorized.
 
 | Area | Current state |
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head RGB-D/proprioception and contact diagnostics implemented. Common zero-yaw setup supersedes the historical 45-degree synthetic setup. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights remain 29 redistributable, two local-only, one private/noncommercial. |
-| 6.0 — Perception | Unqualified. Custom estimators retired after persistent development failures. GroundingDINO + SAM 3, explicit RGB-D/multiview geometry and optional DINOv3 features selected; new pipeline unimplemented. |
+| 6.0 — Perception | Unqualified. Causal GroundingDINO/native SAM 3/DINOv3 provider, RGB-D geometry and full-state replay evaluator implemented. CUDA smoke and four pilot replays completed; both pilot doors failed full-state gates. Common full offline evaluation is next. Dynamic use remains unvalidated. |
 | 6.1 — Action paths | Model-independent observed-input contracts, matched data, ACT/Diffusion × A1–A4 and execution/replay software maintained. No qualified provider; final integration and physical validation remain pending. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Implement the shared observed metric-geometry provider against
-[[topics/shared-door-perception|the retained interface and fixed gates]]. Address
-border/plane association, multiview static geometry, articulation/contact geometry
-and explicit ambiguity/loss. Then establish per-door development accuracy,
-confidence and dynamic usability before releasing a frozen provider or opening
-6.2. No further training or collection is implicitly authorized.
+Evaluate all 50 train/development engineering-v2 replays with the fixed recipe
+against [[topics/shared-door-perception|the full-state gates]]. The first pilot
+accepted no complete states: unresolved hinge, incomplete dimensions and competing
+panel/jamb surfaces block use. Run dynamic tests only if every train/development
+door passes offline. Do not release a provider or open 6.2 before both gate groups.
 
 [[experiments/b1-perception-findings|Perception findings]] preserves the evidence:
 run-03 fitted 19/19 train doors but passed 0/6 development; matched DINOv2/v3 probes
@@ -41,8 +40,10 @@ not full geometry or confidence qualification.
   qualified doors are sampling/observability diagnostics, not admission failures.
 - Train has one 15-door residential family; development has only one right-hand
   door. Report per-door/handedness results without claiming population coverage.
-- No policy/adapter input may contain privileged door geometry. Simulator truth
-  remains teacher/evaluator information or stop-only safety input. The sealed test
+- No policy/adapter input may contain privileged door geometry. The prototype
+  confines simulator truth to its evaluator, including future dynamic tests;
+  its observed-only monitor cannot infer force from RGB-D. Other maintained
+  teacher/legacy stop monitors have separate truth boundaries. The sealed test
   stays closed. Simulation validation does not establish hardware safety.
 
 ## Maintained surfaces
@@ -53,8 +54,9 @@ See [[topics/system-architecture|Architecture]],
 [[topics/episode-and-dataset-contracts|Data contracts]] and
 [[topics/learned-policy-stack|Policy components]]. Supported scripts cover environment
 checks, door intake/preparation/qualification, corpus verification, Purdue and
-synthetic physics/probe verification, and RGB-D collection. Synthetic candidate
-search and estimator orchestration are retired.
+synthetic physics/probe verification, RGB-D collection and diagnostic perception
+smoke/evaluation. Synthetic candidate search and estimator training orchestration
+are retired.
 
 The numerical data API still requires explicit ordered proprioceptive `obs_keys`
 and a dataset root. Episodes retain `phase2.v2`; numerical policy checkpoints retain

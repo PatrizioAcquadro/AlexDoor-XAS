@@ -31,6 +31,9 @@ diffusion = ["diffusers>=0.39,<1.0"]
 [tool.hatch.build.targets.wheel]
 packages = ["src/alexdoor_xas"]
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.ruff]
 line-length = 100
 src = ["src", "tests"]

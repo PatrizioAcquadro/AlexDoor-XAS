@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from alexdoor_xas.action.b1 import checked_pose, finite_vector, panel_pose
-from alexdoor_xas.perception.contracts import DoorEstimate
+from alexdoor_xas.action.b1 import finite_vector
+from alexdoor_xas.perception.contracts import DoorEstimate, validate_complete
 from alexdoor_xas.policies.common.b1_contract import OBS_KEYS
 from alexdoor_xas.recording.b1 import OBS_KEYS as SENSOR_KEYS
 
@@ -32,8 +32,7 @@ class PolicyObservation:
 def require_estimate(estimate, now, max_age):
     if not estimate.fresh(now, max_age):
         raise ValueError(f"Unavailable/stale observed geometry: {estimate.reason}")
-    checked_pose(estimate.frame)
-    panel_pose(estimate.frame, estimate.signed_angle)
+    validate_complete(estimate)
 
 
 def observation_columns(vector, binding):
