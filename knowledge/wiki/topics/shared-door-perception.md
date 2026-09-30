@@ -139,6 +139,26 @@ execution, physical force check or hardware safety is established by these tests
 
 ## Fixed acceptance boundary
 
+### Control requirements versus qualification
+
+A short geometric door-motion command needs a reliable hinge axis, closed reference,
+opening angle, local contact position/normal and observed robot state. Total leaf
+height is not intrinsically required to compute that local motion. However, a local
+patch alone does not establish the moving collision volume, authorized contact
+surface or force/load safety. The maintained prototype monitor also explicitly
+requires the complete `DoorEstimate` contract.
+
+The prescribed contact is at 0.295 of total width and 1.09 m world height. Its current
+position therefore depends on a reliable total width; replacing it with an arbitrary
+visible patch would change the task. Total dimensions, including height and thickness,
+remain required by the existing full-state gates. A reduced local-control contract
+would be a separate user decision and validation target, not a unilateral relaxation
+of those gates. No such change has been made. Extended evaluation is stopped for
+pilot diagnosis, with targeted human part-identity review pending; see
+[[experiments/b1-perception-findings|the retained evidence]].
+
+### Existing full-state gates
+
 Per train/development door, during contact/push/hold: valid coverage at least 95%,
 contact-position p95 at most 0.01 m and orientation p95 at most 5 degrees. Preserve
 complete-state checks: hinge origin, dimensions and local/world contact position

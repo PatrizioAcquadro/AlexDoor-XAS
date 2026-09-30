@@ -54,10 +54,47 @@ after eight complete episodes and a partial ninth (`modern-door-2fb8d024/light`)
 A degenerate rigid-fit consensus returned no solution; its caller incorrectly
 unpacked it. The common fix rejects that fit, preserving thresholds and gates.
 The interrupted attempt, complete reports and failure record remain intact. A
-fresh full campaign will replay all 50 episodes with the corrected source; the
-eight early results do not stand in for a complete common-source evaluation.
+fresh attempt (`geometric-evaluation-02`, source `a41c002`) used the corrected
+source and was subsequently stopped by the user. Its worker and evaluation
+process are stopped; completed reports, partial status and logs are preserved
+with `failure.json` identifying an intentional interruption. Neither attempt is
+a complete common-source evaluation. No further campaign will start until the
+main causes are clarified and corrected, with verification on both pilots first.
 Reset also clears the public estimate, and the prototype IO rejects unsafe contact
 commands before simulator access. These software guards do not validate dynamics.
+
+### Pilot diagnosis after the user stop
+
+`geometric-pilot-diagnosis-01` inspects existing nominal recordings and pilot-03
+clouds only; it does not evaluate another campaign or use annotations for inference.
+The selected planar support grows across the seven scan views, so single-view
+clipping alone does not establish missing evidence. Reprojection of the retained
+main-plane cloud into those views agrees with measured optical depth at p95
+0.73–1.95 mm left and 0.66–2.31 mm right, where projected depth is valid. This
+checks retained support, not every edge or a complete calibration qualification.
+
+The provider derives dimensions from one plane's inliers. Relief, side faces and
+other parallel faces become separate hypotheses; object extent is therefore not
+the same as planar support extent. A coarse raw-depth inspection of every fifth
+observation during the scan finds support beyond retained vertical bounds, including
+before the first semantic sample. These points are only proximity candidates:
+their ownership by the leaf or fixed frame has not been certified. Two targeted
+RGB-D overlays mark upper/lower candidates and separate profile support for human
+review. Do not merge frame points into the leaf or label these candidates complete
+silhouette evidence before that distinction is resolved.
+
+The current static fusion also keeps only the first surface's DINO anchors/features;
+later-view descriptors update but later anchors are discarded. This is a concrete
+memory limitation when the first view loses overlap during motion. Its contribution
+to the zero rigid-motion fits remains to be measured independently of boundary
+visibility. Proposed common corrections are object-level association of observed
+leaf faces, causal retention of scan support and multiview feature anchors, with
+metric verification and continued rejection of ambiguity. They have not yet been
+implemented or verified. Current evidence does not justify new training.
+
+Control-local requirements and the unchanged complete-state contract are separated
+in [[topics/shared-door-perception|Shared Door Perception]]. Human review is pending;
+no pilot correction run or extended restart has been launched after the stop.
 
 ## Custom-estimator sequence
 

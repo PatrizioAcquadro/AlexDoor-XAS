@@ -22,7 +22,9 @@ GroundingDINO + SAM 3 as visual components with explicit RGB-D/multiview geometr
 and DINOv3 when learned visual features are needed; it qualified no replacement.
 The new causal provider and full-state replay evaluator are implemented. Frozen
 CUDA smoke passed; the two-handedness train pilot completed with zero complete
-states accepted. Common full engineering-v2 evaluation is next. No new collection,
+states accepted. Extended engineering-v2 evaluation is stopped at the user's
+request. Diagnose and correct the main causes on both pilots before another
+campaign; retain all completed and partial results. No new collection,
 training or sealed-test access is
 part of this prototype. See [[experiments/b1-perception-findings|Perception findings]]
 and [[topics/shared-door-perception|the implementation and fixed gates]].
