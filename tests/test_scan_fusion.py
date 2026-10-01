@@ -60,11 +60,27 @@ def test_components_split_coplanar_frame_and_preserve_clipped_evidence():
     assert parts[0].bounds[1, 1] < parts[1].bounds[0, 1]
 
 
+def test_dense_residual_support_survives_global_sampling_and_three_plane_limit():
+    sample = camera_sensor()
+    # Four small measured faces have fewer than min_points in a global sample,
+    # but ample support after the large surrounding plane has been removed.
+    for i, depth in enumerate((1.0, 1.1, 1.2, 1.3)):
+        sample["depth_m"][40:70, 20 + i * 50 : 50 + i * 50] = depth
+    cue = EmptyWorker().infer(sample["rgb"])
+    cue["masks"] = [np.packbits(np.ones((240, 240), bool)).tobytes()]
+    cue["tokens"] = np.ones((196, 384), np.float32).tobytes()
+    parts = surfaces(cue, sample, recipe().config)
+    assert all(any(abs(s.offset - depth) < 0.001 for s in parts) for depth in (1, 1.1, 1.2, 1.3))
+
+
 def test_multiview_retains_original_boundaries_support_and_generation():
     memory = ScanMemory(recipe().config, 7)
     first, sample, _ = measured_surface()
     memory.add([first], sample, 8)
     following = camera_sensor(0.2, 20)
+    # Move the calibrated view so its clipped upper boundary remains within
+    # the original leaf, rather than measuring material beyond its top edge.
+    following["camera_world"][2, 3] -= 0.25
     mask = np.zeros((240, 240), bool)
     mask[:180, 60:181] = True
     second, following, _ = measured_surface(following, mask)
@@ -85,6 +101,26 @@ def test_missing_depth_beyond_silhouette_is_not_an_observed_edge():
     part, _, _ = measured_surface(sample)
     assert not part.edge_points
     assert set(part.observations[0].edge_status.values()) == {"unobserved"}
+
+
+def test_partial_view_boundary_cannot_trim_or_bound_previously_measured_material():
+    first, _, _ = measured_surface()
+    # A later clipped view sees an internal step as its bottom boundary.
+    partial = replace(
+        first,
+        points=first.points[first.points[:, 2] > 1.0],
+        extent_points=np.empty((0, 3)),
+        edge_points={"height_0": np.array([[1, -0.2, 1], [1, 0.2, 1]])},
+        views={2},
+    )
+    clipped = replace(first, edge_points={"height_1": first.edge_points["height_1"]})
+    fused = fuse_surface(clipped, partial, recipe().config, 2)
+    assert fused.bounds[0, 2] < 0.3
+    assert "height_0" not in fused.edge_points
+    assert "height_1" in fused.edge_points
+    # Even an individual inconsistent edge record cannot contract measured bounds.
+    inconsistent = replace(clipped, edge_points=partial.edge_points)
+    assert inconsistent.bounds[0, 2] < 0.3
 
 
 def test_reprojection_uses_the_calibrated_camera_instead_of_image_overlap():
@@ -171,6 +207,23 @@ def fixture_surface(points, normal, identifier, boundary, *, mask_index=0):
         surface_id=identifier,
         observations=(observation,),
     )
+
+
+def test_surrounding_support_needs_only_its_measured_separating_border():
+    root, _, _ = measured_surface()
+    root.surface_id = "root"
+    root.views = {0, 1}
+    root.edge_points.pop("height_0")
+    root.edges.pop("height_0")
+    y, z = np.meshgrid(np.linspace(0.6, 0.7, 20), np.linspace(0.4, 1.5, 20))
+    points = np.c_[np.full(y.size, 1.02), y.ravel(), z.ravel()]
+    outside = fixture_surface(points, [1, 0, 0], "side-support", points)
+    unknown = replace(outside, surface_id="unknown-bottom", points=points - [0, 0.65, 1.7])
+    memory = ScanMemory(recipe().config, 0)
+    memory.surfaces = [root, outside, unknown]
+    memory.assemble()
+    assert [s.surface_id for s in memory.state.fixed_surfaces] == ["side-support"]
+    assert [s.surface_id for s in memory.state.unresolved_surfaces] == ["unknown-bottom"]
 
 
 def test_relief_requires_an_observed_connector_not_parallelism_or_color():
@@ -294,6 +347,17 @@ def test_entire_two_finger_footprint_rejects_holes_and_edge_clipping():
     assert not footprint_support(damaged, pose, finger_faces(), recipe().config).supported
     clipped = ObjectFrame(np.array([1, 0.49, 1]), np.eye(3))
     assert not footprint_support(surface, clipped, finger_faces(), recipe().config).supported
+
+
+def test_repeated_vertices_on_a_line_are_not_a_finite_finger_face():
+    surface, _, _ = measured_surface()
+    pose = ObjectFrame(np.array([1, 0, 1]), np.eye(3))
+    # The current collision extremum produces nine vertices but only two
+    # distinct positions; filling its projected line must not certify a face.
+    lines = tuple(np.array([[0, y, -0.02], [0, y, 0.02], [0, y, -0.02]] * 3) for y in (-0.02, 0.02))
+    result = footprint_support(surface, pose, lines, recipe().config)
+    assert not result.supported and result.reason == "degenerate_finger_face"
+    assert result.finger_clearance_m == (None, None)
 
 
 def test_ray_space_queries_only_requested_cover_and_do_not_fill_unknown():

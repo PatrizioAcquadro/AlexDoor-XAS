@@ -312,7 +312,10 @@ def compare_video_scan(path, baseline, worker, config, distal_faces=None, *, out
                         [float(x0 / w), float(y0 / h), float((x1 - x0) / w), float((y1 - y0) / h)]
                     )
                 prompts = dict(
-                    frame_index=index, bounding_boxes=boxes, bounding_box_labels=[1] * len(boxes)
+                    frame_index=index,
+                    text="door",
+                    bounding_boxes=boxes,
+                    bounding_box_labels=[1] * len(boxes),
                 )
                 break
     if prompts is None:

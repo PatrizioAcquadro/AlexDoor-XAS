@@ -124,7 +124,10 @@ class Surface:
             for side in (0, 1):
                 key = f"{name}_{side}"
                 if key in self.edge_points:
-                    bounds[side, axis] = np.median(self.edge_points[key] @ self.basis[:, axis])
+                    coordinate = np.median(self.edge_points[key] @ self.basis[:, axis])
+                    # A boundary of a partial view cannot trim material measured
+                    # beyond it in another view (e.g. an internal recess edge).
+                    bounds[side, axis] = (min if side == 0 else max)(bounds[side, axis], coordinate)
         return bounds
 
     @property
@@ -281,23 +284,27 @@ def surfaces(cue, sensor, config):
         v, u = np.nonzero(interior & valid & np.isfinite(depth) & (depth > 0))
         if len(u) < config["min_points"]:
             continue
-        take = np.linspace(0, len(u) - 1, min(len(u), config["max_points"]), dtype=int)
-        u, v = u[take], v[take]
         cloud = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
         anchors, features, _ = patch_anchors(cue, sensor, interior)
+        vv, uu = np.nonzero(mask & valid & np.isfinite(depth) & (depth > 0))
+        dense = deproject(
+            depth[vv, uu], np.c_[uu, vv], sensor["intrinsics"], sensor["camera_world"]
+        )
         remaining = cloud
-        for _ in range(3):
-            fitted = plane_fit(remaining, config["plane_tolerance_m"], config["min_points"], rng)
+        while len(remaining) >= config["min_points"]:
+            # Re-sample measured residuals after each fit. Narrow connectors can
+            # have ample dense support but vanish from the initial global sample.
+            take = np.linspace(
+                0, len(remaining) - 1, min(len(remaining), config["max_points"]), dtype=int
+            )
+            sampled = remaining[take]
+            fitted = plane_fit(sampled, config["plane_tolerance_m"], config["min_points"], rng)
             if fitted is None:
                 break
             normal, offset, support, residual = fitted
-            points = remaining[support]
+            points = sampled[support]
             if normal @ (points.mean(0) - sensor["camera_world"][:3, 3]) < 0:
                 normal, offset = -normal, -offset
-            vv, uu = np.nonzero(mask & valid & np.isfinite(depth) & (depth > 0))
-            dense = deproject(
-                depth[vv, uu], np.c_[uu, vv], sensor["intrinsics"], sensor["camera_world"]
-            )
             member = abs(dense @ normal - offset) <= config["plane_tolerance_m"]
             raster = np.zeros((h, w), bool)
             raster[vv[member], uu[member]] = True
@@ -389,7 +396,7 @@ def surfaces(cue, sensor, config):
                         observations=(observation,),
                     )
                 )
-            remaining = remaining[~support]
+            remaining = remaining[abs(remaining @ normal - offset) > config["plane_tolerance_m"]]
     return result
 
 
@@ -445,6 +452,18 @@ def fuse_surface(a, b, config, view):
             > 0
         ):
             edge_points[key] = observed
+    measured = np.r_[points, a.extent_points, b.extent_points] @ basis
+    extremes = np.quantile(measured, [0.002, 0.998], axis=0)
+    edge_points = {
+        key: value
+        for key, value in edge_points.items()
+        if (
+            np.median(value @ basis[:, 1 if key.startswith("width") else 2])
+            - extremes[int(key[-1]), 1 if key.startswith("width") else 2]
+        )
+        * (1 if key.endswith("_0") else -1)
+        <= 3 * config["plane_tolerance_m"]
+    }
     edges = {
         key: float(np.median(value @ basis[:, 1 if key.startswith("width") else 2]))
         for key, value in edge_points.items()

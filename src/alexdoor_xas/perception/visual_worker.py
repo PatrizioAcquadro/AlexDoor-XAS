@@ -215,7 +215,7 @@ class FrozenVideoModels:
                         offload_state_to_cpu=True,
                     )
                 )["session_id"]
-                self.predictor.handle_request(
+                prompted = self.predictor.handle_request(
                     dict(type="add_prompt", session_id=session, **request["prompts"])
                 )
                 for event in self.predictor.handle_stream_request(
@@ -243,6 +243,8 @@ class FrozenVideoModels:
             return dict(
                 **self.runtime,
                 frames=frames,
+                prompt_mask_count=len(prompted["outputs"]["out_binary_masks"]),
+                prompt_object_ids=prompted["outputs"]["out_obj_ids"].tolist(),
                 latency_s=time.perf_counter() - start,
                 peak_memory_bytes=torch.cuda.max_memory_allocated(),
                 peak_reserved_bytes=torch.cuda.max_memory_reserved(),

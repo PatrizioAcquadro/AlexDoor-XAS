@@ -255,8 +255,13 @@ def footprint_support(surface, pose, distal_faces, config):
 
     clearances = []
     for face in distal_faces:
-        world = np.asarray(face) @ pose.rot.T + pose.origin
-        if world.ndim != 2 or len(world) < 3 or not np.isfinite(world).all():
+        face = np.asarray(face)
+        if face.ndim != 2 or face.shape[1:] != (3,) or len(face) < 3 or not np.isfinite(face).all():
+            return FootprintSupport((None, None), False, "invalid_finger_geometry")
+        if np.linalg.matrix_rank(face - face.mean(0)) < 2:
+            return FootprintSupport((None, None), False, "degenerate_finger_face")
+        world = face @ pose.rot.T + pose.origin
+        if not np.isfinite(world).all():
             return FootprintSupport((None, None), False, "invalid_finger_geometry")
         if np.max(abs(world @ surface.normal - surface.offset)) > 2 * config["plane_tolerance_m"]:
             clearances.append(None)
@@ -592,15 +597,15 @@ class ScanMemory:
             outside = bool(objects)
             for obj in objects:
                 local = (surface.points @ obj.root.basis)[:, 1:]
-                inside = (
-                    (local >= obj.root.bounds[0, 1:]) & (local <= obj.root.bounds[1, 1:])
-                ).all(1)
-                outside &= (
-                    all(
-                        k in obj.root.edge_points
-                        for k in ("width_0", "width_1", "height_0", "height_1")
-                    )
-                    and not inside.any()
+                # One measured separating border is sufficient. Missing bottom
+                # support cannot invalidate exclusion beyond a measured side.
+                outside &= any(
+                    (
+                        (local[:, 0 if key.startswith("width") else 1] - coordinate)
+                        * (-1 if key.endswith("_0") else 1)
+                        > 3 * self.config["plane_tolerance_m"]
+                    ).all()
+                    for key, coordinate in obj.root.edges.items()
                 )
             surface.ownership = "observed_surrounding_support" if outside else "unresolved"
             (fixed if outside else unresolved).append(surface)

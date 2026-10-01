@@ -153,18 +153,26 @@ or physics; the bounded 6.0B model diagnosis is described below.
 
 `configs/perception_geometry.json` explicitly selects `scan_fusion="object-v1"`.
 Recipes without that key retain the legacy plane-selection path. `Surface` retains
-disconnected measured components, dense extrema, certified edges and packed
+disconnected measured components, dense extrema, supported edges and packed
 per-observation membership with calibrated poses, capture/availability times and
 observed/clipped/unobserved edge status. Registered overlapping proposals share
 geometric storage; unresolved associations retain competing references instead of
 creating another independent object on every result. This storage consolidation
-does not establish leaf ownership.
+does not establish leaf ownership. Plane extraction re-samples the remaining dense
+support after each fit instead of limiting a semantic mask to three planes. This
+preserves smaller measured faces/connectors without lowering `min_points` or fit
+tolerances. A partial-view edge cannot contract measured material bounds; fusion
+removes a perimeter claim contradicted by observed support beyond that edge while
+preserving the original observation record.
 
 `GeometryProvider.scan_state` exposes candidate leaf objects, attached surfaces,
 surrounding support and unresolved associations. Relief faces require an observed
 internal connecting seam; parallelism, proximity, common color or a semantic mask
 alone cannot attach a face. Fixed surrounding support requires exclusion by observed
-perimeters; missing borders remain ambiguous. A unique object candidate must have
+separating borders in every retained object alternative; one measured side can
+exclude support beyond that side without requiring a bottom/top border. Other
+missing borders remain unknown. This is geometric surrounding support, not proof
+of temporal fixed/leaf identity. A unique object candidate must have
 supported boundaries, and unresolved associations prevent selection. No area winner,
 handedness label, nominal dimensions or universal bottom-frame rule resolves ambiguity.
 
@@ -179,8 +187,12 @@ own latest acquisition and availability, independently of the panel observation.
 
 Observed `ContactPatch` proposals retain material surface IDs, full pose and
 `FieldSupport`. `footprint_support` checks both entire collision-derived distal
-faces against observed rasters, including holes and image clipping; it does not
-replace missing support with a convex panel hull. `ObservedSpace.query` accepts a
+faces against observed rasters, including holes and image clipping. Repeated
+vertices on a line fail as `degenerate_finger_face`; rasterizing a line cannot certify
+a finite contact face. The current closed collision extrema are lines, so their
+historical patch counts do not establish full-face support. A finite physical contact
+model remains required before interaction; the robot assets/calibration are unchanged.
+The query does not replace missing support with a convex panel hull. `ObservedSpace.query` accepts a
 caller-supplied covering-ball representation of the relevant continuous sweep and
 stop envelope. Calibrated depth rays distinguish observed free cover, occupied
 support and unknown space; unrelated unknown regions are not queried. Its returned
@@ -203,8 +215,11 @@ RGB-D or synthesizing an observation. It writes candidate reprojections, observe
 geometry, finite-footprint checks and explicit uncertainty/ambiguity reports in a
 fresh directory. No annotations enter this diagnostic. When ownership remains
 unresolved, one conditional native SAM3 forward-video comparison uses exactly the
-captured RGB frames and automatic GroundingDINO boxes. Video confirmation can use
-later frames: all comparison geometry is retrospective and does not replace the
+captured RGB frames, automatic GroundingDINO boxes and the shared `door` concept.
+The box-only historical recipe produced raw masks but native hotstart removed the
+unmatched track; a box on one frame did not provide continuing detector matches.
+The worker now records the initial prompt mask count/object IDs separately from
+propagation. Video confirmation can use later frames: all comparison geometry is retrospective and does not replace the
 causal provider or backdate an accepted runtime estimate. Models stay frozen on CUDA,
 and the video worker starts only after the image worker closes.
 

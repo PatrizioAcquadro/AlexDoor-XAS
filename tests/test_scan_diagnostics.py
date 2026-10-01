@@ -79,6 +79,7 @@ def test_video_comparison_uses_same_captures_and_never_backdates_support(tmp_pat
         def infer_video(self, images, prompts):
             assert images == [str(baseline / r["image"]) for r in records]
             assert prompts["frame_index"] == 0 and prompts["bounding_box_labels"] == [1]
+            assert prompts["text"] == "door"  # retain detector confirmation during propagation
             mask = np.zeros((240, 240), bool)
             mask[30:211, 60:181] = True
             return dict(
