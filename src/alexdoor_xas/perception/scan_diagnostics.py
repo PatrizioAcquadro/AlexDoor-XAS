@@ -388,7 +388,7 @@ def compare_video_scan(path, baseline, worker, config, distal_faces=None, *, out
 def run_scan_diagnostics(paths, recipe, output, models):
     from ihmc_alex_isaaclab._paths import REPOSITORY_ROOT as alex_root
 
-    from alexdoor_xas.assets.purdue import derive_push_geometry
+    from alexdoor_xas.assets.purdue import DISTAL_CONTACT_TOLERANCE_M, derive_push_geometry
     from alexdoor_xas.perception.provider import CueEngine, GeometryProvider, ModelWorker
 
     expected = {(p, c) for p in PILOTS for c in ("nominal", "light")}
@@ -402,6 +402,7 @@ def run_scan_diagnostics(paths, recipe, output, models):
         / "assets/robots/alex_purdue/urdf/baseline/alex_purdue_wsg32_umi_v1_full_convex.urdf"
     )
     geometry = derive_push_geometry(urdf)
+    contact_covers = geometry.contact_covers()
     write_json(
         output / "protocol.json",
         dict(
@@ -418,7 +419,10 @@ def run_scan_diagnostics(paths, recipe, output, models):
             input_end_s=recipe.config["inspection"]["sample_times_s"][-1],
             semantic_target_hz=1 / recipe.config["semantic_period_s"],
             footprint_source=str(urdf),
-            footprint_vertices=[p.tolist() for p in geometry.distal_faces],
+            footprint_vertices=[p.tolist() for p in contact_covers],
+            footprint_band_m=DISTAL_CONTACT_TOLERANCE_M,
+            footprint_model="projected collision mesh band within existing distal tolerance; "
+            "geometric cover, not a flat pad or measured compliance",
             video_comparison=(
                 "one conditional forward configuration; same captured RGB "
                 "frames and automatic GroundingDINO boxes; retrospective only"
@@ -444,9 +448,7 @@ def run_scan_diagnostics(paths, recipe, output, models):
                 provider = GeometryProvider(recipe, engine)
                 for path in paths:
                     destination = output / path.parent.parent.name / path.parent.name
-                    reports.append(
-                        diagnose_scan(path, provider, destination, geometry.distal_faces)
-                    )
+                    reports.append(diagnose_scan(path, provider, destination, contact_covers))
                     print(
                         json.dumps(
                             dict(
@@ -472,7 +474,7 @@ def run_scan_diagnostics(paths, recipe, output, models):
                         destination = output / path.parent.parent.name / path.parent.name
                         comparisons.append(
                             compare_video_scan(
-                                path, destination, worker, recipe.config, geometry.distal_faces
+                                path, destination, worker, recipe.config, contact_covers
                             )
                         )
                         print(

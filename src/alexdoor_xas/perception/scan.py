@@ -236,7 +236,7 @@ class FootprintSupport:
 
 
 def footprint_support(surface, pose, distal_faces, config):
-    """Cover both entire finite faces in observed rasters; never fill a hole with a hull."""
+    """Check two finite contact covers; observed holes remain holes, ownership is separate."""
     if len(distal_faces) != 2:
         return FootprintSupport((None, None), False, "missing_two_finger_geometry")
     import cv2

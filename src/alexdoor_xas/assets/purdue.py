@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
+from scipy.spatial import ConvexHull
 
 ARM_JOINTS = (
     "RIGHT_SHOULDER_Y",
@@ -21,6 +22,7 @@ ARM_JOINTS = (
 NECK_JOINTS = ("NECK_Z", "NECK_Y")
 PUSH_PARENT = "right_WSG32_BASE_LINK"
 FINGER_LINKS = tuple(f"right_WSG32_{side}_UMI_V1_FINGER_LINK" for side in ("NEGATIVE", "POSITIVE"))
+DISTAL_CONTACT_TOLERANCE_M = 0.003
 
 
 def origin_matrix(origin: ET.Element | None) -> np.ndarray:
@@ -69,11 +71,39 @@ class PushGeometry:
 
     @property
     def distal_faces(self):
-        """Closed forward contact faces, expressed relative to the push frame."""
+        """Forward extrema used by the expert; these may be lines, not finite faces."""
         return tuple(
             points[np.abs(points[:, 0] - points[:, 0].max()) < 1e-6] - self.translation
             for points in self.finger_vertices.values()
         )
+
+    def contact_covers(self, band_m=DISTAL_CONTACT_TOLERANCE_M):
+        """Project the clipped distal mesh band onto each forward support plane.
+
+        The existing distal classification tolerance sets the band, not a claim
+        of finger deformation or a flat pad. Its convex projection conservatively
+        covers nominal contact inside that band, including edge intersections.
+        Alignment, tracking and model errors need separate action margins.
+        Expert extrema, tool origin and collision geometry remain unchanged.
+        """
+        if not np.isfinite(band_m) or band_m <= 0:
+            raise ValueError("A positive finite distal band is required")
+        covers = []
+        for points in self.finger_vertices.values():
+            forward = points[:, 0].max()
+            cutoff = forward - band_m
+            edges = points.reshape(-1, 3, 3)[:, [[0, 1], [1, 2], [2, 0]]].reshape(-1, 2, 3)
+            a, b = edges[:, 0], edges[:, 1]
+            crossing = (a[:, 0] < cutoff) != (b[:, 0] < cutoff)
+            a, b = a[crossing], b[crossing]
+            intersections = a + (b - a) * ((cutoff - a[:, 0]) / (b[:, 0] - a[:, 0]))[:, None]
+            clipped = np.r_[points[points[:, 0] >= cutoff], intersections]
+            yz = np.unique(clipped[:, 1:], axis=0)
+            if len(yz) < 3 or np.linalg.matrix_rank(yz - yz.mean(0)) < 2:
+                raise ValueError("Distal band has no finite contact cover")
+            yz = yz[ConvexHull(yz).vertices]
+            covers.append(np.c_[np.full(len(yz), forward), yz] - self.translation)
+        return tuple(covers)
 
 
 def derive_push_geometry(urdf: str | Path) -> PushGeometry:

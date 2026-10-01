@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import numpy as np
 
 from alexdoor_xas.action.frames import quat_to_rot_matrix
+from alexdoor_xas.assets.purdue import DISTAL_CONTACT_TOLERANCE_M
 
 
 def has_forbidden_contact(contacts):
@@ -22,7 +23,7 @@ class DistalSurface:
     vertices: np.ndarray
     forward: np.ndarray
 
-    def contains(self, point, normal, tolerance=0.003):
+    def contains(self, point, normal, tolerance=DISTAL_CONTACT_TOLERANCE_M):
         """Convex hull inclusion, forward extremum, and opposing surface normal."""
         points = self.vertices
         if abs(np.dot(point, self.forward) - np.max(points @ self.forward)) > tolerance:

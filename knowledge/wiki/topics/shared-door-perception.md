@@ -190,12 +190,15 @@ calibration and real stereo noise are not qualified. Hardware evidence retains i
 own latest acquisition and availability, independently of the panel observation.
 
 Observed `ContactPatch` proposals retain material surface IDs, full pose and
-`FieldSupport`. `footprint_support` checks both entire collision-derived distal
-faces against observed rasters, including holes and image clipping. Repeated
+`FieldSupport`. `footprint_support` checks both entire finite distal contact
+covers against observed rasters, including holes and image clipping. Repeated
 vertices on a line fail as `degenerate_finger_face`; rasterizing a line cannot certify
 a finite contact face. The current closed collision extrema are lines, so their
-historical patch counts do not establish full-face support. A finite physical contact
-model remains required before interaction; the robot assets/calibration are unchanged.
+historical patch counts do not establish full-face support. Queries now use the
+projected, clipped mesh bands documented in
+[[purdue-b1-robot-and-contact|the robot contact contract]], preserving the extrema
+and calibration. This supplies a finite geometric cover; actual load/contact,
+compliance and model-error bounds remain unverified before interaction.
 The query does not replace missing support with a convex panel hull. `ObservedSpace.query` accepts a
 caller-supplied covering-ball representation of the relevant continuous sweep and
 stop envelope. Calibrated depth rays distinguish observed free cover, occupied

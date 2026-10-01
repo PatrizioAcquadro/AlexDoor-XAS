@@ -33,6 +33,10 @@ def test_canonical_geometry():
     )
     geometry = derive_push_geometry(path)
     np.testing.assert_allclose(geometry.translation, [0.202, 0, 0], atol=1e-5)
+    for extremum, cover in zip(geometry.distal_faces, geometry.contact_covers(), strict=True):
+        assert np.linalg.matrix_rank(extremum - extremum.mean(0)) == 1
+        assert np.linalg.matrix_rank(cover - cover.mean(0)) == 2
+        np.testing.assert_allclose(cover[:, 0], extremum[0, 0], atol=1e-9)
     assert len(ARM_JOINTS) == 7 and ARM_JOINTS[-1] == "RIGHT_GRIPPER_Y"
     for name, points in geometry.finger_vertices.items():
         surface = DistalSurface("actor", name, points, np.array([1.0, 0, 0]))
@@ -41,6 +45,28 @@ def test_canonical_geometry():
         assert surface.contains(point, np.array([1.0, 0, 0]))
         assert not surface.contains(point - [0.02, 0, 0], np.array([1.0, 0, 0]))
         assert not surface.contains(point, np.array([0.0, 1, 0]))
+
+
+def test_contact_cover_clips_sloped_mesh_edges_without_inventing_pad_width():
+    from scipy.spatial import ConvexHull
+
+    from alexdoor_xas.assets.purdue import PushGeometry
+
+    # Forward ridge at x=0.02; the sloping sides widen to +/-0.02 at x=0.
+    vertices = np.array(
+        [[x, y, z] for x, y in ((0, -0.02), (0, 0.02), (0.02, 0)) for z in (-0.01, 0.01)]
+    )
+    mesh = vertices[ConvexHull(vertices).simplices].reshape(-1, 3)
+    geometry = PushGeometry(np.array([0.02, 0, 0]), np.eye(4), {"finger": mesh})
+    (cover,) = geometry.contact_covers(0.003)
+    np.testing.assert_allclose(cover[:, 0], 0)
+    np.testing.assert_allclose(cover[:, 1:].min(0), [-0.003, -0.01])
+    np.testing.assert_allclose(cover[:, 1:].max(0), [0.003, 0.01])
+    # A vertex-only crop would leave the ridge and miss the entire sloped band.
+    assert np.linalg.matrix_rank(geometry.distal_faces[0]) == 1
+    for band in (0, -0.001, float("nan")):
+        with pytest.raises(ValueError, match="positive finite"):
+            geometry.contact_covers(band)
 
 
 def test_pose_control_rotates_and_centers_without_changing_primary_task():

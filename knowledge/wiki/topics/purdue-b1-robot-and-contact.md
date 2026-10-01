@@ -55,10 +55,24 @@ closing axis, and +Z completes the right-handed frame. Its origin is the center
 of the two forward support extrema of the closed finger contact hulls.
 
 Read-only URDF/STL inspection on 2026-09-22 gives translation approximately
-`(0.202000, 0, 0) m`, with identity rotation. The reference is the center of a
-finite two-finger footprint, not a material point in the gap between the fingers.
+`(0.202000, 0, 0) m`, with identity rotation. The reference lies between two
+distal contact supports; it is not a material point in the gap between the fingers.
 The consumer computes it from the canonical collision geometry;
 use the current geometry as the authority if the external asset changes.
+
+The current forward mesh extrema are horizontal ridges, not flat pads.
+`PushGeometry.distal_faces` retains those extrema for the expert and historical
+qualification. Observed contact queries instead use `contact_covers()`: clip each
+canonical convex mesh within the existing 3 mm distal classification tolerance,
+include intersected triangle edges, then project that band along +X onto its
+forward support plane. The two nominal covers each span approximately 25.8 mm by
+3.4 mm, with distinct lateral/vertical offsets in `right_push_tip`. They cover
+possible contact within that band without enlarging it to the whole finger or
+treating the empty gap as contact. Convexity is justified by the canonical contact
+hulls. This is a conservative geometric projection, not measured contact area,
+finger deformation or proof of two loaded contacts. Model/alignment uncertainty,
+allowed penetration and physical response remain D checks. No robot asset,
+calibration, expert point, collider authorization or physical gate changes.
 
 The existing `RIGHT_WSG32_TCP_FRAME` is at `(0.1305, 0, 0) m` in the same base
 frame. It is 71.5 mm behind this push reference and must not silently replace it.
