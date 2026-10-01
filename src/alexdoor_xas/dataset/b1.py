@@ -19,6 +19,7 @@ from alexdoor_xas.action.b1 import (
 from alexdoor_xas.action.spaces import A4_OBJ_CENTRIC_CHUNK
 from alexdoor_xas.assets.identity import RobotAssetRef
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
+from alexdoor_xas.perception.contracts import geometry_profile
 from alexdoor_xas.policies.common.b1_contract import OBS_KEYS, PerceptionBinding, policy_contract
 from alexdoor_xas.policies.observations import observation_columns, require_estimate
 
@@ -77,9 +78,14 @@ def compile_episode(
         raise ValueError("Dropped B1 control observation")
     frames, angles, features, actions = [], [], [], {s: [] for s in ACTION_DIMS}
     for index, obs in enumerate(observations):
+        if obs.geometry_profile != geometry_profile(binding):
+            raise ValueError("B1 observation geometry profile differs from its binding")
         if not obs.valid:
             raise ValueError(f"Unavailable manipulation observation at {index}: {obs.reason}")
-        require_estimate(obs.estimate, obs.time_s, binding.config["max_gap_s"])
+        require_estimate(
+            obs.estimate, obs.time_s, binding.config["max_gap_s"],
+            profile=geometry_profile(binding), generation=obs.generation
+        )
         columns = observation_columns(obs.features, binding)
         features.append(obs.features)
         frames.append(obs.estimate.frame)

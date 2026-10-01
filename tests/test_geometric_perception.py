@@ -52,6 +52,19 @@ def complete_state(angle=0.3):
     )
 
 
+def test_legacy_evaluator_cannot_score_operational_states_or_create_misleading_reports(tmp_path):
+    from types import SimpleNamespace
+
+    from alexdoor_xas.perception.evaluation import evaluate_episode
+    from test_b1_observations import operational_provider
+
+    binding = SimpleNamespace(config=recipe().config)
+    provider = operational_provider(binding)
+    with pytest.raises(ValueError, match="6.0E evaluator"):
+        evaluate_episode(tmp_path / "absent.hdf5", provider, tmp_path / "output")
+    assert not (tmp_path / "output").exists()
+
+
 def test_optical_axis_depth_roundtrip_in_moving_calibrated_camera():
     camera = np.eye(4)
     camera[:3, :3] = rot_z(0.7)

@@ -2,7 +2,7 @@
 
 > Subphase 6.0 open: the September geometric prototype remains unqualified.
 > The October 1 operational perception/contact protocol is approved; implementation
-> work packages 6.0A-H are planned in a dedicated page.
+> 6.0A contracts and numerical consumer integration are implemented; 6.0B-H remain planned.
 > Subphase 6.1 software is partially validated; final integration is pending.
 > Subphase 6.2 is not started. Phases 4 and 5 are complete.
 
@@ -21,7 +21,9 @@ and full-state replay evaluator exist. Corrected two-pilot replay still accepts
 zero complete states: leaf/frame association and hinge/motion remain unreliable.
 Existing recordings lack joint torque; the observed-only monitor rejects loaded
 control. Extended evaluation remains stopped and dynamic validation has not run.
-The October 1 protocol changes future work, not these results or executable code.
+6.0A adds operational/provisional/load interfaces and numerical admission rules,
+preserving legacy schemas and results. Operational consumer compatibility exists,
+but the provider still emits legacy states and feedback acquisition remains absent.
 See [[experiments/b1-perception-findings|preserved evidence]] and
 [[topics/shared-door-perception|current implementation]].
 
@@ -35,7 +37,7 @@ page as the phase overview; use the detailed plan for assignments and exit check
 
 | Package | Outcome | Prerequisites |
 |---|---|---|
-| 6.0A | Explicit operational/provisional/load contracts and measurable admission rules | Approved protocol and current consumer audit |
+| 6.0A — complete | Explicit operational/provisional/load contracts, measurable admission rules and numerical consumer compatibility | Approved protocol and current consumer audit |
 | 6.0B | Leaf-level multiview fusion, fixed-part separation and static hinge hypotheses | 6.0A |
 | 6.0C | Causal tracking, signed articulation, uncertainty and stable/dynamic lifetimes | 6.0B |
 | 6.0D | Documented robot feedback, common compliant execution and physical stop | 6.0A; independent of B/C with numerical fixtures |

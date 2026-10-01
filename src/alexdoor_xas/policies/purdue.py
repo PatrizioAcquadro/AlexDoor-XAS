@@ -6,6 +6,13 @@ from scipy.spatial.transform import Rotation
 from alexdoor_xas.action.b1 import apply_pose_delta, finite_vector
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
+from alexdoor_xas.perception.admission import require_current_admission
+from alexdoor_xas.perception.contracts import (
+    LEGACY_FULL_STATE,
+    OPERATIONAL_V1,
+    RobotFeedback,
+    geometry_profile,
+)
 from alexdoor_xas.qualification.synthetic_probe import ContactLoad
 
 
@@ -140,6 +147,11 @@ class PurdueIO:
     def __init__(self, env, *, binding, robot_asset, setup, observed_provider=None):
         from alexdoor_xas.recording.b1_runtime import camera_calibration
 
+        self.profile = geometry_profile(binding)
+        if self.profile == OPERATIONAL_V1 and observed_provider is None:
+            raise ValueError("Operational IO requires the observed-only monitor")
+        if observed_provider is not None and observed_provider.binding != binding:
+            raise ValueError("Observed monitor provider differs from IO binding")
         if env.cfg.action_mode != "A2" or not env.cfg.cameras or env.cfg.prepared_door is None:
             raise ValueError("B1 rollout requires a prepared-door A2 Purdue environment with RGB-D")
         if not str(env.device).startswith("cuda"):
@@ -156,6 +168,7 @@ class PurdueIO:
         if any(env.cfg.initial_joints[k] != v for k, v in setup.initial_joints.items()):
             raise ValueError("Runtime ready pose differs from the common setup")
         self.env, self.binding, self.robot_asset = env, binding, robot_asset
+        self.admission = None
         self.dt = env.step_dt
         self.max_ticks = int(round(setup.horizon_s / self.dt))
         self.calibration = camera_calibration(env)
@@ -170,6 +183,7 @@ class PurdueIO:
             self.safety = ObservedPurdueSafety(self, setup, observed_provider)
 
     def reset(self):
+        self.admission = None
         self.env.reset()
         self.safety.reset()
         self.parked_tool = self.tool_pose()
@@ -202,6 +216,10 @@ class PurdueIO:
 
         return self.tool_fk(array(self.env.capture.sample.joint_position)[0], self.calibration)
 
+    def robot_feedback(self):
+        """6.0A declares absence; acquisition/semantics and load inference belong to 6.0D."""
+        return RobotFeedback.unavailable(self.env.capture.sample.time_s, ARM_JOINTS)
+
     def set_neck_target(self, value):
         self.env.set_neck_target(value)
 
@@ -215,6 +233,15 @@ class PurdueIO:
         env.step(torch.zeros((1, 6), device=env.device))
 
     def execute(self, command):
+        self.admission = command.admission if hasattr(command, "admission") else None
+        profile = getattr(self, "profile", LEGACY_FULL_STATE)
+        if self.admission is not None and profile != OPERATIONAL_V1:
+            raise ValueError("Operational admission requires operational IO profile")
+        if profile == OPERATIONAL_V1:
+            require_current_admission(
+                self.admission, self.safety.provider.last_estimate,
+                self.env.capture.sample.time_s
+            )
         if before := getattr(self.safety, "before_command", None):
             if reason := before(command.stage):
                 raise RuntimeError(reason)
@@ -241,6 +268,7 @@ class PurdueIO:
         return self.safety.check(stage)
 
     def stop(self):
+        self.admission = None
         # Do not add a release, IK correction or extra physics step on failure.
         self.env._pending_pose = None
         self.env._pending_joints = None

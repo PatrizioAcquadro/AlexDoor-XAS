@@ -90,15 +90,19 @@ and discards the remaining predicted horizon. Loss/stale input, invalid outputs
 and safety stops clear pending chunks and segment state; no release is appended.
 The common neck inspection and parked-tool hold precede learned arm execution.
 
-## Approved operational integration — not yet implemented
+## Operational interfaces — 6.0A implemented
 
 The [[../implementation_phases/phase-6-0-operational-perception-and-contact|6.0 successor protocol]]
 preserves these A4 semantics. Its transform needs the hinge frame, signed angle
 and full local target, not total leaf dimensions. A3's free-vector transform uses
-frame rotation only. Action admission will distinguish qualified geometry from a
-bounded provisional hypothesis and will check the relevant physical trajectory.
-Current adapters still require the complete `DoorEstimate`; changing that contract
-requires coordinated observer/runner validation, not setting a fake validity flag.
+frame rotation only. Explicit profile dispatch preserves legacy complete-state
+validation and permits operational states without irrelevant dimensions. Finite
+features alone do not authorize actions. Operational adapters require an explicit
+admission matching the action source, raw prediction, contact selection, episode
+generation, schedule and world trajectory. Provisional admission is diagnostic-only.
+An operational A4 segment keeps its admitted reference; incompatible updates latch
+the adapter and require explicit reset. No target projection or task correction occurs.
+Numerical integration does not qualify a provider, physical replay or loaded control.
 
 The policy owns target, stage, opening increment and duration. A diagnostic action
 source may test a small admitted movement, but cannot become a hidden policy

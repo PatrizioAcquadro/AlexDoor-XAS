@@ -10,8 +10,8 @@ train/development gap, corrected component screening and limitations.
 
 The approved October 1 successor is specified in
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|the operational perception/contact plan]].
-6.0A numerical contracts and admission rules are implemented, with consumer
-integration pending. Object-level fusion, causal field production and measured
+6.0A contracts, numerical admission rules and consumer compatibility are
+implemented. Object-level fusion, causal field production and measured
 torque/load monitoring remain planned. The current provider below still follows
 the September full-state contract.
 
@@ -71,8 +71,11 @@ and live execution, with causal frame/time checks, reset and freshness rejection
 A provider exposes `binding`, a finite NumPy `encoding`, `reset()` and `update(sensor)` returning
 `DoorEstimate`. It receives only recorded sensor keys and owns device conversion,
 inference and observation-dependent validity. Between inference ticks, only a
-fresh cached estimate/encoding may be reused, with current proprioception. Loss
-invalidates cached policy inputs. No qualified production provider, fallback or
+fresh qualified cached estimate may authorize policy execution, with current
+proprioception. Operational providers also declare `generation`; resets prevent
+cross-generation reuse. `PolicyObservation.features_available` is distinct from
+profile-specific `valid`: finite features can describe provisional/unqualified
+geometry without authorizing a command. No qualified production provider, fallback or
 registry is supplied yet; the prototype and numerical fixtures do not qualify it.
 
 `b1.perception.release.v2` declares named SHA256 artifact identities,
@@ -82,15 +85,16 @@ is immutable JSON. `verify_artifacts(paths)` verifies exact names and file bytes
 before a future provider loads them. The provider must bind that verified recipe;
 release declarations themselves are not evidence of qualification. Release v1 and
 the model-specific loader are retired; no qualified v2 release has been produced.
+Release v2 retains `legacy-full-state` and rejects operational reinterpretation.
+`PrototypeRecipe` permits an explicit diagnostic `geometry_profile`; operational
+release compatibility remains a 6.0H deliverable.
 
 Policy observation/action schemas and matched data retain their existing semantics.
 No B1 policy dataset or trained policy artifact requires conversion. ACT/Diffusion,
 A1–A4 adapters, normalization and stop-only execution remain maintained components,
 but final raw/live equivalence and physical integration await the qualified provider.
 
-## Geometric prototype
-
-### 6.0A numerical interfaces — consumer integration pending
+## Operational contracts — 6.0A implemented
 
 `DoorEstimate.operational` adds observed leaf identity, separate hinge hypotheses,
 closed reference, signed-angle/panel support and an identified local/world contact
@@ -107,9 +111,19 @@ and release qualification still require independent offline/dynamic evidence.
 credible hypothesis for the same physical patch and world trajectory. It sums
 translation bounds, rigid rotational travel, robot error, relative motion over
 latency/action duration and stop travel against both finger footprints and relevant
-collision clearance. Clearances must cover the continuous sweep and stop envelope.
+collision clearance. Each rotation source uses its own declared maximum lever over
+the relevant footprint/sweep; the hinge and angle levers cannot underbound the
+observed contact offset. Clearances must cover the continuous sweep and stop envelope.
+An unloaded declaration additionally needs a positive observed separation bound
+over that envelope after uncertainty; a Boolean alone cannot exclude contact.
 Only declared required dimensions enter this decision. Producers must establish
 these bounds; no operational measurement recipe has been supplied yet.
+
+Geometric bounds and relevant clearance/response support belong to 6.0B/C. Robot
+error, feedback timeout, residual/load uncertainty, gains and stop travel need
+6.0D measurements. Bounded diagnostic duration/displacement/speed are supplied by
+the shared 6.0D/F recipe before execution. Missing necessary parameters refuse
+admission; optional dimensions or unrelated unknown space do not.
 
 Contact selection orders producer-verified reachable candidates by minimum footprint
 clearance, resolved-hinge distance and stable selection ID. Target changes declare a
@@ -118,8 +132,20 @@ material-surface association and dual-profile scoring remain 6.0E work.
 `RobotFeedback` and `admit_load` declare a separate torque/device channel and require
 fresh feedback, known signal semantics, bounded robot-only residual/load evidence
 and verified contact/stop behavior. They supply neither a torque sensor nor a load
-model. Consumer integration is pending; the current prototype below still uses its
-legacy geometry and unavailable force feedback. No campaign or physics was run.
+model. `PurdueIO.robot_feedback()` and `recording.b1.robot_feedback_at()` explicitly
+report absent torque for the current runtime/v1 recordings, including when recorded
+commands contain effort values. The observed monitor continues to block loaded
+execution; even supplied torque cannot bypass its unimplemented load/stop model.
+
+Observers, adapter/runner, dataset compilation and the observed monitor dispatch
+the same explicit geometry profile. Operational adapters require the admitted
+action, source, schedule and world trajectory, preserve A4's admitted frame through
+the segment and latch on incompatible identity/contact/reference updates. Provisional
+admission is diagnostic-only. Legacy data/features/action schemas remain unchanged;
+the legacy evaluator and CLI refuse operational scoring before creating output or
+loading models. Independent scoring remains 6.0E work. No campaign or physics was run.
+
+## Geometric prototype — legacy inference
 
 `GeometryProvider` and `CueEngine` share capture/completion events in replay and
 live use. `ModelWorker` sends only RGB bytes to frozen CUDA models in an isolated
@@ -209,8 +235,8 @@ A short geometric door-motion command needs a reliable hinge axis, closed refere
 opening angle, local contact position/normal and observed robot state. Total leaf
 height is not intrinsically required to compute that local motion. However, a local
 patch alone does not establish the moving collision volume, authorized contact
-surface or force/load safety. The maintained prototype monitor also explicitly
-requires the complete `DoorEstimate` contract.
+surface or force/load safety. The current provider/recipe still require the complete
+legacy `DoorEstimate`; the implemented operational interfaces do not repair inference.
 
 The teacher and September diagnostic contact is at 0.295 of total width and 1.09 m
 world height; reproducing it requires width. It is not a mandatory policy target.
@@ -244,7 +270,7 @@ success is not complete geometry qualification. This profile and its previous
 failures remain reportable; it is not silently reinterpreted as the new operational
 profile.
 
-### Operational-v1 — approved, implementation pending
+### Operational-v1 — interfaces implemented, scoring/qualification pending
 
 The canonical [[../implementation_phases/phase-6-0-operational-perception-and-contact|6.0 protocol]]
 defines the required hinge/angle/local contact state, per-field lifetime, provisional
@@ -255,9 +281,9 @@ Action margins additionally include uncertainty, footprint, latency and stopping
 travel. Unknown space outside the relevant swept volume is not a universal veto.
 
 Existing `b1.rgbd.v1` recordings have no torque. They can validate geometry and
-causal replay, not the new loaded-control path. A timestamped robot-feedback
-channel will initially serve the common monitor only. Both gate groups and explicit
-release/profile compatibility are required before a qualified operational provider;
+causal replay, not the new loaded-control path. The timestamped robot-feedback
+interface serves the common monitor only; acquisition remains 6.0D work. Both gate
+groups and explicit release/profile compatibility are required before a qualified operational provider;
 do not manufacture existing `PerceptionBinding` flags. Phase 6.1 will integrate the
 qualified path across all eight cells without changing A4 semantics.
 

@@ -81,7 +81,7 @@ door state. See [[experiments/b1-perception-findings|the evidence and decision]]
 | Training supervision | Labels from training-door episodes, kept distinct from model observations. |
 | Learned policy, A3/A4 adapters, and optional gaze | Sensor observations, robot proprioception/forward kinematics, and frozen perception estimates. |
 | Evaluator | Simulator truth for errors, physical validity and scoring; never supplies task commands or runtime estimates. |
-| Planned operational common monitor | Observations, robot model/limits and declared robot feedback; no door/contact truth. Legacy truth-based stop monitors remain separate maintained consumers. |
+| Operational common monitor interface | Observations, robot model/limits and declared robot feedback; no door/contact truth. 6.0A declares missing torque; acquisition/load/stop verification remains 6.0D work. Legacy truth-based stop monitors remain separate maintained consumers. |
 | Oracle diagnostic | Explicitly separate results, never main ranking or test-driven model selection. |
 
 No true door pose may enter through reset initialization, cached transforms,
@@ -90,8 +90,10 @@ The expert reference angle and asset identity are evaluation metadata, not polic
 inputs. If perception loses the door, handle that observed failure explicitly.
 
 The September prototype and its approved operational successor use the stricter
-observed-only controller/monitor boundary. A documented joint-torque channel will
-initially serve the common monitor, not extend policy features. Its measurement
+observed-only controller/monitor boundary. 6.0A implements profile/admission
+interfaces with action-specific conservative bounds and legacy compatibility; this
+does not qualify perception or control. Its declared joint-torque channel serves
+the common monitor, not policy features. Actual acquisition and its measurement
 semantics, uncertainty and timing must be established; RGB-D and joint positions
 cannot be presented as force measurements. Physical criteria remain unchanged.
 All eight cells share the same monitor, low-level gains/limits and sensor boundary.

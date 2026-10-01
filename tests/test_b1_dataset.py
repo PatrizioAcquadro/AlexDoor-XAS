@@ -64,6 +64,20 @@ def test_contract_rejects_legacy_or_reordered_joints(b1_binding):
         validate_contract(contract)
 
 
+def test_compilation_cannot_silently_mix_operational_observations_with_legacy_release(b1_binding):
+    from alexdoor_xas.dataset.b1 import compile_episode
+    from test_b1_rollout import operational_observation
+    from test_operational_admission import operational_estimate
+
+    observations = [replace(operational_observation(operational_estimate(time=t), t), frame=i)
+                    for i, t in enumerate((0, 0.1))]
+    tool = observations[0].estimate.operational.contact.world_pose
+    with pytest.raises(ValueError, match="profile differs"):
+        compile_episode(episode_id="numeric", asset_id="left", asset_splits=SPLITS,
+                        observations=observations, tools=[tool, tool], joint_targets=[np.zeros(7)],
+                        goals=[tool], stages=["approach"], binding=b1_binding)
+
+
 def test_raw_preparation_never_promotes_engineering_recordings(tmp_path):
     from alexdoor_xas.dataset.b1 import prepare_recording
     from alexdoor_xas.recording.b1 import B1Writer

@@ -104,9 +104,16 @@ law into desired motor torque. Do not assume a separate selectable effort mode.
 do not establish that a wrist sensor is installed on this Alex003 configuration.
 The guide's EZGripper effort signal is not a WSG32 pushing-force measurement.
 
-The current B1 recorder/IO carries only joint position/velocity. The approved
+The current B1 recorder/IO carries only joint position/velocity in policy observations.
+6.0A adds `RobotFeedback` and `PurdueIO.robot_feedback()` as a separate monitor-only
+interface in canonical seven-right-arm joint order, N m and positive joint-coordinate
+sign. The current runtime reports torque absent; it never reads commands or privileged
+contact data to synthesize measurement. Freshness, known source/semantics, bounded
+robot-only load evidence and verified stop/contact behavior are separate admission
+requirements. The observed monitor remains blocked for loaded control.
+The approved
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|operational plan]]
-adds timestamped torque/device feedback to the common monitor first, without
+assigns actual torque/device acquisition and signal verification to 6.0D, without
 changing policy features or old recordings. External-load inference needs a
 robot-only model, verified feedback semantics and bounded model/friction/timing
 error. An anomaly detector does not certify exact contact location or all force

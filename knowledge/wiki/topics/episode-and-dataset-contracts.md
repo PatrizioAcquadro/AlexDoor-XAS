@@ -8,6 +8,11 @@ action and demonstration integration is specified in
 The separate B1 RGB-D engineering format and causal recording interface are in
 [[shared-door-perception|Shared Door Perception]]. The numerical contracts below
 remain unchanged and do not imply B1 policy-dataset compatibility.
+6.0A preserves `b1.rgbd.v1` and its sensor keys: old recordings have no measured
+torque, even if commands include effort values. Replay reports feedback absent.
+No recording migration or torque feature is added. Policy compilation explicitly
+checks the observation geometry profile against its binding; release v2 remains
+legacy and cannot silently accept operational observations.
 
 ## Recording and Export
 

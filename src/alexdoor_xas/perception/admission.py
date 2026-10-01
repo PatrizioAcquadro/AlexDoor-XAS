@@ -16,6 +16,7 @@ from alexdoor_xas.perception.contracts import (
     RobotFeedback,
     geometric_admission,
     same_pose,
+    validate_contact_transition,
     validate_reference,
 )
 
@@ -36,7 +37,8 @@ class ActionLimits:
     """Required action/error/stop bounds; unmeasured values remain None.
 
     Values come from the shared measured recipe, not the scoring thresholds.
-    Trajectories interpolate translation linearly and rotation by shortest arc.
+    Producers cover continuous action semantics and tracking/interpolation error
+    between command knots; finite differences below bound the submitted commands.
     """
 
     duration_s: float | None
@@ -64,6 +66,19 @@ class ActionProposal:
 
 
 @dataclass(frozen=True)
+class RotationLevers:
+    """Maximum radii over the relevant footprint/sweep for each rotation source."""
+
+    hinge_m: float | None
+    angle_m: float | None
+    panel_m: float | None
+    contact_m: float | None
+    clearance_m: float | None
+    robot_m: float | None
+    response_m: float | None
+
+
+@dataclass(frozen=True)
 class HypothesisActionSupport:
     """Same physical patch/trajectory expressed and bounded for one hypothesis.
 
@@ -83,7 +98,8 @@ class HypothesisActionSupport:
     unknown_in_envelope: bool
     response_position_bound_m: float | None
     response_rotation_bound_rad: float | None
-    lever_arm_m: float | None
+    rotation_levers: RotationLevers
+    unloaded_separation_m: float | None = None
 
 
 @dataclass(frozen=True)
@@ -94,6 +110,7 @@ class ActionAdmission:
     margins_m: tuple[tuple[str, float], ...] = ()
     proposal: ActionProposal | None = None
     estimate: DoorEstimate | None = None
+    limits: ActionLimits | None = None
 
 
 def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
@@ -176,7 +193,16 @@ def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
             clearance = min(nonnegative(v, "missing_relevant_clearance") for v in (
                 *evidence.finger_clearance_m, evidence.collision_clearance_m
             ))
-            radius = nonnegative(evidence.lever_arm_m, "unmeasured_lever_arm")
+            if evidence.rotation_levers is None:
+                raise ValueError("unmeasured_rotation_levers")
+            radii = {k: nonnegative(v, f"unmeasured_{k}_lever")
+                     for k, v in vars(evidence.rotation_levers).items()}
+            offset = state.contact.world_pose.origin - hinge.frame.origin
+            axis = hinge.frame.rot[:, 2]
+            if radii["hinge_m"] < np.linalg.norm(offset) or radii["angle_m"] < np.linalg.norm(
+                offset - axis * (offset @ axis)
+            ):
+                raise ValueError("underbounded_contact_lever_arm")
             response_p = nonnegative(evidence.response_position_bound_m, "unmeasured_leaf_response")
             response_r = nonnegative(
                 evidence.response_rotation_bound_rad, "unmeasured_leaf_response"
@@ -184,14 +210,21 @@ def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
             supports = (hinge.support, state.contact.local_support, state.contact.world_support,
                         evidence.support)
             translation = sum(s.position_bound_m for s in supports)
-            angle = sum(s.rotation_bound_rad for s in supports) + (
-                state.angle_support.rotation_bound_rad + state.panel_support.rotation_bound_rad
-                + bounds["robot_rotation_bound_rad"] + response_r
+            rotations = (
+                (radii["hinge_m"], hinge.support.rotation_bound_rad),
+                (radii["angle_m"], state.angle_support.rotation_bound_rad),
+                (radii["panel_m"], state.panel_support.rotation_bound_rad),
+                (radii["contact_m"], state.contact.local_support.rotation_bound_rad),
+                (radii["contact_m"], state.contact.world_support.rotation_bound_rad),
+                (radii["clearance_m"], evidence.support.rotation_bound_rad),
+                (radii["robot_m"], bounds["robot_rotation_bound_rad"]),
+                (radii["response_m"], response_r),
             )
             age = max(now - s.supported_s for s in (
                 state.angle_support, state.panel_support, state.contact.world_support
             ))
-            error = translation + rotational_travel(radius, angle) + response_p + (
+            rotation_error = sum(rotational_travel(r, a) for r, a in rotations)
+            error = translation + rotation_error + response_p + (
                 bounds["robot_position_bound_m"] + bounds["relative_speed_bound_m_s"] * (
                     age + times[-1] - times[0]
                 )
@@ -200,40 +233,56 @@ def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
             margin = clearance - error
             if margin <= 0:
                 raise ValueError("insufficient_action_margin")
+            if not proposal.loaded and nonnegative(
+                evidence.unloaded_separation_m, "unmeasured_unloaded_separation"
+            ) <= error:
+                raise ValueError("unloaded_contact_not_excluded")
             margins.append((hinge.hypothesis_id, float(margin)))
     except (ValueError, TypeError, AttributeError, IndexError) as error:
         return ActionAdmission(False, False, str(error))
     return ActionAdmission(True, provisional, "admitted_geometry_only", tuple(margins),
-                           deepcopy(proposal), deepcopy(estimate))
+                           deepcopy(proposal), deepcopy(estimate), limits)
 
 
 def require_current_admission(admission, estimate, now):
     """Validate receipt identity and bounds; segment coordinates remain anchored at admission."""
-    if not admission.admitted or admission.estimate is None or admission.proposal is None:
+    if admission is None or not admission.admitted or (
+        admission.estimate is None or admission.proposal is None
+    ):
         raise ValueError("action_not_admitted")
     before = admission.estimate.operational
     if not admission.proposal.times_s[0] <= now <= admission.proposal.times_s[-1]:
         raise ValueError("outside_admitted_schedule")
     validate_reference(estimate, now, generation=before.generation)
     current = estimate.operational
+    validate_contact_transition(before.contact, current.contact)
     identity = (current.leaf_id, current.reference_id,
                 current.contact.selection_id, current.contact.patch_id)
     if identity != (
         before.leaf_id, before.reference_id, before.contact.selection_id, before.contact.patch_id
-    ) or [h.hypothesis_id for h in current.hypotheses] != [
+    ) or {h.hypothesis_id for h in current.hypotheses} != {
         h.hypothesis_id for h in before.hypotheses
-    ]:
+    }:
         raise ValueError("admitted_reference_changed")
-    for old, new in zip(before.hypotheses, current.hypotheses, strict=True):
+    by_id = {h.hypothesis_id: h for h in current.hypotheses}
+    hinge_pairs = [(old, by_id[old.hypothesis_id]) for old in before.hypotheses]
+    for old, new in hinge_pairs:
         if (
             np.linalg.norm(new.frame.origin - old.frame.origin) > old.support.position_bound_m
             or Rotation.from_matrix(new.frame.rot @ old.frame.rot.T).magnitude()
             > old.support.rotation_bound_rad
         ):
             raise ValueError("admitted_reference_changed")
-    pairs = [(old.support, new.support) for old, new in zip(
-        before.hypotheses, current.hypotheses, strict=True
-    )] + [(before.angle_support, current.angle_support),
+    if (
+        np.linalg.norm(current.contact.local_pose.origin - before.contact.local_pose.origin)
+        > before.contact.local_support.position_bound_m
+        or Rotation.from_matrix(
+            current.contact.local_pose.rot @ before.contact.local_pose.rot.T
+        ).magnitude() > before.contact.local_support.rotation_bound_rad
+    ):
+        raise ValueError("admitted_material_contact_changed")
+    pairs = [(old.support, new.support) for old, new in hinge_pairs] + [
+         (before.angle_support, current.angle_support),
          (before.panel_support, current.panel_support),
          (before.contact.local_support, current.contact.local_support),
          (before.contact.world_support, current.contact.world_support)]
@@ -284,6 +333,11 @@ def admit_load(feedback: RobotFeedback, now, joint_names, *, timeout_s, model_se
                stop_verified, contact_consistent):
     """Robot-only producer evidence; anomaly detection alone cannot authorize loaded control."""
     try:
+        invalid_names = any(not isinstance(name, str) or not name for name in joint_names)
+        if not joint_names or invalid_names or (
+            len(set(joint_names)) != len(joint_names)
+        ):
+            raise ValueError("invalid_feedback_joint_order")
         if feedback.torque_nm is None:
             raise ValueError(feedback.reason or "force_feedback_unavailable")
         timeout = nonnegative(timeout_s, "unmeasured_feedback_timeout")

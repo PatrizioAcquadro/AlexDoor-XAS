@@ -10,11 +10,20 @@ from alexdoor_xas.action.b1 import (
     Segment,
     SegmentMotion,
     StageSequence,
+    apply_pose_delta,
     finite_vector,
 )
 from alexdoor_xas.action.frames import frame_delta_to_world
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A3_OBJ_REL_EE_DELTA, A4_OBJ_CENTRIC_CHUNK
 from alexdoor_xas.assets.identity import assert_checkpoint_runtime_compatible
+from alexdoor_xas.perception.admission import ActionAdmission, require_current_admission
+from alexdoor_xas.perception.contracts import (
+    LEGACY_FULL_STATE,
+    OPERATIONAL_V1,
+    geometry_profile,
+    same_pose,
+    validate_reference,
+)
 from alexdoor_xas.policies.observations import require_estimate
 
 
@@ -23,15 +32,21 @@ class Command:
     kind: str  # joints, delta, pose
     value: object
     stage: str | None = None
+    admission: ActionAdmission | None = None
 
 
 class ActionAdapter:
     """Transform only model predictions; no expert, surface target or success angle."""
 
-    def __init__(self, space, max_age_s):
+    def __init__(self, space, max_age_s, *, profile=LEGACY_FULL_STATE, source="policy"):
         if space not in ACTION_DIMS:
             raise ValueError("Unknown B1 action space")
         self.space, self.max_age_s = space, max_age_s
+        if profile not in (LEGACY_FULL_STATE, OPERATIONAL_V1) or source not in (
+            "policy", "diagnostic"
+        ):
+            raise ValueError("Unknown adapter profile/source")
+        self.profile, self.source = profile, source
         self.reset()
 
     def reset(self):
@@ -39,32 +54,107 @@ class ActionAdapter:
         self.motion = None
         self.tick = 0
         self.done = False
+        self.admission = None
+        self.blocked = False
 
-    def command(self, observation, tool, *, action=None, remaining_ticks):
+    def admit(self, observation, tool, action, admission):
+        if self.motion is not None:
+            if admission is not None and admission is not self.admission:
+                raise ValueError("Cannot replace an executing action admission")
+            admission = self.admission
+        if admission is None:
+            raise ValueError("Missing explicit operational action admission")
+        require_current_admission(admission, observation.estimate, observation.time_s)
+        if observation.generation != admission.estimate.operational.generation:
+            raise ValueError("Action admission episode generation mismatch")
+        validate_reference(observation.estimate, observation.time_s, self.max_age_s,
+                           generation=observation.generation)
+        proposal = admission.proposal
+        if proposal.action_space != self.space or proposal.source != self.source or (
+            admission.provisional and self.source != "diagnostic"
+        ):
+            raise ValueError("Action admission source/space mismatch")
+        if self.motion is None:
+            row = finite_vector(action, ACTION_DIMS[self.space])
+            if not np.allclose(row, proposal.action, atol=1e-8, rtol=0):
+                raise ValueError("Command differs from admitted action")
+            if not same_pose(tool, proposal.world_poses[0]):
+                raise ValueError("Tool differs from admitted initial pose")
+        self.admission = admission
+
+    def require_goal(self, observation, index, goal=None):
+        proposal = self.admission.proposal
+        if index >= len(proposal.times_s) or not np.isclose(
+            observation.time_s, proposal.times_s[index - 1], atol=1e-8, rtol=0
+        ):
+            raise ValueError("Command differs from admitted schedule")
+        if goal is not None and not same_pose(goal, proposal.world_poses[index]):
+            raise ValueError("Command differs from admitted world trajectory")
+
+    def command(self, observation, tool, *, action=None, remaining_ticks, admission=None):
+        if self.blocked:
+            raise ValueError("Operational adapter stop requires explicit reset")
+        try:
+            return self._command(observation, tool, action=action,
+                                 remaining_ticks=remaining_ticks, admission=admission)
+        except (ValueError, TypeError, AttributeError, IndexError):
+            if self.profile == OPERATIONAL_V1:
+                self.blocked = True
+                self.motion = self.admission = None
+            raise
+
+    def _command(self, observation, tool, *, action, remaining_ticks, admission):
         if self.done:
             raise ValueError("Action after predicted termination")
-        if not observation.valid:
-            raise ValueError(f"Invalid observed input: {observation.reason}")
-        require_estimate(observation.estimate, observation.time_s, self.max_age_s)
+        if observation.geometry_profile != self.profile:
+            raise ValueError("Observation/adapter geometry profile mismatch")
+        if self.profile == LEGACY_FULL_STATE:
+            if admission is not None or not observation.valid:
+                raise ValueError(f"Invalid observed input: {observation.reason}")
+            require_estimate(observation.estimate, observation.time_s, self.max_age_s)
+        else:
+            if not observation.features_available or (
+                self.source == "policy" and not observation.valid
+            ):
+                raise ValueError(f"Invalid observed input: {observation.reason}")
+            self.admit(observation, tool, action, admission)
         if self.space != A4_OBJ_CENTRIC_CHUNK:
             row = finite_vector(action, ACTION_DIMS[self.space])
+            if self.profile == OPERATIONAL_V1 and len(self.admission.proposal.world_poses) != 2:
+                raise ValueError("Primitive admission requires one control interval")
             if self.space == A1_JOINT_DELTA:
-                return Command("joints", row)
+                if self.profile == OPERATIONAL_V1:
+                    self.require_goal(observation, 1)
+                return Command("joints", row, admission=self.admission)
             if self.space == A3_OBJ_REL_EE_DELTA:
                 row = frame_delta_to_world(row, observation.estimate.frame)
-            return Command("delta", row)
+            if self.profile == OPERATIONAL_V1:
+                self.require_goal(observation, 1, apply_pose_delta(tool, row))
+            return Command("delta", row, admission=self.admission)
         if self.motion is None:
             segment = Segment.decode(action, remaining_ticks=remaining_ticks)
+            if self.profile == OPERATIONAL_V1 and (
+                len(self.admission.proposal.world_poses) != segment.ticks + 1
+                or segment.stage in ("contact", "push", "hold")
+                and not self.admission.proposal.loaded
+            ):
+                raise ValueError("A4 admission duration/load mismatch")
             self.sequence.accept(segment)
+            reference = (self.admission.estimate if self.profile == OPERATIONAL_V1
+                         else observation.estimate)
             self.motion = SegmentMotion.start(
-                segment, tool, observation.estimate.frame, observation.estimate.signed_angle
+                segment, tool, reference.frame, reference.signed_angle
             )
             self.tick = 0
         elif action is not None:
             raise ValueError("Cannot replace an executing A4 segment")
         self.tick += 1
-        goal = self.motion.goal(self.tick, observation.estimate.frame)
-        command = Command("pose", goal, self.motion.segment.stage)
+        hinge = (self.admission.estimate.frame if self.profile == OPERATIONAL_V1
+                 else observation.estimate.frame)
+        goal = self.motion.goal(self.tick, hinge)
+        if self.profile == OPERATIONAL_V1:
+            self.require_goal(observation, self.tick, goal)
+        command = Command("pose", goal, self.motion.segment.stage, self.admission)
         if self.tick == self.motion.segment.ticks:
             self.done = self.motion.segment.end_episode
             self.motion = None
@@ -134,7 +224,10 @@ class B1Runner:
         self.source_options = dict(
             temporal_ensemble=temporal_ensemble, n_action_steps=n_action_steps
         )
-        self.adapter = ActionAdapter(policy.action_space, observer.binding.config["max_gap_s"])
+        self.adapter = ActionAdapter(
+            policy.action_space, observer.binding.config["max_gap_s"],
+            profile=geometry_profile(observer.binding)
+        )
         self.pending = deque()
         self.stopped = True
 

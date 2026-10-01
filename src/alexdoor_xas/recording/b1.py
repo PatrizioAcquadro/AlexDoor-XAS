@@ -6,6 +6,9 @@ from pathlib import Path
 import h5py
 import numpy as np
 
+from alexdoor_xas.assets.purdue import ARM_JOINTS
+from alexdoor_xas.perception.contracts import RobotFeedback
+
 SCHEMA = "b1.rgbd.v1"
 PHASES = ("approach", "contact", "push", "hold", "release", "inspect")
 OBS_KEYS = (
@@ -19,6 +22,13 @@ OBS_KEYS = (
     "camera_world",
     "intrinsics",
 )
+
+
+def robot_feedback_at(h5, row):
+    """Legacy RGB-D replay has no torque channel, including when commands contain efforts."""
+    if h5.attrs.get("schema") != SCHEMA:
+        raise ValueError("Unsupported robot-feedback recording schema")
+    return RobotFeedback.unavailable(float(h5["observations/time_s"][row]), ARM_JOINTS)
 
 
 class B1Writer:

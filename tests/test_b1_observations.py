@@ -137,3 +137,87 @@ def test_unequal_visual_blocks_and_incompatible_provider(b1_binding):
     provider.update = wrong_width
     with pytest.raises(ValueError):
         observer.update(sample(0, 1))
+
+
+def operational_provider(binding, count=1):
+    import json
+    from dataclasses import replace
+
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+    from alexdoor_xas.perception.provider import PrototypeRecipe
+    from test_operational_admission import operational_estimate
+
+    recipe = PrototypeRecipe(json.dumps(binding.config | {"geometry_profile": OPERATIONAL_V1}))
+    provider = SimpleNamespace(binding=recipe, generation=-1, between=False, old_result=None)
+
+    def reset():
+        provider.generation += 1
+        provider.encoding = None
+        provider.calls = []
+        provider.selection_time = None
+
+    def update(sensor):
+        provider.calls.append(sensor)
+        if provider.between:
+            return DoorEstimate(sensor["time_s"], False, "between_inference_ticks")
+        estimate = provider.old_result or operational_estimate(
+            sensor["time_s"], provider.generation, count
+        )
+        if provider.selection_time is None:
+            provider.selection_time = sensor["time_s"]
+        state = estimate.operational
+        estimate = replace(estimate, operational=replace(
+            state, contact=replace(state.contact, selected_s=provider.selection_time)
+        ))
+        provider.encoding = np.arange(recipe.obs_dim - 18)
+        provider.last_estimate = estimate
+        return estimate
+
+    provider.reset, provider.update = reset, update
+    return provider
+
+
+def test_operational_features_qualification_and_truth_feedback_isolation(b1_binding):
+    provider = operational_provider(b1_binding)
+    observer = B1Observer(provider, provider.binding)
+    sensor = sample(0, 1)
+    sensor.update(robot_feedback={"torque": np.ones(7)}, annotations={"hinge": [7, 7, 7]})
+    result = observer.update(sensor)
+    assert result.features_available and result.valid and not result.estimate.valid
+    assert set(provider.calls[-1]) == set(OBS_KEYS)
+    assert len(result.features) == b1_binding.obs_dim
+    provisional = operational_provider(b1_binding, count=2)
+    result = B1Observer(provisional, provisional.binding).update(sample(0, 1))
+    assert result.features_available and not result.valid and result.reason == "ambiguous_hinge"
+
+
+def test_operational_cache_never_refreshes_time_or_crosses_episode_generations(b1_binding):
+    provider = operational_provider(b1_binding)
+    observer = B1Observer(provider, provider.binding)
+    first = observer.update(sample(0, 1))
+    assert first.valid
+    provider.between = True
+    assert observer.update(sample(0.1, 2)).valid
+    assert not observer.update(sample(0.16, 3)).valid
+    observer.reset()
+    assert not observer.update(sample(0, 1)).features_available
+    provider.between = False
+    provider.old_result = first.estimate
+    assert observer.update(sample(0.01, 2)).reason == "wrong_episode_generation"
+    provider.old_result = None
+    assert observer.update(sample(0.02, 3)).valid
+    assert observer.update(sample(0.01, 4)).reason == "nonmonotonic_observation"
+    assert observer.last is None and observer.last_contact is None
+
+
+def test_release_v2_cannot_be_reinterpreted_as_operational(b1_binding):
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+
+    release = b1_binding.to_dict()
+    release["config"]["geometry_profile"] = OPERATIONAL_V1
+    with pytest.raises(ValueError, match="only supports legacy"):
+        type(b1_binding).from_dict(release)
+    release = b1_binding.to_dict()
+    release["geometry_profile"] = OPERATIONAL_V1
+    with pytest.raises(ValueError, match="only supports legacy"):
+        type(b1_binding).from_dict(release)

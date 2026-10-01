@@ -1,8 +1,10 @@
 # Phase 6.0 — Operational Perception and Observed Contact
 
-> Approved design: October 1, 2026. Implementation is pending.
+> Approved design: October 1, 2026. 6.0A contracts and numerical consumer integration
+> are implemented; 6.0B-H remain pending.
 > This plan supersedes the September prototype's future requirements, not its
-> measurements or qualification results. Baseline: `main` at `809f575`.
+> measurements or qualification results. Design baseline: `main` at `809f575`;
+> 6.0A implementation baseline: `main` at `655d26b`.
 
 ## Purpose and execution boundary
 
@@ -15,10 +17,11 @@ extent a universal prerequisite for a local action. See the parent
 [[../topics/shared-door-perception|implemented perception boundary]] and
 [[../topics/purdue-b1-robot-and-contact|robot/contact contract]].
 
-The present authorization covers protocol and documentation preparation only.
-The work packages below are instructions for later implementation assignments,
-not a request to start agents, simulations or campaigns now. Keep the existing
-6.1 action-path and 6.2 dataset numbering. No new training, demonstration/data
+The current assignment implements 6.0A contracts, admission rules, consumer
+compatibility and numerical tests only. The remaining work packages below are
+instructions for later assignments, not a request to start agents, simulations or
+campaigns now. Keep the existing 6.1 action-path and 6.2 dataset numbering.
+No new training, demonstration/data
 collection, corpus changes, sealed-test access or push belongs to 6.0. Diagnostic
 test traces are evidence, not an expansion of the learning corpus. Preserve every
 completed/partial run and the stopped `geometric-evaluation-02` directory.
@@ -30,7 +33,7 @@ weights, CUDA for model inference and GPU-capable simulation, and one simulator
 at a time. Do not change shared Isaac/PyTorch installations. Keep replay/live on
 one causal provider and preserve calibration, FK, IK and Purdue IO.
 
-## Evidence checked before implementation
+## Baseline evidence and current limits
 
 - The current provider selects/fuses plane support; it does not reliably assemble
   all faces of one leaf or exclude fixed frame support. Corrected pilot-06 still
@@ -38,8 +41,9 @@ one causal provider and preserve calibration, FK, IK and Purdue IO.
 - `action/b1.py` uses hinge frame, signed angle and a full local target for A4;
   total dimensions do not enter its transformation. A3 rotates free delta vectors,
   so its frame origin does not affect that delta transformation.
-- `DoorEstimate`, `B1Observer` and the adapters currently require complete geometry,
-  including dimensions. The new validity distinctions below are not implemented.
+- At baseline, `DoorEstimate`, `B1Observer` and adapters required complete geometry,
+  including dimensions. 6.0A preserves that legacy profile and adds explicit
+  operational/provisional interfaces; the current provider still emits legacy states.
 - `recording/b1.py` and `PurdueIO.observe()` expose RGB-D and joint position/velocity,
   not torque. `ObservedControlChecks` rejects loaded phases with
   `force_feedback_unavailable`; `PurdueIO.stop()` clears commands but does not
@@ -49,8 +53,8 @@ one causal provider and preserve calibration, FK, IK and Purdue IO.
   force/torque sensor. Hardware feedback and control facts, source links and
   limitations are recorded in [[../topics/purdue-b1-robot-and-contact|the robot topic]].
 
-These source/code checks settle the design direction. Do not repeat model smoke,
-full numerical suites or campaigns merely to reconfirm this documentation.
+These source/code checks settle the design direction. 6.0A numerical regressions
+verify interfaces, not inferred geometry, feedback acquisition or physical behavior.
 
 ## Approved operational protocol
 
@@ -320,23 +324,36 @@ never forge existing `offline_passed`/`dynamic_passed` flags for pilot work.
 Every package starts by reading the current parent plan, this protocol, applicable
 AGENTS.md and the previous package's handoff. Reuse maintained tests; add only the
 essential regressions listed. Update canonical status and make small validated
-local commits. No push. Code, tests and measured results determine completion;
-the checkboxes below start unchecked because this revision changes documentation.
+local commits. No push. Code, tests and measured results determine completion.
+6.0A below is complete as an interface milestone; later packages retain their
+unperformed exit checks.
 
 ### 6.0A — Contracts and measurable admission rules
 
-- [ ] Define explicit geometric qualification, provisional action and load-admission
+- [x] Define explicit geometric qualification, provisional action and load-admission
   interfaces; stable/dynamic field support, timestamps, failure reasons and resets.
-- [ ] Specify one action-margin/uncertainty recipe, contact selection/evaluation
+- [x] Specify one action-margin/uncertainty recipe, contact selection/evaluation
   correspondence and torque-signal semantics. Unmeasured force/gain/stop parameters
   are measurement tasks in 6.0D, not invented constants or optional hidden defaults.
-- [ ] Map all consumers: `perception/contracts.py`, `policies/observations.py`,
+- [x] Map all consumers: `perception/contracts.py`, `policies/observations.py`,
   `policies/rollout.py`, `policies/common/b1_contract.py`, recording/replay and IO.
   Preserve old full-state/schema behavior with explicit profile compatibility.
-- [ ] Verify essential contracts: incomplete/provisional is not qualified; missing
+- [x] Verify essential contracts: incomplete/provisional is not qualified; missing
   torque stays missing; no truth reaches runtime; no helpful adapter correction.
 
 **Exit:** reviewed executable interfaces and numerical regressions; no campaign.
+
+**Implemented handoff:** additive `DoorEstimate.operational`, per-field support,
+explicit geometry profiles, action-specific conservative admission, identified
+contact transitions and evaluator-only material correspondence interfaces. Observer,
+adapter/runner, dataset compilation, recording/replay and observed IO/monitor share
+the compatibility rules; v2 releases stay legacy and diagnostic recipes opt in.
+The current provider emits no operational state and actual torque remains absent.
+No force/gain/timeout/stop values were invented. The common numerical recipe and
+producer measurement responsibilities are in
+[[../topics/shared-door-perception|implemented perception contracts]]. 6.0B and
+6.0D may proceed from these interfaces; 6.0E scoring and all physical gates remain
+unperformed. Phase 6.0 is unqualified.
 
 ### 6.0B — Object-level scan fusion and static hinge hypotheses
 

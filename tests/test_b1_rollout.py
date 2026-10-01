@@ -1,20 +1,140 @@
 """Eight numerical dispatch paths and failure stops; not physical rollouts."""
 
+from dataclasses import replace
 from types import SimpleNamespace
 
 import numpy as np
 import pytest
 
-from alexdoor_xas.action.b1 import ACTION_DIMS, STAGES, Segment, apply_pose_delta, pose_delta
+from alexdoor_xas.action.b1 import (
+    ACTION_DIMS,
+    STAGES,
+    Segment,
+    SegmentMotion,
+    apply_pose_delta,
+    pose_delta,
+)
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA, A4_OBJ_CENTRIC_CHUNK
 from alexdoor_xas.dataset.b1 import export_dataset
 from alexdoor_xas.policies.b1 import B1Policy, load_b1_data
-from alexdoor_xas.policies.observations import B1Observer
+from alexdoor_xas.policies.observations import B1Observer, PolicyObservation
 from alexdoor_xas.policies.purdue import PurdueIO, contact_status
-from alexdoor_xas.policies.rollout import B1Runner, Command, MatchedReplay
+from alexdoor_xas.policies.rollout import ActionAdapter, B1Runner, Command, MatchedReplay
 from conftest import TEST_ROBOT_REF, make_b1_episode
 from test_b1_observations import fake_estimator, sample
+from test_operational_admission import action_inputs, operational_estimate
+
+
+def operational_observation(estimate, time=0):
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+
+    return PolicyObservation(time, 1, np.zeros(22), estimate, "observed", OPERATIONAL_V1,
+                             estimate.operational.generation)
+
+
+def test_provisional_adapter_requires_exact_diagnostic_action_and_explicit_admission():
+    from alexdoor_xas.action.spaces import A2_EE_DELTA
+    from alexdoor_xas.perception.admission import admit_action
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+
+    estimate = operational_estimate(count=2)
+    observation = operational_observation(estimate)
+    proposal, evidence, limits = action_inputs(estimate)
+    admission = admit_action(estimate, proposal, evidence, limits, 0, generation=0)
+    adapter = ActionAdapter(A2_EE_DELTA, 0.15, profile=OPERATIONAL_V1, source="diagnostic")
+    command = adapter.command(observation, proposal.world_poses[0], action=proposal.action,
+                              remaining_ticks=1, admission=admission)
+    np.testing.assert_array_equal(command.value, proposal.action)
+    policy = ActionAdapter(A2_EE_DELTA, 0.15, profile=OPERATIONAL_V1)
+    with pytest.raises(ValueError):
+        policy.command(observation, proposal.world_poses[0], action=proposal.action,
+                       remaining_ticks=1, admission=admission)
+    adapter.reset()
+    with pytest.raises(ValueError, match="differs from admitted action"):
+        adapter.command(observation, proposal.world_poses[0], action=proposal.action + 0.001,
+                        remaining_ticks=1, admission=admission)
+    with pytest.raises(ValueError, match="explicit reset"):
+        adapter.command(observation, proposal.world_poses[0], action=proposal.action,
+                        remaining_ticks=1, admission=admission)
+
+
+def test_operational_a4_keeps_admitted_frame_and_latches_on_incompatible_updates():
+    from alexdoor_xas.perception.admission import admit_action
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+
+    estimate = operational_estimate(count=2)
+    proposal, evidence, limits = action_inputs(estimate)
+    tool = proposal.world_poses[0]
+    target = ObjectFrame(tool.origin + [0.001, 0, 0], tool.rot)
+    segment = Segment("approach", target, 0.002, 2)
+    motion = SegmentMotion.start(segment, tool, estimate.frame, estimate.signed_angle)
+    poses = (tool, motion.goal(1, estimate.frame), motion.goal(2, estimate.frame))
+    proposal = replace(proposal, action_space=A4_OBJ_CENTRIC_CHUNK, action=segment.encode(),
+                       world_poses=poses, times_s=np.array([0, 0.05, 0.1]))
+    evidence = tuple(replace(e, world_poses=poses) for e in evidence)
+    receipt = admit_action(estimate, proposal, evidence, limits, 0, generation=0)
+    assert receipt.admitted
+    adapter = ActionAdapter(A4_OBJ_CENTRIC_CHUNK, 0.15, profile=OPERATIONAL_V1, source="diagnostic")
+    adapter.command(operational_observation(estimate), tool, action=segment.encode(),
+                    remaining_ticks=2, admission=receipt)
+    current = operational_estimate(time=0.05, count=2)
+    state = current.operational
+    refined = ObjectFrame(state.hypotheses[0].frame.origin + [0.0005, 0, 0], np.eye(3))
+    world_contact = ObjectFrame(refined.point_to_world(state.contact.local_pose.origin), np.eye(3))
+    state = replace(state, hypotheses=(replace(state.hypotheses[0], frame=refined),
+                                      state.hypotheses[1]),
+                    contact=replace(state.contact, selected_s=0, world_pose=world_contact))
+    current = replace(current, frame=refined, contact_position=world_contact.origin,
+                      operational=state)
+    command = adapter.command(operational_observation(current, 0.05), poses[1], remaining_ticks=1)
+    np.testing.assert_allclose(command.value.origin, poses[2].origin, atol=1e-12)
+    np.testing.assert_allclose(command.value.rot, poses[2].rot, atol=1e-12)
+    assert not adapter.done  # no invented release or termination
+    adapter.reset()
+    adapter.command(operational_observation(estimate), tool, action=segment.encode(),
+                    remaining_ticks=2, admission=receipt)
+    wrong = replace(current, operational=replace(state, leaf_id="different-leaf"))
+    with pytest.raises(ValueError, match="reference_changed"):
+        adapter.command(operational_observation(wrong, 0.05), poses[1], remaining_ticks=1)
+    assert adapter.motion is None and adapter.admission is None
+    with pytest.raises(ValueError, match="explicit reset"):
+        adapter.command(operational_observation(current, 0.05), poses[1], remaining_ticks=1)
+
+
+def test_missing_feedback_blocks_operational_io_before_physics_or_helpful_commands():
+    from alexdoor_xas.perception.admission import admit_action
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+    from alexdoor_xas.perception.control import ObservedControlChecks
+
+    estimate = operational_estimate()
+    proposal, evidence, limits = action_inputs(estimate)
+    receipt = admit_action(estimate, proposal, evidence, limits, 0, generation=0)
+    io = PurdueIO.__new__(PurdueIO)
+    io.profile = OPERATIONAL_V1
+    io.env = SimpleNamespace(capture=SimpleNamespace(sample=SimpleNamespace(time_s=0)))
+    feedback = io.robot_feedback()
+    assert feedback.torque_nm is None
+    sensor = sample(0, 1)
+    sensor.update(rgb=np.ones((1, 1, 3)), valid_depth=np.ones((1, 1), bool))
+    checks = ObservedControlChecks(SimpleNamespace(orientation_tolerance=0.1))
+    reason = checks.check(sensor, estimate, proposal.world_poses[0], np.tile([-2, 2], (7, 1)),
+                          "push", np.zeros(2), profile=OPERATIONAL_V1,
+                          feedback=feedback, admission=receipt)
+    assert reason == "force_feedback_unavailable"
+    assert checks.check(sensor, estimate, proposal.world_poses[0], np.tile([-2, 2], (7, 1)),
+                        "approach", np.zeros(2), admission=receipt) == "geometry_profile_mismatch"
+    measured = replace(feedback, torque_nm=np.zeros(7), healthy=True)
+    assert checks.check(sensor, estimate, proposal.world_poses[0], np.tile([-2, 2], (7, 1)),
+                        "push", np.zeros(2), profile=OPERATIONAL_V1,
+                        feedback=measured, admission=receipt) == "load_control_unverified"
+    io.safety = SimpleNamespace(provider=SimpleNamespace(last_estimate=estimate),
+                                before_command=lambda stage: reason)
+    with pytest.raises(RuntimeError, match="force_feedback_unavailable"):
+        io.execute(Command("delta", proposal.action, "push", receipt))
+    io.profile = "legacy-full-state"
+    with pytest.raises(ValueError, match="operational IO profile"):
+        io.execute(Command("delta", proposal.action, "approach", receipt))
 
 
 class NumericalIO:

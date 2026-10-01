@@ -14,6 +14,7 @@ from alexdoor_xas.perception.admission import (
     ActionProposal,
     ContactCandidate,
     HypothesisActionSupport,
+    RotationLevers,
     admit_action,
     admit_load,
     require_current_admission,
@@ -62,7 +63,8 @@ def action_inputs(estimate):
     evidence = tuple(HypothesisActionSupport(
         hinge.hypothesis_id,
         relative_pose(contact.world_pose, ObjectFrame(hinge.frame.origin, estimate.panel_rotation)),
-        poses, support, (0.1, 0.1), 0.1, False, 0.001, 0.001, 1.0
+        poses, support, (0.1, 0.1), 0.1, False, 0.001, 0.001,
+        RotationLevers(1.1, 0.31, 1.1, 0.04, 0.1, 0.04, 1.1)
     ) for hinge in estimate.operational.hypotheses)
     limits = ActionLimits(0.2, 0.01, 0.1, 0.1, 0.001, 0.001, 0.01, 0.001)
     return proposal, evidence, limits
@@ -99,7 +101,8 @@ def test_ambiguous_and_large_uncertainty_are_provisional_not_qualified():
 
 @pytest.mark.parametrize("change", [
     dict(finger_clearance_m=(0.001, 0.1)), dict(collision_clearance_m=0.001),
-    dict(unknown_in_envelope=True), dict(lever_arm_m=None),
+    dict(unknown_in_envelope=True), dict(rotation_levers=None),
+    dict(rotation_levers=RotationLevers(0.01, 0.31, 1.1, 0.04, 0.1, 0.04, 1.1)),
     dict(response_position_bound_m=None), dict(finger_clearance_m=(0.1, None)),
 ])
 def test_necessary_action_support_cannot_be_invented(change):
@@ -120,6 +123,18 @@ def test_latency_stop_and_explicit_limits_consume_margin(change):
     assert rotational_travel(1, np.pi * 2) == pytest.approx(2)
 
 
+def test_tool_orientation_uses_its_own_lever_instead_of_the_hinge_distance():
+    estimate = operational_estimate()
+    proposal, evidence, limits = action_inputs(estimate)
+    baseline = decide(estimate, proposal, evidence, limits)
+    rotated = decide(estimate, proposal, evidence,
+                     replace(limits, robot_rotation_bound_rad=0.1))
+    assert rotated.admitted
+    difference = baseline.margins_m[0][1] - rotated.margins_m[0][1]
+    expected = rotational_travel(0.04, 0.1) - rotational_travel(0.04, 0.001)
+    assert difference == pytest.approx(expected)
+
+
 def test_every_hypothesis_uses_same_patch_and_world_command():
     estimate = operational_estimate(count=2)
     proposal, evidence, limits = action_inputs(estimate)
@@ -134,6 +149,34 @@ def test_every_hypothesis_uses_same_patch_and_world_command():
     assert decide(estimate, proposal, (evidence[0], wrong_path), limits).reason == (
         "different_world_trajectory"
     )
+
+
+def test_unloaded_declaration_requires_observed_separation_over_the_full_envelope():
+    estimate = operational_estimate()
+    proposal, evidence, limits = action_inputs(estimate)
+    unloaded = replace(proposal, loaded=False)
+    assert not decide(estimate, unloaded, evidence, limits).admitted
+    assert not decide(estimate, unloaded, (
+        replace(evidence[0], unloaded_separation_m=0.001),
+    ), limits).admitted
+    assert decide(estimate, unloaded, (
+        replace(evidence[0], unloaded_separation_m=0.1),
+    ), limits).admitted
+
+
+@pytest.mark.parametrize("angle", [-0.2, 0.2])
+def test_signed_angle_and_local_world_contact_use_same_convention_for_both_hands(angle):
+    from alexdoor_xas.action.frames import rot_z
+
+    estimate = operational_estimate()
+    contact = estimate.operational.contact
+    rotation = rot_z(angle)
+    world = ObjectFrame(rotation @ contact.local_pose.origin, rotation @ contact.local_pose.rot)
+    estimate = replace(estimate, signed_angle=angle, panel_rotation=rotation,
+                        contact_position=world.origin, contact_rotation=world.rot,
+                        operational=replace(estimate.operational,
+                                            contact=replace(contact, world_pose=world)))
+    assert geometric_admission(estimate, 0, profile=OPERATIONAL_V1).qualified
 
 
 def test_static_support_lives_but_prediction_and_generation_do_not_refresh_dynamic_fields():
@@ -168,6 +211,22 @@ def test_admission_snapshots_command_and_rejects_changed_identity_reference_or_u
                     ))):
         with pytest.raises(ValueError):
             require_current_admission(receipt, replace(estimate, operational=changed), 0)
+    changed_point = replace(state.contact, local_pose=ObjectFrame(
+        state.contact.local_pose.origin + [0.02, 0, 0], np.eye(3)
+    ), world_pose=ObjectFrame(state.contact.world_pose.origin + [0.02, 0, 0], np.eye(3)))
+    changed = replace(estimate, contact_position=changed_point.world_pose.origin,
+                      operational=replace(state, contact=changed_point))
+    with pytest.raises(ValueError, match="material_contact_changed"):
+        require_current_admission(receipt, changed, 0)
+
+
+def test_hypothesis_order_does_not_choose_a_hinge_or_change_admission():
+    estimate = operational_estimate(count=2)
+    receipt = decide(estimate)
+    reordered = replace(estimate, operational=replace(
+        estimate.operational, hypotheses=estimate.operational.hypotheses[::-1]
+    ))
+    require_current_admission(receipt, reordered, 0)
 
 
 def test_diagnostic_contact_order_does_not_depend_on_unknown_total_width():

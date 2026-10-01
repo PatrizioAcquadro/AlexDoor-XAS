@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pytest
 
-from alexdoor_xas.recording.b1 import B1Writer, validate_episode
+from alexdoor_xas.recording.b1 import B1Writer, robot_feedback_at, validate_episode
 
 
 def obs(t=0, frame=1):
@@ -27,7 +27,8 @@ def test_causal_terminal_roundtrip_and_truth_separation(tmp_path):
     meta = dict(asset_id="example", split="train", condition="nominal", control_dt=1 / 60)
     writer = B1Writer(path, meta, dict(depth_interval_m=[0.1, 5]))
     writer.observe(obs(), dict(angle=0.0))
-    command = dict(time_s=0.0, joint_target=np.arange(7), tool_position=np.ones(3))
+    command = dict(time_s=0.0, joint_target=np.arange(7), tool_position=np.ones(3),
+                   torque_nm=np.ones(7))
     writer.transition(command, obs(1 / 60, 2), dict(angle=0.1))
     writer.finish(
         dict(passed=True, released=True, hold_angle_deg=50.0, stop_reason="mechanical_stop")
@@ -42,6 +43,7 @@ def test_causal_terminal_roundtrip_and_truth_separation(tmp_path):
         assert set(h5) == {"observations", "commands", "annotations", "metadata"}
         assert "angle" not in h5["observations"]
         np.testing.assert_array_equal(h5["commands/joint_target"][0], np.arange(7))
+        assert robot_feedback_at(h5, 0).torque_nm is None
     with pytest.raises(FileExistsError):
         B1Writer(path, meta, {})
     with h5py.File(path, "r+") as h5:

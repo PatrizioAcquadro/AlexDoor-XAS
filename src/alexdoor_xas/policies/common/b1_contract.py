@@ -8,6 +8,7 @@ from pathlib import Path
 
 from alexdoor_xas.action.b1 import ACTION_DIMS, ACTION_SCHEMA
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
+from alexdoor_xas.perception.contracts import LEGACY_FULL_STATE
 
 OBS_KEYS = ("rgbd_static", "rgbd_recent", "joint_position", "joint_velocity")
 OBS_SCHEMA = "b1.policy-observation.v1"
@@ -51,6 +52,11 @@ class PerceptionBinding:
         for digest in artifacts.values():
             check_sha(digest)
         cfg = release.get("config", {})
+        if any(value != LEGACY_FULL_STATE for value in (
+            cfg.get("geometry_profile", LEGACY_FULL_STATE),
+            release.get("geometry_profile", LEGACY_FULL_STATE),
+        )):
+            raise ValueError("Perception release v2 only supports legacy-full-state")
         dims = cfg.get("visual_dims")
         if (
             not isinstance(dims, list)

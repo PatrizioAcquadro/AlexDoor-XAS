@@ -12,7 +12,7 @@ from pathlib import Path
 import numpy as np
 
 from alexdoor_xas.action.frames import ObjectFrame, rot_z
-from alexdoor_xas.perception.contracts import DoorEstimate, validate_complete
+from alexdoor_xas.perception.contracts import DoorEstimate, geometry_profile, validate_complete
 from alexdoor_xas.perception.geometry import (
     contact_frame,
     dimensions_supported,
@@ -37,6 +37,9 @@ class PrototypeRecipe:
     """Diagnostic recipe, deliberately not a qualified PerceptionBinding release."""
 
     recipe_json: str
+
+    def __post_init__(self):
+        geometry_profile(self)
 
     @property
     def config(self):
@@ -158,6 +161,10 @@ class GeometryProvider:
         self.binding, self.engine = binding, engine
         self.config = binding.config
         self.reset()
+
+    @property
+    def generation(self):
+        return self.engine.generation
 
     def reset(self):
         self.engine.reset()

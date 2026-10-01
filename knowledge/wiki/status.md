@@ -3,23 +3,25 @@
 Current as of 2026-10-01. B1 is maintained; B0 execution and the failed custom
 perception workflows are retired. The geometric prototype uses existing recordings
 and frozen local weights. The operational successor protocol and implementation plan
-are approved. 6.0A numerical contract interfaces are implemented with consumer
-integration pending; no training, collection or sealed-test evaluation was started.
+are approved. 6.0A contracts, numerical admission rules and consumer compatibility
+are implemented. No campaign, model inference, simulation, training, collection or
+sealed-test evaluation was started by 6.0A.
 
 | Area | Current state |
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head RGB-D/proprioception and contact diagnostics implemented. Common zero-yaw setup supersedes the historical 45-degree synthetic setup. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights remain 29 redistributable, two local-only, one private/noncommercial. |
-| 6.0 — Perception/contact | Unqualified September prototype; corrected pilots still accept zero complete states. 6.0A numerical interfaces implemented; consumer integration pending. 6.0B-H remain planned. No successor inference, feedback acquisition or dynamics; extended evaluation remains stopped. |
+| 6.0 — Perception/contact | 6.0A complete: explicit operational/provisional/load contracts, action margins and consumer compatibility. September prototype remains unqualified; corrected pilots still accept zero complete states. 6.0B-H remain planned; no successor inference, feedback acquisition or dynamics. Extended evaluation remains stopped. |
 | 6.1 — Action paths | Model-independent observed-input contracts, matched data, ACT/Diffusion × A1–A4 and execution/replay software maintained. No qualified provider; final integration and physical validation remain pending. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Complete 6.0A consumer integration in the dependency-ordered
+Continue with 6.0B leaf/frame fusion and static hinge hypotheses, or 6.0D robot
+feedback/load modeling and physical stopping, using the
 [[implementation_phases/phase-6-0-operational-perception-and-contact|6.0 operational implementation plan]]
-plan. Subsequent work repairs leaf/frame ownership and causal motion
-on the two pilots, and implements documented robot-torque feedback/common stopping.
+and the [[topics/shared-door-perception|implemented 6.0A interfaces]].
+6.0C depends on 6.0B; no new pilot replay is part of the contract handoff.
 The guide establishes a torque feedback interface; signal accuracy, simulated
 sensor semantics, load inference and physical stopping remain unverified.
 
@@ -29,8 +31,8 @@ provisional action admission. Historical full-state failures remain unchanged.
 Both pilot offline and feedback/stop gates precede bounded pilot dynamics; only
 then may a common corrected recipe progress to extended replay. All train/development
 offline gates precede qualification dynamics and both gate groups precede release.
-This planned diagnostic sequencing exception does not authorize running campaigns
-in the documentation task. Keep 6.1 open and 6.2 unstarted.
+6.0A supplies interfaces and numerical checks, not pilot or release evidence.
+Keep 6.1 open and 6.2 unstarted.
 
 The stopped `geometric-evaluation-02` and all pilot attempts remain preserved.
 No broader campaign may bypass the main-cause correction and two-pilot checks.
@@ -57,7 +59,7 @@ not full geometry or confidence qualification.
   door. Report per-door/handedness results without claiming population coverage.
 - No policy/adapter input may contain privileged door geometry. The prototype
   confines simulator truth to its evaluator, including future dynamic tests;
-  its current observed-only monitor lacks load feedback. The planned torque channel
+  its current observed-only monitor lacks load feedback. The declared torque channel
   cannot expose privileged contacts or pretend to be a calibrated force sensor.
   Other maintained teacher/legacy stop monitors have separate truth boundaries. The sealed test
   stays closed. Simulation validation does not establish hardware safety.

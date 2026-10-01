@@ -25,6 +25,7 @@ def main():
     parser.add_argument("--models", type=Path, default=REPO / "models/perception")
     parser.add_argument("--pilot", action="store_true")
     args = parser.parse_args()
+    from alexdoor_xas.perception.contracts import LEGACY_FULL_STATE, geometry_profile
     from alexdoor_xas.perception.evaluation import campaign_summary, evaluate_episode, write_json
     from alexdoor_xas.perception.provider import (
         CueEngine,
@@ -35,6 +36,8 @@ def main():
     from alexdoor_xas.recording.b1 import episode_paths
 
     recipe = load_recipe(args.config, REPO)
+    if args.command == "evaluate" and geometry_profile(recipe) != LEGACY_FULL_STATE:
+        raise ValueError("Operational scoring requires the independent 6.0E evaluator")
     corpus = json.loads((REPO / "assets/doors/b1/corpus.json").read_text())
     paths = episode_paths(args.data, corpus)
     if args.pilot or args.command == "smoke":

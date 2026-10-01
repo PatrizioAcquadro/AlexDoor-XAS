@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw
 from scipy.spatial.transform import Rotation
 
 from alexdoor_xas.action.frames import ObjectFrame, rot_z
+from alexdoor_xas.perception.contracts import LEGACY_FULL_STATE, geometry_profile
 from alexdoor_xas.policies.observations import B1Observer
 from alexdoor_xas.recording.b1 import OBS_KEYS, PHASES
 
@@ -214,6 +215,8 @@ def mask_evidence(path, sensor, cue, provider):
 
 
 def evaluate_episode(path, provider, output):
+    if geometry_profile(provider.binding) != LEGACY_FULL_STATE:
+        raise ValueError("Operational scoring requires the independent 6.0E evaluator")
     output.mkdir(parents=True, exist_ok=False)
     observer = B1Observer(provider, provider.binding)
     with h5py.File(path, "r") as h5:
