@@ -121,8 +121,9 @@ Separate three decisions:
 1. **Geometric qualification:** a unique, supported operational state meeting the
    scoring profile below. It does not, alone, establish loaded-contact safety.
 2. **Provisional action admission:** a specific bounded diagnostic action can be
-   admissible despite unresolved hinge hypotheses, when every retained credible
-   hypothesis is compatible with its contact, path and stopping margins. This is
+   admissible despite an unresolved hinge, when its local material contact, world
+   path and stopping margins remain valid across the bounded possible responses.
+   An axis-dependent command also requires compatible supported hypotheses. This is
    not a qualified estimate or permission for arbitrary actions.
 3. **Loaded-control admission:** fresh, validated robot feedback and the observed
    contact/load monitor are also available. An anomaly detector alone is insufficient
@@ -136,8 +137,13 @@ the contact/collision margin. Do not reinterpret identical local coordinates und
 another hinge and thereby command a different point. Execute one admitted command,
 not a mixture of competing trajectories.
 No arbitrary canonical hinge or highest-score-only acceptance is allowed. If no
-supported reference or identifiable leaf patch exists, observe further within the
-common scan or stop. The policy input can be well-formed while geometry remains
+identifiable leaf patch exists, observe further within the common scan or stop.
+An unobserved axis blocks A4 initialization, not the development of a local
+Cartesian diagnostic probe designed to estimate it. That probe needs an explicit
+pre-articulation state/admission path; the current `validate_reference`/`admit_action`
+requires supported hinge hypotheses even for A2, so it cannot yet admit such a probe.
+Do not insert an invented hinge or relax the existing validator. The policy input
+can be well-formed while geometry remains
 provisional; never set the existing complete-state `valid` flag just to get past
 the current observer. Contract, consumer and evidence changes must land together.
 
@@ -182,6 +188,22 @@ hypotheses, with prespecified displacement, duration, velocity and load limits.
 The action source chooses it. Track actual leaf motion; hand FK alone is not leaf
 motion because pushing can slip. Reject insufficient rotation/ill-conditioned hinge
 fits rather than claim centimeter precision from a barely visible displacement.
+
+When the axis is unavailable, initialize an observed material patch in world
+coordinates with its plane normal/tangent orientation. A diagnostic action source
+may propose a bounded Cartesian displacement through the existing A2 pose executor;
+it must not encode that probe as a guessed A4 arc. Precise axis location, hinge side,
+closed angle, total dimensions and complete scene ownership are not prerequisites
+unless that particular command uses them. The probe still needs a justified coarse
+articulation/response envelope including no motion, slip and incompatible response,
+finite contact/model uncertainty, continuous robot/tool and relevant leaf collision
+cover, valid load feedback and a verified stop. A small hand displacement alone
+does not bound a slipping or freely moving leaf. If no conservative response/stop
+bound can be established, stop at observation and report that specific missing bound.
+The probe must produce motion distinguishable from geometric/tracking uncertainty;
+insufficient response leaves the axis unavailable. C/D must implement this explicit
+local admission path and E must assess provisional evidence before F; existing
+qualification gates and adapter semantics remain unchanged.
 
 Coherent leaf motion refines the hypothesis. Rising load without leaf motion stops
 the action; it does not prove the opposite hinge side. Hand-only motion may indicate
@@ -414,8 +436,12 @@ bounded results and the invalidated historical contact counts.
 6.0C owns causal material association, articulation and field lifetimes, preserving
 alternatives and uncertainty. Motion is informative only after an admitted action;
 it is not assumed to repair B's evidence loss or guarantee identity. The first push
-requires an identifiable local leaf patch and supported action reference. 6.0D must
-also define effective finite contact coverage (current collision extrema are lines),
+requires an identifiable local leaf patch and a reference appropriate to the action.
+The follow-up `operational-contact-readiness-01` verifies a local patch on each pilot,
+both conditions, and derives finite geometric covers from the unchanged distal mesh
+bands. Human visual confirmation establishes the selected local material role,
+not motion identity. C may start local tracking/field lifetimes while other scene
+roles and the axis remain unresolved. D still owns physical contact/model error,
 feedback/load and response/stop margins. Unrelated total dimensions remain optional.
 No static
 edge guess may stand in for an unobserved axis. The image/model availability events
@@ -431,6 +457,10 @@ extended replay or sealed test ran. Phase 6.0 and every release flag remain unqu
 
 - [ ] Track verified leaf features independently of fixed surfaces; retain original
   references, handle slip/occlusion and reject degenerate rigid/hinge fits.
+- [ ] Initialize the reviewed local material anchors without demanding a complete
+  object assignment or precise axis. Reacquire the white upper-inset patch before
+  interaction: its last full-cover observation is about 13 s, not the fused plane's
+  later observation near 25 s. Keep patch/identity and plane timestamps distinct.
 - [ ] Recover signed angle/axis uncertainty for both hands; preserve stable geometry
   while dynamically supported pose remains fresh, including partial-field loss.
 - [ ] Exercise reset, episode generations, out-of-order/late completion, nonmonotonic
@@ -457,7 +487,9 @@ consumers and focused control tests. Do not edit the external Alex/Isaac package
   motion/load; validate behavior while physics continues. Missing or stale feedback
   must block loaded execution, even when geometric estimates are perfect.
 - [ ] Verify finite two-finger contact assumptions and that a force/load inference
-  cannot identify an authorized surface by itself. Keep task physical thresholds.
+  cannot identify an authorized surface by itself. The nominal geometric covers are
+  implemented; orientation/model/contact error and loaded validity still need checks.
+  Keep task physical thresholds.
 
 **Exit:** justified signal/timeout/gain/stop bounds and essential numerical plus
 bounded CUDA physics evidence before door interaction. Ideal simulated feedback

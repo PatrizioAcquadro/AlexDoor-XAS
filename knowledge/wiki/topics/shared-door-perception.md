@@ -242,6 +242,18 @@ counts are invalidated by the degenerate collision extrema described above. See
 [[../experiments/b1-perception-findings|the measured scan results]] and
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|the 6.0C handoff]].
 
+`operational-contact-readiness-01/` separately verifies two interior material
+anchors, nominal/light, with finite mesh-band covers, raw SAM membership, valid
+depth and multiview registration. Human review confirms their local leaf role;
+neither this review nor fusion proves subsequent rigid/mobile membership. The white
+patch's latest full-cover observation is about 13 s, despite later observations of
+other parts of its plane. Consumers must retain local support times and reacquire
+the patch before loaded use. Endpoint CUDA IK and a small free-space ball are
+initialization diagnostics, not continuous collision/control qualification.
+Current operational admission still requires supported hinge hypotheses; an explicit
+pre-articulation Cartesian diagnostic path is planned in C/D, without changing
+adapters or substituting an edge for the axis.
+
 ## Geometric prototype — legacy inference
 
 `GeometryProvider` and `CueEngine` share capture/completion events in replay and

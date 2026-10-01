@@ -27,6 +27,60 @@ and detailed historical pages. Removed ignored scripts, weights, caches and
 intermediate payloads are **not recoverable from Git**; these records support
 inspection of the results, not a claim of fully executable reproduction.
 
+## Local contact initialization after the diagnosis — October 1, 2026
+
+**Decision:** C can start from two reviewed local material anchors without resolving
+every object alternative or observing a precise hinge. C tracking/articulation exit
+checks and loaded interaction remain unperformed. This follow-up narrows the
+first-motion handoff below; it does not turn historical failures into passes.
+Evidence/scripts/images are in `outputs/b1/perception/operational-contact-readiness-01/`.
+Only existing observations through 25 s on the same train pilots/conditions are read;
+no annotations, model inference, dynamics, collection or extended campaign is used.
+
+The common static search ranks observed finite-cover clearance, screens endpoint
+IK with the existing calibrated robot chain on the RTX 4090, and requires the same
+tangent coordinates in both conditions. Earlier failed local solves remain saved;
+they are not proofs of global unreachability. Human inspection explicitly confirms
+both selected regions belong to the leaf, away from frame/handle. This is local
+visual material-role evidence, not runtime labels or proof of motion identity.
+
+| Pilot / observed region | World tangent coordinates | Supporting frames, nominal / light | Best simultaneous two-cover clearance, nominal / light | Maximum observed plane discrepancy, nominal / light |
+|---|---|---|---|---|
+| White `animated-door-1-88abf40`, upper inset | y=-0.10 m, z=1.50 m | 49 / 48 | 103.7 / 104.4 mm | 2.49 / 1.91 mm |
+| Dark `door-2738468b94d74c5f`, central panel | y=0 m, z=1.10 m | 29 / 73 | 315.7 / 316.0 mm | 0.38 / 0.34 mm |
+
+Every verified cover pixel has valid depth and extracted plane membership. Original
+SAM membership is usually complete but falls to 48.7%/90.3% on white nominal/light
+and 65.1%/100% on dark nominal/light; the corrected extractor restores only enclosed,
+measured plane inliers. Camera translation baselines are 111–129 mm. This supports
+local measured registration/fusion, not rigid/mobile object membership. No uncertainty,
+latency, stop or collision margin is certified by the clearance column.
+
+The common contact correction derives two finite covers by clipping/projecting the
+canonical distal mesh band within the unchanged 3 mm classification tolerance. Each
+cover spans about 25.8 by 3.4 mm. The expert's extrema/tool/contact rule remain intact;
+the projection is not measured pad area or soft-finger mechanics. Source: `41e4fe6`;
+see [[../topics/purdue-b1-robot-and-contact|contact assumptions]].
+
+Endpoint contact and 30 mm precontact IK succeed for all four selected patches. A
+10 mm radius ball at precontact is observed free, with only 3.8–4.6 mm residual ray
+clearance; it does not cover the hand/arm path or admit contact. The existing tracker
+can seed metric features on each selected surface, but its current plane/bounds seed
+does not establish local material ownership. C must constrain/verify associations and
+keep original support times. The white patch is fully observed only through 13.2/13.6 s
+(light/nominal), despite later observations elsewhere on the fused plane: reacquire
+that patch before interaction. Causal timing, motion response and closed-loop control
+are unverified.
+
+D still needs observed torque semantics/acquisition, bounded robot-only load inference,
+common compliance, physical stop and full relevant continuous collision/contact cover.
+An axis-free diagnostic Cartesian probe additionally needs explicit local state/action
+admission and a justified response envelope including no motion/slip; current
+`validate_reference` requires hinge hypotheses even for A2. A precise axis is an
+intended result of an informative probe, not its prerequisite. A4 retains its supported
+hinge reference and no adapter supplies a helpful point/arc/side correction. D and both
+pilot E gates still precede F. All offline/dynamic/release flags remain false.
+
 ## Targeted 6.0B re-audit before 6.0C — October 1, 2026
 
 Starting from `operational-scan-review-01/review.md`, the diagnosis follows the white

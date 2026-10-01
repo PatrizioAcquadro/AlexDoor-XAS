@@ -7,7 +7,9 @@ are approved. 6.0A contracts, numerical admission rules and consumer compatibili
 are implemented. 6.0B static object fusion and geometric queries are complete with
 four scan-only CUDA diagnoses and a targeted re-audit correcting evidence loss,
 association and invalid finite-face claims. The corrected video prefix retains masks;
-static leaf identity, physical axes and effective contact support remain unresolved.
+whole-object ownership and physical axes remain unresolved. A follow-up verifies
+reviewed local patches on both pilots/conditions and corrects effective geometric
+contact covers; C can start local initialization, while loaded interaction is blocked.
 No simulation, training,
 collection, extended replay or sealed-test evaluation was started by these assignments.
 
@@ -15,23 +17,27 @@ collection, extended replay or sealed-test evaluation was started by these assig
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head RGB-D/proprioception and contact diagnostics implemented. Common zero-yaw setup supersedes the historical 45-degree synthetic setup. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights remain 29 redistributable, two local-only, one private/noncommercial. |
-| 6.0 — Perception/contact | 6.0A/B complete: contracts/admission, static object memory, geometric queries and four bounded scan diagnoses. Targeted corrections preserve measured support and repair the box-only video recipe; leaf identity/axes and effective contact geometry remain unresolved. Phase 6.0 is unqualified. 6.0C-H, feedback acquisition and dynamics remain pending; extended evaluation remains stopped. |
+| 6.0 — Perception/contact | 6.0A/B complete. Both pilots/conditions support visually reviewed local leaf patches and finite mesh-derived contact covers; static endpoint IK succeeds on CUDA. C initialization can start without complete scene ownership or a precise axis. C exit checks, D physical feedback/contact/stop, E replay and dynamics remain pending. Phase 6.0 is unqualified; extended evaluation remains stopped. |
 | 6.1 — Action paths | Model-independent observed-input contracts, matched data, ACT/Diffusion × A1–A4 and execution/replay software maintained. No qualified provider; final integration and physical validation remain pending. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Use the targeted 6.0B diagnosis to scope 6.0C causal material tracking, articulation and
-field lifetimes and 6.0D effective contact/feedback/stop work, following the
+Start 6.0C causal material tracking and field lifetimes from the reviewed local
+anchors in `operational-contact-readiness-01`, following the
 [[implementation_phases/phase-6-0-operational-perception-and-contact|6.0 operational implementation plan]]
 and the [[topics/shared-door-perception|implemented interfaces and static scan memory]].
 The 6.0B handoff preserves competing objects, original material references and
-unsupported edge-axis alternatives. Free space alone cannot admit a push on an
-ambiguously owned surface. The current collision extrema are lines and do not certify
-finite-face support; first motion also needs an explicit effective contact cover and
-response/stop margins. Complete dimensions are unnecessary unless that action depends
-on them. Static ambiguity must not become an accepted estimate or a presumed future
-motion-based resolution.
+unsupported edge-axis alternatives. Registration/fusion establishes observed support;
+the human confirmation assigns only the two selected local regions to the leaf.
+Motion identity remains unverified. Reacquire the white patch before interaction;
+later observations elsewhere on its plane cannot refresh that patch. D must verify
+continuous approach/contact covers with uncertainty, torque/load semantics, common
+compliance and physical stop/response margins. The local free-space ball and endpoint
+IK checks do not cover the full hand/arm path. A precise axis is an outcome of a
+possible informative probe, not its prerequisite. C/D still need explicit axis-free
+local state/admission for that diagnostic Cartesian action; current operational
+validators require hinge hypotheses. Preserve A4 and every qualification gate.
 The guide establishes a torque feedback interface; signal accuracy, simulated
 sensor semantics, load inference and physical stopping remain unverified.
 
