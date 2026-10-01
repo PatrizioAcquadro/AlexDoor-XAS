@@ -27,6 +27,7 @@ from alexdoor_xas.perception.geometry import (
     voxel_points,
 )
 from alexdoor_xas.perception.inspection import load_inspection
+from alexdoor_xas.perception.scan import ScanMemory
 from alexdoor_xas.perception.tracking import PixelMotionTracker, moved_surface
 from alexdoor_xas.perception.visual_worker import receive, send
 from alexdoor_xas.recording.b1 import OBS_KEYS
@@ -40,6 +41,8 @@ class PrototypeRecipe:
 
     def __post_init__(self):
         geometry_profile(self)
+        if self.config.get("scan_fusion") not in (None, "object-v1"):
+            raise ValueError("Unknown scan fusion recipe")
 
     @property
     def config(self):
@@ -92,6 +95,13 @@ class ModelWorker:
             raise RuntimeError(f"Visual worker inference failed: {result}")
         result["model_latency_s"] = result["latency_s"]
         result["latency_s"] = time.perf_counter() - started
+        return result
+
+    def infer_video(self, images, prompts):
+        send(self.process.stdin, dict(images=images, prompts=prompts))
+        result = receive(self.process.stdout)
+        if result is None or "error" in result:
+            raise RuntimeError(f"Diagnostic video inference failed: {result}")
         return result
 
     def close(self):
@@ -175,6 +185,7 @@ class GeometryProvider:
         self.scan_index = 0
         self.next_semantic = 0.0
         self.static = []
+        self.scan_memory = ScanMemory(self.config, self.generation)
         self.panel = self.closed = None
         self.current_candidates = []
         self.scene = np.empty((0, 3))
@@ -188,13 +199,34 @@ class GeometryProvider:
         self.diagnostics = dict(state="acquiring", semantic_calls=0, reacquisitions=0)
         self.last_cue = None
 
+    @property
+    def scan_state(self):
+        return self.scan_memory.state
+
+    def consume_results(self, now):
+        """Release available static evidence without fabricating a sensor observation."""
+        event = self.engine.poll(now)
+        if event is None:
+            return False
+        captured, view, cue, ready = event
+        self._fuse(captured, view, cue, available_s=ready)
+        self.diagnostics["result_age_s"] = now - float(captured["time_s"])
+        self.diagnostics["available_time_s"] = ready
+        return True
+
     def due_view(self, t):
         times = self.config["inspection"]["sample_times_s"]
         if t <= times[-1] and t >= self.next_semantic:
             return self.last_frame
         return -1 if t >= self.next_semantic else None
 
-    def _fuse(self, sensor, view, cue):
+    def _fuse(self, sensor, view, cue, *, available_s=None):
+        cue = dict(
+            cue,
+            available_s=float(sensor["time_s"]) + cue["latency_s"]
+            if available_s is None
+            else available_s,
+        )
         candidates = surfaces(cue, sensor, self.config)
         self.current_candidates = candidates
         self.last_cue = (sensor, cue)
@@ -206,35 +238,49 @@ class GeometryProvider:
             cue_frame=int(sensor["frame"]),
         )
         if view >= 0:
-            for patch in candidates:
-                if abs(patch.normal[2]) > 0.3:
-                    continue
-                match = next(
-                    (
-                        i
-                        for i, old in enumerate(self.static)
-                        if similar_surface(old, patch, self.config)
-                    ),
-                    None,
+            if self.config.get("scan_fusion") == "object-v1":
+                self.scan_memory.add(candidates, sensor, view, available_s=cue["available_s"])
+                self.static, self.scene = self.scan_memory.surfaces, self.scan_memory.scene
+                state = self.scan_state
+                self.diagnostics.update(
+                    object_reason=state.reason,
+                    leaf_objects=len(state.objects),
+                    fixed_surfaces=len(state.fixed_surfaces),
+                    unresolved_surfaces=len(state.unresolved_surfaces),
                 )
-                if match is None:
-                    patch.views.add(view)
-                    self.static.append(patch)
-                else:
-                    self.static[match] = fuse_surface(self.static[match], patch, self.config, view)
-            # Scene points outside the masks support fixed structures and visible hinge arcs.
-            depth = np.asarray(sensor["depth_m"]).squeeze(-1)
-            valid = np.asarray(sensor["valid_depth"]).squeeze(-1)
-            v, u = np.nonzero(valid[::4, ::4] & np.isfinite(depth[::4, ::4]))
-            from alexdoor_xas.perception.geometry import deproject
+            else:
+                for patch in candidates:
+                    if abs(patch.normal[2]) > 0.3:
+                        continue
+                    match = next(
+                        (
+                            i
+                            for i, old in enumerate(self.static)
+                            if similar_surface(old, patch, self.config)
+                        ),
+                        None,
+                    )
+                    if match is None:
+                        patch.views.add(view)
+                        self.static.append(patch)
+                    else:
+                        self.static[match] = fuse_surface(
+                            self.static[match], patch, self.config, view
+                        )
+                self.scan_memory.space.add(sensor)
+                from alexdoor_xas.perception.geometry import deproject
 
-            cloud = deproject(
-                depth[v * 4, u * 4],
-                np.c_[u * 4, v * 4],
-                sensor["intrinsics"],
-                sensor["camera_world"],
-            )
-            self.scene = voxel_points(np.r_[self.scene, cloud], self.config["voxel_m"], 60000)
+                depth, valid = sensor["depth_m"].squeeze(-1), sensor["valid_depth"].squeeze(-1)
+                v, u = np.nonzero(
+                    valid[::4, ::4] & np.isfinite(depth[::4, ::4]) & (depth[::4, ::4] > 0)
+                )
+                cloud = deproject(
+                    depth[v * 4, u * 4],
+                    np.c_[u * 4, v * 4],
+                    sensor["intrinsics"],
+                    sensor["camera_world"],
+                )
+                self.scene = voxel_points(np.r_[self.scene, cloud], self.config["voxel_m"], 60000)
             self._select_panel()
         elif self.closed is not None:
             matches = [
@@ -282,6 +328,23 @@ class GeometryProvider:
                     self.thickness = thickness[0]
 
     def _select_panel(self):
+        if self.config.get("scan_fusion") == "object-v1":
+            self.scan_memory.surfaces = self.static
+            state = self.scan_state
+            # No area winner or arbitrary reference can resolve competing objects.
+            self.closed = self.panel = None
+            self.hinge, self.hinge_uncertainty = None, np.inf
+            if len(state.objects) != 1 or state.reason != "supported_static_candidate":
+                self.diagnostics["association_reason"] = "ambiguous_panel_jamb_wall"
+                return
+            obj = state.objects[0]
+            self.closed = self.panel = obj.root
+            self.diagnostics["association_reason"] = "associated"
+            axes = [h.hypothesis for h in obj.hinges if h.hypothesis is not None]
+            if len(axes) == 1:
+                self.hinge = axes[0].frame.origin.copy()
+                self.hinge_uncertainty = axes[0].support.position_bound_m
+            return
         plausible = [
             s
             for s in self.static
@@ -460,12 +523,7 @@ class GeometryProvider:
             self.diagnostics["state"] = "lost"
             self.diagnostics["missing"] = ["missing_rgbd"]
             return DoorEstimate(t, False, "missing_rgbd")
-        event = self.engine.poll(t)
-        if event is not None:
-            captured, view, cue, ready = event
-            self._fuse(captured, view, cue)
-            self.diagnostics["result_age_s"] = t - float(captured["time_s"])
-            self.diagnostics["available_time_s"] = ready
+        self.consume_results(t)
         view = self.due_view(t)
         if view is not None and self.engine.submit(sensor, view):
             self.next_semantic = t + self.config["semantic_period_s"]

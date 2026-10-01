@@ -1,4 +1,5 @@
 {
+  "scan_fusion": "object-v1",
   "semantic_period_s": 0.2,
   "max_gap_s": 0.15,
   "warmup_s": 0.0,

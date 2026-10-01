@@ -68,6 +68,27 @@ def plane_fit(points, tolerance, minimum, rng):
 
 
 @dataclass
+class SurfaceObservation:
+    frame: int
+    acquired_s: float
+    available_s: float
+    mask_index: int
+    shape: tuple
+    support_mask: bytes
+    intrinsics: np.ndarray
+    camera_world: np.ndarray
+    boundary_points: np.ndarray
+    edge_status: dict
+
+    def mask(self):
+        return (
+            np.unpackbits(np.frombuffer(self.support_mask, np.uint8), count=np.prod(self.shape))
+            .reshape(self.shape)
+            .astype(bool)
+        )
+
+
+@dataclass
 class Surface:
     points: np.ndarray
     normal: np.ndarray
@@ -81,10 +102,15 @@ class Surface:
     edges: dict = field(default_factory=dict)
     edge_points: dict = field(default_factory=dict)
     extent_points: np.ndarray = field(default_factory=lambda: np.empty((0, 3)))
+    surface_id: str = ""
+    ownership: str = "unresolved"
+    observations: tuple[SurfaceObservation, ...] = ()
 
     @property
     def basis(self):
-        return normal_frame(self.normal)
+        return (
+            normal_frame(self.normal) if abs(self.normal[2]) < 0.3 else contact_frame(self.normal)
+        )
 
     @property
     def bounds(self):
@@ -208,7 +234,8 @@ def dimensions_supported(surface, tolerance):
 
 def contact_frame(normal):
     x = np.asarray(normal) / np.linalg.norm(normal)
-    z = np.array([0.0, 0.0, 1.0]) - x[2] * x
+    up = np.array([0.0, 0.0, 1.0]) if abs(x[2]) < 0.99 else np.array([0.0, 1.0, 0.0])
+    z = up - (up @ x) * x
     z /= np.linalg.norm(z)
     return np.column_stack((x, np.cross(z, x), z))
 
@@ -239,14 +266,14 @@ def patch_anchors(cue, sensor, mask):
 
 
 def surfaces(cue, sensor, config):
-    from scipy.ndimage import binary_erosion
+    from scipy.ndimage import binary_erosion, binary_opening, label
 
     h, w = cue["shape"]
     depth = np.asarray(sensor["depth_m"]).reshape(h, w)
     valid = np.asarray(sensor["valid_depth"]).reshape(h, w)
     rng = np.random.default_rng(int(sensor["frame"]))
     result = []
-    for packed in cue["masks"]:
+    for mask_index, packed in enumerate(cue["masks"]):
         mask = (
             np.unpackbits(np.frombuffer(packed, np.uint8), count=h * w).reshape(h, w).astype(bool)
         )
@@ -267,31 +294,101 @@ def surfaces(cue, sensor, config):
             points = remaining[support]
             if normal @ (points.mean(0) - sensor["camera_world"][:3, 3]) < 0:
                 normal, offset = -normal, -offset
-            near = np.abs(anchors @ normal - offset) <= config["plane_tolerance_m"] * 2
-            descriptor = features[near].mean(0) if near.any() else np.zeros(features.shape[1])
-            descriptor /= max(np.linalg.norm(descriptor), 1e-8)
-            edges, edge_points, extent_points = (
-                extent_edges(
-                    points, normal, mask, sensor, config["plane_tolerance_m"], return_support=True
-                )
-                if abs(normal[2]) < 0.3
-                else ({}, {}, np.empty((0, 3)))
+            vv, uu = np.nonzero(mask & valid & np.isfinite(depth) & (depth > 0))
+            dense = deproject(
+                depth[vv, uu], np.c_[uu, vv], sensor["intrinsics"], sensor["camera_world"]
             )
-            result.append(
-                Surface(
-                    points,
-                    normal,
-                    offset,
-                    descriptor,
-                    anchors[near],
-                    features[near],
-                    residual,
-                    float(support.sum() / len(cloud)),
-                    edges=edges,
-                    edge_points=edge_points,
-                    extent_points=extent_points,
+            member = abs(dense @ normal - offset) <= config["plane_tolerance_m"]
+            raster = np.zeros((h, w), bool)
+            raster[vv[member], uu[member]] = True
+            raster = binary_opening(raster, iterations=1)
+            components, count = label(raster)
+            for component in range(1, count + 1):
+                part = components == component
+                pv, pu = np.nonzero(part)
+                if len(pu) < config["min_points"]:
+                    continue
+                # Split disconnected coplanar support before reducing the interior.
+                dense_part = deproject(
+                    depth[pv, pu], np.c_[pu, pv], sensor["intrinsics"], sensor["camera_world"]
                 )
-            )
+                take = np.linspace(0, len(pu) - 1, min(len(pu), config["max_points"]), dtype=int)
+                part_points = dense_part[take]
+                ap, az = project(anchors, sensor["intrinsics"], sensor["camera_world"])
+                ap = np.rint(ap).astype(int)
+                near = (az > 0) & (ap >= 0).all(1) & (ap[:, 0] < w) & (ap[:, 1] < h)
+                indices = np.flatnonzero(near)
+                near[indices] &= part[ap[indices, 1], ap[indices, 0]]
+                descriptor = features[near].mean(0) if near.any() else np.zeros(features.shape[1])
+                descriptor /= max(np.linalg.norm(descriptor), 1e-8)
+                edges, edge_points, extent_points = (
+                    extent_edges(
+                        part_points,
+                        normal,
+                        part,
+                        sensor,
+                        config["plane_tolerance_m"],
+                        return_support=True,
+                    )
+                    if abs(normal[2]) < 0.3
+                    else ({}, {}, np.empty((0, 3)))
+                )
+                boundary = part & ~binary_erosion(part)
+                bv, bu = np.nonzero(boundary)
+                border = deproject(
+                    depth[bv, bu], np.c_[bu, bv], sensor["intrinsics"], sensor["camera_world"]
+                )
+                status = {}
+                if abs(normal[2]) < 0.3:
+                    local = border @ normal_frame(normal)
+                    for axis, name in ((1, "width"), (2, "height")):
+                        for side in (0, 1):
+                            key = f"{name}_{side}"
+                            extreme = (min if side == 0 else max)(local[:, axis])
+                            chosen = (
+                                abs(local[:, axis] - extreme) <= 3 * config["plane_tolerance_m"]
+                            )
+                            clipped = (
+                                (bu[chosen] <= 2)
+                                | (bu[chosen] >= w - 3)
+                                | (bv[chosen] <= 2)
+                                | (bv[chosen] >= h - 3)
+                            ).any()
+                            status[key] = (
+                                "observed"
+                                if key in edges
+                                else "clipped"
+                                if clipped
+                                else "unobserved"
+                            )
+                observation = SurfaceObservation(
+                    int(sensor["frame"]),
+                    float(sensor["time_s"]),
+                    float(cue.get("available_s", float(sensor["time_s"]) + cue["latency_s"])),
+                    mask_index,
+                    (h, w),
+                    np.packbits(part).tobytes(),
+                    np.array(sensor["intrinsics"], copy=True),
+                    np.array(sensor["camera_world"], copy=True),
+                    voxel_points(border, config["voxel_m"], 4096),
+                    status,
+                )
+                result.append(
+                    Surface(
+                        part_points,
+                        normal.copy(),
+                        offset,
+                        descriptor,
+                        anchors[near],
+                        features[near],
+                        residual,
+                        1.0,
+                        edges=edges,
+                        edge_points=edge_points,
+                        extent_points=extent_points,
+                        observations=(observation,),
+                    )
+                )
             remaining = remaining[~support]
     return result
 
@@ -336,7 +433,7 @@ def fuse_surface(a, b, config, view):
     if len(anchors) > 2048:
         take = np.linspace(0, len(anchors) - 1, 2048, dtype=int)
         anchors, features = anchors[take], features[take]
-    basis = normal_frame(normal)
+    basis = normal_frame(normal) if abs(normal[2]) < 0.3 else contact_frame(normal)
     edge_points = dict(a.edge_points)
     for key, observed in b.edge_points.items():
         axis = 1 if key.startswith("width") else 2
@@ -365,6 +462,9 @@ def fuse_surface(a, b, config, view):
         edges,
         edge_points,
         voxel_points(np.r_[a.extent_points, b.extent_points], config["voxel_m"]),
+        a.surface_id,
+        a.ownership,
+        a.observations + b.observations,
     )
 
 
@@ -408,6 +508,9 @@ def track_surface(reference, sensor, config):
         residual,
         float(support.sum() / max(len(u), 1)),
         reference.views.copy(),
+        surface_id=reference.surface_id,
+        ownership=reference.ownership,
+        observations=reference.observations,
     )
 
 

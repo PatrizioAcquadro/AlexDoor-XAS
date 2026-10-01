@@ -170,4 +170,10 @@ def moved_surface(reference, motion):
         residual,
         1.0,
         reference.views.copy(),
+        edges=reference.edges.copy(),
+        edge_points={key: points @ r.T + t for key, points in reference.edge_points.items()},
+        extent_points=reference.extent_points @ r.T + t,
+        surface_id=reference.surface_id,
+        ownership=reference.ownership,
+        observations=reference.observations,
     )

@@ -321,9 +321,10 @@ def test_replay_live_event_equivalence_and_privileged_input_isolation():
     class RecordedEvents:
         def __init__(self):
             self.inputs = []
+            self.generation = 0
 
         def reset(self):
-            pass
+            self.generation += 1
 
         def poll(self, now):
             return None
