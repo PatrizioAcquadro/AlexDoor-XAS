@@ -27,6 +27,78 @@ and detailed historical pages. Removed ignored scripts, weights, caches and
 intermediate payloads are **not recoverable from Git**; these records support
 inspection of the results, not a claim of fully executable reproduction.
 
+## Targeted 6.0B re-audit before 6.0C — October 1, 2026
+
+Starting from `operational-scan-review-01/review.md`, the diagnosis follows the white
+pilot's relief seams and the dark pilot's jamb/upper inset from original RGB through
+SAM membership, calibrated depth, plane extraction, association and hinge rejection.
+Only the same two train pilots, nominal/light and captured observations through 25 s,
+are used. Saved cues avoid repeated image-model inference; static assembly is batched
+and does not validate causal runtime timing. Original evidence and intermediate
+attempts remain in place. Derived results/images and executable diagnosis scripts are
+in `outputs/b1/perception/operational-scan-diagnosis-01/`.
+
+**Demonstrated corrections:** partial-view borders no longer contract previously
+measured material; contradictory perimeter claims are removed without erasing original
+observations. Dense residuals are re-sampled after each plane instead of retaining only
+three fits from the initial global sample. Enclosed semantic omissions recover only
+valid measured plane inliers, preserving missing/off-plane depth and the external
+silhouette. Seam association considers every matching frame/mask component instead
+of only the first. A measured separating side can exclude surrounding support without
+requiring unrelated bottom/top geometry. No fit/association tolerances or qualification,
+admission, split or feedback gates changed. Code: `9f511da`, `3001830`.
+
+Twelve decisive saved observations across the four pilot conditions recover 876–34,849
+supported pixels per observation versus the original extractor; only enclosed semantic
+omissions are restored outside original SAM membership. Captured RGB/row references
+and calibrated roundtrips are checked. More recovered components are not more physical
+doors or unique leaf identity: broad masks still include support with ambiguous roles.
+
+**Invalid historical footprint claim:** each current closed collision extremum contains
+nine repeated vertices but only two distinct positions, spanning a 25.8 mm line.
+`footprint_support` now rejects this as `degenerate_finger_face`; the initial 17/19/14/14
+patch counts below do not establish support for two finite distal faces. Robot assets,
+tool calibration and Phase 5 qualification are unchanged. A justified effective contact
+band/cover and uncertainty are required before interaction; inventing a flat face is
+not a correction. This geometric/contact-model boundary belongs in the D handoff.
+
+**Native video cause:** the box-only prompt produces a raw initial mask (score about
+0.988), then native hotstart removes its unmatched ID before stream export. A box
+on frame 0 does not supply continuing detector matches. On the same first 20 nominal
+captures per pilot, adding the existing `door` concept to the unchanged automatic box
+retains 20/20 masks versus 0/20 with box only. The production worker confirms the same
+result and records initial prompt masks separately. Frozen RTX 4090 inference retains
+the original SAM3 checkpoint digest. Neither model/weights nor native output filters
+were changed. This prefix comparison does not resolve leaf/frame identity, establish
+full-video/light performance or replace the causal provider.
+
+The final four saved-cue reconstructions still report `ambiguous_object_ownership`
+and zero physical axes. Main candidates retain 32/36 material surfaces on the white
+pilot and 38/37 on the dark pilot (light/nominal), including recovered seam support.
+Broader support also exposes additional alternatives; it does not monotonically
+reduce candidate counts. No final scan uniquely assigns surrounding support, and all
+current footprint checks reject the degenerate extrema. Per-object counts/rejections
+remain in the JSON records. Static numerical assembly is not an operational state or
+first-motion validation.
+
+**First-motion boundary:** free space in front of a candidate is insufficient without
+an identifiable material leaf patch, a supported reference for the same physical
+contact across alternatives, effective contact coverage, relevant sweep/unknown-space
+bounds, observed feedback and response/stop margins. Total dimensions or an unrelated
+bottom border are optional. A unique axis is not mandatory for every provisional action,
+but physically supported alternatives and margins for that exact action are; panel
+edges alone supply neither. The traced arc rejections principally lack support or fail
+radius/residual checks, rather than merely the final conditioning cutoff. Missing a fit
+does not prove that hardware is physically absent.
+
+C owns causal material association, observed articulation/axis fits and field lifetimes;
+observed response can help only after an admitted informative action. D owns effective
+contact geometry, feedback/load and physical response/stop bounds. If no identifiable
+local leaf patch exists, observation/association must resolve it before the first push.
+No movement is presumed to cure B's corrected extraction/registration defects. C/D,
+simulation, training, collection, extended replay and sealed-test access remain unstarted;
+Phase 6.0 remains unqualified. Numerical regressions establish software behavior only.
+
 ## Static object scan — October 1, 2026 (6.0B)
 
 **Question:** can calibrated observed support assemble leaf surfaces, distinguish
@@ -51,7 +123,7 @@ and regression prevent repeated overlapping proposals from multiplying objects.
 | `animated-door-1-88abf40` | nominal | 117 | 7 | 259 | 19 | 0 |
 | `animated-door-1-88abf40` | light | 120 | 5 | 208 | 17 | 0 |
 
-All four scans retain `ambiguous_object_ownership`. No surrounding surface is
+The initial four scans retain `ambiguous_object_ownership`. No surrounding surface is
 uniquely assigned as fixed under the observed-perimeter rule in these recordings.
 Internal observed seams can assemble relief into a candidate; proximity, parallelism,
 area, color and mask confidence cannot resolve leaf/frame identity. The counts include
@@ -62,9 +134,10 @@ fit check excludes leaf-plane clutter using the saved object clouds and the orig
 scan depth; all 16 candidates still produce zero physical axes. This check is in
 `operational-scan-review-01/hardware-review.json` and repeats no model inference.
 
-The patch counts require positive clearance for both entire URDF-derived
+The historical patch counts attempted to require positive clearance for both entire URDF-derived
 `PushGeometry.distal_faces`, rejecting holes and clipped support. They remain patches
-on ambiguously owned candidate surfaces, not admitted contacts. A separate lightweight
+on ambiguously owned candidate surfaces, not admitted contacts; the re-audit above
+invalidates the finite-face interpretation of those counts. A separate lightweight
 review verifies that every saved RGB frame equals its original scan observation and
 queries 10 mm balls around one patch per candidate. All 16 on-surface queries report
 observed occupancy; all 16 behind-surface queries remain unknown. Of 16 camera-side
@@ -103,7 +176,7 @@ remain explicit. Numerical visible/hidden/ambiguous/degenerate-hinge, relief/fra
 bottom-frame, reprojection, footprint and unknown-space regressions validate software
 behavior, not physical observability or calibration accuracy.
 
-**Outcome/handoff:** 6.0B implementation and targeted diagnostics are complete;
+**Original outcome/handoff (superseded by the targeted re-audit above):** 6.0B implementation and targeted diagnostics are complete;
 ownership, physical axes, signed articulation, leaf response, load limits and physical
 stopping are not qualified. 6.0C must retain these alternatives and use causal material
 motion with honest field lifetimes. No training, new collection, simulation, dynamics,

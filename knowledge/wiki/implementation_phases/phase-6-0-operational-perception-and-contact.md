@@ -392,16 +392,32 @@ original material/observation references; legacy recipes remain supported.
 
 All four chronological 0–25 s train scans completed in `operational-scan-02`,
 including pending image results released at measured availability without later RGB-D.
-All remain ambiguous, with no uniquely assigned fixed support or physical hinge axis.
+The initial scans remain ambiguous, with no uniquely assigned fixed support or
+physical hinge axis.
 The single conditional automatic-box SAM3 forward-video configuration completed on
 the same captured frames in `operational-scan-video-01`; it retained zero masks.
-No prompting/threshold search or provider replacement followed. Interrupted/failed
+At that stage no prompting/threshold search or provider replacement followed.
+Interrupted/failed
 attempts are preserved. Evidence, limits and local volume probes are summarized in
 `operational-scan-review-01` and
 [[../experiments/b1-perception-findings|the canonical findings]].
 
-6.0C must use observed causal motion to resolve material identity and articulation,
-carry these alternatives and uncertainty, and establish field lifetimes. No static
+The targeted re-audit in `operational-scan-diagnosis-01` corrects measured-support loss,
+partial-view border contraction, first-component-only seam association, unrelated
+perimeter requirements and invalid finite-face claims. Enclosed mask omissions need
+valid plane depth; residual fitting keeps existing support/tolerance requirements.
+Box-only video tracks were removed by native hotstart; the shared `door` concept
+retains masks on both 20-frame nominal prefixes without changing the model or filters.
+These masks do not establish material role. See the canonical findings for the
+bounded results and the invalidated historical contact counts.
+
+6.0C owns causal material association, articulation and field lifetimes, preserving
+alternatives and uncertainty. Motion is informative only after an admitted action;
+it is not assumed to repair B's evidence loss or guarantee identity. The first push
+requires an identifiable local leaf patch and supported action reference. 6.0D must
+also define effective finite contact coverage (current collision extrema are lines),
+feedback/load and response/stop margins. Unrelated total dimensions remain optional.
+No static
 edge guess may stand in for an unobserved axis. The image/model availability events
 and retrospective video evidence are distinct; neither establishes production timing.
 Ideal RGB-D/calibration, resolved pixel support and predominantly vertical-axis

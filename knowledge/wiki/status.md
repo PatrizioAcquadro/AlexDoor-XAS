@@ -5,25 +5,33 @@ perception workflows are retired. The geometric prototype uses existing recordin
 and frozen local weights. The operational successor protocol and implementation plan
 are approved. 6.0A contracts, numerical admission rules and consumer compatibility
 are implemented. 6.0B static object fusion and geometric queries are complete with
-four scan-only CUDA diagnoses and a conditional video comparison. Static ownership
-and physical hinge observability remain unresolved. No simulation, training,
+four scan-only CUDA diagnoses and a targeted re-audit correcting evidence loss,
+association and invalid finite-face claims. The corrected video prefix retains masks;
+static leaf identity, physical axes and effective contact support remain unresolved.
+No simulation, training,
 collection, extended replay or sealed-test evaluation was started by these assignments.
 
 | Area | Current state |
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head RGB-D/proprioception and contact diagnostics implemented. Common zero-yaw setup supersedes the historical 45-degree synthetic setup. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights remain 29 redistributable, two local-only, one private/noncommercial. |
-| 6.0 — Perception/contact | 6.0A/B complete: contracts/admission, static object memory, geometric queries and four bounded scan diagnoses. All scans retain ownership ambiguity and no supported physical hinge axis; the automatic-box video comparison retained no masks. Phase 6.0 is unqualified. 6.0C-H, feedback acquisition and dynamics remain pending; extended evaluation remains stopped. |
+| 6.0 — Perception/contact | 6.0A/B complete: contracts/admission, static object memory, geometric queries and four bounded scan diagnoses. Targeted corrections preserve measured support and repair the box-only video recipe; leaf identity/axes and effective contact geometry remain unresolved. Phase 6.0 is unqualified. 6.0C-H, feedback acquisition and dynamics remain pending; extended evaluation remains stopped. |
 | 6.1 — Action paths | Model-independent observed-input contracts, matched data, ACT/Diffusion × A1–A4 and execution/replay software maintained. No qualified provider; final integration and physical validation remain pending. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Continue with 6.0C causal material tracking, articulation and field lifetimes, using the
+Use the targeted 6.0B diagnosis to scope 6.0C causal material tracking, articulation and
+field lifetimes and 6.0D effective contact/feedback/stop work, following the
 [[implementation_phases/phase-6-0-operational-perception-and-contact|6.0 operational implementation plan]]
 and the [[topics/shared-door-perception|implemented interfaces and static scan memory]].
 The 6.0B handoff preserves competing objects, original material references and
-unsupported edge-axis alternatives; static ambiguity must not become an accepted estimate.
+unsupported edge-axis alternatives. Free space alone cannot admit a push on an
+ambiguously owned surface. The current collision extrema are lines and do not certify
+finite-face support; first motion also needs an explicit effective contact cover and
+response/stop margins. Complete dimensions are unnecessary unless that action depends
+on them. Static ambiguity must not become an accepted estimate or a presumed future
+motion-based resolution.
 The guide establishes a torque feedback interface; signal accuracy, simulated
 sensor semantics, load inference and physical stopping remain unverified.
 

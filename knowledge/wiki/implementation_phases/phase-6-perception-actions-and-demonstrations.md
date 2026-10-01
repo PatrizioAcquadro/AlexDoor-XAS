@@ -27,7 +27,11 @@ preserving legacy schemas and results. Operational consumer compatibility exists
 but the provider still emits legacy states and feedback acquisition remains absent.
 6.0B adds observed object memory, static hinge alternatives, finite contact support
 and relevant-space queries. Its four scan diagnoses preserve ambiguous ownership
-and unobserved physical axes; the conditional SAM3 video comparison resolved neither.
+and unobserved physical axes. The targeted re-audit corrects extraction, mask omissions,
+perimeter/association losses and degenerate contact-face claims. The repaired video
+prefix retains masks but does not establish leaf identity or an axis. First motion
+still requires an identifiable local leaf patch, effective contact coverage and D's
+feedback/response/stop bounds; complete dimensions are optional.
 See [[experiments/b1-perception-findings|preserved evidence]] and
 [[topics/shared-door-perception|current implementation]].
 
@@ -42,7 +46,7 @@ page as the phase overview; use the detailed plan for assignments and exit check
 | Package | Outcome | Prerequisites |
 |---|---|---|
 | 6.0A — complete | Explicit operational/provisional/load contracts, measurable admission rules and numerical consumer compatibility | Approved protocol and current consumer audit |
-| 6.0B — complete | Static object fusion, fixed/unresolved support, hinge alternatives and geometric queries; four bounded scans and negative video comparison | 6.0A |
+| 6.0B — complete | Static object fusion, fixed/unresolved support, hinge alternatives and geometric queries; bounded scans and targeted evidence/contact corrections; identity/interaction remain unqualified | 6.0A |
 | 6.0C | Causal tracking, signed articulation, uncertainty and stable/dynamic lifetimes | 6.0B |
 | 6.0D | Documented robot feedback, common compliant execution and physical stop | 6.0A; independent of B/C with numerical fixtures |
 | 6.0E | Independent dual-profile evaluator and both pilot replays | 6.0A-C |

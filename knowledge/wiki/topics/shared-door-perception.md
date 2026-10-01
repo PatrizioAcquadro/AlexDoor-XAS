@@ -227,13 +227,15 @@ propagation. Video confirmation can use later frames: all comparison geometry is
 causal provider or backdate an accepted runtime estimate. Models stay frozen on CUDA,
 and the video worker starts only after the image worker closes.
 
-The four successful image scans in `outputs/b1/perception/operational-scan-02/`
+The initial four successful image scans in `outputs/b1/perception/operational-scan-02/`
 all retain multiple candidates and unresolved support; none uniquely assigns fixed
 surfaces or supports a physical hinge axis. The separate successful video comparison
-in `operational-scan-video-01/` retained zero masks with the common automatic-box
-recipe. This negative comparison does not justify a model replacement or a general
-claim about SAM3. `operational-scan-review-01/` joins the evidence and local
-occupied/free/unknown-volume probes. See
+in `operational-scan-video-01/` retained zero masks with the box-only recipe.
+`operational-scan-review-01/` joins that initial evidence and local volume probes.
+The subsequent `operational-scan-diagnosis-01/` re-audit recovers measured support
+and explains native mask suppression; neither recovered pixels nor the positive
+video prefix establish leaf identity or admit interaction. Historical finite-face
+counts are invalidated by the degenerate collision extrema described above. See
 [[../experiments/b1-perception-findings|the measured scan results]] and
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|the 6.0C handoff]].
 
