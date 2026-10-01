@@ -10,9 +10,10 @@ train/development gap, corrected component screening and limitations.
 
 The approved October 1 successor is specified in
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|the operational perception/contact plan]].
-It is **planned**, not implemented: object-level fusion, action-specific admission,
-stable/dynamic validity and observed torque/load monitoring. Current code below
-still follows the September full-state contract.
+6.0A numerical contracts and admission rules are implemented, with consumer
+integration pending. Object-level fusion, causal field production and measured
+torque/load monitoring remain planned. The current provider below still follows
+the September full-state contract.
 
 ## Recording and storage
 
@@ -88,6 +89,37 @@ A1–A4 adapters, normalization and stop-only execution remain maintained compon
 but final raw/live equivalence and physical integration await the qualified provider.
 
 ## Geometric prototype
+
+### 6.0A numerical interfaces — consumer integration pending
+
+`DoorEstimate.operational` adds observed leaf identity, separate hinge hypotheses,
+closed reference, signed-angle/panel support and an identified local/world contact
+selection. `FieldSupport` declares acquisition, availability, actual support time,
+episode generation and conservative position/rotation bounds. Missing bounds remain
+missing. Static evidence has no age-only expiry; dynamic support expires within
+150 ms and prediction cannot refresh it. The legacy fields and `valid` retain their
+complete-state meaning.
+
+`validate_geometry` explicitly dispatches `legacy-full-state` or `operational-v1`.
+Operational support checks require a unique supported state; aggregate accuracy
+and release qualification still require independent offline/dynamic evidence.
+`admit_action` can separately admit a diagnostic provisional state against every
+credible hypothesis for the same physical patch and world trajectory. It sums
+translation bounds, rigid rotational travel, robot error, relative motion over
+latency/action duration and stop travel against both finger footprints and relevant
+collision clearance. Clearances must cover the continuous sweep and stop envelope.
+Only declared required dimensions enter this decision. Producers must establish
+these bounds; no operational measurement recipe has been supplied yet.
+
+Contact selection orders producer-verified reachable candidates by minimum footprint
+clearance, resolved-hinge distance and stable selection ID. Target changes declare a
+predecessor. `MaterialContactReference` belongs only to the evaluator; independent
+material-surface association and dual-profile scoring remain 6.0E work.
+`RobotFeedback` and `admit_load` declare a separate torque/device channel and require
+fresh feedback, known signal semantics, bounded robot-only residual/load evidence
+and verified contact/stop behavior. They supply neither a torque sensor nor a load
+model. Consumer integration is pending; the current prototype below still uses its
+legacy geometry and unavailable force feedback. No campaign or physics was run.
 
 `GeometryProvider` and `CueEngine` share capture/completion events in replay and
 live use. `ModelWorker` sends only RGB bytes to frozen CUDA models in an isolated

@@ -3,6 +3,7 @@
 import json
 import time
 from collections import Counter
+from dataclasses import dataclass
 from pathlib import Path
 
 import h5py
@@ -10,7 +11,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 from scipy.spatial.transform import Rotation
 
-from alexdoor_xas.action.frames import rot_z
+from alexdoor_xas.action.frames import ObjectFrame, rot_z
 from alexdoor_xas.policies.observations import B1Observer
 from alexdoor_xas.recording.b1 import OBS_KEYS, PHASES
 
@@ -27,6 +28,20 @@ LIMITS = dict(
 )
 COMPONENTS = (*LIMITS, "width_m", "height_m", "thickness_m")
 MANIPULATION = [PHASES.index(p) for p in ("contact", "push", "hold")]
+
+
+@dataclass(frozen=True)
+class MaterialContactReference:
+    """Evaluator-only association at selection; independent surface query remains 6.0E work."""
+
+    selection_id: str
+    selected_s: float
+    leaf_local_pose: ObjectFrame
+    footprint_leaf: tuple[np.ndarray, np.ndarray]
+
+    def require_selection(self, selection):
+        if (selection.selection_id, selection.selected_s) != (self.selection_id, self.selected_s):
+            raise ValueError("contact_correspondence_requires_new_surface_query")
 
 
 def rotation_error(a, b):

@@ -3,22 +3,22 @@
 Current as of 2026-10-01. B1 is maintained; B0 execution and the failed custom
 perception workflows are retired. The geometric prototype uses existing recordings
 and frozen local weights. The operational successor protocol and implementation plan
-are approved; this revision starts no implementation, training, collection or
-sealed-test evaluation.
+are approved. 6.0A numerical contract interfaces are implemented with consumer
+integration pending; no training, collection or sealed-test evaluation was started.
 
 | Area | Current state |
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head RGB-D/proprioception and contact diagnostics implemented. Common zero-yaw setup supersedes the historical 45-degree synthetic setup. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights remain 29 redistributable, two local-only, one private/noncommercial. |
-| 6.0 — Perception/contact | Unqualified September prototype; corrected pilots still accept zero complete states. October 1 operational protocol approved, packages 6.0A-H planned: leaf-level fusion, provisional action admission, torque/load monitoring and staged validation. No successor implementation or dynamics yet; extended evaluation remains stopped. |
+| 6.0 — Perception/contact | Unqualified September prototype; corrected pilots still accept zero complete states. 6.0A numerical interfaces implemented; consumer integration pending. 6.0B-H remain planned. No successor inference, feedback acquisition or dynamics; extended evaluation remains stopped. |
 | 6.1 — Action paths | Model-independent observed-input contracts, matched data, ACT/Diffusion × A1–A4 and execution/replay software maintained. No qualified provider; final integration and physical validation remain pending. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Begin the dependency-ordered
+Complete 6.0A consumer integration in the dependency-ordered
 [[implementation_phases/phase-6-0-operational-perception-and-contact|6.0 operational implementation plan]]
-with 6.0A contracts. Subsequent work repairs leaf/frame ownership and causal motion
+plan. Subsequent work repairs leaf/frame ownership and causal motion
 on the two pilots, and implements documented robot-torque feedback/common stopping.
 The guide establishes a torque feedback interface; signal accuracy, simulated
 sensor semantics, load inference and physical stopping remain unverified.
