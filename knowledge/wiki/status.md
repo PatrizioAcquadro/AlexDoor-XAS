@@ -1,30 +1,39 @@
 # Project Status
 
-Current as of 2026-09-30. B1 is maintained; B0 execution and the failed custom
+Current as of 2026-10-01. B1 is maintained; B0 execution and the failed custom
 perception workflows are retired. The geometric prototype uses existing recordings
-and frozen local weights; no training, collection or test evaluation is authorized.
+and frozen local weights. The operational successor protocol and implementation plan
+are approved; this revision starts no implementation, training, collection or
+sealed-test evaluation.
 
 | Area | Current state |
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head RGB-D/proprioception and contact diagnostics implemented. Common zero-yaw setup supersedes the historical 45-degree synthetic setup. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights remain 29 redistributable, two local-only, one private/noncommercial. |
-| 6.0 — Perception | Unqualified. Causal GroundingDINO/native SAM 3/DINOv3 provider, RGB-D geometry and full-state replay evaluator implemented. Shared boundary/tracking corrections verified on both pilots still yield zero accepted complete states. Leaf/frame identity and unreliable hinge/motion remain unresolved. Extended evaluation stays stopped; dynamic use is unvalidated. |
+| 6.0 — Perception/contact | Unqualified September prototype; corrected pilots still accept zero complete states. October 1 operational protocol approved, packages 6.0A-H planned: leaf-level fusion, provisional action admission, torque/load monitoring and staged validation. No successor implementation or dynamics yet; extended evaluation remains stopped. |
 | 6.1 — Action paths | Model-independent observed-input contracts, matched data, ACT/Diffusion × A1–A4 and execution/replay software maintained. No qualified provider; final integration and physical validation remain pending. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Correct object association on the two pilot doors: combine visible faces of the
-same leaf, keep fixed-frame/wall support separate, and verify motion-feature
-ownership before hinge fitting. Human review resolved the displayed regions;
-shared boundary/tracking corrections were replayed in `geometric-pilot-06` and
-still failed every full-state gate. The user stopped the extended evaluation; completed and
-partial evidence remains under `geometric-evaluation-02`, with an explicit stop
-record. No further campaign is authorized until the main causes are clarified and
-corrected, and common corrections are verified on both pilots. The
-[[topics/shared-door-perception|full-state gates]] remain unchanged. Dynamic tests
-still require every train/development door to pass offline; do not release a
-provider or open 6.2 before both gate groups.
+Begin the dependency-ordered
+[[implementation_phases/phase-6-0-operational-perception-and-contact|6.0 operational implementation plan]]
+with 6.0A contracts. Subsequent work repairs leaf/frame ownership and causal motion
+on the two pilots, and implements documented robot-torque feedback/common stopping.
+The guide establishes a torque feedback interface; signal accuracy, simulated
+sensor semantics, load inference and physical stopping remain unverified.
+
+The approved operational-v1 profile retains required-state 1 cm / 5 degree and
+95% coverage/precision limits, while separating optional full dimensions and
+provisional action admission. Historical full-state failures remain unchanged.
+Both pilot offline and feedback/stop gates precede bounded pilot dynamics; only
+then may a common corrected recipe progress to extended replay. All train/development
+offline gates precede qualification dynamics and both gate groups precede release.
+This planned diagnostic sequencing exception does not authorize running campaigns
+in the documentation task. Keep 6.1 open and 6.2 unstarted.
+
+The stopped `geometric-evaluation-02` and all pilot attempts remain preserved.
+No broader campaign may bypass the main-cause correction and two-pilot checks.
 
 [[experiments/b1-perception-findings|Perception findings]] preserves the evidence:
 run-03 fitted 19/19 train doors but passed 0/6 development; matched DINOv2/v3 probes
@@ -48,8 +57,9 @@ not full geometry or confidence qualification.
   door. Report per-door/handedness results without claiming population coverage.
 - No policy/adapter input may contain privileged door geometry. The prototype
   confines simulator truth to its evaluator, including future dynamic tests;
-  its observed-only monitor cannot infer force from RGB-D. Other maintained
-  teacher/legacy stop monitors have separate truth boundaries. The sealed test
+  its current observed-only monitor lacks load feedback. The planned torque channel
+  cannot expose privileged contacts or pretend to be a calibrated force sensor.
+  Other maintained teacher/legacy stop monitors have separate truth boundaries. The sealed test
   stays closed. Simulation validation does not establish hardware safety.
 
 ## Maintained surfaces

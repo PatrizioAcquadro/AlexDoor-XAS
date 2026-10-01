@@ -12,6 +12,12 @@ It defines **B1** across Phases 4–7 without claiming implementation. The separ
 preparatory code audit is recorded in [[status|Project Status]]; it does not
 implement or execute any revised phase.
 
+The approved October 1, 2026 amendment prioritizes operational manipulation state
+over exhaustive reconstruction while preserving A4 and the scientific comparison.
+Its executable work packages and revised diagnostic/qualification sequence are in
+[[../implementation_phases/phase-6-0-operational-perception-and-contact|the 6.0 operational plan]].
+This is a protocol revision, not evidence of implementation or a passed gate.
+
 ## Scientific Question
 
 Holding the Purdue robot, observations, physical demonstrations, dataset size,
@@ -74,7 +80,8 @@ door state. See [[experiments/b1-perception-findings|the evidence and decision]]
 | Qualification expert and synthetic setup search | Simulator geometry/state and measured simulation contacts. |
 | Training supervision | Labels from training-door episodes, kept distinct from model observations. |
 | Learned policy, A3/A4 adapters, and optional gaze | Sensor observations, robot proprioception/forward kinematics, and frozen perception estimates. |
-| Evaluator and common safety monitor | Simulator truth for scoring/validity and safety stops; no helpful motion commands or angle-based early success. |
+| Evaluator | Simulator truth for errors, physical validity and scoring; never supplies task commands or runtime estimates. |
+| Planned operational common monitor | Observations, robot model/limits and declared robot feedback; no door/contact truth. Legacy truth-based stop monitors remain separate maintained consumers. |
 | Oracle diagnostic | Explicitly separate results, never main ranking or test-driven model selection. |
 
 No true door pose may enter through reset initialization, cached transforms,
@@ -82,11 +89,28 @@ segmentation-derived validity masks, action adapters, or hidden completion logic
 The expert reference angle and asset identity are evaluation metadata, not policy
 inputs. If perception loses the door, handle that observed failure explicitly.
 
-The September 2026 geometric prototype applies a stricter boundary: its controller
-and stop monitor also use observations only. Simulator truth is confined to a
-separate evaluator for errors and physical criteria. Geometry/proprioception cannot
-stand in for force or loaded-contact feedback. This prototype cannot qualify dynamic
-contact control if the necessary feedback is unavailable; the physical gates remain.
+The September prototype and its approved operational successor use the stricter
+observed-only controller/monitor boundary. A documented joint-torque channel will
+initially serve the common monitor, not extend policy features. Its measurement
+semantics, uncertainty and timing must be established; RGB-D and joint positions
+cannot be presented as force measurements. Physical criteria remain unchanged.
+All eight cells share the same monitor, low-level gains/limits and sensor boundary.
+
+The successor diagnostic controller selects a supported observed contact patch;
+teacher contact rules and demonstrations remain unchanged. Maintain competing
+hinge hypotheses and allow only explicitly bounded diagnostic actions compatible
+with their uncertainty. Such provisional actions are not qualified estimates.
+No automatic pre-policy push is permitted: any learned exploratory action belongs
+to the policy's sequence, time budget and evaluation. The monitor/adapter may stop
+but cannot choose a new contact, hinge side, recovery trajectory or opening goal.
+
+Operational-v1 retains the 1 cm / 5 degree and 95% coverage/precision requirements
+for required hinge, angle and local/world contact state, with action-specific
+footprint/collision/stopping checks. Total dimensions are required only where the
+action depends on them; they remain diagnostics otherwise. Preserve the old
+full-state profile and failed results. The detailed 6.0 plan defines denominators,
+pilot-only dynamic admission and both release gate groups; no partial-state or
+plane-only pass is a qualified release.
 
 ## Action Representations
 

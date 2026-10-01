@@ -80,8 +80,10 @@ a prerequisite to reading and delivering the scientific results.
 - Unsafe or otherwise invalid policy episodes receive zero valid progress and
   stay in the denominator. A safe timeout or incomplete release alone does not
   erase earlier sustained controlled progress; an unsafe release invalidates it.
-- Simulator truth may score and trigger common safety stops, never supply helpful
-  policy/gaze/adapter commands or angle-based early success.
+- The operational path confines simulator truth to evaluation. The common monitor
+  uses declared observations/robot feedback, never helpful task corrections or an
+  expert stopping angle. Legacy truth-based monitors cannot qualify this path; see
+  [[phase-6-0-operational-perception-and-contact|the approved 6.0 boundary]].
 - Keep oracle diagnostics separate and run them only to investigate a concrete
   failure, not as an obligatory extra matrix. Report infrastructure interruptions
   separately from policy failures.

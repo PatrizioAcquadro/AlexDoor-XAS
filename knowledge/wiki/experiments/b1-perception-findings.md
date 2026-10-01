@@ -11,6 +11,12 @@ No candidate has qualified complete door/contact geometry or confidence on the
 six development doors. The new geometric pipeline is now a diagnostic prototype;
 a backbone swap, plane estimate or train fit does not close Phase 6.0.
 
+The October 1 approved [[../implementation_phases/phase-6-0-operational-perception-and-contact|operational successor plan]]
+uses the object-association and tracking failures below to define new work. It
+separates task-required geometry from optional total dimensions, introduces observed
+robot feedback and stages bounded pilot interaction. This is a design decision,
+not a new experiment: all historical profiles, errors and failures remain unchanged.
+
 All model experiments below used the RTX 4090. Train/development identity splits
 and physical gates were unchanged; the sealed test was not used. The original
 records are now under `outputs/b1/perception/evidence/`, retaining run names.
@@ -340,9 +346,11 @@ This does not reject DINOv3 for learned association or residual features.
 The next pipeline must recover metric planes/borders, maintain multiview static
 geometry, track articulation, measure local contact, and represent ambiguity or
 loss explicitly. Masks guide association; metric/temporal consistency must reject
-wrong surfaces. Require full per-door geometry and dynamic loss/reacquisition
-before freezing one shared provider. No new training or collection is implied.
-See [[topics/shared-door-perception|the maintained boundary and fixed gates]].
+wrong surfaces. The September full-state target remains historical evidence;
+future qualification follows the explicit operational profile and dynamic gates
+in the October plan.
+No new training or collection is implied. See
+[[topics/shared-door-perception|the maintained and planned boundaries]].
 
 Selected official weights/configuration/licenses are in `models/perception/`;
 its README records revisions, including native SAM 3 format. Evidence includes

@@ -90,6 +90,24 @@ and discards the remaining predicted horizon. Loss/stale input, invalid outputs
 and safety stops clear pending chunks and segment state; no release is appended.
 The common neck inspection and parked-tool hold precede learned arm execution.
 
+## Approved operational integration — not yet implemented
+
+The [[../implementation_phases/phase-6-0-operational-perception-and-contact|6.0 successor protocol]]
+preserves these A4 semantics. Its transform needs the hinge frame, signed angle
+and full local target, not total leaf dimensions. A3's free-vector transform uses
+frame rotation only. Action admission will distinguish qualified geometry from a
+bounded provisional hypothesis and will check the relevant physical trajectory.
+Current adapters still require the complete `DoorEstimate`; changing that contract
+requires coordinated observer/runner validation, not setting a fake validity flag.
+
+The policy owns target, stage, opening increment and duration. A diagnostic action
+source may test a small admitted movement, but cannot become a hidden policy
+fallback. Updating a hinge hypothesis cannot silently redirect an executing segment.
+Replan at explicit boundaries while admissible; loss/safety stops latch and clear
+actions, without automatic resumption, release or opposite-side trials. Common
+low-level compliance tracks the requested action and supports safe stopping; it
+must not supply door-following task corrections. All eight cells share its settings.
+
 ## Primary References
 
 - `src/alexdoor_xas/action/spaces.py`

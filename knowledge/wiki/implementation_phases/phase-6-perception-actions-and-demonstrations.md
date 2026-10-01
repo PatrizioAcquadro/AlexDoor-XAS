@@ -1,8 +1,10 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Subphase 6.0 open: geometric prototype implemented; offline full-state gates and dynamic use remain unqualified.
-> Subphase 6.1 independent software implementation is available; validation is partial.
-> Final integration remains blocked; 6.2 is not started. Phases 4 and 5 are complete.
+> Subphase 6.0 open: the September geometric prototype remains unqualified.
+> The October 1 operational perception/contact protocol is approved; implementation
+> work packages 6.0A-H are planned in a dedicated page.
+> Subphase 6.1 software is partially validated; final integration is pending.
+> Subphase 6.2 is not started. Phases 4 and 5 are complete.
 
 ## Objective
 
@@ -10,81 +12,69 @@ Make A1-A4 trainable and executable with the same observed RGB-D/proprioceptive
 interface, then produce matched training demonstrations. Follow
 [[decisions/visuoproprioceptive-generalization-benchmark|B1 Benchmark Design]].
 
-## Subphase 6.0 — Multi-Door Observations and Perception
+## Subphase 6.0 — Operational Perception and Observed Contact
 
-#### Current preparation boundary
+#### Current implementation boundary
 
-Two engineering campaigns (50 complete train/development episodes each), two pilots
-and a separate inspection diagnostic are preserved. The custom estimator and its
-training/comparison workflows are retired after run-03 fitted all 19 train doors
-but failed all six development doors. The aligned pretrained screening supports
-GroundingDINO + SAM 3 as visual components with explicit RGB-D/multiview geometry,
-and DINOv3 when learned visual features are needed; it qualified no replacement.
-The new causal provider and full-state replay evaluator are implemented. Frozen
-CUDA smoke passed; shared boundary and motion-reference corrections were verified
-on both pilot doors/conditions in `geometric-pilot-06`, still with zero complete
-states accepted. Visible leaf faces remain separate or contaminated by fixed-frame
-support, and hinge/motion estimates remain unreliable. Human review resolved the
-displayed regions without adding labels to inference. Extended engineering-v2
-evaluation is stopped at the user's request. Correct object association and
-verify both pilots before another
-campaign; retain all completed and partial results. No new collection,
-training or sealed-test access is
-part of this prototype. See [[experiments/b1-perception-findings|Perception findings]]
-and [[topics/shared-door-perception|the implementation and fixed gates]].
+The causal GroundingDINO/native SAM3/DINOv3 prototype, calibrated RGB-D geometry
+and full-state replay evaluator exist. Corrected two-pilot replay still accepts
+zero complete states: leaf/frame association and hinge/motion remain unreliable.
+Existing recordings lack joint torque; the observed-only monitor rejects loaded
+control. Extended evaluation remains stopped and dynamic validation has not run.
+The October 1 protocol changes future work, not these results or executable code.
+See [[experiments/b1-perception-findings|preserved evidence]] and
+[[topics/shared-door-perception|current implementation]].
 
-#### Implementation
+#### Approved implementation sequence
 
-Extend the Phase 4 capture path to the Phase 5 asset-indexed environment and
-synchronized recording. Do not rebuild camera integration. Verify reset,
-timestamps, depth/mask units, action timing, terminal state, and expert execution
-without changing the common robot/contact setup. Keep annotations and privileged
-expert state separate from observed inputs and inference state.
+The canonical implementation specification is
+[[phase-6-0-operational-perception-and-contact|Phase 6.0 — Operational Perception and Observed Contact]].
+It defines inputs, uncertainty, contact selection, provisional action admission,
+force feedback, scoring, failure handling and bounded delegation. Keep this parent
+page as the phase overview; use the detailed plan for assignments and exit checks.
 
-The diagnostic implementation uses GroundingDINO + native SAM 3, explicit metric
-multiview geometry and DINOv3 patch associations. It preserves partial rejected
-states rather than filling hidden dimensions or hinge coordinates. A closed scan
-without a resolved hinge must stop the arm; active probing is not authorized.
-One recipe covers all train/development doors, including pilot geometric failures.
-Full-state per-door coverage and accepted-state joint precision must both reach
-95%, with every positional/dimension p95 within 1 cm and rotational/angle p95
-within 5 degrees. Dynamic tests on the two pilot train doors and six development
-doors are conditional on all offline gates, with truth restricted to the evaluator.
+| Package | Outcome | Prerequisites |
+|---|---|---|
+| 6.0A | Explicit operational/provisional/load contracts and measurable admission rules | Approved protocol and current consumer audit |
+| 6.0B | Leaf-level multiview fusion, fixed-part separation and static hinge hypotheses | 6.0A |
+| 6.0C | Causal tracking, signed articulation, uncertainty and stable/dynamic lifetimes | 6.0B |
+| 6.0D | Documented robot feedback, common compliant execution and physical stop | 6.0A; independent of B/C with numerical fixtures |
+| 6.0E | Independent dual-profile evaluator and both pilot replays | 6.0A-C |
+| 6.0F | Bounded diagnostic manipulation on the two train pilots | 6.0D/E gates |
+| 6.0G | One common recipe on all existing train/development episodes | 6.0F |
+| 6.0H | Dynamic qualification, evidence-backed freeze and 6.1 handoff | 6.0G and 6.0D |
 
-For future authorized learned components,
-Fit any learned quantities on training doors and select on development, then
-freeze preprocessing, observation history, features and outputs for every cell.
-Early training-door recordings may support this engineering work; they do not
-constitute the final matched policy dataset.
+#### Key decisions
 
-If Phase 4 demonstrated a fixed-view deficit, implement bounded deterministic
-gaze using observed RGB-D/estimated geometry and neck proprioception. Verify
-occlusion, loss/reacquisition, and safe behavior when estimates are missing.
-Otherwise retain the fixed neck pose and omit gaze implementation.
+Preserve A4, calibrated FK/IK, a shared causal replay/live path and frozen local
+visual models. Move from a single selected plane to observed leaf surfaces and
+motion. Total dimensions are optional for operational use unless an action needs
+them. The diagnostic controller chooses a supported contact patch; the teacher's
+0.295/1.09 m rule and recorded labels remain unchanged. Policies choose their own
+actions; adapters and monitors never supply corrective task motion.
 
-#### Key Decisions
+Use documented joint-torque feedback initially in the common monitor, not as a
+new policy feature. Its semantics, uncertainty and timing require verification;
+no wrist force sensor or perfect simulated contact measurement is assumed.
+Separate geometric qualification, bounded provisional action admission and loaded
+control. Safety/loss stops latch and clear pending actions; reacquisition cannot
+restart motion. Simulator truth remains evaluator-only for this path.
 
-- Define estimator accuracy/closed-loop usability gates before training. Freeze
-  one shared perception/gaze stack, never tuned per representation or test door.
-- A3/A4 and gaze use estimated geometry in main evaluation. Simulator state is
-  restricted to teacher, training labels, evaluator, or a separately labeled
-  oracle diagnostic that cannot select models.
-- Asset identity, split, and randomization seed are metadata, not hidden inputs.
-  No oracle reset cache, segmentation-derived sensor mask, or silent fallback.
-- Synthetic setup probes and held-out qualification traces are not learned
-  training data. Fit normalization on training data only.
-- Reuse existing Replicator APIs and the Phase 4 camera capture for visual
-  variation/annotations, following the Subphase 6.2 dataset recipe. Keep RGB,
-  depth, valid-depth mask, proprioception, and actions synchronized; training
-  annotations remain separate from policy inputs.
+The new operational-v1 profile retains 1 cm / 5 degree limits for required hinge,
+angle and contact state, plus 95% coverage and joint accepted-state precision.
+Provisional and missing estimates remain in the denominator. Legacy full-state
+results retain their original dimensions/prescribed-contact gates and failures.
+The detailed plan explicitly permits bounded pilot dynamics after pilot offline
+and feedback/stop gates; qualification dynamics still require all train/development
+offline gates. Neither exception nor an incomplete prototype is a release.
 
-#### Problems / Limitations
+#### Completion and limits
 
-Complete after synchronized recording and development-set perception pass,
-including gaze only when needed. Ideal depth remains an explicit approximation;
-visual randomization does not reproduce real ZED stereo errors or missing depth.
-Synthetic visibility alone does not prove learned perception works; no separate
-stereo-error modeling project is required.
+Complete only after 6.0H and both operational gate groups. Keep ideal depth and
+unverified hardware feedback/mounting limitations explicit. This is operational
+manipulation qualification, not a claim of exact full-door reconstruction or
+hardware safety. No training, new demonstration collection or sealed-test access
+belongs to this revision. Phase 6.2 retains future collection/training ownership.
 
 ## Subphase 6.1 — Complete All A1-A4 Learning and Execution Paths
 

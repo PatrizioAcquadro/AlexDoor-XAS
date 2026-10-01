@@ -88,6 +88,37 @@ remain in raw diagnostics; touching or penetrating fixed obstacles still abort e
 Task normal force sums authorized contacts once; forbidden and structural-support
 records remain separate. Tangential friction is not included in the reported force.
 
+## Documented robot feedback and planned contact monitoring
+
+The [Alex003 Usage Guide](https://docs.google.com/document/d/17QtexPK_RqmfRammA7CsvEUuhFZFkicrJfONCdlWkEg/edit),
+reviewed October 1, 2026, documents `q`, `qd` and `tau` in `OneDOFJointState` on
+`rt/alex_state`. `tau` is described as current joint torque in N m. The SCS2 joint
+charts include desired/measured torque and motor current/voltage. This establishes
+documented feedback availability, not its accuracy or joint-output sensor origin.
+
+`OneDOFJointCommand` exposes desired position/velocity/torque, stiffness, damping,
+maximum position/velocity error and maximum torque. The guide says
+`joint_control_type` is currently unused: all setpoints are resolved through a PD
+law into desired motor torque. Do not assume a separate selectable effort mode.
+`ft_states`/`number_of_fts` support force/torque devices in the message schema but
+do not establish that a wrist sensor is installed on this Alex003 configuration.
+The guide's EZGripper effort signal is not a WSG32 pushing-force measurement.
+
+The current B1 recorder/IO carries only joint position/velocity. The approved
+[[../implementation_phases/phase-6-0-operational-perception-and-contact|operational plan]]
+adds timestamped torque/device feedback to the common monitor first, without
+changing policy features or old recordings. External-load inference needs a
+robot-only model, verified feedback semantics and bounded model/friction/timing
+error. An anomaly detector does not certify exact contact location or all force
+criteria. Simulated observations must represent the robot sensor, not expose
+evaluator contact pairs or perfect external forces.
+
+The guide warns that disabling actuators can let the arms fall. The planned
+stop response must support the arm and limit residual motion/load while physics
+continues; clearing the command queue or retaining a compressed target is not
+enough. Hardware safety remains unvalidated. These are planned controls, not a
+claim that the existing `PurdueIO.stop()` performs physical unloading.
+
 ## Collisions, Limits, and Physical Approximation
 
 Reuse the `full_convex` self-collision configuration, existing explicit pair

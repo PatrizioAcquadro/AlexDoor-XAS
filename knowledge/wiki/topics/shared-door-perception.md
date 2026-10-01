@@ -8,6 +8,12 @@ patch features for associations. The provider and full-state evaluator are
 [[experiments/b1-perception-findings|Perception findings]] records the measured
 train/development gap, corrected component screening and limitations.
 
+The approved October 1 successor is specified in
+[[../implementation_phases/phase-6-0-operational-perception-and-contact|the operational perception/contact plan]].
+It is **planned**, not implemented: object-level fusion, action-specific admission,
+stable/dynamic validity and observed torque/load monitoring. Current code below
+still follows the September full-state contract.
+
 ## Recording and storage
 
 `recording/b1.py` and `recording/b1_runtime.py` retain synchronized metric RGB-D,
@@ -116,7 +122,9 @@ calibrated robot-world z=0; panel orientation comes from the closed scan. The
 prototype approximates a vertical revolute door with predominantly planar faces.
 Contact uses the common fraction 0.295 and height 1.09 m on a locally measured
 surface, including its full normal. Neither teacher contact nor door coordinates
-enter inference. A hidden hinge keeps the scan invalid; no active probe is allowed.
+enter inference. In the implemented September path, a hidden hinge keeps the scan
+invalid and active probing is unavailable. The successor plan defines separate,
+bounded provisional admission rather than bypassing this validator.
 Patch centers are proposals, not exact physical correspondences. After the scan,
 `PixelMotionTracker` uses sparse subpixel RGB flow from OpenCV already supplied by
 the workstation. Forward/backward consistency, valid interpolated depth without
@@ -150,7 +158,9 @@ Reports include all finite, rejected and accepted error quantiles, overlapping
 rejection causes, per-door/condition/phase rates, worker latency and support recovery.
 PNG/NPZ diagnostics preserve masks and competing/selected observed surfaces.
 
-Dynamic tests require every train/development door to pass offline first.
+The September full-state recipe requires every train/development door to pass
+offline before dynamics. The approved successor has explicit pilot and release
+admission stages in the operational plan; those stages are not implemented yet.
 `ObservedControlChecks`/`ObservedPurdueSafety` provide a prototype-only monitor
 using observations, robot limits and FK. The existing runner clears pending actions
 and latches stops on invalid estimates, requiring explicit reset to resume. The
@@ -159,7 +169,7 @@ prototype monitor cannot certify force/load from RGB-D and reports
 for other maintained consumers; it must not guide this prototype. No simulator
 execution, physical force check or hardware safety is established by these tests.
 
-## Fixed acceptance boundary
+## Current and approved acceptance boundaries
 
 ### Control requirements versus qualification
 
@@ -170,19 +180,20 @@ patch alone does not establish the moving collision volume, authorized contact
 surface or force/load safety. The maintained prototype monitor also explicitly
 requires the complete `DoorEstimate` contract.
 
-The prescribed contact is at 0.295 of total width and 1.09 m world height. Its current
-position therefore depends on a reliable total width; replacing it with an arbitrary
-visible patch would change the task. Total dimensions, including height and thickness,
-remain required by the existing full-state gates. A reduced local-control contract
-would be a separate user decision and validation target, not a unilateral relaxation
-of those gates. No such change has been made. Human review resolved the displayed
+The teacher and September diagnostic contact is at 0.295 of total width and 1.09 m
+world height; reproducing it requires width. It is not a mandatory policy target.
+The approved successor diagnostic controller chooses a reachable observed patch
+with footprint clearance. It neither rewrites teacher labels nor substitutes a
+point for a policy. Total dimensions remain required by the existing full-state
+profile, while the new operational profile requires them only where an action
+depends on them. Human review resolved the displayed
 pilot regions: A/C are fixed frame, B is the leaf bottom; other doors may have a
 bottom frame. These diagnostic labels never enter inference. Corrected pilot replay
 still fails complete-state gates; extended evaluation remains stopped for object
 association and hinge/tracking correction. See
 [[experiments/b1-perception-findings|the retained evidence]].
 
-### Existing full-state gates
+### Legacy full-state gates — implemented and unchanged
 
 Per train/development door, during contact/push/hold: valid coverage at least 95%,
 contact-position p95 at most 0.01 m and orientation p95 at most 5 degrees. Preserve
@@ -197,9 +208,26 @@ and errors separately, with worst per-door results for both handednesses.
 Fit learned quantities/normalization on train only; use development for selection
 without changing gates or the frozen identity split. Never use sealed-test
 qualification evidence as training or model-selection input. Plane-only component
-success is not complete geometry qualification. Offline success must be followed
-by dynamic loss/reacquisition and observed-geometry execution under unchanged
-control/safety rules before Phase 6.0 can close.
+success is not complete geometry qualification. This profile and its previous
+failures remain reportable; it is not silently reinterpreted as the new operational
+profile.
+
+### Operational-v1 — approved, implementation pending
+
+The canonical [[../implementation_phases/phase-6-0-operational-perception-and-contact|6.0 protocol]]
+defines the required hinge/angle/local contact state, per-field lifetime, provisional
+action checks, chosen-contact evaluation and staged offline/dynamic gates. Required
+state retains 1 cm / 5 degrees and per-door 95% coverage/precision; provisional
+actions are not qualified estimates. Full dimensions remain separate diagnostics.
+Action margins additionally include uncertainty, footprint, latency and stopping
+travel. Unknown space outside the relevant swept volume is not a universal veto.
+
+Existing `b1.rgbd.v1` recordings have no torque. They can validate geometry and
+causal replay, not the new loaded-control path. A timestamped robot-feedback
+channel will initially serve the common monitor only. Both gate groups and explicit
+release/profile compatibility are required before a qualified operational provider;
+do not manufacture existing `PerceptionBinding` flags. Phase 6.1 will integrate the
+qualified path across all eight cells without changing A4 semantics.
 
 ## Retained collection interface
 
