@@ -131,7 +131,10 @@ class StaticHingeCandidate:
 def static_hinges(surface, scene, config, generation, scene_support=None):
     """Fit separated cylinder arcs; panel borders remain unsupported axis alternatives."""
     basis, bounds = surface.basis, surface.bounds
-    local = scene @ basis
+    # The scene necessarily contains the leaf itself. Its planar points must
+    # not dominate the hardware-arc fit or create a spurious straight arc.
+    hardware = scene[abs(scene @ surface.normal - surface.offset) > 2 * config["plane_tolerance_m"]]
+    local = hardware @ basis
     output = []
     for side in (0, 1):
         edge = f"width_{side}"

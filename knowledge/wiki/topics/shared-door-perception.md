@@ -11,9 +11,11 @@ train/development gap, corrected component screening and limitations.
 The approved October 1 successor is specified in
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|the operational perception/contact plan]].
 6.0A contracts, numerical admission rules and consumer compatibility are
-implemented. Object-level fusion, causal field production and measured
-torque/load monitoring remain planned. The current provider below still follows
-the September full-state contract.
+implemented. 6.0B static object memory, geometric queries and four bounded CUDA
+scan diagnoses are complete, with unresolved leaf/frame identity and unobserved
+physical hinge axes. Causal operational field production
+and measured torque/load monitoring remain planned. Runtime estimates still follow
+the legacy full-state contract; static evidence does not qualify them.
 
 ## Recording and storage
 
@@ -119,7 +121,8 @@ over that envelope after uncertainty; a Boolean alone cannot exclude contact.
 Only declared required dimensions enter this decision. Producers must establish
 these bounds; no operational measurement recipe has been supplied yet.
 
-Geometric bounds and relevant clearance/response support belong to 6.0B/C. Robot
+Static geometric bounds and clearance queries are implemented in 6.0B; causal motion
+support remains 6.0C work and physical leaf-response bounds remain unmeasured. Robot
 error, feedback timeout, residual/load uncertainty, gains and stop travel need
 6.0D measurements. Bounded diagnostic duration/displacement/speed are supplied by
 the shared 6.0D/F recipe before execution. Missing necessary parameters refuse
@@ -128,7 +131,7 @@ admission; optional dimensions or unrelated unknown space do not.
 Contact selection orders producer-verified reachable candidates by minimum footprint
 clearance, resolved-hinge distance and stable selection ID. Target changes declare a
 predecessor. `MaterialContactReference` belongs only to the evaluator; independent
-material-surface association and dual-profile scoring remain 6.0E work.
+evaluator material-surface correspondence and dual-profile scoring remain 6.0E work.
 `RobotFeedback` and `admit_load` declare a separate torque/device channel and require
 fresh feedback, known signal semantics, bounded robot-only residual/load evidence
 and verified contact/stop behavior. They supply neither a torque sensor nor a load
@@ -143,7 +146,77 @@ action, source, schedule and world trajectory, preserve A4's admitted frame thro
 the segment and latch on incompatible identity/contact/reference updates. Provisional
 admission is diagnostic-only. Legacy data/features/action schemas remain unchanged;
 the legacy evaluator and CLI refuse operational scoring before creating output or
-loading models. Independent scoring remains 6.0E work. No campaign or physics was run.
+loading models. Independent scoring remains 6.0E work. 6.0A ran no model campaign
+or physics; the bounded 6.0B model diagnosis is described below.
+
+## Static object scan — 6.0B implementation
+
+`configs/perception_geometry.json` explicitly selects `scan_fusion="object-v1"`.
+Recipes without that key retain the legacy plane-selection path. `Surface` retains
+disconnected measured components, dense extrema, certified edges and packed
+per-observation membership with calibrated poses, capture/availability times and
+observed/clipped/unobserved edge status. Registered overlapping proposals share
+geometric storage; unresolved associations retain competing references instead of
+creating another independent object on every result. This storage consolidation
+does not establish leaf ownership.
+
+`GeometryProvider.scan_state` exposes candidate leaf objects, attached surfaces,
+surrounding support and unresolved associations. Relief faces require an observed
+internal connecting seam; parallelism, proximity, common color or a semantic mask
+alone cannot attach a face. Fixed surrounding support requires exclusion by observed
+perimeters; missing borders remain ambiguous. A unique object candidate must have
+supported boundaries, and unresolved associations prevent selection. No area winner,
+handedness label, nominal dimensions or universal bottom-frame rule resolves ambiguity.
+
+`StaticHingeCandidate` preserves observed panel-edge alternatives without promoting
+them to physical axes. The hardware fit excludes measured leaf-plane support so
+it cannot dominate the arc fit. Separated, well-conditioned cylinder arcs can yield an
+explicit `HingeHypothesis` with position/angular bounds and a calibrated floor
+intersection. This remains a predominantly vertical-axis model. Bounds use the
+declared metric-depth tolerance, fit sensitivity and observed separation; hardware
+calibration and real stereo noise are not qualified. Hardware evidence retains its
+own latest acquisition and availability, independently of the panel observation.
+
+Observed `ContactPatch` proposals retain material surface IDs, full pose and
+`FieldSupport`. `footprint_support` checks both entire collision-derived distal
+faces against observed rasters, including holes and image clipping; it does not
+replace missing support with a convex panel hull. `ObservedSpace.query` accepts a
+caller-supplied covering-ball representation of the relevant continuous sweep and
+stop envelope. Calibrated depth rays distinguish observed free cover, occupied
+support and unknown space; unrelated unknown regions are not queried. Its returned
+clearance includes the sides of the certified ray volume, rather than only the
+gap to background depth. Support is static and timestamped. The approximation
+assumes the recorded ideal
+depth/calibration model and resolved pixel support, not arbitrary thin unseen objects.
+
+These queries supply geometric evidence only. The caller must still cover the full
+robot/tool/leaf volume and uncertainty; no stop travel, articulation response, load
+bound, reachability result or command is invented. `DoorEstimate.operational` remains
+unproduced pending 6.0C; complete-state validators, 150 ms dynamic freshness and release
+flags are unchanged. Tracker transforms preserve surface IDs, original observation
+references, measured edges and dense extents without rewriting their capture times.
+
+`scripts/perception.py diagnose-scan --output outputs/b1/perception/NEW_SCAN` consumes
+the two train pilots, both nominal/light, chronologically through 25 s. Pending
+static results release at their actual completion without reading later manipulation
+RGB-D or synthesizing an observation. It writes candidate reprojections, observed
+geometry, finite-footprint checks and explicit uncertainty/ambiguity reports in a
+fresh directory. No annotations enter this diagnostic. When ownership remains
+unresolved, one conditional native SAM3 forward-video comparison uses exactly the
+captured RGB frames and automatic GroundingDINO boxes. Video confirmation can use
+later frames: all comparison geometry is retrospective and does not replace the
+causal provider or backdate an accepted runtime estimate. Models stay frozen on CUDA,
+and the video worker starts only after the image worker closes.
+
+The four successful image scans in `outputs/b1/perception/operational-scan-02/`
+all retain multiple candidates and unresolved support; none uniquely assigns fixed
+surfaces or supports a physical hinge axis. The separate successful video comparison
+in `operational-scan-video-01/` retained zero masks with the common automatic-box
+recipe. This negative comparison does not justify a model replacement or a general
+claim about SAM3. `operational-scan-review-01/` joins the evidence and local
+occupied/free/unknown-volume probes. See
+[[../experiments/b1-perception-findings|the measured scan results]] and
+[[../implementation_phases/phase-6-0-operational-perception-and-contact|the 6.0C handoff]].
 
 ## Geometric prototype — legacy inference
 

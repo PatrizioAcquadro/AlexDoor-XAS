@@ -18,7 +18,7 @@ sys.path.insert(0, str(REPO / "src"))
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("smoke", "evaluate"))
+    parser.add_argument("command", choices=("smoke", "evaluate", "diagnose-scan"))
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--data", type=Path, default=REPO / "datasets/b1/perception/engineering-v2")
     parser.add_argument("--config", type=Path, default=REPO / "configs/perception_geometry.json")
@@ -40,9 +40,15 @@ def main():
         raise ValueError("Operational scoring requires the independent 6.0E evaluator")
     corpus = json.loads((REPO / "assets/doors/b1/corpus.json").read_text())
     paths = episode_paths(args.data, corpus)
-    if args.pilot or args.command == "smoke":
+    if args.pilot or args.command in ("smoke", "diagnose-scan"):
         ids = {"door-2738468b94d74c5f", "animated-door-1-88abf40"}
         paths = [p for p in paths if p.parent.parent.name in ids]
+    if args.command == "diagnose-scan":
+        if recipe.config.get("scan_fusion") != "object-v1":
+            raise ValueError("Scan diagnosis requires the explicit object-v1 recipe")
+        from alexdoor_xas.perception.scan_diagnostics import run_scan_diagnostics
+
+        return run_scan_diagnostics(paths, recipe, args.output, args.models)
     args.output.mkdir(parents=True, exist_ok=False)
     write_json(
         args.output / "protocol.json",

@@ -226,7 +226,7 @@ def test_static_hardware_axes_both_sides_and_edge_is_not_axis(side):
         center[1] + 0.012 * np.sin(theta.ravel()),
         z.ravel(),
     ]
-    candidates = static_hinges(panel, cloud, recipe().config, 3)
+    candidates = static_hinges(panel, np.r_[panel.points, cloud], recipe().config, 3)
     axes = [h for h in candidates if h.hypothesis is not None]
     assert len(axes) == 1
     np.testing.assert_allclose(axes[0].origin, [*center, 0], atol=0.0003)
@@ -237,6 +237,15 @@ def test_static_hardware_axes_both_sides_and_edge_is_not_axis(side):
     assert not any(h.hypothesis for h in static_hinges(panel, np.empty((0, 3)), recipe().config, 3))
     tiny = cloud.reshape(3, 100, 3)[:, :4].reshape(-1, 3)
     assert not any(h.hypothesis for h in static_hinges(panel, tiny, recipe().config, 3))
+    arc, height = np.meshgrid(np.linspace(-0.2, 0.2, 60), [0.45, 0.85, 1.25])
+    conditioned_poorly = np.c_[
+        center[0] + 0.012 * np.cos(arc.ravel()),
+        center[1] + 0.012 * np.sin(arc.ravel()),
+        height.ravel(),
+    ]
+    assert not any(
+        h.hypothesis for h in static_hinges(panel, conditioned_poorly, recipe().config, 3)
+    )
 
 
 def test_indistinguishable_static_hardware_keeps_both_axis_alternatives():
