@@ -13,6 +13,7 @@ from alexdoor_xas.perception.scan import (
     ScanMemory,
     footprint_support,
     object_members,
+    observed_seam,
     registered_support,
     static_hinges,
 )
@@ -71,6 +72,25 @@ def test_dense_residual_support_survives_global_sampling_and_three_plane_limit()
     cue["tokens"] = np.ones((196, 384), np.float32).tobytes()
     parts = surfaces(cue, sample, recipe().config)
     assert all(any(abs(s.offset - depth) < 0.001 for s in parts) for depth in (1, 1.1, 1.2, 1.3))
+
+
+@pytest.mark.parametrize("hole_depth", [1.0, 1.05, None])
+def test_enclosed_semantic_omission_needs_measured_coplanar_depth(hole_depth):
+    sample = camera_sensor()
+    mask = np.zeros((240, 240), bool)
+    mask[30:211, 60:181] = True
+    sample["depth_m"][mask] = 1.0
+    mask[80:110, 90:120] = False
+    if hole_depth is None:
+        sample["valid_depth"][80:110, 90:120] = False
+    else:
+        sample["depth_m"][80:110, 90:120] = hole_depth
+    cue = EmptyWorker().infer(sample["rgb"])
+    cue["masks"] = [np.packbits(mask).tobytes()]
+    cue["tokens"] = np.ones((196, 384), np.float32).tobytes()
+    parts = surfaces(cue, sample, recipe().config)
+    plane = next(s for s in parts if abs(s.offset - 1.0) < 0.001)
+    assert bool(plane.observations[0].mask()[95, 105]) == (hole_depth == 1.0)
 
 
 def test_multiview_retains_original_boundaries_support_and_generation():
@@ -265,6 +285,20 @@ def test_horizontal_connector_fusion_preserves_material_and_observations():
     fused = fuse_surface(connector, connector, recipe().config, 2)
     assert fused.surface_id == "seam" and len(fused.observations) == 2
     np.testing.assert_allclose(fused.basis.T @ fused.basis, np.eye(3), atol=1e-12)
+
+
+def test_seam_checks_all_same_frame_components_and_matching_mask_indices():
+    first, _, _ = measured_surface()
+    observed = first.observations[0]
+    unrelated = replace(observed, mask_index=1, boundary_points=observed.boundary_points + 0.5)
+    second = replace(first, observations=(unrelated, observed))
+    assert observed_seam(first, second, recipe().config)
+    # Same frame and mask can also contain multiple disconnected components.
+    wrong_component = replace(observed, boundary_points=observed.boundary_points + 0.5)
+    assert observed_seam(
+        first, replace(first, observations=(wrong_component, observed)), recipe().config
+    )
+    assert not observed_seam(first, replace(first, observations=(unrelated,)), recipe().config)
 
 
 @pytest.mark.parametrize("side", [0, 1])

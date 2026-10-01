@@ -163,7 +163,11 @@ support after each fit instead of limiting a semantic mask to three planes. This
 preserves smaller measured faces/connectors without lowering `min_points` or fit
 tolerances. A partial-view edge cannot contract measured material bounds; fusion
 removes a perimeter claim contradicted by observed support beyond that edge while
-preserving the original observation record.
+preserving the original observation record. Enclosed SAM omissions recover only
+valid measured depth inliers on a seeded plane; missing/off-plane depth and the
+outer semantic silhouette are not filled. Seam association checks every component
+pair with the same captured frame and mask index, including repeated proposals;
+choosing only the first per-frame observation previously discarded measured seams.
 
 `GeometryProvider.scan_state` exposes candidate leaf objects, attached surfaces,
 surrounding support and unresolved associations. Relief faces require an observed

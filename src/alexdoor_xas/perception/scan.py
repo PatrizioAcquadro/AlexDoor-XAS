@@ -53,6 +53,22 @@ def registered_support(surface, observation):
     return bool(mask[v, u].mean() >= 0.6)
 
 
+def observed_seam(first, second, config):
+    """Keep every component/box observation belonging to the same captured mask."""
+    by_mask = {}
+    for observation in first.observations:
+        by_mask.setdefault((observation.frame, observation.mask_index), []).append(observation)
+    for b in second.observations:
+        for a in by_mask.get((b.frame, b.mask_index), ()):
+            if not len(a.boundary_points) or not len(b.boundary_points):
+                continue
+            distance, _ = cKDTree(a.boundary_points).query(b.boundary_points)
+            seam = b.boundary_points[distance <= 3 * config["plane_tolerance_m"]]
+            if len(seam) >= 10 and np.linalg.norm(np.ptp(seam, axis=0)) > 4 * config["voxel_m"]:
+                return True
+    return False
+
+
 def attached_inside(root, other, config):
     """An observed internal seam can connect relief; proximity alone cannot connect a frame."""
     if not root.observations or not other.observations:
@@ -67,19 +83,7 @@ def attached_inside(root, other, config):
         (local[:, 1:] >= bounds[0, 1:] + margin) & (local[:, 1:] <= bounds[1, 1:] - margin)
     ).all():
         return False
-    common = {o.frame for o in root.observations} & {o.frame for o in other.observations}
-    for frame in sorted(common):
-        a = next(o for o in root.observations if o.frame == frame)
-        b = next(o for o in other.observations if o.frame == frame)
-        if a.mask_index != b.mask_index:
-            continue
-        if not len(a.boundary_points) or not len(b.boundary_points):
-            continue
-        distance, _ = cKDTree(a.boundary_points).query(b.boundary_points)
-        seam = b.boundary_points[distance <= 3 * config["plane_tolerance_m"]]
-        if len(seam) >= 10 and np.linalg.norm(np.ptp(seam, axis=0)) > 4 * config["voxel_m"]:
-            return True
-    return False
+    return observed_seam(root, other, config)
 
 
 def object_members(root, surfaces, config):
@@ -94,24 +98,8 @@ def object_members(root, surfaces, config):
             continue
         # Joint seam support through a measured side face, not similar color/normal.
         for connector in connectors:
-            frames = {o.frame for o in connector.observations} & {
-                o.frame for o in face.observations
-            }
-            for frame in frames:
-                a = next(o for o in connector.observations if o.frame == frame)
-                b = next(o for o in face.observations if o.frame == frame)
-                if (
-                    a.mask_index != b.mask_index
-                    or not len(a.boundary_points)
-                    or not len(b.boundary_points)
-                ):
-                    continue
-                d, _ = cKDTree(a.boundary_points).query(b.boundary_points)
-                seam = b.boundary_points[d <= 3 * config["plane_tolerance_m"]]
-                if len(seam) >= 10 and np.linalg.norm(np.ptp(seam, axis=0)) > 4 * config["voxel_m"]:
-                    members.append(face)
-                    break
-            if any(face is s for s in members):
+            if observed_seam(connector, face, config):
+                members.append(face)
                 break
     return tuple(members)
 
