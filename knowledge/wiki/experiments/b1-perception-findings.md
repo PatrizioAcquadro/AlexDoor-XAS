@@ -14,8 +14,9 @@ a backbone swap, plane estimate or train fit does not close Phase 6.0.
 The October 1 approved [[../implementation_phases/phase-6-0-operational-perception-and-contact|operational successor plan]]
 uses the object-association and tracking failures below to define new work. It
 separates task-required geometry from optional total dimensions, introduces observed
-robot feedback and stages bounded pilot interaction. This is a design decision,
-not a new experiment: all historical profiles, errors and failures remain unchanged.
+robot feedback and stages bounded pilot interaction. That design decision preserves
+all historical profiles, errors and failures. The bounded 6.0B diagnosis below is
+separate new static evidence.
 
 All model experiments below used the RTX 4090. Train/development identity splits
 and physical gates were unchanged; the sealed test was not used. The original
@@ -25,6 +26,92 @@ images are preserved. Source at Git `e1f98a6` retains the tracked implementation
 and detailed historical pages. Removed ignored scripts, weights, caches and
 intermediate payloads are **not recoverable from Git**; these records support
 inspection of the results, not a claim of fully executable reproduction.
+
+## Static object scan — October 1, 2026 (6.0B)
+
+**Question:** can calibrated observed support assemble leaf surfaces, distinguish
+fixed support and support a physical hinge before manipulation? The common
+`object-v1` recipe consumes every observation from 0 through 25 s on the two train
+pilots, both nominal/light. GroundingDINO/SAM3/DINOv3 stay frozen on the RTX 4090;
+annotations, asset/hand labels and later manipulation images do not enter inference.
+Metadata only selects these four authorized recordings. Original material references,
+measured edges and observed/clipped/unobserved status survive fusion.
+
+Each scan completed 1,501 chronological observations. Pending image results were
+released at their measured completion after the scan, without another RGB-D row.
+Successful reports, exact captured RGB/cues, reprojections and geometry are in
+`outputs/b1/perception/operational-scan-02/`. An earlier duplicate-memory attempt
+was interrupted and preserved in `operational-scan-01/`; a common storage correction
+and regression prevent repeated overlapping proposals from multiplying objects.
+
+| Pilot | Condition | Image results | Leaf candidates | Unresolved parts/associations | Patches with both full distal faces supported | Physical axes |
+|---|---|---:|---:|---:|---:|---:|
+| `door-2738468b94d74c5f` | nominal | 119 | 2 | 90 | 14 | 0 |
+| `door-2738468b94d74c5f` | light | 121 | 2 | 81 | 14 | 0 |
+| `animated-door-1-88abf40` | nominal | 117 | 7 | 259 | 19 | 0 |
+| `animated-door-1-88abf40` | light | 120 | 5 | 208 | 17 | 0 |
+
+All four scans retain `ambiguous_object_ownership`. No surrounding surface is
+uniquely assigned as fixed under the observed-perimeter rule in these recordings.
+Internal observed seams can assemble relief into a candidate; proximity, parallelism,
+area, color and mask confidence cannot resolve leaf/frame identity. The counts include
+distinct unresolved association references, not a count of physical parts. Every
+retained hinge alternative is a panel edge; no separated, conditioned hardware-arc
+fit supports a physical axis. These alternatives stay unqualified. A final targeted
+fit check excludes leaf-plane clutter using the saved object clouds and the original
+scan depth; all 16 candidates still produce zero physical axes. This check is in
+`operational-scan-review-01/hardware-review.json` and repeats no model inference.
+
+The patch counts require positive clearance for both entire URDF-derived
+`PushGeometry.distal_faces`, rejecting holes and clipped support. They remain patches
+on ambiguously owned candidate surfaces, not admitted contacts. A separate lightweight
+review verifies that every saved RGB frame equals its original scan observation and
+queries 10 mm balls around one patch per candidate. All 16 on-surface queries report
+observed occupancy; all 16 behind-surface queries remain unknown. Of 16 camera-side
+queries, ten have supported free cover and six remain unknown. Clearance accounts
+for the certified ray volume's lateral limits. These local software probes do not
+cover a proposed robot/leaf sweep or stop response. Their report and explanation are
+in `operational-scan-review-01/`.
+
+**Conditional SAM3 video comparison:** one automatic positive-box configuration,
+prompted from the first captured GroundingDINO result and propagated forward over
+exactly the same RGB captures. The native local checkpoint stayed frozen on CUDA;
+SHA-256 `9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e`
+matches the preserved download digest. Image and video workers ran serially. Native
+future-frame confirmation makes this retrospective evidence; it never replaces the
+causal provider or backdates geometric support.
+
+| Pilot | Condition | Video frames | Retained masks | Total video inference latency (s) | Peak allocated GPU memory (GiB) |
+|---|---|---:|---:|---:|---:|
+| `door-2738468b94d74c5f` | nominal | 119 | 0 | 12.27 | 4.94 |
+| `door-2738468b94d74c5f` | light | 121 | 0 | 12.33 | 4.95 |
+| `animated-door-1-88abf40` | nominal | 117 | 0 | 15.19 | 4.93 |
+| `animated-door-1-88abf40` | light | 120 | 0 | 35.11 | 4.95 |
+
+The first video includes cold inference; allocated/reserved peak memory is recorded
+separately in each report. This recipe retained no masks and supplied no association
+evidence. There was no prompting/threshold search, model selection or inference that
+SAM3 fails generally. A report-key collision after the first comparison is preserved
+in `operational-scan-02/failure.json`; successful comparisons in
+`operational-scan-video-01/` reused saved frames/features without another image-model
+replay. Its summary confirms four completed comparisons.
+
+Image-worker latency p95 is 220–249 ms and whole scan processing takes 143–333 s;
+neither establishes production timing or dynamic freshness. Ideal metric RGB-D,
+calibration, resolved pixel support and predominantly vertical-axis approximations
+remain explicit. Numerical visible/hidden/ambiguous/degenerate-hinge, relief/frame,
+bottom-frame, reprojection, footprint and unknown-space regressions validate software
+behavior, not physical observability or calibration accuracy.
+
+**Outcome/handoff:** 6.0B implementation and targeted diagnostics are complete;
+ownership, physical axes, signed articulation, leaf response, load limits and physical
+stopping are not qualified. 6.0C must retain these alternatives and use causal material
+motion with honest field lifetimes. No training, new collection, simulation, dynamics,
+extended replay or sealed test ran; all offline/dynamic/release flags remain false.
+Object/query milestone: `01b187b`; scan/video diagnostics and final fit correction:
+`6c87045`. See
+[[../topics/shared-door-perception|implemented interfaces]] and
+[[../implementation_phases/phase-6-0-operational-perception-and-contact|the package handoff]].
 
 ## Geometric prototype — September 30, 2026
 

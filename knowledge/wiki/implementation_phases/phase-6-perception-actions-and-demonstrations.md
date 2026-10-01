@@ -1,8 +1,9 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
 > Subphase 6.0 open: the September geometric prototype remains unqualified.
-> The October 1 operational perception/contact protocol is approved; implementation
-> 6.0A contracts and numerical consumer integration are implemented; 6.0B-H remain planned.
+> The October 1 operational perception/contact protocol is approved. 6.0A contracts
+> and 6.0B static object fusion/queries with bounded diagnostics are implemented;
+> 6.0C-H remain planned.
 > Subphase 6.1 software is partially validated; final integration is pending.
 > Subphase 6.2 is not started. Phases 4 and 5 are complete.
 
@@ -24,6 +25,9 @@ control. Extended evaluation remains stopped and dynamic validation has not run.
 6.0A adds operational/provisional/load interfaces and numerical admission rules,
 preserving legacy schemas and results. Operational consumer compatibility exists,
 but the provider still emits legacy states and feedback acquisition remains absent.
+6.0B adds observed object memory, static hinge alternatives, finite contact support
+and relevant-space queries. Its four scan diagnoses preserve ambiguous ownership
+and unobserved physical axes; the conditional SAM3 video comparison resolved neither.
 See [[experiments/b1-perception-findings|preserved evidence]] and
 [[topics/shared-door-perception|current implementation]].
 
@@ -38,7 +42,7 @@ page as the phase overview; use the detailed plan for assignments and exit check
 | Package | Outcome | Prerequisites |
 |---|---|---|
 | 6.0A — complete | Explicit operational/provisional/load contracts, measurable admission rules and numerical consumer compatibility | Approved protocol and current consumer audit |
-| 6.0B | Leaf-level multiview fusion, fixed-part separation and static hinge hypotheses | 6.0A |
+| 6.0B — complete | Static object fusion, fixed/unresolved support, hinge alternatives and geometric queries; four bounded scans and negative video comparison | 6.0A |
 | 6.0C | Causal tracking, signed articulation, uncertainty and stable/dynamic lifetimes | 6.0B |
 | 6.0D | Documented robot feedback, common compliant execution and physical stop | 6.0A; independent of B/C with numerical fixtures |
 | 6.0E | Independent dual-profile evaluator and both pilot replays | 6.0A-C |

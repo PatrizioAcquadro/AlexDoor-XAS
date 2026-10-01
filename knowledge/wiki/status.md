@@ -4,24 +4,26 @@ Current as of 2026-10-01. B1 is maintained; B0 execution and the failed custom
 perception workflows are retired. The geometric prototype uses existing recordings
 and frozen local weights. The operational successor protocol and implementation plan
 are approved. 6.0A contracts, numerical admission rules and consumer compatibility
-are implemented. No campaign, model inference, simulation, training, collection or
-sealed-test evaluation was started by 6.0A.
+are implemented. 6.0B static object fusion and geometric queries are complete with
+four scan-only CUDA diagnoses and a conditional video comparison. Static ownership
+and physical hinge observability remain unresolved. No simulation, training,
+collection, extended replay or sealed-test evaluation was started by these assignments.
 
 | Area | Current state |
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, head RGB-D/proprioception and contact diagnostics implemented. Common zero-yaw setup supersedes the historical 45-degree synthetic setup. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights remain 29 redistributable, two local-only, one private/noncommercial. |
-| 6.0 — Perception/contact | 6.0A complete: explicit operational/provisional/load contracts, action margins and consumer compatibility. September prototype remains unqualified; corrected pilots still accept zero complete states. 6.0B-H remain planned; no successor inference, feedback acquisition or dynamics. Extended evaluation remains stopped. |
+| 6.0 — Perception/contact | 6.0A/B complete: contracts/admission, static object memory, geometric queries and four bounded scan diagnoses. All scans retain ownership ambiguity and no supported physical hinge axis; the automatic-box video comparison retained no masks. Phase 6.0 is unqualified. 6.0C-H, feedback acquisition and dynamics remain pending; extended evaluation remains stopped. |
 | 6.1 — Action paths | Model-independent observed-input contracts, matched data, ACT/Diffusion × A1–A4 and execution/replay software maintained. No qualified provider; final integration and physical validation remain pending. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Continue with 6.0B leaf/frame fusion and static hinge hypotheses, or 6.0D robot
-feedback/load modeling and physical stopping, using the
+Continue with 6.0C causal material tracking, articulation and field lifetimes, using the
 [[implementation_phases/phase-6-0-operational-perception-and-contact|6.0 operational implementation plan]]
-and the [[topics/shared-door-perception|implemented 6.0A interfaces]].
-6.0C depends on 6.0B; no new pilot replay is part of the contract handoff.
+and the [[topics/shared-door-perception|implemented interfaces and static scan memory]].
+The 6.0B handoff preserves competing objects, original material references and
+unsupported edge-axis alternatives; static ambiguity must not become an accepted estimate.
 The guide establishes a torque feedback interface; signal accuracy, simulated
 sensor semantics, load inference and physical stopping remain unverified.
 
@@ -31,7 +33,8 @@ provisional action admission. Historical full-state failures remain unchanged.
 Both pilot offline and feedback/stop gates precede bounded pilot dynamics; only
 then may a common corrected recipe progress to extended replay. All train/development
 offline gates precede qualification dynamics and both gate groups precede release.
-6.0A supplies interfaces and numerical checks, not pilot or release evidence.
+6.0A/B supply interfaces, static numerical checks and bounded scan evidence,
+not offline, dynamic or release qualification.
 Keep 6.1 open and 6.2 unstarted.
 
 The stopped `geometric-evaluation-02` and all pilot attempts remain preserved.
@@ -73,7 +76,7 @@ See [[topics/system-architecture|Architecture]],
 [[topics/learned-policy-stack|Policy components]]. Supported scripts cover environment
 checks, door intake/preparation/qualification, corpus verification, Purdue and
 synthetic physics/probe verification, RGB-D collection and diagnostic perception
-smoke/evaluation. Synthetic candidate search and estimator training orchestration
+smoke/evaluation and bounded scan diagnosis. Synthetic candidate search and estimator training orchestration
 are retired.
 
 The numerical data API still requires explicit ordered proprioceptive `obs_keys`

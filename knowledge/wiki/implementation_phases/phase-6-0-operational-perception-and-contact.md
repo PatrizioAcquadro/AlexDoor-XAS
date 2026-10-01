@@ -1,10 +1,12 @@
 # Phase 6.0 — Operational Perception and Observed Contact
 
 > Approved design: October 1, 2026. 6.0A contracts and numerical consumer integration
-> are implemented; 6.0B-H remain pending.
+> and 6.0B static object fusion/queries with bounded pilot diagnostics are implemented;
+> 6.0C-H remain pending. Static identity/hinge ambiguities remain explicit.
 > This plan supersedes the September prototype's future requirements, not its
 > measurements or qualification results. Design baseline: `main` at `809f575`;
-> 6.0A implementation baseline: `main` at `655d26b`.
+> 6.0A implementation baseline: `main` at `655d26b`;
+> 6.0B implementation baseline: `main` at `cf83f90`.
 
 ## Purpose and execution boundary
 
@@ -17,8 +19,9 @@ extent a universal prerequisite for a local action. See the parent
 [[../topics/shared-door-perception|implemented perception boundary]] and
 [[../topics/purdue-b1-robot-and-contact|robot/contact contract]].
 
-The current assignment implements 6.0A contracts, admission rules, consumer
-compatibility and numerical tests only. The remaining work packages below are
+The completed assignments implement 6.0A contracts/admission and 6.0B static
+object memory, geometric queries and four scan-only diagnostics with a conditional
+SAM3 video comparison. The remaining work packages below are
 instructions for later assignments, not a request to start agents, simulations or
 campaigns now. Keep the existing 6.1 action-path and 6.2 dataset numbering.
 No new training, demonstration/data
@@ -35,8 +38,11 @@ one causal provider and preserve calibration, FK, IK and Purdue IO.
 
 ## Baseline evidence and current limits
 
-- The current provider selects/fuses plane support; it does not reliably assemble
-  all faces of one leaf or exclude fixed frame support. Corrected pilot-06 still
+- At the 6.0A baseline the provider selected/fused plane support; it did not reliably
+  assemble all faces of one leaf or exclude fixed frame support. 6.0B now preserves
+  object candidates, observed seams, fixed/unresolved support and static hinge
+  alternatives. Its four scans still retain ambiguous ownership and no supported
+  physical axis. Historical corrected pilot-06 still
   accepts no complete states. See [[../experiments/b1-perception-findings|evidence]].
 - `action/b1.py` uses hinge frame, signed angle and a full local target for A4;
   total dimensions do not enter its transformation. A3 rotates free delta vectors,
@@ -54,7 +60,8 @@ one causal provider and preserve calibration, FK, IK and Purdue IO.
   limitations are recorded in [[../topics/purdue-b1-robot-and-contact|the robot topic]].
 
 These source/code checks settle the design direction. 6.0A numerical regressions
-verify interfaces, not inferred geometry, feedback acquisition or physical behavior.
+verify interfaces. 6.0B diagnoses static observed geometry, without qualifying
+runtime identity, feedback acquisition or physical behavior.
 
 ## Approved operational protocol
 
@@ -325,8 +332,8 @@ Every package starts by reading the current parent plan, this protocol, applicab
 AGENTS.md and the previous package's handoff. Reuse maintained tests; add only the
 essential regressions listed. Update canonical status and make small validated
 local commits. No push. Code, tests and measured results determine completion.
-6.0A below is complete as an interface milestone; later packages retain their
-unperformed exit checks.
+6.0A is complete as an interface milestone and 6.0B as a static implementation
+and bounded diagnostic milestone. Packages 6.0C-H retain their unperformed exit checks.
 
 ### 6.0A — Contracts and measurable admission rules
 
@@ -351,8 +358,8 @@ the compatibility rules; v2 releases stay legacy and diagnostic recipes opt in.
 The current provider emits no operational state and actual torque remains absent.
 No force/gain/timeout/stop values were invented. The common numerical recipe and
 producer measurement responsibilities are in
-[[../topics/shared-door-perception|implemented perception contracts]]. 6.0B and
-6.0D may proceed from these interfaces; 6.0E scoring and all physical gates remain
+[[../topics/shared-door-perception|implemented perception contracts]]. 6.0B uses
+these interfaces; 6.0D may proceed independently. 6.0E scoring and all physical gates remain
 unperformed. Phase 6.0 is unqualified.
 
 ### 6.0B — Object-level scan fusion and static hinge hypotheses
@@ -360,18 +367,46 @@ unperformed. Phase 6.0 is unqualified.
 **Depends on 6.0A.** Primary surfaces: `perception/geometry.py`, `provider.py`,
 `tracking.py`, existing model/worker interfaces and geometric tests.
 
-- [ ] Assemble leaf surfaces across views, retain observed edges before sampling,
+- [x] Assemble leaf surfaces across views, retain observed edges before sampling,
   and separate fixed frame/wall support without a universal bottom-frame rule.
-- [ ] Fit static hinge candidates from observed hardware/borders/depth; preserve
+- [x] Fit static hinge candidates from observed hardware/borders/depth; preserve
   alternatives and distinguish supported axis from an assumed panel edge.
-- [ ] Produce observed contact patches, required footprint clearance and relevant
+- [x] Produce observed contact patches, required footprint clearance and relevant
   collision/unknown-space support without nominal dimensions.
-- [ ] Regress multiview clipping versus absent evidence, leaf relief versus fixed
+- [x] Regress multiview clipping versus absent evidence, leaf relief versus fixed
   coplanar/parallel frame, both bottom-frame cases and calibrated reprojection.
 
 **Exit:** targeted diagnostics on both pilots explaining ownership and static
 observability; no broad replay. Keep GroundingDINO/SAM3/DINOv3 frozen. Native SAM3
 video prompting is a conditional association experiment, not a mandatory rewrite.
+
+**Implemented handoff:** `Surface` retains per-observation membership, calibration,
+dense silhouette/extrema, edge status and material IDs. `GeometryProvider.scan_state`
+exposes leaf candidates, attached relief, fixed/unresolved support, static
+`HingeHypothesis` alternatives and observed patches. Reprojection plus measured
+internal seams establish associations; indistinguishable ownership remains ambiguous.
+Panel-edge alternatives never become physical axes without supported hardware fits.
+Both actual distal faces and caller-supplied volume covers have geometric queries;
+response, stopping and load parameters remain unavailable. Tracker transforms retain
+original material/observation references; legacy recipes remain supported.
+
+All four chronological 0–25 s train scans completed in `operational-scan-02`,
+including pending image results released at measured availability without later RGB-D.
+All remain ambiguous, with no uniquely assigned fixed support or physical hinge axis.
+The single conditional automatic-box SAM3 forward-video configuration completed on
+the same captured frames in `operational-scan-video-01`; it retained zero masks.
+No prompting/threshold search or provider replacement followed. Interrupted/failed
+attempts are preserved. Evidence, limits and local volume probes are summarized in
+`operational-scan-review-01` and
+[[../experiments/b1-perception-findings|the canonical findings]].
+
+6.0C must use observed causal motion to resolve material identity and articulation,
+carry these alternatives and uncertainty, and establish field lifetimes. No static
+edge guess may stand in for an unobserved axis. The image/model availability events
+and retrospective video evidence are distinct; neither establishes production timing.
+Ideal RGB-D/calibration, resolved pixel support and predominantly vertical-axis
+approximations remain unqualified for hardware. No dynamics, training, collection,
+extended replay or sealed test ran. Phase 6.0 and every release flag remain unqualified.
 
 ### 6.0C — Causal tracking, articulation and field lifetimes
 
