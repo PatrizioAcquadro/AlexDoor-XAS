@@ -343,6 +343,24 @@ def run_live(args, repo):
     finally:
         from alexdoor_xas.perception.evaluation import write_json
 
+        if "maximum" in locals():
+            report.update(
+                physics_audit=maximum,
+                measured_max_neck_speed_rad_s=neck_speed,
+                visibility_audit=visibility,
+                selected_supported_ticks=selected_ticks,
+                input_end_s=float(sensor["time_s"]),
+                rows=row + 1 if report["complete"] else row,
+                tracks={
+                    k: dict(
+                        initialized=t.geometry is not None,
+                        losses=t.losses,
+                        recoveries=t.recoveries,
+                        last_support_s=(t.dynamic.supported_s if t.dynamic else None),
+                    )
+                    for k, t in tracker.tracks.items()
+                },
+            )
         write_json(args.output / "report.json", report)
         if engine is not None:
             engine.close()
