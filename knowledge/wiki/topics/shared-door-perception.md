@@ -210,9 +210,9 @@ depth/calibration model and resolved pixel support, not arbitrary thin unseen ob
 
 These queries supply geometric evidence only. The caller must still cover the full
 robot/tool/leaf volume and uncertainty; no stop travel, articulation response, load
-bound, reachability result or command is invented. `DoorEstimate.operational` remains
-unproduced pending 6.0C; complete-state validators, 150 ms dynamic freshness and release
-flags are unchanged. Tracker transforms preserve surface IDs, original observation
+bound, reachability result or command is invented. The default static scan path produces no operational state. The opt-in 6.0C
+material path below can produce one from supported motion and an explicit contact;
+complete-state validators, 150 ms dynamic freshness and release flags are unchanged. Tracker transforms preserve surface IDs, original observation
 references, measured edges and dense extents without rewriting their capture times.
 
 `scripts/perception.py diagnose-scan --output outputs/b1/perception/NEW_SCAN` consumes
@@ -411,3 +411,36 @@ Choose a fresh output; use `--resume` only for that same campaign. Optional
 requires `--inspection` and produces a diagnostic without expert manipulation.
 The diagnostic smoke/evaluate CLI is described above. There is no maintained
 estimator training or launch CLI.
+
+## Causal local material interfaces — 6.0C
+
+The explicit `GeometryProvider.configure_material()` diagnostic path separates the
+visual reference, multiple local material candidates and the action source's contact
+selection. `DoorEstimate.local` carries axis-free patch poses, independent geometry,
+identity and dynamic support, plus an identified selection with an explicit predecessor.
+`validate_local_contact` checks only local geometric support; it admits no action/load
+and does not change the legacy `valid` flag. The high white region is a visual reference
+and contact candidate, not a definitive or physically validated contact. The observed
+white candidate at y=0, z=1.10 m remains in the comparison, including precontact/contact
+IK errors and joint margins. Endpoint reachability does not establish posture quality,
+continuous collision clearance or control.
+
+Each patch retains its original observed material raster and independent metric RGB
+correspondences. Replenishment maps current measured points into that original support;
+reacquisition requires distinctive mutual RGB matches and a rigid metric fit. Static
+coplanarity cannot establish mobile ownership. A verified coherent informative motion
+link may update another material pose, propagating uncertainty over the separation;
+it cannot renew that patch's original geometric observation. Reference loss and selected
+contact loss are separate events. Missing/ambiguous matches retain static memory but
+cannot refresh dynamic timestamps. Rigid and hinge fits propagate declared metric error
+and sensitivity; poorly conditioned motion remains unavailable.
+
+Episode identity is separate from cancelled inference requests. Live completion is
+available no earlier than receipt; local extraction and tracking processing also delay
+publication. A completed result cannot rewrite an earlier output. Temporary gaps clear
+tracking/links and pending publication while retaining static geometry; episode reset
+clears all material state. A supported unique motion axis can represent the exact chosen
+contact through the existing operational interface. Ambiguous axes remain alternatives.
+Numerical regressions establish these software interfaces; bounded pilot replay/live
+results and the 6.0C exit checks are separate evidence milestones. No loaded interaction
+or release qualification is supplied by these interfaces.

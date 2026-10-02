@@ -468,6 +468,14 @@ extended replay or sealed test ran. Phase 6.0 and every release flag remain unqu
 - [ ] Retain the existing tracker unless isolated evidence identifies it as the
   remaining cause; only then compare a causal pretrained alternative on the pilots.
 
+**Software handoff:** axis-free local material state and independent visual/contact
+selection are implemented in the diagnostic provider. Candidate comparisons retain
+coverage, IK errors and joint margins separately; neither the high white candidate
+nor its observed 1.10 m alternative is a definitive contact. Constrained RGB-D
+tracking, immutable material support, rigid-transfer checks, field lifetimes and
+completion/generation regressions are implemented. Bounded pilot evidence remains
+pending; do not check off the package from numerical tests.
+
 **Exit:** bounded pilot traces with valid identity/motion and honest uncertainty;
 model/tracker changes require actual CUDA smoke, not a repeated model campaign.
 

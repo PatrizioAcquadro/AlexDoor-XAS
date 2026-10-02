@@ -6,13 +6,19 @@ import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import numpy as np
 
 from alexdoor_xas.action.frames import ObjectFrame, rot_z
-from alexdoor_xas.perception.contracts import DoorEstimate, geometry_profile, validate_complete
+from alexdoor_xas.perception.contracts import (
+    DoorEstimate,
+    OperationalState,
+    geometry_profile,
+    validate_complete,
+    validate_local_contact,
+)
 from alexdoor_xas.perception.geometry import (
     contact_frame,
     dimensions_supported,
@@ -27,6 +33,7 @@ from alexdoor_xas.perception.geometry import (
     voxel_points,
 )
 from alexdoor_xas.perception.inspection import load_inspection
+from alexdoor_xas.perception.material import MaterialTracker
 from alexdoor_xas.perception.scan import ScanMemory
 from alexdoor_xas.perception.tracking import PixelMotionTracker, moved_surface
 from alexdoor_xas.perception.visual_worker import receive, send
@@ -153,7 +160,13 @@ class CueEngine:
             if not result.done():
                 return None
             result = result.result()
-        ready = float(sensor["time_s"]) + result["latency_s"]
+            if "available_s" not in result:
+                result["available_s"] = max(now, float(sensor["time_s"]) + result["latency_s"])
+        result.setdefault("available_s", float(sensor["time_s"]) + result["latency_s"])
+        ready = result.get("available_s", float(sensor["time_s"]) + result["latency_s"])
+        if not np.isfinite(ready) or ready < float(sensor["time_s"]):
+            self.pending = None
+            raise ValueError("invalid_completion_time")
         if generation == self.generation and ready > now:
             return None
         self.pending = None
@@ -174,9 +187,10 @@ class GeometryProvider:
 
     @property
     def generation(self):
-        return self.engine.generation
+        return self.episode_generation
 
     def reset(self):
+        self.episode_generation = getattr(self, "episode_generation", -1) + 1
         self.engine.reset()
         self.last_estimate = None
         self.encoding = None
@@ -198,6 +212,13 @@ class GeometryProvider:
         self.lost_since = None
         self.diagnostics = dict(state="acquiring", semantic_calls=0, reacquisitions=0)
         self.last_cue = None
+        self.material = None
+        self.material_pending = self.material_published = None
+
+    def configure_material(self, covers):
+        """Explicit diagnostic capability; never inject asset IDs or a hinge into inference."""
+        self.material = MaterialTracker(self.config, self.generation, covers)
+        return self.material
 
     @property
     def scan_state(self):
@@ -209,7 +230,17 @@ class GeometryProvider:
         if event is None:
             return False
         captured, view, cue, ready = event
+        started = time.perf_counter()
+        uninitialized = (
+            [t for t in self.material.tracks.values() if t.geometry is None]
+            if self.material is not None
+            else []
+        )
         self._fuse(captured, view, cue, available_s=ready)
+        geometry_ready = max(now, ready) + time.perf_counter() - started
+        for track in uninitialized:
+            if track.geometry is not None:
+                track.geometry = replace(track.geometry, available_s=geometry_ready)
         self.diagnostics["result_age_s"] = now - float(captured["time_s"])
         self.diagnostics["available_time_s"] = ready
         return True
@@ -237,6 +268,9 @@ class GeometryProvider:
             surfaces=len(candidates),
             cue_frame=int(sensor["frame"]),
         )
+        if self.material is not None:
+            self.material.observe(candidates, sensor, cue["available_s"])
+            return
         if view >= 0:
             if self.config.get("scan_fusion") == "object-v1":
                 self.scan_memory.add(candidates, sensor, view, available_s=cue["available_s"])
@@ -473,6 +507,83 @@ class GeometryProvider:
         self.last_estimate = self._update(observation)
         return self.last_estimate
 
+    def _material_estimate(self, sensor):
+        """Publish completed geometry on a later tick, never backdate a processing result."""
+        now = float(sensor["time_s"])
+        if self.material_pending is not None and self.material_pending[0] <= now:
+            self.material_published = self.material_pending[1]
+            self.material_pending = None
+        started = time.perf_counter()
+        state = self.material.update(sensor)
+        latency = time.perf_counter() - started
+        available = now + latency
+
+        def completed(support):
+            if support is not None and support.supported_s == now:
+                return replace(support, available_s=max(available, support.available_s))
+            return support
+
+        state = replace(
+            state,
+            patches=tuple(
+                replace(
+                    p,
+                    identity_support=completed(p.identity_support),
+                    pose_support=completed(p.pose_support),
+                )
+                for p in state.patches
+            ),
+            angle_support=completed(state.angle_support),
+            hypotheses=tuple(replace(h, support=completed(h.support)) for h in state.hypotheses),
+        )
+        # A slow computation cannot erase a completed-but-not-yet-available result.
+        if self.material_pending is None:
+            self.material_pending = available, state
+        published = self.material_published
+        self.encoding = None
+        self.diagnostics.update(material_processing_s=latency, material_available_s=available)
+        estimate = DoorEstimate(now, False, "local_material_only", local=published)
+        if published is None or len(published.hypotheses) != 1 or published.selection is None:
+            return estimate
+        try:
+            patch = validate_local_contact(published, now, generation=self.generation)
+            reference = next(p for p in published.patches if p.patch_id == published.reference_id)
+            reference.identity_support.require(now, self.generation, dynamic=True)
+            key = tuple(sorted((published.reference_id, patch.patch_id)))
+            if patch.patch_id != published.reference_id and key not in self.material.rigid_links:
+                return replace(estimate, reason="unverified_contact_body_association")
+            from alexdoor_xas.action.b1 import panel_pose
+
+            hypothesis = published.hypotheses[0]
+            panel = panel_pose(hypothesis.frame, published.signed_angle)
+            contact = self.material.operational_contact(published, panel, now)
+            operational = OperationalState(
+                f"material-body-{self.generation}",
+                self.generation,
+                "tracking",
+                reference.identity_support,
+                published.hypotheses,
+                hypothesis.hypothesis_id,
+                published.angle_support,
+                reference.pose_support,
+                contact,
+            )
+            self.encoding = np.r_[
+                self.material.tracks[published.reference_id].reference.descriptor,
+                self.material.tracks[patch.patch_id].reference.descriptor,
+            ]
+            return replace(
+                estimate,
+                operational=operational,
+                frame=hypothesis.frame,
+                panel_rotation=panel.rot,
+                signed_angle=published.signed_angle,
+                contact_position=contact.world_pose.origin,
+                contact_rotation=contact.world_pose.rot,
+            )
+        except (ValueError, AttributeError, TypeError) as error:
+            return replace(estimate, reason=str(error))
+
     def _update(self, observation):
         sensor = {key: observation[key] for key in OBS_KEYS}
         sensor = {
@@ -490,6 +601,9 @@ class GeometryProvider:
             self.panel = None
             self.pixel_tracker.reset()
             self.stable_frames = 0
+            if self.material is not None:
+                self.material.invalidate("observation_gap")
+                self.material_pending = self.material_published = None
         self.last_time, self.last_frame = t, frame
         self.scan_index = sum(t >= sample for sample in self.config["inspection"]["sample_times_s"])
         if any(
@@ -505,6 +619,9 @@ class GeometryProvider:
             or not np.isfinite(sensor["intrinsics"]).all()
         ):
             self.encoding = None
+            if self.material is not None:
+                self.material.invalidate("invalid_calibration")
+                self.material_pending = self.material_published = None
             return DoorEstimate(t, False, "invalid_calibration")
         depth, valid = sensor["depth_m"], sensor["valid_depth"]
         if (
@@ -522,11 +639,16 @@ class GeometryProvider:
             self.lost_since = t if self.lost_since is None else self.lost_since
             self.diagnostics["state"] = "lost"
             self.diagnostics["missing"] = ["missing_rgbd"]
+            if self.material is not None:
+                self.material.invalidate("missing_rgbd")
+                self.material_pending = self.material_published = None
             return DoorEstimate(t, False, "missing_rgbd")
         self.consume_results(t)
         view = self.due_view(t)
         if view is not None and self.engine.submit(sensor, view):
             self.next_semantic = t + self.config["semantic_period_s"]
+        if self.material is not None:
+            return self._material_estimate(sensor)
         if (
             self.scan_index == len(self.config["inspection"]["sample_times_s"])
             and self.closed is not None

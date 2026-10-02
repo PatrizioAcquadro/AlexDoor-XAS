@@ -10,8 +10,10 @@ association and invalid finite-face claims. The corrected video prefix retains m
 whole-object ownership and physical axes remain unresolved. A follow-up verifies
 reviewed local patches on both pilots/conditions and corrects effective geometric
 contact covers; C can start local initialization, while loaded interaction is blocked.
-No simulation, training,
-collection, extended replay or sealed-test evaluation was started by these assignments.
+6.0C local-material contracts, explicit selections and causal tracking are implemented
+as diagnostic software; bounded replay/live exit evidence remains pending. Earlier
+assignments started no simulation, training, collection, extended replay or sealed-test
+evaluation.
 
 | Area | Current state |
 |---|---|
@@ -23,7 +25,8 @@ collection, extended replay or sealed-test evaluation was started by these assig
 
 ## Next action
 
-Start 6.0C causal material tracking and field lifetimes from the reviewed local
+Finish bounded 6.0C replay/live evidence for the implemented causal local-material
+interfaces and field lifetimes, starting from the reviewed local
 anchors in `operational-contact-readiness-01`, following the
 [[implementation_phases/phase-6-0-operational-perception-and-contact|6.0 operational implementation plan]]
 and the [[topics/shared-door-perception|implemented interfaces and static scan memory]].

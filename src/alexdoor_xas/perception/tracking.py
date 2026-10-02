@@ -33,11 +33,14 @@ class PixelMotionTracker:
         self.anchor_uncertainty = 0.0
         self.diagnostics = dict(pixel_motion="acquiring", tracked_pixels=0)
 
-    def _seed(self, sensor, gray, reference, motion=None):
+    def _seed(self, sensor, gray, reference, motion=None, material_mask=None):
         import cv2
 
         depth, valid = sensor["depth_m"].squeeze(-1), sensor["valid_depth"].squeeze(-1)
-        v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
+        usable = valid & np.isfinite(depth) & (depth > 0)
+        if material_mask is not None:
+            usable &= material_mask
+        v, u = np.nonzero(usable)
         points = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
         local = points @ reference.basis
         bounds = reference.bounds
@@ -47,6 +50,8 @@ class PixelMotionTracker:
         ).all(1)
         mask = np.zeros(depth.shape, np.uint8)
         mask[v[keep], u[keep]] = 255
+        if material_mask is not None:
+            mask[~np.asarray(material_mask, bool)] = 0
         if motion is not None:
             for x, y in self.pixels:
                 cv2.circle(mask, (int(round(x)), int(round(y))), 8, 0, -1)
@@ -78,12 +83,12 @@ class PixelMotionTracker:
         self.diagnostics.update(pixel_motion="acquiring", tracked_pixels=len(self.source))
         return True
 
-    def update(self, sensor, reference):
+    def update(self, sensor, reference, *, material_mask=None, allow_reseed=True):
         import cv2
 
         gray = cv2.cvtColor(sensor["rgb"], cv2.COLOR_RGB2GRAY)
         if self.gray is None:
-            self._seed(sensor, gray, reference)
+            self._seed(sensor, gray, reference, material_mask=material_mask)
             return None
         following, status, _ = cv2.calcOpticalFlowPyrLK(
             self.gray, gray, self.pixels.astype(np.float32), None, winSize=(21, 21), maxLevel=3
@@ -95,6 +100,10 @@ class PixelMotionTracker:
         backward, back_status, _ = cv2.calcOpticalFlowPyrLK(
             gray, self.gray, following, None, winSize=(21, 21), maxLevel=3
         )
+        if backward is None or back_status is None:
+            self.reset()
+            self.diagnostics["pixel_motion"] = "lost_visual_matches"
+            return None
         good = status.ravel().astype(bool) & back_status.ravel().astype(bool)
         good &= np.linalg.norm(backward - self.pixels, axis=1) < 0.7
         source, pixels = self.source[good], following[good]
@@ -102,6 +111,14 @@ class PixelMotionTracker:
         indices, target = sample_points(sensor, pixels)
         source, pixels = source[indices], pixels[indices]
         uncertainty = uncertainty[indices]
+        if material_mask is not None:
+            xy = np.rint(pixels).astype(int)
+            h, w = material_mask.shape
+            inside = (xy >= 0).all(1) & (xy[:, 0] < w) & (xy[:, 1] < h)
+            membership = np.zeros(len(xy), bool)
+            membership[inside] = material_mask[xy[inside, 1], xy[inside, 0]]
+            source, pixels, target = source[membership], pixels[membership], target[membership]
+            uncertainty = uncertainty[membership]
         if len(source) < 12:
             self.reset()
             self.diagnostics["pixel_motion"] = "lost_metric_matches"
@@ -134,7 +151,7 @@ class PixelMotionTracker:
             tracked_pixels=int(best.sum()),
             pixel_motion_residual_m=fitted[2],
         )
-        if best.sum() < 60:
+        if best.sum() < 60 and allow_reseed:
             previous = (
                 self.gray,
                 self.pixels,
@@ -142,7 +159,9 @@ class PixelMotionTracker:
                 self.source_uncertainty,
                 self.anchor_uncertainty,
             )
-            if not self._seed(sensor, gray, moved_surface(reference, fitted), fitted):
+            if not self._seed(
+                sensor, gray, moved_surface(reference, fitted), fitted, material_mask=material_mask
+            ):
                 (
                     self.gray,
                     self.pixels,

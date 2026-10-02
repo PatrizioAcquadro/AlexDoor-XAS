@@ -598,7 +598,6 @@ def matched_motion(reference, current, tolerance=0.01):
 
 def hinge_from_motion(motions, minimum_angle, floor_z):
     matrices, targets, residuals = [], [], []
-    angles = []
     for rotation, translation, residual in motions:
         angle = float(np.arctan2(rotation[1, 0], rotation[0, 0]))
         if abs(angle) < minimum_angle or np.linalg.norm(rotation[:, 2] - [0, 0, 1]) > 0.05:
@@ -606,7 +605,6 @@ def hinge_from_motion(motions, minimum_angle, floor_z):
         matrices.append(np.eye(2) - rot_z(angle)[:2, :2])
         targets.append(translation[:2])
         residuals.append(residual)
-        angles.append(abs(angle))
     if len(matrices) < 3:
         return None
     matrix, target = np.concatenate(matrices), np.concatenate(targets)
@@ -614,7 +612,10 @@ def hinge_from_motion(motions, minimum_angle, floor_z):
     if singular[-1] < 0.02 or singular[0] / singular[-1] > 100:
         return None
     residual = np.linalg.norm((matrix @ hinge - target).reshape(-1, 2), axis=1)
-    uncertainty = (max(residuals) + np.quantile(residual, 0.95)) / (2 * np.sin(max(angles) / 2))
+    # Every observation contributes its error through the joint fit's sensitivity.
+    # The largest rotation alone cannot bound a fit dominated by smaller rotations.
+    error = np.asarray(residuals) + np.max(residual)
+    uncertainty = np.linalg.norm(np.linalg.pinv(matrix), 2) * np.linalg.norm(np.repeat(error, 2))
     return np.r_[hinge, floor_z], float(uncertainty)
 
 

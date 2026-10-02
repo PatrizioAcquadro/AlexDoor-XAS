@@ -56,8 +56,11 @@ class FieldSupport:
             (rotation, self.rotation_bound_rad, ROTATION_LIMIT_RAD),
         ):
             if needed and (
-                value is None or not np.isfinite(value) or value < 0
-                or qualification and value > limit
+                value is None
+                or not np.isfinite(value)
+                or value < 0
+                or qualification
+                and value > limit
             ):
                 raise ValueError("missing_or_excessive_field_bound")
 
@@ -100,6 +103,88 @@ class OperationalState:
     panel_support: FieldSupport
     contact: ContactSelection | None
     dimensions_support: FieldSupport | None = None
+
+
+@dataclass(frozen=True)
+class LocalPatchState:
+    """A material reference is independent of both a hinge and a chosen contact."""
+
+    patch_id: str
+    world_pose: ObjectFrame | None
+    geometry_support: FieldSupport | None
+    identity_support: FieldSupport | None
+    pose_support: FieldSupport | None
+    finger_clearance_m: tuple[float | None, float | None] = (None, None)
+    reason: str = "acquiring_material"
+
+
+@dataclass(frozen=True)
+class LocalContactSelection:
+    selection_id: str
+    patch_id: str
+    selected_s: float
+    source: str
+    predecessor_id: str | None = None
+
+
+@dataclass(frozen=True)
+class LocalMaterialState:
+    generation: int
+    reference_id: str | None
+    patches: tuple[LocalPatchState, ...]
+    selection: LocalContactSelection | None = None
+    hypotheses: tuple[HingeHypothesis, ...] = ()
+    signed_angle: float | None = None
+    angle_support: FieldSupport | None = None
+
+
+def validate_local_contact(state, now, *, generation=None):
+    """Local geometric support only; never action/load admission or qualification."""
+    from alexdoor_xas.action.b1 import checked_pose
+
+    generation = state.generation if generation is None else generation
+    if state.generation != generation:
+        raise ValueError("wrong_episode_generation")
+    selection = state.selection
+    if selection is None or selection.source not in ("diagnostic", "policy"):
+        raise ValueError("missing_explicit_contact_selection")
+    if (
+        not selection.selection_id
+        or not np.isfinite(selection.selected_s)
+        or not (0 <= selection.selected_s <= now)
+    ):
+        raise ValueError("unavailable_contact_selection")
+    patches = [p for p in state.patches if p.patch_id == selection.patch_id]
+    if len(patches) != 1:
+        raise ValueError("missing_or_ambiguous_selected_patch")
+    patch = patches[0]
+    for support, dynamic in (
+        (patch.geometry_support, False),
+        (patch.identity_support, True),
+        (patch.pose_support, True),
+    ):
+        if support is None:
+            raise ValueError(patch.reason or "missing_material_support")
+        support.require(now, generation, dynamic=dynamic)
+    patch.geometry_support.require_bounds(position=True, rotation=True)
+    patch.pose_support.require_bounds(position=True, rotation=True)
+    checked_pose(patch.world_pose)
+    if any(c is None or not np.isfinite(c) or c <= 0 for c in patch.finger_clearance_m):
+        raise ValueError("insufficient_observed_footprint")
+    return patch
+
+
+def validate_local_transition(previous, current):
+    if previous is None:
+        if current.predecessor_id is not None:
+            raise ValueError("unexpected_contact_predecessor")
+    elif current.selection_id == previous.selection_id:
+        if current != previous:
+            raise ValueError("contact_reselected_without_transition")
+    elif (
+        current.predecessor_id != previous.selection_id or current.selected_s <= previous.selected_s
+    ):
+        raise ValueError("missing_contact_transition")
 
 
 @dataclass(frozen=True)
@@ -147,6 +232,7 @@ class DoorEstimate:
     contact_position: np.ndarray | None = None
     contact_rotation: np.ndarray | None = None
     operational: OperationalState | None = None
+    local: LocalMaterialState | None = None
 
     def fresh(self, now_s, max_age_s=0.15):
         return self.valid and 0 <= now_s - self.timestamp_s <= max_age_s
@@ -251,9 +337,7 @@ def validate_geometry(estimate, now, max_age, *, profile=LEGACY_FULL_STATE, gene
         if estimate.operational.tracking_state != "tracking":
             raise ValueError("provisional_geometry")
         state = estimate.operational
-        state.hypotheses[0].support.require_bounds(
-            position=True, rotation=True, qualification=True
-        )
+        state.hypotheses[0].support.require_bounds(position=True, rotation=True, qualification=True)
         for support in (state.angle_support, state.panel_support):
             support.require_bounds(rotation=True, qualification=True)
         for support in (state.contact.local_support, state.contact.world_support):
@@ -278,11 +362,12 @@ def validate_contact_transition(previous, current):
             raise ValueError("unexpected_contact_predecessor")
     elif current.selection_id == previous.selection_id:
         if (current.patch_id, current.selected_s, current.predecessor_id) != (
-            previous.patch_id, previous.selected_s, previous.predecessor_id
+            previous.patch_id,
+            previous.selected_s,
+            previous.predecessor_id,
         ):
             raise ValueError("contact_reselected_without_transition")
     elif (
-        current.predecessor_id != previous.selection_id
-        or current.selected_s <= previous.selected_s
+        current.predecessor_id != previous.selection_id or current.selected_s <= previous.selected_s
     ):
         raise ValueError("missing_contact_transition")
