@@ -432,7 +432,9 @@ correspondences. Replenishment maps current measured points into that original s
 reacquisition requires distinctive mutual RGB matches and a rigid metric fit. Static
 coplanarity cannot establish mobile ownership. A verified coherent informative motion
 link may update another material pose, propagating uncertainty over the separation;
-it cannot renew that patch's original geometric observation. Reference loss and selected
+the transferred bound includes the target's original geometry error as well as donor
+pose error and rotational lever-arm sensitivity.
+It cannot renew that patch's original geometric observation. Reference loss and selected
 contact loss are separate events. Missing/ambiguous matches retain static memory but
 cannot refresh dynamic timestamps. Rigid and hinge fits propagate declared metric error
 and sensitivity; poorly conditioned motion remains unavailable.
@@ -446,3 +448,11 @@ contact through the existing operational interface. Ambiguous axes remain altern
 Numerical regressions establish these software interfaces; bounded pilot replay/live
 results and the 6.0C exit checks are separate evidence milestones. No loaded interaction
 or release qualification is supplied by these interfaces.
+
+Inspection compares the existing 10 mm arm drift, 0.01 rad door motion and 0.1 rad
+neck tracking limits with explicit tolerances. Float32 accumulated roundoff contributes
+32 epsilon in meters/radians; neck error additionally allows one control tick at the
+common 0.4 rad/s command limit (6.67 mrad at 60 Hz). Reports retain measured values,
+base limits and allowances. This observation-only discretization allowance is separate
+from dynamic field freshness: its 150 ms limit has only 1 ns clock roundoff. Field
+qualification error limits allow float32 roundoff, not another uncertainty budget.

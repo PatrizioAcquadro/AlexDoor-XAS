@@ -146,6 +146,11 @@ def run_live(args, repo):
         from alexdoor_xas.kinematics.purdue_chain import PurdueChain
         from alexdoor_xas.perception.evaluation import json_safe, write_json
         from alexdoor_xas.perception.geometry import project
+        from alexdoor_xas.perception.inspection import (
+            INSPECTION_LIMITS,
+            inspection_tolerances,
+            inspection_within_limits,
+        )
         from alexdoor_xas.perception.provider import (
             CueEngine,
             GeometryProvider,
@@ -238,6 +243,10 @@ def run_live(args, repo):
                 arm="parked",
                 max_neck_speed_rad_s=inspection["max_neck_speed_rad_s"],
                 hold_s=2,
+                inspection_limits=INSPECTION_LIMITS,
+                inspection_tolerances=inspection_tolerances(
+                    io.dt, inspection["max_neck_speed_rad_s"]
+                ),
             ),
         )
         maximum = dict(tool_drift_m=0.0, door_angle_rad=0.0, neck_error_rad=0.0)
@@ -264,12 +273,9 @@ def run_live(args, repo):
                     for key, value in zip(maximum, (drift, angle, error), strict=True):
                         maximum[key] = max(maximum[key], value)
                     # Independent observation audit; door/contact truth never enters the provider.
-                    if (
-                        drift > 0.01
-                        or angle > 0.01
-                        or error > 0.1
-                        or any(c["forbidden"] for c in env.contact_history)
-                    ):
+                    if not inspection_within_limits(
+                        maximum, io.dt, inspection["max_neck_speed_rad_s"]
+                    ) or any(c["forbidden"] for c in env.contact_history):
                         raise RuntimeError(
                             f"Unsafe inspection: drift={drift},door={angle},neck={error}"
                         )

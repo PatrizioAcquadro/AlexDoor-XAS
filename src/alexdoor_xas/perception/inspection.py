@@ -4,6 +4,28 @@ import json
 
 import numpy as np
 
+INSPECTION_LIMITS = dict(tool_drift_m=0.01, door_angle_rad=0.01, neck_error_rad=0.1)
+
+
+def inspection_tolerances(dt, max_neck_speed_rad_s):
+    """Float32 accumulated roundoff and one control tick of neck tracking resolution."""
+    numerical = 32 * np.finfo(np.float32).eps
+    if not np.isfinite([dt, max_neck_speed_rad_s]).all() or dt <= 0 or max_neck_speed_rad_s <= 0:
+        raise ValueError("Invalid inspection timing/speed")
+    return dict(
+        tool_drift_m=numerical,
+        door_angle_rad=numerical,
+        neck_error_rad=numerical + dt * max_neck_speed_rad_s,
+    )
+
+
+def inspection_within_limits(metrics, dt, max_neck_speed_rad_s):
+    tolerances = inspection_tolerances(dt, max_neck_speed_rad_s)
+    return all(
+        np.isfinite(metrics[key]) and 0 <= metrics[key] <= limit + tolerances[key]
+        for key, limit in INSPECTION_LIMITS.items()
+    )
+
 
 def load_inspection(path):
     config = json.loads(path.read_text())
@@ -85,16 +107,17 @@ def run_inspection(env, config, recorder=None):
         drift = float(np.linalg.norm(array(env.tool_pose()[0])[0] - p))
         angle = float(np.abs(array(env.door.data.joint_pos)[0, 0]))
         neck_error = float(np.max(np.abs(array(env.robot.data.joint_pos)[0, env.neck_ids] - neck)))
-        if (
-            not np.isfinite([drift, angle, neck_error]).all()
-            or drift > 0.01
-            or angle > 0.01
-            or neck_error > 0.1
-            or any(s["forbidden"] for s in env.contact_history)
-        ):
+        metrics = dict(tool_drift_m=drift, door_angle_rad=angle, neck_error_rad=neck_error)
+        if not inspection_within_limits(
+            metrics, env.step_dt, config["max_neck_speed_rad_s"]
+        ) or any(s["forbidden"] for s in env.contact_history):
             raise RuntimeError(f"Unsafe inspection: drift={drift}, door={angle}, neck={neck_error}")
         for key, value in zip(maximum, (drift, angle, neck_error), strict=True):
             maximum[key] = max(maximum[key], value)
         if recorder is not None:
             recorder.transition(env, p, rotation, "inspect", dict(valid=True))
-    return dict(duration_s=float(points[-1, 0]), **maximum)
+    return dict(
+        duration_s=float(points[-1, 0]),
+        tolerances=inspection_tolerances(env.step_dt, config["max_neck_speed_rad_s"]),
+        **maximum,
+    )

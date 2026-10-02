@@ -429,7 +429,12 @@ class MaterialTracker:
             target.dynamic = replace(
                 donor.dynamic,
                 acquired_s=target.geometry.acquired_s,
-                position_bound_m=donor.dynamic.position_bound_m + extra,
+                position_bound_m=(
+                    donor.dynamic.position_bound_m + target.geometry.position_bound_m + extra
+                ),
+                rotation_bound_rad=(
+                    donor.dynamic.rotation_bound_rad + target.geometry.rotation_bound_rad
+                ),
             )
             target.reason = "verified_rigid_transfer"
         return self.state(now)

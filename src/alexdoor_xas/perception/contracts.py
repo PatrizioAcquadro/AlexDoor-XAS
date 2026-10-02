@@ -11,6 +11,8 @@ OPERATIONAL_V1 = "operational-v1"
 MAX_DYNAMIC_AGE_S = 0.15
 POSITION_LIMIT_M = 0.01
 ROTATION_LIMIT_RAD = np.deg2rad(5.0)
+TIME_ROUNDOFF_S = 1e-9  # nanosecond clock resolution; no control-tick freshness grace
+POSE_ROUNDOFF = 32 * np.finfo(np.float32).eps  # accumulated runtime tensor roundoff
 
 
 def geometry_profile(binding):
@@ -47,7 +49,9 @@ class FieldSupport:
             or not 0 <= self.acquired_s <= self.supported_s <= self.available_s <= now
         ):
             raise ValueError(self.reason or "unavailable_field_support")
-        if dynamic and not 0 <= now - self.supported_s <= min(max_age, MAX_DYNAMIC_AGE_S):
+        if dynamic and not 0 <= now - self.supported_s <= (
+            min(max_age, MAX_DYNAMIC_AGE_S) + TIME_ROUNDOFF_S
+        ):
             raise ValueError("stale_dynamic_support")
 
     def require_bounds(self, *, position=False, rotation=False, qualification=False):
@@ -60,7 +64,7 @@ class FieldSupport:
                 or not np.isfinite(value)
                 or value < 0
                 or qualification
-                and value > limit
+                and value > limit + POSE_ROUNDOFF
             ):
                 raise ValueError("missing_or_excessive_field_bound")
 
@@ -143,7 +147,7 @@ def validate_local_contact(state, now, *, generation=None):
     from alexdoor_xas.action.b1 import checked_pose
 
     generation = state.generation if generation is None else generation
-    if state.generation != generation:
+    if type(state.generation) is not int or state.generation < 0 or state.generation != generation:
         raise ValueError("wrong_episode_generation")
     selection = state.selection
     if selection is None or selection.source not in ("diagnostic", "policy"):
@@ -235,7 +239,7 @@ class DoorEstimate:
     local: LocalMaterialState | None = None
 
     def fresh(self, now_s, max_age_s=0.15):
-        return self.valid and 0 <= now_s - self.timestamp_s <= max_age_s
+        return self.valid and 0 <= now_s - self.timestamp_s <= max_age_s + TIME_ROUNDOFF_S
 
 
 def validate_complete(estimate):

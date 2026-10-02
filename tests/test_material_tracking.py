@@ -131,6 +131,10 @@ def test_static_coplanarity_never_transfers_motion_and_verified_link_propagates_
         # Isolate the association consumer from the optical tracker.
         track.update = lambda sensor: None
     visual, contact = tracker.tracks.values()
+    contact.geometry = replace(contact.geometry, position_bound_m=0.03, rotation_bound_rad=0.1)
+    contact.dynamic = contact.identity = replace(
+        contact.geometry, position_bound_m=0.034, rotation_bound_rad=0.12
+    )
     visual.observed = True
     contact.observed = False
     visual.motion = (np.eye(3), np.zeros(3), 0)
@@ -147,10 +151,79 @@ def test_static_coplanarity_never_transfers_motion_and_verified_link_propagates_
     assert contact.reason == "verified_rigid_transfer"
     assert contact.geometry is original_geometry
     assert contact.dynamic.position_bound_m > visual.dynamic.position_bound_m
+    assert contact.dynamic.position_bound_m >= (
+        contact.geometry.position_bound_m + visual.dynamic.position_bound_m
+    )
+    assert contact.dynamic.rotation_bound_rad >= (
+        contact.geometry.rotation_bound_rad + visual.dynamic.rotation_bound_rad
+    )
     contact.observed = True
     contact.motion = (rot_z(-sign * 0.2), np.zeros(3), 0.001)
     tracker.update(sensor(1, 1))
     assert not tracker.rigid_links
+
+
+def test_supported_axis_represents_the_exact_explicit_contact_instead_of_the_visual_reference():
+    visual = replace(
+        supported_patch("visual"), world_pose=ObjectFrame(np.array([1, -0.1, 1.5]), np.eye(3))
+    )
+    contact = supported_patch("contact")
+    state = LocalMaterialState(
+        0, "visual", (visual, contact), LocalContactSelection("s", "contact", 1, "diagnostic")
+    )
+    panel = ObjectFrame(np.array([0, 0.5, 0]), rot_z(0.2))
+    converted = MaterialTracker(recipe().config, 0, ()).operational_contact(state, panel, 1)
+    assert converted.patch_id == "contact"
+    np.testing.assert_array_equal(converted.world_pose.origin, contact.world_pose.origin)
+    np.testing.assert_allclose(
+        panel.point_to_world(converted.local_pose.origin), contact.world_pose.origin, atol=1e-12
+    )
+    np.testing.assert_allclose(
+        panel.rot @ converted.local_pose.rot, contact.world_pose.rot, atol=1e-12
+    )
+
+
+def test_local_generation_rejects_boolean_episode_identity():
+    state = LocalMaterialState(
+        False,
+        "contact",
+        (supported_patch("contact"),),
+        LocalContactSelection("s", "contact", 1, "diagnostic"),
+    )
+    with pytest.raises(ValueError, match="wrong_episode_generation"):
+        validate_local_contact(state, 1, generation=0)
+
+
+def test_inspection_guard_accepts_sample_resolution_but_rejects_meaningful_excess():
+    from alexdoor_xas.perception.inspection import (
+        inspection_tolerances,
+        inspection_within_limits,
+    )
+
+    dt, speed = 1 / 60, 0.4
+    tolerance = inspection_tolerances(dt, speed)
+    metrics = dict(tool_drift_m=0.000057, door_angle_rad=0.000123, neck_error_rad=0.100087)
+    assert inspection_within_limits(metrics, dt, speed)
+    metrics["neck_error_rad"] = 0.1 + tolerance["neck_error_rad"] + 1e-5
+    assert not inspection_within_limits(metrics, dt, speed)
+    metrics.update(neck_error_rad=0.1, tool_drift_m=0.01 + 1e-7)
+    assert inspection_within_limits(metrics, dt, speed)
+    metrics["tool_drift_m"] = 0.011
+    assert not inspection_within_limits(metrics, dt, speed)
+    metrics["tool_drift_m"] = float("nan")
+    assert not inspection_within_limits(metrics, dt, speed)
+
+
+def test_field_gates_allow_roundoff_without_an_extra_tick_of_dynamic_freshness():
+    from alexdoor_xas.perception.contracts import POSITION_LIMIT_M, ROTATION_LIMIT_RAD
+
+    support = FieldSupport(0, 0, 0, 0, POSITION_LIMIT_M + 1e-7, ROTATION_LIMIT_RAD + 1e-7)
+    support.require(0.15 + 1e-12, 0, dynamic=True)
+    support.require_bounds(position=True, rotation=True, qualification=True)
+    with pytest.raises(ValueError, match="stale_dynamic_support"):
+        support.require(0.15 + 1 / 60, 0, dynamic=True)
+    with pytest.raises(ValueError, match="excessive"):
+        replace(support, position_bound_m=0.011).require_bounds(position=True, qualification=True)
 
 
 def test_rigid_uncertainty_increases_with_depth_error_and_poor_support_span():
