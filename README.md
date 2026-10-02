@@ -65,6 +65,20 @@ Outputs must be fresh. The pilot covers both train handednesses and both conditi
 the full command replays all 50 engineering-v2 episodes without test access,
 training or collection. Failed geometry gates produce a nonzero exit status.
 
+The bounded 6.0C material diagnostic covers only the two train pilots in nominal/light:
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/diagnose_material_tracking.py replay \
+  --output outputs/b1/perception/NEW_MATERIAL_REPLAY
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/diagnose_material_tracking.py live \
+  --output outputs/b1/perception/NEW_MATERIAL_LIVE
+```
+
+The live command starts four fresh serial GPU processes, holds the arm parked and
+checks scan/revisit observations. It neither pushes a candidate nor qualifies the
+provider. Read each report's field support and reacquisition outcomes separately
+from execution completion; prior static candidate/scan evidence must be available.
+
 Model tests use CUDA and explicitly skip if unavailable. Pure numerical tests do
 not require a simulator. Run the Purdue integration gate on synthetic fixtures:
 

@@ -3,7 +3,8 @@
 > Subphase 6.0 open: the September geometric prototype remains unqualified.
 > The October 1 operational perception/contact protocol is approved. 6.0A contracts
 > and 6.0B static object fusion/queries with bounded diagnostics are implemented;
-> 6.0C-H remain planned.
+> 6.0C software and bounded replay/live diagnoses are implemented; material tracking
+> exit checks remain open. 6.0D-H remain planned.
 > Subphase 6.1 software is partially validated; final integration is pending.
 > Subphase 6.2 is not started. Phases 4 and 5 are complete.
 
@@ -24,7 +25,12 @@ Existing recordings lack joint torque; the observed-only monitor rejects loaded
 control. Extended evaluation remains stopped and dynamic validation has not run.
 6.0A adds operational/provisional/load interfaces and numerical admission rules,
 preserving legacy schemas and results. Operational consumer compatibility exists,
-but the provider still emits legacy states and feedback acquisition remains absent.
+the default provider emits legacy states and feedback acquisition remains absent.
+The opt-in C path exposes axis-free local candidates and explicit material selection;
+a supported motion reference can represent that same point operationally. Its four
+complete pilot replays and four parked-arm live observations initialize local geometry
+but do not recover selected material tracking or an axis. Raw visibility and material
+reacquisition remain separate; C is open.
 6.0B adds observed object memory, static hinge alternatives, finite contact support
 and relevant-space queries. Its four scan diagnoses preserve ambiguous ownership
 and unobserved physical axes. The targeted re-audit corrects extraction, mask omissions,
@@ -47,7 +53,7 @@ page as the phase overview; use the detailed plan for assignments and exit check
 |---|---|---|
 | 6.0A — complete | Explicit operational/provisional/load contracts, measurable admission rules and numerical consumer compatibility | Approved protocol and current consumer audit |
 | 6.0B — complete | Static object fusion, fixed/unresolved support, hinge alternatives and geometric queries; bounded scans and targeted evidence/contact corrections; identity/interaction remain unqualified | 6.0A |
-| 6.0C | Causal tracking, signed articulation, uncertainty and stable/dynamic lifetimes | 6.0B |
+| 6.0C — open | Local material/explicit selection software and bounded replay/live diagnostics; selected tracking, reacquisition and articulation exit checks fail | 6.0B |
 | 6.0D | Documented robot feedback, common compliant execution and physical stop | 6.0A; independent of B/C with numerical fixtures |
 | 6.0E | Independent dual-profile evaluator and both pilot replays | 6.0A-C |
 | 6.0F | Bounded diagnostic manipulation on the two train pilots | 6.0D/E gates |

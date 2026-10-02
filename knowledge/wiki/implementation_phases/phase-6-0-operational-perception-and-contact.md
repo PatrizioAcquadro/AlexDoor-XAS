@@ -2,11 +2,13 @@
 
 > Approved design: October 1, 2026. 6.0A contracts and numerical consumer integration
 > and 6.0B static object fusion/queries with bounded pilot diagnostics are implemented;
-> 6.0C-H remain pending. Static identity/hinge ambiguities remain explicit.
+> 6.0C diagnostic software and bounded replay/live checks are implemented; material
+> tracking/articulation exit checks remain open. 6.0D-H remain pending.
 > This plan supersedes the September prototype's future requirements, not its
 > measurements or qualification results. Design baseline: `main` at `809f575`;
 > 6.0A implementation baseline: `main` at `655d26b`;
-> 6.0B implementation baseline: `main` at `cf83f90`.
+> 6.0B implementation baseline: `main` at `cf83f90`;
+> 6.0C implementation baseline: `main` at `9aa29bd`.
 
 ## Purpose and execution boundary
 
@@ -21,7 +23,9 @@ extent a universal prerequisite for a local action. See the parent
 
 The completed assignments implement 6.0A contracts/admission and 6.0B static
 object memory, geometric queries and four scan-only diagnostics with a conditional
-SAM3 video comparison. The remaining work packages below are
+SAM3 video comparison. C adds local material/selection software and four bounded
+replays plus four parked-arm live observations, with open tracking/articulation exits.
+The remaining work packages below are
 instructions for later assignments, not a request to start agents, simulations or
 campaigns now. Keep the existing 6.1 action-path and 6.2 dataset numbering.
 No new training, demonstration/data
@@ -49,7 +53,8 @@ one causal provider and preserve calibration, FK, IK and Purdue IO.
   so its frame origin does not affect that delta transformation.
 - At baseline, `DoorEstimate`, `B1Observer` and adapters required complete geometry,
   including dimensions. 6.0A preserves that legacy profile and adds explicit
-  operational/provisional interfaces; the current provider still emits legacy states.
+  operational/provisional interfaces. The default provider retains legacy states;
+  the opt-in C path exposes local material candidates and explicit selection.
 - `recording/b1.py` and `PurdueIO.observe()` expose RGB-D and joint position/velocity,
   not torque. `ObservedControlChecks` rejects loaded phases with
   `force_feedback_unavailable`; `PurdueIO.stop()` clears commands but does not
@@ -355,7 +360,9 @@ AGENTS.md and the previous package's handoff. Reuse maintained tests; add only t
 essential regressions listed. Update canonical status and make small validated
 local commits. No push. Code, tests and measured results determine completion.
 6.0A is complete as an interface milestone and 6.0B as a static implementation
-and bounded diagnostic milestone. Packages 6.0C-H retain their unperformed exit checks.
+and bounded diagnostic milestone. C software and bounded diagnoses are implemented,
+but its material tracking/reacquisition/articulation exits remain open. D-H retain
+their unperformed exit checks.
 
 ### 6.0A — Contracts and measurable admission rules
 
@@ -457,15 +464,18 @@ extended replay or sealed test ran. Phase 6.0 and every release flag remain unqu
 
 - [ ] Track verified leaf features independently of fixed surfaces; retain original
   references, handle slip/occlusion and reject degenerate rigid/hinge fits.
-- [ ] Initialize the reviewed local material anchors without demanding a complete
-  object assignment or precise axis. Reacquire the white upper-inset patch before
-  interaction: its last full-cover observation is about 13 s, not the fused plane's
-  later observation near 25 s. Keep patch/identity and plane timestamps distinct.
+- [x] Initialize reviewed local candidate geometry without demanding a complete
+  object assignment or precise axis. Keep the visual reference separate from the
+  explicitly selected contact. The white high candidate's last full-cover scan
+  observation is about 13 s, not its plane's later observation near 25 s.
+- [ ] Reacquire the selected material point with fresh direct support or verified rigid
+  transfer; visual-reference visibility alone cannot refresh it. Keep patch/identity
+  and plane timestamps distinct.
 - [ ] Recover signed angle/axis uncertainty for both hands; preserve stable geometry
   while dynamically supported pose remains fresh, including partial-field loss.
-- [ ] Exercise reset, episode generations, out-of-order/late completion, nonmonotonic
+- [x] Exercise reset, episode generations, out-of-order/late completion, nonmonotonic
   time and replay/live equivalence with identical supplied availability events.
-- [ ] Retain the existing tracker unless isolated evidence identifies it as the
+- [x] Retain the existing tracker unless isolated evidence identifies it as the
   remaining cause; only then compare a causal pretrained alternative on the pilots.
 
 **Software handoff:** axis-free local material state and independent visual/contact
@@ -473,8 +483,15 @@ selection are implemented in the diagnostic provider. Candidate comparisons reta
 coverage, IK errors and joint margins separately; neither the high white candidate
 nor its observed 1.10 m alternative is a definitive contact. Constrained RGB-D
 tracking, immutable material support, rigid-transfer checks, field lifetimes and
-completion/generation regressions are implemented. Bounded pilot evidence remains
-pending; do not check off the package from numerical tests.
+completion/generation regressions are implemented. Four complete pilot replays and
+four fresh serial parked-arm CUDA observations are preserved in
+`operational-tracking-03` and `operational-tracking-live-02`. All requested local
+geometry initializes, but the explicitly selected contact has zero supported dynamic
+ticks and no material reacquisitions. Replays produce no supported motion axis. Live
+views independently recover geometric visibility without recovering material identity.
+The common neck guard accepts control-tick resolution and float32 roundoff; all four
+revised live schedules complete. Keep the identity/reacquisition/articulation exit
+checks open. See [[../experiments/b1-perception-findings|bounded material findings]].
 
 **Exit:** bounded pilot traces with valid identity/motion and honest uncertainty;
 model/tracker changes require actual CUDA smoke, not a repeated model campaign.

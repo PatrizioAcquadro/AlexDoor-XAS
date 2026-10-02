@@ -122,16 +122,19 @@ Only declared required dimensions enter this decision. Producers must establish
 these bounds; no operational measurement recipe has been supplied yet.
 
 Static geometric bounds and clearance queries are implemented in 6.0B; causal motion
-support remains 6.0C work and physical leaf-response bounds remain unmeasured. Robot
+interfaces are implemented in 6.0C, but measured material tracking exits remain open
+and physical leaf-response bounds remain unmeasured. Robot
 error, feedback timeout, residual/load uncertainty, gains and stop travel need
 6.0D measurements. Bounded diagnostic duration/displacement/speed are supplied by
 the shared 6.0D/F recipe before execution. Missing necessary parameters refuse
 admission; optional dimensions or unrelated unknown space do not.
 
-Contact selection orders producer-verified reachable candidates by minimum footprint
-clearance, resolved-hinge distance and stable selection ID. Target changes declare a
-predecessor. `MaterialContactReference` belongs only to the evaluator; independent
-evaluator material-surface correspondence and dual-profile scoring remain 6.0E work.
+The 6.0A `select_contact` helper orders producer-verified reachable candidates by
+footprint clearance, resolved-hinge distance and stable selection ID. The C path
+presents coverage and kinematic margins separately; only an explicit action-source
+event selects a candidate. Target changes declare a predecessor.
+`MaterialContactReference` belongs only to the evaluator; independent evaluator
+material-surface correspondence and dual-profile scoring remain 6.0E work.
 `RobotFeedback` and `admit_load` declare a separate torque/device channel and require
 fresh feedback, known signal semantics, bounded robot-only residual/load evidence
 and verified contact/stop behavior. They supply neither a torque sensor nor a load
@@ -440,14 +443,18 @@ cannot refresh dynamic timestamps. Rigid and hinge fits propagate declared metri
 and sensitivity; poorly conditioned motion remains unavailable.
 
 Episode identity is separate from cancelled inference requests. Live completion is
-available no earlier than receipt; local extraction and tracking processing also delay
-publication. A completed result cannot rewrite an earlier output. Temporary gaps clear
+available no earlier than receipt. Local extraction delays geometric field availability;
+tracking processing delays dynamic publication. Pending geometry is marked
+`awaiting_geometry_completion` and supplies no fresh identity/pose or valid contact.
+A completed result cannot rewrite an earlier output. Temporary gaps clear
 tracking/links and pending publication while retaining static geometry; episode reset
 clears all material state. A supported unique motion axis can represent the exact chosen
 contact through the existing operational interface. Ambiguous axes remain alternatives.
-Numerical regressions establish these software interfaces; bounded pilot replay/live
-results and the 6.0C exit checks are separate evidence milestones. No loaded interaction
-or release qualification is supplied by these interfaces.
+Numerical regressions establish these software interfaces. Four complete bounded
+replays and four fresh serial live observations initialize local geometry but do not
+recover selected material tracking, reacquisition or articulation. C remains open; see
+[[../experiments/b1-perception-findings|bounded material findings]]. No loaded
+interaction or release qualification is supplied by these interfaces.
 
 Inspection compares the existing 10 mm arm drift, 0.01 rad door motion and 0.1 rad
 neck tracking limits with explicit tolerances. Float32 accumulated roundoff contributes

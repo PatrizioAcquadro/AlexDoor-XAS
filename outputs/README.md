@@ -29,3 +29,11 @@ are not qualified full-state results. Dynamic tests require all offline doors to
 Qualification evidence and runtime verification normally remain under
 `~/.cache/alexdoor-xas/`; prepared door resources remain under `assets/doors/b1/`.
 The cleanup's bounded checks use `b1/perception/evidence/cleanup-validation/`.
+
+`b1/perception/operational-tracking-*` preserves 6.0C's bounded four-pilot-condition
+replays, attempts and parked-arm live observation checks. Traces distinguish the
+visual reference, explicitly selected contact, independent field support and loss.
+Candidate tables keep observed two-finger support, endpoint IK errors and joint
+margins separate. Live traces additionally audit raw-depth visibility independently
+of material identity. Complete execution does not mean a tracking exit check passed;
+all qualification flags remain false. These runs contain no learning collection.

@@ -27,12 +27,94 @@ and detailed historical pages. Removed ignored scripts, weights, caches and
 intermediate payloads are **not recoverable from Git**; these records support
 inspection of the results, not a claim of fully executable reproduction.
 
+## Bounded 6.0C material tracking — October 1, 2026
+
+**Decision:** the local-material interfaces are implemented, but 6.0C is not closed.
+All requested candidate geometry initializes; the selected point never obtains valid
+dynamic material support. Geometric visibility returns without original-material
+reacquisition. A stationary live door does not test articulation; the complete recorded
+pilot motion also produces no supported axis. No qualification flag is set.
+
+`scripts/diagnose_material_tracking.py` uses the same `GeometryProvider`/`CueEngine`
+interfaces and common recipe with frozen models for replay/live. Four complete train
+pilot/condition replays are in `outputs/b1/perception/operational-tracking-03/`; four fresh serial
+parked-arm GPU observations are in `operational-tracking-live-02/`. Per-case traces,
+candidate comparisons, protocols, runtime evidence, live images and `review.json` retain
+separate visual-reference and selected-point support. Replay consumes only observation
+keys, with saved scan cue availability through 25 s and frozen CUDA inference afterward;
+extraction/tracking completion also delays field availability. Pending geometry is
+explicitly unavailable and supplies no dynamic support. No annotations, training,
+learning collection, extended campaign or sealed test is used.
+
+The white visual reference is y=-0.10 m, z=1.50 m; its explicitly requested diagnostic
+contact is y=0, z=1.10 m. A third observed candidate is y=-0.10 m, z=1.30 m. Dark uses
+the 1.10 m point as both reference and diagnostic contact, retaining the 1.30 m
+alternative. The driver emits an identified selection event after geometry is available;
+the tracker never switches to another candidate after loss. The high white region
+remains a geometric candidate, not a definitive or physically validated contact.
+
+CUDA endpoint solves succeed at contact and 30 mm precontact for all requested
+candidates. White high clearance is about 103 mm versus 66 mm at 1.10 m. The lower
+candidate has larger minimum joint-limit margins: 0.168–0.170 rad at precontact and
+0.215–0.218 rad at contact, versus 0.121–0.125 and 0.184–0.188 rad for the high candidate.
+The 1.30 m alternative reaches but has narrower precontact margins, 0.022–0.027 rad.
+Tables retain the two-finger observed support, solve residuals and margins separately;
+there is no aggregate ranking or automatic definitive selection. Endpoint IK verifies
+neither posture quality, continuous collision clearance nor loaded control.
+
+| Case, nominal and light | Complete replay length | Selected dynamic support | Supported motion axis | Live observation schedule |
+|---|---|---|---|---|
+| Dark train pilot | 5,336 observations, 88.917 s each | 0 ticks | 0 ticks | Complete, 2,013 observations / 33.533 s each |
+| White train pilot | 4,718 observations, 78.617 s each | 0 ticks | 0 ticks | Complete, 2,013 observations / 33.533 s each |
+
+Each live schedule performs the common 25 s scan, visits the existing 7 s head pose,
+holds two seconds, returns to the final pose and holds two seconds. An independent
+raw-depth audit samples the saved static regions without feeding tracking. During the
+white upper hold, the high region has full sampled depth support in 121/121 ticks and
+the lower two regions are outside that view. In the final hold, both lower regions
+have 121/121 depth-supported ticks and the high region is outside the view. Dark's
+two requested regions both recover 121/121 ticks of final-hold depth support. Material
+reacquisitions remain zero. Static geometry/support times survive loss; other plane
+observations do not make the selected material fresh.
+
+The common observation guard keeps base limits and records explicit allowances:
+float32 roundoff plus one 60 Hz control tick at 0.4 rad/s for neck tracking. Maximum
+neck error is 0.104564 rad, within the 0.1 + 0.006670 rad allowance; maximum tool drift
+is 0.150 mm and dark-door motion is 0.000139 rad (white is numerical zero). Commands
+stay within 0.4 rad/s; measured PhysX velocity peaks at 0.403228 rad/s, a small physical
+controller overshoot retained in the audit. This is observation evidence, not D's
+loaded feedback/stop or physical posture qualification. Dynamic field freshness still
+expires at 150 ms, allowing only nanosecond clock roundoff.
+
+Numerical regressions cover explicit selection/change, different visual/contact
+lifetimes, masked seed/replenishment, fixed/ambiguous support, both angle signs,
+degenerate fits, uncertainty transfer including target geometry, reset/late completion
+and identical-observation/availability replay/live equivalence. Rigid transfer and
+articulation have only fixture evidence here. Source: `a3b4587`, `fec3cf9`, `ae120b4`,
+`ac3057e`, `3bbde73`, `731fe0e`, `c8313f3`. The final association fixture rejects
+contradictory translation at zero angle; live established no rigid links, so it does
+not claim live transfer validation.
+
+Earlier `operational-tracking-01/02` and `operational-tracking-live-01` remain preserved.
+The first replay was interrupted for uncertainty/lifetime corrections; the second
+completed before static-scene retention was repaired. The initial live guard aborted
+at 0.100087 rad, a negligible threshold excess, and that attempt was stopped for the
+user-requested common tolerance correction. These incomplete live traces are premature
+guard aborts, neither physical failures nor completed passes. Revised runs are separate.
+
+Keep selected material tracking, original-material reacquisition and observed
+articulation exits open. Isolate the metric-correspondence loss before replacing the
+tracker or rerunning pilots. D may proceed with independent numerical feedback fixtures;
+loaded interaction still requires D and E gates. See
+[[../topics/shared-door-perception|local-material contracts and field lifetimes]].
+
 ## Local contact initialization after the diagnosis — October 1, 2026
 
 **Decision:** C can start from two reviewed local material anchors without resolving
-every object alternative or observing a precise hinge. C tracking/articulation exit
-checks and loaded interaction remain unperformed. This follow-up narrows the
-first-motion handoff below; it does not turn historical failures into passes.
+every object alternative or observing a precise hinge. At this handoff, C
+tracking/articulation exit checks and loaded interaction were unperformed. This
+follow-up narrows the first-motion handoff below; it does not turn historical failures
+into passes.
 Evidence/scripts/images are in `outputs/b1/perception/operational-contact-readiness-01/`.
 Only existing observations through 25 s on the same train pilots/conditions are read;
 no annotations, model inference, dynamics, collection or extended campaign is used.
