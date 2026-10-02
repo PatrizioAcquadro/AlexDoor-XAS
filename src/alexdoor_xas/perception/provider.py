@@ -270,6 +270,11 @@ class GeometryProvider:
         )
         if self.material is not None:
             self.material.observe(candidates, sensor, cue["available_s"])
+            if view >= 0:
+                # Static scene alternatives survive local initialization; they cannot refresh
+                # material identity or supply motion to any requested/selected patch.
+                self.scan_memory.add(candidates, sensor, view, available_s=cue["available_s"])
+                self.static, self.scene = self.scan_memory.surfaces, self.scan_memory.scene
             return
         if view >= 0:
             if self.config.get("scan_fusion") == "object-v1":

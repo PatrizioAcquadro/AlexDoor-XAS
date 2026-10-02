@@ -82,6 +82,40 @@ def test_material_initialization_uses_available_local_membership_not_whole_plane
     assert not tracker.rigid_links
 
 
+def test_local_path_preserves_static_scene_support_without_refreshing_material():
+    _, sample, cue = measured_surface()
+    provider = GeometryProvider(recipe(), CueEngine(EmptyWorker(), replay=True))
+    tracker = provider.configure_material(())
+    tracker.request("unobserved", [1, 5, 1], reference=True)
+    provider._fuse(sample, 8, dict(cue, latency_s=0), available_s=0.1)
+    assert provider.scan_memory.surfaces
+    assert provider.scan_state.unresolved_surfaces
+    assert provider.scan_memory.surfaces[0].observations[0].available_s == 0.1
+    assert tracker.tracks["unobserved"].geometry is None
+    assert tracker.tracks["unobserved"].dynamic is None
+
+
+def test_material_mask_excludes_other_coplanar_texture_during_seed_replenishment_and_loss():
+    from alexdoor_xas.perception.tracking import PixelMotionTracker
+
+    surface, sample, _ = measured_surface()
+    sample["rgb"] = np.random.default_rng(18).integers(0, 256, sample["rgb"].shape, dtype=np.uint8)
+    mask = np.zeros(sample["rgb"].shape[:2], bool)
+    mask[80:160, 80:150] = True
+    tracker = PixelMotionTracker()
+    tracker.update(sample, surface, material_mask=mask)
+    tracker.pixels = tracker.pixels[:30]
+    tracker.source = tracker.source[:30]
+    tracker.source_uncertainty = tracker.source_uncertainty[:30]
+    assert tracker.update(sample, surface, material_mask=mask) is not None
+    assert tracker.diagnostics["pixel_reseed"] and len(tracker.pixels) > 30
+    xy = np.rint(tracker.pixels).astype(int)
+    assert mask[xy[:, 1], xy[:, 0]].all()
+    # Texture elsewhere on the same plane cannot keep this material reference alive.
+    assert tracker.update(sample, surface, material_mask=~mask) is None
+    assert tracker.gray is None
+
+
 @pytest.mark.parametrize("sign", [-1, 1])
 def test_static_coplanarity_never_transfers_motion_and_verified_link_propagates_bounds(sign):
     tracker = MaterialTracker(recipe().config, 0, ())

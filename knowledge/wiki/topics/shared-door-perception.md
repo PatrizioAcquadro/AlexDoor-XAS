@@ -425,7 +425,9 @@ white candidate at y=0, z=1.10 m remains in the comparison, including precontact
 IK errors and joint margins. Endpoint reachability does not establish posture quality,
 continuous collision clearance or control.
 
-Each patch retains its original observed material raster and independent metric RGB
+The static scan memory retains fixed surrounding support and unresolved object/axis
+alternatives independently of local tracking. It cannot refresh any patch identity or
+pose. Each patch retains its original observed material raster and independent metric RGB
 correspondences. Replenishment maps current measured points into that original support;
 reacquisition requires distinctive mutual RGB matches and a rigid metric fit. Static
 coplanarity cannot establish mobile ownership. A verified coherent informative motion

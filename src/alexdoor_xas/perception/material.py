@@ -92,6 +92,7 @@ class MaterialTrack:
         pose = ObjectFrame(origin, rotation)
         footprint = footprint_support(surface, pose, self.covers, self.config)
         if not footprint.supported:
+            self.reason = footprint.reason
             return
         radius = self.config.get("material_radius_m", 0.08)
         points = surface.points
@@ -378,6 +379,10 @@ class MaterialTracker:
             )
             if equivalent:
                 track.observe(matching[0], sensor, available_s)
+            else:
+                track.reason = (
+                    "ambiguous_local_material" if matching else "unobserved_local_material"
+                )
 
     def update(self, sensor):
         for track in self.tracks.values():
