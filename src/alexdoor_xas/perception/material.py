@@ -401,13 +401,15 @@ class MaterialTracker:
                 coherent &= (
                     angle > first.dynamic.rotation_bound_rad + second.dynamic.rotation_bound_rad
                 )
-                coherent &= np.linalg.norm(a[0] - b[0]) <= 0.01
-                coherent &= np.linalg.norm(a[1] - b[1]) <= 0.01
+                consistent = (
+                    np.linalg.norm(a[0] - b[0]) <= 0.01 and np.linalg.norm(a[1] - b[1]) <= 0.01
+                )
+                coherent &= consistent
                 count = self.link_evidence.get(key, 0)
                 self.link_evidence[key] = count + 1 if coherent else 0
                 if coherent and self.link_evidence[key] >= 3:
                     self.rigid_links.add(key)
-                elif not coherent and angle >= np.deg2rad(self.config["motion_min_angle_deg"]):
+                elif not consistent:
                     self.rigid_links.discard(key)
         # A verified link can update pose, never the original geometric observation.
         for target in tracks:

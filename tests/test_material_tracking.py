@@ -158,6 +158,16 @@ def test_static_coplanarity_never_transfers_motion_and_verified_link_propagates_
         contact.geometry.rotation_bound_rad + visual.dynamic.rotation_bound_rad
     )
     contact.observed = True
+    visual.motion = contact.motion = (np.eye(3), np.zeros(3), 0.001)
+    tracker.update(sensor(1, 1))
+    assert tracker.rigid_links  # Consistent return to the closed pose preserves body identity.
+    contact.motion = (np.eye(3), np.array([0.05, 0, 0]), 0.001)
+    tracker.update(sensor(1, 1))
+    assert not tracker.rigid_links  # Contradictory translation is still ambiguous at zero angle.
+    for _ in range(3):
+        visual.motion = contact.motion = (rot_z(sign * 0.2), np.array([0.1, 0, 0]), 0.001)
+        tracker.update(sensor(1, 1))
+    assert tracker.rigid_links
     contact.motion = (rot_z(-sign * 0.2), np.zeros(3), 0.001)
     tracker.update(sensor(1, 1))
     assert not tracker.rigid_links
