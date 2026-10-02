@@ -73,6 +73,9 @@ def compare_candidates(mapping, calibration, q, chain):
         reports.append(
             dict(
                 patch_id=patch_id,
+                observed_surface_id=candidate["surface_id"],
+                observed_position=position.tolist(),
+                observed_rotation=rotation.tolist(),
                 tangent_coordinates=position[1:].tolist(),
                 endpoint_reachable=all(
                     e["position_error_m"] <= 0.01 and e["orientation_error_rad"] <= np.deg2rad(5)
@@ -80,6 +83,10 @@ def compare_candidates(mapping, calibration, q, chain):
                 ),
                 endpoints=endpoints,
                 observed_clearance_m=candidate["score_clearance_m"],
+                observed_cover_support=[
+                    {k: observation[k] for k in ("acquired_s", "available_s", "clearance_m")}
+                    for observation in candidate["qualifying_observations"]
+                ],
                 path_collision_checked=False,
                 pose_quality_validated=False,
                 definitive_contact=False,
