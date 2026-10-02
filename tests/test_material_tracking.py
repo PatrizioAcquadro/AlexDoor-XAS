@@ -206,6 +206,20 @@ def test_live_revisit_uses_existing_views_speed_and_two_second_holds():
     assert points[-3, 0] - points[-4, 0] == 2 and points[-1, 0] - points[-2, 0] == 2
 
 
+def test_visibility_audit_distinguishes_occluded_region_from_material_reacquisition():
+    from alexdoor_xas.perception.material_live import depth_visibility
+
+    _, sample, _ = measured_surface()
+    candidate = dict(position=[1, 0, 1], rotation=np.eye(3))
+    visible = depth_visibility(sample, candidate, 0.01)
+    assert visible["depth_consistent"] == visible["samples"]
+    assert not visible["material_identity_verified"]
+    # A closer occluder leaves the saved region in view but removes its depth support.
+    sample["depth_m"][:] = 0.5
+    occluded = depth_visibility(sample, candidate, 0.01)
+    assert occluded["in_view"] == visible["samples"] and not occluded["depth_consistent"]
+
+
 def test_local_replay_live_identical_observations_and_completion_events(monkeypatch):
     import json
     from dataclasses import asdict
