@@ -58,9 +58,10 @@ def test_latest_queue_wait_is_included_and_episode_recreates_worker():
         assert event[0]["rgb"].all()
         assert event[0]["rgb"].flags.writeable is False
         assert engine.poll(0.15) is None
-        event = engine.poll(0.18)
+        ready = engine.pending[1]["available_s"]
+        event = engine.poll(ready)
         assert int(event[0]["frame"]) == 2
-        assert event[3] == pytest.approx(0.18)  # .10 start, not .06 capture + .08
+        assert event[3] == pytest.approx(0.18 + event[2]["snapshot_copy_s"])
         engine.reset()
         assert workers[0].closed
         assert engine.pending is engine.latest is engine.worker is None
@@ -185,7 +186,9 @@ def test_initialization_completion_uses_release_tick_not_old_cue_time():
     try:
         tracking.initialize([make_surface(captured)], captured, start_s=0.12)
         assert engine.poll(0.199) is None
-        assert engine.poll(0.2)[3] == pytest.approx(0.2)
+        ready = engine.pending[1]["available_s"]
+        assert ready >= 0.2
+        assert engine.poll(ready)[3] == ready
     finally:
         engine.close()
 
@@ -269,3 +272,77 @@ def test_thin_uninitializable_hypothesis_does_not_discard_other_candidates():
         assert tracker.candidates[0].candidate_id == "candidate-1"
     finally:
         engine.close()
+
+
+def test_prepared_models_are_recreated_before_new_episode_acquisitions():
+    workers = []
+
+    def factory(_):
+        workers.append(Worker())
+        return workers[-1]
+
+    engine = Point2PoseEngine(factory, replay=True)
+    try:
+        engine.prepare()
+        assert engine.worker is workers[0] and not engine.worker.first_request
+        engine.reset()
+        assert workers[0].closed and engine.worker is workers[1]
+        assert not engine.worker.first_request
+        assert engine.pending is engine.latest is None
+    finally:
+        engine.close()
+    assert workers[-1].closed and len(workers) == 2  # close must not preload again
+
+
+def test_seed_worker_releases_cuda_resources_and_reset_reopens_it():
+    from alexdoor_xas.perception.point2pose_runtime import SeedCueEngine
+
+    workers = []
+
+    def factory():
+        workers.append(Worker())
+        return workers[-1]
+
+    engine = SeedCueEngine(factory, replay=True)
+    engine.restart()  # GeometryProvider constructor; no duplicate model loading.
+    assert len(workers) == 1
+    engine.release()
+    assert workers[0].closed and engine.worker is None
+    engine.reset()
+    assert len(workers) == 1 and engine.worker is None
+    engine.restart()
+    assert len(workers) == 2 and engine.worker is workers[1]
+    engine.close()
+    assert workers[1].closed
+
+
+def test_new_arrival_replaces_queue_before_completed_request_dispatch(monkeypatch):
+    worker = Worker()
+    engine = Point2PoseEngine(lambda _: worker, replay=True)
+    tracker = PanelTracking(
+        engine, dict(plane_tolerance_m=0.004, voxel_m=0.004, association_angle_deg=5)
+    )
+    captured = sensor()
+    try:
+        tracker.initialize([make_surface(captured)], captured)
+        monkeypatch.setattr(tracker, "consume", lambda *args: None)
+        tracker.update(sensor(0.05, 1))
+        tracker.update(sensor(0.10, 2))
+        assert [frame for frame, _ in worker.requests] == [0, 2]
+        assert engine.pending[0][1]["time_s"] == pytest.approx(0.10)
+    finally:
+        engine.close()
+
+
+def test_sampled_support_keeps_losses_and_empty_availability_explicit():
+    from alexdoor_xas.perception.point2pose_replay import support_timeline
+
+    rows = [
+        dict(time_s=t, available=valid)
+        for t, valid in [(0.0, True), (0.1, True), (0.2, False), (0.3, True)]
+    ]
+    support = support_timeline(rows)
+    assert support["recoveries"] == 1
+    assert support["longest_sampled_span_s"] == pytest.approx(0.1)
+    assert [i["samples"] for i in support["intervals"]] == [2, 1]
+    assert support_timeline([dict(time_s=0.0, available=False)])["intervals"] == []

@@ -97,6 +97,7 @@ class Point2PoseWorker:
         self.first_request = True
 
     def infer(self, sensor, masks=None, *, profile=False):
+        started = time.perf_counter()
         # Explicit whitelist: commands, prepared assets and annotations cannot cross IPC.
         request = dict(sensor={key: pack_array(sensor[key]) for key in OBS_KEYS})
         request["profile"] = profile
@@ -106,7 +107,6 @@ class Point2PoseWorker:
                 mask_frame=int(sensor["frame"]),
                 mask_time_s=float(sensor["time_s"]),
             )
-        started = time.perf_counter()
         send(self.process.stdin, request)
         result = receive(self.process.stdout)
         if result is None or "error" in result:
@@ -142,16 +142,25 @@ class Point2PoseWorker:
 class Point2PoseEngine(CueEngine):
     """One in-flight acquisition; latest waiting acquisition replaces older ones.
 
-    Reset recreates the process lazily on the next automatic seed, never reuses
-    SAM2's temporal memory or Point2Pose's causal state across episodes.
+    Prepared processes are recreated before the next episode's acquisitions;
+    SAM2 memory and Point2Pose's causal state never cross an episode boundary.
     """
 
     def __init__(self, factory, *, replay):
         super().__init__(None, replay=replay)
         self.factory, self.latest = factory, None
         self.failed = False
+        self.prepared = False
 
-    def reset(self):
+    def prepare(self):
+        """Load before acquisition; native initialization sets the actual object count."""
+        if self.worker is None:
+            self.worker = self.factory(1)
+            self.worker.first_request = False  # Startup predates every supplied capture.
+        self.prepared = True
+
+    def reset(self, *, preload=True):
+        was_prepared, self.prepared = self.prepared, False
         self.generation += 1
         if self.worker is not None:
             self.worker.close()
@@ -162,28 +171,39 @@ class Point2PoseEngine(CueEngine):
             self.executor = ThreadPoolExecutor(max_workers=1)
         self.worker = self.pending = self.latest = None
         self.failed = False
+        if preload and was_prepared:
+            self.prepare()
 
     def submit(self, sensor, masks=None, *, start_s=None):
         if self.failed:
             return False
         import numpy as np
 
+        copy_started = time.perf_counter()
         snapshot = {k: np.array(sensor[k], copy=True) for k in OBS_KEYS}
         for value in snapshot.values():
             value.setflags(write=False)
         masks = None if masks is None else tuple(np.array(m, copy=True) for m in masks)
+        copy_s = time.perf_counter() - copy_started
         if self.pending is not None:
-            self.latest = snapshot, masks
+            self.latest = snapshot, masks, copy_s
             return False
+        return self._dispatch(snapshot, masks, copy_s, start_s)
+
+    def _dispatch(self, snapshot, masks, copy_s, start_s):
         if self.worker is None:
             if masks is None:
                 return False
             self.worker = self.factory(len(masks))
-        result = (
-            self.worker.infer(snapshot, masks)
-            if self.replay
-            else self.executor.submit(self.worker.infer, snapshot, masks)
-        )
+        worker = self.worker
+
+        def infer():
+            result = worker.infer(snapshot, masks)
+            result["latency_s"] += copy_s
+            result["snapshot_copy_s"] = copy_s
+            return result
+
+        result = infer() if self.replay else self.executor.submit(infer)
         started = float(snapshot["time_s"]) if start_s is None else start_s
         if self.replay:
             result["available_s"] = started + result["latency_s"]
@@ -203,14 +223,47 @@ class Point2PoseEngine(CueEngine):
             self.failed = True
             raise
         if event is not None and self.latest is not None:
-            sensor, masks = self.latest
+            sensor, masks, copy_s = self.latest
             self.latest = None
-            self.submit(sensor, masks, start_s=now)
+            self._dispatch(sensor, masks, copy_s, start_s=now)
         return event
 
     def close(self):
-        self.reset()
+        self.reset(preload=False)
         super().close()
+
+
+class SeedCueEngine(CueEngine):
+    """Release the stateless 6.0B CUDA worker once the immutable seed is ready."""
+
+    def __init__(self, factory, *, replay):
+        self.factory = factory
+        self.first_reset = True
+        super().__init__(factory(), replay=replay)
+
+    def release(self):
+        if self.worker is not None:
+            self.worker.close()
+            self.worker = None
+        if self.executor is not None:
+            self.executor.shutdown(wait=True, cancel_futures=True)
+            self.executor = None
+        self.pending = None
+
+    def restart(self):
+        super().reset()
+        if self.first_reset:
+            self.first_reset = False
+            return
+        self.release()
+        self.worker = self.factory()
+        if not self.replay:
+            from concurrent.futures import ThreadPoolExecutor
+
+            self.executor = ThreadPoolExecutor(max_workers=1)
+
+    def close(self):
+        self.release()
 
 
 def tracking_provider(
@@ -232,7 +285,9 @@ def tracking_provider(
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     log = (output / "visual.log").open("a")
-    visual = ModelWorker(models, recipe.config, log=log)
+    started = time.perf_counter()
+    cues = SeedCueEngine(lambda: ModelWorker(models, recipe.config, log=log), replay=replay)
+    visual_startup_s = time.perf_counter() - started
     processes = 0
 
     def factory(count):
@@ -256,6 +311,23 @@ def tracking_provider(
         calibration_bound=calibration_bound,
         relative_speed_bound=relative_speed_bound,
     )
-    provider = GeometryProvider(recipe, CueEngine(visual, replay=replay), tracking=tracking)
+    tracking.before_start = cues.release
+    provider = GeometryProvider(recipe, cues, tracking=tracking)
     provider.owned_log = log
+    try:
+        engine.prepare()
+    except Exception:
+        provider.close()
+        raise
+    (output / "startup.json").write_text(
+        json.dumps(
+            dict(
+                visual_startup_s=visual_startup_s,
+                point2pose_startup_s=engine.worker.boot_latency_s,
+                prepared_before_acquisition=True,
+            ),
+            indent=2,
+        )
+        + "\n"
+    )
     return provider

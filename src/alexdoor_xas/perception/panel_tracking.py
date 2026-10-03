@@ -1,8 +1,9 @@
 """Point2Pose adapter: independent rigid candidates and panel-fixed material zones."""
 
+import time
 from collections import deque
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -86,12 +87,12 @@ class PanelTracking:
         self.calibration, self.tool_fk, self.distal_faces = calibration, tool_fk, distal_faces
         self.calibration_bound = calibration_bound
         self.relative_speed_bound = relative_speed_bound
+        self.before_start = None
         self.generation = -1
         self.reset()
 
     def reset(self, generation=None):
         self.generation = self.generation + 1 if generation is None else generation
-        self.engine.reset()
         self.candidates, self.selection = [], None
         self.last_submitted = self.last_result = None
         self.selection_counter = 0
@@ -99,10 +100,12 @@ class PanelTracking:
         self.diagnostics = dict(
             state="acquiring_automatic_candidates", loaded_contact_admitted=False
         )
+        self.engine.reset()
 
     def initialize(self, candidates, sensor, *, start_s=None):
         if self.candidates:
             return False
+        processing_started = time.perf_counter()
         roots = [
             s
             for s in candidates
@@ -184,8 +187,14 @@ class PanelTracking:
             masks.append(mask)
         if not masks:
             return False
+        if self.before_start is not None:
+            self.before_start()
         started = max(o.available_s for s in roots for o in s.observations)
-        self.engine.submit(sensor, masks, start_s=max(started, start_s or started))
+        self.engine.submit(
+            sensor,
+            masks,
+            start_s=max(started, start_s or started) + time.perf_counter() - processing_started,
+        )
         self.last_submitted = int(sensor["frame"])
         return True
 
@@ -206,6 +215,7 @@ class PanelTracking:
         self.selection = selection
 
     def consume(self, captured, result, ready):
+        started = time.perf_counter()
         if len(result["objects"]) != len(self.candidates):
             raise ValueError("point2pose_candidate_identity_count_changed")
         self.last_result = result
@@ -277,6 +287,14 @@ class PanelTracking:
             ] = consistent
             if consistent and (normal_travel > 2 * p or plane_angle > 2 * a):
                 candidate.ownership = "observed_moving_rigid_candidate"
+        result["adapter_latency_s"] = time.perf_counter() - started
+        ready += result["adapter_latency_s"]
+        for candidate in self.candidates:
+            if candidate.state == "tracked":
+                candidate.support = replace(candidate.support, available_s=ready)
+                axis = self.diagnostics.get("observed_articulation", {}).get(candidate.candidate_id)
+                if axis is not None:
+                    axis["available_s"] = ready
         self.diagnostics.update(
             state="tracked"
             if any(c.state == "tracked" for c in self.candidates)
@@ -474,11 +492,11 @@ class PanelTracking:
 
     def update(self, sensor):
         now = float(sensor["time_s"])
-        if event := self.engine.poll(now):
-            captured, _, result, ready = event
-            self.consume(captured, result, ready)
         frame = int(sensor["frame"])
         if self.candidates and frame != self.last_submitted:
             self.engine.submit(sensor)
             self.last_submitted = frame
+        if event := self.engine.poll(now):
+            captured, _, result, ready = event
+            self.consume(captured, result, max(ready, now))
         return self.local_state(now, sensor)

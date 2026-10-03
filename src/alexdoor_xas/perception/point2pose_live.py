@@ -46,13 +46,16 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None):
         env.reset()
         calibration = camera_calibration(env)
 
-        epoch = time.perf_counter()
+        epoch = [time.perf_counter()]
         acquisition = [0.0]
         native_capture = env.capture.capture
 
         def capture(*args, **kwargs):
-            acquisition[0] = time.perf_counter() - epoch
+            acquisition[0] = time.perf_counter() - epoch[0]
             return native_capture(*args, **kwargs)
+
+        def start_clock():
+            epoch[0], acquisition[0] = time.perf_counter(), 0.0
 
         if case is not None:
             env.capture.capture = capture
@@ -74,7 +77,7 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None):
 
         if case is not None:
             return observer_case(
-                env, door, setup, calibration, observe, recipe, models, output, case
+                env, door, setup, calibration, observe, recipe, models, output, case, start_clock
             )
         sensor = observe()
         with (output / "automatic-candidates.log").open("w") as log:
@@ -154,20 +157,27 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None):
         app.close()
 
 
-def observer_case(env, door, setup, calibration, observe, recipe, models, output, case):
+def observer_case(
+    env, door, setup, calibration, observe, recipe, models, output, case, start_clock
+):
     """Bounded observer motion/fault cases; truth and fault labels stay in this evaluator."""
     import torch
 
     from alexdoor_xas.action.frames import rot_z
     from alexdoor_xas.perception.evaluation import quantiles, write_json
     from alexdoor_xas.perception.material_zone import pose_matrix
-    from alexdoor_xas.perception.point2pose_replay import pose_error, visible_references
+    from alexdoor_xas.perception.point2pose_replay import (
+        pose_error,
+        support_timeline,
+        visible_references,
+    )
     from alexdoor_xas.perception.point2pose_runtime import tracking_provider
     from alexdoor_xas.recording.b1_runtime import array
 
     if case not in ("camera", "panel", "combined", "visibility"):
         raise ValueError("unknown_observer_case")
     provider = tracking_provider(recipe, models, calibration, output, replay=False)
+    start_clock()
     zero = torch.zeros((1, 6), device=env.device)
     records, events, reference, previous = [], [], None, None
     captured_truth = {}
@@ -260,6 +270,7 @@ def observer_case(env, door, setup, calibration, observe, recipe, models, output
                         available_s=tracker.diagnostics["available_s"],
                         latency_s=tracker.diagnostics["available_s"] - result["capture_s"],
                         inference_latency_s=result["latency_s"],
+                        adapter_latency_s=result["adapter_latency_s"],
                         capture_error=capture_error,
                         gpu_free_bytes=result["gpu_free_bytes"],
                         gpu_resident_bytes=result.get("gpu_resident_bytes"),
@@ -322,6 +333,7 @@ def observer_case(env, door, setup, calibration, observe, recipe, models, output
             qualified=False,
             loaded_contact_admitted=False,
             final_tracking=tracker.diagnostics,
+            sampled_support=support_timeline(records),
         )
         capture_errors = np.asarray(
             [e["capture_error"] for e in events if e["capture_error"] is not None]
@@ -352,6 +364,7 @@ def observer_case(env, door, setup, calibration, observe, recipe, models, output
         provider.reset()
         report["reset"] = dict(
             old_pid=old_pid,
+            new_pid=tracker.engine.worker.process.pid if tracker.engine.worker else None,
             old_process_exited=old_worker is None or old_worker.process.poll() is not None,
             generation_incremented=provider.generation == old_generation + 1,
             empty_candidates=not tracker.candidates,

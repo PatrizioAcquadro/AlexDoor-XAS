@@ -60,6 +60,26 @@ def main():
             )
         else:
             args.output.mkdir(parents=True, exist_ok=False)
+            write_json(
+                args.output / "protocol.json",
+                dict(
+                    mode="point2pose-observer-matrix",
+                    source_commit=subprocess.check_output(
+                        ["git", "rev-parse", "HEAD"], cwd=REPO, text=True
+                    ).strip(),
+                    assets=[args.asset] if args.asset else list(PILOTS),
+                    cases=["camera", "panel", "combined", "visibility"],
+                    recipe=recipe.to_dict(),
+                    useful_availability_min=0.95,
+                    p95_position_limit_m=0.01,
+                    p95_rotation_limit_deg=5.0,
+                    max_dynamic_age_s=0.15,
+                    single_isaac=True,
+                    fresh_process=True,
+                    loaded_contact_admitted=False,
+                    official_qualification_evaluated=False,
+                ),
+            )
             reports = []
             for asset in (args.asset,) if args.asset else PILOTS:
                 for case in ("camera", "panel", "combined", "visibility"):

@@ -90,6 +90,10 @@ faults; it does not qualify physical occluders or loaded interaction. Replay
 reads all four authorized pilot recordings chronologically at stride three,
 retains complete input denominators and separates raw capture accuracy from
 fresh useful outputs. The same provider/worker serves replay and live.
+Models load before acquisition and report startup separately. Once the synchronized
+automatic seed is ready, its stateless 6.0B worker is released to free GPU memory;
+an episode reset recreates both workers and clears all temporal state. Frame gaps
+invalidate pending semantic requests without repeatedly loading the models.
 
 The workstation worker uses Python 3.12, PyTorch 2.4 CUDA 12.1, NumPy 2.1.3,
 Open3D 0.19 and GTSAM 4.3a0; shared Isaac PyTorch/NumPy remain unchanged. The native

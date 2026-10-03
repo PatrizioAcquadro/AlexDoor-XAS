@@ -90,6 +90,11 @@ class OfficialPipeline:
 
         self.pipeline.frontend.step = capture
         self.initialized = False
+        self.models = (
+            self.pipeline.frontend.tracker._model,
+            self.pipeline.frontend.segmenter.predictor,
+            self.pipeline.kf_manager.sampler.super_point_extractor,
+        )
         self.index = 0
         self.log_dir = Path(request["log_dir"])
         self.depth_error_m = request["depth_error_m"]
@@ -111,6 +116,8 @@ class OfficialPipeline:
         np, torch = self.np, self.torch
         sensor = {key: unpack_array(value) for key, value in request["sensor"].items()}
         started = time.perf_counter()
+        if any(next(model.parameters()).device.type != "cuda" for model in self.models):
+            raise RuntimeError("CUDA required for every Point2Pose model")
         self.crop_cache.clear()
         torch.cuda.reset_peak_memory_stats()
         depth = sensor["depth_m"].squeeze(-1).astype(np.float32)

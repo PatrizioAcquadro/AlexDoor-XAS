@@ -1,6 +1,7 @@
 """Chronological two-pilot diagnostic scoring, isolated from observed-only inference."""
 
 import json
+import subprocess
 from pathlib import Path
 
 import h5py
@@ -46,6 +47,26 @@ def pose_error(actual, expected):
         float(np.linalg.norm(actual[:3, 3] - expected[:3, 3])),
         float(np.rad2deg(Rotation.from_matrix(actual[:3, :3] @ expected[:3, :3].T).magnitude())),
     ]
+
+
+def support_timeline(frames):
+    """Sampled support runs; never infer support across absent/rejected observations."""
+    intervals, active = [], None
+    for row in frames:
+        if row["available"]:
+            if active is None:
+                active = dict(first_s=row["time_s"], last_s=row["time_s"], samples=0)
+            active["last_s"], active["samples"] = row["time_s"], active["samples"] + 1
+        elif active is not None:
+            intervals.append(active)
+            active = None
+    if active is not None:
+        intervals.append(active)
+    return dict(
+        intervals=intervals,
+        recoveries=max(0, len(intervals) - 1),
+        longest_sampled_span_s=max((i["last_s"] - i["first_s"] for i in intervals), default=0.0),
+    )
 
 
 def replay_episode(path, recipe, output, models, tool_fk, distal_faces, *, stride=3):
@@ -108,6 +129,7 @@ def replay_episode(path, recipe, output, models, tool_fk, distal_faces, *, strid
                             available_s=tracker.diagnostics["available_s"],
                             latency_s=tracker.diagnostics["available_s"] - result["capture_s"],
                             inference_latency_s=result["latency_s"],
+                            adapter_latency_s=result["adapter_latency_s"],
                             capture_error=error,
                             gpu_resident_bytes=result.get("gpu_resident_bytes"),
                             gpu_sampled_peak_bytes=result.get("gpu_sampled_peak_bytes"),
@@ -208,6 +230,7 @@ def replay_episode(path, recipe, output, models, tool_fk, distal_faces, *, strid
                 loaded_contact_admitted=False,
                 training_started=False,
                 sealed_test_evaluated=False,
+                sampled_support=support_timeline(frames),
                 missing_bounds=[
                     "hardware calibration/FK",
                     "temporal motion/stop",
@@ -254,6 +277,9 @@ def run_replay(paths, recipe, output, models, *, stride=3):
         output / "protocol.json",
         dict(
             mode="point2pose-pilot-replay",
+            source_commit=subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parents[3], text=True
+            ).strip(),
             episodes=[str(p) for p in paths],
             stride=stride,
             useful_availability_min=0.95,

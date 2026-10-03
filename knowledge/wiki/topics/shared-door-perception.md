@@ -178,12 +178,15 @@ composite erosion. No prediction or native frozen pose advances support time.
 
 Each worker is isolated from Isaac/6.0B; only whitelisted observations and packed
 array bytes cross IPC. One in-flight request and one replaceable latest capture
-bound the queue. Completion includes bootstrap, IPC and queue waiting; release
+bound the queue. Models load before acquisition; startup is reported separately.
+Completion includes snapshot copying, candidate preparation, IPC and queue waiting; release
 never backdates a source or rewrites an older estimate. Support expires at 150 ms.
-Once native SAM2 owns the hypotheses, duplicate 6.0B segmentation is stopped.
+Once immutable automatic seeds are ready, the stateless 6.0B CUDA worker is released.
 Reset increments generation, clears candidates/selections/queues and terminates
-then lazily recreates Point2Pose, clearing SAM2/TAPIR/map/keyframe/optimizer/graph/
-TSDF state. Tracking failure latches unavailable until an explicit episode reset;
+then recreates the prepared Point2Pose process before new acquisitions, clearing
+SAM2/TAPIR/map/keyframe/optimizer/graph/TSDF state. It also reopens the seed worker.
+Ordinary frame gaps only invalidate semantic requests; they do not reload models.
+Tracking failure latches unavailable until an explicit episode reset;
 native reacquisition retains the original zone and identity in the same episode.
 
 Use `scripts/perception.py point2pose-smoke`, `point2pose-live-smoke`,

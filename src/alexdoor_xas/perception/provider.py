@@ -171,7 +171,10 @@ class GeometryProvider:
 
     def reset(self):
         self.episode_generation = getattr(self, "episode_generation", -1) + 1
-        self.engine.reset()
+        if hasattr(self.engine, "restart"):
+            self.engine.restart()
+        else:
+            self.engine.reset()
         if self.tracking is not None:
             self.tracking.reset(self.generation)
         self.last_estimate = self.encoding = None
@@ -196,6 +199,8 @@ class GeometryProvider:
     def due_view(self, t):
         if self.tracking is not None and self.tracking.candidates:
             return None  # Native SAM2 already tracks the initialized hypotheses.
+        if self.tracking is not None and t < self.config["inspection"]["sample_times_s"][0]:
+            return None
         end = self.config["inspection"]["sample_times_s"][-1]
         return self.last_frame if t <= end and t >= self.next_semantic else None
 
@@ -206,13 +211,16 @@ class GeometryProvider:
             if available_s is None
             else available_s,
         )
+        geometry_started = time.perf_counter()
         candidates = surfaces(cue, sensor, self.config)
+        geometry_s = time.perf_counter() - geometry_started
         if (
             self.tracking is not None
             and float(sensor["time_s"]) >= self.config["inspection"]["sample_times_s"][0]
         ):
             # Use the common inspection's first completed view, not reset's
             # transient view. The original synchronized packet remains the seed.
+            started_s = max(cue["available_s"], started_s or cue["available_s"]) + geometry_s
             self.tracking.initialize(candidates, sensor, start_s=started_s)
         self.last_cue = (sensor, cue)
         self.scan_memory.add(candidates, sensor, view, available_s=cue["available_s"])
@@ -304,6 +312,7 @@ class GeometryProvider:
         if self.tracking is not None:
             self.tracking.engine.close()
         self.engine.close()
-        self.engine.worker.close()
+        if self.engine.worker is not None:
+            self.engine.worker.close()
         if hasattr(self, "owned_log"):
             self.owned_log.close()
