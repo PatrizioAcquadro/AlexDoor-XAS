@@ -1,7 +1,6 @@
 """Essential causal, metric and complete-state behavior without model execution."""
 
 from dataclasses import replace
-from pathlib import Path
 
 import numpy as np
 import pytest
@@ -12,7 +11,6 @@ from alexdoor_xas.perception.control import ObservedControlChecks
 from alexdoor_xas.perception.evaluation import (
     COMPONENTS,
     LIMITS,
-    campaign_summary,
     quantiles,
     score,
     state_errors,
@@ -23,15 +21,14 @@ from alexdoor_xas.perception.geometry import (
     deproject,
     dimensions_supported,
     extent_edges,
-    hinge_from_motion,
-    matched_motion,
     plane_fit,
     project,
 )
-from alexdoor_xas.perception.provider import CueEngine, GeometryProvider, load_recipe
+from alexdoor_xas.perception.provider import CueEngine, GeometryProvider
 from alexdoor_xas.policies.common.b1_contract import PerceptionBinding
 from alexdoor_xas.policies.observations import require_estimate
 from alexdoor_xas.recording.b1 import OBS_KEYS
+from perception_helpers import EmptyWorker, recipe, sensor
 
 
 def complete_state(angle=0.3):
@@ -52,19 +49,6 @@ def complete_state(angle=0.3):
     )
 
 
-def test_legacy_evaluator_cannot_score_operational_states_or_create_misleading_reports(tmp_path):
-    from types import SimpleNamespace
-
-    from alexdoor_xas.perception.evaluation import evaluate_episode
-    from test_b1_observations import operational_provider
-
-    binding = SimpleNamespace(config=recipe().config)
-    provider = operational_provider(binding)
-    with pytest.raises(ValueError, match="6.0E evaluator"):
-        evaluate_episode(tmp_path / "absent.hdf5", provider, tmp_path / "output")
-    assert not (tmp_path / "output").exists()
-
-
 def test_optical_axis_depth_roundtrip_in_moving_calibrated_camera():
     camera = np.eye(4)
     camera[:3, :3] = rot_z(0.7)
@@ -75,19 +59,6 @@ def test_optical_axis_depth_roundtrip_in_moving_calibrated_camera():
     observed, z = project(world, intrinsics, camera)
     np.testing.assert_allclose(observed, pixels, atol=1e-9)
     np.testing.assert_allclose(z, depth, atol=1e-9)
-
-
-@pytest.mark.parametrize("sign", [-1, 1])
-def test_motion_hinge_fit_both_hands_and_degenerate_motion(sign):
-    hinge = np.array([0.025, sign * 0.45, 0.0])
-    motions = []
-    for degrees in (4, 7, 11):
-        rotation = rot_z(sign * np.deg2rad(degrees))
-        motions.append((rotation, hinge - rotation @ hinge, 0.0001))
-    fitted, uncertainty = hinge_from_motion(motions, np.deg2rad(3), 0.0)
-    np.testing.assert_allclose(fitted, hinge, atol=0.001)
-    assert uncertainty < 0.01
-    assert hinge_from_motion([(np.eye(3), np.zeros(3), 0)] * 4, np.deg2rad(3), 0) is None
 
 
 def test_robust_surface_fit_rejects_nonpanel_depth():
@@ -102,7 +73,7 @@ def test_robust_surface_fit_rejects_nonpanel_depth():
     assert residual < 0.002
 
 
-def test_clipped_extent_is_not_a_measured_dimension_and_ambiguous_identity_rejects():
+def test_clipped_extent_is_not_a_measured_dimension():
     rng = np.random.default_rng(8)
     points = np.c_[np.ones(800), rng.uniform(-0.5, 0.5, 800), rng.uniform(0.1, 2, 800)]
     s = Surface(
@@ -129,29 +100,8 @@ def test_clipped_extent_is_not_a_measured_dimension_and_ambiguous_identity_rejec
     assert not extent_edges(
         front, np.array([1.0, 0.0, 0.0]), np.ones((16, 16), bool), sample, 0.004
     )
-    provider = GeometryProvider(recipe(), CueEngine(EmptyWorker(), replay=True))
-    provider.static = [s, replace(s, offset=1.04)]
-    provider._select_panel()
-    assert provider.closed is None and provider.panel is None
-    assert provider.diagnostics["association_reason"] == "ambiguous_panel_jamb_wall"
     normal = np.array([1.0, 0.01, 0.1])
     np.testing.assert_allclose(contact_frame(normal)[:, 0], normal / np.linalg.norm(normal))
-
-
-def test_degenerate_consensus_motion_is_rejected_not_unpacked(monkeypatch):
-    import alexdoor_xas.perception.geometry as geometry
-
-    points = np.c_[np.ones(8), np.linspace(0, 0.01, 8), np.zeros(8)]
-    surface = Surface(
-        points, np.array([1.0, 0, 0]), 1.0, np.ones(8) / np.sqrt(8), points, np.eye(8), 0.001, 1.0
-    )
-
-    # A minimal proposal may succeed while the full consensus has degenerate covariance.
-    def solver(source, target):
-        return (np.eye(3), np.zeros(3), 0.0) if len(source) == 4 else None
-
-    monkeypatch.setattr(geometry, "rigid_fit", solver)
-    assert matched_motion(surface, surface) is None
 
 
 def test_reset_discards_public_estimate_and_unsafe_contact_never_reaches_io():
@@ -162,7 +112,7 @@ def test_reset_discards_public_estimate_and_unsafe_contact_never_reaches_io():
     provider = GeometryProvider(recipe(), CueEngine(EmptyWorker(), replay=True))
     provider.last_estimate = complete_state()
     provider.reset()
-    assert provider.last_estimate is None and provider.encoding is None and provider.closed is None
+    assert provider.last_estimate is None and provider.encoding is None
     io = PurdueIO.__new__(PurdueIO)
     io.safety = SimpleNamespace(before_command=lambda stage: "force_feedback_unavailable")
     # No environment exists: rejecting a command must happen before any simulator access.
@@ -212,71 +162,6 @@ def test_missing_and_rejected_states_stay_in_gate_denominator():
     report = score(errors, np.zeros(100, bool), np.full(100, "missing"), np.ones(100, bool))
     assert report["accepted_state_precision"] == 0 and not report["offline_passed"]
     assert set(report["errors_accepted"]) >= set(LIMITS)
-
-
-def test_partial_campaign_cannot_enable_dynamic_and_report_preserves_maximum(tmp_path):
-    output = tmp_path / "door" / "nominal"
-    output.mkdir(parents=True)
-    errors = np.zeros((4, len(COMPONENTS)))
-    accepted = np.ones(4, bool)
-    reasons, causes = np.full(4, "observed"), np.full(4, "")
-    phase = np.full(4, 2)  # contact
-    np.savez(
-        output / "predictions.npz",
-        errors=errors,
-        accepted=accepted,
-        reasons=reasons,
-        causes=causes,
-        phase=phase,
-    )
-    metrics = score(errors, accepted, reasons, np.ones(4, bool))
-    report = dict(
-        asset_id="door",
-        split="train",
-        handedness="left",
-        condition="nominal",
-        observations=4,
-        manipulation=metrics,
-        phases={"contact": metrics},
-        semantic_latency_s=quantiles(np.array([0.05, 0.1])),
-        recovery_s=None,
-        final_diagnostics={},
-    )
-    summary = campaign_summary([report], tmp_path, 50)
-    assert not summary["complete"] and not summary["offline_passed"]
-    assert summary["dynamic_status"] == "pending_complete_campaign"
-    assert "0.100000" in (tmp_path / "report.md").read_text()
-
-
-def sensor(t=4.0, frame=248):
-    return dict(
-        time_s=t,
-        frame=frame,
-        rgb=np.ones((16, 16, 3), np.uint8),
-        depth_m=np.ones((16, 16, 1)),
-        valid_depth=np.ones((16, 16, 1), bool),
-        joint_position=np.zeros(9),
-        joint_velocity=np.zeros(9),
-        camera_world=np.eye(4),
-        intrinsics=np.array([[20, 0, 8], [0, 20, 8], [0, 0, 1]]),
-    )
-
-
-class EmptyWorker:
-    def infer(self, rgb):
-        return dict(
-            latency_s=0.05,
-            shape=rgb.shape[:2],
-            masks=[],
-            tokens=bytes(196 * 384 * 4),
-            token_shape=(196, 384),
-            pixel_mapping=dict(scale=14, pad_x=0, pad_y=0),
-        )
-
-
-def recipe():
-    root = Path(__file__).resolve().parents[1]
-    return load_recipe(root / "configs/perception_geometry.json", root)
 
 
 def test_completion_order_reset_and_no_backdating():
@@ -466,7 +351,7 @@ def test_scan_semantics_starts_at_first_observation_and_covers_between_hold_view
     provider.update(sensor(0.2, 20))
     assert engine.pending[0][1]["time_s"] == 0.2
     provider.update(sensor(25.1, 1514))
-    assert provider.scan_index == 7
+    assert engine.pending is None
     assert not provider.last_estimate.valid
 
 
@@ -489,67 +374,26 @@ def test_production_surface_extraction_keeps_dense_extents_and_rejects_parallel_
     assert similar_surface(first, same, config)
 
 
-def test_subpixel_correspondences_are_metric_and_loss_discards_pixel_history():
-    import cv2
+def test_scoring_retains_finite_rejected_errors_and_maximum():
+    errors = np.zeros((4, len(COMPONENTS)))
+    errors[0, 0] = 0.1
+    accepted = np.array([False, True, True, True])
+    result = score(errors, accepted, np.full(4, "observed"), np.ones(4, bool))
+    assert result["errors_rejected"]["hinge_origin_m"]["maximum"] == 0.1
+    assert result["errors_all_finite"]["hinge_origin_m"]["n"] == 4
+    assert result["errors_accepted"]["hinge_origin_m"]["maximum"] == 0
+    assert result["valid_coverage"] == 0.75 and not result["offline_passed"]
+    assert quantiles(np.array([np.nan, 0.05, 0.1]))["maximum"] == 0.1
 
-    from alexdoor_xas.perception.tracking import PixelMotionTracker, sample_points
 
-    rng = np.random.default_rng(88)
-    sample = sensor(25, 1508)
-    h = w = 256
-    gray = cv2.GaussianBlur(rng.integers(0, 256, (h, w), dtype=np.uint8), (3, 3), 0)
-    sample["rgb"] = np.repeat(gray[:, :, None], 3, axis=2)
-    sample["depth_m"] = np.ones((h, w, 1))
-    sample["valid_depth"] = np.ones((h, w, 1), bool)
-    sample["intrinsics"] = np.array([[100, 0, 128], [0, 100, 128], [0, 0, 1]])
-    sample["camera_world"] = np.array(
-        [[0, 0, 1, 0], [1, 0, 0, 0], [0, -1, 0, 1], [0, 0, 0, 1]], float
-    )
-    yy, xx = np.mgrid[40:210:5, 40:210:5]
-    points = deproject(
-        np.ones(xx.size),
-        np.c_[xx.ravel(), yy.ravel()],
-        sample["intrinsics"],
-        sample["camera_world"],
-    )
-    surface = Surface(
-        points,
-        np.array([1.0, 0, 0]),
-        1.0,
-        np.ones(8),
-        np.empty((0, 3)),
-        np.empty((0, 8)),
-        0.001,
-        1.0,
-    )
-    tracker = PixelMotionTracker()
-    assert tracker.update(sample, surface) is None
-    tracker.pixels, tracker.source = tracker.pixels[:40], tracker.source[:40]
-    tracker.source_uncertainty = tracker.source_uncertainty[:40]
-    sample["rgb"] = np.repeat(
-        cv2.warpAffine(gray, np.array([[1, 0, 1], [0, 1, 0]], np.float32), (w, h))[:, :, None],
-        3,
-        axis=2,
-    )
-    sample["frame"] = 1509
-    motion = tracker.update(sample, surface)
-    assert motion is not None
-    np.testing.assert_allclose(motion[0], np.eye(3), atol=0.0005)
-    np.testing.assert_allclose(motion[1], [0, 0.01, 0], atol=0.0005)
-    assert tracker.diagnostics["pixel_reseed"]
-    assert len(tracker.source) > 40
-    assert (tracker.source_uncertainty == 0).sum() >= 35
-    sample["rgb"] = np.repeat(
-        cv2.warpAffine(gray, np.array([[1, 0, 2], [0, 1, 0]], np.float32), (w, h))[:, :, None],
-        3,
-        axis=2,
-    )
-    sample["frame"] = 1510
-    second = tracker.update(sample, surface)
-    assert second is not None
-    np.testing.assert_allclose(second[1], [0, 0.02, 0], atol=0.0005)
-    assert tracker.diagnostics["anchor_uncertainty_m"] < 0.001
-    sample["valid_depth"][:] = False
-    assert tracker.update(sample, surface) is None
-    assert tracker.gray is None and tracker.source is None
-    assert len(sample_points(sample, np.array([[50.4, 50.4]]))[1]) == 0
+def test_static_provider_never_publishes_policy_state_or_requests_cues_after_scan():
+    engine = CueEngine(EmptyWorker(), replay=True)
+    provider = GeometryProvider(recipe(), engine)
+    estimate = provider.update(sensor(25, 1508))
+    assert not estimate.valid and estimate.reason == "static_scan_only"
+    provider.consume_results(25.05)
+    calls = provider.diagnostics["semantic_calls"]
+    estimate = provider.update(sensor(25.1, 1514))
+    assert engine.pending is None and provider.encoding is None
+    assert provider.diagnostics["semantic_calls"] == calls
+    assert estimate.operational is estimate.local is estimate.frame is None

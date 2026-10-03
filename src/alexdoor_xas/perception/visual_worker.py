@@ -163,99 +163,6 @@ class FrozenModels:
         )
 
 
-class FrozenVideoModels:
-    """Conditional diagnostic only: native forward video outputs are retrospective."""
-
-    def __init__(self, root, config):
-        import numpy as np
-        import torch
-        from sam3.model_builder import build_sam3_video_predictor
-
-        if not torch.cuda.is_available():
-            raise RuntimeError("CUDA is required; no CPU fallback")
-        torch.set_num_threads(4)
-        self.torch, self.np = torch, np
-        self.predictor = build_sam3_video_predictor(
-            checkpoint_path=str(root / "sam3/sam3.pt"),
-            bpe_path=str(root / "sam3/bpe_simple_vocab_16e6.txt.gz"),
-            gpus_to_use=[0],
-            compile=False,
-        )
-        self.predictor.model.eval().requires_grad_(False)
-        if any(p.device != torch.device("cuda:0") for p in self.predictor.model.parameters()):
-            raise RuntimeError("Video model is not entirely on cuda:0")
-        self.runtime = dict(
-            device="cuda:0",
-            gpu=torch.cuda.get_device_name(0),
-            torch=torch.__version__,
-            numpy=np.__version__,
-            sam3_source_revision=SAM3_REVISION,
-            frozen=all(not p.requires_grad for p in self.predictor.model.parameters()),
-            training_started=False,
-            mode="retrospective_video_diagnostic",
-            **sam3_checkpoint(root),
-        )
-
-    def infer(self, request):
-        from PIL import Image
-
-        torch, np = self.torch, self.np
-        torch.cuda.reset_peak_memory_stats()
-        start = time.perf_counter()
-        frames = []
-        session = None
-        images = [Image.open(p).convert("RGB") for p in request["images"]]
-        try:
-            with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-                session = self.predictor.handle_request(
-                    dict(
-                        type="start_session",
-                        resource_path=images,
-                        offload_video_to_cpu=True,
-                        offload_state_to_cpu=True,
-                    )
-                )["session_id"]
-                prompted = self.predictor.handle_request(
-                    dict(type="add_prompt", session_id=session, **request["prompts"])
-                )
-                for event in self.predictor.handle_stream_request(
-                    dict(
-                        type="propagate_in_video",
-                        session_id=session,
-                        propagation_direction="forward",
-                        start_frame_index=request["prompts"]["frame_index"],
-                        max_frame_num_to_track=len(images),
-                    )
-                ):
-                    output = event["outputs"]
-                    frames.append(
-                        dict(
-                            frame_index=int(event["frame_index"]),
-                            masks=[
-                                np.packbits(mask.reshape(-1)).tobytes()
-                                for mask in output["out_binary_masks"]
-                            ],
-                            scores=output["out_probs"].tolist(),
-                            object_ids=output["out_obj_ids"].tolist(),
-                        )
-                    )
-                torch.cuda.synchronize()
-            return dict(
-                **self.runtime,
-                frames=frames,
-                prompt_mask_count=len(prompted["outputs"]["out_binary_masks"]),
-                prompt_object_ids=prompted["outputs"]["out_obj_ids"].tolist(),
-                latency_s=time.perf_counter() - start,
-                peak_memory_bytes=torch.cuda.max_memory_allocated(),
-                peak_reserved_bytes=torch.cuda.max_memory_reserved(),
-            )
-        finally:
-            if session is not None:
-                self.predictor.handle_request(dict(type="close_session", session_id=session))
-            for image in images:
-                image.close()
-
-
 def main():
     root = Path(sys.argv[1]).resolve()
     isolated = root / "runtime/venv/lib/python3.12/site-packages"
@@ -265,11 +172,7 @@ def main():
     request = receive(sys.stdin.buffer)
     try:
         with redirect_stdout(sys.stderr):
-            models = (
-                FrozenVideoModels(root, request)
-                if request.get("worker_mode") == "video-diagnostic"
-                else FrozenModels(root, request)
-            )
+            models = FrozenModels(root, request)
         send(sys.stdout.buffer, dict(ready=models.runtime))
         while (request := receive(sys.stdin.buffer)) is not None:
             try:

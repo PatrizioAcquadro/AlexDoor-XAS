@@ -5,7 +5,7 @@ from dataclasses import replace
 import numpy as np
 import pytest
 
-from alexdoor_xas.action.frames import ObjectFrame, rot_z
+from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.geometry import Surface, SurfaceObservation, fuse_surface, surfaces
 from alexdoor_xas.perception.provider import CueEngine, GeometryProvider
 from alexdoor_xas.perception.scan import (
@@ -17,8 +17,7 @@ from alexdoor_xas.perception.scan import (
     registered_support,
     static_hinges,
 )
-from alexdoor_xas.perception.tracking import moved_surface
-from test_geometric_perception import EmptyWorker, recipe
+from perception_helpers import EmptyWorker, recipe
 
 
 def camera_sensor(time=0, frame=8):
@@ -433,10 +432,7 @@ def test_scan_fusion_does_not_pick_area_winner_or_erase_material_references():
     assert provider.scan_state.objects
     assert provider.last_estimate is None  # fusion is not a qualified runtime estimate
     reference = provider.static[0]
-    moved = moved_surface(reference, (rot_z(0.1), np.array([0.1, 0, 0]), 0.001))
-    assert moved.surface_id == reference.surface_id
-    assert moved.observations == reference.observations
-    assert moved.edge_points.keys() == reference.edge_points.keys()
+    assert {o.frame for o in reference.observations} == {8, 20}
     previous = provider.scan_state.generation
     provider.reset()
     assert provider.scan_state.generation == previous + 1 and not provider.scan_state.objects

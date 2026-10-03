@@ -1,72 +1,29 @@
 # Phase 6.0 — Operational Perception and Observed Contact
 
-> Approved design: October 1, 2026. 6.0A contracts and numerical consumer integration
-> and 6.0B static object fusion/queries with bounded pilot diagnostics are implemented;
-> 6.0C diagnostic software and bounded replay/live checks are implemented; material
-> tracking/articulation exit checks remain open. 6.0D-H remain pending.
-> This plan supersedes the September prototype's future requirements, not its
-> measurements or qualification results. Design baseline: `main` at `809f575`;
-> 6.0A implementation baseline: `main` at `655d26b`;
-> 6.0B implementation baseline: `main` at `cf83f90`;
-> 6.0C implementation baseline: `main` at `9aa29bd`.
+> Current boundary, October 2, 2026: 6.0A contracts and 6.0B static scans are
+> maintained. The custom dynamic/material trackers, full-state replay command and
+> SAM3 video comparison are retired. New 6.0C Point2Pose integration and 6.0D-H
+> remain unimplemented or unqualified. Historical failures remain failures.
 
-## Purpose and execution boundary
+## Objective and current boundary
 
-Deliver the geometric state needed for reliable door manipulation, preserving
-A4's hinge-anchored, full-pose approach/contact/push/hold/release semantics.
-Reconstruct total dimensions when supported; do not make an irrelevant hidden
-extent a universal prerequisite for a local action. See the parent
-[[phase-6-perception-actions-and-demonstrations|Phase 6 plan]],
-[[../decisions/visuoproprioceptive-generalization-benchmark|benchmark decision]],
-[[../topics/shared-door-perception|implemented perception boundary]] and
-[[../topics/purdue-b1-robot-and-contact|robot/contact contract]].
+Deliver observed geometry for contact-rich door manipulation while preserving
+A4's full-pose approach/contact/push/hold/release semantics. Unknown total dimensions
+are optional when they do not affect a proposed action. Static visibility,
+whole-object ownership, original-material identity and motion admission are distinct.
+See [[../topics/shared-door-perception|maintained interfaces]] and
+[[../experiments/b1-perception-findings|results and retirement decisions]].
 
-The completed assignments implement 6.0A contracts/admission and 6.0B static
-object memory, geometric queries and four scan-only diagnostics with a conditional
-SAM3 video comparison. C adds local material/selection software and four bounded
-replays plus four parked-arm live observations, with open tracking/articulation exits.
-The remaining work packages below are
-instructions for later assignments, not a request to start agents, simulations or
-campaigns now. Keep the existing 6.1 action-path and 6.2 dataset numbering.
-No new training, demonstration/data
-collection, corpus changes, sealed-test access or push belongs to 6.0. Diagnostic
-test traces are evidence, not an expansion of the learning corpus. Preserve every
-completed/partial run and the stopped `geometric-evaluation-02` directory.
+The current `GeometryProvider` exposes static candidates through `scan_state` and
+returns only invalid `DoorEstimate` values, without policy encoding. GroundingDINO,
+native SAM3 and DINOv3 stay frozen for 6.0B. No qualified release exists; the legacy
+6.1 release interfaces are retained without an early schema migration.
 
-Use the two train pilots first: left `door-2738468b94d74c5f` and right
-`animated-door-1-88abf40`, each nominal/light. Extended evaluation remains stopped
-until common corrections and the pilot gates below have passed. Use local frozen
-weights, CUDA for model inference and GPU-capable simulation, and one simulator
-at a time. Do not change shared Isaac/PyTorch installations. Keep replay/live on
-one causal provider and preserve calibration, FK, IK and Purdue IO.
-
-## Baseline evidence and current limits
-
-- At the 6.0A baseline the provider selected/fused plane support; it did not reliably
-  assemble all faces of one leaf or exclude fixed frame support. 6.0B now preserves
-  object candidates, observed seams, fixed/unresolved support and static hinge
-  alternatives. Its four scans still retain ambiguous ownership and no supported
-  physical axis. Historical corrected pilot-06 still
-  accepts no complete states. See [[../experiments/b1-perception-findings|evidence]].
-- `action/b1.py` uses hinge frame, signed angle and a full local target for A4;
-  total dimensions do not enter its transformation. A3 rotates free delta vectors,
-  so its frame origin does not affect that delta transformation.
-- At baseline, `DoorEstimate`, `B1Observer` and adapters required complete geometry,
-  including dimensions. 6.0A preserves that legacy profile and adds explicit
-  operational/provisional interfaces. The default provider retains legacy states;
-  the opt-in C path exposes local material candidates and explicit selection.
-- `recording/b1.py` and `PurdueIO.observe()` expose RGB-D and joint position/velocity,
-  not torque. `ObservedControlChecks` rejects loaded phases with
-  `force_feedback_unavailable`; `PurdueIO.stop()` clears commands but does not
-  establish a physical unloading/stop response.
-- The Alex guide documents joint `q`, `qd`, `tau`, PD/impedance gains and command
-  limits. It does not establish the accuracy/origin of `tau` or an installed wrist
-  force/torque sensor. Hardware feedback and control facts, source links and
-  limitations are recorded in [[../topics/purdue-b1-robot-and-contact|the robot topic]].
-
-These source/code checks settle the design direction. 6.0A numerical regressions
-verify interfaces. 6.0B diagnoses static observed geometry, without qualifying
-runtime identity, feedback acquisition or physical behavior.
+Future work starts with the two train pilots: left `door-2738468b94d74c5f` and right
+`animated-door-1-88abf40`, each nominal/light. All 50 engineering-v2 episodes remain
+available for later train/development qualification. Use one common recipe, one
+simulator at a time and CUDA for model/simulator work. No new training, data
+collection, corpus change, sealed-test access or push belongs to this cleanup.
 
 ## Approved operational protocol
 
@@ -169,8 +126,8 @@ consistent with observations. An unobserved volume is neither automatically free
 nor a reason to reject unrelated local motion. Check only the relevant swept volume
 and stop envelope; do not require an exact whole-room reconstruction.
 
-Keep semantic inference at the initial 5 Hz target and geometric tracking between
-results. Retain the 150 ms maximum age for dynamically supported estimates; old
+The maintained static scan targets semantic inference at 5 Hz. Future 6.0C
+tracking must operate causally between results. Retain the 150 ms maximum age for dynamically supported estimates; old
 static geometry needs consistency, not a new segmentation timestamp. Prediction
 alone cannot refresh an observation or hide a lost identity. Replay/live share
 completion events, bounded queues, generation cancellation, reset semantics and
@@ -264,10 +221,11 @@ verified, do not admit loaded tests or claim hardware safety.
 
 ### Two explicit profiles
 
-Keep the existing full-state evaluator and all historical reports unchanged under
+Keep the reusable full-state metrics and historical results unchanged under
 the **legacy full-state profile**: dimensions, hinge, signed angle and prescribed
 contact, 1 cm / 5 degrees, 95% coverage and 95% joint accepted-state precision.
-Report new results for this profile as diagnostics where applicable; a missing
+The retired replay command is no longer maintained. Future evaluators may report
+this profile separately; a missing
 dimension is still a failure there. Historical failures do not become passes.
 
 Implement a separately named **operational-v1 profile**, the approved future 6.0
@@ -353,270 +311,109 @@ door reconstruction or real hardware safety. Keep diagnostic recipes separate fr
 `PerceptionBinding`; extend release/profile compatibility deliberately at closeout,
 never forge existing `offline_passed`/`dynamic_passed` flags for pilot work.
 
-## Implementation work packages
+## Work packages and exit checks
 
-Every package starts by reading the current parent plan, this protocol, applicable
-AGENTS.md and the previous package's handoff. Reuse maintained tests; add only the
-essential regressions listed. Update canonical status and make small validated
-local commits. No push. Code, tests and measured results determine completion.
-6.0A is complete as an interface milestone and 6.0B as a static implementation
-and bounded diagnostic milestone. C software and bounded diagnoses are implemented,
-but its material tracking/reacquisition/articulation exits remain open. D-H retain
-their unperformed exit checks.
+Code, tests and measured evidence determine completion. The local TODO tracks an
+implementation assignment; the wiki records its durable boundaries. Use one agent
+unless delegation is explicitly requested, serialize GPU workloads and create small
+validated local commits. External Alex/Isaac packages are outside this work.
 
-### 6.0A — Contracts and measurable admission rules
+| Package | Maintained or future outcome | Exit/prerequisite |
+|---|---|---|
+| 6.0A — maintained | Field support, geometry/action/load admission, explicit contact transitions and consumer compatibility | Numerical contracts; no physical qualification |
+| 6.0B — maintained | Calibrated static fusion, original observation references, ownership alternatives, static hinge hypotheses, finite two-finger support and relevant-space queries | Bounded four-pilot scan diagnosis; unresolved ownership/axis remain explicit |
+| 6.0C — future | CAD-free Point2Pose tracking and original-material pose/recovery | Supported identity, pose, loss/reacquisition and informative articulation on both pilots |
+| 6.0D — future | Robot feedback, common compliant control and latched physical stop | Measured/justified signal, load, timeout, gain and stop bounds before loaded interaction |
+| 6.0E — future | Independent operational-v1 evaluator and chronological two-pilot replay | All four pilot conditions pass one recipe; no truth enters inference |
+| 6.0F — future | Bounded diagnostic interaction on both train pilots | D/E gates, physically valid approach/contact/push/hold/release and stop/reset checks |
+| 6.0G — future | One common offline recipe on all 50 engineering-v2 episodes | F passes; every train/development door passes, including failures and both conditions |
+| 6.0H — future | Dynamic qualification, evidence-backed freeze and 6.1 handoff | G and D pass; complete baseline/fault matrix below |
 
-- [x] Define explicit geometric qualification, provisional action and load-admission
-  interfaces; stable/dynamic field support, timestamps, failure reasons and resets.
-- [x] Specify one action-margin/uncertainty recipe, contact selection/evaluation
-  correspondence and torque-signal semantics. Unmeasured force/gain/stop parameters
-  are measurement tasks in 6.0D, not invented constants or optional hidden defaults.
-- [x] Map all consumers: `perception/contracts.py`, `policies/observations.py`,
-  `policies/rollout.py`, `policies/common/b1_contract.py`, recording/replay and IO.
-  Preserve old full-state/schema behavior with explicit profile compatibility.
-- [x] Verify essential contracts: incomplete/provisional is not qualified; missing
-  torque stays missing; no truth reaches runtime; no helpful adapter correction.
+### 6.0C — CAD-free Point2Pose direction
 
-**Exit:** reviewed executable interfaces and numerical regressions; no campaign.
+Reuse the [official model-free Point2Pose components](https://github.com/tzuyuan/point-to-pose)
+initially, rather than build another custom point tracker. Distributed visual
+references and metric RGB-D must identify the same rigid leaf through occlusion
+and reacquisition. Integration, dependencies, checkpoints and runtime compatibility
+are future work; no Point2Pose code or placeholder adapter is supplied now.
 
-**Implemented handoff:** additive `DoorEstimate.operational`, per-field support,
-explicit geometry profiles, action-specific conservative admission, identified
-contact transitions and evaluator-only material correspondence interfaces. Observer,
-adapter/runner, dataset compilation, recording/replay and observed IO/monitor share
-the compatibility rules; v2 releases stay legacy and diagnostic recipes opt in.
-The current provider emits no operational state and actual torque remains absent.
-No force/gain/timeout/stop values were invented. The common numerical recipe and
-producer measurement responsibilities are in
-[[../topics/shared-door-perception|implemented perception contracts]]. 6.0B uses
-these interfaces; 6.0D may proceed independently. 6.0E scoring and all physical gates remain
-unperformed. Phase 6.0 is unqualified.
+Use calibrated camera kinematics at each acquisition time to separate head motion
+from leaf motion. Transform the recovered object pose into the repository's world
+frame and update an explicitly selected push zone fixed to the panel. Preserve
+original-material identity, independent visual/contact support, acquisition and
+availability times, episode generations and uncertainty. A static fit or raw-depth
+visibility cannot refresh lost material support.
 
-### 6.0B — Object-level scan fusion and static hinge hypotheses
+The initial pose/reference must not use CAD, prepared-door pose, asset identity or
+simulator annotations. Retain competing static objects until observed evidence
+resolves them. A pose tracker does not establish a physical hinge, loaded-contact
+safety or the validity of an entire hand/arm path. Infer articulation only from
+informative observed leaf motion; an unobserved axis stays unavailable. Preserve
+6.0B's local two-finger, collision and unknown-space queries and its effective
+geometric covers. The covers are neither flat pads nor measured compliance.
 
-**Depends on 6.0A.** Primary surfaces: `perception/geometry.py`, `provider.py`,
-`tracking.py`, existing model/worker interfaces and geometric tests.
+Validate common capture/completion timing, camera motion with a stationary panel,
+leaf motion with a stationary camera, combined motion, occlusion/reacquisition,
+reset and uncertainty. Keep the selected material point distinct from the visual
+reference and never silently reselect it. Loaded or axis-free diagnostic action
+admission remains 6.0D work; do not invent a hinge to pass the existing validators.
 
-- [x] Assemble leaf surfaces across views, retain observed edges before sampling,
-  and separate fixed frame/wall support without a universal bottom-frame rule.
-- [x] Fit static hinge candidates from observed hardware/borders/depth; preserve
-  alternatives and distinguish supported axis from an assumed panel edge.
-- [x] Produce observed contact patches, required footprint clearance and relevant
-  collision/unknown-space support without nominal dimensions.
-- [x] Regress multiview clipping versus absent evidence, leaf relief versus fixed
-  coplanar/parallel frame, both bottom-frame cases and calibrated reprojection.
+### 6.0D — Feedback, compliance and stopping
 
-**Exit:** targeted diagnostics on both pilots explaining ownership and static
-observability; no broad replay. Keep GroundingDINO/SAM3/DINOv3 frozen. Native SAM3
-video prompting is a conditional association experiment, not a mandatory rewrite.
+Map documented `tau` to a declared observable; actuator feedback, commanded effort
+and exact external contact wrench are different signals. Unknown origin/precision
+stays unknown. Develop robot-only load residuals with uncertainty and test unloaded
+motion, declared known loads, saturation, friction/model error, timing gaps and
+ill-conditioned postures. No hardware data collection is authorized here.
 
-**Implemented handoff:** `Surface` retains per-observation membership, calibration,
-dense silhouette/extrema, edge status and material IDs. `GeometryProvider.scan_state`
-exposes leaf candidates, attached relief, fixed/unresolved support, static
-`HingeHypothesis` alternatives and observed patches. Reprojection plus measured
-internal seams establish associations; indistinguishable ownership remains ambiguous.
-Panel-edge alternatives never become physical axes without supported hardware fits.
-Both actual distal faces and caller-supplied volume covers have geometric queries;
-response, stopping and load parameters remain unavailable. Tracker transforms retain
-original material/observation references; legacy recipes remain supported.
+Validate finite contact/model assumptions, control/feedback timeouts and a latched
+stop while physics continues. Missing/stale feedback blocks loaded execution even
+with perfect geometry. Test a declared simulated error model when hardware noise
+is unmeasured and limit conclusions to it. Preserve all task physical limits;
+RGB-D/FK cannot become a calibrated force sensor.
 
-All four chronological 0–25 s train scans completed in `operational-scan-02`,
-including pending image results released at measured availability without later RGB-D.
-The initial scans remain ambiguous, with no uniquely assigned fixed support or
-physical hinge axis.
-The single conditional automatic-box SAM3 forward-video configuration completed on
-the same captured frames in `operational-scan-video-01`; it retained zero masks.
-At that stage no prompting/threshold search or provider replacement followed.
-Interrupted/failed
-attempts are preserved. Evidence, limits and local volume probes are summarized in
-`operational-scan-review-01` and
-[[../experiments/b1-perception-findings|the canonical findings]].
+### 6.0E-F — Independent scoring and bounded pilot interaction
 
-The targeted re-audit in `operational-scan-diagnosis-01` corrects measured-support loss,
-partial-view border contraction, first-component-only seam association, unrelated
-perimeter requirements and invalid finite-face claims. Enclosed mask omissions need
-valid plane depth; residual fitting keeps existing support/tolerance requirements.
-Box-only video tracks were removed by native hotstart; the shared `door` concept
-retains masks on both 20-frame nominal prefixes without changing the model or filters.
-These masks do not establish material role. See the canonical findings for the
-bounded results and the invalidated historical contact counts.
+The future evaluator scores the explicitly chosen physical contact with independent
+surface queries, full footprint/trajectory errors and both named profiles. Test
+fixed-surface acceptance, cancelling hinge/contact errors, empty/provisional/missing
+sets, early stops, both hands and non-teacher contacts. The retained numerical
+metrics are not an operational evaluator or a release mechanism.
 
-6.0C owns causal material association, articulation and field lifetimes, preserving
-alternatives and uncertainty. Motion is informative only after an admitted action;
-it is not assumed to repair B's evidence loss or guarantee identity. The first push
-requires an identifiable local leaf patch and a reference appropriate to the action.
-The follow-up `operational-contact-readiness-01` verifies a local patch on each pilot,
-both conditions, and derives finite geometric covers from the unchanged distal mesh
-bands. Human visual confirmation establishes the selected local material role,
-not motion identity. C may start local tracking/field lifetimes while other scene
-roles and the axis remain unresolved. D still owns physical contact/model error,
-feedback/load and response/stop margins. Unrelated total dimensions remain optional.
-No static
-edge guess may stand in for an unobserved axis. The image/model availability events
-and retrospective video evidence are distinct; neither establishes production timing.
-Ideal RGB-D/calibration, resolved pixel support and predominantly vertical-axis
-approximations remain unqualified for hardware. No dynamics, training, collection,
-extended replay or sealed test ran. Phase 6.0 and every release flag remain unqualified.
+After pilot replay and feedback/stop gates, an explicit diagnostic source may use
+scan, approach, contact, admitted short push, hold and release. Prespecify duration,
+displacement, velocity and load bounds; preserve every failed attempt. Verify actual
+leaf response, contact/load consistency, no hypothesis flip or helpful correction,
+at least one same-process reset and one loss/latched-stop case per pilot. Opening
+must exceed measurement uncertainty with the existing 0.5 s sustained controlled
+contact window; there is no fixed success angle or teacher pre-opening.
 
-### 6.0C — Causal tracking, articulation and field lifetimes
+### 6.0G-H — Common qualification and release
 
-**Depends on 6.0B.** Primary surfaces: `perception/tracking.py`, `geometry.py`,
-`provider.py`, `visual_worker.py` and the existing timing/replay regressions.
+Freeze one recipe before extended replay in a fresh directory. Report every
+train/development door, condition/phase, rejected/provisional errors, latency and
+worst handedness cases. A recipe change invalidates its qualification; retain
+failures rather than selectively assemble favorable attempts. Training requires a
+separate learnable-error diagnosis and authorization.
 
-- [ ] Track verified leaf features independently of fixed surfaces; retain original
-  references, handle slip/occlusion and reject degenerate rigid/hinge fits.
-- [x] Initialize reviewed local candidate geometry without demanding a complete
-  object assignment or precise axis. Keep the visual reference separate from the
-  explicitly selected contact. The white high candidate's last full-cover scan
-  observation is about 13 s, not its plane's later observation near 25 s.
-- [ ] Reacquire the selected material point with fresh direct support or verified rigid
-  transfer; visual-reference visibility alone cannot refresh it. Keep patch/identity
-  and plane timestamps distinct.
-- [ ] Recover signed angle/axis uncertainty for both hands; preserve stable geometry
-  while dynamically supported pose remains fresh, including partial-field loss.
-- [x] Exercise reset, episode generations, out-of-order/late completion, nonmonotonic
-  time and replay/live equivalence with identical supplied availability events.
-- [x] Retain the existing tracker unless isolated evidence identifies it as the
-  remaining cause; only then compare a causal pretrained alternative on the pilots.
+After all offline gates pass, run both train pilots and all six development doors.
+Baseline uses nominal/light; faults use nominal unless evidence requires light.
+Prespecify these cases without a Cartesian product of unrelated faults:
 
-**Software handoff:** axis-free local material state and independent visual/contact
-selection are implemented in the diagnostic provider. Candidate comparisons retain
-coverage, IK errors and joint margins separately; neither the high white candidate
-nor its observed 1.10 m alternative is a definitive contact. Constrained RGB-D
-tracking, immutable material support, rigid-transfer checks, field lifetimes and
-completion/generation regressions are implemented. Four complete pilot replays and
-four fresh serial parked-arm CUDA observations are preserved in
-`operational-tracking-03` and `operational-tracking-live-02`. All requested local
-geometry initializes, but the explicitly selected contact has zero supported dynamic
-ticks and no material reacquisitions. Replays produce no supported motion axis. Live
-views independently recover geometric visibility without recovering material identity.
-The common neck guard accepts control-tick resolution and float32 roundoff; all four
-revised live schedules complete. Keep the identity/reacquisition/articulation exit
-checks open. See [[../experiments/b1-perception-findings|bounded material findings]].
+- Full baseline sequence and two same-process resets.
+- 0.5 s depth loss and 1 s RGB-D occlusion, each during scan and push.
+- 50/100/250 ms result delay, out-of-order completion and nonmonotonic timestamps.
+- Torque-feedback loss/staleness and inconsistent load with declared fault injection.
+- Latched stop, cleared queues, bounded physical stop and no automatic restart.
 
-**Exit:** bounded pilot traces with valid identity/motion and honest uncertainty;
-model/tracker changes require actual CUDA smoke, not a repeated model campaign.
+Every baseline must satisfy physical validity and the diagnostic sequence. Every
+fault must satisfy its expected reset/stop/queue invariants and physical limits.
+Failed starts and scheduled unavailable ticks remain accounted for. Fault-stop
+success is separate from baseline task success; thresholds never change after
+seeing a result. Reuse prior complete evidence only for the identical recipe/runtime.
 
-### 6.0D — Robot feedback, common compliance and physical stop
-
-**Depends on 6.0A; may develop independently of 6.0B/C with numerical fixtures.**
-Primary surfaces: Purdue IO/environment, `perception/control.py`, robot model/FK
-consumers and focused control tests. Do not edit the external Alex/Isaac packages.
-
-- [ ] Map documented `tau` to a declared simulated observable; distinguish actual
-  actuator feedback from commands/contact truth. Check any available existing SDK
-  or logs for semantics; unavailable precision evidence remains an explicit limit.
-- [ ] Implement robot-only load residuals and uncertainty. Check unloaded motion,
-  known-load numerical fixtures, saturation, friction/model error, timing gaps and
-  ill-conditioned configurations; no new hardware collection is authorized.
-- [ ] Implement common compliant execution and a latched stop with bounded residual
-  motion/load; validate behavior while physics continues. Missing or stale feedback
-  must block loaded execution, even when geometric estimates are perfect.
-- [ ] Verify finite two-finger contact assumptions and that a force/load inference
-  cannot identify an authorized surface by itself. The nominal geometric covers are
-  implemented; orientation/model/contact error and loaded validity still need checks.
-  Keep task physical thresholds.
-
-**Exit:** justified signal/timeout/gain/stop bounds and essential numerical plus
-bounded CUDA physics evidence before door interaction. Ideal simulated feedback
-does not qualify hardware; unknown signal semantics cannot be replaced by truth.
-Unmeasured hardware noise does not require a new collection campaign: test an
-explicitly declared simulated feedback/error model and limit conclusions to that
-model. Record what still needs SDK/hardware confirmation before deployment.
-
-### 6.0E — Dual-profile evaluator and two-pilot replay
-
-**Depends on 6.0A-C.** Primary surfaces: `perception/evaluation.py`, evaluator-only
-prepared/visual surface queries, `scripts/perception.py` and geometric tests.
-
-- [ ] Implement operational-v1 and unchanged legacy reports, selected-point material
-  correspondence, denominators and independent full contact/trajectory errors.
-- [ ] Regress wrong fixed-surface acceptance, cancellation of hinge/contact errors,
-  empty accepted sets, provisional/missing samples, early-stop accounting and truth
-  isolation. Test both hands and a selected point different from the teacher.
-- [ ] Replay both pilots/conditions chronologically with one recipe; preserve new
-  evidence separately. Diagnose worst errors and runtime reasons before changing
-  common code; never accept a correct mask/plane as the required door state.
-
-**Exit:** pilot replay gate passed, or a cause-first failure report and no dynamics.
-
-### 6.0F — Bounded diagnostic action on the two pilots
-
-**Depends on 6.0D/E.** Primary surfaces: explicit diagnostic action source, common
-Purdue IO/adapter/monitor path and a separate physical evaluator.
-
-- [ ] Execute scan, observed-patch approach/contact, short admitted push, hold and
-  explicit release. Include provisional exploration only when its admission checks
-  pass; limit duration/displacement/load in the shared recipe before execution.
-- [ ] Confirm actual leaf response, hinge refinement, contact/load consistency,
-  safe stopping and no automatic hypothesis flip or helpful adapter correction.
-- [ ] Verify at least one same-process reset and one loss/latched-stop case on each
-  pilot before considering extended replay. Preserve all failed attempts.
-
-**Exit:** both pilot controllers physically valid under the operational contract;
-demonstrate actual opening beyond measurement uncertainty and the existing 0.5 s
-sustained controlled-contact window, without a fixed success angle. No learned-policy,
-full-corpus, release or hardware claim. If initialization cannot be admitted, report
-that failure; never pre-open using the teacher.
-
-### 6.0G — Common train/development offline qualification
-
-**Depends on 6.0F.** Freeze the shared recipe, then evaluate all 50 existing episodes
-in a fresh output directory. Require every train/development door to meet the
-operational gate; include condition/phase breakdowns, rejected/provisional errors,
-legacy reconstruction diagnostics, latency and worst cases by handedness. A recipe
-change invalidates qualification for that recipe; rerun affected evidence explicitly,
-not selectively retained favorable results. The sealed test remains closed.
-
-**Exit:** all offline gates passed, or a complete failure report with dynamics
-qualification not run. Training is considered only if residual errors identify a
-specific learnable task, separate from observability, calibration and latency.
-
-### 6.0H — Dynamic qualification, freeze and 6.1 handoff
-
-**Depends on 6.0G and 6.0D.** On the two train pilots and all six development doors,
-one simulator at a time, use the same admitted diagnostic recipe. Run baseline in
-nominal/light; exercise each fault in nominal unless evidence requires a light
-case. Freeze this allocation before the qualification run:
-
-- [ ] Baseline full sequence; two resets within the same process.
-- [ ] Depth loss for 0.5 s and RGB-D occlusion for 1 s, each during scan and push.
-- [ ] Result delays of 50, 100 and 250 ms, out-of-order completion and nonmonotonic
-  timestamps; account for actual availability and do not accept stale results.
-- [ ] Stop before the next prohibited command, clear pending actions, verify physical
-  stop behavior and no automatic restart after reacquisition. Include torque-feedback
-  loss/staleness and an inconsistent-load case using a declared fault injection.
-- [ ] Score unchanged physical criteria independently, include failed starts/stops,
-  and distinguish expected injected-fault termination from baseline task success.
-
-Every scheduled baseline must satisfy physical validity and the declared diagnostic
-sequence; every fault case must satisfy its expected reset/stop/queue invariants
-and physical limits. Any failing case prevents dynamic qualification; no best-attempt
-selection or tolerance changes after seeing the result.
-
-Run each required case without an unnecessary Cartesian product of unrelated
-faults. Fault-test success means the specified bounded stop, not continued opening;
-it does not remove fault intervals from any reported coverage denominator. Baseline
-qualification and fault-response results remain separate. Reuse still-applicable
-6.0F evidence only when recipe/runtime are identical and the case is complete.
-
-**Exit:** both operational offline and dynamic gates passed; diagnostic/legacy
-results retained; qualified profile and supported domain explicitly bound into
-release compatibility. No release flag until actual evidence exists. Hand off to
-6.1 for all eight action paths, raw/live encoding, physical replay and integration;
-6.2 policy data/training remains a separate authorization and milestone.
-
-## Delegation and verification discipline
-
-Delegate one package with its prerequisites, owned files, expected output and exit
-checks, not this entire plan as unconstrained parallel work. 6.0B/C own geometric
-inference; 6.0D owns feedback/control; 6.0E owns truth-bearing scoring. Agree the
-6.0A interfaces first and serialize changes to shared observation/runner contracts.
-Only explicitly requested future delegation may create subagents. Serialize all
-GPU-heavy jobs and simulator processes on the workstation.
-
-Each handoff states: implemented behavior, exact bounded checks/evidence, failures,
-remaining assumptions, local commits and the next eligible package. Update the local
-ignored TODO for the assigned work; never mark a package complete from documentation
-or a smoke test alone. Use relevant existing tests before adding new ones. Broaden
-testing only for changed interfaces or unresolved failures; no training regression,
-full replay or simulation is required for this documentation-only revision.
+Release requires both offline and dynamic gates, an explicitly bounded supported
+domain and deliberate release/profile compatibility. No diagnostic may forge
+`offline_passed`, `dynamic_passed` or `frozen`. Hand off to 6.1 for all eight action
+paths, raw/live encoding parity, physical replay and observed-geometry integration.
+6.2 policy data and Phase 7 training remain separate milestones.

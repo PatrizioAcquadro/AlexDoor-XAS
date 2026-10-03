@@ -12,8 +12,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 from alexdoor_xas.perception.evaluation import quantiles, write_json
-from alexdoor_xas.perception.geometry import project, surfaces
-from alexdoor_xas.perception.scan import ScanMemory, footprint_support, surface_support
+from alexdoor_xas.perception.geometry import project
+from alexdoor_xas.perception.scan import footprint_support, surface_support
 from alexdoor_xas.recording.b1 import OBS_KEYS
 
 PILOTS = ("door-2738468b94d74c5f", "animated-door-1-88abf40")
@@ -117,12 +117,11 @@ def scan_overlay(path, sensor, memory, available_s):
     picture = Image.fromarray(sensor["rgb"])
     draw = ImageDraw.Draw(picture)
     h, w = sensor["rgb"].shape[:2]
-    payload = {}
     palette = ((255, 180, 0), (30, 220, 255), (220, 90, 255), (120, 255, 100))
     members = {s.surface_id: i for i, o in enumerate(memory.state.objects) for s in o.surfaces}
     fixed = {s.surface_id for s in memory.state.fixed_surfaces}
     retained = {s.surface_id: s for s in (*memory.surfaces, *memory.state.unresolved_surfaces)}
-    for index, surface in enumerate(retained.values()):
+    for surface in retained.values():
         color = (
             palette[members[surface.surface_id] % len(palette)]
             if surface.surface_id in members
@@ -136,13 +135,6 @@ def scan_overlay(path, sensor, memory, available_s):
         for u, v in pixels[good][:: max(1, int(good.sum()) // 1000)]:
             if 0 <= u < w and 0 <= v < h:
                 draw.point((int(u), int(v)), fill=color)
-        payload[f"surface_{index}"] = cloud
-        payload[f"boundary_{index}"] = (
-            np.concatenate([o.boundary_points for o in surface.observations])
-            if surface.observations
-            else np.empty((0, 3))
-        )
-        payload[f"surface_id_{index}"] = np.array(surface.surface_id)
     draw.text(
         (8, 8),
         f"Static candidates; available {available_s:.3f}s; {memory.state.reason}",
@@ -151,29 +143,14 @@ def scan_overlay(path, sensor, memory, available_s):
         stroke_fill="black",
     )
     picture.save(path)
-    np.savez_compressed(path.with_suffix(".npz"), **payload)
 
 
-def save_cue(output, sensor, cue, row, provider):
-    directory = output / "captures"
-    directory.mkdir(exist_ok=True)
-    name = f"{int(sensor['frame']):06d}"
-    Image.fromarray(sensor["rgb"]).save(directory / f"{name}.png")
-    np.savez_compressed(
-        directory / f"{name}.npz",
-        tokens=np.frombuffer(cue["tokens"], np.float32).reshape(cue["token_shape"]),
-        masks=np.array([np.frombuffer(p, np.uint8) for p in cue["masks"]], np.uint8),
-        scores=np.asarray(cue["scores"]),
-        boxes=np.asarray(cue["boxes"]).reshape(-1, 4),
-        pixel_mapping=np.array([cue["pixel_mapping"][k] for k in ("scale", "pad_x", "pad_y")]),
-    )
+def cue_record(sensor, cue, row, provider):
     return dict(
         row=row,
         frame=int(sensor["frame"]),
         acquired_s=float(sensor["time_s"]),
         available_s=float(cue["available_s"]),
-        image=f"captures/{name}.png",
-        cue=f"captures/{name}.npz",
         latency_s=cue["latency_s"],
         reason=provider.scan_state.reason,
         objects=len(provider.scan_state.objects),
@@ -217,7 +194,7 @@ def diagnose_scan(path, provider, output, distal_faces=None):
             if frame == last_frame:
                 return
             last_frame = frame
-            records.append(save_cue(output, captured, cue, row_lookup[frame], provider))
+            records.append(cue_record(captured, cue, row_lookup[frame], provider))
             if overlays and float(captured["time_s"]) >= overlays[0]:
                 overlays.pop(0)
                 scan_overlay(
@@ -294,97 +271,6 @@ def diagnose_scan(path, provider, output, distal_faces=None):
     return report
 
 
-def compare_video_scan(path, baseline, worker, config, distal_faces=None, *, output=None):
-    """One retrospective association comparison on exactly the baseline captured RGB frames."""
-    baseline = Path(baseline)
-    output = baseline / "sam3-video" if output is None else Path(output)
-    output.mkdir(parents=True, exist_ok=False)
-    records = json.loads((baseline / "captures.json").read_text())
-    prompts = None
-    for index, record in enumerate(records):
-        with np.load(baseline / record["cue"], allow_pickle=False) as data:
-            if len(data["boxes"]):
-                with Image.open(baseline / record["image"]) as image:
-                    w, h = image.size
-                boxes = []
-                for x0, y0, x1, y1 in np.unique(data["boxes"], axis=0):
-                    boxes.append(
-                        [float(x0 / w), float(y0 / h), float((x1 - x0) / w), float((y1 - y0) / h)]
-                    )
-                prompts = dict(
-                    frame_index=index,
-                    text="door",
-                    bounding_boxes=boxes,
-                    bounding_box_labels=[1] * len(boxes),
-                )
-                break
-    if prompts is None:
-        result = dict(state="not_run", reason="no_observed_grounding_box", qualified=False)
-        write_json(output / "report.json", result)
-        return result
-    result = worker.infer_video([str(baseline / r["image"]) for r in records], prompts)
-    write_json(output / "runtime.json", {k: v for k, v in result.items() if k != "frames"})
-    memory = ScanMemory(config, 0)
-    mask_counts = []
-    with h5py.File(path, "r") as h5:
-        observations = h5["observations"]
-        for event in result.pop("frames"):
-            record = records[event["frame_index"]]
-            sensor = {key: observations[key][record["row"]] for key in OBS_KEYS}
-            with np.load(baseline / record["cue"], allow_pickle=False) as data:
-                mapping = dict(zip(("scale", "pad_x", "pad_y"), data["pixel_mapping"], strict=True))
-                tokens = data["tokens"]
-                cue = dict(
-                    shape=sensor["rgb"].shape[:2],
-                    tokens=tokens.tobytes(),
-                    token_shape=tokens.shape,
-                    pixel_mapping=mapping,
-                    masks=event["masks"],
-                    scores=event["scores"],
-                    boxes=[],
-                    latency_s=result["latency_s"],
-                    available_s=max(r["acquired_s"] for r in records) + result["latency_s"],
-                )
-            memory.add(
-                surfaces(cue, sensor, config),
-                sensor,
-                int(sensor["frame"]),
-                available_s=cue["available_s"],
-            )
-            mask_counts.append(len(event["masks"]))
-            np.savez_compressed(
-                output / f"masks-{record['frame']:06d}.npz",
-                masks=np.array([np.frombuffer(p, np.uint8) for p in event["masks"]], np.uint8),
-                object_ids=event["object_ids"],
-            )
-        final = {key: observations[key][records[-1]["row"]] for key in OBS_KEYS}
-        scan_overlay(
-            output / "scan-final.png",
-            final,
-            memory,
-            max(r["acquired_s"] for r in records) + result["latency_s"],
-        )
-    report = dict(result)
-    report.update(
-        state="complete",
-        mode="retrospective_association_only",
-        baseline=str(baseline),
-        diagnosis="no_retained_video_masks" if not any(mask_counts) else memory.state.reason,
-        frames=len(records),
-        prompts=prompts,
-        mask_counts=mask_counts,
-        scan=scan_description(memory.state, config, distal_faces),
-        qualified=False,
-        provider_replaced=False,
-        future_confirmation_not_backdated=True,
-        training_started=False,
-        collection_started=False,
-        sealed_test_evaluated=False,
-    )
-    write_json(output / "report.json", report)
-    return report
-
-
 def run_scan_diagnostics(paths, recipe, output, models):
     from ihmc_alex_isaaclab._paths import REPOSITORY_ROOT as alex_root
 
@@ -423,10 +309,6 @@ def run_scan_diagnostics(paths, recipe, output, models):
             footprint_band_m=DISTAL_CONTACT_TOLERANCE_M,
             footprint_model="projected collision mesh band within existing distal tolerance; "
             "geometric cover, not a flat pad or measured compliance",
-            video_comparison=(
-                "one conditional forward configuration; same captured RGB "
-                "frames and automatic GroundingDINO boxes; retrospective only"
-            ),
             offline_passed=False,
             dynamic_passed=False,
             training_started=False,
@@ -435,7 +317,7 @@ def run_scan_diagnostics(paths, recipe, output, models):
             truth_boundary="metadata selects authorized recordings only; annotations never read",
         ),
     )
-    reports, comparisons = [], []
+    reports = []
     try:
         with (output / "models.log").open("w") as log:
             worker = ModelWorker(models, recipe.config, log=log)
@@ -462,43 +344,11 @@ def run_scan_diagnostics(paths, recipe, output, models):
             finally:
                 engine.close()
                 worker.close()
-        conditional = any(r["scan"]["reason"] != "supported_static_candidate" for r in reports)
-        if conditional:
-            with (output / "video-models.log").open("w") as log:
-                worker = ModelWorker(
-                    models, dict(recipe.config, worker_mode="video-diagnostic"), log=log
-                )
-                try:
-                    write_json(output / "video-runtime.json", worker.runtime)
-                    for path in paths:
-                        destination = output / path.parent.parent.name / path.parent.name
-                        comparisons.append(
-                            compare_video_scan(
-                                path, destination, worker, recipe.config, contact_covers
-                            )
-                        )
-                        print(
-                            json.dumps(
-                                dict(
-                                    completed_video_comparisons=len(comparisons),
-                                    comparisons=4,
-                                    state=comparisons[-1]["state"],
-                                )
-                            ),
-                            flush=True,
-                        )
-                finally:
-                    worker.close()
         summary = dict(
             complete=True,
             completed_scans=len(reports),
             expected_scans=4,
             object_reasons=[r["scan"]["reason"] for r in reports],
-            video_triggered=conditional,
-            completed_video_comparisons=len(comparisons),
-            video_reasons=[
-                r["scan"]["reason"] if "scan" in r else r["reason"] for r in comparisons
-            ],
             offline_passed=False,
             dynamic_passed=False,
             training_started=False,
@@ -515,7 +365,6 @@ def run_scan_diagnostics(paths, recipe, output, models):
             dict(
                 complete=False,
                 completed_scans=len(reports),
-                completed_video_comparisons=len(comparisons),
                 error=f"{type(error).__name__}: {error}",
                 offline_passed=False,
                 dynamic_passed=False,

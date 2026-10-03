@@ -140,14 +140,14 @@ def test_unequal_visual_blocks_and_incompatible_provider(b1_binding):
 
 
 def operational_provider(binding, count=1):
-    import json
     from dataclasses import replace
 
     from alexdoor_xas.perception.contracts import OPERATIONAL_V1
-    from alexdoor_xas.perception.provider import PrototypeRecipe
     from test_operational_admission import operational_estimate
 
-    recipe = PrototypeRecipe(json.dumps(binding.config | {"geometry_profile": OPERATIONAL_V1}))
+    recipe = SimpleNamespace(
+        config=binding.config | {"geometry_profile": OPERATIONAL_V1}, obs_dim=binding.obs_dim
+    )
     provider = SimpleNamespace(binding=recipe, generation=-1, between=False, old_result=None)
 
     def reset():
@@ -166,9 +166,12 @@ def operational_provider(binding, count=1):
         if provider.selection_time is None:
             provider.selection_time = sensor["time_s"]
         state = estimate.operational
-        estimate = replace(estimate, operational=replace(
-            state, contact=replace(state.contact, selected_s=provider.selection_time)
-        ))
+        estimate = replace(
+            estimate,
+            operational=replace(
+                state, contact=replace(state.contact, selected_s=provider.selection_time)
+            ),
+        )
         provider.encoding = np.arange(recipe.obs_dim - 18)
         provider.last_estimate = estimate
         return estimate
