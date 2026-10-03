@@ -1,39 +1,35 @@
 # Outputs
 
-Generated results remain local and ignored by Git. Selected pretrained weights
-and required resources live in `models/perception/`; reusable RGB-D recordings,
-calibration and dataset products live in `datasets/`.
+Generated results remain local and ignored by Git. Selected pretrained resources
+live in `models/perception/`; reusable recordings/calibration live in `datasets/`.
 
-`b1/perception/evidence/` retains the completed perception experiments' protocols,
-per-door results, metrics, diagnoses, aligned component masks and essential images.
-Run names are preserved inside this directory. `cleanup.json` maps moved paths,
-records preserved episodes/model digests and lists explicitly removed payloads.
-Original report contents are unchanged; embedded old paths describe their original
-execution and can be resolved using that mapping. The corrected aligned scores
-supersede the original offset component scores.
+`b1/perception/evidence/` consolidates completed perception experiments under their
+original run names, including `geometric-*`, `operational-tracking-*` and the SAM3
+video comparison. Retained records include protocols, corrected per-door scores,
+initial/interrupted failures, source revisions and decisive images. Corrected aligned
+component scores supersede the original offset scores. Reports retain their original
+content; embedded execution paths resolve through `cleanup.json` relocations.
+That inventory also records payload removals and preserved recording headers.
 
-Discarded model weights, feature caches, completed experiment scripts/builds and
-five interrupted recordings were removed. Ignored payloads are not recoverable
-from Git; retained evidence does not promise complete executable reproduction.
-No qualified perception replacement or policy result exists. See the
-[perception findings](../knowledge/wiki/experiments/b1-perception-findings.md).
+Superseded recordings, discarded model weights, temporary scripts, feature/mask
+caches, repeated dumps/media and logs without residual value were removed.
+Ignored payloads are not Git-recoverable; the retained results do not promise
+complete executable reproduction. See
+[Perception Findings](../knowledge/wiki/experiments/b1-perception-findings.md).
 
-`b1/perception/geometric-*` contains the current frozen-model prototype's CUDA
-smokes, separate pilot attempts and causal full-state replay results. Protocols
-record the common recipe/source identity and authorized episode selection.
-`summary.json` requires complete campaign membership before offline eligibility;
-per-door/condition reports retain missing states in coverage and distinguish finite
-rejected errors from accepted accuracy. Masks and observed geometry diagnostics
-are not qualified full-state results. Dynamic tests require all offline doors to pass.
+`b1/perception/operational-scan-diagnosis-01/` preserves the corrected 6.0B static
+reconstructions and human-reviewed region evidence. Final per-case records use
+`final/<asset>/<condition>/final-report.json`; duplicate reports were removed.
+`operational-contact-readiness-01/` preserves finite mesh-band support and endpoint
+IK comparisons. Human local-role confirmation, geometry and reachability remain
+distinct from motion identity, continuous collision and loaded-control qualification.
 
-Qualification evidence and runtime verification normally remain under
-`~/.cache/alexdoor-xas/`; prepared door resources remain under `assets/doors/b1/`.
-The cleanup's bounded checks use `b1/perception/evidence/cleanup-validation/`.
+The cleanup's fresh frozen CUDA smoke and four 0–25 s scans use
+`b1/perception/evidence/cleanup-validation-20261002/`. Earlier cleanup validation
+remains historical in `cleanup-validation/`. No offline/dynamic/release flag is set.
+The active CLI supports only image smoke and static scan diagnosis; retired tracker
+traces are results, not executable entry points.
 
-`b1/perception/operational-tracking-*` preserves 6.0C's bounded four-pilot-condition
-replays, attempts and parked-arm live observation checks. Traces distinguish the
-visual reference, explicitly selected contact, independent field support and loss.
-Candidate tables keep observed two-finger support, endpoint IK errors and joint
-margins separate. Live traces additionally audit raw-depth visibility independently
-of material identity. Complete execution does not mean a tracking exit check passed;
-all qualification flags remain false. These runs contain no learning collection.
+Prepared assets remain under `assets/doors/b1/`. Qualification and Purdue runtime
+verification normally remain under `~/.cache/alexdoor-xas/`. No policy result or
+qualified perception release exists.

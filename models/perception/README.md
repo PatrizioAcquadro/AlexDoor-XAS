@@ -1,8 +1,8 @@
 # Selected perception resources
 
 Local weights are preserved for GroundingDINO + SAM 3 with explicit RGB-D/multiview
-geometry, and DINOv3 patch associations. The diagnostic provider is implemented;
-it is not a qualified perception release.
+geometry and DINOv3 image features for the maintained 6.0B static scan.
+It is not a qualified perception release; Point2Pose integration remains future work.
 
 | Directory | Upstream model | Weight revision |
 |---|---|---|
@@ -21,7 +21,7 @@ and [pinned model repository](https://huggingface.co/IDEA-Research/grounding-din
 Weights were checked against the original download digests and moved with their
 bytes unchanged. Local hashes, original download reports and path relocations
 are in `outputs/b1/perception/evidence/cleanup.json` and its `comparison-01/`
-subdirectory. The prototype keeps its native SAM 3 source and dependency overlay
+subdirectory. The image worker keeps its native SAM3 source and dependency overlay
 under ignored `runtime/`. The shared Isaac NumPy/PyTorch/Transformers installation
 is unchanged. Only the worker prepends this overlay; RGB and packed output bytes
 cross the process boundary, avoiding NumPy 1/2 ABI and pickle incompatibilities.
@@ -46,7 +46,11 @@ Python. Do not install the upstream dependency bundle into Isaac. Native SAM 3
 requires NumPy 1.x here; SciPy/scikit-learn are paired with that ABI. The builder
 recognizes `device="cuda"`; the worker explicitly moves and checks all weights on
 `cuda:0`, freezes parameters and uses inference mode. No model download occurs
-during smoke/replay; missing resources or CUDA cause an error.
+during smoke/scan; missing resources or CUDA cause an error.
+
+`runtime-requirements.txt` contains the image builder's required dependencies.
+The retired video path's `decord` dependency was removed from both this list and
+the local overlay; the external runtime was not modified.
 
 Smoke all three models with a fresh output:
 

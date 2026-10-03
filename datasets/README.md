@@ -3,34 +3,29 @@
 Local reusable episodes and split/normalization products use
 `datasets/<task>/<action_space>/<version>/`; payloads stay outside Git.
 
-B0 datasets were removed. B1 perception-engineering collection uses
-`scripts/collect_perception.py` and the separate `b1.rgbd.v1` streaming format.
-Each episode stores N+1 synchronized RGB-D/proprioceptive observations, N actual
-pose/joint commands, separate labels, and a factual terminal result. These
-recordings are not the final matched policy dataset.
+B1 perception engineering uses the maintained `scripts/collect_perception.py` and
+`b1.rgbd.v1` streaming format: N+1 synchronized RGB-D/proprioceptive observations,
+N actual commands, separate labels, calibration and a factual terminal result.
+The collector validates the frozen corpus, rejects test identities, uses fresh
+Isaac CUDA processes and never updates qualification records. `--resume` skips
+only complete validated episodes. Collection requires separate authorization.
 
-The collector reads the frozen corpus, rejects test identities, uses fresh Isaac
-processes and never updates qualification records. `--resume` skips only complete,
-validated episodes. Payloads remain local under `datasets/b1/perception/`.
+All **50 `b1/perception/engineering-v2` episodes** remain intact (about 729 GiB).
+They support 6.0B and future common train/development qualification; they are not
+the final matched policy dataset. Superseded `engineering-v1`, `inspection-pilot-01`
+and `inspection-tallest-01` were removed after preserving 53 recording headers,
+calibration/metadata and essential results. Earlier interrupted payload removals
+remain recorded separately. The inventory is
+`outputs/b1/perception/evidence/cleanup.json`; preserved superseded headers are in
+`superseded-recording-headers-20261002.json` beside it. Removed ignored recordings
+are not recoverable from Git. Cleanup started no collection or training.
 
-The retained numerical loaders/exporters are described in
-[Episode and Dataset Contracts](../knowledge/wiki/topics/episode-and-dataset-contracts.md).
-Final matched B1 policy-dataset generation remains Subphase 6.2 work.
-
-The frozen B1 **asset identity** split is tracked separately in
+The frozen **asset identity** split is tracked in
 [`assets/doors/b1/corpus.json`](../assets/doors/b1/corpus.json): 19 train,
-six development and seven test doors. Use `qualification.corpus.load_corpus`
-to validate it before Phase 6 collection. The numerical episode split helpers
-do not replace this family-separated assignment. Qualification evidence stays
-in the verification cache and must not be exported as learning demonstrations.
+six development and seven test doors. `qualification.corpus.load_corpus` validates
+it; numerical episode split helpers do not replace its family assignment.
+Qualification evidence stays in the verification cache, outside learning data.
 
-Preserved engineering resources: `b1/perception/engineering-v1` and
-`engineering-v2` each contain 50 complete episodes; `inspection-pilot-01` has two.
-`inspection-tallest-01` contains one complete inspection diagnostic without expert
-hold/release, relocated from outputs. Preserve its diagnostic status. The earlier
-campaign lacks the newer inspection; use each recorded calibration/recipe.
-Five interrupted HDF5 payloads were explicitly removed after saving metadata,
-calibration and failure evidence. Feature caches of the retired estimator were
-removed; they are not original observations. Details and path mappings are in
-`outputs/b1/perception/evidence/cleanup.json`. No ignored payload is recoverable
-from Git. No dataset generation or collection was performed by cleanup.
+Numerical loaders/exporters remain described in
+[Episode and Dataset Contracts](../knowledge/wiki/topics/episode-and-dataset-contracts.md).
+B0 data are retired. Final matched B1 policy data remain future Subphase 6.2 work.
