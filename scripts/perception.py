@@ -90,6 +90,8 @@ def main():
                             case=case,
                             returncode=result.returncode,
                             report=str(folder / "report.json"),
+                            complete=(folder / "report.json").exists(),
+                            failed=(folder / "failure.json").exists(),
                         )
                     )
                     write_json(args.output / "runs.json", reports)

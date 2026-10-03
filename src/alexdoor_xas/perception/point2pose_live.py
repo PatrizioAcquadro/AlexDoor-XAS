@@ -170,6 +170,7 @@ def observer_case(env, door, setup, calibration, observe, recipe, models, output
     provider = tracking_provider(recipe, models, calibration, output, replay=False)
     zero = torch.zeros((1, 6), device=env.device)
     records, events, reference, previous = [], [], None, None
+    captured_truth = {}
     motion_start = None
     clock_start = time.perf_counter()
     neck = np.array(setup.neck)
@@ -185,7 +186,9 @@ def observer_case(env, door, setup, calibration, observe, recipe, models, output
         while time.perf_counter() - clock_start < 24:
             phase = 0.0 if motion_start is None else time.perf_counter() - motion_start
             if case in ("camera", "combined"):
-                env.set_neck_target(neck + [0.035 * np.sin(phase), 0.025 * np.sin(phase * 0.7)])
+                limits = array(env.robot.data.joint_pos_limits)[0, env.neck_ids]
+                target = neck + [0.025 * (1 - np.cos(phase)), 0.015 * (1 - np.cos(phase * 0.7))]
+                env.set_neck_target(np.clip(target, limits[:, 0], limits[:, 1]))
             if case in ("panel", "combined"):
                 angle = 0.10 * (1 - np.cos(min(phase, 8.0) * np.pi / 8))
                 q = torch.full((1, 1), angle, device=env.device)
@@ -197,6 +200,7 @@ def observer_case(env, door, setup, calibration, observe, recipe, models, output
                 continue
             previous = int(sensor["frame"])
             expected_truth = truth()
+            captured_truth[previous] = expected_truth.copy()
             fault = "none"
             # Controlled input faults are diagnostics, not physical occluder qualification.
             if case == "visibility" and reference is not None:
@@ -243,6 +247,12 @@ def observer_case(env, door, setup, calibration, observe, recipe, models, output
                 )
             result = tracker.last_result
             if result is not None and (not events or result["frame"] != events[-1]["frame"]):
+                capture_error = None
+                if reference is not None and tracker.candidates[0].state == "tracked":
+                    expected = (
+                        captured_truth[result["frame"]] @ np.linalg.inv(reference[0]) @ reference[1]
+                    )
+                    capture_error = pose_error(tracker.candidates[0].pose, expected)
                 events.append(
                     dict(
                         frame=result["frame"],
@@ -250,6 +260,8 @@ def observer_case(env, door, setup, calibration, observe, recipe, models, output
                         available_s=tracker.diagnostics["available_s"],
                         latency_s=tracker.diagnostics["available_s"] - result["capture_s"],
                         inference_latency_s=result["latency_s"],
+                        capture_error=capture_error,
+                        gpu_free_bytes=result["gpu_free_bytes"],
                         gpu_resident_bytes=result.get("gpu_resident_bytes"),
                         gpu_sampled_peak_bytes=result.get("gpu_sampled_peak_bytes"),
                         torch_peak_bytes=result["torch_peak_bytes"],
@@ -311,6 +323,28 @@ def observer_case(env, door, setup, calibration, observe, recipe, models, output
             loaded_contact_admitted=False,
             final_tracking=tracker.diagnostics,
         )
+        capture_errors = np.asarray(
+            [e["capture_error"] for e in events if e["capture_error"] is not None]
+        ).reshape(-1, 2)
+        report.update(
+            capture_position_error_m=quantiles(capture_errors[:, 0]),
+            capture_rotation_error_deg=quantiles(capture_errors[:, 1]),
+            gpu_sampled_peak_bytes=max(
+                (e["gpu_sampled_peak_bytes"] or 0 for e in events), default=None
+            ),
+            torch_peak_bytes=max((e["torch_peak_bytes"] for e in events), default=None),
+            gpu_min_free_bytes=min((e["gpu_free_bytes"] for e in events), default=None),
+        )
+        report["by_fault"] = {}
+        for label in ("none", "zone_covered", "total_occlusion"):
+            subset = [r for r in records if r["fault"] == label]
+            supported = [r for r in subset if r["observable"]]
+            report["by_fault"][label] = dict(
+                frames=len(subset),
+                observable_frames=len(supported),
+                useful_frames=sum(r["available"] for r in supported),
+                available_frames=sum(r["available"] for r in subset),
+            )
         # A real process reset is inspected after the run, separately from motion scores.
         old_worker = tracker.engine.worker
         old_pid = old_worker.process.pid if old_worker else None

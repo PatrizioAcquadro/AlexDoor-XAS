@@ -355,3 +355,10 @@ pilot/observer reports determine useful availability and precision independently
 
 See [[../topics/shared-door-perception|prototype behavior]] and
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|acceptance requirements]].
+
+Initial live checks exposed one unsupported thin hypothesis invalidating the
+whole bundle and a diagnostic neck sweep reaching a mechanical limit.
+`point2pose-live-check-01/02` preserve both failures. Interior-support checks now
+precede duplicate consolidation and native initialization, and the common camera
+sweep respects actual joint limits. This does not alter Point2Pose's prompts,
+registration thresholds or robot limits.

@@ -212,3 +212,60 @@ def test_redundant_observations_are_not_independent_candidates():
         assert tracking.diagnostics["redundant_observations"] == 1
     finally:
         engine.close()
+
+
+def test_worker_ipc_excludes_annotations_commands_and_asset_identity(monkeypatch):
+    from types import SimpleNamespace
+
+    import alexdoor_xas.perception.point2pose_runtime as runtime
+
+    worker = object.__new__(runtime.Point2PoseWorker)
+    worker.process = SimpleNamespace(stdin=object(), stdout=object())
+    worker.first_request = False
+    worker.gpu_resident_bytes = worker.gpu_sampled_peak_bytes = None
+    requests = []
+    monkeypatch.setattr(runtime, "send", lambda _, value: requests.append(value))
+    monkeypatch.setattr(runtime, "receive", lambda _: dict(latency_s=0.02, objects=[]))
+    captured = dict(
+        sensor(),
+        annotations={"hinge": [999, 999, 999]},
+        command=np.ones(6),
+        asset_id="must-never-cross",
+        expected_pose=np.eye(4),
+    )
+    worker.infer(captured, [np.ones((80, 80), bool)])
+    assert set(requests[0]["sensor"]) == set(OBS_KEYS)
+    assert not set(captured).difference(OBS_KEYS).intersection(requests[0])
+    assert requests[0]["mask_frame"] == 0 and requests[0]["mask_time_s"] == 0
+
+
+def test_thin_uninitializable_hypothesis_does_not_discard_other_candidates():
+    from copy import deepcopy
+
+    captured = sensor()
+    good = make_surface(captured)
+    thin = deepcopy(good)
+    mask = np.zeros((80, 80), bool)
+    mask[15:65, 39:41] = True
+    thin.observations[0].support_mask = np.packbits(mask).tobytes()
+    engine = Point2PoseEngine(lambda _: Worker(), replay=True)
+    tracker = PanelTracking(
+        engine,
+        dict(
+            plane_tolerance_m=0.004,
+            voxel_m=0.004,
+            association_angle_deg=5,
+            association_distance_m=0.025,
+            min_points=120,
+        ),
+    )
+    try:
+        tracker.initialize([thin, good], captured)
+        assert len(tracker.candidates) == 1
+        assert (
+            tracker.diagnostics["initialization_rejections"][0]["reason"]
+            == "insufficient_candidate_core"
+        )
+        assert tracker.candidates[0].candidate_id == "candidate-1"
+    finally:
+        engine.close()

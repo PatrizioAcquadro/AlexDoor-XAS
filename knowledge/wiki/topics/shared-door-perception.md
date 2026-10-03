@@ -134,8 +134,9 @@ Execution success does not imply offline, dynamic or release qualification.
 Initialization uses automatic 6.0B components from the common inspection's first
 completed view (4 s), with an immutable same-acquisition RGB/mask/depth/K/joint
 packet. Reciprocal existing registration checks consolidate duplicate observations;
-distinct supports remain independent hypotheses. A diagnostic selects the first
-candidate explicitly without labels or later truth-based reselection.
+distinct supports remain independent hypotheses. Before native initialization, candidates lacking distributed measured interiors
+are rejected individually and recorded. A diagnostic selects the first eligible
+automatic candidate explicitly without labels or later truth-based reselection.
 
 The official CAD-free pipeline supplies segmentation, distributed point tracking,
 registration, map, graph and TSDF. A regenerated SAM2 mask must retain five

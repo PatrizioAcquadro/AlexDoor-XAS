@@ -26,6 +26,7 @@ from alexdoor_xas.perception.material_zone import (
     transported_zone,
 )
 from alexdoor_xas.perception.observed_articulation import fit_motion_axis
+from alexdoor_xas.perception.point2pose_seed import candidate_references
 from alexdoor_xas.perception.point2pose_worker import unpack_array
 from alexdoor_xas.perception.scan import object_members, registered_support, surface_support
 
@@ -109,6 +110,33 @@ class PanelTracking:
             and np.ptp(s.points @ s.basis, axis=0)[1] > 0.2
             and np.ptp(s.points @ s.basis, axis=0)[2] > 0.3
         ]
+        identifiers = {id(s): f"candidate-{i}" for i, s in enumerate(roots)}
+        eligible = []
+        for surface in roots:
+            observation = surface.observations[0]
+            if observation.frame != int(sensor["frame"]) or observation.acquired_s != float(
+                sensor["time_s"]
+            ):
+                raise ValueError("unsynchronized_candidate_initialization")
+            try:
+                candidate_references(
+                    observation.mask(),
+                    sensor["depth_m"],
+                    sensor["valid_depth"],
+                    sensor["intrinsics"],
+                    self.config["plane_tolerance_m"],
+                )
+            except ValueError as error:
+                self.diagnostics.setdefault("initialization_rejections", []).append(
+                    dict(
+                        candidate_id=identifiers[id(surface)],
+                        frame=int(sensor["frame"]),
+                        reason=str(error),
+                    )
+                )
+            else:
+                eligible.append(surface)
+        roots = eligible
         unique = []
         for surface in roots:
             duplicate = any(
@@ -132,19 +160,20 @@ class PanelTracking:
             )
         ]
         masks = []
-        for index, surface in enumerate(roots):
+        for surface in roots:
             observation = surface.observations[0]
             if observation.frame != int(sensor["frame"]) or observation.acquired_s != float(
                 sensor["time_s"]
             ):
                 raise ValueError("unsynchronized_candidate_initialization")
+            mask = observation.mask()
             # The reference is a measured point. No panel size/area identifies a leaf.
             world = pose_matrix(
                 ObjectFrame(surface.points[len(surface.points) // 2], contact_frame(surface.normal))
             )
             self.candidates.append(
                 PanelCandidate(
-                    f"candidate-{index}",
+                    identifiers[id(surface)],
                     deepcopy(surface),
                     world,
                     np.linalg.inv(sensor["camera_world"]) @ world,
@@ -152,7 +181,7 @@ class PanelTracking:
                     surface_support(surface, self.generation, self.config),
                 )
             )
-            masks.append(observation.mask())
+            masks.append(mask)
         if not masks:
             return False
         started = max(o.available_s for s in roots for o in s.observations)
