@@ -20,8 +20,8 @@ GroundingDINO + native SAM3, DINOv3 and calibrated RGB-D/multiview geometry.
 Prior dynamic trackers, replay evaluation and video comparison are retired;
 50 engineering-v2 recordings and essential historical evidence remain. The optional
 6.0C prototype integrates official CAD-free Point2Pose with camera kinematics and
-panel-fixed local zones. Runtime and useful-availability gates remain open;
-loaded contact and policy handoff are not enabled.
+panel-fixed local zones. Current pilot diagnostics fail useful availability at
+the unchanged 150 ms limit. Loaded contact and policy handoff are not enabled.
 Independent 6.1 software covers ACT/Diffusion × A1–A4 through model-independent
 observed inputs, matched data and execution adapters. Numerical/CUDA model checks
 pass; qualified perception integration and physical rollout validation remain pending.

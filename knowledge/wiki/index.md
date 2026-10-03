@@ -36,7 +36,7 @@ Current technical behavior and explicitly labeled planned contracts:
 - [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — `phase2.v2`, matched exports, splits, views, normalization, and model data.
 - [[topics/learned-policy-stack|Learned Policy Stack]] — Reusable ACT/Diffusion models, tensor training, checkpoints and explicit observation boundary.
 
-- [[topics/shared-door-perception|Shared Door Perception]] — Maintained static scan, recording, estimator-independent contracts and supported diagnostics; qualification pending.
+- [[topics/shared-door-perception|Shared Door Perception]] — Static scan, official Point2Pose panel/zone prototype, recording and estimator-independent contracts; qualification pending.
 
 ## Key Decisions
 
@@ -51,7 +51,7 @@ Current architectural and scientific contracts:
 
 Current engineering and historical scientific records:
 
-- [[experiments/b1-perception-findings|B1 Perception Findings and Direction]] — Corrected model screening, static/local findings, retired tracker failures and preserved evidence.
+- [[experiments/b1-perception-findings|B1 Perception Findings and Direction]] — Corrected model screening, static/local findings, failed Point2Pose qualification diagnostics and preserved evidence.
 
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.

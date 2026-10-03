@@ -111,5 +111,6 @@ The pinned CUDA kernel has a one-past-end index guard; the installer applies
 small-object defaults in all lifting/crop calls. Equivalent dense crops are
 cached only within one frame and unnecessary neighborhood gathering is skipped
 only when it cannot affect official lifting results. SAM2 retains the authors'
-positive prompts. The prototype remains unqualified; results and limitations
+positive prompts. Current pilot diagnostics fail useful availability at the
+unchanged 150 ms limit. The prototype remains unqualified; results and limitations
 are in the canonical perception findings, not implied by successful setup.

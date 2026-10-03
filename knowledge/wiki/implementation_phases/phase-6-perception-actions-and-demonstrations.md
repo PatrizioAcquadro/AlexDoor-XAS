@@ -26,11 +26,13 @@ execution.
 
 Legacy geometric tracking/evaluation, custom material tracking and video comparison
 are retired after preserving their failures. Independent full-state/local contracts,
-explicit selection, timing/reset, admission and feedback interfaces remain. Future
-The Point2Pose prototype tracks candidate panel pose from distributed visual references and RGB-D,
-compensating camera kinematics and preserving local contact checks. No integration,
-training, collection or release migration is implemented. All 50 engineering-v2
-episodes remain for future common qualification. See
+explicit selection, timing/reset, admission and feedback interfaces remain.
+The Point2Pose prototype tracks candidate pose from distributed visual references
+and RGB-D, compensating camera kinematics and preserving local contact checks.
+Pilot diagnostics fail useful availability at the unchanged 150 ms limit;
+implementation does not establish qualified tracking or whole-leaf ownership.
+No training, collection, loaded admission or release migration is implemented.
+All 50 engineering-v2 episodes remain for future common qualification. See
 [[experiments/b1-perception-findings|findings]] and
 [[topics/shared-door-perception|maintained implementation]].
 

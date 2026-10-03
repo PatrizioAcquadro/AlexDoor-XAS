@@ -337,7 +337,9 @@ initially, rather than build another custom point tracker. Distributed visual
 references and metric RGB-D must identify the same rigid leaf through occlusion
 and reacquisition. The prototype, isolated dependencies, official checkpoints and
 smoke/replay/observer entry points are implemented. Runtime initialization works
-on CUDA; useful availability and concurrent latency qualification remain open.
+on CUDA; all four frozen pilot replays and eight fresh-process observer cases
+fail useful availability at 0%. Live complete latency p95 is 0.784–1.755 s;
+some raw accuracy also fails. These results leave 6.0C qualification open.
 
 Use calibrated camera kinematics at each acquisition time to separate head motion
 from leaf motion. Transform the recovered object pose into the repository's world
@@ -383,8 +385,10 @@ initialization mismatch and tracking loss are distinct. Preserve camera Ct,
 initial map M, observed object O and fixed zone Z and the composition
 `W_Ct * Ct_M * M_O * O_Z`. Numeric round trips and independent motion tests must
 catch missing inversions or double alignment. Replay/live share a bounded provider;
-complete episode reset recreates the Point2Pose process and clears all temporal
-state. Same-episode native reacquisition preserves the original identity/zone.
+complete episode reset recreates both workers before new acquisitions and clears
+all Point2Pose temporal state. Frame gaps invalidate semantic requests without
+model reloads. The stateless 6.0B worker is released after the immutable automatic
+seed is ready. Same-episode native reacquisition preserves the original identity/zone.
 
 Confirm zone ownership separately from candidate tracking. Once established,
 transport the zone from panel pose without requiring features in the uniform

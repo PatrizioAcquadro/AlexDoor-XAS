@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-02. **6.0B is maintained; prior dynamic trackers are retired;
+Current as of 2026-10-03 UTC. **6.0B is maintained; prior dynamic trackers are retired;
 the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 6.1 remain open.** No training, new corpus or sealed-test evaluation was started.
 
@@ -9,7 +9,7 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Official BootsTAPIR/SAM2 large/SuperPoint/registration/graph/CUDA TSDF in an isolated worker; FK compensation, panel-fixed zones, causal queues and full process reset implemented. Useful availability, accuracy and concurrent runtime qualification remain open. |
+| 6.0C — Panel tracking prototype | Official CUDA pipeline, FK compensation, panel-fixed zones, causal queues and full process reset implemented. Four pilot replays and eight fresh Isaac cases fail useful availability at 0%; latency and some raw accuracy fail. No qualified runtime or loaded contact. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
@@ -18,8 +18,12 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 
 Resolve the observed runtime/support failures of the
 [[implementation_phases/phase-6-0-operational-perception-and-contact|6.0C prototype]]
-against the preserved pilot replay and observer results. The early single-candidate
-concurrent smoke passed CUDA initialization but failed the 150 ms latency gate.
+against the preserved pilot replay and observer results. Frozen source `7460963`
+fails all four replay and eight observer useful-availability gates. Live complete
+latency p95 is 0.784–1.755 s; some raw right-pilot poses also exceed 1 cm/5 degrees.
+CUDA execution and full process resets work, but no sustained useful interval or
+useful recovery is validated. Profile evidenced initialization/multi-hypothesis
+cost and candidate consistency before broadening validation.
 Use the fixed 95% useful availability and p95 1 cm/5 degree criteria; a provider
 that always returns unavailable fails. Preserve every failed attempt and modify
 Point2Pose only for evidenced limitations.

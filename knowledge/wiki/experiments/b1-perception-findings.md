@@ -312,7 +312,7 @@ training, collection, extended replay or sealed evaluation was started.
 
 Baseline `main` at `0190d61`. The optional provider now runs the official paper
 components at upstream `51856226610df75e5c06e8de545bd27f7c4ba99c`, without CAD,
-training, new recordings or sealed-test access. Local worker dependencies and
+training, new corpus or sealed-test access. Local worker dependencies and
 checkpoints are ignored by Git and isolated from Isaac and 6.0B. The prototype
 publishes local diagnostics; legacy full-state validity and policy encoding remain
 unavailable. No action or loaded contact is admitted.
@@ -362,3 +362,100 @@ whole bundle and a diagnostic neck sweep reaching a mechanical limit.
 precede duplicate consolidation and native initialization, and the common camera
 sweep respects actual joint limits. This does not alter Point2Pose's prompts,
 registration thresholds or robot limits.
+
+The third replay still failed all four recordings: right-pilot tracking was lost
+after cold initialization skipped inspection views, while left-pilot volumes
+reached the enforced GPU reserve with inactive 6.0B weights still resident.
+The first eight-case fresh-process observer matrix also failed useful availability
+in every case; one combined-motion initialization failed its SAM2 preservation
+check. Some raw left-pilot poses were accurate, but they arrived too late and
+cannot count as useful outputs.
+
+Lifecycle revision `7460963` loads both workers before acquisition and releases
+the stateless 6.0B worker once the synchronized seed is ready. Startup is reported
+separately; copying, candidate preparation, IPC, queue wait and observed-pose
+publication processing remain in dynamic timing. Episode reset terminates and
+recreates the prepared Point2Pose process and seed worker. Ordinary frame gaps
+invalidate requests without model reloads. Warm diagnostic attempts 01/02 exposed
+an erroneous reload on every gap; both are retained. Temporary weight staging was
+reverted, and inference remains CUDA-only. Warm attempt 03 initialized five
+hypotheses and completed real process replacement, but still had 0% useful
+availability and 1.046 s p95 latency. GPU sampled process peak was 5.36 GB, with
+12.18 GB minimum free memory after releasing the seed worker.
+
+### Frozen pilot replay
+
+`point2pose-replay-04` uses source commit `7460963`, the same recipe for all four
+existing recordings and chronological 20 Hz input. All 6,704 sampled rows are
+retained, including initialization, unavailable outputs and tracking losses.
+The 4,630 sufficient-reference rows are defined by projected source geometry and
+measured depth independently of tracker acceptance. Every case fails useful
+availability; all useful-error sets and sustained support intervals are empty.
+
+| Pilot / condition | Full / observable rows | Useful output | Complete latency p95 | Raw capture position / rotation p95 | Final state |
+|---|---:|---:|---:|---:|---|
+| Right / light | 1,573 / 1,442 | 0% | 0.651 s | 30.08 cm / 42.52 degrees | Tracking lost |
+| Right / nominal | 1,573 / 1,442 | 0% | 0.651 s | 56.47 cm / 52.53 degrees | Tracked, stale |
+| Left / light | 1,779 / 161 | 0% | 2.125 s | 11.69 cm / 14.89 degrees | Tracked, stale |
+| Left / nominal | 1,779 / 1,585 | 0% | Unavailable | Unavailable | SAM2 initialization mismatch |
+
+Raw errors are conditional on a finite supported native pose at its source image;
+they exclude lost poses and do not demonstrate useful accuracy. They compare the
+first automatic hypothesis with the leaf trajectory without truth-based reselection.
+Its complete material ownership remains unqualified, so these diagnostics cannot
+attribute every error uniquely to registration rather than candidate association.
+The full denominators and unchanged official gates remain separate.
+
+CUDA TSDF remains active throughout the three initialized cases, with 11/12/32
+observed volume rebuilds. Sampled Point2Pose process peaks are 8.24/8.77/14.52 GB;
+no memory-bound failure occurs in this attempt. The failed initialization supplies
+no completed-result latency or memory-peak distribution. This is missing evidence,
+not zero cost. Zero useful recovery and no sustained useful interval fail the
+requirement even where raw native tracking returns.
+
+### Frozen observer matrix
+
+`point2pose-live-02` also uses source commit `7460963`. All eight cases complete
+in fresh, serial Isaac processes with the arm parked and no loaded action.
+The 2,772 input observations and 1,734 independently observable samples remain
+in the records. Every useful-availability gate fails at 0%; complete latency
+p95 is 0.784–1.755 s, beyond the unchanged 150 ms deadline.
+
+| Pilot / case | Full / observable samples | Complete latency p95 | Raw capture position / rotation p95 |
+|---|---:|---:|---:|
+| Left / camera | 353 / 233 | 1.726 s | 1.67 mm / 0.261 degrees |
+| Left / panel | 354 / 231 | 1.755 s | 1.99 mm / 0.326 degrees |
+| Left / combined | 348 / 228 | 1.196 s | 2.24 mm / 0.407 degrees |
+| Left / visibility | 346 / 193 | 1.328 s | 1.48 mm / 0.209 degrees |
+| Right / camera | 343 / 223 | 1.087 s | 19.49 mm / 1.927 degrees |
+| Right / panel | 338 / 212 | 0.784 s | 9.99 mm / 2.538 degrees |
+| Right / combined | 332 / 209 | 0.998 s | 56.70 mm / 9.135 degrees |
+| Right / visibility | 358 / 205 | 1.714 s | 2.19 mm / 0.392 degrees |
+
+The visibility tests retain 42/48 observable covered-zone samples, all with zero
+useful outputs despite other references being visible. Each total-occlusion
+interval has 31 samples and no published localization. Native tracking returns
+after reappearance without changing the selection, but useful recovery is zero
+and every sustained useful interval is empty. Since the baseline is already
+unavailable, this is not a successful live loss/recovery validation. Repeat that
+validation only after establishing useful pre-occlusion tracking. Synthetic RGB-D
+faults do not validate physical occluders.
+
+All eight episode resets terminate the original PID, create a different prepared
+worker PID, increment generation and leave candidates, selections and queues
+empty. Numerical tests additionally cover invalidation during in-flight work.
+Sampled Point2Pose process peaks are 4.60–6.14 GB, PyTorch allocator peaks
+2.98–3.92 GB, and sampled free device memory remains at least 11.33 GB during
+completed inference with Isaac active. These are separate measurements, not an
+exact combined startup/graphics high-water mark. No CPU model or TSDF fallback
+is used.
+
+The unchanged 1 cm/5 degree limits also reject raw right-pilot camera/combined
+accuracy; raw left-pilot stability does not compensate for late publication.
+The next work is targeted profiling of initialization, multi-hypothesis native
+registration/graph/TSDF cost and candidate consistency on these preserved cases,
+without per-door retuning or tracker comparisons. Complete zone ownership,
+hardware calibration/FK and temporal/stop bounds, real occlusion and physical
+slide remain unvalidated. Numeric finite-region slip checks do not establish
+loaded contact. Official offline/dynamic qualification and policy handoff remain
+separate and false.
