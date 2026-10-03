@@ -147,13 +147,14 @@ class CueEngine:
 
 
 class GeometryProvider:
-    """Static scan evidence only; never a qualified policy or motion provider."""
+    """Static scan with optional Point2Pose local diagnostics; no qualified release."""
 
-    def __init__(self, binding, engine):
+    def __init__(self, binding, engine, *, tracking=None):
         if binding.config.get("scan_fusion") != "object-v1":
             raise ValueError("Static scan requires the object-v1 recipe")
         self.binding, self.engine = binding, engine
         self.config = binding.config
+        self.tracking = tracking
         self.reset()
 
     @property
@@ -171,6 +172,8 @@ class GeometryProvider:
     def reset(self):
         self.episode_generation = getattr(self, "episode_generation", -1) + 1
         self.engine.reset()
+        if self.tracking is not None:
+            self.tracking.reset(self.generation)
         self.last_estimate = self.encoding = None
         self.last_time = self.last_frame = None
         self.next_semantic = 0.0
@@ -184,17 +187,19 @@ class GeometryProvider:
         if event is None:
             return False
         captured, view, cue, ready = event
-        self._fuse(captured, view, cue, available_s=ready)
+        self._fuse(captured, view, cue, available_s=ready, started_s=now)
         self.diagnostics.update(
             result_age_s=now - float(captured["time_s"]), available_time_s=ready
         )
         return True
 
     def due_view(self, t):
+        if self.tracking is not None and self.tracking.candidates:
+            return None  # Native SAM2 already tracks the initialized hypotheses.
         end = self.config["inspection"]["sample_times_s"][-1]
         return self.last_frame if t <= end and t >= self.next_semantic else None
 
-    def _fuse(self, sensor, view, cue, *, available_s=None):
+    def _fuse(self, sensor, view, cue, *, available_s=None, started_s=None):
         cue = dict(
             cue,
             available_s=float(sensor["time_s"]) + cue["latency_s"]
@@ -202,6 +207,13 @@ class GeometryProvider:
             else available_s,
         )
         candidates = surfaces(cue, sensor, self.config)
+        if (
+            self.tracking is not None
+            and float(sensor["time_s"]) >= self.config["inspection"]["sample_times_s"][0]
+        ):
+            # Use the common inspection's first completed view, not reset's
+            # transient view. The original synchronized packet remains the seed.
+            self.tracking.initialize(candidates, sensor, start_s=started_s)
         self.last_cue = (sensor, cue)
         self.scan_memory.add(candidates, sensor, view, available_s=cue["available_s"])
         state = self.scan_state
@@ -261,8 +273,37 @@ class GeometryProvider:
         if not np.any(valid & np.isfinite(depth) & (depth > 0)) or not np.any(sensor["rgb"]):
             self.engine.reset()
             return DoorEstimate(t, False, "missing_rgbd")
-        self.consume_results(t)
+        try:
+            self.consume_results(t)
+        except (RuntimeError, EOFError, BrokenPipeError, ValueError) as error:
+            if self.tracking is None:
+                raise
+            self._tracking_failure(error)
         view = self.due_view(t)
         if view is not None and self.engine.submit(sensor, view):
             self.next_semantic = t + self.config["semantic_period_s"]
+        if self.tracking is not None:
+            try:
+                local = self.tracking.update(sensor)
+            except (RuntimeError, EOFError, BrokenPipeError, ValueError) as error:
+                self._tracking_failure(error)
+                local = self.tracking.local_state(t)
+            self.diagnostics["tracking"] = self.tracking.diagnostics
+            return DoorEstimate(t, False, "point2pose_local_diagnostic", local=local)
         return DoorEstimate(t, False, "static_scan_only")
+
+    def _tracking_failure(self, error):
+        state = "initialization_failed" if self.tracking.last_result is None else "tracking_failed"
+        for candidate in self.tracking.candidates:
+            candidate.state = state
+        self.tracking.engine.failed = True
+        self.tracking.engine.pending = self.tracking.engine.latest = None
+        self.tracking.diagnostics.update(state=state, error=str(error))
+
+    def close(self):
+        if self.tracking is not None:
+            self.tracking.engine.close()
+        self.engine.close()
+        self.engine.worker.close()
+        if hasattr(self, "owned_log"):
+            self.owned_log.close()

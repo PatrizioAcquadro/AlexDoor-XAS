@@ -4,10 +4,10 @@ Phase 6.0 is **unqualified**. 6.0B retains static calibrated RGB-D/multiview
 geometry with frozen GroundingDINO, native SAM3 and DINOv3. The former geometric
 and custom material trackers, full-state replay orchestration and SAM3 video
 comparison are retired. Their results remain in
-[[experiments/b1-perception-findings|Perception Findings]]. The future CAD-free
-Point2Pose integration is specified in
+[[experiments/b1-perception-findings|Perception Findings]]. The optional CAD-free
+Point2Pose prototype is implemented under
 [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]];
-no Point2Pose code, adapter or dependency exists here.
+its diagnostics do not qualify a release or enable contact.
 
 ## Recording, inspection and storage
 
@@ -123,8 +123,79 @@ From the repository root, select a fresh output directory:
 0–25 s on `door-2738468b94d74c5f` and `animated-door-1-88abf40`, nominal/light.
 Metadata selects recordings; annotations do not enter inference. Reports retain
 candidate reprojections, geometry, finite-cover queries, timing and ambiguity.
-No command performs dynamic tracking, video comparison or full-state evaluation.
+The static commands perform no dynamic tracking or full-state evaluation.
+Point2Pose diagnostics and setup are described below.
 Execution success does not imply offline, dynamic or release qualification.
+
+## Panel tracking prototype — 6.0C
+
+`point2pose_runtime.tracking_provider` adds `PanelTracking` to the existing
+`GeometryProvider`. Default 6.0B behavior and policy encoding remain unchanged.
+Initialization uses automatic 6.0B components from the common inspection's first
+completed view (4 s), with an immutable same-acquisition RGB/mask/depth/K/joint
+packet. Reciprocal existing registration checks consolidate duplicate observations;
+distinct supports remain independent hypotheses. A diagnostic selects the first
+candidate explicitly without labels or later truth-based reselection.
+
+The official CAD-free pipeline supplies segmentation, distributed point tracking,
+registration, map, graph and TSDF. A regenerated SAM2 mask must retain five
+spatially distributed measured interior references of the source component.
+This checks essential support without treating legitimate panel relief as frame
+contamination or requiring identical boundary pixels. It does not certify every
+extra mask pixel's physical ownership; ambiguous component relationships remain
+ambiguous. Positive SAM2 prompts are unchanged from upstream.
+
+With `estimate_init_pose=false`, map M remains the first optical camera frame.
+The observed zone frame defines O separately; its fixed transform to the material
+zone is Z. Compose `W_Ct(FK) * Ct_M(Point2Pose pose) * M_O * O_Z` exactly once.
+Do not substitute `init_pose` for the current `pose`. Distributed references
+estimate candidate pose even when the selected contact face is uniform or covered.
+Measured transformed root-plane support and informative residual motion establish
+only the root candidate's rigid relationship; an included handle/relief is not
+attached just by the mask. Tangential motion on a stationary plane is insufficient.
+Articulation fits require informative, conditioned observed motion and remain
+relative to initialization; no closed-pose or loaded-contact reference is invented.
+
+The zone anchor is immutable. `PurdueFK` expresses the tool relative to it;
+tangential slide, normal separation and orientation are separate from tracking
+error. Finite distal covers query the measured region, preserving holes and
+clipping. The allowable region is eroded by the covers and relative uncertainty,
+including `2*r*sin(delta_angle/2)` with the actual rotation origins and finger
+lever arms. The 1 cm/5 degree perception gates are not physical slide limits.
+Current measured depth across both complete footprints is also required for
+contact geometry; a localized zone can remain available while these checks fail.
+Existing relevant-space/obstacle queries remain maintained, but a complete dynamic
+hand/arm sweep and load/stop admission is still 6.0D work.
+
+Primitive local geometry, dynamic pose, calibration/FK and temporal growth are
+counted once. Initial map depth belongs to local geometry; current depth and
+metric registration residual belong to dynamic pose. TAPIR's dimensionless
+uncertainty is never interpreted as meters. Missing calibration/motion bounds
+remain `None`; rendered depth residuals are diagnostic envelopes, not hardware
+metrology. Existing footprint tolerance is deducted once from the additional
+composite erosion. No prediction or native frozen pose advances support time.
+
+Each worker is isolated from Isaac/6.0B; only whitelisted observations and packed
+array bytes cross IPC. One in-flight request and one replaceable latest capture
+bound the queue. Completion includes bootstrap, IPC and queue waiting; release
+never backdates a source or rewrites an older estimate. Support expires at 150 ms.
+Once native SAM2 owns the hypotheses, duplicate 6.0B segmentation is stopped.
+Reset increments generation, clears candidates/selections/queues and terminates
+then lazily recreates Point2Pose, clearing SAM2/TAPIR/map/keyframe/optimizer/graph/
+TSDF state. Tracking failure latches unavailable until an explicit episode reset;
+native reacquisition retains the original zone and identity in the same episode.
+
+Use `scripts/perception.py point2pose-smoke`, `point2pose-live-smoke`,
+`point2pose-replay` and `point2pose-live` with fresh output directories. See
+`models/perception/README.md` for isolated installation and command details.
+Four full chronological pilot recordings are sampled at 20 Hz (stride three);
+full and observable denominators are retained separately. Visible reference
+support is scored independently from tracker acceptance using evaluator-only
+truth projection and measured depth. Every loss remains in the denominator.
+Live observer cases run in fresh serial Isaac processes with a parked arm;
+visibility faults are synthetic input faults, not physical occluder validation.
+Setup, numerical regressions and execution success are distinct from useful
+availability, accuracy and the unchanged official qualification gates.
 
 ## Maintained estimator-independent interfaces
 

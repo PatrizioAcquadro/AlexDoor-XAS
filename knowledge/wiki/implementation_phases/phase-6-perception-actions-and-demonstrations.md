@@ -1,8 +1,8 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
 > Subphase 6.0 remains unqualified. 6.0A contracts and 6.0B static evidence/queries
-> are maintained. Previous dynamic trackers are retired; 6.0C will integrate
-> official CAD-free Point2Pose and is not implemented. 6.0D-H remain planned.
+> are maintained. Previous dynamic trackers are retired; 6.0C integrates
+> official CAD-free Point2Pose as an unqualified prototype. 6.0D-H remain planned.
 > Subphase 6.1 software is partially validated; final integration is pending.
 > Subphase 6.2 is not started. Phases 4 and 5 are complete.
 
@@ -27,7 +27,7 @@ execution.
 Legacy geometric tracking/evaluation, custom material tracking and video comparison
 are retired after preserving their failures. Independent full-state/local contracts,
 explicit selection, timing/reset, admission and feedback interfaces remain. Future
-Point2Pose will track panel pose from distributed visual references and RGB-D,
+The Point2Pose prototype tracks candidate panel pose from distributed visual references and RGB-D,
 compensating camera kinematics and preserving local contact checks. No integration,
 training, collection or release migration is implemented. All 50 engineering-v2
 episodes remain for future common qualification. See
@@ -46,7 +46,7 @@ page as the phase overview; use the detailed plan for requirements and exit chec
 |---|---|---|
 | 6.0A — complete | Explicit operational/provisional/load contracts, measurable admission rules and numerical consumer compatibility | Approved protocol and current consumer audit |
 | 6.0B — complete | Static object fusion, fixed/unresolved support, hinge alternatives and geometric queries; bounded scans and targeted evidence/contact corrections; identity/interaction remain unqualified | 6.0A |
-| 6.0C — planned | Official CAD-free Point2Pose, distributed RGB-D references, camera-motion compensation, panel pose and panel-fixed push zone; local contact checks retained | 6.0B |
+| 6.0C — prototype, unqualified | Official CAD-free Point2Pose, distributed RGB-D references, camera-motion compensation, panel pose and panel-fixed push zone; local contact checks retained | 6.0B |
 | 6.0D | Documented robot feedback, common compliant execution and physical stop | 6.0A; independent of B/C with numerical fixtures |
 | 6.0E | Independent dual-profile evaluator and both pilot replays | 6.0A-C |
 | 6.0F | Bounded diagnostic manipulation on the two train pilots | 6.0D/E gates |

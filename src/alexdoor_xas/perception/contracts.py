@@ -120,6 +120,9 @@ class LocalPatchState:
     pose_support: FieldSupport | None
     finger_clearance_m: tuple[float | None, float | None] = (None, None)
     reason: str = "acquiring_material"
+    tracking_state: str = "acquiring"
+    ownership: str = "unconfirmed"
+    uncertainty_sources: tuple[tuple[str, float | None, float | None, float | None], ...] = ()
 
 
 @dataclass(frozen=True)

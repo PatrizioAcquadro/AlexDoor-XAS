@@ -2,8 +2,8 @@
 
 > Current boundary, October 2, 2026: 6.0A contracts and 6.0B static scans are
 > maintained. The custom dynamic/material trackers, full-state replay command and
-> SAM3 video comparison are retired. New 6.0C Point2Pose integration and 6.0D-H
-> remain unimplemented or unqualified. Historical failures remain failures.
+> SAM3 video comparison are retired. The CAD-free Point2Pose 6.0C prototype is
+> implemented but unqualified; 6.0D-H remain planned. Historical failures remain failures.
 
 ## Objective and current boundary
 
@@ -15,7 +15,8 @@ See [[../topics/shared-door-perception|maintained interfaces]] and
 [[../experiments/b1-perception-findings|results and retirement decisions]].
 
 The current `GeometryProvider` exposes static candidates through `scan_state` and
-returns only invalid `DoorEstimate` values, without policy encoding. GroundingDINO,
+returns invalid `DoorEstimate` values without policy encoding; the optional
+Point2Pose adapter supplies independently supported local diagnostic zones. GroundingDINO,
 native SAM3 and DINOv3 stay frozen for 6.0B. No qualified release exists; the legacy
 6.1 release interfaces are retained without an early schema migration.
 
@@ -322,7 +323,7 @@ validated local commits. External Alex/Isaac packages are outside this work.
 |---|---|---|
 | 6.0A — maintained | Field support, geometry/action/load admission, explicit contact transitions and consumer compatibility | Numerical contracts; no physical qualification |
 | 6.0B — maintained | Calibrated static fusion, original observation references, ownership alternatives, static hinge hypotheses, finite two-finger support and relevant-space queries | Bounded four-pilot scan diagnosis; unresolved ownership/axis remain explicit |
-| 6.0C — future | CAD-free Point2Pose tracking and original-material pose/recovery | Supported identity, pose, loss/reacquisition and informative articulation on both pilots |
+| 6.0C — implemented prototype, unqualified | CAD-free Point2Pose tracking and original-material pose/recovery | Supported identity, pose, loss/reacquisition and informative articulation on both pilots |
 | 6.0D — future | Robot feedback, common compliant control and latched physical stop | Measured/justified signal, load, timeout, gain and stop bounds before loaded interaction |
 | 6.0E — future | Independent operational-v1 evaluator and chronological two-pilot replay | All four pilot conditions pass one recipe; no truth enters inference |
 | 6.0F — future | Bounded diagnostic interaction on both train pilots | D/E gates, physically valid approach/contact/push/hold/release and stop/reset checks |
@@ -334,8 +335,9 @@ validated local commits. External Alex/Isaac packages are outside this work.
 Reuse the [official model-free Point2Pose components](https://github.com/tzuyuan/point-to-pose)
 initially, rather than build another custom point tracker. Distributed visual
 references and metric RGB-D must identify the same rigid leaf through occlusion
-and reacquisition. Integration, dependencies, checkpoints and runtime compatibility
-are future work; no Point2Pose code or placeholder adapter is supplied now.
+and reacquisition. The prototype, isolated dependencies, official checkpoints and
+smoke/replay/observer entry points are implemented. Runtime initialization works
+on CUDA; useful availability and concurrent latency qualification remain open.
 
 Use calibrated camera kinematics at each acquisition time to separate head motion
 from leaf motion. Transform the recovered object pose into the repository's world
@@ -357,6 +359,66 @@ leaf motion with a stationary camera, combined motion, occlusion/reacquisition,
 reset and uncertainty. Keep the selected material point distinct from the visual
 reference and never silently reselect it. Loaded or axis-free diagnostic action
 admission remains 6.0D work; do not invent a hinge to pass the existing validators.
+
+#### Implemented recipe and remaining acceptance work
+
+Pinned upstream revision: `51856226610df75e5c06e8de545bd27f7c4ba99c`.
+Keep BootsTAPIR, SAM2 large, SuperPoint, registration and graph at the official
+paper recipe. Derive TSDF radius/volume from filtered measured candidate geometry,
+using one common truncation/uncertainty margin and 5 mm voxels. The 25 cm filter,
+one-time volume initialization and unenforced YAML extent/voxel limits are
+code-proven incompatibilities with door scale. Expand by replaying retained
+official keyframes while preserving the sparse map/graph/object. Refuse actual
+host/device memory overflow explicitly. Apply calibrated metric camera depth
+limits consistently; filled depth never refreshes measured support.
+
+Early automatic-candidate smoke and concurrent Isaac smoke precede extending the
+adapter. Report resident GPU memory, sampled process peak, exact PyTorch allocator
+peak, whole latency, queue waiting and useful outputs separately. CUDA is required
+for both models and fusion. Do not repair latency by loosening the 150 ms gate.
+
+Initialization keeps the source image, mask, depth, intrinsics, joints and time
+together, including delayed masks. Validate SAM2 source-component interiors;
+initialization mismatch and tracking loss are distinct. Preserve camera Ct,
+initial map M, observed object O and fixed zone Z and the composition
+`W_Ct * Ct_M * M_O * O_Z`. Numeric round trips and independent motion tests must
+catch missing inversions or double alignment. Replay/live share a bounded provider;
+complete episode reset recreates the Point2Pose process and clears all temporal
+state. Same-episode native reacquisition preserves the original identity/zone.
+
+Confirm zone ownership separately from candidate tracking. Once established,
+transport the zone from panel pose without requiring features in the uniform
+contact face. Keep current local plane/discontinuity, both finite footprints,
+obstacles and relevant unknown-space checks separate from zone localization.
+Compute physical slide from the measured region eroded by footprints and each
+primitive uncertainty once. Include angular displacement to actual fingers;
+retain holes and the immutable anchor. Calibration/FK and temporal bounds that
+have not been measured stay missing. The 1 cm/5 degree gates remain perception
+qualification thresholds.
+
+| Diagnostic case | Required outcome |
+|---|---|
+| Camera motion / fixed panel | Stable world candidate and zone; no false articulation. |
+| Panel motion / fixed camera | Coherent world motion and zone transport. |
+| Combined motion | FK compensation and correct residual panel motion. |
+| Uniform or covered zone, other references visible | Useful zone localization from the panel pose; contact geometry may be unavailable. |
+| Total occlusion | No invented support refresh; expiry/loss within freshness/bound limits. |
+| Reappearance | Same explicit identity/zone, supported by fresh observations. |
+| Tool slide | Separate allowed region, departure and tracking error; no inferred loaded contact. |
+| Episode reset | No inherited references, results, selections, map or temporal model state. |
+
+Use the four existing two-pilot nominal/light recordings and brief observer-only
+Isaac cases in fresh processes. Keep all attempts, including failed ones, in new
+output directories. In independently defined sufficient-reference intervals,
+require useful availability at least 95% and p95 error within 1 cm/5 degrees.
+Always unavailable fails. Keep full input denominators and complete official
+qualification gates separate; do not discard losses retrospectively. Synthetic
+visibility faults and ideal rendered depth do not validate hardware occlusion or
+loaded response. No test in this revision enables loaded contact.
+
+Implementation details are canonical in
+[[../topics/shared-door-perception|Shared Door Perception]]; measured results and
+unvalidated limits are in [[../experiments/b1-perception-findings|Perception Findings]].
 
 ### 6.0D — Feedback, compliance and stopping
 

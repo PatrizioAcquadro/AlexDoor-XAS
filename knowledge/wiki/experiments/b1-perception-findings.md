@@ -5,9 +5,10 @@
 The maintained 6.0B uses **GroundingDINO + native SAM3**, calibrated RGB-D/multiview
 geometry and DINOv3 image features. Custom DINOv2 estimators, SAM2/CAP-Net comparisons,
 legacy dynamic geometry, custom material tracking and SAM3 video comparison are
-retired. Future 6.0C will reuse the official CAD-free
+retired. The 6.0C prototype reuses the official CAD-free
 [Point2Pose components](https://github.com/tzuyuan/point-to-pose), with distributed
-visual references, RGB-D and camera kinematics. Integration is not implemented.
+visual references, RGB-D and camera kinematics. The prototype is implemented,
+but useful availability, precision and concurrent runtime are unqualified.
 See [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]]
 for future requirements and [[topics/shared-door-perception|Perception]] for live behavior.
 
@@ -306,3 +307,51 @@ Frozen image smoke and four 0–25 s static scans validate the maintained path i
 `evidence/cleanup-validation-20261002/`. They do not validate Point2Pose, dynamic
 tracking, a movement/contact admission, hardware or offline release gates. No new
 training, collection, extended replay or sealed evaluation was started.
+
+## 2026-10-03 — CAD-free Point2Pose prototype
+
+Baseline `main` at `0190d61`. The optional provider now runs the official paper
+components at upstream `51856226610df75e5c06e8de545bd27f7c4ba99c`, without CAD,
+training, new recordings or sealed-test access. Local worker dependencies and
+checkpoints are ignored by Git and isolated from Isaac and 6.0B. The prototype
+publishes local diagnostics; legacy full-state validity and policy encoding remain
+unavailable. No action or loaded contact is admitted.
+
+The early automatic seed uses the existing right-pilot nominal capture at 4 s.
+Official positive SAM2 prompts retain the panel relief and exclude the displayed
+frame. An adapter border-pixel check incorrectly rejected this mask, and negative
+prompt/full-mask trials produced worse masks. Those changes were reverted.
+Superseded attempts 06/07 remain diagnostic failures; they are not evidence that
+the original mask included the frame. Final verification uses measured interior
+references and preserves ambiguous physical relationships.
+
+The first optimized single-candidate smoke (`point2pose-smoke-11`) reports p95
+171 ms and 9/11 timely tracked post-initialization results. The concurrent fresh
+Isaac smoke (`point2pose-live-smoke-01`) reports p95 265 ms and 0/12 timely results,
+with a 2.31 GB PyTorch allocator peak. CUDA models and TSDF work; the 150 ms gate
+fails. These brief smokes do not score pose accuracy or useful provider output.
+Resident/process peak and queue-aware latency are measured in subsequent attempts;
+PyTorch allocator peak is not total GPU residency.
+
+`point2pose-replay-01` was interrupted after redundant geometric observations
+were found to be separate objects. `point2pose-replay-02` completed all four
+chronological recordings but produced zero useful outputs in every observable
+interval. This is failure, not safe success. The adapter had coupled visual
+support to the uniform planar seed, and initialized from the transient reset
+view. It was corrected to use distributed native references, independent root
+geometry and the first completed common inspection view. Duplicate 6.0B semantic
+work after SAM2 initialization was also removed. Two second-attempt reconstructions
+hit explicit memory bounds; extent now uses the authors' filtered cloud rather
+than outliers they reject. Every failed attempt remains in its original directory.
+
+Real isolated CUDA fusion validates expansion through retained official keyframes,
+multiple integration, sparse state preservation and explicit impossible-volume
+failure. Numeric regressions cover transforms, acquisition/completion, reset,
+measurement versus completed depth, candidate preservation, holes, finite covers,
+angular lever arms and physical slide separate from the 1 cm threshold. These
+checks do not qualify real stereo/calibration errors, loaded mechanics, physical
+occluders, dynamic complete-path clearance or release encoding. Subsequent frozen
+pilot/observer reports determine useful availability and precision independently.
+
+See [[../topics/shared-door-perception|prototype behavior]] and
+[[../implementation_phases/phase-6-0-operational-perception-and-contact|acceptance requirements]].

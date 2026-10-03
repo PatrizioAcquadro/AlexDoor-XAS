@@ -18,9 +18,10 @@ geometry families and both handednesses in every partition. Rights scopes remain
 Subphase 6.0 remains unqualified. The maintained 6.0B static scan uses frozen
 GroundingDINO + native SAM3, DINOv3 and calibrated RGB-D/multiview geometry.
 Prior dynamic trackers, replay evaluation and video comparison are retired;
-50 engineering-v2 recordings and essential historical evidence remain. Future
-6.0C will integrate official CAD-free Point2Pose with camera kinematics and local
-contact checks; that integration is not implemented.
+50 engineering-v2 recordings and essential historical evidence remain. The optional
+6.0C prototype integrates official CAD-free Point2Pose with camera kinematics and
+panel-fixed local zones. Runtime and useful-availability gates remain open;
+loaded contact and policy handoff are not enabled.
 Independent 6.1 software covers ACT/Diffusion × A1–A4 through model-independent
 observed inputs, matched data and execution adapters. Numerical/CUDA model checks
 pass; qualified perception integration and physical rollout validation remain pending.
@@ -66,7 +67,9 @@ Run frozen image inference or the bounded static diagnosis with fresh outputs:
 The diagnosis reads only 0–25 s on the two train pilots, nominal/light, preserving
 object alternatives, geometric queries and observation references. The static
 provider publishes no valid policy encoding or admission to move. Successful
-execution does not qualify perception. Neither command trains or collects data.
+execution does not qualify perception. Neither command trains or collects data. Point2Pose smoke, chronological pilot
+replay and fresh-process observer diagnostics are documented in the
+[model setup](models/perception/README.md#point2pose-60c-worker).
 
 Model tests use CUDA and explicitly skip if unavailable. Pure numerical tests do
 not require a simulator. Run the Purdue integration gate on synthetic fixtures:

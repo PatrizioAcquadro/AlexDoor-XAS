@@ -17,11 +17,26 @@ sys.path.insert(0, str(REPO / "src"))
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=("smoke", "diagnose-scan"))
+    parser.add_argument(
+        "command",
+        choices=(
+            "smoke",
+            "diagnose-scan",
+            "point2pose-smoke",
+            "point2pose-live-smoke",
+            "point2pose-replay",
+            "point2pose-live",
+        ),
+    )
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--data", type=Path, default=REPO / "datasets/b1/perception/engineering-v2")
     parser.add_argument("--config", type=Path, default=REPO / "configs/perception_geometry.json")
     parser.add_argument("--models", type=Path, default=REPO / "models/perception")
+    parser.add_argument(
+        "--seed", type=Path, help="Reuse an automatic smoke seed from its source capture"
+    )
+    parser.add_argument("--case", choices=("camera", "panel", "combined", "visibility"))
+    parser.add_argument("--asset", help="Authorized pilot asset for a live case")
     args = parser.parse_args()
     import h5py
 
@@ -34,8 +49,71 @@ def main():
     recipe = load_recipe(args.config, REPO)
     paths = episode_paths(args.data, load_corpus(REPO / "assets/doors/b1/corpus.json", REPO))
     paths = [p for p in paths if p.parent.parent.name in PILOTS]
+    if args.command == "point2pose-live":
+        if args.asset and args.asset not in PILOTS:
+            parser.error("Live diagnostics are restricted to the two authorized pilots")
+        if args.case:
+            from alexdoor_xas.perception.point2pose_live import run_live_smoke
+
+            run_live_smoke(
+                recipe, args.output, args.models, args.asset or PILOTS[1], case=args.case
+            )
+        else:
+            args.output.mkdir(parents=True, exist_ok=False)
+            reports = []
+            for asset in (args.asset,) if args.asset else PILOTS:
+                for case in ("camera", "panel", "combined", "visibility"):
+                    folder = args.output / asset / case
+                    with (args.output / f"{asset}-{case}.log").open("w") as log:
+                        result = subprocess.run(
+                            [
+                                sys.executable,
+                                str(Path(__file__).resolve()),
+                                "point2pose-live",
+                                "--output",
+                                str(folder),
+                                "--models",
+                                str(args.models),
+                                "--config",
+                                str(args.config),
+                                "--case",
+                                case,
+                                "--asset",
+                                asset,
+                            ],
+                            stdout=log,
+                            stderr=subprocess.STDOUT,
+                        )
+                    reports.append(
+                        dict(
+                            asset=asset,
+                            case=case,
+                            returncode=result.returncode,
+                            report=str(folder / "report.json"),
+                        )
+                    )
+                    write_json(args.output / "runs.json", reports)
+        return 0
+    if args.command == "point2pose-live-smoke":
+        from alexdoor_xas.perception.point2pose_live import run_live_smoke
+
+        print(run_live_smoke(recipe, args.output, args.models, PILOTS[1]), flush=True)
+        return 0
+    if args.command == "point2pose-replay":
+        from alexdoor_xas.perception.point2pose_replay import run_replay
+
+        run_replay(paths, recipe, args.output, args.models)
+        return 0
     if args.command == "diagnose-scan":
         return run_scan_diagnostics(paths, recipe, args.output, args.models)
+    if args.command == "point2pose-smoke":
+        from alexdoor_xas.perception.point2pose_diagnostics import run_point2pose_smoke
+
+        print(
+            run_point2pose_smoke(paths[0], recipe, args.output, args.models, seed=args.seed),
+            flush=True,
+        )
+        return 0
     args.output.mkdir(parents=True, exist_ok=False)
     write_json(
         args.output / "protocol.json",

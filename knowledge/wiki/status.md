@@ -1,25 +1,28 @@
 # Project Status
 
 Current as of 2026-10-02. **6.0B is maintained; prior dynamic trackers are retired;
-Point2Pose integration is not implemented. Phase 6.0 is unqualified and 6.1 remains
-open.** Cleanup started no training or collection and accessed no sealed test.
+the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
+6.1 remain open.** No training, new corpus or sealed-test evaluation was started.
 
 | Area | Current state |
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C–H — Perception/contact qualification | C will reuse official CAD-free Point2Pose components for RGB-D panel tracking with camera kinematics. Integration, measured load/stop behavior, chosen-contact scoring and qualification remain future work. |
+| 6.0C — Panel tracking prototype | Official BootsTAPIR/SAM2 large/SuperPoint/registration/graph/CUDA TSDF in an isolated worker; FK compensation, panel-fixed zones, causal queues and full process reset implemented. Useful availability, accuracy and concurrent runtime qualification remain open. |
+| 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Implement the approved [[implementation_phases/phase-6-0-operational-perception-and-contact|6.0C Point2Pose scope]]:
-use distributed visual references and RGB-D, compensate camera motion from robot
-kinematics, track panel pose and maintain a panel-fixed push zone. Preserve 6.0B
-and local two-finger/contact checks. Validate independent camera/door motion,
-occlusion, explicit selection and loss before considering interaction.
+Resolve the observed runtime/support failures of the
+[[implementation_phases/phase-6-0-operational-perception-and-contact|6.0C prototype]]
+against the preserved pilot replay and observer results. The early single-candidate
+concurrent smoke passed CUDA initialization but failed the 150 ms latency gate.
+Use the fixed 95% useful availability and p95 1 cm/5 degree criteria; a provider
+that always returns unavailable fails. Preserve every failed attempt and modify
+Point2Pose only for evidenced limitations.
 
 Tracking alone establishes neither ownership, a physical hinge nor safe contact.
 D must verify continuous relevant sweeps, feedback semantics, response/load
@@ -56,8 +59,8 @@ B0 remains historical: the saturated 576-rollout study selected no winner and it
 
 Supported entry points are documented in the root/model READMEs: runtime and
 corpus verification, intake/preparation/qualification, recording, frozen image
-smoke and bounded static scan diagnosis. No estimator training, video comparison
-or dynamic perception evaluation CLI remains. See
+smoke, static scan diagnosis and Point2Pose smoke/replay/observer diagnostics.
+No estimator training or tracker-comparison CLI is supplied. See
 [[topics/shared-door-perception|Perception]], [[topics/system-architecture|Architecture]],
 [[topics/purdue-b1-robot-and-contact|Purdue contract]] and
 [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].

@@ -2,7 +2,7 @@
 
 Local weights are preserved for GroundingDINO + SAM 3 with explicit RGB-D/multiview
 geometry and DINOv3 image features for the maintained 6.0B static scan.
-It is not a qualified perception release; Point2Pose integration remains future work.
+Neither the static scan nor the optional Point2Pose prototype is a qualified perception release.
 
 | Directory | Upstream model | Weight revision |
 |---|---|---|
@@ -61,3 +61,51 @@ Smoke all three models with a fresh output:
 
 This command performs only frozen inference on a train RGB observation. A passed
 smoke establishes executable models, not full-state accuracy or control safety.
+
+## Point2Pose 6.0C worker
+
+The optional CAD-free prototype uses upstream revision
+`51856226610df75e5c06e8de545bd27f7c4ba99c` and its paper configuration:
+BootsTAPIR, SAM2 large, SuperPoint, clustered SVD registration, keyframe graph and
+CUDA TSDF. `scripts/setup_point2pose.py` downloads the pinned sources and official
+checkpoints into ignored `point2pose/`, and creates a separate venv with Isaac's
+Python. It does not install into Isaac, Alex or the 6.0B overlay.
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/setup_point2pose.py
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-smoke \
+  --output outputs/b1/perception/NEW_P2P_SMOKE
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live-smoke \
+  --output outputs/b1/perception/NEW_P2P_CONCURRENT
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-replay \
+  --output outputs/b1/perception/NEW_P2P_REPLAY
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live \
+  --output outputs/b1/perception/NEW_P2P_LIVE
+```
+
+Live diagnostics launch only one Isaac process at a time. Run them with other
+Isaac sessions closed. `point2pose-live --case camera|panel|combined|visibility
+--asset PILOT_ID` runs one fresh process. Visibility uses labeled RGB-D input
+faults; it does not qualify physical occluders or loaded interaction. Replay
+reads all four authorized pilot recordings chronologically at stride three,
+retains complete input denominators and separates raw capture accuracy from
+fresh useful outputs. The same provider/worker serves replay and live.
+
+The workstation worker uses Python 3.12, PyTorch 2.4 CUDA 12.1, NumPy 2.1.3,
+Open3D 0.19 and GTSAM 4.3a0; shared Isaac PyTorch/NumPy remain unchanged. The native
+SAM2 extension and PyCUDA require a CUDA toolkit and compatible host compiler.
+On this host CUDA 12.2 uses GCC 11; GCC 13 was rejected by nvcc. Set `CUDA_HOME`
+and `CXX` for another supported toolkit. `sources.json`, `runtime-packages.txt`
+and each process's `runtime.json` record local source/package/configuration state.
+Missing CUDA for models or TSDF is an explicit failure, never a CPU fallback.
+
+The TSDF adapter derives its extent/radial bound from filtered measured keyframe
+geometry and truncation/error padding, keeps 5 mm voxels, rebuilds expanded
+volumes through official fusion and enforces available device/host memory.
+The pinned CUDA kernel has a one-past-end index guard; the installer applies
+`>` to `>=` and preserves the original source. Calibrated depth limits replace
+small-object defaults in all lifting/crop calls. Equivalent dense crops are
+cached only within one frame and unnecessary neighborhood gathering is skipped
+only when it cannot affect official lifting results. SAM2 retains the authors'
+positive prompts. The prototype remains unqualified; results and limitations
+are in the canonical perception findings, not implied by successful setup.
