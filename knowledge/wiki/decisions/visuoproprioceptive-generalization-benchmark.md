@@ -69,15 +69,17 @@ an explicitly ideal geometric approximation, not a reproduced stereo-error model
 
 Use the selected GroundingDINO + SAM 3 components with explicit RGB-D/multiview
 geometry, and DINOv3 when learned visual features are needed. The failed custom
-regressors and completed comparison baselines are retired; the replacement has a
-diagnostic prototype but remains unqualified. Keep one frozen perception stack across all eight cells.
+regressors and dynamic trackers are retired; static 6.0B is maintained. Future
+6.0C will reuse official CAD-free Point2Pose with camera kinematics and local
+contact checks; integration and qualification remain open. Keep one frozen perception
+stack across all eight cells.
 The common bounded scan addresses a measured fixed-view deficit; hardware mounting
 remains unvalidated. Future gaze may use observed inputs, never perfect simulator
 door state. See [[experiments/b1-perception-findings|the evidence and decision]].
 
 | Consumer | Allowed information |
 |---|---|
-| Qualification expert and synthetic setup search | Simulator geometry/state and measured simulation contacts. |
+| Qualification expert and synthetic verification | Simulator geometry/state and measured simulation contacts. |
 | Training supervision | Labels from training-door episodes, kept distinct from model observations. |
 | Learned policy, A3/A4 adapters, and optional gaze | Sensor observations, robot proprioception/forward kinematics, and frozen perception estimates. |
 | Evaluator | Simulator truth for errors, physical validity and scoring; never supplies task commands or runtime estimates. |
@@ -89,8 +91,8 @@ segmentation-derived validity masks, action adapters, or hidden completion logic
 The expert reference angle and asset identity are evaluation metadata, not policy
 inputs. If perception loses the door, handle that observed failure explicitly.
 
-The September prototype and its approved operational successor use the stricter
-observed-only controller/monitor boundary. 6.0A implements profile/admission
+The approved operational design uses the stricter observed-only controller/monitor
+boundary. 6.0A implements profile/admission
 interfaces with action-specific conservative bounds and legacy compatibility; this
 does not qualify perception or control. Its declared joint-torque channel serves
 the common monitor, not policy features. Actual acquisition and its measurement

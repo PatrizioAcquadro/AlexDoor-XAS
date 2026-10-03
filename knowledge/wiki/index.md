@@ -16,7 +16,7 @@ Planned and historical development records:
 - [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4 — Robot and Task Configuration]] — GPU-verified Alex003/control/RGB-D, historical synthetic setup and the shared zero-yaw revision assessed on collected doors.
 - [[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5 — Door Corpus and Qualification]] — Complete: 32 qualified doors, reviewed geometry families and frozen 19/6/7 identity split.
 - [[implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6 — Perception, Actions, and Demonstrations]] — Open 6.0 perception/contact qualification, partially validated 6.1 action software and unstarted 6.2 policy data.
-- [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0 — Operational Perception and Observed Contact]] — 6.0A/B complete; 6.0C local-material software and bounded diagnoses implemented with open tracking/articulation exit checks; 6.0D-H remain planned.
+- [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0 — Operational Perception and Observed Contact]] — 6.0A/B maintained; previous trackers retired; future CAD-free Point2Pose 6.0C and contact/qualification requirements.
 - [[implementation_phases/phase-7-training-and-generalization-evaluation|Phase 7 — Training and Generalization Evaluation]] — Two planned subphases: training, then evaluation/analysis with ID/GEO before stress tests.
 - [[implementation_phases/extra-01-alex-v2-migration|Extra 01 — Alex V2 Migration]] — Migration from provisional assumptions to fixed-base Alex V2.
 - [[implementation_phases/extra-02-local-stabilization|Extra 02 — Local Stabilization]] — Closed-loop and force-semantics stabilization.
@@ -36,7 +36,7 @@ Current technical behavior and explicitly labeled planned contracts:
 - [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — `phase2.v2`, matched exports, splits, views, normalization, and model data.
 - [[topics/learned-policy-stack|Learned Policy Stack]] — Reusable ACT/Diffusion models, tensor training, checkpoints and explicit observation boundary.
 
-- [[topics/shared-door-perception|Shared Door Perception]] — B1 recording, operational/local-material interfaces, explicit selection and causal field support; qualification remains pending.
+- [[topics/shared-door-perception|Shared Door Perception]] — Maintained static scan, recording, estimator-independent contracts and supported diagnostics; qualification pending.
 
 ## Key Decisions
 
@@ -51,7 +51,7 @@ Current architectural and scientific contracts:
 
 Current engineering and historical scientific records:
 
-- [[experiments/b1-perception-findings|B1 Perception Findings and Direction]] — Retired-estimator results, corrected model screening, retained evidence and the selected geometric direction.
+- [[experiments/b1-perception-findings|B1 Perception Findings and Direction]] — Corrected model screening, static/local findings, retired tracker failures and preserved evidence.
 
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.

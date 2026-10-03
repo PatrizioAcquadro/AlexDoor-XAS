@@ -15,10 +15,12 @@ assigns 19 train, six development and seven test doors, preserving related
 geometry families and both handednesses in every partition. Rights scopes remain
 29 redistributable, two local-only and one private/noncommercial.
 
-Subphase 6.0 remains unqualified. Failed custom estimators are retired; the selected
-GroundingDINO + native SAM 3, RGB-D/multiview geometry and DINOv3 associations now
-have a causal diagnostic provider and full-state replay evaluator. The prototype
-remains unqualified; original engineering recordings and selected weights are preserved.
+Subphase 6.0 remains unqualified. The maintained 6.0B static scan uses frozen
+GroundingDINO + native SAM3, DINOv3 and calibrated RGB-D/multiview geometry.
+Prior dynamic trackers, replay evaluation and video comparison are retired;
+50 engineering-v2 recordings and essential historical evidence remain. Future
+6.0C will integrate official CAD-free Point2Pose with camera kinematics and local
+contact checks; that integration is not implemented.
 Independent 6.1 software covers ACT/Diffusion × A1–A4 through model-independent
 observed inputs, matched data and execution adapters. Numerical/CUDA model checks
 pass; qualified perception integration and physical rollout validation remain pending.
@@ -52,32 +54,19 @@ ruff check src scripts tests
 ruff format --check src scripts tests
 ```
 
-Evaluate the perception prototype on the existing train/development recordings:
+Run frozen image inference or the bounded static diagnosis with fresh outputs:
 
 ```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py evaluate --pilot \
-  --output outputs/b1/perception/NEW_PILOT
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py evaluate \
-  --output outputs/b1/perception/NEW_EVALUATION
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
+  --output outputs/b1/perception/NEW_SMOKE
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py diagnose-scan \
+  --output outputs/b1/perception/NEW_SCAN
 ```
 
-Outputs must be fresh. The pilot covers both train handednesses and both conditions;
-the full command replays all 50 engineering-v2 episodes without test access,
-training or collection. Failed geometry gates produce a nonzero exit status.
-
-The bounded 6.0C material diagnostic covers only the two train pilots in nominal/light:
-
-```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/diagnose_material_tracking.py replay \
-  --output outputs/b1/perception/NEW_MATERIAL_REPLAY
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/diagnose_material_tracking.py live \
-  --output outputs/b1/perception/NEW_MATERIAL_LIVE
-```
-
-The live command starts four fresh serial GPU processes, holds the arm parked and
-checks scan/revisit observations. It neither pushes a candidate nor qualifies the
-provider. Read each report's field support and reacquisition outcomes separately
-from execution completion; prior static candidate/scan evidence must be available.
+The diagnosis reads only 0–25 s on the two train pilots, nominal/light, preserving
+object alternatives, geometric queries and observation references. The static
+provider publishes no valid policy encoding or admission to move. Successful
+execution does not qualify perception. Neither command trains or collects data.
 
 Model tests use CUDA and explicitly skip if unavailable. Pure numerical tests do
 not require a simulator. Run the Purdue integration gate on synthetic fixtures:

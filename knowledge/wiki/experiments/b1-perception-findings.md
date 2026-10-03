@@ -2,129 +2,69 @@
 
 ## Decision and evidence boundary
 
-The maintained direction is **GroundingDINO + SAM 3**, explicit calibrated
-RGB-D/multiview geometry, and **DINOv3 when learned visual features are needed**.
-The custom DINOv2 estimators, SAM 2 reference, CAP-Net adapter and their training,
-refinement and comparison workflows are retired. This supersedes the earlier
-recommendation to keep SAM 2/DINOv2 as operational comparison baselines.
-No candidate has qualified complete door/contact geometry or confidence on the
-six development doors. The new geometric pipeline is now a diagnostic prototype;
-a backbone swap, plane estimate or train fit does not close Phase 6.0.
+The maintained 6.0B uses **GroundingDINO + native SAM3**, calibrated RGB-D/multiview
+geometry and DINOv3 image features. Custom DINOv2 estimators, SAM2/CAP-Net comparisons,
+legacy dynamic geometry, custom material tracking and SAM3 video comparison are
+retired. Future 6.0C will reuse the official CAD-free
+[Point2Pose components](https://github.com/tzuyuan/point-to-pose), with distributed
+visual references, RGB-D and camera kinematics. Integration is not implemented.
+See [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]]
+for future requirements and [[topics/shared-door-perception|Perception]] for live behavior.
 
-The October 1 approved [[../implementation_phases/phase-6-0-operational-perception-and-contact|operational successor plan]]
-uses the object-association and tracking failures below to define new work. It
-separates task-required geometry from optional total dimensions, introduces observed
-robot feedback and stages bounded pilot interaction. That design decision preserves
-all historical profiles, errors and failures. The bounded 6.0B diagnosis below is
-separate new static evidence.
+No estimator qualified complete door/contact geometry on the six development doors.
+Train fitting, masks, static planes and execution completion are not qualification.
+The original 1 cm / 5 degree and per-door 95% coverage/accepted precision gates
+remain unchanged, including missing/rejected states and empty accepted sets.
+All model experiments below used the RTX 4090; the sealed test remained closed.
 
-All model experiments below used the RTX 4090. Train/development identity splits
-and physical gates were unchanged; the sealed test was not used. The original
-records are now under `outputs/b1/perception/evidence/`, retaining run names.
-Protocols, per-door results, metrics, diagnoses, aligned masks and representative
-images are preserved. Source at Git `e1f98a6` retains the tracked implementation
-and detailed historical pages. Removed ignored scripts, weights, caches and
-intermediate payloads are **not recoverable from Git**; these records support
-inspection of the results, not a claim of fully executable reproduction.
+Historical protocols, corrected per-door scores, significant initial/interrupted
+failures, source references and decisive images are consolidated under
+`outputs/b1/perception/evidence/<run-name>/`. Static 6.0B final diagnosis and human
+local-role confirmation remain in `operational-scan-diagnosis-01/` and
+`operational-contact-readiness-01/` under `outputs/b1/perception/`.
+`e1f98a6` and `2a38858` retain earlier tracked source and detailed historical pages.
+Removed ignored scripts, weights, recordings and intermediate caches cannot be
+restored from Git. Retained results support inspection, not full executable reproduction.
 
-## Bounded 6.0C material tracking — October 1, 2026
+## Static 6.0B and reviewed contact regions
 
-**Decision:** the local-material interfaces are implemented, but 6.0C is not closed.
-All requested candidate geometry initializes; the selected point never obtains valid
-dynamic material support. Geometric visibility returns without original-material
-reacquisition. A stationary live door does not test articulation; the complete recorded
-pilot motion also produces no supported axis. No qualification flag is set.
+Four frozen-model scans read 1,501 observations each, chronologically through 25 s
+on the two train pilots in nominal/light. Annotations and later manipulation images
+did not enter inference. Pending cues were released at measured completion without
+reading another observation. The initial `operational-scan-02` retained competing
+objects, unresolved surrounding support and no physical axis (`01b187b`, `6c87045`).
 
-`scripts/diagnose_material_tracking.py` uses the same `GeometryProvider`/`CueEngine`
-interfaces and common recipe with frozen models for replay/live. Four complete train
-pilot/condition replays are in `outputs/b1/perception/operational-tracking-03/`; four fresh serial
-parked-arm GPU observations are in `operational-tracking-live-02/`. Per-case traces,
-candidate comparisons, protocols, runtime evidence, live images and `review.json` retain
-separate visual-reference and selected-point support. Replay consumes only observation
-keys, with saved scan cue availability through 25 s and frozen CUDA inference afterward;
-extraction/tracking completion also delays field availability. Pending geometry is
-explicitly unavailable and supplies no dynamic support. No annotations, training,
-learning collection, extended campaign or sealed test is used.
+The targeted re-audit (`9f511da`, `3001830`) demonstrated extraction/association loss:
+partial borders contracted measured extents, global sampling dropped rare boundaries,
+three-plane extraction omitted smaller faces, and first-only frame membership lost
+internal seams. Corrections preserve dense support before sampling, re-sample residual
+planes, restore only enclosed valid-depth plane inliers and check every same-frame/mask
+component pair. Observed separating sides can conditionally exclude surrounding support.
+No tolerances or physical gates changed. Twelve decisive observations recover
+876–34,849 measured pixels each; more components do not establish more physical objects.
 
-The white visual reference is y=-0.10 m, z=1.50 m; its explicitly requested diagnostic
-contact is y=0, z=1.10 m. A third observed candidate is y=-0.10 m, z=1.30 m. Dark uses
-the 1.10 m point as both reference and diagnostic contact, retaining the 1.30 m
-alternative. The driver emits an identified selection event after geometry is available;
-the tracker never switches to another candidate after loss. The high white region
-remains a geometric candidate, not a definitive or physically validated contact.
+Corrected saved-cue final reconstructions still report `ambiguous_object_ownership`,
+zero physical axes and no uniquely fixed surrounding support. Main candidates retain
+32/36 white and 38/37 dark material surfaces (light/nominal). Exact alternatives,
+rejections and source references are in each
+`operational-scan-diagnosis-01/final/<asset>/<condition>/final-report.json`.
+Assembly of saved cues does not qualify causal runtime timing.
 
-CUDA endpoint solves succeed at contact and 30 mm precontact for all requested
-candidates. White high clearance is about 103 mm versus 66 mm at 1.10 m. The lower
-candidate has larger minimum joint-limit margins: 0.168–0.170 rad at precontact and
-0.215–0.218 rad at contact, versus 0.121–0.125 and 0.184–0.188 rad for the high candidate.
-The 1.30 m alternative reaches but has narrower precontact margins, 0.022–0.027 rad.
-Tables retain the two-finger observed support, solve residuals and margins separately;
-there is no aggregate ranking or automatic definitive selection. Endpoint IK verifies
-neither posture quality, continuous collision clearance nor loaded control.
+Human review confirms only the displayed regions: A/C are fixed frame and B is the
+leaf bottom; another door can have a bottom frame. This never became an inference
+label or a universal rule. Static association remains ambiguous at whole-object scale.
 
-| Case, nominal and light | Complete replay length | Selected dynamic support | Supported motion axis | Live observation schedule |
-|---|---|---|---|---|
-| Dark train pilot | 5,336 observations, 88.917 s each | 0 ticks | 0 ticks | Complete, 2,013 observations / 33.533 s each |
-| White train pilot | 4,718 observations, 78.617 s each | 0 ticks | 0 ticks | Complete, 2,013 observations / 33.533 s each |
+The initial finite-face claim was invalid: each closed collision extremum has nine
+repeated vertices but only two distinct positions on a 25.8 mm line. Initial
+17/19/14/14 patch counts cannot certify two finite finger faces. `footprint_support`
+rejects this degeneracy. The subsequent common correction (`41e4fe6`, `9aa29bd`)
+clips/projects canonical distal mesh bands within the unchanged 3 mm classification
+tolerance into two finite covers, about 25.8 by 3.4 mm. Assets, tool calibration,
+expert extrema/contact rule and Phase 5 results remain unchanged. These covers
+approximate geometry, not measured pad area or compliance.
 
-Each live schedule performs the common 25 s scan, visits the existing 7 s head pose,
-holds two seconds, returns to the final pose and holds two seconds. An independent
-raw-depth audit samples the saved static regions without feeding tracking. During the
-white upper hold, the high region has full sampled depth support in 121/121 ticks and
-the lower two regions are outside that view. In the final hold, both lower regions
-have 121/121 depth-supported ticks and the high region is outside the view. Dark's
-two requested regions both recover 121/121 ticks of final-hold depth support. Material
-reacquisitions remain zero. Static geometry/support times survive loss; other plane
-observations do not make the selected material fresh.
-
-The common observation guard keeps base limits and records explicit allowances:
-float32 roundoff plus one 60 Hz control tick at 0.4 rad/s for neck tracking. Maximum
-neck error is 0.104564 rad, within the 0.1 + 0.006670 rad allowance; maximum tool drift
-is 0.150 mm and dark-door motion is 0.000139 rad (white is numerical zero). Commands
-stay within 0.4 rad/s; measured PhysX velocity peaks at 0.403228 rad/s, a small physical
-controller overshoot retained in the audit. This is observation evidence, not D's
-loaded feedback/stop or physical posture qualification. Dynamic field freshness still
-expires at 150 ms, allowing only nanosecond clock roundoff.
-
-Numerical regressions cover explicit selection/change, different visual/contact
-lifetimes, masked seed/replenishment, fixed/ambiguous support, both angle signs,
-degenerate fits, uncertainty transfer including target geometry, reset/late completion
-and identical-observation/availability replay/live equivalence. Rigid transfer and
-articulation have only fixture evidence here. Source: `a3b4587`, `fec3cf9`, `ae120b4`,
-`ac3057e`, `3bbde73`, `731fe0e`, `c8313f3`. The final association fixture rejects
-contradictory translation at zero angle; live established no rigid links, so it does
-not claim live transfer validation.
-
-Earlier `operational-tracking-01/02` and `operational-tracking-live-01` remain preserved.
-The first replay was interrupted for uncertainty/lifetime corrections; the second
-completed before static-scene retention was repaired. The initial live guard aborted
-at 0.100087 rad, a negligible threshold excess, and that attempt was stopped for the
-user-requested common tolerance correction. These incomplete live traces are premature
-guard aborts, neither physical failures nor completed passes. Revised runs are separate.
-
-Keep selected material tracking, original-material reacquisition and observed
-articulation exits open. Isolate the metric-correspondence loss before replacing the
-tracker or rerunning pilots. D may proceed with independent numerical feedback fixtures;
-loaded interaction still requires D and E gates. See
-[[../topics/shared-door-perception|local-material contracts and field lifetimes]].
-
-## Local contact initialization after the diagnosis — October 1, 2026
-
-**Decision:** C can start from two reviewed local material anchors without resolving
-every object alternative or observing a precise hinge. At this handoff, C
-tracking/articulation exit checks and loaded interaction were unperformed. This
-follow-up narrows the first-motion handoff below; it does not turn historical failures
-into passes.
-Evidence/scripts/images are in `outputs/b1/perception/operational-contact-readiness-01/`.
-Only existing observations through 25 s on the same train pilots/conditions are read;
-no annotations, model inference, dynamics, collection or extended campaign is used.
-
-The common static search ranks observed finite-cover clearance, screens endpoint
-IK with the existing calibrated robot chain on the RTX 4090, and requires the same
-tangent coordinates in both conditions. Earlier failed local solves remain saved;
-they are not proofs of global unreachability. Human inspection explicitly confirms
-both selected regions belong to the leaf, away from frame/handle. This is local
-visual material-role evidence, not runtime labels or proof of motion identity.
+`operational-contact-readiness-01` verifies two human-confirmed local leaf regions
+on existing observations only, with no model inference or motion:
 
 | Pilot / observed region | World tangent coordinates | Supporting frames, nominal / light | Best simultaneous two-cover clearance, nominal / light | Maximum observed plane discrepancy, nominal / light |
 |---|---|---|---|---|
@@ -132,314 +72,78 @@ visual material-role evidence, not runtime labels or proof of motion identity.
 | Dark `door-2738468b94d74c5f`, central panel | y=0 m, z=1.10 m | 29 / 73 | 315.7 / 316.0 mm | 0.38 / 0.34 mm |
 
 Every verified cover pixel has valid depth and extracted plane membership. Original
-SAM membership is usually complete but falls to 48.7%/90.3% on white nominal/light
-and 65.1%/100% on dark nominal/light; the corrected extractor restores only enclosed,
-measured plane inliers. Camera translation baselines are 111–129 mm. This supports
-local measured registration/fusion, not rigid/mobile object membership. No uncertainty,
-latency, stop or collision margin is certified by the clearance column.
+SAM membership can fall to 48.7%/90.3% white and 65.1%/100% dark nominal/light;
+only enclosed measured inliers are restored. Camera baselines are 111–129 mm.
+This is local registration/support, not dynamic rigid membership or safety.
+White full-cover support ends at 13.2/13.6 s (light/nominal), even while other areas
+of the plane remain visible. Contact must retain its own support time.
 
-The common contact correction derives two finite covers by clipping/projecting the
-canonical distal mesh band within the unchanged 3 mm classification tolerance. Each
-cover spans about 25.8 by 3.4 mm. The expert's extrema/tool/contact rule remain intact;
-the projection is not measured pad area or soft-finger mechanics. Source: `41e4fe6`;
-see [[../topics/purdue-b1-robot-and-contact|contact assumptions]].
+CUDA IK succeeds at contact and 30 mm precontact. A 10 mm precontact ball is
+observed free, with 3.8–4.6 mm residual ray clearance. These checks do not cover
+the hand/arm path, uncertainty, stopping, load or continuous control.
 
-Endpoint contact and 30 mm precontact IK succeed for all four selected patches. A
-10 mm radius ball at precontact is observed free, with only 3.8–4.6 mm residual ray
-clearance; it does not cover the hand/arm path or admit contact. The existing tracker
-can seed metric features on each selected surface, but its current plane/bounds seed
-does not establish local material ownership. C must constrain/verify associations and
-keep original support times. The white patch is fully observed only through 13.2/13.6 s
-(light/nominal), despite later observations elsewhere on the fused plane: reacquire
-that patch before interaction. Causal timing, motion response and closed-loop control
-are unverified.
+### Completed SAM3 video comparison
 
-D still needs observed torque semantics/acquisition, bounded robot-only load inference,
-common compliance, physical stop and full relevant continuous collision/contact cover.
-An axis-free diagnostic Cartesian probe additionally needs explicit local state/action
-admission and a justified response envelope including no motion/slip; current
-`validate_reference` requires hinge hypotheses even for A2. A precise axis is an
-intended result of an informative probe, not its prerequisite. A4 retains its supported
-hinge reference and no adapter supplies a helpful point/arc/side correction. D and both
-pilot E gates still precede F. All offline/dynamic/release flags remain false.
+Box-only hotstart produced an initial mask (score about 0.988) but removed its
+unmatched track before export: a single box supplies no continuing detector matches.
+On the same first 20 nominal captures per pilot, box plus the existing `door` concept
+retained **20/20 masks versus 0/20** with box alone. Native filters and the frozen
+checkpoint were unchanged. The original box-only run, corrected prefix results and
+initial prompt counts remain separately preserved. This retrospective comparison
+establishes neither full-video/light performance, leaf ownership, an axis nor causal
+runtime support. Its worker, automatic orchestration and `decord` are now removed.
 
-## Targeted 6.0B re-audit before 6.0C — October 1, 2026
+## Retired custom material tracker — October 1
 
-Starting from `operational-scan-review-01/review.md`, the diagnosis follows the white
-pilot's relief seams and the dark pilot's jamb/upper inset from original RGB through
-SAM membership, calibrated depth, plane extraction, association and hinge rejection.
-Only the same two train pilots, nominal/light and captured observations through 25 s,
-are used. Saved cues avoid repeated image-model inference; static assembly is batched
-and does not validate causal runtime timing. Original evidence and intermediate
-attempts remain in place. Derived results/images and executable diagnosis scripts are
-in `outputs/b1/perception/operational-scan-diagnosis-01/`.
+At baseline `2a38858`, four complete pilot replays and four fresh serial parked-arm
+live schedules initialized all requested local geometry but obtained **zero selected
+dynamic-support ticks, zero supported-axis ticks and zero material reacquisitions**.
+Visibility returned independently. Reports remain in `evidence/operational-tracking-03`
+and `evidence/operational-tracking-live-02`; earlier attempts are retained separately.
+Source: `a3b4587`, `fec3cf9`, `ae120b4`, `ac3057e`, `3bbde73`, `731fe0e`, `c8313f3`.
 
-**Demonstrated corrections:** partial-view borders no longer contract previously
-measured material; contradictory perimeter claims are removed without erasing original
-observations. Dense residuals are re-sampled after each plane instead of retaining only
-three fits from the initial global sample. Enclosed semantic omissions recover only
-valid measured plane inliers, preserving missing/off-plane depth and the external
-silhouette. Seam association considers every matching frame/mask component instead
-of only the first. A measured separating side can exclude surrounding support without
-requiring unrelated bottom/top geometry. No fit/association tolerances or qualification,
-admission, split or feedback gates changed. Code: `9f511da`, `3001830`.
+| Pilot, nominal/light | Complete replay | Complete parked-arm live schedule |
+|---|---|---|
+| Dark `door-2738468b94d74c5f` | 5,336 observations / 88.917 s each | 2,013 observations / 33.533 s each |
+| White `animated-door-1-88abf40` | 4,718 observations / 78.617 s each | 2,013 observations / 33.533 s each |
 
-Twelve decisive saved observations across the four pilot conditions recover 876–34,849
-supported pixels per observation versus the original extractor; only enclosed semantic
-omissions are restored outside original SAM membership. Captured RGB/row references
-and calibrated roundtrips are checked. More recovered components are not more physical
-doors or unique leaf identity: broad masks still include support with ambiguous roles.
+White's visual reference was y=-0.10 m, z=1.50 m, with explicit contact y=0,
+z=1.10 m and alternative y=-0.10 m, z=1.30 m. Dark used 1.10 m for both visual
+reference/contact and retained 1.30 m. The tracker did not switch contacts after loss.
+All contact/precontact endpoint solves passed. White upper clearance was about
+103 mm versus 66 mm lower, while lower precontact/contact joint margins were
+0.168–0.170/0.215–0.218 rad versus 0.121–0.125/0.184–0.188 upper. The 1.30 m
+alternative had narrower precontact margins, 0.022–0.027 rad. These comparisons
+establish neither a definitive contact ranking nor posture/path qualification.
 
-**Invalid historical footprint claim:** each current closed collision extremum contains
-nine repeated vertices but only two distinct positions, spanning a 25.8 mm line.
-`footprint_support` now rejects this as `degenerate_finger_face`; the initial 17/19/14/14
-patch counts below do not establish support for two finite distal faces. Robot assets,
-tool calibration and Phase 5 qualification are unchanged. A justified effective contact
-band/cover and uncertainty are required before interaction; inventing a flat face is
-not a correction. This geometric/contact-model boundary belongs in the D handoff.
+Live revisited the 7 s neck pose and final pose, holding each two seconds. An
+independent raw-depth audit found 121/121 supported upper-hold ticks for white's
+high region and 121/121 final-hold ticks for both lower regions; dark recovered
+121/121 final-hold ticks for both regions. Material support remained absent.
+Stationary live doors did not test articulation; recorded moving doors still yielded
+no supported axis. Static visibility could not refresh original material identity.
 
-**Native video cause:** the box-only prompt produces a raw initial mask (score about
-0.988), then native hotstart removes its unmatched ID before stream export. A box
-on frame 0 does not supply continuing detector matches. On the same first 20 nominal
-captures per pilot, adding the existing `door` concept to the unchanged automatic box
-retains 20/20 masks versus 0/20 with box only. The production worker confirms the same
-result and records initial prompt masks separately. Frozen RTX 4090 inference retains
-the original SAM3 checkpoint digest. Neither model/weights nor native output filters
-were changed. This prefix comparison does not resolve leaf/frame identity, establish
-full-video/light performance or replace the causal provider.
+The initial live guard aborted at 0.100087 rad neck error; that attempt was stopped
+for the common resolution correction, not declared a physical failure or completed
+pass. Revised guards retained explicit 0.1 + 0.006670 rad allowance, peak neck error
+0.104564 rad, tool drift 0.150 mm and dark-door motion 0.000139 rad. Commands stayed
+within 0.4 rad/s; measured PhysX velocity peaked at 0.403228 rad/s. This discretization
+allowance does not relax 150 ms dynamic freshness or validate loaded control.
 
-The final four saved-cue reconstructions still report `ambiguous_object_ownership`
-and zero physical axes. Main candidates retain 32/36 material surfaces on the white
-pilot and 38/37 on the dark pilot (light/nominal), including recovered seam support.
-Broader support also exposes additional alternatives; it does not monotonically
-reduce candidate counts. No final scan uniquely assigns surrounding support, and all
-current footprint checks reject the degenerate extrema. Per-object counts/rejections
-remain in the JSON records. Static numerical assembly is not an operational state or
-first-motion validation.
+The first replay was interrupted for uncertainty/lifetime corrections; the second
+completed before static-scene retention was repaired. Numerical rigid-transfer/axis
+fixtures were never live transfer validation. The tracker implementation and its
+replay/live commands are now retired; independent timing, generation, explicit
+selection, axis-free contact and admission contracts remain. Point2Pose replaces
+this experimental implementation direction without claiming its exits passed.
 
-**First-motion boundary:** free space in front of a candidate is insufficient without
-an identifiable material leaf patch, a supported reference for the same physical
-contact across alternatives, effective contact coverage, relevant sweep/unknown-space
-bounds, observed feedback and response/stop margins. Total dimensions or an unrelated
-bottom border are optional. A unique axis is not mandatory for every provisional action,
-but physically supported alternatives and margins for that exact action are; panel
-edges alone supply neither. The traced arc rejections principally lack support or fail
-radius/residual checks, rather than merely the final conditioning cutoff. Missing a fit
-does not prove that hardware is physically absent.
+## Retired geometric full-state prototype
 
-C owns causal material association, observed articulation/axis fits and field lifetimes;
-observed response can help only after an admitted informative action. D owns effective
-contact geometry, feedback/load and physical response/stop bounds. If no identifiable
-local leaf patch exists, observation/association must resolve it before the first push.
-No movement is presumed to cure B's corrected extraction/registration defects. C/D,
-simulation, training, collection, extended replay and sealed-test access remain unstarted;
-Phase 6.0 remains unqualified. Numerical regressions establish software behavior only.
-
-## Static object scan — October 1, 2026 (6.0B)
-
-**Question:** can calibrated observed support assemble leaf surfaces, distinguish
-fixed support and support a physical hinge before manipulation? The common
-`object-v1` recipe consumes every observation from 0 through 25 s on the two train
-pilots, both nominal/light. GroundingDINO/SAM3/DINOv3 stay frozen on the RTX 4090;
-annotations, asset/hand labels and later manipulation images do not enter inference.
-Metadata only selects these four authorized recordings. Original material references,
-measured edges and observed/clipped/unobserved status survive fusion.
-
-Each scan completed 1,501 chronological observations. Pending image results were
-released at their measured completion after the scan, without another RGB-D row.
-Successful reports, exact captured RGB/cues, reprojections and geometry are in
-`outputs/b1/perception/operational-scan-02/`. An earlier duplicate-memory attempt
-was interrupted and preserved in `operational-scan-01/`; a common storage correction
-and regression prevent repeated overlapping proposals from multiplying objects.
-
-| Pilot | Condition | Image results | Leaf candidates | Unresolved parts/associations | Patches with both full distal faces supported | Physical axes |
-|---|---|---:|---:|---:|---:|---:|
-| `door-2738468b94d74c5f` | nominal | 119 | 2 | 90 | 14 | 0 |
-| `door-2738468b94d74c5f` | light | 121 | 2 | 81 | 14 | 0 |
-| `animated-door-1-88abf40` | nominal | 117 | 7 | 259 | 19 | 0 |
-| `animated-door-1-88abf40` | light | 120 | 5 | 208 | 17 | 0 |
-
-The initial four scans retain `ambiguous_object_ownership`. No surrounding surface is
-uniquely assigned as fixed under the observed-perimeter rule in these recordings.
-Internal observed seams can assemble relief into a candidate; proximity, parallelism,
-area, color and mask confidence cannot resolve leaf/frame identity. The counts include
-distinct unresolved association references, not a count of physical parts. Every
-retained hinge alternative is a panel edge; no separated, conditioned hardware-arc
-fit supports a physical axis. These alternatives stay unqualified. A final targeted
-fit check excludes leaf-plane clutter using the saved object clouds and the original
-scan depth; all 16 candidates still produce zero physical axes. This check is in
-`operational-scan-review-01/hardware-review.json` and repeats no model inference.
-
-The historical patch counts attempted to require positive clearance for both entire URDF-derived
-`PushGeometry.distal_faces`, rejecting holes and clipped support. They remain patches
-on ambiguously owned candidate surfaces, not admitted contacts; the re-audit above
-invalidates the finite-face interpretation of those counts. A separate lightweight
-review verifies that every saved RGB frame equals its original scan observation and
-queries 10 mm balls around one patch per candidate. All 16 on-surface queries report
-observed occupancy; all 16 behind-surface queries remain unknown. Of 16 camera-side
-queries, ten have supported free cover and six remain unknown. Clearance accounts
-for the certified ray volume's lateral limits. These local software probes do not
-cover a proposed robot/leaf sweep or stop response. Their report and explanation are
-in `operational-scan-review-01/`.
-
-**Conditional SAM3 video comparison:** one automatic positive-box configuration,
-prompted from the first captured GroundingDINO result and propagated forward over
-exactly the same RGB captures. The native local checkpoint stayed frozen on CUDA;
-SHA-256 `9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e`
-matches the preserved download digest. Image and video workers ran serially. Native
-future-frame confirmation makes this retrospective evidence; it never replaces the
-causal provider or backdates geometric support.
-
-| Pilot | Condition | Video frames | Retained masks | Total video inference latency (s) | Peak allocated GPU memory (GiB) |
-|---|---|---:|---:|---:|---:|
-| `door-2738468b94d74c5f` | nominal | 119 | 0 | 12.27 | 4.94 |
-| `door-2738468b94d74c5f` | light | 121 | 0 | 12.33 | 4.95 |
-| `animated-door-1-88abf40` | nominal | 117 | 0 | 15.19 | 4.93 |
-| `animated-door-1-88abf40` | light | 120 | 0 | 35.11 | 4.95 |
-
-The first video includes cold inference; allocated/reserved peak memory is recorded
-separately in each report. This recipe retained no masks and supplied no association
-evidence. There was no prompting/threshold search, model selection or inference that
-SAM3 fails generally. A report-key collision after the first comparison is preserved
-in `operational-scan-02/failure.json`; successful comparisons in
-`operational-scan-video-01/` reused saved frames/features without another image-model
-replay. Its summary confirms four completed comparisons.
-
-Image-worker latency p95 is 220–249 ms and whole scan processing takes 143–333 s;
-neither establishes production timing or dynamic freshness. Ideal metric RGB-D,
-calibration, resolved pixel support and predominantly vertical-axis approximations
-remain explicit. Numerical visible/hidden/ambiguous/degenerate-hinge, relief/frame,
-bottom-frame, reprojection, footprint and unknown-space regressions validate software
-behavior, not physical observability or calibration accuracy.
-
-**Original outcome/handoff (superseded by the targeted re-audit above):** 6.0B implementation and targeted diagnostics are complete;
-ownership, physical axes, signed articulation, leaf response, load limits and physical
-stopping are not qualified. 6.0C must retain these alternatives and use causal material
-motion with honest field lifetimes. No training, new collection, simulation, dynamics,
-extended replay or sealed test ran; all offline/dynamic/release flags remain false.
-Object/query milestone: `01b187b`; scan/video diagnostics and final fit correction:
-`6c87045`. See
-[[../topics/shared-door-perception|implemented interfaces]] and
-[[../implementation_phases/phase-6-0-operational-perception-and-contact|the package handoff]].
-
-## Geometric prototype — September 30, 2026
-
-The implementation is described in [[topics/shared-door-perception|Shared Door
-Perception]]. Local `geometric-smoke-02` passed actual frozen CUDA inference through
-all three models; cold/warm worker-model times were 369/174 ms on the RTX 4090.
-This is model execution evidence, not a latency or complete-state gate pass.
-
-The first pilot (`geometric-pilot-01`) replayed left `door-2738468b94d74c5f` and
-right `animated-door-1-88abf40`, nominal/light. Both doors accepted zero complete
-states. Missing hinge, missing thickness and ambiguous panel/jamb association were
-explicitly rejected. The right nominal episode also exposed large panel-orientation
-errors. Common corrections preserve normal continuity and require observed extent
-edges, without changing the gates or substituting nominal dimensions. Pilot-02 was
-interrupted after a report-format defect was found; its partial evidence is preserved.
-`geometric-pilot-03` completed all four episodes and 20,108 chronological
-observations. Both doors still accepted zero complete states. On finite rejected
-partials, pooled panel-rotation p95 was 0.051 degrees left and 0.591 degrees right;
-height span errors reached 15.45/16.40 cm respectively. These do not certify full
-dimensions: edge evidence, hinge and stable associations remain unresolved, and
-discontinuous motion is now rejected explicitly. All four episodes produced zero
-accepted rigid-motion hinge fits. Worker latency p95 was 220–243 ms, above the
-150 ms freshness window for an unrefreshed model result. Intermediate estimates
-require current depth support, not a freshly stamped cache.
-
-One unchanged recipe is fixed for the full 50-episode campaign. No simulation will
-run unless all 25 train/development doors pass offline. No training, collection or
-sealed-test evaluation was started. Baseline source: `4df9a09`; current prototype
-sources and protocol identities are retained with the new runs.
-
-The first full-campaign attempt (`geometric-evaluation-01`, source `fe61935`) ended
-after eight complete episodes and a partial ninth (`modern-door-2fb8d024/light`).
-A degenerate rigid-fit consensus returned no solution; its caller incorrectly
-unpacked it. The common fix rejects that fit, preserving thresholds and gates.
-The interrupted attempt, complete reports and failure record remain intact. A
-fresh attempt (`geometric-evaluation-02`, source `a41c002`) used the corrected
-source and was subsequently stopped by the user. Its worker and evaluation
-process are stopped; completed reports, partial status and logs are preserved
-with `failure.json` identifying an intentional interruption. Neither attempt is
-a complete common-source evaluation. No further campaign will start until the
-main causes are clarified and corrected, with verification on both pilots first.
-Reset also clears the public estimate, and the prototype IO rejects unsafe contact
-commands before simulator access. These software guards do not validate dynamics.
-
-### Pilot diagnosis after the user stop
-
-`geometric-pilot-diagnosis-01` inspects existing pilot recordings and pilot-03
-clouds only; it does not evaluate another campaign or use annotations for inference.
-The selected planar support grows across the seven scan views, so single-view
-clipping alone does not establish missing evidence. Reprojection of the retained
-main-plane cloud into those views agrees with measured optical depth at p95
-0.73–1.95 mm left and 0.66–2.31 mm right, where projected depth is valid. This
-checks retained support, not every edge or a complete calibration qualification.
-
-The provider derives dimensions from one plane's inliers. Relief, side faces and
-other parallel faces become separate hypotheses; object extent is therefore not
-the same as planar support extent. A coarse raw-depth inspection of every fifth
-observation during the scan finds support beyond retained vertical bounds, including
-before the first semantic sample. These points are only proximity candidates:
-human review confirmed that upper A and lateral C belong to the fixed frame,
-while lower B is the final part of the moving leaf in these images. The user warned
-that other doors may have a bottom frame. This review is diagnostic evidence for
-the displayed regions only; labels do not enter the provider or become a general
-bottom-frame rule. Cached CUDA cues on both pilots/conditions show that most lower
-support already belongs to the mask and fitted plane. Interior sampling and pooled
-extent quantiles discard rare boundary support. Dense observed extents and certified
-silhouette lines must therefore be retained separately before sampling.
-
-The earlier static fusion also kept only the first surface's DINO anchors/features;
-later-view descriptors updated but later anchors were discarded. This was a concrete
-memory limitation when the first view lost overlap during motion. A common software
-correction now retains dense extents and measured
-edge lines, targets semantic inference from the first observation throughout the
-scan, verifies registered overlap, and keeps a bounded multiview feature bank.
-Subpixel RGB tracking with metric rigid verification refines correspondences;
-coarse DINO patch centers alone remain insufficient. Numerical regressions cover
-bottom-frame presence/absence, clipped extents/internal recesses, parallel-frame
-separation, later anchors, scan timing and metric pixel tracking/loss. These checks
-do not establish pilot geometry gates; corrected chronological replay still fails
-as reported below. Current evidence does not justify new training.
-
-Control-local requirements and the unchanged complete-state contract are separated
-in [[topics/shared-door-perception|Shared Door Perception]]. Human part review is
-resolved for the displayed pilot regions. Extended evaluation remains stopped;
-only diagnosis and correction on the two pilots is authorized.
-`geometric-pilot-04` retains the first corrected replay attempt at `cae5afa`.
-It exposed thin floor intersections leaking into dense bounds and attrition of
-tracked points before useful rotation. Common guards now remove thin support and
-replenish points from a verified pose with accumulated uncertainty. Neither
-correction silently accepts complete
-dimensions or a hidden hinge, and no extended restart is authorized.
-The subsequent `geometric-pilot-05` attempt (`1252cbe`) is preserved with an explicit
-interruption record: replenishment replaced surviving references, causing artificial
-uncertainty growth. The corrected tracker preserves surviving references, appends
-new points, and carries uncertainty per anchor. The regression verifies continued
-metric motion in the same reference after replenishment.
-
-### Corrected two-pilot verification
-
-`geometric-pilot-06` completed the same two train doors and both conditions at
-`7468e0a`, using one common recipe and all three frozen models on CUDA. Both doors
-have **0% complete-state coverage and 0% accepted-state precision**; the empty
-accepted set fails. All full-state gates remain unchanged and failed. No extended
-campaign was resumed and no dynamic simulation was run. Per-phase/condition error
-quantiles, finite sample counts, overlapping rejection causes and latency remain in
-the run's reports; `geometric-pilot-diagnosis-01/pilot06-report.md` explains the
-remaining causes and preserves targeted association images.
-
-The main remaining failure is **object identity**. A selected plane is not a
-complete leaf. On the left, visible leaf relief/faces remain in competing
-hypotheses; on the right, selected support includes the human-identified fixed
-side/frame region. Dense support no longer disappears merely through interior
-sampling, but more points can produce worse dimensions when ownership is wrong.
-The right pooled height p95 improves from 16.40 cm to 3.61 cm, while width worsens
-from 6.52 cm to 11.55 cm. Left height worsens from 15.45 cm to 22.72 cm as another
-partial surface is selected. This is not a successful geometry correction.
-
-Manipulation p95 below includes **finite rejected estimates**, not usable states.
-Missing dimensions are unobserved; their error is never counted as zero.
+The corrected two-pilot replay `geometric-pilot-06` (`7468e0a`, reporting `809f575`)
+used one common recipe and all three frozen CUDA models. Every pilot/condition had
+**0% complete-state coverage and 0% accepted precision**. No complete state passed.
+The following manipulation p95 values describe finite **rejected** estimates;
+unobserved fields are never zero errors:
 
 | Pilot / condition | Width | Height | Thickness | Hinge origin | Local contact | World contact |
 |---|---:|---:|---:|---:|---:|---:|
@@ -448,32 +152,28 @@ Missing dimensions are unobserved; their error is never counted as zero.
 | Right / nominal | 11.55 cm | 3.61 cm | unobserved | 12.67 cm | 13.15 cm | 3.25 cm |
 | Right / light | 9.48 cm | 1.91 cm | unobserved | 4.19 cm | 4.96 cm | 4.56 cm |
 
-Some rigid-motion hinge proposals now exist, but origin errors and conditioning
-remain unacceptable. Finite panel orientation/angle errors are small on partial
-intervals: panel estimates cover only 15.9% of left and 37.9% of right manipulation
-observations, and finite hinge estimates only 7.3% and 21.7%. Discontinuous motion
-is a rejection cause on 83.9% left and 61.9% right. Small angular quantiles on these
-subsets do not establish full-motion tracking or a valid hinge. No state is accepted.
+A selected plane failed to represent the complete leaf: white relief faces remained
+separate and dark support included the human-identified fixed frame. More retained
+points sometimes worsened dimensions. Finite panel states covered only 15.9% left
+and 37.9% right manipulation; finite hinge states covered 7.3%/21.7%. Motion was
+rejected as discontinuous on 83.9%/61.9%. Small subset angle errors were not motion
+qualification. Semantic RPC p95 200–218 ms exceeded 150 ms unrefreshed support;
+no accepted-state recovery occurred. Static calibration roundtrips of retained
+support agreed at p95 0.66–2.31 mm, not a complete geometry qualification.
 
-Semantic RPC latency p95 is 200–218 ms, above the 150 ms limit for an unrefreshed
-semantic result. Intermediate depth verification is required; the limit is not
-relaxed. The left 2.3 s recovery diagnostic describes supported surface tracking,
-not valid complete-state reacquisition. There is no accepted-state recovery.
+Earlier pilots retain initial/corrected distinctions. `geometric-pilot-04` (`cae5afa`)
+exposed thin floor leakage; `geometric-pilot-05` (`1252cbe`) was interrupted because
+replenishment replaced surviving references and inflated uncertainty. The first
+extended evaluation (`ac89744`) partially processed eight episodes before a
+degenerate fit; a corrected attempt (`a41c002`) was intentionally stopped by the
+user. Neither was a complete common-source evaluation. Their reports/failure records
+remain, while scratch scripts, caches and repeated logs were removed. No dynamic
+qualification followed. The provider now supports static scan evidence only.
 
-The next correction must associate observed leaf faces as one rigid object while
-preserving fixed-frame/wall hypotheses, then verify feature ownership before
-fitting motion. Plane proximity/parallelism or a rule about the bottom cannot do
-this alone. Maintained pretrained prompting and observed boundaries/adjacency
-remain to be investigated before concluding that training is necessary. If those
-cannot resolve visible ownership, **leaf/frame association** is a precise candidate
-for a learned component; this would not recover an unobserved hinge or fix latency
-or calibration. A closed scan without a resolved hinge still stops the arm; recorded
-teacher motion is diagnostic evidence, not authorization for an active probe.
-
-## Custom-estimator sequence
+## Custom-estimator and observability results
 
 Run-01 (`522f1ba`, diagnosis `e160f1f`) stopped at epoch 28 after 24.7 minutes;
-best epoch 18 failed all six development doors. Pooled manipulation diagnostics:
+best epoch 18 failed all six development doors:
 
 | Checkpoint / split | Position p95 | Orientation p95 | Confidence-valid coverage |
 |---|---:|---:|---:|
@@ -482,26 +182,17 @@ best epoch 18 failed all six development doors. Pooled manipulation diagnostics:
 | Last / train | 5.91 cm | 5.37 degrees | 0% |
 | Last / development | 14.93 cm | 11.29 degrees | 0% |
 
-At the inspected shared weights, confidence gradients were 22.6 times the contact
-position gradients. Annotation reconstruction agreed within 3.7e-8 m; three
-source/cache samples per episode aligned. These checks diagnosed unequal loss
-scales without proving full observability or resolving generalization.
+Confidence gradients were 22.6 times contact-position gradients; reconstructed
+labels agreed within 3.7e-8 m and sampled cache/source rows aligned. This diagnosed
+loss imbalance, not observability or generalization. Corrected contact loss on two
+train doors (`796797c`, seed 6100, 2,318 windows) reached 0.838/0.792 cm position
+and 1.232/1.219 degree orientation p95 at epoch 30, but hinge origins were about
+1 m wrong, hinge rotations 171.65/175.46 degrees and local contacts 1.243/1.276 m
+wrong. Complete-state supervision (`1bd633e`, result `34c2660`) subsequently passed
+all nine component p95 gates and 98.25/96.70% joint geometry on those train doors;
+that fit was not held-out qualification.
 
-The same two train doors (one per hand, nominal/light; 2,330 frames and 2,318
-windows, seed 6100) were then fitted without development selection. The corrected
-contact loss (`796797c`) passed at epoch 30/2,190 updates: position p95
-0.838/0.792 cm, orientation 1.232/1.219 degrees and 100% confidence coverage.
-However, compensating primitive errors remained: hinge origins approximately
-one meter wrong, hinge orientation 171.65/175.46 degrees, and local contact
-position 1.243/1.276 m. Correct composed contact alone was insufficient.
-
-Complete-state supervision (`1bd633e`, result `34c2660`) reached epoch 17 with
-contact p95 0.872/0.964 cm, orientation 1.256/2.749 degrees and all nine component
-p95 gates passing. Joint geometric coverage was 98.25/96.70%; confidence coverage
-100%. This was a train-only fit, not held-out qualification.
-
-Run-02 (`1bd633e`, diagnosis `68dc0ec`) stopped at epoch 15/13.60 minutes;
-best development checkpoint remained epoch 1. Per-door manipulation p95 ranges:
+Run-02 (`68dc0ec`) stopped at epoch 15/13.60 minutes, with best development epoch 1:
 
 | Checkpoint / split | Contact position p95 | Contact orientation p95 | Doors passing all gates |
 |---|---:|---:|---:|
@@ -513,83 +204,50 @@ best development checkpoint remained epoch 1. Per-door manipulation p95 ranges:
 The last checkpoint accepted inaccurate development states at 100% confidence
 coverage. Longer training was not established as a remedy.
 
-## Observation, metric-depth and confidence diagnoses
+At `68dc0ec`/`a48e06f`, all 31,654 cached camera views excluded the prepared top face;
+four-frame/0.3 s memory could not retain an earlier scan. Matched counterfactual
+swaps changed contact by p95 60.3–72.0 mm RGB, 0.76–0.98 mm depth and 2.71–2.82 mm
+proprioception. These are sensitivity tests, not modality-importance percentages;
+identical camera poses made pose swaps uninformative. A +1% raw-depth change moved
+contact only 0.035/0.067 mm train/dev. Privileged substitutions were diagnoses,
+never deployable corrections. Confidence AUROC 0.570 did not establish rejection.
 
-At `68dc0ec`/`a48e06f`, replay covered 25,006 train and 6,498 development windows.
-Every prepared-panel top face was outside the camera frustum in all 31,654 cached
-views. Four-frame/0.3-second memory could not retain an earlier inspection.
-Counterfactual swaps used 2,000 windows per checkpoint, two matched train-donor
-assignments and a separate within-episode temporal intervention. RGB replacement
-changed contact by p95 60.3–72.0 mm, depth by 0.76–0.98 mm and proprioception by
-2.71–2.82 mm. A +1% depth change moved contacts by only 0.035/0.067 mm train/dev.
-These are sensitivity diagnostics, not modality-importance percentages; identical
-camera poses made camera swaps uninformative.
+The shared 25 s scan and simulated 10-degree mount (`a4ad984`) added seven views
+at 4/7/10/15/18/21/25 s. Left/right top and bottom observed fractions were
+57.4/52.5% and 71.3/54.5%; tallest-development inspection yielded 24.8/56.4%.
+These used 101 boundary samples, a 5x5 depth neighborhood and 3 cm agreement,
+not estimator gates. Camera FK error was below 0.001 mm/0.000002 rad, tool drift
+0.151 mm, door motion 0.000102 rad and neck error 0.073 rad. Hardware mounting
+remains unvalidated. Inspection-only data had no expert hold/release.
 
-Train failure was concentrated in composed contact position: 22.71% of manipulation
-windows failed, pooled p95 12.44 mm, while the other components met their individual
-tolerances. Privileged substitutions/debiasing suggested systematic local-contact
-error but were never deployable corrections. Gradients on 19 inspected batches
-were aligned, not evidence for another blanket reweighting. Confidence AUROC was
-0.570 on correlated train frames. No per-door correction was applied.
+Calibrated XYZ/static memory (`7e2bf56`) and shared scheduling fitted the pilots at
+7.41/9.93 mm contact p95 with 98.88/95.08% joint geometry. Contiguous reads cut
+epoch time from 99.3 to 5.8 s; raw/cache parity over 1,169 windows stayed within
+0.0071 mm/0.0014 degrees. A +1% XYZ change moved contact p95 4.95 mm.
+`refine-02` fitted 19 train doors at 2.29–4.00 mm; the original `refine-01` report
+incorrectly claimed development evaluation, but actual execution was train-only.
+Independent confidence fitting still accepted inaccurate development geometry
+(7.41–32.32 cm contact p95, 0% precision). Original reports retain that distinction.
 
-The common 25-second scan and simulated 10-degree upward mount correction
-(`a4ad984`) retained seven views at 4/7/10/15/18/21/25 seconds. Two complete train
-pilots and a separate tallest-development-door scan established partial boundary
-visibility. At the seven views, depth-consistent top/bottom fractions were:
-
-| Door | Hand | Hold angle | Observed top boundary | Observed bottom boundary |
-|---|---|---:|---:|---:|
-| door-2738468b94d74c5f | Left | 57.99° | 57.4% | 52.5% |
-| animated-door-1-88abf40 | Right | 61.32° | 71.3% | 54.5% |
-
-Fractions use 101 boundary samples, a 5x5 depth neighborhood and 3-cm agreement;
-they are observability diagnostics, not estimator gates. The tallest door had
-24.8%/56.4% top/bottom visibility. That inspection-only episode is retained under
-`datasets/b1/perception/inspection-tallest-01` and is not a manipulation demonstration.
-Camera FK error stayed below 0.001 mm/0.000002 rad; maximum parked-tool drift was
-0.151 mm, door motion below 0.000102 rad and neck error below 0.073 rad. Hardware
-mounting/calibration remains unvalidated.
-
-Metric/static-memory correction (`7e2bf56`) used calibrated XYZ and separate RGB,
-static and recent paths. `metric-fit-01` exposed scattered HDF5 reads; contiguous
-reads/context retention reduced epoch time from 99.3 to 5.8 seconds. Fixed-rate
-`metric-fit-02` stagnated (14.9/21.9-mm best contact p95); the shared plateau
-schedule in `metric-fit-03` passed both pilot doors at epoch 26/962 updates:
-7.41/9.93-mm position, 1.30/1.70-degree orientation and 98.88/95.08% joint geometry
-coverage. Confidence remained unqualified. Raw/cache replay matched all 1,169
-windows within 0.0071 mm and 0.0014 degrees; +1% XYZ changed contact by p95 4.95 mm.
-
-Legacy `refine-02` fitted all 19 train doors in one epoch (2.29–4.00-mm contact p95).
-The earlier `refine-01` incorrectly reported `development_evaluated=true`; actual
-execution was train-only, and that original report remains unchanged. Separate
-confidence fitting preserved geometry but still accepted inaccurate development
-states: 7.41–32.32-cm contact p95, 0% accepted-state precision, qualification false.
-Refinement/confidence fitting therefore did not solve held-out geometry.
-
-## Refreshed campaign and pretrained screening
-
-The refreshed campaign has 50 complete nominal/light episodes with the common
-inspection (`engineering-v2`). Run-03, audited at `d833b89`/`0ea075f`, again
-separates train fitting from development failure:
+The refreshed 50-episode `engineering-v2` campaign supported run-03
+(`d833b89`, audit `0ea075f`):
 
 | Checkpoint | Train contact position p95, range across doors | Train complete geometry | Development contact position p95, range across doors | Development complete geometry |
 |---|---:|---:|---:|---:|
 | Best, epoch 1 | 1.13–3.10 cm | 0/19 doors | 5.42–51.50 cm | 0/6 doors |
 | Last, epoch 15 | 1.86–3.44 mm | 19/19 doors | 9.88–54.16 cm | 0/6 doors |
 
-Component protocols fixed 800 image samples across 50 episodes and 450
-manipulation samples (342 train/108 development). No simulator masks, asset
-identity, dimensions or hinge truth entered inference. GroundingDINO supplied
-the highest-scored `door.` box at 0.30 box/0.25 text thresholds. The same metric
-plane/bounds scoring was used across segmenters; masks were predictions.
+## Corrected pretrained component screening
 
-The original component scripts confused frame counters starting at eight with
-HDF5 row indices, creating an eight-row/0.133-second offset. RGB/depth/truth within
-a component stayed paired, but direct cached-head/image comparisons were not
-exact. Fifty of the 450 labeled manipulation rows were actually release phase.
-Geometry/SAM 2/SAM 3 were repeated at corrected rows with unchanged settings
-(`e1f98a6`). Run-03 training/full replay and correctly mapped DINO probes were
-unaffected. **Aligned results supersede the initial component statistics.**
+The protocol fixed 800 images and 450 manipulation samples (342 train/108 development).
+Inference used predicted masks/boxes and calibrated observations, without asset,
+hinge or dimensions truth. GroundingDINO used `door.` at 0.30/0.25 thresholds;
+all segmenters used the same metric plane/bounds scoring.
+
+The original scripts confused counters starting at eight with HDF5 row indices,
+introducing an eight-row/0.133 s offset. Fifty labeled manipulation rows were actually
+release. Corrected repeats (`e1f98a6`) preserved settings and supersede initial
+component scores; run-03 and correctly mapped DINO probes were unaffected:
 
 | Method | Split | Available manipulation planes | Normal p95 | Surface-distance p95 | Normal <=5 degrees AND distance <=1 cm, including unavailable as failures |
 |---|---|---:|---:|---:|---:|
@@ -602,57 +260,49 @@ unaffected. **Aligned results supersede the initial component statistics.**
 | SAM 3, predicted box | train | 342/342 | 88.95 degrees | 22.20 cm | 69.9% |
 | SAM 3, predicted box | development | 108/108 | 1.79 degrees | 1.26 cm | 89.8% |
 
-SAM 2 and boxed SAM 3 shared 89 development successes: 3 exclusive to SAM 2,
-8 exclusive to SAM 3 and 8 failures shared. Boxed SAM 3 therefore improved
-92/108 to 97/108 on this sample, not universal model superiority. Industrial-003
-still had two severe boxed-SAM-3 failures: per-door p95 89.59 degrees/57.78 cm,
-hidden by pooled p95. Development closed-scan height errors remained 9.1–41.0 cm.
-Text-only masks often omitted doors; depth alone missed 104/342 train planes.
-Neither planes nor masks establish hinge/contact geometry or qualified confidence.
+SAM2/boxed SAM3 shared 89 development successes, with 3 SAM2-only, 8 SAM3-only and
+8 shared failures. The improvement from 92/108 to 97/108 is sample-specific.
+Industrial-003 retained severe per-door p95 89.59 degrees/57.78 cm, hidden by pooled
+scores. Closed-scan height error remained 9.1–41.0 cm. No plane/mask result supplied
+a hinge, contact state or qualified confidence. Median times about 8 ms depth,
+83 ms SAM3 text and 85 ms boxed SAM3 excluded cached detection, versus 137 ms SAM2;
+these are not comparable optimized end-to-end latencies.
 
-Median replay times were about 8 ms for depth geometry, 83 ms for SAM 3 text and
-85 ms for boxed SAM 3 **excluding cached detector computation**, versus 137 ms
-for the SAM 2 pipeline. These are not comparable end-to-end optimized latencies.
-Video tracking was not evaluated.
+The CAP-Net adapter produced 107/450 fits and 0% development success. It omitted
+published multi-instance clustering and used a single-door NOCS fit; this is not a
+published-protocol accuracy claim. It was not rerun after alignment correction.
+`evidence/comparison-01/` retains aligned/original protocols, frame-index audit,
+per-door scores and `sam3-aligned-failures.jpg`.
 
-The historical CAP-Net adapter produced 107/450 fits and 0% development plane
-success. It used predicted ROIs, upstream point normalization and a single-door
-NOCS fit, omitting multi-instance clustering. This was not the published protocol
-or a definitive CAP-Net accuracy claim. It was not rerun after the row/phase audit.
+## Matched DINO diagnostic
 
-## Matched DINO diagnostic and retained next steps
-
-Frozen ViT-S backbones used the same 224-pixel whole-image letterbox, normalization,
-384-channel features, metric head, seven initial/four recent views and seeds
-6100–6102. Native patch grids differed (16x16 DINOv2, 14x14 DINOv3); CLS/register
-tokens were excluded. Confidence remained frozen/unqualified. The fixed
-1,200-update trial was followed by a common prespecified 6,000-update extension,
-with 3e-4/9e-5/2.7e-5 learning rates in 2,000-update blocks, no best-seed selection
-or development early stopping. All three final seeds are retained:
+Frozen backbones used identical 224-pixel whole-image letterboxing, normalization,
+384-channel metric heads, seven initial/four recent views and seeds 6100–6102;
+native patch grids differed and CLS/register tokens were excluded. Confidence stayed
+frozen/unqualified. A common prespecified 6,000-update extension followed 1,200 updates,
+with 3e-4/9e-5/2.7e-5 learning rates in 2,000-update blocks. No best-seed selection
+or development early stopping occurred:
 
 | Backbone | Train doors passing geometry in each seed | Development doors passing in each seed | Train mean per-door contact-position p95, seed range | Development mean per-door contact-position p95, seed range | Development pooled contact-position p95, seed range |
 |---|---:|---:|---:|---:|---:|
 | DINOv2 ViT-S/14 | 19/19 | 0/6 | 2.28–2.42 mm | 22.98–27.52 cm | 52.66–54.60 cm |
 | DINOv3 ViT-S/16 | 19/19 | 0/6 | 1.30–2.57 mm | 24.21–27.58 cm | 45.40–47.07 cm |
 
-DINOv3 improved pooled tail error but not mean per-door error or passing-door
-counts; swapping the backbone alone did not repair the tested architecture.
-This does not reject DINOv3 for learned association or residual features.
+DINOv3 improved pooled tails without changing held-out passing-door counts or
+consistently improving per-door means. A backbone swap did not repair this tested
+architecture; it does not reject DINOv3 as a reusable image-feature component.
 
-The next pipeline must recover metric planes/borders, maintain multiview static
-geometry, track articulation, measure local contact, and represent ambiguity or
-loss explicitly. Masks guide association; metric/temporal consistency must reject
-wrong surfaces. The September full-state target remains historical evidence;
-future qualification follows the explicit operational profile and dynamic gates
-in the October plan.
-No new training or collection is implied. See
-[[topics/shared-door-perception|the maintained and planned boundaries]].
+## October 2 cleanup
 
-Selected official weights/configuration/licenses are in `models/perception/`;
-its README records revisions, including native SAM 3 format. Evidence includes
-`comparison-01/aligned-component-protocol.json`, `aligned-component-summary.json`,
-`frame-index-audit.json`, all per-door scores, DINO protocols/results and
-`sam3-aligned-failures.jpg`. Original offset scores remain historical evidence.
-The local `cleanup.json` records relocations, preserved episodes and explicit
-payload removals. Five interrupted RGB-D payloads were removed by user decision;
-their calibration, metadata and failure records were retained.
+All 50 `engineering-v2` episodes and selected frozen model resources remain intact.
+Superseded `engineering-v1`, `inspection-pilot-01` and `inspection-tallest-01` were
+removed after saving 53 calibration/metadata headers and essential results. Temporary
+experiment scripts, caches, derived features/masks, duplicate dumps/media and logs
+without residual value were removed. Twenty completed run directories were consolidated
+under the existing evidence inventory. The local `cleanup.json` records paths,
+reasons, moves, retained evidence and reclaimed space; no full-recording hashing was used.
+
+Frozen image smoke and four 0–25 s static scans validate the maintained path in
+`evidence/cleanup-validation-20261002/`. They do not validate Point2Pose, dynamic
+tracking, a movement/contact admission, hardware or offline release gates. No new
+training, collection, extended replay or sealed evaluation was started.

@@ -1,10 +1,8 @@
 # Phase 6 — Perception, Actions, and Demonstrations
 
-> Subphase 6.0 open: the September geometric prototype remains unqualified.
-> The October 1 operational perception/contact protocol is approved. 6.0A contracts
-> and 6.0B static object fusion/queries with bounded diagnostics are implemented;
-> 6.0C software and bounded replay/live diagnoses are implemented; material tracking
-> exit checks remain open. 6.0D-H remain planned.
+> Subphase 6.0 remains unqualified. 6.0A contracts and 6.0B static evidence/queries
+> are maintained. Previous dynamic trackers are retired; 6.0C will integrate
+> official CAD-free Point2Pose and is not implemented. 6.0D-H remain planned.
 > Subphase 6.1 software is partially validated; final integration is pending.
 > Subphase 6.2 is not started. Phases 4 and 5 are complete.
 
@@ -18,42 +16,37 @@ interface, then produce matched training demonstrations. Follow
 
 #### Current implementation boundary
 
-The causal GroundingDINO/native SAM3/DINOv3 prototype, calibrated RGB-D geometry
-and full-state replay evaluator exist. Corrected two-pilot replay still accepts
-zero complete states: leaf/frame association and hinge/motion remain unreliable.
-Existing recordings lack joint torque; the observed-only monitor rejects loaded
-control. Extended evaluation remains stopped and dynamic validation has not run.
-6.0A adds operational/provisional/load interfaces and numerical admission rules,
-preserving legacy schemas and results. Operational consumer compatibility exists,
-the default provider emits legacy states and feedback acquisition remains absent.
-The opt-in C path exposes axis-free local candidates and explicit material selection;
-a supported motion reference can represent that same point operationally. Its four
-complete pilot replays and four parked-arm live observations initialize local geometry
-but do not recover selected material tracking or an axis. Raw visibility and material
-reacquisition remain separate; C is open.
-6.0B adds observed object memory, static hinge alternatives, finite contact support
-and relevant-space queries. Its four scan diagnoses preserve ambiguous ownership
-and unobserved physical axes. The targeted re-audit corrects extraction, mask omissions,
-perimeter/association losses and degenerate contact-face claims. The repaired video
-prefix retains masks but does not establish leaf identity or an axis. First motion
-still requires an identifiable local leaf patch, effective contact coverage and D's
-feedback/response/stop bounds; complete dimensions are optional.
-See [[experiments/b1-perception-findings|preserved evidence]] and
-[[topics/shared-door-perception|current implementation]].
+Frozen GroundingDINO/native SAM3/DINOv3 and calibrated RGB-D/multiview geometry
+support 6.0B static object memory, ownership alternatives, hinge hypotheses and
+finite contact/relevant-space queries. The static provider exposes scan evidence
+but no qualified state, policy encoding or admission to move. Human-reviewed local
+regions and corrected contact covers remain; whole-object identity and axes are
+unresolved. Existing recordings lack torque and the observed monitor blocks loaded
+execution.
+
+Legacy geometric tracking/evaluation, custom material tracking and video comparison
+are retired after preserving their failures. Independent full-state/local contracts,
+explicit selection, timing/reset, admission and feedback interfaces remain. Future
+Point2Pose will track panel pose from distributed visual references and RGB-D,
+compensating camera kinematics and preserving local contact checks. No integration,
+training, collection or release migration is implemented. All 50 engineering-v2
+episodes remain for future common qualification. See
+[[experiments/b1-perception-findings|findings]] and
+[[topics/shared-door-perception|maintained implementation]].
 
 #### Approved implementation sequence
 
 The canonical implementation specification is
 [[phase-6-0-operational-perception-and-contact|Phase 6.0 — Operational Perception and Observed Contact]].
 It defines inputs, uncertainty, contact selection, provisional action admission,
-force feedback, scoring, failure handling and bounded delegation. Keep this parent
-page as the phase overview; use the detailed plan for assignments and exit checks.
+force feedback, scoring, failure handling and staged qualification. Keep this parent
+page as the phase overview; use the detailed plan for requirements and exit checks.
 
 | Package | Outcome | Prerequisites |
 |---|---|---|
 | 6.0A — complete | Explicit operational/provisional/load contracts, measurable admission rules and numerical consumer compatibility | Approved protocol and current consumer audit |
 | 6.0B — complete | Static object fusion, fixed/unresolved support, hinge alternatives and geometric queries; bounded scans and targeted evidence/contact corrections; identity/interaction remain unqualified | 6.0A |
-| 6.0C — open | Local material/explicit selection software and bounded replay/live diagnostics; selected tracking, reacquisition and articulation exit checks fail | 6.0B |
+| 6.0C — planned | Official CAD-free Point2Pose, distributed RGB-D references, camera-motion compensation, panel pose and panel-fixed push zone; local contact checks retained | 6.0B |
 | 6.0D | Documented robot feedback, common compliant execution and physical stop | 6.0A; independent of B/C with numerical fixtures |
 | 6.0E | Independent dual-profile evaluator and both pilot replays | 6.0A-C |
 | 6.0F | Bounded diagnostic manipulation on the two train pilots | 6.0D/E gates |
@@ -62,7 +55,7 @@ page as the phase overview; use the detailed plan for assignments and exit check
 
 #### Key decisions
 
-Preserve A4, calibrated FK/IK, a shared causal replay/live path and frozen local
+Preserve A4, calibrated FK/IK, causal observation/availability semantics and frozen local
 visual models. Move from a single selected plane to observed leaf surfaces and
 motion. Total dimensions are optional for operational use unless an action needs
 them. The diagnostic controller chooses a supported contact patch; the teacher's

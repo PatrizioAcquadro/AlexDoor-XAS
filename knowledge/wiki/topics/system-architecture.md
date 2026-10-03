@@ -23,9 +23,10 @@ exact partner actors. Normal force, forbidden contacts and separation are
 valid-depth mask, seven-arm/two-neck proprioception, timestamps and frame IDs.
 The Gym policy tensor contains the 18 joint positions/velocities. Phase 6 owns
 image encoding, histories and the observed-only learning interface. The `perception`
-package supplies a diagnostic geometric provider, isolated frozen image-model
-worker and full-state evaluator, alongside inspection/calibration support. See
-[[topics/shared-door-perception|Shared Door Perception]] for the implemented prototype,
+package supplies a static scan provider, isolated frozen image-model worker,
+reusable scientific metrics and estimator-independent contracts, alongside
+inspection/calibration support. Prior dynamic trackers are retired. See
+[[topics/shared-door-perception|Shared Door Perception]] for the maintained 6.0B,
 provider interface and qualification boundary.
 
 See [[topics/purdue-b1-robot-and-contact|Purdue Robot and Contact Contract]] and
@@ -35,8 +36,8 @@ The separate B1 policy path uses a shared frozen RGB-D encoding plus current
 proprioception, explicit A1-A4 tensors, and family-specific normalization.
 `B1Runner` connects the policy or labeled matched-replay source to `PurdueIO`.
 Legacy stop monitors may read door truth; action adapters consume observed geometry.
-The geometric prototype selects an observed-only monitor instead and confines
-simulator truth to its evaluator. Contact force/load cannot be certified by RGB-D.
+The maintained observed-only monitor consumes observations and robot bounds;
+simulator truth belongs only to independent evaluation. Contact force/load cannot be certified by RGB-D.
 This is independent software preparation, not a completed Phase 6.1 or generated
 policy dataset. See [[topics/learned-policy-stack|Learned Policy Stack]].
 
@@ -107,7 +108,9 @@ contract, frozen corpus, rights scopes and completed qualification.
 Runtime caches and verification reports belong under `~/.cache/alexdoor-xas/`.
 Original engineering recordings use ignored `datasets/` payloads. Selected model
 resources use `models/perception/`; historical perception evidence and relocation
-records use `outputs/b1/perception/evidence/`. Retired feature caches were removed.
+records use `outputs/b1/perception/evidence/`. All 50 engineering-v2 episodes remain;
+superseded recordings and derived caches
+were removed after preserving essential results/headers.
 
 ## Reusable Algorithms
 
