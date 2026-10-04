@@ -174,6 +174,26 @@ def test_all_frames_last_capture_and_latency_independence(tmp_path, runtime):
     assert all(worker.closed for worker in runtime.workers)
 
 
+@pytest.mark.parametrize("interrupt", [None, 1])
+def test_bounded_window_retains_original_rows_and_complete_denominator(
+    tmp_path, runtime, interrupt
+):
+    runtime.interrupt = interrupt
+    report, frames = run(
+        recording(tmp_path / "episode.hdf5"),
+        tmp_path / "bounded",
+        runtime,
+        capture_window_s=(4.0, 4.05),
+    )
+    assert [r["row"] for r in frames] == [2, 3, 4, 5]
+    assert [r["frame"] for r in frames] == [10, 11, 12, 13]
+    assert report["scheduled_rows"] == 4 and report["recorded_rows"] == 8
+    assert report["capture_window_s"] == (4.0, 4.05)
+    assert report["not_processed_rows"] == (3 if interrupt else 0)
+    assert report["complete"] == (interrupt is None)
+    assert len(runtime.workers) == 1 and runtime.workers[0].closed
+
+
 def test_truth_only_changes_scoring_and_source_time_is_used(tmp_path, runtime):
     path = recording(tmp_path / "episode.hdf5")
     before, _ = run(path, tmp_path / "before", runtime)

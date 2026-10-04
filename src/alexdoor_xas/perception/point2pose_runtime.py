@@ -16,7 +16,15 @@ from alexdoor_xas.recording.b1 import OBS_KEYS
 
 class Point2PoseWorker:
     def __init__(
-        self, root, depth_interval_m, depth_error_m, num_objects, log_dir, *, diagnostic_only=False
+        self,
+        root,
+        depth_interval_m,
+        depth_error_m,
+        num_objects,
+        log_dir,
+        *,
+        diagnostic_only=False,
+        registration_diagnostics=False,
     ):
         boot_started = time.perf_counter()
         root, log_dir = Path(root).resolve(), Path(log_dir).resolve()
@@ -88,6 +96,7 @@ class Point2PoseWorker:
                     num_objects=num_objects,
                     log_dir=str(log_dir),
                     diagnostic_only=diagnostic_only,
+                    registration_diagnostics=registration_diagnostics,
                 ),
             )
             response = receive(self.process.stdout)

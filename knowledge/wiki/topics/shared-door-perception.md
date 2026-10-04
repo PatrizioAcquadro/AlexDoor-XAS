@@ -239,6 +239,17 @@ exists. Worker constructors also close a process interrupted during startup.
 The first real campaign was stopped by the user; the retained 4–10 s drift audit
 is documented in [[../experiments/b1-perception-findings|B1 perception findings]].
 
+For a bounded diagnostic, `offline_episode(..., capture_window_s=(4.0, 10.0),
+registration_diagnostics=True)` processes only that inclusive acquisition window
+and preserves original HDF5 row/frame IDs, including interrupted suffix counts.
+The optional native `registration.jsonl` observes registration inputs, hypotheses,
+inliers/residuals, SDF poses before/after refinement, frontend decisions and graph
+updates before publication. Observers copy intermediate values and return the
+original native results unchanged; they do not alter thresholds, models or
+tracking decisions. This trace requires diagnostic mode and receives no truth.
+Its export time is separate metadata; total request time includes diagnostic work
+and is not an operational performance measurement.
+
 ## Maintained estimator-independent interfaces
 
 

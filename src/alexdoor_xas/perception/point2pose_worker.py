@@ -81,11 +81,22 @@ class OfficialPipeline:
         self.pipeline.sdf_builder = builder(config.reconstructor.params)
         self.config = OmegaConf.to_container(config, resolve=True)
         self.torch, self.np = torch, np
+        self.trace = None
+        if request.get("registration_diagnostics", False):
+            if not request.get("diagnostic_only", False):
+                raise ValueError("registration_trace_requires_diagnostic_mode")
+            from alexdoor_xas.perception.point2pose_trace import RegistrationTrace
+
+            self.trace = RegistrationTrace(
+                self.pipeline, Path(request["log_dir"]) / "registration.jsonl"
+            )
         self.last_frontend = None
         native_step = self.pipeline.frontend.step
 
         def capture(*args):
             self.last_frontend = native_step(*args)
+            if self.trace is not None:
+                self.trace.frontend(self.last_frontend, self.pipeline.objects)
             return self.last_frontend
 
         self.pipeline.frontend.step = capture
@@ -111,6 +122,7 @@ class OfficialPipeline:
             training_started=False,
             qualified=False,
             diagnostic_only=self.diagnostic_only,
+            registration_diagnostics=self.trace is not None,
         )
 
     def infer(self, request):
@@ -144,6 +156,8 @@ class OfficialPipeline:
             timestamp=float(sensor["time_s"]),
             mask=None if masks is None else torch.as_tensor(masks[:, None], device="cuda"),
         )
+        if self.trace is not None:
+            self.trace.begin(sensor["frame"], sensor["time_s"], self.index, self.pipeline.objects)
         if not self.initialized:
             from alexdoor_xas.perception.point2pose_seed import (
                 candidate_references,
@@ -216,6 +230,10 @@ class OfficialPipeline:
                     tsdf_bounds=None if volume is None else pack_array(volume._vol_bnds),
                 )
             )
+        export_started = time.perf_counter()
+        if self.trace is not None:
+            self.trace.finish(self.pipeline.objects)
+        export_s = time.perf_counter() - export_started if self.trace is not None else 0.0
         return dict(
             objects=objects,
             initialization_checks=self.initialization_checks,
@@ -223,6 +241,7 @@ class OfficialPipeline:
             capture_s=float(sensor["time_s"]),
             frame=int(sensor["frame"]),
             latency_s=time.perf_counter() - started,
+            diagnostic_export_s=export_s,
             torch_allocated_bytes=torch.cuda.memory_allocated(),
             torch_peak_bytes=torch.cuda.max_memory_allocated(),
             gpu_free_bytes=torch.cuda.mem_get_info()[0],

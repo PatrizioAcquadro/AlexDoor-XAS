@@ -224,7 +224,16 @@ def summarize_candidate(frames, candidate_id, seed_row):
     )
 
 
-def offline_episode(path, recipe, output, models, *, initialization_only=False):
+def offline_episode(
+    path,
+    recipe,
+    output,
+    models,
+    *,
+    initialization_only=False,
+    capture_window_s=None,
+    registration_diagnostics=False,
+):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
@@ -243,6 +252,16 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
         end_s = (
             config["inspection"]["sample_times_s"][-1] if initialization_only else float(times[-1])
         )
+        first_s = float(times[0])
+        if capture_window_s is not None:
+            if (
+                initialization_only
+                or not np.isfinite(capture_window_s).all()
+                or not (times[0] <= capture_window_s[0] <= capture_window_s[1] <= times[-1])
+            ):
+                raise ValueError("invalid_offline_capture_window")
+            first_s, end_s = capture_window_s
+        scheduled = np.flatnonzero((times >= first_s - 1e-9) & (times <= end_s + 1e-9))
         next_semantic = config["inspection"]["sample_times_s"][0]
         calibration = json.loads(h5["metadata"].attrs["calibration"])
         try:
@@ -265,6 +284,7 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
                     1,
                     output / "native",
                     diagnostic_only=True,
+                    **({"registration_diagnostics": True} if registration_diagnostics else {}),
                 )
             )
             tracker = PanelTracking(engine, config)
@@ -279,7 +299,8 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
         write_json(output / "startup.json", startup)
         try:
             with (output / "frames.jsonl").open("w", buffering=1) as stream:
-                for row, t in enumerate(times):
+                for row in scheduled:
+                    row, t = int(row), float(times[row])
                     if t > end_s + 1e-9:
                         break
                     record = dict(
@@ -317,6 +338,7 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
                                     request_s=time.perf_counter() - request_started,
                                     native_ipc_s=result["latency_s"],
                                     native_compute_s=result.get("model_latency_s"),
+                                    diagnostic_export_s=result.get("diagnostic_export_s"),
                                 )
                         except Exception as error:
                             failure = f"{type(error).__name__}: {error}"
@@ -415,7 +437,7 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
                             )
                     frames.append(record)
                     stream.write(json.dumps(json_safe(record), allow_nan=False) + "\n")
-                    if row % 100 == 0 or row == len(times) - 1:
+                    if row % 100 == 0 or row == scheduled[-1]:
                         status = dict(
                             row=row,
                             recorded_rows=len(times),
@@ -434,7 +456,8 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
             # Keep completed lines intact. The in-flight request is unavailable;
             # never infer its result, observability or latency from a later response.
             with (output / "frames.jsonl").open("a", buffering=1) as stream:
-                for row in range(len(frames), len(times)):
+                for row in scheduled[len(frames) :]:
+                    row = int(row)
                     if times[row] > end_s + 1e-9:
                         break
                     record = dict(
@@ -472,6 +495,8 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
         report = dict(
             source=str(path),
             initialization_only=initialization_only,
+            capture_window_s=capture_window_s,
+            registration_diagnostics=registration_diagnostics,
             recorded_rows=len(times),
             scheduled_rows=len(frames),
             inspected_rows=sum(r["status"] != "not_processed" for r in frames),
