@@ -61,11 +61,14 @@ class ModelWorker:
             stderr=log,
             env=env,
         )
-        send(self.process.stdin, config)
-        response = receive(self.process.stdout)
-        if response is None or "error" in response:
+        try:
+            send(self.process.stdin, config)
+            response = receive(self.process.stdout)
+            if response is None or "error" in response:
+                raise RuntimeError(f"Visual worker initialization failed: {response}")
+        except BaseException:
             self.close()
-            raise RuntimeError(f"Visual worker initialization failed: {response}")
+            raise
         self.runtime = response["ready"]
 
     def infer(self, rgb):

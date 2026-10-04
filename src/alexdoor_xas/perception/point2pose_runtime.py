@@ -79,20 +79,24 @@ class Point2PoseWorker:
 
         self.monitor = threading.Thread(target=monitor, daemon=True)
         self.monitor.start()
-        send(
-            self.process.stdin,
-            dict(
-                depth_interval_m=depth_interval_m,
-                depth_error_m=depth_error_m,
-                num_objects=num_objects,
-                log_dir=str(log_dir),
-                diagnostic_only=diagnostic_only,
-            ),
-        )
-        response = receive(self.process.stdout)
-        if response is None or "error" in response:
+        try:
+            send(
+                self.process.stdin,
+                dict(
+                    depth_interval_m=depth_interval_m,
+                    depth_error_m=depth_error_m,
+                    num_objects=num_objects,
+                    log_dir=str(log_dir),
+                    diagnostic_only=diagnostic_only,
+                ),
+            )
+            response = receive(self.process.stdout)
+            if response is None or "error" in response:
+                raise RuntimeError(f"Point2Pose initialization failed: {response}")
+        except BaseException:
+            # The caller cannot close a constructor that did not return.
             self.close()
-            raise RuntimeError(f"Point2Pose initialization failed: {response}")
+            raise
         self.runtime = response["ready"]
         self.boot_latency_s = time.perf_counter() - boot_started
         self.runtime["boot_latency_s"] = self.boot_latency_s

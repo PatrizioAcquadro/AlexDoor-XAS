@@ -38,7 +38,14 @@ def recording(path, rows=8):
 @pytest.fixture
 def runtime(monkeypatch):
     state = SimpleNamespace(
-        workers=[], latency=0.02, rejected=False, loss=None, sparse=None, fail=None, invalid=None
+        workers=[],
+        latency=0.02,
+        rejected=False,
+        loss=None,
+        sparse=None,
+        fail=None,
+        invalid=None,
+        interrupt=None,
     )
 
     class Visual:
@@ -72,6 +79,8 @@ def runtime(monkeypatch):
                 self.seed_frame = frame
                 self.camera = observed["camera_world"].copy()
             relative_frame = frame - self.seed_frame
+            if relative_frame == state.interrupt:
+                raise KeyboardInterrupt
             if relative_frame == state.fail:
                 raise RuntimeError("native_test_failure")
             transform = np.eye(4)
@@ -252,6 +261,75 @@ def test_three_fresh_trials_per_pilot_and_one_second_extra_window(tmp_path, runt
     assert campaign["full_recording_frames"] == 280
     assert campaign["native_initializations"] == 12
     assert not campaign["qualified"] and not campaign["offline_passed"]
+
+
+def test_user_interrupt_preserves_prefix_denominator_and_stops_campaign(tmp_path, runtime):
+    runtime.interrupt = 3
+    paths = [
+        recording(tmp_path / pilot / condition / "episode.hdf5")
+        for pilot in offline.PILOTS
+        for condition in ("nominal", "light")
+    ]
+    output = tmp_path / "campaign"
+    reports = offline.run_offline(paths, runtime.recipe, output, Path("unused"))
+    assert len(reports) == len(runtime.workers) == 1
+    assert runtime.workers[0].closed
+    report = reports[0]
+    assert report["termination"] == "user_requested_stop" and not report["complete"]
+    assert report["scheduled_rows"] == 8 and report["not_processed_rows"] == 3
+    assert report["native_result_rows"] == 3
+    assert report["primary"]["all_frames"]["native_coverage"] == 3 / 8
+    frames = [
+        json.loads(line) for line in next(output.rglob("frames.jsonl")).read_text().splitlines()
+    ]
+    assert [r["row"] for r in frames] == list(range(8))
+    assert all(r["objects"] == [] and r["latency"] is None for r in frames[5:])
+    campaign = json.loads((output / "report.json").read_text())
+    assert campaign["completed_attempts"] == 0 and campaign["not_started_attempts"] == 11
+    assert campaign["expected_full_recording_frames"] == 32
+    assert campaign["not_processed_full_recording_frames"] == 27
+
+
+@pytest.mark.parametrize("kind", ["native", "visual"])
+def test_interrupted_worker_startup_closes_unreturned_process(tmp_path, monkeypatch, kind):
+    from io import BytesIO
+
+    from alexdoor_xas.perception import point2pose_runtime, provider
+
+    class Process:
+        def __init__(self, *args, **kwargs):
+            self.stdin, self.stdout = BytesIO(), BytesIO()
+            self.stopped = False
+
+        def poll(self):
+            return 0 if self.stopped else None
+
+        def terminate(self):
+            self.stopped = True
+
+        def wait(self, **kwargs):
+            self.stopped = True
+
+    process = Process()
+    module = point2pose_runtime if kind == "native" else provider
+    monkeypatch.setattr(module.subprocess, "Popen", lambda *a, **kw: process)
+    monkeypatch.setattr(module, "send", lambda *args: None)
+
+    def interrupt(_):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(module, "receive", interrupt)
+    monkeypatch.setattr(
+        point2pose_runtime.threading,
+        "Thread",
+        lambda **kw: SimpleNamespace(start=lambda: None, join=lambda **kw: None),
+    )
+    with pytest.raises(KeyboardInterrupt):
+        if kind == "native":
+            point2pose_runtime.Point2PoseWorker(tmp_path, [0.1, 3], 0.004, 1, tmp_path / "logs")
+        else:
+            provider.ModelWorker(tmp_path, {})
+    assert process.stopped and process.stdin.closed and process.stdout.closed
 
 
 def test_mask_guard_is_strict_operationally_and_diagnostic_per_candidate():

@@ -232,6 +232,7 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
     frames, candidates, checks = [], [], []
     engine = cues = tracker = None
     failure = seed_row = seed_truth = None
+    interrupted = False
     startup = {}
     inference_wall_s = 0.0
     first_supported = {}
@@ -270,6 +271,9 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
             tracker.before_start = cues.close
             engine.prepare()
             startup["point2pose_s"] = engine.worker.boot_latency_s
+        except KeyboardInterrupt:
+            interrupted = True
+            failure = "user_requested_stop"
         except Exception as error:
             failure = f"{type(error).__name__}: {error}"
         write_json(output / "startup.json", startup)
@@ -424,6 +428,27 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
                         print(
                             f"{output}: row {row}/{len(times) - 1}, {record['status']}", flush=True
                         )
+        except KeyboardInterrupt:
+            interrupted = True
+            failure = "user_requested_stop"
+            # Keep completed lines intact. The in-flight request is unavailable;
+            # never infer its result, observability or latency from a later response.
+            with (output / "frames.jsonl").open("a", buffering=1) as stream:
+                for row in range(len(frames), len(times)):
+                    if times[row] > end_s + 1e-9:
+                        break
+                    record = dict(
+                        row=row,
+                        frame=int(frame_ids[row]),
+                        time_s=float(times[row]),
+                        status="not_processed",
+                        reason="user_requested_stop",
+                        is_seed=False,
+                        objects=[],
+                        latency=None,
+                    )
+                    frames.append(record)
+                    stream.write(json.dumps(record, allow_nan=False) + "\n")
         finally:
             if engine is not None:
                 engine.close()
@@ -457,6 +482,7 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
             stride=1,
             capture_interval_s=quantiles(np.diff(times)),
             complete=failure is None,
+            termination="user_requested_stop" if interrupted else None,
             failure=failure,
             initialization=initialization,
             primary=summaries[0],
@@ -487,6 +513,18 @@ def offline_episode(path, recipe, output, models, *, initialization_only=False):
             training_started=False,
         )
         write_json(output / "report.json", report)
+        if interrupted:
+            write_json(
+                output / "status.json",
+                dict(
+                    termination="user_requested_stop",
+                    recorded_rows=len(times),
+                    inspected_rows=report["inspected_rows"],
+                    not_processed_rows=report["not_processed_rows"],
+                    workers_closed=True,
+                    no_restart=True,
+                ),
+            )
         return report
 
 
@@ -494,6 +532,10 @@ def run_offline(paths, recipe, output, models):
     expected = {(pilot, condition) for pilot in PILOTS for condition in ("nominal", "light")}
     if len(paths) != 4 or {(p.parent.parent.name, p.parent.name) for p in paths} != expected:
         raise ValueError("Exactly the four authorized pilot recordings are required")
+    recorded_rows = {}
+    for path in paths:
+        with h5py.File(path, "r") as h5:
+            recorded_rows[str(path)] = len(h5["observations/time_s"])
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     write_json(
@@ -505,6 +547,7 @@ def run_offline(paths, recipe, output, models):
             initialization_attempts_per_episode=3,
             extra_initialization_window_s=1.0,
             episodes=[str(p) for p in paths],
+            recorded_rows=recorded_rows,
             recipe=recipe.to_dict(),
             annotations="evaluator only",
             latency_affects_outcome=False,
@@ -531,12 +574,17 @@ def run_offline(paths, recipe, output, models):
                 output / "report.json",
                 dict(
                     attempts=reports,
-                    completed_attempts=len(reports),
+                    completed_attempts=sum(r["complete"] for r in reports),
+                    finished_attempts=len(reports),
+                    not_started_attempts=12 - len(reports),
                     expected_attempts=12,
                     complete=len(reports) == 12 and all(r["complete"] for r in reports),
                     full_recording_frames=sum(
                         r["scheduled_rows"] for r in reports if not r["initialization_only"]
                     ),
+                    expected_full_recording_frames=sum(recorded_rows.values()),
+                    not_processed_full_recording_frames=sum(recorded_rows.values())
+                    - sum(r["inspected_rows"] for r in reports if not r["initialization_only"]),
                     native_initializations=sum(
                         r["initialization"]["native_completed"] for r in reports
                     ),
@@ -549,6 +597,9 @@ def run_offline(paths, recipe, output, models):
                     offline_passed=False,
                     dynamic_passed=False,
                     loaded_contact_admitted=False,
+                    termination=reports[-1].get("termination"),
                 ),
             )
+            if reports[-1].get("termination") == "user_requested_stop":
+                return reports
     return reports
