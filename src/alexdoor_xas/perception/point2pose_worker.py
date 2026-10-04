@@ -47,10 +47,12 @@ class OfficialPipeline:
         from omegaconf import OmegaConf
 
         from alexdoor_xas.perception.point2pose_compat import install_lifting
+        from alexdoor_xas.perception.point2pose_patches import patch_tracking
         from alexdoor_xas.perception.point2pose_scale import panel_sdf_builder
 
         if not torch.cuda.is_available():
             raise RuntimeError("Point2Pose requires CUDA; no CPU fallback")
+        native_fixes = patch_tracking(root)
         torch.set_num_threads(4)
         config = OmegaConf.load(root / "upstream/configs/ycbinisaac/eccv_final.yaml")
         params = config.pipeline.params
@@ -118,6 +120,7 @@ class OfficialPipeline:
             numpy=np.__version__,
             python=sys.version.split()[0],
             sources=json.loads((root / "sources.json").read_text()),
+            native_fixes=native_fixes,
             config=self.config,
             training_started=False,
             qualified=False,

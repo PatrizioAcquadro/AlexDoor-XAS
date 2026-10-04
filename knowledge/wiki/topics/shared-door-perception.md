@@ -139,7 +139,17 @@ are rejected individually and recorded. A diagnostic selects the first eligible
 automatic candidate explicitly without labels or later truth-based reselection.
 
 The official CAD-free pipeline supplies segmentation, distributed point tracking,
-registration, map, graph and TSDF. A regenerated SAM2 mask must retain five
+registration, map, graph and TSDF. The pinned source receives two reproducible
+corrections at installation/worker startup: f2m recomputes loss from current
+inlier support, residual and the existing jump guard; SDF registration returns
+the selected refined pose and its statistics. An unsupported/invalid result marks
+the object lost while preserving its finite fallback pose for diagnosis. Frame-to-map
+registration continues for lost objects, allowing supported recovery under the
+same ID. The unchanged final SDF support gate retains the pre-refinement cluster
+fallback and recomputes residuals/inliers for the returned pose. No threshold,
+model, ground-truth input or operational/contact admission rule changes. The
+tracked patch validates pinned source, preserves pre-fix files and declares
+`native_fixes` in runtime metadata. A regenerated SAM2 mask must retain five
 spatially distributed measured interior references of the source component.
 This checks essential support without treating legitimate panel relief as frame
 contamination or requiring identical boundary pixels. It does not certify every

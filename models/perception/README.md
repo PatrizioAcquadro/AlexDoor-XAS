@@ -120,7 +120,16 @@ The TSDF adapter derives its extent/radial bound from filtered measured keyframe
 geometry and truncation/error padding, keeps 5 mm voxels, rebuilds expanded
 volumes through official fusion and enforces available device/host memory.
 The pinned CUDA kernel has a one-past-end index guard; the installer applies
-`>` to `>=` and preserves the original source. Calibrated depth limits replace
+`>` to `>=` and preserves the original source. Installer and worker startup also
+apply the tracked corrections in `point2pose_patches.py` before native imports:
+f2m marks missing/insufficient inlier support or invalid residuals as lost, while
+still allowing same-ID registration to recover; an accepted SDF pose is returned
+with its residuals/inliers. The unchanged final support gate can fall back to the
+pre-SDF cluster pose, recomputing statistics for that pose. Exact zero residual
+with sufficient measured support is valid. Pinned-source mismatches fail explicitly;
+pre-fix files remain alongside the ignored sources as `.py.before-tracking-fixes`.
+`runtime.json` declares the two `native_fixes`; model weights and numeric gates
+are unchanged. Calibrated depth limits replace
 small-object defaults in all lifting/crop calls. Equivalent dense crops are
 cached only within one frame and unnecessary neighborhood gathering is skipped
 only when it cannot affect official lifting results. SAM2 retains the authors'

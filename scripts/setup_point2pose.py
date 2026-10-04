@@ -60,6 +60,9 @@ def main():
             stream.extractall(local, filter="data")
         (local / prefix).rename(local / name)
     patch_tsdf_index(local)
+    from alexdoor_xas.perception.point2pose_patches import patch_tracking
+
+    patch_tracking(local)
     (local / "sources.json").write_text(
         json.dumps(
             {
