@@ -576,7 +576,7 @@ from available tracking while retaining those poses/errors in the detailed JSON.
 | 3 | 274 | 10 | 87 | 273 | 1.09 cm / 13.44 degrees |
 | 4 | 293 | 99 | 68 | 292 | 3.82 cm / 19.45 degrees |
 
-### Demonstrated boundary and unresolved internal cause
+### Boundary established before registration telemetry
 
 The evidence localizes the large error upstream of world composition, to native
 tracking/registration output. It demonstrates unflagged native freezing and biased
@@ -594,11 +594,109 @@ so its exact activation and the reason hypotheses failed are not demonstrated.
 The degeneracy test checks triangle area, not planar rank; its comment mentioning
 coplanarity alone is insufficient to attribute failure to the planar door.
 
-The minimum next intervention is diagnostic-only export of the already computed
+The next intervention identified at this stage was diagnostic-only export of the already computed
 frontend correspondence/inlier counts, residuals, cluster/fallback status,
-pre/post-SDF pose and graph pose changes. Then inspect only this same 4–10 s input
-with frozen models/configuration, if a subsequent bounded trial is authorized.
-Keep ground truth solely in scoring. Do not change SE(3) composition, tune gates,
-optimize performance or restart the complete campaign based on these results.
-No new model inference, training, acquisition, ownership qualification or loaded
-contact admission was performed during this diagnosis.
+pre/post-SDF pose and graph pose changes. The numerical audit above performed no
+new model inference. The user subsequently authorized only the bounded diagnostic
+replay below; the complete campaign remains stopped.
+
+## 2026-10-04 — Bounded registration telemetry: confirmed fallback and SDF defects
+
+Source `2ea9e61` adds observational wrappers around the existing register, SDF
+refinement and graph update calls, plus an optional bounded acquisition window.
+`outputs/b1/perception/point2pose-registration-4-10s-01/` contains exactly one new
+fresh CUDA attempt on the same right/light recording, with all 361 frames from
+4 through 10 s at 60 Hz. No skipped frame, process failure, restart or unprocessed
+scheduled row occurred. The native runtime confirms the RTX 4090. Models, pinned
+native sources and configuration match the original attempt; only debug/output
+directories differ. Ground truth remains solely in evaluation after inference.
+
+`attempt-1/native/registration.jsonl` records inputs, original seed track IDs and
+pixels, cluster/inlier/residual statistics, SDF poses before/after refinement,
+frontend poses and graph updates. `evaluate_trace.py`, `diagnosis.json` and
+`evaluation-samples.jsonl` join every result to the original acquisition row/frame/
+timestamp. All five native pose sequences reproduce the original replay exactly
+(maximum matrix-entry difference zero), as do world poses, loss flags, integration
+decisions and capture-time errors. The observer preserves this case's results.
+The bounded report retains all candidates, counts and failed measurements; the
+original campaign's partial files/counts are unchanged.
+
+### Incorrect correspondences, then an unflagged stale-pose fallback
+
+For the primary candidate, all 161 frames from 5.25 through 7.9167 s activate the
+register's no-cluster fallback. Each request supplies 9–20 correspondence pairs,
+above the native minimum of five inliers. Under the independently expected motion,
+only 0–2 pairs per frame satisfy the unchanged 4 mm native inlier threshold:
+28 frames have zero, 123 have one and ten have two. The evaluator's expected pose
+is never passed into registration. Thus a lack of input rows alone does not explain
+failure: the supplied pairs no longer support the correct motion at that gate.
+
+All original seed tracks still selected in those 161 frames are independently
+depth-supported at their expected positions, using an 8 mm depth tolerance.
+There are at least nine such references per frame; their map coordinates remain
+exactly unchanged. At 7 s all 12 selected seed references are depth-supported, but
+tracked-pixel error is median 18.32 px / p95 60.67 px, and current 3D error is
+median 3.05 cm / p95 8.06 cm. Only one pair is within 4 mm of the correct motion.
+These measured correspondence errors precede pose estimation. They do not identify
+TAPIR alone, mask/association alone, point management or exact RGB/depth timing
+as their unique upstream origin, nor qualify whole-candidate material ownership.
+
+The observed register path returns the previous transform, zero inliers and
+residuals `-1` after RANSAC finds no valid cluster. The frontend's unchanged-pose
+jump check does not reject it; its residual condition does not explicitly set
+`lost=True` for that failure, so the previous false flag survives. All 161 frames
+report `lost=False` while retaining exactly the stale camera-relative pose. Graph
+pose changes are exactly zero during this interval. As the camera moves, that
+fallback cannot cancel camera motion and produces the demonstrated world drift.
+The integration correctly rejects these rows for insufficient measured support;
+its frame conversion is not their cause. Across all 360 non-seed primary rows,
+182 activate this no-cluster fallback, all with `lost=False` and residual `-1`.
+
+### Accepted SDF refinement is discarded independently of that freeze
+
+In 90 primary rows, SDF refinement reports acceptance, changes the pose and passes
+the final support gate, but registration returns the exact pre-SDF pose. The
+pinned `svd_cluster_ransac_register.py` saves `selected_T` before refinement,
+updates the selected candidate's transform and residual/inlier statistics using
+`refined_T`, then returns the unchanged `selected_T`. The no-fallback cases prove
+that this is a pose/statistics inconsistency, rather than an intentional gate
+rejection. Their largest pre/post difference is 9.21 mm / 1.00 degree; this does
+not establish that every SDF refinement improves reference accuracy.
+
+SDF is not called on the no-cluster path, so this separate defect does not cause
+the 161-frame freeze. Graph effects outside the freeze remain visible in the
+trace; for the primary they reach 4.48 mm / 0.72 degrees, rather than explaining
+its approximately 20 cm / 24 degree error.
+
+| Candidate | No-cluster fallbacks, all with `lost=False` | Accepted SDF pose not returned, with no final gate fallback |
+|---|---:|---:|
+| 0, automatic primary | 182 | 90 |
+| 1 | 192 | 162 |
+| 2 | 71 | 52 |
+| 3 | 1 | 141 |
+| 4 | 3 | 65 |
+
+The unchanged primary results above still have only 178/361 integration-supported
+rows, p95 20.50 cm / 24.47 degrees and 11 interruptions/returns of the same ID.
+Native flag-based coverage is 361/361, but the confirmed fallback invalidates its
+interpretation as uninterrupted measured tracking. Five native initializations
+and five initial integration checks complete; two other seed candidates are
+rejected during preparation for insufficient core support and remain recorded.
+This one bounded repeat adds no
+general initialization reliability estimate. Its constructed zero at the seed
+still does not measure absolute initialization accuracy.
+
+Startup is 9.626 s visual / 4.147 s native; request latency is median 0.403 s /
+p95 0.687 s / maximum 2.126 s, including diagnostic export. These times have no
+effect on offline coverage, accuracy, continuity or outcome, and do not replace
+operational timing measurements. The 1 cm / 5 degree references remain unchanged.
+
+The minimum justified next intervention is a targeted correction of unsupported
+fallback loss semantics and consistency between selected/returned SDF poses and
+their statistics, followed by regressions and another bounded verification.
+No tracking correction was applied here. Those fixes alone cannot promise correct
+correspondences or 1 cm / 5 degree tracking; the upstream correspondence cause
+remains to be isolated. Do not invert/reorder the verified geometric composition,
+tune thresholds, optimize performance, change models, collect data or resume the
+complete campaign automatically. Operational gates, ownership qualification and
+loaded contact admission remain separate and unqualified.

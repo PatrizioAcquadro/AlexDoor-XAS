@@ -437,8 +437,11 @@ results do not evaluate official release gates or admit contact; see the canonic
 The first 60 Hz campaign was interrupted by the user after 4,216 frames in its
 first recording. The preserved 4–10 s audit finds correct acquisition-time
 matching and geometric composition, but a frozen native transform with
-`lost=False` while the camera moves. Registration telemetry is the next bounded
-diagnostic step; the full campaign remains stopped. See
+`lost=False` while the camera moves. One authorized 361-frame CUDA diagnostic
+repeat confirms incorrect point correspondences, unflagged no-cluster fallback
+and a separate accepted SDF pose that is not returned. Their targeted loss/pose
+consistency correction is next; the upstream correspondence cause remains open.
+The full campaign remains stopped. See
 [[../experiments/b1-perception-findings|partial offline results and drift limits]].
 
 ### 6.0D — Feedback, compliance and stopping

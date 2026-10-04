@@ -9,7 +9,7 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Official CUDA pipeline, FK compensation, panel-fixed zones, operational queues and a separate serial 60 Hz evaluator implemented. The offline campaign is stopped with partial counts preserved; the stationary-door 4–10 s audit localizes drift to native frontend output. The previous four operational replays and eight fresh Isaac cases fail useful availability at 0%. No qualified runtime or loaded contact. |
+| 6.0C — Panel tracking prototype | Official CUDA pipeline, FK compensation, panel-fixed zones, operational queues and a separate serial 60 Hz evaluator implemented. The offline campaign is stopped with partial counts preserved. One complete 4–10 s diagnostic replay confirms erroneous native correspondences, unflagged stale-pose fallback and a separate SDF pose/statistics defect. The previous four operational replays and eight fresh Isaac cases fail useful availability at 0%. No qualified runtime or loaded contact. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
@@ -23,11 +23,18 @@ or unstarted. The [[experiments/b1-perception-findings|4–10 s drift diagnosis]
 verifies source timestamps, ROS optical/depth conventions, FK and composition.
 The first candidate's native transform freezes for 162 frames with `lost=False`
 while the camera moves; frontend drift already precedes world composition.
-The next justified step is diagnostic registration telemetry on this same short
-recorded segment, to distinguish missing hypotheses, incorrect correspondences,
-SDF refinement/selection and graph effects. No further trial or full campaign
-resume was performed; no model, configuration or performance change is justified
-by the present evidence alone.
+One subsequently authorized fresh CUDA diagnostic replay completes all 361 frames
+of that same interval and reproduces all five native pose sequences exactly.
+Telemetry confirms wrong point correspondences, no valid RANSAC cluster and a
+previous-pose fallback that leaves `lost=False`. The primary has only 0–2 pairs
+consistent with the correct motion during all 161 fallback frames, below the
+unchanged five-inlier minimum; the original references remain depth-supported.
+A separate defect returns a pre-SDF pose despite accepted refinement, with
+statistics from the refined pose. The next justified intervention is to correct
+these demonstrated loss/pose-statistics semantics and verify them on the bounded
+segment. The upstream cause of correspondence errors still needs isolation;
+those corrections alone cannot guarantee accurate tracking. No fix, model change,
+configuration tuning, performance optimization or full campaign resume occurred.
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.
