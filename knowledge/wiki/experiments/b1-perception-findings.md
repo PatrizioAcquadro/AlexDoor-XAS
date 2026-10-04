@@ -452,10 +452,153 @@ is used.
 
 The unchanged 1 cm/5 degree limits also reject raw right-pilot camera/combined
 accuracy; raw left-pilot stability does not compensate for late publication.
-The next work is targeted profiling of initialization, multi-hypothesis native
-registration/graph/TSDF cost and candidate consistency on these preserved cases,
-without per-door retuning or tracker comparisons. Complete zone ownership,
+The subsequent 2026-10-04 offline audit below supersedes performance profiling as
+the next action. Complete zone ownership,
 hardware calibration/FK and temporal/stop bounds, real occlusion and physical
 slide remain unvalidated. Numeric finite-region slip checks do not establish
 loaded contact. Official offline/dynamic qualification and policy handoff remain
 separate and false.
+
+## 2026-10-04 — Interrupted serial offline campaign and stationary-door drift
+
+The independent 60 Hz evaluator was implemented at `0adef47`, from clean `main`
+baseline `3b77122`. It reuses the frozen models/configuration and existing candidate
+preparation, with native diagnostic continuation after integration mask rejection.
+The RTX 4090 campaign `outputs/b1/perception/point2pose-offline-60hz-01/` started
+only `animated-door-1-88abf40/light/attempt-1`. The user requested a controlled stop
+before further trials. SIGINT terminated the evaluator and its workers, with no
+restart. The original incremental file contains 4,216 intact rows, ending at
+row 4,215 / frame 4,223 / image time 70.25 s: 240 pre-initialization rows and 3,976
+native-result rows. All five native candidates initialized, and all five initial
+mask checks accepted; this single attempt supplies no reliability estimate.
+
+The original interruption path closed workers but did not finalize its reports.
+Evaluator-only `finalize_partial.py` preserves `frames.jsonl` unchanged and writes
+the 502 remaining rows to `unprocessed.jsonl`, including the interrupted request
+at row 4,216. Its report uses all 4,718 expected rows, with observability explicitly
+unknown for unprocessed rows. Across the four full recordings, 15,892 of 20,108
+frames remain unprocessed: 502 in the started recording and 15,390 in the three
+unstarted full recordings. All eight extra initialization windows and the other
+three full attempts are unstarted; their seed-dependent prefix lengths are unknown.
+None of the twelve planned attempts completed. Original startup, selection,
+runtime and native logs remain intact. `89c08bd` adds direct SIGINT finalization,
+full-recording counts, campaign stop propagation and interrupted-startup cleanup.
+
+For the partial primary candidate, native flag-based coverage is 3,298/4,718,
+integration measured-support coverage is 2,696/4,718, and 678 native lost poses
+remain recorded without counting as available tracking. There are 742 unknown
+observability rows: 240 before initialization plus 502 unprocessed. Request latency
+p95 is 0.967 s over 3,976 completed requests; visual/native startup is 9.770/4.265 s.
+Those times do not alter offline accuracy, continuity or coverage. Integration
+acceptance here means diagnostic measured support, not the complete operational
+controls or contact admission. The historical operational failures above retain
+their unchanged 150 ms freshness gate.
+
+### Bounded numerical diagnosis, without further model inference
+
+`diagnose_drift.py`, `drift-diagnosis.json`, `drift-samples.jsonl` and
+`drift-4-10s.png` use only the preserved first attempt and original HDF5. All 361
+source rows 240–600 / frames 248–608 are present at 60 Hz, including both endpoints.
+Every saved timestamp/frame matches its HDF5 acquisition exactly; native indices
+0–360 correspond to the same uninterrupted sequence. Scoring uses these source
+rows, never completion time. Ground truth enters only this numerical evaluator.
+
+Expected behavior: a stationary material zone keeps a constant world pose even
+when its camera-relative pose changes. With map M fixed to the seed optical frame,
+the expected native transform is `Ct_M = inverse(W_Ct) * W_Cseed` for this stationary
+interval. The integration composes `W_Ct * Ct_M * inverse(W_Cseed) * W_Zseed` once.
+Actual upstream f2m registration fits map/source points to current optical points;
+the misleading internal name `T_c2w_est` does not reverse that direction.
+`estimate_init_pose=false` leaves the initial object transform identity. The graph
+inverts poses internally for optimization and inverts them back on output.
+
+Verified controls:
+
+- Leaf translation is constant and rotation changes by less than `7e-18` degrees;
+  the camera moves 13.15 cm and rotates 57.28 degrees relative to the seed.
+- Camera transforms recomputed from the recorded joint state/calibration match
+  every stored transform exactly. The acquisition metadata separately records
+  simulator/FK maximum differences of 0.327 micrometers and `1.11e-6` radians.
+  This verifies the simulation recording, not hardware calibration.
+- ROS optical axes (right/down/forward), image-plane depth in meters and native
+  `depth_factor=1` agree. Native and integration backprojection differ by at most
+  35 nm on the sampled measured seed points. Projecting those stationary references
+  into subsequent depth yields p95 1.08 mm over all 43,657 valid samples, with a
+  21.70 mm maximum retained rather than filtered. At least 97 of 128 references
+  are depth-supported in every frame. This rules out a gross camera/depth frame
+  mismatch on the examined region; it does not prove pixel-perfect render timing.
+- Recomposing saved native matrices reproduces saved world poses within
+  `4.45e-16` per matrix entry. Supplying the expected native transform instead
+  holds each world zone constant to numerical precision. Inverting the native
+  output instead makes the primary p95 error 62.71 cm / 90.04 degrees and contradicts
+  the verified point-transform contract. No inverse/order correction is justified.
+- The frontend log already contains primary p95 error 20.48 cm / 24.42 degrees,
+  before graph refinement, IPC or evaluator world composition. The published
+  native output has p95 20.50 cm / 24.47 degrees. The downstream composition is
+  therefore not the origin of this drift.
+
+Observed primary behavior: from 5.2333 through 7.9167 s its native matrix is exactly
+constant for 162 frames while the camera rotates another 24.12 degrees and moves
+5.73 cm. All 162 report `lost=False`; the last 161 have zero measured inlier pairs
+and are rejected by integration. During that freeze, world error grows from
+2.00 cm / 0.69 degrees to 20.48 cm / 24.11 degrees. This establishes the mechanism
+for that interval: an outdated camera-relative transform fails to cancel camera
+motion. At 7.9333 s measured support returns under the same object/candidate ID,
+but the world error remains about 20 cm / 24 degrees. Returned support does not
+establish correct recovery. No candidate reselection occurred.
+
+For the primary candidate, all 361 rows are independently observable and finite
+with `lost=False`. The following errors exclude only the seed, whose zero is
+constructed alignment and does not establish absolute initialization accuracy.
+
+| Primary sample group | Error samples / 360 | Position median / p95 / max | Rotation median / p95 / max |
+|---|---:|---:|---:|
+| Native flag-based tracking | 360 | 12.45 / 20.50 / 21.05 cm | 13.66 / 24.47 / 26.29 degrees |
+| Integration accepted | 178 | 20.35 / 20.60 / 21.05 cm | 23.91 / 24.64 / 26.29 degrees |
+| Integration rejected | 182 | 12.30 / 19.39 / 20.48 cm | 13.46 / 22.68 / 24.22 degrees |
+| Native lost | 0 | No samples | No samples |
+
+Primary integration coverage is 178/361 (49.31%, with the rejected seed included).
+It has 11 interruptions and 11 returns of measured support, the longest interruption
+lasting 2.6833 s; its longest supported sampled span is 0.9833 s. Native `lost`
+flags indicate a continuous six-second run, but the freeze above shows why this
+flag alone does not demonstrate tracking continuity or accuracy.
+
+Every candidate remains reported; smaller errors do not change the automatic
+primary choice. These are native tracking errors, excluding finite lost poses
+from available tracking while retaining those poses/errors in the detailed JSON.
+
+| Candidate | Native rows / 361 | Integration accepted / 361 | Native lost rows | Native error samples | Native position / rotation p95 |
+|---|---:|---:|---:|---:|---:|
+| 0, automatic primary | 361 | 178 | 0 | 360 | 20.50 cm / 24.47 degrees |
+| 1 | 361 | 167 | 0 | 360 | 37.63 cm / 26.84 degrees |
+| 2 | 361 | 289 | 0 | 360 | 9.16 cm / 7.59 degrees |
+| 3 | 274 | 10 | 87 | 273 | 1.09 cm / 13.44 degrees |
+| 4 | 293 | 99 | 68 | 292 | 3.82 cm / 19.45 degrees |
+
+### Demonstrated boundary and unresolved internal cause
+
+The evidence localizes the large error upstream of world composition, to native
+tracking/registration output. It demonstrates unflagged native freezing and biased
+poses after support returns. It does not prove that TAPIR alone, SAM2 alone, or
+SDF/graph alone caused those errors. Complete material ownership remains unqualified;
+ambiguous or changing point association can still affect registration.
+
+The pinned native register has a concrete path that returns its previous pose,
+zero inliers and residuals `-1` when no RANSAC cluster succeeds. The frontend sets
+`lost` on insufficient input points or a rejected jump, but an unchanged fallback
+is not a jump and an invalid residual need not set `lost=True`. This code path is
+consistent with the observed freeze; the original payload retained measured-pair
+counts but not cluster/fallback/refinement statistics or per-frame correspondences,
+so its exact activation and the reason hypotheses failed are not demonstrated.
+The degeneracy test checks triangle area, not planar rank; its comment mentioning
+coplanarity alone is insufficient to attribute failure to the planar door.
+
+The minimum next intervention is diagnostic-only export of the already computed
+frontend correspondence/inlier counts, residuals, cluster/fallback status,
+pre/post-SDF pose and graph pose changes. Then inspect only this same 4–10 s input
+with frozen models/configuration, if a subsequent bounded trial is authorized.
+Keep ground truth solely in scoring. Do not change SE(3) composition, tune gates,
+optimize performance or restart the complete campaign based on these results.
+No new model inference, training, acquisition, ownership qualification or loaded
+contact admission was performed during this diagnosis.

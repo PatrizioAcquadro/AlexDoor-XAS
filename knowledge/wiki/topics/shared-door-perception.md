@@ -229,6 +229,16 @@ coverage retains it. Startup and request/IPC/native compute latency are separate
 the 150 ms deadline never affects offline results. No local contact state is
 published and all official qualification/contact flags remain false.
 
+SIGINT closes the workers, retains the completed prefix, counts the interrupted
+request and remaining scheduled rows as unprocessed, and stops the campaign
+before another attempt. Failed processes still retain their partial results and
+continue to the other planned attempts; an explicit user interruption does not.
+Unstarted full recordings remain in the campaign's expected-frame denominator.
+Unstarted initialization windows have unknown lengths until an automatic seed
+exists. Worker constructors also close a process interrupted during startup.
+The first real campaign was stopped by the user; the retained 4–10 s drift audit
+is documented in [[../experiments/b1-perception-findings|B1 perception findings]].
+
 ## Maintained estimator-independent interfaces
 
 

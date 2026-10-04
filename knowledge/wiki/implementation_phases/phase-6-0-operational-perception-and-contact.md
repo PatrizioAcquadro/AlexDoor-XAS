@@ -434,6 +434,13 @@ ownership and full missing/lost/unprocessed denominators remain explicit. These
 results do not evaluate official release gates or admit contact; see the canonical
 [[../topics/shared-door-perception|offline evaluation contract]].
 
+The first 60 Hz campaign was interrupted by the user after 4,216 frames in its
+first recording. The preserved 4–10 s audit finds correct acquisition-time
+matching and geometric composition, but a frozen native transform with
+`lost=False` while the camera moves. Registration telemetry is the next bounded
+diagnostic step; the full campaign remains stopped. See
+[[../experiments/b1-perception-findings|partial offline results and drift limits]].
+
 ### 6.0D — Feedback, compliance and stopping
 
 Map documented `tau` to a declared observable; actuator feedback, commanded effort

@@ -27,8 +27,20 @@ distinct from motion identity, continuous collision and loaded-control qualifica
 The cleanup's fresh frozen CUDA smoke and four 0–25 s scans use
 `b1/perception/evidence/cleanup-validation-20261002/`. Earlier cleanup validation
 remains historical in `cleanup-validation/`. No offline/dynamic/release flag is set.
-The active CLI supports only image smoke and static scan diagnosis; retired tracker
-traces are results, not executable entry points.
+The active CLI also supports Point2Pose smoke, operational replay/observer checks
+and serial offline evaluation. Retired tracker traces are historical results.
+
+Point2Pose offline attempts retain an incremental `frames.jsonl` and separate
+native/integration coverage, capture-time errors, losses/recoveries and
+initialization outcomes. Their 60 Hz schedule never depends on compute latency;
+the operational 150 ms deadline is not an offline scoring criterion. Existing
+operational attempts remain distinct. All outputs remain local and ignored.
+
+`b1/perception/point2pose-offline-60hz-01/` is stopped on user request after 4,216
+rows in its first attempt. Its original frame records, 502 unprocessed rows,
+11 unstarted attempts and full expected-frame counts are preserved. Its read-only
+4–10 s audit and plot localize drift to native frontend output and distinguish
+verified frame/composition contracts from open registration hypotheses.
 
 Prepared assets remain under `assets/doors/b1/`. Qualification and Purdue runtime
 verification normally remain under `~/.cache/alexdoor-xas/`. No policy result or

@@ -67,8 +67,9 @@ Run frozen image inference or the bounded static diagnosis with fresh outputs:
 The diagnosis reads only 0–25 s on the two train pilots, nominal/light, preserving
 object alternatives, geometric queries and observation references. The static
 provider publishes no valid policy encoding or admission to move. Successful
-execution does not qualify perception. Neither command trains or collects data. Point2Pose smoke, chronological pilot
-replay and fresh-process observer diagnostics are documented in the
+execution does not qualify perception. Neither command trains or collects data.
+Point2Pose smoke, operational pilot replay, serial 60 Hz offline evaluation and
+fresh-process observer diagnostics are documented in the
 [model setup](models/perception/README.md#point2pose-60c-worker).
 
 Model tests use CUDA and explicitly skip if unavailable. Pure numerical tests do

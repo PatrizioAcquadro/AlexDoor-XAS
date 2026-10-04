@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-03 UTC. **6.0B is maintained; prior dynamic trackers are retired;
+Current as of 2026-10-04 UTC. **6.0B is maintained; prior dynamic trackers are retired;
 the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 6.1 remain open.** No training, new corpus or sealed-test evaluation was started.
 
@@ -9,21 +9,30 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Official CUDA pipeline, FK compensation, panel-fixed zones, causal queues and full process reset implemented. Four pilot replays and eight fresh Isaac cases fail useful availability at 0%; latency and some raw accuracy fail. No qualified runtime or loaded contact. |
+| 6.0C — Panel tracking prototype | Official CUDA pipeline, FK compensation, panel-fixed zones, operational queues and a separate serial 60 Hz evaluator implemented. The offline campaign is stopped with partial counts preserved; the stationary-door 4–10 s audit localizes drift to native frontend output. The previous four operational replays and eight fresh Isaac cases fail useful availability at 0%. No qualified runtime or loaded contact. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Resolve the observed runtime/support failures of the
-[[implementation_phases/phase-6-0-operational-perception-and-contact|6.0C prototype]]
-against the preserved pilot replay and observer results. Frozen source `7460963`
-fails all four replay and eight observer useful-availability gates. Live complete
-latency p95 is 0.784–1.755 s; some raw right-pilot poses also exceed 1 cm/5 degrees.
-CUDA execution and full process resets work, but no sustained useful interval or
-useful recovery is validated. Profile evidenced initialization/multi-hypothesis
-cost and candidate consistency before broadening validation.
+Keep the full offline campaign stopped. Source `0adef47` processed 4,216 of the
+20,108 planned full-replay frames before the user interrupted the first attempt;
+502 rows in that recording and all 11 other attempts are retained as unprocessed
+or unstarted. The [[experiments/b1-perception-findings|4–10 s drift diagnosis]]
+verifies source timestamps, ROS optical/depth conventions, FK and composition.
+The first candidate's native transform freezes for 162 frames with `lost=False`
+while the camera moves; frontend drift already precedes world composition.
+The next justified step is diagnostic registration telemetry on this same short
+recorded segment, to distinguish missing hypotheses, incorrect correspondences,
+SDF refinement/selection and graph effects. No further trial or full campaign
+resume was performed; no model, configuration or performance change is justified
+by the present evidence alone.
+
+The historical operational source `7460963` still fails all four replay and eight
+observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.
+Offline latency is reported separately and never changes accuracy or coverage;
+it does not repair those historical operational failures.
 Use the fixed 95% useful availability and p95 1 cm/5 degree criteria; a provider
 that always returns unavailable fails. Preserve every failed attempt and modify
 Point2Pose only for evidenced limitations.
@@ -63,7 +72,7 @@ B0 remains historical: the saturated 576-rollout study selected no winner and it
 
 Supported entry points are documented in the root/model READMEs: runtime and
 corpus verification, intake/preparation/qualification, recording, frozen image
-smoke, static scan diagnosis and Point2Pose smoke/replay/observer diagnostics.
+smoke, static scan diagnosis and Point2Pose smoke/replay/observer/offline diagnostics.
 No estimator training or tracker-comparison CLI is supplied. See
 [[topics/shared-door-perception|Perception]], [[topics/system-architecture|Architecture]],
 [[topics/purdue-b1-robot-and-contact|Purdue contract]] and
