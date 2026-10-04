@@ -34,3 +34,20 @@ def verify_candidate(expected, actual, positives, competitors=()):
         core = distance_transform_edt(other) > 1
         if core.any() and (actual & core).any():
             raise ValueError("sam2_initialization_competing_candidate")
+
+
+def initialization_checks(masks, regenerated, prompts, *, diagnostic_only=False):
+    """Report each guard in offline diagnosis; operational initialization stays strict."""
+    checks = []
+    for index, (expected, actual, positives) in enumerate(
+        zip(masks, regenerated, prompts, strict=True)
+    ):
+        reason = None
+        try:
+            verify_candidate(expected, actual, positives)
+        except ValueError as error:
+            if not diagnostic_only:
+                raise
+            reason = str(error)
+        checks.append(dict(object_id=index, accepted=reason is None, reason=reason))
+    return checks

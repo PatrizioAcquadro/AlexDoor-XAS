@@ -25,6 +25,7 @@ def main():
             "point2pose-smoke",
             "point2pose-live-smoke",
             "point2pose-replay",
+            "point2pose-offline",
             "point2pose-live",
         ),
     )
@@ -49,6 +50,11 @@ def main():
     recipe = load_recipe(args.config, REPO)
     paths = episode_paths(args.data, load_corpus(REPO / "assets/doors/b1/corpus.json", REPO))
     paths = [p for p in paths if p.parent.parent.name in PILOTS]
+    if args.command == "point2pose-offline":
+        from alexdoor_xas.perception.point2pose_offline import run_offline
+
+        reports = run_offline(paths, recipe, args.output, args.models)
+        return 0 if all(r["complete"] for r in reports) else 1
     if args.command == "point2pose-live":
         if args.asset and args.asset not in PILOTS:
             parser.error("Live diagnostics are restricted to the two authorized pilots")

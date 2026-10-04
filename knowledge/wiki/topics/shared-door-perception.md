@@ -201,7 +201,36 @@ visibility faults are synthetic input faults, not physical occluder validation.
 Setup, numerical regressions and execution success are distinct from useful
 availability, accuracy and the unchanged official qualification gates.
 
+### Serial offline evaluation
+
+`scripts/perception.py point2pose-offline` uses a separate synchronous coordinator.
+All four pilot recordings are processed at their original 60 Hz, including the last
+observation. Each request completes before the next frame; neither computation
+time nor a replaceable queue selects inputs. Initialization searches automatic
+candidates from 4 s through the common inspection, at the existing semantic period.
+The first eligible candidate stays the primary diagnostic without truth selection.
+Two additional fresh processes per recording assess initialization and the first
+second after the seed. No failed attempt is silently restarted.
+
+Every native pose is composed into the calibrated world and compared with the
+leaf motion at its exact source row, relative to the immutable seed. Truth stays
+in the evaluator. Seed error is zero by alignment and does not establish absolute
+initial pose accuracy or candidate ownership. The mask-preservation guard reports
+each candidate; offline diagnosis can continue after a rejection, but that
+candidate remains rejected by integration. Operational initialization remains strict.
+
+Incremental `frames.jsonl` retains finite lost poses, invalid poses, missing
+initialization and terminal unprocessed rows. Native tracking and measured-support
+integration have separate coverage, conditional errors, loss/recovery timelines
+and full/after-seed/observable denominators. Observability uses truth-projected
+seed geometry and measured depth independently of tracker acceptance; it remains
+unknown before a seed. Error distributions exclude the zero seed row, while
+coverage retains it. Startup and request/IPC/native compute latency are separate;
+the 150 ms deadline never affects offline results. No local contact state is
+published and all official qualification/contact flags remain false.
+
 ## Maintained estimator-independent interfaces
+
 
 `DoorEstimate` retains legacy timestamp/validity/confidence, world hinge frame,
 panel rotation, signed angle, dimensions and local/world contact pose. Positions

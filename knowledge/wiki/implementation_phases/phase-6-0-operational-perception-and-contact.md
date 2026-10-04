@@ -424,6 +424,16 @@ Implementation details are canonical in
 [[../topics/shared-door-perception|Shared Door Perception]]; measured results and
 unvalidated limits are in [[../experiments/b1-perception-findings|Perception Findings]].
 
+The separate `point2pose-offline` evaluator processes every 60 Hz source frame
+serially and scores native and integration results at acquisition time. It runs
+the four complete pilots plus two additional fresh initialization attempts per
+recording. Latency is diagnostic only in this mode. Mask rejection stays latched
+per candidate while native diagnosis may continue; operational guards and the
+150 ms deadline above remain unchanged. Relative seed alignment, ambiguous
+ownership and full missing/lost/unprocessed denominators remain explicit. These
+results do not evaluate official release gates or admit contact; see the canonical
+[[../topics/shared-door-perception|offline evaluation contract]].
+
 ### 6.0D — Feedback, compliance and stopping
 
 Map documented `tau` to a declared observable; actuator feedback, commanded effort

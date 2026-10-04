@@ -79,6 +79,8 @@ Python. It does not install into Isaac, Alex or the 6.0B overlay.
   --output outputs/b1/perception/NEW_P2P_CONCURRENT
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-replay \
   --output outputs/b1/perception/NEW_P2P_REPLAY
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-offline \
+  --output outputs/b1/perception/NEW_P2P_OFFLINE
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live \
   --output outputs/b1/perception/NEW_P2P_LIVE
 ```
@@ -90,6 +92,17 @@ faults; it does not qualify physical occluders or loaded interaction. Replay
 reads all four authorized pilot recordings chronologically at stride three,
 retains complete input denominators and separates raw capture accuracy from
 fresh useful outputs. The same provider/worker serves replay and live.
+`point2pose-offline` instead waits for every native result at the original 60 Hz
+capture cadence, including the last frame. It runs four complete pilot episodes
+and two extra fresh initialization attempts per episode through one second after
+the seed. Native and integration coverage, errors, losses and recoveries remain
+separate. Initialization mask rejection is latched per candidate while native
+diagnosis continues; operational initialization stays strict. Capture-time truth
+is evaluator-only. Startup/latency never apply the 150 ms deadline to this mode.
+`frames.jsonl` preserves each observation incrementally, including unavailable
+and unprocessed rows. A failed process is never silently restarted. Results are
+relative to the immutable seed; zero seed error does not validate absolute
+initialization accuracy or object ownership. No qualification/contact flag changes.
 Models load before acquisition and report startup separately. Once the synchronized
 automatic seed is ready, its stateless 6.0B worker is released to free GPU memory;
 an episode reset recreates both workers and clears all temporal state. Frame gaps

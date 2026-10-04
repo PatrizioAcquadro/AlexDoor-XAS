@@ -71,6 +71,18 @@ def metric_registration_bound(source, current, transform, depth_error_m):
     return error, float(2 * np.arcsin(min(1.0, error / (2 * lever))))
 
 
+def measured_registration(obj, depth_error_m):
+    """The integration's measured inlier support, shared with offline diagnosis."""
+    source, current = obj["source_points"], obj["current_points"]
+    inliers = obj["inliers"]
+    measured = obj.get("measured_correspondences", np.zeros(len(source), bool))
+    if inliers.dtype == bool and len(inliers) == len(source):
+        source, current, measured = source[inliers], current[inliers], measured[inliers]
+    source, current = source[measured], current[measured]
+    p, a = metric_registration_bound(source, current, obj["camera_from_map"], depth_error_m)
+    return source, p, a
+
+
 class PanelTracking:
     def __init__(
         self,
@@ -225,17 +237,9 @@ class PanelTracking:
                 for k, v in raw.items()
             }
             transform = obj["camera_from_map"]
-            source, current = obj["source_points"], obj["current_points"]
-            inliers = obj["inliers"]
-            measured = obj.get("measured_correspondences", np.zeros(len(source), bool))
-            if inliers.dtype == bool and len(inliers) == len(source):
-                source, current, measured = source[inliers], current[inliers], measured[inliers]
-            source, current = source[measured], current[measured]
             # Distributed native references estimate candidate pose. The uniform
             # contact face does not need its own visual features or point tracks.
-            p, a = metric_registration_bound(
-                source, current, transform, self.config["plane_tolerance_m"]
-            )
+            source, p, a = measured_registration(obj, self.config["plane_tolerance_m"])
             self.diagnostics.setdefault("support_by_candidate", {})[candidate.candidate_id] = dict(
                 measured_candidate_pairs=len(source),
                 native_lost=bool(obj["lost"]),

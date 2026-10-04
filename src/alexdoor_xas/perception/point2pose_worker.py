@@ -90,6 +90,8 @@ class OfficialPipeline:
 
         self.pipeline.frontend.step = capture
         self.initialized = False
+        self.diagnostic_only = bool(request.get("diagnostic_only", False))
+        self.initialization_checks = []
         self.models = (
             self.pipeline.frontend.tracker._model,
             self.pipeline.frontend.segmenter.predictor,
@@ -108,6 +110,7 @@ class OfficialPipeline:
             config=self.config,
             training_started=False,
             qualified=False,
+            diagnostic_only=self.diagnostic_only,
         )
 
     def infer(self, request):
@@ -144,7 +147,7 @@ class OfficialPipeline:
         if not self.initialized:
             from alexdoor_xas.perception.point2pose_seed import (
                 candidate_references,
-                verify_candidate,
+                initialization_checks,
             )
 
             prompts = [
@@ -160,10 +163,9 @@ class OfficialPipeline:
             self.pipeline.initialize_first_frame(frame)
             regenerated = frame.mask.detach().float().cpu().numpy()[:, 0] > 0
             np.save(self.log_dir / "sam2-initial.npy", regenerated)
-            for index, (expected, actual) in enumerate(zip(masks, regenerated, strict=True)):
-                # Relief outside a planar seed may belong to the same leaf.
-                # Verify measured interiors, rather than uncertain boundary pixels.
-                verify_candidate(expected, actual, prompts[index])
+            self.initialization_checks = initialization_checks(
+                masks, regenerated, prompts, diagnostic_only=self.diagnostic_only
+            )
             self.initialized = True
         else:
             self.pipeline.step(frame)
@@ -216,6 +218,7 @@ class OfficialPipeline:
             )
         return dict(
             objects=objects,
+            initialization_checks=self.initialization_checks,
             masks=pack_array(frame.mask.detach().float().cpu().numpy()[:, 0] > 0),
             capture_s=float(sensor["time_s"]),
             frame=int(sensor["frame"]),
