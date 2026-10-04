@@ -35,11 +35,17 @@ subsequent fresh CUDA replay verifies every source frame and native contract.
 The primary now has 59/361 integration-supported rows and 301 explicit lost poses,
 with no recovery from 5.25 through 10 s. Supported error p95 is 2.26 cm / 2.07 degrees
 over only 59 non-seed samples; this conditional statistic does not establish
-whole-sequence improvement. Existing native suppression of sampling while lost
-changes subsequent tracking and remains unchanged. The next justified diagnosis
-is the upstream correspondence failure and its interaction with point renewal,
-using the existing segment. The full campaign stays stopped; no further trial,
-model/configuration tuning or performance optimization is authorized by this result.
+whole-sequence improvement. Saved-image diagnosis now localizes heterogeneous
+pixel-identity errors on mostly low-contrast seed references, before registration;
+same-time RGB edges and depth support oppose a shared acquisition delay. At 5.25 s,
+only two of 17 selected pairs meet the unchanged 4 mm gate although all 30 seed
+references remain depth-supported. Native renewal triggers are not reached while
+supported; after loss, sampling/promotion are suppressed and 197 registration
+attempts all return no cluster, with no jump-guard rejection. The next justified
+work is observed reference-quality/renewal with geometric confirmation before map
+growth, then a bounded comparison; alternative recovery success is unvalidated.
+This diagnosis used only saved evidence, with no new inference. The full campaign
+stays stopped; no automatic trial, model tuning or performance optimization follows.
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.

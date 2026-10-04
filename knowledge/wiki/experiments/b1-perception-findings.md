@@ -778,3 +778,90 @@ included. Latency has no offline outcome effect and is not an operational benchm
 No performance optimization, training, model change or new acquisition occurred.
 The 1 cm / 5 degree references, operational 150 ms deadline and qualification/
 contact admission remain separate; tracking remains unqualified.
+
+## 2026-10-04 — Saved-image correspondence and recovery diagnosis
+
+From clean `main` baseline `8a39d08`, the user authorized targeted visual diagnosis
+of existing evidence. `outputs/b1/perception/point2pose-visual-4-10s-01/` reads the
+same recording and corrected native trace; it performs no inference, GPU trial,
+reset, model/configuration change or acquisition. All 361 source records remain
+included; 360 non-seed records contain correspondence statistics. Frame/timestamp
+identity is checked against HDF5. Ground truth enters only this post-run evaluator.
+The full campaign and previous partial/unstarted counts remain stopped.
+
+`seed.png`, `correspondences.png` and `point-closeups.png` show the actual initial
+SAM2 mask and the same seed IDs in later RGB images. Of 30 initial references,
+27 have grayscale standard deviation below two intensity levels out of 255 in a
+21-by-21 patch; only IDs 0, 1 and 4 exceed five. This diagnostic proxy describes
+local contrast, not SuperPoint scores, TAPIR confidence or a new acceptance gate.
+Through 5.25 s, selected low-contrast pairs have median/p95 pixel error
+5.73/18.52, versus 2.61/5.38 for the three higher-contrast references. These are
+small, correlated, selected groups, not general reliability estimates.
+
+The closeups expose heterogeneous point-identity errors: ID 0 stays on the same
+corner with 0.66/0.30 pixel error at 5.25/7 s; ID 29 slides across the smooth face
+with 8.67/15.56 pixels and 22.40/35.49 mm of 3D error; ID 13 drifts along the upper
+strip to 102.54 pixels / 114.12 mm at 7 s, while still passing native visibility,
+uncertainty, depth and mask filters. The deterioration is already present in the
+2D tracking output, before rigid registration, SDF refinement or world composition.
+
+| Time | Seed references in image and independently depth-supported | Selected pairs | Pairs consistent with expected motion within native 4 mm |
+|---|---:|---:|---:|
+| 4.30 s | 30 | 24 | 1 |
+| 5.25 s | 30 | 17 | 2 |
+| 7.00 s | 30 | 12 | 1 |
+| 10.00 s | 20 | 1 | 0 |
+
+The measured-depth integer lifting exactly reproduces every saved selected 3D
+point; seed map coordinates also remain exactly unchanged. At 4.30 and 5.25 s,
+all 30 tracks pass depth/map validity and mask membership according to the saved
+extraction flags. Mask exclusion therefore does not explain the initial pair
+incompatibility. Complete post-seed SAM2 masks and rejected-track pixel coordinates
+were not saved: later global mask quality cannot be reconstructed from this trace.
+
+`rgb-depth-check.png` shows why valid depth alone cannot establish point identity:
+the displaced pixel still lies on measured material. As an evaluator-only
+counterfactual, lifting expected projected pixels from the same depth yields all
+30 pairs within 4 mm at 4.30, 5.25 and 7 s, and all 20 in-image pairs at 10 s.
+Those are geometry/depth checks, never P2P results or ground-truth-driven recovery.
+
+`rgb-edge-check.png` independently projects observed seed RGB edge geometry into
+later RGB images. With Canny 15/45, original-time median edge distance is zero and
+p95 is 2.83/3.00/3.00 pixels at 4.30/5.25/6 s. Original camera time minimizes the
+median in all three tests against offsets of minus/plus one through six frames.
+A common minus-two-frame shift for selected TAPIR points improves aggregated
+median error only from 5.39 to 4.40 pixels, retaining p95 14.76 pixels and
+contradicting the edge alignment. A shared acquisition delay therefore cannot
+explain the heterogeneous drift; these checks do not establish universal subpixel
+synchronization. Existing timestamp, optical-axis, FK and composition checks hold.
+
+### Point renewal and failed recovery
+
+No new primary track ID or post-seed primary graph update occurs. While supported,
+the native view-angle criterion reaches at most 14.2186 degrees, below its existing
+15-degree renewal threshold, and the selected-pair count stays at least 17, above
+the count trigger of fewer than ten. That criterion counts extracted pairs rather
+than independently correct correspondences. After persistent loss at 5.25 s,
+the unchanged `sample_stabilize_frames=None` policy skips the keyframe manager
+before that criterion, suppressing sampling, pending promotion and graph updates.
+All 286 remaining rows stay lost. Of these, 197 still call the register; every
+call returns no cluster and none is rejected by the pose jump guard. The other
+89 have only zero to two extracted pairs and do not call registration.
+
+The demonstrated sequence is ambiguous visual references, deteriorated pixel
+identity, insufficient compatible correspondences, loss, suppressed point renewal,
+then repeated attempts with the same references. It is not a supported native
+recovery rejected by our integration. Recovery can clear loss when old tracks
+become consistent again, but does not do so in this window. Low distinctiveness
+supports the visual explanation; this evidence does not prove it is the sole
+internal cause, diagnose model weights or show that alternative seed points or
+renewal would succeed. SuperPoint scores and TAPIR internal state were not saved.
+
+The minimum justified next work is an observed reference-quality/renewal design
+with geometric confirmation before adding points to the map, followed by a bounded
+comparison on this same candidate and window. Simply enabling lost-state sampling
+with a stale pose could corrupt the map. Do not loosen accuracy/support gates,
+change models, optimize latency or resume the complete campaign automatically.
+Ownership, absolute seed accuracy, hardware calibration and contact admission
+remain unqualified. Calculations and explicit limits are retained in `analysis.json`,
+`frame-analysis.jsonl`, `point-analysis.jsonl` and the ignored evaluator script.
