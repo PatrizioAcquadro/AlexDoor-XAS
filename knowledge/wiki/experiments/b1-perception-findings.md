@@ -700,3 +700,81 @@ remains to be isolated. Do not invert/reorder the verified geometric composition
 tune thresholds, optimize performance, change models, collect data or resume the
 complete campaign automatically. Operational gates, ownership qualification and
 loaded contact admission remain separate and unqualified.
+
+## 2026-10-04 — Native loss/SDF corrections and bounded CUDA verification
+
+The user authorized the two demonstrated corrections. Source `df36b92`, from
+clean `main` baseline `8a0836e`, adds tracked pinned-source patches at installation
+and worker startup, preserving pre-fix files in the ignored native checkout.
+`runtime.json` declares `f2m_measured_loss` and `sdf_returned_pose`. f2m recomputes
+loss from current inlier support, residual and the existing jump guard, including
+valid exact-zero residual with sufficient support. The native minimum of five
+inliers and all numeric gates remain unchanged. Frame-to-map registration still
+attempts recovery on the same lost object. SDF selection returns the refined pose
+when it passes the final support gate; gate rejection retains the pre-SDF cluster
+fallback and recomputes residuals/inliers for that pose.
+
+`outputs/b1/perception/point2pose-native-fixes-4-10s-01/` contains one new fresh
+RTX 4090 replay of the same inclusive 4–10 s recording window. All 361 frames
+complete at the declared 60 Hz with zero skipped/unprocessed rows, process errors
+or restarts. Model weights, configuration and geometric composition are unchanged.
+Acquisition rows 240–600 / frames 248–608 and timestamps match HDF5 exactly; the
+automatic primary and all five candidate identities remain fixed. Ground truth
+is evaluator-only. The complete campaign and original partial counts stay stopped.
+
+`evaluate_trace.py` verifies both corrected contracts over the actual saved native
+trace: all 1,218 no-cluster fallbacks across the five candidates report loss;
+zero retain `lost=False`. All 133 accepted SDF refinements with no final gate
+fallback return their refined pose; nine accepted refinements fail that unchanged
+gate and return the pre-SDF fallback. All 149 registrations with a cluster have
+exactly matching recomputed/saved residuals and inlier masks. The frontend loss
+contract and final loss flag agree for all 1,800 non-seed candidate results.
+
+| Candidate | Native available / 361, including seed | Integration accepted / 361 | Retained finite lost poses | Non-seed native error samples; position / rotation p95 |
+|---|---:|---:|---:|---:|
+| 0, automatic primary | 60 | 59 | 301 | 59; 2.26 cm / 2.07 degrees |
+| 1 | 55 | 54 | 306 | 54; 1.56 cm / 1.31 degrees |
+| 2 | 37 | 36 | 324 | 36; 1.31 cm / 1.55 degrees |
+| 3 | 1 | 0 | 360 | 0; no supported result after seed |
+| 4 | 1 | 0 | 360 | 0; no supported result after seed |
+
+The primary's native coverage is 16.62%, including the constructed seed, and
+integration coverage is 16.34%. All 361 rows are independently observable with no
+unknown interval. Its seven early recoveries retain the same ID; the eighth loss
+at 5.25 s has no recovery through 10 s, an observed open interruption of 4.75 s.
+The longest native/integration supported sampled spans are 0.2833/0.2667 s.
+Seed alignment is excluded from error distributions, not coverage denominators.
+
+| Primary non-seed group | n | Position median / p95 / max | Rotation median / p95 / max |
+|---|---:|---:|---:|
+| Native available and integration accepted | 59 | 0.84 / 2.26 / 3.24 cm | 0.40 / 2.07 / 2.95 degrees |
+| Lost, rejected and preserved | 301 | 16.03 / 33.99 / 34.01 cm | 18.30 / 42.26 / 42.29 degrees |
+| All finite poses | 360 | 12.45 / 33.98 / 34.01 cm | 13.66 / 42.25 / 42.29 degrees |
+
+The smaller conditional error is not whole-sequence improvement: the supported
+group and coverage differ materially from the pre-fix result. Frozen lost poses
+remain scored separately without counting as available or interpolating across
+failures. Correct loss flags also activate existing suppression of sampling and
+graph updates for lost objects; this changes the subsequent native trajectory,
+rather than merely relabeling saved outputs. That recovery policy was not changed.
+
+The original correspondence failure persists: at 6 and 7 s, original seed pixel/
+3D errors match the pre-fix values exactly, and the 161-frame 5.25–7.9167 s segment
+still has only 0–2 pairs consistent with the expected motion within 4 mm, while
+seed references remain independently depth-supported. Neither these two fixes nor
+the inherited lost-state sampling policy isolate the upstream cause or establish
+successful long-gap recovery. The next bounded diagnosis should inspect these
+correspondences and their interaction with point renewal using existing images,
+without automatically launching another trial or the full campaign.
+
+Five native initializations and initial integration checks complete; two further
+seed candidates retain preparation rejections for insufficient core support.
+Candidates 0–2 first obtain integration support at 4.0167 s, 16.67 ms of image time
+and 2.446 s of computation after seed processing starts. Candidates 3–4 never obtain
+supported post-seed output in this attempt. No absolute initialization accuracy or
+population reliability estimate follows. Startup is 9.606 s visual / 4.126 s native;
+request latency is median 0.171 s / p95 0.328 s / maximum 2.155 s, diagnostic export
+included. Latency has no offline outcome effect and is not an operational benchmark.
+No performance optimization, training, model change or new acquisition occurred.
+The 1 cm / 5 degree references, operational 150 ms deadline and qualification/
+contact admission remain separate; tracking remains unqualified.
