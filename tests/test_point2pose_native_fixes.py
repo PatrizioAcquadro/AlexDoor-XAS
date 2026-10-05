@@ -13,6 +13,8 @@ from alexdoor_xas.perception.point2pose_patches import NATIVE_FIXES, patch_track
 
 REGISTER_PATH = "upstream/point2pose/modules/register/svd_cluster_ransac_register.py"
 FRONTEND_PATH = "upstream/point2pose/pipeline/components/front_end.py"
+CRITERION_PATH = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
+NATIVE_PATHS = (REGISTER_PATH, FRONTEND_PATH, CRITERION_PATH)
 
 
 @pytest.fixture
@@ -21,7 +23,7 @@ def native_root(tmp_path, monkeypatch):
     if not (installed / REGISTER_PATH).exists():
         pytest.skip("Pinned native source is not installed")
     monkeypatch.syspath_prepend(str(installed / "upstream"))
-    for relative in (REGISTER_PATH, FRONTEND_PATH):
+    for relative in NATIVE_PATHS:
         source = installed / relative
         original = source.with_suffix(".py.before-tracking-fixes")
         target = tmp_path / relative
@@ -44,7 +46,7 @@ def native_class(path, name, namespace):
 
 
 def test_installer_preserves_originals_and_is_idempotent(native_root):
-    originals = {r: (native_root / r).read_text() for r in (REGISTER_PATH, FRONTEND_PATH)}
+    originals = {r: (native_root / r).read_text() for r in NATIVE_PATHS}
     assert patch_tracking(native_root) == NATIVE_FIXES
     modified = {r: (native_root / r).read_text() for r in originals}
     assert all(modified[r] != originals[r] for r in originals)
@@ -55,14 +57,66 @@ def test_installer_preserves_originals_and_is_idempotent(native_root):
         assert path.with_suffix(".py.before-tracking-fixes").read_text() == original
 
 
-def test_unexpected_source_fails_before_any_edit(native_root):
+@pytest.mark.parametrize("unexpected_path", [FRONTEND_PATH, CRITERION_PATH])
+def test_unexpected_source_fails_before_any_edit(native_root, unexpected_path):
     register = native_root / REGISTER_PATH
     original = register.read_text()
-    (native_root / FRONTEND_PATH).write_text("unexpected upstream source")
+    (native_root / unexpected_path).write_text("unexpected upstream source")
     with pytest.raises(ValueError, match="Unexpected pinned"):
         patch_tracking(native_root)
     assert register.read_text() == original
     assert not register.with_suffix(".py.before-tracking-fixes").exists()
+
+
+@pytest.fixture
+def criterion(native_root):
+    patch_tracking(native_root)
+    cls = native_class(
+        native_root / CRITERION_PATH,
+        "RotationThresholdAndMinNumCriterion",
+        dict(
+            np=np,
+            torch=SimpleNamespace(sum=np.sum),
+            SampleCriterion=object,
+            CriterionContext=SimpleNamespace,
+        ),
+    )
+    return cls(dict(min_num_pts=10, min_mask_area=100, max_angle_deg=15))
+
+
+@pytest.mark.parametrize("inliers,renew", [(5, True), (9, True), (10, False), (30, False)])
+def test_renewal_uses_final_pose_inliers_instead_of_extracted_pairs(criterion, inliers, renew):
+    context = SimpleNamespace(
+        objects=[SimpleNamespace(pose=np.eye(4))],
+        reg_stats={
+            0: dict(
+                correspond_curr3d=np.ones((30, 3)),
+                inliers=np.arange(30) < inliers,
+                clusters=[dict(ninliers=30)],
+            )
+        },
+        frame=SimpleNamespace(id=1, mask=np.ones((1, 1, 20, 20))),
+    )
+    criterion.initialize(context)
+    assert criterion.check_sample_criterion(context, 0) is renew
+
+
+def test_renewal_retains_mask_and_new_view_criteria(criterion):
+    pose = np.eye(4)
+    context = SimpleNamespace(
+        objects=[SimpleNamespace(pose=pose)],
+        reg_stats={0: dict(correspond_curr3d=np.ones((30, 3)), inliers=np.arange(30) < 5)},
+        frame=SimpleNamespace(id=1, mask=np.ones((1, 1, 9, 9))),
+    )
+    criterion.initialize(context)
+    assert not criterion.check_sample_criterion(context, 0)
+    context.frame.mask = np.ones((1, 1, 20, 20))
+    context.reg_stats[0]["inliers"] = np.ones(30, bool)
+    assert not criterion.check_sample_criterion(context, 0)
+    angle = np.deg2rad(16)
+    pose[1:3, 1:3] = [[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]]
+    assert criterion.check_sample_criterion(context, 0)
+    assert not criterion.check_sample_criterion(context, 0)
 
 
 @pytest.fixture

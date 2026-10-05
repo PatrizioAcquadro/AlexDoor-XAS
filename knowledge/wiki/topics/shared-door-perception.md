@@ -139,7 +139,7 @@ are rejected individually and recorded. A diagnostic selects the first eligible
 automatic candidate explicitly without labels or later truth-based reselection.
 
 The official CAD-free pipeline supplies segmentation, distributed point tracking,
-registration, map, graph and TSDF. The pinned source receives two reproducible
+registration, map, graph and TSDF. The pinned source receives reproducible
 corrections at installation/worker startup: f2m recomputes loss from current
 inlier support, residual and the existing jump guard; SDF registration returns
 the selected refined pose and its statistics. An unsupported/invalid result marks
@@ -155,6 +155,15 @@ This checks essential support without treating legitimate panel relief as frame
 contamination or requiring identical boundary pixels. It does not certify every
 extra mask pixel's physical ownership; ambiguous component relationships remain
 ambiguous. Positive SAM2 prompts are unchanged from upstream.
+
+The renewal criterion counts final inliers of the returned pose instead of
+extracted correspondence pairs. Its existing fewer-than-ten, mask-area and
+15-degree view criteria are unchanged. The keyframe manager still suppresses
+renewal while lost; point selection, pending promotion and map-growth behavior
+are unchanged. This targets deterioration before loss, not identity retrieval
+from a frozen pose. Pending geometric confirmation is disabled in the paper
+configuration, so earlier renewal alone does not establish material continuity.
+The bounded light/nominal comparison is pending; see the canonical findings.
 
 With `estimate_init_pose=false`, map M remains the first optical camera frame.
 The observed zone frame defines O separately; its fixed transform to the material
