@@ -971,3 +971,97 @@ RGB/masks, expected versus tracked IDs and original-time errors. Red annotated
 pairs denote 4 mm metric incompatibility, not automatically a wrong visual identity.
 The ignored README, evaluator scripts, `analysis.json`, point/frame JSONL and
 `recovery-analysis.json` preserve calculations, every secondary return and limits.
+
+## 2026-10-05 — Entire recorded openings in light and nominal
+
+Before changing tracking, the user requested more condition evidence and the
+entire available opening. From clean `main` at `10e7330`, two fresh sequential
+RTX 4090 replays retain the automatic 31 s seed and primary candidate-0. Each
+processes all 2,858 original frames through 78.6167 s at 60 Hz, without reset,
+skips, inference retries, invalid primary poses or process failure. Models,
+configuration, accuracy/support thresholds and tracking code are unchanged.
+No acquisition or full-campaign resume occurs. Results and evaluator scripts are
+in `outputs/b1/perception/point2pose-full-opening-baseline-01/`.
+
+The maximum recorded opening is 63.7209 degrees, after the original probe's
+robot tracking-margin stop and release. The prepared hinge's configured limit
+is 90.7 degrees: the missing range is not evaluated or synthesized. Both sources
+have identical motion, camera transforms, timing, intrinsics and proprioception.
+The camera remains fixed. Ground truth enters only the evaluator, at original
+acquisition timestamps. All 421 short light-prefix poses and native/integration
+decisions match the previous baseline exactly.
+
+| Primary condition | Integration support / 2,858 | Supported position / rotation p95 | All-finite position / rotation p95 | Lost frames | Loss / native-reactivation events |
+|---|---:|---:|---:|---:|---:|
+| light | 2,311 (80.86%) | 7.79 mm / 1.44 degrees | 8.24 mm / 1.44 degrees | 531 | 207 / 206 |
+| nominal | 1,582 (55.35%) | 10.20 mm / 1.24 degrees | 34.39 mm / 2.65 degrees | 1,274 | 217 / 216 |
+
+All denominators include the unsupported seed; its constructed zero is excluded
+from errors. Lost/rejected finite poses remain separately scored, without
+interpolation or claiming current support. Primary rejection causes overlap:
+light has 528 insufficient-pair and 18 degenerate-registration records; nominal
+has 1,268 and five, respectively, alongside the native-lost records above.
+Accepted maxima are 22.37 mm / 6.22 degrees light and 36.07 mm / 9.07 degrees
+nominal. All-finite maxima are 22.46 mm / 6.22 degrees and 49.83 mm / 9.07 degrees.
+All secondary candidates, including latched initialization rejections, are kept
+in the complete reports; no better candidate replaces the automatic primary.
+
+| Opening interval | light supported / interval | nominal supported / interval |
+|---|---:|---:|
+| 0–5 degrees | 311/311 (100%) | 310/311 (99.68%) |
+| 5–15 degrees | 248/459 (54.03%) | 293/459 (63.83%) |
+| 15–30 degrees | 471/549 (85.79%) | 282/549 (51.37%) |
+| 30–45 degrees | 475/509 (93.32%) | 388/509 (76.23%) |
+| 45–60 degrees | 498/621 (80.19%) | 174/621 (28.02%) |
+| 60–63.72 degrees | 175/275 (63.64%) | 2/275 (0.73%) |
+
+The first losses occur at 38.4833 s / 5.0865 degrees light and 37.0333 s nominal.
+First accepted out-of-reference errors occur at 55.85 s light and 43.3 s nominal.
+Light's longest loss lasts 0.6667 s. Nominal ends with an unrecovered 4.4167 s gap
+from 74.2 s and final retained-pose error 49.83 mm / 3.26 degrees. The two tiny-error
+accepted nominal samples above 60 degrees do not describe that mostly unsupported
+interval. This extension exposes limits that the 31–38 s result could not establish.
+
+### References, masks and material continuity
+
+The short-window visual segmentation remains good in the inspected larger-angle
+snapshots, while correspondences and pose support deteriorate. This is a visual
+assessment, not truth-mask IoU or leaf-ownership qualification. Native renewal
+does occur outside the short window: light adds 90 primary IDs through three
+post-seed graph updates; nominal adds 60 through two. Across every candidate,
+there are zero new IDs or new keyframes while native loss is set. Original seed
+map coordinates move by at most 1.78/1.90 mm through graph refinement; coordinate
+updates are not automatically material corruption or proof of correct new ownership.
+
+Of 206/216 primary flag reactivations, only 9/7 satisfy both at least five native
+inliers consistent with original seed material within 4 mm and pose within
+1 cm/5 degrees. Allowing independently anchored historical new references gives
+10/10 such returns. These are strict diagnostic support counts, not proof that
+every other return is a visually wrong identity. Depth discontinuities and small
+pixel shifts can fail metric compatibility even with nearby visual features.
+New references are anchored in the evaluator to their first observed RGB-D pixel
+under the rigid-leaf hypothesis; birth alone does not establish object ownership.
+The measured correspondence/pose evidence is never returned to map growth.
+
+Both automatic primary seeds have 30 references and 27 local-contrast patches
+above five intensity levels. Their hull/mask fractions are 58.56% light and
+75.51% nominal; these are diagnostic proxies, not new gates. Only seven seed
+pixels coincide exactly, and the candidate counts are five/six. Therefore this
+is the frozen complete system under lighting conditions, not a point-identical
+tracker-only lighting experiment or a causal isolation of initialization.
+Mask quality, geometric observability, per-point visibility, metric compatibility,
+accepted pose accuracy and material recovery remain separate.
+
+Request-latency median/p95 is 462.6/553.8 ms light and 469.9/599.9 ms nominal,
+including diagnostics; it never affects offline errors, coverage or outcomes.
+The operational 150 ms deadline and loaded-contact admission are unchanged.
+Neither condition establishes continuous qualified tracking. Review the complete
+failed angle intervals and additional condition evidence before algorithm changes.
+
+`annotated-full-opening-60hz.mp4` in each condition preserves all 2,858 source
+frames at 60 Hz, with original time, angle, native loss, integration support and
+evaluator error. Both videos pass frame/cadence checks, complete decode and sampled
+visual inspection. `annotated-full-opening.png`, `full-opening-errors.png` and
+`seed-comparison.png` expose masks, original/new references and condition differences.
+`comparison.json`, the ignored Italian README, all reference/candidate JSONL,
+birth/recovery audits and native traces/masks retain every result and limit.

@@ -455,9 +455,13 @@ A subsequent authorized baseline processes all 421 frames of the recorded
 door and first opening. Primary integration support is 420/421; opening error
 p95 is 2.64 mm / 0.295 degrees while the contact is gripper-occluded. Degrading
 references, depth-edge sensitivity and secondary false recovery remain explicit.
-No tracking/model/threshold change follows. Compare a single reference/renewal
-change on the same window/candidate before further work; material identity,
-long-gap recovery, operational freshness and contact admission remain separate.
+No tracking/model/threshold change follows. The subsequent entire recorded-opening
+baseline completes 2,858 frames per light/nominal condition, through 63.72 degrees,
+and reproduces the short light prefix exactly. Primary support falls to
+80.86%/55.35%; above 60 degrees nominal has only 2/275 supported frames. Review
+these complete baselines before further changes. The configured 90.7-degree joint
+limit is not covered by the recordings. Material identity, operational freshness
+and contact admission remain separate; see the canonical findings.
 
 ### 6.0D — Feedback, compliance and stopping
 
