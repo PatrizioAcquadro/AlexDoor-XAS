@@ -460,11 +460,14 @@ baseline completes 2,858 frames per light/nominal condition, through 63.72 degre
 and reproduces the short light prefix exactly. Primary support falls to
 80.86%/55.35%; above 60 degrees nominal has only 2/275 supported frames. Review
 these complete baselines before further changes. The configured 90.7-degree joint
-limit is not covered by the recordings. A subsequent minimal change counts final
-returned-pose inliers for renewal instead of extracted pairs, retaining all
-thresholds, point selection, promotion and loss suppression. Its bounded comparison
-on those same light/nominal recordings is pending; no acquisition or full campaign
-resume is authorized. Material identity, operational freshness
+limit is not covered by the recordings. A subsequent final-inlier renewal variant
+was tested once per condition and reverted: light completed 1,352 frames before
+CUDA OOM; nominal completed 619 before the unchanged TSDF memory guard stopped it.
+Completed prefixes improve support but expose inaccurate post-graph publication
+and rapid reference growth. All missing frames remain in the 2,858-frame
+denominator per condition. No favorable retry, acquisition, memory tuning or full
+campaign resume follows. Diagnose these saved failures before another change.
+Material identity, operational freshness
 and contact admission remain separate; see the canonical findings.
 
 ### 6.0D — Feedback, compliance and stopping

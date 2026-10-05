@@ -39,14 +39,25 @@ ends with an unrecovered 4.4167 s gap and 49.83 mm finite-pose error. Visually g
 masks and small conditional pose errors do not establish continuous material
 tracking. Full finite/lost/rejected errors and all secondary candidates are retained.
 
-Review the complete videos and failed angle intervals before algorithm changes.
-Further condition evidence and any later one-component comparison must preserve
-the baseline, material identity and unchanged accuracy/support references. Current
-measured support is required before map growth; frozen poses cannot refresh it.
+The authorized final-inlier renewal experiment is rejected and reverted. One CUDA
+attempt per saved condition completed only 1,352 light / 619 nominal frames before
+CUDA OOM / the unchanged TSDF memory-budget guard. All 2,858 scheduled rows per
+condition and both terminal errors are retained. Initial support improves, but
+light accepts 82 inaccurate poses in its completed prefix versus zero in the same
+baseline prefix; rapid reference growth prevents either opening from completing.
+The active source again uses the baseline extracted-pair renewal criterion.
+
+Diagnose reference growth and post-graph pose/support consistency from these saved
+failures before another change. At 47.1667 s light, the graph replaces a frontend
+7.61 mm / 0.47 degree pose with a published 21.16 mm / 14.02 degree pose while
+retaining frontend inlier statistics. Original timestamps, all finite errors,
+baseline/failure evidence and unchanged models/gates remain preserved. The variant
+does not reach nominal's final lost interval or demonstrate material recovery.
+Current measured support is required before map growth; frozen poses cannot refresh it.
 Neither the strict recovery audit nor first-observed anchors for new points prove
 leaf ownership, mechanical-limit coverage or loaded contact. The full campaign,
 performance optimization and new acquisition remain stopped. See
-[[experiments/b1-perception-findings|complete recorded-opening evidence]].
+[[experiments/b1-perception-findings|recorded-opening evidence and rejected renewal experiment]].
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.

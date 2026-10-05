@@ -1065,3 +1065,96 @@ visual inspection. `annotated-full-opening.png`, `full-opening-errors.png` and
 `seed-comparison.png` expose masks, original/new references and condition differences.
 `comparison.json`, the ignored Italian README, all reference/candidate JSONL,
 birth/recovery audits and native traces/masks retain every result and limit.
+
+## 2026-10-05 — Final-inlier renewal experiment rejected
+
+After the targeted saved-opening diagnosis, the user authorized the single
+proposed renewal change: count final registration inliers instead of extracted
+pairs, retaining the fewer-than-ten threshold and every model, numeric gate,
+selection/promotion rule and lost-state suppression. Baseline source is clean
+`main @59abf31`; experiment source is `b7602b2`. One fresh sequential RTX 4090
+attempt per saved condition preserves the original 31–78.6167 s schedule. There
+is no acquisition, campaign resume, favorable retry or memory tuning. Evidence
+is in `outputs/b1/perception/point2pose-inlier-renewal-comparison-01/`.
+
+| Condition | Native completed / scheduled | Supported / scheduled | Unavailable process rows | Terminal failure |
+|---|---:|---:|---:|---|
+| light | 1,352 / 2,858 | 1,351 / 2,858 (47.27%) | 1,506 | CUDA OOM at 53.5333 s |
+| nominal | 619 / 2,858 | 618 / 2,858 (21.62%) | 2,239 | Existing TSDF memory-budget guard at 41.3167 s |
+
+The last native results are at 53.5167/41.3 s. Each condition retains one
+`process_error` and every later `not_processed` row with original timestamps;
+missing tails are neither native lost poses nor successful tracking. Nominal
+fails the unchanged reserve predicate while 6,006,308,864 GPU bytes remain free:
+the requested TSDF allocation is 987,464,520 bytes and 20% of total memory is
+reserved. This is distinct from light's CUDA OOM. Neither variant reaches the
+baseline's final nominal lost interval; completion and recovery remain unvalidated.
+
+### Matched processed prefixes and growth
+
+| Original interval | System | Supported / rows | Inaccurate accepted | Supported position / rotation p95 | All-finite position / rotation p95 |
+|---|---|---:|---:|---:|---:|
+| light, 31–53.5167 s | baseline | 1,097 / 1,352 | 0 | 5.66 mm / 0.380 degrees | 7.44 mm / 0.532 degrees |
+| same interval | variant | 1,351 / 1,352 | 82 | 10.30 mm / 0.523 degrees | 10.30 mm / 0.523 degrees |
+| nominal, 31–41.3 s | baseline | 590 / 619 | 0 | 3.98 mm / 0.266 degrees | 4.61 mm / 0.269 degrees |
+| same interval | variant | 618 / 619 | 1 | 3.35 mm / 0.394 degrees | 3.35 mm / 0.394 degrees |
+
+Seed zeros are excluded from errors. Complete-window accurate supported coverage
+is only 44.40% light / 21.59% nominal, including unavailable process tails.
+All finite/lost/rejected errors and secondary candidates remain saved. Prefix
+improvement in support does not establish full-opening precision or completion.
+Primary new IDs/graph updates grow to 360/12 light and 150/5 nominal before
+failure, versus 90/3 and 60/2 over the entire baseline. All-candidate map entries
+grow from 150 to 3,025 light and 180 to 2,160 nominal. Persistent workload growth
+is demonstrated; a memory leak or one precise failed buffer is not established.
+
+### Published pose differs from validated registration
+
+At 47.1667 s light, registration/frontend error is 7.607 mm / 0.467 degrees,
+but the graph publishes 21.157 mm / 14.019 degrees while keeping 15 frontend
+inliers and acceptance. The native pipeline assigns the optimized keyframe pose
+and modifies landmarks after registration checks, without recomputing that mask.
+Its active graph jump limits are 3 m / 1,000 degrees. A GT-free recomputation on
+the published pose/map finds ten inliers across selected pairs and only seven
+of the reported 15 within 4 mm; their maximum residual is 16.52 mm. This is stale
+support accounting, not proof of fewer than five valid pairs or false identity.
+
+The first inaccurate nominal acceptance at 40.1333 s similarly worsens from
+2.493 mm / 0.181 degrees after SDF to 12.019 mm / 3.753 degrees after graph
+publication, retaining 37 inliers. Its source distribution is not collinear.
+The first inaccurate light acceptance at 45.5167 s is already inaccurate in
+registration: 10.481 mm / 0.162 degrees with ten final inliers and 2.59 mm internal
+residual. Therefore post-graph publication does not explain every inaccurate pose,
+and registration/map self-consistency alone does not establish material accuracy.
+
+### Controls, recovery limits and decision
+
+Within each condition, saved initialization is identical: candidate selection,
+all masks, IDs, pixels, map points and seed poses. Sources, versions, configuration
+and thresholds match; native NumPy RANSAC starts at zero in both. All-candidate
+poses/decisions match before the first changed renewal. Subsequent renewals consume
+the shared RNG stream differently. This is one paired system run per condition,
+not population evidence or a fixed-hypothesis tracker ablation. The differing
+light/nominal seeds still prevent causal lighting attribution.
+
+The variant primary never enters lost before its process fails, so zero flag
+returns demonstrate no recovery. Baseline flag returns, accurate poses and strict
+historical-material support remain separate: 206/216 returns, 201/193 accurate
+poses and 10/10 strict historical support passes. Accurate returns failing the
+strict test remain material-unresolved rather than automatically false. New
+anchors assume rigid-leaf ownership only in the evaluator; internal promotion,
+ID preservation and coordinate changes do not certify identity. Ground truth is
+never returned to inference or map growth. Contact-only occlusion remains expected.
+
+Request-latency p95 is 2.497/1.978 s on the variant's completed prefixes, versus
+0.554/0.600 s over complete baselines. These windows differ; latency stays separate
+from chronological accuracy/coverage and does not alter offline acceptance.
+Operational freshness and contact qualification remain unchanged and unvalidated.
+
+Reject and revert the renewal change, restoring the baseline criterion in both
+the reproducible patch and effective cached source. Preserve its commit and both
+failed attempts. Diagnose post-graph pose/support consistency and reference growth
+from saved evidence before another change; pending geometric confirmation remains
+disabled in the recipe. The inspected `annotated-comparison.png`, error plots,
+control checks, stage-level event audit, comparison JSON and Italian README retain
+the evidence and limits. No subsequent fix or GPU replay follows this experiment.

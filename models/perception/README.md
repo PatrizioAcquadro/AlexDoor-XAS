@@ -128,12 +128,7 @@ with its residuals/inliers. The unchanged final support gate can fall back to th
 pre-SDF cluster pose, recomputing statistics for that pose. Exact zero residual
 with sufficient measured support is valid. Pinned-source mismatches fail explicitly;
 pre-fix files remain alongside the ignored sources as `.py.before-tracking-fixes`.
-The renewal criterion also counts final returned-pose inliers instead of extracted
-pairs, preserving its fewer-than-ten, mask-area and view thresholds. Sampling
-remains suppressed while lost; selection, pending confirmation and map growth
-are unchanged. This single change is awaiting the bounded recorded-opening
-comparison and does not qualify recovery or material identity.
-`runtime.json` declares `native_fixes`; model weights and numeric gates
+`runtime.json` declares the two `native_fixes`; model weights and numeric gates
 are unchanged. Calibrated depth limits replace
 small-object defaults in all lifting/crop calls. Equivalent dense crops are
 cached only within one frame and unnecessary neighborhood gathering is skipped

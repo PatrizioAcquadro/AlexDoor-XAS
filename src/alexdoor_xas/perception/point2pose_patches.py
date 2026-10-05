@@ -2,11 +2,10 @@
 
 from pathlib import Path
 
-NATIVE_FIXES = ("f2m_measured_loss", "sdf_returned_pose", "inlier_driven_renewal")
+NATIVE_FIXES = ("f2m_measured_loss", "sdf_returned_pose")
 
 _REGISTER = "upstream/point2pose/modules/register/svd_cluster_ransac_register.py"
 _FRONTEND = "upstream/point2pose/pipeline/components/front_end.py"
-_CRITERION = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
 _REPLACEMENTS = {
     _REGISTER: (
         (
@@ -40,16 +39,6 @@ _REPLACEMENTS = {
             '                        or np.count_nonzero(stats_reg.get("inliers", []))\n'
             "                        < self.register._min_inliers\n"
             "                    )\n",
-        ),
-    ),
-    _CRITERION: (
-        (
-            '        num_pts = reg_stats["correspond_curr3d"].shape[0]\n',
-            '        num_pts = int(np.count_nonzero(reg_stats["inliers"]))\n',
-        ),
-        (
-            '            f"[Criterion] num visible points: {num_pts} ',
-            '            f"[Criterion] num final inliers: {num_pts} ',
         ),
     ),
 }
