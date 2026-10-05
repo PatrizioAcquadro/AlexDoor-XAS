@@ -102,6 +102,8 @@ class RegistrationTrace:
 
     def frontend(self, result, objects):
         for obj in objects:
+            extraction = result.valid_stats.get(obj.id, {})
+            indices = np.asarray(extraction.get("extract_obj_idx", []), dtype=int)
             self.object(obj.id).update(
                 frontend_pose=deepcopy(result.obj_poses.get(obj.id)),
                 frontend_lost=bool(obj.lost),
@@ -114,11 +116,31 @@ class RegistrationTrace:
                 tracks=deepcopy(result.tracks[result.valid_indices[obj.id]])
                 if obj.id in result.valid_indices
                 else None,
+                all_track_indices=indices.copy(),
+                all_tracks=deepcopy(result.tracks[indices]) if len(indices) else None,
+                all_uncertainties=deepcopy(result.uncertainties[indices]) if len(indices) else None,
+                all_visibles=deepcopy(result.visibles[indices]) if len(indices) else None,
+                all_current_points=deepcopy(result.track_3d[indices]) if len(indices) else None,
             )
 
-    def finish(self, objects):
+    def finish(self, objects, *, masks=None, track_table=None):
+        if masks is not None:
+            name = f"references-{self.frame['frame']}.npz"
+            np.savez_compressed(self.path.parent / name, masks=masks)
+            self.frame["mask_file"] = name
         for obj in objects:
             self.object(obj.id).update(published_pose=obj.pose.copy(), lost=bool(obj.lost))
+            if track_table is not None:
+                indices = np.asarray(track_table.obj2track_map[obj.id], dtype=int)
+                rows = obj.track_idx_2_obj_idx[indices]
+                valid = (rows >= 0) & (rows < len(obj.key_points))
+                indices, rows = indices[valid], rows[valid]
+                self.object(obj.id).update(
+                    map_track_indices=indices.copy(),
+                    map_points=obj.key_points[rows].copy(),
+                    map_valid=obj.valid[rows].copy(),
+                    map_tracks=track_table.track_2d[indices].copy(),
+                )
         record = dict(self.frame, objects=list(self.frame["objects"].values()))
         with self.path.open("a") as stream:
             stream.write(json.dumps(trace_value(record), allow_nan=False) + "\n")

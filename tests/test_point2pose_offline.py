@@ -194,6 +194,22 @@ def test_bounded_window_retains_original_rows_and_complete_denominator(
     assert len(runtime.workers) == 1 and runtime.workers[0].closed
 
 
+def test_bounded_window_initializes_after_inspection_schedule(tmp_path, runtime):
+    config = runtime.recipe.config
+    config["inspection"]["sample_times_s"] = [0.0, 1.0]
+    runtime.recipe = PrototypeRecipe(json.dumps(config))
+    report, frames = run(
+        recording(tmp_path / "episode.hdf5"),
+        tmp_path / "late-window",
+        runtime,
+        capture_window_s=(4.0, 4.05),
+    )
+    assert report["complete"] and report["native_result_rows"] == 4
+    assert report["initialization"]["seed_time_s"] == 4.0
+    assert frames[0]["is_seed"]
+    assert [int(r["frame"]) for r in runtime.workers[0].calls] == [10, 11, 12, 13]
+
+
 def test_truth_only_changes_scoring_and_source_time_is_used(tmp_path, runtime):
     path = recording(tmp_path / "episode.hdf5")
     before, _ = run(path, tmp_path / "before", runtime)

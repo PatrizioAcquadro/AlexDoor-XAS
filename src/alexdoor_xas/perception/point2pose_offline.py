@@ -262,7 +262,10 @@ def offline_episode(
                 raise ValueError("invalid_offline_capture_window")
             first_s, end_s = capture_window_s
         scheduled = np.flatnonzero((times >= first_s - 1e-9) & (times <= end_s + 1e-9))
-        next_semantic = config["inspection"]["sample_times_s"][0]
+        next_semantic = max(first_s, config["inspection"]["sample_times_s"][0])
+        semantic_end_s = (
+            end_s if capture_window_s is not None else config["inspection"]["sample_times_s"][-1]
+        )
         calibration = json.loads(h5["metadata"].attrs["calibration"])
         try:
             if (
@@ -323,7 +326,7 @@ def offline_episode(
                                 not candidates
                                 and next_semantic
                                 <= t
-                                <= config["inspection"]["sample_times_s"][-1] + 1e-9
+                                <= semantic_end_s + 1e-9
                             ):
                                 cue = cues.infer(sensor["rgb"])
                                 next_semantic = float(t) + config["semantic_period_s"]

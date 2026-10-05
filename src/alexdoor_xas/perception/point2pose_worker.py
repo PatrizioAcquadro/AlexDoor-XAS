@@ -235,7 +235,11 @@ class OfficialPipeline:
             )
         export_started = time.perf_counter()
         if self.trace is not None:
-            self.trace.finish(self.pipeline.objects)
+            self.trace.finish(
+                self.pipeline.objects,
+                masks=frame.mask.detach().float().cpu().numpy()[:, 0] > 0,
+                track_table=self.pipeline.track_table,
+            )
         export_s = time.perf_counter() - export_started if self.trace is not None else 0.0
         return dict(
             objects=objects,

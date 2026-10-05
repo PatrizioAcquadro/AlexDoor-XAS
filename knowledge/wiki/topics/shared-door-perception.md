@@ -252,11 +252,15 @@ is documented in [[../experiments/b1-perception-findings|B1 perception findings]
 For a bounded diagnostic, `offline_episode(..., capture_window_s=(4.0, 10.0),
 registration_diagnostics=True)` processes only that inclusive acquisition window
 and preserves original HDF5 row/frame IDs, including interrupted suffix counts.
+An explicit bounded window initializes automatic candidates inside that window,
+even after the static inspection schedule ends; the frozen recipe is unchanged.
 The optional native `registration.jsonl` observes registration inputs, hypotheses,
 inliers/residuals, SDF poses before/after refinement, frontend decisions and graph
 updates before publication. Observers copy intermediate values and return the
 original native results unchanged; they do not alter thresholds, models or
 tracking decisions. This trace requires diagnostic mode and receives no truth.
+It also saves all extracted object-track pixels, visibility/uncertainty values,
+map coordinates/IDs and per-frame SAM2 masks, including excluded references.
 Its export time is separate metadata; total request time includes diagnostic work
 and is not an operational performance measurement.
 

@@ -54,21 +54,35 @@ def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path
         valid_curr_3d={0: points},
         valid_indices={0: np.arange(3)},
         reg_stats={0: result[1]},
-        valid_stats={0: dict(confirmed=3)},
+        valid_stats={0: dict(confirmed=3, extract_obj_idx=np.arange(3))},
         mean_residuals={0: -1.0},
         tracks=np.zeros((3, 2)),
+        uncertainties=np.zeros(3),
+        visibles=np.array([True, False, True]),
+        track_3d=points,
     )
     trace.frontend(frontend, [obj])
     keyframe = SimpleNamespace(obj_id=0, kf_idx=1, pose=obj.pose)
     assert graph.update([keyframe]) is graph.result
     points[:] = 5  # Later native map updates cannot rewrite prior diagnostics.
     obj.lost = True
-    trace.finish([obj])
+    obj.key_points = np.array([[0.0, 0, 1], [1, 0, 1], [0, 1, 1]])
+    obj.valid = np.ones(3, bool)
+    obj.track_idx_2_obj_idx = np.arange(3)
+    table = SimpleNamespace(obj2track_map=[np.arange(3)], track_2d=np.zeros((3, 2)))
+    masks = np.array([[[True, False], [False, True]]])
+    trace.finish([obj], masks=masks, track_table=table)
+    obj.key_points[:] = 9
     row = json.loads(path.read_text())
     assert (row["frame"], row["capture_s"], row["native_index"]) == (248, 4.0, 0)
     saved = row["objects"][0]
     assert saved["registration_input"]["src_pcd"][0] == [0.0, 0.0, 1.0]
     assert saved["frontend_source_points"][0] == [0.0, 0.0, 1.0]
+    assert saved["all_track_indices"] == [0, 1, 2]
+    assert saved["all_visibles"] == [True, False, True]
+    assert saved["all_current_points"][0] == [0.0, 0.0, 1.0]
+    assert saved["map_points"][0] == [0.0, 0.0, 1.0]
+    np.testing.assert_array_equal(np.load(tmp_path / row["mask_file"])["masks"], masks)
     assert saved["frontend_pose"][1][3] == 0 and saved["published_pose"][1][3] == 0.03
     assert not saved["frontend_lost"] and saved["lost"]
     assert saved["sdf_refinement"]["before"][0][3] == 0
