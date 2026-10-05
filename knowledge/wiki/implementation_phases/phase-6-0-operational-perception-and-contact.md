@@ -450,6 +450,15 @@ recovery remains unvalidated. No new inference was needed for that diagnosis.
 The full campaign remains stopped. See
 [[../experiments/b1-perception-findings|partial offline results and drift limits]].
 
+A subsequent authorized baseline processes all 421 frames of the recorded
+31–38 s camera-still window, with one automatic seed and no reset between static
+door and first opening. Primary integration support is 420/421; opening error
+p95 is 2.64 mm / 0.295 degrees while the contact is gripper-occluded. Degrading
+references, depth-edge sensitivity and secondary false recovery remain explicit.
+No tracking/model/threshold change follows. Compare a single reference/renewal
+change on the same window/candidate before further work; material identity,
+long-gap recovery, operational freshness and contact admission remain separate.
+
 ### 6.0D — Feedback, compliance and stopping
 
 Map documented `tau` to a declared observable; actuator feedback, commanded effort

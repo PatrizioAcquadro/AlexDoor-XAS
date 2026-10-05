@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-04 UTC. **6.0B is maintained; prior dynamic trackers are retired;
+Current as of 2026-10-05. **6.0B is maintained; prior dynamic trackers are retired;
 the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 6.1 remain open.** No training, new corpus or sealed-test evaluation was started.
 
@@ -9,43 +9,38 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Official CUDA pipeline, FK compensation, panel-fixed zones, operational queues and a separate serial 60 Hz evaluator implemented. Native loss/SDF defects are corrected and verified on one complete 4–10 s CUDA replay; primary integration coverage is 59/361 (16.34%), with 301 lost poses preserved. The full campaign stays stopped. The previous four operational replays and eight fresh Isaac cases fail useful availability at 0%. No qualified runtime or loaded contact. |
+| 6.0C — Panel tracking prototype | Official CUDA pipeline, FK compensation, panel-fixed zones, operational queues and serial 60 Hz evaluator implemented. A new 31–38 s camera-still baseline completes all 421 frames; primary integration support is 420/421, with opening error p95 2.64 mm / 0.295 degrees despite contact occlusion. Point drift and secondary candidate failures remain. The corrected moving-camera 4–10 s replay retains 301 lost primary poses. Full campaign stopped; historical operational useful availability remains 0%. No qualified runtime or loaded contact. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Keep the full offline campaign stopped. Source `0adef47` processed 4,216 of the
-20,108 planned full-replay frames before the user interrupted the first attempt;
-502 rows in that recording and all 11 other attempts are retained as unprocessed
-or unstarted. The [[experiments/b1-perception-findings|4–10 s drift diagnosis]]
-verifies source timestamps, ROS optical/depth conventions, FK and composition.
-The first candidate's native transform freezes for 162 frames with `lost=False`
-while the camera moves; frontend drift already precedes world composition.
-One subsequently authorized fresh CUDA diagnostic replay completes all 361 frames
-of that same interval and reproduces all five native pose sequences exactly.
-Telemetry confirms wrong point correspondences, no valid RANSAC cluster and a
-previous-pose fallback that leaves `lost=False`. The primary has only 0–2 pairs
-consistent with the correct motion during all 161 fallback frames, below the
-unchanged five-inlier minimum; the original references remain depth-supported.
-A separate defect returns a pre-SDF pose despite accepted refinement, with
-statistics from the refined pose. Source `df36b92` corrects both behaviors; one
-subsequent fresh CUDA replay verifies every source frame and native contract.
-The primary now has 59/361 integration-supported rows and 301 explicit lost poses,
-with no recovery from 5.25 through 10 s. Supported error p95 is 2.26 cm / 2.07 degrees
-over only 59 non-seed samples; this conditional statistic does not establish
-whole-sequence improvement. Saved-image diagnosis now localizes heterogeneous
-pixel-identity errors on mostly low-contrast seed references, before registration;
-same-time RGB edges and depth support oppose a shared acquisition delay. At 5.25 s,
-only two of 17 selected pairs meet the unchanged 4 mm gate although all 30 seed
-references remain depth-supported. Native renewal triggers are not reached while
-supported; after loss, sampling/promotion are suppressed and 197 registration
-attempts all return no cluster, with no jump-guard rejection. The next justified
-work is observed reference-quality/renewal with geometric confirmation before map
-growth, then a bounded comparison; alternative recovery success is unvalidated.
-This diagnosis used only saved evidence, with no new inference. The full campaign
-stays stopped; no automatic trial, model tuning or performance optimization follows.
+Keep the full offline campaign stopped. Its original 4,216 completed rows,
+502 unprocessed rows and 11 unstarted attempts remain preserved. Native loss/SDF
+fixes and the failed moving-camera 4–10 s replay remain documented in
+[[experiments/b1-perception-findings|B1 perception findings]].
+
+One authorized 31–38 s replay of existing data now separates a stationary door
+from its first opening with the camera fixed, retaining the same automatic primary
+candidate and all 421 original timestamps. Primary support is 133/134 static rows
+(seed rejected) and 287/287 opening rows; post-seed error p95 is 1.74 mm / 0.116
+degrees static and 2.64 mm / 0.295 degrees opening. The contact is covered throughout
+opening, but other leaf references maintain the pose. The well-contrasted,
+distributed seed does not establish initialization as the cause of prior failures.
+Pixel drift and depth sensitivity at relief edges are distinct demonstrated limits.
+The native renewal criterion still counts extracted pairs despite declining
+material consistency. No post-seed map growth occurs. Secondary candidates retain
+72/26 lost frames and 16/19 flag reactivations; none of these returns meets both
+original-material support and the fixed pose-error references in this evaluator.
+
+Next, compare one minimal reference/renewal change on this exact window, candidate
+and seed, without truth-driven selection. Use current measured, distributed
+support before promoting new references; frozen poses cannot refresh support or
+grow the map. Recovery must retrieve original material identity before publication
+or map updates. The baseline establishes neither long-gap recovery nor larger-angle
+opening reliability. No tracking modification, model tuning, performance work,
+new acquisition or comparison trial followed this baseline.
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.

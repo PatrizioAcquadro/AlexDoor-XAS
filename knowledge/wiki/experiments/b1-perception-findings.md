@@ -865,3 +865,109 @@ change models, optimize latency or resume the complete campaign automatically.
 Ownership, absolute seed accuracy, hardware calibration and contact admission
 remain unqualified. Calculations and explicit limits are retained in `analysis.json`,
 `frame-analysis.jsonl`, `point-analysis.jsonl` and the ignored evaluator script.
+
+## 2026-10-05 — Camera-still static and first-opening baseline
+
+From clean `main` at `6821c60`, the user authorized one brief offline baseline
+using existing recordings, preserving models, accuracy/support thresholds and
+tracking behavior. Observational source `112bbe8` saves all object-track pixels,
+exclusion flags, map IDs/coordinates and per-frame SAM2 masks; bounded-window
+initialization can occur after the static inspection schedule without changing
+the recipe. This enables the requested fixed-camera segment, unlike the previous
+4–10 s moving-camera window. No new acquisition or full campaign resume occurred.
+
+`outputs/b1/perception/point2pose-still-opening-baseline-01/` retains one fresh
+RTX 4090 replay of `animated-door-1-88abf40/light`, 31–38 s inclusive: all 421
+original rows 1860–2280 / frames 1868–2288 complete chronologically at 60 Hz,
+without skips, process errors, reset or retries. Camera transforms are constant
+within 1e-7; door motion begins at 33.2333 s and reaches 4.5403 degrees by 38 s.
+Automatic candidate-0 is primary throughout, without truth-based reselection.
+Truth is evaluator-only and every pose is compared at its acquisition timestamp.
+
+| Primary segment | Rows | Integration support | Position p95 / max | Rotation p95 / max |
+|---|---:|---:|---:|---:|
+| Stationary door, 31–33.2167 s | 134 | 133 (99.25%) | 1.74 / 2.18 mm | 0.116 / 0.142 degrees |
+| First opening, 33.2333–38 s | 287 | 287 (100%) | 2.64 / 6.82 mm | 0.295 / 0.426 degrees |
+
+The unsupported seed remains in the coverage denominator; its constructed zero
+is excluded from error distributions. Native primary coverage is 421/421, with
+zero losses, recoveries, invalid poses or post-seed integration rejections.
+All post-seed primary poses meet the unchanged 1 cm/5 degree references. Request
+latency median/p95 is 0.494/0.552 s, including diagnostic export; it has no effect
+on offline accuracy, coverage or outcome. This is not an operational latency test.
+
+The primary seed has 30 distributed references, with a convex hull covering
+58.56% of its mask. Of these, 27 have local 21-by-21 grayscale standard deviation
+above five intensity levels, one below two. These are diagnostic proxies, not
+SuperPoint scores or new thresholds. All 30 original references remain independently
+depth-supported while stationary. During opening, 25–30 remain depth-supported,
+even though the recorded contact is foreground-occluded in all 287 opening rows
+(and the final 52 stationary rows). The images identify the gripper at that contact.
+Contact occlusion does not imply whole-pose loss or establish loaded admission.
+
+Metric compatibility and visual identity must be separated. At 33.2167/35/38 s,
+19/30, 15/30 and 8/27 extracted pairs match original material within the native
+4 mm gate. The minimum is five. Yet 1,301 stationary point-frame observations
+exceed 4 mm with less than two pixels of displacement: small shifts at depth
+discontinuities amplify lifting error. ID 2 at 31.0167 s has 0.48 pixel / 4.26 mm
+error; evaluator-only nearest-pixel sampling returns the seed depth and zero
+error, demonstrating integer-sampling sensitivity rather than large identity drift.
+Depth closer than expected can also represent relief/self-occlusion, not a hand.
+
+At 38 s, ID 21 slides 14.03 pixels along a relief edge, has 26.65 mm material error
+and remains extracted. ID 9 is still independently visible but has moved to a
+different image location, 111.65 pixels / 54.64 mm away; native visibility and
+uncertainty correctly exclude it. ID 13 is also excluded at 10.61 pixels / 20.07 mm.
+ID 7 remains visible and metrically compatible (2.24 pixels / 2.13 mm), but those
+same gates exclude it. Across opening, 151 incompatible pair observations are
+excluded, versus ten compatible visible observations. These correlated counts
+are not independent events or proof of native physical-occlusion recognition.
+
+There is no post-seed primary graph update or new track ID; original map coordinates
+remain unchanged. The renewal criterion sees 27–30 extracted pairs and at most
+3.81 degrees of view change, so its existing fewer-than-ten / 15-degree triggers
+never fire. This demonstrates a renewal signal insensitive to degrading material
+correspondence while the pose is still supported. It does not demonstrate failed
+primary recovery, because the primary never loses its pose in this window.
+
+| Candidate | Integration / 421 | Supported position / rotation p95 | Lost rows | Native loss / flag-reactivation events |
+|---|---:|---:|---:|---:|
+| 0, primary | 420 | 2.39 mm / 0.255 degrees | 0 | 0 / 0 |
+| 1 | 346 | 30.76 mm / 1.862 degrees | 72 | 17 / 16 |
+| 2 | 394 | 15.52 mm / 1.997 degrees | 26 | 19 / 19 |
+| 3 | 420 | 2.83 mm / 0.195 degrees | 0 | 0 / 0 |
+| 4 | 420 | 2.66 mm / 0.232 degrees | 0 | 0 / 0 |
+
+Secondary failures are retained rather than hidden by primary success. All 35
+native flag reactivations retain original IDs and unchanged map coordinates, but
+none meets both pose within 1 cm/5 degrees and at least five native inliers
+consistent with original material within 4 mm. Thus `lost=False`, integration
+acceptance and unchanged IDs do not establish successful material recovery.
+Lost/rejected finite-pose errors remain in the full report; no interpolation occurs.
+
+### Minimum justified follow-up
+
+Keep the existing models and point count. Point selection should combine observed
+distinctiveness, distribution and reliable local depth, especially at relief
+edges; the well-contrasted current seed does not justify blaming initialization
+or rejecting all informative edges. Renewal should use current measured inlier
+support/distribution instead of extracted-pair count. Promote new references only
+after geometric/temporal confirmation from a currently supported pose; a frozen
+lost pose cannot grow the map or advance support time. Recovery must match observed
+references to the original material/keyframes and verify RGB-D rigid consistency
+before publication or map updates, preserving the original object/zone identity.
+
+These are proposed changes, not implemented or validated alternatives. Compare
+one component at a time on these exact 421 frames, candidate-0 and seed at 31 s;
+retain secondary candidates as false-recovery controls. Report conditional and
+all-finite errors with coverage, loss/recovery, correct/false exclusions and map
+changes. The old moving-camera window differs in view and initialization, so
+cross-window success does not isolate their causal contributions. Larger openings,
+long-gap identity retrieval, absolute seed accuracy and hardware/contact admission
+remain open. Full campaign, performance work and acquisition remain stopped.
+
+`annotated-baseline.png`, `point-cases.png` and `baseline-errors.png` show inspected
+RGB/masks, expected versus tracked IDs and original-time errors. Red annotated
+pairs denote 4 mm metric incompatibility, not automatically a wrong visual identity.
+The ignored README, evaluator scripts, `analysis.json`, point/frame JSONL and
+`recovery-analysis.json` preserve calculations, every secondary return and limits.
