@@ -81,6 +81,9 @@ class OfficialPipeline:
         self.pipeline = ModularPipeline(config)
         builder = panel_sdf_builder(type(self.pipeline.sdf_builder), request["depth_error_m"])
         self.pipeline.sdf_builder = builder(config.reconstructor.params)
+        from alexdoor_xas.perception.point2pose_renewal import BoundedRenewal
+
+        self.renewal = BoundedRenewal(self.pipeline)
         self.config = OmegaConf.to_container(config, resolve=True)
         self.torch, self.np = torch, np
         self.trace = None
@@ -121,6 +124,7 @@ class OfficialPipeline:
             python=sys.version.split()[0],
             sources=json.loads((root / "sources.json").read_text()),
             native_fixes=native_fixes,
+            active_reference_budget=self.renewal.budget,
             config=self.config,
             training_started=False,
             qualified=False,
@@ -186,6 +190,7 @@ class OfficialPipeline:
             self.initialized = True
         else:
             self.pipeline.step(frame)
+        self.renewal.after_frame(frame, self.last_frontend)
         self.index += 1
         torch.cuda.synchronize()
         objects = []
@@ -239,7 +244,9 @@ class OfficialPipeline:
                 self.pipeline.objects,
                 masks=frame.mask.detach().float().cpu().numpy()[:, 0] > 0,
                 track_table=self.pipeline.track_table,
+                renewal=self.renewal,
             )
+        self.renewal.events.clear()
         export_s = time.perf_counter() - export_started if self.trace is not None else 0.0
         return dict(
             objects=objects,

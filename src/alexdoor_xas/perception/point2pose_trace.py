@@ -124,7 +124,7 @@ class RegistrationTrace:
                 all_current_points=deepcopy(result.track_3d[indices]) if len(indices) else None,
             )
 
-    def finish(self, objects, *, masks=None, track_table=None):
+    def finish(self, objects, *, masks=None, track_table=None, renewal=None):
         if masks is not None:
             name = f"references-{self.frame['frame']}.npz"
             np.savez_compressed(self.path.parent / name, masks=masks)
@@ -142,6 +142,16 @@ class RegistrationTrace:
                     map_valid=obj.valid[rows].copy(),
                     map_tracks=track_table.track_2d[indices].copy(),
                 )
+                selected = self.object(obj.id).get("frontend_track_indices")
+                selected = np.asarray([] if selected is None else selected, dtype=int)
+                self.object(obj.id)["published_source_points"] = obj.key_points[
+                    obj.track_idx_2_obj_idx[selected]
+                ].copy()
+        if renewal is not None:
+            self.frame["renewal_events"] = deepcopy(renewal.events)
+            self.frame["active_query_ids"] = renewal.active_ids.copy()
+            for obj in objects:
+                self.object(obj.id)["historical_reference_count"] = len(obj.key_points)
         record = dict(self.frame, objects=list(self.frame["objects"].values()))
         with self.path.open("a") as stream:
             stream.write(json.dumps(trace_value(record), allow_nan=False) + "\n")

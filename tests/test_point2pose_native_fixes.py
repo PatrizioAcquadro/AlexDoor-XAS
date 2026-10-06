@@ -13,6 +13,8 @@ from alexdoor_xas.perception.point2pose_patches import NATIVE_FIXES, patch_track
 
 REGISTER_PATH = "upstream/point2pose/modules/register/svd_cluster_ransac_register.py"
 FRONTEND_PATH = "upstream/point2pose/pipeline/components/front_end.py"
+CRITERION_PATH = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
+PATCH_PATHS = (REGISTER_PATH, FRONTEND_PATH, CRITERION_PATH)
 
 
 @pytest.fixture
@@ -21,7 +23,7 @@ def native_root(tmp_path, monkeypatch):
     if not (installed / REGISTER_PATH).exists():
         pytest.skip("Pinned native source is not installed")
     monkeypatch.syspath_prepend(str(installed / "upstream"))
-    for relative in (REGISTER_PATH, FRONTEND_PATH):
+    for relative in PATCH_PATHS:
         source = installed / relative
         original = source.with_suffix(".py.before-tracking-fixes")
         target = tmp_path / relative
@@ -44,7 +46,7 @@ def native_class(path, name, namespace):
 
 
 def test_installer_preserves_originals_and_is_idempotent(native_root):
-    originals = {r: (native_root / r).read_text() for r in (REGISTER_PATH, FRONTEND_PATH)}
+    originals = {r: (native_root / r).read_text() for r in PATCH_PATHS}
     assert patch_tracking(native_root) == NATIVE_FIXES
     modified = {r: (native_root / r).read_text() for r in originals}
     assert all(modified[r] != originals[r] for r in originals)
@@ -227,3 +229,36 @@ def test_native_lost_is_recomputed_from_current_supported_result(
     obj = SimpleNamespace(id=0, pose=np.eye(4), lost=not lost)
     frontend_step(frontend, obj, residual, inliers, rejected)
     assert obj.lost is lost
+
+
+@pytest.mark.parametrize(
+    "ninliers,angle,area,expected",
+    [(9, 0, 101, True), (10, 0, 101, False), (9, 0, 100, False), (20, 16, 101, True)],
+)
+def test_inlier_trigger_preserves_mask_and_view_thresholds(
+    native_root, ninliers, angle, area, expected
+):
+    import torch
+    from point2pose.core.base_criterion import SampleCriterion
+
+    patch_tracking(native_root)
+    cls = native_class(
+        native_root / CRITERION_PATH,
+        "RotationThresholdAndMinNumCriterion",
+        dict(np=np, torch=torch, SampleCriterion=SampleCriterion, CriterionContext=object),
+    )
+    criterion = cls(dict(max_angle_deg=15, min_num_pts=10, min_mask_area=100))
+    theta = np.deg2rad(angle)
+    pose = np.eye(4)
+    pose[:3, :3] = [
+        [np.cos(theta), 0, np.sin(theta)],
+        [0, 1, 0],
+        [-np.sin(theta), 0, np.cos(theta)],
+    ]
+    context = SimpleNamespace(
+        objects=[SimpleNamespace(pose=pose)],
+        frame=SimpleNamespace(id=1, mask=torch.ones((1, 1, 1, area))),
+        reg_stats={0: dict(correspond_curr3d=np.zeros((30, 3)), inliers=np.arange(30) < ninliers)},
+    )
+    criterion.initialize(context)
+    assert criterion.check_sample_criterion(context, 0) == expected

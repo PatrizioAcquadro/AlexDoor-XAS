@@ -156,14 +156,34 @@ contamination or requiring identical boundary pixels. It does not certify every
 extra mask pixel's physical ownership; ambiguous component relationships remain
 ambiguous. Positive SAM2 prompts are unchanged from upstream.
 
-The renewal criterion retains its paper-recipe extracted-pair count, mask-area
-and 15-degree view criteria. An isolated final-inlier-count variant was rejected
-and reverted after both fixed-recording comparisons failed on memory: CUDA OOM
-in light and the existing TSDF budget guard in nominal. It improved support in
-the completed prefixes but exposed inaccurate graph publication and uncontrolled
-reference growth. Pending geometric confirmation remains disabled in the paper
-configuration; unchanged IDs and internal promotion do not establish material
-continuity. See [[../experiments/b1-perception-findings|renewal comparison]].
+The renewal criterion now counts final registration inliers, retaining the
+fewer-than-ten, mask-area and 15-degree view gates and native lost-state sampling
+suppression. The prior unbounded variant and both memory failures remain preserved.
+`point2pose_renewal.py` limits each candidate to 120 active references, sized from
+the largest complete-baseline population and measured 1.875 MiB/point TAPIR causal
+state. It defers whole native sampling batches when capacity is unavailable.
+Models, candidate selection, native point selection, promotions, numeric gates,
+graph and TSDF remain unchanged.
+
+A new reference can sponsor one retirement after native promotion and three
+metric inlier observations on the actually published post-graph pose/map. This
+uses the existing promotion streak. Retirement requires more than the existing
+pending TTL of 15 visible, valid, masked, low-uncertainty outlier observations;
+loss/occlusion/invalid depth freeze the counter and prevent retirement. At most
+three points per candidate retire per frame. A planar convex-hull/cell guard
+protects geometric distribution. No age-only or invisible-point eviction occurs.
+Compaction copies retained TAPIR query/features/causal rows into independent CUDA
+storages; stable IDs, CPU historical landmarks, keyframes and graph references
+survive and slots never become new material IDs. Allocator reservation may remain
+after live storage is freed. Historical graph/keyframe/TSDF growth is not bounded
+by the active-reference cap.
+
+Post-graph support is additionally recomputed for retirement and audited separately
+from inherited frontend statistics; native acceptance and graph publication are
+unchanged. Neither internal confirmation nor metric self-consistency verifies
+material identity. Pending geometric confirmation remains disabled in the paper
+configuration. Full saved-opening CUDA comparison of this bounded policy is
+pending; see [[../experiments/b1-perception-findings|renewal evidence]].
 
 With `estimate_init_pose=false`, map M remains the first optical camera frame.
 The observed zone frame defines O separately; its fixed transform to the material
