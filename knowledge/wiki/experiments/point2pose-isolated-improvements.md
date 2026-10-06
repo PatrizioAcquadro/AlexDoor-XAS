@@ -3,8 +3,9 @@
 Work starts from clean `main @1689623`, with the complete graph-off baseline
 preserved. The isolated partial-batch option is implemented at `fac02e5`;
 observational prompt/promotion telemetry is implemented at `4c6dc25`. Outcomes
-below are saved-data diagnostics. Full CUDA comparisons are in progress; no
-combined variant or tracking default is adopted.
+below separate saved-data diagnostics from complete CUDA comparisons. The paired
+partial-batch and 6 mm comparisons are complete; the independent promotion
+comparison remains in progress. No combined variant or tracking default is adopted.
 
 ## Fixed controls and comparisons
 
@@ -86,3 +87,73 @@ relative trajectory metric, whose seed pose is zero by construction.
 
 See [[point2pose-bounded-global-graph-ablation|the graph-off baseline]] and
 [[point2pose-consumer-impact-and-failure-windows|consumer metric boundaries]].
+
+## Complete partial-batch comparison
+
+Both original CUDA attempts complete all 2,858 frames without retries, missing
+rows or process failure. Runtime controls, initial masks/maps/IDs/selection and
+source schedules match the graph-off baseline. Actual unique CUDA query,
+feature and causal storages obey 120 references per candidate.
+
+| Condition/system | Correct available | Inaccurate accepted | Native lost | Accepted point p95, mm | Rotation p95, degrees | Process peak, GiB |
+|---|---:|---:|---:|---:|---:|---:|
+| light / graph-off baseline | 2,569 | 238 | 49 | 11.51 | 0.53 | 7.78 |
+| light / partial batch | 2,450 | 407 | 0 | 11.89 | 0.84 | 8.41 |
+| nominal / graph-off baseline | 2,004 | 58 | 794 | 8.15 | 0.73 | 9.61 |
+| nominal / partial batch | 2,484 | 373 | 0 | 12.30 | 0.48 | 10.41 |
+
+The nominal gain of 480 correct poses is real, as is the light loss of 119.
+Eliminating every native loss does not establish reliable availability: inaccurate
+acceptances increase by 169/315. Both p95 point errors remain above 1 cm.
+The partial option remains an isolated diagnostic, disabled by default.
+There are no native flag returns because neither primary ever becomes lost;
+this cannot be called strict material recovery. Peak total queries are 599/720,
+while per-candidate capacity stays 120. CPU historical records remain retained.
+
+Actual original SAM2 calls are now observed in both conditions. Primary source
+retention is 99.12%/98.94%, mask IoU 0.431/0.423, with 192,131/195,441 extra
+pixels. Two positive prompts lie one pixel from the source-mask boundary, at
+image top/bottom. Only 5/30 light and 6/30 nominal seed query pixels lie inside
+the original automatic component. Targeted RGB inspection shows substantial
+expansion onto door relief and other plausible same-leaf regions, so neither
+extra pixels nor overlapping automatic components alone proves contamination.
+The original initialization stays fixed; absolute ownership/calibration and a
+causal prompt ablation remain unverified. The early static/first-opening p95 is
+1.8/1.6 mm and 1.85/2.93 mm, while late tracking degrades. Initial component
+ambiguity and accumulated metric/tracking error are separate findings.
+
+The native frontend supports tentative-point fallback, but no primary baseline
+row actually uses it in either complete graph-off recording. Its existence is
+not a demonstrated explanation of these primary errors. The capability and
+all its thresholds remain unchanged.
+
+## Complete 6 mm comparison
+
+Both original CUDA attempts complete 2,858 frames with unchanged seed outputs,
+source times and all native configuration except `inlier_thres=0.006`.
+Ground truth remains evaluator-only. Correct and inaccurate counts exclude the
+constructed seed; accuracy is the relative zone point/full rotation within
+1 cm/5 degrees. Native loss and integration rejection are separate checks.
+
+| Condition/system | Correct available | Inaccurate accepted | Native lost | Accepted point p95, mm | Rotation p95, degrees | Process peak, GiB |
+|---|---:|---:|---:|---:|---:|---:|
+| light / graph-off baseline | 2,569 | 238 | 49 | 11.51 | 0.53 | 7.78 |
+| light / 6 mm | 1,495 | 1,362 | 0 | 20.67 | 0.50 | 7.84 |
+| nominal / graph-off baseline | 2,004 | 58 | 794 | 8.15 | 0.73 | 9.61 |
+| nominal / 6 mm | 1,518 | 1,337 | 2 | 22.10 | 0.61 | 9.91 |
+
+Accepted-pose precision falls from 91.52%/97.19% to 52.33%/53.17%.
+Correct availability loses 1,074/486 rows while inaccurate acceptances increase
+by 1,124/1,279. The two nominal native losses each last one original frame
+(16.7 ms), but the final correct-pose gap lasts an observed 13.5 s. Neither
+native return is correct or passes the strict historical 4 mm material/pose audit.
+Thus 6 mm recovers some compatible frozen-pair support, but worsens actual full
+trajectories and is rejected as a tracking correction. Keep 4 mm.
+
+Actual query populations peak at 498/595 and every candidate stays at or below
+120. Measured TSDF CUDA storage peaks at 0.657/1.812 GiB. The threshold comparison
+includes its effect on subsequent shared RANSAC draws, masks/reference history
+and TSDF, not only a counterfactual final gate on frozen pairs. Few saved stage
+audits already show wrong poses with strong 4 mm support before SDF; a threshold
+or refinement-only explanation is insufficient. Full stage records remain in
+`stage-audit.json`.

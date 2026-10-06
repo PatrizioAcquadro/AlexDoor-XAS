@@ -168,8 +168,10 @@ graph and TSDF remain unchanged.
 The isolated `offline_episode(..., allow_partial_reference_batch=True)` experiment
 admits the prefix of the fully filtered native batch that fits the remaining
 120-reference capacity. Native selection/order and pending-point checks are retained;
-zero capacity still defers sampling. The default keeps whole-batch admission until
-the complete paired CUDA comparison is evaluated. This switch does not disable the
+zero capacity still defers sampling. The complete pair gains 480 correct nominal
+poses but loses 119 light poses, with 169/315 more inaccurate acceptances.
+Whole-batch admission remains the default; the partial option is diagnostic.
+See [[../experiments/point2pose-isolated-improvements|isolated comparisons]]. This switch does not disable the
 graph; graph-off experiments must select that independent control explicitly.
 
 A new reference can sponsor one retirement after native promotion and three
@@ -194,7 +196,7 @@ visibility; the guard does not establish protection of every physical occlusion.
 Diagnostic traces now save the actual `SAM2.add_new_prompt` calls and original
 input masks at initialization, separately from the interior preservation checks.
 They also observe native promotion attempts, retained observations, geometric
-spread and whether the existing disabled geometry check would pass. Observation
+spread, whether its check is enabled/passes and the actual promotion decision. Observation
 does not change native decisions or require ground truth.
 
 Pending geometric confirmation remains disabled in the paper configuration. Both
