@@ -1332,3 +1332,11 @@ loaded contact follows. The next evidenced work is publication support/material
 consistency and conservative observed occlusion handling before further adoption.
 `discriminating-comparison.png` per condition shows only four targeted original
 RGB timestamps; three-system error curves preserve every finite/missing interval.
+
+The subsequent 2026-10-06
+[[point2pose-consumer-impact-and-failure-windows|consumer impact and two-window diagnosis]]
+uses saved baseline/bounded results only. It separates observed-zone point/normal,
+conditional teacher-target effects and unavailable actual A3/A4 scores. Nominal
+post-graph publication changes landmarks/TSDF; light's 52.1333 s deterioration
+already exists before SDF with no same-frame graph/replacement. No new inference
+or tracking change follows; causal map/history limits and later failures remain.

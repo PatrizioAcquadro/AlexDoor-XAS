@@ -112,6 +112,14 @@ actions, without automatic resumption, release or opposite-side trials. Common
 low-level compliance tracks the requested action and supports safe stopping; it
 must not supply door-following task corrections. All eight cells share its settings.
 
+The [[../experiments/point2pose-consumer-impact-and-failure-windows|saved Point2Pose consumer diagnosis]]
+scores observed-zone drift and conditional target transport at teacher commands.
+It does not supply a static A3 frame from a moving zone or insert evaluator hinge
+geometry into an adapter. Closed yaw/full supported hinge geometry and actual
+A4 segments/admissions are absent from those saved runs, so actual A3/A4 action
+errors remain unmeasured. The operational A4 reference remains fixed per admission;
+the measured publication spike is a consumer risk, not an executed command.
+
 ## Primary References
 
 - `src/alexdoor_xas/action/spaces.py`

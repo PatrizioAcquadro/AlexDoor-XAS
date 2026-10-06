@@ -496,6 +496,14 @@ RGB-D/FK cannot become a calibrated force sensor.
 
 ### 6.0E-F — Independent scoring and bounded pilot interaction
 
+The 2026-10-06 [[../experiments/point2pose-consumer-impact-and-failure-windows|saved consumer diagnosis]]
+measures zone point/normal and conditional teacher-target propagation. It isolates
+nominal post-graph landmark/TSDF changes and light pre-SDF reference deterioration
+without further inference. Missing static closed A3 geometry and actual A4
+predictions/admissions prevent an action-path score. Any subsequent intervention
+must preserve the causal prefix and measure map/TSDF and later-frame effects;
+this diagnosis does not close 6.0C or admit interaction.
+
 The future evaluator scores the explicitly chosen physical contact with independent
 surface queries, full footprint/trajectory errors and both named profiles. Test
 fixed-surface acceptance, cancelling hinge/contact errors, empty/provisional/missing

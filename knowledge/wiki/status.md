@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-05. **6.0B is maintained; prior dynamic trackers are retired;
+Current as of 2026-10-06. **6.0B is maintained; prior dynamic trackers are retired;
 the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 6.1 remain open.** No training, new corpus or sealed-test evaluation was started.
 
@@ -57,8 +57,18 @@ but independent audits flag 66/62 retired references as nearer-depth/self-occlus
 proxies despite native visibility; physical occlusion protection is not established.
 
 The bounded policy is an unqualified prototype, not an adopted tracking solution.
-The next evidenced work is actual publication support/material consistency and
-conservative observed occlusion handling before further adoption. Preserve both
+Saved consumer diagnosis measures zone-point/normal drift and conditional effects
+at recorded teacher targets, without creating missing A3/A4 inputs. Accepted target
+p95 is 15.38→16.66 mm light and 11.91→7.28 mm nominal; the nominal spike reaches
+116.23 mm/32.73 degrees. Actual static A3 frame errors and A4 predictions/admissions
+are unavailable. Nominal's graph changes landmarks and rebuilds TSDF; its next
+accurate pose does not restore the map. Light deterioration at 52.1333 s already
+exists before SDF, without a same-frame graph or replacement. No new inference
+was needed; see [[experiments/point2pose-consumer-impact-and-failure-windows|consumer impact and isolated windows]].
+
+The next focused comparisons should validate publication/support consistency
+across graph/map updates and preservation of material evidence during replacement,
+including TSDF/history and subsequent frames, before further adoption. Preserve both
 baselines, the unbounded failures and this complete comparison. Ground truth
 remains evaluator-only; latency stays separate. No tuning, favorable retry,
 acquisition, campaign resume, performance qualification or loaded contact follows.
