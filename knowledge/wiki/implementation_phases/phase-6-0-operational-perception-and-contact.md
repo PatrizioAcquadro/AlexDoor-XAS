@@ -466,8 +466,18 @@ CUDA OOM; nominal completed 619 before the unchanged TSDF memory guard stopped i
 Completed prefixes improve support but expose inaccurate post-graph publication
 and rapid reference growth. All missing frames remain in the 2,858-frame
 denominator per condition. No favorable retry, acquisition, memory tuning or full
-campaign resume follows. Diagnose these saved failures before another change.
-Material identity, operational freshness
+campaign resume follows. A subsequent bounded inlier-driven renewal policy at
+`2b127b4` limits every candidate to 120 active references, sizes the budget from
+saved baseline populations/measured CUDA state, compacts per-point GPU rows and
+preserves historical IDs/map/graph references. It completes both saved openings
+without failure. Correct supported poses change by -26 light / +689 nominal, but
+accepted errors increase to 541/99 and nominal exposes a 178.61 mm / 32.73 degree
+graph publication. Its final 60-frame nominal loss remains. Native invisibility
+protection is verified observationally; preservation of truly occluded material
+references and ownership is not established. The policy remains an unqualified
+prototype; no tuning, favorable retry, acquisition or campaign resume follows.
+Actual publication support/material consistency and conservative observed occlusion
+handling remain the next diagnosis. Material identity, operational freshness
 and contact admission remain separate; see the canonical findings.
 
 ### 6.0D — Feedback, compliance and stopping

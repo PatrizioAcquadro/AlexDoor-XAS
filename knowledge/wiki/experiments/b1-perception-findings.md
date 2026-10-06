@@ -1195,3 +1195,140 @@ replacement must wait for confirmed new support, preserve geometric spread and
 freeze usefulness accounting during loss or occlusion. Historical IDs/map/graph
 references must survive GPU compaction. Exact allocation failure attribution and
 full-window behavior of the proposed bound remain unvalidated at this milestone.
+
+
+## 2026-10-05 — Bounded inlier-driven renewal comparison
+
+The single renewal policy at `2b127b4` retains the final-inlier trigger and limits
+all candidates to 120 active TAPIR references. The sizing/telemetry milestone is
+`94429d9`; the clean starting point is `f2bf69d`. Whole native sampling batches
+are deferred at capacity. New native-promoted points require three post-graph
+metric support observations before sponsoring one retirement. More than the
+existing 15-observation pending TTL is required for a persistently unhelpful old
+reference; native invisibility, missing depth, mask exclusion and loss freeze
+accounting and block retirement. Hull/cell protection preserves observed geometric
+distribution. At most three points per candidate retire per frame. CUDA query,
+feature and causal rows are copied into independent compact storages; global IDs
+are never reused and CPU historical map/keyframe/graph references remain intact.
+Models, numeric gates, candidate/point selection, graph, TSDF and lost-state
+sampling suppression are unchanged. This is internal confirmation, not ownership.
+
+One fresh sequential RTX 4090 attempt per condition completes all 2,858 original
+frames at 60 Hz, 31–78.6167 s, without process failure, missing rows, reset or retry.
+All candidate initialization masks, IDs, pixels, map/seed poses, original
+row/frame/time triples, models and configuration match the preserved baselines
+and rejected unbounded variant. Native RANSAC starts at zero; subsequent renewal
+changes the shared RNG consumption. No acquisition or full-campaign resume occurs.
+Evidence/scripts are in `outputs/b1/perception/point2pose-bounded-renewal-01/`.
+
+| All-candidate condition/system | Completed / scheduled | Maximum active / historical references | Sampled device-memory peak | Native graph poses |
+|---|---:|---:|---:|---:|
+| light baseline | 2,858 / 2,858 | 420 / 420 | 6.58 GiB | 14 |
+| light unbounded, preserved failure | 1,352 / 2,858 | 3,025 / 3,025 | 21.51 GiB | 100 |
+| light bounded | 2,858 / 2,858 | 512 / 2,094 | 7.33 GiB | 70 |
+| nominal baseline | 2,858 / 2,858 | 420 / 420 | 6.52 GiB | 14 |
+| nominal unbounded, preserved failure | 619 / 2,858 | 2,160 / 2,160 | 16.42 GiB | 68 |
+| nominal bounded | 2,858 / 2,858 | 654 / 1,830 | 9.60 GiB | 60 |
+
+The bound holds on every candidate/frame, not only the automatic primary.
+There are 1,636/1,218 retirements light/nominal. Every recorded causal/query/feature
+point axis and unique CUDA-storage byte count follows the active IDs exactly;
+no retired ID reappears. Peak causal state is 0.94/1.20 GiB and per-step PyTorch
+allocation peaks are 5.15/5.88 GiB. Allocation reservation remains distinct from
+live storage. Historical graph/keyframes/masks/TSDF still grow; native CUDA TSDF
+buffers reach 0.55/1.85 GiB. This validates per-reference state release and these
+recorded windows, not a bound on all future GPU/host memory or an OOM leak diagnosis.
+
+### Accuracy, availability and loss
+
+The automatic primary stays fixed. Correct supported poses require integration
+acceptance and error within the unchanged 1 cm/5 degree reference; errors exclude
+the seed's constructed alignment zero, while coverage includes its unsupported row.
+All finite lost/rejected poses remain scored without interpolation or current-support
+claims. Each complete system has 2,857 finite non-seed errors per condition.
+
+| Primary condition/system | Supported | Correct supported | Inaccurate accepted | Lost frames | Supported position / rotation p95 | All-finite position / rotation p95 |
+|---|---:|---:|---:|---:|---:|---:|
+| light baseline | 2,311 | 2,276 | 35 | 531 | 7.79 mm / 1.44 degrees | 8.24 mm / 1.44 degrees |
+| light bounded | 2,791 | 2,250 | 541 | 65 | 15.43 mm / 1.27 degrees | 15.71 mm / 1.28 degrees |
+| nominal baseline | 1,582 | 1,494 | 88 | 1,274 | 10.20 mm / 1.24 degrees | 34.39 mm / 2.65 degrees |
+| nominal bounded | 2,282 | 2,183 | 99 | 568 | 9.28 mm / 0.79 degrees | 19.02 mm / 2.42 degrees |
+
+At identical timestamps, bounded light gains 417 and loses 443 correct supported
+poses (net -26); nominal gains 788 and loses 99 (net +689). Counting correctness
+of every finite pose separately, including unsupported retained poses, light gains
+48 and loses 566 (net -518); nominal gains 303 and loses 244 (net +59). Neither
+finite accuracy nor increased flag availability establishes current material support.
+
+Against the unbounded variant, equal completed prefixes gain/lose 71/20 correct
+supported light poses and 1/0 nominal poses. Whole-window gains also include its
+1,506/2,239 unavailable process rows: they are completion differences, not pure
+accuracy improvements. Its CUDA OOM/TSDF guard and every original missing row remain
+preserved, and its primary has zero native flag losses/returns before failure.
+The original availability timeline's process interruption is not counted as native
+loss. `comparison.json` keeps both timelines, every candidate, all error groups,
+matched prefixes and complete-window denominators.
+
+Bounded accepted/all-finite maxima are 45.17 mm / 5.45 degrees light and
+178.61 mm / 32.73 degrees nominal. Thus nominal's improved p95 conceals a severe
+accepted outlier. Nominal still ends lost: 60 frames, 77.6333–78.6167 s, with
+22.06 mm / 3.14 degrees final finite-pose error, versus baseline's 266-frame
+74.2–78.6167 s loss and 49.83 mm / 3.26 degrees. Its final loss was reached and
+preserved, not recovered. No unrecorded range above 63.72 degrees is synthesized.
+
+### Actual publication support, material and occlusion limits
+
+Across all saved finite results, the audit recomputes support using current
+post-graph landmarks and the actual published transform. Missing frontend masks
+remain explicitly missing. Bounded primary light/nominal has 17/12 accepted masks
+different from the inherited frontend mask, although no primary accepted pose has
+fewer than five recomputed metric inliers. No bounded secondary accepted publication is below that minimum either;
+corresponding failures in preserved baseline/unbounded candidates remain in the audit. Five or more self-consistent pairs do not prove
+pose correctness or material identity. Baseline nominal at 49.45 s accepts a
+36.07 mm pose with five inherited inliers but only one after graph publication.
+
+At 61.2667 s bounded light is accepted at 17.23 mm / 1.03 degrees with 21 declared
+inliers: nine recomputed inliers remain, only two from the declared subset.
+At 45.6667 s nominal registration/frontend is 2.92 mm / 0.58 degrees, but the
+graph publishes 178.61 mm / 32.73 degrees and keeps 22 declared inliers. Ten pairs
+support the published pose/current map within 4 mm, but only one belongs to the
+declared subset; its declared residual reaches 433.79 mm. The graph and native
+acceptance were audited without changing either. Registration/SDF/graph stage
+errors and all selected published source points remain saved.
+
+Native flag loss/return events are 25/25 light and 44/43 nominal, versus baseline
+207/206 and 217/216. Of bounded 25/43 returns, only 13/25 have correct poses and
+one/one also has at least five recomputed published inliers compatible with
+independent historical anchors. Zero returns pass using original seed anchors
+alone; baselines retain 10/10 historical and 9/7 seed passes. Correct returns
+without that support remain material-unresolved, not automatically false identity.
+First-observed new anchors assume rigid-leaf membership only in the evaluator;
+physical ownership and verified material continuity remain unqualified.
+
+The retirement visibility guard is observational, not a guarantee of physical
+occlusion protection. Independent projected-depth audits label 66/62 retired
+references (34/20 primary) as nearer-depth or self-occlusion despite native
+visibility. Another 24/24 lack confirmed surface depth. These proxies can also
+fail through anchor/pose/ownership uncertainty; they do not prove that every such
+point was temporarily occluded. The discrepancy is retained as a real limitation:
+no automatic retirement on missing native visibility is verified, but preservation
+of every truly occluded reference is not established. Ground truth never affects
+the renewal decisions or the graph.
+
+Native saved timing growth is concentrated in tracker and registration, with
+segmenter p95 roughly 25–27 ms on equal prefixes. Light tracker/registration p95
+is 190/316 ms baseline, 1,394/920 ms unbounded and 277/454 ms bounded on the same
+1,351 non-seed frames. Global timing combines graph and TSDF; exact CUDA-stage
+and failed-buffer attribution is unmeasured. Complete request p95 is 775/910 ms
+bounded. Diagnostics and concurrent CPU evaluation affect wall time; these are
+latency diagnostics, not a performance qualification or an accuracy gate.
+
+The bounded policy is implemented and completes the two memory-limited comparisons,
+but remains an unqualified prototype: light precision regresses, nominal exposes
+a severe accepted graph outlier, final loss persists and material/physical
+occlusion protection is unresolved. Preserve the policy, baseline and failed
+attempts for review; no tuning, favorable retry, acquisition, campaign resume or
+loaded contact follows. The next evidenced work is publication support/material
+consistency and conservative observed occlusion handling before further adoption.
+`discriminating-comparison.png` per condition shows only four targeted original
+RGB timestamps; three-system error curves preserve every finite/missing interval.

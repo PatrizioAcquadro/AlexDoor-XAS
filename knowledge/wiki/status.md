@@ -9,7 +9,7 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Official CUDA pipeline, FK compensation, panel-fixed zones, operational queues and serial evaluator implemented. Both full recorded fixed-camera openings complete at 60 Hz, 2,858 frames each through 63.72 degrees. Primary integration coverage is 80.86% light / 55.35% nominal; conditional error p95 is 7.79 mm / 1.44 degrees and 10.20 mm / 1.24 degrees. Nominal has almost no support above 60 degrees. Full campaign stopped; historical operational useful availability remains 0%. No qualified runtime or loaded contact. |
+| 6.0C — Panel tracking prototype | Official CUDA/FK/zone/offline runtime. Bounded inlier renewal (120 active references/candidate) completes both saved 2,858-frame openings through 63.72 degrees; GPU peaks 7.33/9.60 GiB. Correct supported poses are 2,250 light / 2,183 nominal, versus baseline 2,276/1,494; inaccurate accepted poses rise to 541/99. Publication support, material and physical occlusion remain unqualified. Full campaign stopped; historical operational useful availability remains 0%. No qualified runtime or loaded contact. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
@@ -21,43 +21,48 @@ Keep the full offline campaign stopped. Its original 4,216 completed rows,
 fixes and the failed moving-camera 4–10 s replay remain documented in
 [[experiments/b1-perception-findings|B1 perception findings]].
 
-The short 31–38 s fixed-camera baseline is now extended through the last recorded
-frame in both light and nominal, without any tracking/model/threshold change or
-acquisition. All 5,716 frames complete; the light prefix reproduces all 421 prior
-poses/decisions exactly. The prepared joint permits 90.7 degrees, but these recordings
-reach only 63.72 degrees at 78.6167 s after robot-margin stopping and release;
-unrecorded angles are not evaluated. Camera, motion and timestamps match between
-conditions, but only seven of 30 automatic primary seed pixels are identical.
+The complete fixed-camera recordings retain all 2,858 original frames per condition,
+31–78.6167 s, through 63.72 degrees; the configured 90.7-degree joint limit remains
+unrecorded. Camera, motion and timestamps match across conditions, but automatic
+light/nominal seeds differ. This is not causal lighting attribution.
 
-Primary lost rows are 531 light / 1,274 nominal. There are 206/216 native flag
-reactivations, distinct from proven original-material recovery. Native renewal now
-occurs at larger views: 90/60 new primary IDs and three/two post-seed graph updates.
-No new IDs/keyframes appear while lost. Original map coordinates move at most
-1.78/1.90 mm through graph refinement; this is not automatic evidence of corruption.
-Above 60 degrees, primary support is 175/275 light but only 2/275 nominal; nominal
-ends with an unrecovered 4.4167 s gap and 49.83 mm finite-pose error. Visually good
-masks and small conditional pose errors do not establish continuous material
-tracking. Full finite/lost/rejected errors and all secondary candidates are retained.
+The rejected unbounded final-inlier variant and its CUDA OOM/TSDF guard remain
+preserved with all 1,506/2,239 unavailable process rows. Saved growth and a minimal
+19-frame CUDA diagnostic measure 1.875 MiB of causal state per active reference.
+The bounded renewal policy is now implemented at `2b127b4`, following telemetry
+`94429d9`: 120 active references per candidate, confirmed gradual replacement,
+independent compact CUDA storage and unreused historical IDs. Models, numeric
+gates, candidate/point selection, graph, TSDF and native lost-state suppression
+are unchanged. Every candidate remains audited; historical graph/keyframe/TSDF
+growth is separate from the active-reference cap.
 
-The authorized final-inlier renewal experiment is rejected and reverted. One CUDA
-attempt per saved condition completed only 1,352 light / 619 nominal frames before
-CUDA OOM / the unchanged TSDF memory-budget guard. All 2,858 scheduled rows per
-condition and both terminal errors are retained. Initial support improves, but
-light accepts 82 inaccurate poses in its completed prefix versus zero in the same
-baseline prefix; rapid reference growth prevents either opening from completing.
-The active source again uses the baseline extracted-pair renewal criterion.
+One fresh CUDA attempt per saved condition completes all 5,716 frames without
+missing rows or process failure. Maximum all-candidate active references are
+512/654, versus unbounded 3,025/2,160; historical references remain 2,094/1,830.
+Compared at identical timestamps with baseline, correct supported poses gain/lose
+417/443 light (net -26) and 788/99 nominal (net +689). Inaccurate accepted poses
+increase from 35/88 to 541/99. All finite/lost/rejected errors remain scored;
+counting every finite pose separately gives net -518/+59 correct poses. Nominal
+still ends lost for 60 frames from 77.6333 s, with final finite error 22.06 mm /
+3.14 degrees. Completion or a finite retained pose does not establish current support.
 
-Diagnose reference growth and post-graph pose/support consistency from these saved
-failures before another change. At 47.1667 s light, the graph replaces a frontend
-7.61 mm / 0.47 degree pose with a published 21.16 mm / 14.02 degree pose while
-retaining frontend inlier statistics. Original timestamps, all finite errors,
-baseline/failure evidence and unchanged models/gates remain preserved. The variant
-does not reach nominal's final lost interval or demonstrate material recovery.
-Current measured support is required before map growth; frozen poses cannot refresh it.
-Neither the strict recovery audit nor first-observed anchors for new points prove
-leaf ownership, mechanical-limit coverage or loaded contact. The full campaign,
-performance optimization and new acquisition remain stopped. See
-[[experiments/b1-perception-findings|recorded-opening evidence and rejected renewal experiment]].
+At 45.6667 s nominal, frontend error is 2.92 mm / 0.58 degrees, but the graph
+publishes an accepted 178.61 mm / 32.73 degree pose. Only one of 22 declared inliers
+remains inlier; ten recomputed pairs fit the published pose/current map. Therefore
+metric self-consistency alone does not verify pose or material. Bounded flag
+returns are 25/43, correct-pose returns 13/25, and strict historical-anchor returns
+one/one; original seed-only returns are zero. Anchor ownership remains hypothetical.
+The visibility guard blocks retirement on missing native visibility, depth or loss,
+but independent audits flag 66/62 retired references as nearer-depth/self-occlusion
+proxies despite native visibility; physical occlusion protection is not established.
+
+The bounded policy is an unqualified prototype, not an adopted tracking solution.
+The next evidenced work is actual publication support/material consistency and
+conservative observed occlusion handling before further adoption. Preserve both
+baselines, the unbounded failures and this complete comparison. Ground truth
+remains evaluator-only; latency stays separate. No tuning, favorable retry,
+acquisition, campaign resume, performance qualification or loaded contact follows.
+See [[experiments/b1-perception-findings|bounded renewal results and limits]].
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.

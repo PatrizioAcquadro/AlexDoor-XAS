@@ -169,8 +169,8 @@ A new reference can sponsor one retirement after native promotion and three
 metric inlier observations on the actually published post-graph pose/map. This
 uses the existing promotion streak. Retirement requires more than the existing
 pending TTL of 15 visible, valid, masked, low-uncertainty outlier observations;
-loss/occlusion/invalid depth freeze the counter and prevent retirement. At most
-three points per candidate retire per frame. A planar convex-hull/cell guard
+loss, missing native visibility or invalid depth freeze the counter and prevent
+retirement. At most three points per candidate retire per frame. A planar convex-hull/cell guard
 protects geometric distribution. No age-only or invisible-point eviction occurs.
 Compaction copies retained TAPIR query/features/causal rows into independent CUDA
 storages; stable IDs, CPU historical landmarks, keyframes and graph references
@@ -181,9 +181,13 @@ by the active-reference cap.
 Post-graph support is additionally recomputed for retirement and audited separately
 from inherited frontend statistics; native acceptance and graph publication are
 unchanged. Neither internal confirmation nor metric self-consistency verifies
-material identity. Pending geometric confirmation remains disabled in the paper
-configuration. Full saved-opening CUDA comparison of this bounded policy is
-pending; see [[../experiments/b1-perception-findings|renewal evidence]].
+material identity. Native visibility can disagree with independent projected-depth
+visibility; the guard does not establish protection of every physical occlusion.
+Pending geometric confirmation remains disabled in the paper configuration. Both
+saved openings complete in CUDA, but light precision regresses, nominal
+retains a severe accepted graph outlier and final loss, and physical occlusion
+protection remains unresolved. The policy is an unqualified prototype; see
+[[../experiments/b1-perception-findings|renewal evidence]].
 
 With `estimate_init_pose=false`, map M remains the first optical camera frame.
 The observed zone frame defines O separately; its fixed transform to the material
@@ -288,6 +292,12 @@ inliers/residuals, SDF poses before/after refinement, frontend decisions and gra
 updates before publication. Observers copy intermediate values and return the
 original native results unchanged; they do not alter thresholds, models or
 tracking decisions. This trace requires diagnostic mode and receives no truth.
+`resources.jsonl` inventories live tracker query/features/causal CUDA storages,
+retained frame masks, every candidate's active/historical references, keyframes,
+LM graph variables/factors and TSDF buffers. Unique storage is counted separately
+from allocator reservation and temporary peaks. Published source points retain
+the current post-graph landmarks for all selected IDs, including same-frame
+retirements. Renewal events and active query IDs make compaction auditable.
 It also saves all extracted object-track pixels, visibility/uncertainty values,
 map coordinates/IDs and per-frame SAM2 masks, including excluded references.
 Its export time is separate metadata; total request time includes diagnostic work
