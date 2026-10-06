@@ -234,6 +234,7 @@ def offline_episode(
     capture_window_s=None,
     registration_diagnostics=False,
     use_key_frame_graph=True,
+    allow_partial_reference_batch=False,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
     output = Path(output)
@@ -290,6 +291,11 @@ def offline_episode(
                     diagnostic_only=True,
                     **({"registration_diagnostics": True} if registration_diagnostics else {}),
                     **({"use_key_frame_graph": False} if not use_key_frame_graph else {}),
+                    **(
+                        {"allow_partial_reference_batch": True}
+                        if allow_partial_reference_batch
+                        else {}
+                    ),
                 )
             )
             tracker = PanelTracking(engine, config)

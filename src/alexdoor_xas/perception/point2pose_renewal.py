@@ -71,7 +71,7 @@ def geometric_guard(points):
 class BoundedRenewal:
     """Keep original sampling/promotions/graph; bound admission and retire confirmed substitutes."""
 
-    def __init__(self, pipeline, budget=ACTIVE_REFERENCE_BUDGET):
+    def __init__(self, pipeline, budget=ACTIVE_REFERENCE_BUDGET, *, allow_partial_batch=False):
         self.pipeline, self.budget = pipeline, int(budget)
         self.active_ids = np.empty(0, dtype=int)
         self.next_id = 0
@@ -102,12 +102,20 @@ class BoundedRenewal:
             return tuple(outputs)
 
         def sample(context, obj_id):
-            # Defer a whole native batch. Never alter the sampled point order/selection.
             count = len(pipeline.track_table.obj2track_map.get(obj_id, []))
-            if count + manager.sampler.num_points > self.budget:
+            available = self.budget - count
+            if available <= 0 or (
+                not allow_partial_batch and available < manager.sampler.num_points
+            ):
                 self.events.append(dict(object_id=obj_id, kind="budget_deferred", count=count))
                 return np.empty((0, 2), dtype=float)
-            return native_sample(context, obj_id)
+            # Keep native filtering, selection and order; admit only the prefix that fits.
+            points = native_sample(context, obj_id)
+            if len(points) > available:
+                self.events.append(
+                    dict(object_id=obj_id, kind="partial_batch", count=count, admitted=available)
+                )
+            return points[:available]
 
         tracker.add_query_points, tracker.track_once, manager.sampler.sample = add, track, sample
 

@@ -165,6 +165,13 @@ state. It defers whole native sampling batches when capacity is unavailable.
 Models, candidate selection, native point selection, promotions, numeric gates,
 graph and TSDF remain unchanged.
 
+The isolated `offline_episode(..., allow_partial_reference_batch=True)` experiment
+admits the prefix of the fully filtered native batch that fits the remaining
+120-reference capacity. Native selection/order and pending-point checks are retained;
+zero capacity still defers sampling. The default keeps whole-batch admission until
+the complete paired CUDA comparison is evaluated. This switch does not disable the
+graph; graph-off experiments must select that independent control explicitly.
+
 A new reference can sponsor one retirement after native promotion and three
 metric inlier observations on the actually published post-graph pose/map. This
 uses the existing promotion streak. Retirement requires more than the existing

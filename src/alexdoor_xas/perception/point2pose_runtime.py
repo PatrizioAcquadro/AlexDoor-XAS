@@ -26,6 +26,7 @@ class Point2PoseWorker:
         diagnostic_only=False,
         registration_diagnostics=False,
         use_key_frame_graph=True,
+        allow_partial_reference_batch=False,
     ):
         boot_started = time.perf_counter()
         root, log_dir = Path(root).resolve(), Path(log_dir).resolve()
@@ -99,6 +100,7 @@ class Point2PoseWorker:
                     diagnostic_only=diagnostic_only,
                     registration_diagnostics=registration_diagnostics,
                     use_key_frame_graph=use_key_frame_graph,
+                    allow_partial_reference_batch=allow_partial_reference_batch,
                 ),
             )
             response = receive(self.process.stdout)

@@ -83,7 +83,9 @@ class OfficialPipeline:
         self.pipeline.sdf_builder = builder(config.reconstructor.params)
         from alexdoor_xas.perception.point2pose_renewal import BoundedRenewal
 
-        self.renewal = BoundedRenewal(self.pipeline)
+        self.renewal = BoundedRenewal(
+            self.pipeline, allow_partial_batch=request.get("allow_partial_reference_batch", False)
+        )
         self.config = OmegaConf.to_container(config, resolve=True)
         self.torch, self.np = torch, np
         self.trace = None
@@ -125,6 +127,7 @@ class OfficialPipeline:
             sources=json.loads((root / "sources.json").read_text()),
             native_fixes=native_fixes,
             active_reference_budget=self.renewal.budget,
+            allow_partial_reference_batch=request.get("allow_partial_reference_batch", False),
             config=self.config,
             training_started=False,
             qualified=False,

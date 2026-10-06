@@ -24,7 +24,7 @@ def test_published_support_uses_post_graph_pose_and_landmarks():
     assert published_support(obj, result, 0.004)[2].all()
 
 
-def fixture_pipeline():
+def fixture_pipeline(*, allow_partial_batch=False):
     torch = pytest.importorskip("torch")
     points = np.array(
         [
@@ -90,7 +90,7 @@ def fixture_pipeline():
         track_table=table,
         objects=[obj],
     )
-    renewal = BoundedRenewal(pipeline, budget=12)
+    renewal = BoundedRenewal(pipeline, budget=12, allow_partial_batch=allow_partial_batch)
     renewal.active_ids = np.arange(10)
     renewal.next_id = 10
     frame = NS(mask=np.ones((1, 1, 5, 5)), id=10)
@@ -112,6 +112,16 @@ def test_batch_budget_defers_without_resampling_or_id_reuse():
     tracks, unc, visible = p.frontend.tracker.track_once(f)
     assert tracks.shape == (12, 2) and (tracks[8:10] == -1).all()
     assert not visible[8:10].any() and (unc[8:10] == 1).all()
+
+
+def test_partial_batch_preserves_native_prefix_and_does_not_exceed_capacity():
+    p, r, _, _ = fixture_pipeline(allow_partial_batch=True)
+    np.testing.assert_array_equal(p.kf_manager.sampler.sample(None, 0), [[1, 2], [2, 3]])
+    assert r.events[-1]["admitted"] == 2
+    p.track_table.obj2track_map[0] = np.arange(11)
+    np.testing.assert_array_equal(p.kf_manager.sampler.sample(None, 0), [[1, 2]])
+    p.track_table.obj2track_map[0] = np.arange(12)
+    assert p.kf_manager.sampler.sample(None, 0).shape == (0, 2)
 
 
 def test_retirement_requires_confirmed_substitute_and_freezes_occlusion_loss():
