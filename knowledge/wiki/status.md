@@ -9,7 +9,7 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Official CUDA/FK/zone/offline runtime. Bounded inlier renewal and one native graph-off ablation each complete both original 2,858-frame openings. Graph-off correct available poses are 2,569 light / 2,004 nominal, versus graph-on 2,250/2,183; inaccurate acceptances 238/58 and losses 49/794. Nominal terminal loss grows 60→472 frames. GPU peaks 7.78/9.61 GiB. Graph-on remains default; no common replacement adopted. Material/ownership, 150 ms freshness, hardware and loaded contact remain unqualified; full campaign stopped. |
+| 6.0C — Panel tracking prototype | Official CUDA/FK/zone/offline runtime with 120-reference bounded renewal. Three separate graph-off interventions complete all six original openings: partial batch gains 480 correct nominal poses but loses 119 light and adds 169/315 inaccurate acceptances; 6 mm and enabled promotion geometry worsen both conditions. GPU observed peaks remain 7.67–10.41 GiB. No common replacement/combination adopted; 4 mm and original initialization retained. Material/ownership, 150 ms freshness, hardware and loaded contact remain unqualified; full campaign stopped. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
@@ -66,33 +66,39 @@ accurate pose does not restore the map. Light deterioration at 52.1333 s already
 exists before SDF, without a same-frame graph or replacement. No new inference
 was needed; see [[experiments/point2pose-consumer-impact-and-failure-windows|consumer impact and isolated windows]].
 
-One subsequent full-sequence native graph-off variant (`0e6185f`) changes only
-`use_key_frame_graph`; original initialization, models, point selection, numeric
-gates, 120-reference budget, replacement/promotion and SDF rules match. Both fresh
-CUDA attempts complete all 5,716 original frames without retries or process failure.
-Correct available poses change +319 light / -179 nominal versus bounded graph-on.
-Light accepted point/normal/conditional-target p95 becomes 11.51 mm/0.05 degrees/
-13.95 mm, versus 15.43/1.20/16.66. Nominal becomes 8.15/0.05/10.54, versus
-9.28/0.40/7.28: conditional target p95 worsens despite smaller accepted zone errors.
+The complete graph-off baseline (`0e6185f`) removes the old graph event spikes,
+but retains 2,569/2,004 correct primary poses, 238/58 inaccurate acceptances and
+49/794 native losses. Nominal ends lost for 472 frames from 70.7667 s. Neither
+condition reaches 95% correct availability; graph-on remains the existing
+prototype default. See
+[[experiments/point2pose-bounded-global-graph-ablation|the preserved graph comparison]].
 
-The original event errors fall to 0.95 mm light and 2.23 mm nominal, with no
-graph-induced confirmed-landmark revisions. Native pending-point fusion and TSDF
-integration continue. However, nominal loses 794 rows and ends continuously lost
-for 472 frames from 70.7667 s; finite terminal error is 115.94 mm/7.95 degrees.
-All-finite nominal point/normal/conditional-target p95 grows to 100.30 mm/7.69
-degrees/34.90 mm. Primary references remain 92 after the last birth at 56.2167 s;
-whole 30-point renewals are deferred by the unchanged 120 cap. Late support drops
-to four pairs while map/TSDF extent remains fixed. Strict historical material-plus-
-pose returns are zero in both conditions; secondary light false acceptances rise.
-Neither condition reaches 95% correct available poses. No unified replacement is
-adopted; the default graph stays enabled in the unqualified prototype.
+Three independent follow-up comparisons each complete both original 2,858-frame
+CUDA openings, with identical initialization/source schedules, one attempt and
+no process failure/retry. Partial batch gains 198/631 correct rows but loses
+317/151; its nominal benefit is real, while accepted precision falls to
+85.75%/86.94%. The option remains diagnostic and disabled by default. Six mm
+lowers precision to 52.33%/53.17%. Promotion geometry loses 1,022/250 correct poses
+and lengthens nominal terminal loss to 566 frames (9.433 sampled seconds).
+Both flags are rejected as common corrections. The cap is verified on actual
+CUDA storages; retained masks, keyframes and historical maps remain outside it.
 
-Next diagnose the saved late nominal correspondence/cohort and capacity history,
-and graph-on publication/landmark consistency at the spike, before another single
-controlled intervention. Preserve both baselines, unbounded failures and complete
-ablations. Ground truth stays evaluator-only; no gate relaxation, favorable retry,
-acquisition, training, campaign resume or contact admission follows. See
-[[experiments/point2pose-bounded-global-graph-ablation|full graph ablation and limits]].
+Saved pairs distinguish missed RANSAC sampling from correct hypotheses lost in
+clustering. At nominal 63.4667 s supported correct 4 mm fits exist but are not
+sampled; nearby calls already generate them without retaining a correct cluster.
+Pixel rounding worsens median/p95 pair errors. Actual SAM2 prompts are five
+raster-sampled positive points, distinct from interior preservation checks;
+mask expansion does not establish wrong leaf membership. Absolute initialization
+and the separate causal prompt effect remain unverified. Keep 4 mm, native pixel
+lifting and original prompts; do not combine changes or replace P2P/policies.
+
+Next address preservation/selection of supported correct 4 mm hypotheses on
+saved nominal 63.3833–63.4667 s, then accumulated reference/map bias when expected-pose
+support becomes scarce. Shared sampling history can change after secondary-candidate
+interventions; one pair is not statistical repeatability. Preserve every baseline,
+unbounded failure and isolated attempt. Ground truth stays evaluator-only; no
+acquisition, training, full campaign resume or contact admission follows. See
+[[experiments/point2pose-isolated-improvements|complete comparisons, loss durations and memory]].
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.

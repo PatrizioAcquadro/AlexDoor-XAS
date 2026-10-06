@@ -154,7 +154,9 @@ spatially distributed measured interior references of the source component.
 This checks essential support without treating legitimate panel relief as frame
 contamination or requiring identical boundary pixels. It does not certify every
 extra mask pixel's physical ownership; ambiguous component relationships remain
-ambiguous. Positive SAM2 prompts are unchanged from upstream.
+ambiguous. Positive SAM2 prompts are unchanged from upstream: actual calls use five
+raster-sampled positive points, distinct from these interior preservation checks.
+Mask expansion is measured, but absolute leaf ownership is not certified.
 
 The renewal criterion now counts final registration inliers, retaining the
 fewer-than-ten, mask-area and 15-degree view gates and native lost-state sampling
@@ -199,9 +201,10 @@ They also observe native promotion attempts, retained observations, geometric
 spread, whether its check is enabled/passes and the actual promotion decision. Observation
 does not change native decisions or require ground truth.
 
-Pending geometric confirmation remains disabled in the paper configuration. Both
-saved openings complete in CUDA, but light precision regresses, nominal
-retains a severe accepted graph outlier and final loss, and physical occlusion
+Pending geometric confirmation remains disabled in the paper configuration. The
+bounded graph-on comparison completes both saved CUDA openings, but light
+precision regresses, nominal retains a severe accepted graph outlier and final
+loss, and physical occlusion
 protection remains unresolved. The policy is an unqualified prototype; see
 [[../experiments/b1-perception-findings|renewal evidence]].
 
@@ -214,6 +217,16 @@ can stall at 92 active references because the next 30 would exceed 120, while
 late support falls below five and lost-state renewal stays suppressed. No common
 replacement is adopted; graph-on remains the default. See
 [[../experiments/point2pose-bounded-global-graph-ablation|sequence results and reference/TSDF history]].
+
+Three isolated graph-off follow-ups complete six original openings. Partial
+admission gains correct nominal poses but adds inaccurate acceptances in both
+conditions. Six mm and enabling the existing 8 mm pending spread check worsen
+both complete conditions, so 4 mm and disabled geometry confirmation stay the
+existing defaults. Rounding saved pixels also worsens median/p95 error; original
+SAM2 prompts are preserved. Correct hypotheses can be missed by sampling or lost
+during clustering despite available 4 mm support. These are prototype diagnosis
+results, not material/contact qualification. See
+[[../experiments/point2pose-isolated-improvements|complete isolated results and next problem]].
 
 With `estimate_init_pose=false`, map M remains the first optical camera frame.
 The observed zone frame defines O separately; its fixed transform to the material

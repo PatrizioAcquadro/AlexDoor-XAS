@@ -483,10 +483,19 @@ graph-on, and nominal terminal loss grows from 60 to 472 frames. The old event
 spikes disappear, but late support/capacity history and conditional target tails
 remain limiting. Graph-on stays the default; no unified replacement is adopted.
 See [[../experiments/point2pose-bounded-global-graph-ablation|complete graph ablation]].
-Actual publication support/material consistency, late correspondence/capacity
-history and conservative observed occlusion handling remain the next diagnosis.
-Material identity, operational freshness and contact admission remain separate;
-see the canonical findings.
+Three later independent graph-off corrections complete six original CUDA openings
+without retries: partial native batches gain 480 correct nominal poses but lose
+119 light poses and increase inaccurate acceptance; 6 mm and the existing
+promotion geometry check worsen both conditions. Partial admission stays an
+optional diagnostic; keep 4 mm, native pixel lifting and original SAM2 prompts.
+Actual initialization/promotion telemetry separates raster prompts from interior
+preservation checks and observes blocked secondary promotions. None of these
+controls certifies identity or a reliable common pose. See
+[[../experiments/point2pose-isolated-improvements|isolated comparisons and retained controls]].
+Next diagnose preservation/selection of correct supported 4 mm hypotheses on
+saved nominal 63.3833–63.4667 s, then accumulated reference/map bias and observed
+occlusion handling. Material identity, operational freshness and contact
+admission remain separate; see the canonical findings.
 
 ### 6.0D — Feedback, compliance and stopping
 
