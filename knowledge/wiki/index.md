@@ -57,6 +57,8 @@ Current engineering and historical scientific records:
 
 - [[experiments/point2pose-bounded-global-graph-ablation|Point2Pose Bounded Global Graph Ablation]] — One full CUDA graph-off attempt per original recording; removed event spikes, improved primary light, worse nominal terminal loss and conditional target tail; no common replacement adopted.
 
+- [[experiments/point2pose-isolated-improvements|Isolated Point2Pose Improvements]] — Saved geometric/RANSAC, promotion, pixel and actual initialization diagnostics; independent complete CUDA comparisons in progress.
+
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.
 - [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]] — Reproducible force event and bounded perturbation result.
