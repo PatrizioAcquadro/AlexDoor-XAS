@@ -25,6 +25,7 @@ class RegistrationTrace:
 
     def __init__(self, pipeline, path):
         self.frame = None
+        self.pipeline = pipeline
         self.path = Path(path)
         register = pipeline.frontend.register
         native_register = register.register
@@ -144,3 +145,13 @@ class RegistrationTrace:
         record = dict(self.frame, objects=list(self.frame["objects"].values()))
         with self.path.open("a") as stream:
             stream.write(json.dumps(trace_value(record), allow_nan=False) + "\n")
+        if hasattr(self.pipeline, "track_table"):
+            from alexdoor_xas.perception.point2pose_resources import resource_snapshot
+
+            resources = dict(
+                frame=self.frame["frame"],
+                capture_s=self.frame["capture_s"],
+                **resource_snapshot(self.pipeline),
+            )
+            with self.path.with_name("resources.jsonl").open("a") as stream:
+                stream.write(json.dumps(resources, allow_nan=False) + "\n")

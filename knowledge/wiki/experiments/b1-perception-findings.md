@@ -1158,3 +1158,40 @@ from saved evidence before another change; pending geometric confirmation remain
 disabled in the recipe. The inspected `annotated-comparison.png`, error plots,
 control checks, stage-level event audit, comparison JSON and Italian README retain
 the evidence and limits. No subsequent fix or GPU replay follows this experiment.
+
+## 2026-10-05 — Bounded renewal growth diagnosis
+
+From clean `main @f2bf69d`, the saved complete baselines and rejected inlier
+variant were audited across every candidate before a new policy change.
+Evidence is retained in `outputs/b1/perception/point2pose-bounded-renewal-01/`.
+Baseline maximum populations are 420 total, with no candidate above 120;
+failed light/nominal populations reach 3,025/2,160. GPU sampled peaks are
+6.58/6.52 GiB baseline and 21.51/16.42 GiB failed. The retained native CUDA
+TSDF buffers account for at most 0.55/0.63 GiB baseline and 0.52/1.17 GiB
+failed; they do not explain light's entire GPU growth. Nominal's secondary
+candidate-1 volume reaches 0.87 GiB. Its terminal failure remains the existing
+TSDF reserve guard, distinct from light's CUDA OOM.
+
+The saved records lack per-point tensor dimensions and graph factor counts.
+Diagnostic allocation telemetry therefore replays only 19 original light frames
+at 31–31.3 s using the preserved failed variant. All candidate poses/decisions
+match its saved prefix exactly. At 150/180/210 queries, causal state occupies
+1,966,080 bytes per point, features 4,608 bytes and queries 12 bytes. These are
+measured live unique CUDA storages; TAPIR refinement workspaces and allocator
+reservation are separate. Retained frame masks grow from 11.52 to 92.16 MB;
+keyframes, dense observations and LM graph factors also grow. GTSAM graph
+variables/factors are host state, while retained keyframe masks are CUDA state.
+One telemetry-only failed attempt used an ISAM accessor against LM; its failure
+and missing rows remain preserved. A corrected counter completes all 19 frames.
+No favorable tracking retry or new acquisition occurs.
+
+A proposed per-candidate cap of 120 retains the largest baseline reference set
+and room for complete native 30-point renewal batches. The six-candidate maximum
+would require 1.32 GiB of causal state, before workspaces/models/masks/TSDF.
+This sizing is grounded in the measured buffers, not a guarantee of completion.
+Long observed outlier runs can later return as inliers (up to 901 observations
+in baseline nominal). Thus age or missing visibility alone cannot retire a point:
+replacement must wait for confirmed new support, preserve geometric spread and
+freeze usefulness accounting during loss or occlusion. Historical IDs/map/graph
+references must survive GPU compaction. Exact allocation failure attribution and
+full-window behavior of the proposed bound remain unvalidated at this milestone.
