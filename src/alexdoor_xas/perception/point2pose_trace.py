@@ -63,6 +63,8 @@ class RegistrationTrace:
             return result
 
         register._maybe_refine_with_sdf = observe_refine
+        if pipeline.kf_graph is None:
+            return
         native_graph = pipeline.kf_graph.update
 
         def observe_graph(keyframes):

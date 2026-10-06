@@ -4,11 +4,13 @@ import json
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 
 from alexdoor_xas.perception.point2pose_trace import RegistrationTrace
 
 
-def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path):
+@pytest.mark.parametrize("with_graph", [True, False])
+def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path, with_graph):
     class Register:
         def _maybe_refine_with_sdf(self, T_seed, obj_id):
             refined = T_seed.copy()
@@ -40,7 +42,9 @@ def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path
             return self.result
 
     register, graph = Register(), Graph()
-    pipeline = SimpleNamespace(frontend=SimpleNamespace(register=register), kf_graph=graph)
+    pipeline = SimpleNamespace(
+        frontend=SimpleNamespace(register=register), kf_graph=graph if with_graph else None
+    )
     path = tmp_path / "registration.jsonl"
     trace = RegistrationTrace(pipeline, path)
     obj = SimpleNamespace(id=0, pose=np.eye(4), lost=False)
@@ -63,7 +67,8 @@ def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path
     )
     trace.frontend(frontend, [obj])
     keyframe = SimpleNamespace(obj_id=0, kf_idx=1, pose=obj.pose)
-    assert graph.update([keyframe]) is graph.result
+    if with_graph:
+        assert graph.update([keyframe]) is graph.result
     points[:] = 5  # Later native map updates cannot rewrite prior diagnostics.
     obj.lost = True
     obj.key_points = np.array([[0.0, 0, 1], [1, 0, 1], [0, 1, 1]])
@@ -83,9 +88,13 @@ def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path
     assert saved["all_current_points"][0] == [0.0, 0.0, 1.0]
     assert saved["map_points"][0] == [0.0, 0.0, 1.0]
     np.testing.assert_array_equal(np.load(tmp_path / row["mask_file"])["masks"], masks)
-    assert saved["frontend_pose"][1][3] == 0 and saved["published_pose"][1][3] == 0.03
+    assert saved["frontend_pose"][1][3] == 0
+    assert saved["published_pose"][1][3] == (0.03 if with_graph else 0)
     assert not saved["frontend_lost"] and saved["lost"]
     assert saved["sdf_refinement"]["before"][0][3] == 0
     assert saved["sdf_refinement"]["after"][0][3] == 0.02
     assert saved["sdf_refinement"]["info"]["seed_cost"] is None
-    assert row["graph_updates"][0]["inputs"][0]["pose"][1][3] == 0
+    if with_graph:
+        assert row["graph_updates"][0]["inputs"][0]["pose"][1][3] == 0
+    else:
+        assert row["graph_updates"] == []

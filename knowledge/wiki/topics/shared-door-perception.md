@@ -295,6 +295,15 @@ is documented in [[../experiments/b1-perception-findings|B1 perception findings]
 For a bounded diagnostic, `offline_episode(..., capture_window_s=(4.0, 10.0),
 registration_diagnostics=True)` processes only that inclusive acquisition window
 and preserves original HDF5 row/frame IDs, including interrupted suffix counts.
+For the focused full-sequence graph ablation,
+`offline_episode(..., use_key_frame_graph=False)` selects the existing native
+graph-off path. The default remains enabled. Keyframe creation/promotion, bounded
+renewal/replacement and TSDF integration/rebuild rules are unchanged; fusion uses
+unoptimized keyframe poses. Registration/resource diagnostics accept the absent
+graph and retain zero graph updates/counters. This measures the total sequence
+effect, including subsequent correspondence, RNG and fusion history, rather than
+isolating one displayed pose.
+
 An explicit bounded window initializes automatic candidates inside that window,
 even after the static inspection schedule ends; the frozen recipe is unchanged.
 The optional native `registration.jsonl` observes registration inputs, hypotheses,

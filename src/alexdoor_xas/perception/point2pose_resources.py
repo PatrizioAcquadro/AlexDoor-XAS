@@ -46,7 +46,9 @@ def resource_snapshot(pipeline):
         masks.extend(kf.frame.mask for kf in all_kfs)
         volume = obj.sdf_volume
         voxels = 0 if volume is None else int(np.prod(volume._vol_dim))
-        optimizer = pipeline.kf_graph._optimizers.get(obj.id)
+        optimizer = (
+            None if pipeline.kf_graph is None else pipeline.kf_graph._optimizers.get(obj.id)
+        )
         objects.append(
             dict(
                 object_id=int(obj.id),

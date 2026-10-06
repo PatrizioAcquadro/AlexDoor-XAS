@@ -65,7 +65,7 @@ class OfficialPipeline:
             max_depth=far,
             use_segmenter=True,
             estimate_init_pose=False,
-            use_key_frame_graph=True,
+            use_key_frame_graph=request.get("use_key_frame_graph", True),
             save_pose=False,
             save_meta_data=False,
             debug_dir=request["log_dir"],

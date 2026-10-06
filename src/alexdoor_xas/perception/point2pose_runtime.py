@@ -25,6 +25,7 @@ class Point2PoseWorker:
         *,
         diagnostic_only=False,
         registration_diagnostics=False,
+        use_key_frame_graph=True,
     ):
         boot_started = time.perf_counter()
         root, log_dir = Path(root).resolve(), Path(log_dir).resolve()
@@ -97,6 +98,7 @@ class Point2PoseWorker:
                     log_dir=str(log_dir),
                     diagnostic_only=diagnostic_only,
                     registration_diagnostics=registration_diagnostics,
+                    use_key_frame_graph=use_key_frame_graph,
                 ),
             )
             response = receive(self.process.stdout)
