@@ -200,6 +200,16 @@ attached just by the mask. Tangential motion on a stationary plane is insufficie
 Articulation fits require informative, conditioned observed motion and remain
 relative to initialization; no closed-pose or loaded-contact reference is invented.
 
+`point2pose_impact.transport_impact` is evaluator-only. It measures the transported
+observed zone point, its oriented +X normal and full rotation separately. For a
+saved world target `G`, conditional propagation is `Z_est * inverse(Z_expected) * G`,
+with `Z_expected` obtained by transporting the observed seed with evaluator truth.
+This removes seed alignment bias and assumes the target's intended local coordinates;
+it does not evaluate actual A4 predictions, contact admission or missing A3 geometry.
+Finite lost poses retain their rejection state; missing poses/targets stay missing.
+The full static A3 reference additionally needs observed closed yaw and supported
+hinge geometry. An observed relative-axis fit cannot supply those missing fields.
+
 The zone anchor is immutable. `PurdueFK` expresses the tool relative to it;
 tangential slide, normal separation and orientation are separate from tracking
 error. Finite distal covers query the measured region, preserving holes and
