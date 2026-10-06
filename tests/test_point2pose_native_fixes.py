@@ -127,6 +127,47 @@ def test_no_cluster_retains_pose_and_failure_evidence(register):
     np.testing.assert_array_equal(stats["residuals"], np.full(10, -1.0))
 
 
+@pytest.mark.parametrize("enabled,refit_shift", [(False, 0.005), (True, 0.005), (True, 0.001)])
+def test_refit_rollback_revalidates_own_seed_and_preserves_valid_refit(
+    register, monkeypatch, enabled, refit_shift
+):
+    from point2pose.utils.transform import transform_pts
+
+    source = np.array([[i * 0.01, (i % 3) * 0.02, 1] for i in range(7)])
+    init = np.eye(4)
+    init[1, 3] = 0.03
+    p0 = transform_pts(init, source)
+    target = p0.copy()
+    target[:, 0] += [0, 0, 0, 0, 0.0039, 0, 0.02]
+    remaining = np.array([True, True, True, True, True, False, True])
+    before = remaining.copy()
+    refit = np.eye(4)
+    refit[0, 3] = refit_shift
+    fits = iter([np.eye(4), refit])
+    register._svd_fit = lambda *args: next(fits)
+    register._is_degenerate_sample = lambda points: False
+    register._ransac_iters = 1
+    register._sample_size = 4
+    register._refit_seed_rollback = enabled
+    monkeypatch.setattr(np.random, "choice", lambda *args, **kwargs: np.arange(4))
+    candidate = register._RANSAC(p0, target, None, remaining, init)
+    if not enabled:
+        assert candidate is None
+        np.testing.assert_array_equal(remaining, before)
+        return
+    rolled_back = refit_shift == 0.005
+    pose = init if rolled_back else refit @ init
+    np.testing.assert_array_equal(candidate["T"], pose)
+    residuals = np.linalg.norm(transform_pts(pose, source) - target, axis=1)
+    expected = np.flatnonzero(before & (residuals <= 0.004))
+    np.testing.assert_array_equal(candidate["inliers"], expected)
+    assert candidate["ninliers"] == len(expected) == 5
+    assert candidate["mean_res"] == pytest.approx(residuals[expected].mean())
+    assert candidate["refit_seed_rollback"] == rolled_back
+    assert candidate["refit_ninliers"] == (1 if rolled_back else 5)
+    np.testing.assert_array_equal(remaining, before & ~(residuals <= 0.004))
+
+
 @pytest.fixture
 def frontend(native_root):
     from point2pose.data_types.front_end_result import FrontEndResult

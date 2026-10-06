@@ -27,6 +27,7 @@ class Point2PoseWorker:
         registration_diagnostics=False,
         use_key_frame_graph=True,
         allow_partial_reference_batch=False,
+        refit_seed_rollback=False,
     ):
         boot_started = time.perf_counter()
         root, log_dir = Path(root).resolve(), Path(log_dir).resolve()
@@ -101,6 +102,7 @@ class Point2PoseWorker:
                     registration_diagnostics=registration_diagnostics,
                     use_key_frame_graph=use_key_frame_graph,
                     allow_partial_reference_batch=allow_partial_reference_batch,
+                    refit_seed_rollback=refit_seed_rollback,
                 ),
             )
             response = receive(self.process.stdout)

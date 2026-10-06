@@ -173,6 +173,13 @@ admits the prefix of the fully filtered native batch that fits the remaining
 zero capacity still defers sampling. The complete pair gains 480 correct nominal
 poses but loses 119 light poses, with 169/315 more inaccurate acceptances.
 Whole-batch admission remains the default; the partial option is diagnostic.
+The independent `offline_episode(..., refit_seed_rollback=True)` diagnostic
+preserves a RANSAC hypothesis's own valid seed when its weighted SVD refit loses
+five-point support. It rechecks that seed on the same remaining pool at 4 mm,
+then returns/removes exactly those recomputed inliers. Valid refits, sampling,
+ranking, selection, SDF and later support/jump/renewal checks remain unchanged.
+Rollback is disabled by default. It may preserve wrong hypotheses as well;
+see [[../experiments/point2pose-refit-hypotheses|isolated evaluation and limits]].
 See [[../experiments/point2pose-isolated-improvements|isolated comparisons]]. This switch does not disable the
 graph; graph-off experiments must select that independent control explicitly.
 

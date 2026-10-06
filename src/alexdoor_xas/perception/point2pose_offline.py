@@ -235,6 +235,7 @@ def offline_episode(
     registration_diagnostics=False,
     use_key_frame_graph=True,
     allow_partial_reference_batch=False,
+    refit_seed_rollback=False,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
     output = Path(output)
@@ -296,6 +297,7 @@ def offline_episode(
                         if allow_partial_reference_batch
                         else {}
                     ),
+                    **({"refit_seed_rollback": True} if refit_seed_rollback else {}),
                 )
             )
             tracker = PanelTracking(engine, config)

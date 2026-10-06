@@ -72,6 +72,8 @@ class OfficialPipeline:
             max_num_obj=request["num_objects"],
         )
         config.register.params.update(select_3d_dist_min_depth=near, select_3d_dist_max_depth=far)
+        if request.get("refit_seed_rollback", False):
+            config.register.params.refit_seed_rollback = True
         config.segmenter.params.checkpoint = str(root / "checkpoints/sam2.1_hiera_large.pt")
         config.tracker.params.checkpoint_path = str(
             root / "checkpoints/causal_bootstapir_checkpoint.pt"
@@ -128,6 +130,7 @@ class OfficialPipeline:
             native_fixes=native_fixes,
             active_reference_budget=self.renewal.budget,
             allow_partial_reference_batch=request.get("allow_partial_reference_batch", False),
+            refit_seed_rollback=request.get("refit_seed_rollback", False),
             config=self.config,
             training_started=False,
             qualified=False,

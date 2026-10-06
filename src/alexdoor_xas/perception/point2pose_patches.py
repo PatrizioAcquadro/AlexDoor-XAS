@@ -1,4 +1,4 @@
-"""Reproducible corrections to the pinned native source; no model or gate tuning."""
+"""Reproducible native fixes and opt-in refit rollback; unchanged support gates."""
 
 from pathlib import Path
 
@@ -9,6 +9,33 @@ _FRONTEND = "upstream/point2pose/pipeline/components/front_end.py"
 _CRITERION = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
 _REPLACEMENTS = {
     _REGISTER: (
+        (
+            '        self._min_inliers = config.get("min_inliers", 6)\n',
+            '        self._min_inliers = config.get("min_inliers", 6)\n'
+            '        self._refit_seed_rollback = bool(config.get("refit_seed_rollback", False))\n',
+        ),
+        (
+            "        inl_all = r_all <= self._inlier_thres\n\n"
+            "        inlier_idx = idx[inl_all]\n",
+            "        inl_all = r_all <= self._inlier_thres\n"
+            "        refit_ninliers = int(inl_all.sum())\n"
+            "        refit_rollback = False\n"
+            "        if self._refit_seed_rollback and refit_ninliers < self._min_inliers:\n"
+            "            # Revalidate this hypothesis's own seed on the same remaining pool.\n"
+            "            Tr = best_T\n"
+            "            r_all = np.linalg.norm(\n"
+            "                transform_pts(Tr, p0[idx]) - tgt_pcd[idx], axis=1\n"
+            "            )\n"
+            "            inl_all = r_all <= self._inlier_thres\n"
+            "            refit_rollback = True\n\n"
+            "        inlier_idx = idx[inl_all]\n",
+        ),
+        (
+            '            "mean_ransac": float(best_mean),\n',
+            '            "mean_ransac": float(best_mean),\n'
+            '            "refit_ninliers": refit_ninliers,\n'
+            '            "refit_seed_rollback": refit_rollback,\n',
+        ),
         (
             '        selected_T = np.asarray(candidates[best_cluster_idx]["T"], '
             "dtype=np.float64)\n",
