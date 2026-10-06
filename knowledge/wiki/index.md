@@ -55,6 +55,8 @@ Current engineering and historical scientific records:
 
 - [[experiments/point2pose-consumer-impact-and-failure-windows|Point2Pose Consumer Impact and Two Failure Windows]] — Saved zone/normal and conditional target errors, missing A3/A4 inputs, nominal graph/map jump and light reference deterioration.
 
+- [[experiments/point2pose-bounded-global-graph-ablation|Point2Pose Bounded Global Graph Ablation]] — One full CUDA graph-off attempt per original recording; removed event spikes, improved primary light, worse nominal terminal loss and conditional target tail; no common replacement adopted.
+
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.
 - [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]] — Reproducible force event and bounded perturbation result.

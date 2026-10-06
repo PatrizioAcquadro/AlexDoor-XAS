@@ -9,7 +9,7 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Official CUDA/FK/zone/offline runtime. Bounded inlier renewal (120 active references/candidate) completes both saved 2,858-frame openings through 63.72 degrees; GPU peaks 7.33/9.60 GiB. Correct supported poses are 2,250 light / 2,183 nominal, versus baseline 2,276/1,494; inaccurate accepted poses rise to 541/99. Publication support, material and physical occlusion remain unqualified. Full campaign stopped; historical operational useful availability remains 0%. No qualified runtime or loaded contact. |
+| 6.0C — Panel tracking prototype | Official CUDA/FK/zone/offline runtime. Bounded inlier renewal and one native graph-off ablation each complete both original 2,858-frame openings. Graph-off correct available poses are 2,569 light / 2,004 nominal, versus graph-on 2,250/2,183; inaccurate acceptances 238/58 and losses 49/794. Nominal terminal loss grows 60→472 frames. GPU peaks 7.78/9.61 GiB. Graph-on remains default; no common replacement adopted. Material/ownership, 150 ms freshness, hardware and loaded contact remain unqualified; full campaign stopped. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
@@ -66,13 +66,33 @@ accurate pose does not restore the map. Light deterioration at 52.1333 s already
 exists before SDF, without a same-frame graph or replacement. No new inference
 was needed; see [[experiments/point2pose-consumer-impact-and-failure-windows|consumer impact and isolated windows]].
 
-The next focused comparisons should validate publication/support consistency
-across graph/map updates and preservation of material evidence during replacement,
-including TSDF/history and subsequent frames, before further adoption. Preserve both
-baselines, the unbounded failures and this complete comparison. Ground truth
-remains evaluator-only; latency stays separate. No tuning, favorable retry,
-acquisition, campaign resume, performance qualification or loaded contact follows.
-See [[experiments/b1-perception-findings|bounded renewal results and limits]].
+One subsequent full-sequence native graph-off variant (`0e6185f`) changes only
+`use_key_frame_graph`; original initialization, models, point selection, numeric
+gates, 120-reference budget, replacement/promotion and SDF rules match. Both fresh
+CUDA attempts complete all 5,716 original frames without retries or process failure.
+Correct available poses change +319 light / -179 nominal versus bounded graph-on.
+Light accepted point/normal/conditional-target p95 becomes 11.51 mm/0.05 degrees/
+13.95 mm, versus 15.43/1.20/16.66. Nominal becomes 8.15/0.05/10.54, versus
+9.28/0.40/7.28: conditional target p95 worsens despite smaller accepted zone errors.
+
+The original event errors fall to 0.95 mm light and 2.23 mm nominal, with no
+graph-induced confirmed-landmark revisions. Native pending-point fusion and TSDF
+integration continue. However, nominal loses 794 rows and ends continuously lost
+for 472 frames from 70.7667 s; finite terminal error is 115.94 mm/7.95 degrees.
+All-finite nominal point/normal/conditional-target p95 grows to 100.30 mm/7.69
+degrees/34.90 mm. Primary references remain 92 after the last birth at 56.2167 s;
+whole 30-point renewals are deferred by the unchanged 120 cap. Late support drops
+to four pairs while map/TSDF extent remains fixed. Strict historical material-plus-
+pose returns are zero in both conditions; secondary light false acceptances rise.
+Neither condition reaches 95% correct available poses. No unified replacement is
+adopted; the default graph stays enabled in the unqualified prototype.
+
+Next diagnose the saved late nominal correspondence/cohort and capacity history,
+and graph-on publication/landmark consistency at the spike, before another single
+controlled intervention. Preserve both baselines, unbounded failures and complete
+ablations. Ground truth stays evaluator-only; no gate relaxation, favorable retry,
+acquisition, training, campaign resume or contact admission follows. See
+[[experiments/point2pose-bounded-global-graph-ablation|full graph ablation and limits]].
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.

@@ -476,9 +476,17 @@ graph publication. Its final 60-frame nominal loss remains. Native invisibility
 protection is verified observationally; preservation of truly occluded material
 references and ownership is not established. The policy remains an unqualified
 prototype; no tuning, favorable retry, acquisition or campaign resume follows.
-Actual publication support/material consistency and conservative observed occlusion
-handling remain the next diagnosis. Material identity, operational freshness
-and contact admission remain separate; see the canonical findings.
+A subsequent single native graph-off ablation (`0e6185f`) completes both original
+2,858-frame CUDA sequences with identical initializations and every other control
+unchanged. Correct available poses change +319 light / -179 nominal versus bounded
+graph-on, and nominal terminal loss grows from 60 to 472 frames. The old event
+spikes disappear, but late support/capacity history and conditional target tails
+remain limiting. Graph-on stays the default; no unified replacement is adopted.
+See [[../experiments/point2pose-bounded-global-graph-ablation|complete graph ablation]].
+Actual publication support/material consistency, late correspondence/capacity
+history and conservative observed occlusion handling remain the next diagnosis.
+Material identity, operational freshness and contact admission remain separate;
+see the canonical findings.
 
 ### 6.0D — Feedback, compliance and stopping
 

@@ -1340,3 +1340,21 @@ conditional teacher-target effects and unavailable actual A3/A4 scores. Nominal
 post-graph publication changes landmarks/TSDF; light's 52.1333 s deterioration
 already exists before SDF with no same-frame graph/replacement. No new inference
 or tracking change follows; causal map/history limits and later failures remain.
+
+
+## 2026-10-06 — Full-sequence bounded global graph ablation
+
+One native graph-off variant (`0e6185f`) retains original initialization, models,
+point selection, thresholds, 120-reference budget, replacement/promotion and SDF
+rules. One fresh CUDA attempt per original condition completes all 5,716 frames
+without retries or process failure. Correct available primary poses become
+2,569 light / 2,004 nominal, versus bounded graph-on 2,250/2,183. Inaccurate
+acceptances fall to 238/58, but nominal losses rise 568→794 and final loss grows
+60→472 frames. The original event errors disappear; no graph-off confirmed
+primary landmark revisions occur. Native pending-point fusion and TSDF integration
+continue, and late nominal support/capacity stalls remain visible. Memory peaks
+7.78/9.61 GiB do not improve overall. Neither condition reaches 95% correct
+availability; strict historical material-plus-pose returns remain zero and
+secondary light false acceptances increase. Graph-on remains default; no common
+replacement, campaign resume or contact qualification follows. See
+[[point2pose-bounded-global-graph-ablation|full method, all-candidate results, consumer errors, histories and selected images]].

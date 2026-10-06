@@ -11,6 +11,11 @@ Evidence and reproducible analysis scripts are in
 `outputs/b1/perception/point2pose-consumer-diagnosis-01/`; payloads are ignored,
 not recoverable from Git. See [[b1-perception-findings|prior tracking comparisons]].
 
+The subsequent [[point2pose-bounded-global-graph-ablation|full-sequence graph-off ablation]]
+reconstructs both original causal prefixes and changes only the global graph flag.
+It removes the original event spikes but worsens the nominal final loss; this
+saved-data diagnosis itself remains a read-only historical result.
+
 ## Consumer meaning and measurable quantities
 
 The published frame is an observed material-zone candidate, not a complete door

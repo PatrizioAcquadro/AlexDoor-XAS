@@ -189,6 +189,16 @@ retains a severe accepted graph outlier and final loss, and physical occlusion
 protection remains unresolved. The policy is an unqualified prototype; see
 [[../experiments/b1-perception-findings|renewal evidence]].
 
+The complete graph-off ablation (`0e6185f`) retains all other controls and original
+initializations. It removes the two original event errors and improves primary
+light correct availability, but worsens nominal availability, terminal loss and
+conditional target tail. Native promotion can still change pending coordinates;
+already-confirmed primary landmarks are not globally revised. Whole-batch renewal
+can stall at 92 active references because the next 30 would exceed 120, while
+late support falls below five and lost-state renewal stays suppressed. No common
+replacement is adopted; graph-on remains the default. See
+[[../experiments/point2pose-bounded-global-graph-ablation|sequence results and reference/TSDF history]].
+
 With `estimate_init_pose=false`, map M remains the first optical camera frame.
 The observed zone frame defines O separately; its fixed transform to the material
 zone is Z. Compose `W_Ct(FK) * Ct_M(Point2Pose pose) * M_O * O_Z` exactly once.
