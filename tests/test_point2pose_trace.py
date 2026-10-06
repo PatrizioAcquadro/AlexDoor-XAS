@@ -42,13 +42,37 @@ def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path
             return self.result
 
     register, graph = Register(), Graph()
+    prompt_result = object()
+    predictor = SimpleNamespace(add_new_prompt=lambda **kwargs: prompt_result)
+    meta = dict(good=3, obj_idx=0, obs_obj=[[0, 0, 1], [0.01, 0, 1], [0.02, 0, 1]])
+
+    def promote(key, meta, obj):
+        obj.key_points[meta["obj_idx"], 0] = 0.01
+        return True
+
+    manager = SimpleNamespace(
+        pending_promote_streak=3,
+        pending_use_geom_check=False,
+        _pending_obs_geom_ok=lambda meta: (False, dict(n_obs=3, spread=0.01)),
+        _pending_try_promote=promote,
+    )
     pipeline = SimpleNamespace(
-        frontend=SimpleNamespace(register=register), kf_graph=graph if with_graph else None
+        frontend=SimpleNamespace(register=register, segmenter=SimpleNamespace(predictor=predictor)),
+        kf_graph=graph if with_graph else None,
+        kf_manager=manager,
     )
     path = tmp_path / "registration.jsonl"
     trace = RegistrationTrace(pipeline, path)
     obj = SimpleNamespace(id=0, pose=np.eye(4), lost=False)
     trace.begin(248, 4.0, 0, [obj])
+    prompts = np.array([[1, 2], [3, 4]])
+    assert predictor.add_new_prompt(
+        frame_idx=0, obj_id=0, points=prompts, labels=np.ones(2)
+    ) is prompt_result
+    prompts[:] = 9
+    obj.key_points = np.array([[0.0, 0, 1]])
+    assert manager._pending_try_promote((0, 0), meta, obj)
+    meta["good"] = 0
     points = np.array([[0.0, 0, 1], [1, 0, 1], [0, 1, 1]])
     result = register.register(points, points, init_pose=obj.pose, prev_T=obj.pose)
     assert result is register.result and register.refine_return is register.refined
@@ -79,6 +103,11 @@ def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path
     trace.finish([obj], masks=masks, track_table=table)
     obj.key_points[:] = 9
     row = json.loads(path.read_text())
+    assert row["sam2_prompts"][0]["points"] == [[1, 2], [3, 4]]
+    check = row["promotion_checks"][0]
+    assert check["promoted"] and not check["geometric_check_passed"]
+    assert check["metadata"]["good"] == 3
+    assert check["point_before"][0] == 0 and check["point_after"][0] == 0.01
     assert (row["frame"], row["capture_s"], row["native_index"]) == (248, 4.0, 0)
     saved = row["objects"][0]
     assert saved["registration_input"]["src_pcd"][0] == [0.0, 0.0, 1.0]

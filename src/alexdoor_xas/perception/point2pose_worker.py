@@ -184,6 +184,8 @@ class OfficialPipeline:
                 )
                 for mask in masks
             ]
+            if self.trace is not None:
+                np.save(self.log_dir / "initial-source-masks.npy", masks)
             self.pipeline.initialize_first_frame(frame)
             regenerated = frame.mask.detach().float().cpu().numpy()[:, 0] > 0
             np.save(self.log_dir / "sam2-initial.npy", regenerated)

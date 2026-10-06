@@ -190,6 +190,13 @@ from inherited frontend statistics; native acceptance and graph publication are
 unchanged. Neither internal confirmation nor metric self-consistency verifies
 material identity. Native visibility can disagree with independent projected-depth
 visibility; the guard does not establish protection of every physical occlusion.
+
+Diagnostic traces now save the actual `SAM2.add_new_prompt` calls and original
+input masks at initialization, separately from the interior preservation checks.
+They also observe native promotion attempts, retained observations, geometric
+spread and whether the existing disabled geometry check would pass. Observation
+does not change native decisions or require ground truth.
+
 Pending geometric confirmation remains disabled in the paper configuration. Both
 saved openings complete in CUDA, but light precision regresses, nominal
 retains a severe accepted graph outlier and final loss, and physical occlusion

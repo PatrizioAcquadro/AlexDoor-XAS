@@ -27,6 +27,44 @@ class RegistrationTrace:
         self.frame = None
         self.pipeline = pipeline
         self.path = Path(path)
+        segmenter = getattr(pipeline.frontend, "segmenter", None)
+        if segmenter is not None:
+            native_prompt = segmenter.predictor.add_new_prompt
+
+            def observe_prompt(*args, **kwargs):
+                self.frame.setdefault("sam2_prompts", []).append(
+                    deepcopy({k: kwargs[k] for k in ("frame_idx", "obj_id", "points", "labels")})
+                )
+                return native_prompt(*args, **kwargs)
+
+            segmenter.predictor.add_new_prompt = observe_prompt
+        manager = getattr(pipeline, "kf_manager", None)
+        if manager is not None:
+            native_promote = manager._pending_try_promote
+
+            def observe_promote(key, meta, obj):
+                eligible = meta.get("good", 0) >= manager.pending_promote_streak
+                record = None
+                if eligible:
+                    geom_ok, geometry = manager._pending_obs_geom_ok(meta)
+                    record = dict(
+                        object_id=key[0],
+                        track_id=key[1],
+                        geometric_check_enabled=manager.pending_use_geom_check,
+                        geometric_check_passed=geom_ok,
+                        geometry=deepcopy(geometry),
+                        metadata=deepcopy(meta),
+                        point_before=obj.key_points[meta["obj_idx"]].copy(),
+                    )
+                result = native_promote(key, meta, obj)
+                if record is not None:
+                    record.update(
+                        promoted=result, point_after=obj.key_points[meta["obj_idx"]].copy()
+                    )
+                    self.frame.setdefault("promotion_checks", []).append(record)
+                return result
+
+            manager._pending_try_promote = observe_promote
         register = pipeline.frontend.register
         native_register = register.register
         signature = inspect.signature(native_register)
