@@ -29,6 +29,7 @@ class Point2PoseWorker:
         allow_partial_reference_batch=False,
         refit_seed_rollback=False,
         selected_registration_only=False,
+        performance_controls=None,
     ):
         boot_started = time.perf_counter()
         root, log_dir = Path(root).resolve(), Path(log_dir).resolve()
@@ -105,6 +106,7 @@ class Point2PoseWorker:
                     allow_partial_reference_batch=allow_partial_reference_batch,
                     refit_seed_rollback=refit_seed_rollback,
                     selected_registration_only=selected_registration_only,
+                    performance_controls=performance_controls,
                 ),
             )
             response = receive(self.process.stdout)

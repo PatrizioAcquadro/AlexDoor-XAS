@@ -14,6 +14,7 @@ from alexdoor_xas.perception.geometry import surfaces
 from alexdoor_xas.perception.material_zone import transported_zone
 from alexdoor_xas.perception.panel_tracking import PanelTracking, measured_registration
 from alexdoor_xas.perception.point2pose_diagnostics import sensor_at
+from alexdoor_xas.perception.point2pose_metrics import evaluate_bounds
 from alexdoor_xas.perception.point2pose_replay import pose_error, truth_panel, visible_references
 from alexdoor_xas.perception.point2pose_runtime import Point2PoseWorker
 from alexdoor_xas.perception.point2pose_worker import unpack_array
@@ -101,7 +102,8 @@ def score_objects(candidates, sensor, result, motion, config, checks):
             reasons.append("invalid_native_pose")
         if obj["lost"]:
             reasons.append(
-                "native_tracking_lost" if obj.get("registration_evaluated", True)
+                "native_tracking_lost"
+                if obj.get("registration_evaluated", True)
                 else "registration_deferred"
             )
         if p is None or a is None or not np.isfinite([p, a]).all():
@@ -225,6 +227,7 @@ def summarize_candidate(frames, candidate_id, seed_row):
         observable=summarize_rows([r for r in rows if r.get("observable") is True]),
         native_continuity=continuity(rows, "native_tracking"),
         integration_continuity=continuity(rows, "integration_accepted"),
+        evaluation_bounds=evaluate_bounds(rows),
     )
 
 
@@ -241,6 +244,7 @@ def offline_episode(
     allow_partial_reference_batch=False,
     refit_seed_rollback=False,
     selected_registration_only=False,
+    performance_controls=None,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
     output = Path(output)
@@ -304,6 +308,11 @@ def offline_episode(
                     ),
                     **({"refit_seed_rollback": True} if refit_seed_rollback else {}),
                     **({"selected_registration_only": True} if selected_registration_only else {}),
+                    **(
+                        {"performance_controls": performance_controls}
+                        if performance_controls
+                        else {}
+                    ),
                 )
             )
             tracker = PanelTracking(engine, config)
@@ -338,12 +347,7 @@ def offline_episode(
                         record["status"] = "not_processed"
                     else:
                         try:
-                            if (
-                                not candidates
-                                and next_semantic
-                                <= t
-                                <= semantic_end_s + 1e-9
-                            ):
+                            if not candidates and next_semantic <= t <= semantic_end_s + 1e-9:
                                 cue = cues.infer(sensor["rgb"])
                                 next_semantic = float(t) + config["semantic_period_s"]
                                 tracker.initialize(surfaces(cue, sensor, config), sensor)

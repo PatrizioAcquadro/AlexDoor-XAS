@@ -78,6 +78,14 @@ class OfficialPipeline:
         config.tracker.params.checkpoint_path = str(
             root / "checkpoints/causal_bootstapir_checkpoint.pt"
         )
+        from alexdoor_xas.perception.point2pose_performance import configure_performance
+
+        configure_performance(
+            config,
+            root,
+            request.get("performance_controls"),
+            diagnostic_only=request.get("diagnostic_only", False),
+        )
         config.visualization.params.save_images = False
         config.sampler.params.debug_dir = request["log_dir"]
         self.pipeline = ModularPipeline(config)
@@ -144,6 +152,7 @@ class OfficialPipeline:
             diagnostic_only=self.diagnostic_only,
             registration_diagnostics=self.trace is not None,
             selected_registration_only=self.schedule is not None,
+            performance_controls=request.get("performance_controls"),
         )
 
     def infer(self, request):

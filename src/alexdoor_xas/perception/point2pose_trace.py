@@ -73,10 +73,12 @@ class RegistrationTrace:
             call = signature.bind(*args, **kwargs)
             call.apply_defaults()
             values = call.arguments
-            obj = self.object(values["obj_id"])
+            # Official SVDResidualOutlierRegister places metadata in **kwargs.
+            values = dict(values, **values.get("kwargs", {}))
+            obj = self.object(values.get("obj_id", 0))
             obj["registration_input"] = deepcopy(
                 {
-                    k: values[k]
+                    k: values.get(k)
                     for k in ("src_pcd", "tgt_pcd", "sigma_tgt", "init_pose", "prev_T", "mode")
                 }
             )
