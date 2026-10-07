@@ -46,8 +46,8 @@ RTX 4090 in September 2026. Neither specifies our five/six candidate, full-size
 leaf, full observation/IPC/adapter scenario; neither is a local latency result.
 The pinned official source `51856226610df75e5c06e8de545bd27f7c4ba99c` already has
 `query_chunk_size`, `tapir_crop`, `num_pips_iter` and SAM2.1 Small support.
-Its `configs/realsense/default.yaml` uses all queries per chunk, Small,
-256×256 mask-centred crop, fewer TAPIR iterations and `svd_residual_outlier`.
+Its `configs/realsense/default.yaml` uses chunk size 2,048 (all of our at most 720 queries), Small,
+256×256 mask-centred crop, one TAPIR iteration per level and `svd_residual_outlier`.
 The reference uses 64, Large, full-frame 480×480 and four iterations.
 SuperPoint mask cropping, disabled image writing, BF16 autocast and TF32 are
 already active in the reference; they are not new improvements.
@@ -94,3 +94,147 @@ Per-request diagnostic time now includes measured trace binding/copies, promotio
 movement/contact, training and policies are deferred and unchanged. Ground truth
 remains evaluator-only. Dense replay quality does not establish live resampled
 quality, 150 ms freshness, ownership or safe contact.
+
+### Completed chunk microcomparison
+
+Both original 601-frame CUDA prefixes preserve every reference pose/native-loss
+flag exactly while stateless paired 64/256/all-query predictions are inspected at
+13 fixed frames, including up to 345/560 queries in mature light/nominal state.
+Input causal tensors/query features remain unchanged; point axes/state keys are
+preserved. The alternative prediction/returned state is discarded after scoring,
+so it cannot enter the baseline's next frame.
+
+| Condition / chunk | Prediction median / p95, ms | Maximum resized track delta, px | Every visibility identical |
+|---|---:|---:|---|
+| light / 64 | 115.40 / 169.93 | reference | reference |
+| light / 256 | 39.94 / 65.94 | 1.219 | no |
+| light / all | 37.43 / 41.96 | 3.578 | no |
+| nominal / 64 | 115.74 / 253.21 | reference | reference |
+| nominal / 256 | 41.16 / 94.20 | 0.734 | yes |
+| nominal / all | 38.11 / 48.08 | 1.639 | yes |
+
+These are not numerically equivalent optimizations: absolute causal-state deltas
+reach 7.327/5.557 and uncertainties can change. Retain existing BF16/TF32 math;
+causal trajectories must be evaluated separately before adoption. The microprobe
+holds multiple returned states simultaneously for comparisons, so its raw CUDA
+peak is not a deployable process peak. On mature nominal frames, peak-minus-start
+allocation increments are 1.831/1.997/2.733 GiB for 64/256/all. Complete replay
+process peaks are measured separately. No resolution/model/iteration change or
+tracker reset is combined with this chunk control.
+
+### Concrete A4 target transformation on existing observed fits
+
+The same three measured seed targets are also expressed in the first **already
+saved observed** hinge frame from `p2p-geometry-jacobian-01/geometry-*.jsonl`.
+Keep each full-pose `target_panel` fixed and apply the existing pure `panel_pose`
+math using subsequent saved observed origins/static rotations/current angles.
+Evaluator-only truth transforms the **same numerical target**, rather than
+choosing a better target. This measures the target component used at an A4
+segment boundary; no segment phase, duration, hinge delta, tool pose, policy
+prediction or admission is fabricated. No new axis fitting/bootstrap occurs.
+
+| Condition / seed target pixel | Target p95/max mm | 10 mm available/precision % | 15 mm available/precision % | 20 mm available/precision % |
+|---|---:|---:|---:|---:|
+| light / [185, 315] | 3.61/9.01 | 80.09/100.00 | 80.09/100.00 | 80.09/100.00 |
+| light / [185, 145] | 3.58/8.55 | 80.09/100.00 | 80.09/100.00 | 80.09/100.00 |
+| light / [185, 447] | 3.64/9.50 | 80.09/100.00 | 80.09/100.00 | 80.09/100.00 |
+| nominal / [186, 318] | 19.61/27.81 | 71.80/88.45 | 75.75/93.32 | 77.57/95.56 |
+| nominal / [186, 150] | 19.58/27.77 | 72.04/88.75 | 75.79/93.36 | 77.57/95.56 |
+| nominal / [186, 448] | 19.65/27.85 | 71.62/88.23 | 75.54/93.06 | 77.57/95.56 |
+
+The original 2,858-frame denominator includes the missing early hinge:
+first saved primary fit is 40.4833/39.9667 s. The JSON retains all 10/15/20 mm
+continuity, distributions, peaks/tails and definitions. Light's approximately
+80.1% availability/100% conditional precision does not mean uninterrupted A4.
+Nominal target p95 is about 19.6 mm despite the better zone point p95 of 12.3 mm.
+Missing complete calibration/FK/floor bounds, ownership, footprint/sweep/load,
+predicted phase/duration and action admission still prevent an A4 execution score.
+This reference-only consumer component analysis cannot be automatically applied
+to new tracking trajectories whose articulation inputs were not saved.
+
+### Resolution versus actual refinement passes
+
+The official TAPIR resolution pyramid has two refinement levels at 480 and 384,
+but one at 256. With `num_pips_iter=4`, the actual causal refinement passes are
+8/8/4 respectively. Add 384×384 after the 480 crop to isolate reduced pixels
+with eight passes retained; also inspect the official 256 path and name its
+inherent pyramid reduction. Only afterwards reduce `num_pips_iter` to two,
+separately at 384 (8→4 total passes) and 256 (4→2), then one at 256 (2→1) to match the official live setting. Resource inventories record
+actual feature resolutions and causal levels, rather than inferring iteration
+count from the configured key alone.
+
+### Fresh reference and causal chunk pilots
+
+Fresh automatic CUDA references complete 601/601 captures per condition and
+reproduce **all candidate** preserved poses/native loss/integration decisions
+exactly (maximum pose element delta zero). Source masks and original regenerated
+SAM2 masks match. Light/nominal mature states reach 370/576 live queries and
+872/1,446 historical references. No historical ID/history is discarded by a
+reset. The official pinned live YAML also matches the remotely retrieved original
+bytes exactly (`official-live-config.remote.yaml`); its actual chunk is 2,048 and
+`num_pips_iter=1`, rather than relying on its introductory comments.
+
+| Pilot / condition | Complete median / p95 ms | Median saving | 10/15/20 mm availability % | Extension eligible |
+|---|---:|---:|---:|---|
+| reference / light | 507.70 / 665.56 | reference | 99.83 / 99.83 / 99.83 | reference |
+| chunk 256 / light | 463.38 / 558.09 | 8.73% | 99.83 / 99.83 / 99.83 | below fixed 10% cost criterion |
+| all queries / light | 435.82 / 541.33 | 14.16% | 99.83 / 99.83 / 99.83 | yes |
+| reference / nominal | 628.82 / 889.92 | reference | 99.83 / 99.83 / 99.83 | reference |
+| chunk 256 / nominal | 557.11 / 749.32 | 11.40% | 99.83 / 99.83 / 99.83 | yes |
+| all queries / nominal | 511.72 / 676.13 | 18.62% | 99.83 / 99.83 / 99.83 | yes |
+
+All accepted nonseed primary poses satisfy all three bounds in these prefixes;
+maximum correct gap is the 16.7 ms constructed-seed gap. The original 601-frame
+denominator is retained. All-query replaces 256 for full extension as the faster
+promising choice for the same control, with both pilots retained. This does not
+establish late-tail quality; that requires the two original complete openings.
+GPU sampled resident peaks are 6.807/9.605 GiB for the all-query pilots (not
+an indefinitely bounded resource claim). Full resource inventories/secondary
+candidate quality remain in the comparison JSON.
+
+Complete measurement begins with an already calibrated saved RGB-D packet and
+includes snapshot, IPC/native work and observational adapter. Physical sensor
+acquisition, fresh live FK/calibration, queues, HDF5 input reads, rendering and
+evaluator scoring are excluded. Initialization/startup is separate. Offline has
+no acquisition queue wait; the IPC-minus-native difference includes serialization,
+decode and process waits and cannot be called queue latency alone. No live
+resampling/quality, operational/contact admission or 150 ms freshness is inferred.
+
+### SAM2 Small: both completed pilots
+
+Only the segmenter checkpoint/config changes. Primary accepted precision remains
+100% at all three bounds in 600 nonseed observations (601 scheduled captures);
+complete median improves 7.86%, below the fixed 10% extension cost rule.
+Official developer segmenter median changes 22.99→13.23 ms; these spans retain
+async-attribution limitations. GPU resident peak changes 6.193→6.076 GiB,
+not the factor-of-five checkpoint-size reduction.
+
+Initial Small/Large mask IoUs across five candidates are
+0.924/0.967/0.942/0.078/0.077. This is agreement, not ownership accuracy.
+Small triggers unchanged `sam2_initialization_candidate_mismatch` checks for
+candidates 3/4, which have zero integrated acceptances rather than 600/600.
+Candidate 3 also remains native lost; candidate 4 can produce native poses but
+cannot bypass its initialization refusal. No gate is disabled to rescue Small.
+Observed contours remain on different plausible leaf relief/edge regions;
+no ownership mask truth exists. Preserve these failures and the source/returned
+masks. `sam2-seed-masks.png` compares only the original 31 s images/masks.
+Nominal median saves 22.44% (487.73 ms median / 644.02 ms p95), but primary
+initialization fails the unchanged candidate-mismatch check: zero integration
+acceptances and zero correct availability at **all** three bounds. Candidates
+3/4/5 also have zero acceptances; only 1/2 retain 600. Primary initial Small/Large
+IoU is 0.363. Completing native processing is not successful integration. Small
+is not extended or combined; retain Large on this original initialization.
+Mature mask agreement is saved independently; absent membership truth prevents
+an absolute segmentation-accuracy score.
+
+### Crop at original 480×480: completed light pilot
+
+The actual recording is 960×600; the official crop window is a fixed 600×600,
+initially at (81,0), while TAPIR remains 480×480 with eight refinement passes.
+Original regenerated masks, initial maps/IDs/poses and every source timestamp are
+unchanged. Primary accepted position p95 is 3.64 mm and maximum 9.10 mm; all
+600 nonseed poses pass 10/15/20 mm and 5 degrees. Complete median increases
+507.70→578.35 ms (+13.91%), p95 is 684.44 ms. Query peak rises 370→473 and
+historical references 872→924; crop-only is not extended as a speed improvement.
+This is a measured changed estimator trajectory, not an isolated pixel-count
+saving. Subsequent 384/256 resolution trials retain their separate attribution.

@@ -16,6 +16,15 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 
 ## Next action
 
+Current authorized work is [[experiments/p2p-evaluation-and-performance|Point2Pose
+quality and isolated compute comparisons]]. Re-evaluate preserved data at
+10/15/20 mm with 5 degrees, preserving distributions, acceptance precision,
+continuity and failed tails. The 4 mm registration gate and operational bounds
+stay separate. Defer starting A4, bootstrap, movement/contact, training and policy
+changes. The reference retains every candidate registration, graph off, partial
+batch on, rollback off and the vectorized SDF Jacobian. CUDA comparisons are in
+progress; no new compute default is adopted yet.
+
 Use the [[topics/pre-a4-initialization-and-hinge-budget|shared pre-A4 initialization specification]]
 for every A1–A4 × ACT/Diffusion condition before policy dispatch. Stationary
 observations support local surface/closed rotation but contain no supported

@@ -70,6 +70,10 @@ def resource_snapshot(pipeline):
     return dict(
         objects=objects,
         tracker_queries=0 if tracker.query_points is None else len(tracker.query_points),
+        tapir_refinement_resolutions=(
+            None if tracker.query_features is None else tracker.query_features.resolutions
+        ),
+        tapir_causal_levels=0 if tracker._causal_state is None else len(tracker._causal_state),
         query_points=tensor_inventory(tracker.query_points),
         query_features=tensor_inventory(tracker.query_features),
         causal_state=tensor_inventory(tracker._causal_state),
