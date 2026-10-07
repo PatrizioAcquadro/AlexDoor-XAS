@@ -44,7 +44,8 @@ The [paper, section 4.4](https://arxiv.org/html/2604.10415v2) reports 2–10 Hz,
 whereas the [project page](https://point2pose.github.io/) announces 30 Hz on an
 RTX 4090 in September 2026. Neither specifies our five/six candidate, full-size
 leaf, full observation/IPC/adapter scenario; neither is a local latency result.
-The pinned official source `51856226610df75e5c06e8de545bd27f7c4ba99c` already has
+The pinned official source `51856226610df75e5c06e8de545bd27f7c4ba99c` also matches
+the remote official repository HEAD checked on 2026-10-07 and already has
 `query_chunk_size`, `tapir_crop`, `num_pips_iter` and SAM2.1 Small support.
 Its `configs/realsense/default.yaml` uses chunk size 2,048 (all of our at most 720 queries), Small,
 256×256 mask-centred crop, one TAPIR iteration per level and `svd_residual_outlier`.
@@ -90,7 +91,7 @@ Preserved inputs/results are not overwritten. Initial evaluator serialization
 failure and repaired evaluator log are both retained; inference was not repeated.
 The first direct CUDA probe lacked the installed nvcc path before processing a
 frame; its startup failure is preserved separately from the corrected launch.
-Per-request diagnostic time now includes measured trace binding/copies, promotion/prompt observation, frontend snapshots and export/resource inventory. Complete observation time retains this work; subtracting it is an arithmetic estimate, not a diagnostic-off live measurement. CUDA worker peak CPU RSS, CUDA allocations/resident sampling and crop windows are also saved. The official frontend developer timings may include asynchronous work and are reported with that attribution limit. Isolated pilots are complete; the two promising paths are being evaluated on both original complete openings. A4 initialization/bootstrap,
+Per-request diagnostic time now includes measured trace binding/copies, promotion/prompt observation, frontend snapshots and export/resource inventory. Complete observation time retains this work; subtracting it is an arithmetic estimate, not a diagnostic-off live measurement. CUDA worker peak CPU RSS, CUDA allocations/resident sampling and crop windows are also saved. The official frontend developer timings may include asynchronous work and are reported with that attribution limit. All isolated pilots and four complete openings are finished; full failures remain preserved. A4 initialization/bootstrap,
 movement/contact, training and policies are deferred and unchanged. Ground truth
 remains evaluator-only. Dense replay quality does not establish live resampled
 quality, 150 ms freshness, ownership or safe contact.
@@ -330,10 +331,115 @@ The 10 mm regression is substantial, especially in the final five seconds:
 only 91/95 of 301 captures are correct light/nominal, while at 15 mm 294/294
 remain correct and at 20 mm all 301/301. Median complete time improves
 29.67%/38.34%; 15/20 availability declines less than 0.5 percentage points
-and correct gaps remain below 67 ms. This supports an explicit wider-tolerance
+and 15/20 mm correct gaps remain below 67 ms. This supports an explicit wider-tolerance
 compute tradeoff, not numerical equivalence, a 10 mm replacement or live/contact
 qualification. Both measured complete paths have zero observations ≤150 ms.
 Measured diagnostic median/p95 is 44.02/47.52 ms light and 48.54/58.63 ms nominal;
 arithmetic subtraction still leaves p95 far above 150 ms. CPU worker/GPU/TSDF,
 history, component timing, distributions/peak times and all secondary candidates
-remain in the JSON. The isolated crop/one-iteration full openings are next.
+remain in the JSON. The isolated crop/one-iteration full results below retain the nominal failure.
+
+### Latency peaks and backend growth
+
+The all-query complete maxima are 1.544 s light at 76.15 s and 4.069 s nominal
+at 42.4 s. Native work is 1.531/4.051 s; measured total diagnostic work is
+45.8/61.3 ms, and IPC outside native is approximately 5.0/7.5 ms. These peaks
+cannot be explained by an acquisition queue or diagnostic export alone.
+The official frontend spans are 329.8/497.1 ms; substantial time remains inside
+the native backend beyond those developer spans. In the same samples, TSDF
+rebuild counters rise 16→17/5→6 and keyframe promotion occurs. Light object 3
+volume grows 18.73→20.70 million voxels; nominal object 1 grows 60.33→98.59
+million, close to the retained 100-million-voxel guard. This is observed
+coincidence, not an exclusive kernel timing or a relaxation of that guard.
+The next relevant latency audit must include promotion/TSDF history and spikes,
+besides the dominant steady RANSAC/SDF registration spans. Active references are
+bounded; total historical maps/TSDF are not proven bounded indefinitely.
+
+### Complete reduced-path openings and combination decision
+
+Both original 2,858-frame sequences finish as processes. Light has 2,853 accepted
+nonseed poses, four native losses and three native returns; correct availability
+at 10/15/20 mm is 78.69%/97.76%/99.79%, with accepted precision
+78.83%/97.93%/99.96%. Maximum correct gaps are 0.383/0.083/0.033 s. Complete
+median/p95/max is 417.29/569.07/1,276.80 ms and GPU peak is 6.275 GiB.
+
+Nominal has 2,061 accepted nonseed poses, **796 native losses**, 55 native
+returns and zero accepted/correct poses in the last five seconds. Correct
+availability is 63.19%/71.73%/72.04%, conditional accepted precision
+87.63%/99.47%/99.90%, and maximum correct gap **7.817 s at every bound**.
+Accepted point p95/p99/max is 11.59/14.03/20.80 mm; its apparently improved
+conditional p95 excludes the lost tail. Complete median/p95/max is
+401.38/669.87/4,264.38 ms, GPU peak 10.145 GiB and worker CPU RSS 6.634 GiB.
+Process completion does not mean tracking success or a latency gain at equal quality.
+
+The native prefix of every full path exactly reproduces its own 601-frame pilot
+for every candidate pose, loss flag and acceptance. The failure therefore appears
+in later causal state, without changing initialization or rerunning a failed model.
+All 2,858 crop windows are saved per condition: 600×600 remains fixed, origins
+move (81,0)→(248,0) light / (225,0) nominal, with 402/316 position changes. The
+pinned crop code retains causal state when moving the window. This audits the
+actual path; it does not isolate recentering, resolution or one iteration as the
+sole cause of the late failure. No full eight-pass crop or four-pass 256 counterpart was admitted
+by its initial cost evidence.
+
+Do not combine the reduced path with larger chunks to rescue this failure.
+`combined-admission.json` records that the second isolated full path is unsupported;
+no combined pilot/full inference is launched. Small and simplified SVD are also
+unsupported as common paths. All unsuccessful prefixes and full tails remain
+available, together with their error/latency/resource records.
+
+### Observed targets, reference compatibility and scope of adoption
+
+On the all-query full path, the three same observed target poses have accepted
+point p95 of 13.10–13.46 mm light / 12.85–13.79 mm nominal, versus
+10.79–12.75 / 11.71–12.39 mm in the preserved reference. Target availability at
+15 mm is 97.90–98.36% / 97.62–98.25%, with maximum correct gaps 33/50 ms;
+at 20 mm it is about 99.90% / 99.79–99.83%, with 16.7 ms maximum gaps.
+Peak target error reaches 22.04/23.53 mm. Every target still has its separate
+10/15/20 mm precision, distribution, peak time, continuity and tail in
+`full-target-evaluation.json`. No absent articulation input is invented for
+these new trajectories; their target transport is not a complete A4 score.
+The earlier pure A4 target transformation remains reference-only.
+
+The original-reference compatibility audit uses evaluator-only motion to test
+directly measured original-point inliers at 4 mm, separately from pose bounds.
+Larger chunks have no primary native-loss return to test. Reduced light/nominal
+have 3/55 returns, none with five compatible directly measured original inliers.
+Original references are progressively replaced and are absent from the final
+inlier sets: absence does not prove wrong material, but cannot establish strict
+original-material recovery. Neither renewed references nor a native return is
+physical identity/ownership evidence. All secondary candidates remain in the
+JSON; their quality is weaker and uneven, so adoption concerns the original
+primary diagnostic target only, not arbitrary candidates or held-out doors.
+
+For subsequent **diagnostic 15/20 mm evaluations**, use all-query TAPIR blocks
+(`query_chunk_size=0`; official 2,048 is equivalent in size for ≤720 queries),
+with Large, full-frame 480×480, four iterations/eight actual passes and the
+retained all-registration, graph-off, partial-batch, rollback-off, five-inlier,
+4 mm, vectorized-Jacobian setup. Preserve chunk 64 as the historical/narrow
+10 mm comparator: larger blocks are not a numerically equivalent or 10 mm
+replacement. Do not adopt Small, the reduced path or simplified SVD for common
+tracking. The diagnostic opt-in controls do not change provider/policy defaults.
+
+The all-query complete p95 is **553.79/644.39 ms**, still **403.79/494.39 ms over
+150 ms** (3.69×/4.30× the deadline); zero measured complete observations meet it.
+Even arithmetic diagnostic subtraction gives 507.16/584.65 ms. This is not a
+measurement with diagnostics disabled. Startup is separate: visual worker
+9.63/9.70 s, Point2Pose worker 4.12/4.33 s and first full initialization request
+2.77/2.94 s, of which native IPC is 0.92/0.99 s. Full observation latency starts
+with an already calibrated saved packet, excluding physical acquisition/FK and
+queues; no live freshness or resampled tracking accuracy follows from this replay.
+The 30 Hz project claim is not transferred to this scenario.
+
+Next work remains Point2Pose: profile and reduce steady RANSAC/SDF plus
+promotion/TSDF rebuild cost while retaining the geometric controls; only after
+sufficient compute improvement, measure a real diagnostic-off observation path
+and evaluate its actual queue/resampling separately from dense replay. Keep the
+original baselines and failed tails. Do not start A4, physical initialization,
+movement/contact, training or policy changes. The recordings end at 63.7209 degrees;
+full recording completion does not validate the configured 90.7-degree limit.
+
+Readable local results are `performance-comparison.md`, `full-comparison.png`,
+`saved-evaluation.md`, `full-target-report.md` and the complete comparison/target/audit JSONs under the
+ignored evidence root. Source/diagnostic milestones are `8c33bdc`, `9e7f619`,
+`129be5e`, `154bfc6` and `518d162`; evidence payloads remain uncommitted.

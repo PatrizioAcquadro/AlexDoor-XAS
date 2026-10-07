@@ -9,23 +9,25 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Retained diagnostic reference: graph off, partial batch on, rollback off, five inliers/4 mm, 120 active references per candidate; observed geometry and vectorized SDF Jacobian retained. Selected-only registration has a nominal 10 mm regression (62.48% accepted precision), but reaches 97.69%/99.93% at 15/20 mm; preserve this tolerance tradeoff rather than using 10 mm alone to reject it. All-registration remains the requested compute reference. Fresh all-registration pilots reproduce every preserved candidate pose exactly. The option remains disabled diagnostic code; provider remains local/invalid. Physical pre-A4 initialization, material/ownership, complete uncertainty, 150 ms freshness and loaded contact remain unqualified; full campaign stopped. |
+| 6.0C — Panel tracking prototype | Baselines/failures preserved. Four new full CUDA openings: larger TAPIR blocks save 29.67%/38.34% median complete latency with primary 15/20 mm availability about 98.1%/99.8–99.9%; 10 mm availability worsens to 79.67%/69.80%. Recommended diagnostic wide-tolerance profile retains Large/480/four iterations, all registrations, graph off, partial on, rollback off, five inliers/4 mm, vectorized Jacobian and 120 active references per candidate. Crop 256/one iteration loses 796 nominal observations; Small initialization and fixed-gate SVD fail common quality, so no combination. Complete p95 554/644 ms, zero fresh observations at 150 ms; provider remains local/invalid and A4 remains deferred. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Current authorized work is [[experiments/p2p-evaluation-and-performance|Point2Pose
-quality and isolated compute comparisons]]. Re-evaluate preserved data at
-10/15/20 mm with 5 degrees, preserving distributions, acceptance precision,
-continuity and failed tails. The 4 mm registration gate and operational bounds
-stay separate. Defer starting A4, bootstrap, movement/contact, training and policy
-changes. The reference retains every candidate registration, graph off, partial
-batch on, rollback off and the vectorized SDF Jacobian. CUDA comparisons are in
-progress; no new compute default is adopted yet.
+Completed [[experiments/p2p-evaluation-and-performance|Point2Pose tolerance and isolated compute comparisons]]
+retain 10/15/20 mm and 5 degrees, precision, continuity, peaks and failed tails.
+Adopt larger chunks only as an explicit 15/20 mm diagnostic tradeoff; preserve
+chunk 64 for historical 10 mm comparison. Large, full-frame 480/four iterations
+and all registrations remain; no failed component is combined or rescued.
+Steady RANSAC/SDF and promotion/TSDF rebuilds are the next latency focus.
+Complete p95 is still 404/494 ms over the 150 ms deadline, before real acquisition,
+FK and queue costs. Dense replay is not live resampled quality. Defer A4,
+bootstrap, movement/contact, training and policy changes; no operational default
+or admission gate is changed. All source evidence stays preserved.
 
-Use the [[topics/pre-a4-initialization-and-hinge-budget|shared pre-A4 initialization specification]]
+For future action integration, use the [[topics/pre-a4-initialization-and-hinge-budget|shared pre-A4 initialization specification]]
 for every A1–A4 × ACT/Diffusion condition before policy dispatch. Stationary
 observations support local surface/closed rotation but contain no supported
 physical pin in these scans. Direct pin evidence or a separately admitted bounded
@@ -33,8 +35,9 @@ leaf-motion diagnostic must complete the physical reference before A4 approach;
 the pre-articulation motion/admission path is absent. No movement/contact is
 executed or admitted by this specification.
 
-Close authored simulation floor/up and measured camera/FK input accounting, then
-validate uncertainty against actual proposed command/sweep/stop margins. These
+Future action qualification still needs authored simulation floor/up and measured
+camera/FK input accounting, followed by uncertainty validation against actual
+proposed command/sweep/stop margins. These
 missing interface inputs are distinct from the conservative correspondence
 envelope and evaluator-measured hinge errors; replacing a bound by p95 or pursuing
 an arbitrary sub-centimeter bound is unjustified. Operational A4 freezes each
@@ -55,7 +58,7 @@ observation p95 remains 578/619 ms even with the option; zero requests meet
 
 ## Preserved investigation evidence
 
-Keep the full offline campaign stopped. Its original 4,216 completed rows,
+Keep the original qualification campaign stopped. Its original 4,216 completed rows,
 502 unprocessed rows and 11 unstarted attempts remain preserved. Native loss/SDF
 fixes and the failed moving-camera 4–10 s replay remain documented in
 [[experiments/b1-perception-findings|B1 perception findings]].
