@@ -69,7 +69,7 @@ Current engineering and historical scientific records:
 
 - [[experiments/p2p-evaluation-and-performance|Point2Pose Evaluation and Isolated Performance]] — Saved 10/15/20 mm and 5 degree sensitivity, observed geometric targets and separate official compute comparisons; A4 deferred.
 
-- [[experiments/p2p-sam3-unified-frontend|Unified SAM3 Video Frontend]] — Official causal direct-mask implementation and full original physical-target comparison; SAM3 quality/tail and SAM3.1 memory regressions reject replacement.
+- [[experiments/p2p-sam3-unified-frontend|Unified SAM3 Video Frontend]] — Single-SAM causal frontend, equivalent bounded SAM3.1 history and isolated SAM3 reconditioning control; complete three-target accuracy, gaps/tails, frame points and resources retain the reference.
 
 - [[experiments/p2p-selected-registration|Selected-Candidate Registration]] — Complete CUDA comparison; periodic alternatives save cost but regress the nominal tail, so common adoption is rejected.
 

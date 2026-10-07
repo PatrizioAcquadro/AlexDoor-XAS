@@ -159,9 +159,11 @@ The adopted comparison passes `use_key_frame_graph=False`,
 `performance_controls={"query_chunk_size": 0}` explicitly. Other native parameters,
 TAPIR, SuperPoint, measured RGB-D, registration and TSDF are retained. This option
 is diagnostic only; existing scan/live/replay defaults and policies are unchanged.
-Both original SAM3 openings complete but regress common pose quality/support;
-SAM3.1 stops at the preserved TSDF memory guard. Neither replaces the adopted
-reference. See the [bounded pilots and original-target evaluation](../../knowledge/wiki/experiments/p2p-sam3-unified-frontend.md).
+Original SAM3.1 attempts fail the preserved TSDF reserve; bounded history now
+completes both openings with exact prefix equivalence but poorer late accuracy.
+Isolated SAM3 reconditioning OFF improves ON and reduces nominal losses 747→57,
+while light accuracy and nominal 15/20 mm availability remain below the reference.
+Neither replaces it. See the [complete controlled comparison](../../knowledge/wiki/experiments/p2p-sam3-unified-frontend.md).
 
 For the isolated SAM3 diagnostic, `detection_reconditioning=False` changes only
 its native period from 16 to 0; its bbox trigger must already be disabled. Other

@@ -1,9 +1,11 @@
 # Unified SAM3 Video Frontend for Point2Pose
 
 **Decision, October 7, 2026: retain the adopted all-query reference.** Unified
-SAM3 completes both openings but regresses common accuracy and the nominal tail.
-SAM3.1 has accurate completed prefixes but fails the unchanged TSDF memory guard.
-The implemented path remains opt-in and unqualified; no operational default changes.
+Bounded SAM3.1 history fixes the original resource failure with exact prefix
+equivalence, but complete late accuracy regresses. Isolated SAM3 reconditioning OFF
+improves both conditions relative to ON, including nominal losses from 747 to 57;
+it still loses light accuracy and nominal 15/20 mm availability versus the reference.
+Both controls remain opt-in and unqualified; operational defaults are unchanged.
 
 ## Scope and reference
 
@@ -185,9 +187,8 @@ frames. Packed masks, probabilities, tracker scores, seed/current IDs, loss/stat
 and capture/count fields are exactly equal on every paired frame. Frontend allocator
 peaks fall from 15.81/14.47 GiB to 5.06/5.06 GiB; final allocated memory is 4.40 GiB
 in both conditions. Corrected peak CPU RSS is 7.51 GiB (including checkpoint loading),
-with bounded RGB payloads. This verifies common-prefix frontend equivalence; full
-P2P completion and late physical-target quality are being evaluated independently.
-The complete GPU replays now both finish 2,858/2,858 original frames. All 1,312
+with bounded RGB payloads. This establishes frontend equivalence before the independent full P2P evaluation.
+The complete GPU replays both finish 2,858/2,858 original frames. All 1,312
 light / 1,150 nominal completed P2P prefix poses and native/integration decisions
 match the preserved failed attempts exactly (maximum matrix difference zero).
 Each complete run has only the original one-frame confirmation loss. Memory growth
@@ -233,10 +234,105 @@ actual native reconditioning mask calls and newly created detection IDs separate
 it does not add prompts or substitute IDs. Initial 33-frame ON/OFF trials have
 identical masks and no eligible reconditioning. An initial gate expecting an early
 application fails and is retained as a negative result, without threshold tuning.
-The complete light ON trace first applies reconditioning to existing ID0 at 35 s,
-with no new detection ID. Complete paired ON/OFF replays are in progress, including
-whole-pipeline latency and resource measurements. No SAM3 correction/adoption
-claim is made before their physical-target and frame-point audits.
+All four controlled full replays complete 2,858/2,858 frames from the original
+initialization. ON reproduces every original SAM3 pose, decision and point-trace
+field exactly in both conditions. ON applies 39 light / 26 nominal reconditioning
+updates, first at 35.0/31.8 s. OFF applies zero. The first changed subsequent mask
+is at 35.0167/31.8167 s; seed masks are identical. Every run retains only seed ID0,
+with no newly created detection IDs. This isolates matched-detection updates to the
+existing object from object creation and initial selection.
+ON and OFF both complete the full window, so their common comparison includes all
+2,858 captures. In contrast, SAM3.1 old/new common prefixes end at 52.85/50.15 s;
+its newly completed tails are evaluated separately from the exact prefix equality.
+
+### Complete controlled accuracy, gaps and tails
+
+The following are the same original physical target0, with 5-degree rotation and
+all 2,858 scheduled rows in each denominator. Precision is conditional on accepted
+nonseed outputs; gaps include inaccurate and unavailable rows. The final five
+seconds contain 301 original captures. No missing tail is censored out.
+
+| Condition | SAM3 period | Correct availability 10/15/20 mm | Accepted precision 10/15/20 mm | Maximum correct gap 10/15/20 mm (s) | Last 5 s correct 10/15/20 mm |
+|---|---|---:|---:|---:|---:|
+| light | 16 (ON) | 57.73/94.16/98.92% | 57.85/94.35/99.12% | 3.817/0.167/0.050 | 9/209/280 |
+| light | 0 (OFF) | 70.33/96.19/99.86% | 70.35/96.22/99.89% | 3.100/0.100/0.017 | 2/212/298 |
+| nominal | 16 (ON) | 70.40/73.58/73.65% | 95.36/99.67/99.76% | 6.350/6.350/6.350 | 0/0/0 |
+| nominal | 0 (OFF) | 87.40/96.54/97.73% | 89.21/98.54/99.75% | 0.150/0.117/0.117 | 153/232/241 |
+
+Native nonseed losses change from 5 to 0 light and 747 to 57 nominal. OFF's last
+nominal capture is native-valid; ON loses the terminal 72.2667–78.6167 s. This is
+native support return, not qualified same-material recovery. ON nominal accepted
+position p95 is 9.83 mm, but all finite poses have p95 68.03 mm: its conditional
+precision hides the difficult lost range. OFF has 11.71/11.83 mm respectively.
+The light 10 mm tail does not improve: OFF has 2/301 correct final captures versus
+9/301 ON, despite better full-window availability. Average gains do not erase this
+retained late failure.
+
+All three frozen physical targets are evaluated independently in
+`final-comparison.json`. OFF improves ON at every bound in both conditions, but
+versus the reference it loses light 10/15 mm and nominal 15/20 mm availability on
+all three targets. Its nominal 10 mm gain is real. OFF's three-target availability:
+
+| Condition | Original target | 10 mm | 15 mm | 20 mm |
+|---|---:|---:|---:|---:|
+| light | 0 | 70.33% | 96.19% | 99.86% |
+| light | 1 | 69.03% | 94.05% | 99.76% |
+| light | 2 | 71.66% | 97.13% | 99.90% |
+| nominal | 0 | 87.40% | 96.54% | 97.73% |
+| nominal | 1 | 86.21% | 96.50% | 97.76% |
+| nominal | 2 | 87.82% | 96.68% | 97.76% |
+
+### Frame points, inliers and renewal
+
+The evaluator classifies measured 3D points against exclusive moving/fixed prepared
+collision hulls with a 4 mm margin and original capture-aligned motion. Overlap and
+unclassified points are excluded from both categories. This is approximate physical
+membership, not exact rendered instance segmentation; truth never enters workers.
+ON's exact point-trace reproduction permits reuse of the saved original membership
+audit, while OFF is classified separately.
+
+At initialization, reference seed points include 0/30 light and 3/30 nominal fixed-only
+points; direct SAM3 includes 3/30 and 4/30. SAM3's first measured fixed inliers appear
+at 32.65/31.0167 s, before reconditioning. The first newly sampled fixed references
+appear at 35.4167 s light in both ON/OFF (1/30 fixed), and at 36.15 s nominal ON
+(12/30 fixed), versus 36.2333 s OFF (7/30 fixed). Reference first additions occur at
+36.4/36.5667 s with 1/30 and 2/30 fixed. Maximum fixed-only frontend inliers are
+22/30 ON, 14/15 OFF and 6/3 reference (light/nominal). Thus initialization and later
+reference sampling already admit static points independently of reconditioning;
+the isolated control reduces, but does not eliminate, contamination.
+
+At the final nominal ON frame, 24 frontend measurements contain six fixed-only,
+fourteen moving-only and four other points, but frontend/published inliers are zero.
+The active budget is 120 with 442 historical references; no references are born.
+All 747 lost ON nominal rows have zero renewal events; OFF's 57 lost rows likewise
+have none. `BoundedRenewal.after_frame` skips lost objects and published support
+below five. This explains why renewal cannot replenish the terminal loss. It is
+the existing support guard, not evidence to relax it or the 4 mm threshold.
+
+### Complete latency and resources
+
+Whole-request time includes SAM inference, IPC, P2P and trace export; startup/seed
+are separate. All nonseed requests exceed 150 ms. GPU is sampled simultaneous
+SAM/P2P use; SAM allocator and process RSS peaks are separate measurements. The
+reference lacks a simultaneous SAM/P2P measure because its initialization worker
+was released before acquisition; its P2P sampled peaks are 9.86/12.09 GiB.
+
+| Condition | Variant | Accepted target0 p95 mm / degrees | Complete p50 / p95 ms | Sampled combined GPU GiB | SAM allocator GiB | SAM / P2P CPU RSS peaks GiB |
+|---|---|---:|---:|---:|---:|---:|
+| light | reference | 13.29 / 0.44 | 438 / 554 | unavailable | unavailable | unavailable / 4.46 |
+| light | sam3-on | 15.16 / 0.45 | 232 / 282 | 16.27 | 8.41 | 18.51 / 2.69 |
+| light | sam3-off | 14.62 / 0.69 | 232 / 264 | 14.41 | 8.39 | 20.21 / 2.65 |
+| light | sam31-bounded | 20.03 / 0.54 | 252 / 282 | 11.33 | 5.06 | 7.50 / 2.69 |
+| nominal | reference | 13.25 / 0.59 | 402 / 644 | unavailable | unavailable | unavailable / 6.12 |
+| nominal | sam3-on | 9.83 / 0.41 | 231 / 286 | 12.71 | 8.41 | 18.51 / 2.90 |
+| nominal | sam3-off | 11.71 / 0.47 | 233 / 281 | 12.92 | 8.39 | 18.51 / 2.92 |
+| nominal | sam31-bounded | 17.38 / 0.51 | 254 / 285 | 10.18 | 5.06 | 7.50 / 2.67 |
+
+OFF is not a universal memory improvement: nominal combined GPU rises slightly,
+and light SAM CPU RSS rises from 18.51 to 20.21 GiB. Native SAM3 CPU image history
+still grows across this finite recording; this experiment deliberately does not
+combine a memory intervention with the reconditioning control. SAM3.1's separate
+bounded lifetime correction solves that version's demonstrated growth.
 
 ## Independent SAM3 integration comparison
 
@@ -287,30 +383,44 @@ zone's seed-relative score. Operational freshness/ownership/contact admission is
 still separate. Essential causal/loss/geometry and legacy numerical checks pass;
 the optional SAM3 alias correction has its own regression check.
 
-## Adoption decision and remaining work
+## Causes, open hypotheses and adoption decision
 
-**Reject common replacement by either tested version.** SAM3 is integrable and
-about twice as fast in complete request time, but loses light precision at all
-three bounds and nominal 15/20 mm availability; the last nominal five seconds
-have no supported pose. Its nominal conditional error distribution improves
-because many difficult frames are unavailable. SAM3.1's better early errors
-cannot qualify a late range it never processes. All variants still have zero
-complete requests within 150 ms.
+**Retain the adopted reference; neither complete corrected recipe is a shared
+replacement.** Preserve the minimal SAM3.1 memory correction and SAM3 OFF as opt-in
+diagnostics. OFF is the better tested single-SAM3 diagnostic, but its gains do not
+compensate for light accuracy, nominal 15/20 mm gaps and weaker final targets versus
+the reference. SAM3.1 prefix precision was real; full completion exposes late bias
+that cannot be attributed to pruning because every previously reached pose and
+decision is exactly equal. Completion and common-prefix quality are separate claims.
 
-Keep the current all-query, graph-off, partial-on, rollback-off reference with five
-inliers/4 mm and all other adopted controls. The unified API remains an explicit
-experimental comparison, without an automatic version switch, fallback, relaxed
-gates or policy change. Its full evidence, failed startup/adapter attempts,
-interrupted timing attempt and original baselines stay preserved.
+Demonstrated causes are expired SAM3.1 payload retention, a causal adverse effect
+of SAM3 matched-detection reconditioning on later masks/support, static-frame point
+inclusion from seed and renewal, and blocked renewal during native loss. Streaming
+arrival indices/times, full native propagation and mask transfer show no integration
+error explaining the regression. The controlled ON/OFF seed/model/configuration
+and original ON reproduction rule out a changed initialization as the ON/OFF cause.
 
-Next-phase work may inspect SAM3.1 history/cache consumers before any memory
-intervention and examine late semantic ownership/reference drift. General cleanup,
-latency optimization and live frequency tests were not started. A3/A4, policy
-integration, operational freshness, contact and physical qualification remain
-unchanged. No acquisition, training, other-door campaign or sealed-test run occurs.
+Open hypotheses concern the residual effects of direct-mask initialization/query
+selection, one object versus the older five/six candidate contexts, subsequent
+mask propagation, TAPIR correspondences and TSDF/reference evolution. They are not
+isolated by comparing two different complete frontends. Frame contamination alone
+does not explain every failure, and stable ID0 does not prove material identity.
+The next justified diagnostic is observed-only seed/renewal ownership with the
+single-SAM/single-object path retained; no such new intervention is implemented here.
 
+Keep all-query TAPIR/480/four iterations, SuperPoint, graph off, partial batch on,
+rollback off, five inliers/4 mm and 120 active references. The unified API retains
+baseline defaults. No SAM2 or multiple-candidate route is reintroduced into it.
+Original resource/startup/adapter/timing failures, the early negative control and
+the smoke sampler shutdown error remain preserved. General cleanup, further latency
+optimization, live resampling, A3/A4 and policies are deferred. No acquisition,
+training, other-door campaign or sealed-test evaluation occurs.
 
-## Full-window original physical-target results
+## Historical full-window original physical-target results
+
+These tables retain the original unbounded SAM3.1 failures and original SAM3 ON
+results. The complete corrected comparisons above and `final-comparison.json`
+supersede their adoption conclusion without replacing their evidence.
 
 Every denominator includes the original seed and unavailable tail; the seed is
 excluded from correctness and error statistics. Availability means correct,
@@ -431,6 +541,15 @@ old primary SAM3-to-SAM2 and SAM3.1 at the same frame.
 with moving-only/fixed-only/unclassified membership. Collision truth and recorded
 motion are used only in evaluators, never in RGB workers or P2P inference.
 
+The follow-up evidence root is `outputs/b1/perception/p2p-sam3-followup-01/`.
+`final-comparison.json` contains all three original targets, common-prefix metrics,
+complete gaps/tails/resources, update events and exact ON reproduction checks.
+`point-membership-*-summary.json` and per-frame JSONL retain membership/renewal
+audits. `sam3-controlled-diagnosis.png` shows all finite target0 errors (unavailable
+outputs dotted), fixed-frame frontend inliers and evaluator-only moving published
+inliers over the original times. The native gate still counts all compatible points.
+
 Implementation commits: `7404a41` (causal frontend/direct P2P masks), `740ee57`
-(optional SAM3 frame alias). Results/documentation are recorded in the follow-up
-local commit; none is pushed.
+(optional SAM3 frame alias), `21c2abf` (expired SAM3.1 history), `72532e1` (complete
+bounded results), `f3d8797` (isolated SAM3 control/trace). The final controlled results
+are recorded in the documentation follow-up commit. All commits are local.
