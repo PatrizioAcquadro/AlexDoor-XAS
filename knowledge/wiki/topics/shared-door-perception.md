@@ -446,3 +446,5 @@ fail. Required positions/dimensions retain 1 cm limits and rotations/angle 5 deg
 Operational chosen-contact scoring remains future 6.0E work. Detailed provisional,
 feedback and staged qualification requirements are canonical in
 [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]].
+
+The [[pre-a4-initialization-and-hinge-budget|shared pre-A4 protocol]] defines stationary pin versus bounded diagnostic initialization before policy dispatch, separates known simulation floor/FK from correspondence envelopes and verifies the unchanged A4 command sensitivity. No initialization motion/contact path is implemented.

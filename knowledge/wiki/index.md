@@ -38,6 +38,8 @@ Current technical behavior and explicitly labeled planned contracts:
 
 - [[topics/shared-door-perception|Shared Door Perception]] — Static scan, official Point2Pose panel/zone prototype, recording and estimator-independent contracts; qualification pending.
 
+- [[topics/pre-a4-initialization-and-hinge-budget|Shared Pre-A4 Initialization and Simulated Hinge Budget]] — Policy-independent initialization routes, insufficiency, uncertainty sources and unchanged A4 command sensitivity.
+
 ## Key Decisions
 
 Current architectural and scientific contracts:
