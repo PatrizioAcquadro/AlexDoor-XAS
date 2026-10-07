@@ -313,3 +313,27 @@ poses reach 46.45 mm. This conditional precision does not restore availability.
 Light retains all 600 nonseed correct acceptances, but the nominal continuity
 regression excludes SVD from full extension and from any combination. Preserve
 all failures without changing five inliers, the 4 mm gate or upstream guards.
+
+### Complete all-query openings
+
+Both original automatic initializations process 2,858/2,858 captures without
+inference retry/reset or discarded history. Every source frame, mask, initial
+map/ID/pose and candidate is accounted for. A4 remains deferred. Cells report
+availability / accepted precision / maximum correct-pose gap in seconds.
+
+| Condition | 10 mm | 15 mm | 20 mm | Accepted point p95/p99/max, mm | Complete median/p95/max, ms | GPU peak, GiB |
+|---|---:|---:|---:|---:|---:|---:|
+| light | 79.67 / 79.70 / 0.583 | 98.08 / 98.11 / 0.033 | 99.90 / 99.93 / 0.017 | 13.38/15.96/21.62 | 438.27/553.79/1544.39 | 9.855 |
+| nominal | 69.80 / 69.83 / 0.817 | 98.15 / 98.18 / 0.050 | 99.83 / 99.86 / 0.017 | 13.18/16.40/23.24 | 402.26/644.39/4069.27 | 12.088 |
+
+The 10 mm regression is substantial, especially in the final five seconds:
+only 91/95 of 301 captures are correct light/nominal, while at 15 mm 294/294
+remain correct and at 20 mm all 301/301. Median complete time improves
+29.67%/38.34%; 15/20 availability declines less than 0.5 percentage points
+and correct gaps remain below 67 ms. This supports an explicit wider-tolerance
+compute tradeoff, not numerical equivalence, a 10 mm replacement or live/contact
+qualification. Both measured complete paths have zero observations ≤150 ms.
+Measured diagnostic median/p95 is 44.02/47.52 ms light and 48.54/58.63 ms nominal;
+arithmetic subtraction still leaves p95 far above 150 ms. CPU worker/GPU/TSDF,
+history, component timing, distributions/peak times and all secondary candidates
+remain in the JSON. The isolated crop/one-iteration full openings are next.
