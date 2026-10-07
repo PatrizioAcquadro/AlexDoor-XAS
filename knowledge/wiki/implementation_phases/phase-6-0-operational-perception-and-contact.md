@@ -364,10 +364,11 @@ admission remains 6.0D work; do not invent a hinge to pass the existing validato
 
 An opt-in [[../experiments/p2p-sam3-unified-frontend|unified SAM3 video diagnostic]]
 now supplies causal text initialization and subsequent masks directly to P2P,
-without the separate SAM2 segmenter or DINOv3 inference. Both SAM3.1 integrated
-601-frame prefixes pass original-target precision checks; complete original
-openings remain under evaluation. The retained static 6.0B path and A3/A4/policies
-are unchanged.
+without the separate SAM2 segmenter or DINOv3 inference. Both versions pass bounded
+integration pilots. Full original SAM3 openings regress light physical-target precision and nominal support/tail;
+SAM3.1 fails the unchanged TSDF memory guard after accurate prefixes. Neither
+version replaces the adopted diagnostic reference. The retained static 6.0B path
+and A3/A4/policies are unchanged.
 
 #### Implemented recipe and remaining acceptance work
 

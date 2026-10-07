@@ -155,4 +155,6 @@ The adopted comparison passes `use_key_frame_graph=False`,
 `performance_controls={"query_chunk_size": 0}` explicitly. Other native parameters,
 TAPIR, SuperPoint, measured RGB-D, registration and TSDF are retained. This option
 is diagnostic only; existing scan/live/replay defaults and policies are unchanged.
-See the [bounded pilots and original-target evaluation](../../knowledge/wiki/experiments/p2p-sam3-unified-frontend.md).
+Both original SAM3 openings complete but regress common pose quality/support;
+SAM3.1 stops at the preserved TSDF memory guard. Neither replaces the adopted
+reference. See the [bounded pilots and original-target evaluation](../../knowledge/wiki/experiments/p2p-sam3-unified-frontend.md).
