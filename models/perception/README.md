@@ -8,6 +8,7 @@ Neither the static scan nor the optional Point2Pose prototype is a qualified per
 |---|---|---|
 | `grounding-dino/` | `IDEA-Research/grounding-dino-tiny` | `a2bb814dd30d776dcf7e30523b00659f4f141c71` |
 | `sam3/` | `facebook/sam3`, native `sam3.pt` | `3c879f39826c281e95690f02c7821c4de09afae7` |
+| `sam3.1/` | `facebook/sam3.1`, native `sam3.1_multiplex.pt` | `daa63191845a41281374e725f4c9e51c7a824460` |
 | `dinov3/` | `facebook/dinov3-vits16-pretrain-lvd1689m` | `114c1379950215c8b35dfcd4e90a5c251dde0d32` |
 
 Model directories are ignored by Git. Keep their configuration, preprocessing,
@@ -136,3 +137,22 @@ only when it cannot affect official lifting results. SAM2 retains the authors'
 positive prompts. Current pilot diagnostics fail useful availability at the
 unchanged 150 ms limit. The prototype remains unqualified; results and limitations
 are in the canonical perception findings, not implied by successful setup.
+
+## Unified SAM3 video diagnostic
+
+The same official source/NumPy overlay supports `sam3` and `sam3.1` causal RGB
+workers. Keep the SAM3 tokenizer and the selected checkpoint in the directories
+above; no runtime download is performed. SAM3.1 uses the multiplex builder with
+one-frame grounding, the official PyTorch attention path, no compilation and
+unchanged native thresholds. Only arrived RGB/time packets cross worker IPC.
+
+The opt-in `point2pose_offline.offline_episode` argument
+`sam3_frontend={"version": "sam3.1", "prompt": "door surface"}` uses the same
+frontend for initialization and every subsequent mask. P2P disables its separate
+SAM2 segmenter and receives each synchronized mask unchanged; DINOv3 is not loaded.
+The adopted comparison passes `use_key_frame_graph=False`,
+`allow_partial_reference_batch=True`, `refit_seed_rollback=False`, and
+`performance_controls={"query_chunk_size": 0}` explicitly. Other native parameters,
+TAPIR, SuperPoint, measured RGB-D, registration and TSDF are retained. This option
+is diagnostic only; existing scan/live/replay defaults and policies are unchanged.
+See the [bounded pilots and original-target evaluation](../../knowledge/wiki/experiments/p2p-sam3-unified-frontend.md).

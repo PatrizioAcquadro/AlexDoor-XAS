@@ -245,6 +245,7 @@ def offline_episode(
     refit_seed_rollback=False,
     selected_registration_only=False,
     performance_controls=None,
+    sam3_frontend=None,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
     output = Path(output)
@@ -289,7 +290,12 @@ def offline_episode(
             if not np.allclose(np.diff(times), 1 / 60, atol=1e-6, rtol=0):
                 raise ValueError("offline_recording_requires_60_hz")
             started = time.perf_counter()
-            cues = ModelWorker(models, config, log)
+            if sam3_frontend is None:
+                cues = ModelWorker(models, config, log)
+            else:
+                from alexdoor_xas.perception.sam3_runtime import Sam3Worker
+
+                cues = Sam3Worker(models, sam3_frontend, log)
             startup["visual_s"] = time.perf_counter() - started
             engine = SerialPoint2PoseEngine(
                 lambda: Point2PoseWorker(
@@ -299,6 +305,7 @@ def offline_episode(
                     1,
                     output / "native",
                     diagnostic_only=True,
+                    **({"external_masks": True} if sam3_frontend is not None else {}),
                     **({"registration_diagnostics": True} if registration_diagnostics else {}),
                     **({"use_key_frame_graph": False} if not use_key_frame_graph else {}),
                     **(
@@ -316,9 +323,12 @@ def offline_episode(
                 )
             )
             tracker = PanelTracking(engine, config)
-            tracker.before_start = cues.close
+            if sam3_frontend is None:
+                tracker.before_start = cues.close
             engine.prepare()
             startup["point2pose_s"] = engine.worker.boot_latency_s
+            if sam3_frontend is not None:
+                write_json(output / "sam3-runtime.json", cues.runtime)
         except KeyboardInterrupt:
             interrupted = True
             failure = "user_requested_stop"
@@ -347,7 +357,18 @@ def offline_episode(
                         record["status"] = "not_processed"
                     else:
                         try:
-                            if not candidates and next_semantic <= t <= semantic_end_s + 1e-9:
+                            if sam3_frontend is not None:
+                                cue = cues.infer(sensor["rgb"], sensor["frame"], sensor["time_s"])
+                                record["sam3"] = cue["sam3"]
+                                if not candidates:
+                                    tracker.initialize(
+                                        surfaces(cue, sensor, config, visual_features=False),
+                                        sensor,
+                                        whole_leaf_mask=cues.latest_masks[0],
+                                    )
+                                else:
+                                    engine.submit(sensor, cues.latest_masks)
+                            elif not candidates and next_semantic <= t <= semantic_end_s + 1e-9:
                                 cue = cues.infer(sensor["rgb"])
                                 next_semantic = float(t) + config["semantic_period_s"]
                                 tracker.initialize(surfaces(cue, sensor, config), sensor)

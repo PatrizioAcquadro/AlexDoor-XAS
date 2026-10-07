@@ -266,7 +266,7 @@ def patch_anchors(cue, sensor, mask):
     return anchors, features, descriptor
 
 
-def surfaces(cue, sensor, config):
+def surfaces(cue, sensor, config, *, visual_features=True):
     from scipy.ndimage import binary_erosion, binary_fill_holes, binary_opening, label
 
     h, w = cue["shape"]
@@ -283,7 +283,10 @@ def surfaces(cue, sensor, config):
         if len(u) < config["min_points"]:
             continue
         cloud = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
-        anchors, features, _ = patch_anchors(cue, sensor, interior)
+        if visual_features:
+            anchors, features, _ = patch_anchors(cue, sensor, interior)
+        else:
+            anchors, features = np.empty((0, 3)), np.empty((0, 0))
         # SAM membership seeds a surface; enclosed omissions can still contain
         # measured material. Only valid metric plane inliers restore support,
         # so real apertures, missing depth and the outer silhouette stay unknown.

@@ -30,8 +30,9 @@ class RegistrationTrace:
         self.path = Path(path)
         self.overhead_s = 0.0
         segmenter = getattr(pipeline.frontend, "segmenter", None)
-        if segmenter is not None:
-            native_prompt = segmenter.predictor.add_new_prompt
+        predictor = getattr(segmenter, "predictor", None)
+        if predictor is not None:
+            native_prompt = predictor.add_new_prompt
 
             def observe_prompt(*args, **kwargs):
                 started = time.perf_counter()
@@ -41,7 +42,7 @@ class RegistrationTrace:
                 self.overhead_s += time.perf_counter() - started
                 return native_prompt(*args, **kwargs)
 
-            segmenter.predictor.add_new_prompt = observe_prompt
+            predictor.add_new_prompt = observe_prompt
         manager = getattr(pipeline, "kf_manager", None)
         if manager is not None:
             native_promote = manager._pending_try_promote

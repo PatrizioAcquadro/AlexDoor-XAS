@@ -7,7 +7,11 @@ comparison are retired. Their results remain in
 [[experiments/b1-perception-findings|Perception Findings]]. The optional CAD-free
 Point2Pose prototype is implemented under
 [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]];
-its diagnostics do not qualify a release or enable contact.
+its diagnostics do not qualify a release or enable contact. An opt-in
+[[../experiments/p2p-sam3-unified-frontend|unified official SAM3/SAM3.1 video path]]
+uses one persistent full-leaf text identity for initialization and every subsequent
+mask. It skips separate SAM2 segmentation and DINOv3 extraction while retaining
+observed RGB-D geometry, TAPIR, SuperPoint, registration and TSDF.
 
 ## Recording, inspection and storage
 

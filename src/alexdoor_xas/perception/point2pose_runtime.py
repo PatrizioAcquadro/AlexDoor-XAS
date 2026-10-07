@@ -30,6 +30,7 @@ class Point2PoseWorker:
         refit_seed_rollback=False,
         selected_registration_only=False,
         performance_controls=None,
+        external_masks=False,
     ):
         boot_started = time.perf_counter()
         root, log_dir = Path(root).resolve(), Path(log_dir).resolve()
@@ -107,6 +108,7 @@ class Point2PoseWorker:
                     refit_seed_rollback=refit_seed_rollback,
                     selected_registration_only=selected_registration_only,
                     performance_controls=performance_controls,
+                    external_masks=external_masks,
                 ),
             )
             response = receive(self.process.stdout)

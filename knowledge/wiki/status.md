@@ -16,6 +16,15 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 
 ## Next action
 
+The [[experiments/p2p-sam3-unified-frontend|unified SAM3 video frontend]] is implemented
+as an opt-in offline diagnostic. SAM3.1 with `door surface` completes both causal
+601-frame integration pilots with 100% accepted precision on all three original
+physical targets at 10/15/20 mm and 5 degrees. Complete original light/nominal
+openings are under evaluation; adoption is pending those tails. A3/A4, policies
+and operational freshness gates remain unchanged. General cleanup, latency
+optimization and live frequency tests are deferred.
+
+
 Completed [[experiments/p2p-evaluation-and-performance|Point2Pose tolerance and isolated compute comparisons]]
 retain 10/15/20 mm and 5 degrees, precision, continuity, peaks and failed tails.
 Adopt larger chunks only as an explicit 15/20 mm diagnostic tradeoff; preserve

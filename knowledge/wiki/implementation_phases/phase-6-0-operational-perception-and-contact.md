@@ -362,6 +362,13 @@ reset and uncertainty. Keep the selected material point distinct from the visual
 reference and never silently reselect it. Loaded or axis-free diagnostic action
 admission remains 6.0D work; do not invent a hinge to pass the existing validators.
 
+An opt-in [[../experiments/p2p-sam3-unified-frontend|unified SAM3 video diagnostic]]
+now supplies causal text initialization and subsequent masks directly to P2P,
+without the separate SAM2 segmenter or DINOv3 inference. Both SAM3.1 integrated
+601-frame prefixes pass original-target precision checks; complete original
+openings remain under evaluation. The retained static 6.0B path and A3/A4/policies
+are unchanged.
+
 #### Implemented recipe and remaining acceptance work
 
 Pinned upstream revision: `51856226610df75e5c06e8de545bd27f7c4ba99c`.

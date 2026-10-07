@@ -54,6 +54,9 @@ class OfficialPipeline:
         if not torch.cuda.is_available():
             raise RuntimeError("Point2Pose requires CUDA; no CPU fallback")
         native_fixes = patch_tracking(root)
+        self.external_masks = bool(request.get("external_masks", False))
+        if self.external_masks and not request.get("diagnostic_only", False):
+            raise ValueError("external_masks_require_diagnostic_mode")
         torch.set_num_threads(4)
         config = OmegaConf.load(root / "upstream/configs/ycbinisaac/eccv_final.yaml")
         params = config.pipeline.params
@@ -64,7 +67,7 @@ class OfficialPipeline:
         params.update(
             min_depth=near,
             max_depth=far,
-            use_segmenter=True,
+            use_segmenter=not self.external_masks,
             estimate_init_pose=False,
             use_key_frame_graph=request.get("use_key_frame_graph", True),
             save_pose=False,
@@ -130,9 +133,8 @@ class OfficialPipeline:
         self.initialization_checks = []
         self.models = (
             self.pipeline.frontend.tracker._model,
-            self.pipeline.frontend.segmenter.predictor,
             self.pipeline.kf_manager.sampler.super_point_extractor,
-        )
+        ) + (() if self.external_masks else (self.pipeline.frontend.segmenter.predictor,))
         self.index = 0
         self.log_dir = Path(request["log_dir"])
         self.depth_error_m = request["depth_error_m"]
@@ -154,6 +156,7 @@ class OfficialPipeline:
             registration_diagnostics=self.trace is not None,
             selected_registration_only=self.schedule is not None,
             performance_controls=request.get("performance_controls"),
+            external_masks=self.external_masks,
             cuda_math=dict(
                 bfloat16_autocast=torch.is_autocast_enabled("cuda"),
                 tf32_matmul=torch.backends.cuda.matmul.allow_tf32,
@@ -175,13 +178,18 @@ class OfficialPipeline:
         depth[~sensor["valid_depth"].squeeze(-1).astype(bool)] = 0
         masks = request.get("masks")
         if masks is not None:
-            if self.initialized or (
+            if (self.initialized and not self.external_masks) or (
                 request["mask_frame"] != int(sensor["frame"])
                 or request["mask_time_s"] != float(sensor["time_s"])
             ):
                 raise ValueError("unsynchronized_point2pose_initialization")
             masks = np.stack([unpack_array(mask) for mask in masks]).astype(bool)
-        elif not self.initialized:
+            if self.external_masks and masks.shape != (
+                self.pipeline.num_obj,
+                *sensor["rgb"].shape[:2],
+            ):
+                raise ValueError("external_mask_identity_or_shape_changed")
+        elif not self.initialized or self.external_masks:
             raise ValueError("missing_automatic_candidate_masks")
         frame = Frame(
             id=self.index,
@@ -214,7 +222,11 @@ class OfficialPipeline:
                 np.save(self.log_dir / "initial-source-masks.npy", masks)
             self.pipeline.initialize_first_frame(frame)
             regenerated = frame.mask.detach().float().cpu().numpy()[:, 0] > 0
-            np.save(self.log_dir / "sam2-initial.npy", regenerated)
+            np.save(
+                self.log_dir
+                / ("external-initial.npy" if self.external_masks else "sam2-initial.npy"),
+                regenerated,
+            )
             self.initialization_checks = initialization_checks(
                 masks, regenerated, prompts, diagnostic_only=self.diagnostic_only
             )

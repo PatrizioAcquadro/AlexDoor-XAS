@@ -120,7 +120,7 @@ class PanelTracking:
         )
         self.engine.reset()
 
-    def initialize(self, candidates, sensor, *, start_s=None):
+    def initialize(self, candidates, sensor, *, start_s=None, whole_leaf_mask=None):
         if self.candidates:
             return False
         processing_started = time.perf_counter()
@@ -180,6 +180,13 @@ class PanelTracking:
                 for other, members in groups
             )
         ]
+        if whole_leaf_mask is not None:
+            # One semantic leaf identity can have several measured plane faces.
+            # The first eligible face supplies a zone; the native object receives
+            # the unchanged whole-leaf mask, without another segmentation.
+            roots = roots[:1]
+            if whole_leaf_mask.shape != sensor["rgb"].shape[:2]:
+                raise ValueError("whole_leaf_mask_shape_changed")
         masks = []
         for surface in roots:
             observation = surface.observations[0]
@@ -205,7 +212,7 @@ class PanelTracking:
             self.candidates[-1].static_reference = StaticReference.observed(
                 world, self.candidates[-1].geometry
             )
-            masks.append(mask)
+            masks.append(mask if whole_leaf_mask is None else whole_leaf_mask)
         if not masks:
             return False
         if self.before_start is not None:
