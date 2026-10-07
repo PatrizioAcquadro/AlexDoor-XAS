@@ -253,8 +253,10 @@ estimate candidate pose even when the selected contact face is uniform or covere
 Measured transformed root-plane support and informative residual motion establish
 only the root candidate's rigid relationship; an included handle/relief is not
 attached just by the mask. Tangential motion on a stationary plane is insufficient.
-Articulation fits require informative, conditioned observed motion and remain
-relative to initialization; no closed-pose or loaded-contact reference is invented.
+Articulation uses the frozen observed initial pose and uncertainty-aware vertical
+residual consensus. A current accepted pose supports relative angle independently
+of displacement-selected hinge samples; neither invents a closed task protocol nor
+a loaded-contact reference.
 
 `point2pose_impact.transport_impact` is evaluator-only. It measures the transported
 observed zone point, its oriented +X normal and full rotation separately. For a
@@ -267,7 +269,9 @@ The geometry adapter now freezes an explicit observed reference and separates
 current-image angle support from displacement-selected hinge evidence. Vertical-model
 residuals require uncertainty-aware sample consensus; origin envelopes propagate
 initial uncertainty and rotation-lever feedback. Missing floor/calibration bounds
-remain absent. See [[../experiments/p2p-observed-geometry-and-sdf-jacobian|the separate intervention results]].
+remain absent. Native SDF Jacobian assembly is vectorized in NumPy; paired CUDA
+refinements retain samples, iterations, RNG and decisions, with no end-to-end
+150 ms qualification. See [[../experiments/p2p-observed-geometry-and-sdf-jacobian|the separate intervention results]].
 The full static A3 reference additionally needs observed closed yaw and supported
 hinge geometry. An observed relative-axis fit cannot supply those missing fields.
 

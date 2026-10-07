@@ -1,8 +1,13 @@
-"""Reproducible native fixes and opt-in refit rollback; unchanged support gates."""
+"""Reproducible native fixes, vectorized SDF Jacobian and unchanged support gates."""
 
 from pathlib import Path
 
-NATIVE_FIXES = ("f2m_measured_loss", "sdf_returned_pose", "inlier_driven_renewal")
+NATIVE_FIXES = (
+    "f2m_measured_loss",
+    "sdf_returned_pose",
+    "inlier_driven_renewal",
+    "vectorized_sdf_jacobian",
+)
 
 _REGISTER = "upstream/point2pose/modules/register/svd_cluster_ransac_register.py"
 _FRONTEND = "upstream/point2pose/pipeline/components/front_end.py"
@@ -15,8 +20,7 @@ _REPLACEMENTS = {
             '        self._refit_seed_rollback = bool(config.get("refit_seed_rollback", False))\n',
         ),
         (
-            "        inl_all = r_all <= self._inlier_thres\n\n"
-            "        inlier_idx = idx[inl_all]\n",
+            "        inl_all = r_all <= self._inlier_thres\n\n        inlier_idx = idx[inl_all]\n",
             "        inl_all = r_all <= self._inlier_thres\n"
             "        refit_ninliers = int(inl_all.sum())\n"
             "        refit_rollback = False\n"
@@ -53,6 +57,19 @@ _REPLACEMENTS = {
             "                fallback_T = np.asarray(selected_T, dtype=np.float64)\n",
             "            if cluster_T is not None:\n"
             "                fallback_T = np.asarray(cluster_T, dtype=np.float64)\n",
+        ),
+        (
+            "            n = pts_obj_in.shape[0]\n"
+            "            J = np.zeros((n, 6), dtype=np.float64)\n"
+            "            for i in range(n):\n"
+            "                x = pts_obj_in[i]\n"
+            "                G = np.zeros((3, 6), dtype=np.float64)\n"
+            "                G[:, :3] = np.eye(3)\n"
+            "                G[:, 3:] = -_skew(x)\n"
+            "                J[i] = g_sdf_in[i] @ G\n",
+            "            J = np.empty((len(pts_obj_in), 6), dtype=np.float64)\n"
+            "            J[:, :3] = g_sdf_in\n"
+            "            J[:, 3:] = np.cross(pts_obj_in, g_sdf_in)\n",
         ),
     ),
     _FRONTEND: (

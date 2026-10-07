@@ -303,3 +303,63 @@ def test_inlier_trigger_preserves_mask_and_view_thresholds(
     )
     criterion.initialize(context)
     assert criterion.check_sample_criterion(context, 0) == expected
+
+
+@pytest.mark.parametrize("count", [30, 1500])
+def test_vectorized_sdf_jacobian_preserves_refinement_decisions(native_root, register, count):
+    """Numerical optimizer regression; real CUDA SDF parity is evaluated separately."""
+    from types import MethodType
+
+    from point2pose.utils.transform import transform_pts
+    from scipy.spatial.transform import Rotation
+
+    old = (native_root / REGISTER_PATH).with_suffix(".py.before-tracking-fixes").read_text()
+    tree = ast.parse(old)
+    namespace = dict(np=np, scipy_R=Rotation, transform_pts=transform_pts)
+    for name in ("_skew", "_left_update_SE3"):
+        node = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == name)
+        exec(
+            compile(ast.Module(body=[node], type_ignores=[]), "original_helpers", "exec"), namespace
+        )
+    node = next(
+        n for n in tree.body if isinstance(n, ast.ClassDef) and n.name == "SVDClusterRANSACRegister"
+    )
+    method = next(
+        n for n in node.body if isinstance(n, ast.FunctionDef) and n.name == "_refine_pose_with_sdf"
+    )
+    exec(
+        compile(ast.Module(body=[method], type_ignores=[]), "original_refinement", "exec"),
+        namespace,
+    )
+    scalar = MethodType(namespace["_refine_pose_with_sdf"], register)
+    # The actual patched class uses the same SE3 update helper.
+    register._refine_pose_with_sdf.__func__.__globals__["_left_update_SE3"] = namespace[
+        "_left_update_SE3"
+    ]
+    rng = np.random.default_rng(20261006)
+    points = rng.normal(size=(count, 3))
+    diagonal = np.array([1.0, 2.0, 3.0])
+    points /= np.sqrt((points**2 * diagonal).sum(1))[:, None]
+    points = points.astype(np.float32) + np.array([0.003, -0.002, 0.001], np.float32)
+
+    def field(_obj, xyz):
+        values = (xyz**2 * diagonal).sum(1) - 1
+        return values, 2 * xyz * diagonal, np.ones(len(xyz), bool)
+
+    register._query_sdf_and_grad = field
+    register._query_sdf_signed = lambda obj, xyz: (field(obj, xyz)[0], field(obj, xyz)[2])
+    before = np.random.get_state()
+    expected = scalar(points, np.eye(4), object())
+    actual = register._refine_pose_with_sdf(points, np.eye(4), object())
+    assert expected[0] is not None and actual[0] is not None
+    # Native output is float32. 1e-7 is below one submicrometer at door scale;
+    # costs are float64 reductions. Gate histories must match exactly.
+    np.testing.assert_allclose(actual[0], expected[0], atol=1e-7, rtol=0)
+    for key in ("accepted", "iters", "support_history", "inliers_history"):
+        assert actual[1][key] == expected[1][key]
+    np.testing.assert_allclose(
+        actual[1]["cost_history"], expected[1]["cost_history"], atol=1e-12, rtol=1e-10
+    )
+    after = np.random.get_state()
+    np.testing.assert_array_equal(before[1], after[1])
+    assert before[2:] == after[2:]

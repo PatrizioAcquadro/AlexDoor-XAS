@@ -130,8 +130,10 @@ No origin bound reaches 1 cm; complete calibration/floor budgets are missing.
 Angle source age is corrected, but saved publication p95 remains 784/975 ms,
 with zero fresh angles under 150 ms. A3/A4 and operational admission remain
 unchanged. Before initial A4 motion, resolve the unsupported stationary physical
-hinge and specify a bounded pre-articulation contact/admission path. Separate
-SDF Jacobian CUDA equivalence/performance evaluation is in progress.
+hinge and specify a bounded pre-articulation contact/admission path. The separate SDF Jacobian vectorization is retained: 2,640 paired CUDA
+refinements across 482 original frames preserve poses/decisions exactly and cut
+median refinement cost by 3.35/3.29 times. Instrumented pipeline estimates remain
+562/665 ms p95; end-to-end 150 ms freshness is not established.
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.
