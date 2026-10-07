@@ -263,6 +263,11 @@ with `Z_expected` obtained by transporting the observed seed with evaluator trut
 This removes seed alignment bias and assumes the target's intended local coordinates;
 it does not evaluate actual A4 predictions, contact admission or missing A3 geometry.
 Finite lost poses retain their rejection state; missing poses/targets stay missing.
+The geometry adapter now freezes an explicit observed reference and separates
+current-image angle support from displacement-selected hinge evidence. Vertical-model
+residuals require uncertainty-aware sample consensus; origin envelopes propagate
+initial uncertainty and rotation-lever feedback. Missing floor/calibration bounds
+remain absent. See [[../experiments/p2p-observed-geometry-and-sdf-jacobian|the separate intervention results]].
 The full static A3 reference additionally needs observed closed yaw and supported
 hinge geometry. An observed relative-axis fit cannot supply those missing fields.
 

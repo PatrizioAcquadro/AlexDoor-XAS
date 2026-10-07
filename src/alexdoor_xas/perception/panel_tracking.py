@@ -26,7 +26,12 @@ from alexdoor_xas.perception.material_zone import (
     query_slip,
     transported_zone,
 )
-from alexdoor_xas.perception.observed_articulation import fit_motion_axis
+from alexdoor_xas.perception.observed_articulation import (
+    MotionObservation,
+    StaticReference,
+    current_angle,
+    fit_motion_axis,
+)
 from alexdoor_xas.perception.point2pose_seed import candidate_references
 from alexdoor_xas.perception.point2pose_worker import unpack_array
 from alexdoor_xas.perception.scan import object_members, registered_support, surface_support
@@ -48,6 +53,7 @@ class PanelCandidate:
     state: str = "initializing"
     registration_origin_map: np.ndarray | None = None
     camera_world: np.ndarray | None = None
+    static_reference: StaticReference | None = None
 
 
 def metric_registration_bound(source, current, transform, depth_error_m):
@@ -196,6 +202,9 @@ class PanelTracking:
                     surface_support(surface, self.generation, self.config),
                 )
             )
+            self.candidates[-1].static_reference = StaticReference.observed(
+                world, self.candidates[-1].geometry
+            )
             masks.append(mask)
         if not masks:
             return False
@@ -248,6 +257,12 @@ class PanelTracking:
             )
             if obj["lost"] or p is None or a is None:
                 candidate.state = "tracking_lost"
+                articulation = self.diagnostics.setdefault("observed_articulation", {}).get(
+                    candidate.candidate_id
+                )
+                if articulation is not None:
+                    articulation["angle"] = None
+                    articulation["current_reason"] = "tracking_lost"
                 continue  # Frozen native pose never renews acquisition/support.
             candidate.pose = transported_zone(
                 captured["camera_world"],
@@ -263,21 +278,31 @@ class PanelTracking:
             )
             candidate.state = "tracked"
             samples = self.motion_samples.setdefault(candidate.candidate_id, deque(maxlen=32))
-            if not samples or np.linalg.norm(candidate.pose[:3, 3] - samples[-1][0][:3, 3]) > p:
-                samples.append((candidate.pose.copy(), p, a))
+            initial_camera = candidate.initial_world @ np.linalg.inv(candidate.map_from_object)
+            anchor = (initial_camera @ np.r_[source.mean(0), 1])[:3]
+            observation = MotionObservation(candidate.pose.copy(), candidate.support, anchor)
+            if not samples or np.linalg.norm(candidate.pose[:3, 3] - samples[-1].pose[:3, 3]) > p:
+                samples.append(observation)
+            fit_detail = {}
             axis = fit_motion_axis(
-                candidate.initial_world, list(samples), self.config.get("floor_z_m", 0.0)
+                candidate.static_reference,
+                list(samples),
+                self.config.get("floor_z_m", 0.0),
+                floor_bound_m=self.config.get("floor_bound_m"),
+                diagnostics=fit_detail,
             )
-            if axis is not None and candidate.ownership == "observed_moving_rigid_candidate":
-                axis.update(
-                    acquired_s=candidate.support.acquired_s,
-                    supported_s=candidate.support.supported_s,
-                    available_s=candidate.support.available_s,
-                    generation=self.generation,
-                )
-                self.diagnostics.setdefault("observed_articulation", {})[candidate.candidate_id] = (
-                    axis
-                )
+            self.diagnostics.setdefault("observed_articulation", {})[candidate.candidate_id] = dict(
+                static_reference=dict(
+                    rotation=candidate.static_reference.rotation.copy(),
+                    support=vars(candidate.static_reference.support),
+                    closed_by_protocol=candidate.static_reference.closed_by_protocol,
+                ),
+                hinge=axis,
+                angle=current_angle(candidate.static_reference, observation),
+                fit=fit_detail,
+                ownership=candidate.ownership,
+                operational_reference_published=False,
+            )
             # Verify root geometry independently of SAM2's visual membership.
             # Tangential handle motion on a fixed plane cannot certify the leaf.
             initial_n, current_n = candidate.initial_world[:3, 0], candidate.pose[:3, 0]
@@ -297,8 +322,14 @@ class PanelTracking:
             if candidate.state == "tracked":
                 candidate.support = replace(candidate.support, available_s=ready)
                 axis = self.diagnostics.get("observed_articulation", {}).get(candidate.candidate_id)
-                if axis is not None:
-                    axis["available_s"] = ready
+                if axis is not None and axis.get("angle") is not None:
+                    axis["angle"]["available_s"] = ready
+                    # Hinge support retains the times of its actual motion samples.
+                    samples = self.motion_samples[candidate.candidate_id]
+                    if samples and samples[-1].support.supported_s == float(captured["time_s"]):
+                        samples[-1] = replace(samples[-1], support=candidate.support)
+                    if axis["hinge"] is not None:
+                        axis["hinge"]["available_s"] = max(axis["hinge"]["available_s"], ready)
         self.diagnostics.update(
             state="tracked"
             if any(c.state == "tracked" for c in self.candidates)

@@ -119,15 +119,19 @@ The bounded [[experiments/p2p-a3-a4-integration-diagnosis|P2P to A3/A4 diagnosis
 uses graph-off, partial-only and no rollback at five inliers/4 mm. Targeted saved
 images and evaluator geometry verify the primary closed leaf seeds and an observed
 static rotation within 0.051 degrees on these two recordings. This does not admit
-control: the provider remains local/invalid. Numerical hinge fits first appear at
-51.3667/39.55 s light/nominal; no calculated origin bound reaches 1 cm. One 7.65-degree
-inferred-axis tilt prolongs light's fit refusal. Dynamic angle sample times require
-an explicit handoff; static edge hypotheses remain unsupported. Fresh 493-row CUDA
-profiling reproduces saved poses exactly and identifies repeated registration/SDF
-as the main cost. Even subtracting reported export, complete native p95 is
-732/908 ms. Next specify observed closed initialization and a pre-A4 bootstrap,
-audit fit uncertainty, and propose a bounded diagnostic motion without execution.
-A3/A4, tracker, thresholds and all operational defaults remain unchanged.
+control: the provider remains local/invalid. The preserved diagnosis first fitted
+hinges at 51.3667/39.55 s. The subsequent
+[[experiments/p2p-observed-geometry-and-sdf-jacobian|separate observed-geometry intervention]]
+freezes the observed static reference, independently timestamps current angle,
+uses uncertainty-aware vertical consensus and audits origin-bound propagation.
+First fits are now 40.4833/39.9667 s; common-row origin p95 improves 31.23 to
+2.60 mm light and 19.92 to 18.97 mm nominal. Nominal loses 25 early hinge rows.
+No origin bound reaches 1 cm; complete calibration/floor budgets are missing.
+Angle source age is corrected, but saved publication p95 remains 784/975 ms,
+with zero fresh angles under 150 ms. A3/A4 and operational admission remain
+unchanged. Before initial A4 motion, resolve the unsupported stationary physical
+hinge and specify a bounded pre-articulation contact/admission path. Separate
+SDF Jacobian CUDA equivalence/performance evaluation is in progress.
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.

@@ -119,23 +119,106 @@ def test_lifting_optimization_matches_official_measured_and_completed_depth():
 
 
 def test_informative_motion_fits_axis_and_stationary_world_does_not():
-    from alexdoor_xas.perception.observed_articulation import fit_motion_axis
+    from alexdoor_xas.perception.contracts import FieldSupport
+    from alexdoor_xas.perception.observed_articulation import (
+        MotionObservation,
+        StaticReference,
+        current_angle,
+        fit_motion_axis,
+    )
 
     initial = np.eye(4)
     initial[:3, 3] = [1, 0.5, 1.1]
+    reference = StaticReference.observed(initial, FieldSupport(0, 0.1, 0, 0, 0.004, 0.001))
     pivot = np.array([-0.2, 0.3, 0.0])
     samples = []
-    for angle in (-0.2, -0.4, -0.6):
+    for tick, angle in enumerate((-0.2, -0.4, -0.6), 1):
         motion = np.eye(4)
         motion[:3, :3] = Rotation.from_euler("z", angle).as_matrix()
         motion[:3, 3] = pivot - motion[:3, :3] @ pivot
-        samples.append((motion @ initial, 0.005, 0.001))
-    fit = fit_motion_axis(initial, samples, 0.0)
+        samples.append(
+            MotionObservation(
+                motion @ initial,
+                FieldSupport(tick, tick + 0.1, tick, 0, 0.005, 0.001),
+                initial[:3, 3].copy(),
+            )
+        )
+    fit = fit_motion_axis(reference, samples, 0.0)
     np.testing.assert_allclose(fit["origin"], pivot, atol=1e-12)
-    assert fit["relative_angle_rad"] == pytest.approx(-0.6)
     assert not fit["closed_reference_validated"]
-    assert fit_motion_axis(initial, [(initial, 0.005, 0.001)] * 4, 0.0) is None
-    assert fit_motion_axis(initial, samples[:1], 0.0) is None
+    assert fit["position_bound_m"] is None and "floor" in fit["missing_bound_sources"]
+    assert fit["conditional_position_bound_m"] > fit["bound_before_feedback_m"]
+    assert fit["supported_s"] == 3 and reference.support.supported_s == 0
+    latest = MotionObservation(
+        samples[-1].pose, FieldSupport(3.1, 3.2, 3.1, 0, 0.005, 0.001), initial[:3, 3]
+    )
+    angle = current_angle(reference, latest)
+    assert angle["relative_angle_rad"] == pytest.approx(-0.6)
+    assert angle["supported_s"] == 3.1  # current accepted pose, no new motion sample
+    assert fit_motion_axis(reference, samples[:1], 0.0) is None
+    stationary = MotionObservation(
+        initial, FieldSupport(1, 1.1, 1, 0, 0.005, 0.001), initial[:3, 3]
+    )
+    assert fit_motion_axis(reference, [stationary] * 4, 0.0) is None
+    shifted = np.array([3, -2, 0.0])
+    translated = initial.copy()
+    translated[:3, 3] += shifted
+    other = StaticReference.observed(translated, reference.support)
+    moved = []
+    for sample in samples:
+        pose = sample.pose.copy()
+        pose[:3, 3] += shifted
+        moved.append(MotionObservation(pose, sample.support, sample.anchor + shifted))
+    result = fit_motion_axis(other, moved, 0.0)
+    np.testing.assert_allclose(result["origin"], pivot + shifted, atol=1e-12)
+    assert result["conditional_position_bound_m"] == pytest.approx(
+        fit["conditional_position_bound_m"]
+    )
+
+
+def test_vertical_consensus_preserves_noisy_sample_but_rejects_inclined_motion():
+    from alexdoor_xas.perception.contracts import FieldSupport
+    from alexdoor_xas.perception.observed_articulation import (
+        MotionObservation,
+        StaticReference,
+        fit_motion_axis,
+    )
+
+    initial = np.eye(4)
+    initial[:3, 3] = [1, 0.5, 1]
+    reference = StaticReference.observed(initial, FieldSupport(0, 0, 0, 0, 0.001, 0.001))
+    samples = []
+    for i, angle in enumerate((0.2, 0.3, 0.4, 0.5)):
+        rotation = Rotation.from_rotvec(np.array([0.2 if i == 0 else 0, 0, 1]) * angle)
+        pose = initial.copy()
+        pose[:3, :3] = rotation.as_matrix()
+        pose[:3, 3] = rotation.apply(initial[:3, 3])
+        samples.append(
+            MotionObservation(
+                pose, FieldSupport(i + 1, i + 1, i + 1, 0, 0.001, 0.001), initial[:3, 3]
+            )
+        )
+    detail = {}
+    fit = fit_motion_axis(reference, samples, 0, diagnostics=detail)
+    assert fit is not None and len(samples) == 4
+    assert detail["informative_samples"] == 4 and detail["compatible_samples"] == 3
+    assert detail["rejected_sample_times_s"] == [1]
+    assert fit_motion_axis(reference, [samples[0]] * 4, 0) is None
+    # Correlated angular uncertainty may make an inverse-motion bound unbounded.
+    wide = StaticReference.observed(initial, FieldSupport(0, 0, 0, 0, 0.001, 0.06))
+    short = []
+    for i, yaw in enumerate((0.13, 0.135, 0.14)):
+        pose = initial.copy()
+        pose[:3, :3] = Rotation.from_rotvec([0.03, 0, yaw]).as_matrix()
+        pose[:3, 3] = pose[:3, :3] @ initial[:3, 3]
+        short.append(
+            MotionObservation(
+                pose, FieldSupport(i + 1, i + 1, i + 1, 0, 0.001, 0.001), initial[:3, 3]
+            )
+        )
+    result = fit_motion_axis(wide, short, 0)
+    assert result["conditional_position_bound_m"] is None
+    assert result["reason"] == "unbounded_rotation_feedback"
 
 
 def test_finite_finger_slide_preserves_holes_and_can_exceed_one_centimeter():
