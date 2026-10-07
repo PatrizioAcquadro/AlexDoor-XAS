@@ -67,6 +67,8 @@ Current engineering and historical scientific records:
 
 - [[experiments/p2p-observed-geometry-and-sdf-jacobian|Observed Geometry and SDF Jacobian]] — Separately attributed observed-reference/hinge/angle changes and CUDA Jacobian evaluation.
 
+- [[experiments/p2p-selected-registration|Selected-Candidate Registration]] — One observed-selection schedule with periodic alternatives, preserved causal tracking and CUDA comparison.
+
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.
 - [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]] — Reproducible force event and bounded perturbation result.

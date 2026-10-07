@@ -88,6 +88,13 @@ class OfficialPipeline:
         self.renewal = BoundedRenewal(
             self.pipeline, allow_partial_batch=request.get("allow_partial_reference_batch", False)
         )
+        self.schedule = None
+        if request.get("selected_registration_only", False):
+            if not request.get("diagnostic_only", False):
+                raise ValueError("selected_registration_requires_diagnostic_mode")
+            from alexdoor_xas.perception.point2pose_schedule import SelectedRegistration
+
+            self.schedule = SelectedRegistration(self.pipeline)
         self.config = OmegaConf.to_container(config, resolve=True)
         self.torch, self.np = torch, np
         self.trace = None
@@ -136,6 +143,7 @@ class OfficialPipeline:
             qualified=False,
             diagnostic_only=self.diagnostic_only,
             registration_diagnostics=self.trace is not None,
+            selected_registration_only=self.schedule is not None,
         )
 
     def infer(self, request):
@@ -197,6 +205,8 @@ class OfficialPipeline:
             )
             self.initialized = True
         else:
+            if self.schedule is not None:
+                self.schedule.begin(frame.id)
             self.pipeline.step(frame)
         self.renewal.after_frame(frame, self.last_frontend)
         self.index += 1
@@ -223,6 +233,11 @@ class OfficialPipeline:
                     object_id=obj.id,
                     camera_from_map=pack_array(obj.pose),
                     lost=bool(obj.lost),
+                    registration_evaluated=(
+                        self.schedule is None
+                        or self.index == 1
+                        or obj.id in self.schedule.evaluated
+                    ),
                     source_points=pack_array(source),
                     current_points=pack_array(current),
                     measured_correspondences=pack_array(measured),
@@ -268,6 +283,15 @@ class OfficialPipeline:
             torch_peak_bytes=torch.cuda.max_memory_allocated(),
             gpu_free_bytes=torch.cuda.mem_get_info()[0],
             tsdf_rebuilds=self.pipeline.sdf_builder.rebuilds,
+            registration_schedule=None if self.schedule is None else self.schedule.metadata(),
+            candidate_history={
+                str(obj.id): dict(
+                    active_references=len(self.pipeline.track_table.obj2track_map[obj.id]),
+                    historical_points=len(obj.key_points),
+                    keyframes=len(obj.keyframes),
+                )
+                for obj in self.pipeline.objects
+            },
         )
 
 

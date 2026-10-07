@@ -100,7 +100,10 @@ def score_objects(candidates, sensor, result, motion, config, checks):
         if not pose_valid:
             reasons.append("invalid_native_pose")
         if obj["lost"]:
-            reasons.append("native_tracking_lost")
+            reasons.append(
+                "native_tracking_lost" if obj.get("registration_evaluated", True)
+                else "registration_deferred"
+            )
         if p is None or a is None or not np.isfinite([p, a]).all():
             reasons.append(
                 "insufficient_measured_pairs" if pairs < 5 else "degenerate_registration"
@@ -112,6 +115,7 @@ def score_objects(candidates, sensor, result, motion, config, checks):
                 camera_from_map=obj["camera_from_map"],
                 world_pose=pose,
                 native_lost=bool(obj["lost"]),
+                registration_evaluated=obj.get("registration_evaluated", True),
                 native_pose_valid=pose_valid,
                 native_tracking=bool(native_tracking),
                 integration_accepted=not reasons,
@@ -236,6 +240,7 @@ def offline_episode(
     use_key_frame_graph=True,
     allow_partial_reference_batch=False,
     refit_seed_rollback=False,
+    selected_registration_only=False,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
     output = Path(output)
@@ -298,6 +303,7 @@ def offline_episode(
                         else {}
                     ),
                     **({"refit_seed_rollback": True} if refit_seed_rollback else {}),
+                    **({"selected_registration_only": True} if selected_registration_only else {}),
                 )
             )
             tracker = PanelTracking(engine, config)
@@ -353,6 +359,10 @@ def offline_episode(
                                     native_compute_s=result.get("model_latency_s"),
                                     diagnostic_export_s=result.get("diagnostic_export_s"),
                                 )
+                                record["registration_schedule"] = result.get(
+                                    "registration_schedule"
+                                )
+                                record["candidate_history"] = result.get("candidate_history")
                         except Exception as error:
                             failure = f"{type(error).__name__}: {error}"
                             record.update(status="process_error", error=failure)
