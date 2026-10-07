@@ -492,10 +492,16 @@ Actual initialization/promotion telemetry separates raster prompts from interior
 preservation checks and observes blocked secondary promotions. None of these
 controls certifies identity or a reliable common pose. See
 [[../experiments/point2pose-isolated-improvements|isolated comparisons and retained controls]].
-Next diagnose preservation/selection of correct supported 4 mm hypotheses on
-saved nominal 63.3833–63.4667 s, then accumulated reference/map bias and observed
-occlusion handling. Material identity, operational freshness and contact
-admission remain separate; see the canonical findings.
+An isolated own-seed refit rollback (`96c0943`) completes both original CUDA
+openings at five inliers/4 mm. It gains 211 correct nominal 10 mm/5-degree poses
+but loses 386 light and increases wrong acceptance in both. Light also develops
+a 63.56 mm accepted peak and longer absences. Common adoption and a partial-batch
+combination are rejected; the option stays disabled and no refit tolerance or
+four-inlier variant is tested. Next investigate recovery against an unsupported
+previous pose with observed candidate consistency; late correspondence loss
+remains separate. No further correction is implemented. See
+[[../experiments/point2pose-refit-hypotheses|complete results, guard and tail diagnosis]].
+Material identity, operational freshness and contact admission remain separate.
 
 ### 6.0D — Feedback, compliance and stopping
 

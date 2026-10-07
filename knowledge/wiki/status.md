@@ -9,7 +9,7 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Official CUDA/FK/zone/offline runtime with 120-reference bounded renewal. Three separate graph-off interventions complete all six original openings: partial batch gains 480 correct nominal poses but loses 119 light and adds 169/315 inaccurate acceptances; 6 mm and enabled promotion geometry worsen both conditions. GPU observed peaks remain 7.67–10.41 GiB. No common replacement/combination adopted; 4 mm and original initialization retained. Material/ownership, 150 ms freshness, hardware and loaded contact remain unqualified; full campaign stopped. |
+| 6.0C — Panel tracking prototype | Official CUDA/FK/zone/offline runtime with 120-reference bounded renewal. Full isolated own-seed refit rollback loses 386 correct light poses and gains 211 nominal at 10 mm/5 degrees; inaccurate acceptances increase by 148/38. GPU peaks are 7.33/8.70 GiB (light/nominal). Common adoption and combination with partial batches are rejected; rollback and partial-only remain disabled diagnostics. Five inliers, 4 mm and original initialization retained; no refit tolerance tested. Material/ownership, 150 ms freshness, hardware and loaded contact remain unqualified; full campaign stopped. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
@@ -92,13 +92,28 @@ mask expansion does not establish wrong leaf membership. Absolute initialization
 and the separate causal prompt effect remain unverified. Keep 4 mm, native pixel
 lifting and original prompts; do not combine changes or replace P2P/policies.
 
-Next address preservation/selection of supported correct 4 mm hypotheses on
-saved nominal 63.3833–63.4667 s, then accumulated reference/map bias when expected-pose
-support becomes scarce. Shared sampling history can change after secondary-candidate
-interventions; one pair is not statistical repeatability. Preserve every baseline,
-unbounded failure and isolated attempt. Ground truth stays evaluator-only; no
-acquisition, training, full campaign resume or contact admission follows. See
-[[experiments/point2pose-isolated-improvements|complete comparisons, loss durations and memory]].
+The next isolated own-seed rollback (`96c0943`) completes both original CUDA
+recordings without failures/retries. It retains five inliers at 4 mm, coherent
+returned-pose statistics and original initialization. Correct accepted poses
+within 10/15/20 mm and 5 degrees change from 2,569/2,776/2,805 to
+2,183/2,547/2,564 light, and from 2,004/2,047/2,052 to 2,215/2,285/2,308 nominal.
+Wrong 10 mm acceptances grow from 238/58 to 386/96. Light's accepted peak grows
+to 63.56 mm and longest correct absence to 0.967 s; nominal's absence decreases
+to 5.017 s and all-finite point p95 to 22.34 mm. Rollback remains diagnostic,
+disabled by default. The failed common result does not admit a partial-batch
+combination. Saved refit residuals do not justify an uncalibrated tolerance;
+no global threshold widening or four-inlier variant is tested.
+
+Next test recovery using current support of the previous pose and observed
+candidate consistency, while keeping normal jump rejection and five-inlier/4 mm
+gates. Original nominal jump refusals include 24 correct 10 mm candidates but
+also wrong hypotheses; blanket bypass is unjustified. Late saved pair families
+can lack any supported fit even within 20 mm/5 degrees; that correspondence
+problem is distinct from a restrictive guard. This is a proposal, with no
+additional correction implemented. Preserve every baseline/failure and keep
+truth evaluator-only; no acquisition, policy change, training, full campaign
+resume or contact admission follows. See
+[[experiments/point2pose-refit-hypotheses|paired results, retained wrong seeds, guards and tail diagnosis]].
 
 The historical operational source `7460963` still fails all four replay and eight
 observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.

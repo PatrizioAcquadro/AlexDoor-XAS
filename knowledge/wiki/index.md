@@ -57,9 +57,9 @@ Current engineering and historical scientific records:
 
 - [[experiments/point2pose-bounded-global-graph-ablation|Point2Pose Bounded Global Graph Ablation]] — One full CUDA graph-off attempt per original recording; removed event spikes, improved primary light, worse nominal terminal loss and conditional target tail; no common replacement adopted.
 
-- [[experiments/point2pose-isolated-improvements|Isolated Point2Pose Improvements]] — Saved geometric/RANSAC, promotion, pixel and actual initialization diagnostics; independent complete CUDA comparisons in progress.
+- [[experiments/point2pose-isolated-improvements|Isolated Point2Pose Improvements]] — Saved geometric/RANSAC, promotion, pixel and initialization diagnostics; three independent complete CUDA comparisons and retained/rejected controls.
 
-- [[experiments/point2pose-refit-hypotheses|Point2Pose Refit Hypothesis Preservation]] — Isolated own-seed rollback at five inliers/4 mm; accuracy, continuity and conditional partial-batch evaluation.
+- [[experiments/point2pose-refit-hypotheses|Point2Pose Refit Hypothesis Preservation]] — Complete five-inlier/4 mm own-seed rollback: nominal gains, light regression, rejected combination, jump refusals and unsupported tail.
 
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.

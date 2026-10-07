@@ -235,6 +235,16 @@ during clustering despite available 4 mm support. These are prototype diagnosis
 results, not material/contact qualification. See
 [[../experiments/point2pose-isolated-improvements|complete isolated results and next problem]].
 
+The subsequent own-seed refit rollback completes both original openings but
+gains 211 correct nominal 10 mm/5-degree poses while losing 386 light and adding
+wrong acceptance in both. It preserves supported seeds mechanically, including
+wrong ones; support alone cannot select a reliable pose. Its common adoption
+and combination with partial admission are rejected. It remains an explicitly
+disabled diagnostic; five inliers, 4 mm and normal jump/SDF gates stay fixed.
+Saved guard refusals and unsupported tails motivate separate recovery and
+correspondence questions, with no additional correction implemented. See
+[[../experiments/point2pose-refit-hypotheses|accuracy, continuity, memory and retained wrong hypotheses]].
+
 With `estimate_init_pose=false`, map M remains the first optical camera frame.
 The observed zone frame defines O separately; its fixed transform to the material
 zone is Z. Compose `W_Ct(FK) * Ct_M(Point2Pose pose) * M_O * O_Z` exactly once.
