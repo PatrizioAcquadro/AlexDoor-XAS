@@ -34,7 +34,7 @@ def append_frame(state, image):
     batch = state["input_batch"]
     stage = deepcopy(batch.find_inputs[0])
     stage.img_ids[...] = index
-    if hasattr(stage, "img_ids_np"):
+    if getattr(stage, "img_ids_np", None) is not None:
         stage.img_ids_np[...] = index
     images = getattr(batch.img_batch, "tensors", batch.img_batch)
     images.append(image)

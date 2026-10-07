@@ -16,7 +16,11 @@ def test_append_preserves_prompt_tracker_memory_and_only_arrived_frames(multiple
     batch = SimpleNamespace(
         img_batch=SimpleNamespace(tensors=[image0]) if multiplex else [image0],
         find_inputs=[
-            SimpleNamespace(img_ids=np.array([0]), img_ids_np=np.array([0]), text_ids=np.array([0]))
+            SimpleNamespace(
+                img_ids=np.array([0]),
+                img_ids_np=np.array([0]) if multiplex else None,
+                text_ids=np.array([0]),
+            )
         ],
         find_targets=[None],
         find_metadatas=[None],
@@ -41,7 +45,10 @@ def test_append_preserves_prompt_tracker_memory_and_only_arrived_frames(multiple
     assert state["previous_stages_out"] == ["seed", None]
     assert batch.find_inputs[0].img_ids.tolist() == [0]
     assert batch.find_inputs[1].img_ids.tolist() == [1]
-    assert batch.find_inputs[1].img_ids_np.tolist() == [1]
+    if multiplex:
+        assert batch.find_inputs[1].img_ids_np.tolist() == [1]
+    else:
+        assert batch.find_inputs[1].img_ids_np is None
     assert batch.find_inputs[1].text_ids.tolist() == [0]
     with pytest.raises(IndexError):
         _ = images[2]  # Future RGB does not exist.
