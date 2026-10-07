@@ -9,7 +9,7 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Unified SAM3/SAM3.1 direct-mask path implemented but replacement rejected: complete SAM3 regresses light physical-target precision and nominal support/tail; SAM3.1 fails the retained TSDF memory reserve. Keep the adopted all-query TAPIR profile: Large/480/four iterations, all registrations, graph off, partial on, rollback off, five inliers/4 mm, vectorized Jacobian and 120 active references per object. Reference complete p95 is 554/644 ms; unified SAM3 is 282/288 ms but poorer common quality. Zero complete requests meet 150 ms; provider and A4 remain unqualified. All baselines/failures preserved. |
+| 6.0C — Panel tracking prototype | Unified SAM3/SAM3.1 direct-mask path implemented but replacement rejected: complete SAM3 regresses light physical-target precision and nominal support/tail; Original SAM3.1 fails the retained TSDF reserve; bounded forward history fixes memory and completes both openings with exact prefix equivalence, but late accuracy regresses. Keep the adopted all-query TAPIR profile: Large/480/four iterations, all registrations, graph off, partial on, rollback off, five inliers/4 mm, vectorized Jacobian and 120 active references per object. Reference complete p95 is 554/644 ms; unified SAM3 is 282/288 ms but poorer common quality. Zero complete requests meet 150 ms; provider and A4 remain unqualified. All baselines/failures preserved. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
@@ -22,8 +22,11 @@ physical targets. Both SAM3 openings complete 2,858 frames, but light correct
 availability is 57.73/94.16/98.92% at 10/15/20 mm and 5 degrees versus
 80.41/98.22/99.90% reference. Nominal improves primary 10 mm slightly while losing
 747 native frames and the final 6.35 s; 15/20 mm availability falls to about 73.6%.
-SAM3.1 fails the unchanged TSDF memory reserve at 52.8667/50.1667 s after accurate
-prefixes. No fallback, threshold change, second SAM2 segmentation or DINOv3
+Original SAM3.1 fails the unchanged TSDF memory reserve at 52.8667/50.1667 s.
+The isolated forward-history correction completes both openings with exact prefix
+pose/decision equivalence, bounded GPU/RAM payloads and a 5.06 GiB SAM allocator
+peak. Its full primary availability is 68.19/73.90/94.79% light and
+59.90/86.18/98.92% nominal; late physical-target accuracy still rejects replacement. No fallback, threshold change, second SAM2 segmentation or DINOv3
 inference is used in the new path. **Neither version is adopted.**
 
 Retain the larger all-query blocks as an explicit 15/20 mm diagnostic tradeoff
@@ -33,7 +36,7 @@ graph off, partial on, rollback off, five inliers/4 mm, vectorized Jacobian and
 120 active references per object. The unified route remains opt-in. Its complete
 p95 is 282/288 ms, versus 554/644 ms reference, but no complete request meets 150 ms;
 this improvement does not compensate for quality/support regression. Next-phase
-memory/history-consumer and late-mask diagnosis precede any replacement decision;
+SAM3 streaming and isolated detection-reconditioning diagnosis precede any replacement decision;
 general cleanup, latency optimization and live frequency tests are deferred.
 A3/A4, policies, movement/contact, training and operational gates remain unchanged.
 All recordings, baselines and failures are preserved.

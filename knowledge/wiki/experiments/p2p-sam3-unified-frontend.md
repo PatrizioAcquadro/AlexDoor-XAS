@@ -187,7 +187,27 @@ peaks fall from 15.81/14.47 GiB to 5.06/5.06 GiB; final allocated memory is 4.40
 in both conditions. Corrected peak CPU RSS is 7.51 GiB (including checkpoint loading),
 with bounded RGB payloads. This verifies common-prefix frontend equivalence; full
 P2P completion and late physical-target quality are being evaluated independently.
-No replacement decision follows from these prefix/resource results alone.
+The complete GPU replays now both finish 2,858/2,858 original frames. All 1,312
+light / 1,150 nominal completed P2P prefix poses and native/integration decisions
+match the preserved failed attempts exactly (maximum matrix difference zero).
+Each complete run has only the original one-frame confirmation loss. Memory growth
+was an implementation resource defect; resolving it does not resolve late pose bias.
+
+| Condition | Primary correct availability 10/15/20 mm | Accepted precision 10/15/20 mm | Maximum correct gap 10/15/20 mm (s) | Last 5 s correct 10/15/20 mm out of 301 |
+|---|---:|---:|---:|---:|
+| light | 68.19/73.90/94.79% | 68.24/73.95/94.85% | 12.200/3.400/0.067 | 0/3/226 |
+| nominal | 59.90/86.18/98.92% | 59.94/86.24/98.98% | 9.200/0.283/0.067 | 1/193/293 |
+
+All three frozen physical targets regress versus the adopted reference, with
+5-degree rotation retained. Full accepted primary p95 is 20.03/17.38 mm and
+0.54/0.51 degrees. Complete request p50/p95 is 252/282 ms light and 254/285 ms
+nominal; zero nonseed requests meet 150 ms. SAM allocator peak remains 5.06 GiB.
+Sampled simultaneous SAM/P2P GPU peak is 11.33/10.18 GiB and host RSS is 5.93/5.91
+GiB, excluding pre-acquisition checkpoint-loading peaks. Per-process peaks are
+reported separately. Keep the memory fix opt-in, but reject this SAM3.1 recipe
+as the shared tracking replacement because complete late accuracy regresses.
+Detailed results are in `sam31-bounded-full-comparison.json` and
+`p2p-saved-prefix-equivalence.json`; both original resource failures remain intact.
 
 ## Independent SAM3 integration comparison
 
