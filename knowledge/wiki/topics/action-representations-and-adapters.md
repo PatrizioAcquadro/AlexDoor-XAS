@@ -120,6 +120,15 @@ A4 segments/admissions are absent from those saved runs, so actual A3/A4 action
 errors remain unmeasured. The operational A4 reference remains fixed per admission;
 the measured publication spike is a consumer risk, not an executed command.
 
+The subsequent [[../experiments/p2p-a3-a4-integration-diagnosis|bounded P2P to A3/A4 diagnosis]]
+verifies the two primary saved seeds on the closed leaf and defines a frozen
+orientation from its observed normal and calibrated up. Only that rotation is
+needed by primitive A3 free-vector conversion; operational control still requires
+the complete admitted reference. A4 needs a supported hinge/angle before its
+first approach segment. Current motion-axis fits and their sample times are
+diagnostic, and the provider remains invalid/local; no bootstrap probe or adapter
+change is implemented.
+
 ## Primary References
 
 - `src/alexdoor_xas/action/spaces.py`

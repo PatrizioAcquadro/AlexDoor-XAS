@@ -61,6 +61,8 @@ Current engineering and historical scientific records:
 
 - [[experiments/point2pose-refit-hypotheses|Point2Pose Refit Hypothesis Preservation]] — Complete five-inlier/4 mm own-seed rollback: nominal gains, light regression, rejected combination, jump refusals and unsupported tail.
 
+- [[experiments/p2p-a3-a4-integration-diagnosis|P2P to A3/A4 Integration Diagnosis]] — Verified closed local seeds/static signs, delayed and unqualified hinge bootstrap, and targeted CUDA cost on the preserved partial-only graph-off reference.
+
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.
 - [[experiments/act-a3-n50-seed-112-force-diagnostic|ACT-A3-N50 Seed-112 Force Diagnostic]] — Reproducible force event and bounded perturbation result.
