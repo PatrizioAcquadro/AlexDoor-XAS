@@ -9,6 +9,49 @@ from alexdoor_xas.perception.sam3_frontend import append_frame, identity_status
 from alexdoor_xas.perception.sam3_runtime import masks_for_seed
 
 
+def test_reconditioning_control_changes_only_period_and_trace_preserves_plan():
+    from alexdoor_xas.perception.sam3_diagnostics import (
+        ReconditioningTrace,
+        set_detection_reconditioning,
+    )
+
+    plan = dict(
+        new_det_obj_ids=[9], trk_id_to_max_iou_high_conf_det={4: 2}, reconditioned_obj_ids=set()
+    )
+    metadata = object()
+    tracker = SimpleNamespace(add_new_mask=lambda **kwargs: "mask-result")
+    model = SimpleNamespace(
+        recondition_every_nth_frame=16,
+        reconstruction_bbox_iou_thresh=-1,
+        tracker=tracker,
+        new_det_thresh=0.7,
+    )
+
+    def recondition():
+        return tracker.add_new_mask(obj_id=4)
+
+    def planning():
+        tracker.add_new_mask(obj_id=9)  # New detection remains independent.
+        model._recondition_masklets()
+        return plan, metadata
+
+    model._recondition_masklets = recondition
+    model.run_tracker_update_planning_phase = planning
+    trace = ReconditioningTrace(model)
+    trace.begin()
+    result = model.run_tracker_update_planning_phase()
+    assert result[0] is plan and result[1] is metadata
+    assert trace.current["applied_ids"] == [4]
+    assert trace.current["new_detection_ids"] == [9]
+    assert trace.current["called"]
+    set_detection_reconditioning(model, False)
+    assert model.recondition_every_nth_frame == 0
+    assert model.new_det_thresh == 0.7 and model.reconstruction_bbox_iou_thresh == -1
+    model.reconstruction_bbox_iou_thresh = 0.8
+    with pytest.raises(ValueError, match="unsupported_additional"):
+        set_detection_reconditioning(model, False)
+
+
 def test_causal_store_preserves_global_indices_and_rejects_released_reads():
     from alexdoor_xas.perception.sam3_memory import CausalFrameStore
 

@@ -162,3 +162,9 @@ is diagnostic only; existing scan/live/replay defaults and policies are unchange
 Both original SAM3 openings complete but regress common pose quality/support;
 SAM3.1 stops at the preserved TSDF memory guard. Neither replaces the adopted
 reference. See the [bounded pilots and original-target evaluation](../../knowledge/wiki/experiments/p2p-sam3-unified-frontend.md).
+
+For the isolated SAM3 diagnostic, `detection_reconditioning=False` changes only
+its native period from 16 to 0; its bbox trigger must already be disabled. Other
+detection/association/confirmation controls stay active. `trace_reconditioning=True`
+records actual updates separately from new IDs; `seed=0` fixes both controlled
+workers. These SAM3-only options are experimental and retain baseline defaults.

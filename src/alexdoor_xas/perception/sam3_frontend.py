@@ -59,7 +59,16 @@ def append_frame(state, image):
 
 
 class Sam3CausalFrontend:
-    def __init__(self, root, *, prompt, version="sam3", bounded_memory=False):
+    def __init__(
+        self,
+        root,
+        *,
+        prompt,
+        version="sam3",
+        bounded_memory=False,
+        detection_reconditioning=True,
+        trace_reconditioning=False,
+    ):
         import torch
 
         if not torch.cuda.is_available():
@@ -99,6 +108,18 @@ class Sam3CausalFrontend:
         if bounded_memory and version != "sam3.1":
             raise ValueError("bounded_memory_requires_sam31")
         self.bounded_memory = bounded_memory
+        self.reconditioning_trace = None
+        if not detection_reconditioning or trace_reconditioning:
+            if version != "sam3":
+                raise ValueError("reconditioning_diagnostic_requires_sam3")
+            from alexdoor_xas.perception.sam3_diagnostics import (
+                ReconditioningTrace,
+                set_detection_reconditioning,
+            )
+
+            set_detection_reconditioning(self.model, detection_reconditioning)
+            if trace_reconditioning:
+                self.reconditioning_trace = ReconditioningTrace(self.model)
         self.model.eval().requires_grad_(False)
         if any(p.device.type != "cuda" for p in self.model.parameters()):
             raise RuntimeError("SAM3 parameters must all be on CUDA")
@@ -115,6 +136,7 @@ class Sam3CausalFrontend:
             grounding_frames_per_chunk=1,
             compile=False,
             bounded_forward_memory=bounded_memory,
+            detection_reconditioning=detection_reconditioning,
             native_thresholds=dict(
                 detection=self.model.score_threshold_detection,
                 new_detection=self.model.new_det_thresh,
@@ -143,6 +165,8 @@ class Sam3CausalFrontend:
         torch.cuda.synchronize()
         torch.cuda.reset_peak_memory_stats()
         started = time.perf_counter()
+        if self.reconditioning_trace is not None:
+            self.reconditioning_trace.begin()
         with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
             if self.state is None:
                 self.state = self.model.init_state(
@@ -214,4 +238,9 @@ class Sam3CausalFrontend:
             torch_allocated_bytes=torch.cuda.memory_allocated(),
             torch_peak_bytes=torch.cuda.max_memory_allocated(),
             arrived_frames=self.state["num_frames"],
+            **(
+                {"reconditioning": self.reconditioning_trace.current}
+                if self.reconditioning_trace is not None
+                else {}
+            ),
         )

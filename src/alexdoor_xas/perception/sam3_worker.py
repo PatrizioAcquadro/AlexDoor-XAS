@@ -20,6 +20,9 @@ def main():
     torch.backends.cuda.matmul.allow_tf32 = True
     torch.backends.cudnn.allow_tf32 = True
     request = receive(sys.stdin.buffer)
+    if request.get("seed") is not None:
+        torch.manual_seed(request["seed"])
+        np.random.seed(request["seed"])
     try:
         with redirect_stdout(sys.stderr):
             frontend = Sam3CausalFrontend(
@@ -27,7 +30,10 @@ def main():
                 prompt=request["prompt"],
                 version=request.get("version", "sam3"),
                 bounded_memory=request.get("bounded_memory", False),
+                detection_reconditioning=request.get("detection_reconditioning", True),
+                trace_reconditioning=request.get("trace_reconditioning", False),
             )
+            frontend.runtime["seed"] = request.get("seed")
         send(sys.stdout.buffer, dict(ready=frontend.runtime))
         while (request := receive(sys.stdin.buffer)) is not None:
             try:

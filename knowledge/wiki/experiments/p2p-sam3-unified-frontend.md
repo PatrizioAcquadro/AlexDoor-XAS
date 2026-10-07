@@ -19,7 +19,7 @@ graph off, partial reference batch on, rollback off, five inliers and 4 mm,
 vectorized SDF Jacobian and 120 active references per object. Other native
 parameters, RGB-D geometry, registration and TSDF remain unchanged. The new path
 changes semantic initialization and subsequent masks together: one full leaf
-identity replaces the reference's five overlapping automatic candidates.
+identity replaces the reference's five light / six nominal overlapping automatic candidates.
 
 Local evidence: `outputs/b1/perception/p2p-sam3-unified-01/`. Reference:
 `outputs/b1/perception/p2p-performance-01/full/chunkall/{light,nominal}/attempt-1`.
@@ -209,6 +209,35 @@ as the shared tracking replacement because complete late accuracy regresses.
 Detailed results are in `sam31-bounded-full-comparison.json` and
 `p2p-saved-prefix-equivalence.json`; both original resource failures remain intact.
 
+## Isolated SAM3 reconditioning diagnosis
+
+Saved complete receipts verify all original frame/row/time and arrived-frame
+indices, only seed ID0, unchanged source/current masks, and external-mask P2P with
+no separate SAM2. The older route supplies five light / six nominal observed
+geometry masks, then SAM2 positive prompts. Its primary whole-leaf seed masks
+have 97.26%/93.29% IoU with the direct SAM3 masks. Initialization, candidate count,
+subsequent mask model and reference evolution therefore remain distinct factors;
+the older route is diagnostic evidence and is not reintroduced.
+
+The streaming adapter calls the native full visual-grounding propagation on the
+newest available frame, preserving association, confirmation, suppression and
+memory. The interactive wrapper's repeated-pass cache-fetch behavior is not an
+arrived-frame streaming interface. Saved receipts and current-mask audits reveal
+no integration error explaining the complete SAM3 regression.
+
+The new SAM3-only diagnostic changes periodic detection reconditioning from
+16 to 0, leaving its already-disabled bbox trigger (-1), every other heuristic,
+detection/association threshold, checkpoint, `door surface`, seed0 and P2P
+controls unchanged. `trace_reconditioning=True` reports eligible matches,
+actual native reconditioning mask calls and newly created detection IDs separately;
+it does not add prompts or substitute IDs. Initial 33-frame ON/OFF trials have
+identical masks and no eligible reconditioning. An initial gate expecting an early
+application fails and is retained as a negative result, without threshold tuning.
+The complete light ON trace first applies reconditioning to existing ID0 at 35 s,
+with no new detection ID. Complete paired ON/OFF replays are in progress, including
+whole-pipeline latency and resource measurements. No SAM3 correction/adoption
+claim is made before their physical-target and frame-point audits.
+
 ## Independent SAM3 integration comparison
 
 SAM3 uses the identical `door surface` prompt, RGB-D and P2P controls. An initial
@@ -357,7 +386,7 @@ unavailable for correctness even if the tracker says it is present.
 
 Steady complete request time includes image inference/IPC, P2P, measured copies,
 trace export and adapter consumption; model startup and seed are separate. SAM3
-variants have one whole-leaf object, while the reference has five overlapping
+variants have one whole-leaf object, while the reference has five light / six nominal overlapping
 objects. These are pipeline comparisons, not isolated model speedups. A second
 100 ms sampler measures simultaneous SAM/P2P process GPU residency for the new
 path; reference residency is its P2P worker after the old image worker is released.
