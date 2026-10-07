@@ -90,7 +90,7 @@ Preserved inputs/results are not overwritten. Initial evaluator serialization
 failure and repaired evaluator log are both retained; inference was not repeated.
 The first direct CUDA probe lacked the installed nvcc path before processing a
 frame; its startup failure is preserved separately from the corrected launch.
-Per-request diagnostic time now includes measured trace binding/copies, promotion/prompt observation, frontend snapshots and export/resource inventory. Complete observation time retains this work; subtracting it is an arithmetic estimate, not a diagnostic-off live measurement. CUDA worker peak CPU RSS, CUDA allocations/resident sampling and crop windows are also saved. The official frontend developer timings may include asynchronous work and are reported with that attribution limit. Optimization measurements are in progress. A4 initialization/bootstrap,
+Per-request diagnostic time now includes measured trace binding/copies, promotion/prompt observation, frontend snapshots and export/resource inventory. Complete observation time retains this work; subtracting it is an arithmetic estimate, not a diagnostic-off live measurement. CUDA worker peak CPU RSS, CUDA allocations/resident sampling and crop windows are also saved. The official frontend developer timings may include asynchronous work and are reported with that attribution limit. Isolated pilots are complete; the two promising paths are being evaluated on both original complete openings. A4 initialization/bootstrap,
 movement/contact, training and policies are deferred and unchanged. Ground truth
 remains evaluator-only. Dense replay quality does not establish live resampled
 quality, 150 ms freshness, ownership or safe contact.
@@ -238,3 +238,78 @@ unchanged. Primary accepted position p95 is 3.64 mm and maximum 9.10 mm; all
 historical references 872→924; crop-only is not extended as a speed improvement.
 This is a measured changed estimator trajectory, not an isolated pixel-count
 saving. Subsequent 384/256 resolution trials retain their separate attribution.
+
+### Reduced pixels with unchanged eight passes
+
+Both 384×384 crop pilots complete 601/601 original captures and retain all
+600 nonseed primary acceptances within 10/15/20 mm and 5 degrees. Actual feature
+resolutions are `[256,256,384]`; eight causal levels are retained. Complete median
+is 9.2% slower light / 15.9% slower nominal than the full-frame reference, versus
+13.9% slower in both 480 crop pilots. Reducing only pixels at these two levels is
+not enough to offset the altered trajectory/registration/history cost; 384 is
+not extended as a common speed improvement. Full sampled component/resource
+and conditional error distributions remain in `pilot-comparison.json`.
+
+### Official 256 resolution/pyramid path
+
+Both 256×256 crop pilots retain all 600 nonseed primary acceptances within
+10/15/20 mm and 5 degrees, with four observed causal refinement levels. Light
+complete median/p95 is 470.58/624.38 ms (7.31% median saving); nominal is
+631.03/792.00 ms (0.35% slower median). These are compared against the full-frame
+reference and against 384 with its extra refinement level; the gain cannot be
+attributed to pixels alone. Light causal state peak drops 0.677→0.392 GiB while
+query peak increases 370→428. The worker CPU RSS remains about 3.32 GiB.
+Neither condition makes this path eligible as a common speed extension under
+the fixed median rule. Explicit iteration reductions remain a separate test.
+
+The official tracker uses a hardcoded factor of four in `construct_initial_causal_state`
+even when the model requests two/one. The cold seed allocation can
+therefore contain eight/four levels, then shrinks to the actual four/two/one
+prediction levels after the first track. No inference fix is combined with this
+comparison. Separate actual refinement passes per prediction from allocated
+causal levels and retain the cold seed memory peak. Existing records permit
+reconstruction from configured iteration count and observed feature levels.
+
+### Explicit reduction to two iterations
+
+Both 384×384/two-iteration pilots retain 600 correct nonseed primary
+acceptances at every bound. Relative to the reference, median complete saving
+is 7.94% light / 3.69% nominal, with four actual prediction passes. The separate
+256×256/two-iteration pilots retain the same primary quality and use two actual
+passes; saving is 13.69% light / 3.81% nominal. These are distinct from the
+resolution/pyramid change and are not common full extensions under the preset
+median criterion. Cold state allocation remains counted separately.
+
+### One iteration and the latency-tail extension decision
+
+The official one-iteration 256 path retains 600 correct nonseed primary poses
+at 15/20 mm in each pilot; nominal has two accepted poses just above 10 mm.
+Median saving is 12.79% light / 5.85% nominal, so the original median-only
+exploratory rule remains **failed**. However, complete p95 improves about 20%
+in both conditions (532.86/707.97 ms), with actual one-pass state and preserved
+15/20 quality/continuity. Because the user objective is a 150 ms complete-latency
+requirement, extend this separately as a p95-promising path (at least 15% p95
+reduction in both pilots). This additional exploration decision is explicit in
+`full-admission.json`, before any full attempt. Do not retroactively erase the
+median-rule result, call it qualification, relax 4 mm/five inliers or re-run a
+failed model for a favorable outcome. All-query remains the primary median-rule
+extension. Small, 480/384 crops and the two-iteration paths are not combined.
+
+### Simplified SVD: fixed gate verified, nominal continuity fails
+
+Both CUDA prefixes finish with the official `svd_residual_outlier` path alone.
+Audit every one of 3,000/3,600 registration calls: recomputed residuals agree
+with the reported residuals and every final inlier mask equals residual ≤4 mm.
+All 2,957/2,869 nonlost registrations have at least five inliers; maximum retained
+inlier residual is 3.99978/3.999998 mm. MAD and demo gate relaxations remain disabled.
+
+Complete median/p95 drops to 239.04/329.04 ms light and 305.57/407.36 ms nominal,
+but nominal primary accepts only 483 of 600 nonseed observations. At 10 mm,
+availability/accepted precision is 76.04%/94.62%; at 15/20 mm it is 80.37%/100%.
+The maximum correct-pose gap is 1.383 s at every bound, versus 16.7 ms in the
+reference prefix. There are 109 native-loss observations and a censored 10 mm
+tail. Accepted nominal point p95/p99/max is 10.84/13.29/14.16 mm, while all finite
+poses reach 46.45 mm. This conditional precision does not restore availability.
+Light retains all 600 nonseed correct acceptances, but the nominal continuity
+regression excludes SVD from full extension and from any combination. Preserve
+all failures without changing five inliers, the 4 mm gate or upstream guards.

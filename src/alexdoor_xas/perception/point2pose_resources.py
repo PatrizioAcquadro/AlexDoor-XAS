@@ -74,6 +74,11 @@ def resource_snapshot(pipeline):
             None if tracker.query_features is None else tracker.query_features.resolutions
         ),
         tapir_causal_levels=0 if tracker._causal_state is None else len(tracker._causal_state),
+        tapir_refinement_passes_per_prediction=(
+            None
+            if tracker.query_features is None or not hasattr(tracker, "_num_pips_iter")
+            else tracker._num_pips_iter * (len(tracker.query_features.resolutions) - 1)
+        ),
         query_points=tensor_inventory(tracker.query_points),
         query_features=tensor_inventory(tracker.query_features),
         causal_state=tensor_inventory(tracker._causal_state),

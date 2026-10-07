@@ -9,7 +9,7 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Retained diagnostic reference: graph off, partial batch on, rollback off, five inliers/4 mm, 120 active references per candidate; observed geometry and vectorized SDF Jacobian retained. Four full CUDA replays reject selected-only registration: accepted precision changes 85.75→96.32% light / 86.94→62.48% nominal, despite lower latency/memory. Both fresh all-registration references reproduce preserved poses exactly. The option remains disabled diagnostic code; provider remains local/invalid. Physical pre-A4 initialization, material/ownership, complete uncertainty, 150 ms freshness and loaded contact remain unqualified; full campaign stopped. |
+| 6.0C — Panel tracking prototype | Retained diagnostic reference: graph off, partial batch on, rollback off, five inliers/4 mm, 120 active references per candidate; observed geometry and vectorized SDF Jacobian retained. Selected-only registration has a nominal 10 mm regression (62.48% accepted precision), but reaches 97.69%/99.93% at 15/20 mm; preserve this tolerance tradeoff rather than using 10 mm alone to reject it. All-registration remains the requested compute reference. Fresh all-registration pilots reproduce every preserved candidate pose exactly. The option remains disabled diagnostic code; provider remains local/invalid. Physical pre-A4 initialization, material/ownership, complete uncertainty, 150 ms freshness and loaded contact remain unqualified; full campaign stopped. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
@@ -44,10 +44,12 @@ calibration/load qualification remain absent.
 
 The [[experiments/p2p-selected-registration|single selected-registration comparison]]
 completes all four 2,858-frame CUDA attempts from original initialization without
-inference retries/failures. It saves 31.43%/23.59% median request time, but loses
-699 correct nominal poses and reduces its terminal 518-frame correct count from
-325 to 30 without native loss triggering recovery. Retain all-registration as
-the fixed reference and leave the new option disabled. Complete measured
+inference retries/failures. It saves 31.43%/23.59% median request time, but at the historical 10 mm bound
+loses 699 correct nominal poses and reduces its terminal 518-frame correct count
+from 325 to 30 without native loss triggering recovery. Wider 15/20 mm evaluation
+shows 97.66%/99.90% nominal availability, with the different estimator history
+and secondary-registration deferral retained as separate compromises. The current
+authorized compute comparison keeps all registrations and leaves this option disabled. Complete measured
 observation p95 remains 578/619 ms even with the option; zero requests meet
 150 ms. Queue estimates do not validate dropped-frame tracking or live admission.
 
