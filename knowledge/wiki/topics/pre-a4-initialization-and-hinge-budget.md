@@ -112,17 +112,23 @@ command can actually tolerate the propagated uncertainty.
 
 `SegmentMotion.start` measures the current tool in the admitted panel frame.
 `SegmentMotion.goal` interpolates toward a fixed predicted `target_panel`, applies
-`start_angle + alpha * hinge_delta`, and uses the latest observed hinge frame.
-A4 then converts this world goal through A3/A2. Primitive A3 free-vector rotation
+`start_angle + alpha * hinge_delta`, using the hinge frame supplied by the adapter.
+The actual `OPERATIONAL_V1` adapter supplies the **frozen admission frame** for
+every tick of that segment; current observations validate the still-current
+admission and may stop it. The legacy diagnostic caller supplies the current
+observed frame. A4 converts the resulting world goal through A3/A2. Primitive A3 free-vector rotation
 uses only the frozen reference rotation; its origin is algebraically irrelevant.
 This does not eliminate the operational requirement for a supported reference.
 
 For origin errors `e0` at admission and `ek` in the current reference, the origin-only
 world-goal error with fixed numerical `target_panel` is
-`ek - (1-alpha) Qk Q0^T e0`, where `Q` is the panel rotation. With a constant error
+`ek - (1-alpha) Qk Q0^T e0`, where `Q` is the panel rotation. For actual
+operational A4, the frame is held throughout the segment and `ek=e0=e`. With that error
 `e`, it is `[I-(1-alpha) R_world(alpha*phi)] e`. In a zero-angle approach it is
-`alpha*e`, reaching the **full origin error at the endpoint**. Updated hinge noise
-can move the goal even when the physical tool/leaf are stationary. Rotation,
+`alpha*e`, reaching the **full origin error at the endpoint**. A legacy caller updating
+the hinge can move the goal while the physical tool/leaf are stationary. In the
+operational adapter, disagreement can invalidate admission instead; a new segment
+requires a newly supported admission rather than silently changing the trajectory. Rotation,
 current angle, local target, FK/control and stale-motion effects are additional.
 
 Only when the endpoint is independently re-expressed from the **same measured
@@ -152,14 +158,18 @@ references, masks and held-out observations. Use the same missing/failure rows;
 do not use error percentiles as online bounds.
 
 Next replay the unchanged command kernel on declared A4 proposals with estimated
-geometry, including admission reference updates and fixed local endpoints, and
+geometry, including frozen admitted frames, invalidating observations, new-segment reference updates and fixed local endpoints, and
 check the complete propagated target/rotation/finite-footprint/continuous-sweep
 and stopping envelope against the actual proposed action margins. Evaluator truth
 may score these commands after construction. For the present saved data, kernel
 sensitivity is the minimum non-executing check and is complete; operational
 proposal/contact inputs are absent, so admission remains unvalidated. The current
-1 cm/5-degree quality requirements and 150 ms freshness remain unchanged. There
-is no justification to run a broad bound-minimization campaign.
+1 cm/5-degree quality requirements and 150 ms freshness remain unchanged. A finite
+larger bound can be assessed by `admit_action` for a provisional diagnostic only
+when all its declared safety margins cover it. Current policy-source admission
+rejects provisional geometry, including a hinge bound above its existing 1 cm
+qualification gate. Neither rule is relaxed. There is no justification to run a
+broad bound-minimization campaign.
 
 Finally validate either a supported stationary pin route or a separately admitted
 bounded pre-articulation route before A4 approach. A controlled simulation probe,
