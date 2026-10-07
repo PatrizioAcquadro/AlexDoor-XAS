@@ -23,7 +23,10 @@ def main():
     try:
         with redirect_stdout(sys.stderr):
             frontend = Sam3CausalFrontend(
-                root, prompt=request["prompt"], version=request.get("version", "sam3")
+                root,
+                prompt=request["prompt"],
+                version=request.get("version", "sam3"),
+                bounded_memory=request.get("bounded_memory", False),
             )
         send(sys.stdout.buffer, dict(ready=frontend.runtime))
         while (request := receive(sys.stdin.buffer)) is not None:

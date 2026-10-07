@@ -156,6 +156,39 @@ comparison and full-window completion are reported separately. **Do not adopt
 SAM3.1 for complete openings on the current 4090 recipe.** Native ID persistence
 and accurate early outputs do not compensate for missing late observations.
 
+## SAM3.1 forward-history correction
+
+The October 7 follow-up starts from `5f33411`, with no pre-existing tracked changes,
+in `outputs/b1/perception/p2p-sam3-followup-01/`. Original attempts and defaults
+remain unchanged. `bounded_memory=True` is a separate opt-in causal lifetime policy.
+The pinned native attention consumes six recent spatial memories, fifteen recent
+nonconditioning object pointers and up to four closest conditioning frames. Image
+features are useful inputs to that attention and remain enabled. The original
+conditioning frame is retained independently, along with recent conditioning
+fallbacks. No model threshold, memory encoder, P2P cap or TSDF reserve changes.
+
+The audit demonstrates growth in stored nonconditioning outputs (mask memory,
+propagation image features/positions, masks and pointers), cached full-resolution
+output masks, and CPU normalized RGB history. The native grounding/backbone caches
+are already bounded after the previous one-frame correction. The forward policy
+releases expired outputs and their per-object aliases together, retaining sixteen
+recent outputs and the selected conditioning history. It retains current output
+scores/suppression plus persistent identity, confirmation and occlusion metadata.
+Input sequences retain the seed template and current payload with original global
+indices/counts, instead of accumulating CPU images or CUDA stage tensors. A read of
+released input fails explicitly; reverse propagation, old-frame interaction and
+new prompts are outside this adapter contract. Nothing is offloaded to grow RAM.
+
+Fresh CUDA runs compare the entire previously reached prefixes, including the
+last SAM request before each original P2P failure: 1,313 light / 1,151 nominal
+frames. Packed masks, probabilities, tracker scores, seed/current IDs, loss/state
+and capture/count fields are exactly equal on every paired frame. Frontend allocator
+peaks fall from 15.81/14.47 GiB to 5.06/5.06 GiB; final allocated memory is 4.40 GiB
+in both conditions. Corrected peak CPU RSS is 7.51 GiB (including checkpoint loading),
+with bounded RGB payloads. This verifies common-prefix frontend equivalence; full
+P2P completion and late physical-target quality are being evaluated independently.
+No replacement decision follows from these prefix/resource results alone.
+
 ## Independent SAM3 integration comparison
 
 SAM3 uses the identical `door surface` prompt, RGB-D and P2P controls. An initial

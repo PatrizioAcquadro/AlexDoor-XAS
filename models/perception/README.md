@@ -150,6 +150,10 @@ The opt-in `point2pose_offline.offline_episode` argument
 `sam3_frontend={"version": "sam3.1", "prompt": "door surface"}` uses the same
 frontend for initialization and every subsequent mask. P2P disables its separate
 SAM2 segmenter and receives each synchronized mask unchanged; DINOv3 is not loaded.
+SAM3.1 additionally accepts `bounded_memory=True` for strictly forward causal
+inference. It keeps native image/mask memory and object pointers that future
+attention can select, while releasing expired output/input payloads. It does not
+support reverse propagation or editing old frames; baseline defaults remain.
 The adopted comparison passes `use_key_frame_graph=False`,
 `allow_partial_reference_batch=True`, `refit_seed_rollback=False`, and
 `performance_controls={"query_chunk_size": 0}` explicitly. Other native parameters,

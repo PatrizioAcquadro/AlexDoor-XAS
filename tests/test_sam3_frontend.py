@@ -9,6 +9,78 @@ from alexdoor_xas.perception.sam3_frontend import append_frame, identity_status
 from alexdoor_xas.perception.sam3_runtime import masks_for_seed
 
 
+def test_causal_store_preserves_global_indices_and_rejects_released_reads():
+    from alexdoor_xas.perception.sam3_memory import CausalFrameStore
+
+    store = CausalFrameStore(["seed"])
+    for i in range(1, 100):
+        store.append(i)
+        store.release_before(i)
+    assert len(store) == 100
+    assert store[0] == "seed" and store[-1] == 99
+    assert store[99:] == [99]
+    assert len(store.values) == 2
+    with pytest.raises(RuntimeError, match="released_causal_frame_requested"):
+        store[98]
+
+
+def test_forward_release_preserves_all_attention_inputs_and_seed():
+    from alexdoor_xas.perception.sam3_memory import release_forward_history
+
+    cond = {i: object() for i in (0, 16, 32, 48, 64, 80, 96)}
+    noncond = {i: object() for i in range(100) if i not in cond}
+    local = dict(
+        output_dict=dict(cond_frame_outputs=cond.copy(), non_cond_frame_outputs=noncond.copy()),
+        output_dict_per_obj={
+            0: dict(cond_frame_outputs=cond.copy(), non_cond_frame_outputs=noncond.copy())
+        },
+        temp_output_dict_per_obj={0: dict(cond_frame_outputs={}, non_cond_frame_outputs={})},
+        consolidated_frame_inds=dict(cond_frame_outputs=set(cond), non_cond_frame_outputs=set()),
+        frames_already_tracked={i: {} for i in range(100)},
+        mask_inputs_per_obj={0: cond.copy()},
+        point_inputs_per_obj={0: {}},
+    )
+    batch = SimpleNamespace(img_batch=SimpleNamespace(tensors=list(range(100))))
+    for name in ("find_inputs", "find_targets", "find_metadatas"):
+        setattr(batch, name, list(range(100)))
+    state = dict(
+        sam2_inference_states=[local],
+        input_batch=batch,
+        cached_frame_outputs={i: object() for i in range(100)},
+        tracker_metadata=dict(
+            obj_id_to_sam2_score_frame_wise={i: {} for i in range(100)},
+            rank0_metadata=dict(suppressed_obj_ids={i: set() for i in range(100)}),
+        ),
+    )
+    for name in (
+        "previous_stages_out",
+        "per_frame_raw_point_input",
+        "per_frame_raw_box_input",
+        "per_frame_visual_prompt",
+        "per_frame_geometric_prompt",
+        "per_frame_cur_step",
+    ):
+        state[name] = list(range(100))
+    tracker = SimpleNamespace(
+        use_memory_selection=False,
+        max_cond_frames_in_attn=4,
+        max_obj_ptrs_in_encoder=16,
+        memory_temporal_stride_for_eval=1,
+        num_maskmem=7,
+    )
+    release_forward_history(state, tracker, 99)
+    assert set(local["output_dict"]["cond_frame_outputs"]) == {0, 48, 64, 80, 96}
+    for i in range(85, 100):  # Every pointer needed by the next frame.
+        source = (
+            local["output_dict"]["cond_frame_outputs"]
+            if i in cond
+            else local["output_dict"]["non_cond_frame_outputs"]
+        )
+        assert source[i] is (cond if i in cond else noncond)[i]
+    assert set(state["cached_frame_outputs"]) == {99}
+    assert len(batch.img_batch.tensors.values) == 2
+
+
 @pytest.mark.parametrize("multiplex", [False, True])
 def test_append_preserves_prompt_tracker_memory_and_only_arrived_frames(multiplex):
     memory = {"num_frames": 1, "conditioned_memory": object()}

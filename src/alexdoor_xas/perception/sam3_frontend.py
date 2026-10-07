@@ -1,7 +1,8 @@
 """Causal adapter for the pinned official SAM3 detector and video tracker.
 
 Only the newly arrived RGB image is appended. Native thresholds, reconditioning
-and memory are retained. A one-frame forward propagation cannot revise earlier
+and useful memory are retained. Optional bounded forward history releases only
+expired payloads. A one-frame forward propagation cannot revise earlier
 outputs using hotstart lookahead. No re-prompting, ID substitution or mask fallback.
 """
 
@@ -58,7 +59,7 @@ def append_frame(state, image):
 
 
 class Sam3CausalFrontend:
-    def __init__(self, root, *, prompt, version="sam3"):
+    def __init__(self, root, *, prompt, version="sam3", bounded_memory=False):
         import torch
 
         if not torch.cuda.is_available():
@@ -95,6 +96,9 @@ class Sam3CausalFrontend:
             self.propagate = Sam3MultiplexTracking.propagate_in_video
         else:
             raise ValueError("unsupported_sam3_version")
+        if bounded_memory and version != "sam3.1":
+            raise ValueError("bounded_memory_requires_sam31")
+        self.bounded_memory = bounded_memory
         self.model.eval().requires_grad_(False)
         if any(p.device.type != "cuda" for p in self.model.parameters()):
             raise RuntimeError("SAM3 parameters must all be on CUDA")
@@ -110,6 +114,7 @@ class Sam3CausalFrontend:
             propagation="single newest available frame, forward only",
             grounding_frames_per_chunk=1,
             compile=False,
+            bounded_forward_memory=bounded_memory,
             native_thresholds=dict(
                 detection=self.model.score_threshold_detection,
                 new_detection=self.model.new_det_thresh,
@@ -189,6 +194,10 @@ class Sam3CausalFrontend:
             )
             .get(index, {})
         )
+        if self.bounded_memory:
+            from alexdoor_xas.perception.sam3_memory import release_forward_history
+
+            release_forward_history(self.state, self.model.tracker, index)
         torch.cuda.synchronize()
         self.last_capture = capture
         return dict(
