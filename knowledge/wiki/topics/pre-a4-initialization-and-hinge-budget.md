@@ -29,6 +29,21 @@ It requires a supported physical hinge, the frozen observed closed convention,
 the correctly timed current angle, resolved material identity, selected finite
 contact geometry and command-relevant uncertainty. It does not itself admit load.
 
+The following is the planned shared initialization flow:
+
+```mermaid
+flowchart LR
+    S[Stationary observations and declared closed protocol] --> P{Physical pin supported?}
+    P -->|Yes| R[Reference and command budget checks]
+    P -->|No| D[Separate bounded diagnostic required]
+    D --> A{Pre-articulation admission available?}
+    A -->|No| I[Insufficient: stop before A4 approach]
+    A -->|Yes| M[Planned leaf motion and causal axis fit]
+    M --> R
+    R -->|Insufficient| I
+    R -->|Complete and fresh| C[Normal common A1-A4 admission]
+```
+
 At stationary observation, synchronized metric RGB-D, intrinsics, camera FK,
 proprioception and timestamps can support a local surface, normal, observed
 extent/patch and the static reference rotation. Freeze `R_WD=[x,y,z]`: `z` is

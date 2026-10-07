@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-06. **6.0B is maintained; prior dynamic trackers are retired;
+Current as of 2026-10-07. **6.0B is maintained; prior dynamic trackers are retired;
 the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 6.1 remain open.** No training, new corpus or sealed-test evaluation was started.
 
@@ -9,12 +9,40 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Official CUDA/FK/zone/offline runtime with 120-reference bounded renewal. Full isolated own-seed refit rollback loses 386 correct light poses and gains 211 nominal at 10 mm/5 degrees; inaccurate acceptances increase by 148/38. GPU peaks are 7.33/8.70 GiB (light/nominal). Common adoption and combination with partial batches are rejected; rollback and partial-only remain disabled diagnostics. Five inliers, 4 mm and original initialization retained; no refit tolerance tested. Material/ownership, 150 ms freshness, hardware and loaded contact remain unqualified; full campaign stopped. |
+| 6.0C — Panel tracking prototype | Retained diagnostic reference: graph off, partial batch on, rollback off, five inliers/4 mm, 120 active references per candidate; observed geometry and vectorized SDF Jacobian retained. Four full CUDA replays reject selected-only registration: accepted precision changes 85.75→96.32% light / 86.94→62.48% nominal, despite lower latency/memory. Both fresh all-registration references reproduce preserved poses exactly. The option remains disabled diagnostic code; provider remains local/invalid. Physical pre-A4 initialization, material/ownership, complete uncertainty, 150 ms freshness and loaded contact remain unqualified; full campaign stopped. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
+
+Use the [[topics/pre-a4-initialization-and-hinge-budget|shared pre-A4 initialization specification]]
+for every A1–A4 × ACT/Diffusion condition before policy dispatch. Stationary
+observations support local surface/closed rotation but contain no supported
+physical pin in these scans. Direct pin evidence or a separately admitted bounded
+leaf-motion diagnostic must complete the physical reference before A4 approach;
+the pre-articulation motion/admission path is absent. No movement/contact is
+executed or admitted by this specification.
+
+Close authored simulation floor/up and measured camera/FK input accounting, then
+validate uncertainty against actual proposed command/sweep/stop margins. These
+missing interface inputs are distinct from the conservative correspondence
+envelope and evaluator-measured hinge errors; replacing a bound by p95 or pursuing
+an arbitrary sub-centimeter bound is unjustified. Operational A4 freezes each
+segment's admitted frame, so a fixed local endpoint retains the full origin
+error at approach completion. Actual A4 proposals/contact inputs and hardware
+calibration/load qualification remain absent.
+
+The [[experiments/p2p-selected-registration|single selected-registration comparison]]
+completes all four 2,858-frame CUDA attempts from original initialization without
+inference retries/failures. It saves 31.43%/23.59% median request time, but loses
+699 correct nominal poses and reduces its terminal 518-frame correct count from
+325 to 30 without native loss triggering recovery. Retain all-registration as
+the fixed reference and leave the new option disabled. Complete measured
+observation p95 remains 578/619 ms even with the option; zero requests meet
+150 ms. Queue estimates do not validate dropped-frame tracking or live admission.
+
+## Preserved investigation evidence
 
 Keep the full offline campaign stopped. Its original 4,216 completed rows,
 502 unprocessed rows and 11 unstarted attempts remain preserved. Native loss/SDF
@@ -104,8 +132,8 @@ disabled by default. The failed common result does not admit a partial-batch
 combination. Saved refit residuals do not justify an uncalibrated tolerance;
 no global threshold widening or four-inlier variant is tested.
 
-Next test recovery using current support of the previous pose and observed
-candidate consistency, while keeping normal jump rejection and five-inlier/4 mm
+The refit comparison proposed testing recovery using current support of the
+previous pose and observed candidate consistency, while keeping normal jump rejection and five-inlier/4 mm
 gates. Original nominal jump refusals include 24 correct 10 mm candidates but
 also wrong hypotheses; blanket bypass is unjustified. Late saved pair families
 can lack any supported fit even within 20 mm/5 degrees; that correspondence
@@ -126,11 +154,14 @@ freezes the observed static reference, independently timestamps current angle,
 uses uncertainty-aware vertical consensus and audits origin-bound propagation.
 First fits are now 40.4833/39.9667 s; common-row origin p95 improves 31.23 to
 2.60 mm light and 19.92 to 18.97 mm nominal. Nominal loses 25 early hinge rows.
-No origin bound reaches 1 cm; complete calibration/floor budgets are missing.
+No origin bound reaches 1 cm; complete diagnostic calibration/floor inputs are
+missing, although floor/up are authored and rendered camera/FK agreement is now
+measured in the shared budget audit.
 Angle source age is corrected, but saved publication p95 remains 784/975 ms,
 with zero fresh angles under 150 ms. A3/A4 and operational admission remain
-unchanged. Before initial A4 motion, resolve the unsupported stationary physical
-hinge and specify a bounded pre-articulation contact/admission path. The separate SDF Jacobian vectorization is retained: 2,640 paired CUDA
+unchanged. The shared pre-A4 protocol now specifies the required initialization
+and separate pre-articulation admission path; neither is implemented or qualified.
+The separate SDF Jacobian vectorization is retained: 2,640 paired CUDA
 refinements across 482 original frames preserve poses/decisions exactly and cut
 median refinement cost by 3.35/3.29 times. Instrumented pipeline estimates remain
 562/665 ms p95; end-to-end 150 ms freshness is not established.

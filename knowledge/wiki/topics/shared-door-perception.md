@@ -447,4 +447,16 @@ Operational chosen-contact scoring remains future 6.0E work. Detailed provisiona
 feedback and staged qualification requirements are canonical in
 [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]].
 
-The [[pre-a4-initialization-and-hinge-budget|shared pre-A4 protocol]] defines stationary pin versus bounded diagnostic initialization before policy dispatch, separates known simulation floor/FK from correspondence envelopes and verifies the unchanged A4 command sensitivity. No initialization motion/contact path is implemented.
+The [[pre-a4-initialization-and-hinge-budget|shared pre-A4 protocol]] defines
+stationary pin versus bounded diagnostic initialization before policy dispatch,
+separates known simulation floor/FK from correspondence envelopes and verifies
+the unchanged A4 command sensitivity. No initialization motion/contact path is
+implemented.
+
+The [[../experiments/p2p-selected-registration|selected-registration comparison]]
+retains the graph-off/partial-batch/no-rollback/five-inlier/4 mm reference and
+reproduces its preserved complete poses with the vectorized Jacobian. Periodic
+alternative audits reduce memory/latency but regress the nominal tail without a
+native loss signal; the new option remains disabled diagnostic code. Nine native
+frames represent 150 ms only in dense 60 Hz replay; live queue drops and material
+recovery remain separate unqualified behaviors.

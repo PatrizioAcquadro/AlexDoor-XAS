@@ -67,7 +67,7 @@ Current engineering and historical scientific records:
 
 - [[experiments/p2p-observed-geometry-and-sdf-jacobian|Observed Geometry and SDF Jacobian]] — Separately attributed observed-reference/hinge/angle changes and CUDA Jacobian evaluation.
 
-- [[experiments/p2p-selected-registration|Selected-Candidate Registration]] — One observed-selection schedule with periodic alternatives, preserved causal tracking and CUDA comparison.
+- [[experiments/p2p-selected-registration|Selected-Candidate Registration]] — Complete CUDA comparison; periodic alternatives save cost but regress the nominal tail, so common adoption is rejected.
 
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.
