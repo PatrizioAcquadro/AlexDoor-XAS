@@ -362,11 +362,13 @@ def offline_episode(
                                     native_ipc_s=result["latency_s"],
                                     native_compute_s=result.get("model_latency_s"),
                                     diagnostic_export_s=result.get("diagnostic_export_s"),
+                                    diagnostic_total_s=result.get("diagnostic_total_s"),
                                 )
                                 record["registration_schedule"] = result.get(
                                     "registration_schedule"
                                 )
                                 record["candidate_history"] = result.get("candidate_history")
+                                record["tracker_crop_box"] = result.get("tracker_crop_box")
                         except Exception as error:
                             failure = f"{type(error).__name__}: {error}"
                             record.update(status="process_error", error=failure)
@@ -436,6 +438,7 @@ def offline_episode(
                                         "gpu_resident_bytes",
                                         "gpu_sampled_peak_bytes",
                                         "torch_peak_bytes",
+                                        "cpu_peak_rss_bytes",
                                         "tsdf_rebuilds",
                                     )
                                 }

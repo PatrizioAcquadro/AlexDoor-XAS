@@ -2,6 +2,7 @@
 
 import inspect
 import json
+import time
 from copy import deepcopy
 from pathlib import Path
 
@@ -27,14 +28,17 @@ class RegistrationTrace:
         self.frame = None
         self.pipeline = pipeline
         self.path = Path(path)
+        self.overhead_s = 0.0
         segmenter = getattr(pipeline.frontend, "segmenter", None)
         if segmenter is not None:
             native_prompt = segmenter.predictor.add_new_prompt
 
             def observe_prompt(*args, **kwargs):
+                started = time.perf_counter()
                 self.frame.setdefault("sam2_prompts", []).append(
                     deepcopy({k: kwargs[k] for k in ("frame_idx", "obj_id", "points", "labels")})
                 )
+                self.overhead_s += time.perf_counter() - started
                 return native_prompt(*args, **kwargs)
 
             segmenter.predictor.add_new_prompt = observe_prompt
@@ -43,6 +47,7 @@ class RegistrationTrace:
             native_promote = manager._pending_try_promote
 
             def observe_promote(key, meta, obj):
+                started = time.perf_counter()
                 eligible = meta.get("good", 0) >= manager.pending_promote_streak
                 record = None
                 if eligible:
@@ -56,12 +61,15 @@ class RegistrationTrace:
                         metadata=deepcopy(meta),
                         point_before=obj.key_points[meta["obj_idx"]].copy(),
                     )
+                self.overhead_s += time.perf_counter() - started
                 result = native_promote(key, meta, obj)
+                started = time.perf_counter()
                 if record is not None:
                     record.update(
                         promoted=result, point_after=obj.key_points[meta["obj_idx"]].copy()
                     )
                     self.frame.setdefault("promotion_checks", []).append(record)
+                self.overhead_s += time.perf_counter() - started
                 return result
 
             manager._pending_try_promote = observe_promote
@@ -70,6 +78,7 @@ class RegistrationTrace:
         signature = inspect.signature(native_register)
 
         def observe_register(*args, **kwargs):
+            started = time.perf_counter()
             call = signature.bind(*args, **kwargs)
             call.apply_defaults()
             values = call.arguments
@@ -82,9 +91,12 @@ class RegistrationTrace:
                     for k in ("src_pcd", "tgt_pcd", "sigma_tgt", "init_pose", "prev_T", "mode")
                 }
             )
+            self.overhead_s += time.perf_counter() - started
             result = native_register(*args, **kwargs)
+            started = time.perf_counter()
             obj["registration_pose"] = result[0].copy()
             obj["registration_stats"] = deepcopy(result[1])
+            self.overhead_s += time.perf_counter() - started
             return result
 
         register.register = observe_register
@@ -92,14 +104,18 @@ class RegistrationTrace:
         refine_signature = inspect.signature(native_refine)
 
         def observe_refine(*args, **kwargs):
+            started = time.perf_counter()
             call = refine_signature.bind(*args, **kwargs)
             call.apply_defaults()
             values = call.arguments
             before = values["T_seed"].copy()
+            self.overhead_s += time.perf_counter() - started
             result = native_refine(*args, **kwargs)
+            started = time.perf_counter()
             self.object(values["obj_id"])["sdf_refinement"] = dict(
                 before=before, after=result[0].copy(), info=deepcopy(result[1])
             )
+            self.overhead_s += time.perf_counter() - started
             return result
 
         register._maybe_refine_with_sdf = observe_refine
@@ -108,11 +124,14 @@ class RegistrationTrace:
         native_graph = pipeline.kf_graph.update
 
         def observe_graph(keyframes):
+            started = time.perf_counter()
             inputs = [
                 dict(object_id=k.obj_id, keyframe_index=k.kf_idx, pose=k.pose.copy())
                 for k in keyframes
             ]
+            self.overhead_s += time.perf_counter() - started
             result = native_graph(keyframes)
+            started = time.perf_counter()
             self.frame["graph_updates"].append(
                 dict(
                     inputs=inputs,
@@ -125,6 +144,7 @@ class RegistrationTrace:
                     ],
                 )
             )
+            self.overhead_s += time.perf_counter() - started
             return result
 
         pipeline.kf_graph.update = observe_graph
@@ -133,6 +153,8 @@ class RegistrationTrace:
         return self.frame["objects"].setdefault(int(object_id), dict(object_id=int(object_id)))
 
     def begin(self, frame, capture_s, native_index, objects):
+        started = time.perf_counter()
+        self.overhead_s = 0.0
         self.frame = dict(
             frame=int(frame),
             capture_s=float(capture_s),
@@ -142,8 +164,10 @@ class RegistrationTrace:
         )
         for obj in objects:
             self.object(obj.id).update(previous_pose=obj.pose.copy(), lost_before=bool(obj.lost))
+        self.overhead_s += time.perf_counter() - started
 
     def frontend(self, result, objects):
+        started = time.perf_counter()
         for obj in objects:
             extraction = result.valid_stats.get(obj.id, {})
             indices = np.asarray(extraction.get("extract_obj_idx", []), dtype=int)
@@ -165,6 +189,7 @@ class RegistrationTrace:
                 all_visibles=deepcopy(result.visibles[indices]) if len(indices) else None,
                 all_current_points=deepcopy(result.track_3d[indices]) if len(indices) else None,
             )
+        self.overhead_s += time.perf_counter() - started
 
     def finish(self, objects, *, masks=None, track_table=None, renewal=None):
         if masks is not None:

@@ -90,7 +90,7 @@ Preserved inputs/results are not overwritten. Initial evaluator serialization
 failure and repaired evaluator log are both retained; inference was not repeated.
 The first direct CUDA probe lacked the installed nvcc path before processing a
 frame; its startup failure is preserved separately from the corrected launch.
-Optimization measurements are in progress. A4 initialization/bootstrap,
+Per-request diagnostic time now includes measured trace binding/copies, promotion/prompt observation, frontend snapshots and export/resource inventory. Complete observation time retains this work; subtracting it is an arithmetic estimate, not a diagnostic-off live measurement. CUDA worker peak CPU RSS, CUDA allocations/resident sampling and crop windows are also saved. The official frontend developer timings may include asynchronous work and are reported with that attribution limit. Optimization measurements are in progress. A4 initialization/bootstrap,
 movement/contact, training and policies are deferred and unchanged. Ground truth
 remains evaluator-only. Dense replay quality does not establish live resampled
 quality, 150 ms freshness, ownership or safe contact.

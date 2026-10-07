@@ -50,14 +50,19 @@ def error_distribution(rows):
             position_m=quantiles(np.empty(0)),
             rotation_deg=quantiles(np.empty(0)),
             position_peak=None,
+            rotation_peak=None,
         )
     peak = int(np.argmax(values[:, 0]))
+    rotation_peak = int(np.argmax(values[:, 1]))
     return dict(
         position_m=quantiles(values[:, 0]),
         rotation_deg=quantiles(values[:, 1]),
         position_p99_m=float(np.quantile(values[:, 0], 0.99)),
         rotation_p99_deg=float(np.quantile(values[:, 1], 0.99)),
         position_peak=dict(time_s=rows[peak]["time_s"], error_m=float(values[peak, 0])),
+        rotation_peak=dict(
+            time_s=rows[rotation_peak]["time_s"], error_deg=float(values[rotation_peak, 1])
+        ),
         position_histogram_mm=dict(
             edges=[0, 5, 10, 15, 20, 50, 100, 1000, "infinity"],
             counts=np.histogram(values[:, 0] * 1000, [0, 5, 10, 15, 20, 50, 100, 1000, np.inf])[
@@ -78,6 +83,13 @@ def evaluate_bounds(rows):
     result = dict(
         scheduled=len(rows),
         accepted_nonseed=len(accepted),
+        accepted_availability=len(accepted) / len(rows) if rows else 0,
+        native_tracking_nonseed=sum(
+            bool(r.get("native_tracking") and not r.get("is_seed")) for r in rows
+        ),
+        native_lost_nonseed=sum(
+            bool(r.get("native_lost") and not r.get("is_seed")) for r in rows
+        ),
         rotation_bound_deg=ROTATION_BOUND_DEG,
         accepted_errors=error_distribution(accepted),
         all_finite_errors=error_distribution(finite),

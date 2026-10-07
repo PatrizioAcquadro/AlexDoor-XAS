@@ -3,6 +3,7 @@
 import ctypes
 import json
 import os
+import resource
 import sys
 import time
 from contextlib import contextmanager, redirect_stdout
@@ -153,6 +154,11 @@ class OfficialPipeline:
             registration_diagnostics=self.trace is not None,
             selected_registration_only=self.schedule is not None,
             performance_controls=request.get("performance_controls"),
+            cuda_math=dict(
+                bfloat16_autocast=torch.is_autocast_enabled("cuda"),
+                tf32_matmul=torch.backends.cuda.matmul.allow_tf32,
+                tf32_cudnn=torch.backends.cudnn.allow_tf32,
+            ),
         )
 
     def infer(self, request):
@@ -288,8 +294,10 @@ class OfficialPipeline:
             frame=int(sensor["frame"]),
             latency_s=time.perf_counter() - started,
             diagnostic_export_s=export_s,
+            diagnostic_total_s=export_s + (self.trace.overhead_s if self.trace else 0.0),
             torch_allocated_bytes=torch.cuda.memory_allocated(),
             torch_peak_bytes=torch.cuda.max_memory_allocated(),
+            cpu_peak_rss_bytes=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024,
             gpu_free_bytes=torch.cuda.mem_get_info()[0],
             tsdf_rebuilds=self.pipeline.sdf_builder.rebuilds,
             registration_schedule=None if self.schedule is None else self.schedule.metadata(),
@@ -301,6 +309,7 @@ class OfficialPipeline:
                 )
                 for obj in self.pipeline.objects
             },
+            tracker_crop_box=getattr(self.pipeline.frontend.tracker, "last_crop_box", None),
         )
 
 
