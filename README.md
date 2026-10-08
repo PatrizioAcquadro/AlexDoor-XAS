@@ -17,13 +17,15 @@ geometry families and both handednesses in every partition. Rights scopes remain
 
 Subphase 6.0 remains unqualified. The maintained 6.0B static scan uses frozen
 GroundingDINO + native SAM3, DINOv3 and calibrated RGB-D/multiview geometry.
-Prior dynamic trackers, replay evaluation and video comparison are retired;
-50 engineering-v2 recordings and essential historical evidence remain. The optional
-6.0C prototype integrates official CAD-free Point2Pose with camera kinematics and
-panel-fixed local zones. An opt-in [unified official SAM3/SAM3.1 video diagnostic](knowledge/wiki/experiments/p2p-sam3-unified-frontend.md)
-feeds causal text-seeded masks directly to P2P, retaining TAPIR/SuperPoint and RGB-D
-geometry while skipping separate SAM2 and DINOv3 inference. Current pilot diagnostics fail useful availability at
-the unchanged 150 ms limit. Loaded contact and policy handoff are not enabled.
+Prior custom dynamic trackers are retired; 50 engineering-v2 recordings and
+historical evidence remain. The optional 6.0C prototype integrates official
+CAD-free Point2Pose with camera kinematics and panel-fixed local zones. Its
+[selected experimental recipe](configs/point2pose_selected.json) uses one SAM3
+object with causal masks, bounded history and renewal-only depth filtering,
+retaining TAPIR/SuperPoint and observed geometry. SAM2 operational replay, live
+diagnostics and the serial evaluator remain maintained. The selected recipe does
+not change operational defaults or meet the unchanged 150 ms freshness limit.
+Loaded contact and policy handoff are not enabled.
 Independent 6.1 software covers ACT/Diffusion × A1–A4 through model-independent
 observed inputs, matched data and execution adapters. Numerical/CUDA model checks
 pass; qualified perception integration and physical rollout validation remain pending.
@@ -119,7 +121,7 @@ earlier formats. This is not yet the B1 RGB-D learning pipeline.
 | `assets/doors/b1/` | Frozen corpus/split, canonical door records and ignored source/final payloads. |
 | `src/alexdoor_xas/` | Runtime, preparation and reusable learning components. |
 | `scripts/` | Supported verification, synthetic setup, intake and expert qualification. |
-| `configs/` | Frozen common Purdue synthetic probe. |
+| `configs/` | Frozen Purdue/inspection settings and explicit experimental Point2Pose recipe. |
 | `tests/` | Behavioral regressions and GPU model checks. |
 | `knowledge/` | User-owned raw research and canonical wiki. |
 | `datasets/`, `outputs/` | Local future datasets/results; payloads ignored. |

@@ -279,8 +279,8 @@ peaks are distinct. The serial evaluator has one request in flight and does not
 measure live acquisition backlog. Material recovery, larger opening angles, hardware
 tracking and contact/provider/A3/A4 qualification are not established. Models,
 operational defaults, baseline, original OFF configuration and all prior evidence
-remain preserved. There is no general cleanup, live resampling, additional
-optimization or policy change.
+remain preserved. Those experiments did not include general cleanup, live
+resampling, additional optimization or policy changes.
 
 The [[p2p-selected-residuals|new-trajectory same-ID residual diagnosis]] now completes
 that saved-window pairing, independently of this preceding unfiltered diagnosis.
@@ -291,16 +291,3 @@ maximum includes a five-inlier-gate fallback. Keep the selected recipe: there is
 no justified single observable common correction. Independent material-pixel
 chains and, if needed, unchanged-run filter/SDF state are the next discriminating
 evidence; missing historical light rejection totals remain unavailable.
-
-```python
-sam3_frontend = {
-    "version": "sam3",
-    "prompt": "door surface",
-    "seed": 0,
-    "detection_reconditioning": False,
-    "trace_reconditioning": True,
-    "bounded_memory": True,
-}
-# In the existing frozen offline recipe:
-reference_depth_edge_filter = True  # renewals only; original initialization retained
-```

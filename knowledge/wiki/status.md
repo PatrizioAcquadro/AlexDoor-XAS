@@ -1,255 +1,107 @@
 # Project Status
 
-Current as of 2026-10-08. **6.0B is maintained; prior dynamic trackers are retired;
-the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
-6.1 remain open.** No training, new corpus or sealed-test evaluation was started.
+Current as of 2026-10-08. **Static 6.0B is maintained; CAD-free Point2Pose is
+implemented but unqualified. Phases 6.0 and 6.1 remain open.** The targeted cleanup
+is complete; operational defaults, A3/A4 and policy contracts are unchanged.
 
 | Area | Current state |
 |---|---|
-| 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
-| 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
-| 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | Selected experimental recipe: SAM3 OFF, bounded useful history and one renewal depth-jump gate; one SAM/object, TAPIR/SuperPoint. Both complete original CUDA openings retain initialization/masks, timestamps/failures and fixed controls. Primary correctness at 10/15/20 mm: 85.83/99.79/99.93% light, 99.13/99.72/99.86% nominal; zero native losses, one nominal integration refusal. SAM peak 4.21 GiB; complete p95 235/260 ms. Light peak/rotation, 10 mm tail and P2P allocator reserve regressions retained. No 150 ms or provider/A4 qualification. Older evidence/defaults preserved. |
-| 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
-| 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
-| 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
+| 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and common zero-yaw setup maintained. |
+| 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
+| 6.0A/B — Contracts/static evidence | Operational/local support, explicit selection, admission and feedback contracts; object fusion, ownership alternatives, finite-cover and relevant-space queries. Scans/interfaces do not admit motion. |
+| 6.0C — Tracking | Explicit selected SAM3 recipe with bounded history and renewal-only depth gate; SAM2 operational/baseline and live/serial evaluators retained. Useful accuracy improves offline, but material identity and 150 ms freshness remain unqualified. |
+| 6.0D–H — Contact/qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
+| 6.1 — Actions | ACT/Diffusion × A1–A4 observed-input/data/normalization/execution software maintained; qualified-provider integration and physical rollout validation pending. |
+| 6.2–7 — Data/learning | Not started. No matched B1 policy dataset or learned-policy result; no sealed-test evaluation. |
 
-## Next action
+## Next action and selected state
 
-Use [[experiments/p2p-sam3-selected-development|selected SAM3 OFF development]]:
-consumer-based memory release, saved-data diagnosis and the single renewal gate
-comparison are complete. Adopt bounded SAM3 OFF plus the configured 10 mm/radius 2
-depth gate for new renewal references, with original seed, masks and all other
-controls unchanged. Baseline, unbounded OFF, failed attempts and original recordings
-remain intact; operational defaults are unchanged.
+Keep [the selected configuration](../../configs/point2pose_selected.json) unchanged.
+[[experiments/p2p-selected-residuals|Saved residual diagnosis]] found no justified
+common correction. Next establish a few independent material-pixel chains in saved
+RGB-D, separating image correspondence from reference/pose-feedback bias. The
+historical rejected-light-candidate trace is missing; a future unchanged diagnostic
+could record candidates/dense-field state, but cannot recover historical rejection
+totals. This is not authorization to resume a campaign or change thresholds.
 
-All original 2,858 CUDA captures per condition complete. Memory-only masks/poses/
-decisions are exactly identical to saved OFF; SAM allocation stays 3.65→3.66 GiB
-and peak drops 8.39→4.21 GiB without RAM offload. Quality improves correct
-availability on all three targets at 10/15/20 mm and 5 degrees. Primary availability
-is 85.83/99.79/99.93% light and 99.13/99.72/99.86% nominal; native losses are 0/0 versus
-0/57, with one explicit nominal integration rejection. Complete p95 is 235/260 ms.
-No nonseed request reaches 150 ms; serial offline runs do not measure live backlog.
+The selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
+both original 2,858-frame CUDA openings. Bounded history alone exactly preserved
+masks/poses/decisions and reduced SAM peak 8.39→4.21 GiB without RAM offload. The
+separate renewal-only gate improved all three targets; primary correct availability
+at 10/15/20 mm is 85.83/99.79/99.93% light and 99.13/99.72/99.86% nominal, with zero
+native losses and one nominal integration refusal. Complete p95 235/260 ms leaves
+zero nonseed requests within 150 ms. Dense offline scoring does not measure backlog
+or dropped-frame behavior.
 
-Retain the tradeoffs: light primary peak 21.26→23.82 mm, rotation p95 0.69→1.10 degrees,
-only 8/301 correct 10 mm primary tail frames and one slightly worse secondary 10 mm
-gap. Nominal's former 70.6 s spike becomes 6.67 mm, but its new 31.48 mm peak moves
-to 39.7 s. Joint GPU peak increases 9.79→12.76 GiB light through P2P allocator reserve,
-while SAM remains bounded; nominal peak is 7.99 GiB. The
-[[experiments/p2p-selected-residuals|same-ID saved-data diagnosis of the new trajectory]]
-is complete. Light tail references carry bias at birth and after promotion, with
-separate current correspondence/rotation effects; its 75.9333 s peak uses nine
-moving-only inliers and is already wrong before SDF. Nominal's 39.7 s peak selects
-seven fixed/one moving pair. Its distinct 38.8833 s angular maximum is a final
-support-gate fallback, not the position peak. Full matched-frame rotation p95
-worsens while tail rotation improves; SDF generally improves orientation.
+Regressions remain explicit: light position peak 23.82 mm, rotation p95 1.10 degrees,
+only 8/301 correct final 10 mm captures, and joint GPU peak 12.76 GiB through P2P
+allocator reserve despite bounded SAM. Nominal's new position peak is 31.48 mm.
+Detailed peak times, point IDs, coordinate conventions and SDF/rotation distinctions
+belong in the residual diagnosis; neither native acceptance nor same-ID return
+establishes material identity. Future latency work must preserve this recipe and
+quality evidence and evaluate real queue/resampling separately.
 
-Retain the selected recipe without a further correction or CUDA replay: no single
-observable common intervention is justified. Next establish a few independent
-material-pixel chains in saved RGB-D to separate image correspondence from
-pose-feedback/reference bias. If needed, a future unchanged diagnostic run must
-save rejected light candidates and dense-field state; it cannot restore missing
-historical rejection totals. No extra filter/prompt, optimization, resampling,
-A3/A4 or policy change is introduced. All prior recordings/evidence remain intact.
+## Cleanup and protected dependencies
 
-For future action integration, use the [[topics/pre-a4-initialization-and-hinge-budget|shared pre-A4 initialization specification]]
-for every A1–A4 × ACT/Diffusion condition before policy dispatch. Stationary
-observations support local surface/closed rotation but contain no supported
-physical pin in these scans. Direct pin evidence or a separately admitted bounded
-leaf-motion diagnostic must complete the physical reference before A4 approach;
-the pre-articulation motion/admission path is absent. No movement/contact is
-executed or admitted by this specification.
+`e494e8c` tracks the selected opt-in recipe; `c01c3a1` retires periodic selective
+registration, SAM3.1/multiplex memory, refit rollback and rejected model/tracker/SVD
+controls. Historical source remains at `57ad483`; all ignored payloads remain.
+Static GroundingDINO/SAM3/DINOv3, SAM2 operational paths, baseline comparisons,
+geometry/contact interfaces and evaluator helpers have active consumers.
 
-Future action qualification still needs authored simulation floor/up and measured
-camera/FK input accounting, followed by uncertainty validation against actual
-proposed command/sweep/stop margins. These
-missing interface inputs are distinct from the conservative correspondence
-envelope and evaluator-measured hinge errors; replacing a bound by p95 or pursuing
-an arbitrary sub-centimeter bound is unjustified. Operational A4 freezes each
-segment's admitted frame, so a fixed local endpoint retains the full origin
-error at approach completion. Actual A4 proposals/contact inputs and hardware
-calibration/load qualification remain absent.
+Bounded CUDA validation in `outputs/b1/perception/p2p-cleanup-20261008/` matches
+33 original frames per condition exactly against selected configuration, masks,
+poses, decisions and registration traces. The existing 12-sample operational smoke
+completes on CUDA TSDF with freshness still failed. Native source reconstructs
+from the pinned archive, with migration/idempotence and unknown-source refusal.
+These checks do not establish full-opening equivalence; no full replay, model
+comparison or latency optimization was performed during cleanup.
 
-The [[experiments/p2p-selected-registration|single selected-registration comparison]]
-completes all four 2,858-frame CUDA attempts from original initialization without
-inference retries/failures. It saves 31.43%/23.59% median request time, but at the historical 10 mm bound
-loses 699 correct nominal poses and reduces its terminal 518-frame correct count
-from 325 to 30 without native loss triggering recovery. Wider 15/20 mm evaluation
-shows 97.66%/99.90% nominal availability, with the different estimator history
-and secondary-registration deferral retained as separate compromises. The current
-authorized compute comparison keeps all registrations and leaves this option disabled. Complete measured
-observation p95 remains 578/619 ms even with the option; zero requests meet
-150 ms. Queue estimates do not validate dropped-frame tracking or live admission.
+Preserve recordings, original timestamps, baselines, failed attempts, images,
+masks, traces and ignored diagnostic scripts. In particular the residual diagnosis
+uses `p2p-sam3-followup-01/hull_evaluator.py`, prepared collision geometry and
+`p2p-performance-01/full-target-evaluation.json`; all remain available. Original
+31–78.6167 s recordings reach 63.7209 degrees, not the configured 90.7-degree limit.
+Different automatic seeds prevent interpreting light/nominal as isolated lighting.
+The earlier campaign stays stopped at 4,216 completed rows, 502 remaining and
+11 unstarted attempts; [[experiments/b1-perception-findings|historical findings]]
+preserve its failures and all intervening decisions.
 
-## Preserved investigation evidence
+## Action and qualification limits
 
-Keep the original qualification campaign stopped. Its original 4,216 completed rows,
-502 unprocessed rows and 11 unstarted attempts remain preserved. Native loss/SDF
-fixes and the failed moving-camera 4–10 s replay remain documented in
-[[experiments/b1-perception-findings|B1 perception findings]].
+The [[topics/pre-a4-initialization-and-hinge-budget|shared pre-A4 specification]]
+applies before policy dispatch in every A1–A4 × ACT/Diffusion condition. Stationary
+observations can support local surface/closed rotation, but these scans lack a
+supported physical pin. Direct pin evidence or separately admitted leaf-motion
+diagnosis must establish the reference before A4 approach; that pre-articulation
+motion/admission path is absent. No controller is qualified by the specification.
 
-The complete fixed-camera recordings retain all 2,858 original frames per condition,
-31–78.6167 s, through 63.72 degrees; the configured 90.7-degree joint limit remains
-unrecorded. Camera, motion and timestamps match across conditions, but automatic
-light/nominal seeds differ. This is not causal lighting attribution.
+Authored simulation floor/up and measured camera/FK agreement still need complete
+interface inputs and uncertainty validation against proposed command/sweep/stop
+margins. Correspondence envelopes and evaluator hinge p95 are different quantities;
+neither substitutes for missing calibration bounds. A4 freezes each segment's
+admitted frame, so a fixed local endpoint retains full origin error at approach
+completion. Actual proposals, contact/load/stop and hardware calibration remain absent.
 
-The rejected unbounded final-inlier variant and its CUDA OOM/TSDF guard remain
-preserved with all 1,506/2,239 unavailable process rows. Saved growth and a minimal
-19-frame CUDA diagnostic measure 1.875 MiB of causal state per active reference.
-The bounded renewal policy is now implemented at `2b127b4`, following telemetry
-`94429d9`: 120 active references per candidate, confirmed gradual replacement,
-independent compact CUDA storage and unreused historical IDs. Models, numeric
-gates, candidate/point selection, graph, TSDF and native lost-state suppression
-are unchanged. Every candidate remains audited; historical graph/keyframe/TSDF
-growth is separate from the active-reference cap.
+The unchanged gates require per-door 95% coverage/accepted precision and 1 cm/5
+degrees; always unavailable fails. Pilot offline and feedback/stop checks precede
+bounded interaction; all train/development offline gates precede qualification
+dynamics. Both groups plus release compatibility precede 6.1 handoff. Tracking
+alone supplies neither ownership, hinge nor safe continuous contact/sweeps.
 
-One fresh CUDA attempt per saved condition completes all 5,716 frames without
-missing rows or process failure. Maximum all-candidate active references are
-512/654, versus unbounded 3,025/2,160; historical references remain 2,094/1,830.
-Compared at identical timestamps with baseline, correct supported poses gain/lose
-417/443 light (net -26) and 788/99 nominal (net +689). Inaccurate accepted poses
-increase from 35/88 to 541/99. All finite/lost/rejected errors remain scored;
-counting every finite pose separately gives net -518/+59 correct poses. Nominal
-still ends lost for 60 frames from 77.6333 s, with final finite error 22.06 mm /
-3.14 degrees. Completion or a finite retained pose does not establish current support.
-
-At 45.6667 s nominal, frontend error is 2.92 mm / 0.58 degrees, but the graph
-publishes an accepted 178.61 mm / 32.73 degree pose. Only one of 22 declared inliers
-remains inlier; ten recomputed pairs fit the published pose/current map. Therefore
-metric self-consistency alone does not verify pose or material. Bounded flag
-returns are 25/43, correct-pose returns 13/25, and strict historical-anchor returns
-one/one; original seed-only returns are zero. Anchor ownership remains hypothetical.
-The visibility guard blocks retirement on missing native visibility, depth or loss,
-but independent audits flag 66/62 retired references as nearer-depth/self-occlusion
-proxies despite native visibility; physical occlusion protection is not established.
-
-The bounded policy is an unqualified prototype, not an adopted tracking solution.
-Saved consumer diagnosis measures zone-point/normal drift and conditional effects
-at recorded teacher targets, without creating missing A3/A4 inputs. Accepted target
-p95 is 15.38→16.66 mm light and 11.91→7.28 mm nominal; the nominal spike reaches
-116.23 mm/32.73 degrees. Actual static A3 frame errors and A4 predictions/admissions
-are unavailable. Nominal's graph changes landmarks and rebuilds TSDF; its next
-accurate pose does not restore the map. Light deterioration at 52.1333 s already
-exists before SDF, without a same-frame graph or replacement. No new inference
-was needed; see [[experiments/point2pose-consumer-impact-and-failure-windows|consumer impact and isolated windows]].
-
-The complete graph-off baseline (`0e6185f`) removes the old graph event spikes,
-but retains 2,569/2,004 correct primary poses, 238/58 inaccurate acceptances and
-49/794 native losses. Nominal ends lost for 472 frames from 70.7667 s. Neither
-condition reaches 95% correct availability; graph-on remains the existing
-prototype default. See
-[[experiments/point2pose-bounded-global-graph-ablation|the preserved graph comparison]].
-
-Three independent follow-up comparisons each complete both original 2,858-frame
-CUDA openings, with identical initialization/source schedules, one attempt and
-no process failure/retry. Partial batch gains 198/631 correct rows but loses
-317/151; its nominal benefit is real, while accepted precision falls to
-85.75%/86.94%. The option remains diagnostic and disabled by default. Six mm
-lowers precision to 52.33%/53.17%. Promotion geometry loses 1,022/250 correct poses
-and lengthens nominal terminal loss to 566 frames (9.433 sampled seconds).
-Both flags are rejected as common corrections. The cap is verified on actual
-CUDA storages; retained masks, keyframes and historical maps remain outside it.
-
-Saved pairs distinguish missed RANSAC sampling from correct hypotheses lost in
-clustering. At nominal 63.4667 s supported correct 4 mm fits exist but are not
-sampled; nearby calls already generate them without retaining a correct cluster.
-Pixel rounding worsens median/p95 pair errors. Actual SAM2 prompts are five
-raster-sampled positive points, distinct from interior preservation checks;
-mask expansion does not establish wrong leaf membership. Hardware calibration,
-whole-mask ownership and the separate causal prompt effect remain unverified.
-Keep 4 mm, native pixel lifting and original prompts; do not combine changes or replace P2P/policies.
-
-The next isolated own-seed rollback (`96c0943`) completes both original CUDA
-recordings without failures/retries. It retains five inliers at 4 mm, coherent
-returned-pose statistics and original initialization. Correct accepted poses
-within 10/15/20 mm and 5 degrees change from 2,569/2,776/2,805 to
-2,183/2,547/2,564 light, and from 2,004/2,047/2,052 to 2,215/2,285/2,308 nominal.
-Wrong 10 mm acceptances grow from 238/58 to 386/96. Light's accepted peak grows
-to 63.56 mm and longest correct absence to 0.967 s; nominal's absence decreases
-to 5.017 s and all-finite point p95 to 22.34 mm. Rollback remains diagnostic,
-disabled by default. The failed common result does not admit a partial-batch
-combination. Saved refit residuals do not justify an uncalibrated tolerance;
-no global threshold widening or four-inlier variant is tested.
-
-The refit comparison proposed testing recovery using current support of the
-previous pose and observed candidate consistency, while keeping normal jump rejection and five-inlier/4 mm
-gates. Original nominal jump refusals include 24 correct 10 mm candidates but
-also wrong hypotheses; blanket bypass is unjustified. Late saved pair families
-can lack any supported fit even within 20 mm/5 degrees; that correspondence
-problem is distinct from a restrictive guard. This is a proposal, with no
-additional correction implemented. Preserve every baseline/failure and keep
-truth evaluator-only; no acquisition, policy change, training, full campaign
-resume or contact admission follows. See
-[[experiments/point2pose-refit-hypotheses|paired results, retained wrong seeds, guards and tail diagnosis]].
-
-The bounded [[experiments/p2p-a3-a4-integration-diagnosis|P2P to A3/A4 diagnosis]]
-uses graph-off, partial-only and no rollback at five inliers/4 mm. Targeted saved
-images and evaluator geometry verify the primary closed leaf seeds and an observed
-static rotation within 0.051 degrees on these two recordings. This does not admit
-control: the provider remains local/invalid. The preserved diagnosis first fitted
-hinges at 51.3667/39.55 s. The subsequent
-[[experiments/p2p-observed-geometry-and-sdf-jacobian|separate observed-geometry intervention]]
-freezes the observed static reference, independently timestamps current angle,
-uses uncertainty-aware vertical consensus and audits origin-bound propagation.
-First fits are now 40.4833/39.9667 s; common-row origin p95 improves 31.23 to
-2.60 mm light and 19.92 to 18.97 mm nominal. Nominal loses 25 early hinge rows.
-No origin bound reaches 1 cm; complete diagnostic calibration/floor inputs are
-missing, although floor/up are authored and rendered camera/FK agreement is now
-measured in the shared budget audit.
-Angle source age is corrected, but saved publication p95 remains 784/975 ms,
-with zero fresh angles under 150 ms. A3/A4 and operational admission remain
-unchanged. The shared pre-A4 protocol now specifies the required initialization
-and separate pre-articulation admission path; neither is implemented or qualified.
-The separate SDF Jacobian vectorization is retained: 2,640 paired CUDA
-refinements across 482 original frames preserve poses/decisions exactly and cut
-median refinement cost by 3.35/3.29 times. Instrumented pipeline estimates remain
-562/665 ms p95; end-to-end 150 ms freshness is not established.
-
-The historical operational source `7460963` still fails all four replay and eight
-observer useful-availability gates. Live latency p95 remains 0.784–1.755 s.
-Offline latency is reported separately and never changes accuracy or coverage;
-it does not repair those historical operational failures.
-Use the fixed 95% useful availability and p95 1 cm/5 degree criteria; a provider
-that always returns unavailable fails. Preserve every failed attempt and modify
-Point2Pose only for evidenced limitations.
-
-Tracking alone establishes neither ownership, a physical hinge nor safe contact.
-D must verify continuous relevant sweeps, feedback semantics, response/load
-uncertainty, compliance and stop bounds. E must independently score the selected
-material contact. Pilot offline and feedback/stop gates precede bounded pilot
-interaction; all train/development offline gates precede qualification dynamics.
-Both qualification groups and explicit release compatibility precede 6.1 handoff.
-The 1 cm / 5 degree and per-door 95% coverage/precision gates are unchanged.
-
-## Resources and material limits
-
-All 50 `engineering-v2` episodes retain original calibration/metadata for static
-work and future common train/development qualification. Superseded campaigns,
-derived caches, temporary experiment scripts and repeated payloads were removed;
-headers, corrected per-door results, significant failures and decisive images remain
-under `outputs/b1/perception/evidence/`. Its `cleanup.json` records removals and
-relocations. Removed ignored payloads cannot be recovered from Git.
-Selected GroundingDINO/SAM3/DINOv3 resources and their image-worker overlay remain.
-Prepared assets, corpus/splits, qualification evidence and `knowledge/raw/` are intact.
-
-Static scans preserve ambiguous whole-object ownership and unobserved physical
-axes. Human confirmation assigns only the displayed pilot regions to the leaf;
-endpoint IK and free-space balls do not validate a path or loaded control.
-Current recordings lack torque and the observed monitor rejects loaded execution.
-Depth is ideal; camera mounting and hardware feedback/stopping are unvalidated.
-Train contains one 15-door residential family and development one right-hand door;
+All 50 engineering-v2 episodes, selected models, corpus/splits, prepared assets,
+qualification evidence and `knowledge/raw` remain intact. Earlier September/October
+cleanups removed explicitly inventoried payloads; `evidence/cleanup.json` records
+those historical removals/relocations, which are not Git-recoverable. Current
+recordings lack torque; the monitor blocks loaded execution. Depth is ideal,
+camera mounting and hardware feedback/stopping remain unvalidated. Human local-role
+review and endpoint IK do not qualify whole-object ownership or a continuous path.
+Train contains one 15-door residential family, development one right-hand door;
 report per-door/handedness results without population claims. The sealed test stays closed.
 
-[[experiments/b1-perception-findings|Historical findings]] retain train fitting with
-0/6 development qualification, corrected component scores, interrupted campaigns
-and the failed material-tracking exits. They do not justify another training run.
-B0 remains historical: the saturated 576-rollout study selected no winner and its
-219.95 N event remains under review.
-
-Supported entry points are documented in the root/model READMEs: runtime and
-corpus verification, intake/preparation/qualification, recording, frozen image
-smoke, static scan diagnosis and Point2Pose smoke/replay/observer/offline diagnostics.
-No estimator training or tracker-comparison CLI is supplied. See
-[[topics/shared-door-perception|Perception]], [[topics/system-architecture|Architecture]],
-[[topics/purdue-b1-robot-and-contact|Purdue contract]] and
-[[implementation_phases/phase-5-door-corpus-and-qualification|Phase 5]].
+Historical learned estimators fitted train but qualified 0/6 development doors;
+that does not justify another training run. B0 remains historical: the saturated
+576-rollout study selected no winner and its 219.95 N event remains under review.
+Supported commands/setup are in the root/model READMEs; runtime contracts and
+future work are canonical in [[topics/shared-door-perception|Perception]] and
+[[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]].

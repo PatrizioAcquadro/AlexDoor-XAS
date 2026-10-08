@@ -86,28 +86,15 @@ Python. It does not install into Isaac, Alex or the 6.0B overlay.
   --output outputs/b1/perception/NEW_P2P_LIVE
 ```
 
-Live diagnostics launch only one Isaac process at a time. Run them with other
-Isaac sessions closed. `point2pose-live --case camera|panel|combined|visibility
---asset PILOT_ID` runs one fresh process. Visibility uses labeled RGB-D input
-faults; it does not qualify physical occluders or loaded interaction. Replay
-reads all four authorized pilot recordings chronologically at stride three,
-retains complete input denominators and separates raw capture accuracy from
-fresh useful outputs. The same provider/worker serves replay and live.
-`point2pose-offline` instead waits for every native result at the original 60 Hz
-capture cadence, including the last frame. It runs four complete pilot episodes
-and two extra fresh initialization attempts per episode through one second after
-the seed. Native and integration coverage, errors, losses and recoveries remain
-separate. Initialization mask rejection is latched per candidate while native
-diagnosis continues; operational initialization stays strict. Capture-time truth
-is evaluator-only. Startup/latency never apply the 150 ms deadline to this mode.
-`frames.jsonl` preserves each observation incrementally, including unavailable
-and unprocessed rows. A failed process is never silently restarted. Results are
-relative to the immutable seed; zero seed error does not validate absolute
-initialization accuracy or object ownership. No qualification/contact flag changes.
-Models load before acquisition and report startup separately. Once the synchronized
-automatic seed is ready, its stateless 6.0B worker is released to free GPU memory;
-an episode reset recreates both workers and clears all temporal state. Frame gaps
-invalidate pending semantic requests without repeatedly loading the models.
+Choose commands deliberately: `point2pose-smoke` uses 12 samples; live diagnostics
+launch one fresh Isaac process at a time and require other Isaac sessions closed.
+`point2pose-live --case camera|panel|combined|visibility --asset PILOT_ID` limits a
+live check to one case. Operational replay samples four recordings at stride three;
+`point2pose-offline` processes all original 60 Hz frames plus initialization attempts.
+The historical offline campaign is stopped; the commands above document entry
+points, not instructions to repeat it. Runtime timing, reset, ground-truth separation
+and failure semantics are canonical in
+[Shared Door Perception](../../knowledge/wiki/topics/shared-door-perception.md).
 
 The workstation worker uses Python 3.12, PyTorch 2.4 CUDA 12.1, NumPy 2.1.3,
 Open3D 0.19 and GTSAM 4.3a0; shared Isaac PyTorch/NumPy remain unchanged. The native
@@ -117,27 +104,15 @@ and `CXX` for another supported toolkit. `sources.json`, `runtime-packages.txt`
 and each process's `runtime.json` record local source/package/configuration state.
 Missing CUDA for models or TSDF is an explicit failure, never a CPU fallback.
 
-The TSDF adapter derives its extent/radial bound from filtered measured keyframe
-geometry and truncation/error padding, keeps 5 mm voxels, rebuilds expanded
-volumes through official fusion and enforces available device/host memory.
-The pinned CUDA kernel has a one-past-end index guard; the installer applies
-`>` to `>=` and preserves the original source. Installer and worker startup also
-apply the tracked corrections in `point2pose_patches.py` before native imports:
-f2m marks missing/insufficient inlier support or invalid residuals as lost, while
-still allowing same-ID registration to recover; an accepted SDF pose is returned
-with its residuals/inliers. The unchanged final support gate can fall back to the
-pre-SDF cluster pose, recomputing statistics for that pose. Exact zero residual
-with sufficient measured support is valid. Pinned-source mismatches fail explicitly;
-pre-fix files remain alongside the ignored sources as `.py.before-tracking-fixes`.
-Migration from the retired rollback patch also preserves `.py.before-retired-variants`.
-`runtime.json` declares the maintained `native_fixes`; model weights and numeric gates
-are unchanged. Calibrated depth limits replace
-small-object defaults in all lifting/crop calls. Equivalent dense crops are
-cached only within one frame and unnecessary neighborhood gathering is skipped
-only when it cannot affect official lifting results. SAM2 retains the authors'
-positive prompts. Current pilot diagnostics fail useful availability at the
-unchanged 150 ms limit. The prototype remains unqualified; results and limitations
-are in the canonical perception findings, not implied by successful setup.
+Installer and worker startup apply `point2pose_patches.py` before native imports;
+setup also repairs the pinned TSDF one-past-end index guard (`>` to `>=`). Tracked
+patches reproduce current loss/SDF publication, sampling, renewal and vectorized
+Jacobian behavior from original sources. Known prior patches migrate idempotently;
+unexpected sources fail explicitly. Original `.py.before-tracking-fixes` backups
+remain, with `.py.before-retired-variants` preserving the rollback-era installation.
+`runtime.json` declares `native_fixes`; setup does not change weights/numeric gates.
+Behavioral details, observed TSDF scaling/memory guards and unqualified limits
+belong in the perception topic and experiments.
 
 ## Selected SAM3 video diagnostic
 
@@ -197,9 +172,3 @@ The [selected development](../../knowledge/wiki/experiments/p2p-sam3-selected-de
 and [residual diagnosis](../../knowledge/wiki/experiments/p2p-selected-residuals.md)
 retain the measured tradeoffs and open material-identity questions. This recipe
 is experimental; it does not qualify 150 ms freshness, contact, A3/A4 or policies.
-
-Cleanup verification is in `outputs/b1/perception/p2p-cleanup-20261008/`: 33 original
-captures per condition exactly match saved selected masks, poses, decisions,
-history, registration traces and effective configuration. The 12-capture default
-SAM2 smoke completes with CUDA TSDF; its freshness gate still fails. These bounded
-checks establish neither full-opening equivalence nor new tracking qualification.

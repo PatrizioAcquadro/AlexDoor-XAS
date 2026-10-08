@@ -332,55 +332,45 @@ validated local commits. External Alex/Isaac packages are outside this work.
 
 ### 6.0C — CAD-free Point2Pose direction
 
-Reuse the [official model-free Point2Pose components](https://github.com/tzuyuan/point-to-pose)
-initially, rather than build another custom point tracker. Distributed visual
-references and metric RGB-D must identify the same rigid leaf through occlusion
-and reacquisition. The prototype, isolated dependencies, official checkpoints and
-smoke/replay/observer entry points are implemented. Runtime initialization works
-on CUDA; all four frozen pilot replays and eight fresh-process observer cases
-fail useful availability at 0%. Live complete latency p95 is 0.784–1.755 s;
-some raw accuracy also fails. These results leave 6.0C qualification open.
+The official model-free Point2Pose prototype, isolated CUDA dependencies and
+smoke/replay/observer/serial evaluators are implemented but unqualified. The
+selected experimental SAM3 recipe is reconstructible from
+`configs/point2pose_selected.json` and the model README; baseline SAM2 and
+operational defaults remain distinct. Behavior is canonical in
+[[../topics/shared-door-perception|Shared Door Perception]], results in
+[[../experiments/b1-perception-findings|Perception Findings]] and
+[[../experiments/p2p-sam3-selected-development|selected development]].
 
-Use calibrated camera kinematics at each acquisition time to separate head motion
-from leaf motion. Transform the recovered object pose into the repository's world
-frame and update an explicitly selected push zone fixed to the panel. Preserve
-original-material identity, independent visual/contact support, acquisition and
-availability times, episode generations and uncertainty. A static fit or raw-depth
-visibility cannot refresh lost material support.
+Distributed visual references and metric RGB-D must identify the same rigid leaf
+through occlusion and reacquisition. Use calibrated acquisition-time camera
+kinematics to separate head and leaf motion, and transport an explicitly selected
+panel-fixed push zone. Keep original-material identity, visual/contact support,
+acquisition/availability times, episode generations and uncertainty separate.
+Static fits and raw-depth visibility cannot refresh lost material support.
 
-The initial pose/reference must not use CAD, prepared-door pose, asset identity or
-simulator annotations. Retain competing static objects until observed evidence
-resolves them. A pose tracker does not establish a physical hinge, loaded-contact
-safety or the validity of an entire hand/arm path. Infer articulation only from
-informative observed leaf motion; an unobserved axis stays unavailable. Preserve
-6.0B's local two-finger, collision and unknown-space queries and its effective
-geometric covers. The covers are neither flat pads nor measured compliance.
+Initialization must not use CAD, prepared-door pose, asset identity or simulator
+annotations. Retain competing objects until observations resolve ownership.
+Tracking establishes neither a physical hinge nor safe contact/continuous paths.
+Infer articulation only from informative leaf motion; an unobserved axis stays
+unavailable. Preserve 6.0B local two-finger and relevant-space queries; geometric
+covers are neither flat pads nor measured compliance. Never silently reselect the
+material point or invent a hinge to satisfy existing validators.
 
-Validate common capture/completion timing, camera motion with a stationary panel,
-leaf motion with a stationary camera, combined motion, occlusion/reacquisition,
-reset and uncertainty. Keep the selected material point distinct from the visual
-reference and never silently reselect it. Loaded or axis-free diagnostic action
-admission remains 6.0D work; do not invent a hinge to pass the existing validators.
-
-An opt-in [[../experiments/p2p-sam3-unified-frontend|unified SAM3 video diagnostic]]
-supplies causal text initialization and masks directly to P2P, without separate
-SAM2 segmentation or DINOv3 inference. The selected
-[[../experiments/p2p-sam3-selected-development|SAM3 OFF experimental recipe]] now
-combines bounded useful history with one configured renewal depth-jump gate, one
-SAM/object, TAPIR and SuperPoint. Memory-only behavior is exactly identical on both
-complete original CUDA openings. The separate renewal-only gate preserves the
-original seed and masks and improves correct availability on all three targets;
-light fine-accuracy/tail/rotation and allocator-reserve tradeoffs remain. Graph off,
-partial batch on, rollback off, five inliers/4 mm and other controls stay fixed.
-Baseline, original OFF, all previous results/failures and operational defaults are
-preserved. Complete latency is not 150 ms freshness; contact/provider qualification
-and A3/A4/policies remain unchanged.
+Historical operational pilots fail useful availability. Complete selected offline
+windows improve accuracy but exceed 150 ms and retain light fine-error/tail,
+rotation and P2P reserve tradeoffs. The saved
+[[../experiments/p2p-selected-residuals|residual diagnosis]] does not justify a
+further correction: independent material correspondence checks remain open,
+including the missing historical rejected-light-candidate trace. Closed-reference,
+hinge/floor/calibration bounds, contact and policy qualification are still required.
+No new replay or latency optimization is part of the October 8 cleanup.
 
 #### Implemented recipe and remaining acceptance work
 
 Pinned upstream revision: `51856226610df75e5c06e8de545bd27f7c4ba99c`.
-Keep BootsTAPIR, SAM2 large, SuperPoint, registration and graph at the official
-paper recipe. Derive TSDF radius/volume from filtered measured candidate geometry,
+Keep the pinned paper recipe for the operational baseline; select experimental
+controls only explicitly through the maintained configuration. Derive TSDF
+radius/volume from filtered measured candidate geometry,
 using one common truncation/uncertainty margin and 5 mm voxels. The 25 cm filter,
 one-time volume initialization and unenforced YAML extent/voxel limits are
 code-proven incompatibilities with door scale. Expand by replaying retained
@@ -388,8 +378,9 @@ official keyframes while preserving the sparse map/graph/object. Refuse actual
 host/device memory overflow explicitly. Apply calibrated metric camera depth
 limits consistently; filled depth never refreshes measured support.
 
-Early automatic-candidate smoke and concurrent Isaac smoke precede extending the
-adapter. Report resident GPU memory, sampled process peak, exact PyTorch allocator
+Before extending the adapter, retain bounded automatic-candidate and concurrent
+Isaac checks appropriate to the changed runtime. Report resident GPU memory,
+sampled process peak, exact PyTorch allocator
 peak, whole latency, queue waiting and useful outputs separately. CUDA is required
 for both models and fusion. Do not repair latency by loosening the 150 ms gate.
 
@@ -439,83 +430,16 @@ Implementation details are canonical in
 unvalidated limits are in [[../experiments/b1-perception-findings|Perception Findings]].
 
 The separate `point2pose-offline` evaluator processes every 60 Hz source frame
-serially and scores native and integration results at acquisition time. It runs
+serially and scores native and integration results at acquisition time. Its
+campaign protocol covers
 the four complete pilots plus two additional fresh initialization attempts per
-recording. Latency is diagnostic only in this mode. Mask rejection stays latched
+recording; the original campaign remains stopped. This is not an instruction to
+resume it. Latency is diagnostic only in this mode. Mask rejection stays latched
 per candidate while native diagnosis may continue; operational guards and the
 150 ms deadline above remain unchanged. Relative seed alignment, ambiguous
 ownership and full missing/lost/unprocessed denominators remain explicit. These
 results do not evaluate official release gates or admit contact; see the canonical
 [[../topics/shared-door-perception|offline evaluation contract]].
-
-The first 60 Hz campaign was interrupted by the user after 4,216 frames in its
-first recording. The preserved 4–10 s audit finds correct acquisition-time
-matching and geometric composition, but a frozen native transform with
-`lost=False` while the camera moves. One authorized 361-frame CUDA diagnostic
-repeat confirms incorrect point correspondences, unflagged no-cluster fallback
-and a separate accepted SDF pose that is not returned. Both defects are corrected;
-one subsequent 361-frame CUDA verification confirms native loss and pose/statistics
-consistency. The primary still has only 59 supported rows and 301 preserved lost
-poses. Saved-image diagnosis subsequently localizes pixel-identity drift on
-mostly low-contrast references, with consistent depth/same-time RGB edges, and
-demonstrates suppression of point renewal during loss. Reference-quality/renewal
-with geometric confirmation is the next bounded work; successful long-gap
-recovery remains unvalidated. No new inference was needed for that diagnosis.
-The full campaign remains stopped. See
-[[../experiments/b1-perception-findings|partial offline results and drift limits]].
-
-A subsequent authorized baseline processes all 421 frames of the recorded
-31–38 s camera-still window, with one automatic seed and no reset between static
-door and first opening. Primary integration support is 420/421; opening error
-p95 is 2.64 mm / 0.295 degrees while the contact is gripper-occluded. Degrading
-references, depth-edge sensitivity and secondary false recovery remain explicit.
-No tracking/model/threshold change follows. The subsequent entire recorded-opening
-baseline completes 2,858 frames per light/nominal condition, through 63.72 degrees,
-and reproduces the short light prefix exactly. Primary support falls to
-80.86%/55.35%; above 60 degrees nominal has only 2/275 supported frames. Review
-these complete baselines before further changes. The configured 90.7-degree joint
-limit is not covered by the recordings. A subsequent final-inlier renewal variant
-was tested once per condition and reverted: light completed 1,352 frames before
-CUDA OOM; nominal completed 619 before the unchanged TSDF memory guard stopped it.
-Completed prefixes improve support but expose inaccurate post-graph publication
-and rapid reference growth. All missing frames remain in the 2,858-frame
-denominator per condition. No favorable retry, acquisition, memory tuning or full
-campaign resume follows. A subsequent bounded inlier-driven renewal policy at
-`2b127b4` limits every candidate to 120 active references, sizes the budget from
-saved baseline populations/measured CUDA state, compacts per-point GPU rows and
-preserves historical IDs/map/graph references. It completes both saved openings
-without failure. Correct supported poses change by -26 light / +689 nominal, but
-accepted errors increase to 541/99 and nominal exposes a 178.61 mm / 32.73 degree
-graph publication. Its final 60-frame nominal loss remains. Native invisibility
-protection is verified observationally; preservation of truly occluded material
-references and ownership is not established. The policy remains an unqualified
-prototype; no tuning, favorable retry, acquisition or campaign resume follows.
-A subsequent single native graph-off ablation (`0e6185f`) completes both original
-2,858-frame CUDA sequences with identical initializations and every other control
-unchanged. Correct available poses change +319 light / -179 nominal versus bounded
-graph-on, and nominal terminal loss grows from 60 to 472 frames. The old event
-spikes disappear, but late support/capacity history and conditional target tails
-remain limiting. Graph-on stays the default; no unified replacement is adopted.
-See [[../experiments/point2pose-bounded-global-graph-ablation|complete graph ablation]].
-Three later independent graph-off corrections complete six original CUDA openings
-without retries: partial native batches gain 480 correct nominal poses but lose
-119 light poses and increase inaccurate acceptance; 6 mm and the existing
-promotion geometry check worsen both conditions. Partial admission stays an
-optional diagnostic; keep 4 mm, native pixel lifting and original SAM2 prompts.
-Actual initialization/promotion telemetry separates raster prompts from interior
-preservation checks and observes blocked secondary promotions. None of these
-controls certifies identity or a reliable common pose. See
-[[../experiments/point2pose-isolated-improvements|isolated comparisons and retained controls]].
-An isolated own-seed refit rollback (`96c0943`) completes both original CUDA
-openings at five inliers/4 mm. It gains 211 correct nominal 10 mm/5-degree poses
-but loses 386 light and increases wrong acceptance in both. Light also develops
-a 63.56 mm accepted peak and longer absences. Common adoption and a partial-batch
-combination are rejected; the option stays disabled and no refit tolerance or
-four-inlier variant is tested. Next investigate recovery against an unsupported
-previous pose with observed candidate consistency; late correspondence loss
-remains separate. No further correction is implemented. See
-[[../experiments/point2pose-refit-hypotheses|complete results, guard and tail diagnosis]].
-Material identity, operational freshness and contact admission remain separate.
 
 ### 6.0D — Feedback, compliance and stopping
 

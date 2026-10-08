@@ -1,6 +1,7 @@
 # Selected-Candidate Registration with Preserved Alternatives
 
-One diagnostic schedule is implemented from `main @da804ad`, following
+Historical schedule, retired at `c01c3a1`; source remains at `a8d0470`/`57ad483`.
+All saved attempts and evaluator dependencies remain available. It was implemented from `main @da804ad`, following
 [[../topics/pre-a4-initialization-and-hinge-budget|the shared pre-A4 protocol and uncertainty audit]].
 The reference retains graph off, partial batch on, rollback off, five inliers,
 4 mm and the vectorized SDF Jacobian. A3/A4 and admission are unchanged.
@@ -8,7 +9,8 @@ No acquisition, robot/leaf movement, contact or training is performed.
 
 ## Fixed intervention and lifecycle
 
-`selected_registration_only=True` is an opt-in offline diagnostic. The normal
+`selected_registration_only=True` selected the historical offline diagnostic;
+current code rejects activation and retains only the disabled compatibility keyword. The normal
 worker/provider defaults are unchanged. It requires graph-off frame-to-map and
 `diagnostic_only=True`. Select the original first eligible automatic observed
 candidate (native object 0), with original masks, order, seeds and geometry.
@@ -178,8 +180,8 @@ that sparse schedule, nor can these modeled queues qualify availability.
 **Reject common adoption of selected-only registration with periodic audits.**
 The full nominal regression fails the declared quality/gap rule despite speed
 and memory savings. Do not select the favorable light condition or tune by door.
-Keep this single option disabled and diagnostic-only (`a8d0470`), retaining all
-attempts, baselines, the postprocessing serialization failure and original times.
+The October 8 cleanup retires this option; reproduce it from `a8d0470`/`57ad483`.
+All attempts, baselines, postprocessing serialization failure and original times remain.
 No second cadence/RNG/recovery variant, new movement/contact or A3/A4 change is
 introduced. Ground truth remains evaluator-only.
 

@@ -1,24 +1,17 @@
 # Shared Door Perception
 
-Phase 6.0 is **unqualified**. 6.0B retains static calibrated RGB-D/multiview
-geometry with frozen GroundingDINO, native SAM3 and DINOv3. The former geometric
-and custom material trackers, full-state replay orchestration and SAM3 video
-comparison are retired. Their results remain in
-[[experiments/b1-perception-findings|Perception Findings]]. The optional CAD-free
-Point2Pose prototype is implemented under
-[[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]];
-its diagnostics do not qualify a release or enable contact. An opt-in
-[[../experiments/p2p-sam3-unified-frontend|unified official SAM3/SAM3.1 video path]]
-uses one persistent full-leaf text identity for initialization and every subsequent
-mask. It skips separate SAM2 segmentation and DINOv3 extraction while retaining
-observed RGB-D geometry, TAPIR, SuperPoint, registration and TSDF. The selected
-[[../experiments/p2p-sam3-selected-development|experimental recipe]] is SAM3 with
-periodic reconditioning OFF, consumer-based bounded useful history and the single
-configured renewal depth-jump gate. Original initialization/masks and all P2P
-controls are retained. Both full original CUDA windows complete; useful correctness
-improves across all three targets, while light 10 mm tails/peaks, rotation and P2P
-allocator reserve remain explicit tradeoffs. Operational defaults, older baselines
-and all prior results remain unchanged.
+Phase 6.0 remains **unqualified**. Maintained 6.0B static scans use frozen
+GroundingDINO, native SAM3, DINOv3 and calibrated RGB-D. The optional CAD-free
+Point2Pose prototype supplies observed panel tracking; neither path admits contact
+or qualifies a policy provider. The selected experimental frontend uses one SAM3
+and its original object, reconditioning OFF, bounded history and renewal-only depth
+filtering. It is explicitly configured, not an operational default.
+
+Setup and commands are in [the model README](../../../models/perception/README.md).
+[[../experiments/b1-perception-findings|Historical findings]] and the linked
+experiments own results; [[../implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]]
+owns remaining acceptance work. Older custom trackers and the rejected Point2Pose
+variants are historical source, while their saved evidence remains available.
 
 ## Recording, inspection and storage
 
@@ -38,8 +31,9 @@ All 50 `datasets/b1/perception/engineering-v2` episodes remain intact, including
 calibration and metadata, for 6.0B and future common train/development qualification.
 They are engineering recordings, not matched policy demonstrations.
 `recording.b1.episode_paths` validates membership, conditions, duplicates and split
-isolation without loading visual features. Superseded `engineering-v1`,
-`inspection-pilot-01` and `inspection-tallest-01` recordings were removed after
+isolation without loading visual features. The earlier October 2 cleanup removed
+superseded `engineering-v1`,
+`inspection-pilot-01` and `inspection-tallest-01` recordings after
 preserving their headers/results. Selected models remain in `models/perception/`;
 historical records and the cleanup inventory are under
 `outputs/b1/perception/evidence/`. Removed ignored payloads are not Git-recoverable.
@@ -119,25 +113,6 @@ of the two pilot regions establishes only their displayed local leaf role.
 Other observations on a fused plane cannot refresh an occluded selected patch.
 Endpoint IK and a small free-space ball do not certify a continuous path or contact.
 
-## Supported diagnostics
-
-From the repository root, select a fresh output directory:
-
-```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
-  --output outputs/b1/perception/NEW_SMOKE
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py diagnose-scan \
-  --output outputs/b1/perception/NEW_SCAN
-```
-
-`smoke` runs frozen inference on one train image. `diagnose-scan` consumes only
-0–25 s on `door-2738468b94d74c5f` and `animated-door-1-88abf40`, nominal/light.
-Metadata selects recordings; annotations do not enter inference. Reports retain
-candidate reprojections, geometry, finite-cover queries, timing and ambiguity.
-The static commands perform no dynamic tracking or full-state evaluation.
-Point2Pose diagnostics and setup are described below.
-Execution success does not imply offline, dynamic or release qualification.
-
 ## Panel tracking prototype — 6.0C
 
 `point2pose_runtime.tracking_provider` adds `PanelTracking` to the existing
@@ -178,19 +153,12 @@ state. It defers whole native sampling batches when capacity is unavailable.
 Models, candidate selection, native point selection, promotions, numeric gates,
 graph and TSDF remain unchanged.
 
-The isolated `offline_episode(..., allow_partial_reference_batch=True)` experiment
-admits the prefix of the fully filtered native batch that fits the remaining
-120-reference capacity. Native selection/order and pending-point checks are retained;
-zero capacity still defers sampling. The complete pair gains 480 correct nominal
-poses but loses 119 light poses, with 169/315 more inaccurate acceptances.
-Whole-batch admission remains the default; the partial option is diagnostic.
-Own-seed refit rollback and selected-only registration are retired from the active
-adapter; disabled keywords remain compatible with selected launchers. Historical
-experiments can be reproduced from their recorded revision (pre-cleanup source:
-`57ad483`). SAM3.1 and model/registration compute variants are retired as well;
-all saved-data evaluators and ignored evidence remain available.
-See [[../experiments/point2pose-isolated-improvements|isolated comparisons]]. This switch does not disable the
-graph; graph-off experiments must select that independent control explicitly.
+Whole-batch admission, graph ON and SAM2 remain operational defaults. The
+`allow_partial_reference_batch` diagnostic instead admits the filtered native
+batch prefix fitting the remaining capacity, preserving point order and checks.
+Graph OFF is an independent control; it retains keyframes/promotions and TSDF
+rebuilds with unoptimized poses. SAM2 and the multi-object baseline remain needed
+for operational consumers and comparisons.
 
 A new reference can sponsor one retirement after native promotion and three
 metric inlier observations on the actually published post-graph pose/map. This
@@ -217,41 +185,40 @@ They also observe native promotion attempts, retained observations, geometric
 spread, whether its check is enabled/passes and the actual promotion decision. Observation
 does not change native decisions or require ground truth.
 
-Pending geometric confirmation remains disabled in the paper configuration. The
-bounded graph-on comparison completes both saved CUDA openings, but light
-precision regresses, nominal retains a severe accepted graph outlier and final
-loss, and physical occlusion
-protection remains unresolved. The policy is an unqualified prototype; see
-[[../experiments/b1-perception-findings|renewal evidence]].
+Pending geometric confirmation stays disabled in the pinned paper configuration.
+The final registration gate remains five inliers at 4 mm. Native SDF Jacobian
+assembly is vectorized without changing samples, iterations, RNG or decisions.
 
-The complete graph-off ablation (`0e6185f`) retains all other controls and original
-initializations. It removes the two original event errors and improves primary
-light correct availability, but worsens nominal availability, terminal loss and
-conditional target tail. Native promotion can still change pending coordinates;
-already-confirmed primary landmarks are not globally revised. Whole-batch renewal
-can stall at 92 active references because the next 30 would exceed 120, while
-late support falls below five and lost-state renewal stays suppressed. No common
-replacement is adopted; graph-on remains the default. See
-[[../experiments/point2pose-bounded-global-graph-ablation|sequence results and reference/TSDF history]].
+### Selected experimental frontend
 
-Three isolated graph-off follow-ups complete six original openings. Partial
-admission gains correct nominal poses but adds inaccurate acceptances in both
-conditions. Six mm and enabling the existing 8 mm pending spread check worsen
-both complete conditions, so 4 mm and disabled geometry confirmation stay the
-existing defaults. Rounding saved pixels also worsens median/p95 error; original
-SAM2 prompts are preserved. Correct hypotheses can be missed by sampling or lost
-during clustering despite available 4 mm support. These are prototype diagnosis
-results, not material/contact qualification. See
-[[../experiments/point2pose-isolated-improvements|complete isolated results and next problem]].
+[configs/point2pose_selected.json](../../../configs/point2pose_selected.json)
+contains the maintained opt-in settings for the existing `offline_episode` API;
+the model README gives the invocation and pinned setup. It retains `door surface`,
+seed 0, one-frame grounding, original object ID0, reconditioning OFF, bounded SAM3
+history, TAPIR full-frame 480/four iterations/all-query, SuperPoint, 120 active
+references, graph OFF and partial batches ON. The renewal depth-jump gate uses
+10 mm/radius 2; initialization is unchanged. Other pinned settings remain fixed.
 
-The subsequent own-seed refit rollback completes both original openings but
-gains 211 correct nominal 10 mm/5-degree poses while losing 386 light and adding
-wrong acceptance in both. It preserves supported seeds mechanically, including
-wrong ones; support alone cannot select a reliable pose. Its common adoption
-and combination with partial admission are rejected. Its implementation is retained in historical Git revisions; five inliers, 4 mm and normal jump/SDF gates stay fixed.
-Saved guard refusals and unsupported tails motivate separate recovery and
-correspondence questions, with no additional correction implemented. See
-[[../experiments/point2pose-refit-hypotheses|accuracy, continuity, memory and retained wrong hypotheses]].
+SAM3 consumes only the arrived RGB frame, with no future lookahead or re-prompt.
+Each synchronized semantic mask feeds P2P directly, disabling separate SAM2 and
+DINOv3 extraction only in this frontend. A missing original ID returns an empty
+mask/loss; new IDs cannot replace it. Same-ID return is not material verification.
+History release follows native attention consumers, preserving seed/conditioning,
+recent qualifying memories, pointers and persistent identity metadata. Original
+frame indices/counts remain; released inputs fail explicitly instead of replaying
+future-conditioned outputs. Expired payloads are not transferred into unbounded RAM.
+See [[../experiments/p2p-sam3-selected-development|history and renewal evidence]].
+
+Retired controls are SAM3.1/multiplex memory, selected-only periodic registration,
+own-seed refit rollback, SAM2 Small, TAPIR crop/reduced resolution/iterations and
+simplified SVD. Disabled compatibility keywords remain; enabling them fails
+explicitly. Only `query_chunk_size` remains a performance control and requires
+diagnostic mode. Historical revisions (including pre-cleanup `57ad483`) reproduce
+retired variants; no parallel launcher is maintained. Result/trace schemas and
+saved-data helpers remain, including `transport_impact`, `sensor_at`, `truth_panel`
+and `pose_error`. All ignored diagnostic scripts and their inputs are preserved.
+
+### Observed geometry and timing
 
 With `estimate_init_pose=false`, map M remains the first optical camera frame.
 The observed zone frame defines O separately; its fixed transform to the material
@@ -277,9 +244,7 @@ The geometry adapter now freezes an explicit observed reference and separates
 current-image angle support from displacement-selected hinge evidence. Vertical-model
 residuals require uncertainty-aware sample consensus; origin envelopes propagate
 initial uncertainty and rotation-lever feedback. Missing floor/calibration bounds
-remain absent. Native SDF Jacobian assembly is vectorized in NumPy; paired CUDA
-refinements retain samples, iterations, RNG and decisions, with no end-to-end
-150 ms qualification. See [[../experiments/p2p-observed-geometry-and-sdf-jacobian|the separate intervention results]].
+remain absent. See [[../experiments/p2p-observed-geometry-and-sdf-jacobian|the separate intervention results]].
 The full static A3 reference additionally needs observed closed yaw and supported
 hinge geometry. An observed relative-axis fit cannot supply those missing fields.
 
@@ -315,17 +280,11 @@ Ordinary frame gaps only invalidate semantic requests; they do not reload models
 Tracking failure latches unavailable until an explicit episode reset;
 native reacquisition retains the original zone and identity in the same episode.
 
-Use `scripts/perception.py point2pose-smoke`, `point2pose-live-smoke`,
-`point2pose-replay` and `point2pose-live` with fresh output directories. See
-`models/perception/README.md` for isolated installation and command details.
-Four full chronological pilot recordings are sampled at 20 Hz (stride three);
-full and observable denominators are retained separately. Visible reference
-support is scored independently from tracker acceptance using evaluator-only
-truth projection and measured depth. Every loss remains in the denominator.
-Live observer cases run in fresh serial Isaac processes with a parked arm;
-visibility faults are synthetic input faults, not physical occluder validation.
-Setup, numerical regressions and execution success are distinct from useful
-availability, accuracy and the unchanged official qualification gates.
+Operational replay samples four complete pilot recordings at stride three
+(20 Hz); full and independently observable denominators remain distinct. Live
+observer checks run in fresh Isaac processes with a parked arm. Synthetic input
+visibility faults do not validate physical occluders. Setup, execution success and
+accuracy are separate from useful availability and release qualification.
 
 ### Serial offline evaluation
 
@@ -368,15 +327,6 @@ is documented in [[../experiments/b1-perception-findings|B1 perception findings]
 For a bounded diagnostic, `offline_episode(..., capture_window_s=(4.0, 10.0),
 registration_diagnostics=True)` processes only that inclusive acquisition window
 and preserves original HDF5 row/frame IDs, including interrupted suffix counts.
-For the focused full-sequence graph ablation,
-`offline_episode(..., use_key_frame_graph=False)` selects the existing native
-graph-off path. The default remains enabled. Keyframe creation/promotion, bounded
-renewal/replacement and TSDF integration/rebuild rules are unchanged; fusion uses
-unoptimized keyframe poses. Registration/resource diagnostics accept the absent
-graph and retain zero graph updates/counters. This measures the total sequence
-effect, including subsequent correspondence, RNG and fusion history, rather than
-isolating one displayed pose.
-
 An explicit bounded window initializes automatic candidates inside that window,
 even after the static inspection schedule ends; the frozen recipe is unchanged.
 The optional native `registration.jsonl` observes registration inputs, hypotheses,
@@ -396,7 +346,6 @@ Its export time is separate metadata; total request time includes diagnostic wor
 and is not an operational performance measurement.
 
 ## Maintained estimator-independent interfaces
-
 
 `DoorEstimate` retains legacy timestamp/validity/confidence, world hinge frame,
 panel rotation, signed angle, dimensions and local/world contact pose. Positions
@@ -460,11 +409,3 @@ stationary pin versus bounded diagnostic initialization before policy dispatch,
 separates known simulation floor/FK from correspondence envelopes and verifies
 the unchanged A4 command sensitivity. No initialization motion/contact path is
 implemented.
-
-The [[../experiments/p2p-selected-registration|selected-registration comparison]]
-retains the graph-off/partial-batch/no-rollback/five-inlier/4 mm reference and
-reproduces its preserved complete poses with the vectorized Jacobian. Periodic
-alternative audits reduce memory/latency but regress the nominal tail without a
-native loss signal; the new option remains disabled diagnostic code. Nine native
-frames represent 150 ms only in dense 60 Hz replay; live queue drops and material
-recovery remain separate unqualified behaviors.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Frozen image-model smoke and bounded 6.0B static scan diagnostics."""
+"""Frozen-model, static B1 and Point2Pose smoke/replay diagnostics."""
 
 import argparse
 import hashlib

@@ -11,8 +11,9 @@ component scores supersede the original offset scores. Reports retain their orig
 content; embedded execution paths resolve through `cleanup.json` relocations.
 That inventory also records payload removals and preserved recording headers.
 
-Superseded recordings, discarded model weights, temporary scripts, feature/mask
-caches, repeated dumps/media and logs without residual value were removed.
+The earlier October 2 cleanup removed superseded recordings, discarded weights,
+temporary scripts/caches and repeated payloads as recorded in that inventory.
+The October 8 Point2Pose cleanup deletes no ignored payloads.
 Ignored payloads are not Git-recoverable; the retained results do not promise
 complete executable reproduction. See
 [Perception Findings](../knowledge/wiki/experiments/b1-perception-findings.md).
@@ -45,3 +46,16 @@ verified frame/composition contracts from open registration hypotheses.
 Prepared assets remain under `assets/doors/b1/`. Qualification and Purdue runtime
 verification normally remain under `~/.cache/alexdoor-xas/`. No policy result or
 qualified perception release exists.
+
+The selected recipe's original and failed runs remain under `p2p-sam3-selected-01/`
+and the earlier experiment roots. `p2p-sam3-residual-02/` retains same-ID image
+pairs and trajectory-stage figures for future material correspondence checks.
+Do not delete `p2p-sam3-followup-01/hull_evaluator.py` or
+`p2p-performance-01/full-target-evaluation.json`: later diagnosis depends on them
+and the prepared collision geometry. Historical source alone cannot restore
+these ignored inputs, traces or models.
+
+`b1/perception/p2p-cleanup-20261008/` contains fresh 33-frame selected smokes per
+condition, the existing 12-sample operational smoke, original-source reconstruction
+and exact-prefix verification. It is bounded cleanup evidence, not a new complete
+replay, latency comparison or provider qualification.

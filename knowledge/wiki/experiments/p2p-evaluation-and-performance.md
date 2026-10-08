@@ -1,10 +1,26 @@
 # Point2Pose Evaluation and Isolated Performance
 
-This page preserves the older multi-object baselines and isolated P2P controls.
-The next experimental frontend is selected separately in
-[[p2p-sam3-unified-frontend|the unified four-way comparison]]: SAM3 periodic
-reconditioning OFF, one SAM/object, with the all-query TAPIR/P2P controls retained.
-Historical results and operational defaults are unchanged.
+## Decision and evidence boundary
+
+This historical multi-object study retained **all-query TAPIR, full-frame 480,
+four iterations/eight passes and SuperPoint** for explicit diagnostic 15/20 mm
+comparisons. Chunk 64 remains the operational/narrow-10 mm comparator. Larger
+blocks are not numerically equivalent and did not meet 150 ms. SAM2 Small,
+reduced crop/resolution/iteration paths and simplified SVD were rejected; their
+active controls/tests were retired at `c01c3a1`, with source in Git `57ad483` and
+all local evidence preserved. The later single-object SAM3 recipe is selected in
+[[p2p-sam3-unified-frontend|the frontend comparison]] and
+[[p2p-sam3-selected-development|selected development]]. Defaults are unchanged.
+
+Evidence root: `outputs/b1/perception/p2p-performance-01/`. `saved-evaluation.json`
+retains 20 prior attempts, every candidate, original-time gaps/tails, histograms,
+peaks, source/configuration and target definitions. Readable counterparts are
+`saved-evaluation.md`, `performance-comparison.md`, `full-target-report.md` and
+`full-comparison.png`. Initial evaluator serialization and pre-frame nvcc startup
+failures remain separately preserved; no favorable inference retry replaced them.
+Source milestones: `8c33bdc`, `9e7f619`, `129be5e`, `154bfc6`, `518d162`.
+**`full-target-evaluation.json` remains a dependency of later material/residual
+analyses**, not an obsolete run artifact.
 
 20 preserved attempts; every original scheduled row and failed tail retained. Seed excluded from correctness and errors, retained in scheduled denominator. Each cell is availability % / accepted precision % / maximum correct-pose absence seconds. Rotation remains 5 degrees. This changes evaluation, not 4 mm registration or operational/contact bounds.
 
@@ -44,72 +60,46 @@ Three full-pose geometric contact-frame candidates use measured depth at the ori
 | nominal / [186, 150] | 130.5 | 89.71/89.74 | 98.92/98.95 | 99.86/99.89 | 11.71/22.23 |
 | nominal / [186, 448] | 145.2 | 86.18/86.21 | 98.46/98.49 | 99.69/99.72 | 12.39/23.03 |
 
-## Paper, pinned implementation and live configuration
+## Compute protocol and attribution
 
-The [paper, section 4.4](https://arxiv.org/html/2604.10415v2) reports 2–10 Hz,
-whereas the [project page](https://point2pose.github.io/) announces 30 Hz on an
-RTX 4090 in September 2026. Neither specifies our five/six candidate, full-size
-leaf, full observation/IPC/adapter scenario; neither is a local latency result.
-The pinned official source `51856226610df75e5c06e8de545bd27f7c4ba99c` also matches
-the remote official repository HEAD checked on 2026-10-07 and already has
-`query_chunk_size`, `tapir_crop`, `num_pips_iter` and SAM2.1 Small support.
-Its `configs/realsense/default.yaml` uses chunk size 2,048 (all of our at most 720 queries), Small,
-256×256 mask-centred crop, one TAPIR iteration per level and `svd_residual_outlier`.
-The reference uses 64, Large, full-frame 480×480 and four iterations.
-SuperPoint mask cropping, disabled image writing, BF16 autocast and TF32 are
-already active in the reference; they are not new improvements.
+Pinned upstream: `51856226610df75e5c06e8de545bd27f7c4ba99c`. Its saved official
+live YAML uses chunk 2,048, SAM2.1 Small, 256×256 mask-centered crop, one TAPIR
+iteration and `svd_residual_outlier`; our reference uses chunk 64, Large,
+full-frame 480/four iterations. The live YAML also relaxes other guards and
+adaptive thresholds, which were **not imported**. SuperPoint cropping, BF16/TF32
+and disabled image writing were already active. The [paper's](https://arxiv.org/html/2604.10415v2) 2–10 Hz and the
+[project's](https://point2pose.github.io/) September 2026 30 Hz announcement do not describe this complete
+five/six-candidate leaf/IPC/adapter scenario.
 
-The live YAML also changes adaptive MAD/outlier thresholds, minimum inliers,
-map-growth and lost/jump guards. These are not imported. Diagnostic compute
-controls change only named components on the preserved all-registration,
-graph-off, partial-batch, rollback-off reference, five inliers and 4 mm, with
-the previously validated vectorized SDF Jacobian. Simplified official SVD is
-explicitly configured with `threshold_method=fixed`, `inlier_thres=0.004`,
-`min_inliers=5`, five outlier iterations and no SDF refinement; unrelated
-frontend guards remain unchanged. Nominally setting 4 mm with MAD would not
-apply that bound. All performance controls require diagnostic mode and leave
-normal worker/provider and policy defaults unchanged.
+Every causal pilot starts at the original observed 31 s seed, includes all 601
+captures through 41 s and retains accumulated query/reference/keyframe/TSDF state.
+Fresh reference masks and all-candidate poses/loss/integration decisions exactly
+reproduce the preserved reference; mature live queries reach 370/576 and historical
+references 872/1,446. The fixed exploratory rule allowed at most 2 percentage
+points less 15/20 mm availability/precision, 150 ms longer correct gaps and required
+at least 10% complete median saving in both conditions. These were comparison
+rules, not registration, contact or release gates.
 
-## Attribution and operational boundary
+All registrations, graph OFF, partial batches ON, rollback OFF, five inliers/4 mm
+and vectorized SDF stay fixed unless the isolated named control changes them.
+Simplified SVD used fixed thresholds, five outlier iterations and no SDF; merely
+setting 4 mm with adaptive MAD would not enforce that bound. All compute controls
+were diagnostic-only; only `query_chunk_size` is maintained now.
 
-CUDA comparison proceeds through chunks, Small, crop at original resolution,
-then smaller crop resolution, then reduced iterations, then simplified SVD.
-Each causal pilot starts at the original observed 31 s initialization and
-processes every original capture through 41 s, including accumulated queries,
-reference replacement and keyframe/TSDF history. Full original openings are
-reserved for promising variants. The fixed exploratory progression rule permits
-at most two percentage points lower availability/accepted precision at 15/20 mm,
-at most 150 ms longer correct-pose gaps and requires at least 10% median complete
-latency reduction in both conditions. The historical 10 mm view remains reported
-but is not the sole rejection rule. These are exploratory comparison rules,
-not contact or operational qualification limits.
+Complete latency starts with a calibrated saved packet and includes snapshots,
+IPC/native inference, adapter and diagnostics. Sensor acquisition, fresh FK,
+rendering, HDF5 reads, evaluator scoring and live queues are excluded. Startup/seed
+are separate. IPC-minus-native is not queue delay alone; native developer spans
+may be asynchronous. Subtracting diagnostic cost is arithmetic, not a measured
+live diagnostic-off path. CPU RSS, sampled GPU residency, exact allocator and
+simultaneous/process peaks retain their distinct meanings.
 
-The saved selected-registration variant illustrates the changed interpretation:
-nominal availability is 62.46% at 10 mm, 97.66% at 15 mm and 99.90% at 20 mm.
-Its 10 mm regression does not erase its wider-tolerance benefit. Secondary
-registration deferral and altered estimator history remain a separate compromise;
-the requested compute reference keeps every candidate registration.
+### Chunk microcomparison
 
-Evidence is in ignored `outputs/b1/perception/p2p-performance-01/`:
-`saved-evaluation.json` retains every candidate, all thresholds, error histograms,
-p99/peaks, original-time intervals, failures/tails and measured target definitions.
-Preserved inputs/results are not overwritten. Initial evaluator serialization
-failure and repaired evaluator log are both retained; inference was not repeated.
-The first direct CUDA probe lacked the installed nvcc path before processing a
-frame; its startup failure is preserved separately from the corrected launch.
-Per-request diagnostic time now includes measured trace binding/copies, promotion/prompt observation, frontend snapshots and export/resource inventory. Complete observation time retains this work; subtracting it is an arithmetic estimate, not a diagnostic-off live measurement. CUDA worker peak CPU RSS, CUDA allocations/resident sampling and crop windows are also saved. The official frontend developer timings may include asynchronous work and are reported with that attribution limit. All isolated pilots and four complete openings are finished; full failures remain preserved. A4 initialization/bootstrap,
-movement/contact, training and policies are deferred and unchanged. Ground truth
-remains evaluator-only. Dense replay quality does not establish live resampled
-quality, 150 ms freshness, ownership or safe contact.
-
-### Completed chunk microcomparison
-
-Both original 601-frame CUDA prefixes preserve every reference pose/native-loss
-flag exactly while stateless paired 64/256/all-query predictions are inspected at
-13 fixed frames, including up to 345/560 queries in mature light/nominal state.
-Input causal tensors/query features remain unchanged; point axes/state keys are
-preserved. The alternative prediction/returned state is discarded after scoring,
-so it cannot enter the baseline's next frame.
+At 13 fixed mature frames, unchanged input tensors/query features were scored
+with 64/256/all-query blocks; alternate predictions and states were discarded.
+Both underlying 601-frame reference trajectories remained exact. Mature counts
+reached 345/560 queries in these samples.
 
 | Condition / chunk | Prediction median / p95, ms | Maximum resized track delta, px | Every visibility identical |
 |---|---:|---:|---|
@@ -159,167 +149,36 @@ predicted phase/duration and action admission still prevent an A4 execution scor
 This reference-only consumer component analysis cannot be automatically applied
 to new tracking trajectories whose articulation inputs were not saved.
 
-### Resolution versus actual refinement passes
+### Isolated pilot decisions
 
-The official TAPIR resolution pyramid has two refinement levels at 480 and 384,
-but one at 256. With `num_pips_iter=4`, the actual causal refinement passes are
-8/8/4 respectively. Add 384×384 after the 480 crop to isolate reduced pixels
-with eight passes retained; also inspect the official 256 path and name its
-inherent pyramid reduction. Only afterwards reduce `num_pips_iter` to two,
-separately at 384 (8→4 total passes) and 256 (4→2), then one at 256 (2→1) to match the official live setting. Resource inventories record
-actual feature resolutions and causal levels, rather than inferring iteration
-count from the configured key alone.
+All pilots preserve original timestamps, seed maps/IDs and source masks. Primary
+600/600 nonseed acceptances pass all bounds unless specified. Full inventories,
+secondary results and rejected masks remain in `pilot-comparison.json`.
 
-### Fresh reference and causal chunk pilots
+| Control | Decisive outcome | Extension decision |
+|---|---|---|
+| Chunk 256 | Median savings 8.73/11.40% light/nominal. | Light misses fixed 10% rule; preserve pilot. |
+| All queries | Median savings 14.16/18.62%, all primary poses correct. | Extend both complete openings. |
+| SAM2 Small | Light saves 7.86% with secondary 3/4 initialization refusals; nominal saves 22.44% but primary mismatch yields zero integration availability (seed mask IoU 0.363). | Reject; native completion cannot bypass initialization. |
+| Crop 480 | Fixed 600×600 crop from original 960×600 image; complete median ~13.9% slower both conditions, light query peak 370→473. | Reject speed extension. |
+| Crop 384, four iterations | Eight actual passes retained; median 9.2/15.9% slower. | Pixel reduction alone insufficient. |
+| Crop 256, four iterations | Four passes (pyramid changes too); savings 7.31% light, -0.35% nominal. | No common extension. |
+| Crop 384/256, two iterations | Four/two actual passes; savings 7.94/3.69% and 13.69/3.81%. | No common extension. |
+| Crop 256, one iteration | One pass; median savings 12.79/5.85%, so original rule fails. About 20% p95 saving in both; nominal two poses exceed 10 mm, all pass 15/20 mm. | Separate prespecified >=15% p95 extension recorded in `full-admission.json`; median failure remains. |
+| Simplified SVD | Median/p95 239/329 ms light, 306/407 nominal. Nominal accepts 483/600, loses 109, correct gap 1.383 s versus 16.7 ms; 15/20 mm availability 80.37% despite 100% conditional precision. | Reject continuity regression; no full extension. |
 
-Fresh automatic CUDA references complete 601/601 captures per condition and
-reproduce **all candidate** preserved poses/native loss/integration decisions
-exactly (maximum pose element delta zero). Source masks and original regenerated
-SAM2 masks match. Light/nominal mature states reach 370/576 live queries and
-872/1,446 historical references. No historical ID/history is discarded by a
-reset. The official pinned live YAML also matches the remotely retrieved original
-bytes exactly (`official-live-config.remote.yaml`); its actual chunk is 2,048 and
-`num_pips_iter=1`, rather than relying on its introductory comments.
+The 480/384 TAPIR pyramids use two refinement levels, 256 one; `num_pips_iter=4`
+therefore means eight/eight/four actual prediction passes. Cold causal allocation
+uses a hardcoded factor four before shrinking on the first prediction; its peak
+is retained separately. Reduced resolution, pyramid depth and explicit iterations
+must not be conflated. Small's checkpoint reduction did not imply equivalent GPU
+savings; light residency was 6.193→6.076 GiB, and mask IoU was agreement, not
+ownership truth (`sam2-seed-masks.png`).
 
-| Pilot / condition | Complete median / p95 ms | Median saving | 10/15/20 mm availability % | Extension eligible |
-|---|---:|---:|---:|---|
-| reference / light | 507.70 / 665.56 | reference | 99.83 / 99.83 / 99.83 | reference |
-| chunk 256 / light | 463.38 / 558.09 | 8.73% | 99.83 / 99.83 / 99.83 | below fixed 10% cost criterion |
-| all queries / light | 435.82 / 541.33 | 14.16% | 99.83 / 99.83 / 99.83 | yes |
-| reference / nominal | 628.82 / 889.92 | reference | 99.83 / 99.83 / 99.83 | reference |
-| chunk 256 / nominal | 557.11 / 749.32 | 11.40% | 99.83 / 99.83 / 99.83 | yes |
-| all queries / nominal | 511.72 / 676.13 | 18.62% | 99.83 / 99.83 / 99.83 | yes |
-
-All accepted nonseed primary poses satisfy all three bounds in these prefixes;
-maximum correct gap is the 16.7 ms constructed-seed gap. The original 601-frame
-denominator is retained. All-query replaces 256 for full extension as the faster
-promising choice for the same control, with both pilots retained. This does not
-establish late-tail quality; that requires the two original complete openings.
-GPU sampled resident peaks are 6.807/9.605 GiB for the all-query pilots (not
-an indefinitely bounded resource claim). Full resource inventories/secondary
-candidate quality remain in the comparison JSON.
-
-Complete measurement begins with an already calibrated saved RGB-D packet and
-includes snapshot, IPC/native work and observational adapter. Physical sensor
-acquisition, fresh live FK/calibration, queues, HDF5 input reads, rendering and
-evaluator scoring are excluded. Initialization/startup is separate. Offline has
-no acquisition queue wait; the IPC-minus-native difference includes serialization,
-decode and process waits and cannot be called queue latency alone. No live
-resampling/quality, operational/contact admission or 150 ms freshness is inferred.
-
-### SAM2 Small: both completed pilots
-
-Only the segmenter checkpoint/config changes. Primary accepted precision remains
-100% at all three bounds in 600 nonseed observations (601 scheduled captures);
-complete median improves 7.86%, below the fixed 10% extension cost rule.
-Official developer segmenter median changes 22.99→13.23 ms; these spans retain
-async-attribution limitations. GPU resident peak changes 6.193→6.076 GiB,
-not the factor-of-five checkpoint-size reduction.
-
-Initial Small/Large mask IoUs across five candidates are
-0.924/0.967/0.942/0.078/0.077. This is agreement, not ownership accuracy.
-Small triggers unchanged `sam2_initialization_candidate_mismatch` checks for
-candidates 3/4, which have zero integrated acceptances rather than 600/600.
-Candidate 3 also remains native lost; candidate 4 can produce native poses but
-cannot bypass its initialization refusal. No gate is disabled to rescue Small.
-Observed contours remain on different plausible leaf relief/edge regions;
-no ownership mask truth exists. Preserve these failures and the source/returned
-masks. `sam2-seed-masks.png` compares only the original 31 s images/masks.
-Nominal median saves 22.44% (487.73 ms median / 644.02 ms p95), but primary
-initialization fails the unchanged candidate-mismatch check: zero integration
-acceptances and zero correct availability at **all** three bounds. Candidates
-3/4/5 also have zero acceptances; only 1/2 retain 600. Primary initial Small/Large
-IoU is 0.363. Completing native processing is not successful integration. Small
-is not extended or combined; retain Large on this original initialization.
-Mature mask agreement is saved independently; absent membership truth prevents
-an absolute segmentation-accuracy score.
-
-### Crop at original 480×480: completed light pilot
-
-The actual recording is 960×600; the official crop window is a fixed 600×600,
-initially at (81,0), while TAPIR remains 480×480 with eight refinement passes.
-Original regenerated masks, initial maps/IDs/poses and every source timestamp are
-unchanged. Primary accepted position p95 is 3.64 mm and maximum 9.10 mm; all
-600 nonseed poses pass 10/15/20 mm and 5 degrees. Complete median increases
-507.70→578.35 ms (+13.91%), p95 is 684.44 ms. Query peak rises 370→473 and
-historical references 872→924; crop-only is not extended as a speed improvement.
-This is a measured changed estimator trajectory, not an isolated pixel-count
-saving. Subsequent 384/256 resolution trials retain their separate attribution.
-
-### Reduced pixels with unchanged eight passes
-
-Both 384×384 crop pilots complete 601/601 original captures and retain all
-600 nonseed primary acceptances within 10/15/20 mm and 5 degrees. Actual feature
-resolutions are `[256,256,384]`; eight causal levels are retained. Complete median
-is 9.2% slower light / 15.9% slower nominal than the full-frame reference, versus
-13.9% slower in both 480 crop pilots. Reducing only pixels at these two levels is
-not enough to offset the altered trajectory/registration/history cost; 384 is
-not extended as a common speed improvement. Full sampled component/resource
-and conditional error distributions remain in `pilot-comparison.json`.
-
-### Official 256 resolution/pyramid path
-
-Both 256×256 crop pilots retain all 600 nonseed primary acceptances within
-10/15/20 mm and 5 degrees, with four observed causal refinement levels. Light
-complete median/p95 is 470.58/624.38 ms (7.31% median saving); nominal is
-631.03/792.00 ms (0.35% slower median). These are compared against the full-frame
-reference and against 384 with its extra refinement level; the gain cannot be
-attributed to pixels alone. Light causal state peak drops 0.677→0.392 GiB while
-query peak increases 370→428. The worker CPU RSS remains about 3.32 GiB.
-Neither condition makes this path eligible as a common speed extension under
-the fixed median rule. Explicit iteration reductions remain a separate test.
-
-The official tracker uses a hardcoded factor of four in `construct_initial_causal_state`
-even when the model requests two/one. The cold seed allocation can
-therefore contain eight/four levels, then shrinks to the actual four/two/one
-prediction levels after the first track. No inference fix is combined with this
-comparison. Separate actual refinement passes per prediction from allocated
-causal levels and retain the cold seed memory peak. Existing records permit
-reconstruction from configured iteration count and observed feature levels.
-
-### Explicit reduction to two iterations
-
-Both 384×384/two-iteration pilots retain 600 correct nonseed primary
-acceptances at every bound. Relative to the reference, median complete saving
-is 7.94% light / 3.69% nominal, with four actual prediction passes. The separate
-256×256/two-iteration pilots retain the same primary quality and use two actual
-passes; saving is 13.69% light / 3.81% nominal. These are distinct from the
-resolution/pyramid change and are not common full extensions under the preset
-median criterion. Cold state allocation remains counted separately.
-
-### One iteration and the latency-tail extension decision
-
-The official one-iteration 256 path retains 600 correct nonseed primary poses
-at 15/20 mm in each pilot; nominal has two accepted poses just above 10 mm.
-Median saving is 12.79% light / 5.85% nominal, so the original median-only
-exploratory rule remains **failed**. However, complete p95 improves about 20%
-in both conditions (532.86/707.97 ms), with actual one-pass state and preserved
-15/20 quality/continuity. Because the user objective is a 150 ms complete-latency
-requirement, extend this separately as a p95-promising path (at least 15% p95
-reduction in both pilots). This additional exploration decision is explicit in
-`full-admission.json`, before any full attempt. Do not retroactively erase the
-median-rule result, call it qualification, relax 4 mm/five inliers or re-run a
-failed model for a favorable outcome. All-query remains the primary median-rule
-extension. Small, 480/384 crops and the two-iteration paths are not combined.
-
-### Simplified SVD: fixed gate verified, nominal continuity fails
-
-Both CUDA prefixes finish with the official `svd_residual_outlier` path alone.
-Audit every one of 3,000/3,600 registration calls: recomputed residuals agree
-with the reported residuals and every final inlier mask equals residual ≤4 mm.
-All 2,957/2,869 nonlost registrations have at least five inliers; maximum retained
-inlier residual is 3.99978/3.999998 mm. MAD and demo gate relaxations remain disabled.
-
-Complete median/p95 drops to 239.04/329.04 ms light and 305.57/407.36 ms nominal,
-but nominal primary accepts only 483 of 600 nonseed observations. At 10 mm,
-availability/accepted precision is 76.04%/94.62%; at 15/20 mm it is 80.37%/100%.
-The maximum correct-pose gap is 1.383 s at every bound, versus 16.7 ms in the
-reference prefix. There are 109 native-loss observations and a censored 10 mm
-tail. Accepted nominal point p95/p99/max is 10.84/13.29/14.16 mm, while all finite
-poses reach 46.45 mm. This conditional precision does not restore availability.
-Light retains all 600 nonseed correct acceptances, but the nominal continuity
-regression excludes SVD from full extension and from any combination. Preserve
-all failures without changing five inliers, the 4 mm gate or upstream guards.
+The SVD audit covers all 3,000/3,600 registration calls, verifies every residual
+and exact <=4 mm inlier mask, and at least five inliers in all 2,957/2,869 nonlost
+registrations. Nominal finite poses still reach 46.45 mm. Correct enforcement of
+the fixed gate did not repair continuity, and no guard was relaxed.
 
 ### Complete all-query openings
 
@@ -345,21 +204,13 @@ arithmetic subtraction still leaves p95 far above 150 ms. CPU worker/GPU/TSDF,
 history, component timing, distributions/peak times and all secondary candidates
 remain in the JSON. The isolated crop/one-iteration full results below retain the nominal failure.
 
-### Latency peaks and backend growth
-
-The all-query complete maxima are 1.544 s light at 76.15 s and 4.069 s nominal
-at 42.4 s. Native work is 1.531/4.051 s; measured total diagnostic work is
-45.8/61.3 ms, and IPC outside native is approximately 5.0/7.5 ms. These peaks
-cannot be explained by an acquisition queue or diagnostic export alone.
-The official frontend spans are 329.8/497.1 ms; substantial time remains inside
-the native backend beyond those developer spans. In the same samples, TSDF
-rebuild counters rise 16→17/5→6 and keyframe promotion occurs. Light object 3
-volume grows 18.73→20.70 million voxels; nominal object 1 grows 60.33→98.59
-million, close to the retained 100-million-voxel guard. This is observed
-coincidence, not an exclusive kernel timing or a relaxation of that guard.
-The next relevant latency audit must include promotion/TSDF history and spikes,
-besides the dominant steady RANSAC/SDF registration spans. Active references are
-bounded; total historical maps/TSDF are not proven bounded indefinitely.
+At complete maxima (76.15 s light/42.4 s nominal), native work is 1.531/4.051 s,
+while diagnostic work is 45.8/61.3 ms and IPC outside native about 5.0/7.5 ms.
+TSDF rebuild counts simultaneously rise 16→17/5→6 with keyframe promotion;
+volumes grow 18.73→20.70/60.33→98.59 million voxels, near the retained 100-million
+guard. This is observed coincidence, not exclusive kernel attribution. Active
+reference bounds do not prove bounded historical maps/TSDF. The peaks cannot be
+explained by an acquisition queue or export alone.
 
 ### Complete reduced-path openings and combination decision
 
@@ -418,34 +269,17 @@ physical identity/ownership evidence. All secondary candidates remain in the
 JSON; their quality is weaker and uneven, so adoption concerns the original
 primary diagnostic target only, not arbitrary candidates or held-out doors.
 
-For subsequent **diagnostic 15/20 mm evaluations**, use all-query TAPIR blocks
-(`query_chunk_size=0`; official 2,048 is equivalent in size for ≤720 queries),
-with Large, full-frame 480×480, four iterations/eight actual passes and the
-retained all-registration, graph-off, partial-batch, rollback-off, five-inlier,
-4 mm, vectorized-Jacobian setup. Preserve chunk 64 as the historical/narrow
-10 mm comparator: larger blocks are not a numerically equivalent or 10 mm
-replacement. Do not adopt Small, the reduced path or simplified SVD for common
-tracking. The diagnostic opt-in controls do not change provider/policy defaults.
+All-query adoption concerns the original primary diagnostic at 15/20 mm, not
+arbitrary candidates, other doors or 10 mm numerical equivalence. Chunk 0 includes
+all queries (official 2,048 also includes the observed <=720). Keep Large,
+full-frame 480/four iterations/eight passes and all other fixed controls; do not
+combine rejected paths. Current selected configuration remains opt-in.
 
-The all-query complete p95 is **553.79/644.39 ms**, still **403.79/494.39 ms over
-150 ms** (3.69×/4.30× the deadline); zero measured complete observations meet it.
-Even arithmetic diagnostic subtraction gives 507.16/584.65 ms. This is not a
-measurement with diagnostics disabled. Startup is separate: visual worker
-9.63/9.70 s, Point2Pose worker 4.12/4.33 s and first full initialization request
-2.77/2.94 s, of which native IPC is 0.92/0.99 s. Full observation latency starts
-with an already calibrated saved packet, excluding physical acquisition/FK and
-queues; no live freshness or resampled tracking accuracy follows from this replay.
-The 30 Hz project claim is not transferred to this scenario.
-
-Next work remains Point2Pose: profile and reduce steady RANSAC/SDF plus
-promotion/TSDF rebuild cost while retaining the geometric controls; only after
-sufficient compute improvement, measure a real diagnostic-off observation path
-and evaluate its actual queue/resampling separately from dense replay. Keep the
-original baselines and failed tails. Do not start A4, physical initialization,
-movement/contact, training or policy changes. The recordings end at 63.7209 degrees;
-full recording completion does not validate the configured 90.7-degree limit.
-
-Readable local results are `performance-comparison.md`, `full-comparison.png`,
-`saved-evaluation.md`, `full-target-report.md` and the complete comparison/target/audit JSONs under the
-ignored evidence root. Source/diagnostic milestones are `8c33bdc`, `9e7f619`,
-`129be5e`, `154bfc6` and `518d162`; evidence payloads remain uncommitted.
+Complete p95 553.79/644.39 ms remains 3.69×/4.30× the 150 ms deadline, with zero
+timely complete observations. Arithmetic diagnostic subtraction still yields
+507.16/584.65 ms. Visual/P2P startup was 9.63/9.70 s and 4.12/4.33 s, first complete
+initialization 2.77/2.94 s. None measures live queue/resampling quality. Future
+latency work must consider registration and promotion/TSDF spikes while preserving
+quality; it is outside the October 8 cleanup. A4 inputs/admission, movement/contact,
+training and policy changes remain outside this experiment. Recording completion
+through 63.7209 degrees does not validate the configured 90.7-degree limit.

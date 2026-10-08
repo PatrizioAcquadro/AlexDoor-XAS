@@ -319,8 +319,6 @@ def offline_episode(
                         if allow_partial_reference_batch
                         else {}
                     ),
-                    **({"refit_seed_rollback": True} if refit_seed_rollback else {}),
-                    **({"selected_registration_only": True} if selected_registration_only else {}),
                     **(
                         {"performance_controls": performance_controls}
                         if performance_controls

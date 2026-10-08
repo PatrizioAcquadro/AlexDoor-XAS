@@ -20,6 +20,12 @@ original HDF5 rows 1860–4717, 2,858 captures per condition, 31–78.6166667 s.
 Acquisition frame equals HDF5 row + 8; native index equals row - 1860. Verify these
 identities and original capture timestamps on every row; never join by rounded time.
 
+Retained dependencies include `p2p-sam3-followup-01/hull_evaluator.py`, its prepared
+collision geometry and `p2p-performance-01/full-target-evaluation.json`. Preserve
+`same-id-pairs-light.png`, `same-id-pairs-nominal.png` and
+`new-trajectory-stages.png` with the traces for independent material review.
+These ignored inputs cannot be recovered from source history alone.
+
 Trace publication exactly matches each saved frame pose. Registration inputs
 exactly match the previously stored references for the same stable track IDs;
 there are zero post-frontend reference changes on selected pairs and zero graph

@@ -1,6 +1,7 @@
 # Point2Pose Refit Hypothesis Preservation
 
-Work starts from clean `main @9c8003c`, the only local branch. Implementation
+Historical experiment: rollback code was retired at `c01c3a1`; source remains
+at `96c0943`/`57ad483`, with all local evidence preserved. Work started from clean `main @9c8003c`, the only local branch. Implementation
 commit is `96c0943`. All earlier
 recordings, baselines, failures, models and original initializations remain
 preserved. The starting comparator is bounded renewal without the global graph,
@@ -13,7 +14,8 @@ weighted SVD refit loses the required support. The seed is revalidated on the
 same remaining pool; pose, indices, count, mean residual and pool removal all
 describe that returned transform. Valid refits are untouched. Sampling, tie
 ordering, selection, SDF, final support, jump guards and renewal stay fixed.
-The option is disabled by default and independent of partial batch admission.
+The historical option was independent of partial batches and disabled by default.
+Current code rejects activation while retaining the false compatibility keyword.
 
 Saved numerical diagnosis reproduces the observed seed-to-refit failure,
 including nominal 63.3833 s and light 70.6500 s. Eleven failed pool winners in
@@ -201,12 +203,12 @@ with map/birth-anchor differences 6.11/6.41/6.87 mm. Ninety-one active reference
 still defer a full batch of 30. These histories differ from the original 92-
 reference trajectory; no saved-pair enumeration predicts a combined replay.
 
-## Retain, reject and next intervention
+## Decision and unimplemented recovery hypothesis
 
 Keep the bounded graph-off baseline as the comparison reference, five inliers,
 4 mm, original models/prompts/seeds, and the independently tested partial-only
-diagnostic. Keep own-seed rollback as an explicitly disabled experimental option,
-with its mechanical support correction and real nominal benefit documented.
+diagnostic. Own-seed rollback is now historical source; its mechanical support
+correction and real nominal benefit remain documented.
 Reject its common/default adoption: light loses correct availability at every
 bound, adds inaccurate acceptances, increases absences and develops a 63.56 mm
 peak. Fewer nominal losses and lower memory do not offset that common-quality
@@ -217,7 +219,8 @@ variant is tested. Do not add partial batches to rescue the failed isolated
 common result. Preserve all earlier results and the separate partial-only
 precision/coverage tradeoff. No further correction is implemented in this phase.
 
-Next test one isolated recovery check on the original graph-off baseline:
+The experiment proposed, but did not implement, an isolated recovery check on the
+original graph-off baseline:
 evaluate current-pair support of the previous pose before treating its jump as
 a veto, and require observed temporal/material consistency for a candidate
 when the previous pose is lost/unsupported. Preserve the normal jump guard and

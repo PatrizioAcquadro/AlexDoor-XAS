@@ -61,21 +61,21 @@ Current engineering and historical scientific records:
 
 - [[experiments/point2pose-isolated-improvements|Isolated Point2Pose Improvements]] — Saved geometric/RANSAC, promotion, pixel and initialization diagnostics; three independent complete CUDA comparisons and retained/rejected controls.
 
-- [[experiments/point2pose-refit-hypotheses|Point2Pose Refit Hypothesis Preservation]] — Complete five-inlier/4 mm own-seed rollback: nominal gains, light regression, rejected combination, jump refusals and unsupported tail.
+- [[experiments/point2pose-refit-hypotheses|Point2Pose Refit Hypothesis Preservation]] — Historical own-seed rollback: nominal gains, light regression and rejected combination; implementation retired, evidence retained.
 
 - [[experiments/p2p-a3-a4-integration-diagnosis|P2P to A3/A4 Integration Diagnosis]] — Verified closed local seeds/static signs, delayed and unqualified hinge bootstrap, and targeted CUDA cost on the preserved partial-only graph-off reference.
 
 - [[experiments/p2p-observed-geometry-and-sdf-jacobian|Observed Geometry and SDF Jacobian]] — Separately attributed observed-reference/hinge/angle changes and CUDA Jacobian evaluation.
 
-- [[experiments/p2p-evaluation-and-performance|Point2Pose Evaluation and Isolated Performance]] — Saved 10/15/20 mm and 5 degree sensitivity, observed geometric targets and separate official compute comparisons; A4 deferred.
+- [[experiments/p2p-evaluation-and-performance|Point2Pose Evaluation and Isolated Performance]] — Saved tolerance/target evaluation and compute comparisons; all-query retained, rejected model/tracker/SVD variants retired.
 
-- [[experiments/p2p-sam3-unified-frontend|Unified SAM3 Video Frontend]] — Four-way complete original-target comparison; isolated bounded SAM3.1 OFF regresses nominal, so SAM3 OFF is the next experimental reference with explicit latency/memory tradeoffs and older baselines/defaults retained.
+- [[experiments/p2p-sam3-unified-frontend|Unified SAM3 Video Frontend]] — Historical four-way comparison selecting SAM3 OFF; SAM3.1 retired, original targets, failures, material audits and resource tradeoffs retained.
 
-- [[experiments/p2p-sam3-selected-development|Selected SAM3 OFF Memory and Quality]] — Consumer-based history release, complete equivalence and sequential residual diagnosis.
+- [[experiments/p2p-sam3-selected-development|Selected SAM3 OFF Memory and Quality]] — Selected opt-in recipe, exact bounded-history equivalence, renewal-only depth gate and retained accuracy/memory tradeoffs.
 
 - [[experiments/p2p-selected-residuals|Selected Renewal-Filtered Trajectory Residuals]] — Same-ID birth/map/TAPIR diagnosis, separate new peaks, angular and registration/SDF contributions; trace limitations retained.
 
-- [[experiments/p2p-selected-registration|Selected-Candidate Registration]] — Complete CUDA comparison; periodic alternatives save cost but regress the nominal tail, so common adoption is rejected.
+- [[experiments/p2p-selected-registration|Selected-Candidate Registration]] — Rejected periodic-registration comparison and nominal tail regression; code historical, traces and evaluators preserved.
 
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
 - [[experiments/phase-3-unified-evaluation|Phase 3 Unified Evaluation]] — Saturated matched evaluation with no selected winner.
