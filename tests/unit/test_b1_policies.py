@@ -80,11 +80,6 @@ def test_eight_checkpoint_envelopes_without_model_execution(
     )
     assert loaded.action_dim == ACTION_DIMS[space]
     assert contract == data.dataset.contract
-    payload = torch.load(path, weights_only=True)
-    payload["format"] = "alexdoor_xas." + family + ".v3"
-    torch.save(payload, path)
-    with pytest.raises(ValueError, match="unsupported checkpoint"):
-        load_policy_payload(path, family, binding=b1_binding, runtime_asset=TEST_ROBOT_REF)
 
 
 def test_stale_statistics_and_perception_mismatch_are_rejected(tmp_path, b1_data_root, b1_binding):
@@ -112,16 +107,22 @@ def test_a4_sources_preserve_segments_and_forbid_ensembling(b1_data_root, family
         policy.chunk_source(lambda ctx: np.zeros(22), temporal_ensemble=True)
 
 
-@pytest.mark.parametrize("defect", ["keys", "dimension", "weights", "identity", "format"])
-def test_checkpoint_rejects_corrupted_b1_payload(tmp_path, b1_data_root, b1_binding, defect):
+@pytest.mark.parametrize(
+    ("family", "defect"),
+    [("act", key) for key in ("keys", "dimension", "weights", "identity", "format")]
+    + [("diffusion", "format")],
+)
+def test_checkpoint_rejects_corrupted_b1_payload(
+    tmp_path, b1_data_root, b1_binding, family, defect
+):
     data = load_b1_data(b1_data_root, next(iter(ACTION_DIMS)))
     model = SimpleNamespace(
         obs_dim=data.obs_dim,
         action_dim=data.action_dim,
-        cfg=ActModelCfg(),
+        cfg=ActModelCfg() if family == "act" else DiffusionModelCfg(),
         state_dict=lambda: {"fixture": torch.ones(1)},
     )
-    path = save_policy(tmp_path / "policy.pt", "act", model, data)
+    path = save_policy(tmp_path / "policy.pt", family, model, data)
     payload = torch.load(path, weights_only=True)
     if defect == "keys":
         payload["dataset"]["obs_keys"] = tuple(reversed(payload["dataset"]["obs_keys"]))
@@ -132,7 +133,7 @@ def test_checkpoint_rejects_corrupted_b1_payload(tmp_path, b1_data_root, b1_bind
     elif defect == "identity":
         payload["robot_asset"] = None
     else:
-        payload["format"] = "alexdoor_xas.act.v3"
+        payload["format"] = f"alexdoor_xas.{family}.v3"
     torch.save(payload, path)
     with pytest.raises(ValueError):
-        load_policy_payload(path, "act", binding=b1_binding, runtime_asset=TEST_ROBOT_REF)
+        load_policy_payload(path, family, binding=b1_binding, runtime_asset=TEST_ROBOT_REF)

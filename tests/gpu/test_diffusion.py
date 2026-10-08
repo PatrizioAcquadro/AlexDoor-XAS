@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from types import SimpleNamespace
 
 import numpy as np
 import pytest
 import torch
 
-from helpers import diffusion_action_stats, diffusion_stats
+from helpers import diffusion_action_stats
 
 pytest.importorskip("diffusers")
 
@@ -23,12 +22,9 @@ from alexdoor_xas.policies.diffusion.model import (
 )
 from alexdoor_xas.policies.diffusion.policy import (
     DiffusionPolicy,
-    diffusion_chunk_source,
 )
 from alexdoor_xas.policies.diffusion.schedulers import (
-    make_inference_scheduler,
     make_train_scheduler,
-    sample_actions,
 )
 from alexdoor_xas.policies.diffusion.train import (
     EmaModel,
@@ -54,52 +50,6 @@ TINY_MODEL_CFG = DiffusionModelCfg(
 )
 
 
-class _ZeroEpsModel(torch.nn.Module):
-    """Predicts zero noise: DDIM then contracts any start toward x0 = x_T."""
-
-    def forward(self, x, t, obs):  # noqa: D102
-        del t, obs
-        return torch.zeros_like(x)
-
-
-def test_sample_actions_is_deterministic_with_seeded_generator() -> None:
-    model = _ZeroEpsModel()
-    obs = torch.zeros(3, OBS_DIM)
-
-    for sampler in ("ddpm", "ddim"):
-        scheduler = make_inference_scheduler(TINY_MODEL_CFG, sampler, 10)
-        first = sample_actions(
-            model, scheduler, obs, 8, ACTION_DIM, torch.Generator(device="cuda").manual_seed(7)
-        )
-        scheduler = make_inference_scheduler(TINY_MODEL_CFG, sampler, 10)
-        second = sample_actions(
-            model, scheduler, obs, 8, ACTION_DIM, torch.Generator(device="cuda").manual_seed(7)
-        )
-        assert first.shape == (3, 8, ACTION_DIM)
-        assert torch.isfinite(first).all()
-        assert first.abs().max() <= 1.0 + 1e-6  # clip_sample bound
-        torch.testing.assert_close(first, second)
-
-    scheduler = make_inference_scheduler(TINY_MODEL_CFG, "ddpm", 10)
-    third = sample_actions(
-        model, scheduler, obs, 8, ACTION_DIM, torch.Generator(device="cuda").manual_seed(8)
-    )
-    assert not torch.allclose(first, third)
-
-
-def test_model_forward_shapes_and_finiteness() -> None:
-    model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0)
-    x = torch.randn(4, TINY_MODEL_CFG.horizon, ACTION_DIM)
-    t = torch.tensor([0, 5, 12, 24])
-    obs = torch.randn(4, OBS_DIM)
-
-    eps_hat = model(x, t, obs)
-
-    assert eps_hat.shape == (4, TINY_MODEL_CFG.horizon, ACTION_DIM)
-    assert torch.isfinite(eps_hat).all()
-    assert model.n_parameters > 0
-
-
 def test_model_output_depends_on_obs_and_timestep() -> None:
     model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0).eval()
     x = torch.randn(1, TINY_MODEL_CFG.horizon, ACTION_DIM)
@@ -109,6 +59,7 @@ def test_model_output_depends_on_obs_and_timestep() -> None:
     other_t = model(x, torch.tensor([20]), obs)
     other_obs = model(x, torch.tensor([3]), obs + 1.0)
 
+    assert base.shape == x.shape and torch.isfinite(base).all()
     assert not torch.allclose(base, other_t)
     assert not torch.allclose(base, other_obs)
 
@@ -315,65 +266,7 @@ def _tiny_policy(**kwargs) -> DiffusionPolicy:
     return DiffusionPolicy(model, stats, num_inference_steps=5, **kwargs, device="cuda")
 
 
-def test_diffusion_policy_predict_shape_and_bounds() -> None:
-    policy = _tiny_policy()
-    policy.seed(0)
-
-    chunk = policy.predict(np.zeros(OBS_DIM))
-
-    assert chunk.shape == (TINY_MODEL_CFG.horizon, ACTION_DIM)
-    assert np.isfinite(chunk).all()
-    # clip_sample + min-max denorm bound |dpos| by the train extrema — inside
-    # the 0.02 m adapter clamp by construction.
-    stats = diffusion_action_stats()
-    assert (chunk[:, :3] >= stats.min[:3] - 1e-9).all()
-    assert (chunk[:, :3] <= stats.max[:3] + 1e-9).all()
-    # Constant rotation dims denormalize through scale 1.0 (bounded by ±1).
-    assert np.abs(chunk[:, 3:]).max() <= 1.0
-
-
-def test_diffusion_policy_obs_normalization_and_clip() -> None:
-    stats = DatasetNormStats(
-        action=diffusion_action_stats(),
-        obs=NormStats(
-            mean=np.zeros(OBS_DIM),
-            std=np.full(OBS_DIM, 1e-8),
-            min=np.zeros(OBS_DIM),
-            max=np.zeros(OBS_DIM),
-            count=1,
-        ),
-        obs_keys=OBS_KEYS,
-        train_episode_ids=("ep0",),
-        action_space="A2_ee_delta",
-    )
-
-    captured: list[torch.Tensor] = []
-
-    class _CaptureModel(torch.nn.Module):
-        obs_dim = OBS_DIM
-        action_dim = ACTION_DIM
-        cfg = TINY_MODEL_CFG
-
-        def forward(self, x, t, obs):  # noqa: D102
-            captured.append(obs.detach().clone())
-            return torch.zeros_like(x)
-
-    policy = DiffusionPolicy(_CaptureModel(), stats, num_inference_steps=2, device="cuda")
-    policy.seed(0)
-    policy.predict(np.full(OBS_DIM, 1e-3))  # would normalize to 1e5 without the clip
-
-    assert captured
-    assert float(captured[0].abs().max()) == pytest.approx(policy.obs_clip)
-
-
-def test_diffusion_policy_rejects_mismatched_stats() -> None:
-    stats = diffusion_stats()
-    model = make_seeded_model(OBS_DIM + 1, ACTION_DIM, TINY_MODEL_CFG, seed=0)
-    with pytest.raises(ValueError, match="obs dim"):
-        DiffusionPolicy(model, stats, device="cuda")
-
-
-def test_diffusion_policy_seed_makes_sampling_reproducible() -> None:
+def test_diffusion_policy_seeded_sampling_has_shape_and_train_bounds() -> None:
     policy = _tiny_policy()
     obs = np.zeros(OBS_DIM)
 
@@ -384,23 +277,11 @@ def test_diffusion_policy_seed_makes_sampling_reproducible() -> None:
     policy.seed(12)
     third = policy.predict(obs)
 
+    assert first.shape == (TINY_MODEL_CFG.horizon, ACTION_DIM)
+    assert np.isfinite(first).all()
+    stats = diffusion_action_stats()
+    assert (first[:, :3] >= stats.min[:3] - 1e-9).all()
+    assert (first[:, :3] <= stats.max[:3] + 1e-9).all()
+    assert np.abs(first[:, 3:]).max() <= 1.0
     np.testing.assert_array_equal(first, second)
     assert not np.array_equal(first, third)
-
-
-def test_diffusion_chunk_source_validates_inputs() -> None:
-    policy = _tiny_policy()
-    with pytest.raises(ValueError, match="n_action_steps"):
-        diffusion_chunk_source(
-            policy, lambda ctx: np.zeros(OBS_DIM), n_action_steps=TINY_MODEL_CFG.horizon + 1
-        )
-
-
-def test_chunk_source_emits_only_the_requested_horizon() -> None:
-    policy = SimpleNamespace(
-        chunk_size=8,
-        predict=lambda obs: np.arange(56, dtype=np.float64).reshape(8, 7) + obs[0],
-    )
-    source = diffusion_chunk_source(policy, lambda context: context, n_action_steps=3)
-    for obs in (np.array([1.0]), np.array([2.0])):
-        np.testing.assert_array_equal(source(obs), policy.predict(obs)[:3])

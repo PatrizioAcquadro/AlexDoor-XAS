@@ -64,6 +64,9 @@ def test_forward_loss_gradients_and_checkpoint_predictions(tmp_path, b1_binding,
         from alexdoor_xas.policies.act.model import act_loss
 
         predicted, mu, logvar = model(batch["obs"], batch["actions"], batch["is_pad"])
+        assert predicted.shape == batch["actions"].shape
+        assert predicted.isfinite().all()
+        assert mu.shape == logvar.shape == (batch["obs"].shape[0], cfg.z_dim)
         loss = act_loss(predicted, batch["actions"], batch["is_pad"], mu, logvar, 1)["loss"]
     else:
         from alexdoor_xas.policies.diffusion.model import diffusion_loss
@@ -86,4 +89,9 @@ def test_forward_loss_gradients_and_checkpoint_predictions(tmp_path, b1_binding,
     a.reset(19)
     b.reset(19)
     obs = np.zeros(data.obs_dim)
-    np.testing.assert_array_equal(a.predict(obs), b.predict(obs))
+    prediction = a.predict(obs)
+    assert prediction.shape == (4, ACTION_DIMS[space])
+    assert np.isfinite(prediction).all()
+    np.testing.assert_array_equal(prediction, b.predict(obs))
+    if family == "act":
+        np.testing.assert_array_equal(prediction, a.predict(obs))
