@@ -1,0 +1,345 @@
+"""ACT numerical model and inference contracts without Isaac imports."""
+
+from __future__ import annotations
+
+import math
+from copy import deepcopy
+
+import numpy as np
+import pytest
+import torch
+
+from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
+from alexdoor_xas.policies.act.config import ActModelCfg, ActTrainCfg
+from alexdoor_xas.policies.act.model import ACTModel, act_loss
+from alexdoor_xas.policies.act.policy import ActPolicy, act_chunk_source
+from alexdoor_xas.policies.act.train import make_seeded_model, train_act
+
+pytestmark = pytest.mark.usefixtures("gpu_models")
+
+TINY_MODEL_CFG = ActModelCfg(
+    chunk_size=8,
+    d_model=32,
+    n_heads=2,
+    dim_feedforward=64,
+    z_dim=4,
+    cvae_encoder_layers=1,
+    encoder_layers=1,
+    decoder_layers=1,
+    dropout=0.0,
+)
+OBS_DIM = 14
+OBS_KEYS = ("joint_pos", "joint_vel")
+ACTION_DIM = 6
+
+
+def _tiny_model(seed: int = 0) -> ACTModel:
+    torch.manual_seed(seed)
+    return ACTModel(obs_dim=OBS_DIM, action_dim=ACTION_DIM, cfg=TINY_MODEL_CFG)
+
+
+def _tiny_batch(batch: int = 4, seed: int = 0) -> dict[str, torch.Tensor]:
+    generator = torch.Generator(device="cuda").manual_seed(seed)
+    horizon = TINY_MODEL_CFG.chunk_size
+    is_pad = torch.zeros(batch, horizon, dtype=torch.bool)
+    is_pad[:, horizon - 2 :] = True
+    return {
+        "obs": torch.randn(batch, OBS_DIM, generator=generator),
+        "actions": torch.randn(batch, horizon, ACTION_DIM, generator=generator),
+        "is_pad": is_pad,
+    }
+
+
+def _tiny_stats() -> DatasetNormStats:
+    rows_a = [np.arange(12, dtype=np.float64).reshape(2, ACTION_DIM) * 0.01]
+    rows_o = [np.arange(2 * OBS_DIM, dtype=np.float64).reshape(2, OBS_DIM) * 0.1]
+    return DatasetNormStats(
+        action=NormStats.from_rows(rows_a),
+        obs=NormStats.from_rows(rows_o),
+        obs_keys=OBS_KEYS,
+        train_episode_ids=("ep0",),
+        action_space="A2_ee_delta",
+    )
+
+
+def test_forward_shapes_and_finite() -> None:
+    model = _tiny_model()
+    batch = _tiny_batch()
+    a_hat, mu, logvar = model(batch["obs"], batch["actions"], batch["is_pad"])
+
+    assert a_hat.shape == (4, TINY_MODEL_CFG.chunk_size, ACTION_DIM)
+    assert mu.shape == (4, TINY_MODEL_CFG.z_dim)
+    assert logvar.shape == (4, TINY_MODEL_CFG.z_dim)
+    assert torch.isfinite(a_hat).all()
+
+
+def test_predict_is_deterministic_with_zero_latent() -> None:
+    model = _tiny_model()
+    model.eval()
+    obs = _tiny_batch()["obs"]
+    first = model.predict(obs)
+    second = model.predict(obs)
+
+    assert first.shape == (4, TINY_MODEL_CFG.chunk_size, ACTION_DIM)
+    assert torch.equal(first, second)
+
+
+def test_forward_rejects_wrong_chunk_length() -> None:
+    model = _tiny_model()
+    batch = _tiny_batch()
+    with pytest.raises(ValueError, match="expected actions of shape"):
+        model(batch["obs"], batch["actions"][:, :-1], batch["is_pad"][:, :-1])
+
+
+def test_masked_l1_ignores_padded_slots() -> None:
+    batch = _tiny_batch()
+    a_hat = torch.zeros_like(batch["actions"])
+    mu = torch.zeros(4, TINY_MODEL_CFG.z_dim)
+    logvar = torch.zeros(4, TINY_MODEL_CFG.z_dim)
+
+    base = act_loss(a_hat, batch["actions"], batch["is_pad"], mu, logvar, kl_weight=1.0)
+    corrupted = batch["actions"].clone()
+    corrupted[batch["is_pad"]] = 1e6
+    altered = act_loss(a_hat, corrupted, batch["is_pad"], mu, logvar, kl_weight=1.0)
+
+    assert base["l1"].item() == pytest.approx(altered["l1"].item())
+    assert base["loss"].item() == pytest.approx(altered["loss"].item())
+
+
+def test_kl_term_is_zero_at_prior_and_positive_away_from_it() -> None:
+    batch = _tiny_batch()
+    a_hat = batch["actions"].clone()
+    zeros = torch.zeros(4, TINY_MODEL_CFG.z_dim)
+
+    at_prior = act_loss(a_hat, batch["actions"], batch["is_pad"], zeros, zeros, kl_weight=1.0)
+    assert at_prior["kl"].item() == pytest.approx(0.0)
+    assert at_prior["l1"].item() == pytest.approx(0.0)
+
+    off_prior = act_loss(
+        a_hat, batch["actions"], batch["is_pad"], zeros + 2.0, zeros, kl_weight=1.0
+    )
+    assert off_prior["kl"].item() > 0.0
+    assert off_prior["loss"].item() == pytest.approx(off_prior["kl"].item())
+
+
+def test_all_padded_batch_is_rejected() -> None:
+    batch = _tiny_batch()
+    zeros = torch.zeros(4, TINY_MODEL_CFG.z_dim)
+    with pytest.raises(ValueError, match="all-padded"):
+        act_loss(
+            batch["actions"],
+            batch["actions"],
+            torch.ones_like(batch["is_pad"]),
+            zeros,
+            zeros,
+            kl_weight=1.0,
+        )
+
+
+def _constant_mapping_batch(batch: int = 8) -> dict[str, np.ndarray]:
+    """A deterministic obs -> chunk mapping the tiny model must overfit."""
+    horizon = TINY_MODEL_CFG.chunk_size
+    obs = np.tile(np.linspace(-1.0, 1.0, OBS_DIM), (batch, 1))
+    ramp = np.linspace(-0.5, 0.5, horizon).reshape(1, horizon, 1)
+    actions = np.tile(ramp, (batch, 1, ACTION_DIM))
+    return {
+        "obs": obs,
+        "actions": actions,
+        "is_pad": np.zeros((batch, horizon), dtype=bool),
+    }
+
+
+def test_train_act_overfits_a_constant_mapping() -> None:
+    model = _tiny_model()
+    batch = _constant_mapping_batch()
+    cfg = ActTrainCfg(
+        epochs=200,
+        batch_size=8,
+        lr=1e-3,
+        kl_weight=1.0,
+        seed=0,
+        val_every=50,
+        device="cuda",
+    )
+
+    history = train_act(
+        model,
+        make_train_batches=lambda epoch: [batch],
+        cfg=cfg,
+        make_val_batches=lambda: [batch],
+    )
+
+    assert len(history.epochs) == cfg.epochs
+    first, last = history.epochs[0], history.epochs[-1]
+    assert last.train_l1 < 0.3 * first.train_l1
+    assert last.train_l1 < 0.15
+    assert last.val_l1 is not None and math.isfinite(last.val_l1)
+    assert 0 <= history.best_epoch < cfg.epochs
+    assert history.best_val_l1 <= last.val_l1 + 1e-12
+
+
+def test_train_act_resume_matches_uninterrupted_state() -> None:
+    batch = _constant_mapping_batch(batch=4)
+    cfg = ActTrainCfg(
+        epochs=4,
+        batch_size=4,
+        lr=1e-3,
+        seed=17,
+        val_every=1,
+        device="cuda",
+    )
+    full_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=17)
+    full_history = train_act(full_model, lambda epoch: [batch], cfg)
+
+    interrupted_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=17)
+    captured: dict = {}
+
+    class StopAfterEpoch(RuntimeError):
+        pass
+
+    def interrupt_after_two_epochs(state) -> None:
+        if state["next_epoch"] == 2:
+            captured["training_state"] = deepcopy(state)
+            captured["model_state"] = {
+                key: value.detach().clone() for key, value in interrupted_model.state_dict().items()
+            }
+            raise StopAfterEpoch
+
+    with pytest.raises(StopAfterEpoch):
+        train_act(
+            interrupted_model,
+            lambda epoch: [batch],
+            cfg,
+            on_checkpoint=interrupt_after_two_epochs,
+        )
+
+    resumed_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=17)
+    resumed_model.load_state_dict(captured["model_state"])
+    resumed_history = train_act(
+        resumed_model,
+        lambda epoch: [batch],
+        cfg,
+        resume_state=captured["training_state"],
+    )
+    for key, value in full_model.state_dict().items():
+        torch.testing.assert_close(value, resumed_model.state_dict()[key], rtol=0, atol=0)
+    assert [entry.train_loss for entry in resumed_history.epochs] == pytest.approx(
+        [entry.train_loss for entry in full_history.epochs]
+    )
+
+
+class _StubModel(torch.nn.Module):
+    """Captures the normalized obs it receives; predicts a fixed chunk."""
+
+    def __init__(self, output_value: float = 1.0) -> None:
+        super().__init__()
+        self.obs_dim = OBS_DIM
+        self.action_dim = ACTION_DIM
+        self.cfg = TINY_MODEL_CFG
+        self.output_value = output_value
+        self.last_input: torch.Tensor | None = None
+
+    def predict(self, obs: torch.Tensor) -> torch.Tensor:
+        self.last_input = obs.detach().clone()
+        return torch.full((obs.shape[0], self.cfg.chunk_size, self.action_dim), self.output_value)
+
+
+def _identity_obs_stats() -> NormStats:
+    return NormStats(
+        mean=np.zeros(OBS_DIM),
+        std=np.ones(OBS_DIM),
+        min=np.zeros(OBS_DIM),
+        max=np.zeros(OBS_DIM),
+        count=1,
+    )
+
+
+def test_act_policy_normalizes_input_and_denormalizes_output() -> None:
+    action_mean = np.arange(ACTION_DIM, dtype=np.float64)
+    action_std = np.full(ACTION_DIM, 0.5)
+    obs_mean = np.linspace(1.0, 2.0, OBS_DIM)
+    obs_std = np.full(OBS_DIM, 2.0)
+    stats = DatasetNormStats(
+        action=NormStats(action_mean, action_std, action_mean, action_mean, 1),
+        obs=NormStats(obs_mean, obs_std, obs_mean, obs_mean, 1),
+        obs_keys=OBS_KEYS,
+        train_episode_ids=("ep0",),
+        action_space="A2_ee_delta",
+    )
+    model = _StubModel(output_value=1.0)
+    policy = ActPolicy(model, stats, device="cuda")
+
+    chunk = policy.predict(obs_mean)  # obs at the mean -> normalized zeros
+
+    assert model.last_input is not None
+    np.testing.assert_allclose(model.last_input.cpu().numpy(), np.zeros((1, OBS_DIM)), atol=1e-6)
+    assert chunk.shape == (TINY_MODEL_CFG.chunk_size, ACTION_DIM)
+    expected = np.tile(action_std * 1.0 + action_mean, (TINY_MODEL_CFG.chunk_size, 1))
+    np.testing.assert_allclose(chunk, expected, atol=1e-6)
+
+
+def test_act_policy_clips_exploding_normalized_obs() -> None:
+    stats = DatasetNormStats(
+        action=NormStats(
+            np.zeros(ACTION_DIM), np.ones(ACTION_DIM), np.zeros(ACTION_DIM), np.zeros(ACTION_DIM), 1
+        ),
+        obs=NormStats(
+            np.zeros(OBS_DIM), np.full(OBS_DIM, 1e-8), np.zeros(OBS_DIM), np.zeros(OBS_DIM), 1
+        ),
+        obs_keys=OBS_KEYS,
+        train_episode_ids=("ep0",),
+        action_space="A2_ee_delta",
+    )
+    model = _StubModel()
+    policy = ActPolicy(model, stats, device="cuda")
+
+    policy.predict(np.full(OBS_DIM, 1e-3))  # would normalize to 1e5 without the clip
+
+    assert model.last_input is not None
+    assert float(model.last_input.abs().max()) == pytest.approx(policy.obs_clip)
+
+
+def test_act_policy_rejects_mismatched_stats() -> None:
+    stats = _tiny_stats()
+    model = ACTModel(obs_dim=OBS_DIM + 1, action_dim=ACTION_DIM, cfg=TINY_MODEL_CFG)
+    with pytest.raises(ValueError, match="obs dim"):
+        ActPolicy(model, stats, device="cuda")
+
+
+class _QueuePolicy:
+    """Duck-typed policy stub emitting predetermined chunks."""
+
+    def __init__(self, chunks: list[np.ndarray]) -> None:
+        self._chunks = list(chunks)
+
+    def predict(self, obs: np.ndarray) -> np.ndarray:
+        del obs
+        return self._chunks.pop(0)
+
+
+def test_chunk_source_emits_the_complete_prediction() -> None:
+    chunk = np.arange(21, dtype=np.float64).reshape(3, 7)
+    source = act_chunk_source(_QueuePolicy([chunk]), lambda context: context)
+    np.testing.assert_array_equal(source(np.zeros(OBS_DIM)), chunk)
+
+
+def test_temporal_ensemble_weights_match_the_paper_scheme() -> None:
+    m = 0.5
+    chunk_a = np.tile(np.array([[1.0, 0, 0, 0, 0, 0]]), (3, 1)) * np.array([[1], [2], [3]])
+    chunk_b = np.tile(np.array([[10.0, 0, 0, 0, 0, 0]]), (3, 1))
+    source = act_chunk_source(
+        _QueuePolicy([chunk_a, chunk_b]),
+        lambda ctx: np.zeros(OBS_DIM),
+        temporal_ensemble=True,
+        ensemble_m=m,
+    )
+    ctx = object()
+
+    first = source(ctx)
+    assert first.shape == (1, 6)
+    np.testing.assert_allclose(first[0], chunk_a[0])
+
+    second = source(ctx)
+    weights = np.array([1.0, math.exp(-m)])  # oldest chunk first, weight exp(-m * i)
+    expected = (chunk_a[1] * weights[0] + chunk_b[0] * weights[1]) / weights.sum()
+    np.testing.assert_allclose(second[0], expected)

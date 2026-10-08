@@ -1,12 +1,12 @@
 """Frozen CUDA image models in a separate process with isolated native SAM3 dependencies."""
 
 import hashlib
-import pickle
-import struct
 import sys
 import time
 from contextlib import redirect_stdout
 from pathlib import Path
+
+from alexdoor_xas.perception.ipc import receive, send
 
 SAM3_REVISION = "2345a4ad109ac29c569da749c91d84f10dc08c40"
 
@@ -16,27 +16,6 @@ def sam3_checkpoint(root):
     with path.open("rb") as stream:
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
     return dict(sam3_checkpoint=str(path), sam3_checkpoint_sha256=digest)
-
-
-def receive(stream):
-    header = stream.read(8)
-    if not header:
-        return None
-    size = struct.unpack("!Q", header)[0]
-    payload = bytearray()
-    while len(payload) < size:
-        part = stream.read(size - len(payload))
-        if not part:
-            raise EOFError("Visual worker pipe closed")
-        payload.extend(part)
-    return pickle.loads(payload)
-
-
-def send(stream, value):
-    payload = pickle.dumps(value, protocol=4)
-    stream.write(struct.pack("!Q", len(payload)))
-    stream.write(payload)
-    stream.flush()
 
 
 class FrozenModels:

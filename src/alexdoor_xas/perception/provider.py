@@ -14,8 +14,8 @@ import numpy as np
 from alexdoor_xas.perception.contracts import DoorEstimate
 from alexdoor_xas.perception.geometry import surfaces
 from alexdoor_xas.perception.inspection import load_inspection
+from alexdoor_xas.perception.ipc import receive, send
 from alexdoor_xas.perception.scan import ScanMemory
-from alexdoor_xas.perception.visual_worker import receive, send
 from alexdoor_xas.recording.b1 import OBS_KEYS
 
 

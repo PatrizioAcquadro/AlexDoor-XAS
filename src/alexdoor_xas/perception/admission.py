@@ -134,19 +134,25 @@ def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
             raise ValueError("undeclared_load_requirement")
         times = np.asarray(proposal.times_s)
         if (
-            times.ndim != 1 or len(times) < 2 or len(times) != len(proposal.world_poses)
-            or not np.isfinite(times).all() or times[0] != now or not (np.diff(times) > 0).all()
+            times.ndim != 1
+            or len(times) < 2
+            or len(times) != len(proposal.world_poses)
+            or not np.isfinite(times).all()
+            or times[0] != now
+            or not (np.diff(times) > 0).all()
         ):
             raise ValueError("invalid_action_schedule")
         for pose in proposal.world_poses:
             checked_pose(pose)
         bounds = {k: nonnegative(v, f"unmeasured_{k}") for k, v in vars(limits).items()}
-        displacement = [np.linalg.norm(b.origin - a.origin) for a, b in zip(
-            proposal.world_poses[:-1], proposal.world_poses[1:], strict=True
-        )]
-        rotations = [Rotation.from_matrix(b.rot @ a.rot.T).magnitude() for a, b in zip(
-            proposal.world_poses[:-1], proposal.world_poses[1:], strict=True
-        )]
+        displacement = [
+            np.linalg.norm(b.origin - a.origin)
+            for a, b in zip(proposal.world_poses[:-1], proposal.world_poses[1:], strict=True)
+        ]
+        rotations = [
+            Rotation.from_matrix(b.rot @ a.rot.T).magnitude()
+            for a, b in zip(proposal.world_poses[:-1], proposal.world_poses[1:], strict=True)
+        ]
         if (
             times[-1] - times[0] > bounds["duration_s"]
             or sum(displacement) > bounds["displacement_m"]
@@ -162,8 +168,10 @@ def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
             for index in proposal.required_dimensions:
                 if type(index) is not int or index not in (0, 1, 2):
                     raise ValueError("invalid_dimension_requirement")
-                if estimate.dimensions is None or not np.isfinite(estimate.dimensions[index]) or (
-                    estimate.dimensions[index] <= 0
+                if (
+                    estimate.dimensions is None
+                    or not np.isfinite(estimate.dimensions[index])
+                    or (estimate.dimensions[index] <= 0)
                 ):
                     raise ValueError("required_dimensions_unavailable")
         by_id = {h.hypothesis_id: h for h in hypotheses}
@@ -179,9 +187,8 @@ def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
             if not same_pose(evidence.contact_local, expected_local):
                 raise ValueError("different_physical_contact")
             if len(evidence.world_poses) != len(proposal.world_poses) or any(
-                not same_pose(a, b) for a, b in zip(
-                    evidence.world_poses, proposal.world_poses, strict=True
-                )
+                not same_pose(a, b)
+                for a, b in zip(evidence.world_poses, proposal.world_poses, strict=True)
             ):
                 raise ValueError("different_world_trajectory")
             evidence.support.require(now, generation)
@@ -190,13 +197,16 @@ def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
                 raise ValueError("unknown_relevant_swept_space")
             if len(evidence.finger_clearance_m) != 2:
                 raise ValueError("missing_two_finger_support")
-            clearance = min(nonnegative(v, "missing_relevant_clearance") for v in (
-                *evidence.finger_clearance_m, evidence.collision_clearance_m
-            ))
+            clearance = min(
+                nonnegative(v, "missing_relevant_clearance")
+                for v in (*evidence.finger_clearance_m, evidence.collision_clearance_m)
+            )
             if evidence.rotation_levers is None:
                 raise ValueError("unmeasured_rotation_levers")
-            radii = {k: nonnegative(v, f"unmeasured_{k}_lever")
-                     for k, v in vars(evidence.rotation_levers).items()}
+            radii = {
+                k: nonnegative(v, f"unmeasured_{k}_lever")
+                for k, v in vars(evidence.rotation_levers).items()
+            }
             offset = state.contact.world_pose.origin - hinge.frame.origin
             axis = hinge.frame.rot[:, 2]
             if radii["hinge_m"] < np.linalg.norm(offset) or radii["angle_m"] < np.linalg.norm(
@@ -207,8 +217,12 @@ def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
             response_r = nonnegative(
                 evidence.response_rotation_bound_rad, "unmeasured_leaf_response"
             )
-            supports = (hinge.support, state.contact.local_support, state.contact.world_support,
-                        evidence.support)
+            supports = (
+                hinge.support,
+                state.contact.local_support,
+                state.contact.world_support,
+                evidence.support,
+            )
             translation = sum(s.position_bound_m for s in supports)
             rotations = (
                 (radii["hinge_m"], hinge.support.rotation_bound_rad),
@@ -220,34 +234,50 @@ def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):
                 (radii["robot_m"], bounds["robot_rotation_bound_rad"]),
                 (radii["response_m"], response_r),
             )
-            age = max(now - s.supported_s for s in (
-                state.angle_support, state.panel_support, state.contact.world_support
-            ))
+            age = max(
+                now - s.supported_s
+                for s in (state.angle_support, state.panel_support, state.contact.world_support)
+            )
             rotation_error = sum(rotational_travel(r, a) for r, a in rotations)
-            error = translation + rotation_error + response_p + (
-                bounds["robot_position_bound_m"] + bounds["relative_speed_bound_m_s"] * (
-                    age + times[-1] - times[0]
+            error = (
+                translation
+                + rotation_error
+                + response_p
+                + (
+                    bounds["robot_position_bound_m"]
+                    + bounds["relative_speed_bound_m_s"] * (age + times[-1] - times[0])
+                    + bounds["stop_travel_m"]
                 )
-                + bounds["stop_travel_m"]
             )
             margin = clearance - error
             if margin <= 0:
                 raise ValueError("insufficient_action_margin")
-            if not proposal.loaded and nonnegative(
-                evidence.unloaded_separation_m, "unmeasured_unloaded_separation"
-            ) <= error:
+            if (
+                not proposal.loaded
+                and nonnegative(evidence.unloaded_separation_m, "unmeasured_unloaded_separation")
+                <= error
+            ):
                 raise ValueError("unloaded_contact_not_excluded")
             margins.append((hinge.hypothesis_id, float(margin)))
     except (ValueError, TypeError, AttributeError, IndexError) as error:
         return ActionAdmission(False, False, str(error))
-    return ActionAdmission(True, provisional, "admitted_geometry_only", tuple(margins),
-                           deepcopy(proposal), deepcopy(estimate), limits)
+    return ActionAdmission(
+        True,
+        provisional,
+        "admitted_geometry_only",
+        tuple(margins),
+        deepcopy(proposal),
+        deepcopy(estimate),
+        limits,
+    )
 
 
 def require_current_admission(admission, estimate, now):
     """Validate receipt identity and bounds; segment coordinates remain anchored at admission."""
-    if admission is None or not admission.admitted or (
-        admission.estimate is None or admission.proposal is None
+    if (
+        admission is None
+        or not admission.admitted
+        or (admission.estimate is None or admission.proposal is None)
     ):
         raise ValueError("action_not_admitted")
     before = admission.estimate.operational
@@ -256,10 +286,17 @@ def require_current_admission(admission, estimate, now):
     validate_reference(estimate, now, generation=before.generation)
     current = estimate.operational
     validate_contact_transition(before.contact, current.contact)
-    identity = (current.leaf_id, current.reference_id,
-                current.contact.selection_id, current.contact.patch_id)
+    identity = (
+        current.leaf_id,
+        current.reference_id,
+        current.contact.selection_id,
+        current.contact.patch_id,
+    )
     if identity != (
-        before.leaf_id, before.reference_id, before.contact.selection_id, before.contact.patch_id
+        before.leaf_id,
+        before.reference_id,
+        before.contact.selection_id,
+        before.contact.patch_id,
     ) or {h.hypothesis_id for h in current.hypotheses} != {
         h.hypothesis_id for h in before.hypotheses
     }:
@@ -278,22 +315,24 @@ def require_current_admission(admission, estimate, now):
         > before.contact.local_support.position_bound_m
         or Rotation.from_matrix(
             current.contact.local_pose.rot @ before.contact.local_pose.rot.T
-        ).magnitude() > before.contact.local_support.rotation_bound_rad
+        ).magnitude()
+        > before.contact.local_support.rotation_bound_rad
     ):
         raise ValueError("admitted_material_contact_changed")
     pairs = [(old.support, new.support) for old, new in hinge_pairs] + [
-         (before.angle_support, current.angle_support),
-         (before.panel_support, current.panel_support),
-         (before.contact.local_support, current.contact.local_support),
-         (before.contact.world_support, current.contact.world_support)]
+        (before.angle_support, current.angle_support),
+        (before.panel_support, current.panel_support),
+        (before.contact.local_support, current.contact.local_support),
+        (before.contact.world_support, current.contact.world_support),
+    ]
     if any(
         new_value is None or old_value is None or new_value > old_value
         for old, new in pairs
         for old_value, new_value in ((old.rotation_bound_rad, new.rotation_bound_rad),)
     ) or any(
-        old.position_bound_m is not None and (
-            new.position_bound_m is None or new.position_bound_m > old.position_bound_m
-        ) for old, new in pairs
+        old.position_bound_m is not None
+        and (new.position_bound_m is None or new.position_bound_m > old.position_bound_m)
+        for old, new in pairs
     ):
         raise ValueError("admitted_uncertainty_increased")
     if any(new.supported_s < old.supported_s for old, new in pairs):
@@ -310,16 +349,30 @@ class ContactCandidate:
 
 def select_contact(candidates, *, hinge_resolved):
     """Deterministic diagnostic ordering of producer-verified observed candidates."""
-    usable = [c for c in candidates if c.reachable and len(c.finger_clearance_m) == 2
-              and np.isfinite(c.finger_clearance_m).all() and min(c.finger_clearance_m) > 0
-              and (not hinge_resolved or c.hinge_distance_m is not None
-                   and np.isfinite(c.hinge_distance_m) and c.hinge_distance_m >= 0)]
+    usable = [
+        c
+        for c in candidates
+        if c.reachable
+        and len(c.finger_clearance_m) == 2
+        and np.isfinite(c.finger_clearance_m).all()
+        and min(c.finger_clearance_m) > 0
+        and (
+            not hinge_resolved
+            or c.hinge_distance_m is not None
+            and np.isfinite(c.hinge_distance_m)
+            and c.hinge_distance_m >= 0
+        )
+    ]
     if not usable:
         raise ValueError("no_supported_contact_candidate")
-    return min(usable, key=lambda c: (
-        -min(c.finger_clearance_m), -c.hinge_distance_m if hinge_resolved else 0,
-        c.selection.selection_id
-    )).selection
+    return min(
+        usable,
+        key=lambda c: (
+            -min(c.finger_clearance_m),
+            -c.hinge_distance_m if hinge_resolved else 0,
+            c.selection.selection_id,
+        ),
+    ).selection
 
 
 @dataclass(frozen=True)
@@ -328,30 +381,46 @@ class LoadAdmission:
     reason: str
 
 
-def admit_load(feedback: RobotFeedback, now, joint_names, *, timeout_s, model_semantics,
-               residual_bound_nm, load_upper_n, force_limit_n, model_verified,
-               stop_verified, contact_consistent):
+def admit_load(
+    feedback: RobotFeedback,
+    now,
+    joint_names,
+    *,
+    timeout_s,
+    model_semantics,
+    residual_bound_nm,
+    load_upper_n,
+    force_limit_n,
+    model_verified,
+    stop_verified,
+    contact_consistent,
+):
     """Robot-only producer evidence; anomaly detection alone cannot authorize loaded control."""
     try:
         invalid_names = any(not isinstance(name, str) or not name for name in joint_names)
-        if not joint_names or invalid_names or (
-            len(set(joint_names)) != len(joint_names)
-        ):
+        if not joint_names or invalid_names or (len(set(joint_names)) != len(joint_names)):
             raise ValueError("invalid_feedback_joint_order")
         if feedback.torque_nm is None:
             raise ValueError(feedback.reason or "force_feedback_unavailable")
         timeout = nonnegative(timeout_s, "unmeasured_feedback_timeout")
         times = [feedback.timestamp_s, feedback.available_s, now]
-        if timeout == 0 or not np.isfinite(times).all() or (
-            not 0 <= feedback.timestamp_s <= feedback.available_s <= now
-            or now - feedback.timestamp_s > timeout
+        if (
+            timeout == 0
+            or not np.isfinite(times).all()
+            or (
+                not 0 <= feedback.timestamp_s <= feedback.available_s <= now
+                or now - feedback.timestamp_s > timeout
+            )
         ):
             raise ValueError("stale_or_unavailable_feedback")
-        if (feedback.joint_names != tuple(joint_names) or feedback.units != "N m"
+        if (
+            feedback.joint_names != tuple(joint_names)
+            or feedback.units != "N m"
             or feedback.sign_convention != "positive_joint_coordinate"
             or feedback.source not in ("reported_joint_state", "simulated_actuator_feedback")
             or feedback.semantics not in ("actuator_side", "joint_output")
-            or model_semantics != feedback.semantics):
+            or model_semantics != feedback.semantics
+        ):
             raise ValueError("unverified_torque_semantics")
         finite_vector(feedback.torque_nm, len(joint_names))
         if feedback.healthy is not True or feedback.reason:

@@ -260,11 +260,10 @@ def summarize_trials(trials, *, required_count=None):
     )
 
 
-def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True, inspection=None):
+def prepare_probe(env, door, setup, output, recorder, inspection):
     import json
 
-    import torch
-    from scipy.spatial.transform import Rotation, Slerp
+    from scipy.spatial.transform import Rotation
 
     from alexdoor_xas.envs.door_task.door_push_purdue_env import tensor
 
@@ -308,6 +307,35 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
     )
     if len(gripper_ids) != 4:
         raise RuntimeError("Expected both closed WSG leader/follower pairs")
+    return chain, gripper_ids, root_p, root_r
+
+
+def write_probe_artifacts(output, result, traces, contacts, images):
+    import json
+
+    (output / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+    (output / "trace.json").write_text(json.dumps(traces) + "\n")
+    (output / "contacts.json").write_text(json.dumps(contacts) + "\n")
+    if images:
+        from PIL import Image
+
+        for tick, rgb, depth, _ in images:
+            Image.fromarray(rgb[..., :3]).save(output / f"rgb-{tick:05d}.png")
+            np.save(output / f"depth-{tick:05d}.npy", depth)
+        (output / "camera.json").write_text(
+            json.dumps({str(tick): camera for tick, _, _, camera in images}) + "\n"
+        )
+
+
+def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True, inspection=None):
+    import torch
+    from scipy.spatial.transform import Rotation, Slerp
+
+    from alexdoor_xas.envs.door_task.door_push_purdue_env import tensor
+
+    chain, gripper_ids, root_p, root_r = prepare_probe(
+        env, door, setup, output, recorder, inspection
+    )
     zero = torch.zeros((1, 6), device=env.device)
     from alexdoor_xas.qualification.clearance import DoorClearance
 
@@ -701,18 +729,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
             scope="geometric_panel_contact_surround_frame_observability",
         ),
     )
-    (output / "result.json").write_text(json.dumps(result, indent=2) + "\n")
-    (output / "trace.json").write_text(json.dumps(traces) + "\n")
-    (output / "contacts.json").write_text(json.dumps(raw) + "\n")
-    if images:
-        from PIL import Image
-
-        for tick, rgb, depth, _ in images:
-            Image.fromarray(rgb[..., :3]).save(output / f"rgb-{tick:05d}.png")
-            np.save(output / f"depth-{tick:05d}.npy", depth)
-        (output / "camera.json").write_text(
-            json.dumps({str(tick): camera for tick, _, _, camera in images}) + "\n"
-        )
+    write_probe_artifacts(output, result, traces, raw, images)
     if recorder is not None:
         recorder.finish(result)
     return result

@@ -16,8 +16,19 @@ class ObservedControlChecks:
     def reset(self):
         self.initial_tool = None
 
-    def check(self, sensor, estimate, tool, limits, stage, neck_target, *,
-              profile=LEGACY_FULL_STATE, feedback=None, admission=None):
+    def check(
+        self,
+        sensor,
+        estimate,
+        tool,
+        limits,
+        stage,
+        neck_target,
+        *,
+        profile=LEGACY_FULL_STATE,
+        feedback=None,
+        admission=None,
+    ):
         if admission is not None and profile == LEGACY_FULL_STATE:
             return "geometry_profile_mismatch"
         q = np.asarray(sensor["joint_position"])
