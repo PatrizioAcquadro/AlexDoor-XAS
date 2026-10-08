@@ -119,6 +119,8 @@ class PerceptionSession:
         self.lock = threading.Lock()
         self.requested_identity = None
         self.requested_surface = None
+        self.requested_pixel = None
+        self.selection_after_s = 0.0
         self.last_capture = None
         self.last_present = None
         self.runtime = dict(
@@ -133,15 +135,47 @@ class PerceptionSession:
             self.native.boot_latency_s if self.native else 0
         )
 
-    def select(self, identity, geometric_object=None):
+    def select(
+        self,
+        identity,
+        geometric_object=None,
+        *,
+        reference_pixel=None,
+        after_s=0.0,
+        criterion="explicit API selection",
+    ):
         """Request a semantic ID; latch on a processed acquisition before initialization."""
         with self.lock:
-            if self.identity is not None and self.identity != identity:
+            identity = int(identity)
+            if any(
+                i is not None and i != identity for i in (self.identity, self.requested_identity)
+            ):
                 raise ValueError("selection_change_requires_session_reset")
-            self.requested_identity = int(identity)
-            if self.tracker.candidates and geometric_object is not None:
+            if geometric_object is not None and reference_pixel is not None:
+                raise ValueError("select_one_geometric_reference")
+            pixel = None if reference_pixel is None else tuple(reference_pixel)
+            if pixel is not None and (
+                len(pixel) != 2 or any(not isinstance(v, int) or v < 0 for v in pixel)
+            ):
+                raise ValueError("invalid_reference_pixel")
+            if not np.isfinite(after_s) or after_s < 0:
+                raise ValueError("invalid_selection_time")
+            if self.tracker.candidates and (
+                geometric_object != self.requested_surface or pixel != self.requested_pixel
+            ):
                 raise ValueError("selection_change_requires_session_reset")
+            self.requested_identity = identity
             self.requested_surface = geometric_object
+            self.requested_pixel = pixel
+            self.selection_after_s = float(after_s)
+            self.runtime["selection_request"] = dict(
+                sam3_id=identity,
+                geometric_object=geometric_object,
+                reference_pixel=pixel,
+                after_s=float(after_s),
+                ownership_qualified=False,
+                criterion=criterion,
+            )
 
     def infer(self, sensor, masks=None):
         if masks is not None:
@@ -175,6 +209,7 @@ class PerceptionSession:
         returned = present and self.last_present is False
         self.last_present = present if self.identity is not None else None
         geometric_choices = []
+        reference_state = "not_inspected"
         native_result = None
         initial_candidates = None
         scan_snapshot = None
@@ -191,16 +226,20 @@ class PerceptionSession:
                     self.scan_memory.add(candidates, sensor, frame)
                     scan_snapshot = deepcopy(self.scan_memory)
                 self.next_geometry = t + self.config["semantic_period_s"]
-                if self.native is not None and present and t >= self.initialize_after:
+                if self.native is not None and present:
                     selected_surfaces = [
                         s for s in candidates if s.observations[0].semantic_id == self.identity
                     ]
-                    if self.requested_surface is not None:
+                    with self.lock:
+                        requested_surface = self.requested_surface
+                        requested_pixel = self.requested_pixel
+                        selection_after = self.selection_after_s
+                    if requested_surface is not None:
                         reference = next(
                             (
                                 s
                                 for s in self.scan_memory.surfaces
-                                if s.surface_id == self.requested_surface
+                                if s.surface_id == requested_surface
                             ),
                             None,
                         )
@@ -215,7 +254,46 @@ class PerceptionSession:
                             ]
                         )
                     mask = self.sam.all_masks[ids.index(self.identity)]
-                    if self.tracker.initialize(
+                    options, _ = self.tracker.eligible_surfaces(selected_surfaces, sensor, mask)
+                    geometric_choices = [
+                        dict(
+                            surface_id=s.surface_id,
+                            sam3_id=self.identity,
+                            static_surface_ids=[
+                                old.surface_id
+                                for old in self.scan_memory.surfaces
+                                if old.observations[-1].semantic_id == self.identity
+                                and registered_support(old, s.observations[0])
+                            ],
+                            frame=frame,
+                            acquired_s=t,
+                            pixel_bounds=np.argwhere(s.observations[0].mask())[:, ::-1]
+                            .min(0)
+                            .tolist()
+                            + np.argwhere(s.observations[0].mask())[:, ::-1].max(0).tolist(),
+                        )
+                        for s in options
+                    ]
+                    if requested_pixel is not None:
+                        u, v = requested_pixel
+                        selected_surfaces = [
+                            s
+                            for s in options
+                            if v < mask.shape[0]
+                            and u < mask.shape[1]
+                            and s.observations[0].mask()[v, u]
+                        ]
+                    else:
+                        selected_surfaces = options
+                    reference_state = (
+                        "available"
+                        if len(selected_surfaces) == 1
+                        else "ambiguous_geometry"
+                        if len(selected_surfaces) > 1
+                        else "reference_unsupported"
+                    )
+                    can_start = t >= max(self.initialize_after, selection_after)
+                    if can_start and self.tracker.initialize(
                         selected_surfaces,
                         sensor,
                         whole_leaf_mask=mask,
@@ -225,24 +303,14 @@ class PerceptionSession:
                         native_result = self.engine.result
                         state = "initialized"
                     else:
-                        state = self.tracker.diagnostics.get("seed_state", "insufficient_geometry")
-                geometric_choices = [
-                    dict(
-                        surface_id=surface.surface_id,
-                        sam3_id=surface.observations[0].semantic_id,
-                        static_surface_ids=[
-                            old.surface_id
-                            for old in self.scan_memory.surfaces
-                            if old.observations[-1].semantic_id == self.identity
-                            and registered_support(old, surface.observations[0])
-                        ],
-                        frame=frame,
-                        acquired_s=t,
-                    )
-                    for surface in self.tracker.initialization_options
-                ]
+                        state = (
+                            self.tracker.diagnostics.get("seed_state", "insufficient_geometry")
+                            if can_start
+                            else "inspecting"
+                        )
                 geometry_s = time.perf_counter() - geometry_started
         else:
+            reference_state = "initialized"
             mask = np.zeros(sensor["rgb"].shape[:2], bool)
             if present:
                 mask = self.sam.all_masks[ids.index(self.identity)]
@@ -266,6 +334,12 @@ class PerceptionSession:
                 material_recovery_verified=False,
             ),
             geometric_choices=geometric_choices,
+            initialization=dict(
+                inspection_complete=t >= self.inspection_end,
+                reference_state=reference_state,
+                p2p_started=bool(self.tracker.candidates),
+                selection_request=self.runtime.get("selection_request"),
+            ),
             initial_candidates=initial_candidates,
             scan_memory=scan_snapshot,
             initialization_rejections=self.tracker.diagnostics.get("initialization_rejections", []),
@@ -359,9 +433,11 @@ class SessionProvider:
         self.encoding = None
         self.diagnostics = dict(state="searching", semantic_calls=0)
 
-    def select_object(self, sam3_id, geometric_object=None):
+    def select_object(self, sam3_id, geometric_object=None, *, reference_pixel=None, after_s=0.0):
         self.engine.prepare()
-        self.engine.worker.select(sam3_id, geometric_object)
+        self.engine.worker.select(
+            sam3_id, geometric_object, reference_pixel=reference_pixel, after_s=after_s
+        )
 
     def consume_results(self, now):
         event = self.engine.poll(now)
@@ -397,6 +473,7 @@ class SessionProvider:
             state=result["identity"]["state"],
             identity=result["identity"],
             geometric_choices=result["geometric_choices"],
+            initialization=result["initialization"],
             stages=result["stages"],
             semantic_calls=self.diagnostics["semantic_calls"] + 1,
             latency_s=result["latency_s"],
@@ -537,7 +614,18 @@ class SessionProvider:
         self.engine.close()
 
 
-def session_provider(recipe, models, calibration, output, *, replay, tracking=True, **options):
+def session_provider(
+    recipe,
+    models,
+    calibration,
+    output,
+    *,
+    replay,
+    tracking=True,
+    selection=None,
+    registration_diagnostics=False,
+    **options,
+):
     from alexdoor_xas.perception.point2pose.runtime import Point2PoseEngine
 
     count = 0
@@ -545,14 +633,18 @@ def session_provider(recipe, models, calibration, output, *, replay, tracking=Tr
     def factory(_):
         nonlocal count
         count += 1
-        return PerceptionSession(
+        worker = PerceptionSession(
             models,
             recipe,
             calibration,
             Path(output) / f"session-{count}",
             tracking=tracking,
             generation=engine.generation - 1,
+            registration_diagnostics=registration_diagnostics,
         )
+        if selection is not None:
+            worker.select(**selection)
+        return worker
 
     engine = Point2PoseEngine(factory, replay=replay, capture_session=True)
     provider = SessionProvider(recipe, engine, tracking=tracking, **options)

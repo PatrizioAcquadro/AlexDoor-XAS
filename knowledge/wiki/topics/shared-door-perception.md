@@ -105,6 +105,26 @@ or insufficient measured support postpones initialization without re-prompting.
 The runtime exposes the SAM3 ID, geometric surface, fixed zone, native object ID
 and original support times as one binding, rather than a mask-list index.
 
+Maintained tracking ingress accepts `--selection` JSON through the same selection
+API. It records `sam3_id`, an observed `criterion`, and either `geometric_object`
+(a session-local static surface ID) or `reference_pixel: [u, v]`, with optional
+`after_s`. A pixel chooses only the uniquely eligible measured surface containing
+it on the actual seed capture, after the requested time; zero or competing supports
+keep the same SAM3 session waiting. Pixel coordinates depend on the displayed view;
+the applied frame/time and all alternatives are recorded, and replay cadence can
+change that capture. This is explicit reference selection, not leaf/contact
+qualification. Static IDs are local to one scan and must not be blindly reused
+across different acquisition schedules. Unique eligibility may initialize without
+a request; no first-root, area or semantic-score winner resolves ambiguity.
+
+`initialization` reports `inspection_complete`, `reference_state`, and `p2p_started`
+independently. Alternatives are available during inspection without native startup.
+Neither 25 s, a selected SAM ID, nor a missing reference starts P2P. Identity cannot
+change even between a request and its first processed capture. Complete reset
+clears the request as well as models, bindings and queues; explicitly configured
+command requests are reapplied to the new session and recorded again.
+
+
 SAM3 starts with the first processed acquisition. Geometry fusion runs at the
 existing semantic period during the prescribed stationary inspection (4–25 s).
 The inspection protocol must remain stationary. At 25 s the static surfaces,

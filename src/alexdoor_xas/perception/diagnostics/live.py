@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 
-def run_live_smoke(recipe, output, models, asset_id, *, case=None):
+def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=None):
     from isaaclab.app import AppLauncher
 
     output = Path(output)
@@ -75,12 +75,24 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None):
 
         if case is not None:
             return observer_case(
-                env, door, setup, calibration, observe, recipe, models, output, case, start_clock
+                env,
+                door,
+                setup,
+                calibration,
+                observe,
+                recipe,
+                models,
+                output,
+                case,
+                start_clock,
+                selection,
             )
         sensor = observe()
         worker = PerceptionSession(
             models, recipe, calibration, output, initialize_after_s=float(sensor["time_s"])
         )
+        if selection is not None:
+            worker.select(**selection)
         write_json(output / "runtime.json", worker.runtime)
         initial = worker.infer(sensor)
         if not initial["objects"]:
@@ -144,7 +156,7 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None):
 
 
 def observer_case(
-    env, door, setup, calibration, observe, recipe, models, output, case, start_clock
+    env, door, setup, calibration, observe, recipe, models, output, case, start_clock, selection
 ):
     """Bounded observer motion/fault cases; truth and fault labels stay in this evaluator."""
     import torch
@@ -162,7 +174,9 @@ def observer_case(
 
     if case not in ("camera", "panel", "combined", "visibility"):
         raise ValueError("unknown_observer_case")
-    provider = tracking_provider(recipe, models, calibration, output, replay=False)
+    provider = tracking_provider(
+        recipe, models, calibration, output, replay=False, selection=selection
+    )
     start_clock()
     zero = torch.zeros((1, 6), device=env.device)
     records, events, reference, previous = [], [], None, None
@@ -354,14 +368,18 @@ def observer_case(
                 available_frames=sum(r["available"] for r in subset),
             )
         # A real process reset is inspected after the run, separately from motion scores.
-        old_worker = tracker.engine.worker
-        old_pid = old_worker.process.pid if old_worker else None
+        old_worker = provider.engine.worker
+        old_pids = [w.process.pid for w in (old_worker.sam, old_worker.native)]
         old_generation = provider.generation
         provider.reset()
         report["reset"] = dict(
-            old_pid=old_pid,
-            new_pid=tracker.engine.worker.process.pid if tracker.engine.worker else None,
-            old_process_exited=old_worker is None or old_worker.process.poll() is not None,
+            old_pids=old_pids,
+            new_pids=[
+                w.process.pid for w in (provider.engine.worker.sam, provider.engine.worker.native)
+            ],
+            old_process_exited=all(
+                w.process.poll() is not None for w in (old_worker.sam, old_worker.native)
+            ),
             generation_incremented=provider.generation == old_generation + 1,
             empty_candidates=not tracker.candidates,
             queue=provider.engine.queue_stats,

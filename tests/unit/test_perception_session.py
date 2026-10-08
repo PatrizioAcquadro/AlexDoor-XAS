@@ -233,3 +233,66 @@ def test_static_snapshot_preserves_complete_publication_times(tmp_path, geometry
         assert not provider.static
     finally:
         provider.close()
+
+
+def test_inspection_end_requires_explicit_unique_supported_reference(tmp_path, monkeypatch):
+    from copy import deepcopy
+
+    def alternatives(cue, observed, config):
+        left = make_surface(observed)
+        left.observations[0].semantic_id = 3
+        mask = np.zeros((80, 80), bool)
+        mask[15:65, 15:35] = True
+        left.observations[0].support_mask = np.packbits(mask).tobytes()
+        right = deepcopy(left)
+        right.points = right.points + [0.1, 0, 0]
+        mask[:] = False
+        mask[15:65, 45:65] = True
+        right.observations[0].support_mask = np.packbits(mask).tobytes()
+        return [left, right]
+
+    monkeypatch.setattr(module, "surfaces", alternatives)
+    native, sam = Native(), Sam([[3]] * 4)
+    session = PerceptionSession("unused", recipe(), {}, tmp_path, sam_worker=sam, p2p_worker=native)
+    try:
+        before = session.infer(sensor(24, 0))
+        assert not before["initialization"]["inspection_complete"]
+        assert len(before["geometric_choices"]) == 2
+        ended = session.infer(sensor(25, 1))
+        assert ended["initialization"]["inspection_complete"]
+        assert ended["identity"]["state"] == "ambiguous_geometry"
+        assert not ended["initialization"]["p2p_started"] and not native.calls
+        session.select(3, reference_pixel=[0, 0])
+        unsupported = session.infer(sensor(25.1, 2))
+        assert unsupported["initialization"]["reference_state"] == "reference_unsupported"
+        assert not native.calls
+        session.select(3, reference_pixel=[20, 40])
+        seed = session.infer(sensor(25.2, 3))
+        assert seed["initialization"]["reference_state"] == "available"
+        assert seed["initialization"]["p2p_started"] and len(native.calls) == 1
+        assert len(sam.calls) == 4 and not sam.closed
+        with pytest.raises(ValueError, match="requires_session_reset"):
+            session.select(3, reference_pixel=[50, 40])
+    finally:
+        session.close()
+
+
+def test_missing_static_selection_preserves_session_and_pending_identity(tmp_path, geometry):
+    sam = Sam([[8], [7], [7]])
+    session = PerceptionSession(
+        "unused", recipe(), {}, tmp_path, sam_worker=sam, p2p_worker=Native()
+    )
+    try:
+        session.select(7, "absent-reference")
+        with pytest.raises(ValueError, match="requires_session_reset"):
+            session.select(8)
+        absent = session.infer(sensor(25, 0))
+        assert absent["identity"]["state"] == "selected_identity_absent"
+        for index in (1, 2):
+            result = session.infer(sensor(25 + index / 10, index))
+            assert result["identity"]["sam3_id"] == 7
+            assert result["initialization"]["reference_state"] == "reference_unsupported"
+            assert not result["initialization"]["p2p_started"]
+        assert len(sam.calls) == 3 and not session.native.calls and not sam.closed
+    finally:
+        session.close()

@@ -15,7 +15,9 @@ def sensor_at(h5, row):
     return {key: h5[f"observations/{key}"][row] for key in OBS_KEYS}
 
 
-def run_point2pose_smoke(path, recipe, output, models, *, seed_row=240, rows=12, seed=None):
+def run_point2pose_smoke(
+    path, recipe, output, models, *, seed_row=240, rows=12, seed=None, selection=None
+):
     """Bounded CUDA smoke through the shared session; cached RGB-D is checked only."""
     from alexdoor_xas.perception.session import PerceptionSession
 
@@ -33,6 +35,8 @@ def run_point2pose_smoke(path, recipe, output, models, *, seed_row=240, rows=12,
             models, recipe, calibration, output, initialize_after_s=float(observed["time_s"])
         )
         try:
+            if selection is not None:
+                session.select(**selection)
             write_json(output / "runtime.json", session.runtime)
             for row in range(seed_row, min(seed_row + rows * 3, len(h5["observations/time_s"])), 3):
                 packet = session.infer(sensor_at(h5, row))

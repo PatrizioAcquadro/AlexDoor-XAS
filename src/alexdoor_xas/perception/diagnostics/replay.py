@@ -69,7 +69,9 @@ def support_timeline(frames):
     )
 
 
-def replay_episode(path, recipe, output, models, tool_fk, distal_faces, *, stride=3):
+def replay_episode(
+    path, recipe, output, models, tool_fk, distal_faces, *, stride=3, selection=None
+):
     output.mkdir(parents=True, exist_ok=False)
     with h5py.File(path, "r") as h5:
         calibration = json.loads(h5["metadata"].attrs["calibration"])
@@ -79,6 +81,7 @@ def replay_episode(path, recipe, output, models, tool_fk, distal_faces, *, strid
             calibration,
             output,
             replay=True,
+            selection=selection,
             tool_fk=tool_fk,
             distal_faces=distal_faces,
         )
@@ -263,7 +266,7 @@ def replay_episode(path, recipe, output, models, tool_fk, distal_faces, *, strid
             provider.close()
 
 
-def run_replay(paths, recipe, output, models, *, stride=3):
+def run_replay(paths, recipe, output, models, *, stride=3, selection=None):
     expected = {(pilot, condition) for pilot in PILOTS for condition in ("nominal", "light")}
     if {(p.parent.parent.name, p.parent.name) for p in paths} != expected or len(paths) != 4:
         raise ValueError("Exactly the four authorized pilot recordings are required")
@@ -310,6 +313,7 @@ def run_replay(paths, recipe, output, models, *, stride=3):
                 tool_fk,
                 distal_faces,
                 stride=stride,
+                selection=selection,
             )
         )
         write_json(

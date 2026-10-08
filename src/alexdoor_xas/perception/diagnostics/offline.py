@@ -233,6 +233,7 @@ def offline_episode(
     models,
     *,
     initialization_only=False,
+    selection=None,
     capture_window_s=None,
     registration_diagnostics=False,
     use_key_frame_graph=None,
@@ -298,6 +299,8 @@ def offline_episode(
                 historical_selection=capture_window_s is not None
                 and first_s >= config["inspection"]["sample_times_s"][-1],
             )
+            if selection is not None:
+                session.select(**selection)
             cues, tracker = session.sam, session.tracker
             startup["visual_s"] = cues.runtime["startup_s"]
             startup["point2pose_s"] = session.native.boot_latency_s
@@ -337,6 +340,7 @@ def offline_episode(
                             record["sam3"] = packet["sam3"]
                             record["identity"] = packet["identity"]
                             record["geometric_choices"] = packet["geometric_choices"]
+                            record["initialization"] = packet["initialization"]
                             packed_masks = b"".join(packet["cue"]["masks"])
                             record["mask_store"] = dict(
                                 offset=mask_stream.tell(),
@@ -381,7 +385,8 @@ def offline_episode(
                                         seed_row=row,
                                         seed_frame=int(frame_ids[row]),
                                         seed_time_s=float(t),
-                                        criterion="first eligible automatic candidate; no truth",
+                                        criterion=session.runtime.get("selection_request")
+                                        or "unique eligible reference; ownership unresolved",
                                         candidates=[c.candidate_id for c in candidates],
                                         pre_native_rejections=tracker.diagnostics.get(
                                             "initialization_rejections", []
@@ -579,7 +584,7 @@ def offline_episode(
         return report
 
 
-def run_offline(paths, recipe, output, models):
+def run_offline(paths, recipe, output, models, *, selection=None):
     expected = {(pilot, condition) for pilot in PILOTS for condition in ("nominal", "light")}
     if len(paths) != 4 or {(p.parent.parent.name, p.parent.name) for p in paths} != expected:
         raise ValueError("Exactly the four authorized pilot recordings are required")
@@ -618,6 +623,7 @@ def run_offline(paths, recipe, output, models):
                     recipe,
                     output / path.parent.parent.name / path.parent.name / f"attempt-{attempt}",
                     models,
+                    selection=selection,
                     initialization_only=attempt > 1,
                 )
             )

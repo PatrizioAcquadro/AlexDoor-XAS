@@ -123,15 +123,10 @@ class PanelTracking:
         )
         self.engine.reset()
 
-    def initialize(
-        self, candidates, sensor, *, start_s=None, whole_leaf_mask=None, allow_ambiguous_seed=False
-    ):
-        if self.candidates:
-            return False
-        processing_started = time.perf_counter()
-        if whole_leaf_mask is not None and whole_leaf_mask.shape != sensor["rgb"].shape[:2]:
-            raise ValueError("whole_leaf_mask_shape_changed")
+    def eligible_surfaces(self, candidates, sensor, whole_leaf_mask=None):
+        """Measured seed alternatives, without starting P2P or resolving ownership."""
         self.diagnostics["seed_state"] = "insufficient_geometry"
+        self.diagnostics["initialization_rejections"] = []
         self.initialization_options = []
         roots = [
             s
@@ -192,6 +187,17 @@ class PanelTracking:
             )
         ]
         self.initialization_options = roots
+        return roots, identifiers
+
+    def initialize(
+        self, candidates, sensor, *, start_s=None, whole_leaf_mask=None, allow_ambiguous_seed=False
+    ):
+        if self.candidates:
+            return False
+        processing_started = time.perf_counter()
+        if whole_leaf_mask is not None and whole_leaf_mask.shape != sensor["rgb"].shape[:2]:
+            raise ValueError("whole_leaf_mask_shape_changed")
+        roots, identifiers = self.eligible_surfaces(candidates, sensor, whole_leaf_mask)
         if whole_leaf_mask is not None:
             # One semantic leaf identity can have several measured plane faces.
             # The first eligible face supplies a zone; the native object receives

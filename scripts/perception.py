@@ -60,6 +60,7 @@ def run_live_matrix(args, recipe):
                         case,
                         "--asset",
                         asset,
+                        *(["--selection", str(args.selection)] if args.selection else []),
                     ],
                     stdout=log,
                     stderr=subprocess.STDOUT,
@@ -103,7 +104,11 @@ def main(argv=None):
     )
     parser.add_argument("--case", choices=("camera", "panel", "combined", "visibility"))
     parser.add_argument("--asset", help="Authorized pilot asset for a live case")
+    parser.add_argument("--selection", type=Path, help="Explicit observed geometric reference JSON")
     args = parser.parse_args(argv)
+    from alexdoor_xas.perception.selection import load_selection
+
+    selection = load_selection(args.selection)
     import h5py
 
     from alexdoor_xas.perception.diagnostics.scan import PILOTS, run_scan_diagnostics
@@ -121,7 +126,12 @@ def main(argv=None):
             from alexdoor_xas.perception.diagnostics.live import run_live_smoke
 
             run_live_smoke(
-                recipe, args.output, args.models, args.asset or PILOTS[1], case=args.case
+                recipe,
+                args.output,
+                args.models,
+                args.asset or PILOTS[1],
+                case=args.case,
+                selection=selection,
             )
         else:
             return run_live_matrix(args, recipe)
@@ -129,19 +139,22 @@ def main(argv=None):
     if args.command == "point2pose-live-smoke":
         from alexdoor_xas.perception.diagnostics.live import run_live_smoke
 
-        print(run_live_smoke(recipe, args.output, args.models, PILOTS[1]), flush=True)
+        print(
+            run_live_smoke(recipe, args.output, args.models, PILOTS[1], selection=selection),
+            flush=True,
+        )
         return 0
     paths = episode_paths(args.data, load_corpus(REPO / "datasets/doors/b1/corpus.json", REPO))
     paths = [p for p in paths if p.parent.parent.name in PILOTS]
     if args.command == "point2pose-offline":
         from alexdoor_xas.perception.diagnostics.offline import run_offline
 
-        reports = run_offline(paths, recipe, args.output, args.models)
+        reports = run_offline(paths, recipe, args.output, args.models, selection=selection)
         return 0 if all(r["complete"] for r in reports) else 1
     if args.command == "point2pose-replay":
         from alexdoor_xas.perception.diagnostics.replay import run_replay
 
-        run_replay(paths, recipe, args.output, args.models)
+        run_replay(paths, recipe, args.output, args.models, selection=selection)
         return 0
     if args.command == "diagnose-scan":
         return run_scan_diagnostics(paths, recipe, args.output, args.models)
@@ -149,7 +162,9 @@ def main(argv=None):
         from alexdoor_xas.perception.diagnostics.smoke import run_point2pose_smoke
 
         print(
-            run_point2pose_smoke(paths[0], recipe, args.output, args.models, seed=args.seed),
+            run_point2pose_smoke(
+                paths[0], recipe, args.output, args.models, seed=args.seed, selection=selection
+            ),
             flush=True,
         )
         return 0
