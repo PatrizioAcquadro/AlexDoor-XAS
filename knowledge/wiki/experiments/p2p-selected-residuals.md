@@ -232,3 +232,56 @@ They are targeted visual checks, not independent true material-pixel annotations
 yellow transport markers use evaluator motion, and black crop padding is outside
 the original image. Correspondence, pose-feedback and local cluster effects are
 demonstrated; a unique observable common correction remains unestablished.
+
+## Step 2 decision: retain the selected recipe
+
+Validated saved-data diagnosis: `9aefffa`. **Retain bounded SAM3 OFF plus the
+renewal-only configured depth gate. No additional inference control is changed
+and no correction replay is launched.** The evidence establishes several local
+mechanisms, but not one minimal observable intervention justified for the complete
+light/nominal tradeoff:
+
+- Light's persistent position bias is largely in references at birth; promotion
+  can add bias, but freezing original birth storage leaves the 24.16 mm local
+  peak. Evaluator-corrected birth references still leave a 20.22 mm peak. Current
+  correspondence/rotation and target geometry remain separate contributors.
+- Nominal's 39.7 s cluster predominantly follows the fixed frame, but an oracle
+  material exclusion leaves one pair. Its more accurate saved alternative does
+  not establish a general observed-only cluster-selection rule. Changing the
+  native support guard or adding a material/mask heuristic from this event alone
+  would be speculative for the complete history and would not explain light.
+- Full orientation deterioration is real on matched accepted frames, yet SDF
+  usually improves orientation and the nominal angular maximum includes a valid
+  final support fallback. Disabling SDF, removing promotion or accepting three
+  inliers is not a demonstrated common remedy.
+
+The next discriminating verification is **independent material-pixel evidence**,
+first from a few targeted saved-image chains: light IDs 315/317/353 (birth,
+promotion support captures, 75.9–75.9667 s and later tail), plus moving nominal
+points at 38.8833 s and the competing clusters at 39.7 s. Label the same physical
+features and uncertainty independently of the pose/TSDF being diagnosed. Keep
+all saved correspondences, support subsets and gates. Compare native current
+pixels/depth against those independent pairs, and reconstruct birth/promotion
+storage using each original estimated pose. This separates genuine image-track
+movement from measured-depth/pixel ambiguity and estimated-pose feedback.
+
+If the low-texture recorded RGB cannot supply such independent associations, the
+present recording cannot uniquely settle that identity question; neither rigid
+truth transport nor another fit becomes an independent label. For the remaining
+filter/support and dense-field question, a future **single unchanged diagnostic
+CUDA run per condition**, from original initialization, would need to export
+pre-filter selected/rejected light candidates, raw pending observations, exact
+chosen-cluster weights/subsets, and TSDF/SDF state around the two peaks. Compare
+its masks/poses/decisions with the preserved selected replay to establish that
+observation itself is neutral; save any discrepancy/failure without retry. This
+would be new diagnostic evidence, not reconstruction of the missing historical
+light rejection trace or evaluation of a correction. No such run occurs here.
+
+Until one observable causal control is justified, keep the six selected-target
+10/15/20 mm plus 5-degree results and their existing resource/latency tradeoffs.
+The saved-data audit exactly reproduces all three targets' complete evaluations
+for both memory-only and selected depth-filtered recipes, including their original
+failed/unavailable rows. It does not add CUDA quality/timing measurements or
+qualify 150 ms freshness, contact, A3/A4 or policies. The single permitted
+correction/full replay comparison is intentionally not taken because its causal
+precondition is unmet. Baseline and all prior evidence remain intact.

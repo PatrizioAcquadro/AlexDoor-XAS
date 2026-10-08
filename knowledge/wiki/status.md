@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-07. **6.0B is maintained; prior dynamic trackers are retired;
+Current as of 2026-10-08. **6.0B is maintained; prior dynamic trackers are retired;
 the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 6.1 remain open.** No training, new corpus or sealed-test evaluation was started.
 
@@ -35,10 +35,22 @@ Retain the tradeoffs: light primary peak 21.26→23.82 mm, rotation p95 0.69→1
 only 8/301 correct 10 mm primary tail frames and one slightly worse secondary 10 mm
 gap. Nominal's former 70.6 s spike becomes 6.67 mm, but its new 31.48 mm peak moves
 to 39.7 s. Joint GPU peak increases 9.79→12.76 GiB light through P2P allocator reserve,
-while SAM remains bounded; nominal peak is 7.99 GiB. Next use the saved light tail to
-distinguish TAPIR displacement from accumulated reference-map bias and weak support
-geometry before any further correction. No extra filter/prompt, optimization,
-resampling, A3/A4 or policy change is introduced.
+while SAM remains bounded; nominal peak is 7.99 GiB. The
+[[experiments/p2p-selected-residuals|same-ID saved-data diagnosis of the new trajectory]]
+is complete. Light tail references carry bias at birth and after promotion, with
+separate current correspondence/rotation effects; its 75.9333 s peak uses nine
+moving-only inliers and is already wrong before SDF. Nominal's 39.7 s peak selects
+seven fixed/one moving pair. Its distinct 38.8833 s angular maximum is a final
+support-gate fallback, not the position peak. Full matched-frame rotation p95
+worsens while tail rotation improves; SDF generally improves orientation.
+
+Retain the selected recipe without a further correction or CUDA replay: no single
+observable common intervention is justified. Next establish a few independent
+material-pixel chains in saved RGB-D to separate image correspondence from
+pose-feedback/reference bias. If needed, a future unchanged diagnostic run must
+save rejected light candidates and dense-field state; it cannot restore missing
+historical rejection totals. No extra filter/prompt, optimization, resampling,
+A3/A4 or policy change is introduced. All prior recordings/evidence remain intact.
 
 For future action integration, use the [[topics/pre-a4-initialization-and-hinge-budget|shared pre-A4 initialization specification]]
 for every A1–A4 × ACT/Diffusion condition before policy dispatch. Stationary

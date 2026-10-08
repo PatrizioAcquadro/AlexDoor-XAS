@@ -278,11 +278,15 @@ operational defaults, baseline, original OFF configuration and all prior evidenc
 remain preserved. There is no general cleanup, live resampling, additional
 optimization or policy change.
 
-The next discriminating check for the remaining light 10 mm tail is a saved-window
-pairing of current TAPIR RGB-D correspondences with the observed birth reference
-and the currently stored map reference, holding every registration input/gate fixed.
-Separate point displacement from accumulated reference bias and support geometry;
-do not add another filter/prompt based on the remaining ambiguity.
+The [[p2p-selected-residuals|new-trajectory same-ID residual diagnosis]] now completes
+that saved-window pairing, independently of this preceding unfiltered diagnosis.
+Light combines bias already stored at birth, promotion changes and current
+correspondence/rotation effects; its peak has nine moving-only pairs. Nominal's
+39.7 s peak instead selects seven fixed/one moving pair, while its distinct angular
+maximum includes a five-inlier-gate fallback. Keep the selected recipe: there is
+no justified single observable common correction. Independent material-pixel
+chains and, if needed, unchanged-run filter/SDF state are the next discriminating
+evidence; missing historical light rejection totals remain unavailable.
 
 ```python
 sam3_frontend = {
