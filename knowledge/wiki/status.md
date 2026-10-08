@@ -2,29 +2,54 @@
 
 Current as of 2026-10-08. **Static 6.0B is maintained; CAD-free Point2Pose is
 implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
-retains the full B1 core; operational defaults, A3/A4 and policy contracts are unchanged.
+retains the full B1 core; the selected SAM3 recipe is now the common runtime
+reference. A3/A4, policies and operational thresholds are unchanged.
 
 | Area | Current state |
 |---|---|
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and common zero-yaw setup maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts/static evidence | Operational/local support, explicit selection, admission and feedback contracts; object fusion, ownership alternatives, finite-cover and relevant-space queries. Scans/interfaces do not admit motion. |
-| 6.0C — Tracking | Explicit selected SAM3 recipe with bounded history and renewal-only depth gate; SAM2 operational/baseline and live/serial evaluators retained. Useful accuracy improves offline, but material identity and 150 ms freshness remain unqualified. |
+| 6.0C — Tracking | One persistent SAM3 session shared by inspection/tracking, bounded history and renewal-only depth gate; live/replay and serial evaluation share the coordinator. Useful accuracy improves offline, but material identity and 150 ms freshness remain unqualified. |
 | 6.0D–H — Contact/qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Actions | ACT/Diffusion × A1–A4 observed-input/data/normalization/execution software maintained; qualified-provider integration and physical rollout validation pending. |
 | 6.2–7 — Data/learning | Not started. No matched B1 policy dataset or learned-policy result; no sealed-test evaluation. |
 
 ## Next action and selected state
 
-Keep [the selected configuration](../../configs/point2pose_selected.json) unchanged.
-[[experiments/p2p-selected-residuals|Saved residual diagnosis]] found no justified
-common correction. Next establish a few independent material-pixel chains in saved
-RGB-D, separating image correspondence from reference/pose-feedback bias. The
-historical rejected-light-candidate trace is missing; a future unchanged diagnostic
-could record candidates/dense-field state, but cannot recover historical rejection
-totals. This is not authorization to resume a campaign or change thresholds.
+The [[experiments/p2p-persistent-session-integration|persistent-session integration]]
+uses the selected configuration throughout maintained scan/smoke/live/replay/offline
+entry points. Historical 33-frame CUDA prefixes exactly preserve masks, poses,
+decisions and traces with strict initialization and explicit BF16/TF32.
+Two fresh selected sessions process all 4,718 original 0–78.6167 s captures per
+condition, initializing P2P at 25.016667 s without restarting SAM3. Their short
+mask/pose prefixes match exactly, but the full inspection histories are distinct
+from historical 31 s starts. The unresolved geometric-selection attempt is preserved.
 
-The selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
+On the same 2,858 opening captures and three frozen physical targets, correct
+availability at 10/15/20 mm and 5 degrees is 86.53–87.58/97.38–97.55/98.74–98.81%
+light and 97.62–98.64/99.76–99.83/99.97–100% nominal. Neither has native/SAM3 loss;
+light has eight nonseed degenerate-support refusals, nominal none. Light position
+maxima 45.00–46.62 mm and rotation maximum 4.08 degrees regress; nominal position
+maxima improve to 18.47–20.93 mm while median/p95 and 10 mm availability regress.
+All three targets, precision, chronological gaps and tails are in the integration
+record. Same effective configuration/BF16/TF32 and changed masks/seed history are
+verified; no compensating quality change is introduced.
+
+Full serial p95 260/246 ms still yields zero requests within 150 ms. Sampled joint
+GPU peaks are 7.77/11.81 GiB, combined coordinator/worker RSS 6.03/6.10 GiB;
+startup spikes remain unqualified. Final bounded wall-clock/replay ingress replaces
+31 of 33 inputs and publishes two results about 3 s late. Its immutable seed and
+scan publication times are checked independently. Real concurrent rendering and
+matched operational accuracy remain unvalidated.
+
+Next validate real rendering/operational timing with explicit observed selection
+and diagnose the saved light peaks/degenerate supports before any separate quality
+change. Material correspondence/recovery, hardware/FK/floor bounds and all
+contact/action qualification remain open. Earlier selected quality is historical,
+without automatic transfer to the persistent inspection session.
+
+The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved
 masks/poses/decisions and reduced SAM peak 8.39→4.21 GiB without RAM offload. The
 separate renewal-only gate improved all three targets; primary correct availability
@@ -53,8 +78,10 @@ controls. Historical source remains at `57ad483`. Subsequent consolidation remov
 only retired SAM3.1/SAM2 Small weights and eight identical trace copies, with
 relative links preserving old trace paths. Local removal digests and canonical
 copies are recorded in `evidence/cleanup.json` (`maintenance_20261008`).
-Static GroundingDINO/SAM3, SAM2 operational paths, baseline comparisons,
-geometry/contact interfaces and evaluator helpers have active consumers.
+GroundingDINO, the old static worker and separate SAM2 operation/setup are now
+retired after consumer migration. Existing historical weights and all baseline
+readers remain; SAM3 internal tracker components are preserved. Runtime CUDA math
+no longer depends on the SAM2 import. Geometry/contact interfaces remain maintained.
 A follow-up output-consumer audit retired DINOv3 extraction: its descriptors were
 stored/fused but unused by maintained decisions. Model/config/license metadata and
 SAM3.1 metadata remnants were consolidated into the local cleanup inventory.

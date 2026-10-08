@@ -55,6 +55,7 @@ Current architectural and scientific contracts:
 
 Current engineering and historical scientific records:
 
+- [[experiments/p2p-persistent-session-integration|Persistent SAM3 Inspection and Tracking]] — Shared frontend, strict initialization, bounded historical CUDA equivalence and separate inspection/temporal integration checks.
 - [[experiments/b1-perception-findings|B1 Perception Findings and Direction]] — Corrected model screening, static/local findings, failed Point2Pose qualification diagnostics and preserved evidence.
 
 - [[experiments/point2pose-consumer-impact-and-failure-windows|Point2Pose Consumer Impact and Two Failure Windows]] — Saved zone/normal and conditional target errors, missing A3/A4 inputs, nominal graph/map jump and light reference deterioration.

@@ -16,7 +16,7 @@ interface, then produce matched training demonstrations. Follow
 
 #### Current implementation boundary
 
-Frozen GroundingDINO/native SAM3 and calibrated RGB-D/multiview geometry
+One persistent native SAM3 session and calibrated RGB-D/multiview geometry
 support 6.0B static object memory, ownership alternatives, hinge hypotheses and
 finite contact/relevant-space queries. The static provider exposes scan evidence
 but no qualified state, policy encoding or admission to move. Human-reviewed local
@@ -27,8 +27,10 @@ execution.
 Legacy geometric tracking/evaluation, custom material tracking and video comparison
 are retired after preserving their failures. Independent full-state/local contracts,
 explicit selection, timing/reset, admission and feedback interfaces remain.
-The Point2Pose prototype tracks candidate pose from distributed visual references
-and RGB-D, compensating camera kinematics and preserving local contact checks.
+The Point2Pose prototype receives that same session's synchronized masks throughout
+tracking, with distributed visual references and RGB-D, camera kinematics and local
+contact checks. The selected recipe is common to scan, smoke, live/replay and serial
+evaluation; GroundingDINO and separate SAM2 execution are retired.
 Pilot diagnostics fail useful availability at the unchanged 150 ms limit;
 implementation does not establish qualified tracking or whole-leaf ownership.
 No training, collection, loaded admission or release migration is implemented.
