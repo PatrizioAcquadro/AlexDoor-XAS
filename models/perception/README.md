@@ -140,6 +140,42 @@ are in the canonical perception findings, not implied by successful setup.
 
 ## Unified SAM3 video diagnostic
 
+The selected experimental settings are tracked in
+[`configs/point2pose_selected.json`](../../configs/point2pose_selected.json).
+They reproduce the saved selected recipe through the existing serial evaluator;
+loading this file is explicit and does not change operational defaults. Run from
+the repository root with the supported Isaac Python, choosing a fresh output:
+
+```python
+import json
+from pathlib import Path
+
+from alexdoor_xas.perception.point2pose_offline import offline_episode
+from alexdoor_xas.perception.provider import load_recipe
+
+root = Path.cwd()
+selected = json.loads((root / "configs/point2pose_selected.json").read_text())
+condition = "light"  # The other preserved condition is "nominal".
+report = offline_episode(
+    root / f"datasets/b1/perception/engineering-v2/animated-door-1-88abf40/{condition}/episode.hdf5",
+    load_recipe(root / "configs/perception_geometry.json", root),
+    root / f"outputs/b1/perception/NEW_SELECTED_{condition}",
+    root / "models/perception",
+    capture_window_s=(31.0, 78.61666666666666),
+    registration_diagnostics=True,
+    sam3_frontend=selected["sam3_frontend"],
+    **selected["point2pose_controls"],
+)
+assert report["complete"], report["failure"]
+```
+
+This is an invocation recipe, not an instruction to repeat a completed experiment.
+A bounded 33-capture smoke uses `(31.0, 31.0 + 32 / 60)` instead. Remaining native
+settings come from the pinned `eccv_final.yaml` and tracked adapters: TAPIR
+full-frame 480/four iterations, SuperPoint, 120 active references, five inliers/
+4 mm and vectorized SDF Jacobian. The renewal depth gate is 10 mm/radius 2; seed
+selection is unchanged. Original times and evaluator-only ground truth are retained.
+
 The same official source/NumPy overlay supports `sam3` and `sam3.1` causal RGB
 workers. Keep the SAM3 tokenizer and the selected checkpoint in the directories
 above; no runtime download is performed. SAM3.1 uses the multiplex builder with

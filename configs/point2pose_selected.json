@@ -1,0 +1,20 @@
+{
+  "sam3_frontend": {
+    "version": "sam3",
+    "prompt": "door surface",
+    "grounding_chunk": 1,
+    "bounded_memory": true,
+    "trace_reconditioning": true,
+    "detection_reconditioning": false,
+    "seed": 0
+  },
+  "point2pose_controls": {
+    "use_key_frame_graph": false,
+    "allow_partial_reference_batch": true,
+    "refit_seed_rollback": false,
+    "performance_controls": {
+      "query_chunk_size": 0
+    },
+    "reference_depth_edge_filter": true
+  }
+}
