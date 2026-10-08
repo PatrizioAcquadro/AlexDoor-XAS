@@ -73,6 +73,8 @@ Current engineering and historical scientific records:
 
 - [[experiments/p2p-sam3-selected-development|Selected SAM3 OFF Memory and Quality]] — Consumer-based history release, complete equivalence and sequential residual diagnosis.
 
+- [[experiments/p2p-selected-residuals|Selected Renewal-Filtered Trajectory Residuals]] — Same-ID birth/map/TAPIR diagnosis, separate new peaks, angular and registration/SDF contributions; trace limitations retained.
+
 - [[experiments/p2p-selected-registration|Selected-Candidate Registration]] — Complete CUDA comparison; periodic alternatives save cost but regress the nominal tail, so common adoption is rejected.
 
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
