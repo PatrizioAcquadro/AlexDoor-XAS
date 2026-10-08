@@ -1,7 +1,7 @@
 # Shared Door Perception
 
 Phase 6.0 remains **unqualified**. Maintained 6.0B static scans use frozen
-GroundingDINO, native SAM3, DINOv3 and calibrated RGB-D. The optional CAD-free
+GroundingDINO, native SAM3 and calibrated RGB-D. The optional CAD-free
 Point2Pose prototype supplies observed panel tracking; neither path admits contact
 or qualifies a policy provider. The selected experimental frontend uses one SAM3
 and its original object, reconditioning OFF, bounded history and renewal-only depth
@@ -86,9 +86,11 @@ required RGB-D/calibration input has an explicit rejection reason.
 
 `ModelWorker` sends only RGB bytes to an isolated process. GroundingDINO uses
 `door.` with 0.30/0.25 thresholds; native SAM3 uses positive normalized box prompts
-and confidence 0.5. DINOv3 excludes CLS/register tokens and preserves the
-letterbox mapping. All weights stay frozen on CUDA. The worker's local dependency
-overlay isolates NumPy/SAM3 from the external Isaac installation; image inference
+and confidence 0.5. DINOv3 inference and unused surface descriptors were retired;
+registered RGB-D support determines association and contact geometry. Bounded CUDA
+comparisons preserve boxes, masks and all surface geometry exactly, with measured
+availability reported separately. All remaining weights stay frozen on CUDA.
+The worker's local dependency overlay isolates NumPy/SAM3 from the external Isaac installation; image inference
 needs no `decord` or video worker.
 
 `CueEngine` keeps capture and measured availability separate, one request in
@@ -224,9 +226,8 @@ references, graph OFF and partial batches ON. The renewal depth-jump gate uses
 10 mm/radius 2; initialization is unchanged. Other pinned settings remain fixed.
 
 SAM3 consumes only the arrived RGB frame, with no future lookahead or re-prompt.
-Each synchronized semantic mask feeds P2P directly, disabling separate SAM2 and
-DINOv3 extraction only in this frontend. A missing original ID returns an empty
-mask/loss; new IDs cannot replace it. Same-ID return is not material verification.
+Each synchronized semantic mask feeds P2P directly without separate SAM2 extraction.
+A missing original ID returns an empty mask/loss; new IDs cannot replace it. Same-ID return is not material verification.
 History release follows native attention consumers, preserving seed/conditioning,
 recent qualifying memories, pointers and persistent identity metadata. Original
 frame indices/counts remain; released inputs fail explicitly instead of replaying

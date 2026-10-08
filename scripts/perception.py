@@ -183,7 +183,6 @@ def main(argv=None):
                     **worker.runtime,
                     masks=len(result["masks"]),
                     shape=result["shape"],
-                    token_shape=result["token_shape"],
                     cold_latency_s=first["latency_s"],
                     warm_latency_s=result["latency_s"],
                     error=result.get("error"),

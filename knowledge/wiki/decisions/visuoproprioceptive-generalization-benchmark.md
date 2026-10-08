@@ -68,7 +68,8 @@ provides metric depth useful for manipulation; the initial rendered depth remain
 an explicitly ideal geometric approximation, not a reproduced stereo-error model.
 
 Use the selected GroundingDINO + SAM 3 components with explicit RGB-D/multiview
-geometry, and DINOv3 when learned visual features are needed. The failed custom
+geometry. Learned visual encoding for policies remains future integration work;
+unused DINOv3 extraction has been retired from the current scan. The failed custom
 regressors and dynamic trackers are retired; static 6.0B is maintained. Future
 6.0C will reuse official CAD-free Point2Pose with camera kinematics and local
 contact checks; integration and qualification remain open. Keep one frozen perception

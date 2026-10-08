@@ -8,7 +8,7 @@ Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
 - **Runtime and corpus:** Purdue control/sensing and Phase 5 are complete. The
   frozen corpus contains 32 qualified doors: 19 train, six development, seven test.
-- **Perception:** maintained static GroundingDINO/SAM3/DINOv3 scans and an
+- **Perception:** maintained static GroundingDINO/SAM3 scans and an
   experimental CAD-free Point2Pose tracker. The selected SAM3 recipe is explicit;
   material identity, 150 ms freshness and loaded contact remain unqualified.
 - **Learning:** B1 observed-input datasets, ACT/Diffusion models, normalization and

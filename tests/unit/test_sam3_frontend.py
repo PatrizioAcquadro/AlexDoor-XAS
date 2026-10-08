@@ -187,25 +187,6 @@ def test_missing_seed_is_loss_even_when_a_new_detection_exists():
     assert masks_for_seed(np.ones((1, 4, 5), bool), [4], [4], (4, 5)).all()
 
 
-def test_rgbd_surface_geometry_does_not_require_appearance_tokens():
-    from test_scan_fusion import measured_surface
-
-    from alexdoor_xas.perception.geometry import surfaces
-    from perception_helpers import recipe
-
-    expected, sensor, cue = measured_surface()
-    cue = {
-        key: value
-        for key, value in cue.items()
-        if key not in ("tokens", "token_shape", "pixel_mapping")
-    }
-    actual = surfaces(cue, sensor, recipe().config, visual_features=False)[0]
-    np.testing.assert_array_equal(actual.points, expected.points)
-    np.testing.assert_array_equal(actual.normal, expected.normal)
-    np.testing.assert_array_equal(actual.observations[0].mask(), expected.observations[0].mask())
-    assert actual.features.shape == (0, 0)
-
-
 def test_initialization_passes_one_unchanged_semantic_mask_to_p2p():
     from test_point2pose_temporal import make_surface, sensor
 

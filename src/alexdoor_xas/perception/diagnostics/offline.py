@@ -378,7 +378,7 @@ def offline_episode(
                                 record["sam3"] = cue["sam3"]
                                 if not candidates:
                                     tracker.initialize(
-                                        surfaces(cue, sensor, config, visual_features=False),
+                                        surfaces(cue, sensor, config),
                                         sensor,
                                         whole_leaf_mask=cues.latest_masks[0],
                                     )

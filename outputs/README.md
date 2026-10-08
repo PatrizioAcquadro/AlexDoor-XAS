@@ -71,3 +71,10 @@ exact pose/mask/decision comparisons on the same selected 33-frame windows and
 migration record is `evidence/consolidation-imports-20261008.json`; maintained
 saved-data readers use current imports, while retired launchers require their
 original source revision. These checks do not extend scientific qualification.
+
+`b1/perception/model-cleanup-20261008/` retains four before/after CUDA image
+comparisons for removal of unused DINOv3 extraction. Boxes, masks and all RGB-D
+surface geometry match exactly; measured availability is reported separately.
+The original comparison including wall-clock availability remains as a failed
+check beside the corrected geometry comparison. Local inventory records the
+DINOv3 and SAM3.1 metadata-directory removals and preserves their provenance.

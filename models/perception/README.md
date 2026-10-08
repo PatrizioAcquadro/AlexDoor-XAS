@@ -1,14 +1,13 @@
 # Selected perception resources
 
 Local weights are preserved for GroundingDINO + SAM 3 with explicit RGB-D/multiview
-geometry and DINOv3 image features for the maintained 6.0B static scan.
+geometry for the maintained 6.0B static scan.
 Neither the static scan nor the optional Point2Pose prototype is a qualified perception release.
 
 | Directory | Upstream model | Weight revision |
 |---|---|---|
 | `grounding-dino/` | `IDEA-Research/grounding-dino-tiny` | `a2bb814dd30d776dcf7e30523b00659f4f141c71` |
 | `sam3/` | `facebook/sam3`, native `sam3.pt` | `3c879f39826c281e95690f02c7821c4de09afae7` |
-| `dinov3/` | `facebook/dinov3-vits16-pretrain-lvd1689m` | `114c1379950215c8b35dfcd4e90a5c251dde0d32` |
 
 Model directories are ignored by Git. Keep their configuration, preprocessing,
 tokenizer and license files with the weights. SAM 3 also retains
@@ -25,6 +24,13 @@ subdirectory. The image worker keeps its native SAM3 source and dependency overl
 under ignored `runtime/`. The shared Isaac NumPy/PyTorch/Transformers installation
 is unchanged. Only the worker prepends this overlay; RGB and packed output bytes
 cross the process boundary, avoiding NumPy 1/2 ABI and pickle incompatibilities.
+
+DINOv3 extraction and its unused surface descriptors were removed: maintained
+association and contact geometry consume RGB-D support, not learned descriptors.
+Its historical revision (`114c1379950215c8b35dfcd4e90a5c251dde0d32`), configuration,
+license and download metadata remain in `evidence/cleanup.json`. The retired
+SAM3.1 metadata directory was also removed after preserving its contents there.
+GroundingDINO remains required for static box prompts and automatic Point2Pose seeds.
 
 ## Native worker environment
 
@@ -52,7 +58,7 @@ during smoke/scan; missing resources or CUDA cause an error.
 The retired video path's `decord` dependency was removed from both this list and
 the local overlay; the external runtime was not modified.
 
-Smoke all three models with a fresh output:
+Smoke both image models with a fresh output:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
@@ -155,7 +161,7 @@ selection is unchanged. Original times and evaluator-only ground truth are retai
 
 The video worker supports SAM3 using the same source/NumPy overlay as the static
 image worker. Only newly arrived RGB/time packets enter SAM3; its synchronized
-mask enters P2P without a separate SAM2 or DINOv3 call. Missing original IDs
+mask enters P2P without a separate SAM2 call. Missing original IDs
 produce empty masks, never replacement identities. Bounded history preserves
 score-selected useful memories, including old high-quality frames; it requires
 reconditioning OFF. The unbounded SAM3 reference remains available explicitly.

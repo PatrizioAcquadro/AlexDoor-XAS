@@ -27,9 +27,6 @@ class EmptyWorker:
             latency_s=0.05,
             shape=rgb.shape[:2],
             masks=[],
-            tokens=bytes(196 * 384 * 4),
-            token_shape=(196, 384),
-            pixel_mapping=dict(scale=14, pad_x=0, pad_y=0),
         )
 
 

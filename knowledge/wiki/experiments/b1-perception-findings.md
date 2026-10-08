@@ -2,7 +2,9 @@
 
 ## Decision and evidence boundary
 
-Static 6.0B retains GroundingDINO, native SAM3, DINOv3 and calibrated RGB-D.
+Static 6.0B retains GroundingDINO, native SAM3 and calibrated RGB-D.
+A later consumer audit removed unused DINOv3 extraction; the historical feature
+comparison below remains unchanged.
 Earlier full-state estimators and custom trackers failed qualification and are
 retired. CAD-free Point2Pose is implemented but unqualified; its selected recipe
 and subsequent investigations have dedicated pages linked below. SAM2 remains

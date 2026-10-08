@@ -17,7 +17,7 @@ See [[../topics/shared-door-perception|maintained interfaces]] and
 The current `GeometryProvider` exposes static candidates through `scan_state` and
 returns invalid `DoorEstimate` values without policy encoding; the optional
 Point2Pose adapter supplies independently supported local diagnostic zones. GroundingDINO,
-native SAM3 and DINOv3 stay frozen for 6.0B. No qualified release exists; the legacy
+native SAM3 stay frozen for 6.0B. Unused DINOv3 extraction is retired. No qualified release exists; the legacy
 6.1 release interfaces are retained without an early schema migration.
 
 Future work starts with the two train pilots: left `door-2738468b94d74c5f` and right

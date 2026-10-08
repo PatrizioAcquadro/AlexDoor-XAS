@@ -5,6 +5,7 @@ belong in Git history, not in agent context.
 
 | Milestone | Outcome | Reference |
 |---|---|---|
+| 2026-10-08 unused model removal | DINOv3 outputs had no decision consumer; extraction and surface feature payloads retired. GroundingDINO/SAM3 masks and RGB-D geometry preserved in bounded CUDA comparisons; retired model metadata consolidated locally. | [[topics/shared-door-perception|maintained static frontend]] |
 | 2026-10-08 B1 repository consolidation | Historical numerical pipeline retired; perception and test requirements reorganized; portable CI and packaging added. Bounded CUDA comparisons preserve selected behavior. Retired weights/identical traces removed with inventory; recordings and distinct evidence retained. | `70fe3cf`, `2bfe358`, `0e26f8a`; [[topics/system-architecture|maintained architecture]] |
 | 2026-10-08 targeted Point2Pose cleanup | Selected recipe tracked; rejected variants retired after consumer audit. Native reconstruction and bounded CUDA prefixes preserve behavior; ignored evidence untouched, canonical docs consolidated. | `e494e8c`, `c01c3a1`; [[experiments/b1-perception-findings|cleanup scope and verification]] |
 | 2026-10-08 selected trajectory residual diagnosis | Same-ID reference/correspondence and separate peak/SDF audits retain the recipe. Independent material chains and missing light rejection trace remain open. | `9aefffa`; [[experiments/p2p-selected-residuals|diagnosis and retained-recipe decision]] |

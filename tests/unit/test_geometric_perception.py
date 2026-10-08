@@ -289,9 +289,6 @@ def test_dense_edges_preserve_leaf_bottom_without_absorbing_fixed_frame(bottom_f
         points,
         np.array([1.0, 0, 0]),
         1.0,
-        np.ones(8) / np.sqrt(8),
-        points[:4],
-        np.eye(8)[:4],
         0.001,
         1.0,
         {0},
@@ -301,14 +298,10 @@ def test_dense_edges_preserve_leaf_bottom_without_absorbing_fixed_frame(bottom_f
     second = replace(
         first,
         points=points + [0, 0, 0.1],
-        anchors=points[-4:],
-        features=np.eye(8)[4:],
         views={1},
         edge_points={},
     )
     fused = fuse_surface(first, second, recipe().config, 1)
-    assert len(fused.anchors) == len(fused.features) == 8
-    np.testing.assert_allclose(fused.anchors[-4:], second.anchors)
     assert fused.bounds[0, 2] == pytest.approx(0.05, abs=0.004)
     # The floor intersects the leaf plane in a thin line inside a leaked mask.
     floor_rows = np.arange(296, h)
@@ -346,16 +339,13 @@ def test_production_surface_extraction_keeps_dense_extents_and_rejects_parallel_
     sample["camera_world"][:3, :3] = [[0, 0, 1], [1, 0, 0], [0, -1, 0]]
     cue = EmptyWorker().infer(sample["rgb"])
     cue["masks"] = [np.packbits(np.ones((16, 16), bool)).tobytes()]
-    cue["tokens"] = (np.ones((196, 384), np.float32) / np.sqrt(384)).astype(np.float32).tobytes()
     config = dict(recipe().config, min_points=12)
     parts = surfaces(cue, sample, config)
     assert parts and len(parts[0].extent_points)
     first = parts[0]
     frame = replace(first, points=first.points + [0.02, 0, 0], offset=first.offset + 0.02)
     assert not similar_surface(first, frame, config)
-    # Same registered geometry can associate despite different appearance descriptors.
-    same = replace(first, descriptor=-first.descriptor)
-    assert similar_surface(first, same, config)
+    assert similar_surface(first, first, config)
 
 
 def test_scoring_retains_finite_rejected_errors_and_maximum():

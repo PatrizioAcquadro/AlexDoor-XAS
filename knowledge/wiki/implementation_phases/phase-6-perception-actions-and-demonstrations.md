@@ -16,7 +16,7 @@ interface, then produce matched training demonstrations. Follow
 
 #### Current implementation boundary
 
-Frozen GroundingDINO/native SAM3/DINOv3 and calibrated RGB-D/multiview geometry
+Frozen GroundingDINO/native SAM3 and calibrated RGB-D/multiview geometry
 support 6.0B static object memory, ownership alternatives, hinge hypotheses and
 finite contact/relevant-space queries. The static provider exposes scan evidence
 but no qualified state, policy encoding or admission to move. Human-reviewed local

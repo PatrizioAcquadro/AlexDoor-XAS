@@ -91,9 +91,6 @@ class Surface:
     points: np.ndarray
     normal: np.ndarray
     offset: float
-    descriptor: np.ndarray
-    anchors: np.ndarray
-    features: np.ndarray
     residual_m: float
     support_fraction: float
     views: set = field(default_factory=set)
@@ -226,32 +223,7 @@ def contact_frame(normal):
     return np.column_stack((x, np.cross(z, x), z))
 
 
-def patch_anchors(cue, sensor, mask):
-    tokens = np.frombuffer(cue["tokens"], np.float32).reshape(cue["token_shape"])
-    grid = int(np.sqrt(len(tokens)))
-    if grid * grid != len(tokens):
-        raise ValueError("DINOv3 patch grid differs from the recorded mapping")
-    yy, xx = np.mgrid[:grid, :grid]
-    mapping = cue["pixel_mapping"]
-    uv = np.c_[(xx.ravel() + 0.5) * 16, (yy.ravel() + 0.5) * 16]
-    uv = (uv - [mapping["pad_x"], mapping["pad_y"]]) / mapping["scale"]
-    pixels = np.rint(uv).astype(int)
-    h, w = mask.shape
-    keep = (pixels >= 0).all(1) & (pixels[:, 0] < w) & (pixels[:, 1] < h)
-    indices = np.flatnonzero(keep)
-    u, v = pixels[keep].T
-    depth = np.asarray(sensor["depth_m"]).reshape(h, w)
-    valid = np.asarray(sensor["valid_depth"]).reshape(h, w)
-    good = mask[v, u] & valid[v, u] & np.isfinite(depth[v, u]) & (depth[v, u] > 0)
-    indices, u, v = indices[good], u[good], v[good]
-    anchors = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
-    features = tokens[indices]
-    descriptor = features.mean(0) if len(features) else np.zeros(tokens.shape[1])
-    descriptor /= max(np.linalg.norm(descriptor), 1e-8)
-    return anchors, features, descriptor
-
-
-def surfaces(cue, sensor, config, *, visual_features=True):
+def surfaces(cue, sensor, config):
     from scipy.ndimage import binary_erosion, binary_fill_holes, binary_opening, label
 
     h, w = cue["shape"]
@@ -268,10 +240,6 @@ def surfaces(cue, sensor, config, *, visual_features=True):
         if len(u) < config["min_points"]:
             continue
         cloud = deproject(depth[v, u], np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
-        if visual_features:
-            anchors, features, _ = patch_anchors(cue, sensor, interior)
-        else:
-            anchors, features = np.empty((0, 3)), np.empty((0, 0))
         # SAM membership seeds a surface; enclosed omissions can still contain
         # measured material. Only valid metric plane inliers restore support,
         # so real apertures, missing depth and the outer silhouette stay unknown.
@@ -310,13 +278,6 @@ def surfaces(cue, sensor, config, *, visual_features=True):
                 )
                 take = np.linspace(0, len(pu) - 1, min(len(pu), config["max_points"]), dtype=int)
                 part_points = dense_part[take]
-                ap, az = project(anchors, sensor["intrinsics"], sensor["camera_world"])
-                ap = np.rint(ap).astype(int)
-                near = (az > 0) & (ap >= 0).all(1) & (ap[:, 0] < w) & (ap[:, 1] < h)
-                indices = np.flatnonzero(near)
-                near[indices] &= part[ap[indices, 1], ap[indices, 0]]
-                descriptor = features[near].mean(0) if near.any() else np.zeros(features.shape[1])
-                descriptor /= max(np.linalg.norm(descriptor), 1e-8)
                 edges, edge_points, extent_points = (
                     extent_edges(
                         part_points,
@@ -374,9 +335,6 @@ def surfaces(cue, sensor, config, *, visual_features=True):
                         part_points,
                         normal.copy(),
                         offset,
-                        descriptor,
-                        anchors[near],
-                        features[near],
                         residual,
                         1.0,
                         edges=edges,
@@ -400,8 +358,7 @@ def similar_surface(a, b, config):
     overlap = np.maximum(0, hi - lo)
     if np.prod(overlap) <= 0.1 * min(np.prod(aa[1] - aa[0]), np.prod(bb[1] - bb[0])):
         return False
-    # Registered depth overlap can establish identity even when disjoint visual
-    # regions (window, plain lower face) have different averaged DINO descriptors.
+    # Association requires registered depth overlap.
     local = b.points @ a.basis
     common = ((local[:, 1:] >= lo) & (local[:, 1:] <= hi)).all(1)
     if common.sum() < config["min_points"]:
@@ -422,13 +379,6 @@ def fuse_surface(a, b, config, view):
     if len(a.points) + len(b.points):
         normal = a.normal * len(a.points) + b.normal * len(b.points)
         normal /= np.linalg.norm(normal)
-    descriptor = a.descriptor + b.descriptor
-    descriptor /= max(np.linalg.norm(descriptor), 1e-8)
-    anchors = np.r_[a.anchors, b.anchors]
-    features = np.r_[a.features, b.features]
-    if len(anchors) > 2048:
-        take = np.linspace(0, len(anchors) - 1, 2048, dtype=int)
-        anchors, features = anchors[take], features[take]
     basis = normal_frame(normal) if abs(normal[2]) < 0.3 else contact_frame(normal)
     edge_points = dict(a.edge_points)
     for key, observed in b.edge_points.items():
@@ -461,9 +411,6 @@ def fuse_surface(a, b, config, view):
         points,
         normal,
         float(np.median(points @ normal)),
-        descriptor,
-        anchors,
-        features,
         max(a.residual_m, b.residual_m),
         min(a.support_fraction, b.support_fraction),
         a.views | {view},

@@ -53,8 +53,11 @@ controls. Historical source remains at `57ad483`. Subsequent consolidation remov
 only retired SAM3.1/SAM2 Small weights and eight identical trace copies, with
 relative links preserving old trace paths. Local removal digests and canonical
 copies are recorded in `evidence/cleanup.json` (`maintenance_20261008`).
-Static GroundingDINO/SAM3/DINOv3, SAM2 operational paths, baseline comparisons,
+Static GroundingDINO/SAM3, SAM2 operational paths, baseline comparisons,
 geometry/contact interfaces and evaluator helpers have active consumers.
+A follow-up output-consumer audit retired DINOv3 extraction: its descriptors were
+stored/fused but unused by maintained decisions. Model/config/license metadata and
+SAM3.1 metadata remnants were consolidated into the local cleanup inventory.
 
 Perception now separates model runtimes and diagnostics; tests separate portable,
 GPU and local integration requirements. Public CI covers Python 3.11/3.12 unit

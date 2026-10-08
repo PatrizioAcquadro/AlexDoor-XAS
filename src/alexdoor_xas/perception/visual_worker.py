@@ -25,8 +25,6 @@ class FrozenModels:
         from sam3.model.sam3_image_processor import Sam3Processor
         from sam3.model_builder import build_sam3_image_model
         from transformers import (
-            AutoImageProcessor,
-            AutoModel,
             AutoModelForZeroShotObjectDetection,
             AutoProcessor,
         )
@@ -45,11 +43,6 @@ class FrozenModels:
             .eval()
             .to("cuda:0")
         )
-        self.dino_processor = AutoImageProcessor.from_pretrained(
-            root / "dinov3", local_files_only=True
-        )
-        self.dino = AutoModel.from_pretrained(root / "dinov3", local_files_only=True)
-        self.dino.eval().to("cuda:0")
         self.sam = build_sam3_image_model(
             checkpoint_path=str(root / "sam3/sam3.pt"),
             bpe_path=str(root / "sam3/bpe_simple_vocab_16e6.txt.gz"),
@@ -61,7 +54,7 @@ class FrozenModels:
         self.sam_processor = Sam3Processor(
             self.sam, confidence_threshold=config["mask_threshold"], device="cuda:0"
         )
-        for model in (self.ground, self.dino, self.sam):
+        for model in (self.ground, self.sam):
             model.requires_grad_(False)
             if any(p.device != torch.device("cuda:0") for p in model.parameters()):
                 raise RuntimeError("A visual model is not entirely on cuda:0")
@@ -72,9 +65,7 @@ class FrozenModels:
             numpy=np.__version__,
             sam3_source_revision=SAM3_REVISION,
             frozen=all(
-                not p.requires_grad
-                for m in (self.ground, self.dino, self.sam)
-                for p in m.parameters()
+                not p.requires_grad for m in (self.ground, self.sam) for p in m.parameters()
             ),
             training_started=False,
             **sam3_checkpoint(root),
@@ -99,17 +90,6 @@ class FrozenModels:
                 text_threshold=self.config["text_threshold"],
                 target_sizes=[(height, width)],
             )[0]
-            # Preserve the whole image and its invertible pixel mapping for patch associations.
-            scale = min(224 / width, 224 / height)
-            size = (round(width * scale), round(height * scale))
-            pad_x, pad_y = (224 - size[0]) // 2, (224 - size[1]) // 2
-            letterbox = Image.new("RGB", (224, 224))
-            letterbox.paste(image.resize(size, Image.Resampling.BILINEAR), (pad_x, pad_y))
-            pixels = self.dino_processor(images=letterbox, return_tensors="pt").to("cuda:0")
-            features = self.dino(**pixels).last_hidden_state
-            features = features[:, 1 + self.dino.config.num_register_tokens :]
-            features = torch.nn.functional.normalize(features.float(), dim=-1)[0]
-            tokens = features.cpu().numpy().astype(np.float32)
             masks, scores, selected_boxes = [], [], []
             if len(boxes["scores"]):
                 state = self.sam_processor.set_image(image)
@@ -135,9 +115,6 @@ class FrozenModels:
             scores=scores,
             boxes=selected_boxes,
             shape=(height, width),
-            tokens=tokens.tobytes(),
-            token_shape=tokens.shape,
-            pixel_mapping=dict(scale=scale, pad_x=pad_x, pad_y=pad_y),
             latency_s=time.perf_counter() - start,
         )
 

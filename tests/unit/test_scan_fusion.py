@@ -43,7 +43,6 @@ def measured_surface(sensor=None, mask=None):
     sample["depth_m"][mask] = 1
     cue = EmptyWorker().infer(sample["rgb"])
     cue["masks"] = [np.packbits(mask).tobytes()]
-    cue["tokens"] = np.ones((196, 384), np.float32).tobytes()
     return surfaces(cue, sample, recipe().config)[0], sample, cue
 
 
@@ -68,7 +67,6 @@ def test_dense_residual_support_survives_global_sampling_and_three_plane_limit()
         sample["depth_m"][40:70, 20 + i * 50 : 50 + i * 50] = depth
     cue = EmptyWorker().infer(sample["rgb"])
     cue["masks"] = [np.packbits(np.ones((240, 240), bool)).tobytes()]
-    cue["tokens"] = np.ones((196, 384), np.float32).tobytes()
     parts = surfaces(cue, sample, recipe().config)
     assert all(any(abs(s.offset - depth) < 0.001 for s in parts) for depth in (1, 1.1, 1.2, 1.3))
 
@@ -86,7 +84,6 @@ def test_enclosed_semantic_omission_needs_measured_coplanar_depth(hole_depth):
         sample["depth_m"][80:110, 90:120] = hole_depth
     cue = EmptyWorker().infer(sample["rgb"])
     cue["masks"] = [np.packbits(mask).tobytes()]
-    cue["tokens"] = np.ones((196, 384), np.float32).tobytes()
     parts = surfaces(cue, sample, recipe().config)
     plane = next(s for s in parts if abs(s.offset - 1.0) < 0.001)
     assert bool(plane.observations[0].mask()[95, 105]) == (hole_depth == 1.0)
@@ -189,7 +186,6 @@ def test_object_perimeter_keeps_leaf_bottom_and_excludes_surrounding_support(bot
         sample["depth_m"][215:230, 55:186] = 1.02
     cue = EmptyWorker().infer(sample["rgb"])
     cue["masks"] = [np.packbits(mask).tobytes()]
-    cue["tokens"] = np.ones((196, 384), np.float32).tobytes()
     for frame, time_s in ((8, 0), (20, 0.2)):
         sample.update(frame=frame, time_s=time_s)
         memory.add(surfaces(cue, sample, recipe().config), sample, frame)
@@ -217,9 +213,6 @@ def fixture_surface(points, normal, identifier, boundary, *, mask_index=0):
         points,
         np.array(normal, float),
         float(points.mean(0) @ normal),
-        np.zeros(384),
-        np.empty((0, 3)),
-        np.empty((0, 384)),
         0.001,
         1.0,
         {0, 1},
