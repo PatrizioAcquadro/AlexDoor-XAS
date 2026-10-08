@@ -276,7 +276,12 @@ copies, SAM3, geometry, P2P and publication/adapter latency remain explicit.
 Late results publish only for their own acquisition/generation. A frame gap does
 not synthesize missing frames or silently reset/reselect an object. Support
 still expires at 150 ms. Sampled simultaneous GPU/RAM residency includes both
-workers and coordinator RSS; allocator/high-watermark peaks remain separate.
+workers and coordinator GPU/RSS, including the live renderer; allocator/high-watermark
+peaks remain separate. A supplied provider clock/`now` must share capture origin;
+acquisition times remain immutable. Complete native service and polling/publication
+wait are separate. Continuous `point2pose-operational` and stationary live retain
+processed-only quality and explicit skips; see
+[[../experiments/p2p-operational-selection-and-light-peaks|operational measurement]].
 
 Reset kills both workers, joins the old request thread and clears SAM3 temporal
 state/IDs, P2P references/keyframes/TSDF, static/current maps, selections, queues

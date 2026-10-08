@@ -97,6 +97,25 @@ Isaac processes, require other Isaac sessions closed and do not enumerate record
 Live observer cases follow the common inspection before their observer-only motion;
 `camera|panel|combined|visibility` remain diagnostic cases, without contact.
 
+## Continuous operational measurement
+
+Use one authorized recording and an explicit observed request; this does not start
+training, manipulation or the four-recording/three-attempt serial campaign.
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-operational --episode datasets/recordings/b1/perception/engineering-v2/animated-door-1-88abf40/light/episode.hdf5 --mode wall-clock --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_CONTINUOUS
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live --case stationary --asset animated-door-1-88abf40 --duration-s 65 --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_STATIONARY_LIVE
+```
+
+The example pixel is for its displayed pilot view, not a general selection rule.
+`--mode replay` instead uses measured service occupancy on the original acquisition
+clock; it does not measure actual wall-clock concurrent ingress. Both retain every
+input/publication and skipped ID. The live stationary case covers inspection,
+initialization and a sustained tracking interval with rendering active. Other live
+observer cases retain their original bounded motion/fault protocol. Post-run truth
+scoring stays separate from provider service time. See
+[[../experiments/p2p-operational-selection-and-light-peaks|operational results and failures]].
+
 ## Bounded historical comparison
 
 The same serial coordinator can start after inspection to compare an unchanged

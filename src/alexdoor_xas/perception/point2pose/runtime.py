@@ -177,10 +177,11 @@ class Point2PoseEngine(CueEngine):
     SAM3 and Point2Pose causal state never cross an episode boundary.
     """
 
-    def __init__(self, factory, *, replay, capture_session=False):
+    def __init__(self, factory, *, replay, capture_session=False, clock=None):
         super().__init__(None, replay=replay)
         self.factory, self.latest = factory, None
         self.capture_session = capture_session
+        self.clock = clock
         self.queue_stats = dict(submitted=0, replaced=0, published=0, skipped_capture_ids=0)
         self.failed = False
         self.prepared = False
@@ -214,6 +215,11 @@ class Point2PoseEngine(CueEngine):
             return False
         import numpy as np
 
+        enqueued_s = (
+            self.clock()
+            if self.clock
+            else (float(sensor["time_s"]) if start_s is None else start_s)
+        )
         copy_started = time.perf_counter()
         snapshot = {k: np.array(sensor[k], copy=True) for k in OBS_KEYS}
         for value in snapshot.values():
@@ -223,11 +229,17 @@ class Point2PoseEngine(CueEngine):
         if self.pending is not None:
             if self.latest is not None:
                 self.queue_stats["replaced"] += 1
-            self.latest = snapshot, masks, copy_s
+            self.latest = snapshot, masks, copy_s, enqueued_s
             return False
-        return self._dispatch(snapshot, masks, copy_s, start_s)
+        return self._dispatch(snapshot, masks, copy_s, start_s, enqueued_s)
 
-    def _dispatch(self, snapshot, masks, copy_s, start_s):
+    def _dispatch(self, snapshot, masks, copy_s, start_s, enqueued_s):
+        dispatched_wall = time.perf_counter()
+        started = (
+            self.clock()
+            if self.clock
+            else (float(snapshot["time_s"]) if start_s is None else start_s)
+        )
         boot_s = 0.0
         if self.worker is None:
             boot_started = time.perf_counter()
@@ -246,17 +258,25 @@ class Point2PoseEngine(CueEngine):
         self.queue_stats["submitted"] += 1
 
         def infer():
+            execution_wait_s = time.perf_counter() - dispatched_wall
             result = worker.infer(snapshot, masks)
             result["latency_s"] += copy_s + boot_s
             result["restart_startup_s"] = boot_s
             result["snapshot_copy_s"] = copy_s
             result["queue_wait_s"] = max(
-                0.0, (start_s or float(snapshot["time_s"])) - float(snapshot["time_s"])
+                0.0, started - enqueued_s - (copy_s if self.clock else 0.0)
             )
+            result["ingress_delay_s"] = max(0.0, enqueued_s - float(snapshot["time_s"]))
+            result["executor_wait_s"] = execution_wait_s
+            result["dispatch_s"] = started
+            result["compute_completed_s"] = (
+                self.clock() if self.clock else started + time.perf_counter() - dispatched_wall
+            )
+            if not self.replay:
+                result["available_s"] = result["compute_completed_s"]
             return result
 
         result = infer() if self.replay else self.executor.submit(infer)
-        started = float(snapshot["time_s"]) if start_s is None else start_s
         if self.replay:
             result["available_s"] = started + result["latency_s"]
         self.pending = (self.generation, snapshot, started), result
@@ -267,7 +287,7 @@ class Point2PoseEngine(CueEngine):
             (_, sensor, started), future = self.pending
             if future.done() and future.exception() is None:
                 result = future.result()
-                result.setdefault("available_s", max(now, started + result["latency_s"]))
+                result.setdefault("available_s", started + result["latency_s"])
         try:
             event = super().poll(now)
         except (RuntimeError, EOFError, BrokenPipeError, ValueError):
@@ -277,9 +297,9 @@ class Point2PoseEngine(CueEngine):
         if event is not None:
             self.queue_stats["published"] += 1
         if event is not None and self.latest is not None:
-            sensor, masks, copy_s = self.latest
+            sensor, masks, copy_s, enqueued_s = self.latest
             self.latest = None
-            self._dispatch(sensor, masks, copy_s, start_s=now)
+            self._dispatch(sensor, masks, copy_s, start_s=now, enqueued_s=enqueued_s)
         return event
 
     def close(self):

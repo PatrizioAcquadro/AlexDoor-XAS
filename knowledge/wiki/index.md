@@ -53,6 +53,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/p2p-operational-selection-and-light-peaks|SAM3 Selection, Operational Timing and Integrated Light Peaks]] — Explicit reference ingress, continuous recorded/live provider accounting and saved integrated-light diagnosis.
+
 Current engineering and historical scientific records:
 
 - [[experiments/p2p-persistent-session-integration|Persistent SAM3 Inspection and Tracking]] — Shared frontend, strict initialization, bounded historical CUDA equivalence and separate inspection/temporal integration checks.

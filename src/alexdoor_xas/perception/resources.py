@@ -4,6 +4,7 @@ import json
 import os
 import subprocess
 import threading
+import time
 from pathlib import Path
 
 
@@ -51,9 +52,11 @@ class SessionResources:
                         * 1024
                     )
                 current = dict(
+                    monotonic_s=time.perf_counter(),
                     capture_s=self.capture_s,
-                    gpu_bytes=sum(residency.get(pid, 0) for pid in self.worker_pids),
+                    gpu_bytes=sum(residency.get(pid, 0) for pid in self.pids),
                     rss_bytes=sum(rss.values()),
+                    per_process_gpu={pid: residency.get(pid, 0) for pid in self.pids},
                     per_process_rss=rss,
                     per_worker_gpu={pid: residency.get(pid, 0) for pid in self.worker_pids},
                 )

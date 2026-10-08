@@ -91,6 +91,7 @@ def main(argv=None):
             "point2pose-replay",
             "point2pose-offline",
             "point2pose-live",
+            "point2pose-operational",
         ),
     )
     parser.add_argument("--output", required=True, type=Path)
@@ -102,9 +103,18 @@ def main(argv=None):
     parser.add_argument(
         "--seed", type=Path, help="Reuse an automatic smoke seed from its source capture"
     )
-    parser.add_argument("--case", choices=("camera", "panel", "combined", "visibility"))
+    parser.add_argument(
+        "--case", choices=("stationary", "camera", "panel", "combined", "visibility")
+    )
     parser.add_argument("--asset", help="Authorized pilot asset for a live case")
     parser.add_argument("--selection", type=Path, help="Explicit observed geometric reference JSON")
+    parser.add_argument(
+        "--episode", type=Path, help="Single authorized recording for operational measurement"
+    )
+    parser.add_argument("--mode", choices=("wall-clock", "replay"), default="wall-clock")
+    parser.add_argument(
+        "--duration-s", type=float, default=65, help="Live stationary observation window"
+    )
     args = parser.parse_args(argv)
     from alexdoor_xas.perception.selection import load_selection
 
@@ -119,6 +129,20 @@ def main(argv=None):
     from alexdoor_xas.recording.b1 import episode_paths
 
     recipe = load_recipe(args.config, REPO)
+    if args.command == "point2pose-operational":
+        from alexdoor_xas.perception.diagnostics.operational import recorded_operational
+
+        if args.episode is None or args.episode.parent.parent.name not in PILOTS:
+            parser.error("Operational measurement requires one authorized pilot --episode")
+        recorded_operational(
+            args.episode,
+            recipe,
+            args.output,
+            args.models,
+            selection=selection,
+            replay=args.mode == "replay",
+        )
+        return 0
     if args.command == "point2pose-live":
         if args.asset and args.asset not in PILOTS:
             parser.error("Live diagnostics are restricted to the two authorized pilots")
@@ -132,6 +156,7 @@ def main(argv=None):
                 args.asset or PILOTS[1],
                 case=args.case,
                 selection=selection,
+                duration_s=args.duration_s,
             )
         else:
             return run_live_matrix(args, recipe)

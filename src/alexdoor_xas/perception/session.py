@@ -209,6 +209,7 @@ class PerceptionSession:
         returned = present and self.last_present is False
         self.last_present = present if self.identity is not None else None
         geometric_choices = []
+        geometry_candidates = []
         reference_state = "not_inspected"
         native_result = None
         initial_candidates = None
@@ -222,6 +223,16 @@ class PerceptionSession:
                     surface.surface_id = (
                         f"sam3-{surface.observations[0].semantic_id}:surface-{index}"
                     )
+                geometry_candidates = [
+                    dict(
+                        surface_id=s.surface_id,
+                        sam3_id=s.observations[0].semantic_id,
+                        normal=s.normal.tolist(),
+                        extent_m=np.ptp(s.points @ s.basis, axis=0).tolist(),
+                        points=len(s.points),
+                    )
+                    for s in candidates
+                ]
                 if t <= self.inspection_end:
                     self.scan_memory.add(candidates, sensor, frame)
                     scan_snapshot = deepcopy(self.scan_memory)
@@ -334,6 +345,7 @@ class PerceptionSession:
                 material_recovery_verified=False,
             ),
             geometric_choices=geometric_choices,
+            geometry_candidates=geometry_candidates,
             initialization=dict(
                 inspection_complete=t >= self.inspection_end,
                 reference_state=reference_state,
@@ -430,6 +442,7 @@ class SessionProvider:
         self.current_space = ObservedSpace(self.config, self.generation)
         self.scan_available = {}  # Bounded by the stationary inspection window.
         self.last_time = self.last_frame = self.last_estimate = self.last_cue = None
+        self.last_publication = None
         self.encoding = None
         self.diagnostics = dict(state="searching", semantic_calls=0)
 
@@ -444,6 +457,7 @@ class SessionProvider:
         if event is None:
             return False
         captured, _, result, ready = event
+        result["publication_poll_wait_s"] = max(0.0, now - ready)
         ready = max(ready, now)
         publication_started = time.perf_counter()
         publication_base = ready
@@ -488,11 +502,6 @@ class SessionProvider:
             unresolved_surfaces=len(self.scan_state.unresolved_surfaces),
             queue=self.engine.queue_stats.copy(),
         )
-        publication_s = time.perf_counter() - publication_started
-        ready = publication_base + publication_s
-        result["provider_publication_s"] = publication_s
-        result["publication_latency_s"] = ready - float(captured["time_s"])
-        result["cue"]["available_s"] = ready
         if result["scan_memory"] is not None:
             self.scan_available[float(captured["time_s"])] = ready
             # Worker snapshots contain acquisition-time estimates. Preserve actual
@@ -522,28 +531,56 @@ class SessionProvider:
                     support["available_s"] = self.scan_available.get(
                         support["supported_s"], support["available_s"]
                     )
+        self.diagnostics.update(
+            inference_latency_s=result["latency_s"],
+            queue_wait_s=result.get("queue_wait_s", 0),
+            resources=result.get("resources"),
+        )
+        # Include the complete adapter, timestamp propagation and diagnostics work.
+        publication_s = time.perf_counter() - publication_started
+        ready = publication_base + publication_s
+        result["provider_publication_s"] = publication_s
+        result["publication_latency_s"] = ready - float(captured["time_s"])
+        result["cue"]["available_s"] = ready
+        if result["scan_memory"] is not None:
+            self.scan_available[float(captured["time_s"])] = ready
+            for surface in self.scan_memory.surfaces:
+                for observation in surface.observations:
+                    if observation.acquired_s == float(captured["time_s"]):
+                        observation.available_s = ready
+            for obj in self.scan_memory.state.objects:
+                if obj.support.supported_s == float(captured["time_s"]):
+                    obj.support = replace(obj.support, available_s=ready)
         for view in self.current_space.views.values():
             view["available_s"] = ready
         if self.tracking and result["objects"]:
             for candidate in self.tracking.candidates:
+                if result["initial_candidates"]:
+                    candidate.geometry = replace(candidate.geometry, available_s=ready)
+                    candidate.static_reference = replace(
+                        candidate.static_reference, support=candidate.geometry
+                    )
                 if candidate.state == "tracked" and candidate.support.supported_s == float(
                     captured["time_s"]
                 ):
                     candidate.support = replace(candidate.support, available_s=ready)
+            if result["initial_candidates"]:
+                for candidate, binding in zip(
+                    self.tracking.candidates, result["binding"], strict=True
+                ):
+                    binding["reference_support"] = vars(candidate.geometry)
             self.tracking.diagnostics.update(
                 available_s=ready, latency_s=result["publication_latency_s"]
             )
         self.diagnostics.update(
             available_time_s=ready,
             latency_s=result["publication_latency_s"],
-            inference_latency_s=result["latency_s"],
-            queue_wait_s=result.get("queue_wait_s", 0),
             publication_s=publication_s,
-            resources=result.get("resources"),
         )
+        self.last_publication = captured, result
         return True
 
-    def update(self, observation):
+    def update(self, observation, *, now=None):
         from alexdoor_xas.perception.contracts import DoorEstimate
         from alexdoor_xas.recording.b1 import OBS_KEYS
 
@@ -556,6 +593,9 @@ class SessionProvider:
             for key in OBS_KEYS
         }
         t, frame = float(sensor["time_s"]), int(sensor["frame"])
+        now = (self.engine.clock() if self.engine.clock else t) if now is None else float(now)
+        if np.isfinite(t) and (not np.isfinite(now) or now < t):
+            raise ValueError("invalid_provider_clock")
         reason = None
         if not np.isfinite(t) or (
             self.last_time is not None and (t <= self.last_time or frame <= self.last_frame)
@@ -590,8 +630,8 @@ class SessionProvider:
         # remains visible in support times; only explicit reset starts a new identity.
         self.last_time, self.last_frame = t, frame
         try:
-            self.engine.submit(sensor)
-            self.consume_results(t)
+            self.engine.submit(sensor, start_s=now)
+            self.consume_results(now)
         except (RuntimeError, EOFError, BrokenPipeError, ValueError) as error:
             self.engine.failed = True
             self.engine.pending = self.engine.latest = None
@@ -601,7 +641,7 @@ class SessionProvider:
                     candidate.state = "tracking_lost"
             else:
                 raise
-        local = self.tracking.local_state(t, sensor) if self.tracking else None
+        local = self.tracking.local_state(now, sensor) if self.tracking else None
         self.last_estimate = DoorEstimate(
             t,
             False,
@@ -624,6 +664,7 @@ def session_provider(
     tracking=True,
     selection=None,
     registration_diagnostics=False,
+    clock=None,
     **options,
 ):
     from alexdoor_xas.perception.point2pose.runtime import Point2PoseEngine
@@ -646,7 +687,7 @@ def session_provider(
             worker.select(**selection)
         return worker
 
-    engine = Point2PoseEngine(factory, replay=replay, capture_session=True)
+    engine = Point2PoseEngine(factory, replay=replay, capture_session=True, clock=clock)
     provider = SessionProvider(recipe, engine, tracking=tracking, **options)
     try:
         engine.prepare()

@@ -43,9 +43,13 @@ startup spikes remain unqualified. Final bounded wall-clock/replay ingress repla
 scan publication times are checked independently. Real concurrent rendering and
 matched operational accuracy remain unvalidated.
 
-Next validate real rendering/operational timing with explicit observed selection
-and diagnose the saved light peaks/degenerate supports before any separate quality
-change. Material correspondence/recovery, hardware/FK/floor bounds and all
+The [[experiments/p2p-operational-selection-and-light-peaks|ordered operational follow-up]]
+now implements explicit reference ingress and measures full continuous recorded
+input followed by concurrent stationary rendering. Steady publication is 3.79/3.24 Hz,
+with age p95 610/346 ms and zero within 150 ms. The recording retains 4,484 skips
+and 27 native losses with zero measured pairs; dense quality does not transfer. The initial
+live reference failure and subsequent post-run reporting failure are preserved.
+Diagnose the saved light peaks/degenerate supports before any separate quality change. Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.
 

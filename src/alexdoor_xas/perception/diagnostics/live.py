@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 
 
-def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=None):
+def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=None, duration_s=65):
     from isaaclab.app import AppLauncher
 
     output = Path(output)
@@ -34,7 +34,9 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=Non
         )
         setup = ProbeSetup(**json.loads((root / "configs/purdue_synthetic_probe.json").read_text()))
         inspection = recipe.config["inspection"]
-        completed = inspection["sample_times_s"][0]
+        completed = (
+            inspection["waypoints"][0][0] if case is not None else inspection["sample_times_s"][0]
+        )
         setup.neck = tuple(
             next(w[1:] for w in reversed(inspection["waypoints"]) if w[0] <= completed)
         )
@@ -54,6 +56,7 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=Non
 
         def start_clock():
             epoch[0], acquisition[0] = time.perf_counter(), 0.0
+            return epoch[0]
 
         if case is not None:
             env.capture.capture = capture
@@ -86,6 +89,7 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=Non
                 case,
                 start_clock,
                 selection,
+                duration_s,
             )
         sensor = observe()
         worker = PerceptionSession(
@@ -156,7 +160,18 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=Non
 
 
 def observer_case(
-    env, door, setup, calibration, observe, recipe, models, output, case, start_clock, selection
+    env,
+    door,
+    setup,
+    calibration,
+    observe,
+    recipe,
+    models,
+    output,
+    case,
+    start_clock,
+    selection,
+    duration_s,
 ):
     """Bounded observer motion/fault cases; truth and fault labels stay in this evaluator."""
     import torch
@@ -172,17 +187,21 @@ def observer_case(
     from alexdoor_xas.perception.point2pose.runtime import tracking_provider
     from alexdoor_xas.recording.b1_runtime import array
 
-    if case not in ("camera", "panel", "combined", "visibility"):
+    if case not in ("stationary", "camera", "panel", "combined", "visibility"):
         raise ValueError("unknown_observer_case")
     provider = tracking_provider(
         recipe, models, calibration, output, replay=False, selection=selection
     )
-    start_clock()
+    clock_start = start_clock()
+    provider.engine.clock = lambda: time.perf_counter() - clock_start
+    from alexdoor_xas.perception.diagnostics.operational import OperationalRecorder
+
+    operational = OperationalRecorder(output)
     zero = torch.zeros((1, 6), device=env.device)
     records, events, reference, previous = [], [], None, None
     captured_truth = {}
+    captured_cameras = {}
     motion_start = None
-    clock_start = time.perf_counter()
     neck = np.array(setup.neck)
 
     def truth():
@@ -193,7 +212,7 @@ def observer_case(
         return transform
 
     try:
-        while time.perf_counter() - clock_start < 45:
+        while time.perf_counter() - clock_start < duration_s:
             phase = 0.0 if motion_start is None else time.perf_counter() - motion_start
             if motion_start is None:
                 elapsed = time.perf_counter() - clock_start
@@ -219,6 +238,7 @@ def observer_case(
             previous = int(sensor["frame"])
             expected_truth = truth()
             captured_truth[previous] = expected_truth.copy()
+            captured_cameras[previous] = sensor["camera_world"].copy()
             fault = "none"
             # Controlled input faults are diagnostics, not physical occluder qualification.
             if case == "visibility" and reference is not None:
@@ -244,7 +264,11 @@ def observer_case(
                     fault = "total_occlusion"
                     sensor["rgb"] = np.zeros_like(sensor["rgb"])
                     sensor["valid_depth"] = np.zeros_like(sensor["valid_depth"])
-            estimate = provider.update(sensor)
+            received = provider.engine.clock()
+            update_started = time.perf_counter()
+            estimate = provider.update(sensor, now=received)
+            operational.input(sensor, received, time.perf_counter() - update_started)
+            operational.publication(provider)
             if provider.engine.failed:
                 raise RuntimeError(provider.diagnostics.get("error", "perception_session_failed"))
             tracker = provider.tracking
@@ -319,8 +343,60 @@ def observer_case(
                     output / "status.json",
                     dict(frames=len(records), phase_s=phase, tracking=tracker.diagnostics),
                 )
-            if motion_start is not None and phase >= 9:
+            if case != "stationary" and motion_start is not None and phase >= 9:
                 break
+        drain_start = time.perf_counter()
+        while provider.engine.pending is not None and time.perf_counter() - drain_start < 30:
+            provider.consume_results(provider.engine.clock())
+            operational.publication(provider)
+            time.sleep(0.005)
+        operational_report = operational.summary(provider)
+        operational_report["complete"] = provider.engine.pending is None
+        operational_report["duration_s"] = duration_s
+        operational_report["single_isaac"] = True
+        # Only processed captures are scored; skipped acquisitions remain explicit.
+        processed = []
+        for event in operational.events:
+            error = None
+            if reference is not None and event["objects"]:
+                obj = event["objects"][0]
+                candidate = tracker.candidates[0]
+                actual = captured_truth[event["frame"]] @ np.linalg.inv(reference[0]) @ reference[1]
+                predicted = (
+                    captured_cameras[event["frame"]]
+                    @ np.asarray(obj["camera_from_map"])
+                    @ candidate.map_from_object
+                )
+                error = pose_error(predicted, actual)
+            processed.append(
+                dict(
+                    frame=event["frame"],
+                    time_s=event["time_s"],
+                    error=error,
+                    is_seed=event["is_seed"],
+                    accepted=bool(event["objects"] and event["objects"][0]["integration_accepted"]),
+                )
+            )
+        operational_report["processed_quality"] = dict(
+            scored_nonseed=sum(e["error"] is not None and not e["is_seed"] for e in processed),
+            accepted_nonseed=sum(e["accepted"] and not e["is_seed"] for e in processed),
+            accepted_position_error_m=quantiles(
+                np.asarray([e["error"][0] for e in processed if e["accepted"] and not e["is_seed"]])
+            ),
+            accepted_rotation_error_deg=quantiles(
+                np.asarray([e["error"][1] for e in processed if e["accepted"] and not e["is_seed"]])
+            ),
+            correct_10mm_5deg=sum(
+                e["accepted"] and not e["is_seed"] and e["error"][0] <= 0.01 and e["error"][1] <= 5
+                for e in processed
+            ),
+            scope=(
+                "stationary observed zone relative to its own seed; "
+                "no absolute or opening quality claim"
+            ),
+        )
+        write_json(output / "operational-report.json", operational_report)
+        write_json(output / "processed-quality.json", processed)
         observed = [r for r in records if r["observable"]]
         errors = np.asarray([r["error"] for r in observed if r["available"]]).reshape(-1, 2)
         availability = sum(r["available"] for r in observed) / len(observed) if observed else 0.0
@@ -385,11 +461,12 @@ def observer_case(
             queue=provider.engine.queue_stats,
             resources=provider.diagnostics.get("resources"),
             empty_selection=tracker.selection is None,
-            empty_queue=tracker.engine.pending is tracker.engine.latest is None,
+            empty_queue=provider.engine.pending is provider.engine.latest is None,
         )
         write_json(output / "report.json", report)
         return report
     finally:
+        operational.close()
         write_json(output / "frames.json", records)
         write_json(output / "events.json", events)
         provider.close()

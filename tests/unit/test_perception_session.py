@@ -296,3 +296,31 @@ def test_missing_static_selection_preserves_session_and_pending_identity(tmp_pat
         assert len(sam.calls) == 3 and not session.native.calls and not sam.closed
     finally:
         session.close()
+
+
+def test_delayed_ingress_uses_publication_clock_without_refreshing_capture(tmp_path, geometry):
+    session = PerceptionSession(
+        "unused", recipe(), {}, tmp_path, tracking=False, sam_worker=Sam([[7], [7]])
+    )
+    engine = Point2PoseEngine(lambda _: session, replay=True, capture_session=True)
+    provider = module.SessionProvider(recipe(), engine, tracking=False)
+    try:
+        engine.prepare()
+        provider.update(sensor(4, 0), now=4.5)
+        assert provider.consume_results(5)
+        captured, result = provider.last_publication
+        assert float(captured["time_s"]) == result["capture_s"] == 4
+        assert result["queue_wait_s"] == 0
+        assert result["ingress_delay_s"] == 0.5
+        assert result["publication_poll_wait_s"] > 0
+        assert result["publication_latency_s"] > 1
+        first_support = provider.static[0].observations[0]
+        first_publication = first_support.available_s
+        provider.update(sensor(4.3, 1), now=5.3)
+        assert provider.consume_results(6)
+        assert provider.static[0].observations[0].available_s == first_publication
+        assert provider.last_publication[1]["capture_s"] == 4.3
+        provider.reset(preload=False)
+        assert provider.last_publication is None
+    finally:
+        provider.close()
