@@ -8,7 +8,7 @@ Neither the static scan nor the optional Point2Pose prototype is a qualified per
 |---|---|---|
 | `grounding-dino/` | `IDEA-Research/grounding-dino-tiny` | `a2bb814dd30d776dcf7e30523b00659f4f141c71` |
 | `sam3/` | `facebook/sam3`, native `sam3.pt` | `3c879f39826c281e95690f02c7821c4de09afae7` |
-| `sam3.1/` | `facebook/sam3.1`, native `sam3.1_multiplex.pt` | `daa63191845a41281374e725f4c9e51c7a824460` |
+| `sam3.1/` (historical) | `facebook/sam3.1`, native `sam3.1_multiplex.pt` | `daa63191845a41281374e725f4c9e51c7a824460` |
 | `dinov3/` | `facebook/dinov3-vits16-pretrain-lvd1689m` | `114c1379950215c8b35dfcd4e90a5c251dde0d32` |
 
 Model directories are ignored by Git. Keep their configuration, preprocessing,
@@ -129,7 +129,8 @@ with its residuals/inliers. The unchanged final support gate can fall back to th
 pre-SDF cluster pose, recomputing statistics for that pose. Exact zero residual
 with sufficient measured support is valid. Pinned-source mismatches fail explicitly;
 pre-fix files remain alongside the ignored sources as `.py.before-tracking-fixes`.
-`runtime.json` declares the two `native_fixes`; model weights and numeric gates
+Migration from the retired rollback patch also preserves `.py.before-retired-variants`.
+`runtime.json` declares the maintained `native_fixes`; model weights and numeric gates
 are unchanged. Calibrated depth limits replace
 small-object defaults in all lifting/crop calls. Equivalent dense crops are
 cached only within one frame and unnecessary neighborhood gathering is skipped
@@ -138,7 +139,7 @@ positive prompts. Current pilot diagnostics fail useful availability at the
 unchanged 150 ms limit. The prototype remains unqualified; results and limitations
 are in the canonical perception findings, not implied by successful setup.
 
-## Unified SAM3 video diagnostic
+## Selected SAM3 video diagnostic
 
 The selected experimental settings are tracked in
 [`configs/point2pose_selected.json`](../../configs/point2pose_selected.json).
@@ -176,44 +177,29 @@ full-frame 480/four iterations, SuperPoint, 120 active references, five inliers/
 4 mm and vectorized SDF Jacobian. The renewal depth gate is 10 mm/radius 2; seed
 selection is unchanged. Original times and evaluator-only ground truth are retained.
 
-The same official source/NumPy overlay supports `sam3` and `sam3.1` causal RGB
-workers. Keep the SAM3 tokenizer and the selected checkpoint in the directories
-above; no runtime download is performed. SAM3.1 uses the multiplex builder with
-one-frame grounding, the official PyTorch attention path, no compilation and
-unchanged native thresholds. Only arrived RGB/time packets cross worker IPC.
+The video worker supports SAM3 using the same source/NumPy overlay as the static
+image worker. Only newly arrived RGB/time packets enter SAM3; its synchronized
+mask enters P2P without a separate SAM2 or DINOv3 call. Missing original IDs
+produce empty masks, never replacement identities. Bounded history preserves
+score-selected useful memories, including old high-quality frames; it requires
+reconditioning OFF. The unbounded SAM3 reference remains available explicitly.
 
-The opt-in `point2pose_offline.offline_episode` argument
-`sam3_frontend={"version": "sam3.1", "prompt": "door surface"}` uses the same
-frontend for initialization and every subsequent mask. P2P disables its separate
-SAM2 segmenter and receives each synchronized mask unchanged; DINOv3 is not loaded.
-SAM3.1 additionally accepts `bounded_memory=True` for strictly forward causal
-inference. It keeps native image/mask memory and object pointers that future
-attention can select, while releasing expired output/input payloads. It does not
-support reverse propagation or editing old frames; baseline defaults remain.
-The adopted comparison passes `use_key_frame_graph=False`,
-`allow_partial_reference_batch=True`, `refit_seed_rollback=False`, and
-`performance_controls={"query_chunk_size": 0}` explicitly. Other native parameters,
-TAPIR, SuperPoint, measured RGB-D, registration and TSDF are retained. This option
-is diagnostic only; existing scan/live/replay defaults and policies are unchanged.
-Original SAM3.1 attempts fail the preserved TSDF reserve; bounded history now
-completes both openings with exact prefix equivalence but poorer late accuracy.
-Isolated SAM3 reconditioning OFF improves ON and reduces nominal losses 747→57,
-while light accuracy and nominal 15/20 mm availability remain below the reference.
-Neither replaces it. See the [complete controlled comparison](../../knowledge/wiki/experiments/p2p-sam3-unified-frontend.md).
+SAM3.1, selected-only registration, own-seed refit rollback, SAM2 Small, TAPIR
+crop/reduced resolution/iterations and simplified SVD are retired from the active
+adapter. Their code is available at `57ad483`; local checkpoints, launchers,
+results and failures remain untouched. Reproduce those experiments from their
+recorded Git revision in a separate checkout. `performance_controls` now accepts
+only `query_chunk_size`; old rollback/selected-registration keywords accept only
+false. Unsupported activation fails explicitly. Result and trace fields remain
+compatible with saved-data evaluators.
 
-For the isolated SAM3 diagnostic, `detection_reconditioning=False` changes only
-its native period from 16 to 0; its bbox trigger must already be disabled. Other
-detection/association/confirmation controls stay active. `trace_reconditioning=True`
-records actual updates separately from new IDs; `seed=0` fixes both controlled
-workers. These SAM3-only options are experimental and retain baseline defaults.
+The [selected development](../../knowledge/wiki/experiments/p2p-sam3-selected-development.md)
+and [residual diagnosis](../../knowledge/wiki/experiments/p2p-selected-residuals.md)
+retain the measured tradeoffs and open material-identity questions. This recipe
+is experimental; it does not qualify 150 ms freshness, contact, A3/A4 or policies.
 
-The subsequent [selected SAM3 OFF development](../../knowledge/wiki/experiments/p2p-sam3-selected-development.md)
-adopts `bounded_memory=True` with `version="sam3"` and reconditioning OFF. It
-preserves native score-selected useful memories rather than applying SAM3.1's age
-cutoff. Both complete original CUDA openings are exactly identical to unbounded
-OFF in masks, poses and decisions. The separately evaluated opt-in
-`reference_depth_edge_filter=True` in `offline_episode` applies only the existing
-10 mm/radius 2 depth gate to new renewal references; original seed and every mask
-remain identical. It is the current experimental recipe, with all original
-controls retained and old configurations/results intact. Light tail/peak/rotation
-and P2P allocator reserve costs remain documented; operational defaults stay fixed.
+Cleanup verification is in `outputs/b1/perception/p2p-cleanup-20261008/`: 33 original
+captures per condition exactly match saved selected masks, poses, decisions,
+history, registration traces and effective configuration. The 12-capture default
+SAM2 smoke completes with CUDA TSDF; its freshness gate still fails. These bounded
+checks establish neither full-opening equivalence nor new tracking qualification.

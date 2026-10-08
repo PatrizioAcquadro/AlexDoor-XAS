@@ -35,10 +35,7 @@ def append_frame(state, image):
     batch = state["input_batch"]
     stage = deepcopy(batch.find_inputs[0])
     stage.img_ids[...] = index
-    if getattr(stage, "img_ids_np", None) is not None:
-        stage.img_ids_np[...] = index
-    images = getattr(batch.img_batch, "tensors", batch.img_batch)
-    images.append(image)
+    batch.img_batch.append(image)
     batch.find_inputs.append(stage)
     batch.find_targets.append(None)
     batch.find_metadatas.append(None)
@@ -52,8 +49,7 @@ def append_frame(state, image):
         state[name].append(None)
     state["per_frame_cur_step"].append(0)
     state["num_frames"] = index + 1
-    trackers = state.get("tracker_inference_states", state.get("sam2_inference_states", []))
-    for tracker in trackers:
+    for tracker in state["tracker_inference_states"]:
         tracker["num_frames"] = index + 1
     return index
 
@@ -69,43 +65,24 @@ class Sam3CausalFrontend:
         detection_reconditioning=True,
         trace_reconditioning=False,
     ):
+        if version != "sam3":
+            raise ValueError("unsupported_sam3_version")
         import torch
+        from sam3.model.sam3_video_inference import Sam3VideoInference
+        from sam3.model_builder import build_sam3_video_model
 
         if not torch.cuda.is_available():
             raise RuntimeError("SAM3 video requires CUDA; no CPU fallback")
         root = Path(root)
-        if version == "sam3":
-            from sam3.model.sam3_video_inference import Sam3VideoInference
-            from sam3.model_builder import build_sam3_video_model
-
-            self.model = build_sam3_video_model(
-                checkpoint_path=str(root / "sam3/sam3.pt"),
-                bpe_path=str(root / "sam3/bpe_simple_vocab_16e6.txt.gz"),
-                device="cuda",
-                load_from_HF=False,
-                compile=False,
-            )
-            self.propagate = Sam3VideoInference.propagate_in_video
-        elif version == "sam3.1":
-            from sam3.model.sam3_multiplex_tracking import Sam3MultiplexTracking
-            from sam3.model_builder import build_sam3_multiplex_video_predictor
-
-            predictor = build_sam3_multiplex_video_predictor(
-                checkpoint_path=str(root / "sam3.1/sam3.1_multiplex.pt"),
-                bpe_path=str(root / "sam3/bpe_simple_vocab_16e6.txt.gz"),
-                use_fa3=False,  # RTX 4090 uses the official PyTorch attention path.
-                compile=False,
-                warm_up=False,
-            )
-            self.model = predictor.model
-            # Incoming frames require one-frame grounding chunks. With the video
-            # demo's 16-frame default, (chunk_start, available_end) changes on
-            # every arrival and retains duplicated prefix feature batches.
-            self.model.batched_grounding_batch_size = 1
-            self.propagate = Sam3MultiplexTracking.propagate_in_video
-        else:
-            raise ValueError("unsupported_sam3_version")
-        if bounded_memory and version == "sam3" and detection_reconditioning:
+        self.model = build_sam3_video_model(
+            checkpoint_path=str(root / "sam3/sam3.pt"),
+            bpe_path=str(root / "sam3/bpe_simple_vocab_16e6.txt.gz"),
+            device="cuda",
+            load_from_HF=False,
+            compile=False,
+        )
+        self.propagate = Sam3VideoInference.propagate_in_video
+        if bounded_memory and detection_reconditioning:
             raise ValueError("bounded_sam3_requires_reconditioning_off")
         self.version = version
         self.bounded_memory = bounded_memory
@@ -173,10 +150,7 @@ class Sam3CausalFrontend:
                 )
                 self.state["is_image_only"] = False
                 batch = self.state["input_batch"]
-                if hasattr(batch.img_batch, "tensors"):
-                    batch.img_batch.tensors = list(batch.img_batch.tensors.cpu().unbind(0))
-                else:
-                    batch.img_batch = list(batch.img_batch.cpu().unbind(0))
+                batch.img_batch = list(batch.img_batch.cpu().unbind(0))
                 index, output = self.model.add_prompt(self.state, frame_idx=0, text_str=self.prompt)
                 self.seed_ids = tuple(int(i) for i in output["out_obj_ids"])
             else:
@@ -198,7 +172,6 @@ class Sam3CausalFrontend:
                         self.state,
                         start_frame_idx=index,
                         # The state ends at this frame, so no following input exists.
-                        # None also avoids SAM3.1's explicit-bound chunk mismatch.
                         max_frame_num_to_track=None,
                         reverse=False,
                     )
@@ -209,24 +182,13 @@ class Sam3CausalFrontend:
         masks = np.asarray(output["out_binary_masks"], dtype=bool)
         ids = [int(i) for i in output["out_obj_ids"]]
         identity = identity_status(self.seed_ids, ids)
-        tracker_scores = (
-            self.state["tracker_metadata"]
-            .get(
-                "obj_id_to_tracker_score_frame_wise",
-                self.state["tracker_metadata"].get("obj_id_to_sam2_score_frame_wise", {}),
-            )
-            .get(index, {})
+        tracker_scores = self.state["tracker_metadata"]["obj_id_to_tracker_score_frame_wise"].get(
+            index, {}
         )
         if self.bounded_memory:
-            from alexdoor_xas.perception.sam3_memory import (
-                release_forward_history,
-                release_sam3_forward_history,
-            )
+            from alexdoor_xas.perception.sam3_memory import release_sam3_forward_history
 
-            release = (
-                release_sam3_forward_history if self.version == "sam3" else release_forward_history
-            )
-            release(self.state, self.model.tracker, index)
+            release_sam3_forward_history(self.state, self.model.tracker, index)
         torch.cuda.synchronize()
         self.last_capture = capture
         return dict(

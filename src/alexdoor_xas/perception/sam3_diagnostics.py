@@ -7,9 +7,7 @@ class ReconditioningTrace:
         self.in_reconditioning = False
         plan_native = model.run_tracker_update_planning_phase
         recondition_native = model._recondition_masklets
-        multiplex = getattr(model, "is_multiplex", False)
-        mask_method = "add_new_masks" if multiplex else "add_new_mask"
-        mask_native = getattr(model.tracker, mask_method)
+        mask_native = model.tracker.add_new_mask
 
         def planning(*args, **kwargs):
             plan, metadata = plan_native(*args, **kwargs)
@@ -33,13 +31,12 @@ class ReconditioningTrace:
         def add_mask(*args, **kwargs):
             result = mask_native(*args, **kwargs)
             if self.in_reconditioning:
-                ids = kwargs["obj_ids"] if multiplex else [kwargs["obj_id"]]
-                self.current["applied_ids"].extend(int(i) for i in ids)
+                self.current["applied_ids"].append(int(kwargs["obj_id"]))
             return result
 
         model.run_tracker_update_planning_phase = planning
         model._recondition_masklets = reconditioning
-        setattr(model.tracker, mask_method, add_mask)
+        model.tracker.add_new_mask = add_mask
 
     def begin(self):
         self.current = dict(called=False, applied_ids=[])
@@ -48,7 +45,7 @@ class ReconditioningTrace:
 def set_detection_reconditioning(model, enabled):
     """Isolate the native periodic mechanism, retaining detection/other heuristics."""
     if not enabled:
-        # The pinned SAM3/SAM3.1 recipes have no bbox-triggered reconditioning. Do not
+        # The pinned SAM3 recipe have no bbox-triggered reconditioning. Do not
         # silently disable a second mechanism if another recipe enables it.
         if model.reconstruction_bbox_iou_thresh > 0:
             raise ValueError("unsupported_additional_reconditioning_trigger")

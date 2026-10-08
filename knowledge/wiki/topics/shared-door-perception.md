@@ -184,13 +184,11 @@ admits the prefix of the fully filtered native batch that fits the remaining
 zero capacity still defers sampling. The complete pair gains 480 correct nominal
 poses but loses 119 light poses, with 169/315 more inaccurate acceptances.
 Whole-batch admission remains the default; the partial option is diagnostic.
-The independent `offline_episode(..., refit_seed_rollback=True)` diagnostic
-preserves a RANSAC hypothesis's own valid seed when its weighted SVD refit loses
-five-point support. It rechecks that seed on the same remaining pool at 4 mm,
-then returns/removes exactly those recomputed inliers. Valid refits, sampling,
-ranking, selection, SDF and later support/jump/renewal checks remain unchanged.
-Rollback is disabled by default. It may preserve wrong hypotheses as well;
-see [[../experiments/point2pose-refit-hypotheses|isolated evaluation and limits]].
+Own-seed refit rollback and selected-only registration are retired from the active
+adapter; disabled keywords remain compatible with selected launchers. Historical
+experiments can be reproduced from their recorded revision (pre-cleanup source:
+`57ad483`). SAM3.1 and model/registration compute variants are retired as well;
+all saved-data evaluators and ignored evidence remain available.
 See [[../experiments/point2pose-isolated-improvements|isolated comparisons]]. This switch does not disable the
 graph; graph-off experiments must select that independent control explicitly.
 
@@ -250,8 +248,7 @@ The subsequent own-seed refit rollback completes both original openings but
 gains 211 correct nominal 10 mm/5-degree poses while losing 386 light and adding
 wrong acceptance in both. It preserves supported seeds mechanically, including
 wrong ones; support alone cannot select a reliable pose. Its common adoption
-and combination with partial admission are rejected. It remains an explicitly
-disabled diagnostic; five inliers, 4 mm and normal jump/SDF gates stay fixed.
+and combination with partial admission are rejected. Its implementation is retained in historical Git revisions; five inliers, 4 mm and normal jump/SDF gates stay fixed.
 Saved guard refusals and unsupported tails motivate separate recovery and
 correspondence questions, with no additional correction implemented. See
 [[../experiments/point2pose-refit-hypotheses|accuracy, continuity, memory and retained wrong hypotheses]].

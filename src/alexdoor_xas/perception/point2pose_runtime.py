@@ -33,6 +33,8 @@ class Point2PoseWorker:
         external_masks=False,
         reference_depth_edge_filter=False,
     ):
+        if refit_seed_rollback or selected_registration_only:
+            raise ValueError("retired_point2pose_variant")
         boot_started = time.perf_counter()
         root, log_dir = Path(root).resolve(), Path(log_dir).resolve()
         log_dir.mkdir(parents=True, exist_ok=True)

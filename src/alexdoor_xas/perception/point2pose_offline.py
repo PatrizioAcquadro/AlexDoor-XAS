@@ -249,6 +249,8 @@ def offline_episode(
     reference_depth_edge_filter=False,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
+    if refit_seed_rollback or selected_registration_only:
+        raise ValueError("retired_point2pose_variant")
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     config = recipe.config

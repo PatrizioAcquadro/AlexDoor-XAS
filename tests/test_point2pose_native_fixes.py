@@ -67,6 +67,59 @@ def test_unexpected_source_fails_before_any_edit(native_root):
     assert not register.with_suffix(".py.before-tracking-fixes").exists()
 
 
+def test_previous_patch_migrates_and_preserves_its_source(native_root):
+    installed = Path(__file__).resolve().parents[1] / "models/perception/point2pose"
+    source = installed / REGISTER_PATH
+    previous = source.with_suffix(".py.before-retired-variants")
+    old = (previous if previous.exists() else source).read_text()
+    if "if self._refit_seed_rollback and" not in old:
+        pytest.skip("Previous experimental patch is not installed")
+    target = native_root / REGISTER_PATH
+    target.write_text(old)
+    patch_tracking(native_root)
+    updated = target.read_text()
+    assert "if self._refit_seed_rollback and" not in updated
+    assert '"refit_seed_rollback": False' in updated
+    assert target.with_suffix(".py.before-retired-variants").read_text() == old
+    patch_tracking(native_root)
+    assert target.read_text() == updated
+    assert target.with_suffix(".py.before-retired-variants").read_text() == old
+
+
+def test_query_chunk_preserves_other_settings_and_rejects_retired_controls():
+    from alexdoor_xas.perception.point2pose_worker import configure_query_chunk
+
+    params = SimpleNamespace(query_chunk_size=64, resize_height=480, num_pips_iter=4)
+    config = SimpleNamespace(tracker=SimpleNamespace(params=params))
+    configure_query_chunk(config, None, diagnostic_only=False)
+    assert params.query_chunk_size == 64
+    with pytest.raises(ValueError, match="diagnostic_mode"):
+        configure_query_chunk(config, {"query_chunk_size": 0}, diagnostic_only=False)
+    configure_query_chunk(config, {"query_chunk_size": 0}, diagnostic_only=True)
+    assert vars(params) == dict(query_chunk_size=0, resize_height=480, num_pips_iter=4)
+    for key in ("sam2_small", "tapir_crop", "resolution", "num_pips_iter", "simplified_svd"):
+        with pytest.raises(ValueError, match="retired_performance_control"):
+            configure_query_chunk(config, {key: True}, diagnostic_only=True)
+    for value in (-1, True, 1.5):
+        with pytest.raises(ValueError, match="invalid_query_chunk_size"):
+            configure_query_chunk(config, {"query_chunk_size": value}, diagnostic_only=True)
+
+
+@pytest.mark.parametrize("control", ["refit_seed_rollback", "selected_registration_only"])
+def test_retired_variants_fail_before_starting_workers(control, tmp_path):
+    from alexdoor_xas.perception.point2pose_offline import offline_episode
+    from alexdoor_xas.perception.point2pose_runtime import Point2PoseWorker
+    from alexdoor_xas.perception.point2pose_worker import OfficialPipeline
+
+    with pytest.raises(ValueError, match="retired_point2pose_variant"):
+        OfficialPipeline(tmp_path, {control: True})
+    with pytest.raises(ValueError, match="retired_point2pose_variant"):
+        Point2PoseWorker(tmp_path, (0.1, 10), 0.004, 1, tmp_path, **{control: True})
+    with pytest.raises(ValueError, match="retired_point2pose_variant"):
+        offline_episode(None, None, tmp_path / "out", None, **{control: True})
+    assert not (tmp_path / "out").exists()
+
+
 @pytest.fixture
 def register(native_root):
     from point2pose.core.base_register import Register
@@ -127,10 +180,7 @@ def test_no_cluster_retains_pose_and_failure_evidence(register):
     np.testing.assert_array_equal(stats["residuals"], np.full(10, -1.0))
 
 
-@pytest.mark.parametrize("enabled,refit_shift", [(False, 0.005), (True, 0.005), (True, 0.001)])
-def test_refit_rollback_revalidates_own_seed_and_preserves_valid_refit(
-    register, monkeypatch, enabled, refit_shift
-):
+def test_unsupported_refit_keeps_native_rejection(register, monkeypatch):
     from point2pose.utils.transform import transform_pts
 
     source = np.array([[i * 0.01, (i % 3) * 0.02, 1] for i in range(7)])
@@ -142,30 +192,15 @@ def test_refit_rollback_revalidates_own_seed_and_preserves_valid_refit(
     remaining = np.array([True, True, True, True, True, False, True])
     before = remaining.copy()
     refit = np.eye(4)
-    refit[0, 3] = refit_shift
+    refit[0, 3] = 0.005
     fits = iter([np.eye(4), refit])
     register._svd_fit = lambda *args: next(fits)
     register._is_degenerate_sample = lambda points: False
     register._ransac_iters = 1
     register._sample_size = 4
-    register._refit_seed_rollback = enabled
     monkeypatch.setattr(np.random, "choice", lambda *args, **kwargs: np.arange(4))
-    candidate = register._RANSAC(p0, target, None, remaining, init)
-    if not enabled:
-        assert candidate is None
-        np.testing.assert_array_equal(remaining, before)
-        return
-    rolled_back = refit_shift == 0.005
-    pose = init if rolled_back else refit @ init
-    np.testing.assert_array_equal(candidate["T"], pose)
-    residuals = np.linalg.norm(transform_pts(pose, source) - target, axis=1)
-    expected = np.flatnonzero(before & (residuals <= 0.004))
-    np.testing.assert_array_equal(candidate["inliers"], expected)
-    assert candidate["ninliers"] == len(expected) == 5
-    assert candidate["mean_res"] == pytest.approx(residuals[expected].mean())
-    assert candidate["refit_seed_rollback"] == rolled_back
-    assert candidate["refit_ninliers"] == (1 if rolled_back else 5)
-    np.testing.assert_array_equal(remaining, before & ~(residuals <= 0.004))
+    assert register._RANSAC(p0, target, None, remaining, init) is None
+    np.testing.assert_array_equal(remaining, before)
 
 
 @pytest.fixture

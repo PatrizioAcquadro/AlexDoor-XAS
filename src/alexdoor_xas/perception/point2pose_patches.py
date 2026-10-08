@@ -17,10 +17,16 @@ _REPLACEMENTS = {
         (
             '        self._min_inliers = config.get("min_inliers", 6)\n',
             '        self._min_inliers = config.get("min_inliers", 6)\n'
+            "        self._refit_seed_rollback = False\n",
+            '        self._min_inliers = config.get("min_inliers", 6)\n'
             '        self._refit_seed_rollback = bool(config.get("refit_seed_rollback", False))\n',
         ),
         (
             "        inl_all = r_all <= self._inlier_thres\n\n        inlier_idx = idx[inl_all]\n",
+            "        inl_all = r_all <= self._inlier_thres\n"
+            "        refit_ninliers = int(inl_all.sum())\n"
+            "\n"
+            "        inlier_idx = idx[inl_all]\n",
             "        inl_all = r_all <= self._inlier_thres\n"
             "        refit_ninliers = int(inl_all.sum())\n"
             "        refit_rollback = False\n"
@@ -31,11 +37,15 @@ _REPLACEMENTS = {
             "                transform_pts(Tr, p0[idx]) - tgt_pcd[idx], axis=1\n"
             "            )\n"
             "            inl_all = r_all <= self._inlier_thres\n"
-            "            refit_rollback = True\n\n"
+            "            refit_rollback = True\n"
+            "\n"
             "        inlier_idx = idx[inl_all]\n",
         ),
         (
             '            "mean_ransac": float(best_mean),\n',
+            '            "mean_ransac": float(best_mean),\n'
+            '            "refit_ninliers": refit_ninliers,\n'
+            '            "refit_seed_rollback": False,\n',
             '            "mean_ransac": float(best_mean),\n'
             '            "refit_ninliers": refit_ninliers,\n'
             '            "refit_seed_rollback": refit_rollback,\n',
@@ -105,17 +115,25 @@ def patch_tracking(root):
     for relative, replacements in _REPLACEMENTS.items():
         path = Path(root) / relative
         original = patched = path.read_text()
-        for old, new in replacements:
+        migrated = False
+        for old, new, *previous in replacements:
             if patched.count(new) == 1:
                 continue
-            if patched.count(old) != 1:
+            matches = [value for value in (*previous, old) if patched.count(value) == 1]
+            if not matches:
                 raise ValueError(f"Unexpected pinned Point2Pose source: {relative}")
-            patched = patched.replace(old, new, 1)
+            matched = matches[0]
+            migrated |= matched in previous
+            patched = patched.replace(matched, new, 1)
         if patched != original:
-            pending.append((path, original, patched))
-    for path, original, patched in pending:
+            pending.append((path, original, patched, migrated))
+    for path, original, patched, migrated in pending:
         backup = path.with_suffix(".py.before-tracking-fixes")
         if not backup.exists():
             backup.write_text(original)
+        if migrated:
+            previous = path.with_suffix(".py.before-retired-variants")
+            if not previous.exists():
+                previous.write_text(original)
         path.write_text(patched)
     return NATIVE_FIXES
