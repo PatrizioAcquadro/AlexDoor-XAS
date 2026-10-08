@@ -66,9 +66,10 @@ def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path
     obj = SimpleNamespace(id=0, pose=np.eye(4), lost=False)
     trace.begin(248, 4.0, 0, [obj])
     prompts = np.array([[1, 2], [3, 4]])
-    assert predictor.add_new_prompt(
-        frame_idx=0, obj_id=0, points=prompts, labels=np.ones(2)
-    ) is prompt_result
+    assert (
+        predictor.add_new_prompt(frame_idx=0, obj_id=0, points=prompts, labels=np.ones(2))
+        is prompt_result
+    )
     prompts[:] = 9
     obj.key_points = np.array([[0.0, 0, 1]])
     assert manager._pending_try_promote((0, 0), meta, obj)
