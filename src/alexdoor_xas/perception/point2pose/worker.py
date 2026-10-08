@@ -30,7 +30,7 @@ def configure_query_chunk(config, controls, *, diagnostic_only):
     """Retain the selected all-query control without the retired model variants."""
     if not controls:
         return
-    if not diagnostic_only:
+    if not diagnostic_only and controls != {"query_chunk_size": 0}:
         raise ValueError("performance_comparison_requires_diagnostic_mode")
     if set(controls) != {"query_chunk_size"}:
         raise ValueError("unknown_or_retired_performance_control")
@@ -55,14 +55,20 @@ class OfficialPipeline:
         if not torch.cuda.is_available():
             raise RuntimeError("Point2Pose requires CUDA; no CPU fallback")
         native_fixes = patch_tracking(root)
-        self.external_masks = bool(request.get("external_masks", False))
-        if self.external_masks and not request.get("diagnostic_only", False):
-            raise ValueError("external_masks_require_diagnostic_mode")
+        self.external_masks = bool(request.get("external_masks", True))
+        if not self.external_masks:
+            raise ValueError("separate_sam2_frontend_retired")
         torch.set_num_threads(4)
         config = OmegaConf.load(root / "upstream/configs/ycbinisaac/eccv_final.yaml")
         params = config.pipeline.params
         near, far = request["depth_interval_m"]
         self.crop_cache = install_lifting((near, far))
+        # Preserve CUDA math formerly enabled by the SAM2 import.
+        self.cuda_math = torch.autocast("cuda", dtype=torch.bfloat16)
+        self.cuda_math.__enter__()
+        if torch.cuda.get_device_properties(0).major >= 8:
+            torch.backends.cuda.matmul.allow_tf32 = True
+            torch.backends.cudnn.allow_tf32 = True
         from point2pose.pipeline.modular_pipeline import ModularPipeline
 
         params.update(
@@ -77,7 +83,6 @@ class OfficialPipeline:
             max_num_obj=request["num_objects"],
         )
         config.register.params.update(select_3d_dist_min_depth=near, select_3d_dist_max_depth=far)
-        config.segmenter.params.checkpoint = str(root / "checkpoints/sam2.1_hiera_large.pt")
         config.tracker.params.checkpoint_path = str(
             root / "checkpoints/causal_bootstapir_checkpoint.pt"
         )
@@ -93,8 +98,8 @@ class OfficialPipeline:
         self.pipeline.sdf_builder = builder(config.reconstructor.params)
         self.reference_depth_edge_filter = bool(request.get("reference_depth_edge_filter", False))
         if self.reference_depth_edge_filter:
-            if not request.get("diagnostic_only", False) or not self.external_masks:
-                raise ValueError("reference_depth_edge_filter_requires_external_mask_diagnostic")
+            if not self.external_masks:
+                raise ValueError("reference_depth_edge_filter_requires_external_masks")
             from alexdoor_xas.perception.point2pose.sampling import (
                 install_reference_depth_edge_filter,
             )
@@ -111,8 +116,6 @@ class OfficialPipeline:
         self.torch, self.np = torch, np
         self.trace = None
         if request.get("registration_diagnostics", False):
-            if not request.get("diagnostic_only", False):
-                raise ValueError("registration_trace_requires_diagnostic_mode")
             from alexdoor_xas.perception.point2pose.trace import RegistrationTrace
 
             self.trace = RegistrationTrace(
@@ -349,6 +352,9 @@ def main():
     except Exception as error:
         send(sys.stdout.buffer, dict(error=f"{type(error).__name__}: {error}"))
         raise
+    finally:
+        if "pipeline" in locals():
+            pipeline.cuda_math.__exit__(None, None, None)
 
 
 if __name__ == "__main__":

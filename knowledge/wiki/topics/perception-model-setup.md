@@ -71,6 +71,17 @@ Smoke both image models with a fresh output:
 This command performs only frozen inference on a train RGB observation. A passed
 smoke establishes executable models, not full-state accuracy or control safety.
 
+## Explicit CUDA numerical context
+
+The maintained externally masked P2P worker enables BF16 autocast and Ampere-or-newer
+TF32 explicitly, before native model construction and throughout native requests.
+The pinned segmenter package is patched to avoid eagerly importing SAM2. This
+preserves the numerical context formerly created by that import. External masks,
+all-query TAPIR (`query_chunk_size=0`) and renewal-only depth filtering no longer
+require `diagnostic_only`; initialization remains strict. Registration tracing is
+observational and does not weaken initialization. Positive query chunking still
+requires an explicit diagnostic comparison. Historical readers retain SAM2 fields.
+
 ## Point2Pose 6.0C worker
 
 [Point2Pose requirements](perception-model-setup/point2pose-requirements.txt) are

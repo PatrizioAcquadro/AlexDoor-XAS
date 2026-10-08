@@ -14,7 +14,8 @@ from alexdoor_xas.perception.point2pose.patches import NATIVE_FIXES, patch_track
 REGISTER_PATH = "upstream/point2pose/modules/register/svd_cluster_ransac_register.py"
 FRONTEND_PATH = "upstream/point2pose/pipeline/components/front_end.py"
 CRITERION_PATH = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
-PATCH_PATHS = (REGISTER_PATH, FRONTEND_PATH, CRITERION_PATH)
+PATCH_PATHS = (REGISTER_PATH, FRONTEND_PATH, CRITERION_PATH,
+               "upstream/point2pose/modules/segmenter/__init__.py")
 
 
 @pytest.fixture
@@ -93,8 +94,9 @@ def test_query_chunk_preserves_other_settings_and_rejects_retired_controls():
     config = SimpleNamespace(tracker=SimpleNamespace(params=params))
     configure_query_chunk(config, None, diagnostic_only=False)
     assert params.query_chunk_size == 64
+    configure_query_chunk(config, {"query_chunk_size": 0}, diagnostic_only=False)
     with pytest.raises(ValueError, match="diagnostic_mode"):
-        configure_query_chunk(config, {"query_chunk_size": 0}, diagnostic_only=False)
+        configure_query_chunk(config, {"query_chunk_size": 1}, diagnostic_only=False)
     configure_query_chunk(config, {"query_chunk_size": 0}, diagnostic_only=True)
     assert vars(params) == dict(query_chunk_size=0, resize_height=480, num_pips_iter=4)
     for key in ("sam2_small", "tapir_crop", "resolution", "num_pips_iter", "simplified_svd"):

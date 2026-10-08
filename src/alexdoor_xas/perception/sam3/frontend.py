@@ -11,7 +11,7 @@ from pathlib import Path
 
 import numpy as np
 
-from alexdoor_xas.perception.visual_worker import SAM3_REVISION
+from alexdoor_xas.perception.sam3 import SAM3_REVISION
 
 
 def identity_status(seed_ids, current_ids):

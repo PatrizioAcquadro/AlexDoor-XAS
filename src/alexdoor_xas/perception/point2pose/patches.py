@@ -7,12 +7,17 @@ NATIVE_FIXES = (
     "sdf_returned_pose",
     "inlier_driven_renewal",
     "vectorized_sdf_jacobian",
+    "external_mask_segmenter_import",
 )
 
 _REGISTER = "upstream/point2pose/modules/register/svd_cluster_ransac_register.py"
 _FRONTEND = "upstream/point2pose/pipeline/components/front_end.py"
 _CRITERION = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
 _REPLACEMENTS = {
+    "upstream/point2pose/modules/segmenter/__init__.py": (
+        ("from .sam2_real_time_segmenter import Sam2RealTimeSegmenter\n",
+         "# External synchronized masks; no SAM2 import or implicit CUDA math.\n"),
+    ),
     _REGISTER: (
         (
             '        self._min_inliers = config.get("min_inliers", 6)\n',
