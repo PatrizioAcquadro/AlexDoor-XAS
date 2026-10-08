@@ -36,6 +36,7 @@ PYTHON_PACKAGES = {
     "scipy": "scipy",
     "h5py": "h5py",
     "Pillow": "PIL",
+    "opencv-python-headless": "cv2",
     "trimesh": "trimesh",
     "gymnasium": "gymnasium",
 }
