@@ -52,10 +52,13 @@ class PerceptionBinding:
         for digest in artifacts.values():
             check_sha(digest)
         cfg = release.get("config", {})
-        if any(value != LEGACY_FULL_STATE for value in (
-            cfg.get("geometry_profile", LEGACY_FULL_STATE),
-            release.get("geometry_profile", LEGACY_FULL_STATE),
-        )):
+        if any(
+            value != LEGACY_FULL_STATE
+            for value in (
+                cfg.get("geometry_profile", LEGACY_FULL_STATE),
+                release.get("geometry_profile", LEGACY_FULL_STATE),
+            )
+        ):
             raise ValueError("Perception release v2 only supports legacy-full-state")
         dims = cfg.get("visual_dims")
         if (

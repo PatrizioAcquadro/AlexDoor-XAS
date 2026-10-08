@@ -19,7 +19,6 @@ from alexdoor_xas.perception.geometry import (
     Surface,
     contact_frame,
     deproject,
-    dimensions_supported,
     extent_edges,
     plane_fit,
     project,
@@ -74,20 +73,6 @@ def test_robust_surface_fit_rejects_nonpanel_depth():
 
 
 def test_clipped_extent_is_not_a_measured_dimension():
-    rng = np.random.default_rng(8)
-    points = np.c_[np.ones(800), rng.uniform(-0.5, 0.5, 800), rng.uniform(0.1, 2, 800)]
-    s = Surface(
-        points,
-        np.array([1.0, 0, 0]),
-        1.0,
-        np.ones(384) / np.sqrt(384),
-        np.empty((0, 3)),
-        np.empty((0, 384)),
-        0.001,
-        1.0,
-        {0, 1},
-    )
-    assert not dimensions_supported(s, 0.01)
     sample = sensor()
     sample["camera_world"][:3, :3] = np.array([[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
     # The entire observed plane fills the image: no silhouette can certify its extents.
@@ -325,7 +310,6 @@ def test_dense_edges_preserve_leaf_bottom_without_absorbing_fixed_frame(bottom_f
     assert len(fused.anchors) == len(fused.features) == 8
     np.testing.assert_allclose(fused.anchors[-4:], second.anchors)
     assert fused.bounds[0, 2] == pytest.approx(0.05, abs=0.004)
-    assert dimensions_supported(fused, 0.01)
     # The floor intersects the leaf plane in a thin line inside a leaked mask.
     floor_rows = np.arange(296, h)
     sample["depth_m"][296:, :, 0] = (100 / (floor_rows - 200))[:, None]

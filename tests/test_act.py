@@ -15,10 +15,6 @@ from alexdoor_xas.policies.act.config import ActModelCfg, ActTrainCfg
 from alexdoor_xas.policies.act.model import ACTModel, act_loss
 from alexdoor_xas.policies.act.policy import ActPolicy, act_chunk_source
 from alexdoor_xas.policies.act.train import make_seeded_model, train_act
-from alexdoor_xas.policies.common.checkpoint import (
-    ACT_CHECKPOINT_FORMAT,
-    save_checkpoint_payload,
-)
 
 pytestmark = pytest.mark.usefixtures("gpu_models")
 
@@ -65,30 +61,6 @@ def _tiny_stats() -> DatasetNormStats:
         obs_keys=OBS_KEYS,
         train_episode_ids=("ep0",),
         action_space="A2_ee_delta",
-    )
-
-
-def _checkpoint_config(obs_keys: tuple[str, ...] = OBS_KEYS) -> dict:
-    return {
-        "dataset": {
-            "task": "test_task",
-            "space": "A2_ee_delta",
-            "version": "test_dataset",
-            "view_id": None,
-            "obs_keys": obs_keys,
-        }
-    }
-
-
-def _save_checkpoint(path, model, config, stats, robot_asset=TEST_ROBOT_ASSET):
-    return save_checkpoint_payload(
-        path,
-        ACT_CHECKPOINT_FORMAT,
-        model,
-        config,
-        stats,
-        {},
-        robot_asset,
     )
 
 
@@ -164,51 +136,6 @@ def test_all_padded_batch_is_rejected() -> None:
             zeros,
             kl_weight=1.0,
         )
-
-
-def test_checkpoint_round_trip_preserves_predictions_and_stats(tmp_path) -> None:
-    model = _tiny_model()
-    model.eval()
-    obs = _tiny_batch()["obs"]
-    expected = model.predict(obs)
-    stats = _tiny_stats()
-    path = _save_checkpoint(tmp_path / "best.pt", model, _checkpoint_config(), stats)
-    policy = ActPolicy.from_checkpoint(path, runtime_asset=TEST_ROBOT_ASSET, device="cuda")
-
-    assert torch.equal(policy.model.predict(obs), expected)
-    assert policy.action_space == "A2_ee_delta"
-    assert policy.obs_keys == OBS_KEYS
-    assert policy.chunk_size == TINY_MODEL_CFG.chunk_size
-    assert policy.robot_compatibility_label == "matching_asset"
-
-    for name in ("mean", "std", "min", "max"):
-        np.testing.assert_array_equal(
-            getattr(policy.stats.action, name), getattr(stats.action, name)
-        )
-        np.testing.assert_array_equal(getattr(policy.stats.obs, name), getattr(stats.obs, name))
-
-    with pytest.raises(ValueError, match="incompatible"):
-        ActPolicy.from_checkpoint(
-            path, runtime_asset=RobotAssetRef("other_robot", "b" * 64), device="cuda"
-        )
-
-
-def test_checkpoint_creation_rejects_config_stats_key_order_mismatch(tmp_path) -> None:
-    with pytest.raises(ValueError, match="observation keys"):
-        _save_checkpoint(
-            tmp_path / "bad.pt",
-            _tiny_model(),
-            _checkpoint_config(tuple(reversed(OBS_KEYS))),
-            _tiny_stats(),
-        )
-
-
-@pytest.mark.parametrize("checkpoint_format", ["other", "alexdoor_xas.act.v2"])
-def test_checkpoint_rejects_unknown_format(tmp_path, checkpoint_format) -> None:
-    path = tmp_path / "bad.pt"
-    torch.save({"format": checkpoint_format}, path)
-    with pytest.raises(ValueError, match="unsupported checkpoint format"):
-        ActPolicy.from_checkpoint(path, runtime_asset=TEST_ROBOT_ASSET, device="cuda")
 
 
 def _constant_mapping_batch(batch: int = 8) -> dict[str, np.ndarray]:

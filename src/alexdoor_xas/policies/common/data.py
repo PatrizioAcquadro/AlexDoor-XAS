@@ -4,40 +4,25 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from alexdoor_xas.assets.identity import RobotAssetRef
-from alexdoor_xas.dataset.loader import EpisodeDataset
-from alexdoor_xas.dataset.normalize import (
-    DatasetNormStats,
-    load_norm_stats,
-    norm_stats_path,
-    validate_norm_stats,
-    view_norm_stats_path,
-)
-from alexdoor_xas.dataset.robot_asset import (
-    load_dataset_robot_asset,
-    validate_dataset_episode_robot_asset,
-)
+
+if TYPE_CHECKING:
+    from alexdoor_xas.dataset.b1 import B1Dataset
+from alexdoor_xas.dataset.normalize import DatasetNormStats
 from alexdoor_xas.dataset.sampling import BatchIterator, ChunkSampler
-from alexdoor_xas.dataset.splits import load_splits, load_view_splits, splits_path, view_path
-from alexdoor_xas.policies.common.types import PolicyDatasetCfg
 
 EPOCH_SEED_STRIDE = 10_000
 
 BatchNormalizer = Callable[[dict[str, Any], DatasetNormStats], dict[str, Any]]
 
 
-class PolicyDataError(ValueError):
-    """Invalid dataset, split, or normalization contract."""
-
-
 @dataclass(frozen=True)
 class PolicyData:
     """Validated dataset inputs for policy training."""
 
-    dataset: EpisodeDataset
+    dataset: B1Dataset
     train_ids: tuple[str, ...]
     val_ids: tuple[str, ...]
     stats: DatasetNormStats
@@ -50,70 +35,6 @@ class PolicyData:
     @property
     def action_dim(self) -> int:
         return self.stats.action.dim
-
-
-def load_policy_data(cfg: PolicyDatasetCfg, datasets_root: str | Path) -> PolicyData:
-    """Load and validate dataset, splits, robot identity, and statistics."""
-    dataset_dir = Path(datasets_root) / cfg.task / cfg.space / cfg.version
-    try:
-        dataset = EpisodeDataset(dataset_dir)
-    except FileNotFoundError as error:
-        raise PolicyDataError(str(error)) from error
-
-    try:
-        robot_asset = load_dataset_robot_asset(dataset_dir)
-        if robot_asset is not None:
-            validate_dataset_episode_robot_asset(dataset, robot_asset)
-    except ValueError as error:
-        raise PolicyDataError(f"invalid robot asset provenance: {error}") from error
-
-    selected_view = cfg.view_id
-    if selected_view is None:
-        split_file = splits_path(datasets_root, cfg.task, cfg.version)
-    else:
-        split_file = view_path(datasets_root, cfg.task, selected_view)
-    if not split_file.is_file():
-        raise PolicyDataError(f"splits file missing: {split_file}")
-    try:
-        if selected_view is None:
-            splits = load_splits(split_file, episode_ids=dataset.episode_ids)
-        else:
-            splits = load_view_splits(
-                split_file,
-                view_id=selected_view,
-                master_version=cfg.version,
-                episode_ids=dataset.episode_ids,
-            )
-    except (OSError, KeyError, TypeError, ValueError) as error:
-        raise PolicyDataError(f"stale or invalid splits file {split_file}: {error}") from error
-    train_ids = list(splits["train"])
-
-    stats_file = (
-        norm_stats_path(dataset_dir)
-        if selected_view is None
-        else view_norm_stats_path(dataset_dir, selected_view)
-    )
-    if not stats_file.is_file():
-        raise PolicyDataError(f"norm stats missing: {stats_file}")
-    try:
-        stats = load_norm_stats(stats_file)
-        errors = validate_norm_stats(
-            stats, dataset, train_ids, obs_keys=cfg.obs_keys, view_id=selected_view
-        )
-    except (OSError, KeyError, TypeError, ValueError) as error:
-        raise PolicyDataError(f"invalid normalization {stats_file}: {error}") from error
-    if errors:
-        raise PolicyDataError(
-            f"norm stats {stats_file} do not match the dataset: " + "; ".join(errors)
-        )
-
-    return PolicyData(
-        dataset=dataset,
-        train_ids=tuple(train_ids),
-        val_ids=tuple(splits["val"]),
-        stats=stats,
-        robot_asset=robot_asset,
-    )
 
 
 def normalize_batch(batch: dict[str, Any], stats: DatasetNormStats) -> dict[str, Any]:

@@ -13,10 +13,6 @@ pytest.importorskip("diffusers")
 
 from alexdoor_xas.assets.identity import RobotAssetRef  # noqa: E402
 from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats  # noqa: E402
-from alexdoor_xas.policies.common.checkpoint import (  # noqa: E402
-    DIFFUSION_CHECKPOINT_FORMAT,
-    save_checkpoint_payload,
-)
 from alexdoor_xas.policies.diffusion.config import (  # noqa: E402
     DiffusionConfigError,
     DiffusionModelCfg,
@@ -90,30 +86,6 @@ def _tiny_stats() -> DatasetNormStats:
         obs_keys=OBS_KEYS,
         train_episode_ids=("ep-a",),
         action_space="A2_ee_delta",
-    )
-
-
-def _checkpoint_config() -> dict:
-    return {
-        "dataset": {
-            "task": "test_task",
-            "space": "A2_ee_delta",
-            "version": "test_dataset",
-            "view_id": None,
-            "obs_keys": OBS_KEYS,
-        }
-    }
-
-
-def _save_checkpoint(path, model, stats):
-    return save_checkpoint_payload(
-        path,
-        DIFFUSION_CHECKPOINT_FORMAT,
-        model,
-        _checkpoint_config(),
-        stats,
-        {},
-        TEST_ROBOT_ASSET,
     )
 
 
@@ -407,52 +379,6 @@ def test_train_diffusion_resume_matches_uninterrupted_state_and_ema() -> None:
     )
 
 
-def test_checkpoint_round_trip_preserves_predictions(tmp_path) -> None:
-    model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=0).eval()
-    stats = _tiny_stats()
-    path = _save_checkpoint(tmp_path / "best.pt", model, stats)
-    policy = DiffusionPolicy.from_checkpoint(
-        path, sampler="ddim", num_inference_steps=5, runtime_asset=TEST_ROBOT_ASSET, device="cuda"
-    )
-
-    assert policy.action_space == "A2_ee_delta"
-    assert policy.obs_keys == OBS_KEYS
-    assert policy.chunk_size == TINY_MODEL_CFG.horizon
-    assert policy.robot_compatibility_label == "matching_asset"
-    np.testing.assert_allclose(policy.stats.action.min, stats.action.min)
-
-    obs = torch.randn(2, OBS_DIM, generator=torch.Generator(device="cuda").manual_seed(0))
-    for sampler in ("ddpm", "ddim"):
-        scheduler = make_inference_scheduler(TINY_MODEL_CFG, sampler, 10)
-        original = sample_actions(
-            model,
-            scheduler,
-            obs,
-            TINY_MODEL_CFG.horizon,
-            ACTION_DIM,
-            torch.Generator(device="cuda").manual_seed(1),
-        )
-        scheduler = make_inference_scheduler(policy.model.cfg, sampler, 10)
-        rebuilt = sample_actions(
-            policy.model,
-            scheduler,
-            obs,
-            TINY_MODEL_CFG.horizon,
-            ACTION_DIM,
-            torch.Generator(device="cuda").manual_seed(1),
-        )
-        assert torch.equal(original, rebuilt)
-
-    with pytest.raises(ValueError, match="incompatible"):
-        DiffusionPolicy.from_checkpoint(
-            path,
-            sampler="ddim",
-            num_inference_steps=5,
-            runtime_asset=RobotAssetRef("other_robot", "b" * 64),
-            device="cuda",
-        )
-
-
 def _identity_obs_stats() -> NormStats:
     return NormStats(
         mean=np.zeros(OBS_DIM),
@@ -461,13 +387,6 @@ def _identity_obs_stats() -> NormStats:
         max=np.zeros(OBS_DIM),
         count=1,
     )
-
-
-def test_checkpoint_rejects_the_retired_observation_contract(tmp_path) -> None:
-    path = tmp_path / "old.pt"
-    torch.save({"format": "alexdoor_xas.diffusion.v2"}, path)
-    with pytest.raises(ValueError, match="unsupported checkpoint format"):
-        DiffusionPolicy.from_checkpoint(path, runtime_asset=TEST_ROBOT_ASSET, device="cuda")
 
 
 def _tiny_policy(**kwargs) -> DiffusionPolicy:

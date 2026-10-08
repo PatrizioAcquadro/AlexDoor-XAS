@@ -73,19 +73,6 @@ def validate_object_frame(frame: ObjectFrame | None) -> str:
     return ""
 
 
-def door_frame_from_body_pose(
-    frame_pos_w: np.ndarray, frame_quat_w_xyzw: np.ndarray
-) -> ObjectFrame:
-    """Door (hinge-anchored) frame from the ``Doorframe`` body pose."""
-    origin = np.asarray(frame_pos_w, dtype=np.float64).reshape(3)
-    return ObjectFrame(origin=origin, rot=quat_to_rot_matrix(frame_quat_w_xyzw))
-
-
-def panel_frame(door_frame: ObjectFrame, hinge_angle_rad: float) -> ObjectFrame:
-    """Panel-attached frame: the door frame rotated about the hinge (+Z) axis."""
-    return ObjectFrame(origin=door_frame.origin, rot=door_frame.rot @ rot_z(hinge_angle_rad))
-
-
 def world_delta_to_frame(delta_world: np.ndarray, frame: ObjectFrame) -> np.ndarray:
     """Rotate a 6D ``(dpos, drot)`` delta from world into ``frame`` (A2 -> A3).
 
@@ -116,9 +103,7 @@ def _as_ee_delta(delta: np.ndarray) -> np.ndarray:
 
 __all__ = [
     "ObjectFrame",
-    "door_frame_from_body_pose",
     "frame_delta_to_world",
-    "panel_frame",
     "quat_to_rot_matrix",
     "rot_z",
     "validate_object_frame",

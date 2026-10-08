@@ -2,19 +2,17 @@
 
 from __future__ import annotations
 
-import json
-import os
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from .loader import EpisodeDataset, obs_matrix, validate_obs_keys
-from .splits import _safe_view_id
+from .observations import obs_matrix, validate_obs_keys
+
+if TYPE_CHECKING:
+    from .b1 import B1Dataset
 
 _STD_FLOOR = 1e-8
-_NORM_STATS_FILENAME = "norm_stats.json"
 
 
 @dataclass(frozen=True)
@@ -136,7 +134,7 @@ class DatasetNormStats:
 
 
 def compute_norm_stats(
-    dataset: EpisodeDataset,
+    dataset: B1Dataset,
     train_episode_ids: list[str],
     obs_keys: tuple[str, ...],
     *,
@@ -154,79 +152,3 @@ def compute_norm_stats(
         action_space=dataset.action_space,
         view_id=view_id,
     )
-
-
-def norm_stats_path(dataset_dir: str | Path) -> Path:
-    return Path(dataset_dir) / _NORM_STATS_FILENAME
-
-
-def view_norm_stats_path(dataset_dir: str | Path, view_id: str) -> Path:
-    return Path(dataset_dir) / "views" / _safe_view_id(view_id) / _NORM_STATS_FILENAME
-
-
-def save_norm_stats(path: str | Path, stats: DatasetNormStats) -> Path:
-    target = Path(path)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    temporary = target.with_name(f".{target.name}.{os.getpid()}.tmp")
-    try:
-        temporary.write_text(json.dumps(stats.to_dict(), indent=2, sort_keys=True) + "\n")
-        os.replace(temporary, target)
-    finally:
-        temporary.unlink(missing_ok=True)
-    return target
-
-
-def load_norm_stats(path: str | Path) -> DatasetNormStats:
-    """Read normalization values and their training membership."""
-
-    payload = json.loads(Path(path).read_text())
-    if not isinstance(payload, dict):
-        raise ValueError("normalization artifact must be a JSON object")
-    return DatasetNormStats.from_dict(payload)
-
-
-def validate_norm_stats(
-    stats: DatasetNormStats,
-    dataset: EpisodeDataset,
-    train_episode_ids: list[str],
-    obs_keys: tuple[str, ...],
-    *,
-    view_id: str | None = None,
-) -> list[str]:
-    """Validate schema-level compatibility and recompute every statistic."""
-    obs_keys = validate_obs_keys(obs_keys)
-    errors: list[str] = []
-    if stats.action_space != dataset.action_space:
-        errors.append(
-            f"norm stats action_space {stats.action_space!r} != dataset {dataset.action_space!r}"
-        )
-    if stats.train_episode_ids != tuple(train_episode_ids):
-        errors.append("norm stats train_episode_ids do not match the train split")
-    if stats.obs_keys != obs_keys:
-        errors.append(f"norm stats obs_keys {stats.obs_keys!r} != {obs_keys!r}")
-    if stats.view_id != view_id:
-        errors.append(f"norm stats view_id {stats.view_id!r} != {view_id!r}")
-    expected_obs_dim = obs_matrix(dataset[0], obs_keys).shape[1]
-    if stats.action.dim != dataset.action_dim:
-        errors.append(f"norm stats action dim {stats.action.dim} != dataset {dataset.action_dim}")
-    if stats.obs.dim != expected_obs_dim:
-        errors.append(f"norm stats obs dim {stats.obs.dim} != selected fields {expected_obs_dim}")
-    for name, block in (("action", stats.action), ("obs", stats.obs)):
-        try:
-            block.validate()
-        except ValueError as error:
-            errors.append(f"norm stats {name}: {error}")
-    try:
-        recomputed = compute_norm_stats(dataset, train_episode_ids, obs_keys, view_id=view_id)
-    except (IndexError, KeyError, TypeError, ValueError) as error:
-        errors.append(f"normalization numerical recomputation failed: {error}")
-    else:
-        for name in ("action", "obs"):
-            stored = getattr(stats, name)
-            expected = getattr(recomputed, name)
-            if stored.count != expected.count:
-                errors.append(f"norm stats recomputed {name} count mismatch")
-            for field in ("mean", "std", "min", "max"):
-                if not np.array_equal(getattr(stored, field), getattr(expected, field)):
-                    errors.append(f"norm stats recomputed {name} {field} mismatch")
-    return errors

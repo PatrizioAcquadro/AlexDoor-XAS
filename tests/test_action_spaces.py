@@ -20,16 +20,6 @@ def test_action_space_tags_are_canonical() -> None:
     assert spaces.EE_DELTA_DIM == 6
 
 
-def test_object_centric_chunk_round_trips_through_dict() -> None:
-    chunk = spaces.ObjectCentricChunk(
-        phase="push",
-        contact_target_panel=(0.036, 0.664, 0.0),
-        motion_hinge_delta_rad=math.radians(50.0),
-        duration_ticks=120,
-    )
-    assert spaces.ObjectCentricChunk.from_dict(chunk.to_dict()) == chunk
-
-
 def test_quat_to_rot_matrix_identity_and_yaw() -> None:
     # Quaternions are (x, y, z, w) — the Isaac Lab 3.0 data layout.
     identity = frames.quat_to_rot_matrix(np.array([0.0, 0.0, 0.0, 1.0]))
@@ -43,15 +33,6 @@ def test_quat_to_rot_matrix_identity_and_yaw() -> None:
 def test_quat_to_rot_matrix_rejects_degenerate_quaternion() -> None:
     with pytest.raises(ValueError, match="finite and non-zero"):
         frames.quat_to_rot_matrix(np.zeros(4))
-
-
-def test_panel_frame_rotates_points_about_hinge_axis() -> None:
-    door = frames.ObjectFrame(origin=np.zeros(3), rot=np.eye(3))
-    panel = frames.panel_frame(door, math.pi / 2.0)
-    # A point one meter along the panel (+Y) swings to -X when the door is open 90 deg.
-    np.testing.assert_allclose(
-        panel.point_to_world(np.array([0.0, 1.0, 0.0])), [-1.0, 0.0, 0.0], atol=1e-12
-    )
 
 
 def test_world_frame_delta_round_trip() -> None:

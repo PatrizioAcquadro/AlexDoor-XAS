@@ -3,22 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from pathlib import Path
 
 import numpy as np
 import torch
 
-from alexdoor_xas.assets.identity import (
-    RobotAssetRef,
-    assert_checkpoint_runtime_compatible,
-)
 from alexdoor_xas.dataset.normalize import DatasetNormStats
-from alexdoor_xas.policies.common.checkpoint import (
-    DIFFUSION_CHECKPOINT_FORMAT,
-    load_checkpoint_payload,
-)
 from alexdoor_xas.policies.common.model import OBS_CLIP
-from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg
 from alexdoor_xas.policies.diffusion.data import MinMaxNormalizer
 from alexdoor_xas.policies.diffusion.model import DiffusionTransformer
 from alexdoor_xas.policies.diffusion.schedulers import make_inference_scheduler, sample_actions
@@ -60,36 +50,6 @@ class DiffusionPolicy:
         self._generator = torch.Generator()
         self.model.to(self.device)
         self.model.eval()
-
-    @classmethod
-    def from_checkpoint(
-        cls,
-        path: str | Path,
-        device: str = "cpu",
-        sampler: str = "ddpm",
-        num_inference_steps: int = 100,
-        *,
-        runtime_asset: RobotAssetRef,
-    ) -> DiffusionPolicy:
-        loaded = load_checkpoint_payload(path, DIFFUSION_CHECKPOINT_FORMAT, "Diffusion", device)
-        try:
-            model_cfg = DiffusionModelCfg(**loaded.model_cfg)
-        except (TypeError, ValueError) as error:
-            raise ValueError(f"invalid Diffusion checkpoint {path}: {error}") from error
-        model = DiffusionTransformer(loaded.obs_dim, loaded.action_dim, model_cfg)
-        model.load_state_dict(loaded.state_dict)
-        policy = cls(
-            model,
-            loaded.stats,
-            sampler=sampler,
-            num_inference_steps=num_inference_steps,
-            device=device,
-        )
-        policy.robot_compatibility_label = assert_checkpoint_runtime_compatible(
-            loaded.robot_asset,
-            runtime_asset,
-        )
-        return policy
 
     @property
     def action_space(self) -> str:

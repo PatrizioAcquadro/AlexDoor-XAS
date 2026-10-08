@@ -43,6 +43,10 @@ quality evidence and evaluate real queue/resampling separately.
 
 ## Cleanup and protected dependencies
 
+The standalone numerical `phase2.v2` data and `v3` policy-loading pipeline is
+retired. B1 retains its models, trainers, observed-input dataset, checkpoint
+contracts and shared normalization/sampling; historical APIs remain at `097d578`.
+
 `e494e8c` tracks the selected opt-in recipe; `c01c3a1` retires periodic selective
 registration, SAM3.1/multiplex memory, refit rollback and rejected model/tracker/SVD
 controls. Historical source remains at `57ad483`; all ignored payloads remain.

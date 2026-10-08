@@ -69,13 +69,23 @@ def test_compilation_cannot_silently_mix_operational_observations_with_legacy_re
     from test_b1_rollout import operational_observation
     from test_operational_admission import operational_estimate
 
-    observations = [replace(operational_observation(operational_estimate(time=t), t), frame=i)
-                    for i, t in enumerate((0, 0.1))]
+    observations = [
+        replace(operational_observation(operational_estimate(time=t), t), frame=i)
+        for i, t in enumerate((0, 0.1))
+    ]
     tool = observations[0].estimate.operational.contact.world_pose
     with pytest.raises(ValueError, match="profile differs"):
-        compile_episode(episode_id="numeric", asset_id="left", asset_splits=SPLITS,
-                        observations=observations, tools=[tool, tool], joint_targets=[np.zeros(7)],
-                        goals=[tool], stages=["approach"], binding=b1_binding)
+        compile_episode(
+            episode_id="numeric",
+            asset_id="left",
+            asset_splits=SPLITS,
+            observations=observations,
+            tools=[tool, tool],
+            joint_targets=[np.zeros(7)],
+            goals=[tool],
+            stages=["approach"],
+            binding=b1_binding,
+        )
 
 
 def test_raw_preparation_never_promotes_engineering_recordings(tmp_path):
@@ -150,3 +160,22 @@ def test_raw_preparation_uses_provider_without_model_or_device_internals(tmp_pat
     assert len(episode.actions[A4_OBJ_CENTRIC_CHUNK]) == 5
     assert isinstance(provider.calls[-1]["rgb"], np.ndarray)
     assert not hasattr(provider, "estimator") and not hasattr(provider, "device")
+
+
+def test_sampling_restricts_membership_and_repeats_seeded_batches(tmp_path, b1_binding):
+    from alexdoor_xas.dataset.sampling import BatchIterator
+
+    episodes = [make_b1_episode(b1_binding, episode_id=f"train-{i}") for i in range(2)]
+    root = export_dataset(episodes, tmp_path / "data", b1_binding, TEST_ROBOT_REF, SPLITS)
+    data = B1Dataset(root, next(iter(ACTION_DIMS)))
+    sampler = ChunkSampler(data, 4, OBS_KEYS, ["train-1"])
+    record = data.by_id("train-1")
+    assert len(sampler) == record.n_steps
+    np.testing.assert_array_equal(sampler.sample(0).actions, record.actions[:4])
+    assert not sampler.sample(0).is_pad.any()
+    assert (sampler.sample(len(sampler) - 1).actions[1:] == 0).all()
+    first, second = (list(BatchIterator(sampler, 3, seed=7)) for _ in range(2))
+    for a, b in zip(first, second, strict=True):
+        for key in a:
+            np.testing.assert_array_equal(a[key], b[key])
+    assert len(list(BatchIterator(sampler, len(sampler) + 1, drop_last=True))) == 0

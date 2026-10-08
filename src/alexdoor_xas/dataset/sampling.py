@@ -3,11 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from .loader import EpisodeDataset, obs_matrix, validate_obs_keys
+from .observations import obs_matrix, validate_obs_keys
+
+if TYPE_CHECKING:
+    from .b1 import B1Dataset
 
 
 @dataclass(frozen=True)
@@ -24,7 +27,7 @@ class ChunkSampler:
 
     def __init__(
         self,
-        dataset: EpisodeDataset,
+        dataset: B1Dataset,
         horizon: int,
         obs_keys: tuple[str, ...],
         episode_ids: list[str] | None = None,

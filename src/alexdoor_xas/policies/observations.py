@@ -47,10 +47,17 @@ class PolicyObservation:
     def valid(self):
         if self.geometry_profile == LEGACY_FULL_STATE:
             return self.features is not None and self.estimate.valid
-        return self.features_available and self.generation is not None and geometric_admission(
-            self.estimate, self.time_s, self.max_age_s,
-            profile=self.geometry_profile, generation=self.generation
-        ).qualified
+        return (
+            self.features_available
+            and self.generation is not None
+            and geometric_admission(
+                self.estimate,
+                self.time_s,
+                self.max_age_s,
+                profile=self.geometry_profile,
+                generation=self.generation,
+            ).qualified
+        )
 
 
 def require_estimate(estimate, now, max_age, *, profile=LEGACY_FULL_STATE, generation=None):
@@ -103,8 +110,14 @@ class B1Observer:
     def invalidate(self, time, frame, reason):
         self.last = None
         return PolicyObservation(
-            time, frame, None, DoorEstimate(time, False, reason), reason, self.profile,
-            getattr(self.provider, "generation", None), self.binding.config["max_gap_s"]
+            time,
+            frame,
+            None,
+            DoorEstimate(time, False, reason),
+            reason,
+            self.profile,
+            getattr(self.provider, "generation", None),
+            self.binding.config["max_gap_s"],
         )
 
     def operational_observation(self, estimate, t, frame, q, dq):
@@ -129,12 +142,22 @@ class B1Observer:
                 return self.invalidate(t, frame, str(error))
             self.last_contact = state.contact
         geometry = geometric_admission(
-            estimate, t, self.binding.config["max_gap_s"],
-            profile=self.profile, generation=generation
+            estimate,
+            t,
+            self.binding.config["max_gap_s"],
+            profile=self.profile,
+            generation=generation,
         )
-        return PolicyObservation(t, frame, np.r_[encoding, q, dq], estimate,
-                                 geometry.reason, self.profile, generation,
-                                 self.binding.config["max_gap_s"])
+        return PolicyObservation(
+            t,
+            frame,
+            np.r_[encoding, q, dq],
+            estimate,
+            geometry.reason,
+            self.profile,
+            generation,
+            self.binding.config["max_gap_s"],
+        )
 
     def update(self, observation):
         # Selection happens before inference: metadata/labels cannot enter the estimator.

@@ -110,3 +110,29 @@ def test_a4_sources_preserve_segments_and_forbid_ensembling(b1_data_root, family
     np.testing.assert_array_equal(source(None), expected)
     with pytest.raises(ValueError, match="Temporal ensembling"):
         policy.chunk_source(lambda ctx: np.zeros(22), temporal_ensemble=True)
+
+
+@pytest.mark.parametrize("defect", ["keys", "dimension", "weights", "identity", "format"])
+def test_checkpoint_rejects_corrupted_b1_payload(tmp_path, b1_data_root, b1_binding, defect):
+    data = load_b1_data(b1_data_root, next(iter(ACTION_DIMS)))
+    model = SimpleNamespace(
+        obs_dim=data.obs_dim,
+        action_dim=data.action_dim,
+        cfg=ActModelCfg(),
+        state_dict=lambda: {"fixture": torch.ones(1)},
+    )
+    path = save_policy(tmp_path / "policy.pt", "act", model, data)
+    payload = torch.load(path, weights_only=True)
+    if defect == "keys":
+        payload["dataset"]["obs_keys"] = tuple(reversed(payload["dataset"]["obs_keys"]))
+    elif defect == "dimension":
+        payload["obs_dim"] += 1
+    elif defect == "weights":
+        payload["state_dict"]["fixture"][0] = float("nan")
+    elif defect == "identity":
+        payload["robot_asset"] = None
+    else:
+        payload["format"] = "alexdoor_xas.act.v3"
+    torch.save(payload, path)
+    with pytest.raises(ValueError):
+        load_policy_payload(path, "act", binding=b1_binding, runtime_asset=TEST_ROBOT_REF)

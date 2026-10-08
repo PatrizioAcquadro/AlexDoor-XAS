@@ -10,13 +10,11 @@ from typing import Any
 import torch
 
 from alexdoor_xas.assets.identity import RobotAssetRef
-from alexdoor_xas.dataset.loader import validate_obs_keys
 from alexdoor_xas.dataset.normalize import DatasetNormStats
+from alexdoor_xas.dataset.observations import validate_obs_keys
 from alexdoor_xas.policies.common.training import torch_save_atomic
 
 DATASET_FIELDS = ("task", "space", "version", "obs_keys", "view_id")
-ACT_CHECKPOINT_FORMAT = "alexdoor_xas.act.v3"
-DIFFUSION_CHECKPOINT_FORMAT = "alexdoor_xas.diffusion.v3"
 
 
 @dataclass(frozen=True)
@@ -100,7 +98,7 @@ def save_checkpoint_payload(
     meta: Mapping[str, Any] | None = None,
     robot_asset: RobotAssetRef | None = None,
 ) -> Path:
-    """Validate and atomically write the shared v3 checkpoint payload."""
+    """Validate and atomically write the shared B1 checkpoint payload."""
     dataset = _dataset_descriptor(config)
     state_dict = model.state_dict()
     _validate_checkpoint_contract(
@@ -136,7 +134,7 @@ def load_checkpoint_payload(
     checkpoint_label: str,
     map_location: str = "cpu",
 ) -> CheckpointPayload:
-    """Load and validate model-neutral v3 checkpoint fields."""
+    """Load and validate model-neutral B1 checkpoint fields."""
     payload = torch.load(Path(path), map_location=map_location, weights_only=True)
     if not isinstance(payload, dict):
         raise ValueError(f"checkpoint {path} must contain a mapping")

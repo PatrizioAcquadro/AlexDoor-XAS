@@ -27,8 +27,9 @@ def test_causal_terminal_roundtrip_and_truth_separation(tmp_path):
     meta = dict(asset_id="example", split="train", condition="nominal", control_dt=1 / 60)
     writer = B1Writer(path, meta, dict(depth_interval_m=[0.1, 5]))
     writer.observe(obs(), dict(angle=0.0))
-    command = dict(time_s=0.0, joint_target=np.arange(7), tool_position=np.ones(3),
-                   torque_nm=np.ones(7))
+    command = dict(
+        time_s=0.0, joint_target=np.arange(7), tool_position=np.ones(3), torque_nm=np.ones(7)
+    )
     writer.transition(command, obs(1 / 60, 2), dict(angle=0.1))
     writer.finish(
         dict(passed=True, released=True, hold_angle_deg=50.0, stop_reason="mechanical_stop")

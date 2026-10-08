@@ -1,7 +1,6 @@
 # Datasets
 
-Local reusable episodes and split/normalization products use
-`datasets/<task>/<action_space>/<version>/`; payloads stay outside Git.
+Local B1 recordings and future matched policy datasets stay outside Git.
 
 B1 perception engineering uses the maintained `scripts/collect_perception.py` and
 `b1.rgbd.v1` streaming format: N+1 synchronized RGB-D/proprioceptive observations,
@@ -26,6 +25,6 @@ six development and seven test doors. `qualification.corpus.load_corpus` validat
 it; numerical episode split helpers do not replace its family assignment.
 Qualification evidence stays in the verification cache, outside learning data.
 
-Numerical loaders/exporters remain described in
+B1 dataset export, normalization and sampling are described in
 [Episode and Dataset Contracts](../knowledge/wiki/topics/episode-and-dataset-contracts.md).
 B0 data are retired. Final matched B1 policy data remain future Subphase 6.2 work.

@@ -1,4 +1,4 @@
-"""Streaming causal B1 episodes, separate from the numerical phase2.v2 format."""
+"""Streaming causal B1 RGB-D episodes."""
 
 import json
 from pathlib import Path

@@ -3,22 +3,12 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from pathlib import Path
 
 import numpy as np
 import torch
 
-from alexdoor_xas.assets.identity import (
-    RobotAssetRef,
-    assert_checkpoint_runtime_compatible,
-)
 from alexdoor_xas.dataset.normalize import DatasetNormStats
-from alexdoor_xas.policies.act.config import ActModelCfg
 from alexdoor_xas.policies.act.model import ACTModel
-from alexdoor_xas.policies.common.checkpoint import (
-    ACT_CHECKPOINT_FORMAT,
-    load_checkpoint_payload,
-)
 from alexdoor_xas.policies.common.model import OBS_CLIP
 
 
@@ -45,28 +35,6 @@ class ActPolicy:
         self.robot_compatibility_label: str | None = None
         self.model.to(self.device)
         self.model.eval()
-
-    @classmethod
-    def from_checkpoint(
-        cls,
-        path: str | Path,
-        device: str = "cpu",
-        *,
-        runtime_asset: RobotAssetRef,
-    ) -> ActPolicy:
-        loaded = load_checkpoint_payload(path, ACT_CHECKPOINT_FORMAT, "ACT", device)
-        try:
-            model_cfg = ActModelCfg(**loaded.model_cfg)
-        except (TypeError, ValueError) as error:
-            raise ValueError(f"invalid ACT checkpoint {path}: {error}") from error
-        model = ACTModel(loaded.obs_dim, loaded.action_dim, model_cfg)
-        model.load_state_dict(loaded.state_dict)
-        policy = cls(model, loaded.stats, device=device)
-        policy.robot_compatibility_label = assert_checkpoint_runtime_compatible(
-            loaded.robot_asset,
-            runtime_asset,
-        )
-        return policy
 
     @property
     def action_space(self) -> str:

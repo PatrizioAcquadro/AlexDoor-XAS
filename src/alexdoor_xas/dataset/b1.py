@@ -83,8 +83,11 @@ def compile_episode(
         if not obs.valid:
             raise ValueError(f"Unavailable manipulation observation at {index}: {obs.reason}")
         require_estimate(
-            obs.estimate, obs.time_s, binding.config["max_gap_s"],
-            profile=geometry_profile(binding), generation=obs.generation
+            obs.estimate,
+            obs.time_s,
+            binding.config["max_gap_s"],
+            profile=geometry_profile(binding),
+            generation=obs.generation,
         )
         columns = observation_columns(obs.features, binding)
         features.append(obs.features)

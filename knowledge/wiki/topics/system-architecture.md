@@ -114,7 +114,7 @@ were removed after preserving essential results/headers.
 
 ## Reusable Algorithms
 
-Action math, recording, numerical dataset loaders/export, split/normalization
+Action math, B1 recording/data export, train-only normalization
 utilities and ACT/Diffusion tensor training
 remain available as components. B1 software integration is maintained; physical
 qualification awaits the shared perception provider.

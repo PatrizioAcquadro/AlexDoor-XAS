@@ -218,21 +218,6 @@ def extent_edges(
     )
 
 
-def dimensions_supported(surface, tolerance):
-    bounds = surface.bounds
-    return all(
-        key in surface.edge_points
-        and len(surface.edge_points[key]) >= 10
-        and np.quantile(
-            abs(surface.edge_points[key] @ surface.basis[:, axis] - bounds[side, axis]), 0.95
-        )
-        <= tolerance
-        for axis, name in ((1, "width"), (2, "height"))
-        for side in (0, 1)
-        for key in (f"{name}_{side}",)
-    )
-
-
 def contact_frame(normal):
     x = np.asarray(normal) / np.linalg.norm(normal)
     up = np.array([0.0, 0.0, 1.0]) if abs(x[2]) < 0.99 else np.array([0.0, 1.0, 0.0])

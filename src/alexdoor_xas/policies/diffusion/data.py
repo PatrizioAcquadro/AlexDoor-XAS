@@ -8,15 +8,6 @@ from typing import Any
 import numpy as np
 
 from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
-from alexdoor_xas.policies.common.data import (
-    PolicyData,
-)
-from alexdoor_xas.policies.common.data import (
-    make_eval_factory as _make_eval_factory,
-)
-from alexdoor_xas.policies.common.data import (
-    make_train_factory as _make_train_factory,
-)
 
 RANGE_EPS = 1e-8
 
@@ -60,39 +51,3 @@ def make_diffusion_normalizer(stats: DatasetNormStats):
         return normalized
 
     return normalize
-
-
-def make_train_factory(
-    data: PolicyData,
-    chunk_size: int,
-    batch_size: int,
-    seed: int,
-    episode_ids: tuple[str, ...] | None = None,
-):
-    """Per-epoch reshuffled batches with diffusion normalization."""
-    return _make_train_factory(
-        data,
-        chunk_size,
-        batch_size,
-        seed,
-        episode_ids=episode_ids,
-        normalize=make_diffusion_normalizer(data.stats),
-    )
-
-
-def make_eval_factory(
-    data: PolicyData,
-    chunk_size: int,
-    batch_size: int,
-    seed: int,
-    episode_ids: tuple[str, ...],
-):
-    """Fixed-order batches with diffusion normalization."""
-    return _make_eval_factory(
-        data,
-        chunk_size,
-        batch_size,
-        seed,
-        episode_ids=episode_ids,
-        normalize=make_diffusion_normalizer(data.stats),
-    )

@@ -109,10 +109,10 @@ Add `--evidence-root ~/.cache/alexdoor-xas/verification/expert` to also check
 local qualification reports, traces and capture inventories. Record-only checks
 do not require ignored asset payloads or the cache.
 
-Reusable numerical data APIs require an explicit dataset root and ordered
-`obs_keys` drawn from recorded proprioception. Door state and contacts remain
-diagnostics. Episodes retain `phase2.v2`; policy checkpoints use `v3` and reject
-earlier formats. This is not yet the B1 RGB-D learning pipeline.
+B1 data and checkpoints require ordered observed inputs, train-only statistics,
+robot identity and a qualified perception binding. The older `phase2.v2` data
+pipeline and standalone `v3` checkpoint loaders are retired; historical source
+remains at `097d578`. No matched B1 policy dataset has been produced.
 
 ## Repository Layout
 

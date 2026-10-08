@@ -43,7 +43,8 @@ class ActionAdapter:
             raise ValueError("Unknown B1 action space")
         self.space, self.max_age_s = space, max_age_s
         if profile not in (LEGACY_FULL_STATE, OPERATIONAL_V1) or source not in (
-            "policy", "diagnostic"
+            "policy",
+            "diagnostic",
         ):
             raise ValueError("Unknown adapter profile/source")
         self.profile, self.source = profile, source
@@ -67,11 +68,17 @@ class ActionAdapter:
         require_current_admission(admission, observation.estimate, observation.time_s)
         if observation.generation != admission.estimate.operational.generation:
             raise ValueError("Action admission episode generation mismatch")
-        validate_reference(observation.estimate, observation.time_s, self.max_age_s,
-                           generation=observation.generation)
+        validate_reference(
+            observation.estimate,
+            observation.time_s,
+            self.max_age_s,
+            generation=observation.generation,
+        )
         proposal = admission.proposal
-        if proposal.action_space != self.space or proposal.source != self.source or (
-            admission.provisional and self.source != "diagnostic"
+        if (
+            proposal.action_space != self.space
+            or proposal.source != self.source
+            or (admission.provisional and self.source != "diagnostic")
         ):
             raise ValueError("Action admission source/space mismatch")
         if self.motion is None:
@@ -95,8 +102,13 @@ class ActionAdapter:
         if self.blocked:
             raise ValueError("Operational adapter stop requires explicit reset")
         try:
-            return self._command(observation, tool, action=action,
-                                 remaining_ticks=remaining_ticks, admission=admission)
+            return self._command(
+                observation,
+                tool,
+                action=action,
+                remaining_ticks=remaining_ticks,
+                admission=admission,
+            )
         except (ValueError, TypeError, AttributeError, IndexError):
             if self.profile == OPERATIONAL_V1:
                 self.blocked = True
@@ -140,8 +152,9 @@ class ActionAdapter:
             ):
                 raise ValueError("A4 admission duration/load mismatch")
             self.sequence.accept(segment)
-            reference = (self.admission.estimate if self.profile == OPERATIONAL_V1
-                         else observation.estimate)
+            reference = (
+                self.admission.estimate if self.profile == OPERATIONAL_V1 else observation.estimate
+            )
             self.motion = SegmentMotion.start(
                 segment, tool, reference.frame, reference.signed_angle
             )
@@ -149,8 +162,11 @@ class ActionAdapter:
         elif action is not None:
             raise ValueError("Cannot replace an executing A4 segment")
         self.tick += 1
-        hinge = (self.admission.estimate.frame if self.profile == OPERATIONAL_V1
-                 else observation.estimate.frame)
+        hinge = (
+            self.admission.estimate.frame
+            if self.profile == OPERATIONAL_V1
+            else observation.estimate.frame
+        )
         goal = self.motion.goal(self.tick, hinge)
         if self.profile == OPERATIONAL_V1:
             self.require_goal(observation, self.tick, goal)
@@ -225,8 +241,9 @@ class B1Runner:
             temporal_ensemble=temporal_ensemble, n_action_steps=n_action_steps
         )
         self.adapter = ActionAdapter(
-            policy.action_space, observer.binding.config["max_gap_s"],
-            profile=geometry_profile(observer.binding)
+            policy.action_space,
+            observer.binding.config["max_gap_s"],
+            profile=geometry_profile(observer.binding),
         )
         self.pending = deque()
         self.stopped = True

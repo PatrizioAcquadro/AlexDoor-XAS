@@ -5,13 +5,13 @@ AlexDoor-XAS changes the action representation while holding the robot, task, ph
 Purdue provides the low-level executor. The separate B1 software path now connects
 observed inputs, ACT/Diffusion outputs and A1-A4 adapters. Final integration and
 physical rollout validation await qualified/frozen 6.0 perception. Historical
-numerical action/export structures remain available as separate contracts.
+numerical action/export structures are retired; B1 is the maintained contract.
 
 ## Canonical Representations
 
 | Tag | Meaning | Frame and form | Current use |
 |---|---|---|---|
-| `A1_joint_delta` | Joint-target delta | Robot joint coordinates | Seven-joint Purdue execution; numerical exports |
+| `A1_joint_delta` | Joint-target delta | Robot joint coordinates | Seven-joint Purdue execution and B1 labels |
 | `A2_ee_delta` | End-effector delta | World-frame 6D delta | Full-pose Purdue execution; numerical models |
 | `A3_obj_rel_ee_delta` | Object-relative end-effector delta | Static hinge-anchored door-frame 6D delta | Supplied-frame transform to full-pose A2 |
 | `A4_obj_centric_chunk` | Object-centric full-pose segment | Tool targets in the moving panel frame | B1 encoding/adapter implemented; physical validation pending |
@@ -36,7 +36,7 @@ the Phase 6 observation/perception boundary.
 The B0 adapters, rollout driver and scripted controller are retired. Frame
 validation lives with action math and is shared by the Purdue A3 executor.
 The B1 adapters are in `policies/rollout.py`; their simulator bridge is in
-`policies/purdue.py`. The old numerical chunks are not accepted as complete B1 A4.
+`policies/purdue.py`. The old numerical chunk type and its reader/export path are retired.
 
 ## Contact and Force Semantics
 

@@ -239,8 +239,7 @@ class PurdueIO:
             raise ValueError("Operational admission requires operational IO profile")
         if profile == OPERATIONAL_V1:
             require_current_admission(
-                self.admission, self.safety.provider.last_estimate,
-                self.env.capture.sample.time_s
+                self.admission, self.safety.provider.last_estimate, self.env.capture.sample.time_s
             )
         if before := getattr(self.safety, "before_command", None):
             if reason := before(command.stage):
