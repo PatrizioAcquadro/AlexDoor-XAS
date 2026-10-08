@@ -131,3 +131,18 @@ The workstation preflight checks declared Python dependencies, CUDA, the pinned
 Isaac installation and external Alex assets. Missing or broken imports and asset
 resolution errors produce a failure summary. Ordinary Python dependencies are
 packaged; Isaac, Alex, PyTorch, Warp and CUDA remain external runtime components.
+
+## Repository verification
+
+Perception separates `point2pose`, `sam3` and `diagnostics`; shared geometry and
+contracts remain common. B1 owns the active recording/dataset/checkpoint path;
+standalone `phase2.v2`/`v3` readers are retired. Import migration is documented in
+[[topics/shared-door-perception|Shared Door Perception]].
+
+`tests/unit` runs without Isaac, model downloads or ignored payloads; numerical
+tensor checks use CPU in GitHub Actions on Python 3.11/3.12. CI also checks Ruff,
+builds wheel/sdist and imports the installed wheel outside the checkout.
+`tests/gpu` exercises models and CUDA storage, while `tests/integration` requires
+local Isaac/Alex/native resources. Shared fixtures initialize neither simulator
+nor models. Local runtime checks remain necessary; CI does not qualify physical
+execution or perception quality.

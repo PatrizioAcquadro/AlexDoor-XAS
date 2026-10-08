@@ -13,7 +13,12 @@ That inventory also records payload removals and preserved recording headers.
 
 The earlier October 2 cleanup removed superseded recordings, discarded weights,
 temporary scripts/caches and repeated payloads as recorded in that inventory.
-The October 8 Point2Pose cleanup deletes no ignored payloads.
+The initial October 8 Point2Pose cleanup preserved ignored payloads. Subsequent
+repository consolidation removed SAM3.1/SAM2 Small weights and eight identical
+registration-trace copies, reclaiming 4.60 GiB. Relative symlinks preserve saved
+reader/report paths to the retained trace: selected-recipe copy when available,
+otherwise original producer. Digests, canonical paths and removals are recorded
+in `cleanup.json` under `maintenance_20261008`. Distinct results and failures remain.
 Ignored payloads are not Git-recoverable; the retained results do not promise
 complete executable reproduction. See
 [Perception Findings](../knowledge/wiki/experiments/b1-perception-findings.md).
@@ -59,3 +64,10 @@ these ignored inputs, traces or models.
 condition, the existing 12-sample operational smoke, original-source reconstruction
 and exact-prefix verification. It is bounded cleanup evidence, not a new complete
 replay, latency comparison or provider qualification.
+
+`b1/perception/consolidation-20261008/` verifies the package reorganization with
+exact pose/mask/decision comparisons on the same selected 33-frame windows and
+12 operational samples, plus one CUDA synthetic probe per handedness. The import
+migration record is `evidence/consolidation-imports-20261008.json`; maintained
+saved-data readers use current imports, while retired launchers require their
+original source revision. These checks do not extend scientific qualification.

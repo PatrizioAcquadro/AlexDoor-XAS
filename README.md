@@ -1,141 +1,107 @@
 # AlexDoor-XAS
 
-[GitHub repository](https://github.com/PatrizioAcquadro/AlexDoor-XAS).
+AlexDoor-XAS studies how action representation affects contact-rich humanoid
+manipulation: **A1–A4 × ACT/Diffusion** on held-out push doors, using fixed-base
+Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
-The workstation checkout is `/home/pacquadr/Desktop/AlexDoor-XAS`. Python imports
-remain `alexdoor_xas`; the distribution name remains `alexdoor-xas`.
+## Current scope
 
-AlexDoor-XAS studies how action representation affects learning and execution in
-contact-rich humanoid manipulation. B1 compares A1–A4 × ACT/Diffusion on held-out
-push doors with fixed-base Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
+- **Runtime and corpus:** Purdue control/sensing and Phase 5 are complete. The
+  frozen corpus contains 32 qualified doors: 19 train, six development, seven test.
+- **Perception:** maintained static GroundingDINO/SAM3/DINOv3 scans and an
+  experimental CAD-free Point2Pose tracker. The selected SAM3 recipe is explicit;
+  material identity, 150 ms freshness and loaded contact remain unqualified.
+- **Learning:** B1 observed-input datasets, ACT/Diffusion models, normalization and
+  A1–A4 execution adapters are maintained. Qualified perception integration and
+  physical rollout validation remain pending. No matched B1 policy dataset or
+  learned-policy result exists; the sealed test remains closed.
 
-Purdue control/sensing and **Phase 5 are complete**. All 32 prepared doors have
-qualified fresh-process expert pairs. The [frozen corpus](assets/doors/b1/corpus.json)
-assigns 19 train, six development and seven test doors, preserving related
-geometry families and both handednesses in every partition. Rights scopes remain
-29 redistributable, two local-only and one private/noncommercial.
+The [project status](knowledge/wiki/status.md) owns current results, limits and
+next work. No repository command controls physical hardware.
 
-Subphase 6.0 remains unqualified. The maintained 6.0B static scan uses frozen
-GroundingDINO + native SAM3, DINOv3 and calibrated RGB-D/multiview geometry.
-Prior custom dynamic trackers are retired; 50 engineering-v2 recordings and
-historical evidence remain. The optional 6.0C prototype integrates official
-CAD-free Point2Pose with camera kinematics and panel-fixed local zones. Its
-[selected experimental recipe](configs/point2pose_selected.json) uses one SAM3
-object with causal masks, bounded history and renewal-only depth filtering,
-retaining TAPIR/SuperPoint and observed geometry. SAM2 operational replay, live
-diagnostics and the serial evaluator remain maintained. The selected recipe does
-not change operational defaults or meet the unchanged 150 ms freshness limit.
-Loaded contact and policy handoff are not enabled.
-Independent 6.1 software covers ACT/Diffusion × A1–A4 through model-independent
-observed inputs, matched data and execution adapters. Numerical/CUDA model checks
-pass; qualified perception integration and physical rollout validation remain pending.
-No matched policy dataset or learned-policy result exists. See the
-[perception boundary](knowledge/wiki/topics/shared-door-perception.md).
-See the [corpus and qualification procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
-and current [project status](knowledge/wiki/status.md).
+## Installation
 
-B0 workflows and local data have been retired. Their scientific conclusions and
-limits remain in the wiki. Reusable action math, recording, dataset and model
-components remain; no repository command controls physical hardware.
-
-## Setup and Verification
-
-Use Python 3.11+ from the supported workstation stack: Isaac Sim 6.0.1 and
-Isaac Lab `release/3.0.0-beta2`, plus the external Alex package with Purdue/WSG,
-measured pedestal and ZED Wide assets. Isaac, Alex, PyTorch, Warp and CUDA are
-external runtime dependencies. Native SAM 3 runs in a separate process with an
-ignored dependency overlay; see [local model setup](models/perception/README.md).
-Ordinary Python dependencies are declared in
-`pyproject.toml`; Diffusion and developer tooling use their respective extras.
-
-From the checkout:
+Use Python 3.11+. The supported workstation uses Isaac Sim 6.0.1, Isaac Lab
+`release/3.0.0-beta2` and the external Alex package. Isaac, Alex, PyTorch, Warp and
+CUDA are supplied by that runtime; ordinary Python dependencies are declared in
+[pyproject.toml](pyproject.toml).
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e /home/pacquadr/Desktop/Alex
 /home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install -e '.[dev,diffusion]'
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/check_env.py
-/home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q
-ruff check src scripts tests
-ruff format --check src scripts tests
 ```
 
-Run frozen image inference or the bounded static diagnosis with fresh outputs:
+Robot/camera assets come from the external Alex package. Prepared door payloads,
+recordings and model weights remain local and ignored by Git. Perception workers
+use isolated dependencies; follow [model setup](models/perception/README.md).
+
+## Verification
+
+```bash
+ruff check src scripts tests
+ruff format --check src scripts tests
+/home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q tests/unit
+/home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q tests/gpu
+/home/pacquadr/IsaacLab/isaaclab.sh -p -m pytest -q tests/integration
+```
+
+[GitHub Actions](.github/workflows/ci.yml) runs lint/format, unit tests on Python
+3.11/3.12, wheel/sdist builds and an installed-wheel import check. Unit tests use
+CPU tensors without Isaac, model downloads or local payloads. CUDA model/storage
+regressions and integration with external Isaac/Alex/native sources run locally;
+GPU tests explicitly skip when CUDA is unavailable. A green public CI does not
+establish simulator, perception or physical qualification.
+
+The complete Purdue runtime gate uses synthetic fixtures:
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_purdue_runtime.py --viz none --device cuda:0
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
+```
+
+Runtime reports default to `~/.cache/alexdoor-xas/verification/`. Corpus verification
+checks tracked membership and references; `--evidence-root` also checks local expert
+reports. See [Phase 5](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
+for prepared-door intake and qualification.
+
+Run bounded frozen perception inference with a fresh output directory:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
   --output outputs/b1/perception/NEW_SMOKE
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py diagnose-scan \
-  --output outputs/b1/perception/NEW_SCAN
 ```
 
-The diagnosis reads only 0–25 s on the two train pilots, nominal/light, preserving
-object alternatives, geometric queries and observation references. The static
-provider publishes no valid policy encoding or admission to move. Successful
-execution does not qualify perception. Neither command trains or collects data.
-Point2Pose smoke, operational pilot replay, serial 60 Hz offline evaluation and
-fresh-process observer diagnostics are documented in the
-[model setup](models/perception/README.md#point2pose-60c-worker).
+The [model README](models/perception/README.md) documents scan, Point2Pose smoke,
+operational replay, live and serial offline commands. Live diagnostics do not need
+recordings. Successful execution and scientific quality are separate outcomes;
+smokes do not admit motion or qualify a policy provider.
 
-Model tests use CUDA and explicitly skip if unavailable. Pure numerical tests do
-not require a simulator. Run the Purdue integration gate on synthetic fixtures:
+## Organization
 
-```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_purdue_runtime.py \
-  --viz none --device cuda:0
-```
-
-Reports default to `~/.cache/alexdoor-xas/verification/purdue/`; use `--output`
-for another location. `--gate contacts`, `--gate rgbd` and `--no-cameras` are
-focused diagnostics; only the complete gate establishes full runtime evidence.
-
-Qualify one prepared door with the frozen setup:
-
-```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/qualify_door.py \
-  --asset-id <id> --device cuda:0 --headless
-```
-
-The command stores a fresh report in the verification cache and updates only the
-expert section of the door record. Read the [Phase 5 procedure](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md)
-for outcomes, evidence review and the separate Phase 6 pilot boundary.
-
-Verify frozen membership and references without starting Isaac Sim:
-
-```bash
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/verify_door_corpus.py
-```
-
-Add `--evidence-root ~/.cache/alexdoor-xas/verification/expert` to also check
-local qualification reports, traces and capture inventories. Record-only checks
-do not require ignored asset payloads or the cache.
-
-B1 data and checkpoints require ordered observed inputs, train-only statistics,
-robot identity and a qualified perception binding. The older `phase2.v2` data
-pipeline and standalone `v3` checkpoint loaders are retired; historical source
-remains at `097d578`. No matched B1 policy dataset has been produced.
-
-## Repository Layout
-
-| Path | Purpose |
+| Path | Responsibility |
 |---|---|
-| `assets/doors/b1/` | Frozen corpus/split, canonical door records and ignored source/final payloads. |
-| `src/alexdoor_xas/` | Runtime, preparation and reusable learning components. |
-| `scripts/` | Supported verification, synthetic setup, intake and expert qualification. |
-| `configs/` | Frozen Purdue/inspection settings and explicit experimental Point2Pose recipe. |
-| `tests/` | Behavioral regressions and GPU model checks. |
-| `knowledge/` | User-owned raw research and canonical wiki. |
-| `datasets/`, `outputs/` | Local future datasets/results; payloads ignored. |
+| `src/alexdoor_xas/` | Runtime, action math, preparation, recording, B1 data and policies. |
+| `src/alexdoor_xas/perception/` | Shared contracts/geometry; `point2pose`, `sam3` and `diagnostics` subpackages. |
+| `scripts/`, `configs/` | Supported entry points and common runtime/experimental settings. |
+| `tests/unit`, `tests/gpu`, `tests/integration` | Checks separated by execution requirements. |
+| `assets/doors/b1/` | Frozen corpus, canonical records and ignored prepared payloads. |
+| `knowledge/` | User-owned raw research and canonical technical wiki. |
+| `datasets/`, `outputs/`, `models/perception/` | Local data, results and pretrained resources. |
 
-## Documentation
+B0 workflows, numerical `phase2.v2` data APIs and standalone `v3` checkpoint loaders
+are retired; historical source remains at `097d578`. B1 formats and observation/
+action ordering are unchanged. New perception imports are documented in
+[Shared Door Perception](knowledge/wiki/topics/shared-door-perception.md#module-layout).
 
-- [Project Status](knowledge/wiki/status.md) — current state, limits and next action.
-- [Technical Wiki](knowledge/wiki/index.md) — canonical navigation.
-- [Phase 5](knowledge/wiki/implementation_phases/phase-5-door-corpus-and-qualification.md) — asset contract, corpus, intake commands and qualification protocol.
-- [Architecture](knowledge/wiki/topics/system-architecture.md) — runtime and data boundaries.
-- [Data Components](knowledge/wiki/topics/episode-and-dataset-contracts.md) and [Policy Components](knowledge/wiki/topics/learned-policy-stack.md) — maintained interfaces.
+Start at the [wiki index](knowledge/wiki/index.md),
+[architecture](knowledge/wiki/topics/system-architecture.md),
+[data contracts](knowledge/wiki/topics/episode-and-dataset-contracts.md) and
+[policy stack](knowledge/wiki/topics/learned-policy-stack.md).
 
 ## License
 
 This repository is proprietary. No license grant is provided unless a separate
-license file or written agreement states otherwise. Individual door assets retain
-their recorded third-party terms and distribution scopes.
+license file or written agreement states otherwise. Door assets retain their
+recorded third-party terms: 29 redistributable, two local-only and one
+private/noncommercial.

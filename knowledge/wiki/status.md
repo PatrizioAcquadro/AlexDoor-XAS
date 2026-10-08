@@ -1,8 +1,8 @@
 # Project Status
 
 Current as of 2026-10-08. **Static 6.0B is maintained; CAD-free Point2Pose is
-implemented but unqualified. Phases 6.0 and 6.1 remain open.** The targeted cleanup
-is complete; operational defaults, A3/A4 and policy contracts are unchanged.
+implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
+retains the full B1 core; operational defaults, A3/A4 and policy contracts are unchanged.
 
 | Area | Current state |
 |---|---|
@@ -49,14 +49,22 @@ contracts and shared normalization/sampling; historical APIs remain at `097d578`
 
 `e494e8c` tracks the selected opt-in recipe; `c01c3a1` retires periodic selective
 registration, SAM3.1/multiplex memory, refit rollback and rejected model/tracker/SVD
-controls. Historical source remains at `57ad483`; all ignored payloads remain.
+controls. Historical source remains at `57ad483`. Subsequent consolidation removed
+only retired SAM3.1/SAM2 Small weights and eight identical trace copies, with
+relative links preserving old trace paths. Local removal digests and canonical
+copies are recorded in `evidence/cleanup.json` (`maintenance_20261008`).
 Static GroundingDINO/SAM3/DINOv3, SAM2 operational paths, baseline comparisons,
 geometry/contact interfaces and evaluator helpers have active consumers.
 
-Bounded CUDA validation in `outputs/b1/perception/p2p-cleanup-20261008/` matches
+Perception now separates model runtimes and diagnostics; tests separate portable,
+GPU and local integration requirements. Public CI covers Python 3.11/3.12 unit
+behavior, Ruff and packaging. See [[topics/system-architecture|Architecture]].
+
+Bounded CUDA validation in `outputs/b1/perception/consolidation-20261008/` matches
 33 original frames per condition exactly against selected configuration, masks,
 poses, decisions and registration traces. The existing 12-sample operational smoke
-completes on CUDA TSDF with freshness still failed. Native source reconstructs
+matches saved object/mask outputs on CUDA TSDF with freshness still failed.
+Synthetic probes pass for both handednesses. Native source reconstructs
 from the pinned archive, with migration/idempotence and unknown-source refusal.
 These checks do not establish full-opening equivalence; no full replay, model
 comparison or latency optimization was performed during cleanup.

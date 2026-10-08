@@ -8,7 +8,6 @@ Neither the static scan nor the optional Point2Pose prototype is a qualified per
 |---|---|---|
 | `grounding-dino/` | `IDEA-Research/grounding-dino-tiny` | `a2bb814dd30d776dcf7e30523b00659f4f141c71` |
 | `sam3/` | `facebook/sam3`, native `sam3.pt` | `3c879f39826c281e95690f02c7821c4de09afae7` |
-| `sam3.1/` (historical) | `facebook/sam3.1`, native `sam3.1_multiplex.pt` | `daa63191845a41281374e725f4c9e51c7a824460` |
 | `dinov3/` | `facebook/dinov3-vits16-pretrain-lvd1689m` | `114c1379950215c8b35dfcd4e90a5c251dde0d32` |
 
 Model directories are ignored by Git. Keep their configuration, preprocessing,
@@ -92,7 +91,9 @@ launch one fresh Isaac process at a time and require other Isaac sessions closed
 live check to one case. Operational replay samples four recordings at stride three;
 `point2pose-offline` processes all original 60 Hz frames plus initialization attempts.
 The historical offline campaign is stopped; the commands above document entry
-points, not instructions to repeat it. Runtime timing, reset, ground-truth separation
+points, not instructions to repeat it. Live commands require no recording directory;
+a failed child or missing report produces a nonzero exit status independently of
+quality scores. Runtime timing, reset, ground-truth separation
 and failure semantics are canonical in
 [Shared Door Perception](../../knowledge/wiki/topics/shared-door-perception.md).
 
@@ -104,7 +105,7 @@ and `CXX` for another supported toolkit. `sources.json`, `runtime-packages.txt`
 and each process's `runtime.json` record local source/package/configuration state.
 Missing CUDA for models or TSDF is an explicit failure, never a CPU fallback.
 
-Installer and worker startup apply `point2pose_patches.py` before native imports;
+Installer and worker startup apply `perception/point2pose/patches.py` before native imports;
 setup also repairs the pinned TSDF one-past-end index guard (`>` to `>=`). Tracked
 patches reproduce current loss/SDF publication, sampling, renewal and vectorized
 Jacobian behavior from original sources. Known prior patches migrate idempotently;
@@ -126,7 +127,7 @@ the repository root with the supported Isaac Python, choosing a fresh output:
 import json
 from pathlib import Path
 
-from alexdoor_xas.perception.point2pose_offline import offline_episode
+from alexdoor_xas.perception.diagnostics.offline import offline_episode
 from alexdoor_xas.perception.provider import load_recipe
 
 root = Path.cwd()
@@ -161,9 +162,12 @@ reconditioning OFF. The unbounded SAM3 reference remains available explicitly.
 
 SAM3.1, selected-only registration, own-seed refit rollback, SAM2 Small, TAPIR
 crop/reduced resolution/iterations and simplified SVD are retired from the active
-adapter. Their code is available at `57ad483`; local checkpoints, launchers,
-results and failures remain untouched. Reproduce those experiments from their
-recorded Git revision in a separate checkout. `performance_controls` now accepts
+adapter. Their code is available at `57ad483`; historical launchers, results and
+failures remain. SAM3.1 and SAM2 Small checkpoint payloads were removed after
+consumer checks; revisions and SHA-256 digests remain in the local cleanup
+inventory. SAM3.1 source revision is `daa63191845a41281374e725f4c9e51c7a824460`.
+Reproducing retired experiments requires their recorded Git revision and weights.
+`performance_controls` now accepts
 only `query_chunk_size`; old rollback/selected-registration keywords accept only
 false. Unsupported activation fails explicitly. Result and trace fields remain
 compatible with saved-data evaluators.

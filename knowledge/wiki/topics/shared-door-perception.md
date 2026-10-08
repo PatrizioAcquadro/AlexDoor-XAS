@@ -13,6 +13,30 @@ experiments own results; [[../implementation_phases/phase-6-0-operational-percep
 owns remaining acceptance work. Older custom trackers and the rejected Point2Pose
 variants are historical source, while their saved evidence remains available.
 
+## Module layout
+
+All imports begin with `alexdoor_xas.perception`:
+
+| Previous module | Maintained import |
+|---|---|
+| `point2pose_runtime`, `point2pose_worker`, `point2pose_patches` | `point2pose.runtime`, `point2pose.worker`, `point2pose.patches` |
+| `panel_tracking` | `point2pose.tracking` |
+| `sam3_frontend`, `sam3_runtime`, `sam3_worker`, `sam3_memory` | `sam3.frontend`, `sam3.runtime`, `sam3.worker`, `sam3.memory` |
+| `point2pose_offline`, `point2pose_replay`, `point2pose_live` | `diagnostics.offline`, `diagnostics.replay`, `diagnostics.live` |
+| `point2pose_diagnostics`, `scan_diagnostics` | `diagnostics.smoke`, `diagnostics.scan` |
+
+Other Point2Pose helpers follow the same `point2pose.<suffix>` convention;
+shared scoring lives in `diagnostics.metrics` and `diagnostics.impact`.
+Contracts, geometry, provider and control remain at the common level. `ipc` owns
+private worker framing and array serialization; model-specific initialization and
+runtime environments stay separate. No legacy import wrappers are maintained.
+Saved-data readers were migrated; retired launchers use their recorded revision.
+
+CLI names are unchanged. Live commands do not enumerate recordings. The live
+matrix returns failure for a failed child, absent report or recorded execution
+failure; diagnostic quality remains a separate report outcome. Serial evaluation
+retains every original timestamp and all failure/availability accounting.
+
 ## Recording, inspection and storage
 
 `recording/b1.py` and `recording/b1_runtime.py` retain synchronized metric RGB-D,

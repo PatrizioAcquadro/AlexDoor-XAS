@@ -33,7 +33,7 @@ Current technical behavior and explicitly labeled planned contracts:
 - [[topics/alex-v2-benchmark|Alex V2 Benchmark]] — Retired B0 protocol, results and scientific limits.
 - [[topics/purdue-b1-robot-and-contact|Purdue B1 Robot and Contact Contract]] — Operational Purdue/WSG/ZED configuration, derived push frame, measured pedestal and validation limits.
 - [[topics/action-representations-and-adapters|Action Representations and Adapters]] — A1-A4 meanings and maintained execution boundaries.
-- [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — `phase2.v2`, matched exports, splits, views, normalization, and model data.
+- [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — B1 RGB-D, observed-input policy data, atomic exports and train-only normalization.
 - [[topics/learned-policy-stack|Learned Policy Stack]] — Reusable ACT/Diffusion models, tensor training, checkpoints and explicit observation boundary.
 
 - [[topics/shared-door-perception|Shared Door Perception]] — Static scan, official Point2Pose panel/zone prototype, recording and estimator-independent contracts; qualification pending.
