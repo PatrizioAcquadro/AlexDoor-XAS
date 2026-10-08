@@ -105,8 +105,9 @@ class Sam3CausalFrontend:
             self.propagate = Sam3MultiplexTracking.propagate_in_video
         else:
             raise ValueError("unsupported_sam3_version")
-        if bounded_memory and version != "sam3.1":
-            raise ValueError("bounded_memory_requires_sam31")
+        if bounded_memory and version == "sam3" and detection_reconditioning:
+            raise ValueError("bounded_sam3_requires_reconditioning_off")
+        self.version = version
         self.bounded_memory = bounded_memory
         self.reconditioning_trace = None
         if not detection_reconditioning or trace_reconditioning:
@@ -217,9 +218,15 @@ class Sam3CausalFrontend:
             .get(index, {})
         )
         if self.bounded_memory:
-            from alexdoor_xas.perception.sam3_memory import release_forward_history
+            from alexdoor_xas.perception.sam3_memory import (
+                release_forward_history,
+                release_sam3_forward_history,
+            )
 
-            release_forward_history(self.state, self.model.tracker, index)
+            release = (
+                release_sam3_forward_history if self.version == "sam3" else release_forward_history
+            )
+            release(self.state, self.model.tracker, index)
         torch.cuda.synchronize()
         self.last_capture = capture
         return dict(

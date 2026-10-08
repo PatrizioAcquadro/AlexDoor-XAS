@@ -5,7 +5,10 @@ Use one SAM, one original leaf object, TAPIR and SuperPoint for the next fronten
 development. The older all-query baseline, every previous attempt and operational
 defaults remain preserved. This choice balances precision, continuity and complete
 latency; it does not require winning every metric against the older multi-object
-baseline. Tracking and contact qualification remain open.
+baseline. Tracking and contact qualification remain open. The subsequent
+[[p2p-sam3-selected-development|selected SAM3 OFF development]] validates opt-in
+CPU/GPU history release with exact complete-window equivalence; all comparisons
+below retain their original unbounded OFF configuration and resources.
 
 The only new comparison is bounded SAM3.1 with periodic reconditioning changed
 from 16 to 0. Its existing useful-memory policy, original initialization, prompt

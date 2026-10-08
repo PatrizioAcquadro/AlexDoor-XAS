@@ -131,6 +131,65 @@ def test_forward_release_preserves_all_attention_inputs_and_seed():
     assert len(batch.img_batch.tensors.values) == 2
 
 
+def test_sam3_release_keeps_old_quality_memories_across_a_long_low_score_gap():
+    from alexdoor_xas.perception.sam3_memory import release_sam3_forward_history
+
+    cond = {0: object()}
+    noncond = {i: {"eff_iou_score": 0.9 if i < 20 else 0.0} for i in range(1, 1000)}
+    local = dict(
+        output_dict=dict(cond_frame_outputs=cond, non_cond_frame_outputs=noncond.copy()),
+        output_dict_per_obj={
+            0: dict(cond_frame_outputs=cond, non_cond_frame_outputs=noncond.copy())
+        },
+        temp_output_dict_per_obj={0: dict(cond_frame_outputs={}, non_cond_frame_outputs={})},
+        consolidated_frame_inds=dict(cond_frame_outputs={0}, non_cond_frame_outputs=set()),
+        frames_already_tracked={i: {} for i in range(1000)},
+        mask_inputs_per_obj={0: cond.copy()},
+        point_inputs_per_obj={0: {}},
+    )
+    batch = SimpleNamespace(
+        **{
+            k: list(range(1000))
+            for k in ("img_batch", "find_inputs", "find_targets", "find_metadatas")
+        }
+    )
+    state = dict(
+        tracker_inference_states=[local],
+        input_batch=batch,
+        cached_frame_outputs={i: object() for i in range(1000)},
+        tracker_metadata=dict(
+            obj_id_to_tracker_score_frame_wise={i: {} for i in range(1000)},
+            rank0_metadata=dict(suppressed_obj_ids={i: set() for i in range(1000)}),
+        ),
+    )
+    for name in (
+        "previous_stages_out",
+        "per_frame_raw_point_input",
+        "per_frame_raw_box_input",
+        "per_frame_visual_prompt",
+        "per_frame_geometric_prompt",
+        "per_frame_cur_step",
+    ):
+        state[name] = list(range(1000))
+    tracker = SimpleNamespace(
+        use_memory_selection=True,
+        memory_temporal_stride_for_eval=1,
+        num_maskmem=7,
+        max_obj_ptrs_in_encoder=16,
+        mf_threshold=0.01,
+    )
+    release_sam3_forward_history(state, tracker, 999)
+    # The native consumer can reach these 980+ frame-old high-quality memories.
+    expected = set(range(5, 20)) | {999}
+    assert set(local["output_dict"]["non_cond_frame_outputs"]) == expected
+    assert all(local["output_dict"]["non_cond_frame_outputs"][i] is noncond[i] for i in expected)
+    assert local["output_dict"]["cond_frame_outputs"] is cond
+    assert set(local["output_dict_per_obj"][0]["non_cond_frame_outputs"]) == expected
+    assert set(state["cached_frame_outputs"]) == {999}
+    assert set(batch.img_batch.values) == {0, 999}
+    assert len(batch.img_batch) == 1000
+
+
 @pytest.mark.parametrize("multiplex", [False, True])
 def test_append_preserves_prompt_tracker_memory_and_only_arrived_frames(multiplex):
     memory = {"num_frames": 1, "conditioned_memory": object()}

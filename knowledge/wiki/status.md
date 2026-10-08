@@ -9,47 +9,29 @@ the CAD-free Point2Pose prototype is implemented but unqualified. Phase 6.0 and
 | 4 — Purdue runtime | Seven-joint A1, full-pose A2/A3, WSG32/UMI v1, synchronized head RGB-D/proprioception and contact diagnostics. Common zero-yaw setup is maintained. |
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts and static evidence | Operational/local support, explicit selection, admission and feedback interfaces retained. Static object fusion, ownership alternatives, hinge hypotheses, finite-cover and relevant-space queries maintained. Neither interfaces nor scans admit motion. |
-| 6.0C — Panel tracking prototype | SAM3 reconditioning OFF is the selected next experimental reference: one SAM/object, TAPIR and SuperPoint; older baseline/results and operational defaults retained. New bounded SAM3.1 OFF completes both original CUDA openings with isolated period16→0, identical initialization/P2P controls, zero reconditioning calls and no retries. Light primary 15 mm improves versus ON; nominal all three targets regress. SAM3 OFF balances better nominal useful accuracy and 264/281 ms complete p95 against its retained GPU/CPU history growth; bounded SAM3.1 wins memory and native presence. Five inliers/4 mm and all P2P controls stay fixed. No 150 ms request or provider/A4 qualification. |
+| 6.0C — Panel tracking prototype | Selected SAM3 OFF with one SAM/object, TAPIR and SuperPoint now has opt-in bounded history. Both complete original CUDA openings reproduce every mask, pose and decision exactly; SAM allocation stays 3.65→3.66 GiB and peak drops 8.39→4.21 GiB, without RAM offload. Complete p95 is 253/270 ms. Baseline, unbounded OFF and prior evidence preserved; residual diagnosis and one justified quality correction are next. Five inliers/4 mm and other controls remain fixed. No 150 ms or provider/A4 qualification. |
 | 6.0D–H — Contact and qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
 | 6.1 — Action paths | ACT/Diffusion × A1–A4, observed-input/data contracts and execution/replay software maintained. Numerical/CUDA preparation is distinct from pending qualified-provider integration and physical validation. |
 | 6.2–7 — Policy data and learning | Not started. No matched B1 policy dataset or learned-policy result. |
 
 ## Next action
 
-Use [[experiments/p2p-sam3-unified-frontend|unified SAM3 reconditioning OFF]] for
-next-phase frontend development: one SAM, one original object ID0, `door surface`,
-the preserved seed0 recipe, TAPIR Large/480/four iterations/all-query, SuperPoint,
-graph off, partial reference batch on, rollback off, five inliers/4 mm,
-vectorized SDF Jacobian and 120 active references. This selects an experimental
-reference; it leaves operational defaults and the old multi-object baseline intact.
+Use [[experiments/p2p-sam3-selected-development|selected SAM3 OFF development]] for
+the next sequential phase: exact bounded-history validation is complete, followed
+by saved-data residual diagnosis and at most one justified quality intervention.
+The preserved [[experiments/p2p-sam3-unified-frontend|frontend decision]] fixes one
+SAM/object, `door surface`, seed0, TAPIR/480/four iterations/all-query and SuperPoint;
+operational defaults and the old multi-object baseline remain intact.
 
-The only new variant is bounded SAM3.1 OFF. Both full CUDA replays complete all
-5,716 original frames, with exact native P2P configuration and seed masks/poses
-versus saved ON. Period 16→0 is effective: zero OFF update calls, with first mask/pose
-differences at 46.2/35.5333 s. The useful-memory policy, prompt and all other rules
-are unchanged. Ground truth remains evaluator-only; original timestamps and failures
-are retained. Baseline, bounded ON and SAM3 OFF are reused, not rerun.
-
-Original primary correct availability at 10/15/20 mm and 5 degrees is
-68.82/97.97/99.83% light and 56.82/83.24/94.58% nominal for new bounded OFF.
-It improves light primary 15/20 mm versus ON, but nominal regresses at every bound
-on all three targets. Native loss is only one frame each, while nominal primary
-10 mm correctness has a 10.85 s gap. SAM3 OFF reaches 70.33/96.19/99.86% light and
-87.40/96.54/97.73% nominal, with 0/57 native losses and nominal 10 mm maximum
-correct gap 0.150 s. Its sharper occasional nominal peaks and weaker light accuracy
-versus baseline remain. Choose the combined useful-accuracy/continuity/latency
-tradeoff without requiring a win in every metric.
-
-SAM3 OFF complete p95 is 264/281 ms versus new bounded OFF 282/283 ms and old
-baseline 554/644 ms. Bounded SAM3.1 retains about 4.40 GiB SAM allocation and
-5.06 GiB allocator peak; SAM3 OFF allocation grows 3.65→7.84 GiB and CPU high-water
-peaks reach 20.21/18.51 GiB. New simultaneous GPU peaks are 11.21/10.83 GiB, with
-current combined RSS rising across steady time windows; peak and growth measures
-remain separate. Both memory sampler shutdown errors are retained after the final
-capture; every request and per-frame resource row remains. No inference attempt
-failed or was retried. None meets 150 ms. Live cadence, geometric filters/spatial
-prompts, renewal changes, further optimization, cleanup, A3/A4 and policies are
-outside this consolidation. Every original recording, baseline and prior result
+Both complete original CUDA memory-only replays retain 2,858 rows, original seed,
+timestamps and tracker failures. All masks, published poses and decisions are
+identical to saved SAM3 OFF. Score-selected useful memories survive long low-score
+gaps; expired images/masks/output views are released rather than offloaded. SAM
+allocation stays 3.65→3.66 GiB, allocator peak drops 8.39→4.21 GiB and CPU high-water
+is 7.46 GiB versus saved 20.21/18.51 GiB. New live SAM RSS stays near 2.22–2.27 GiB;
+saved high-water entries are not live RSS. Complete p95 is 253/270 ms light/nominal,
+versus 264/281 ms saved OFF. No nonseed request reaches 150 ms. Every original
+recording, baseline, failed attempt and previous comparison remains intact.
 remains preserved.
 
 For future action integration, use the [[topics/pre-a4-initialization-and-hinge-budget|shared pre-A4 initialization specification]]

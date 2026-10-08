@@ -71,6 +71,8 @@ Current engineering and historical scientific records:
 
 - [[experiments/p2p-sam3-unified-frontend|Unified SAM3 Video Frontend]] — Four-way complete original-target comparison; isolated bounded SAM3.1 OFF regresses nominal, so SAM3 OFF is the next experimental reference with explicit latency/memory tradeoffs and older baselines/defaults retained.
 
+- [[experiments/p2p-sam3-selected-development|Selected SAM3 OFF Memory and Quality]] — Consumer-based history release, complete equivalence and sequential residual diagnosis.
+
 - [[experiments/p2p-selected-registration|Selected-Candidate Registration]] — Complete CUDA comparison; periodic alternatives save cost but regress the nominal tail, so common adoption is rejected.
 
 - [[experiments/gilbreth-nested-scale-sweep|Nested Scale Sweep]] — Completed sixteen-cell training result and limits.
