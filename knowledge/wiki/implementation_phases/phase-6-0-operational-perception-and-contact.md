@@ -16,7 +16,7 @@ See [[../topics/shared-door-perception|maintained interfaces]] and
 
 The current `GeometryProvider` exposes static candidates through `scan_state` and
 returns invalid `DoorEstimate` values without policy encoding; the optional
-Point2Pose adapter supplies independently supported local diagnostic zones. GroundingDINO,
+Point2Pose adapter supplies independently supported local diagnostic zones. Persistent SAM3,
 native SAM3 stay frozen for 6.0B. Unused DINOv3 extraction is retired. No qualified release exists; the legacy
 6.1 release interfaces are retained without an early schema migration.
 
@@ -334,9 +334,9 @@ validated local commits. External Alex/Isaac packages are outside this work.
 
 The official model-free Point2Pose prototype, isolated CUDA dependencies and
 smoke/replay/observer/serial evaluators are implemented but unqualified. The
-selected experimental SAM3 recipe is reconstructible from
-`configs/point2pose_selected.json` and the model README; baseline SAM2 and
-operational defaults remain distinct. Behavior is canonical in
+selected SAM3 recipe is the common maintained runtime reference from
+`configs/point2pose_selected.json`. Inspection and tracking share one causal session;
+GroundingDINO, the static box worker and separate SAM2 execution are retired. Behavior is canonical in
 [[../topics/shared-door-perception|Shared Door Perception]], results in
 [[../experiments/b1-perception-findings|Perception Findings]] and
 [[../experiments/p2p-sam3-selected-development|selected development]].
@@ -363,13 +363,14 @@ rotation and P2P reserve tradeoffs. The saved
 further correction: independent material correspondence checks remain open,
 including the missing historical rejected-light-candidate trace. Closed-reference,
 hinge/floor/calibration bounds, contact and policy qualification are still required.
-No new replay or latency optimization is part of the October 8 cleanup.
+The October 8 integration separately verifies historical initialization and
+inspection-to-tracking continuity; it introduces no latency/quality variant.
 
 #### Implemented recipe and remaining acceptance work
 
 Pinned upstream revision: `51856226610df75e5c06e8de545bd27f7c4ba99c`.
-Keep the pinned paper recipe for the operational baseline; select experimental
-controls only explicitly through the maintained configuration. Derive TSDF
+Keep the common selected recipe and its pinned native settings; no model,
+threshold or registration-quality variant is introduced by integration. Derive TSDF
 radius/volume from filtered measured candidate geometry,
 using one common truncation/uncertainty margin and 5 mm voxels. The 25 cm filter,
 one-time volume initialization and unenforced YAML extent/voxel limits are
@@ -385,15 +386,17 @@ peak, whole latency, queue waiting and useful outputs separately. CUDA is requir
 for both models and fusion. Do not repair latency by loosening the 150 ms gate.
 
 Initialization keeps the source image, mask, depth, intrinsics, joints and time
-together, including delayed masks. Validate SAM2 source-component interiors;
+together, including delayed masks. Validate measured source-component interiors;
 initialization mismatch and tracking loss are distinct. Preserve camera Ct,
 initial map M, observed object O and fixed zone Z and the composition
 `W_Ct * Ct_M * M_O * O_Z`. Numeric round trips and independent motion tests must
 catch missing inversions or double alignment. Replay/live share a bounded provider;
 complete episode reset recreates both workers before new acquisitions and clears
-all Point2Pose temporal state. Frame gaps invalidate semantic requests without
-model reloads. The stateless 6.0B worker is released after the immutable automatic
-seed is ready. Same-episode native reacquisition preserves the original identity/zone.
+all SAM3/Point2Pose temporal state. Frame gaps retain original capture IDs and
+expose missing support without synthetic intermediate frames. The same SAM3
+worker remains alive through initialization and tracking. Same-ID return cannot
+certify material recovery. Freeze the stationary inspection map at 25 s; current
+surrounding-depth queries remain separate from that reference.
 
 Confirm zone ownership separately from candidate tracking. Once established,
 transport the zone from panel pose without requiring features in the uniform
@@ -434,8 +437,8 @@ serially and scores native and integration results at acquisition time. Its
 campaign protocol covers
 the four complete pilots plus two additional fresh initialization attempts per
 recording; the original campaign remains stopped. This is not an instruction to
-resume it. Latency is diagnostic only in this mode. Mask rejection stays latched
-per candidate while native diagnosis may continue; operational guards and the
+resume it. Latency is diagnostic only in this mode. Historical diagnostics that continued after mask rejection remain preserved.
+The maintained coordinator retains strict initialization; operational guards and the
 150 ms deadline above remain unchanged. Relative seed alignment, ambiguous
 ownership and full missing/lost/unprocessed denominators remain explicit. These
 results do not evaluate official release gates or admit contact; see the canonical

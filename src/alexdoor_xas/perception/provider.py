@@ -1,10 +1,6 @@
 """Frozen image cues and causal static RGB-D scan fusion."""
 
 import json
-import os
-import subprocess
-import sys
-import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
@@ -14,7 +10,6 @@ import numpy as np
 from alexdoor_xas.perception.contracts import DoorEstimate
 from alexdoor_xas.perception.geometry import surfaces
 from alexdoor_xas.perception.inspection import load_inspection
-from alexdoor_xas.perception.ipc import receive, send
 from alexdoor_xas.perception.scan import ScanMemory
 from alexdoor_xas.recording.b1 import OBS_KEYS
 
@@ -46,51 +41,10 @@ class PrototypeRecipe:
 def load_recipe(path, root):
     config = json.loads(Path(path).read_text())
     config["inspection"] = load_inspection(Path(root) / config.pop("inspection_path"))
+    config["point2pose_selected"] = json.loads(
+        (Path(root) / "configs/point2pose_selected.json").read_text()
+    )
     return PrototypeRecipe(json.dumps(config, sort_keys=True, allow_nan=False))
-
-
-class ModelWorker:
-    """Private pipe to the isolated image-model process. Only RGB crosses this boundary."""
-
-    def __init__(self, model_root, config, log=None):
-        env = dict(os.environ, HF_HUB_OFFLINE="1", TRANSFORMERS_OFFLINE="1", OMP_NUM_THREADS="4")
-        self.process = subprocess.Popen(
-            [sys.executable, "-m", "alexdoor_xas.perception.visual_worker", str(model_root)],
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=log,
-            env=env,
-        )
-        try:
-            send(self.process.stdin, config)
-            response = receive(self.process.stdout)
-            if response is None or "error" in response:
-                raise RuntimeError(f"Visual worker initialization failed: {response}")
-        except BaseException:
-            self.close()
-            raise
-        self.runtime = response["ready"]
-
-    def infer(self, rgb):
-        started = time.perf_counter()
-        send(self.process.stdin, dict(rgb=rgb.tobytes(), shape=rgb.shape))
-        result = receive(self.process.stdout)
-        if result is None or "error" in result:
-            raise RuntimeError(f"Visual worker inference failed: {result}")
-        result["model_latency_s"] = result["latency_s"]
-        result["latency_s"] = time.perf_counter() - started
-        return result
-
-    def close(self):
-        if self.process.stdin and not self.process.stdin.closed:
-            self.process.stdin.close()
-        try:
-            self.process.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            self.process.kill()
-            self.process.wait()
-        if self.process.stdout:
-            self.process.stdout.close()
 
 
 class CueEngine:
@@ -150,14 +104,13 @@ class CueEngine:
 
 
 class GeometryProvider:
-    """Static scan with optional Point2Pose local diagnostics; no qualified release."""
+    """Numerical static-geometry harness with injected cues; no model lifecycle."""
 
-    def __init__(self, binding, engine, *, tracking=None):
+    def __init__(self, binding, engine):
         if binding.config.get("scan_fusion") != "object-v1":
             raise ValueError("Static scan requires the object-v1 recipe")
         self.binding, self.engine = binding, engine
         self.config = binding.config
-        self.tracking = tracking
         self.reset()
 
     @property
@@ -178,8 +131,6 @@ class GeometryProvider:
             self.engine.restart()
         else:
             self.engine.reset()
-        if self.tracking is not None:
-            self.tracking.reset(self.generation)
         self.last_estimate = self.encoding = None
         self.last_time = self.last_frame = None
         self.next_semantic = 0.0
@@ -200,10 +151,6 @@ class GeometryProvider:
         return True
 
     def due_view(self, t):
-        if self.tracking is not None and self.tracking.candidates:
-            return None  # Native SAM2 already tracks the initialized hypotheses.
-        if self.tracking is not None and t < self.config["inspection"]["sample_times_s"][0]:
-            return None
         end = self.config["inspection"]["sample_times_s"][-1]
         return self.last_frame if t <= end and t >= self.next_semantic else None
 
@@ -214,17 +161,7 @@ class GeometryProvider:
             if available_s is None
             else available_s,
         )
-        geometry_started = time.perf_counter()
         candidates = surfaces(cue, sensor, self.config)
-        geometry_s = time.perf_counter() - geometry_started
-        if (
-            self.tracking is not None
-            and float(sensor["time_s"]) >= self.config["inspection"]["sample_times_s"][0]
-        ):
-            # Use the common inspection's first completed view, not reset's
-            # transient view. The original synchronized packet remains the seed.
-            started_s = max(cue["available_s"], started_s or cue["available_s"]) + geometry_s
-            self.tracking.initialize(candidates, sensor, start_s=started_s)
         self.last_cue = (sensor, cue)
         self.scan_memory.add(candidates, sensor, view, available_s=cue["available_s"])
         state = self.scan_state
@@ -284,36 +221,13 @@ class GeometryProvider:
         if not np.any(valid & np.isfinite(depth) & (depth > 0)) or not np.any(sensor["rgb"]):
             self.engine.reset()
             return DoorEstimate(t, False, "missing_rgbd")
-        try:
-            self.consume_results(t)
-        except (RuntimeError, EOFError, BrokenPipeError, ValueError) as error:
-            if self.tracking is None:
-                raise
-            self._tracking_failure(error)
+        self.consume_results(t)
         view = self.due_view(t)
         if view is not None and self.engine.submit(sensor, view):
             self.next_semantic = t + self.config["semantic_period_s"]
-        if self.tracking is not None:
-            try:
-                local = self.tracking.update(sensor)
-            except (RuntimeError, EOFError, BrokenPipeError, ValueError) as error:
-                self._tracking_failure(error)
-                local = self.tracking.local_state(t)
-            self.diagnostics["tracking"] = self.tracking.diagnostics
-            return DoorEstimate(t, False, "point2pose_local_diagnostic", local=local)
         return DoorEstimate(t, False, "static_scan_only")
 
-    def _tracking_failure(self, error):
-        state = "initialization_failed" if self.tracking.last_result is None else "tracking_failed"
-        for candidate in self.tracking.candidates:
-            candidate.state = state
-        self.tracking.engine.failed = True
-        self.tracking.engine.pending = self.tracking.engine.latest = None
-        self.tracking.diagnostics.update(state=state, error=str(error))
-
     def close(self):
-        if self.tracking is not None:
-            self.tracking.engine.close()
         self.engine.close()
         if self.engine.worker is not None:
             self.engine.worker.close()

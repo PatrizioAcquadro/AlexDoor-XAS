@@ -453,6 +453,11 @@ class ScanMemory:
                 i
                 for i, old in enumerate(self.surfaces)
                 if similar_surface(old, surface, self.config)
+                and (
+                    not surface.observations
+                    or not old.observations
+                    or surface.observations[-1].semantic_id == old.observations[-1].semantic_id
+                )
             ]
             matches = [
                 i

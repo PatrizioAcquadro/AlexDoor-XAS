@@ -88,6 +88,10 @@ def replay_episode(path, recipe, output, models, tool_fk, distal_faces, *, strid
             for row in range(0, len(times), stride):
                 sensor = sensor_at(h5, row)
                 estimate = provider.update(sensor)
+                if provider.engine.failed:
+                    raise RuntimeError(
+                        provider.diagnostics.get("error", "perception_session_failed")
+                    )
                 tracker, t = provider.tracking, float(sensor["time_s"])
                 if tracker.candidates and reference is None:
                     candidate = tracker.candidates[0]
@@ -237,6 +241,9 @@ def replay_episode(path, recipe, output, models, tool_fk, distal_faces, *, strid
                     "loaded response",
                 ],
                 last_tracking_state=tracker.diagnostics,
+                queue=provider.engine.queue_stats,
+                final_pending=provider.engine.pending is not None,
+                resources=provider.diagnostics.get("resources"),
             )
             write_json(output / "report.json", report)
             return report

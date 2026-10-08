@@ -108,7 +108,8 @@ def main(argv=None):
 
     from alexdoor_xas.perception.diagnostics.scan import PILOTS, run_scan_diagnostics
     from alexdoor_xas.perception.evaluation import write_json
-    from alexdoor_xas.perception.provider import ModelWorker, load_recipe
+    from alexdoor_xas.perception.provider import load_recipe
+    from alexdoor_xas.perception.sam3.runtime import Sam3Worker
     from alexdoor_xas.qualification.corpus import load_corpus
     from alexdoor_xas.recording.b1 import episode_paths
 
@@ -172,13 +173,22 @@ def main(argv=None):
         ),
     )
     with (args.output / "models.log").open("w") as log:
-        worker = ModelWorker(args.models, recipe.config, log=log)
+        worker = Sam3Worker(
+            args.models, recipe.config["point2pose_selected"]["sam3_frontend"], log=log
+        )
         try:
             write_json(args.output / "runtime.json", worker.runtime)
             with h5py.File(paths[0], "r") as h5:
-                rgb = h5["observations/rgb"][240]
-            first = worker.infer(rgb)
-            result = worker.infer(rgb)
+                first = worker.infer(
+                    h5["observations/rgb"][240],
+                    h5["observations/frame"][240],
+                    h5["observations/time_s"][240],
+                )
+                result = worker.infer(
+                    h5["observations/rgb"][243],
+                    h5["observations/frame"][243],
+                    h5["observations/time_s"][243],
+                )
             write_json(
                 args.output / "smoke.json",
                 dict(

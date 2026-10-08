@@ -14,41 +14,10 @@ from alexdoor_xas.perception.diagnostics.replay import pose_error, truth_panel, 
 from alexdoor_xas.perception.diagnostics.scan import PILOTS
 from alexdoor_xas.perception.diagnostics.smoke import sensor_at
 from alexdoor_xas.perception.evaluation import json_safe, quantiles, write_json
-from alexdoor_xas.perception.geometry import surfaces
 from alexdoor_xas.perception.ipc import unpack_array
 from alexdoor_xas.perception.material_zone import transported_zone
-from alexdoor_xas.perception.point2pose.runtime import Point2PoseWorker
-from alexdoor_xas.perception.point2pose.tracking import PanelTracking, measured_registration
-from alexdoor_xas.perception.provider import ModelWorker
-
-
-class SerialPoint2PoseEngine:
-    """Synchronous native requests, also used by the existing candidate initializer."""
-
-    def __init__(self, factory):
-        self.factory = factory
-        self.worker = self.result = None
-
-    def reset(self):
-        self.close()
-        self.result = None
-
-    def prepare(self):
-        self.worker = self.factory()
-        self.worker.first_request = False  # Startup is measured before the first acquisition.
-
-    def submit(self, sensor, masks=None, *, start_s=None):
-        self.result = self.worker.infer(sensor, masks)
-        if self.result["frame"] != int(sensor["frame"]) or self.result["capture_s"] != float(
-            sensor["time_s"]
-        ):
-            raise ValueError("offline_result_capture_mismatch")
-        return True
-
-    def close(self):
-        if self.worker is not None:
-            self.worker.close()
-            self.worker = None
+from alexdoor_xas.perception.point2pose.tracking import measured_registration
+from alexdoor_xas.perception.session import PerceptionSession, selected_recipe
 
 
 def finite_pose(pose):
@@ -100,6 +69,8 @@ def score_objects(candidates, sensor, result, motion, config, checks):
             reasons.append(check["reason"])
         if not pose_valid:
             reasons.append("invalid_native_pose")
+        if result.get("semantic_absent", False):
+            reasons.append("selected_sam3_identity_absent")
         if obj["lost"]:
             reasons.append(
                 "native_tracking_lost"
@@ -232,7 +203,9 @@ def summarize_candidate(frames, candidate_id, seed_row):
 
 
 def capture_schedule(times, config, initialization_only, capture_window_s):
-    end_s = config["inspection"]["sample_times_s"][-1] if initialization_only else float(times[-1])
+    end_s = (
+        config["inspection"]["sample_times_s"][-1] + 1 if initialization_only else float(times[-1])
+    )
     first_s = float(times[0])
     if capture_window_s is not None:
         if (
@@ -262,13 +235,13 @@ def offline_episode(
     initialization_only=False,
     capture_window_s=None,
     registration_diagnostics=False,
-    use_key_frame_graph=True,
-    allow_partial_reference_batch=False,
+    use_key_frame_graph=None,
+    allow_partial_reference_batch=None,
     refit_seed_rollback=False,
     selected_registration_only=False,
     performance_controls=None,
     sam3_frontend=None,
-    reference_depth_edge_filter=False,
+    reference_depth_edge_filter=None,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
     if refit_seed_rollback or selected_registration_only:
@@ -277,7 +250,7 @@ def offline_episode(
     output.mkdir(parents=True, exist_ok=False)
     config = recipe.config
     frames, candidates, checks = [], [], []
-    engine = cues = tracker = None
+    cues = tracker = session = None
     failure = seed_row = seed_truth = None
     interrupted = False
     startup = {}
@@ -285,14 +258,10 @@ def offline_episode(
     first_supported = {}
     first_native = {}
     initialization = dict(native_completed=False, integration_checks=[], seed_row=None)
-    with h5py.File(path, "r") as h5, (output / "visual.log").open("w") as log:
+    with h5py.File(path, "r") as h5:
         times, frame_ids = h5["observations/time_s"][:], h5["observations/frame"][:]
         scheduled, first_s, end_s = capture_schedule(
             times, config, initialization_only, capture_window_s
-        )
-        next_semantic = max(first_s, config["inspection"]["sample_times_s"][0])
-        semantic_end_s = (
-            end_s if capture_window_s is not None else config["inspection"]["sample_times_s"][-1]
         )
         calibration = json.loads(h5["metadata"].attrs["calibration"])
         try:
@@ -304,47 +273,35 @@ def offline_episode(
                 raise ValueError("nonmonotonic_offline_recording")
             if not np.allclose(np.diff(times), 1 / 60, atol=1e-6, rtol=0):
                 raise ValueError("offline_recording_requires_60_hz")
-            started = time.perf_counter()
-            if sam3_frontend is None:
-                cues = ModelWorker(models, config, log)
-            else:
-                from alexdoor_xas.perception.sam3.runtime import Sam3Worker
-
-                cues = Sam3Worker(models, sam3_frontend, log)
-            startup["visual_s"] = time.perf_counter() - started
-            engine = SerialPoint2PoseEngine(
-                lambda: Point2PoseWorker(
-                    Path(models) / "point2pose",
-                    calibration["depth_interval_m"],
-                    config["plane_tolerance_m"],
-                    1,
-                    output / "native",
-                    diagnostic_only=True,
-                    **({"external_masks": True} if sam3_frontend is not None else {}),
-                    **(
-                        {"reference_depth_edge_filter": True} if reference_depth_edge_filter else {}
-                    ),
-                    **({"registration_diagnostics": True} if registration_diagnostics else {}),
-                    **({"use_key_frame_graph": False} if not use_key_frame_graph else {}),
-                    **(
-                        {"allow_partial_reference_batch": True}
-                        if allow_partial_reference_batch
-                        else {}
-                    ),
-                    **(
-                        {"performance_controls": performance_controls}
-                        if performance_controls
-                        else {}
-                    ),
-                )
-            )
-            tracker = PanelTracking(engine, config)
-            if sam3_frontend is None:
-                tracker.before_start = cues.close
-            engine.prepare()
-            startup["point2pose_s"] = engine.worker.boot_latency_s
+            selected = config.get("point2pose_selected") or selected_recipe()
             if sam3_frontend is not None:
-                write_json(output / "sam3-runtime.json", cues.runtime)
+                selected["sam3_frontend"] = sam3_frontend
+            overrides = dict(
+                use_key_frame_graph=use_key_frame_graph,
+                allow_partial_reference_batch=allow_partial_reference_batch,
+                reference_depth_edge_filter=reference_depth_edge_filter,
+                performance_controls=performance_controls,
+            )
+            selected["point2pose_controls"].update(
+                {k: v for k, v in overrides.items() if v is not None}
+            )
+            session = PerceptionSession(
+                models,
+                recipe,
+                calibration,
+                output,
+                selected=selected,
+                initialize_after_s=max(first_s, config["inspection"]["sample_times_s"][-1])
+                if capture_window_s is not None
+                else None,
+                registration_diagnostics=registration_diagnostics,
+                historical_selection=capture_window_s is not None
+                and first_s >= config["inspection"]["sample_times_s"][-1],
+            )
+            cues, tracker = session.sam, session.tracker
+            startup["visual_s"] = cues.runtime["startup_s"]
+            startup["point2pose_s"] = session.native.boot_latency_s
+            write_json(output / "sam3-runtime.json", cues.runtime)
         except KeyboardInterrupt:
             interrupted = True
             failure = "user_requested_stop"
@@ -352,7 +309,10 @@ def offline_episode(
             failure = f"{type(error).__name__}: {error}"
         write_json(output / "startup.json", startup)
         try:
-            with (output / "frames.jsonl").open("w", buffering=1) as stream:
+            with (
+                (output / "frames.jsonl").open("w", buffering=1) as stream,
+                (output / "masks-packed.bin").open("wb") as mask_stream,
+            ):
                 for row in scheduled:
                     row, t = int(row), float(times[row])
                     if t > end_s + 1e-9:
@@ -373,30 +333,27 @@ def offline_episode(
                         record["status"] = "not_processed"
                     else:
                         try:
-                            if sam3_frontend is not None:
-                                cue = cues.infer(sensor["rgb"], sensor["frame"], sensor["time_s"])
-                                record["sam3"] = cue["sam3"]
-                                if not candidates:
-                                    tracker.initialize(
-                                        surfaces(cue, sensor, config),
-                                        sensor,
-                                        whole_leaf_mask=cues.latest_masks[0],
-                                    )
-                                else:
-                                    engine.submit(sensor, cues.latest_masks)
-                            elif not candidates and next_semantic <= t <= semantic_end_s + 1e-9:
-                                cue = cues.infer(sensor["rgb"])
-                                next_semantic = float(t) + config["semantic_period_s"]
-                                tracker.initialize(surfaces(cue, sensor, config), sensor)
-                                record["semantic_latency_s"] = cue["latency_s"]
-                            elif candidates:
-                                engine.submit(sensor)
-                            result = engine.result
+                            packet = session.infer(sensor)
+                            record["sam3"] = packet["sam3"]
+                            record["identity"] = packet["identity"]
+                            record["geometric_choices"] = packet["geometric_choices"]
+                            packed_masks = b"".join(packet["cue"]["masks"])
+                            record["mask_store"] = dict(
+                                offset=mask_stream.tell(),
+                                size=len(packed_masks),
+                                shape=packet["cue"]["shape"],
+                                ids=packet["cue"]["ids"],
+                            )
+                            mask_stream.write(packed_masks)
+                            record["stages"] = packet["stages"]
+                            record["resources"] = packet.get("resources")
+                            result = packet if packet["objects"] else None
                             if result is not None:
+                                tracker.consume(sensor, result, t + result["latency_s"])
                                 record["status"] = "native_result"
                                 record["latency"] = dict(
                                     request_s=time.perf_counter() - request_started,
-                                    native_ipc_s=result["latency_s"],
+                                    native_ipc_s=packet["stages"]["point2pose_s"],
                                     native_compute_s=result.get("model_latency_s"),
                                     diagnostic_export_s=result.get("diagnostic_export_s"),
                                     diagnostic_total_s=result.get("diagnostic_total_s"),
@@ -446,8 +403,12 @@ def offline_episode(
                                     initialization.update(
                                         native_completed=True, integration_checks=checks
                                     )
+                                scoring_started = time.perf_counter()
                                 record["objects"] = score_objects(
                                     candidates, sensor, result, motion, config, checks
+                                )
+                                record["latency"]["evaluation_s"] = (
+                                    time.perf_counter() - scoring_started
                                 )
                                 inference_wall_s += record["latency"]["request_s"]
                                 for obj in record["objects"]:
@@ -540,10 +501,8 @@ def offline_episode(
                     frames.append(record)
                     stream.write(json.dumps(record, allow_nan=False) + "\n")
         finally:
-            if engine is not None:
-                engine.close()
-            if cues is not None and cues.process.poll() is None:
-                cues.close()
+            if session is not None:
+                session.close()
         if failure is not None:
             write_json(output / "failure.json", dict(error=failure, qualified=False))
         initialization.update(
@@ -591,6 +550,8 @@ def offline_episode(
             },
             startup=startup,
             latency_affects_outcome=False,
+            dropped_frames=0,
+            queue_capacity=0,
             position_reference_m=0.01,
             rotation_reference_deg=5,
             seed_zero_is_alignment=True,

@@ -29,7 +29,7 @@ class Point2PoseWorker:
         refit_seed_rollback=False,
         selected_registration_only=False,
         performance_controls=None,
-        external_masks=False,
+        external_masks=True,
         reference_depth_edge_filter=False,
     ):
         if refit_seed_rollback or selected_registration_only:
@@ -174,12 +174,14 @@ class Point2PoseEngine(CueEngine):
     """One in-flight acquisition; latest waiting acquisition replaces older ones.
 
     Prepared processes are recreated before the next episode's acquisitions;
-    SAM2 memory and Point2Pose's causal state never cross an episode boundary.
+    SAM3 and Point2Pose causal state never cross an episode boundary.
     """
 
-    def __init__(self, factory, *, replay):
+    def __init__(self, factory, *, replay, capture_session=False):
         super().__init__(None, replay=replay)
         self.factory, self.latest = factory, None
+        self.capture_session = capture_session
+        self.queue_stats = dict(submitted=0, replaced=0, published=0, skipped_capture_ids=0)
         self.failed = False
         self.prepared = False
 
@@ -202,6 +204,8 @@ class Point2PoseEngine(CueEngine):
             self.executor = ThreadPoolExecutor(max_workers=1)
         self.worker = self.pending = self.latest = None
         self.failed = False
+        self.queue_stats = dict(submitted=0, replaced=0, published=0, skipped_capture_ids=0)
+        self.last_dispatch_frame = None
         if preload and was_prepared:
             self.prepare()
 
@@ -217,21 +221,38 @@ class Point2PoseEngine(CueEngine):
         masks = None if masks is None else tuple(np.array(m, copy=True) for m in masks)
         copy_s = time.perf_counter() - copy_started
         if self.pending is not None:
+            if self.latest is not None:
+                self.queue_stats["replaced"] += 1
             self.latest = snapshot, masks, copy_s
             return False
         return self._dispatch(snapshot, masks, copy_s, start_s)
 
     def _dispatch(self, snapshot, masks, copy_s, start_s):
+        boot_s = 0.0
         if self.worker is None:
-            if masks is None:
+            boot_started = time.perf_counter()
+            if masks is None and not self.capture_session:
                 return False
-            self.worker = self.factory(len(masks))
+            self.worker = self.factory(1 if masks is None else len(masks))
+            if self.capture_session:
+                self.prepared = True
+                boot_s = time.perf_counter() - boot_started
         worker = self.worker
+        frame = int(snapshot["frame"])
+        previous = getattr(self, "last_dispatch_frame", None)
+        if previous is not None:
+            self.queue_stats["skipped_capture_ids"] += max(0, frame - previous - 1)
+        self.last_dispatch_frame = frame
+        self.queue_stats["submitted"] += 1
 
         def infer():
             result = worker.infer(snapshot, masks)
-            result["latency_s"] += copy_s
+            result["latency_s"] += copy_s + boot_s
+            result["restart_startup_s"] = boot_s
             result["snapshot_copy_s"] = copy_s
+            result["queue_wait_s"] = max(
+                0.0, (start_s or float(snapshot["time_s"])) - float(snapshot["time_s"])
+            )
             return result
 
         result = infer() if self.replay else self.executor.submit(infer)
@@ -253,6 +274,8 @@ class Point2PoseEngine(CueEngine):
             self.pending = self.latest = None
             self.failed = True
             raise
+        if event is not None:
+            self.queue_stats["published"] += 1
         if event is not None and self.latest is not None:
             sensor, masks, copy_s = self.latest
             self.latest = None
@@ -264,101 +287,8 @@ class Point2PoseEngine(CueEngine):
         super().close()
 
 
-class SeedCueEngine(CueEngine):
-    """Release the stateless 6.0B CUDA worker once the immutable seed is ready."""
+def tracking_provider(recipe, models, calibration, output, *, replay, **options):
+    """Shared SAM3 inspection/tracking provider with operational scheduling."""
+    from alexdoor_xas.perception.session import session_provider
 
-    def __init__(self, factory, *, replay):
-        self.factory = factory
-        self.first_reset = True
-        super().__init__(factory(), replay=replay)
-
-    def release(self):
-        if self.worker is not None:
-            self.worker.close()
-            self.worker = None
-        if self.executor is not None:
-            self.executor.shutdown(wait=True, cancel_futures=True)
-            self.executor = None
-        self.pending = None
-
-    def restart(self):
-        super().reset()
-        if self.first_reset:
-            self.first_reset = False
-            return
-        self.release()
-        self.worker = self.factory()
-        if not self.replay:
-            from concurrent.futures import ThreadPoolExecutor
-
-            self.executor = ThreadPoolExecutor(max_workers=1)
-
-    def close(self):
-        self.release()
-
-
-def tracking_provider(
-    recipe,
-    models,
-    calibration,
-    output,
-    *,
-    replay,
-    tool_fk=None,
-    distal_faces=None,
-    calibration_bound=None,
-    relative_speed_bound=None,
-):
-    """Identical live/replay provider; only acquisition/completion scheduling differs."""
-    from alexdoor_xas.perception.point2pose.tracking import PanelTracking
-    from alexdoor_xas.perception.provider import GeometryProvider, ModelWorker
-
-    output = Path(output)
-    output.mkdir(parents=True, exist_ok=True)
-    log = (output / "visual.log").open("a")
-    started = time.perf_counter()
-    cues = SeedCueEngine(lambda: ModelWorker(models, recipe.config, log=log), replay=replay)
-    visual_startup_s = time.perf_counter() - started
-    processes = 0
-
-    def factory(count):
-        nonlocal processes
-        processes += 1
-        return Point2PoseWorker(
-            models / "point2pose",
-            calibration["depth_interval_m"],
-            recipe.config["plane_tolerance_m"],
-            count,
-            output / f"process-{processes}",
-        )
-
-    engine = Point2PoseEngine(factory, replay=replay)
-    tracking = PanelTracking(
-        engine,
-        recipe.config,
-        calibration=calibration,
-        tool_fk=tool_fk,
-        distal_faces=distal_faces,
-        calibration_bound=calibration_bound,
-        relative_speed_bound=relative_speed_bound,
-    )
-    tracking.before_start = cues.release
-    provider = GeometryProvider(recipe, cues, tracking=tracking)
-    provider.owned_log = log
-    try:
-        engine.prepare()
-    except Exception:
-        provider.close()
-        raise
-    (output / "startup.json").write_text(
-        json.dumps(
-            dict(
-                visual_startup_s=visual_startup_s,
-                point2pose_startup_s=engine.worker.boot_latency_s,
-                prepared_before_acquisition=True,
-            ),
-            indent=2,
-        )
-        + "\n"
-    )
-    return provider
+    return session_provider(recipe, models, calibration, output, replay=replay, **options)

@@ -33,7 +33,7 @@ from alexdoor_xas.perception.observed_articulation import (
     current_angle,
     fit_motion_axis,
 )
-from alexdoor_xas.perception.point2pose.seed import candidate_references
+from alexdoor_xas.perception.point2pose.seed import candidate_references, verify_candidate
 from alexdoor_xas.perception.scan import object_members, registered_support, surface_support
 
 
@@ -54,6 +54,9 @@ class PanelCandidate:
     registration_origin_map: np.ndarray | None = None
     camera_world: np.ndarray | None = None
     static_reference: StaticReference | None = None
+    sam3_id: int | None = None
+    p2p_object_id: int | None = None
+    material_recovery_unverified: bool = False
 
 
 def metric_registration_bound(source, current, transform, depth_error_m):
@@ -105,7 +108,6 @@ class PanelTracking:
         self.calibration, self.tool_fk, self.distal_faces = calibration, tool_fk, distal_faces
         self.calibration_bound = calibration_bound
         self.relative_speed_bound = relative_speed_bound
-        self.before_start = None
         self.generation = -1
         self.reset()
 
@@ -114,16 +116,23 @@ class PanelTracking:
         self.candidates, self.selection = [], None
         self.last_submitted = self.last_result = None
         self.selection_counter = 0
+        self.initialization_options = []
         self.motion_samples = {}
         self.diagnostics = dict(
             state="acquiring_automatic_candidates", loaded_contact_admitted=False
         )
         self.engine.reset()
 
-    def initialize(self, candidates, sensor, *, start_s=None, whole_leaf_mask=None):
+    def initialize(
+        self, candidates, sensor, *, start_s=None, whole_leaf_mask=None, allow_ambiguous_seed=False
+    ):
         if self.candidates:
             return False
         processing_started = time.perf_counter()
+        if whole_leaf_mask is not None and whole_leaf_mask.shape != sensor["rgb"].shape[:2]:
+            raise ValueError("whole_leaf_mask_shape_changed")
+        self.diagnostics["seed_state"] = "insufficient_geometry"
+        self.initialization_options = []
         roots = [
             s
             for s in candidates
@@ -140,13 +149,15 @@ class PanelTracking:
             ):
                 raise ValueError("unsynchronized_candidate_initialization")
             try:
-                candidate_references(
+                references = candidate_references(
                     observation.mask(),
                     sensor["depth_m"],
                     sensor["valid_depth"],
                     sensor["intrinsics"],
                     self.config["plane_tolerance_m"],
                 )
+                if whole_leaf_mask is not None:
+                    verify_candidate(observation.mask(), whole_leaf_mask, references)
             except ValueError as error:
                 self.diagnostics.setdefault("initialization_rejections", []).append(
                     dict(
@@ -180,13 +191,15 @@ class PanelTracking:
                 for other, members in groups
             )
         ]
+        self.initialization_options = roots
         if whole_leaf_mask is not None:
             # One semantic leaf identity can have several measured plane faces.
             # The first eligible face supplies a zone; the native object receives
             # the unchanged whole-leaf mask, without another segmentation.
+            if len(roots) > 1 and not allow_ambiguous_seed:
+                self.diagnostics["seed_state"] = "ambiguous_geometry"
+                return False
             roots = roots[:1]
-            if whole_leaf_mask.shape != sensor["rgb"].shape[:2]:
-                raise ValueError("whole_leaf_mask_shape_changed")
         masks = []
         for surface in roots:
             observation = surface.observations[0]
@@ -209,14 +222,14 @@ class PanelTracking:
                     surface_support(surface, self.generation, self.config),
                 )
             )
+            self.candidates[-1].sam3_id = observation.semantic_id
+            self.candidates[-1].p2p_object_id = len(self.candidates) - 1
             self.candidates[-1].static_reference = StaticReference.observed(
                 world, self.candidates[-1].geometry
             )
             masks.append(mask if whole_leaf_mask is None else whole_leaf_mask)
         if not masks:
             return False
-        if self.before_start is not None:
-            self.before_start()
         started = max(o.available_s for s in roots for o in s.observations)
         self.engine.submit(
             sensor,
@@ -246,13 +259,24 @@ class PanelTracking:
         started = time.perf_counter()
         if len(result["objects"]) != len(self.candidates):
             raise ValueError("point2pose_candidate_identity_count_changed")
+        expected_ids = [
+            c.p2p_object_id if c.p2p_object_id is not None else i
+            for i, c in enumerate(self.candidates)
+        ]
+        if [obj["object_id"] for obj in result["objects"]] != expected_ids:
+            raise ValueError("point2pose_candidate_identity_changed")
         self.last_result = result
         for candidate, raw in zip(self.candidates, result["objects"], strict=True):
             obj = {
                 k: unpack_array(v) if isinstance(v, dict) and "data" in v else v
                 for k, v in raw.items()
             }
+            if result.get("semantic_absent", False):
+                candidate.material_recovery_unverified = True
             transform = obj["camera_from_map"]
+            if transform.shape != (4, 4) or not np.isfinite(transform).all():
+                candidate.state = "tracking_lost"
+                continue
             # Distributed native references estimate candidate pose. The uniform
             # contact face does not need its own visual features or point tracks.
             source, p, a = measured_registration(obj, self.config["plane_tolerance_m"])
@@ -262,7 +286,7 @@ class PanelTracking:
                 registration_position_m=p,
                 registration_rotation_rad=a,
             )
-            if obj["lost"] or p is None or a is None:
+            if obj["lost"] or p is None or a is None or result.get("semantic_absent", False):
                 candidate.state = "tracking_lost"
                 articulation = self.diagnostics.setdefault("observed_articulation", {}).get(
                     candidate.candidate_id
@@ -310,7 +334,7 @@ class PanelTracking:
                 ownership=candidate.ownership,
                 operational_reference_published=False,
             )
-            # Verify root geometry independently of SAM2's visual membership.
+            # Verify root geometry independently of semantic mask membership.
             # Tangential handle motion on a fixed plane cannot certify the leaf.
             initial_n, current_n = candidate.initial_world[:3, 0], candidate.pose[:3, 0]
             plane_angle = float(np.arccos(np.clip(initial_n @ current_n, -1, 1)))
@@ -442,14 +466,16 @@ class PanelTracking:
                 and 0 <= now - candidate.support.supported_s <= MAX_DYNAMIC_AGE_S + 1e-9
             )
             reason = (
-                "ambiguous_leaf_ownership"
+                "material_recovery_unverified"
+                if candidate.material_recovery_unverified
+                else "ambiguous_leaf_ownership"
                 if fresh and candidate.ownership == "ambiguous_leaf_candidate"
                 else ""
             )
             support = candidate.support if fresh else None
             identity = (
                 None
-                if support is None
+                if support is None or candidate.material_recovery_unverified
                 else FieldSupport(
                     support.acquired_s,
                     support.available_s,

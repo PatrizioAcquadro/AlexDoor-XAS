@@ -71,10 +71,12 @@ class OfficialPipeline:
             torch.backends.cudnn.allow_tf32 = True
         from point2pose.pipeline.modular_pipeline import ModularPipeline
 
+        if any(name == "sam2" or name.startswith("sam2.") for name in sys.modules):
+            raise RuntimeError("unexpected_legacy_sam2_import")
         params.update(
             min_depth=near,
             max_depth=far,
-            use_segmenter=not self.external_masks,
+            use_segmenter=False,
             estimate_init_pose=False,
             use_key_frame_graph=request.get("use_key_frame_graph", True),
             save_pose=False,
@@ -137,7 +139,7 @@ class OfficialPipeline:
         self.models = (
             self.pipeline.frontend.tracker._model,
             self.pipeline.kf_manager.sampler.super_point_extractor,
-        ) + (() if self.external_masks else (self.pipeline.frontend.segmenter.predictor,))
+        )
         self.index = 0
         self.log_dir = Path(request["log_dir"])
         self.depth_error_m = request["depth_error_m"]
@@ -160,6 +162,7 @@ class OfficialPipeline:
             selected_registration_only=False,
             performance_controls=request.get("performance_controls"),
             external_masks=self.external_masks,
+            legacy_sam2_imported=False,
             **({"reference_depth_edge_filter": True} if self.reference_depth_edge_filter else {}),
             cuda_math=dict(
                 bfloat16_autocast=torch.is_autocast_enabled("cuda"),
@@ -227,8 +230,7 @@ class OfficialPipeline:
             self.pipeline.initialize_first_frame(frame)
             regenerated = frame.mask.detach().float().cpu().numpy()[:, 0] > 0
             np.save(
-                self.log_dir
-                / ("external-initial.npy" if self.external_masks else "sam2-initial.npy"),
+                self.log_dir / "external-initial.npy",
                 regenerated,
             )
             self.initialization_checks = initialization_checks(

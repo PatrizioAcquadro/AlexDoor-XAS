@@ -1,11 +1,12 @@
 # Shared Door Perception
 
-Phase 6.0 remains **unqualified**. Maintained 6.0B static scans use frozen
-GroundingDINO, native SAM3 and calibrated RGB-D. The optional CAD-free
-Point2Pose prototype supplies observed panel tracking; neither path admits contact
-or qualifies a policy provider. The selected experimental frontend uses one SAM3
-and its original object, reconditioning OFF, bounded history and renewal-only depth
-filtering. It is explicitly configured, not an operational default.
+Phase 6.0 remains **unqualified**. Inspection, static scans, Point2Pose smoke,
+live/replay and serial evaluation use one persistent SAM3 text/video frontend
+with `door surface`. `configs/point2pose_selected.json` is the common runtime
+recipe: reconditioning OFF, bounded causal history, graph OFF, partial reference
+batches ON, rollback OFF, all-query TAPIR and renewal-only depth filtering.
+TAPIR, SuperPoint, registration, TSDF, calibrated full-scene RGB-D and camera/FK
+remain. Five inliers/4 mm and all action/policy/contact thresholds are unchanged.
 
 Setup and commands are in [Perception Model Setup](perception-model-setup.md).
 [[../experiments/b1-perception-findings|Historical findings]] and the linked
@@ -77,28 +78,43 @@ observation guard does not relax dynamic freshness or qualification error budget
 
 ## Static scan — 6.0B
 
-`GeometryProvider` requires `scan_fusion="object-v1"` from
-`configs/perception_geometry.json`. `scan_state` exposes static object evidence;
-`update(sensor)` retains the provider interface but returns an invalid
-`DoorEstimate` (`static_scan_only` for normal input) and no policy encoding.
-The scan supplies no qualified runtime state or admission to move. A missing
-required RGB-D/calibration input has an explicit rejection reason.
+`session.PerceptionSession` coordinates SAM3 and optional P2P in their separate
+CUDA runtimes. `SessionProvider` supplies the maintained `update(sensor)`,
+`scan_state`, `static`, `last_cue`, `reset()` and local tracking interface. It
+returns invalid `DoorEstimate` objects and no policy encoding; this integration
+admits no motion. The numerical `GeometryProvider`/`CueEngine` remain useful
+geometry/event harnesses with injected cues, without an operative image-model path.
 
-`ModelWorker` sends only RGB bytes to an isolated process. GroundingDINO uses
-`door.` with 0.30/0.25 thresholds; native SAM3 uses positive normalized box prompts
-and confidence 0.5. DINOv3 inference and unused surface descriptors were retired;
-registered RGB-D support determines association and contact geometry. Bounded CUDA
-comparisons preserve boxes, masks and all surface geometry exactly, with measured
-availability reported separately. All remaining weights stay frozen on CUDA.
-The worker's local dependency overlay isolates NumPy/SAM3 from the external Isaac installation; image inference
-needs no `decord` or video worker.
+The coordinator snapshots exactly the observed sensor keys: RGB, full metric
+depth/validity, intrinsics, camera pose from the same joints/FK, frame and acquisition
+time. SAM3 runs once for each processed capture. Its IDs/masks accompany that same
+packet through geometry and P2P, including after initialization. Neither an older
+mask nor a cropped/resegmented image is substituted. Geometry extraction retains
+its existing measured component/plane/edge membership checks; semantic membership
+alone does not establish leaf ownership. GroundingDINO, the box-prompt static
+worker and the separately executed SAM2 path are retired; DINOv3 remains retired.
+`sam3.SAM3_REVISION` owns the retained source revision.
 
-`CueEngine` keeps capture and measured availability separate, one request in
-flight and cancelled-request generations. Semantic requests target 5 Hz through
-25 s; pending results may complete afterward without reading a later observation.
-Nonmonotonic sensor time resets the episode; gaps clear pending inference.
-Reset clears static memory and public estimates. Input selection uses only sensor
-keys, never annotations or asset labels.
+No first-frame detection is required. Empty output reports `no_candidate` and
+continues the same text session. Multiple IDs report `selection_required`;
+`provider.select_object(sam3_id, geometric_object=None)` selects explicitly. A
+single ID is latched automatically; later IDs cannot replace it. Competing geometric
+roots under that ID report `ambiguous_geometry`. A selected static surface ID can
+resolve the root only through observed registration to current support. Missing
+or insufficient measured support postpones initialization without re-prompting.
+The runtime exposes the SAM3 ID, geometric surface, fixed zone, native object ID
+and original support times as one binding, rather than a mask-list index.
+
+SAM3 starts with the first processed acquisition. Geometry fusion runs at the
+existing semantic period during the prescribed stationary inspection (4–25 s).
+The inspection protocol must remain stationary. At 25 s the static surfaces,
+scene cloud and their acquisition/support times freeze; later moving leaf depth
+never enters that map. P2P initializes from the first eligible **current** capture
+at or after 25 s, retaining its own immutable measured reference and zone. These
+are distinct from older inspection support. `current_space` and `scan_state.space`
+use a bounded latest full-scene RGB-D view for surrounding obstacles/free-space
+queries, separately from the frozen inspection map. Missing scene support remains
+unknown, and late depth does not retroactively refresh inspection geometry.
 
 `Surface` preserves disconnected measured components, dense extrema, supported
 edges and packed per-observation membership with calibrated poses, capture and
@@ -141,107 +157,43 @@ Endpoint IK and a small free-space ball do not certify a continuous path or cont
 
 ## Panel tracking prototype — 6.0C
 
-`point2pose_runtime.tracking_provider` adds `PanelTracking` to the existing
-`GeometryProvider`. Default 6.0B behavior and policy encoding remain unchanged.
-Initialization uses automatic 6.0B components from the common inspection's first
-completed view (4 s), with an immutable same-acquisition RGB/mask/depth/K/joint
-packet. Reciprocal existing registration checks consolidate duplicate observations;
-distinct supports remain independent hypotheses. Before native initialization, candidates lacking distributed measured interiors
-are rejected individually and recorded. A diagnostic selects the first eligible
-automatic candidate explicitly without labels or later truth-based reselection.
+`point2pose.runtime.tracking_provider` creates the shared session provider.
+The original SAM3 worker stays alive when P2P initializes and throughout native
+tracking; no periodic text prompt or second segmenter is introduced. An absent
+selected ID supplies an empty mask and explicit semantic loss, even if a finite
+native fallback exists. Same-ID return is reported separately from material
+recovery. After semantic loss, local material identity remains unavailable as
+`material_recovery_unverified`; native geometric recovery alone cannot certify
+that the originally observed material returned.
 
-The official CAD-free pipeline supplies segmentation, distributed point tracking,
-registration, map, graph and TSDF. The pinned source receives two reproducible
-corrections at installation/worker startup: f2m recomputes loss from current
-inlier support, residual and the existing jump guard; SDF registration returns
-the selected refined pose and its statistics. An unsupported/invalid result marks
-the object lost while preserving its finite fallback pose for diagnosis. Frame-to-map
-registration continues for lost objects, allowing supported recovery under the
-same ID. The unchanged final SDF support gate retains the pre-refinement cluster
-fallback and recomputes residuals/inliers for the returned pose. No threshold,
-model, ground-truth input or operational/contact admission rule changes. The
-tracked patch validates pinned source, preserves pre-fix files and declares
-`native_fixes` in runtime metadata. A regenerated SAM2 mask must retain five
-spatially distributed measured interior references of the source component.
-This checks essential support without treating legitimate panel relief as frame
-contamination or requiring identical boundary pixels. It does not certify every
-extra mask pixel's physical ownership; ambiguous component relationships remain
-ambiguous. Positive SAM2 prompts are unchanged from upstream: actual calls use five
-raster-sampled positive points, distinct from these interior preservation checks.
-Mask expansion is measured, but absolute leaf ownership is not certified.
+The pinned CAD-free pipeline retains the loss/SDF publication fixes, clustered
+registration, full-frame 480/four-iteration TAPIR, SuperPoint, vectorized SDF
+Jacobian and 120 active references. Partial batch admission preserves native point
+order. The existing renewal-only 10 mm/radius-2 depth gate leaves initialization
+sampling unchanged. Retirement still requires promoted metric inlier support,
+visible outlier observations and geometric distribution; historical landmarks
+and TSDF/keyframes survive active TAPIR compaction. No age-only eviction or new
+quality/performance variant is part of this integration.
 
-The renewal criterion now counts final registration inliers, retaining the
-fewer-than-ten, mask-area and 15-degree view gates and native lost-state sampling
-suppression. The prior unbounded variant and both memory failures remain preserved.
-`point2pose_renewal.py` limits each candidate to 120 active references, sized from
-the largest complete-baseline population and measured 1.875 MiB/point TAPIR causal
-state. It defers whole native sampling batches when capacity is unavailable.
-Models, candidate selection, native point selection, promotions, numeric gates,
-graph and TSDF remain unchanged.
+External masks, all-query TAPIR and renewal filtering are runtime options;
+`diagnostic_only` is false. Initialization still requires five distributed measured
+interiors and strict same-capture mask preservation. Registration traces observe
+behavior without relaxing that guard. Native SAM2 imports previously activated
+BF16/TF32 even without SAM2 inference; the worker now enables the same numerical
+context explicitly before construction and through requests. Startup patches the
+pinned segmenter package to remove its eager SAM2 import, preserving original
+source backups. SAM3 internal tracker modules and GTSAM's ISAM2 are unrelated to
+the retired separate SAM2 package and remain maintained.
 
-Whole-batch admission, graph ON and SAM2 remain operational defaults. The
-`allow_partial_reference_batch` diagnostic instead admits the filtered native
-batch prefix fitting the remaining capacity, preserving point order and checks.
-Graph OFF is an independent control; it retains keyframes/promotions and TSDF
-rebuilds with unoptimized poses. SAM2 and the multi-object baseline remain needed
-for operational consumers and comparisons.
-
-A new reference can sponsor one retirement after native promotion and three
-metric inlier observations on the actually published post-graph pose/map. This
-uses the existing promotion streak. Retirement requires more than the existing
-pending TTL of 15 visible, valid, masked, low-uncertainty outlier observations;
-loss, missing native visibility or invalid depth freeze the counter and prevent
-retirement. At most three points per candidate retire per frame. A planar convex-hull/cell guard
-protects geometric distribution. No age-only or invisible-point eviction occurs.
-Compaction copies retained TAPIR query/features/causal rows into independent CUDA
-storages; stable IDs, CPU historical landmarks, keyframes and graph references
-survive and slots never become new material IDs. Allocator reservation may remain
-after live storage is freed. Historical graph/keyframe/TSDF growth is not bounded
-by the active-reference cap.
-
-Post-graph support is additionally recomputed for retirement and audited separately
-from inherited frontend statistics; native acceptance and graph publication are
-unchanged. Neither internal confirmation nor metric self-consistency verifies
-material identity. Native visibility can disagree with independent projected-depth
-visibility; the guard does not establish protection of every physical occlusion.
-
-Diagnostic traces now save the actual `SAM2.add_new_prompt` calls and original
-input masks at initialization, separately from the interior preservation checks.
-They also observe native promotion attempts, retained observations, geometric
-spread, whether its check is enabled/passes and the actual promotion decision. Observation
-does not change native decisions or require ground truth.
-
-Pending geometric confirmation stays disabled in the pinned paper configuration.
-The final registration gate remains five inliers at 4 mm. Native SDF Jacobian
-assembly is vectorized without changing samples, iterations, RNG or decisions.
-
-### Selected experimental frontend
-
-[configs/point2pose_selected.json](../../../configs/point2pose_selected.json)
-contains the maintained opt-in settings for the existing `offline_episode` API;
-the model README gives the invocation and pinned setup. It retains `door surface`,
-seed 0, one-frame grounding, original object ID0, reconditioning OFF, bounded SAM3
-history, TAPIR full-frame 480/four iterations/all-query, SuperPoint, 120 active
-references, graph OFF and partial batches ON. The renewal depth-jump gate uses
-10 mm/radius 2; initialization is unchanged. Other pinned settings remain fixed.
-
-SAM3 consumes only the arrived RGB frame, with no future lookahead or re-prompt.
-Each synchronized semantic mask feeds P2P directly without separate SAM2 extraction.
-A missing original ID returns an empty mask/loss; new IDs cannot replace it. Same-ID return is not material verification.
-History release follows native attention consumers, preserving seed/conditioning,
-recent qualifying memories, pointers and persistent identity metadata. Original
-frame indices/counts remain; released inputs fail explicitly instead of replaying
-future-conditioned outputs. Expired payloads are not transferred into unbounded RAM.
-See [[../experiments/p2p-sam3-selected-development|history and renewal evidence]].
-
-Retired controls are SAM3.1/multiplex memory, selected-only periodic registration,
-own-seed refit rollback, SAM2 Small, TAPIR crop/reduced resolution/iterations and
-simplified SVD. Disabled compatibility keywords remain; enabling them fails
-explicitly. Only `query_chunk_size` remains a performance control and requires
-diagnostic mode. Historical revisions (including pre-cleanup `57ad483`) reproduce
-retired variants; no parallel launcher is maintained. Result/trace schemas and
-saved-data helpers remain, including `transport_impact`, `sensor_at`, `truth_panel`
-and `pose_error`. All ignored diagnostic scripts and their inputs are preserved.
+Bounded SAM3 history preserves native useful conditioning, attention memories,
+pointers and identity metadata without unbounded RAM offload. Original frame
+indices remain; accessing a released historical input fails explicitly.
+[[../experiments/p2p-sam3-selected-development|Selected development]] owns the
+historical 31 s results. Starting during inspection changes SAM3 history and P2P's
+seed, so those results do not automatically apply to the integrated transition.
+The explicit bounded-window serial API can reproduce the historical 31 s seed;
+its recorded first-eligible geometric-zone selection is diagnostic and leaves
+ownership unresolved. It never weakens native initialization guards.
 
 ### Observed geometry and timing
 
@@ -292,18 +244,24 @@ remain `None`; rendered depth residuals are diagnostic envelopes, not hardware
 metrology. Existing footprint tolerance is deducted once from the additional
 composite erosion. No prediction or native frozen pose advances support time.
 
-Each worker is isolated from Isaac/6.0B; only whitelisted observations and packed
-array bytes cross IPC. One in-flight request and one replaceable latest capture
-bound the queue. Models load before acquisition; startup is reported separately.
-Completion includes snapshot copying, candidate preparation, IPC and queue waiting; release
-never backdates a source or rewrites an older estimate. Support expires at 150 ms.
-Once immutable automatic seeds are ready, the stateless 6.0B CUDA worker is released.
-Reset increments generation, clears candidates/selections/queues and terminates
-then recreates the prepared Point2Pose process before new acquisitions, clearing
-SAM2/TAPIR/map/keyframe/optimizer/graph/TSDF state. It also reopens the seed worker.
-Ordinary frame gaps only invalidate semantic requests; they do not reload models.
-Tracking failure latches unavailable until an explicit episode reset;
-native reacquisition retains the original zone and identity in the same episode.
+Workers remain isolated from Isaac and from one another; packed arrays and
+whitelisted observations cross IPC. One complete request is in flight and one
+latest acquisition may wait; a newer waiting capture replaces the older one.
+The coordinator processes only dispatched captures, retaining their original
+IDs/times. Queue replacements, skipped capture IDs, queue waiting, snapshot
+copies, SAM3, geometry, P2P and publication/adapter latency remain explicit.
+Late results publish only for their own acquisition/generation. A frame gap does
+not synthesize missing frames or silently reset/reselect an object. Support
+still expires at 150 ms. Sampled simultaneous GPU/RAM residency includes both
+workers and coordinator RSS; allocator/high-watermark peaks remain separate.
+
+Reset kills both workers, joins the old request thread and clears SAM3 temporal
+state/IDs, P2P references/keyframes/TSDF, static/current maps, selections, queues
+and published outputs. Prepared sessions reload before new acquisition; invalid
+input closes the session and defers reload to the next valid capture, whose
+latency includes restart startup. Old requests cannot contaminate the new session.
+A process failure latches unavailable until reset; it is never retried for a better
+result. Original finite failures and support times remain visible.
 
 Operational replay samples four complete pilot recordings at stride three
 (20 Hz); full and independently observable denominators remain distinct. Live
@@ -313,21 +271,22 @@ accuracy are separate from useful availability and release qualification.
 
 ### Serial offline evaluation
 
-`scripts/perception.py point2pose-offline` uses a separate synchronous coordinator.
-All four pilot recordings are processed at their original 60 Hz, including the last
-observation. Each request completes before the next frame; neither computation
-time nor a replaceable queue selects inputs. Initialization searches automatic
-candidates from 4 s through the common inspection, at the existing semantic period.
-The first eligible candidate stays the primary diagnostic without truth selection.
-Two additional fresh processes per recording assess initialization and the first
-second after the seed. No failed attempt is silently restarted.
+`scripts/perception.py point2pose-offline` calls the **same PerceptionSession**
+serially for every original 60 Hz row, including the final observation. There is
+no replaceable queue or latency-based input selection. SAM3 starts at the first
+scheduled capture; normal initialization follows the 25 s inspection. The API
+accepts an explicit `capture_window_s`: a window starting after inspection can
+reproduce the historical 31 s seed without earlier SAM history. Execution of the
+old four-pilot/three-attempt campaign remains a separate, deliberate command;
+it has not been resumed by integration.
 
-Every native pose is composed into the calibrated world and compared with the
-leaf motion at its exact source row, relative to the immutable seed. Truth stays
-in the evaluator. Seed error is zero by alignment and does not establish absolute
-initial pose accuracy or candidate ownership. The mask-preservation guard reports
-each candidate; offline diagnosis can continue after a rejection, but that
-candidate remains rejected by integration. Operational initialization remains strict.
+Truth motion belongs only to scoring. Seed-relative error is alignment, not
+absolute initialization/ownership accuracy. Strict initialization failure stops
+that attempt and retains all terminal scheduled rows as unprocessed. Saved
+historical diagnostics that continued after an initialization refusal remain
+readable at their recorded revision; the maintained runtime does not bypass that
+guard. Native acceptance, measured geometric support, semantic presence and
+material verification remain distinct claims.
 
 Incremental `frames.jsonl` retains finite lost poses, invalid poses, missing
 initialization and terminal unprocessed rows. Native tracking and measured-support
@@ -358,7 +317,8 @@ The optional native `registration.jsonl` observes registration inputs, hypothese
 inliers/residuals, SDF poses before/after refinement, frontend decisions and graph
 updates before publication. Observers copy intermediate values and return the
 original native results unchanged; they do not alter thresholds, models or
-tracking decisions. This trace requires diagnostic mode and receives no truth.
+tracking decisions. Tracing is observational, retains strict initialization and
+receives no truth.
 `resources.jsonl` inventories live tracker query/features/causal CUDA storages,
 retained frame masks, every candidate's active/historical references, keyframes,
 LM graph variables/factors and TSDF buffers. Unique storage is counted separately
@@ -366,7 +326,8 @@ from allocator reservation and temporary peaks. Published source points retain
 the current post-graph landmarks for all selected IDs, including same-frame
 retirements. Renewal events and active query IDs make compaction auditable.
 It also saves all extracted object-track pixels, visibility/uncertainty values,
-map coordinates/IDs and per-frame SAM2 masks, including excluded references.
+map coordinates/IDs and synchronized per-frame masks, including excluded
+references. Saved SAM2-era traces remain readable.
 Its export time is separate metadata; total request time includes diagnostic work
 and is not an operational performance measurement.
 

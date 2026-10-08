@@ -229,7 +229,7 @@ def diagnose_scan(path, provider, output, distal_faces=None):
         # Replay inference has already computed the result; its measured completion still matters.
         if provider.engine.pending is not None:
             (_, captured, _), cue = provider.engine.pending
-            ready = float(captured["time_s"]) + cue["latency_s"]
+            ready = cue.get("available_s", float(captured["time_s"]) + cue["latency_s"])
             provider.consume_results(ready)
             record_result()
         final_sensor = {key: observations[key][rows[-1]] for key in OBS_KEYS}
@@ -275,7 +275,7 @@ def run_scan_diagnostics(paths, recipe, output, models):
     from ihmc_alex_isaaclab._paths import REPOSITORY_ROOT as alex_root
 
     from alexdoor_xas.assets.purdue import DISTAL_CONTACT_TOLERANCE_M, derive_push_geometry
-    from alexdoor_xas.perception.provider import CueEngine, GeometryProvider, ModelWorker
+    from alexdoor_xas.perception.session import session_provider
 
     expected = {(p, c) for p in PILOTS for c in ("nominal", "light")}
     if len(paths) != 4 or {(p.parent.parent.name, p.parent.name) for p in paths} != expected:
@@ -319,31 +319,26 @@ def run_scan_diagnostics(paths, recipe, output, models):
     )
     reports = []
     try:
-        with (output / "models.log").open("w") as log:
-            worker = ModelWorker(models, recipe.config, log=log)
-            engine = CueEngine(worker, replay=True)
-            try:
-                write_json(output / "runtime.json", worker.runtime)
-                # One CUDA warmup on an authorized scan observation; discard outputs.
-                with h5py.File(paths[0], "r") as h5:
-                    worker.infer(h5["observations/rgb"][0])
-                provider = GeometryProvider(recipe, engine)
-                for path in paths:
-                    destination = output / path.parent.parent.name / path.parent.name
-                    reports.append(diagnose_scan(path, provider, destination, contact_covers))
-                    print(
-                        json.dumps(
-                            dict(
-                                completed_scans=len(reports),
-                                scans=4,
-                                reason=reports[-1]["scan"]["reason"],
-                            )
-                        ),
-                        flush=True,
-                    )
-            finally:
-                engine.close()
-                worker.close()
+        provider = session_provider(recipe, models, {}, output, replay=True, tracking=False)
+        engine = provider.engine
+        try:
+            write_json(output / "runtime.json", engine.worker.runtime)
+            for path in paths:
+                destination = output / path.parent.parent.name / path.parent.name
+                reports.append(diagnose_scan(path, provider, destination, contact_covers))
+                print(
+                    json.dumps(
+                        dict(
+                            completed_scans=len(reports),
+                            scans=4,
+                            reason=reports[-1]["scan"]["reason"],
+                        )
+                    ),
+                    flush=True,
+                )
+        finally:
+            engine.close()
+            provider.close()
         summary = dict(
             complete=True,
             completed_scans=len(reports),

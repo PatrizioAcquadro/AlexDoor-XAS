@@ -207,3 +207,36 @@ def test_initialization_passes_one_unchanged_semantic_mask_to_p2p():
     assert tracker.initialize([make_surface(observed)], observed, whole_leaf_mask=semantic_mask)
     assert len(tracker.candidates) == len(engine.masks) == 1
     np.testing.assert_array_equal(engine.masks[0], semantic_mask)
+
+
+def test_external_mask_must_preserve_measured_geometric_interiors():
+    from test_point2pose_temporal import make_surface, sensor
+
+    from alexdoor_xas.perception.point2pose.seed import candidate_references
+    from alexdoor_xas.perception.point2pose.tracking import PanelTracking
+    from perception_helpers import recipe
+
+    class Engine:
+        def reset(self):
+            pass
+
+        def submit(self, *args, **kwargs):
+            pytest.fail("mismatched geometric seed reached native initialization")
+
+    observed = sensor()
+    surface = make_surface(observed)
+    refs = candidate_references(
+        surface.observations[0].mask(),
+        observed["depth_m"],
+        observed["valid_depth"],
+        observed["intrinsics"],
+        0.004,
+    )
+    semantic = np.ones((80, 80), bool)
+    semantic[tuple(refs[0])] = False
+    tracker = PanelTracking(Engine(), recipe().config)
+    assert not tracker.initialize([surface], observed, whole_leaf_mask=semantic)
+    assert (
+        tracker.diagnostics["initialization_rejections"][0]["reason"]
+        == "sam2_initialization_candidate_mismatch"
+    )

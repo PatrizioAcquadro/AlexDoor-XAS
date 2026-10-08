@@ -59,21 +59,24 @@ class Sam3Worker:
             .reshape(result.pop("shape"))
             .astype(bool)
         )
-        seed = result["seed_ids"]
-        if len(seed) != 1:
-            raise ValueError("sam3_requires_one_unambiguous_leaf_seed")
-        selected = masks_for_seed(masks, result["ids"], seed, rgb.shape[:2])
+        if len(set(result["ids"])) != len(result["ids"]) or len(masks) != len(result["ids"]):
+            raise ValueError("invalid_sam3_identities")
+        self.all_masks = masks
+        selected = masks_for_seed(masks, result["ids"], result["seed_ids"], rgb.shape[:2])
         result["model_latency_s"] = result["latency_s"]
         result["latency_s"] = time.perf_counter() - started
         self.latest, self.latest_masks = result, selected
         return dict(
-            masks=[np.packbits(selected[0].reshape(-1)).tobytes()],
+            masks=[np.packbits(mask.reshape(-1)).tobytes() for mask in masks],
+            ids=result["ids"],
             shape=rgb.shape[:2],
             latency_s=result["latency_s"],
             sam3=result,
         )
 
     def close(self):
+        if self.process.poll() is None:
+            self.process.terminate()
         if self.process.stdin and not self.process.stdin.closed:
             self.process.stdin.close()
         try:

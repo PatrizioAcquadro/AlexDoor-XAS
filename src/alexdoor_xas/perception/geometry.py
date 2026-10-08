@@ -77,6 +77,7 @@ class SurfaceObservation:
     camera_world: np.ndarray
     boundary_points: np.ndarray
     edge_status: dict
+    semantic_id: int | None = None
 
     def mask(self):
         return (
@@ -330,6 +331,7 @@ def surfaces(cue, sensor, config):
                     voxel_points(border, config["voxel_m"], 4096),
                     status,
                 )
+                observation.semantic_id = cue.get("ids", [None] * len(cue["masks"]))[mask_index]
                 result.append(
                     Surface(
                         part_points,

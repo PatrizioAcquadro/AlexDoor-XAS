@@ -1,4 +1,4 @@
-"""SAM2 preservation checks from the same measured RGB-D component."""
+"""Mask preservation checks from the same measured RGB-D component."""
 
 import numpy as np
 from scipy.ndimage import distance_transform_edt

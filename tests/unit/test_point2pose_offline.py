@@ -52,17 +52,26 @@ def runtime(monkeypatch):
         def __init__(self, *_):
             self.closed = False
             self.process = SimpleNamespace(poll=lambda: 0 if self.closed else None)
+            self.runtime = dict(startup_s=1.0)
+            self.all_masks = np.ones((1, 80, 80), bool)
 
-        def infer(self, rgb):
-            return dict(latency_s=state.latency)
+        def infer(self, rgb, frame, time_s):
+            return dict(
+                latency_s=state.latency,
+                ids=[0],
+                masks=[np.packbits(self.all_masks[0]).tobytes()],
+                shape=(80, 80),
+                sam3=dict(frame=int(frame), time_s=float(time_s)),
+            )
 
         def close(self):
             assert not self.closed
             self.closed = True
 
     class Native:
-        def __init__(self, *_, diagnostic_only=False):
-            assert diagnostic_only
+        def __init__(self, *_, diagnostic_only=False, **kwargs):
+            assert not diagnostic_only
+            self.runtime = {}
             self.boot_latency_s = 1.0
             self.calls = []
             self.closed = False
@@ -75,9 +84,9 @@ def runtime(monkeypatch):
             self.calls.append({key: np.array(value, copy=True) for key, value in observed.items()})
             frame = int(observed["frame"])
             if masks is not None:
-                assert self.seed_frame is None
-                self.seed_frame = frame
-                self.camera = observed["camera_world"].copy()
+                if self.seed_frame is None:
+                    self.seed_frame = frame
+                    self.camera = observed["camera_world"].copy()
             relative_frame = frame - self.seed_frame
             if relative_frame == state.interrupt:
                 raise KeyboardInterrupt
@@ -130,9 +139,19 @@ def runtime(monkeypatch):
             assert not self.closed
             self.closed = True
 
-    monkeypatch.setattr(offline, "ModelWorker", Visual)
-    monkeypatch.setattr(offline, "Point2PoseWorker", Native)
-    monkeypatch.setattr(offline, "surfaces", lambda cue, observed, config: [make_surface(observed)])
+    from alexdoor_xas.perception import session
+    from alexdoor_xas.perception.point2pose import runtime as p2p_runtime
+    from alexdoor_xas.perception.sam3 import runtime as sam_runtime
+
+    monkeypatch.setattr(sam_runtime, "Sam3Worker", Visual)
+    monkeypatch.setattr(p2p_runtime, "Point2PoseWorker", Native)
+
+    def measured_surface(cue, observed, config):
+        surface = make_surface(observed)
+        surface.observations[0].semantic_id = 0
+        return [surface]
+
+    monkeypatch.setattr(session, "surfaces", measured_surface)
     state.recipe = PrototypeRecipe(
         json.dumps(
             dict(
@@ -143,7 +162,7 @@ def runtime(monkeypatch):
                 association_distance_m=0.025,
                 min_points=120,
                 semantic_period_s=0.2,
-                inspection=dict(sample_times_s=[4.0, 25.0]),
+                inspection=dict(sample_times_s=[4.0]),
             )
         )
     )
@@ -330,8 +349,8 @@ def test_user_interrupt_preserves_prefix_denominator_and_stops_campaign(tmp_path
 def test_interrupted_worker_startup_closes_unreturned_process(tmp_path, monkeypatch, kind):
     from io import BytesIO
 
-    from alexdoor_xas.perception import provider
     from alexdoor_xas.perception.point2pose import runtime as point2pose_runtime
+    from alexdoor_xas.perception.sam3 import runtime as sam_runtime
 
     class Process:
         def __init__(self, *args, **kwargs):
@@ -348,7 +367,7 @@ def test_interrupted_worker_startup_closes_unreturned_process(tmp_path, monkeypa
             self.stopped = True
 
     process = Process()
-    module = point2pose_runtime if kind == "native" else provider
+    module = point2pose_runtime if kind == "native" else sam_runtime
     monkeypatch.setattr(module.subprocess, "Popen", lambda *a, **kw: process)
     monkeypatch.setattr(module, "send", lambda *args: None)
 
@@ -365,7 +384,7 @@ def test_interrupted_worker_startup_closes_unreturned_process(tmp_path, monkeypa
         if kind == "native":
             point2pose_runtime.Point2PoseWorker(tmp_path, [0.1, 3], 0.004, 1, tmp_path / "logs")
         else:
-            provider.ModelWorker(tmp_path, {})
+            sam_runtime.Sam3Worker(tmp_path, {}, None)
     assert process.stopped and process.stdin.closed and process.stdout.closed
 
 

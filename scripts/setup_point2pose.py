@@ -14,13 +14,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = {
     "upstream": ("tzuyuan/point-to-pose", "51856226610df75e5c06e8de545bd27f7c4ba99c"),
-    "sam2": ("Gy920/segment-anything-2-real-time", "e3623cda3f748df999f76db663f08da7a884a820"),
     "tapnet": ("google-deepmind/tapnet", "730cda1c730877cfedbe01bf87fb1cadb78a565d"),
     "lightglue": ("cvg/LightGlue", "eb42fee2d71449efb0aa5c10549752b5d75384d8"),
 }
 WEIGHTS = {
     "causal_bootstapir_checkpoint.pt": "https://storage.googleapis.com/dm-tapnet/causal_bootstapir_checkpoint.pt",
-    "sam2.1_hiera_large.pt": "https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt",
     "superpoint_v1.pth": "https://github.com/cvg/LightGlue/releases/download/v0.1_arxiv/superpoint_v1.pth",
 }
 
@@ -113,7 +111,6 @@ def main():
             "install",
             "--no-deps",
             "--no-build-isolation",
-            str(local / "sam2"),
             str(local / "lightglue"),
             str(local / "tapnet"),
         ],

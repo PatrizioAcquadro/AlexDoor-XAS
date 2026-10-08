@@ -19,9 +19,7 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None):
 
         from alexdoor_xas.envs.door_task.door_push_purdue_env import DoorPushPurdueEnv
         from alexdoor_xas.perception.evaluation import quantiles, write_json
-        from alexdoor_xas.perception.geometry import surfaces
-        from alexdoor_xas.perception.point2pose.runtime import Point2PoseWorker
-        from alexdoor_xas.perception.provider import ModelWorker
+        from alexdoor_xas.perception.session import PerceptionSession
         from alexdoor_xas.qualification.door_geometry import PreparedDoor
         from alexdoor_xas.qualification.expert import probe_config
         from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
@@ -80,26 +78,14 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None):
                 env, door, setup, calibration, observe, recipe, models, output, case, start_clock
             )
         sensor = observe()
-        with (output / "automatic-candidates.log").open("w") as log:
-            visual = ModelWorker(models, recipe.config, log)
-            try:
-                cue = visual.infer(sensor["rgb"])
-            finally:
-                visual.close()
-        candidates = surfaces(cue, sensor, recipe.config)
-        if not candidates:
-            raise ValueError("no_automatic_live_candidate")
-        masks = [candidates[0].observations[0].mask()]
-        np.savez_compressed(output / "seed.npz", **sensor, mask=masks[0])
-        worker = Point2PoseWorker(
-            models / "point2pose",
-            calibration["depth_interval_m"],
-            recipe.config["plane_tolerance_m"],
-            1,
-            output,
+        worker = PerceptionSession(
+            models, recipe, calibration, output, initialize_after_s=float(sensor["time_s"])
         )
         write_json(output / "runtime.json", worker.runtime)
-        worker.infer(sensor, masks)
+        initial = worker.infer(sensor)
+        if not initial["objects"]:
+            raise ValueError(initial["identity"]["state"])
+        np.savez_compressed(output / "seed.npz", **sensor, mask=worker.sam.all_masks[0])
         records = []
         # The simulator actively steps/renders while CUDA inference is in flight.
         from concurrent.futures import ThreadPoolExecutor
@@ -193,9 +179,17 @@ def observer_case(
         return transform
 
     try:
-        while time.perf_counter() - clock_start < 24:
+        while time.perf_counter() - clock_start < 45:
             phase = 0.0 if motion_start is None else time.perf_counter() - motion_start
-            if case in ("camera", "combined"):
+            if motion_start is None:
+                elapsed = time.perf_counter() - clock_start
+                target = next(
+                    w[1:]
+                    for w in reversed(recipe.config["inspection"]["waypoints"])
+                    if w[0] <= elapsed
+                )
+                env.set_neck_target(np.asarray(target))
+            elif case in ("camera", "combined"):
                 limits = array(env.robot.data.joint_pos_limits)[0, env.neck_ids]
                 target = neck + [0.025 * (1 - np.cos(phase)), 0.015 * (1 - np.cos(phase * 0.7))]
                 env.set_neck_target(np.clip(target, limits[:, 0], limits[:, 1]))
@@ -237,6 +231,8 @@ def observer_case(
                     sensor["rgb"] = np.zeros_like(sensor["rgb"])
                     sensor["valid_depth"] = np.zeros_like(sensor["valid_depth"])
             estimate = provider.update(sensor)
+            if provider.engine.failed:
+                raise RuntimeError(provider.diagnostics.get("error", "perception_session_failed"))
             tracker = provider.tracking
             if tracker.candidates and reference is None:
                 candidate = tracker.candidates[0]
@@ -368,6 +364,8 @@ def observer_case(
             old_process_exited=old_worker is None or old_worker.process.poll() is not None,
             generation_incremented=provider.generation == old_generation + 1,
             empty_candidates=not tracker.candidates,
+            queue=provider.engine.queue_stats,
+            resources=provider.diagnostics.get("resources"),
             empty_selection=tracker.selection is None,
             empty_queue=tracker.engine.pending is tracker.engine.latest is None,
         )

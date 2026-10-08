@@ -15,8 +15,10 @@ _FRONTEND = "upstream/point2pose/pipeline/components/front_end.py"
 _CRITERION = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
 _REPLACEMENTS = {
     "upstream/point2pose/modules/segmenter/__init__.py": (
-        ("from .sam2_real_time_segmenter import Sam2RealTimeSegmenter\n",
-         "# External synchronized masks; no SAM2 import or implicit CUDA math.\n"),
+        (
+            "from .sam2_real_time_segmenter import Sam2RealTimeSegmenter\n",
+            "# External synchronized masks; no SAM2 import or implicit CUDA math.\n",
+        ),
     ),
     _REGISTER: (
         (

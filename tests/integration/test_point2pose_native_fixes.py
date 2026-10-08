@@ -14,8 +14,12 @@ from alexdoor_xas.perception.point2pose.patches import NATIVE_FIXES, patch_track
 REGISTER_PATH = "upstream/point2pose/modules/register/svd_cluster_ransac_register.py"
 FRONTEND_PATH = "upstream/point2pose/pipeline/components/front_end.py"
 CRITERION_PATH = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
-PATCH_PATHS = (REGISTER_PATH, FRONTEND_PATH, CRITERION_PATH,
-               "upstream/point2pose/modules/segmenter/__init__.py")
+PATCH_PATHS = (
+    REGISTER_PATH,
+    FRONTEND_PATH,
+    CRITERION_PATH,
+    "upstream/point2pose/modules/segmenter/__init__.py",
+)
 
 
 @pytest.fixture

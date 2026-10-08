@@ -4,8 +4,8 @@ The maintained runtime is `AlexDoor-DoorPush-Purdue-v0`: fixed-base Purdue
 Alex003, WSG32/UMI v1, measured pedestal and head ZED RGB-D. Real-door expert
 qualification has a shared executor and one common zero-yaw mounting/ready
 configuration, qualified in fresh-process pairs across the frozen 32-door corpus.
-RGB-D recording is maintained; custom perception models and their orchestration
-are retired. B1 ACT/Diffusion software has numerical/CUDA checks, while qualified
+RGB-D recording and the shared SAM3/Point2Pose coordinator are maintained;
+older custom tracking models and orchestration are retired. B1 ACT/Diffusion software has numerical/CUDA checks, while qualified
 perception and final observed-geometry physical validation remain pending.
 
 ## Runtime and Data Boundaries
@@ -23,7 +23,7 @@ exact partner actors. Normal force, forbidden contacts and separation are
 valid-depth mask, seven-arm/two-neck proprioception, timestamps and frame IDs.
 The Gym policy tensor contains the 18 joint positions/velocities. Phase 6 owns
 image encoding, histories and the observed-only learning interface. The `perception`
-package supplies a static scan provider, isolated frozen image-model worker,
+package supplies a shared persistent SAM3 inspection/tracking coordinator, isolated CUDA workers,
 reusable scientific metrics and estimator-independent contracts, alongside
 inspection/calibration support. Prior dynamic trackers are retired. See
 [[topics/shared-door-perception|Shared Door Perception]] for the maintained 6.0B,

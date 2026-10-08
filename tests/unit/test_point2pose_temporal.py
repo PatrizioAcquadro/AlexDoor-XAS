@@ -299,28 +299,6 @@ def test_prepared_models_are_recreated_before_new_episode_acquisitions():
     assert workers[-1].closed and len(workers) == 2  # close must not preload again
 
 
-def test_seed_worker_releases_cuda_resources_and_reset_reopens_it():
-    from alexdoor_xas.perception.point2pose.runtime import SeedCueEngine
-
-    workers = []
-
-    def factory():
-        workers.append(Worker())
-        return workers[-1]
-
-    engine = SeedCueEngine(factory, replay=True)
-    engine.restart()  # GeometryProvider constructor; no duplicate model loading.
-    assert len(workers) == 1
-    engine.release()
-    assert workers[0].closed and engine.worker is None
-    engine.reset()
-    assert len(workers) == 1 and engine.worker is None
-    engine.restart()
-    assert len(workers) == 2 and engine.worker is workers[1]
-    engine.close()
-    assert workers[1].closed
-
-
 def test_new_arrival_replaces_queue_before_completed_request_dispatch(monkeypatch):
     worker = Worker()
     engine = Point2PoseEngine(lambda _: worker, replay=True)
