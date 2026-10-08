@@ -97,7 +97,7 @@ def load_corpus(path, repo_root, *, evidence_root=None):
         "Common setup changed after corpus freeze",
     )
     setup = _read(setup_path)
-    asset_root = root / "assets/doors/b1"
+    asset_root = root / "datasets/doors/b1"
     entries = corpus["doors"]
     ids = [entry["asset_id"] for entry in entries]
     _require(len(ids) == len(set(ids)), "Duplicate corpus identity")

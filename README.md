@@ -34,7 +34,7 @@ CUDA are supplied by that runtime; ordinary Python dependencies are declared in
 
 Robot/camera assets come from the external Alex package. Prepared door payloads,
 recordings and model weights remain local and ignored by Git. Perception workers
-use isolated dependencies; follow [model setup](models/perception/README.md).
+use isolated dependencies; follow [model setup](knowledge/wiki/topics/perception-model-setup.md).
 
 ## Verification
 
@@ -69,11 +69,11 @@ Run bounded frozen perception inference with a fresh output directory:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
-  --output outputs/b1/perception/NEW_SMOKE
+  --output outputs/generated/b1/perception/NEW_SMOKE
 ```
 
-The [model README](models/perception/README.md) documents scan, Point2Pose smoke,
-operational replay, live and serial offline commands. Live diagnostics do not need
+The [model setup guide](knowledge/wiki/topics/perception-model-setup.md) documents
+scan, Point2Pose smoke, operational replay, live and serial offline commands. Live diagnostics do not need
 recordings. Successful execution and scientific quality are separate outcomes;
 smokes do not admit motion or qualify a policy provider.
 
@@ -85,9 +85,11 @@ smokes do not admit motion or qualify a policy provider.
 | `src/alexdoor_xas/perception/` | Shared contracts/geometry; `point2pose`, `sam3` and `diagnostics` subpackages. |
 | `scripts/`, `configs/` | Supported entry points and common runtime/experimental settings. |
 | `tests/unit`, `tests/gpu`, `tests/integration` | Checks separated by execution requirements. |
-| `assets/doors/b1/` | Frozen corpus, canonical records and ignored prepared payloads. |
+| `datasets/doors/b1/` | Frozen corpus, canonical records and ignored prepared payloads. |
 | `knowledge/` | User-owned raw research and canonical technical wiki. |
-| `datasets/`, `outputs/`, `models/perception/` | Local data, results and pretrained resources. |
+| `datasets/recordings/` | Local reusable recordings and policy data. |
+| `outputs/generated/`, `outputs/evidence/` | New runs and preserved results, respectively. |
+| `models/` | Entirely ignored local weights and isolated runtimes; setup lives in the wiki. |
 
 B0 workflows, numerical `phase2.v2` data APIs and standalone `v3` checkpoint loaders
 are retired; historical source remains at `097d578`. B1 formats and observation/

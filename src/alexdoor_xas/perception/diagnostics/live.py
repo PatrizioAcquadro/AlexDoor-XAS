@@ -28,7 +28,7 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None):
         from alexdoor_xas.recording.b1_runtime import array, camera_calibration, camera_from_joints
 
         root = Path(__file__).resolve().parents[4]
-        folder = root / "assets/doors/b1" / asset_id
+        folder = root / "datasets/doors/b1" / asset_id
         door = PreparedDoor(
             folder,
             json.loads((folder / "prepared.json").read_text()),

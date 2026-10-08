@@ -51,7 +51,7 @@ def main():
         parser.error("asset-id must identify one published door")
     if not str(args.device).startswith("cuda"):
         parser.error("Qualification requires CUDA")
-    folder = REPO / "assets/doors/b1" / args.asset_id
+    folder = REPO / "datasets/doors/b1" / args.asset_id
     original = json.loads((folder / "prepared.json").read_text())
     if not valid_reference_inputs(original):
         parser.error("Door does not have completed preparation; do not qualify it")

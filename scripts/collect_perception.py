@@ -37,7 +37,7 @@ def main():
         parser.error("Inspection-only requires --inspection and fresh recorded output")
     if not args.device.startswith("cuda"):
         parser.error("Collection requires CUDA")
-    corpus = load_corpus(REPO / "assets/doors/b1/corpus.json", REPO)
+    corpus = load_corpus(REPO / "datasets/doors/b1/corpus.json", REPO)
     entries = [e for e in corpus["doors"] if e["split"] in ("train", "development")]
     if args.asset_id:
         entries = [e for e in entries if e["asset_id"] == args.asset_id]
@@ -117,7 +117,7 @@ def main():
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, run_probe
     from alexdoor_xas.recording.b1_runtime import ExpertRecorder, camera_calibration
 
-    folder = REPO / "assets/doors/b1" / entry["asset_id"]
+    folder = REPO / "datasets/doors/b1" / entry["asset_id"]
     door = PreparedDoor(
         folder,
         json.loads((folder / "prepared.json").read_text()),

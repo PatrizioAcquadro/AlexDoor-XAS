@@ -10,13 +10,13 @@ performed. Earlier complete and failed evidence remains preserved.
 
 Saved analysis uses both original `animated-door-1-88abf40` light/nominal episodes
 and all 2,858 original 60 Hz rows, 31–78.6167 s, from
-`outputs/b1/perception/point2pose-isolated-improvements-01/partial-batch/`.
+`outputs/evidence/b1/perception/point2pose-isolated-improvements-01/partial-batch/`.
 Automatic candidate-0 remains primary; five/six candidates are retained.
 All 31,438 candidate rows are accounted for. Truth and exact teacher targets
 are used only by evaluators. The recorded opening ends at 63.7209 degrees.
 
 New ignored evidence, reproducible scripts and logs are in
-`outputs/b1/perception/p2p-a3a4-diagnosis-01/`. They are local payloads, not
+`outputs/evidence/b1/perception/p2p-a3a4-diagnosis-01/`. They are local payloads, not
 recoverable from Git. See [[point2pose-isolated-improvements|the preserved partial-only comparison]]
 and [[point2pose-consumer-impact-and-failure-windows|consumer metric boundaries]].
 

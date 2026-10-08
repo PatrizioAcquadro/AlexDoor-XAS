@@ -8,12 +8,13 @@ SDF Jacobian and 120 active references. Operational defaults, A3/A4 and policies
 are unchanged. No model comparison, new acquisition or live resampling is added.
 
 The selected settings are maintained in `configs/point2pose_selected.json`;
-`models/perception/README.md` documents the explicit `offline_episode` invocation.
+[[topics/perception-model-setup|Perception Model Setup]] documents the explicit
+`offline_episode` invocation.
 The original ignored `selected-recipe.json` remains historical evidence.
 
 Original light/nominal recordings, all-query baseline, unbounded SAM3 OFF and
 all previous attempts remain intact. New evidence uses the separate ignored root
-`outputs/b1/perception/p2p-sam3-selected-01/`. Both conditions use original rows
+`outputs/evidence/b1/perception/p2p-sam3-selected-01/`. Both conditions use original rows
 1860–4717 (2,858 captures), 31–78.6166667 s, original timestamps and initialization.
 Ground truth is restricted to evaluators. Steps are sequential: memory equivalence,
 saved-data diagnosis, then one justified quality change or a discriminating check.

@@ -272,7 +272,7 @@ Absolute calibration/ownership, reliable material recovery, contact/occlusion,
 150 ms operational freshness, hardware and official release remain unqualified.
 
 Ignored evidence is under
-`outputs/b1/perception/point2pose-isolated-improvements-01/`: protocols, frames,
+`outputs/evidence/b1/perception/point2pose-isolated-improvements-01/`: protocols, frames,
 original/configured/restored controls, correspondence/RANSAC audits, actual
 promotions/prompts, memory/return audits and `full-sequence-comparison.png`.
 A first partial-light evaluator failed only while serializing a NumPy integer;

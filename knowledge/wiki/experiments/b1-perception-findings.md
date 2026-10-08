@@ -19,8 +19,7 @@ stayed closed. Train fitting, static planes and completed execution are distinct
 from qualification, ownership and loaded-contact admission.
 
 Unless named otherwise, early evidence is under
-`outputs/b1/perception/evidence/<run-name>/`; later Point2Pose roots are under
-`outputs/b1/perception/`. Each root retains protocols, source/configuration,
+`outputs/evidence/b1/perception/<run-name>/`, including later Point2Pose roots. Each root retains protocols, source/configuration,
 corrected scores, failures and decisive images. `e1f98a6`, `2a38858` and pre-cleanup
 `57ad483` preserve detailed historical source. October 2 explicitly removed some
 ignored payloads, recorded in `evidence/cleanup.json`; those are not Git-recoverable.

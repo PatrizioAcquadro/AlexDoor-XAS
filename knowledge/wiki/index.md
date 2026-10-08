@@ -36,6 +36,8 @@ Current technical behavior and explicitly labeled planned contracts:
 - [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — B1 RGB-D, observed-input policy data, atomic exports and train-only normalization.
 - [[topics/learned-policy-stack|Learned Policy Stack]] — Reusable ACT/Diffusion models, tensor training, checkpoints and explicit observation boundary.
 
+- [[topics/perception-model-setup|Perception Model Setup]] — Local models, isolated dependencies and supported commands.
+
 - [[topics/shared-door-perception|Shared Door Perception]] — Static scan, official Point2Pose panel/zone prototype, recording and estimator-independent contracts; qualification pending.
 
 - [[topics/pre-a4-initialization-and-hinge-budget|Shared Pre-A4 Initialization and Simulated Hinge Budget]] — Policy-independent initialization routes, insufficiency, uncertainty sources and unchanged A4 command sensitivity.

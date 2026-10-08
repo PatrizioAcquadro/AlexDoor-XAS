@@ -156,7 +156,7 @@ least 11.22/12.70 mm uncertainty, p95 158.70/151.49 mm, even in that special
 anchored case. Reducing the step without qualifying material/feedback is not an
 integration solution.
 
-The ignored `outputs/b1/perception/p2p-selected-registration-01/budget-audit.json`
+The ignored `outputs/evidence/b1/perception/p2p-selected-registration-01/budget-audit.json`
 and its driver verify both formulas against the real unchanged `SegmentMotion`
 for approach/push, three interpolation fractions, a translated reference and
 explicit correlated endpoint construction (agreement within 1e-14 m). There are

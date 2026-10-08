@@ -7,7 +7,7 @@ or qualifies a policy provider. The selected experimental frontend uses one SAM3
 and its original object, reconditioning OFF, bounded history and renewal-only depth
 filtering. It is explicitly configured, not an operational default.
 
-Setup and commands are in [the model README](../../../models/perception/README.md).
+Setup and commands are in [Perception Model Setup](perception-model-setup.md).
 [[../experiments/b1-perception-findings|Historical findings]] and the linked
 experiments own results; [[../implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]]
 owns remaining acceptance work. Older custom trackers and the rejected Point2Pose
@@ -51,7 +51,7 @@ one fresh Isaac CUDA process per episode. Worker failure stops admission;
 `--resume` skips only complete validated episodes. Qualification records are unchanged.
 No collection or training was started by this cleanup.
 
-All 50 `datasets/b1/perception/engineering-v2` episodes remain intact, including
+All 50 `datasets/recordings/b1/perception/engineering-v2` episodes remain intact, including
 calibration and metadata, for 6.0B and future common train/development qualification.
 They are engineering recordings, not matched policy demonstrations.
 `recording.b1.episode_paths` validates membership, conditions, duplicates and split
@@ -60,7 +60,7 @@ superseded `engineering-v1`,
 `inspection-pilot-01` and `inspection-tallest-01` recordings after
 preserving their headers/results. Selected models remain in `models/perception/`;
 historical records and the cleanup inventory are under
-`outputs/b1/perception/evidence/`. Removed ignored payloads are not Git-recoverable.
+`outputs/evidence/b1/perception/`. Removed ignored payloads are not Git-recoverable.
 
 `configs/perception_inspection.json` retains the common 25 s scan, seven sample
 times and simulated 10-degree upward camera mounting adjustment. The arm holds

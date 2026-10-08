@@ -1,6 +1,9 @@
 # Datasets
 
-Local B1 recordings and future matched policy datasets stay outside Git.
+- `doors/b1/` — frozen door corpus and preparation records tracked in Git;
+  source geometry, prepared assets and attempts remain local.
+- `recordings/b1/` — reusable B1 recordings, calibration and future policy data,
+  all ignored by Git.
 
 B1 perception engineering uses the maintained `scripts/collect_perception.py` and
 `b1.rgbd.v1` streaming format: N+1 synchronized RGB-D/proprioceptive observations,
@@ -9,18 +12,18 @@ The collector validates the frozen corpus, rejects test identities, uses fresh
 Isaac CUDA processes and never updates qualification records. `--resume` skips
 only complete validated episodes. Collection requires separate authorization.
 
-All **50 `b1/perception/engineering-v2` episodes** remain intact (about 729 GiB).
+All **50 `recordings/b1/perception/engineering-v2` episodes** remain intact (about 729 GiB).
 They support 6.0B and future common train/development qualification; they are not
 the final matched policy dataset. Superseded `engineering-v1`, `inspection-pilot-01`
 and `inspection-tallest-01` were removed after preserving 53 recording headers,
 calibration/metadata and essential results. Earlier interrupted payload removals
 remain recorded separately. The inventory is
-`outputs/b1/perception/evidence/cleanup.json`; preserved superseded headers are in
+`outputs/evidence/b1/perception/cleanup.json`; preserved superseded headers are in
 `superseded-recording-headers-20261002.json` beside it. Removed ignored recordings
 are not recoverable from Git. Cleanup started no collection or training.
 
 The frozen **asset identity** split is tracked in
-[`assets/doors/b1/corpus.json`](../assets/doors/b1/corpus.json): 19 train,
+[`doors/b1/corpus.json`](doors/b1/corpus.json): 19 train,
 six development and seven test doors. `qualification.corpus.load_corpus` validates
 it; numerical episode split helpers do not replace its family assignment.
 Qualification evidence stays in the verification cache, outside learning data.

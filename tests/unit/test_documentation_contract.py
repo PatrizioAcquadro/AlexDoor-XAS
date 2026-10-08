@@ -34,7 +34,9 @@ def test_documentation_links_resolve_and_index_is_complete() -> None:
         REPO_ROOT / "README.md",
         REPO_ROOT / "datasets" / "README.md",
         REPO_ROOT / "outputs" / "README.md",
-        REPO_ROOT / "models" / "perception" / "README.md",
+        REPO_ROOT / "outputs" / "generated" / "README.md",
+        REPO_ROOT / "outputs" / "evidence" / "README.md",
+        WIKI_ROOT / "topics" / "perception-model-setup.md",
     ):
         for raw_target in MARKDOWN_LINK_RE.findall(document.read_text()):
             target = raw_target.split("#", 1)[0]

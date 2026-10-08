@@ -183,7 +183,7 @@ results; any later expansion requires an explicit protocol revision.
 Sealed test qualification proves feasibility only; its traces and images never
 enter learned training, normalization, tuning, or selection.
 
-Phase 5 completed the freeze on 2026-09-28 in `assets/doors/b1/corpus.json`:
+Phase 5 completed the freeze on 2026-09-28 in `datasets/doors/b1/corpus.json`:
 19 train, six development and seven test doors, covering all 32 qualified
 identities and 12 reviewed families from 15 sources. Shared residential frames
 join three PSX packs in train; separate source URLs do not imply independent

@@ -5,7 +5,7 @@ qualified doors: 25 left and seven right**, with two fresh-process GPU trials
 per door under the same common setup. Rights scopes remain 29 redistributable,
 two local-only and one private/noncommercial.
 
-The tracked `assets/doors/b1/corpus.json` fixes the 19/6/7 train/development/test
+The tracked `datasets/doors/b1/corpus.json` fixes the 19/6/7 train/development/test
 membership, 12 reviewed geometry families spanning 15 sources, common setup and
 expert references. Qualification records are pinned at `76658aa`; the shared
 control recovery and interrupted attempts below remain historical evidence.
@@ -17,7 +17,7 @@ owns observed-only perception and the demonstration dataset. See
 
 ### Published Asset Contract
 
-Each `assets/doors/b1/<id>/` contains three tracked records:
+Each `datasets/doors/b1/<id>/` contains three tracked records:
 
 | Record | Canonical responsibility |
 |---|---|
@@ -73,21 +73,21 @@ Admission evidence is compacted into the canonical records at promotion.
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py review \
-  --candidate assets/doors/b1/<id>/candidate.json
+  --candidate datasets/doors/b1/<id>/candidate.json
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py inspect \
   --asset-id <id> --source /path/to/door.glb --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py normalize \
   --asset-id <id> --source /path/to/door.glb \
-  --recipe assets/doors/b1/<id>/recipe.json --viz none --device cuda:0
+  --recipe datasets/doors/b1/<id>/recipe.json --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py static \
-  --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
+  --attempt datasets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py preview \
-  --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
+  --attempt datasets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py physics \
-  --attempt assets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
+  --attempt datasets/doors/b1/<id>/attempts/<number> --viz none --device cuda:0
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/prepare_doors.py promote \
-  --attempt assets/doors/b1/<id>/attempts/<number> \
-  --candidate assets/doors/b1/<id>/candidate.json
+  --attempt datasets/doors/b1/<id>/attempts/<number> \
+  --candidate datasets/doors/b1/<id>/candidate.json
 ```
 
 ### Admission and Approximations
@@ -358,7 +358,7 @@ attempts in the verification cache were not deleted by cleanup.
 
 #### Frozen corpus and identity split
 
-`assets/doors/b1/corpus.json` (`b1.corpus.v1`) is the canonical asset-level split.
+`datasets/doors/b1/corpus.json` (`b1.corpus.v1`) is the canonical asset-level split.
 All 32 qualified identities occur exactly once. Membership was chosen from
 source/geometry relationships and handedness before learned-model results;
 expert angle or policy performance did not determine membership. This replaces

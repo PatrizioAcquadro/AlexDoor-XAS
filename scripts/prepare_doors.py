@@ -30,7 +30,7 @@ def main():
         "command",
         choices=("review", "inspect", "normalize", "static", "physics", "preview", "promote"),
     )
-    parser.add_argument("--root", type=Path, default=Path("assets/doors/b1"))
+    parser.add_argument("--root", type=Path, default=Path("datasets/doors/b1"))
     parser.add_argument("--asset-id")
     parser.add_argument("--source", type=Path)
     parser.add_argument(

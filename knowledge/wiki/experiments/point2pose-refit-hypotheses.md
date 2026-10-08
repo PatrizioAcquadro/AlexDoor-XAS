@@ -238,6 +238,6 @@ evaluator initially lacked its native `_min_var` helper attribute; its failed
 log and evaluator-only repair are retained, without an inference retry.
 
 Ignored evidence and scripts are under
-`outputs/b1/perception/point2pose-refit-hypotheses-01/`; prior evidence remains
+`outputs/evidence/b1/perception/point2pose-refit-hypotheses-01/`; prior evidence remains
 in [[point2pose-isolated-improvements|isolated comparisons]] and
 [[point2pose-bounded-global-graph-ablation|the graph-off baseline]].

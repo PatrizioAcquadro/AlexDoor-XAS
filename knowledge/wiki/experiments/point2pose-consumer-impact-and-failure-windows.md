@@ -8,7 +8,7 @@ All five light and six nominal candidates are evaluated. No inference, acquisiti
 policy change, ablation, reset, favorable retry or campaign occurs in this diagnosis.
 Previous failed variants and missing rows remain preserved. Latency is separate.
 Evidence and reproducible analysis scripts are in
-`outputs/b1/perception/point2pose-consumer-diagnosis-01/`; payloads are ignored,
+`outputs/evidence/b1/perception/point2pose-consumer-diagnosis-01/`; payloads are ignored,
 not recoverable from Git. See [[b1-perception-findings|prior tracking comparisons]].
 
 The subsequent [[point2pose-bounded-global-graph-ablation|full-sequence graph-off ablation]]

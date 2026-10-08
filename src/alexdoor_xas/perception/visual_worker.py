@@ -123,7 +123,9 @@ def main():
     root = Path(sys.argv[1]).resolve()
     isolated = root / "runtime/venv/lib/python3.12/site-packages"
     if not isolated.is_dir():
-        raise RuntimeError("Missing isolated SAM3 environment; see models/perception/README.md")
+        raise RuntimeError(
+            "Missing isolated SAM3 environment; see knowledge/wiki/topics/perception-model-setup.md"
+        )
     sys.path.insert(0, str(isolated))
     request = receive(sys.stdin.buffer)
     try:

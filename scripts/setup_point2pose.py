@@ -98,7 +98,7 @@ def main():
             "pip",
             "install",
             "-r",
-            str(ROOT / "models/perception/point2pose-requirements.txt"),
+            str(ROOT / "knowledge/wiki/topics/perception-model-setup/point2pose-requirements.txt"),
             "--extra-index-url",
             "https://download.pytorch.org/whl/cu121",
         ],

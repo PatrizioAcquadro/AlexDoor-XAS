@@ -53,7 +53,7 @@ are refused because their history semantics have not been assessed.
 
 Ignored drivers, protocols, original-frame/candidate rows, native traces, actual
 CUDA storage inventories and reports remain under
-`outputs/b1/perception/p2p-selected-registration-01/`. Original baselines and
+`outputs/evidence/b1/perception/p2p-selected-registration-01/`. Original baselines and
 failed trials elsewhere are preserved. The targeted comparison starts at the
 original 31 s initialization and processes **every original frame through 41 s**:
 601 frames per attempt, both light and nominal, fresh processes and one attempt
@@ -107,7 +107,7 @@ Paired primary gains/losses are 370/68 light (net +302) and 136/835 nominal
 light, but **325→30 nominal**. The nominal position maximum falls 22.92→21.37 mm
 while wrong acceptance grows by 699; a lower maximum alone would hide the
 regression. Preserved full timing/error curves are in
-`outputs/b1/perception/p2p-selected-registration-01/full-comparison.png`.
+`outputs/evidence/b1/perception/p2p-selected-registration-01/full-comparison.png`.
 
 ## Alternatives, recovery and reference history
 

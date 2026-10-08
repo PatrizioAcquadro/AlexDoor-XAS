@@ -18,9 +18,9 @@ def write(path, value):
 @pytest.fixture
 def frozen(tmp_path):
     root = tmp_path
-    asset_root = root / "assets/doors/b1"
-    for source in (REPO / "assets/doors/b1").glob("*/*.json"):
-        target = asset_root / source.relative_to(REPO / "assets/doors/b1")
+    asset_root = root / "datasets/doors/b1"
+    for source in (REPO / "datasets/doors/b1").glob("*/*.json"):
+        target = asset_root / source.relative_to(REPO / "datasets/doors/b1")
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, target)
     (root / "configs").mkdir()
@@ -28,12 +28,12 @@ def frozen(tmp_path):
         REPO / "configs/purdue_synthetic_probe.json", root / "configs/purdue_synthetic_probe.json"
     )
     path = asset_root / "corpus.json"
-    shutil.copyfile(REPO / "assets/doors/b1/corpus.json", path)
+    shutil.copyfile(REPO / "datasets/doors/b1/corpus.json", path)
     return root, path, json.loads(path.read_text())
 
 
 def test_published_corpus_is_complete_and_psx_cross_pack_reuse_stays_in_train():
-    corpus = load_corpus(REPO / "assets/doors/b1/corpus.json", REPO)
+    corpus = load_corpus(REPO / "datasets/doors/b1/corpus.json", REPO)
     assert len(corpus["doors"]) == 32
     residential = [d for d in corpus["doors"] if d["family"] == "psx-residential"]
     assert len(residential) == 15
@@ -75,7 +75,7 @@ def test_split_rejects_coverage_and_leakage_errors(frozen, change):
 @pytest.mark.parametrize("record", ["candidate.json", "recipe.json", "prepared.json", "setup"])
 def test_freeze_rejects_input_or_reference_drift(frozen, record):
     root, path, corpus = frozen
-    target = root / "assets/doors/b1" / corpus["doors"][0]["asset_id"] / record
+    target = root / "datasets/doors/b1" / corpus["doors"][0]["asset_id"] / record
     if record == "setup":
         target = root / "configs/purdue_synthetic_probe.json"
     value = json.loads(target.read_text())
@@ -89,7 +89,7 @@ def test_freeze_rejects_input_or_reference_drift(frozen, record):
 def test_qualification_is_checked_even_if_record_digest_is_refreshed(frozen, failure):
     root, path, corpus = frozen
     entry = corpus["doors"][0]
-    folder = root / "assets/doors/b1" / entry["asset_id"]
+    folder = root / "datasets/doors/b1" / entry["asset_id"]
     record = json.loads((folder / "prepared.json").read_text())
     trials = record["expert_qualification"]["trials"]
     if failure == "release":
@@ -110,7 +110,7 @@ def test_qualification_is_checked_even_if_record_digest_is_refreshed(frozen, fai
 def test_evidence_check_rejects_missing_capture_even_with_passing_results(frozen):
     root, _, corpus = frozen
     entry = corpus["doors"][0]
-    folder = root / "assets/doors/b1" / entry["asset_id"]
+    folder = root / "datasets/doors/b1" / entry["asset_id"]
     reference = json.loads((folder / "prepared.json").read_text())["expert_qualification"]
     setup = json.loads((root / corpus["setup"]["path"]).read_text())
     evidence_root = root / "evidence"

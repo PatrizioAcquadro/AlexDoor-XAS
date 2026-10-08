@@ -8,7 +8,7 @@ admission are unchanged. No acquisition, diagnostic movement, contact, training
 or SAM3 comparison is performed. All earlier complete and failed evidence remains.
 
 Local ignored scripts, complete candidate rows, reports and failed evaluator
-attempts are preserved in `outputs/b1/perception/p2p-geometry-jacobian-01/`.
+attempts are preserved in `outputs/evidence/b1/perception/p2p-geometry-jacobian-01/`.
 The two interventions are evaluated independently; numerical geometry uses the
 original saved P2P output and does not rerun or modify tracking.
 

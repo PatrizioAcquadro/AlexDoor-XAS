@@ -63,7 +63,7 @@ Perception now separates model runtimes and diagnostics; tests separate portable
 GPU and local integration requirements. Public CI covers Python 3.11/3.12 unit
 behavior, Ruff and packaging. See [[topics/system-architecture|Architecture]].
 
-Bounded CUDA validation in `outputs/b1/perception/consolidation-20261008/` matches
+Bounded CUDA validation in `outputs/evidence/b1/perception/consolidation-20261008/` matches
 33 original frames per condition exactly against selected configuration, masks,
 poses, decisions and registration traces. The existing 12-sample operational smoke
 matches saved object/mask outputs on CUDA TSDF with freshness still failed.

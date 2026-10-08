@@ -93,7 +93,9 @@ def main(argv=None):
         ),
     )
     parser.add_argument("--output", required=True, type=Path)
-    parser.add_argument("--data", type=Path, default=REPO / "datasets/b1/perception/engineering-v2")
+    parser.add_argument(
+        "--data", type=Path, default=REPO / "datasets/recordings/b1/perception/engineering-v2"
+    )
     parser.add_argument("--config", type=Path, default=REPO / "configs/perception_geometry.json")
     parser.add_argument("--models", type=Path, default=REPO / "models/perception")
     parser.add_argument(
@@ -128,7 +130,7 @@ def main(argv=None):
 
         print(run_live_smoke(recipe, args.output, args.models, PILOTS[1]), flush=True)
         return 0
-    paths = episode_paths(args.data, load_corpus(REPO / "assets/doors/b1/corpus.json", REPO))
+    paths = episode_paths(args.data, load_corpus(REPO / "datasets/doors/b1/corpus.json", REPO))
     paths = [p for p in paths if p.parent.parent.name in PILOTS]
     if args.command == "point2pose-offline":
         from alexdoor_xas.perception.diagnostics.offline import run_offline

@@ -17,19 +17,24 @@ coverage.xml
 htmlcov/
 
 # Generated artifacts (see datasets/README.md and outputs/README.md)
-# Datasets are tracked via their README.md; generated data stays local by default.
+# Track door records; recordings and prepared payloads stay local.
 /datasets/*
 !/datasets/README.md
+!/datasets/doors/
+/datasets/doors/b1/*/source/
+/datasets/doors/b1/*/prepared/
+/datasets/doors/b1/*/attempts/
+/datasets/doors/b1/*/.publish/
 
-# Generated runs stay local.
+# Track storage guidance, not run payloads.
 /outputs/*
 !/outputs/README.md
-
-# Door metadata is tracked; sources, prepared payloads and attempts stay local.
-/assets/doors/b1/*/source/
-/assets/doors/b1/*/prepared/
-/assets/doors/b1/*/attempts/
-/assets/doors/b1/*/.publish/
+!/outputs/generated/
+!/outputs/evidence/
+/outputs/generated/*
+!/outputs/generated/README.md
+/outputs/evidence/*
+!/outputs/evidence/README.md
 
 # Machine-local artifacts
 # Keep active binary formats ignored even outside datasets/ and outputs/.
@@ -60,5 +65,5 @@ htmlcov/
 .vscode/
 .DS_Store
 
-# Selected pretrained model resources stay local; inventory is documented.
-/models/perception/*/
+# Model setup and requirements are documented in the wiki.
+/models/

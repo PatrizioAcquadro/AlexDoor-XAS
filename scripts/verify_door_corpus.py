@@ -14,7 +14,7 @@ from alexdoor_xas.qualification.corpus import load_corpus  # noqa: E402
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--manifest", type=Path, default=REPO / "assets/doors/b1/corpus.json")
+    parser.add_argument("--manifest", type=Path, default=REPO / "datasets/doors/b1/corpus.json")
     parser.add_argument(
         "--evidence-root",
         type=Path,

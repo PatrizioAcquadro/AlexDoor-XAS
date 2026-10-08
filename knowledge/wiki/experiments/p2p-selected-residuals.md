@@ -11,7 +11,7 @@ attempts and the selected recipe are preserved.
 
 ## Evidence and coordinate checks
 
-New ignored evidence root: `outputs/b1/perception/p2p-sam3-residual-02/`.
+New ignored evidence root: `outputs/evidence/b1/perception/p2p-sam3-residual-02/`.
 `diagnose.py`, `audit_sources.py`, `split_geometry.py`, `summary.json` and
 `source-audit.json` retain the computations. `evaluation-02/` contains paired
 point records, births/promotions and complete stage timelines. Inputs are the

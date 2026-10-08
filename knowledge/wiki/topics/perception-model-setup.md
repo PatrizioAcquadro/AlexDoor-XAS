@@ -1,5 +1,8 @@
 # Selected perception resources
 
+All paths below are relative to the repository root. `models/` is entirely local
+and ignored by Git. Setup requirements are tracked beside this page.
+
 Local weights are preserved for GroundingDINO + SAM 3 with explicit RGB-D/multiview
 geometry for the maintained 6.0B static scan.
 Neither the static scan nor the optional Point2Pose prototype is a qualified perception release.
@@ -19,7 +22,7 @@ and [pinned model repository](https://huggingface.co/IDEA-Research/grounding-din
 
 Weights were checked against the original download digests and moved with their
 bytes unchanged. Local hashes, original download reports and path relocations
-are in `outputs/b1/perception/evidence/cleanup.json` and its `comparison-01/`
+are in `outputs/evidence/b1/perception/cleanup.json` and its `comparison-01/`
 subdirectory. The image worker keeps its native SAM3 source and dependency overlay
 under ignored `runtime/`. The shared Isaac NumPy/PyTorch/Transformers installation
 is unchanged. Only the worker prepends this overlay; RGB and packed output bytes
@@ -28,7 +31,7 @@ cross the process boundary, avoiding NumPy 1/2 ABI and pickle incompatibilities.
 DINOv3 extraction and its unused surface descriptors were removed: maintained
 association and contact geometry consume RGB-D support, not learned descriptors.
 Its historical revision (`114c1379950215c8b35dfcd4e90a5c251dde0d32`), configuration,
-license and download metadata remain in `evidence/cleanup.json`. The retired
+license and download metadata remain in the same cleanup inventory. The retired
 SAM3.1 metadata directory was also removed after preserving its contents there.
 GroundingDINO remains required for static box prompts and automatic Point2Pose seeds.
 
@@ -41,7 +44,7 @@ Transformers 4.57.6. Create the ignored environment with the supported Python:
 /home/pacquadr/IsaacLab/isaaclab.sh -p -m venv --without-pip --system-site-packages models/perception/runtime/venv
 /home/pacquadr/IsaacLab/isaaclab.sh -p -m pip install --no-deps \
   --target models/perception/runtime/venv/lib/python3.12/site-packages \
-  -r models/perception/runtime-requirements.txt
+  -r knowledge/wiki/topics/perception-model-setup/runtime-requirements.txt
 ```
 
 Retain the official source archive at revision
@@ -54,7 +57,7 @@ recognizes `device="cuda"`; the worker explicitly moves and checks all weights o
 `cuda:0`, freezes parameters and uses inference mode. No model download occurs
 during smoke/scan; missing resources or CUDA cause an error.
 
-`runtime-requirements.txt` contains the image builder's required dependencies.
+[Runtime requirements](perception-model-setup/runtime-requirements.txt) contain the image builder's required dependencies.
 The retired video path's `decord` dependency was removed from both this list and
 the local overlay; the external runtime was not modified.
 
@@ -62,13 +65,16 @@ Smoke both image models with a fresh output:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
-  --output outputs/b1/perception/NEW_SMOKE
+  --output outputs/generated/b1/perception/NEW_SMOKE
 ```
 
 This command performs only frozen inference on a train RGB observation. A passed
 smoke establishes executable models, not full-state accuracy or control safety.
 
 ## Point2Pose 6.0C worker
+
+[Point2Pose requirements](perception-model-setup/point2pose-requirements.txt) are
+installed by the setup script into its isolated runtime.
 
 The optional CAD-free prototype uses upstream revision
 `51856226610df75e5c06e8de545bd27f7c4ba99c` and its paper configuration:
@@ -80,15 +86,15 @@ Python. It does not install into Isaac, Alex or the 6.0B overlay.
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/setup_point2pose.py
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-smoke \
-  --output outputs/b1/perception/NEW_P2P_SMOKE
+  --output outputs/generated/b1/perception/NEW_P2P_SMOKE
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live-smoke \
-  --output outputs/b1/perception/NEW_P2P_CONCURRENT
+  --output outputs/generated/b1/perception/NEW_P2P_CONCURRENT
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-replay \
-  --output outputs/b1/perception/NEW_P2P_REPLAY
+  --output outputs/generated/b1/perception/NEW_P2P_REPLAY
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-offline \
-  --output outputs/b1/perception/NEW_P2P_OFFLINE
+  --output outputs/generated/b1/perception/NEW_P2P_OFFLINE
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live \
-  --output outputs/b1/perception/NEW_P2P_LIVE
+  --output outputs/generated/b1/perception/NEW_P2P_LIVE
 ```
 
 Choose commands deliberately: `point2pose-smoke` uses 12 samples; live diagnostics
@@ -101,7 +107,7 @@ points, not instructions to repeat it. Live commands require no recording direct
 a failed child or missing report produces a nonzero exit status independently of
 quality scores. Runtime timing, reset, ground-truth separation
 and failure semantics are canonical in
-[Shared Door Perception](../../knowledge/wiki/topics/shared-door-perception.md).
+[Shared Door Perception](shared-door-perception.md).
 
 The workstation worker uses Python 3.12, PyTorch 2.4 CUDA 12.1, NumPy 2.1.3,
 Open3D 0.19 and GTSAM 4.3a0; shared Isaac PyTorch/NumPy remain unchanged. The native
@@ -124,7 +130,7 @@ belong in the perception topic and experiments.
 ## Selected SAM3 video diagnostic
 
 The selected experimental settings are tracked in
-[`configs/point2pose_selected.json`](../../configs/point2pose_selected.json).
+[`configs/point2pose_selected.json`](../../../configs/point2pose_selected.json).
 They reproduce the saved selected recipe through the existing serial evaluator;
 loading this file is explicit and does not change operational defaults. Run from
 the repository root with the supported Isaac Python, choosing a fresh output:
@@ -140,9 +146,9 @@ root = Path.cwd()
 selected = json.loads((root / "configs/point2pose_selected.json").read_text())
 condition = "light"  # The other preserved condition is "nominal".
 report = offline_episode(
-    root / f"datasets/b1/perception/engineering-v2/animated-door-1-88abf40/{condition}/episode.hdf5",
+    root / f"datasets/recordings/b1/perception/engineering-v2/animated-door-1-88abf40/{condition}/episode.hdf5",
     load_recipe(root / "configs/perception_geometry.json", root),
-    root / f"outputs/b1/perception/NEW_SELECTED_{condition}",
+    root / f"outputs/generated/b1/perception/NEW_SELECTED_{condition}",
     root / "models/perception",
     capture_window_s=(31.0, 78.61666666666666),
     registration_diagnostics=True,
@@ -178,7 +184,7 @@ only `query_chunk_size`; old rollback/selected-registration keywords accept only
 false. Unsupported activation fails explicitly. Result and trace fields remain
 compatible with saved-data evaluators.
 
-The [selected development](../../knowledge/wiki/experiments/p2p-sam3-selected-development.md)
-and [residual diagnosis](../../knowledge/wiki/experiments/p2p-selected-residuals.md)
+The [selected development](../experiments/p2p-sam3-selected-development.md)
+and [residual diagnosis](../experiments/p2p-selected-residuals.md)
 retain the measured tradeoffs and open material-identity questions. This recipe
 is experimental; it does not qualify 150 ms freshness, contact, A3/A4 or policies.

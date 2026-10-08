@@ -12,7 +12,7 @@ all local evidence preserved. The later single-object SAM3 recipe is selected in
 [[p2p-sam3-unified-frontend|the frontend comparison]] and
 [[p2p-sam3-selected-development|selected development]]. Defaults are unchanged.
 
-Evidence root: `outputs/b1/perception/p2p-performance-01/`. `saved-evaluation.json`
+Evidence root: `outputs/evidence/b1/perception/p2p-performance-01/`. `saved-evaluation.json`
 retains 20 prior attempts, every candidate, original-time gaps/tails, histograms,
 peaks, source/configuration and target definitions. Readable counterparts are
 `saved-evaluation.md`, `performance-comparison.md`, `full-target-report.md` and

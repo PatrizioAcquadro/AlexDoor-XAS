@@ -278,7 +278,7 @@ comparisons. Later selected residual diagnosis addresses these separately.
 
 ## Preserved evidence and historical source
 
-All roots are under ignored `outputs/b1/perception/`; no October 8 payload deletion:
+All roots are under ignored `outputs/evidence/b1/perception/`; no October 8 payload deletion:
 
 - `p2p-sam3-unified-01/`: `integrated-{full,pilot}-{light,nominal}` (SAM3.1),
   `integrated-sam3-{full,pilot}-{light,nominal}` (SAM3), protocols, every scheduled

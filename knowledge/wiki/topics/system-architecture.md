@@ -43,7 +43,7 @@ policy dataset. See [[topics/learned-policy-stack|Learned Policy Stack]].
 
 ## Preparation and Storage
 
-`assets/doors/b1/corpus.json` freezes Phase 5 asset membership, geometry families,
+`datasets/doors/b1/corpus.json` freezes Phase 5 asset membership, geometry families,
 train/development/test assignments, setup and expert references. The numerical
 `qualification.corpus.load_corpus` validates the tracked records; the CLI
 `verify_door_corpus.py` optionally also verifies local evidence. This metadata
@@ -106,9 +106,11 @@ no accepted asset depends on a temporary attempt. See
 contract, frozen corpus, rights scopes and completed qualification.
 
 Runtime caches and verification reports belong under `~/.cache/alexdoor-xas/`.
-Original engineering recordings use ignored `datasets/` payloads. Selected model
-resources use `models/perception/`; historical perception evidence and relocation
-records use `outputs/b1/perception/evidence/`. All 50 engineering-v2 episodes remain;
+Door corpus records and local prepared payloads share `datasets/doors/b1/`.
+Original engineering recordings use ignored `datasets/recordings/b1/` payloads.
+New runs use `outputs/generated/`; preserved results and relocation records use
+`outputs/evidence/b1/perception/`. The entire `models/` tree is ignored;
+[[topics/perception-model-setup|model setup and requirements]] live in this wiki. All 50 engineering-v2 episodes remain;
 superseded recordings and derived caches
 were removed after preserving essential results/headers.
 
