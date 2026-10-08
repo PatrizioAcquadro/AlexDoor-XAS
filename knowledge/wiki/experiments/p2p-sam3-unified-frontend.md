@@ -1,11 +1,16 @@
 # Unified SAM3 Video Frontend for Point2Pose
 
-**Decision, October 7, 2026: retain the adopted all-query reference.** Unified
-Bounded SAM3.1 history fixes the original resource failure with exact prefix
-equivalence, but complete late accuracy regresses. Isolated SAM3 reconditioning OFF
-improves both conditions relative to ON, including nominal losses from 747 to 57;
-it still loses light accuracy and nominal 15/20 mm availability versus the reference.
-Both controls remain opt-in and unqualified; operational defaults are unchanged.
+**Experimental reference, October 7, 2026: unified SAM3 reconditioning OFF.**
+Use one SAM, one original leaf object, TAPIR and SuperPoint for the next frontend
+development. The older all-query baseline, every previous attempt and operational
+defaults remain preserved. This choice balances precision, continuity and complete
+latency; it does not require winning every metric against the older multi-object
+baseline. Tracking and contact qualification remain open.
+
+The only new comparison is bounded SAM3.1 with periodic reconditioning changed
+from 16 to 0. Its existing useful-memory policy, original initialization, prompt
+and all P2P controls remain fixed. Full original light/nominal CUDA replays and the
+four-way saved-evidence comparison determine the final next-phase recipe below.
 
 ## Scope and reference
 
@@ -226,10 +231,12 @@ memory. The interactive wrapper's repeated-pass cache-fetch behavior is not an
 arrived-frame streaming interface. Saved receipts and current-mask audits reveal
 no integration error explaining the complete SAM3 regression.
 
-The new SAM3-only diagnostic changes periodic detection reconditioning from
+The original SAM3 diagnostic changes periodic detection reconditioning from
 16 to 0, leaving its already-disabled bbox trigger (-1), every other heuristic,
 detection/association threshold, checkpoint, `door surface`, seed0 and P2P
-controls unchanged. `trace_reconditioning=True` reports eligible matches,
+controls unchanged. The same opt-in control now supports SAM3.1's native multiplex
+`add_new_masks` call without changing its memory policy or native heuristics.
+`trace_reconditioning=True` reports eligible matches,
 actual native reconditioning mask calls and newly created detection IDs separately;
 it does not add prompts or substitute IDs. Initial 33-frame ON/OFF trials have
 identical masks and no eligible reconditioning. An initial gate expecting an early

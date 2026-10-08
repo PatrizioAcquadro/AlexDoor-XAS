@@ -9,7 +9,8 @@ from alexdoor_xas.perception.sam3_frontend import append_frame, identity_status
 from alexdoor_xas.perception.sam3_runtime import masks_for_seed
 
 
-def test_reconditioning_control_changes_only_period_and_trace_preserves_plan():
+@pytest.mark.parametrize("multiplex", [False, True])
+def test_reconditioning_control_changes_only_period_and_trace_preserves_plan(multiplex):
     from alexdoor_xas.perception.sam3_diagnostics import (
         ReconditioningTrace,
         set_detection_reconditioning,
@@ -20,14 +21,18 @@ def test_reconditioning_control_changes_only_period_and_trace_preserves_plan():
     )
     metadata = object()
     tracker = SimpleNamespace(add_new_mask=lambda **kwargs: "mask-result")
+    tracker.add_new_masks = lambda **kwargs: "mask-result"
     model = SimpleNamespace(
         recondition_every_nth_frame=16,
         reconstruction_bbox_iou_thresh=-1,
         tracker=tracker,
         new_det_thresh=0.7,
+        is_multiplex=multiplex,
     )
 
     def recondition():
+        if multiplex:
+            return tracker.add_new_masks(obj_ids=[4], reconditioning=True)
         return tracker.add_new_mask(obj_id=4)
 
     def planning():
@@ -44,7 +49,9 @@ def test_reconditioning_control_changes_only_period_and_trace_preserves_plan():
     assert trace.current["applied_ids"] == [4]
     assert trace.current["new_detection_ids"] == [9]
     assert trace.current["called"]
+    before = vars(model).copy()
     set_detection_reconditioning(model, False)
+    assert {k for k in before if before[k] != vars(model)[k]} == {"recondition_every_nth_frame"}
     assert model.recondition_every_nth_frame == 0
     assert model.new_det_thresh == 0.7 and model.reconstruction_bbox_iou_thresh == -1
     model.reconstruction_bbox_iou_thresh = 0.8

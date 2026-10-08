@@ -110,8 +110,6 @@ class Sam3CausalFrontend:
         self.bounded_memory = bounded_memory
         self.reconditioning_trace = None
         if not detection_reconditioning or trace_reconditioning:
-            if version != "sam3":
-                raise ValueError("reconditioning_diagnostic_requires_sam3")
             from alexdoor_xas.perception.sam3_diagnostics import (
                 ReconditioningTrace,
                 set_detection_reconditioning,
