@@ -115,6 +115,9 @@ are distinct from older inspection support. `current_space` and `scan_state.spac
 use a bounded latest full-scene RGB-D view for surrounding obstacles/free-space
 queries, separately from the frozen inspection map. Missing scene support remains
 unknown, and late depth does not retroactively refresh inspection geometry.
+Published scan snapshots preserve each acquisition's actual completion time across
+replacement; the seed reference receives its complete publication time. Earlier
+inspection support and the immutable seed never acquire later tracking timestamps.
 
 `Surface` preserves disconnected measured components, dense extrema, supported
 edges and packed per-observation membership with calibrated poses, capture and

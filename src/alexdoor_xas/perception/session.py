@@ -354,6 +354,7 @@ class SessionProvider:
             self.tracking.reset(self.generation)
         self.scan_memory = ScanMemory(self.config, self.generation)
         self.current_space = ObservedSpace(self.config, self.generation)
+        self.scan_available = {}  # Bounded by the stationary inspection window.
         self.last_time = self.last_frame = self.last_estimate = self.last_cue = None
         self.encoding = None
         self.diagnostics = dict(state="searching", semantic_calls=0)
@@ -378,13 +379,6 @@ class SessionProvider:
             self.scan_memory = result["scan_memory"]
             self.scan_memory.generation = self.generation
             self.scan_memory.state.generation = self.generation
-            for surface in self.scan_memory.surfaces:
-                for observation in surface.observations:
-                    if observation.frame == int(captured["frame"]):
-                        observation.available_s = ready
-            for obj in self.scan_memory.state.objects:
-                if obj.support.supported_s == float(captured["time_s"]):
-                    obj.support = replace(obj.support, available_s=ready)
         result["cue"]["available_s"] = ready
         self.last_cue = captured, result["cue"]
         if self.tracking:
@@ -422,6 +416,35 @@ class SessionProvider:
         result["provider_publication_s"] = publication_s
         result["publication_latency_s"] = ready - float(captured["time_s"])
         result["cue"]["available_s"] = ready
+        if result["scan_memory"] is not None:
+            self.scan_available[float(captured["time_s"])] = ready
+            # Worker snapshots contain acquisition-time estimates. Preserve actual
+            # earlier publications when replacing the snapshot; never refresh old
+            # inspection support with a later tracking acquisition.
+            for surface in self.scan_memory.surfaces:
+                for observation in surface.observations:
+                    observation.available_s = self.scan_available.get(
+                        observation.acquired_s, observation.available_s
+                    )
+            for obj in self.scan_memory.state.objects:
+                obj.support = replace(
+                    obj.support,
+                    available_s=self.scan_available.get(
+                        obj.support.supported_s, obj.support.available_s
+                    ),
+                )
+        if self.tracking and result["initial_candidates"]:
+            for candidate, binding in zip(self.tracking.candidates, result["binding"], strict=True):
+                candidate.geometry = replace(candidate.geometry, available_s=ready)
+                candidate.static_reference = replace(
+                    candidate.static_reference, support=candidate.geometry
+                )
+                binding["reference_support"] = vars(candidate.geometry)
+                for reference in binding["inspection_references"]:
+                    support = reference["support"]
+                    support["available_s"] = self.scan_available.get(
+                        support["supported_s"], support["available_s"]
+                    )
         for view in self.current_space.views.values():
             view["available_s"] = ready
         if self.tracking and result["objects"]:

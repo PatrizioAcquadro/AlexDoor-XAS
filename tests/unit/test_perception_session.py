@@ -209,3 +209,27 @@ def test_selected_id_survives_mask_order_changes(tmp_path, geometry):
         assert all(masks[0].all() for _, masks in native.calls)
     finally:
         session.close()
+
+
+def test_static_snapshot_preserves_complete_publication_times(tmp_path, geometry):
+    session = PerceptionSession(
+        "unused", recipe(), {}, tmp_path, tracking=False, sam_worker=Sam([[7], [7]])
+    )
+    engine = Point2PoseEngine(lambda _: session, replay=True, capture_session=True)
+    provider = module.SessionProvider(recipe(), engine, tracking=False)
+    try:
+        engine.prepare()
+        publications = {}
+        for index, capture in enumerate((4.0, 4.3)):
+            provider.update(sensor(capture, index))
+            assert provider.consume_results(engine.pending[1]["available_s"])
+            publications[capture] = provider.diagnostics["available_time_s"]
+            observations = [o for s in provider.static for o in s.observations]
+            assert observations
+            for observation in observations:
+                assert observation.available_s == publications[observation.acquired_s]
+        provider.reset(preload=False)
+        assert provider.scan_available == {}
+        assert not provider.static
+    finally:
+        provider.close()
