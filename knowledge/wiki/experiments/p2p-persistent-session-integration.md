@@ -191,10 +191,12 @@ Older recordings, baselines, images, masks, failed tails and readers are intact.
 Targeted unit/local integration contracts, lint and formatting pass;
 real CUDA is used for the model/TSDF checks above.
 
-Next validate matched operational replay/live with actual rendering and an explicit
-observed geometric selection, retaining the same targets, timestamps, drops and
-complete publication latency. Diagnose the saved light peaks/degenerate supports
-before proposing any separate quality change. The integrated full openings are
+The [[p2p-operational-selection-and-light-peaks|ordered follow-up]] now completes
+explicit reference ingress, continuous recorded/live timing and the saved integrated
+light peak/support diagnosis. It retains skipped-frame quality and command failures;
+the original dense integration remains a distinct evidence set. The one proposed
+next comparison uses saved masks to separate post-seed SAM3 history from P2P
+initialization/history before any separate quality correction. The integrated full openings are
 not numerically equivalent to the historical 31 s windows. Independent material
 recovery, absolute initialization, hardware/FK/floor bounds, 150 ms and action/contact
 qualification remain open.

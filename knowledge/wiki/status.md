@@ -40,8 +40,8 @@ Full serial p95 260/246 ms still yields zero requests within 150 ms. Sampled joi
 GPU peaks are 7.77/11.81 GiB, combined coordinator/worker RSS 6.03/6.10 GiB;
 startup spikes remain unqualified. Final bounded wall-clock/replay ingress replaces
 31 of 33 inputs and publishes two results about 3 s late. Its immutable seed and
-scan publication times are checked independently. Real concurrent rendering and
-matched operational accuracy remain unvalidated.
+scan publication times are checked independently. That 33-frame prefix did not
+validate concurrent rendering or matched operational quality; the full ordered follow-up below supplies new, separate measurements.
 
 The [[experiments/p2p-operational-selection-and-light-peaks|ordered operational follow-up]]
 now implements explicit reference ingress and measures full continuous recorded
@@ -49,7 +49,11 @@ input followed by concurrent stationary rendering. Steady publication is 3.79/3.
 with age p95 610/346 ms and zero within 150 ms. The recording retains 4,484 skips
 and 27 native losses with zero measured pairs; dense quality does not transfer. The initial
 live reference failure and subsequent post-run reporting failure are preserved.
-Diagnose the saved light peaks/degenerate supports before any separate quality change. Material correspondence/recovery, hardware/FK/floor bounds and all
+The saved light diagnosis distinguishes an angular cluster/final-gate fallback,
+a mixed frame/leaf position peak, and SDF-induced narrow supports for all eight
+integration refusals. Small mask changes do not identify causality. Next use one
+saved-mask P2P bridge replay with identical historical 31 s initialization to
+separate post-seed mask history from P2P seed/history before any quality correction. Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.
 

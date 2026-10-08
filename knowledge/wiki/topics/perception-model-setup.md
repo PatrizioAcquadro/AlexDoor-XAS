@@ -116,6 +116,17 @@ observer cases retain their original bounded motion/fault protocol. Post-run tru
 scoring stays separate from provider service time. See
 [[../experiments/p2p-operational-selection-and-light-peaks|operational results and failures]].
 
+Saved integrated-light diagnosis is read-only and needs no model execution:
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p outputs/evidence/b1/perception/sam3-operational-20261008/diagnose_light.py
+```
+
+That evidence-owned script creates a new `light-diagnosis` directory and refuses
+an existing destination. Its recorded helpers read the retained frames, traces,
+mask stream, prepared evaluator hulls and physical targets. Reuse the completed
+saved diagnosis for inspection; do not overwrite it or rerun a model campaign.
+
 ## Bounded historical comparison
 
 The same serial coordinator can start after inspection to compare an unchanged

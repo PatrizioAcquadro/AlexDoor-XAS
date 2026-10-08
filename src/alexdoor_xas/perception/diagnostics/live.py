@@ -391,7 +391,7 @@ def observer_case(
                 for e in processed
             ),
             scope=(
-                "stationary observed zone relative to its own seed; "
+                f"{case} observed zone relative to its own seed; "
                 "no absolute or opening quality claim"
             ),
         )
