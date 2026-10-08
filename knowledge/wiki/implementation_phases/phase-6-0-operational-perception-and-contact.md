@@ -363,12 +363,16 @@ reference and never silently reselect it. Loaded or axis-free diagnostic action
 admission remains 6.0D work; do not invent a hinge to pass the existing validators.
 
 An opt-in [[../experiments/p2p-sam3-unified-frontend|unified SAM3 video diagnostic]]
-now supplies causal text initialization and subsequent masks directly to P2P,
-without the separate SAM2 segmenter or DINOv3 inference. Both versions pass bounded
-integration pilots. Full original SAM3 openings regress light physical-target precision and nominal support/tail;
-SAM3.1 fails the unchanged TSDF memory guard after accurate prefixes. Neither
-version replaces the adopted diagnostic reference. The retained static 6.0B path
-and A3/A4/policies are unchanged.
+supplies causal text initialization and masks directly to P2P, without separate
+SAM2 segmentation or DINOv3 inference. SAM3 reconditioning OFF is now the selected
+next experimental reference with one SAM/object, TAPIR and SuperPoint. Bounded
+SAM3.1 OFF changes only period16→0 versus saved bounded ON and completes both
+original CUDA openings with identical seed/P2P rules. It improves parts of light
+but regresses all nominal physical targets; its smaller bounded SAM memory and
+fewer native losses do not overcome worse correct-pose continuity. The older
+multi-object baseline, every original failure/result and operational defaults
+remain retained. Complete latency is not 150 ms freshness; contact/provider
+qualification and A3/A4/policies remain unchanged.
 
 #### Implemented recipe and remaining acceptance work
 

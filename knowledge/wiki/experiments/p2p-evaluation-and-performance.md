@@ -1,5 +1,11 @@
 # Point2Pose Evaluation and Isolated Performance
 
+This page preserves the older multi-object baselines and isolated P2P controls.
+The next experimental frontend is selected separately in
+[[p2p-sam3-unified-frontend|the unified four-way comparison]]: SAM3 periodic
+reconditioning OFF, one SAM/object, with the all-query TAPIR/P2P controls retained.
+Historical results and operational defaults are unchanged.
+
 20 preserved attempts; every original scheduled row and failed tail retained. Seed excluded from correctness and errors, retained in scheduled denominator. Each cell is availability % / accepted precision % / maximum correct-pose absence seconds. Rotation remains 5 degrees. This changes evaluation, not 4 mm registration or operational/contact bounds.
 
 | Condition / preserved system | 10 mm | 15 mm | 20 mm | Accepted point p95/p99/max mm |

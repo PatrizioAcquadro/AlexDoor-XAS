@@ -10,7 +10,9 @@ baseline. Tracking and contact qualification remain open.
 The only new comparison is bounded SAM3.1 with periodic reconditioning changed
 from 16 to 0. Its existing useful-memory policy, original initialization, prompt
 and all P2P controls remain fixed. Full original light/nominal CUDA replays and the
-four-way saved-evidence comparison determine the final next-phase recipe below.
+four-way saved-evidence comparison are complete. The final choice remains SAM3 OFF;
+bounded SAM3.1 OFF improves parts of light but regresses nominal on every original
+target. Detailed current results and the resource tradeoff are consolidated below.
 
 ## Scope and reference
 
@@ -34,6 +36,161 @@ Original input is `engineering-v2/animated-door-1-88abf40/{light,nominal}/episod
 rows 1860–4717, 31.0–78.6166667 s, 2,858 frames per condition at original 60 Hz.
 The recorded maximum opening is 63.7209 degrees. Replay speed is independent of
 acquisition cadence.
+
+## Consolidated four-way decision
+
+The consolidation starts from `main` at `2f3ad07`, with no pre-existing tracked
+changes. Source control/trace support is `563847a`. Historical tables call the
+older multi-object all-query baseline "reference"; the **new experimental
+reference is SAM3 OFF**, not a change to operational defaults. Saved baseline,
+SAM3 OFF and bounded SAM3.1 ON results are reused and exactly reproduced by the
+same physical-target evaluator. Every previous result/failure remains intact.
+
+Only bounded SAM3.1 OFF is new: the native periodic control changes 16→0.
+Both original CUDA attempts process all 2,858 frames, seed row 1860 to row 4717,
+without selective retry. Startup runtime fields are identical except period and
+observation metadata; the complete P2P configuration is identical except output
+paths and measured startup time. `sam3_memory.py` and every P2P rule are unchanged.
+Seed masks and initial P2P poses match ON exactly. OFF makes zero native
+reconditioning calls/updates and creates no additional IDs. First differing masks
+and P2P poses are at 46.2 s light / 35.5333 s nominal (indices 912/272, both multiples
+of 16). This verifies application, not just a configuration label. Saved full-prefix
+mask hashes cover 1,313/1,151 frames; six saved ON mask snapshots cover the rest of
+its full window. No second ON experiment is introduced.
+
+**Use SAM3 OFF for the next phase**, with one SAM, one original object ID0,
+`door surface`, the preserved seed0 recipe, TAPIR Large/480/four iterations/all-query,
+SuperPoint, graph off, partial batch on, rollback off, five inliers/4 mm,
+vectorized Jacobian and 120 active references. Operational defaults remain unchanged.
+The opt-in frontend setting preserves the original diagnostic seed and trace:
+
+```python
+sam3_frontend = {
+    "version": "sam3",
+    "prompt": "door surface",
+    "seed": 0,
+    "detection_reconditioning": False,
+    "trace_reconditioning": True,
+}
+```
+
+The choice balances metrics. SAM3.1 OFF improves light primary 15 mm availability
+73.90→97.97% versus ON and the final primary tail 3→279/301. Its light target1
+10 mm result regresses, so light gains are not universal. Nominal OFF loses
+availability at every bound on all three targets versus ON; primary 15 mm falls
+86.18→83.24% and the final tail 193→36/301. Its native loss stays only one frame,
+but biased accepted poses create a 10.85 s primary 10 mm correctness gap.
+SAM3 OFF has 57 nominal native losses yet a much shorter 0.150 s maximum correct
+10 mm gap and 87.40% correct availability. Native presence alone is not useful
+continuity. SAM3 OFF's 43.10 mm nominal primary accepted peak and weaker light
+accuracy versus the old baseline remain; this choice does not claim universal
+accuracy, recovery or provider qualification.
+
+SAM3.1 ON/OFF wins the memory comparison: SAM allocation stays about 4.40 GiB
+and allocator peaks stay 5.06 GiB. SAM3 OFF's current SAM allocation grows
+3.65→7.84 GiB; CPU high-water marks reach 20.21/18.51 GiB. Those costs are accepted
+explicitly for this finite next-phase experimental reference. Complete p95 is
+264/281 ms SAM3 OFF versus 282/283 ms new bounded OFF and 554/644 ms old baseline.
+No nonseed request meets 150 ms. No memory optimization is added to SAM3 here.
+
+Evidence root: `outputs/b1/perception/p2p-unified-consolidation-01/`.
+`comparison.json` and `report.md` retain all three targets, original-time gaps/tails,
+accepted/all-finite distributions, peak times, startup/seed, simultaneous memory,
+per-process peaks and growth. Both RSS sampler threads raised a retained
+shutdown-only error when workers closed; 6,427/6,431 samples cover the last original
+capture, with every per-frame resource record intact. Neither inference replay
+failed or was rerun. New instantaneous combined RSS window medians increase
+6.56→7.14 GiB light / 5.38→5.92 GiB nominal; bounded SAM buffers do not imply zero
+whole-pipeline CPU growth. Sampled peaks remain sampled, not exact allocator peaks.
+
+### All three original physical targets
+
+Each positional bound retains 5-degree rotation. Availability is correct accepted / all 2,858 scheduled frames; precision is correct / accepted nonseed poses. Original seed, timestamps and failures remain. Target definitions are frozen from the older all-query baseline.
+
+| Condition | System | Target | Availability 10/15/20 mm | Accepted precision 10/15/20 mm | Accepted position p95/max (mm) |
+|---|---|---:|---:|---:|---:|
+| light | Baseline | 0 | 80.41/98.22/99.90% | 80.43/98.25/99.93% | 13.29/21.78 |
+| light | Baseline | 1 | 78.69/97.90/99.90% | 78.72/97.93/99.93% | 13.46/21.55 |
+| light | Baseline | 2 | 81.88/98.36/99.90% | 81.90/98.39/99.93% | 13.10/22.04 |
+| light | SAM3 OFF | 0 | 70.33/96.19/99.86% | 70.35/96.22/99.89% | 14.62/21.26 |
+| light | SAM3 OFF | 1 | 69.03/94.05/99.76% | 69.06/94.08/99.79% | 15.23/21.63 |
+| light | SAM3 OFF | 2 | 71.66/97.13/99.90% | 71.68/97.16/99.93% | 14.02/20.89 |
+| light | SAM3.1 bounded ON | 0 | 68.19/73.90/94.79% | 68.24/73.95/94.85% | 20.03/27.50 |
+| light | SAM3.1 bounded ON | 1 | 66.59/73.30/93.60% | 66.63/73.35/93.66% | 20.53/27.66 |
+| light | SAM3.1 bounded ON | 2 | 69.03/75.23/95.59% | 69.08/75.28/95.66% | 19.45/27.33 |
+| light | SAM3.1 bounded OFF | 0 | 68.82/97.97/99.83% | 68.87/98.04/99.89% | 14.22/20.90 |
+| light | SAM3.1 bounded OFF | 1 | 62.35/91.92/99.72% | 62.39/91.98/99.79% | 15.37/21.34 |
+| light | SAM3.1 bounded OFF | 2 | 73.55/99.09/99.90% | 73.60/99.16/99.96% | 13.11/20.47 |
+| nominal | Baseline | 0 | 68.89/98.15/99.83% | 68.92/98.18/99.86% | 13.25/22.89 |
+| nominal | Baseline | 1 | 63.58/97.62/99.79% | 63.60/97.65/99.82% | 13.79/22.30 |
+| nominal | Baseline | 2 | 75.26/98.25/99.79% | 75.29/98.28/99.82% | 12.85/23.53 |
+| nominal | SAM3 OFF | 0 | 87.40/96.54/97.73% | 89.21/98.54/99.75% | 11.71/43.10 |
+| nominal | SAM3 OFF | 1 | 86.21/96.50/97.76% | 88.00/98.50/99.79% | 11.83/40.67 |
+| nominal | SAM3 OFF | 2 | 87.82/96.68/97.76% | 89.64/98.68/99.79% | 11.69/45.66 |
+| nominal | SAM3.1 bounded ON | 0 | 59.90/86.18/98.92% | 59.94/86.24/98.98% | 17.38/24.63 |
+| nominal | SAM3.1 bounded ON | 1 | 59.76/82.54/98.74% | 59.80/82.60/98.81% | 17.69/24.33 |
+| nominal | SAM3.1 bounded ON | 2 | 60.08/88.24/99.02% | 60.12/88.31/99.09% | 17.17/24.97 |
+| nominal | SAM3.1 bounded OFF | 0 | 56.82/83.24/94.58% | 56.86/83.30/94.64% | 20.19/29.09 |
+| nominal | SAM3.1 bounded OFF | 1 | 56.09/81.46/94.30% | 56.13/81.51/94.36% | 20.55/28.93 |
+| nominal | SAM3.1 bounded OFF | 2 | 57.21/85.41/95.10% | 57.25/85.47/95.17% | 19.80/29.27 |
+
+### Primary distributions, losses and final tail
+
+Primary is original target0. All three complete distributions, histograms, positional/rotational peak times, correct-gap intervals and terminal gaps remain in `comparison.json` and the complete `report.md`; no seed-relative substitute is used. Accepted distributions are conditional, so all-finite p95/max and loss counts are also shown.
+
+| Condition | System | Accepted position p50/p95/p99/max (mm) | Accepted rotation p50/p95/p99/max (deg) | All-finite position p95/max (mm) | Native losses |
+|---|---|---:|---:|---:|---:|
+| light | Baseline | 3.87/13.29/15.81/21.78 | 0.178/0.444/0.551/0.793 | 13.29/21.78 | 0 |
+| light | SAM3 OFF | 4.37/14.62/17.74/21.26 | 0.472/0.688/0.802/1.044 | 14.62/21.26 | 0 |
+| light | SAM3.1 bounded ON | 5.62/20.03/23.25/27.50 | 0.301/0.537/0.664/1.102 | 20.03/27.50 | 1 |
+| light | SAM3.1 bounded OFF | 6.42/14.22/15.76/20.90 | 0.496/0.888/1.014/1.218 | 14.22/20.90 | 1 |
+| nominal | Baseline | 6.24/13.25/16.42/22.89 | 0.156/0.588/0.748/1.056 | 13.25/22.89 | 0 |
+| nominal | SAM3 OFF | 4.45/11.71/15.50/43.10 | 0.104/0.471/0.978/3.850 | 11.83/43.10 | 57 |
+| nominal | SAM3.1 bounded ON | 4.88/17.38/19.99/24.63 | 0.114/0.512/0.658/1.048 | 17.38/24.63 | 1 |
+| nominal | SAM3.1 bounded OFF | 4.88/20.19/23.38/29.09 | 0.165/0.425/0.634/1.124 | 20.19/29.09 | 1 |
+
+| Condition | System | Maximum correct gap 10/15/20 mm (s) | Last 5 s correct 10/15/20 mm out of 301 |
+|---|---|---:|---:|
+| light | Baseline | 0.583/0.033/0.017 | 100/294/301 |
+| light | SAM3 OFF | 3.100/0.100/0.017 | 2/212/298 |
+| light | SAM3.1 bounded ON | 12.200/3.400/0.067 | 0/3/226 |
+| light | SAM3.1 bounded OFF | 3.100/0.050/0.033 | 15/279/299 |
+| nominal | Baseline | 0.817/0.050/0.017 | 91/294/301 |
+| nominal | SAM3 OFF | 0.150/0.117/0.117 | 153/232/241 |
+| nominal | SAM3.1 bounded ON | 9.200/0.283/0.067 | 1/193/293 |
+| nominal | SAM3.1 bounded OFF | 10.850/0.550/0.150 | 0/36/169 |
+
+### Complete latency and resource peaks
+
+Nonseed complete request time includes SAM inference/IPC, P2P, copies, export and adapter consumption. Startup and seed remain separate in the full report. Baseline has five/six objects; unified paths have one, so baseline differences are complete pipeline comparisons. GPU/CPU simultaneous samples cover SAM and P2P workers; coordinator RSS is separate. Per-process allocator/RSS peaks include startup and are not summed. The old baseline lacks contemporaneous image-worker measures; its separately sampled P2P GPU peak is 9.86/12.09 GiB. No scheduling/live-frequency experiment is inferred.
+
+| Condition | System | Complete p50/p95/max (ms) | Sampled simultaneous GPU/CPU peak (GiB) | SAM/P2P allocator peak (GiB) | SAM/P2P CPU RSS peak (GiB) |
+|---|---|---:|---:|---:|---:|
+| light | Baseline | 438/554/1544 | unavailable | unavailable/7.17 | unavailable/4.46 |
+| light | SAM3 OFF | 232/264/1003 | 14.41/22.86 | 8.39/1.17 | 20.21/2.65 |
+| light | SAM3.1 bounded ON | 252/282/1220 | 11.33/5.93 | 5.06/1.17 | 7.50/2.69 |
+| light | SAM3.1 bounded OFF | 253/282/1303 | 11.21/7.16 | 5.06/1.17 | 7.50/2.77 |
+| nominal | Baseline | 402/644/4069 | unavailable | unavailable/7.93 | unavailable/6.12 |
+| nominal | SAM3 OFF | 233/281/978 | 12.92/21.40 | 8.39/1.17 | 18.51/2.92 |
+| nominal | SAM3.1 bounded ON | 254/285/1014 | 10.18/5.91 | 5.06/1.17 | 7.50/2.67 |
+| nominal | SAM3.1 bounded OFF | 254/283/1003 | 10.83/5.94 | 5.06/1.17 | 7.50/2.70 |
+
+### Memory growth, separate from peaks
+
+SAM current CUDA allocation is summarized over 31–36, 43–48, 55–60 and the last five seconds. CPU entries from old runs are high-water marks including checkpoint loading, not instantaneous RSS; a flat mark cannot prove flat live RSS. New OFF retains separate sampled current RSS in `memory-samples.jsonl`. Current P2P allocation/residency and all four-window quantiles are also retained in JSON and the memory figure.
+
+| Condition | System | SAM window median CUDA allocation (GiB) | SAM CPU high-water first→final (GiB) | P2P process GPU first→final (GiB) |
+|---|---|---:|---:|---:|
+| light | Baseline | unavailable | unavailable | 4.19→9.86 |
+| light | SAM3 OFF | 3.87/4.92/5.98/7.62 | 7.46→20.21 | 1.51→4.68 |
+| light | SAM3.1 bounded ON | 4.40/4.40/4.40/4.40 | 7.50→7.50 | 1.51→5.22 |
+| light | SAM3.1 bounded OFF | 4.40/4.40/4.40/4.40 | 7.50→7.50 | 1.51→5.26 |
+| nominal | Baseline | unavailable | unavailable | 4.35→12.09 |
+| nominal | SAM3 OFF | 3.87/4.92/5.98/7.62 | 7.46→18.51 | 1.50→3.19 |
+| nominal | SAM3.1 bounded ON | 4.40/4.40/4.40/4.40 | 7.50→7.50 | 1.50→4.07 |
+| nominal | SAM3.1 bounded OFF | 4.40/4.40/4.40/4.40 | 7.50→7.50 | 1.50→4.88 |
+
+Figures: `complete-comparison.png`, `three-target-accepted-cdf.png` and `memory-over-time.png` in the consolidation evidence root. The full report names every measure, includes startup/seed and coordinator RSS, and retains all three targets rather than only the primary summary.
 
 ## Official frontend and causal adaptation
 
@@ -390,10 +547,10 @@ zone's seed-relative score. Operational freshness/ownership/contact admission is
 still separate. Essential causal/loss/geometry and legacy numerical checks pass;
 the optional SAM3 alias correction has its own regression check.
 
-## Causes, open hypotheses and adoption decision
+## Earlier causes and adoption decision, before consolidation
 
-**Retain the adopted reference; neither complete corrected recipe is a shared
-replacement.** Preserve the minimal SAM3.1 memory correction and SAM3 OFF as opt-in
+**Earlier decision, superseded by the consolidation above: retain the old
+all-query reference; neither complete corrected recipe is a shared replacement.** Preserve the minimal SAM3.1 memory correction and SAM3 OFF as opt-in
 diagnostics. OFF is the better tested single-SAM3 diagnostic, but its gains do not
 compensate for light accuracy, nominal 15/20 mm gaps and weaker final targets versus
 the reference. SAM3.1 prefix precision was real; full completion exposes late bias
@@ -556,7 +713,7 @@ audits. `sam3-controlled-diagnosis.png` shows all finite target0 errors (unavail
 outputs dotted), fixed-frame frontend inliers and evaluator-only moving published
 inliers over the original times. The native gate still counts all compatible points.
 
-Implementation commits: `7404a41` (causal frontend/direct P2P masks), `740ee57`
+Implementation commits: `563847a` (SAM3.1 period control/multiplex trace), `7404a41` (causal frontend/direct P2P masks), `740ee57`
 (optional SAM3 frame alias), `21c2abf` (expired SAM3.1 history), `72532e1` (complete
 bounded results), `f3d8797` (isolated SAM3 control/trace). The final controlled results
 are recorded in the documentation follow-up commit. All commits are local.

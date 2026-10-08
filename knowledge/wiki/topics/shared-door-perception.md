@@ -11,7 +11,13 @@ its diagnostics do not qualify a release or enable contact. An opt-in
 [[../experiments/p2p-sam3-unified-frontend|unified official SAM3/SAM3.1 video path]]
 uses one persistent full-leaf text identity for initialization and every subsequent
 mask. It skips separate SAM2 segmentation and DINOv3 extraction while retaining
-observed RGB-D geometry, TAPIR, SuperPoint, registration and TSDF.
+observed RGB-D geometry, TAPIR, SuperPoint, registration and TSDF. The next
+experimental frontend is SAM3 with periodic detection reconditioning OFF. A single
+bounded SAM3.1 OFF comparison changes only period16→0 and completes both original
+openings; it has a smaller SAM memory footprint but weaker nominal physical-target
+accuracy. The selected recipe balances correct-pose continuity and complete latency
+while retaining SAM3's measured GPU/CPU history growth. Operational defaults,
+older baselines and all prior results remain unchanged.
 
 ## Recording, inspection and storage
 
