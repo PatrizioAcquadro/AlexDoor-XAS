@@ -364,15 +364,17 @@ admission remains 6.0D work; do not invent a hinge to pass the existing validato
 
 An opt-in [[../experiments/p2p-sam3-unified-frontend|unified SAM3 video diagnostic]]
 supplies causal text initialization and masks directly to P2P, without separate
-SAM2 segmentation or DINOv3 inference. SAM3 reconditioning OFF is now the selected
-next experimental reference with one SAM/object, TAPIR and SuperPoint. Bounded
-SAM3.1 OFF changes only period16→0 versus saved bounded ON and completes both
-original CUDA openings with identical seed/P2P rules. It improves parts of light
-but regresses all nominal physical targets; its smaller bounded SAM memory and
-fewer native losses do not overcome worse correct-pose continuity. The older
-multi-object baseline, every original failure/result and operational defaults
-remain retained. Complete latency is not 150 ms freshness; contact/provider
-qualification and A3/A4/policies remain unchanged.
+SAM2 segmentation or DINOv3 inference. The selected
+[[../experiments/p2p-sam3-selected-development|SAM3 OFF experimental recipe]] now
+combines bounded useful history with one configured renewal depth-jump gate, one
+SAM/object, TAPIR and SuperPoint. Memory-only behavior is exactly identical on both
+complete original CUDA openings. The separate renewal-only gate preserves the
+original seed and masks and improves correct availability on all three targets;
+light fine-accuracy/tail/rotation and allocator-reserve tradeoffs remain. Graph off,
+partial batch on, rollback off, five inliers/4 mm and other controls stay fixed.
+Baseline, original OFF, all previous results/failures and operational defaults are
+preserved. Complete latency is not 150 ms freshness; contact/provider qualification
+and A3/A4/policies remain unchanged.
 
 #### Implemented recipe and remaining acceptance work
 

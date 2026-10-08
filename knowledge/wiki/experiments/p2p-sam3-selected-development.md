@@ -20,7 +20,7 @@ The pinned source is `2345a4ad109ac29c569da749c91d84f10dc08c40`. Audit the actua
 SAM3 consumers rather than copying SAM3.1's age cutoff. `sam3_tracker_base.py`
 `frame_filter` selects up to 15 qualifying nonconditioning outputs using
 `eff_iou_score > mf_threshold` (0.01), then includes the immediately previous frame
-regardless of score. The recipe uses stride1, seven spatial memories and 16 object
+regardless of score. The recipe uses stride 1, seven spatial memories and 16 object
 pointers. A useful high-score frame can remain selectable across an arbitrarily
 long low-score interval: its age is not an expiry criterion.
 
@@ -41,7 +41,7 @@ reads fail explicitly. There is no GPU-to-RAM offload. Native backbone caching
 already evicts previous features and remains unchanged.
 
 A 301-frame native audit attributes RAM image growth to 6,096,384 bytes per capture
-and GPU growth to retained tracker outputs and cached output masks. At index300,
+and GPU growth to retained tracker outputs and cached output masks. At index 300,
 input storage is 1,835,011,584 CPU bytes, tracker state 1,153,459,912 GPU bytes and
 cached masks 173,376,000 GPU bytes; these are named overlapping state measurements,
 not independent allocations to sum. `state-audit.jsonl` preserves the containers.
@@ -144,7 +144,7 @@ five moving/two fixed published inliers; that is not strict recovery qualificati
 ## Configured versus applied depth-jump gate
 
 The actual class is `SuperPointBalancedSampler`. Configuration enables
-`sample_filter_enable` and `sample_reject_depth_edge`, radius 2 and span0.01 m.
+`sample_filter_enable` and `sample_reject_depth_edge`, radius 2 and span 0.01 m.
 Its override of `sample` calls `_valid_depth_mask` for validity/range, but never
 calls `_candidate_safety_keep_mask` or `_depth_edge_keep_mask`; inherited attributes
 are present but unused by selection. This is a demonstrated configuration/runtime
@@ -175,4 +175,124 @@ required discriminating comparison is one full original CUDA replay per conditio
 with identical initialization, original timestamps/failures and the same three
 physical targets at 10/15/20 mm and 5 degrees. Adoption must weigh lost/correct
 availability, precision, peaks, gaps/tails and resources; a lower local peak cannot
-outweigh a worse full sequence. Results remain pending.
+outweigh a worse full sequence. Complete results and adoption follow below.
+
+
+## Complete quality comparison and adoption
+
+Diagnosis: `bc6fca5`. The sole quality change is opt-in
+`reference_depth_edge_filter=True` in the offline coordinator/Point2Pose worker.
+`point2pose_sampling.py` applies the inherited gate to native selected renewal
+points before bounded admission; initialization is bypassed exactly. The native
+configuration, source models, masks, number/order/ranking of candidate selection,
+registration thresholds and all other P2P controls remain unchanged.
+
+Each condition completes all 2,858 original CUDA captures without failure or retry.
+Seed masks, poses, references and native initialization trace are identical; every
+SAM mask over both complete openings is identical to bounded/unbounded OFF.
+First pose/object differences occur 35.4833 s light and 36.3 s nominal, after the
+first changed renewals. All 354/516 admitted new reference pixels light/nominal pass
+the exact native configured gate in saved-data evaluation. Nominal directly records
+169 gate calls and 4,554 rejected selected candidates (this includes repeats across
+sampling calls, not unique historical IDs). Light's per-call gate trace is missing
+because its observer initially compared the acquisition ID with the internal index.
+That observer is corrected for nominal; all 354 light admitted pixels, initialization,
+masks/poses and chronological receipts remain independently auditable. Missing
+light rejection totals are unavailable, not zero; no replay is repeated to improve
+instrumentation. Two initial unit failures from optional trace attributes were
+corrected; focused regressions and the real CUDA storage check pass.
+
+`quality-comparison.json`, `quality-birth-gate-audit.json`, `report.md`,
+`selected-recipe.json`, `full-comparison.png` and `original-target-error-cdf.png`
+retain every target distribution, accepted/all-finite error, precision, peak time,
+correctness gap, tail, startup/seed and named CPU/GPU/latency measure. Saved baseline
+and OFF target metrics exactly reproduce. Original scheduled denominators include
+initialization; it is excluded from correctness/errors. Correctness requires both
+the position bound and 5 degrees, separately from native presence.
+
+| Condition | Original target | SAM3 OFF availability % 10/15/20 mm | New gate availability % 10/15/20 mm | New gate accepted precision % 10/15/20 mm |
+|---|---:|---:|---:|---:|
+| light | 0 | 70.33/96.19/99.86 | 85.83/99.79/99.93 | 85.86/99.82/99.96 |
+| light | 1 | 69.03/94.05/99.76 | 87.12/99.90/99.93 | 87.15/99.93/99.96 |
+| light | 2 | 71.66/97.13/99.90 | 83.80/99.58/99.93 | 83.83/99.61/99.96 |
+| nominal | 0 | 87.40/96.54/97.73 | 99.13/99.72/99.86 | 99.19/99.79/99.93 |
+| nominal | 1 | 86.21/96.50/97.76 | 99.13/99.69/99.86 | 99.19/99.75/99.93 |
+| nominal | 2 | 87.82/96.68/97.76 | 98.74/99.65/99.83 | 98.81/99.72/99.89 |
+
+| Condition/system | Primary position p50/p95/p99/peak mm | Primary rotation p95/peak degrees | Accepted nonseed /2,857 | Native lost /2,857 |
+|---|---:|---:|---:|---:|
+| light / memory | 4.37/14.62/17.74/21.26 | 0.69/1.04 | 2857 | 0 |
+| light / quality | 4.95/12.16/13.62/23.82 | 1.10/1.66 | 2857 | 0 |
+| nominal / memory | 4.45/11.71/15.50/43.10 | 0.47/3.85 | 2800 | 57 |
+| nominal / quality | 2.23/7.43/9.39/31.48 | 0.68/4.43 | 2856 | 0 |
+
+| Condition/target | OFF maximum correct gaps s 10/15/20 mm | New maximum correct gaps s 10/15/20 mm | OFF last 5 s correct at 10/15/20 mm (/301) | New last 5 s correct at 10/15/20 mm (/301) |
+|---|---:|---:|---:|---:|
+| light/0 | 3.100/0.100/0.017 | 2.617/0.033/0.017 | 2/212/298 | 8/296/300 |
+| light/1 | 5.033/0.333/0.033 | 0.967/0.033/0.017 | 1/170/295 | 19/299/300 |
+| light/2 | 3.050/0.100/0.017 | 3.100/0.050/0.017 | 5/235/299 | 7/290/300 |
+| nominal/0 | 0.150/0.117/0.117 | 0.033/0.017/0.017 | 153/232/241 | 286/297/300 |
+| nominal/1 | 0.200/0.117/0.117 | 0.033/0.017/0.017 | 132/230/241 | 286/296/300 |
+| nominal/2 | 0.133/0.117/0.117 | 0.033/0.017/0.017 | 164/233/242 | 283/297/300 |
+
+| Condition/system | Complete p50/p95/max ms | SAM allocator peak GiB | P2P allocator peak GiB | Joint sampled GPU peak GiB | SAM/P2P CPU high-water GiB |
+|---|---:|---:|---:|---:|---:|
+| light/memory | 226/253/951 | 4.21 | 1.17 | 9.79 | 7.46/2.67 |
+| light/quality | 210/235/966 | 4.21 | 0.95 | 12.76 | 7.46/2.40 |
+| nominal/memory | 230/270/975 | 4.21 | 1.17 | 8.29 | 7.46/2.91 |
+| nominal/quality | 223/260/971 | 4.21 | 0.92 | 7.99 | 7.46/2.63 |
+
+**Adopt bounded SAM3 OFF plus the renewal-only depth gate as the selected experimental
+recipe.** All six physical targets improve correct availability at 10/15/20 mm versus
+preserved OFF, with much better nominal tails and no native losses. Nominal still
+has one integration rejection (`degenerate_registration`, 66.7167 s), retained in
+the denominator. At the old 70.6 s primary spike, error is 6.67 mm versus 43.10 mm;
+the new nominal maximum is 31.48 mm at 39.7 s. It is relocated/reduced, not eliminated.
+Nominal accepted p95 improves 11.71→7.43 mm; all-finite p95 is 7.45 mm and includes
+the rejected pose. Complete p95 improves 253→235 ms light and 270→260 ms nominal.
+
+The tradeoffs are explicit. Light's primary median worsens 4.37→4.95 mm, rotation
+p95 worsens 0.69→1.10 degrees and its peak increases 21.26→23.82 mm at 75.9333 s.
+Nominal rotation p95 also worsens 0.47→0.68 degrees, with maximum 4.43 degrees.
+Light target 2's longest 10 mm gap increases 3.050→3.100 s; the final primary 10 mm
+score remains only 8/301, versus 100/301 in the old multi-object baseline. This
+retains a substantial unresolved light tail despite improved 15/20 mm tails. The
+older baseline is stronger on some fine-accuracy/continuity measures and is kept
+as scientific evidence, not rerun or replaced on disk.
+
+Quality's joint sampled GPU peak rises 9.79→12.76 GiB light (late, 76.4167 s), while
+nominal falls 8.29→7.99 GiB. This is not SAM history growth: SAM remains 3.65→3.66 GiB
+and peak 4.21 GiB. Light P2P's final active allocation decreases 0.52→0.43 GiB, but its
+Torch allocator reserve increases 3.69→6.72 GiB. That named reserve measurement
+accounts for the observed residency tradeoff; fragmentation or a precise allocation
+cause is not established. No allocator optimization is introduced. SAM live RSS
+stays around 2.20–2.28 GiB and P2P CPU high-water decreases in both conditions.
+The measured 24 GiB workstation completes both windows, but this is finite replay
+evidence rather than a general bounded-residency guarantee for P2P's allocator.
+
+No nonseed request reaches 150 ms; cold startup, seed, sampled residency and allocator
+peaks are distinct. The serial evaluator has one request in flight and does not
+measure live acquisition backlog. Material recovery, larger opening angles, hardware
+tracking and contact/provider/A3/A4 qualification are not established. Models,
+operational defaults, baseline, original OFF configuration and all prior evidence
+remain preserved. There is no general cleanup, live resampling, additional
+optimization or policy change.
+
+The next discriminating check for the remaining light 10 mm tail is a saved-window
+pairing of current TAPIR RGB-D correspondences with the observed birth reference
+and the currently stored map reference, holding every registration input/gate fixed.
+Separate point displacement from accumulated reference bias and support geometry;
+do not add another filter/prompt based on the remaining ambiguity.
+
+```python
+sam3_frontend = {
+    "version": "sam3",
+    "prompt": "door surface",
+    "seed": 0,
+    "detection_reconditioning": False,
+    "trace_reconditioning": True,
+    "bounded_memory": True,
+}
+# In the existing frozen offline recipe:
+reference_depth_edge_filter = True  # renewals only; original initialization retained
+```

@@ -246,6 +246,7 @@ def offline_episode(
     selected_registration_only=False,
     performance_controls=None,
     sam3_frontend=None,
+    reference_depth_edge_filter=False,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
     output = Path(output)
@@ -306,6 +307,9 @@ def offline_episode(
                     output / "native",
                     diagnostic_only=True,
                     **({"external_masks": True} if sam3_frontend is not None else {}),
+                    **(
+                        {"reference_depth_edge_filter": True} if reference_depth_edge_filter else {}
+                    ),
                     **({"registration_diagnostics": True} if registration_diagnostics else {}),
                     **({"use_key_frame_graph": False} if not use_key_frame_graph else {}),
                     **(

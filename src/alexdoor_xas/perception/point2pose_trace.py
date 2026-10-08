@@ -220,6 +220,13 @@ class RegistrationTrace:
             self.frame["active_query_ids"] = renewal.active_ids.copy()
             for obj in objects:
                 self.object(obj.id)["historical_reference_count"] = len(obj.key_points)
+        depth_filter = getattr(
+            getattr(getattr(self.pipeline, "kf_manager", None), "sampler", None),
+            "reference_depth_edge_filter_event",
+            None,
+        )
+        if depth_filter is not None and depth_filter["native_index"] == self.frame["native_index"]:
+            self.frame["reference_depth_edge_filter"] = deepcopy(depth_filter)
         record = dict(self.frame, objects=list(self.frame["objects"].values()))
         with self.path.open("a") as stream:
             stream.write(json.dumps(trace_value(record), allow_nan=False) + "\n")

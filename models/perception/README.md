@@ -170,3 +170,14 @@ its native period from 16 to 0; its bbox trigger must already be disabled. Other
 detection/association/confirmation controls stay active. `trace_reconditioning=True`
 records actual updates separately from new IDs; `seed=0` fixes both controlled
 workers. These SAM3-only options are experimental and retain baseline defaults.
+
+The subsequent [selected SAM3 OFF development](../../knowledge/wiki/experiments/p2p-sam3-selected-development.md)
+adopts `bounded_memory=True` with `version="sam3"` and reconditioning OFF. It
+preserves native score-selected useful memories rather than applying SAM3.1's age
+cutoff. Both complete original CUDA openings are exactly identical to unbounded
+OFF in masks, poses and decisions. The separately evaluated opt-in
+`reference_depth_edge_filter=True` in `offline_episode` applies only the existing
+10 mm/radius 2 depth gate to new renewal references; original seed and every mask
+remain identical. It is the current experimental recipe, with all original
+controls retained and old configurations/results intact. Light tail/peak/rotation
+and P2P allocator reserve costs remain documented; operational defaults stay fixed.

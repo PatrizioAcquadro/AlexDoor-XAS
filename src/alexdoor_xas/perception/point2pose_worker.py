@@ -95,6 +95,17 @@ class OfficialPipeline:
         self.pipeline = ModularPipeline(config)
         builder = panel_sdf_builder(type(self.pipeline.sdf_builder), request["depth_error_m"])
         self.pipeline.sdf_builder = builder(config.reconstructor.params)
+        self.reference_depth_edge_filter = bool(request.get("reference_depth_edge_filter", False))
+        if self.reference_depth_edge_filter:
+            if not request.get("diagnostic_only", False) or not self.external_masks:
+                raise ValueError("reference_depth_edge_filter_requires_external_mask_diagnostic")
+            from alexdoor_xas.perception.point2pose_sampling import (
+                install_reference_depth_edge_filter,
+            )
+
+            install_reference_depth_edge_filter(
+                self.pipeline.kf_manager.sampler, lambda: self.initialized
+            )
         from alexdoor_xas.perception.point2pose_renewal import BoundedRenewal
 
         self.renewal = BoundedRenewal(
@@ -157,6 +168,7 @@ class OfficialPipeline:
             selected_registration_only=self.schedule is not None,
             performance_controls=request.get("performance_controls"),
             external_masks=self.external_masks,
+            **({"reference_depth_edge_filter": True} if self.reference_depth_edge_filter else {}),
             cuda_math=dict(
                 bfloat16_autocast=torch.is_autocast_enabled("cuda"),
                 tf32_matmul=torch.backends.cuda.matmul.allow_tf32,

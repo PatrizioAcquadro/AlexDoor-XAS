@@ -100,6 +100,9 @@ def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path
     obj.track_idx_2_obj_idx = np.arange(3)
     table = SimpleNamespace(obj2track_map=[np.arange(3)], track_2d=np.zeros((3, 2)))
     masks = np.array([[[True, False], [False, True]]])
+    manager.sampler = SimpleNamespace(
+        reference_depth_edge_filter_event=dict(native_index=0, keep=np.array([True, False]))
+    )
     trace.finish([obj], masks=masks, track_table=table)
     obj.key_points[:] = 9
     row = json.loads(path.read_text())
@@ -109,6 +112,7 @@ def test_trace_preserves_native_returns_and_copies_before_graph_changes(tmp_path
     assert check["metadata"]["good"] == 3
     assert check["point_before"][0] == 0 and check["point_after"][0] == 0.01
     assert (row["frame"], row["capture_s"], row["native_index"]) == (248, 4.0, 0)
+    assert row["reference_depth_edge_filter"] == dict(native_index=0, keep=[True, False])
     saved = row["objects"][0]
     assert saved["registration_input"]["src_pcd"][0] == [0.0, 0.0, 1.0]
     assert saved["frontend_source_points"][0] == [0.0, 0.0, 1.0]
