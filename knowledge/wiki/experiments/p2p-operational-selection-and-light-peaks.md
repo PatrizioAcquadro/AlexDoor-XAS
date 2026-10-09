@@ -201,26 +201,203 @@ actual measured pair counts from saved depth/validity and unchanged residual gat
 and moving-pair bias measurements. Neither plot nor count proves that SAM3 history
 caused a P2P failure.
 
-## Remaining uncertainty and single next comparison
+## Controlled saved-mask CUDA bridge
 
-The evidence supports distinct contributions from spatial conditioning, birth and
-promotion bias, current correspondence displacement, cluster choice and SDF/count
-fallback. It does not separate the original SAM3 inspection history from the changed
-P2P initialization/history, or justify one common observable quality correction.
-Sparse native loss, fresh-output failure, material recovery and hardware/contact
-qualification remain open; the selected recipe stays unchanged.
+Baseline checkout `main` @ `fe41e1f` was clean; it was the only local branch and
+remained selected. Exactly one CUDA P2P attempt completed **2,858/2,858** original
+light captures from 31 to 78.616667 s. Evidence and local diagnostic adapters are in
+`outputs/evidence/b1/perception/p2p-mask-bridge-light-20261008/`. `attempt-1/` retains
+the input audit, seed/configuration checks, every native result, registration and
+reference traces, progress and final report. There was no inference failure,
+retry, SAM3 execution, missing-mask substitution, nominal run, live acquisition,
+training or contact. Runtime, models, selected recipe and quality gates were unchanged.
 
-The smallest next discriminating intervention is **one saved-mask CUDA P2P bridge
-replay**, not another SAM/model campaign. At 31 s initialize with the exact historical
-31 s RGB-D and seed mask, then feed the saved persistent-inspection masks from the
-next original capture through the end, retaining every timestamp and failure.
-Verify identical historical P2P seed references/pose before interpreting it.
-Compare that single bridge with the preserved historical run to isolate subsequent
-mask-history effects with P2P initialization held fixed. Compare it with the existing
-25 s integrated run, which uses the same post-31 s masks, to test the combined P2P
-seed/pre-31 s state effect. This second difference includes seed time/mask/reference
-history; it does not isolate seed time alone. Use the same three frozen physical
-targets and original denominators, with GT only in scoring. Full chronological input
-from 31 s is necessary because the late peaks depend on accumulated state. This
-comparison is specified only; it has not been run. No quality/performance correction,
-new model, training or interaction follows automatically.
+The seed uses the historical `quality-full-light/attempt-1` 31 s acquisition and
+saved initial mask. Pose, all 30 sampled pixels/map points, active IDs and the
+**entire seed registration record match exactly**, checked before the next request.
+Effective numerical configuration, model/source paths and versions, CUDA BF16/TF32,
+TAPIR, SuperPoint, renewal, registration, TSDF, five inliers and 4 mm agree with the
+historical runtime. Only output directories and the disabled standalone segmenter
+configuration are excluded from that configuration comparison. The already
+maintained external-mask import repair introduces no numerical control change.
+The active NumPy RANSAC constructor resets seed 0; loaded TAPIR/SuperPoint run in
+evaluation mode without stochastic inference draws. A historical complete RNG
+snapshot was not saved, so binary equality of every unused RNG state is unverified.
+
+All 2,857 subsequent masks come from the preserved dense persistent session that
+started SAM3 during inspection and initialized P2P at 25.016667 s. Every mask's row,
+capture ID, exact timestamp, shape, storage extent, SAM3 ID 0 and native object ID 0
+is checked against the recording and source native mask. Original captures remain
+chronological with stride one; output masks also equal the supplied masks. All
+postseed masks differ from the historical masks (median/max changed pixels
+29,617/52,904 of 576,000); the bridge seed has zero changed pixels. The inference
+script accesses observations/calibration only. Truth and prepared collision hulls
+are confined to the saved-output evaluators.
+
+Relative to the historical run, only the subsequent mask sequence changes; its
+downstream reference/TAPIR/TSDF state is allowed to evolve. Relative to the integrated
+run, post-31 s masks are identical but P2P seed and accumulated history differ,
+including seed RGB-D/mask/references and pre-31 s tracking/TSDF state. **This second
+comparison does not isolate seed time.** It also cannot attribute an individual
+later difference solely to that capture's mask.
+
+### Complete opening and denominators
+
+`comparison.json` reuses the existing three frozen physical targets and 10/15/20 mm
+with 5 degrees. It includes accepted, all-finite and rejected distributions,
+histograms, peaks, chronological gaps, all diagnostic windows and tails for all
+targets. The original denominator is 2,858 for every run. Historical/bridge retain
+their unavailable 31 s alignment seed in that denominator and exclude it from
+correctness/errors; integrated initialization precedes the window. A separate
+common 31.016667–78.616667 s comparison has 2,857 nonseed captures in every run.
+
+Availability means correct accepted/scheduled; precision means correct/accepted.
+Triplets below are 10/15/20 mm, with the unchanged 5-degree orientation bound.
+
+| Run | Target | Correct availability % | Accepted precision % | Accepted position p95/max mm |
+|---|---:|---|---|---|
+| Historical 31 s | 0 | 85.83 / 99.79 / 99.93 | 85.86 / 99.82 / 99.96 | 12.163 / 23.822 |
+| Historical 31 s | 1 | 87.12 / 99.90 / 99.93 | 87.15 / 99.93 / 99.96 | 11.985 / 24.444 |
+| Historical 31 s | 2 | 83.80 / 99.58 / 99.93 | 83.83 / 99.61 / 99.96 | 12.385 / 23.727 |
+| Bridge 31 s | 0 | 87.19 / 96.85 / 98.78 | 87.59 / 97.29 / 99.23 | 12.199 / 74.549 |
+| Bridge 31 s | 1 | 87.44 / 96.68 / 98.53 | 87.84 / 97.12 / 98.98 | 12.169 / 77.595 |
+| Bridge 31 s | 2 | 86.56 / 97.17 / 98.74 | 86.96 / 97.61 / 99.19 | 12.253 / 71.941 |
+| Integrated 25 s | 0 | 87.58 / 97.55 / 98.81 | 87.82 / 97.82 / 99.09 | 11.814 / 45.213 |
+| Integrated 25 s | 1 | 86.53 / 97.55 / 98.74 | 86.77 / 97.82 / 99.02 | 12.147 / 44.999 |
+| Integrated 25 s | 2 | 87.54 / 97.38 / 98.78 | 87.79 / 97.65 / 99.05 | 11.652 / 46.617 |
+
+All runs have zero native losses and zero missing outputs. Historical/bridge/
+integrated have 2,857/2,845/2,850 accepted opening outputs and 0/12/8 nonseed
+geometric refusals. Bridge primary correct counts are 2,492/2,768/2,823 and wrong
+acceptances 353/77/22. On the common nonseed denominator, primary availability is
+85.859/99.825/99.965% historical, 87.224/96.885/98.810% bridge and
+87.574/97.550/98.810% integrated. Their equal common 20 mm availability makes the
+one-frame original integrated advantage explicit; it is not a quality gain.
+
+Primary accepted position p50 is 4.947/5.420/6.493 mm and orientation p50/p95/max is
+0.649/1.100/1.658, 0.129/0.604/4.561 and 0.338/0.838/4.078 degrees, respectively.
+All-finite primary position p95 is 12.163/12.319/11.824 mm. Bridge rejected-finite
+position p50/p95/max is 11.751/25.048/25.385 mm and orientation is
+1.186/2.674/2.850 degrees. Integrated rejected-finite position is
+8.992/18.765/19.007 mm. Thus bridge improves historical 10 mm availability and
+orientation distribution while worsening 15/20 mm acceptance precision and maxima;
+there is no uniform improvement.
+
+| Run | Primary correct-gap count / longest observed s at 10, 15, 20 mm | Last 5 s accepted; correct counts at 10/15/20 mm | Final 1 s accepted; correct counts at 10/15/20 mm |
+|---|---|---|---|
+| Historical | 55 / 2.617; 4 / 0.033; 2 / 0.017 | 301; 8 / 296 / 300 | 61; 0 / 58 / 61 |
+| Bridge | 179 / 0.600; 48 / 0.133; 27 / 0.100 | 294; 166 / 235 / 273 | 56; 11 / 20 / 37 |
+| Integrated | 166 / 0.317; 49 / 0.117; 31 / 0.033 | 293; 172 / 238 / 269 | 60; 34 / 42 / 48 |
+
+Tail denominators are 301 and 61 original captures. Gap counts include the leading
+seed gap where applicable. Historical has a censored 10 mm gap from 76 s through
+the end. Bridge's last capture fails all three position bounds; integrated's last
+capture fails 10/15 mm. Those final single-capture gaps have zero observed span,
+with no recovery or duration beyond the recording inferred. Dense quality gaps
+are distinct from native loss and operational skipped acquisitions.
+
+### Matched peaks, refusals and reference history
+
+All three chronological trace audits reproduce native depth lifts, published
+poses, selected source points and registration inputs to numerical precision.
+Every map-coordinate change has a saved promotion; there are zero graph or
+post-frontend map changes. Historical/bridge/integrated have 384/729/667 reference
+births and 354/698/636 map changes. Evaluator fixed-only births are **18/469/440**,
+including 3/3/9 seed references. The first historical/bridge pose difference already
+occurs at 31.016667 s, before any renewal and with 30 references in both. Later
+reference histories establish a concrete downstream difference, without proving
+that every extra fixed reference causes a particular spike. Membership retains
+the inherited 4 mm hull margin and is not operational material ownership.
+
+At **72.066667 s**, bridge has 7.992 mm / 0.091 degrees, 19 pairs (18 moving/one
+fixed) and second RMS 226.654 mm; historical has 9.896 mm / 0.134 degrees. The
+integrated 23.064 mm / 4.078-degree, 14-moving-pair, 12.415 mm strip and its
+pre-SDF fallback do not recur, despite the identical post-31 s masks. Bridge uses
+different references born at 58.7–71.0833 s and an SDF-refined cluster 0 with no
+count fallback. This is a supported state/history difference, not proof of seed-time causality.
+
+At **78.15 s**, bridge has 8.436 mm / 0.113 degrees with nine pairs (seven moving/
+two fixed) and second RMS 239.616 mm, versus historical 13.113 mm / 0.066 degrees.
+Integrated retains 45.213 mm / 3.588 degrees with six mixed pairs. Moving-born,
+moving-current correspondence displacement median/max is 2.588/4.430 mm bridge
+versus 19.162/19.647 mm integrated. Their reference coordinates and selected fits
+also differ. Identical fixed-pair counts do not establish identical support or
+causality; rigid birth transport remains an evaluator proxy.
+
+All eight original integrated refusals become accepted in bridge, with different
+support. Acceptance still does not establish accuracy.
+
+| Capture s | Integrated pairs / second RMS mm | Bridge pairs / second RMS mm | Bridge primary error mm |
+|---:|---|---|---:|
+| 74.6167 | 8 / 5.832 | 9 / 15.509 | 13.229 |
+| 74.6500 | 5 / 5.686 | 17 / 212.716 | 8.802 |
+| 75.4000 | 7 / 1.593 | 18 / 230.400 | 7.545 |
+| 75.4667 | 5 / 2.350 | 22 / 222.284 | 9.187 |
+| 75.9667 | 7 / 7.367 | 15 / 177.636 | 6.834 |
+| 76.1167 | 9 / 1.651 | 13 / 270.015 | 11.179 |
+| 77.0667 | 5 / 3.794 | 7 / 136.286 | 18.096 |
+| 78.0000 | 5 / 0.723 | 13 / 252.907 | 21.102 |
+
+Bridge's 12 different refusals are at 68.9333, 70.6167, 70.7167, 71.1833, 73.4,
+76.3333, 76.7, 78.0667, 78.1167, 78.1833, 78.3833 and 78.4667 s. All have 5–8
+published measured pairs and second RMS 0.546–6.691 mm. Their pre-SDF supports
+have 9–24 pairs, second RMS 32.159–199.430 mm and mixed moving/fixed membership;
+SDF leaves narrow, predominantly moving support. All remain unavailable under
+the unchanged >8 mm guard. Wider contaminated support is not sufficient grounds
+to prefer the pre-SDF pose or relax admission.
+
+Bridge's new angular maximum is **4.561 degrees at 70.516667 s** (25.997 mm
+primary). Dense-map selection chooses cluster 2 with saved `3d_dist` 0.9575 versus
+1.0 for clusters 0/1. Its eight-pair pre-SDF support has two moving/six fixed pairs
+and second RMS 22.022 mm. SDF reduces the internal objective and error to
+14.984 mm / 3.763 degrees but leaves four measured pairs. The existing count gate
+restores the pre-SDF cluster pose. The support guard does not change the selection.
+
+The new position maximum is **74.549 mm at 78.45 s**, already present before SDF,
+with 4.394 degrees, 21 pairs (four moving/17 fixed) and second RMS 35.011 mm.
+SDF improves it to 70.686 mm / 3.459 degrees but leaves two pairs; count fallback
+restores the selected pre-SDF pose. The four moving pairs have current displacement
+median/max only 1.384/2.092 mm, but birth/update bias medians 21.399/21.995 mm.
+These vectors must not be added as scalar errors. Better evaluator alternatives
+are retained in the traces and cannot be selected by truth in inference.
+
+The final bridge capture is still accepted at 22.567 mm / 2.526 degrees with nine
+moving pairs and second RMS **8.017 mm**, just above the unchanged spatial guard;
+historical/integrated errors there are 11.792/16.965 mm. The last-second bridge
+position p95 is 37.157 mm versus 14.933/30.511 mm historical/integrated. The dense
+path therefore retains a materially worse terminal high-tolerance tail even
+though its original integrated peaks and refusals disappear.
+
+`event-support-comparison.json`, per-run birth/promotion and paired-point files,
+and `paired-metrics.jsonl` retain the matched evidence. Visually inspected
+`quality-and-tail.png` and `matched-peak-supports.png` show all finite trajectories,
+refusals and corresponding RGB-D inlier support. Native count fallback occurs on
+0/31/39 common postseed captures; 17/18 bridge/integrated fallback outputs are
+correct at 15 mm. Its association with maxima does not alone justify blanket
+fallback rejection or disabling SDF.
+
+### Supported hypothesis and one conditional correction
+
+The controlled historical-to-bridge intervention supports a **subsequent-mask
+sequence effect on dense P2P quality and accumulated references**: initialization
+is identical, yet results, fixed-born references and registration decisions change.
+The integrated-to-bridge difference also supports dependence on **combined P2P
+initialization/history**: the same post-31 s masks do not determine the same peaks,
+refusals or tail. Restoring the historical seed is not a sufficient quality repair.
+
+The separate contributions of seed time, seed geometry/mask/reference coordinates,
+TAPIR/TSDF history, fixed-reference contamination, moving-point bias and cluster
+selection remain uncertain. One trajectory per condition does not estimate run
+variance. No single quality correction is validated for adoption.
+
+The evidence justifies one focused future candidate: **admit new references only
+when their temporal RGB-D/TAPIR motion supports membership in the observed rigid
+body**, before they enter/promote into its reference map. Its purpose is to avoid
+renewing fixed-frame points as moving-object references. It would need causal
+observations with sufficient motion and explicit unsupported cases; evaluator
+hulls/truth cannot implement that decision. This is a candidate to qualify, not a
+proven filter, and it does not automatically repair moving-only narrow supports
+or seed bias. No such correction, threshold change or performance optimization
+was implemented. Freshness, sparse loss/recovery, hardware and contact remain
+unqualified; this replay evaluates the **dense quality path**, not latency or
+operational losses at approximately four Hz.

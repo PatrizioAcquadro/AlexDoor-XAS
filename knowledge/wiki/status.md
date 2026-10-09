@@ -51,9 +51,18 @@ and 27 native losses with zero measured pairs; dense quality does not transfer. 
 live reference failure and subsequent post-run reporting failure are preserved.
 The saved light diagnosis distinguishes an angular cluster/final-gate fallback,
 a mixed frame/leaf position peak, and SDF-induced narrow supports for all eight
-integration refusals. Small mask changes do not identify causality. Next use one
-saved-mask P2P bridge replay with identical historical 31 s initialization to
-separate post-seed mask history from P2P seed/history before any quality correction. Material correspondence/recovery, hardware/FK/floor bounds and all
+integration refusals. The single saved-mask CUDA bridge now completes all 2,858
+light opening captures with an exactly matching historical 31 s seed and no SAM3
+rerun or runtime change. Postseed masks alone change relative to history: primary
+10/15/20 mm availability becomes 87.19/96.85/98.78%, with zero native losses,
+12 geometric refusals and a new 74.55 mm maximum. The integrated 72.0667/78.15 s
+peaks and eight refusal captures do not recur despite identical later masks;
+combined P2P initialization/history matters, but seed time alone remains unisolated.
+Reference audits retain 18/469/440 fixed-only births historical/bridge/integrated.
+One future candidate is observed temporal rigid-body admission of new references;
+its feasibility and benefit require qualification before adoption. No correction
+is implemented or validated. This dense replay does not verify roughly four-Hz
+latency/loss. Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.
 

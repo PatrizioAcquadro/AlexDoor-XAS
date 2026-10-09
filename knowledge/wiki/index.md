@@ -53,7 +53,7 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
-- [[experiments/p2p-operational-selection-and-light-peaks|SAM3 Selection, Operational Timing and Integrated Light Peaks]] — Explicit reference ingress, continuous recorded/live provider accounting and saved integrated-light diagnosis.
+- [[experiments/p2p-operational-selection-and-light-peaks|SAM3 Selection, Operational Timing and Integrated Light Peaks]] — Explicit ingress, recorded/live accounting, saved peak diagnosis and one controlled saved-mask light CUDA bridge.
 
 Current engineering and historical scientific records:
 
