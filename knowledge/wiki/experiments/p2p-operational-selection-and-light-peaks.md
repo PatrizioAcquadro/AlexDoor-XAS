@@ -390,8 +390,8 @@ TAPIR/TSDF history, fixed-reference contamination, moving-point bias and cluster
 selection remain uncertain. One trajectory per condition does not estimate run
 variance. No single quality correction is validated for adoption.
 
-The evidence justifies one focused future candidate: **admit new references only
-when their temporal RGB-D/TAPIR motion supports membership in the observed rigid
+At this milestone, the evidence justified one focused future candidate: **admit
+new references only when their temporal RGB-D/TAPIR motion supports membership in the observed rigid
 body**, before they enter/promote into its reference map. Its purpose is to avoid
 renewing fixed-frame points as moving-object references. It would need causal
 observations with sufficient motion and explicit unsupported cases; evaluator
@@ -401,3 +401,9 @@ or seed bias. No such correction, threshold change or performance optimization
 was implemented. Freshness, sparse loss/recovery, hardware and contact remain
 unqualified; this replay evaluates the **dense quality path**, not latency or
 operational losses at approximately four Hz.
+
+The subsequent [[p2p-temporal-renewal-admission|single temporal prerequisite]] is
+now complete. It rejects this fixed-budget correction before CUDA activation:
+neither condition has enough discriminating motion, and withholding indeterminate
+renewals removes useful body support. No further quality variant is launched;
+the next work remains performance and quality at the actual processing frequency.

@@ -299,6 +299,12 @@ accuracy are separate from useful availability and release qualification.
 
 ### Serial offline evaluation
 
+The [[../experiments/p2p-temporal-renewal-admission|temporal renewal diagnostic]]
+compares independent observed body/camera motion on chronological saved candidates.
+It is an evaluator-only prototype, rejected before runtime activation because
+the current waiting budget cannot separate body/static hypotheses and useful
+support is depleted. The persistent runtime and selected recipe remain unchanged.
+
 `scripts/perception.py point2pose-offline` calls the **same PerceptionSession**
 serially for every original 60 Hz row, including the final observation. There is
 no replaceable queue or latency-based input selection. SAM3 starts at the first

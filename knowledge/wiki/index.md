@@ -53,6 +53,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/p2p-temporal-renewal-admission|Temporal P2P Renewal Admission]] — One causal saved-data criterion rejected before CUDA activation: insufficient motion within the existing wait budget and severe support depletion in both conditions.
+
 - [[experiments/p2p-operational-selection-and-light-peaks|SAM3 Selection, Operational Timing and Integrated Light Peaks]] — Explicit ingress, recorded/live accounting, saved peak diagnosis and one controlled saved-mask light CUDA bridge.
 
 Current engineering and historical scientific records:

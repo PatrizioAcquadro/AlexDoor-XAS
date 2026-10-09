@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-08. **Static 6.0B is maintained; CAD-free Point2Pose is
+Current as of 2026-10-09. **Static 6.0B is maintained; CAD-free Point2Pose is
 implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4, policies and operational thresholds are unchanged.
@@ -59,10 +59,15 @@ rerun or runtime change. Postseed masks alone change relative to history: primar
 peaks and eight refusal captures do not recur despite identical later masks;
 combined P2P initialization/history matters, but seed time alone remains unisolated.
 Reference audits retain 18/469/440 fixed-only births historical/bridge/integrated.
-One future candidate is observed temporal rigid-body admission of new references;
-its feasibility and benefit require qualification before adoption. No correction
-is implemented or validated. This dense replay does not verify roughly four-Hz
-latency/loss. Material correspondence/recovery, hardware/FK/floor bounds and all
+The [[experiments/p2p-temporal-renewal-admission|single temporal renewal prerequisite]]
+is now implemented diagnostically and rejected before runtime activation: all
+637/412 new light/nominal references are indeterminate within the 0.25 s waiting
+budget, including 205/264 useful moving points. Projected opening support falls
+below five pairs on 68.37/62.60% of captures and vanishes in both final tails.
+No CUDA intervention or further variant ran; the selected pipeline stays unchanged.
+The next work remains performance and quality at the actual processing frequency.
+Dense replay does not verify roughly four-Hz latency/loss.
+Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.
 

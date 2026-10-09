@@ -194,9 +194,10 @@ real CUDA is used for the model/TSDF checks above.
 The [[p2p-operational-selection-and-light-peaks|ordered follow-up]] now completes
 explicit reference ingress, continuous recorded/live timing and the saved integrated
 light peak/support diagnosis. It retains skipped-frame quality and command failures;
-the original dense integration remains a distinct evidence set. The one proposed
-next comparison uses saved masks to separate post-seed SAM3 history from P2P
-initialization/history before any separate quality correction. The integrated full openings are
+the original dense integration remains a distinct evidence set. Its controlled
+saved-mask comparison retains the changed P2P initialization/history boundary.
+The subsequent [[p2p-temporal-renewal-admission|temporal renewal criterion]] fails
+its saved-data prerequisite and is not activated. The integrated full openings are
 not numerically equivalent to the historical 31 s windows. Independent material
 recovery, absolute initialization, hardware/FK/floor bounds, 150 ms and action/contact
 qualification remain open.
