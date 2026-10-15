@@ -265,6 +265,7 @@ infrastructure-interruption record. The historical probe values are not new meas
 |---|---|---|
 | Offline training infrastructure | Exercised on real simulated teacher recordings | Keep explicit partial purpose, causal inputs and frozen train/development identities |
 | Offline training on physical pilot data | Demonstrated for ACT/Diffusion × A1/A2: three episodes, fixed-minibatch learning, 96-update short runs and checkpoint round trips | One development identity/seed is not general qualification; ACT A2 development regression is retained |
+| Robot-only 6.0D diagnostic | Separate unloaded motion/load/stop evidence; sustained 4 N stop and provisional envelope remain inadequate | [[../experiments/b1-pilot-offline-and-robot-dynamics|Dynamic evidence and remaining checks]] |
 | A1/A2 rollout with contact | Blocked | Verified dynamic/peak residual calibration and moving/contact stopping envelope; observed local sweep/response evidence and supported contact |
 | ACT/Diffusion × A1–A4 reusable numerics | Maintained; eight-path GPU forward/loss/gradient/checkpoint checks pass | A3/A4 supported geometry and complete matched demonstrations |
 

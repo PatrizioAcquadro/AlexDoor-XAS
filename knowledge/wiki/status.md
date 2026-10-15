@@ -11,8 +11,16 @@ solver feedback and bounded local admission without a hinge. Offline infrastruct
 and both family model paths are exercised by the
 [[experiments/b1-act-diffusion-a1a2-pilot|bounded physical-data pilot]]: three complete
 teacher episodes, ACT/Diffusion × A1/A2 short CUDA training and eight checkpoint
-round trips. ACT A2 development regression is retained. The [[experiments/b1-pilot-offline-and-robot-dynamics|offline follow-up]] localizes it to action components and push/hold, and identifies static-feature clipping; simple train-only baselines remain stronger on aggregate development action error. Loaded rollout remains
-blocked by dynamic residual/stop calibration and observed sweep/response evidence.
+round trips. ACT A2 development regression is retained. The
+[[experiments/b1-pilot-offline-and-robot-dynamics|offline follow-up]] localizes it to
+action components and push/hold, and identifies static-feature clipping; the train
+median remains stronger on aggregate development action error. The
+same follow-up measures one robot-only CUDA dynamic/stop protocol: unloaded
+stop travel 1.58 mm, but 106.84 mm / 19.17 degrees under maintained 4 N; 330/1,440
+verification samples leave the provisional estimator envelope. Loaded rollout
+remains blocked by dynamic residual/stop calibration and observed sweep/response
+evidence. Required 6.0D checks plus local geometric support and independent 6.0E
+must pass before diagnostic interaction 6.0F.
 Camera-enabled cycles exceed real-time 60 Hz. No final matched dataset, policy
 contact execution or sealed-test evaluation was produced.
 
@@ -22,7 +30,7 @@ contact execution or sealed-test evaluation was produced.
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts/static evidence | Operational/local support, explicit selection, admission and feedback contracts; object fusion, ownership alternatives, finite-cover and relevant-space queries. Scans/interfaces do not admit motion. |
 | 6.0C — Tracking | One persistent SAM3 session shared by inspection/tracking, bounded history and renewal-only depth gate; live/replay and serial evaluation share the coordinator. Useful accuracy improves offline, but material identity and 150 ms freshness remain unqualified. |
-| 6.0D–H — Contact/qualification | Solver feedback, residual-load/stop wiring and local A1/A2 admission implemented; dynamic/peak calibration, contact stopping, supported interaction and qualification remain open. |
+| 6.0D–H — Contact/qualification | Solver feedback/load/stop wiring and local A1/A2 admission implemented; bounded robot-only dynamics measured with loaded stop/envelope failure retained. Required 6.0D verification, local geometry/6.0E, contact stopping and qualification remain open. |
 | 6.1 — Actions | ACT/Diffusion × A1–A4 observed-input/data/normalization/execution software maintained; qualified-provider integration and physical rollout validation pending. |
 | 6.2–7 — Data/learning | Partial A1/A2 offline pilot demonstrated; final matched A1-A4 data and training matrix not started. No learned contact task result or sealed-test evaluation. |
 

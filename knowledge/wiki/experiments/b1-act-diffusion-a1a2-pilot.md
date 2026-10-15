@@ -168,15 +168,15 @@ sweep/clearance and material-response evidence. Measured joint torque remains
 distinct from evaluator normal contact force. A stationary gravity fit and a
 trained checkpoint cannot supply these prerequisites.
 
-The minimum next control experiment is one instrumented bounded motion on one
-train door: cover its unloaded acceleration/deceleration, then one small supported
-loaded command and stop, with an independent evaluator force reference. Keep the
-local evidence producer and residual estimator observed-only. Check both 120 Hz
-load samples, force bounds, target tracking, stop travel and clearance on that
-exact command. Do not expand into a policy/contact campaign until this passes.
-Any supported result covers only that local state/dynamic/stop envelope; it cannot
-authorize arbitrary learned commands. Insufficient bounds retain refusal under
-the existing contact-gap, uncertainty and clearance rules.
+The [[b1-pilot-offline-and-robot-dynamics|robot-only follow-up]] now tests unloaded
+acceleration/deceleration, known external perturbation and stopping without door
+contact. It retains substantial loaded stop travel and estimator-envelope exits.
+The next control step remains robot-only: verify sustained-load tracking/stopping
+and justified dynamic residual bounds without widening thresholds from failures.
+Supported local geometry and independent 6.0E, together with the required 6.0D
+checks, must pass before diagnostic door interaction 6.0F. Any later supported
+result covers only its tested local state/dynamic/stop envelope, not arbitrary
+learned commands.
 
 ## Reuse and retraining
 
