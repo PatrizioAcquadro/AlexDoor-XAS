@@ -85,7 +85,10 @@ snapshots are nevertheless rejected: after a failed in-place write, a real next
 worker request consumes different SDF values. Point/image preparation remains
 separate from measured snapshot copies. Production stays at baseline; failed
 error equivalence prevents full fixed/timed replays. Dense replay does not
-verify operational loss.
+verify operational loss. The single [[experiments/tsdf-rebuild-double-buffer|two-buffer successor]]
+preserves every download and passes local CUDA error/lifetime checks and eight
+paired actual-worker reentry fixtures. Performance evaluation is pending at this
+checkpoint; production remains unchanged.
 Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.
