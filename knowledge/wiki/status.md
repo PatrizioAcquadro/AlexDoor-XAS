@@ -83,19 +83,25 @@ now measures local CUDA rebuild medians of 650.2 -> 281.7 ms light and
 468.5 -> 268.9 ms nominal, with exact successful volumes/queries. Final-only
 snapshots are nevertheless rejected: after a failed in-place write, a real next
 worker request consumes different SDF values. Point/image preparation remains
-separate from measured snapshot copies. Production stays at baseline; failed
-error equivalence prevents full fixed/timed replays. Dense replay does not
-verify operational loss. The single [[experiments/tsdf-rebuild-double-buffer|two-buffer successor]]
-has recovered original candidate source and reconstructed harnesses persisted in
-the primary checkout. Its original raw local results and interrupted replay
-payloads are missing after worktree removal; earlier local benefits are reported
-history, not inherited validation. Fresh local gates pass, and both complete 3,217-input fixed pairs have zero
-differences in packets, references, histories, volumes and queries. Repeated-rebuild
-memory now passes both paths and conditions: no pool arrays remain alive after
-retirement and RSS stabilizes; one extra transient CPU pair remains the tradeoff.
-The RustDesk interruption and completed light baseline are preserved. Four timed
-runs are in progress under the shared GPU lock; production remains unchanged
-pending the combined operational decision.
+separate from measured snapshot copies. That final-only candidate stopped before
+full fixed/timed replays because error equivalence failed. Dense replay does not
+verify operational loss.
+
+The [[experiments/tsdf-rebuild-double-buffer|two-buffer successor]] now has complete
+recovered-source evidence: all local/error/worker gates and both 3,217-input fixed
+pairs pass; repeated memory stabilizes with zero live pool arrays after retirement.
+The four timed runs are complete, without new foreign compute. Local rebuilds
+improve 35.2%/28.8%, but ordinary p95 service/age does not improve, nominal correct
+20 mm counts fall from 194–195 to 162–163 across the targets, and native losses
+rise from zero to 27. The nominal buffered history has no post-seed volume growth;
+its shorter maximum stall is not a demonstrated buffered-rebuild benefit.
+**Adoption is rejected; maintained and installed native code stay at baseline.**
+Different timed seeds/histories limit causal quality attribution. The primary
+remaining cost is ordinary sequential SAM3/P2P service (~108–113/~109–115 ms
+medians), with sparse-input tracking still unqualified. All current evidence,
+including the preserved light memory baseline and RustDesk interruption, remains
+in the persistent primary-checkout recovery directory. Original worktree-loss
+limitations remain historical; no completed valid gate was repeated.
 
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved
