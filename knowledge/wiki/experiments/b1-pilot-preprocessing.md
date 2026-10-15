@@ -203,3 +203,10 @@ unchanged, and the comparison uses only the same historical controller's episode
 Before comparative rollouts, verify demonstrations with the chosen controller and
 collect new ones if necessary; also retain the outstanding load/contact/geometry
 admission requirements. Offline improvement does not transfer controller validity.
+
+## Residual follow-up
+
+[[experiments/b1-pilot-approach-release|The targeted approach/release diagnosis]]
+checks saved alignment, actual minibatch exposure, transition/input ambiguity and
+historical tracking compensation before one fixed-budget sampling experiment.
+The preprocessing pair above and its v2 opt-in decision remain unchanged.

@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-pilot-approach-release|ACT A2 Approach and Release Residuals]] — Saved alignment, actual phase exposure, input ambiguity, historical tracking residuals and one fixed-budget sampling test.
+
 - [[experiments/b1-pilot-preprocessing|B1 Pilot Fixed-Unit Preprocessing]] — Fixed-unit inputs and paired ACT A2 mean gains, with release/tail regression and unqualified generalization.
 
 - [[experiments/b1-loaded-hold-and-stop|B1 Loaded Hold and Measured-Anchor Stop]] — Paired CUDA diagnosis, benchmark-local common impedance, continuing-physics latch/reset and unchanged-calibration limits.
