@@ -116,6 +116,12 @@ suggests a residual near 199–204 ms before geometry/binding, not a measured
 integrated benefit or operational age. All valid cells and two interference
 prefixes remain; no other optimization or controller/training/contact work ran.
 
+The single [[experiments/p2p-ransac-point-buffers|RANSAC point-buffer candidate]]
+now passes isolated exact comparisons on 148 saved inputs and adversarial
+support/threshold/degeneracy/failure cases, including all samples and final RNG.
+Local performance is being measured against preset gates before any full replay.
+SAM3 eager, TSDF baseline and all prior evidence are retained.
+
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved
 masks/poses/decisions and reduced SAM peak 8.39→4.21 GiB without RAM offload. The
