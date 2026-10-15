@@ -89,10 +89,10 @@ verify operational loss. The single [[experiments/tsdf-rebuild-double-buffer|two
 has recovered original candidate source and reconstructed harnesses persisted in
 the primary checkout. Its original raw local results and interrupted replay
 payloads are missing after worktree removal; earlier local benefits are reported
-history, not inherited validation. Fresh local gates and complete comparisons
-use one GPU lease coordinated with the other active chats. Production remains
-unchanged; numerical, operational and repeated-rebuild memory validation remain
-open.
+history, not inherited validation. Fresh local gates pass, and both complete 3,217-input fixed pairs have zero
+differences in packets, references, histories, volumes and queries. Repeated-rebuild
+memory and timed ingress use the same coordinated exclusive GPU lease. Production
+remains unchanged pending the complete operational comparison.
 
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved

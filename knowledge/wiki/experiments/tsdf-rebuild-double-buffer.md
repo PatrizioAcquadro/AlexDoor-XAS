@@ -5,8 +5,9 @@ The one authorized successor to [[tsdf-deferred-snapshot-audit|final-only
 snapshot deferral]] retains a complete CPU download after every integration.
 **Recovery checkpoint: production remains at baseline. Original local success is
 reported below, but its raw payloads disappeared with worktree `782a`. Recovered
-sources do not inherit that validation. Fresh local correctness, worker reentry and benefit gates now pass. Complete
-comparisons are running under a coordinated exclusive GPU lease.**
+sources do not inherit that validation. Fresh local gates and both complete fixed-input equivalence pairs pass.
+Repeated-rebuild memory and timed ingress now run under the same exclusive GPU
+lease; adoption remains pending.**
 
 ## Persistent recovery
 
@@ -59,6 +60,23 @@ counts and CUDA allocation sequences are identical. Complete fixed-input
 identity, timed quality/availability and repeated-rebuild memory remain open.
 `local-summary.json`, `correctness-summary.json`, `worker-reentry-summary.json`
 and `local-evidence-audit.json` in the recovery directory own these results.
+
+## Fresh complete fixed-input equivalence
+
+Both baseline/buffered pairs complete all 3,217 chronological inputs with zero
+differences. Every packet, registration decision/pose, reference/map/history
+record and each of the 3,217 reference-array files per condition is compared.
+Full TSDF/color/weight arrays, completed snapshots, metadata and signed queries
+are checked at initialization, updates and their follow-up audit points:
+
+| Condition | Registration rows | Reference-array files | Update rows | Volume/query audit rows | Differences |
+|---|---:|---:|---:|---:|---:|
+| Light | 3,217 | 3,217 | 17 | 33 | 0 |
+| Nominal | 3,217 | 3,217 | 10 | 19 | 0 |
+
+`exact-equivalence.json` owns this result. Full inputs complete under the same
+continuous GPU lease without an interruption. This opens repeated-rebuild memory
+and the four unchanged timed-ingress runs; operational adoption is still pending.
 
 ## Single change and ownership
 
