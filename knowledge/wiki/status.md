@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-09. **Static 6.0B is maintained; CAD-free Point2Pose is
+Current as of 2026-10-14. **Static 6.0B is maintained; CAD-free Point2Pose is
 implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4, policies and operational thresholds are unchanged.
@@ -65,8 +65,15 @@ is now implemented diagnostically and rejected before runtime activation: all
 budget, including 205/264 useful moving points. Projected opening support falls
 below five pairs on 68.37/62.60% of captures and vanishes in both final tails.
 No CUDA intervention or further variant ran; the selected pipeline stays unchanged.
-The next work remains performance and quality at the actual processing frequency.
-Dense replay does not verify roughly four-Hz latency/loss.
+The [[experiments/p2p-sam3-cost-diagnosis|selected-pipeline cost diagnosis]] now
+separates native stages and mature TSDF rebuilds with unchanged dense/sparse
+reference histories. SAM3 (about 107 ms), TAPIR (about 44 ms) and CPU registration
+already exceed the 150 ms budget; tracing alone is insufficient. Continuous
+nominal publishes at 4.28 Hz with age p95 327 ms, 4,479 replacements and zero
+steady outputs within 150 ms. Comparable fixed-input producer probes increase
+median model costs, but a paused nominal stall and full-opening contention remain
+unresolved. Discuss same-input-equivalent cost changes first; no optimization or
+quality variant is implemented. Dense replay does not verify operational loss.
 Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.
