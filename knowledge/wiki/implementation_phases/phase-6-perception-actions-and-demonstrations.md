@@ -2,9 +2,10 @@
 
 > Subphase 6.0 remains unqualified. 6.0A contracts and 6.0B static evidence/queries
 > are maintained. Previous dynamic trackers are retired; 6.0C integrates
-> official CAD-free Point2Pose as an unqualified prototype. 6.0D-H remain planned.
+> official CAD-free Point2Pose as an unqualified prototype. 6.0D-H remain incomplete.
 > Subphase 6.1 software is partially validated; final integration is pending.
-> Subphase 6.2 is not started. Phases 4 and 5 are complete.
+> A separate partial A1/A2 offline pilot is demonstrated; final 6.2 matched-data
+> production is not started. Phases 4 and 5 are complete.
 
 ## Objective
 
@@ -21,8 +22,9 @@ support 6.0B static object memory, ownership alternatives, hinge hypotheses and
 finite contact/relevant-space queries. The static provider exposes scan evidence
 but no qualified state, policy encoding or admission to move. Human-reviewed local
 regions and corrected contact covers remain; whole-object identity and axes are
-unresolved. Existing recordings lack torque and the observed monitor blocks loaded
-execution.
+unresolved. Historical engineering recordings lack torque; fresh partial pilot
+recordings retain measured solver feedback separately. The observed monitor still
+blocks unverified loaded execution.
 
 Legacy geometric tracking/evaluation, custom material tracking and video comparison
 are retired after preserving their failures. Independent full-state/local contracts,
@@ -33,7 +35,9 @@ contact checks. The selected recipe is common to scan, smoke, live/replay and se
 evaluation; GroundingDINO and separate SAM2 execution are retired.
 Pilot diagnostics fail useful availability at the unchanged 150 ms limit;
 implementation does not establish qualified tracking or whole-leaf ownership.
-No training, collection, loaded admission or release migration is implemented.
+No loaded admission or qualified release migration is established. A separate
+[[experiments/b1-act-diffusion-a1a2-pilot|partial A1/A2 pilot]] now collects fresh
+teacher data and trains prototypes without changing these perception gates.
 All 50 engineering-v2 episodes remain for future common qualification. See
 [[experiments/b1-perception-findings|findings]] and
 [[topics/shared-door-perception|maintained implementation]].
@@ -86,8 +90,9 @@ offline gates. Neither exception nor an incomplete prototype is a release.
 Complete only after 6.0H and both operational gate groups. Keep ideal depth and
 unverified hardware feedback/mounting limitations explicit. This is operational
 manipulation qualification, not a claim of exact full-door reconstruction or
-hardware safety. No training, new demonstration collection or sealed-test access
-belongs to this revision. Phase 6.2 retains future collection/training ownership.
+hardware safety. This perception qualification revision does not own training,
+production demonstration collection or sealed evaluation. The separate partial
+offline pilot does not change these qualification exit checks.
 
 ## Subphase 6.1 — Complete All A1-A4 Learning and Execution Paths
 
@@ -206,7 +211,8 @@ selection/evaluation; test evidence never becomes training demonstrations.
 
 #### Problems / Limitations
 
-Pilot recordings are engineering evidence. Complete only with a passed pilot,
+Explicit partial policy demonstrations remain separate from historical perception
+engineering recordings. Complete only with a passed full pilot,
 frozen protocol, and final dataset usable by all eight paths. Phase 7 owns full
 training and sealed evaluation.
 

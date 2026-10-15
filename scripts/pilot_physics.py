@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""One fresh teacher recording or bounded command replay; never policy admission."""
+"""Bounded teacher collection, command replay and operational policy startup."""
 
 import argparse
 import hashlib
@@ -264,8 +264,21 @@ def rollout(env, args, protocol, robot, setup, inspection):
     geometry = SimpleNamespace(binding=binding, last_estimate=None)
     io = PurdueIO(env, binding=binding, robot_asset=robot, setup=setup, observed_provider=geometry)
     # Passive evaluator telemetry is never returned to the observer, policy or monitor.
-    rows, costs = [], []
+    rows, costs, cycle_ms, encoding_ms = [], [], [], []
     hold = io.hold_step
+    update = observer.update
+    last_completed = None
+
+    def measured_update(sensor):
+        nonlocal last_completed
+        begin = perf_counter()
+        result = update(sensor)
+        end = perf_counter()
+        encoding_ms.append((end - begin) * 1000)
+        if last_completed is not None:
+            cycle_ms.append((end - last_completed) * 1000)
+        last_completed = end
+        return result
 
     def measured_hold():
         begin = perf_counter()
@@ -282,6 +295,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         )
 
     io.hold_step = measured_hold
+    observer.update = measured_update
     runner = B1Runner(policy, observer, io, n_action_steps=protocol["replan_ticks"])
     result = runner.run(max_ticks=protocol["rollout_max_ticks"], seed=protocol["inference_seed"])
     stop_time = env._time_s
@@ -289,7 +303,13 @@ def rollout(env, args, protocol, robot, setup, inspection):
     np.testing.assert_array_equal(array(env.robot.data.joint_pos), array(env.targets))
     env.sim.stage.Export(str(args.output / "scene.usda"))
     Image.fromarray(array(env.capture.sample.rgb)[0]).save(args.output / "terminal.png")
-    np.savez_compressed(args.output / "trace.npz", values=rows, hold_cycle_ms=costs)
+    np.savez_compressed(
+        args.output / "trace.npz",
+        values=rows,
+        hold_cycle_ms=costs,
+        inspection_cycle_ms=cycle_ms,
+        observer_update_ms=encoding_ms,
+    )
     return dict(
         passed=False,
         runner=asdict(result),
@@ -312,6 +332,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
         hold_cycle_p50_ms=float(np.median(costs)) if costs else None,
         hold_cycle_p95_ms=float(np.percentile(costs, 95)) if costs else None,
         hold_cycle_max_ms=max(costs, default=None),
+        inspection_cycle_p50_ms=float(np.median(cycle_ms)) if cycle_ms else None,
+        inspection_cycle_p95_ms=float(np.percentile(cycle_ms, 95)) if cycle_ms else None,
+        inspection_cycle_max_ms=max(cycle_ms, default=None),
         contact_rollout_ready=False,
     )
 

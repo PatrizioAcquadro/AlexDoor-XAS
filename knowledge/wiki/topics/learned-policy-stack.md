@@ -19,6 +19,12 @@ and sweep evidence; qualified-release and A3/A4 contracts remain strict. Measure
 solver feedback and robot-only residual load/stop checks are wired but unqualified
 for contact. See the pilot page for measured cost and outstanding prerequisites.
 
+The [[experiments/b1-act-diffusion-a1a2-pilot|bounded A1/A2 experiment]] exercises
+fresh teacher recordings, observed-state label reconstruction, unloaded physical
+replay, fixed-minibatch learning, four short CUDA runs and checkpoint round trips.
+It retains ACT A2 development regression and does not qualify learned contact or
+the eight-path final benchmark.
+
 ## Maintained Components
 
 - `ActModelCfg` / `DiffusionModelCfg` and their training dataclasses configure the

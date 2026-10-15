@@ -1,9 +1,11 @@
 # Common B1 Policy Pilot Foundation
 
 This foundation starts at `9b94978` on `PatrizioAcquadro/b1-policy-pilot`.
-It enables independent policy and geometry development. It is explicitly
-unqualified: no trained policy, matched dataset, policy contact rollout or
-perception release is delivered. SAM3 and Point2Pose are unchanged.
+It enables independent policy and geometry development. The separate
+[[experiments/b1-act-diffusion-a1a2-pilot|bounded A1/A2 pilot]] now supplies three
+physical teacher episodes and four CUDA-trained prototype checkpoints. These remain
+unqualified; no final matched A1-A4 dataset, policy contact execution or perception
+release is delivered. SAM3 and Point2Pose are unchanged.
 
 ## Ownership and Exchange
 
@@ -110,8 +112,9 @@ promote partial data into the matched dataset.
 
 The companion branch must supply observed geometry and continuous trajectory
 support with honest times/bounds, including the local A1/A2 route below. Dynamic
-load calibration and contact/moving-stop qualification remain open. No matched
-data collection, training or contact rollout campaign has started.
+load calibration and contact/moving-stop qualification remain open. The bounded
+partial offline pilot does not start final matched-data production, the final
+training matrix or a contact rollout campaign.
 
 
 ## Executable observation and data recipe
@@ -155,7 +158,8 @@ export refuses raw provenance from a different physical episode or identity.
 The CUDA round-trip check compares offline/live feature arrays exactly, preserves
 raw sensor/command rows, tests development outliers against train-only statistics,
 and loads/predicts both families for A1/A2. Existing eight-path loss/gradient checks
-remain separate; no optimizer update, training or collection campaign was run.
+remain separate; that original numerical smoke performed no optimizer update or
+physical demonstration collection. The subsequent bounded pilot is reported separately.
 
 `benchmark_policy_pilot.py` measures 600×960 CUDA sensor arrays through CPU support
 validation, RGB-D encoding, normalization, family inference and output transfer.
@@ -163,7 +167,9 @@ On RTX 4090 (30 warm samples/path, random weights, default width 128, chunk 12,
 Diffusion DDIM 10 steps), A1/A2 total p95 was ACT 3.21/2.43 ms and Diffusion
 14.90/15.08 ms. Across all eight numerical paths the largest maximum was 15.76 ms.
 These measurements exclude rendering, physics, geometry, FK and admission; they
-cannot establish the full rollout rate. Local details: `outputs/generated/b1-policy-pilot/model-cost.json`.
+cannot establish the full rollout rate. The historical report path was
+`outputs/generated/b1-policy-pilot/model-cost.json`, removed by the later external
+worktree archive described below.
 
 Observation/data infrastructure is ready for a bounded offline training invocation
 once explicitly recorded pilot demonstrations and identity splits exist. No real
@@ -249,21 +255,25 @@ real-time guarantee. The 60 Hz controller and 10 Hz policy are simulation-clock
 cadences; this camera-enabled configuration runs slower than wall-clock real time.
 No qualified geometry/sweep producer or admitted contact cycle was available;
 its additional cost is unmeasured. It must be included before any rollout-rate claim.
-Raw local evidence and prior failed probes remain under
-`outputs/generated/b1-policy-pilot/` (the final robot probe is `control-substeps`).
+Those historical probe paths were under `outputs/generated/b1-policy-pilot/`
+(`control-substeps` for the final probe). The app later archived their owning
+worktree and removed the ignored payloads. Current pilot data and the recovered
+interrupted recording are under `act-a1a2-pilot/`; see the experiment's
+infrastructure-interruption record. The historical probe values are not new measurements.
 
 | Readiness | State | Remaining prerequisite |
 |---|---|---|
-| Offline training infrastructure | Ready; real encoder, data, train-only batches and checkpoints smoke-tested on CUDA | Explicit physical pilot demonstrations and identity split; numerical data are not demonstrations |
-| Offline training on physical pilot data | Blocked | No explicit physical demonstration dataset has been collected |
+| Offline training infrastructure | Exercised on real simulated teacher recordings | Keep explicit partial purpose, causal inputs and frozen train/development identities |
+| Offline training on physical pilot data | Demonstrated for ACT/Diffusion × A1/A2: three episodes, fixed-minibatch learning, 96-update short runs and checkpoint round trips | One development identity/seed is not general qualification; ACT A2 development regression is retained |
 | A1/A2 rollout with contact | Blocked | Verified dynamic/peak residual calibration and moving/contact stopping envelope; observed local sweep/response evidence and supported contact |
 | ACT/Diffusion × A1–A4 reusable numerics | Maintained; eight-path GPU forward/loss/gradient/checkpoint checks pass | A3/A4 supported geometry and complete matched demonstrations |
 
-The broader unit run found four pre-existing failures in
+The original foundation's broader unit run found four pre-existing failures in
 `test_perception_cli.py`: the mock argument namespace lacks `selection`.
 An isolated `cd5398f` baseline reproduces all four; policy/control changes do not
 touch that CLI or fixture. Targeted policy, data, admission and control checks pass.
-No optimizer update or extended collection/training was performed.
+That foundation run performed no optimizer update or extended collection/training;
+the subsequent bounded partial pilot now has separate measured results.
 
 Share the observation/data commit with the geometry branch for the common encoder,
 recording/export and timing conventions. Share the control commit for

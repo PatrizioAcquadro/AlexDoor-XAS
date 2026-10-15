@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-act-diffusion-a1a2-pilot|Bounded ACT/Diffusion A1/A2 Pilot]] — Fresh physical teacher data, observed-state labels, bounded CUDA learning and operational refusal evidence.
+
 - [[experiments/p2p-sam3-cost-diagnosis|Selected SAM3 + Point2Pose Cost Diagnosis]] — Current stage costs, mature rebuild peaks, operational age/replacement accounting and comparable producer contention; diagnosis only.
 
 - [[experiments/p2p-temporal-renewal-admission|Temporal P2P Renewal Admission]] — One causal saved-data criterion rejected before CUDA activation: insufficient motion within the existing wait budget and severe support depletion in both conditions.

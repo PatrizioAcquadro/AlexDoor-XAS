@@ -1,7 +1,9 @@
 # Phase 7 — Training and Generalization Evaluation
 
 > Planned. Two subphases train the models, then evaluate and analyze them.
-> Requires Phase 6; no training or evaluation is performed by this revision.
+> Requires Phase 6. The final matrix is not started; a separate bounded
+> [[experiments/b1-act-diffusion-a1a2-pilot|partial A1/A2 offline pilot]] has run.
+> Its prototype checkpoints do not qualify this phase or authorize sealed evaluation.
 
 ## Objective
 

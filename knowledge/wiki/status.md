@@ -8,10 +8,13 @@ reference. A3/A4 semantics and operational thresholds are unchanged.
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured
 solver feedback and bounded local admission without a hinge. Offline infrastructure
-and both family model paths are CUDA-smoke-tested. Robot-only hold/4 N/preview/stop
-probes passed; loaded rollout remains blocked by dynamic residual/stop calibration
-and observed sweep/response evidence. Camera-enabled cycles exceed real-time 60 Hz.
-No training, policy contact rollout or matched demonstration collection was run.
+and both family model paths are exercised by the
+[[experiments/b1-act-diffusion-a1a2-pilot|bounded physical-data pilot]]: three complete
+teacher episodes, ACT/Diffusion × A1/A2 short CUDA training and eight checkpoint
+round trips. ACT A2 development regression is retained. Loaded rollout remains
+blocked by dynamic residual/stop calibration and observed sweep/response evidence.
+Camera-enabled cycles exceed real-time 60 Hz. No final matched dataset, policy
+contact execution or sealed-test evaluation was produced.
 
 | Area | Current state |
 |---|---|
@@ -21,7 +24,7 @@ No training, policy contact rollout or matched demonstration collection was run.
 | 6.0C — Tracking | One persistent SAM3 session shared by inspection/tracking, bounded history and renewal-only depth gate; live/replay and serial evaluation share the coordinator. Useful accuracy improves offline, but material identity and 150 ms freshness remain unqualified. |
 | 6.0D–H — Contact/qualification | Solver feedback, residual-load/stop wiring and local A1/A2 admission implemented; dynamic/peak calibration, contact stopping, supported interaction and qualification remain open. |
 | 6.1 — Actions | ACT/Diffusion × A1–A4 observed-input/data/normalization/execution software maintained; qualified-provider integration and physical rollout validation pending. |
-| 6.2–7 — Data/learning | Not started. No matched B1 policy dataset or learned-policy result; no sealed-test evaluation. |
+| 6.2–7 — Data/learning | Partial A1/A2 offline pilot demonstrated; final matched A1-A4 data and training matrix not started. No learned contact task result or sealed-test evaluation. |
 
 ## Next action and selected state
 
