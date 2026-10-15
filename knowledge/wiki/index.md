@@ -53,7 +53,7 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
-- [[experiments/tsdf-rebuild-double-buffer|TSDF Rebuild Double Buffer]] — Original candidate recovered into persistent primary-checkout evidence; reconstructed harnesses repeat missing local validation before complete fixed/timed comparisons under an exclusive GPU lease.
+- [[experiments/tsdf-rebuild-double-buffer|TSDF Rebuild Double Buffer]] — Recovered-source local gates, both full exact pairs and repeated-rebuild memory pass; four timed comparisons are in progress under the shared GPU lock.
 
 - [[experiments/tsdf-readonly-launch-inputs|TSDF Read-Only Launch Inputs]] — One exactly equivalent CUDA readback reduction rejected for adoption: small transfer savings, no convincing rebuild/service gain and mixed timed-ingress quality; baseline restored.
 - [[experiments/tsdf-deferred-snapshot-audit|TSDF Deferred Snapshot Failure Audit]] — Real CUDA rebuilds show a large local gain, but final-only snapshots change actual worker queries after a failed write; rejected, baseline preserved.

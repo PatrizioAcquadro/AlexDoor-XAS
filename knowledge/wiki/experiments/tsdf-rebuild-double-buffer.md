@@ -3,23 +3,22 @@
 2026-10-15. Branch `PatrizioAcquadro/b1-observed-a3a4`, baseline `99fa48e`.
 The one authorized successor to [[tsdf-deferred-snapshot-audit|final-only
 snapshot deferral]] retains a complete CPU download after every integration.
-**Recovery checkpoint: production remains at baseline. Original local success is
-reported below, but its raw payloads disappeared with worktree `782a`. Recovered
-sources do not inherit that validation. Fresh local gates and both complete fixed-input equivalence pairs pass.
-The first memory repetition was interrupted by RustDesk opening a CUDA context;
-complete fixed equivalence remains valid. A new explicitly reserved window is
-required for the missing memory cells and timed ingress; adoption remains pending.**
+**Evaluation checkpoint: production remains at baseline. Fresh local gates and
+both complete 3,217-input fixed pairs pass. Repeated-rebuild memory now passes
+for both paths and conditions; the valid light baseline and interrupted attempt
+are preserved. Four timed-ingress runs are in progress under the shared GPU lock.
+Adoption awaits their combined latency, availability, quality and memory result.**
 
 ## Persistent recovery
 
-The clean primary checkout is now on `PatrizioAcquadro/b1-observed-a3a4` at
-`f94be75`; `db36` is detached at `99fa48e`, and `782a/AlexDoor-XAS` is absent.
-The latest three commits contain documentation only. The original candidate
-survived in `/tmp/tsdf_candidate.py`, copied byte-for-byte into
+The continuation starts in the primary checkout on
+`PatrizioAcquadro/b1-observed-a3a4` at `b498d1f`, with no tracked changes. The
+original candidate survived in `/tmp/tsdf_candidate.py` and was copied
+byte-for-byte into
 `outputs/evidence/b1/perception/tsdf-double-buffer-recovery-20261015/` alongside
-the original preparation/analysis scripts, independent copies of both captured
-fixtures and the unchanged baseline sources. This directory belongs to the
-primary checkout and has no dependency on a disposable worktree.
+original preparation/analysis scripts, independent copies of both captured
+fixtures and unchanged baseline sources. This persistent directory has no
+dependency on a disposable worktree.
 
 The original candidate source is recovered; the runnable harnesses are
 reconstructed from the original generators and the original session's explicit
@@ -33,9 +32,9 @@ attempts remain in the recovery directory.
 Both other active chats finished GPU work and agreed to use
 `/tmp/rtx4090-exclusive.lock`. `validate_suite.py` holds that lock for the entire
 local/fixed/timed suite, including gaps between processes; concurrent-compute
-guards remain enabled. Because raw local evidence is missing, the reconstructed
-24 local correctness pairs, eight real-worker pairs and preset local benefit
-comparison must pass afresh before full equivalence and timed ingress.
+guards remain enabled. Because raw local evidence was missing, the reconstructed 24 local correctness
+pairs, eight real-worker pairs and preset local benefit comparison had to pass
+afresh. Those gates and full equivalence have now passed as recorded below.
 
 ## Fresh recovered-source local validation
 
@@ -57,8 +56,9 @@ The preset three timing pairs pass again, without favorable retries:
 Both timing ranges are disjoint. Sampled host RSS peaks remain higher by about
 one pair: 1708.7–1711.4 / 1835.4–1838.6 MiB light and 1883.8–1884.3 /
 2091.5–2091.8 MiB nominal, baseline/buffered. Downloads, HtoD/DtoH byte/call
-counts and CUDA allocation sequences are identical. Complete fixed-input
-identity, timed quality/availability and repeated-rebuild memory remain open.
+counts and CUDA allocation sequences are identical. Complete fixed-input identity
+and repeated-rebuild memory pass below; timed quality/availability remains open
+at this checkpoint.
 `local-summary.json`, `correctness-summary.json`, `worker-reentry-summary.json`
 and `local-evidence-audit.json` in the recovery directory own these results.
 
@@ -146,7 +146,7 @@ exactly for errors before/after integration, before/after each download and
 after each half-array download. These are controlled failure-boundary fixtures,
 not a measured natural hardware-error rate or operational recovery qualification.
 
-## Preset local CUDA performance
+## Historical original local CUDA performance
 
 One excluded warmup per path, then three serial pairs ordered B/V, V/B, B/V
 per target; every completed row is retained. One separate detailed baseline
@@ -192,53 +192,84 @@ RSS is sampled every 5 ms during the target and process GPU usage about every
 exit, without persistent CUDA allocations. These isolated cells exclude full
 SAM3/TAPIR provider residency. Sampling does not qualify startup spikes.
 
-## Conditional complete comparisons
+## Repeated-rebuild memory
 
-Both local gates pass: exact correctness and disjoint ranges with at least 10%
-lower median. Fresh complete fixed-input pairs are authorized but incomplete.
-Full numerical identity then gates fresh timed-ingress comparisons with the
-same recordings, selected recipe and frozen target scoring at 10/15/20 mm and
-5 degrees. No second optimization runs after failure. Even the isolated median
-rebuilds remain 415.4/339.2 ms; local savings do not establish 150 ms availability.
+The already completed light baseline is reused. Only the missing light buffered,
+nominal buffered and nominal baseline cells run in this continuation. Each has
+12 identical rebuilds; cycle zero is warmup and the final eight assess stability.
+No allocator trimming or forced garbage collection is used. Full output digests
+remain identical within each cell and between baseline/buffered paths.
 
-## Complete-comparison interruptions
+| Condition/path | Peak RSS, MiB | Retired RSS range over final eight cycles, MiB |
+|---|---:|---:|
+| Light baseline, preserved | 1713.0 | 5.8 |
+| Light buffered | 1840.0 | 6.3 |
+| Nominal baseline | 1893.0 | 10.5 |
+| Nominal buffered | 2105.6 | 5.4 |
 
-Foreign `squadbot-av-phase1` CUDA work interrupted the first complete light
-baseline after 388 frames. The guard terminated only this experiment's processes
-and retained the attempt. After 30 continuously idle seconds, a fresh baseline
-was started; foreign compute returned and stopped it after 426 frames. Both
-partial packet/registration/volume/query histories exactly match the preserved
-historical baseline. Neither reaches the mature target or completes a full pair;
-their times are excluded from performance conclusions.
+Exactly two pool arrays remain alive while the completed buffered snapshot is
+owned by `obj.sdf`; after object retirement all pool weak references are dead in
+every cycle. Thus retained process RSS does not mean retained snapshot objects.
+It includes fixtures, runtime and allocator residency; the experiment does not
+attribute all remaining RSS to the allocator. The buffered cells' global CUDA
+free-memory tail varies by 0/0.75 MiB light/nominal, without progressive volume
+retention. Baseline global free-memory fluctuations include graphical desktop
+allocations and are not a count of this process's live CUDA objects.
 
-All 66 completed local CUDA cells and all 16 real-worker checks had no observed
-foreign compute. Their results remain valid and are not repeated. The two
-aborted full prefixes remain under `failed-concurrent-compute/attempt-1/` and
-`attempt-2/`. No complete fixed-input comparison or timed-ingress run has
-completed. Effective-frequency quality, publication ages, losses and 150 ms
-availability therefore remain unvalidated for this candidate. Await an exclusive
-GPU window; do not relax the guard, change recovery or add another variant.
-A subsequent three-minute idle-window preflight observed further foreign jobs
-around 6 GiB and never launched a third replay. That preflight was stopped;
-no unattended process or scheduled continuation is left running.
+The added transient CPU pair costs approximately 127/213 MiB in these repetition
+cells, within this workstation's available memory. This is bounded reuse, not a
+memory-reduction claim. `memory-gate-passed.json` owns the completed gate.
 
-## Decision and concrete remaining work
+## Adoption criteria, declared before remaining tests
 
-**Retain the active baseline while preserving the locally validated candidate.**
-The single two-buffer alternative fixes the previous completed-state failure
-and demonstrates substantial local CUDA savings with unchanged downloads.
-It trades approximately one extra transient host snapshot pair for fewer
-allocations and copies. It is not adopted into production because full numerical
-and effective-frequency validation have not completed, not because a quality
-regression has been measured. Adopted production savings are currently zero.
+`adoption-criteria-continuation.md` in the evidence directory records the criteria
+before any new memory or timed run. Complete fixed-input identity is already
+established and is not repeated. Memory must stabilize with zero live pool arrays
+after retirement. Require at least a 5% improvement in at least one steady primary
+operational outcome: p95 service, p95 publication age, publication frequency or
+maximum publication interval, with an explanation consistent with update history.
+Assess both conditions together; a broad latency/availability regression defeats
+adoption. This practical effect size is not a confidence interval from one pair.
 
-After an exclusive GPU window is available, complete the fresh 3,217-input
-baseline/buffered comparison in both conditions with `run_full.py`. Only exact
-full histories/volumes/queries open the unchanged four timed-ingress runs and
-frozen three-target quality evaluation at 10/15/20 mm with 5 degrees, together
-with service/position/rotation peaks, publication ages, replacements, native
-losses and memory. Preserve the two interrupted prefixes; do not rerun the
-completed local replicas. No other implementation variant is authorized.
+Quality uses the same three frozen material targets at 10/15/20 mm and 5 degrees,
+for processed outputs and every scheduled opening input, with missing/lost/wrong
+accepted outputs retained. Adoption requires useful correct output at 15/20 mm
+without broad deterioration across the targets or benefit obtained by discarding
+useful tracking. Inspect precision, terminal five seconds, continuity and native
+losses together. Timed histories may differ; numerical identity is not required
+here. Report the tighter 10 mm behavior and all failures as well.
+
+The order is light baseline, light buffered, nominal buffered, nominal baseline,
+once each without favorable repeats. Source timing, initialization, recipe,
+models, geometry, thresholds and control stay fixed. This optimization alone is
+not required to reach 150 ms. If adopted, its transition from the prototype must
+preserve completed snapshots, scratch restoration and request-local ownership,
+with focused tests and bounded real-CUDA comparison.
+
+## Interruptions and preserved history
+
+The original experiment reported full light baseline interruptions at 388/426
+frames from foreign `squadbot-av-phase1` work. Their raw payloads disappeared
+with the old worktree; the original session extract and Git report retain the
+reports, not substitute measurements. Those prefixes do not establish a complete
+comparison. The old local numbers above are historical; fresh recovered-source
+gates and full exact comparisons are the authoritative current evidence.
+
+After fresh full equivalence, RustDesk opened a CUDA context during the light
+buffered memory cell. The guard stopped only this experiment after seven cycles.
+`failed-concurrent-compute/rustdesk-memory-attempt-1/` retains that attempt and
+source versions; its valid light baseline is reused. No other process is stopped.
+The current continuation holds `/tmp/rtx4090-exclusive.lock`, requires 30 seconds
+without compute contexts before each cell, and monitors foreign compute during
+each process. Graphical desktop contexts are present, as in the original protocol.
+Interference is retained and only incomplete work resumes after waiting.
+
+## Decision checkpoint
+
+The memory gate passes and the unchanged four timed runs are in progress.
+Production remains at baseline pending the complete operational comparison.
+No additional optimization or model/control change is authorized. General
+tracking/contact qualification is separate from adoption of this implementation.
 
 ## Evidence
 
@@ -250,5 +281,6 @@ correctness boundary. The preceding `tsdf-snapshot-20261014/` evidence, recordin
 failed attempts and rejected implementation remain untouched. Ignored files,
 including the active checklist, stay uncommitted. That original directory is now
 missing; use the recovery directory above for currently available sources and
-new validation, and treat the original measurements above as historical
-reported results until reproduced.
+new validation, and treat original measurements above as historical reported
+results. Fresh recovery local gates, full exact pairs and memory establish the
+current completed boundaries; timed comparison remains in progress.

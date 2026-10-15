@@ -91,9 +91,11 @@ the primary checkout. Its original raw local results and interrupted replay
 payloads are missing after worktree removal; earlier local benefits are reported
 history, not inherited validation. Fresh local gates pass, and both complete 3,217-input fixed pairs have zero
 differences in packets, references, histories, volumes and queries. Repeated-rebuild
-memory was then interrupted by RustDesk opening a CUDA context. The completed
-fixed pairs remain valid; a new exclusive window is required for missing memory
-and timed runs. Production remains unchanged pending the complete comparison.
+memory now passes both paths and conditions: no pool arrays remain alive after
+retirement and RSS stabilizes; one extra transient CPU pair remains the tradeoff.
+The RustDesk interruption and completed light baseline are preserved. Four timed
+runs are in progress under the shared GPU lock; production remains unchanged
+pending the combined operational decision.
 
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved
