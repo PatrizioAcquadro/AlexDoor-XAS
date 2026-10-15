@@ -424,3 +424,23 @@ def test_matched_replay_uses_recorded_boundaries_but_never_recorded_geometry(b1_
     source(SimpleNamespace(time_s=1))
     with pytest.raises(ValueError, match="timing"):
         source(SimpleNamespace(time_s=1.3))
+
+
+@pytest.mark.parametrize("kind", ["joints", "delta", "pose"])
+def test_latched_purdue_io_refuses_before_admission_or_monitor_mutation(kind):
+    io = object.__new__(PurdueIO)
+    io.env = SimpleNamespace(motion_stopped=True)
+    admission = object()
+    io.admission = admission
+    with pytest.raises(RuntimeError, match="^motion_stopped$"):
+        io.execute(Command(kind, None))
+    assert io.admission is admission
+
+
+def test_purdue_stop_clears_admission_and_uses_environment_latch():
+    io = object.__new__(PurdueIO)
+    stopped = []
+    io.env = SimpleNamespace(stop_motion=lambda: stopped.append(True))
+    io.admission = object()
+    io.stop()
+    assert io.admission is None and stopped == [True]

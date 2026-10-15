@@ -276,6 +276,8 @@ class PurdueIO:
         return self.tool_fk(q, self.calibration)
 
     def execute(self, command):
+        if getattr(self.env, "motion_stopped", False):
+            raise RuntimeError("motion_stopped")
         self.admission = command.admission if hasattr(command, "admission") else None
         profile = getattr(self, "profile", LEGACY_FULL_STATE)
         if self.admission is not None and profile != OPERATIONAL_V1:
@@ -327,16 +329,4 @@ class PurdueIO:
 
     def stop(self):
         self.admission = None
-        # Do not add a release, IK correction or extra physics step on failure.
-        self.env._pending_pose = None
-        self.env._pending_joints = None
-        from alexdoor_xas.recording.b1_runtime import array
-
-        # Freeze at measured joints, not an unachieved position goal. No physics tick.
-        measured = self.env.robot.data.joint_pos
-        self.env.targets = (
-            measured.torch.clone() if hasattr(measured, "torch") else measured.clone()
-        )
-        if not np.isfinite(array(self.env.targets)).all():
-            raise RuntimeError("invalid_stop_state")
-        self.env.robot.set_joint_position_target_index(target=self.env.targets)
+        self.env.stop_motion()

@@ -1,9 +1,9 @@
 # Purdue B1 Robot and Contact Contract
 
 This is the implemented Purdue operational contract for Subphases 4.0–4.1. The B0
-Alex V2 runtime has been retired. The common synthetic-door setup is GPU-qualified;
-B1 learned-action software is available, with final integration and physical
-validation still pending in Phase 6.1. Current runtime evidence is maintained in
+Alex V2 runtime has been retired. Historical synthetic-door qualification used the earlier controller; the current
+benchmark controller has local robot-only 6.0D evidence. Contact qualification does
+not transfer automatically. B1 learned-action integration remains open in Phase 6.1. Current runtime evidence is maintained in
 [[implementation_phases/phase-4-robot-and-task-configuration|Phase 4]].
 
 ## Reuse and Ownership
@@ -46,6 +46,50 @@ on both hands, so resolve their owning right-hand links rather than names alone.
 Finger mounts, jaw/body metal, wrist, arm, left gripper, and pedestal are not
 alternative push tools. Preserve their collisions and detect forbidden contact;
 do not filter contact away to make a rollout valid.
+
+## Common benchmark controller and stop
+
+`DoorPushPurdueEnv` keeps the shared factory's explicit `IdealPDActuator` and
+physical effort/velocity/position limits. Task-local right-arm impedance is common
+to A1 joint targets and the pose controller used by A2–A4. The independent factory
+copy is changed only inside this project; left arm, neck, fingers and the external
+Alex package retain their settings.
+
+| Right joint, canonical order | Previous Kp | Current Kp, N m/rad | Current Kd, N m s/rad |
+|---|---:|---:|---:|
+| SHOULDER_Y | 26.78 | 320 | 8 |
+| SHOULDER_X | 26.78 | 26.78 | 8 |
+| SHOULDER_Z | 23.76 | 160 | 4 |
+| ELBOW_Y | 23.76 | 160 | 4 |
+| WRIST_Z | 5 | 20 | 1 |
+| WRIST_X | 5 | 10 | 1 |
+| GRIPPER_Y | 2 | 50 | 1 |
+
+The ready-pose 4 N diagnostic reflects approximately 1.7 N m at shoulder Y,
+0.7 N m at shoulder Z/elbow and 0.22 N m at terminal Y. The selected stiffness
+allocates about 0.005 rad static deflection to those joints, with additional wrist
+rotation restraint; shoulder X already meets the local budget. Terminal damping
+increases from 0.5 to 1. No integral or frozen disturbance torque is introduced.
+These values are simulated benchmark settings, not hardware calibration or a
+validated contact impedance across the workspace.
+
+Every physics substep commands gravity compensation plus the explicit position
+spring and velocity damping, clipped by the existing effort limits. PhysX drive
+stiffness/damping are zero for this explicit path: read the actuator object's
+resolved gains. `computed_torque` is the total pre-clipping actuator command;
+`applied_torque` is the clipped effort sent to the solver. Solver projected joint
+output is a separate feedback quantity and is never replaced by either command.
+
+`PurdueIO.stop()` clears admission and calls `env.stop_motion()`. The environment
+clears pending commands, latches measured joint positions once, zeroes velocity
+targets and retains state-dependent gravity compensation. The previous spring
+compression is removed; the new position spring supports subsequent disturbance
+relative to that measured anchor. Repeated stops preserve the original anchor.
+A1, pose/A3, neck, nonzero Gym and IO commands refuse with `motion_stopped` before
+advancing physics. Zero Gym actions can advance stopped physics and telemetry;
+only an environment reset re-enables motion. This removes inherited pushing effort
+without disabling support. Free-space load removal does not prove unloading in
+frictional door contact; physical contact stopping remains unqualified.
 
 ## Operational Push Frame
 
@@ -121,8 +165,10 @@ The guide's EZGripper effort signal is not a WSG32 pushing-force measurement.
 The current B1 recorder/IO carries only joint position/velocity in policy observations.
 6.0A adds `RobotFeedback` and `PurdueIO.robot_feedback()` as a separate monitor-only
 interface in canonical seven-right-arm joint order, N m and positive joint-coordinate
-sign. The current runtime reports torque absent; it never reads commands or privileged
-contact data to synthesize measurement. Freshness, known source/semantics, bounded
+sign. Simulation reports the solver joint-output projection at each 120 Hz physics
+sample; hardware acquisition and sensor accuracy remain unverified. Old recordings
+without torque remain unavailable for loaded qualification. Commands and privileged
+contact data never synthesize measured feedback. Freshness, known source/semantics, bounded
 robot-only load evidence and verified stop/contact behavior are separate admission
 requirements. The observed monitor remains blocked for loaded control.
 The approved
@@ -134,11 +180,10 @@ error. An anomaly detector does not certify exact contact location or all force
 criteria. Simulated observations must represent the robot sensor, not expose
 evaluator contact pairs or perfect external forces.
 
-The guide warns that disabling actuators can let the arms fall. The planned
-stop response must support the arm and limit residual motion/load while physics
-continues; clearing the command queue or retaining a compressed target is not
-enough. Hardware safety remains unvalidated. These are planned controls, not a
-claim that the existing `PurdueIO.stop()` performs physical unloading.
+The guide warns that disabling actuators can let the arms fall. The implemented
+measured-anchor stop retains arm support while physics continues, as described
+above. Clearing the command queue alone remains insufficient. Hardware safety and
+physical unloading in contact remain unvalidated.
 
 ## Collisions, Limits, and Physical Approximation
 

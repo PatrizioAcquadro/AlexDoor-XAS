@@ -225,8 +225,12 @@ A3/A4 still require their hinge/angle/segment contracts.
 Before execution IO independently checks the control interval and that this actual
 controller endpoint fits the receipt's robot-error bounds. Receipts cannot describe
 a safe endpoint while sending a different bounded joint command. On stop, pending
-commands clear and all position targets freeze at measured joints, with no extra
-physics tick or release trajectory. Reset is required before the runner resumes.
+commands clear and all position targets freeze once at measured joints, with no
+extra physics tick or release trajectory. The environment also latches command
+refusal, clears velocity targets and retains gravity compensation; repeated stops
+do not move the anchor. Zero Gym actions can continue stopped physics. Reset is
+required before motion resumes. Common benchmark impedance and effort semantics
+are defined in [[purdue-b1-robot-and-contact|the robot/control contract]].
 
 ## Bounded physical evidence and readiness
 

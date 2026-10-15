@@ -61,6 +61,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._time_s = 0.0
         self._pending_pose = None
         self._pending_joints = None
+        self.motion_stopped = False
         super().__init__(cfg, **kwargs)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
         self.neck_ids = self._resolve_joints(NECK_JOINTS)
@@ -106,6 +107,23 @@ class DoorPushPurdueEnv(DirectRLEnv):
         robot_cfg = make_alex_purdue_cfg(
             fix_base=True, variant="full_convex", end_effector="wsg32_umi_v1"
         )
+        # Task-local impedance; keep the shared Alex package and physical limits intact.
+        # At the ready pose, 4 N reflects about 1.7/0.7/0.7/0.22 N m into
+        # shoulder Y/Z, elbow and terminal Y. Allocate about 0.005 rad static
+        # deflection to those joints; shoulder X already meets that budget.
+        arm = robot_cfg.actuators["arms"]
+        for key, selected in (
+            ("stiffness", (320.0, 26.78, 160.0, 160.0, 20.0, 10.0, 50.0)),
+            ("damping", (8.0, 8.0, 4.0, 4.0, 1.0, 1.0, 1.0)),
+        ):
+            original = getattr(arm, key)
+            values = {
+                f"{side}_{pattern.removeprefix('.*')}": value
+                for side in ("LEFT", "RIGHT")
+                for pattern, value in original.items()
+            }
+            values.update(zip(ARM_JOINTS, selected, strict=True))
+            setattr(arm, key, values)
         robot_cfg.prim_path = ROBOT
         robot_cfg.init_state.pos = (x, y, spec.alex_root_world_z_m)
         robot_cfg.init_state.rot = floor_quat
@@ -228,6 +246,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
 
     def command_pose(self, position, orientation):
         """Set an absolute operational pose for the next A2 step (world, XYZW)."""
+        if self.motion_stopped:
+            raise RuntimeError("motion_stopped")
         if self.cfg.action_mode != "A2":
             raise ValueError("absolute pose requires A2 mode")
         position = torch.as_tensor(position, dtype=torch.float32, device=self.device).reshape(1, 3)
@@ -243,6 +263,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
 
     def set_neck_target(self, position):
         """Set a fixed neck pose within the external model's mechanical limits."""
+        if self.motion_stopped:
+            raise RuntimeError("motion_stopped")
         value = torch.as_tensor(position, device=self.device, dtype=torch.float32).reshape(1, 2)
         limits = tensor(self.robot.data.joint_pos_limits)[:, self.neck_ids]
         if not bool(torch.isfinite(value).all()) or bool(
@@ -253,6 +275,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
 
     def step_a1(self, delta):
         """Execute seven joint deltas without changing the Gym action-space declaration."""
+        if self.motion_stopped:
+            raise RuntimeError("motion_stopped")
         value = torch.as_tensor(delta, device=self.device, dtype=torch.float32)
         if value.shape not in ((7,), (1, 7)) or not bool(torch.isfinite(value).all()):
             raise ValueError("A1 requires seven finite joint deltas")
@@ -260,6 +284,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
         return self.step(torch.zeros((1, self.cfg.action_space), device=self.device))
 
     def step_a3(self, delta, frame):
+        if self.motion_stopped:
+            raise RuntimeError("motion_stopped")
         if self.cfg.action_mode != "A2":
             raise ValueError("A3 requires A2 execution mode")
         if reason := validate_object_frame(frame):
@@ -298,11 +324,40 @@ class DoorPushPurdueEnv(DirectRLEnv):
             )
         return target, excess, error
 
+    def stop_motion(self):
+        """Latch a measured joint anchor; remove old elastic effort, retain gravity.
+
+        No physics tick, release trajectory or held disturbance torque. Repeated
+        calls must not move the anchor as the loaded arm settles. Only reset
+        re-enables motion. Zero Gym actions may advance physics while stopped.
+        """
+        self._pending_pose = self._pending_joints = None
+        if self.motion_stopped:
+            return
+        self.motion_stopped = True
+        measured = tensor(self.robot.data.joint_pos).clone()
+        if not bool(torch.isfinite(measured).all()):
+            raise RuntimeError("invalid_stop_state")
+        self.targets = measured
+        self.robot.set_joint_position_target_index(target=self.targets)
+        self.robot.set_joint_velocity_target_index(target=torch.zeros_like(self.targets))
+        self.robot.set_joint_effort_target_index(
+            target=tensor(self.robot.data.gravity_compensation_forces)
+        )
+
     def _pre_physics_step(self, actions):
         if self.cfg.cameras and not self.render_enabled:
             raise RuntimeError("RGB-D capture requires rendering on each control tick")
         if actions.shape != (1, self.cfg.action_space) or not bool(torch.isfinite(actions).all()):
             raise ValueError("invalid Purdue command")
+        if self.motion_stopped:
+            self._pending_pose = self._pending_joints = None
+            if bool((actions != 0).any()):
+                raise RuntimeError("motion_stopped")
+            self.contact_history = []
+            self.load_samples = []
+            self._physics_actions = 0
+            return
         if self.cfg.action_mode == "A1" or self._pending_joints is not None:
             delta = actions if self._pending_joints is None else self._pending_joints
             target, excess, error = self.preview_targets(joint_delta=delta)
@@ -386,6 +441,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
 
     def _reset_idx(self, env_ids):
         super()._reset_idx(env_ids)
+        self.motion_stopped = False
         for fixture in self.scene.rigid_objects.values():
             state = tensor(fixture.data.default_root_state).clone()
             fixture.write_root_pose_to_sim_index(root_pose=state[:, :7])
