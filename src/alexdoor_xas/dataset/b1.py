@@ -3,7 +3,7 @@
 import json
 import shutil
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import h5py
@@ -54,6 +54,7 @@ class MatchedEpisode:
     observations: np.ndarray  # N+1, including the terminal observation
     actions: dict[str, np.ndarray]
     starts: dict[str, np.ndarray]  # indices in the shared physical episode
+    source_recording: str | None = None
 
 
 def compile_episode(
@@ -214,6 +215,9 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
         if metadata.get("purpose") != purpose:
             raise ValueError("Recording purpose differs from the policy binding")
         calibration = json.loads(source["metadata"].attrs["calibration"])
+        encoding = observer.binding.config.get("encoding")
+        if encoding and calibration["depth_interval_m"] != encoding["depth_interval_m"]:
+            raise ValueError("Recorded depth interval differs from the encoder recipe")
         if calibration["joint_names"] != list(ARM_JOINTS + NECK_JOINTS):
             raise ValueError("Recorded B1 joint order differs")
         if metadata.get("inspection") != observer.binding.config["inspection"]:
@@ -240,7 +244,7 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
                 commands["tool_position"][start:], commands["tool_rotation"][start:], strict=True
             )
         ]
-        return compile_episode(
+        episode = compile_episode(
             episode_id=metadata["episode_id"],
             asset_id=metadata["asset_id"],
             asset_splits=asset_splits,
@@ -251,6 +255,7 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
             stages=phases[start:],
             binding=observer.binding,
         )
+        return replace(episode, source_recording=str(Path(path).resolve()))
 
 
 def export_dataset(episodes, destination, binding, robot_asset, asset_splits):
@@ -281,6 +286,12 @@ def export_dataset(episodes, destination, binding, robot_asset, asset_splits):
                 out.attrs.update(
                     episode_id=episode.episode_id, asset_id=episode.asset_id, split=episode.split
                 )
+                if episode.source_recording is not None:
+                    with h5py.File(episode.source_recording, "r") as raw:
+                        retained = out.create_group("raw")
+                        retained.attrs.update(raw.attrs)
+                        for key in raw:
+                            raw.copy(key, retained)
                 out.create_dataset("time_s", data=episode.times)
                 out.create_dataset("observations", data=episode.observations)
                 for space in dataset_spaces(binding):

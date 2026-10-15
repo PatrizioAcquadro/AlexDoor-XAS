@@ -144,6 +144,8 @@ def compute_norm_stats(
     records = [dataset.by_id(episode_id) for episode_id in train_episode_ids]
     if not records:
         raise ValueError("train split is empty")
+    if len(set(train_episode_ids)) != len(records) or any(r.split != "train" for r in records):
+        raise ValueError("Normalization requires unique train-only episodes")
     return DatasetNormStats(
         action=NormStats.from_rows([record.actions for record in records]),
         obs=NormStats.from_rows([obs_matrix(record, obs_keys) for record in records]),

@@ -417,7 +417,7 @@ def test_raw_pilot_preparation_uses_causal_encoder_and_robot_fk(tmp_path, pilot_
             obs((i + 1) / 60, i + 2),
             {},
         )
-    writer.finish(dict(passed=True, released=True, hold_angle_deg=50.0))
+    writer.finish(dict(passed=True, termination="safe_release"))
     writer.close()
     observer = B1Observer(None, pilot_binding, encoder=NumericalEncoder(pilot_binding))
     episode = prepare_recording(path, observer, lambda q, calibration: tool, {"left": "train"})

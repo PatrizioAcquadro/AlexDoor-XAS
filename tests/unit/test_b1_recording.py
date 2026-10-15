@@ -41,7 +41,7 @@ def test_causal_terminal_roundtrip_and_truth_separation(tmp_path):
     import h5py
 
     with h5py.File(path) as h5:
-        assert set(h5) == {"observations", "commands", "annotations", "metadata"}
+        assert set(h5) == {"observations", "commands", "annotations", "metadata", "robot_feedback"}
         assert "angle" not in h5["observations"]
         np.testing.assert_array_equal(h5["commands/joint_target"][0], np.arange(7))
         assert robot_feedback_at(h5, 0).torque_nm is None
@@ -127,3 +127,25 @@ def test_campaign_membership_completeness_and_duplicate_rejection(tmp_path):
     corpus["doors"][0]["records_sha256"] = "b" * 64
     with pytest.raises(ValueError, match="frozen corpus"):
         episode_paths(tmp_path, corpus, complete_campaign=False)
+
+
+def test_measured_feedback_roundtrip_and_legacy_absence(tmp_path):
+    import h5py
+
+    from alexdoor_xas.assets.purdue import ARM_JOINTS
+    from alexdoor_xas.perception.contracts import RobotFeedback
+
+    path = tmp_path / "feedback.hdf5"
+    writer = B1Writer(path, {}, dict(depth_interval_m=[0.1, 5]))
+    measured = RobotFeedback(
+        0, 0, ARM_JOINTS, np.arange(7), "simulated_actuator_feedback", "joint_output", True
+    )
+    writer.observe(obs(), {}, feedback=measured)
+    writer.close()
+    with h5py.File(path) as source:
+        restored = robot_feedback_at(source, 0)
+        np.testing.assert_array_equal(restored.torque_nm, measured.torque_nm)
+        assert restored.source == measured.source and restored.semantics == measured.semantics
+    with h5py.File(path, "r+") as source:
+        del source["robot_feedback"]
+        assert robot_feedback_at(source, 0).torque_nm is None

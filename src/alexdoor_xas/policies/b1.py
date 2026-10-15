@@ -251,7 +251,11 @@ class B1Policy:
             raise ValueError("Temporal ensembling is only supported for ACT A1-A3")
         if self.family == "act":
             if n_action_steps is not None:
-                raise ValueError("n_action_steps is a Diffusion setting")
+                if temporal_ensemble or self.action_space == A4_OBJ_CENTRIC_CHUNK:
+                    raise ValueError("Replanning ticks apply to primitive non-ensembled actions")
+                if type(n_action_steps) is not int or not 1 <= n_action_steps <= self.chunk_size:
+                    raise ValueError("Invalid policy replanning interval")
+                return lambda ctx: self.predict(observe(ctx))[:n_action_steps]
             return act_chunk_source(self, observe, temporal_ensemble=temporal_ensemble)
         return diffusion_chunk_source(self, observe, n_action_steps=n_action_steps)
 

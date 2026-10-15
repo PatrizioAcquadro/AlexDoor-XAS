@@ -28,7 +28,22 @@ def robot_feedback_at(h5, row):
     """Legacy RGB-D replay has no torque channel, including when commands contain efforts."""
     if h5.attrs.get("schema") != SCHEMA:
         raise ValueError("Unsupported robot-feedback recording schema")
-    return RobotFeedback.unavailable(float(h5["observations/time_s"][row]), ARM_JOINTS)
+    if "robot_feedback" not in h5:
+        return RobotFeedback.unavailable(float(h5["observations/time_s"][row]), ARM_JOINTS)
+    group = h5["robot_feedback"]
+    value = {key: dataset[row] for key, dataset in group.items()}
+    for key in ("source", "semantics", "reason"):
+        value[key] = value[key].decode()
+    return RobotFeedback(
+        float(value["timestamp_s"]),
+        float(value["available_s"]),
+        tuple(json.loads(group.attrs["joint_names"])),
+        value["torque_nm"] if value["present"] else None,
+        value["source"],
+        value["semantics"],
+        bool(value["healthy"]),
+        value["reason"],
+    )
 
 
 class B1Writer:
@@ -66,7 +81,7 @@ class B1Writer:
             dataset.resize(len(dataset) + 1, axis=0)
             dataset[-1] = arr
 
-    def observe(self, observation, annotation):
+    def observe(self, observation, annotation, *, feedback=None):
         if set(observation) != set(OBS_KEYS):
             raise ValueError("B1 observation keys differ from the observed-only contract")
         observation = dict(observation)
@@ -90,6 +105,35 @@ class B1Writer:
             value = np.asarray(observation[key])
             if value.shape != (9,) or not np.isfinite(value).all():
                 raise ValueError("Expected nine finite observed joints")
+        feedback = feedback or RobotFeedback.unavailable(t, ARM_JOINTS)
+        if (
+            feedback.joint_names != ARM_JOINTS
+            or not 0 <= feedback.timestamp_s <= feedback.available_s <= t
+            or feedback.units != "N m"
+            or feedback.sign_convention != "positive_joint_coordinate"
+        ):
+            raise ValueError("Invalid recorded feedback support/semantics")
+        torque = feedback.torque_nm
+        if torque is not None and (np.shape(torque) != (7,) or not np.isfinite(torque).all()):
+            raise ValueError("Invalid measured torque")
+        group = self.file.require_group("robot_feedback")
+        group.attrs["joint_names"] = json.dumps(feedback.joint_names)
+        self._append(
+            "robot_feedback",
+            dict(
+                timestamp_s=feedback.timestamp_s,
+                available_s=feedback.available_s,
+                torque_nm=np.zeros(7) if torque is None else torque,
+                present=torque is not None,
+                healthy=feedback.healthy,
+            ),
+        )
+        for key in ("source", "semantics", "reason"):
+            if key not in group:
+                group.create_dataset(key, shape=(0,), maxshape=(None,), dtype=h5py.string_dtype())
+            dataset = group[key]
+            dataset.resize(len(dataset) + 1, axis=0)
+            dataset[-1] = getattr(feedback, key)
         self._append("observations", observation)
         self._append("annotations", annotation)
         self.last_time, self.last_frame = t, frame
@@ -99,10 +143,10 @@ class B1Writer:
     def calibration_interval(self):
         return json.loads(self.file["metadata"].attrs["calibration"])["depth_interval_m"]
 
-    def transition(self, command, observation, annotation):
+    def transition(self, command, observation, annotation, *, feedback=None):
         if self.count == 0 or not np.isclose(command["time_s"], self.last_time, atol=1e-9, rtol=0):
             raise ValueError("Command must follow its initial observation")
-        self.observe(observation, annotation)
+        self.observe(observation, annotation, feedback=feedback)
         self._append("commands", command)
         if self.count % 60 == 0:
             self.file.flush()
@@ -158,8 +202,18 @@ def validate_episode(path, *, images=True):
                 if not np.any(rgb):
                     raise ValueError("Empty RGB recording")
         outcome = json.loads(h5["metadata"].attrs["outcome"])
-        if not outcome["passed"] or not outcome["released"] or outcome["hold_angle_deg"] is None:
+        if meta.get("purpose") == "b1_partial_policy_pilot":
+            if outcome.get("passed") is not True or not outcome.get("termination"):
+                raise ValueError("Pilot requires explicit physical validity and termination")
+        elif not outcome["passed"] or not outcome["released"] or outcome["hold_angle_deg"] is None:
             raise ValueError("Expert episode failed physical validity/hold/release")
+        if "robot_feedback" in h5:
+            if any(len(v) != n for v in h5["robot_feedback"].values()):
+                raise ValueError("Feedback length differs from observations")
+            for row in range(n):
+                feedback = robot_feedback_at(h5, row)
+                if not 0 <= feedback.timestamp_s <= feedback.available_s <= times[row]:
+                    raise ValueError("Noncausal robot feedback")
         return dict(
             path=str(path),
             asset_id=meta["asset_id"],

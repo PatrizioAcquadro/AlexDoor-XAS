@@ -53,7 +53,7 @@ Only completed, causal results from this episode are usable. Returning `None`
 retains the previous encoding with its original timestamps. Recent features expire
 at `max_gap_s`; static inspection features persist within the episode. Current
 proprioception is appended at each acquisition. Encoder recipe identity and block
-widths belong to the pilot binding; an actual encoder remains future work.
+widths belong to the pilot binding. `RGBDEncoder` implements the recipe below.
 
 The optional geometry provider keeps `binding`, `generation`, `reset()` and
 `update(sensor) -> DoorEstimate`. Its `encoding` is unused by the pilot. A result
@@ -107,8 +107,60 @@ promote partial data into the matched dataset.
 
 ## Deferred Decisions
 
-Choose the actual encoder recipe/widths and bounded inference schedule on the
-policy branch. The companion branch must supply observed A3/A4 geometry and
-trajectory evidence with honest support times/bounds. A hinge-free A1/A2 physical
+The companion branch must supply observed A3/A4 geometry and trajectory evidence
+with honest support times/bounds. A hinge-free A1/A2 physical
 admission route, measured feedback/load/stop validation, matched data collection
 and training remain separate future work. This milestone stops before those steps.
+
+
+## Executable observation and data recipe
+
+`policies/encoding.py` supplies `pilot_binding(inspection)` and `RGBDEncoder`.
+The fixed encoder has no downloaded or trainable weights. Each image is spatially
+pooled to 8×8 cells: RGB / 255, mean valid metric depth / far range, and valid-depth
+coverage. Invalid depth contributes zero and never contaminates the depth average.
+The depth interval (initially 0.1–5 m), grid, history and period are checkpoint-bound.
+No crop, augmentation, DINOv3, calibration or evaluator label enters the encoder.
+ACT/Diffusion's existing observation projection and all policy weights are trainable.
+This deliberately coarse baseline establishes infrastructure, not visual sufficiency.
+
+Static support freezes the last sampled inspection view. Recent support concatenates
+three frames at 10 Hz, oldest first, spanning 0.2 s, with reset-only left padding.
+Between encoder ticks, support times remain unchanged while current nine joint
+positions and velocities are appended. The vector has 1,298 values (320 + 960 + 18).
+The same stateful observer is replayed from reset offline, including inspection.
+Synchronous simulation blocks during inference; `available_s` uses that simulation
+clock. This is not an asynchronous/hardware latency guarantee.
+
+Initial primitive schedule: 120 Hz physics, 60 Hz control, 12-action (0.2 s) chunks,
+execute six ticks (0.1 s), then replan. Both families accept `n_action_steps=6`;
+ACT ensembling is disabled. A4 still replans at segment boundaries. Geometry keeps
+its independent provider/publication cadence and original support timestamps.
+
+`PilotRecorder` requires explicit `b1_partial_policy_pilot` purpose. It preserves
+RGB-D, calibration, timestamps, canonical proprioception, post-controller applied
+joint/neck targets, submitted world goals, phases, terminal observations and the
+separate optional measured-feedback stream. Engineering recordings remain rejected.
+Pilot validity requires a passed physical diagnostic and explicit termination,
+without demanding an evaluator door angle. Legacy engineering validation is unchanged.
+`prepare_recording` checks calibration and uses live encoding/FK; `export_dataset`
+retains the complete raw groups alongside partial A1/A2 tensors, enabling later
+supported A3/A4 derivation. No partial schema promotes itself to a matched dataset.
+Train statistics reject duplicate/development membership even at the low-level API.
+
+The CUDA round-trip check compares offline/live feature arrays exactly, preserves
+raw sensor/command rows, tests development outliers against train-only statistics,
+and loads/predicts both families for A1/A2. Existing eight-path loss/gradient checks
+remain separate; no optimizer update, training or collection campaign was run.
+
+`benchmark_policy_pilot.py` measures 600×960 CUDA sensor arrays through CPU support
+validation, RGB-D encoding, normalization, family inference and output transfer.
+On RTX 4090 (30 warm samples/path, random weights, default width 128, chunk 12,
+Diffusion DDIM 10 steps), A1/A2 total p95 was ACT 3.21/2.43 ms and Diffusion
+14.90/15.08 ms. Across all eight numerical paths the largest maximum was 15.76 ms.
+These measurements exclude rendering, physics, geometry, FK and admission; they
+cannot establish the full rollout rate. Local details: `outputs/generated/b1-policy-pilot/model-cost.json`.
+
+Observation/data infrastructure is ready for a bounded offline training invocation
+once explicitly recorded pilot demonstrations and identity splits exist. No real
+pilot dataset or trained checkpoint is delivered by the numerical smoke.
