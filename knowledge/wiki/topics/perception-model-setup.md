@@ -63,11 +63,6 @@ TAPIR (`query_chunk_size=0`) and renewal-only filtering do not require
 weaken it. Positive query chunking still requires explicit diagnosis. Sources,
 installed packages and effective runtime settings remain in local runtime records.
 
-The TSDF launch patch uses input-only transfers for six read-only kernel arguments.
-Volume dimensions retain their 12-byte `InOut` handler, preserving PyCUDA's original
-synchronous completion and error boundary on every launch. Fusion, volume snapshots,
-weights/colors and rebuild scheduling are unchanged.
-
 ## Supported diagnostics
 
 Choose a fresh output directory. No command admits contact, executes a learned

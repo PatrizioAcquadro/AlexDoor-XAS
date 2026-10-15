@@ -15,7 +15,6 @@ REGISTER_PATH = "upstream/point2pose/modules/register/svd_cluster_ransac_registe
 FRONTEND_PATH = "upstream/point2pose/pipeline/components/front_end.py"
 CRITERION_PATH = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
 PATCH_PATHS = (
-    "upstream/point2pose/modules/reconstruction/sdf_builder.py",
     REGISTER_PATH,
     FRONTEND_PATH,
     CRITERION_PATH,

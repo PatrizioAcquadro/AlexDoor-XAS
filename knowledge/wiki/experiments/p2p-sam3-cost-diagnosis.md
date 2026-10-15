@@ -6,6 +6,11 @@ thresholds, references, candidate selection and policies are unchanged. All
 recordings, baselines and failed attempts remain. Local observational scripts and
 measurements are under `outputs/evidence/b1/perception/sam3-p2p-cost-20261014/`.
 
+Follow-up: [[tsdf-readonly-launch-inputs|one read-only TSDF argument-readback candidate]]
+is implemented and exactly evaluated, then rejected for adoption after small
+transfer savings, inconsistent cost and mixed timed-ingress quality. Active code
+is restored to this baseline; that record owns the new residual profile.
+
 **The 150 ms target already fails on service cost.** SAM3 costs about 107 ms,
 TAPIR about 44 ms, and registration/scoring/refinement adds substantial CPU work.
 Rebuilds dominate dense replay extremes; operational stalls have additional

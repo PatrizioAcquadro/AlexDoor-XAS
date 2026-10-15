@@ -8,31 +8,12 @@ NATIVE_FIXES = (
     "inlier_driven_renewal",
     "vectorized_sdf_jacobian",
     "external_mask_segmenter_import",
-    "tsdf_readonly_launch_inputs",
 )
 
 _REGISTER = "upstream/point2pose/modules/register/svd_cluster_ransac_register.py"
 _FRONTEND = "upstream/point2pose/pipeline/components/front_end.py"
 _CRITERION = "upstream/point2pose/modules/criterion/rotation_thres_and_min_num_criterion.py"
 _REPLACEMENTS = {
-    "upstream/point2pose/modules/reconstruction/sdf_builder.py": (
-        *(
-            (f"cuda.InOut({value})", f"cuda.In({value})")
-            for value in (
-                "self._vol_origin.astype(np.float32)",
-                "cam_intr.reshape(-1).astype(np.float32)",
-                "cam_pose.reshape(-1).astype(np.float32)",
-                "color_im.reshape(-1).astype(np.float32)",
-                "depth_im.reshape(-1).astype(np.float32)",
-            )
-        ),
-        ("                    cuda.InOut(\n", "                    cuda.In(\n"),
-        (
-            "                    cuda.InOut(self._vol_dim.astype(np.float32)),\n",
-            "                    # Retain PyCUDA's synchronous completion/error boundary.\n"
-            "                    cuda.InOut(self._vol_dim.astype(np.float32)),\n",
-        ),
-    ),
     "upstream/point2pose/modules/segmenter/__init__.py": (
         (
             "from .sam2_real_time_segmenter import Sam2RealTimeSegmenter\n",

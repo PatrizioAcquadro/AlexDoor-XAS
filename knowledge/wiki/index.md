@@ -53,6 +53,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/tsdf-readonly-launch-inputs|TSDF Read-Only Launch Inputs]] — One exactly equivalent CUDA readback reduction rejected for adoption: small transfer savings, no convincing rebuild/service gain and mixed timed-ingress quality; baseline restored.
+
 - [[experiments/p2p-sam3-cost-diagnosis|Selected SAM3 + Point2Pose Cost Diagnosis]] — Current stage costs, mature rebuild peaks, operational age/replacement accounting and comparable producer contention; diagnosis only.
 
 - [[experiments/p2p-temporal-renewal-admission|Temporal P2P Renewal Admission]] — One causal saved-data criterion rejected before CUDA activation: insufficient motion within the existing wait budget and severe support depletion in both conditions.

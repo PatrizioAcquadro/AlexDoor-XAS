@@ -72,8 +72,14 @@ already exceed the 150 ms budget; tracing alone is insufficient. Continuous
 nominal publishes at 4.28 Hz with age p95 327 ms, 4,479 replacements and zero
 steady outputs within 150 ms. Comparable fixed-input producer probes increase
 median model costs, but a paused nominal stall and full-opening contention remain
-unresolved. Discuss same-input-equivalent cost changes first; no optimization or
-quality variant is implemented. Dense replay does not verify operational loss.
+unresolved. The [[experiments/tsdf-readonly-launch-inputs|single TSDF readback candidate]]
+exactly preserves both 3,217-frame CUDA histories and volume/query checks, but is
+rejected for adoption: 2.60–3.74% fewer TSDF DtoH bytes yield no convincing
+rebuild/service benefit. Four timed sessions retain mixed throughput/quality,
+nominal loss/accuracy regressions and zero of 828 steady publications within
+150 ms. Active code is restored to baseline; the reproducible candidate, failures
+and residual profile remain. No other optimization is attempted. Dense replay
+does not verify operational loss.
 Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.
