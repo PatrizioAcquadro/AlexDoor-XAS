@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-14. **Static 6.0B is maintained; CAD-free Point2Pose is
+Current as of 2026-10-15. **Static 6.0B is maintained; CAD-free Point2Pose is
 implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
@@ -11,7 +11,7 @@ solver feedback and bounded local admission without a hinge. Offline infrastruct
 and both family model paths are exercised by the
 [[experiments/b1-act-diffusion-a1a2-pilot|bounded physical-data pilot]]: three complete
 teacher episodes, ACT/Diffusion × A1/A2 short CUDA training and eight checkpoint
-round trips. ACT A2 development regression is retained. Loaded rollout remains
+round trips. ACT A2 development regression is retained. The [[experiments/b1-pilot-offline-and-robot-dynamics|offline follow-up]] localizes it to action components and push/hold, and identifies static-feature clipping; simple train-only baselines remain stronger on aggregate development action error. Loaded rollout remains
 blocked by dynamic residual/stop calibration and observed sweep/response evidence.
 Camera-enabled cycles exceed real-time 60 Hz. No final matched dataset, policy
 contact execution or sealed-test evaluation was produced.

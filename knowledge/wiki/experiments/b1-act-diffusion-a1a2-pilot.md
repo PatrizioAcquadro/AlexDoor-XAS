@@ -156,6 +156,10 @@ the external archive and were not recoverable. The restart retains identical
 inputs/seed and the interrupted file is excluded from learning. Neither restart
 is a selected successful behavioral retry.
 
+## Follow-up diagnosis
+
+The [[b1-pilot-offline-and-robot-dynamics|offline and robot-only follow-up]] preserves these checkpoints and operational refusals, and separates physical-unit prediction errors from dynamic load/stop verification. It does not repeat these unconfigured operational starts.
+
 ## Control boundary and minimum next experiment
 
 Contact rollout requires verified dynamic/peak residual bounds, a moving/contact
