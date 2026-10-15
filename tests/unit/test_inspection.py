@@ -1,6 +1,7 @@
 """The retained camera scan stays within physical neck limits."""
 
 import copy
+import json
 from pathlib import Path
 
 import pytest
@@ -32,6 +33,7 @@ def test_inspection_guard_accepts_sample_resolution_but_rejects_meaningful_exces
 
     dt, speed = 1 / 60, 0.4
     tolerance = inspection_tolerances(dt, speed)
+    assert json.loads(json.dumps(tolerance)) == tolerance
     metrics = dict(tool_drift_m=0.000057, door_angle_rad=0.000123, neck_error_rad=0.100087)
     assert inspection_within_limits(metrics, dt, speed)
     metrics["neck_error_rad"] = 0.1 + tolerance["neck_error_rad"] + 1e-5

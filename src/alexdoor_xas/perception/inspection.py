@@ -9,7 +9,7 @@ INSPECTION_LIMITS = dict(tool_drift_m=0.01, door_angle_rad=0.01, neck_error_rad=
 
 def inspection_tolerances(dt, max_neck_speed_rad_s):
     """Float32 accumulated roundoff and one control tick of neck tracking resolution."""
-    numerical = 32 * np.finfo(np.float32).eps
+    numerical = float(32 * np.finfo(np.float32).eps)
     if not np.isfinite([dt, max_neck_speed_rad_s]).all() or dt <= 0 or max_neck_speed_rad_s <= 0:
         raise ValueError("Invalid inspection timing/speed")
     return dict(
