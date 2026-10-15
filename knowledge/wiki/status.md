@@ -87,8 +87,9 @@ separate from measured snapshot copies. Production stays at baseline; failed
 error equivalence prevents full fixed/timed replays. Dense replay does not
 verify operational loss. The single [[experiments/tsdf-rebuild-double-buffer|two-buffer successor]]
 preserves every download and passes local CUDA error/lifetime checks and eight
-paired actual-worker reentry fixtures. Performance evaluation is pending at this
-checkpoint; production remains unchanged.
+paired actual-worker reentry fixtures. Preset local medians fall 36.5%/25.0%, with
+about 127/208 MiB higher transient host peaks and unchanged downloads. Fresh full
+fixed-input comparisons are running; production remains unchanged at this checkpoint.
 Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.

@@ -3,8 +3,9 @@
 2026-10-15. Branch `PatrizioAcquadro/b1-observed-a3a4`, baseline `99fa48e`.
 The one authorized successor to [[tsdf-deferred-snapshot-audit|final-only
 snapshot deferral]] retains a complete CPU download after every integration.
-**Local CUDA correctness and actual worker reentry pass. Performance and full
-comparisons are still pending at this checkpoint; production stays at baseline.**
+**Local CUDA correctness, actual worker reentry and the preset local benefit
+gate pass. Fresh full fixed-input and then timed comparisons are in progress;
+production stays at baseline at this checkpoint.**
 
 ## Single change and ownership
 
@@ -62,24 +63,60 @@ exactly for errors before/after integration, before/after each download and
 after each half-array download. These are controlled failure-boundary fixtures,
 not a measured natural hardware-error rate or operational recovery qualification.
 
-## Preset performance and conditional follow-up
+## Preset local CUDA performance
 
 One excluded warmup per path, then three serial pairs ordered B/V, V/B, B/V
 per target; every completed row is retained. One separate detailed baseline
 profile is excluded. The same prior published snapshot is held by an audit
 reference in both paths to verify its lifetime, including during timing; this
 adds equal host residency relative to the previous experiment's local harness.
-Consequently memory and total timing are compared within this new pair, not
-subtracted from the historical 255.7/144.7 ms allocation/copy categories.
-RSS is sampled every 5 ms during the target and process GPU usage about every
-100 ms. Reconstruction and post-timer verification are excluded.
+Memory and total timing are compared within this new pair, not subtracted from
+historical measurements. Reconstruction and post-timer verification are excluded.
 
-Full fresh fixed-input pairs open only if correctness passes and both target
-timing ranges are disjoint with at least 10% lower median. Full numerical
-identity then gates fresh timed-ingress comparisons with the same recordings,
-selected recipe and frozen target scoring at 10/15/20 mm and 5 degrees.
-No second optimization is authorized after failure. No 150 ms claim follows
-from local rebuild savings.
+| Target | Baseline ms, all three | Buffered ms, all three | Median baseline -> buffered | Reduction |
+|---|---:|---:|---:|---:|
+| Light | 654.1, 650.9, 662.9 | 411.7, 420.7, 415.4 | 654.1 -> 415.4 | 36.5% |
+| Nominal | 452.3, 449.5, 465.0 | 356.1, 339.0, 339.2 | 452.3 -> 339.2 | 25.0% |
+
+Median paired savings are 242.4/110.5 ms light/nominal. Every buffered event is
+below every corresponding target baseline event. Three repetitions establish a
+clear local effect in these targets, not an extreme percentile or population CI.
+The separate baseline profile measures array allocation/copies at 251.7/145.0 ms
+and downloads at 132.2/76.1 ms. Savings are measured directly; they do not equal
+the unsafe final-only deferral's removed-copy-plus-download savings.
+
+| Rebuild operation | Light baseline -> buffered | Nominal baseline -> buffered |
+|---|---:|---:|
+| Full TSDF/color downloads | 17 -> 17 | 6 -> 6 |
+| DtoH calls / bytes | 153 / 2,339,193,812, unchanged | 54 / 1,332,275,064, unchanged |
+| CUDA allocations | 122 -> 122 | 45 -> 45 |
+| Full snapshot array allocations | 34 -> 4 | 12 -> 4 |
+| Cumulative full snapshot bytes allocated | 2,260,855,296 -> 265,982,976 | 1,304,626,176 -> 434,875,392 |
+| Full snapshot array copies / payload bytes | 34 / 2,260,855,296 -> 0 | 12 / 1,304,626,176 -> 0 |
+
+HtoD calls/bytes and CUDA allocation-size sequences match exactly too. Metadata
+copies and native CPU volume workspaces remain; counts above concern full TSDF
+and color arrays, not all NumPy allocations or physical memory-bus transactions.
+
+| Timed sampled peak | Light baseline / buffered | Nominal baseline / buffered |
+|---|---:|---:|
+| Host RSS, MiB | 1708.6–1710.9 / 1835.7–1838.3 | 1883.6–1884.1 / 2091.5–2091.7 |
+| Driver process GPU, MiB | 976 / 976 | 1088 / 1088 |
+
+RSS is sampled every 5 ms during the target and process GPU usage about every
+100 ms. The pool increases the transient RSS peak by approximately one pair,
+127/208 MiB; it does not demonstrate a memory reduction. The pool is retired at
+exit, without persistent CUDA allocations. These isolated cells exclude full
+SAM3/TAPIR provider residency. Sampling does not qualify startup spikes.
+
+## Conditional complete comparisons
+
+Both local gates pass: exact correctness and disjoint ranges with at least 10%
+lower median. Fresh complete fixed-input pairs are now authorized and running.
+Full numerical identity then gates fresh timed-ingress comparisons with the
+same recordings, selected recipe and frozen target scoring at 10/15/20 mm and
+5 degrees. No second optimization runs after failure. Even the isolated median
+rebuilds remain 415.4/339.2 ms; local savings do not establish 150 ms availability.
 
 ## Evidence
 
