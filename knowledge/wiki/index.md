@@ -54,6 +54,7 @@ Current architectural and scientific contracts:
 ## Experiments
 
 - [[experiments/tsdf-readonly-launch-inputs|TSDF Read-Only Launch Inputs]] — One exactly equivalent CUDA readback reduction rejected for adoption: small transfer savings, no convincing rebuild/service gain and mixed timed-ingress quality; baseline restored.
+- [[experiments/tsdf-deferred-snapshot-audit|TSDF Deferred Snapshot Failure Audit]] — Final-only deferral fails the retained partial-state query contract in a bounded control-flow probe; baseline unchanged, CUDA profiling pending an exclusive GPU.
 
 - [[experiments/p2p-sam3-cost-diagnosis|Selected SAM3 + Point2Pose Cost Diagnosis]] — Current stage costs, mature rebuild peaks, operational age/replacement accounting and comparable producer contention; diagnosis only.
 

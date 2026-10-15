@@ -78,7 +78,10 @@ rejected for adoption: 2.60–3.74% fewer TSDF DtoH bytes yield no convincing
 rebuild/service benefit. Four timed sessions retain mixed throughput/quality,
 nominal loss/accuracy regressions and zero of 828 steady publications within
 150 ms. Active code is restored to baseline; the reproducible candidate, failures
-and residual profile remain. No other optimization is attempted. Dense replay
+and residual profile remain. A follow-up [[experiments/tsdf-deferred-snapshot-audit|deferred-snapshot failure audit]]
+rejects a final-only diagnostic sketch because it changes retained CPU queries
+after a partial write failure. Production remains unchanged; the requested
+CUDA cost split and local measurements await an exclusive GPU. Dense replay
 does not verify operational loss.
 Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
