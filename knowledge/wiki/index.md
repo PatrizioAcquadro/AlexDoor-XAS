@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-loaded-hold-and-stop|B1 Loaded Hold and Measured-Anchor Stop]] — Paired CUDA diagnosis, benchmark-local common impedance, continuing-physics latch/reset and unchanged-calibration limits.
+
 - [[experiments/b1-pilot-offline-and-robot-dynamics|Pilot Diagnosis and Robot-Only Dynamics]] — Physical-unit checkpoint/phase/chunk errors, clipping attribution and separate bounded 6.0D evidence.
 
 - [[experiments/b1-act-diffusion-a1a2-pilot|Bounded ACT/Diffusion A1/A2 Pilot]] — Fresh physical teacher data, observed-state labels, bounded CUDA learning and operational refusal evidence.

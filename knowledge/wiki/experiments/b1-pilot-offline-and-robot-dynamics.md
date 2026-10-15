@@ -223,10 +223,11 @@ from this measured robot result. `verified`, `stop_verified`, provider
 
 ## Concrete next boundary
 
-Before any contact, address and separately verify sustained-load tracking/stopping
-on the robot-only path, with an independent reference and fixed common limits.
-This run supplies no verified loaded calibration or stop receipt. Do not attempt
-learned door rollout to diagnose this control limitation.
+The separate [[b1-loaded-hold-and-stop|loaded hold/stop follow-up]] now addresses
+the local controller limitation and verifies the ready-pose 0/4 N regime. The
+failures above remain valid for this original controller. Neither run supplies a
+general verified loaded calibration or contact-stop receipt; all remaining 6.0D
+checks still precede contact.
 
 The geometry branch must provide supported observed local ownership, finger
 footprints, sweep/clearance and response evidence, and pass independent 6.0E

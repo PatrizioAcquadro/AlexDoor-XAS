@@ -4,7 +4,8 @@
 > maintained. The custom dynamic/material trackers, full-state replay command and
 > SAM3 video comparison are retired. The CAD-free Point2Pose 6.0C prototype is
 > implemented but unqualified. 6.0D has robot feedback/load/stop wiring and bounded
-> robot-only evidence, with loaded stopping still unqualified; 6.0E-H remain planned.
+> robot-only 0/4 N hold/stop evidence, without general/contact stopping qualification;
+> 6.0E-H remain planned.
 > Historical failures remain failures.
 
 ## Objective and current boundary
@@ -326,7 +327,7 @@ validated local commits. External Alex/Isaac packages are outside this work.
 | 6.0A — maintained | Field support, geometry/action/load admission, explicit contact transitions and consumer compatibility | Numerical contracts; no physical qualification |
 | 6.0B — maintained | Calibrated static fusion, original observation references, ownership alternatives, static hinge hypotheses, finite two-finger support and relevant-space queries | Bounded four-pilot scan diagnosis; unresolved ownership/axis remain explicit |
 | 6.0C — implemented prototype, unqualified | CAD-free Point2Pose tracking and original-material pose/recovery | Supported identity, pose, loss/reacquisition and informative articulation on both pilots |
-| 6.0D — implemented, partial robot-only evidence | Measured feedback, common controller, robot-only residual estimator and target-freeze stop; loaded stop/envelope failure retained | Verified dynamic/peak calibration, physical stop, timeout/fault behavior and supported bounds before loaded interaction |
+| 6.0D — implemented, partial robot-only evidence | Measured feedback/residual estimator, task-local common impedance and latched measured-anchor stop; local 0/4 N hold/stop verified, earlier failures retained | Verified dynamic/peak calibration, physical stop, timeout/fault behavior and supported bounds before loaded interaction |
 | 6.0E — future | Independent operational-v1 evaluator and chronological two-pilot replay | All four pilot conditions pass one recipe; no truth enters inference |
 | 6.0F — future | Bounded diagnostic interaction on both train pilots | D/E gates, physically valid approach/contact/push/hold/release and stop/reset checks |
 | 6.0G — future | One common offline recipe on all 50 engineering-v2 episodes | F passes; every train/development door passes, including failures and both conditions |
@@ -449,11 +450,15 @@ results do not evaluate official release gates or admit contact; see the canonic
 ### 6.0D — Feedback, compliance and stopping
 
 The [[../experiments/b1-pilot-offline-and-robot-dynamics|bounded robot-only follow-up]]
-now measures unloaded acceleration/deceleration, independent known loads, A1/A2
-tracking and target-freeze stopping with both 120 Hz samples. It preserves loaded
-stop/envelope failures and leaves qualification flags false. This is partial 6.0D
-evidence, not completion of the requirements below. Supported local geometry and
-6.0E, together with the required 6.0D checks, remain prerequisites for 6.0F.
+preserves the original loaded stop/envelope failures. The separate
+[[../experiments/b1-loaded-hold-and-stop|hold/stop correction]] verifies local
+0/4 N robot-only CUDA behavior with a task-local common controller, command latch,
+load removal and explicit reset. Both 120 Hz samples remain available under the
+unchanged calibration; no calibration or qualification flag is promoted. This is
+partial 6.0D evidence, not completion of the requirements below. Supported local
+geometry and 6.0E, together with the required 6.0D checks, remain prerequisites for
+6.0F. Contact results and demonstrations from the earlier controller need deliberate
+compatibility validation before use with the new impedance.
 
 Map documented `tau` to a declared observable; actuator feedback, commanded effort
 and exact external contact wrench are different signals. Unknown origin/precision

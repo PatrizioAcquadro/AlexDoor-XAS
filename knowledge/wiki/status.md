@@ -15,12 +15,16 @@ round trips. ACT A2 development regression is retained. The
 [[experiments/b1-pilot-offline-and-robot-dynamics|offline follow-up]] localizes it to
 action components and push/hold, and identifies static-feature clipping; the train
 median remains stronger on aggregate development action error. The
-same follow-up measures one robot-only CUDA dynamic/stop protocol: unloaded
-stop travel 1.58 mm, but 106.84 mm / 19.17 degrees under maintained 4 N; 330/1,440
-verification samples leave the provisional estimator envelope. Loaded rollout
-remains blocked by dynamic residual/stop calibration and observed sweep/response
-evidence. Required 6.0D checks plus local geometric support and independent 6.0E
-must pass before diagnostic interaction 6.0F.
+earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate
+[[experiments/b1-loaded-hold-and-stop|load-bearing controller correction]] verifies
+robot-only CUDA hold/stop with task-local common impedance and a measured-anchor
+command latch: maximum hold/loaded-stop travel becomes 5.18/5.98 mm versus
+56.62/111.47 mm in its paired baseline. All 2,880 corrected samples remain available
+under the unchanged calibration; 72 stopped commands refuse and explicit reset
+re-enables motion. This is local 0/4 N ready-pose evidence, with no contact or
+calibration/qualification promotion. Loaded rollout remains blocked by the remaining
+6.0D fault/envelope/contact checks and observed sweep/response evidence. Required
+6.0D checks plus local geometric support and independent 6.0E must pass before diagnostic interaction 6.0F.
 Camera-enabled cycles exceed real-time 60 Hz. No final matched dataset, policy
 contact execution or sealed-test evaluation was produced.
 
@@ -30,7 +34,7 @@ contact execution or sealed-test evaluation was produced.
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts/static evidence | Operational/local support, explicit selection, admission and feedback contracts; object fusion, ownership alternatives, finite-cover and relevant-space queries. Scans/interfaces do not admit motion. |
 | 6.0C — Tracking | One persistent SAM3 session shared by inspection/tracking, bounded history and renewal-only depth gate; live/replay and serial evaluation share the coordinator. Useful accuracy improves offline, but material identity and 150 ms freshness remain unqualified. |
-| 6.0D–H — Contact/qualification | Solver feedback/load/stop wiring and local A1/A2 admission implemented; bounded robot-only dynamics measured with loaded stop/envelope failure retained. Required 6.0D verification, local geometry/6.0E, contact stopping and qualification remain open. |
+| 6.0D–H — Contact/qualification | Common benchmark impedance and latched measured-anchor stop pass local robot-only 0/4 N CUDA checks with the original calibration; earlier failures retained. Full 6.0D uncertainty/fault/domain/contact checks and local geometry/6.0E remain open. |
 | 6.1 — Actions | ACT/Diffusion × A1–A4 observed-input/data/normalization/execution software maintained; qualified-provider integration and physical rollout validation pending. |
 | 6.2–7 — Data/learning | Partial A1/A2 offline pilot demonstrated; final matched A1-A4 data and training matrix not started. No learned contact task result or sealed-test evaluation. |
 
