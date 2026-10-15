@@ -6,8 +6,9 @@ snapshot deferral]] retains a complete CPU download after every integration.
 **Recovery checkpoint: production remains at baseline. Original local success is
 reported below, but its raw payloads disappeared with worktree `782a`. Recovered
 sources do not inherit that validation. Fresh local gates and both complete fixed-input equivalence pairs pass.
-Repeated-rebuild memory and timed ingress now run under the same exclusive GPU
-lease; adoption remains pending.**
+The first memory repetition was interrupted by RustDesk opening a CUDA context;
+complete fixed equivalence remains valid. A new explicitly reserved window is
+required for the missing memory cells and timed ingress; adoption remains pending.**
 
 ## Persistent recovery
 
@@ -77,6 +78,17 @@ are checked at initialization, updates and their follow-up audit points:
 `exact-equivalence.json` owns this result. Full inputs complete under the same
 continuous GPU lease without an interruption. This opens repeated-rebuild memory
 and the four unchanged timed-ingress runs; operational adoption is still pending.
+
+The complete fixed runs have no observed foreign compute in their retained
+monitors. Later, `RustDesk` PID 1550141 opened a 24 MiB CUDA context during the
+light buffered memory test. The unchanged guard stopped only this experiment,
+after seven completed memory cycles. The completed 12-cycle light baseline,
+all full fixed results and local gates are retained. Timed ingress had not
+started. `failed-concurrent-compute/rustdesk-memory-attempt-1/` preserves the log,
+GPU monitor, source versions and orchestration errors; no other process was
+stopped. Future memory rows are journaled immediately to preserve a partial
+repetition. Resume only after a new explicit exclusive window, using
+`resume_exclusive.py`; do not rerun completed fixed pairs or the local gate.
 
 ## Single change and ownership
 

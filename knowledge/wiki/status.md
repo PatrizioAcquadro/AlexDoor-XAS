@@ -91,8 +91,9 @@ the primary checkout. Its original raw local results and interrupted replay
 payloads are missing after worktree removal; earlier local benefits are reported
 history, not inherited validation. Fresh local gates pass, and both complete 3,217-input fixed pairs have zero
 differences in packets, references, histories, volumes and queries. Repeated-rebuild
-memory and timed ingress use the same coordinated exclusive GPU lease. Production
-remains unchanged pending the complete operational comparison.
+memory was then interrupted by RustDesk opening a CUDA context. The completed
+fixed pairs remain valid; a new exclusive window is required for missing memory
+and timed runs. Production remains unchanged pending the complete comparison.
 
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved
