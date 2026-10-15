@@ -35,7 +35,7 @@ Current technical behavior and explicitly labeled planned contracts:
 - [[topics/action-representations-and-adapters|Action Representations and Adapters]] — A1-A4 meanings and maintained execution boundaries.
 - [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — B1 RGB-D, observed-input policy data, atomic exports and train-only normalization.
 - [[topics/learned-policy-stack|Learned Policy Stack]] — Reusable ACT/Diffusion models, tensor training, checkpoints and explicit observation boundary.
-- [[topics/b1-policy-pilot|Common B1 Policy Pilot Foundation]] — Explicitly unqualified A1/A2 data/inference, independent feature and geometry channels, unchanged execution gates and branch ownership.
+- [[topics/b1-policy-pilot|Common B1 Policy Pilot Foundation]] — Causal RGB-D/data, measured robot feedback, bounded local A1/A2 admission and separate offline/contact readiness.
 
 - [[topics/perception-model-setup|Perception Model Setup]] — Local models, isolated dependencies and supported commands.
 

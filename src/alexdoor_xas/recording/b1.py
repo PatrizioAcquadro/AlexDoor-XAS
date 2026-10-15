@@ -25,7 +25,7 @@ OBS_KEYS = (
 
 
 def robot_feedback_at(h5, row):
-    """Legacy RGB-D replay has no torque channel, including when commands contain efforts."""
+    """Read measured feedback; legacy absence stays absent even with effort commands."""
     if h5.attrs.get("schema") != SCHEMA:
         raise ValueError("Unsupported robot-feedback recording schema")
     if "robot_feedback" not in h5:
@@ -151,6 +151,39 @@ class B1Writer:
         if self.count % 60 == 0:
             self.file.flush()
 
+    def physics_feedback(self, samples):
+        """Retain independent 120 Hz robot telemetry, never policy features/labels."""
+        for sample in samples:
+            feedback = sample.feedback
+            group = self.file.require_group("physics_feedback")
+            if (
+                feedback.torque_nm is None
+                or feedback.available_s > self.last_time
+                or "time_s" in group
+                and feedback.timestamp_s <= group["time_s"][-1]
+            ):
+                raise ValueError("Invalid physics-feedback support")
+            group.attrs.update(
+                source=feedback.source,
+                semantics=feedback.semantics,
+                joint_names=json.dumps(feedback.joint_names),
+                units=feedback.units,
+                sign_convention=feedback.sign_convention,
+            )
+            self._append(
+                "physics_feedback",
+                dict(
+                    time_s=feedback.timestamp_s,
+                    available_s=feedback.available_s,
+                    torque_nm=feedback.torque_nm,
+                    expected_torque_nm=sample.expected_torque_nm,
+                    jacobian_world=sample.jacobian_world,
+                    joint_position=sample.q,
+                    joint_velocity=sample.dq,
+                    joint_acceleration=sample.ddq,
+                ),
+            )
+
     def finish(self, outcome):
         if self.count < 2 or len(self.file["commands/time_s"]) != self.count - 1:
             raise ValueError("Incomplete causal episode")
@@ -207,6 +240,22 @@ def validate_episode(path, *, images=True):
                 raise ValueError("Pilot requires explicit physical validity and termination")
         elif not outcome["passed"] or not outcome["released"] or outcome["hold_angle_deg"] is None:
             raise ValueError("Expert episode failed physical validity/hold/release")
+        if "physics_feedback" in h5:
+            physics = h5["physics_feedback"]
+            clock = physics["time_s"][:]
+            if (
+                not len(clock)
+                or not np.isfinite(clock).all()
+                or not (np.diff(clock) > 0).all()
+                or clock[0] < 0
+                or clock[-1] > times[-1]
+                or any(
+                    len(v) != len(clock) or not np.isfinite(v[:]).all() for v in physics.values()
+                )
+                or np.any(physics["available_s"][:] < clock)
+                or np.any(physics["available_s"][:] > times[-1])
+            ):
+                raise ValueError("Invalid physics-feedback stream")
         if "robot_feedback" in h5:
             if any(len(v) != n for v in h5["robot_feedback"].values()):
                 raise ValueError("Feedback length differs from observations")

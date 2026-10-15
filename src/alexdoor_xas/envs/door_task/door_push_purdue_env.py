@@ -267,17 +267,15 @@ class DoorPushPurdueEnv(DirectRLEnv):
         world = frame_delta_to_world(delta, frame)
         return self.step(torch.tensor(world, dtype=torch.float32, device=self.device)[None])
 
-    def _pre_physics_step(self, actions):
-        if self.cfg.cameras and not self.render_enabled:
-            raise RuntimeError("RGB-D capture requires rendering on each control tick")
-        if actions.shape != (1, self.cfg.action_space) or not bool(torch.isfinite(actions).all()):
-            raise ValueError("invalid Purdue command")
+    def preview_targets(self, *, joint_delta=None, world_goal=None):
+        """Pure controller preview, reused verbatim before dispatch and by admission."""
         q = tensor(self.robot.data.joint_pos)[:, self.arm_ids]
-        if self.cfg.action_mode == "A1" or self._pending_joints is not None:
-            delta = actions if self._pending_joints is None else self._pending_joints
-            self._pending_joints = None
-            target, self.clamp_excess = bounded_joint_step(
-                delta,
+        if (joint_delta is None) == (world_goal is None):
+            raise ValueError("Supply one joint or world-pose command")
+        error = torch.zeros((1, 6), device=self.device)
+        if joint_delta is not None:
+            target, excess = bounded_joint_step(
+                joint_delta,
                 q,
                 self.limits,
                 self.velocities,
@@ -285,17 +283,11 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 self.targets[:, self.arm_ids],
             )
         else:
-            position, orientation = self.tool_pose()
-            delta = actions.clone()
-            delta[:, :3].clamp_(-self.cfg.max_pos_delta_m, self.cfg.max_pos_delta_m)
-            delta[:, 3:].clamp_(-self.cfg.max_rot_delta_rad, self.cfg.max_rot_delta_rad)
-            goal = self._pending_pose or apply_delta_pose(position, orientation, delta)
-            self._pending_pose = None
-            pe, re = compute_pose_error(position, orientation, *goal, rot_error_type="axis_angle")
-            self.pose_error = torch.cat((pe, re), dim=-1)
-            target, self.clamp_excess = bounded_pose_step(
+            pe, re = compute_pose_error(*self.tool_pose(), *world_goal, rot_error_type="axis_angle")
+            error = torch.cat((pe, re), dim=-1)
+            target, excess = bounded_pose_step(
                 self.tool_jacobian(),
-                self.pose_error,
+                error,
                 q,
                 self.limits,
                 self.velocities,
@@ -304,11 +296,36 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 centering_gain=self.cfg.centering_gain,
                 damping=self.cfg.ik_damping,
             )
+        return target, excess, error
+
+    def _pre_physics_step(self, actions):
+        if self.cfg.cameras and not self.render_enabled:
+            raise RuntimeError("RGB-D capture requires rendering on each control tick")
+        if actions.shape != (1, self.cfg.action_space) or not bool(torch.isfinite(actions).all()):
+            raise ValueError("invalid Purdue command")
+        if self.cfg.action_mode == "A1" or self._pending_joints is not None:
+            delta = actions if self._pending_joints is None else self._pending_joints
+            target, excess, error = self.preview_targets(joint_delta=delta)
+        else:
+            delta = actions.clone()
+            delta[:, :3].clamp_(-self.cfg.max_pos_delta_m, self.cfg.max_pos_delta_m)
+            delta[:, 3:].clamp_(-self.cfg.max_rot_delta_rad, self.cfg.max_rot_delta_rad)
+            goal = self._pending_pose or apply_delta_pose(*self.tool_pose(), delta)
+            target, excess, error = self.preview_targets(world_goal=goal)
+        self._pending_pose = self._pending_joints = None
+        self.clamp_excess, self.pose_error = excess, error
         self.targets[:, self.arm_ids] = target
         self.contact_history = []
+        self.load_samples = []
         self._physics_actions = 0
 
     def _apply_action(self):
+        if self._physics_actions > 0:
+            from alexdoor_xas.perception.load import simulated_load_sample
+
+            self.load_samples.append(
+                simulated_load_sample(self, self._time_s + self.cfg.sim.dt * self._physics_actions)
+            )
         self.robot.set_joint_position_target_index(target=self.targets)
         gravity = tensor(self.robot.data.gravity_compensation_forces)
         self.robot.set_joint_effort_target_index(target=gravity)
@@ -320,6 +337,10 @@ class DoorPushPurdueEnv(DirectRLEnv):
         q = tensor(self.robot.data.joint_pos)[:, self.observed_ids]
         dq = tensor(self.robot.data.joint_vel)[:, self.observed_ids]
         self._time_s = float(self.episode_length_buf[0]) * self.step_dt
+        from alexdoor_xas.perception.load import simulated_load_sample
+
+        self.load_samples = getattr(self, "load_samples", [])
+        self.load_samples.append(simulated_load_sample(self, self._time_s))
         if self.contacts is not None:
             self.contact_history.append(self.contacts.read())
         if self.capture is not None:
@@ -381,5 +402,6 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.targets = q.clone()
         self._pending_pose = None
         self._pending_joints = None
+        self.load_samples = []
         if self.capture is not None:
             self.capture.reset()

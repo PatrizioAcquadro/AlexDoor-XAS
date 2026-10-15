@@ -84,14 +84,20 @@ class ActionAdapter:
         if admission is None:
             raise ValueError("Missing explicit operational action admission")
         require_current_admission(admission, observation.estimate, observation.time_s)
-        if observation.generation != admission.estimate.operational.generation:
-            raise ValueError("Action admission episode generation mismatch")
-        validate_reference(
-            observation.estimate,
-            observation.time_s,
-            self.max_age_s,
-            generation=observation.generation,
+        state = (
+            admission.estimate.local
+            if admission.local_evidence is not None
+            else admission.estimate.operational
         )
+        if observation.generation != state.generation:
+            raise ValueError("Action admission episode generation mismatch")
+        if admission.local_evidence is None:
+            validate_reference(
+                observation.estimate,
+                observation.time_s,
+                self.max_age_s,
+                generation=observation.generation,
+            )
         proposal = admission.proposal
         if (
             proposal.action_space != self.space
@@ -143,8 +149,13 @@ class ActionAdapter:
                 raise ValueError(f"Invalid observed input: {observation.reason}")
             require_estimate(observation.estimate, observation.time_s, self.max_age_s)
         else:
+            local = (
+                admission is not None
+                and admission.estimate is not None
+                and admission.local_evidence is not None
+            )
             if not observation.features_available or (
-                self.source == "policy" and not observation.valid
+                self.source == "policy" and not observation.valid and not local
             ):
                 raise ValueError(f"Invalid observed input: {observation.reason}")
             self.admit(observation, tool, action, admission)
@@ -370,7 +381,9 @@ class B1Runner:
                 observation = self.observer.update(self.io.observe())
                 if reason := self.io.safety_reason(command.stage):
                     return self.stop(reason, steps)
-                if not observation.valid:
+                if isinstance(self.policy.binding, PilotBinding):
+                    require_features(observation, self.policy.binding)
+                elif not observation.valid:
                     return self.stop(observation.reason, steps)
                 if isinstance(self.policy, MatchedReplay) and steps == self.policy.control_ticks:
                     return self.stop("replay_complete", steps)

@@ -2,7 +2,7 @@
 
 This foundation starts at `9b94978` on `PatrizioAcquadro/b1-policy-pilot`.
 It enables independent policy and geometry development. It is explicitly
-unqualified: no trained encoder/policy, matched dataset, physical interaction or
+unqualified: no trained policy, matched dataset, policy contact rollout or
 perception release is delivered. SAM3 and Point2Pose are unchanged.
 
 ## Ownership and Exchange
@@ -14,8 +14,9 @@ perception release is delivered. SAM3 and Point2Pose are unchanged.
 
 The geometry branch should consume these interfaces before changing shared policy,
 dataset or runner code. Action schema, tensor widths, joint order and coordinate
-conventions remain unchanged. Any new admission route for A1/A2 without a hinge
-must be agreed at this boundary; the foundation does not add that route.
+conventions remain unchanged. `LocalActionSupport` now supplies a bounded A1/A2
+admission route without a hinge. The geometry branch owns production of its
+observed swept-space, material-response and uncertainty evidence.
 
 ## Four Independent Questions
 
@@ -76,7 +77,7 @@ After the common inspection/hold prefix, it checks features, queries and interpr
 one prediction, then stops with `unqualified_pilot_inference_only`, zero executed
 policy commands and no task-success claim. Inspection safety still applies.
 
-For future operational dispatch, the optional
+For operational dispatch, the optional
 `admission_source(observation, tool, action, remaining_ticks) -> ActionAdmission`
 callback supplies evidence for exactly the predicted command. No callback means
 no operational command. The adapter validates source, action, initial tool pose,
@@ -107,10 +108,10 @@ promote partial data into the matched dataset.
 
 ## Deferred Decisions
 
-The companion branch must supply observed A3/A4 geometry and trajectory evidence
-with honest support times/bounds. A hinge-free A1/A2 physical
-admission route, measured feedback/load/stop validation, matched data collection
-and training remain separate future work. This milestone stops before those steps.
+The companion branch must supply observed geometry and continuous trajectory
+support with honest times/bounds, including the local A1/A2 route below. Dynamic
+load calibration and contact/moving-stop qualification remain open. No matched
+data collection, training or contact rollout campaign has started.
 
 
 ## Executable observation and data recipe
@@ -139,7 +140,8 @@ its independent provider/publication cadence and original support timestamps.
 
 `PilotRecorder` requires explicit `b1_partial_policy_pilot` purpose. It preserves
 RGB-D, calibration, timestamps, canonical proprioception, post-controller applied
-joint/neck targets, submitted world goals, phases, terminal observations and the
+joint/neck targets, submitted world goals, applied effort commands, phases,
+terminal observations and the
 separate optional measured-feedback stream. Engineering recordings remain rejected.
 Pilot validity requires a passed physical diagnostic and explicit termination,
 without demanding an evaluator door angle. Legacy engineering validation is unchanged.
@@ -147,6 +149,8 @@ without demanding an evaluator door angle. Legacy engineering validation is unch
 retains the complete raw groups alongside partial A1/A2 tensors, enabling later
 supported A3/A4 derivation. No partial schema promotes itself to a matched dataset.
 Train statistics reject duplicate/development membership even at the low-level API.
+Raw preparation also rejects a split that differs from the frozen assignment;
+export refuses raw provenance from a different physical episode or identity.
 
 The CUDA round-trip check compares offline/live feature arrays exactly, preserves
 raw sensor/command rows, tests development outliers against train-only statistics,
@@ -164,3 +168,114 @@ cannot establish the full rollout rate. Local details: `outputs/generated/b1-pol
 Observation/data infrastructure is ready for a bounded offline training invocation
 once explicitly recorded pilot demonstrations and identity splits exist. No real
 pilot dataset or trained checkpoint is delivered by the numerical smoke.
+
+
+## Observed control and local admission
+
+`PurdueIO.robot_feedback()` reads `root_view.get_dof_projected_joint_forces()`:
+PhysX projects incoming joint spatial forces onto each canonical joint axis.
+The declared signal is simulated joint-output torque in N m. Applied effort
+commands are retained separately in `commands/effort_target_nm`, in canonical
+arm/neck order; they never populate measured feedback. Neither
+`joint_effort_target` nor `applied_torque` is read as a measurement. These values
+are robot feedback, not contact-force ground truth. Missing backend support is
+reported unavailable. Both 120 Hz substeps capture measured torque, robot state,
+Jacobian and inverse-dynamics expectation; raw recordings retain this separate
+`physics_feedback` stream as well as the 60 Hz feedback channel.
+
+`ResidualLoadModel` subtracts robot inverse dynamics (mass × acceleration,
+Coriolis and gravity), applies the independently verified sign, and bounds a
+single distal world wrench through J.T. Rank loss, inconsistent redundant-joint
+residuals and calibration-envelope exits reject estimation. Joint residual bounds
+propagate through the pseudoinverse into a force-norm upper bound and a normal
+force lower bound. `PurdueLoadSource` uses both physics samples, preserving peak
+upper load and conservative lower contact load. Normal-direction uncertainty is
+also deducted. Unmodelled friction, state/model error and acceleration estimation
+must be covered by the calibration; one stationary fit does not establish this.
+
+`ObservedPurdueSafety` accepts that source through `PurdueIO(..., load_source=...)`.
+The monitor checks feedback identity/freshness/health, calibration and stop
+verification, force limit, observed orientation, the existing causal force-window
+mean and a conservative observed contact gap for push/hold. It reads no prepared
+door, articulation angle, contact categories or evaluator force. It can refuse or
+stop; it does not choose a contact, move the tool to a surface or correct task
+progress. No source/calibration means loaded execution still stops explicitly.
+
+`admit_local_action` accepts A1/A2 only. A selected local material needs explicit
+policy/diagnostic source, resolved rigid-material ownership (`observed_rigid_material`
+for observed static material or the existing `observed_moving_rigid_candidate`),
+tracking, current identity/pose support, the existing 1 cm / 5 degree bounds,
+and two supported finger footprints. The producer must bound the actual continuous
+sweep plus stopping envelope, relevant collision space, material response,
+robot tracking error, relative motion and stop travel. Unknowns and None bounds
+refuse admission. Unloaded proposals additionally prove contact separation.
+Freshness, episode generation, selection changes, uncertainty increases and
+response-envelope exits invalidate a receipt. This is action admission from local
+evidence, not a qualified full-door estimate; `PolicyObservation.valid` is unchanged.
+A3/A4 still require their hinge/angle/segment contracts.
+
+`env.preview_targets` is the same pure bounded A1/IK function used by dispatch.
+`PurdueIO.preview(Command)` exposes the world FK endpoint to evidence producers.
+Before execution IO independently checks the control interval and that this actual
+controller endpoint fits the receipt's robot-error bounds. Receipts cannot describe
+a safe endpoint while sending a different bounded joint command. On stop, pending
+commands clear and all position targets freeze at measured joints, with no extra
+physics tick or release trajectory. Reset is required before the runner resumes.
+
+## Bounded physical evidence and readiness
+
+`verify_pilot_control.py --headless --cameras --output ...` runs one synthetic,
+obstacle-cleared robot probe: hold, random-weight inference without actuation,
+a known 4 N distal perturbation for evaluation, tiny A1/A2 preview checks and
+stop. The test input force is never passed to the residual estimator. It does
+not collect demonstrations or run a learned contact policy.
+
+On RTX 4090 the unloaded stationary torque differed from robot gravity prediction
+by at most 4.7e-5 N m. The separate 4 N probe supported the negative residual sign
+and estimated force components [-4.122, 0.036, 0.097] N; the diagnostic upper bound
+was 4.512 N. Its 0.02 N m residual assumption remains unverified and is never
+marked calibrated. The probe after perturbation retained up to 0.302 N m of
+residual during recovery, showing why the stationary fit is insufficient.
+A1/A2 previews matched applied targets within float32 roundoff (32 epsilon), and
+post-probe frozen-target travel was 1.30 mm over 0.2 s. These are individual
+observations, not a worst-case stopping envelope or contact-stop qualification.
+
+The combined probe includes physics, camera rendering/acquisition, calibration FK,
+robot tool FK/Jacobian, both substep feedback/dynamics captures, RGB-D observation
+assembly and policy normalization/inference/output. With inference every six ticks,
+cycle p50/p95 was ACT 44.09/51.75 ms and Diffusion 44.95/58.07 ms. Query maxima
+were 112.91/62.02 ms; the ACT outlier is retained. The short timing sample is not a
+real-time guarantee. The 60 Hz controller and 10 Hz policy are simulation-clock
+cadences; this camera-enabled configuration runs slower than wall-clock real time.
+No qualified geometry/sweep producer or admitted contact cycle was available;
+its additional cost is unmeasured. It must be included before any rollout-rate claim.
+Raw local evidence and prior failed probes remain under
+`outputs/generated/b1-policy-pilot/` (the final robot probe is `control-substeps`).
+
+| Readiness | State | Remaining prerequisite |
+|---|---|---|
+| Offline training infrastructure | Ready; real encoder, data, train-only batches and checkpoints smoke-tested on CUDA | Explicit physical pilot demonstrations and identity split; numerical data are not demonstrations |
+| Offline training on physical pilot data | Blocked | No explicit physical demonstration dataset has been collected |
+| A1/A2 rollout with contact | Blocked | Verified dynamic/peak residual calibration and moving/contact stopping envelope; observed local sweep/response evidence and supported contact |
+| ACT/Diffusion × A1–A4 reusable numerics | Maintained; eight-path GPU forward/loss/gradient/checkpoint checks pass | A3/A4 supported geometry and complete matched demonstrations |
+
+The broader unit run found four pre-existing failures in
+`test_perception_cli.py`: the mock argument namespace lacks `selection`.
+An isolated `cd5398f` baseline reproduces all four; policy/control changes do not
+touch that CLI or fixture. Targeted policy, data, admission and control checks pass.
+No optimizer update or extended collection/training was performed.
+
+Share the observation/data commit with the geometry branch for the common encoder,
+recording/export and timing conventions. Share the control commit for
+`LocalActionSupport`, the extended `ActionAdmission`, robot feedback/load channels,
+pure controller preview and stop semantics. Providers remain geometry-owned; these
+commits neither qualify them nor supply missing bounds on their behalf.
+
+
+A concrete initial setup uses `ActModelCfg(chunk_size=12)` or
+`DiffusionModelCfg(horizon=12)` and `B1Runner(..., n_action_steps=6)`. Twelve ticks
+bound the predicted horizon to 0.2 s while six executed ticks limit stale open-loop
+control to 0.1 s. The three visual samples cover that horizon's recent past;
+current 60 Hz proprioception still changes between image encodings. These are
+initial pilot choices, not tuned performance claims. The renderer bottleneck and
+retained query outlier must be resolved/measured before wall-clock deadlines matter.

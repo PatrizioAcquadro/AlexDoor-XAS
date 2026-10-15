@@ -10,7 +10,6 @@ from alexdoor_xas.perception.admission import require_current_admission
 from alexdoor_xas.perception.contracts import (
     LEGACY_FULL_STATE,
     OPERATIONAL_V1,
-    RobotFeedback,
     geometry_profile,
 )
 from alexdoor_xas.policies.common.b1_contract import PilotBinding
@@ -145,7 +144,9 @@ class PurdueSafety:
 class PurdueIO:
     """Adapt an already-created, camera-enabled Purdue environment; never launch one."""
 
-    def __init__(self, env, *, binding, robot_asset, setup, observed_provider=None):
+    def __init__(
+        self, env, *, binding, robot_asset, setup, observed_provider=None, load_source=None
+    ):
         from alexdoor_xas.recording.b1_runtime import camera_calibration
 
         self.profile = geometry_profile(binding)
@@ -175,6 +176,7 @@ class PurdueIO:
         if any(env.cfg.initial_joints[k] != v for k, v in setup.initial_joints.items()):
             raise ValueError("Runtime ready pose differs from the common setup")
         self.env, self.binding, self.robot_asset = env, binding, robot_asset
+        self.load_source = load_source
         self.admission = None
         self.dt = env.step_dt
         self.max_ticks = int(round(setup.horizon_s / self.dt))
@@ -224,8 +226,9 @@ class PurdueIO:
         return self.tool_fk(array(self.env.capture.sample.joint_position)[0], self.calibration)
 
     def robot_feedback(self):
-        """6.0A declares absence; acquisition/semantics and load inference belong to 6.0D."""
-        return RobotFeedback.unavailable(self.env.capture.sample.time_s, ARM_JOINTS)
+        from alexdoor_xas.perception.load import simulated_feedback
+
+        return simulated_feedback(self.env)
 
     def set_neck_target(self, value):
         self.env.set_neck_target(value)
@@ -238,6 +241,39 @@ class PurdueIO:
             self.parked_tool.origin, Rotation.from_matrix(self.parked_tool.rot).as_quat()
         )
         env.step(torch.zeros((1, 6), device=env.device))
+
+    def preview(self, command):
+        """World endpoint of the actual bounded A1/IK controller; no physics/mutation."""
+        import torch
+
+        from alexdoor_xas.recording.b1_runtime import array
+
+        env = self.env
+        if command.kind == "joints":
+            target, _, _ = env.preview_targets(
+                joint_delta=torch.as_tensor(
+                    command.value, device=env.device, dtype=torch.float32
+                ).reshape(1, 7)
+            )
+        else:
+            goal = (
+                apply_pose_delta(self.tool_pose(), command.value)
+                if command.kind == "delta"
+                else command.value
+            )
+            target, _, _ = env.preview_targets(
+                world_goal=(
+                    torch.as_tensor(goal.origin, device=env.device, dtype=torch.float32)[None],
+                    torch.as_tensor(
+                        Rotation.from_matrix(goal.rot).as_quat(),
+                        device=env.device,
+                        dtype=torch.float32,
+                    )[None],
+                )
+            )
+        q = array(env.capture.sample.joint_position)[0].copy()
+        q[:7] = array(target)[0]
+        return self.tool_fk(q, self.calibration)
 
     def execute(self, command):
         self.admission = command.admission if hasattr(command, "admission") else None
@@ -254,6 +290,22 @@ class PurdueIO:
         import torch
 
         env = self.env
+        if profile == OPERATIONAL_V1:
+            proposal, limits = self.admission.proposal, self.admission.limits
+            now = env.capture.sample.time_s
+            matches = np.flatnonzero(np.isclose(proposal.times_s[:-1], now, atol=1e-8, rtol=0))
+            if len(matches) != 1 or not np.isclose(
+                proposal.times_s[matches[0] + 1] - now, self.dt, atol=1e-8, rtol=0
+            ):
+                raise ValueError("Controller interval differs from admitted schedule")
+            actual = self.preview(command)
+            declared = proposal.world_poses[matches[0] + 1]
+            if (
+                np.linalg.norm(actual.origin - declared.origin) > limits.robot_position_bound_m
+                or Rotation.from_matrix(actual.rot @ declared.rot.T).magnitude()
+                > limits.robot_rotation_bound_rad
+            ):
+                raise ValueError("Controller trajectory exceeds admitted robot error")
         if command.kind == "joints":
             env.step_a1(command.value)
         elif command.kind in ("delta", "pose"):
@@ -278,4 +330,13 @@ class PurdueIO:
         # Do not add a release, IK correction or extra physics step on failure.
         self.env._pending_pose = None
         self.env._pending_joints = None
+        from alexdoor_xas.recording.b1_runtime import array
+
+        # Freeze at measured joints, not an unachieved position goal. No physics tick.
+        measured = self.env.robot.data.joint_pos
+        self.env.targets = (
+            measured.torch.clone() if hasattr(measured, "torch") else measured.clone()
+        )
+        if not np.isfinite(array(self.env.targets)).all():
+            raise RuntimeError("invalid_stop_state")
         self.env.robot.set_joint_position_target_index(target=self.env.targets)

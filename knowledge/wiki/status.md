@@ -5,11 +5,13 @@ implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consol
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
 
-The [[topics/b1-policy-pilot|common policy pilot foundation]] now permits explicitly
-unqualified A1/A2 feature/data/inference development independently of the geometry
-provider. Representation conversion is separate from execution admission; existing
-release gates and operational thresholds remain unchanged. No encoder/model run,
-training, contact or matched policy-data collection was performed for this foundation.
+The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
+pooling/history, partial A1/A2 recording/export, train-only model input, measured
+solver feedback and bounded local admission without a hinge. Offline infrastructure
+and both family model paths are CUDA-smoke-tested. Robot-only hold/4 N/preview/stop
+probes passed; loaded rollout remains blocked by dynamic residual/stop calibration
+and observed sweep/response evidence. Camera-enabled cycles exceed real-time 60 Hz.
+No training, policy contact rollout or matched demonstration collection was run.
 
 | Area | Current state |
 |---|---|
@@ -17,7 +19,7 @@ training, contact or matched policy-data collection was performed for this found
 | 5 — Corpus | Complete: 32 qualified doors, 12 reviewed families, frozen 19 train / 6 development / 7 test. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | 6.0A/B — Contracts/static evidence | Operational/local support, explicit selection, admission and feedback contracts; object fusion, ownership alternatives, finite-cover and relevant-space queries. Scans/interfaces do not admit motion. |
 | 6.0C — Tracking | One persistent SAM3 session shared by inspection/tracking, bounded history and renewal-only depth gate; live/replay and serial evaluation share the coordinator. Useful accuracy improves offline, but material identity and 150 ms freshness remain unqualified. |
-| 6.0D–H — Contact/qualification | Feedback/load/stop, independent chosen-contact scoring, bounded interaction and complete qualification remain future work. |
+| 6.0D–H — Contact/qualification | Solver feedback, residual-load/stop wiring and local A1/A2 admission implemented; dynamic/peak calibration, contact stopping, supported interaction and qualification remain open. |
 | 6.1 — Actions | ACT/Diffusion × A1–A4 observed-input/data/normalization/execution software maintained; qualified-provider integration and physical rollout validation pending. |
 | 6.2–7 — Data/learning | Not started. No matched B1 policy dataset or learned-policy result; no sealed-test evaluation. |
 

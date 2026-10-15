@@ -148,7 +148,11 @@ class ExpertRecorder:
             purpose="perception_engineering_not_matched_policy_dataset",
         )
         self.writer = B1Writer(self.path, self.metadata, self.calibration)
-        self.writer.observe(self.observation(env), self.annotation(env, phase))
+        from alexdoor_xas.perception.load import simulated_feedback
+
+        self.writer.observe(
+            self.observation(env), self.annotation(env, phase), feedback=simulated_feedback(env)
+        )
 
     def transition(self, env, goal_p, goal_r, phase, trace):
         command = dict(
@@ -157,11 +161,18 @@ class ExpertRecorder:
             tool_rotation=np.asarray(goal_r),
             joint_target=array(env.targets)[0, env.arm_ids],
             neck_target=array(env.targets)[0, env.neck_ids],
+            effort_target_nm=array(env.robot.data.joint_effort_target)[0, env.observed_ids],
             phase=np.int8(PHASES.index(phase)),
         )
+        from alexdoor_xas.perception.load import simulated_feedback
+
         self.writer.transition(
-            command, self.observation(env), self.annotation(env, phase, trace["valid"])
+            command,
+            self.observation(env),
+            self.annotation(env, phase, trace["valid"]),
+            feedback=simulated_feedback(env),
         )
+        self.writer.physics_feedback(env.load_samples)
 
     def finish(self, result):
         self.writer.file["metadata"].attrs["camera_fk_error"] = json.dumps(
@@ -217,9 +228,11 @@ class PilotRecorder:
             tool_rotation=goal.rot,
             joint_target=array(env.targets)[0, env.arm_ids],
             neck_target=array(env.targets)[0, env.neck_ids],
+            effort_target_nm=array(env.robot.data.joint_effort_target)[0, env.observed_ids],
             phase=np.int8(PHASES.index(phase)),
         )
         self.writer.transition(command, observation, labels, feedback=self.io.robot_feedback())
+        self.writer.physics_feedback(env.load_samples)
 
     def finish(self, outcome):
         self.writer.finish(outcome)

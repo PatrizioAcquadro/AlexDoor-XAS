@@ -12,8 +12,11 @@ are distinct; partial data cannot enter the final matched format below.
 
 The RGB-D engineering interface is documented in
 [[shared-door-perception|Shared Door Perception]]. Sensor observations, applied
-commands and evaluator annotations remain separate. Existing recordings have no
-measured torque; commands do not substitute for feedback. No recording migration
+commands and evaluator annotations remain separate. Preserved engineering recordings have no
+measured torque; commands do not substitute for feedback. New recordings retain a
+separate 60 Hz measured feedback channel and 120 Hz robot feedback/dynamics stream,
+including source, joint-output semantics, support times and canonical joint order.
+Partial pilot exports preserve complete raw sensor/calibration/command/phase groups. No recording migration
 or policy-dataset production is performed by repository consolidation.
 
 ## Matched Policy Data
