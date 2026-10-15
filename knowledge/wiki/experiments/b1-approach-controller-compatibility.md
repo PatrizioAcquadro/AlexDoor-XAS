@@ -68,7 +68,7 @@ These are practical local engineering checks, not contact/hardware admission:
   these numerical screening values do not replace trajectory criteria.
 
 Require both existing `/tmp/rtx4090-exclusive.lock` and
-`/tmp/alexdoor-xas-gpu.lock`, plus 180 continuously compute-idle seconds, checked
+`/tmp/alexdoor-xas-gpu.lock` and the existing audio-sensor GPU lease, plus 180 continuously compute-idle seconds, checked
 at 30-second intervals with graphics/compute occupancy. Monitor foreign work;
 preserve interference, stop only this diagnostic if necessary, and resume only
 incomplete cases. Never stop other processes or substitute CPU simulation.
@@ -84,7 +84,7 @@ independent local geometry/6.0E still precede 6.0F contact.
 Both approaches start at raw row 1,500 / source time 25 s and contain 360 commands.
 Command timestamps equal pre-execution observation times; 720 feedback samples
 cover each interval at 120 Hz. Double-precision URDF/tool FK matches the independent
-poststep teacher trace within 0.4 micrometres / 0.0001 degrees. Reference and target
+poststep teacher trace within 0.8 micrometres / 0.0001 degrees. Reference and target
 units/frames agree; recorded torque is joint-output feedback, distinct from effort
 commands. A2 is the reference-to-current-state residual, not a reference increment.
 
@@ -101,6 +101,21 @@ commands. A2 is the reference-to-current-state residual, not a reference increme
 The left reference already has substantial error before actuator tracking, while
 the right target FK closely follows its Cartesian reference. Norms of these
 components do not add; neither whole residual is attributed to impedance.
+The saved pre-command Jacobian, observed joints, reference and previous target
+reconstruct the original applied differential-IK target within 1.7 microradians.
+The right approach has zero target-step scaling or position clamps. The left has
+84/360 scaled steps (maximum scale 6.47) and 241/360 position clamps. Its historical
+target-step speed reaches the unchanged 0.5 rad/s budget. The mixed-unit Jacobian
+condition number peaks at 11.54 right / 21.09 left; this descriptive value is not
+a calibrated singularity/admission threshold. Native observation feedback is
+available on all 361 approach observations per trajectory. Historical actuator
+clipping is unknown: stored effort targets are gravity feedforward, not the
+explicit actuator's total commanded/applied torque.
+
+The current URDF matches the recordings' existing robot-asset identity; no robot
+geometry change is introduced. The double-precision FK check is numerical analysis,
+not CPU simulation or a new dynamic qualification.
+
 Both references reach peak translation speed after 2.1 s, fixing both moving-stop
 prefixes at 126 ticks before CUDA execution. Historical approach panel force is
 zero; no historical full-path collision qualification is inferred.
