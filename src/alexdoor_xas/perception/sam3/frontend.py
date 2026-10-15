@@ -64,6 +64,7 @@ class Sam3CausalFrontend:
         bounded_memory=False,
         detection_reconditioning=True,
         trace_reconditioning=False,
+        compile=False,
     ):
         if version != "sam3":
             raise ValueError("unsupported_sam3_version")
@@ -79,12 +80,13 @@ class Sam3CausalFrontend:
             bpe_path=str(root / "sam3/bpe_simple_vocab_16e6.txt.gz"),
             device="cuda",
             load_from_HF=False,
-            compile=False,
+            compile=compile,
         )
         self.propagate = Sam3VideoInference.propagate_in_video
         if bounded_memory and detection_reconditioning:
             raise ValueError("bounded_sam3_requires_reconditioning_off")
         self.version = version
+        self.compile = compile
         self.bounded_memory = bounded_memory
         self.reconditioning_trace = None
         if not detection_reconditioning or trace_reconditioning:
@@ -110,7 +112,8 @@ class Sam3CausalFrontend:
             future_frames_supplied=0,
             propagation="single newest available frame, forward only",
             grounding_frames_per_chunk=1,
-            compile=False,
+            compile=compile,
+            compile_errors="raise" if compile else None,
             bounded_forward_memory=bounded_memory,
             detection_reconditioning=detection_reconditioning,
             native_thresholds=dict(
@@ -166,6 +169,11 @@ class Sam3CausalFrontend:
                 index = append_frame(self.state, images[0])
                 # Use the official one-frame propagation, including current-frame
                 # suppression. No interactive replay or buffered future outputs.
+                if self.compile:
+                    # Official lazy setup follows the eager seed, then fail visibly
+                    # instead of accepting its suppress_errors=True fallback.
+                    self.model._compile_model()
+                    torch._dynamo.config.suppress_errors = False
                 outputs = list(
                     self.propagate(
                         self.model,

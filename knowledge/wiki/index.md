@@ -53,6 +53,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/sam3-official-compilation|Official SAM3 Compilation]] — Opt-in official compiler path and preset paired CUDA gates; evaluation pending the shared GPU.
+
 - [[experiments/tsdf-rebuild-double-buffer|TSDF Rebuild Double Buffer]] — Complete exact/local/memory gates pass, but four timed runs do not justify adoption: no ordinary p95 benefit and worse nominal quality. Maintained baseline retained; all current evidence preserved.
 
 - [[experiments/tsdf-readonly-launch-inputs|TSDF Read-Only Launch Inputs]] — One exactly equivalent CUDA readback reduction rejected for adoption: small transfer savings, no convincing rebuild/service gain and mixed timed-ingress quality; baseline restored.

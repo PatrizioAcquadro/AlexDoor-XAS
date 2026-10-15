@@ -103,6 +103,11 @@ including the preserved light memory baseline and RustDesk interruption, remains
 in the persistent primary-checkout recovery directory. Original worktree-loss
 limitations remain historical; no completed valid gate was repeated.
 
+The single [[experiments/sam3-official-compilation|official SAM3 compilation]]
+variant is now opt-in with explicit compiler failures and unchanged selected
+recipe/TSDF baseline. Preset dense/sparse CUDA gates precede any full comparison;
+measurement is pending an exclusive shared-GPU window.
+
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved
 masks/poses/decisions and reduced SAM peak 8.39→4.21 GiB without RAM offload. The
