@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-approach-controller-compatibility|Historical Approach / Current Controller Compatibility]] — Prespecified saved-reference audit and frozen-control robot-only comparison.
+
 - [[experiments/b1-pilot-approach-release|ACT A2 Approach and Release Residuals]] — Saved alignment, actual phase exposure, input ambiguity, historical tracking residuals and one fixed-budget sampling test.
 
 - [[experiments/b1-pilot-preprocessing|B1 Pilot Fixed-Unit Preprocessing]] — Fixed-unit inputs and paired ACT A2 mean gains, with release/tail regression and unqualified generalization.
