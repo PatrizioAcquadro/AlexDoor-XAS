@@ -23,7 +23,7 @@ from alexdoor_xas.policies.b1 import (
     save_policy,
 )
 from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg
-from alexdoor_xas.policies.encoding import RGBDEncoder, pilot_binding
+from alexdoor_xas.policies.encoding import FIXED_UNITS_RECIPE, RECIPE, RGBDEncoder, pilot_binding
 from alexdoor_xas.policies.observations import B1Observer
 from alexdoor_xas.recording.b1 import PHASES, B1Writer, robot_feedback_at
 from helpers import TEST_ROBOT_REF
@@ -31,9 +31,10 @@ from helpers import TEST_ROBOT_REF
 pytestmark = pytest.mark.usefixtures("gpu_models")
 
 
-def test_causal_raw_roundtrip_and_models(tmp_path):
+@pytest.mark.parametrize("recipe", [RECIPE, FIXED_UNITS_RECIPE])
+def test_causal_raw_roundtrip_and_models(tmp_path, recipe):
     inspection = json.loads(Path("configs/perception_inspection.json").read_text())
-    binding = pilot_binding(inspection)
+    binding = pilot_binding(inspection, recipe=recipe)
     live = B1Observer(None, binding, encoder=RGBDEncoder(binding))
     path = tmp_path / "raw.hdf5"
     metadata = dict(

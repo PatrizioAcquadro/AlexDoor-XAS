@@ -111,3 +111,8 @@ geometry exclusively for stop decisions. It checks distal surfaces, forbidden
 contacts, joint/finger limits and controlled contact at the policy's actual panel
 point; it never requires the teacher's exact point, adds corrective motion, or
 uses an expert stopping angle. Physical verification remains pending.
+
+The opt-in pilot `rgbd-grid-fixed-units-v2` contract uses fixed observation units
+in shared B1 batches and checkpoint inference, with unchanged train-only action
+normalization. V1 retains its original behavior. See
+[[experiments/b1-pilot-preprocessing|the isolated preprocessing comparison]].

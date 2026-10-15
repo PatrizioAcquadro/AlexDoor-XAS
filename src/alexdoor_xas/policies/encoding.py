@@ -10,14 +10,18 @@ from alexdoor_xas.policies.common.b1_contract import PILOT_SCHEMA, PilotBinding
 from alexdoor_xas.policies.observations import FeatureBlock, VisualEncoding
 
 RECIPE = "rgbd-grid-v1"
+FIXED_UNITS_RECIPE = "rgbd-grid-fixed-units-v2"
+DEPTH_SCALE_M = 5.0
 GRID = 8
 HISTORY = 3
 PERIOD_S = 0.1
 BLOCK_DIM = 5 * GRID * GRID
 
 
-def pilot_binding(inspection, *, depth_interval_m=(0.1, 5.0), warmup_s=0.2):
+def pilot_binding(inspection, *, depth_interval_m=(0.1, 5.0), warmup_s=0.2, recipe=RECIPE):
     """All preprocessing choices travel with data and checkpoints."""
+    if recipe not in (RECIPE, FIXED_UNITS_RECIPE):
+        raise ValueError("Unsupported RGB-D encoder recipe")
     return PilotBinding.from_dict(
         dict(
             schema=PILOT_SCHEMA,
@@ -25,7 +29,7 @@ def pilot_binding(inspection, *, depth_interval_m=(0.1, 5.0), warmup_s=0.2):
             dynamic_passed=False,
             frozen=False,
             config=dict(
-                encoder=RECIPE,
+                encoder=recipe,
                 visual_dims=[BLOCK_DIM, BLOCK_DIM * HISTORY],
                 geometry_profile="operational-v1",
                 max_gap_s=0.15,
@@ -36,6 +40,7 @@ def pilot_binding(inspection, *, depth_interval_m=(0.1, 5.0), warmup_s=0.2):
                     history=HISTORY,
                     period_s=PERIOD_S,
                     depth_interval_m=list(depth_interval_m),
+                    **({"depth_scale_m": DEPTH_SCALE_M} if recipe == FIXED_UNITS_RECIPE else {}),
                 ),
             ),
         )
@@ -43,7 +48,11 @@ def pilot_binding(inspection, *, depth_interval_m=(0.1, 5.0), warmup_s=0.2):
 
 
 class RGBDEncoder:
-    """No weights. RGB [0,1], masked metric depth/far, valid coverage, channel-major.
+    """No weights. RGB [0,1], scaled valid depth, coverage, channel-major.
+
+    V1 uses depth/far and empirical observation z-scores. V2 uses depth/5m
+    and fixed observation units (RGB/coverage, radians, rad/s), without z-scores.
+    Sensor validity always uses the recorded near/far, independently of scale.
 
     Static is the last acquired inspection image. Recent history is oldest-first
     at 10 Hz, left-padded at reset. No centered windows, future data or labels.
@@ -55,8 +64,11 @@ class RGBDEncoder:
         expected = dict(grid=GRID, history=HISTORY, period_s=PERIOD_S)
         cfg = binding.config.get("encoding", {})
         interval = cfg.get("depth_interval_m", [])
+        recipe = binding.config["encoder"]
         if (
-            binding.config["encoder"] != RECIPE
+            recipe not in (RECIPE, FIXED_UNITS_RECIPE)
+            or (recipe == FIXED_UNITS_RECIPE and cfg.get("depth_scale_m") != DEPTH_SCALE_M)
+            or (recipe == RECIPE and "depth_scale_m" in cfg)
             or binding.config["visual_dims"] != [BLOCK_DIM, BLOCK_DIM * HISTORY]
             or any(cfg.get(k) != v for k, v in expected.items())
             or len(interval) != 2
@@ -65,6 +77,7 @@ class RGBDEncoder:
             raise ValueError("Unsupported RGB-D encoder recipe")
         self.binding, self.device = binding, torch.device(device)
         self.near, self.far = interval
+        self.depth_scale = DEPTH_SCALE_M if recipe == FIXED_UNITS_RECIPE else self.far
         self.static_until = binding.config["inspection"]["sample_times_s"][-1]
         self.reset()
 
@@ -87,7 +100,7 @@ class RGBDEncoder:
             raise ValueError("Depth mask differs from the bound sensor interval")
         rgb = rgb.permute(2, 0, 1).float()[None] / 255
         mask = valid.permute(2, 0, 1).float()[None]
-        depth = torch.where(valid, depth, 0).permute(2, 0, 1).float()[None] / self.far
+        depth = torch.where(valid, depth, 0).permute(2, 0, 1).float()[None] / self.depth_scale
 
         def pool(x):
             return F.adaptive_avg_pool2d(x, (GRID, GRID))

@@ -123,7 +123,14 @@ training matrix or a contact rollout campaign.
 The fixed encoder has no downloaded or trainable weights. Each image is spatially
 pooled to 8×8 cells: RGB / 255, mean valid metric depth / far range, and valid-depth
 coverage. Invalid depth contributes zero and never contaminates the depth average.
-The depth interval (initially 0.1–5 m), grid, history and period are checkpoint-bound.
+The depth interval, grid, history and period are checkpoint-bound. Historical
+pilot recordings actually bind approximately 0.01–100,000 m. The explicit opt-in
+`rgbd-grid-fixed-units-v2` recipe instead uses depth/5 m with fixed observation
+units (no empirical observation z-score); sensor validity keeps its recorded
+interval. Training and inference share the existing +/-10 clip, while action
+normalization remains train-only. Legacy v1/default checkpoints are unchanged.
+See [[experiments/b1-pilot-preprocessing|the isolated preprocessing comparison]]
+for the saved-data diagnosis, paired protocol and current evidence.
 No crop, augmentation, DINOv3, calibration or evaluator label enters the encoder.
 ACT/Diffusion's existing observation projection and all policy weights are trainable.
 This deliberately coarse baseline establishes infrastructure, not visual sufficiency.

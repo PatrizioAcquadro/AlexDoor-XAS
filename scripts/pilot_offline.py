@@ -28,7 +28,12 @@ from alexdoor_xas.policies.b1 import (  # noqa: E402
     save_policy,
 )
 from alexdoor_xas.policies.common.model import OBS_CLIP  # noqa: E402
-from alexdoor_xas.policies.encoding import RGBDEncoder, pilot_binding  # noqa: E402
+from alexdoor_xas.policies.encoding import (  # noqa: E402
+    FIXED_UNITS_RECIPE,
+    RECIPE,
+    RGBDEncoder,
+    pilot_binding,
+)
 from alexdoor_xas.policies.observations import B1Observer  # noqa: E402
 from alexdoor_xas.policies.purdue import PurdueFK  # noqa: E402
 from alexdoor_xas.recording.b1 import PHASES  # noqa: E402
@@ -38,7 +43,7 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
 
 
-def prepare(root, protocol, *, export=True):
+def prepare(root, protocol, *, export=True, recipe=RECIPE):
     episodes, audit = [], []
     splits = {e["asset_id"]: e["split"] for e in protocol["episodes"]}
     binding, robot = None, None
@@ -55,7 +60,9 @@ def prepare(root, protocol, *, export=True):
             calibration = json.loads(source["metadata"].attrs["calibration"])
             metadata = json.loads(source["metadata"].attrs["episode"])
             candidate = pilot_binding(
-                metadata["inspection"], depth_interval_m=calibration["depth_interval_m"]
+                metadata["inspection"],
+                depth_interval_m=calibration["depth_interval_m"],
+                recipe=recipe,
             )
         if binding is not None and candidate != binding:
             raise ValueError("Different observed-input recipes")
@@ -379,6 +386,7 @@ if __name__ == "__main__":
     parser.add_argument("mode", choices=("audit", "prepare", "train"))
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--protocol", type=Path, default=REPO / "configs/b1_policy_pilot.json")
+    parser.add_argument("--recipe", choices=(RECIPE, FIXED_UNITS_RECIPE), default=RECIPE)
     parser.add_argument(
         "--asset-id", help="Single declared episode for the read-only preflight audit"
     )
@@ -391,6 +399,9 @@ if __name__ == "__main__":
         protocol["episodes"] = [e for e in protocol["episodes"] if e["asset_id"] == args.asset_id]
         if len(protocol["episodes"]) != 1:
             parser.error("Audit requires one declared identity")
-        prepare(args.root, protocol, export=False)
+        prepare(args.root, protocol, export=False, recipe=args.recipe)
     else:
-        (prepare if args.mode == "prepare" else train)(args.root, protocol)
+        if args.mode == "prepare":
+            prepare(args.root, protocol, recipe=args.recipe)
+        else:
+            train(args.root, protocol)

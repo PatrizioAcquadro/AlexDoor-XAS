@@ -14,6 +14,13 @@ from alexdoor_xas.policies.common.data import (
     make_train_factory,
     normalize_batch,
 )
+from alexdoor_xas.policies.common.model import OBS_CLIP
+from alexdoor_xas.policies.encoding import FIXED_UNITS_RECIPE
+
+
+def fixed_observation_units(binding):
+    return binding.config.get("encoder") == FIXED_UNITS_RECIPE
+
 
 FORMATS = {"act": "alexdoor_xas.act.b1.v1", "diffusion": "alexdoor_xas.diffusion.b1.v1"}
 
@@ -28,6 +35,11 @@ def load_b1_data(directory, space, *, binding=None):
 
 def _stats(dataset, train):
     stats = compute_norm_stats(dataset, list(train), OBS_KEYS)
+    if fixed_observation_units(dataset.binding):
+        # Fixed physical/channel units avoid estimating inverse variances from
+        # nearly constant features on a two-identity pilot. Actions stay train-fit.
+        stats.obs.mean[:] = 0
+        stats.obs.std[:] = 1
     if dataset.action_space == A4_OBJ_CENTRIC_CHUNK:
         # Categories/termination have a fixed mapping even if a train split has
         # few examples. Continuous columns retain the family's normal scaling.
@@ -55,7 +67,11 @@ def validate_data(data):
 
 
 def check_stats(stats, contract):
-    validate_contract(contract)
+    binding = validate_contract(contract)
+    if fixed_observation_units(binding) and (
+        np.any(stats.obs.mean != 0) or np.any(stats.obs.std != 1)
+    ):
+        raise ValueError("Fixed-unit observations require zero center and unit scale")
     if (
         stats.action_space != contract["action_space"]
         or stats.obs_keys != OBS_KEYS
@@ -83,6 +99,14 @@ def batch_factories(data, family, horizon, batch_size, seed):
         normalize = make_diffusion_normalizer(data.stats)
     else:
         normalize = normalize_batch
+    if fixed_observation_units(data.dataset.binding):
+        base_normalize = normalize
+
+        def normalize(batch, stats):
+            result = base_normalize(batch, stats)
+            result["obs"] = np.clip(result["obs"], -OBS_CLIP, OBS_CLIP)
+            return result
+
     train = make_train_factory(data, horizon, batch_size, seed, normalize=normalize)
     development = (
         make_eval_factory(data, horizon, batch_size, seed, data.val_ids, normalize=normalize)
