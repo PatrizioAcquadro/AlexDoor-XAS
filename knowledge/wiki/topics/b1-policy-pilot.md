@@ -301,3 +301,9 @@ control to 0.1 s. The three visual samples cover that horizon's recent past;
 current 60 Hz proprioception still changes between image encodings. These are
 initial pilot choices, not tuned performance claims. The renderer bottleneck and
 retained query outlier must be resolved/measured before wall-clock deadlines matter.
+
+The [[experiments/b1-pilot-approach-release|approach/release follow-up]] preserves
+v2 with uniform sampling. One phase-balanced 96-update cell improves release
+but regresses other phases; no observer, controller or geometry interface changes.
+Historical command residuals and causal memory sufficiency remain separate from
+the still-pending new-controller/contact qualification.

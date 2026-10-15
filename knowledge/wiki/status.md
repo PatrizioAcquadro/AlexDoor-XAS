@@ -21,6 +21,13 @@ and 1.590 to 0.900 deg at identical initialization/data/budget. Release and p95
 errors worsen, and train median remains better in aggregate. V2 is opt-in; this
 one-identity offline result does not qualify generalization or historical data
 under the newer controller. The
+[[experiments/b1-pilot-approach-release|targeted residual diagnosis]] verifies
+causal joins and limited release exposure, without demonstrating broad input
+aliasing. One 96-update phase-balanced v2 cell improves development release
+median/p95 to 8.10/29.22 mm, but regresses hold and train push and fails the declared
+guards. Retain v2 with the original uniform sampler; no further variant or larger
+budget is launched. Large historical tracking residuals and controller transfer
+remain unresolved. The
 earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate
 [[experiments/b1-loaded-hold-and-stop|load-bearing controller correction]] verifies
 robot-only CUDA hold/stop with task-local common impedance and a measured-anchor
