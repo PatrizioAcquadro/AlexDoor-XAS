@@ -117,12 +117,21 @@ integrated benefit or operational age. All valid cells and two interference
 prefixes remain; no other optimization or controller/training/contact work ran.
 
 The single [[experiments/p2p-ransac-point-buffers|RANSAC point-buffer candidate]]
-now passes isolated exact comparisons on 148 saved inputs and adversarial
-support/threshold/degeneracy/failure cases, including all samples and final RNG.
-The preset local benefit gate passes: median RANSAC falls 14.62%/15.18%, with
-4.20/2.90 ms paired savings in the enriched saved-input corpus. Full fixed/timed
-GPU comparisons await shared availability; integrated benefit is unvalidated.
-SAM3 eager, TSDF baseline and all prior evidence are retained.
+passes local and both full 3,217-input CUDA pairs exactly, including RNG,
+references and volume/query audits. Ordinary RANSAC medians fall 23.78->20.32 /
+22.68->19.47 ms and native service 111.99->108.19 / 97.08->94.48 ms. All three
+fixed-input targets, losses and refusals are unchanged. Four complete timed runs
+nevertheless show no consistent provider service/age benefit and zero of 819
+steady publications within 150 ms. Light correct-20-mm counts fall 142->42,
+wrong accepted 4->64 per target and the terminal gap grows 4.95->36.15 s;
+nominal is mixed. Timed seeds and nearly all retained inputs differ, including
+initialization before RANSAC activation, so this is not an observed numerical
+regression or an isolated speed-only causal effect. **Default adoption is
+rejected conservatively; maintained and installed registration remain baseline.**
+The reproducible candidate and three interfered prefixes remain preserved.
+Next CPU costs are repeated degeneracy/weighted-fit preparation; matched sparse
+initialization/history remains an operational interpretation prerequisite.
+SAM3 eager, TSDF baseline and every prior result are unchanged.
 
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved

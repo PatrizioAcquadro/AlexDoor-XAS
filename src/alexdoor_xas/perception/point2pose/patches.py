@@ -8,7 +8,6 @@ NATIVE_FIXES = (
     "inlier_driven_renewal",
     "vectorized_sdf_jacobian",
     "external_mask_segmenter_import",
-    "ransac_point_buffers",
 )
 
 _REGISTER = "upstream/point2pose/modules/register/svd_cluster_ransac_register.py"
@@ -22,29 +21,6 @@ _REPLACEMENTS = {
         ),
     ),
     _REGISTER: (
-        (
-            "        # 1) RANSAC on remaining pool\n",
-            "        # Immutable point buffers shared by all hypotheses and the refit.\n"
-            "        pool_h = np.c_[p0[idx], np.ones((idx.size, 1))]\n"
-            "        pool_target = tgt_pcd[idx]\n\n"
-            "        # 1) RANSAC on remaining pool\n",
-        ),
-        (
-            "                    self._weighted_svd_fit(p0[samp], tgt_pcd[samp], w[samp])\n"
-            "                    if w is not None\n"
-            "                    else self._svd_fit(p0[samp], tgt_pcd[samp])\n",
-            "                    self._weighted_svd_fit(pa, qa, w[samp])\n"
-            "                    if w is not None\n"
-            "                    else self._svd_fit(pa, qa)\n",
-        ),
-        (
-            "            r = np.linalg.norm(transform_pts(Tk, p0[idx]) - tgt_pcd[idx], axis=1)\n",
-            "            r = np.linalg.norm((Tk @ pool_h.T).T[:, :3] - pool_target, axis=1)\n",
-        ),
-        (
-            "        r_all = np.linalg.norm(transform_pts(Tr, p0[idx]) - tgt_pcd[idx], axis=1)\n",
-            "        r_all = np.linalg.norm((Tr @ pool_h.T).T[:, :3] - pool_target, axis=1)\n",
-        ),
         (
             '        self._min_inliers = config.get("min_inliers", 6)\n',
             '        self._min_inliers = config.get("min_inliers", 6)\n'
