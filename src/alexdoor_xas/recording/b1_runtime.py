@@ -80,7 +80,15 @@ def camera_from_joints(calibration, q):
 
 
 class ExpertRecorder:
-    def __init__(self, path, metadata):
+    def __init__(
+        self, path, metadata, *, purpose="perception_engineering_not_matched_policy_dataset"
+    ):
+        if purpose not in (
+            "perception_engineering_not_matched_policy_dataset",
+            "b1_partial_policy_pilot",
+        ):
+            raise ValueError("Unsupported expert recording purpose")
+        self.purpose = purpose
         self.path, self.metadata = path, metadata
         self.writer = None
         self.calibration = None
@@ -145,7 +153,7 @@ class ExpertRecorder:
         self.metadata.update(
             control_dt=env.step_dt,
             sim_dt=env.cfg.sim.dt,
-            purpose="perception_engineering_not_matched_policy_dataset",
+            purpose=self.purpose,
         )
         self.writer = B1Writer(self.path, self.metadata, self.calibration)
         from alexdoor_xas.perception.load import simulated_feedback
@@ -178,6 +186,8 @@ class ExpertRecorder:
         self.writer.file["metadata"].attrs["camera_fk_error"] = json.dumps(
             dict(position_m=self.max_camera_error_m, rotation_rad=self.max_camera_error_rad)
         )
+        if self.purpose == "b1_partial_policy_pilot":
+            result = dict(result, termination=result["stop_reason"])
         self.writer.finish(result)
 
     def close(self):

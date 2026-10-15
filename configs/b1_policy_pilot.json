@@ -1,0 +1,51 @@
+{
+  "scope": "bounded_offline_pilot_not_final_dataset",
+  "episodes": [
+    {
+      "asset_id": "animated-door-1-88abf40",
+      "split": "train",
+      "seed": 6100
+    },
+    {
+      "asset_id": "door-2738468b94d74c5f",
+      "split": "train",
+      "seed": 6100
+    },
+    {
+      "asset_id": "psx-industrial-001-4f5561b",
+      "split": "development",
+      "seed": 6200
+    }
+  ],
+  "condition": "nominal",
+  "attempts_per_episode": 1,
+  "training_seed": 17,
+  "inference_seed": 23,
+  "chunk_ticks": 12,
+  "replan_ticks": 6,
+  "batch_size": 32,
+  "overfit_updates": 64,
+  "epochs": 3,
+  "max_batches_per_epoch": 32,
+  "evaluation_chunks": 256,
+  "lr": 0.0001,
+  "diffusion_warmup_steps": 8,
+  "ddim_steps": 10,
+  "replay_approach_ticks": 180,
+  "rollout_max_ticks": 120,
+  "criteria": {
+    "position_m": 0.01,
+    "rotation_rad": 0.08726646259971647,
+    "force_limit_n": 80,
+    "overfit_fractional_l1_reduction": 0.2,
+    "checkpoint_prediction_atol": 1e-07
+  },
+  "policy_contact_prerequisites": [
+    "verified_dynamic_peak_load_calibration",
+    "verified_moving_contact_stop_envelope",
+    "observed_local_sweep_response_and_contact"
+  ],
+  "evaluation": "fixed final checkpoint; retain failures; no selection or favorable retries",
+  "sealed_test": false,
+  "final_matrix": false
+}

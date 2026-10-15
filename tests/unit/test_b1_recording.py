@@ -149,3 +149,23 @@ def test_measured_feedback_roundtrip_and_legacy_absence(tmp_path):
     with h5py.File(path, "r+") as source:
         del source["robot_feedback"]
         assert robot_feedback_at(source, 0).torque_nm is None
+
+
+def test_expert_pilot_purpose_is_explicit_and_cannot_publish_matched_data():
+    from types import SimpleNamespace
+
+    from alexdoor_xas.recording.b1_runtime import ExpertRecorder
+
+    engineering = ExpertRecorder("unused", {})
+    assert engineering.purpose == "perception_engineering_not_matched_policy_dataset"
+    with pytest.raises(ValueError, match="purpose"):
+        ExpertRecorder("unused", {}, purpose="b1_matched_policy_demonstration")
+    pilot = ExpertRecorder("unused", {}, purpose="b1_partial_policy_pilot")
+    saved = []
+    pilot.writer = SimpleNamespace(
+        file={"metadata": SimpleNamespace(attrs={})}, finish=saved.append
+    )
+    outcome = dict(passed=False, released=False, stop_reason="force_limit")
+    pilot.finish(outcome)
+    assert saved == [dict(outcome, termination="force_limit")]
+    assert "termination" not in outcome
