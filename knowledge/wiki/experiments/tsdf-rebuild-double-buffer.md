@@ -5,8 +5,8 @@ The one authorized successor to [[tsdf-deferred-snapshot-audit|final-only
 snapshot deferral]] retains a complete CPU download after every integration.
 **Recovery checkpoint: production remains at baseline. Original local success is
 reported below, but its raw payloads disappeared with worktree `782a`. Recovered
-sources do not inherit that validation. Fresh local and complete comparisons
-are running under a coordinated exclusive GPU lease.**
+sources do not inherit that validation. Fresh local correctness, worker reentry and benefit gates now pass. Complete
+comparisons are running under a coordinated exclusive GPU lease.**
 
 ## Persistent recovery
 
@@ -34,6 +34,31 @@ local/fixed/timed suite, including gaps between processes; concurrent-compute
 guards remain enabled. Because raw local evidence is missing, the reconstructed
 24 local correctness pairs, eight real-worker pairs and preset local benefit
 comparison must pass afresh before full equivalence and timed ingress.
+
+## Fresh recovered-source local validation
+
+The reconstructed harness now completes all 24 local CUDA pairs exactly,
+including full-array comparisons, refusals, integration/download errors, actual
+half downloads, bbox/mesh reads and later native integration/query behavior.
+All eight real-worker pairs also match exactly; every next request executes 29
+SDF queries. The 66 local CUDA cells and 16 workers have no observed foreign
+compute in their retained monitors. These are new results, independent of the
+missing original payloads.
+
+The preset three timing pairs pass again, without favorable retries:
+
+| Captured rebuild | Baseline median | Buffered median | Reduction |
+|---|---:|---:|---:|
+| Light, 17 integrations | 659.2 ms | 427.4 ms | 35.2% |
+| Nominal, six integrations | 481.7 ms | 343.0 ms | 28.8% |
+
+Both timing ranges are disjoint. Sampled host RSS peaks remain higher by about
+one pair: 1708.7–1711.4 / 1835.4–1838.6 MiB light and 1883.8–1884.3 /
+2091.5–2091.8 MiB nominal, baseline/buffered. Downloads, HtoD/DtoH byte/call
+counts and CUDA allocation sequences are identical. Complete fixed-input
+identity, timed quality/availability and repeated-rebuild memory remain open.
+`local-summary.json`, `correctness-summary.json`, `worker-reentry-summary.json`
+and `local-evidence-audit.json` in the recovery directory own these results.
 
 ## Single change and ownership
 
@@ -195,5 +220,5 @@ correctness boundary. The preceding `tsdf-snapshot-20261014/` evidence, recordin
 failed attempts and rejected implementation remain untouched. Ignored files,
 including the active checklist, stay uncommitted. That original directory is now
 missing; use the recovery directory above for currently available sources and
-new validation, and treat the following original measurements as historical
+new validation, and treat the original measurements above as historical
 reported results until reproduced.
