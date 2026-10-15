@@ -195,8 +195,15 @@ def score(policy, data, root, destination):
     median = np.median(
         np.concatenate([r.actions for r in data.dataset.records if r.split == "train"]), axis=0
     )
-    report = dict(train_median_native=median.tolist(), episodes={})
+    report_path = destination / "physical-errors.json"
+    report = (
+        json.loads(report_path.read_text())
+        if report_path.exists()
+        else dict(train_median_native=median.tolist(), episodes={})
+    )
     for r in data.dataset.records:
+        if r.asset_id in report["episodes"]:
+            continue
         features = obs_matrix(r, data.stats.obs_keys)
         starts = np.arange(0, len(features), 6)
         pred = np.stack([policy.predict(features[t]) for t in starts])
@@ -249,7 +256,7 @@ def score(policy, data, root, destination):
             valid=valid,
             phase=stage,
         )
-    write(destination / "physical-errors.json", report)
+        write(report_path, report)
 
 
 def train_variant(root, output, variant):
@@ -265,7 +272,7 @@ def train_variant(root, output, variant):
     resume = None
     resume_path = destination / "resume.pt"
     if resume_path.exists():
-        saved = torch.load(resume_path, weights_only=False, map_location="cuda:0")
+        saved = torch.load(resume_path, weights_only=False, map_location="cpu")
         model.load_state_dict(saved["model"])
         resume = saved["training"]
     initial_path = destination / "initial.pt"

@@ -128,6 +128,13 @@ def test_causal_raw_roundtrip_and_models(tmp_path, recipe):
             policy = B1Policy.from_checkpoint(
                 saved, family, binding=binding, runtime_asset=TEST_ROBOT_REF, num_inference_steps=10
             )
+            incompatible = pilot_binding(
+                inspection, recipe=FIXED_UNITS_RECIPE if recipe == RECIPE else RECIPE
+            )
+            with pytest.raises(ValueError, match="mismatch"):
+                B1Policy.from_checkpoint(
+                    saved, family, binding=incompatible, runtime_asset=TEST_ROBOT_REF
+                )
             assert next(policy.policy.model.parameters()).is_cuda
             assert policy.predict(features[-1]).shape == (12, data.action_dim)
             assert policy.chunk_source(lambda x: x, n_action_steps=6)(features[-1]).shape[0] == 6

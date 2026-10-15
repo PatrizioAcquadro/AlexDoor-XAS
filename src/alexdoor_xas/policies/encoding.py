@@ -100,13 +100,17 @@ class RGBDEncoder:
             raise ValueError("Depth mask differs from the bound sensor interval")
         rgb = rgb.permute(2, 0, 1).float()[None] / 255
         mask = valid.permute(2, 0, 1).float()[None]
-        depth = torch.where(valid, depth, 0).permute(2, 0, 1).float()[None] / self.depth_scale
+        depth = torch.where(valid, depth, 0).permute(2, 0, 1).float()[None] / self.far
 
         def pool(x):
             return F.adaptive_avg_pool2d(x, (GRID, GRID))
 
         coverage = pool(mask)
         depth = pool(depth) / coverage.clamp_min(1e-8)
+        # Keep the legacy float32 pooling order so saved pooled features and
+        # live encoding share the same rounding; policy units change afterwards.
+        if self.depth_scale != self.far:
+            depth = depth * (self.far / self.depth_scale)
         return torch.cat((pool(rgb), depth, coverage), dim=1).flatten().cpu().numpy()
 
     def update(self, sensor, *, generation):

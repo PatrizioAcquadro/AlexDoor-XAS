@@ -55,6 +55,11 @@ remain the authoritative recordings; the copy does not duplicate their 40 GB.
 CUDA verification replays every causal 10 Hz encoder acquisition from reset,
 including inspection and history, and checks 60 Hz time/proprioception joins.
 The finite float32 pooling tolerance is 3e-6 absolute plus 2e-6 relative.
+An initial raw replay failed before training: moving the unit conversion inside
+the float32 spatial sum differed by up to 0.77 mm on the first checked frame.
+That attempt is retained. V2 now preserves v1's pooling arithmetic and applies
+its linear unit conversion after pooling, matching the saved-feature conversion
+without relaxing the original consistency tolerance.
 The numerical raw-observer round trip separately covers preparation/export,
 training tensors, inference and checkpoint binding.
 
