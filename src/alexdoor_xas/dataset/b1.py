@@ -1,4 +1,4 @@
-"""Matched B1 feature/action episodes, separate from perception engineering data."""
+"""Matched B1 episodes and explicit A1/A2 pilot data, separate from engineering data."""
 
 import json
 import shutil
@@ -15,16 +15,34 @@ from alexdoor_xas.action.b1 import (
     StageSequence,
     fit_segments,
     primitive_actions,
+    robot_actions,
 )
-from alexdoor_xas.action.spaces import A4_OBJ_CENTRIC_CHUNK
+from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA, A4_OBJ_CENTRIC_CHUNK
 from alexdoor_xas.assets.identity import RobotAssetRef
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
 from alexdoor_xas.perception.contracts import geometry_profile
-from alexdoor_xas.policies.common.b1_contract import OBS_KEYS, PerceptionBinding, policy_contract
-from alexdoor_xas.policies.observations import observation_columns, require_estimate
+from alexdoor_xas.policies.common.b1_contract import (
+    OBS_KEYS,
+    PilotBinding,
+    observation_binding,
+    policy_contract,
+)
+from alexdoor_xas.policies.observations import (
+    observation_columns,
+    require_estimate,
+    require_features,
+)
 
 SCHEMA = "b1.policy-dataset.v1"
 PURPOSE = "b1_matched_policy_demonstration"
+PILOT_SCHEMA = "b1.policy-dataset.pilot.v1"
+PILOT_PURPOSE = "b1_partial_policy_pilot"
+
+
+def dataset_spaces(binding):
+    return (
+        (A1_JOINT_DELTA, A2_EE_DELTA) if isinstance(binding, PilotBinding) else tuple(ACTION_DIMS)
+    )
 
 
 @dataclass(frozen=True)
@@ -47,7 +65,7 @@ def compile_episode(
     tools,
     joint_targets,
     goals,
-    stages,
+    stages=None,
     binding,
 ):
     """Compile an explicitly supplied complete physical episode without inference.
@@ -61,12 +79,14 @@ def compile_episode(
     if split not in ("train", "development"):
         raise ValueError("Only frozen train/development identities are admitted")
     n = len(goals)
+    pilot = isinstance(binding, PilotBinding)
     if (
         not n
         or len(observations) != n + 1
         or len(tools) != n + 1
         or len(joint_targets) != n
-        or len(stages) != n
+        or not pilot
+        and (stages is None or len(stages) != n)
     ):
         raise ValueError("B1 requires N commands and N+1 observations/tool poses")
     times = np.asarray([o.time_s for o in observations])
@@ -76,37 +96,43 @@ def compile_episode(
         raise ValueError("Repeated B1 camera frames")
     if not np.allclose(np.diff(times), times[1] - times[0], atol=1e-7, rtol=0):
         raise ValueError("Dropped B1 control observation")
-    frames, angles, features, actions = [], [], [], {s: [] for s in ACTION_DIMS}
+    if pilot and len({obs.generation for obs in observations}) != 1:
+        raise ValueError("Pilot episode crosses observation generations")
+    spaces = dataset_spaces(binding)
+    frames, angles, features, actions = [], [], [], {s: [] for s in spaces}
     for index, obs in enumerate(observations):
         if obs.geometry_profile != geometry_profile(binding):
             raise ValueError("B1 observation geometry profile differs from its binding")
-        if not obs.valid:
-            raise ValueError(f"Unavailable manipulation observation at {index}: {obs.reason}")
-        require_estimate(
-            obs.estimate,
-            obs.time_s,
-            binding.config["max_gap_s"],
-            profile=geometry_profile(binding),
-            generation=obs.generation,
-        )
+        require_features(obs, binding)
+        if not pilot:
+            if not obs.valid:
+                raise ValueError(f"Unavailable manipulation observation at {index}: {obs.reason}")
+            require_estimate(
+                obs.estimate,
+                obs.time_s,
+                binding.config["max_gap_s"],
+                profile=geometry_profile(binding),
+                generation=obs.generation,
+            )
         columns = observation_columns(obs.features, binding)
         features.append(obs.features)
         frames.append(obs.estimate.frame)
         angles.append(obs.estimate.signed_angle)
         if index < n:
-            rows = primitive_actions(
+            args = (
                 columns["joint_position"][:7],
                 joint_targets[index],
                 tools[index],
                 goals[index],
-                obs.estimate.frame,
             )
+            rows = robot_actions(*args) if pilot else primitive_actions(*args, obs.estimate.frame)
             for space, row in rows.items():
                 actions[space].append(row)
-    starts = {s: np.arange(n, dtype=np.int64) for s in ACTION_DIMS}
-    starts[A4_OBJ_CENTRIC_CHUNK], actions[A4_OBJ_CENTRIC_CHUNK] = fit_segments(
-        tools, goals, frames, angles, stages
-    )
+    starts = {s: np.arange(n, dtype=np.int64) for s in spaces}
+    if not pilot:
+        starts[A4_OBJ_CENTRIC_CHUNK], actions[A4_OBJ_CENTRIC_CHUNK] = fit_segments(
+            tools, goals, frames, angles, stages
+        )
     result = MatchedEpisode(
         episode_id,
         asset_id,
@@ -132,12 +158,18 @@ def validate_episode(episode, binding, asset_splits):
         raise ValueError("Invalid B1 physical time axis")
     if not np.allclose(np.diff(times), times[1] - times[0], atol=1e-7, rtol=0):
         raise ValueError("B1 control cadence is not uniform")
+    if isinstance(binding, PilotBinding) and not np.allclose(
+        np.diff(times), 1 / 60, atol=1e-7, rtol=0
+    ):
+        raise ValueError("Pilot control cadence must remain 60 Hz")
     obs = np.asarray(episode.observations)
     if obs.shape != (n + 1, binding.obs_dim) or not np.isfinite(obs).all():
         raise ValueError("Invalid B1 features or missing terminal observation")
-    if set(episode.actions) != set(ACTION_DIMS) or set(episode.starts) != set(ACTION_DIMS):
-        raise ValueError("A matched B1 episode must contain A1-A4")
-    for space, width in ACTION_DIMS.items():
+    spaces = dataset_spaces(binding)
+    if set(episode.actions) != set(spaces) or set(episode.starts) != set(spaces):
+        raise ValueError("Pilot requires A1/A2; a matched B1 episode must contain A1-A4")
+    for space in spaces:
+        width = ACTION_DIMS[space]
         rows, starts = episode.actions[space], episode.starts[space]
         if rows.ndim != 2 or rows.shape[1] != width or not np.isfinite(rows).all():
             raise ValueError("Invalid B1 action tensor")
@@ -176,8 +208,11 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
     validate_recording(path, images=False)
     with h5py.File(path, "r") as source:
         metadata = json.loads(source["metadata"].attrs["episode"])
-        if metadata.get("purpose") != PURPOSE:
-            raise ValueError("Perception engineering recordings are not matched policy data")
+        if metadata.get("purpose") not in (PURPOSE, PILOT_PURPOSE):
+            raise ValueError("Perception engineering recordings are not policy data")
+        purpose = PILOT_PURPOSE if isinstance(observer.binding, PilotBinding) else PURPOSE
+        if metadata.get("purpose") != purpose:
+            raise ValueError("Recording purpose differs from the policy binding")
         calibration = json.loads(source["metadata"].attrs["calibration"])
         if calibration["joint_names"] != list(ARM_JOINTS + NECK_JOINTS):
             raise ValueError("Recorded B1 joint order differs")
@@ -219,7 +254,7 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
 
 
 def export_dataset(episodes, destination, binding, robot_asset, asset_splits):
-    """Publish one master with four aligned views; refuse existing destinations."""
+    """Publish aligned views required by the binding; refuse existing destinations."""
     episodes = list(episodes)
     ids = [e.episode_id for e in episodes]
     if not ids or len(set(ids)) != len(ids):
@@ -233,8 +268,8 @@ def export_dataset(episodes, destination, binding, robot_asset, asset_splits):
     staging = Path(tempfile.mkdtemp(prefix=".b1-", dir=destination.parent))
     try:
         metadata = dict(
-            schema=SCHEMA,
-            purpose=PURPOSE,
+            schema=PILOT_SCHEMA if isinstance(binding, PilotBinding) else SCHEMA,
+            purpose=PILOT_PURPOSE if isinstance(binding, PilotBinding) else PURPOSE,
             perception=binding.to_dict(),
             robot_asset=robot_asset.to_dict(),
             asset_splits=asset_splits,
@@ -248,7 +283,7 @@ def export_dataset(episodes, destination, binding, robot_asset, asset_splits):
                 )
                 out.create_dataset("time_s", data=episode.times)
                 out.create_dataset("observations", data=episode.observations)
-                for space in ACTION_DIMS:
+                for space in dataset_spaces(binding):
                     group = out.create_group(space)
                     group.create_dataset("actions", data=episode.actions[space])
                     group.create_dataset("starts", data=episode.starts[space])
@@ -288,9 +323,19 @@ class B1Dataset:
         directory = Path(directory)
         self.dataset_dir = directory
         metadata = json.loads((directory / "meta.json").read_text())
-        if metadata.get("schema") != SCHEMA or metadata.get("purpose") != PURPOSE:
+        if metadata.get("schema") not in (SCHEMA, PILOT_SCHEMA):
             raise ValueError("Unsupported B1 policy dataset")
-        self.binding = PerceptionBinding.from_dict(metadata["perception"])
+        self.binding = observation_binding(metadata["perception"])
+        pilot = isinstance(self.binding, PilotBinding)
+        if metadata.get("schema") != (PILOT_SCHEMA if pilot else SCHEMA) or metadata.get(
+            "purpose"
+        ) != (PILOT_PURPOSE if pilot else PURPOSE):
+            raise ValueError("Unsupported B1 policy dataset")
+        spaces = dataset_spaces(self.binding)
+        if space not in spaces:
+            raise ValueError(
+                "Representation unavailable in this dataset; pilot contains A1/A2 only"
+            )
         if binding is not None and binding != self.binding:
             raise ValueError("B1 dataset perception mismatch")
         self.contract = policy_contract(self.binding, space)
@@ -307,8 +352,8 @@ class B1Dataset:
                     source.attrs["split"],
                     source["time_s"][:],
                     source["observations"][:],
-                    {s: source[s + "/actions"][:] for s in ACTION_DIMS},
-                    {s: source[s + "/starts"][:] for s in ACTION_DIMS},
+                    {s: source[s + "/actions"][:] for s in spaces},
+                    {s: source[s + "/starts"][:] for s in spaces},
                 )
             validate_episode(episode, self.binding, metadata["asset_splits"])
             starts = episode.starts[space]

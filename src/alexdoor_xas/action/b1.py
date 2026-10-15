@@ -45,15 +45,18 @@ def finite_vector(value, dim):
     return value
 
 
-def primitive_actions(joints, joint_target, current, goal, hinge_frame):
+def robot_actions(joints, joint_target, current, goal):
     """Labels reproduce the applied target, not differences of successive targets."""
-    a2 = pose_delta(current, goal)
-    checked_pose(hinge_frame)
     return {
         A1_JOINT_DELTA: finite_vector(joint_target, 7) - finite_vector(joints, 7),
-        A2_EE_DELTA: a2,
-        A3_OBJ_REL_EE_DELTA: world_delta_to_frame(a2, hinge_frame),
+        A2_EE_DELTA: pose_delta(current, goal),
     }
+
+
+def primitive_actions(joints, joint_target, current, goal, hinge_frame):
+    rows = robot_actions(joints, joint_target, current, goal)
+    checked_pose(hinge_frame)
+    return rows | {A3_OBJ_REL_EE_DELTA: world_delta_to_frame(rows[A2_EE_DELTA], hinge_frame)}
 
 
 def relative_pose(world, frame):

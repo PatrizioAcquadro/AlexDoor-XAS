@@ -13,6 +13,7 @@ from alexdoor_xas.perception.contracts import (
     RobotFeedback,
     geometry_profile,
 )
+from alexdoor_xas.policies.common.b1_contract import PilotBinding
 from alexdoor_xas.qualification.synthetic_probe import ContactLoad
 
 
@@ -148,6 +149,12 @@ class PurdueIO:
         from alexdoor_xas.recording.b1_runtime import camera_calibration
 
         self.profile = geometry_profile(binding)
+        if isinstance(binding, PilotBinding) and (
+            not np.isclose(env.cfg.sim.dt, 1 / 120, atol=1e-10, rtol=0)
+            or env.cfg.decimation != 2
+            or not np.isclose(env.step_dt, 1 / 60, atol=1e-10, rtol=0)
+        ):
+            raise ValueError("Pilot requires 120 Hz physics and 60 Hz control")
         if self.profile == OPERATIONAL_V1 and observed_provider is None:
             raise ValueError("Operational IO requires the observed-only monitor")
         if observed_provider is not None and observed_provider.binding != binding:

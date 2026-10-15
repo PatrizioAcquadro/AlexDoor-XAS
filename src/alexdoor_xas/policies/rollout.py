@@ -11,6 +11,7 @@ from alexdoor_xas.action.b1 import (
     SegmentMotion,
     StageSequence,
     apply_pose_delta,
+    checked_pose,
     finite_vector,
 )
 from alexdoor_xas.action.frames import frame_delta_to_world
@@ -24,7 +25,8 @@ from alexdoor_xas.perception.contracts import (
     same_pose,
     validate_reference,
 )
-from alexdoor_xas.policies.observations import require_estimate
+from alexdoor_xas.policies.common.b1_contract import PilotBinding
+from alexdoor_xas.policies.observations import require_estimate, require_features
 
 
 @dataclass(frozen=True)
@@ -57,6 +59,22 @@ class ActionAdapter:
         self.done = False
         self.admission = None
         self.blocked = False
+
+    def interpret(self, action, *, estimate=None):
+        """Decode a primitive representation only; the result carries no admission.
+
+        A1/A2 use robot/world coordinates. Only A3 needs a supplied hinge frame.
+        A4 retains its separate segment state machine and execution checks.
+        """
+        if self.space == A4_OBJ_CENTRIC_CHUNK:
+            raise ValueError("A4 requires segment execution context")
+        row = finite_vector(action, ACTION_DIMS[self.space]).copy()
+        if self.space == A1_JOINT_DELTA:
+            return Command("joints", row)
+        if self.space == A3_OBJ_REL_EE_DELTA:
+            checked_pose(getattr(estimate, "frame", None))
+            row = frame_delta_to_world(row, estimate.frame)
+        return Command("delta", row)
 
     def admit(self, observation, tool, action, admission):
         if self.motion is not None:
@@ -131,15 +149,14 @@ class ActionAdapter:
                 raise ValueError(f"Invalid observed input: {observation.reason}")
             self.admit(observation, tool, action, admission)
         if self.space != A4_OBJ_CENTRIC_CHUNK:
-            row = finite_vector(action, ACTION_DIMS[self.space])
+            decoded = self.interpret(action, estimate=observation.estimate)
+            row = decoded.value
             if self.profile == OPERATIONAL_V1 and len(self.admission.proposal.world_poses) != 2:
                 raise ValueError("Primitive admission requires one control interval")
             if self.space == A1_JOINT_DELTA:
                 if self.profile == OPERATIONAL_V1:
                     self.require_goal(observation, 1)
                 return Command("joints", row, admission=self.admission)
-            if self.space == A3_OBJ_REL_EE_DELTA:
-                row = frame_delta_to_world(row, observation.estimate.frame)
             if self.profile == OPERATIONAL_V1:
                 self.require_goal(observation, 1, apply_pose_delta(tool, row))
             return Command("delta", row, admission=self.admission)
@@ -232,11 +249,25 @@ class B1Runner:
     RGB-D/proprioception and robot FK, never door truth or evaluator progress.
     """
 
-    def __init__(self, policy, observer, io, *, temporal_ensemble=False, n_action_steps=None):
+    def __init__(
+        self,
+        policy,
+        observer,
+        io,
+        *,
+        temporal_ensemble=False,
+        n_action_steps=None,
+        pilot_inference_only=False,
+        admission_source=None,
+    ):
         if observer.binding != policy.binding or io.binding != policy.binding:
             raise ValueError("Policy and observer perception bindings differ")
         assert_checkpoint_runtime_compatible(policy.robot_asset, io.robot_asset)
         self.policy, self.observer, self.io = policy, observer, io
+        if pilot_inference_only and not isinstance(policy.binding, PilotBinding):
+            raise ValueError("Inference-only pilot requires an explicit pilot binding")
+        self.pilot_inference_only = pilot_inference_only
+        self.admission_source = admission_source
         self.source_options = dict(
             temporal_ensemble=temporal_ensemble, n_action_steps=n_action_steps
         )
@@ -283,6 +314,9 @@ class B1Runner:
             observation = self.observer.update(self.io.observe())
         if reason := self.io.safety_reason("inspect"):
             return observation, reason
+        if isinstance(self.policy.binding, PilotBinding):
+            require_features(observation, self.policy.binding)
+            return observation, ""
         return observation, "" if observation.valid else observation.reason
 
     def run(self, *, max_ticks=None, seed=0):
@@ -299,9 +333,12 @@ class B1Runner:
             if reason:
                 return self.stop(reason, steps)
             for _ in range(budget):
-                if reason := self.io.safety_reason(None):
+                monitor_stage = "inspect" if self.pilot_inference_only else None
+                if reason := self.io.safety_reason(monitor_stage):
                     return self.stop(reason, steps)
-                if not observation.valid:
+                if isinstance(self.policy.binding, PilotBinding):
+                    require_features(observation, self.policy.binding)
+                elif not observation.valid:
                     return self.stop(observation.reason, steps)
                 row = None
                 if self.policy.action_space == A4_OBJ_CENTRIC_CHUNK:
@@ -312,8 +349,21 @@ class B1Runner:
                     if not self.pending:
                         self.pending.extend(self.source(observation))
                     row = self.pending.popleft()
+                if self.pilot_inference_only:
+                    self.adapter.interpret(row, estimate=observation.estimate)
+                    return self.stop("unqualified_pilot_inference_only", steps)
+                tool = self.io.tool_pose()
+                admission = None
+                if self.adapter.profile == OPERATIONAL_V1 and self.adapter.motion is None:
+                    if self.admission_source is None:
+                        return self.stop("missing_action_admission_source", steps)
+                    admission = self.admission_source(observation, tool, row, budget - steps)
                 command = self.adapter.command(
-                    observation, self.io.tool_pose(), action=row, remaining_ticks=budget - steps
+                    observation,
+                    tool,
+                    action=row,
+                    remaining_ticks=budget - steps,
+                    admission=admission,
                 )
                 self.io.execute(command)
                 steps += 1

@@ -1,5 +1,9 @@
 # Action Representations and Adapters
 
+The [[b1-policy-pilot|common policy pilot]] separates A1/A2 representation
+interpretation from geometry and execution admission. A3/A4 geometry requirements
+and physical contact/feedback/stop checks remain in force.
+
 AlexDoor-XAS changes the action representation while holding the robot, task, physical episode, and evaluation protocol fixed.
 
 Purdue provides the low-level executor. The separate B1 software path now connects

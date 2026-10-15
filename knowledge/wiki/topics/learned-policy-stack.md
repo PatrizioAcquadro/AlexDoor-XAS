@@ -11,6 +11,11 @@ The shared B1 perception boundary is documented separately in
 connects its observed encoding to both families; qualification and physical
 validation of the eight learning paths remain pending.
 
+The [[b1-policy-pilot|common policy pilot foundation]] adds a separate, explicitly
+unqualified binding for independent encoder/policy and geometry development.
+Partial A1/A2 data and inference use the same family APIs without supplying hinge
+geometry. Qualified-release contracts and operational execution checks remain in force.
+
 ## Maintained Components
 
 - `ActModelCfg` / `DiffusionModelCfg` and their training dataclasses configure the

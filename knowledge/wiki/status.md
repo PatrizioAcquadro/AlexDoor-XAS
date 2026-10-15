@@ -3,7 +3,13 @@
 Current as of 2026-10-14. **Static 6.0B is maintained; CAD-free Point2Pose is
 implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
-reference. A3/A4, policies and operational thresholds are unchanged.
+reference. A3/A4 semantics and operational thresholds are unchanged.
+
+The [[topics/b1-policy-pilot|common policy pilot foundation]] now permits explicitly
+unqualified A1/A2 feature/data/inference development independently of the geometry
+provider. Representation conversion is separate from execution admission; existing
+release gates and operational thresholds remain unchanged. No encoder/model run,
+training, contact or matched policy-data collection was performed for this foundation.
 
 | Area | Current state |
 |---|---|

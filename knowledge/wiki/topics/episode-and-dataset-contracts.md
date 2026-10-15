@@ -4,6 +4,10 @@ B1 maintains causal `b1.rgbd.v1` recordings and matched `b1.policy-dataset.v1`
 policy data. The previous `phase2.v2` reader/export/split/view pipeline is retired;
 historical source remains at `097d578`. It is not a second supported data path.
 
+The explicitly unqualified [[b1-policy-pilot|policy pilot]] additionally supports
+`b1.policy-dataset.pilot.v1` with A1/A2 only. Its binding, purpose and policy contract
+are distinct; partial data cannot enter the final matched format below.
+
 ## Recording
 
 The RGB-D engineering interface is documented in

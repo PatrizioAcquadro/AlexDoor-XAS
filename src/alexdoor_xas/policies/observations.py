@@ -1,6 +1,6 @@
 """One causal observed-only encoding path for B1 offline preparation and rollout."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -14,7 +14,7 @@ from alexdoor_xas.perception.contracts import (
     validate_contact_transition,
     validate_geometry,
 )
-from alexdoor_xas.policies.common.b1_contract import OBS_KEYS
+from alexdoor_xas.policies.common.b1_contract import OBS_KEYS, PilotBinding
 from alexdoor_xas.recording.b1 import OBS_KEYS as SENSOR_KEYS
 
 
@@ -22,6 +22,45 @@ def numpy(value):
     if hasattr(value, "detach"):
         return value.detach().cpu().numpy()
     return np.asarray(value)
+
+
+@dataclass(frozen=True)
+class FeatureBlock:
+    values: np.ndarray
+    acquired_s: float
+    available_s: float
+    frame: int
+    generation: int
+
+    def require(self, now, frame, generation, width, *, max_age=None):
+        finite_vector(self.values, width)
+        if (
+            type(self.generation) is not int
+            or self.generation < 0
+            or self.generation != generation
+            or not np.isfinite([self.acquired_s, self.available_s, now]).all()
+            or not 0 <= self.acquired_s <= self.available_s <= now
+            or not isinstance(self.frame, (int, np.integer))
+            or not 0 <= self.frame <= frame
+        ):
+            raise ValueError("unavailable_feature_support")
+        if max_age is not None and now - self.acquired_s > max_age + 1e-9:
+            raise ValueError("stale_policy_features")
+
+
+@dataclass(frozen=True)
+class VisualEncoding:
+    static: FeatureBlock
+    recent: FeatureBlock
+
+    def require(self, now, frame, generation, binding):
+        static, recent = binding.config["visual_dims"]
+        self.static.require(now, frame, generation, static)
+        self.recent.require(now, frame, generation, recent, max_age=binding.config["max_gap_s"])
+
+    @property
+    def vector(self):
+        return np.r_[self.static.values, self.recent.values]
 
 
 @dataclass(frozen=True)
@@ -34,30 +73,58 @@ class PolicyObservation:
     geometry_profile: str = LEGACY_FULL_STATE
     generation: int | None = None
     max_age_s: float = 0.15
+    feature_support: VisualEncoding | None = None
 
     @property
     def features_available(self):
-        return (
-            self.features is not None
-            and np.asarray(self.features).ndim == 1
-            and np.isfinite(self.features).all()
-        )
+        if (
+            self.features is None
+            or np.asarray(self.features).ndim != 1
+            or not np.isfinite(self.features).all()
+        ):
+            return False
+        if self.feature_support is not None:
+            try:
+                for block, age in (
+                    (self.feature_support.static, None),
+                    (self.feature_support.recent, self.max_age_s),
+                ):
+                    block.require(
+                        self.time_s, self.frame, self.generation, np.size(block.values), max_age=age
+                    )
+                if not np.array_equal(self.features[:-18], self.feature_support.vector):
+                    return False
+            except (ValueError, TypeError, AttributeError):
+                return False
+        return True
+
+    @property
+    def geometry_available(self):
+        return geometric_admission(
+            self.estimate,
+            self.time_s,
+            self.max_age_s,
+            profile=self.geometry_profile,
+            generation=self.generation,
+        ).qualified
 
     @property
     def valid(self):
         if self.geometry_profile == LEGACY_FULL_STATE:
             return self.features is not None and self.estimate.valid
-        return (
-            self.features_available
-            and self.generation is not None
-            and geometric_admission(
-                self.estimate,
-                self.time_s,
-                self.max_age_s,
-                profile=self.geometry_profile,
-                generation=self.generation,
-            ).qualified
-        )
+        return self.features_available and self.generation is not None and self.geometry_available
+
+
+def require_features(observation, binding):
+    """Policy availability is independent of geometry and command admission."""
+    finite_vector(observation.features, binding.obs_dim)
+    if isinstance(binding, PilotBinding):
+        support = observation.feature_support
+        if support is None or observation.generation is None:
+            raise ValueError("missing_policy_feature_support")
+        support.require(observation.time_s, observation.frame, observation.generation, binding)
+        if not np.array_equal(observation.features[:-18], support.vector):
+            raise ValueError("policy_feature_support_mismatch")
 
 
 def require_estimate(estimate, now, max_age, *, profile=LEGACY_FULL_STATE, generation=None):
@@ -83,24 +150,42 @@ def observation_columns(vector, binding):
 
 
 class B1Observer:
-    """Assemble a provider's two visual blocks and current proprioception.
+    """Assemble visual blocks and current proprioception on one causal clock.
 
-    The provider exposes binding, NumPy encoding, reset() and update(sensor)->DoorEstimate.
-    It owns device conversion and inference, and verifies release artifacts before
-    loading. No qualified provider is supplied by this package yet.
+    Releases retain provider-owned encoding and artifact verification. Pilots use
+    an independent encoder and an optional geometry provider. No qualified
+    provider or trained encoder is supplied by this package yet.
     """
 
-    def __init__(self, provider, binding):
-        if provider.binding != binding:
+    def __init__(self, provider, binding, *, encoder=None):
+        self.pilot = isinstance(binding, PilotBinding)
+        if provider is not None and provider.binding != binding:
             raise ValueError("Perception provider does not match the B1 release")
+        if self.pilot:
+            if encoder is None or encoder.binding != binding:
+                raise ValueError("Pilot requires an independently bound policy encoder")
+        elif encoder is not None or provider is None:
+            raise ValueError("Release observations require their bound perception provider")
+        self.encoder = encoder
+        self.generation = -1
         self.provider, self.binding = provider, binding
         self.profile = geometry_profile(binding)
-        if self.profile == OPERATIONAL_V1 and not hasattr(provider, "generation"):
+        if (
+            provider is not None
+            and self.profile == OPERATIONAL_V1
+            and not hasattr(provider, "generation")
+        ):
             raise ValueError("Operational provider must declare its episode generation")
         self.reset()
 
     def reset(self):
-        self.provider.reset()
+        if self.provider is not None:
+            self.provider.reset()
+        self.generation += 1
+        if self.encoder is not None:
+            self.encoder.reset()
+        self.last_features = None
+        self.last_geometry = None
         self.last = None
         self.last_time = None
         self.last_frame = None
@@ -118,6 +203,69 @@ class B1Observer:
             self.profile,
             getattr(self.provider, "generation", None),
             self.binding.config["max_gap_s"],
+        )
+
+    def policy_observation(self, sensor, t, frame, q, dq):
+        generation = getattr(self.provider, "generation", self.generation)
+        if generation != self.last_generation:
+            self.last_features = self.last_geometry = None
+            self.last_generation = generation
+        # Encoder never receives calibration, geometry, teacher labels or feedback.
+        inputs = {k: sensor[k] for k in SENSOR_KEYS if k not in ("camera_world", "intrinsics")}
+        rgb, depth, mask = (numpy(inputs[k]) for k in ("rgb", "depth_m", "valid_depth"))
+        if (
+            depth.ndim != 3
+            or depth.shape[-1] != 1
+            or mask.shape != depth.shape
+            or rgb.shape != (*depth.shape[:2], 3)
+            or mask.dtype.kind != "b"
+            or np.any(mask & (~np.isfinite(depth) | (depth <= 0)))
+            or not np.any(mask)
+        ):
+            self.last_features = None
+            return self.invalidate(t, frame, "invalid_rgbd")
+        estimate = (
+            self.provider.update(sensor)
+            if self.provider is not None
+            else DoorEstimate(t, False, "geometry_unavailable")
+        )
+        current_generation = getattr(self.provider, "generation", self.generation)
+        if current_generation != generation:
+            self.last_features = self.last_geometry = None
+            generation = self.last_generation = current_generation
+        if estimate.reason == "between_inference_ticks" and self.last_geometry is not None:
+            estimate = self.last_geometry
+        else:
+            self.last_geometry = estimate
+        encoded = self.encoder.update(inputs, generation=generation)
+        if encoded is not None:
+            self.last_features = encoded
+        try:
+            if self.last_features is None:
+                raise ValueError("policy_features_unavailable")
+            self.last_features.require(t, frame, generation, self.binding)
+        except ValueError as error:
+            self.last_features = None
+            return replace(
+                self.invalidate(t, frame, str(error)), estimate=estimate, generation=generation
+            )
+        geometry = geometric_admission(
+            estimate,
+            t,
+            self.binding.config["max_gap_s"],
+            profile=self.profile,
+            generation=generation,
+        )
+        return PolicyObservation(
+            t,
+            frame,
+            np.r_[self.last_features.vector, q, dq],
+            estimate,
+            geometry.reason,
+            self.profile,
+            generation,
+            self.binding.config["max_gap_s"],
+            self.last_features,
         )
 
     def operational_observation(self, estimate, t, frame, q, dq):
@@ -175,9 +323,14 @@ class B1Observer:
             q = finite_vector(numpy(sensor["joint_position"]), 9)
             dq = finite_vector(numpy(sensor["joint_velocity"]), 9)
         except ValueError:
-            self.provider.reset()
+            if self.pilot:
+                self.reset()
+            else:
+                self.provider.reset()
             self.last_contact = None
             return self.invalidate(t, frame, "invalid_proprioception")
+        if self.pilot:
+            return self.policy_observation(sensor, t, frame, q, dq)
         estimate = self.provider.update(sensor)
         if self.profile == OPERATIONAL_V1:
             return self.operational_observation(estimate, t, frame, q, dq)
