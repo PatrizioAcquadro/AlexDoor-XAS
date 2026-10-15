@@ -86,15 +86,13 @@ worker request consumes different SDF values. Point/image preparation remains
 separate from measured snapshot copies. Production stays at baseline; failed
 error equivalence prevents full fixed/timed replays. Dense replay does not
 verify operational loss. The single [[experiments/tsdf-rebuild-double-buffer|two-buffer successor]]
-preserves every download and passes local CUDA error/lifetime checks and eight
-paired actual-worker reentry fixtures. Preset local medians fall 36.5%/25.0%, with
-about 127/208 MiB higher transient host peaks and unchanged downloads. Two fresh full
-fixed-input prefixes were stopped by foreign CUDA work and preserved; an exclusive
-GPU window is required before complete numerical and timed-ingress evaluation.
-Production remains unchanged.
-Material correspondence/recovery, hardware/FK/floor bounds and all
-contact/action qualification remain open. Earlier selected quality is historical,
-without automatic transfer to the persistent inspection session.
+has recovered original candidate source and reconstructed harnesses persisted in
+the primary checkout. Its original raw local results and interrupted replay
+payloads are missing after worktree removal; earlier local benefits are reported
+history, not inherited validation. Fresh local gates and complete comparisons
+use one GPU lease coordinated with the other active chats. Production remains
+unchanged; numerical, operational and repeated-rebuild memory validation remain
+open.
 
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved

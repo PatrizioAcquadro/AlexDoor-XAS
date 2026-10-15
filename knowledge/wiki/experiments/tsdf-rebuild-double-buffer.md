@@ -3,9 +3,37 @@
 2026-10-15. Branch `PatrizioAcquadro/b1-observed-a3a4`, baseline `99fa48e`.
 The one authorized successor to [[tsdf-deferred-snapshot-audit|final-only
 snapshot deferral]] retains a complete CPU download after every integration.
-**Local CUDA correctness, actual worker reentry and the preset local benefit
-gate pass. The complete-comparison gate remains blocked by recurring foreign GPU work.
-Keep production at baseline; adoption is pending, not rejected on local evidence.**
+**Recovery checkpoint: production remains at baseline. Original local success is
+reported below, but its raw payloads disappeared with worktree `782a`. Recovered
+sources do not inherit that validation. Fresh local and complete comparisons
+are running under a coordinated exclusive GPU lease.**
+
+## Persistent recovery
+
+The clean primary checkout is now on `PatrizioAcquadro/b1-observed-a3a4` at
+`f94be75`; `db36` is detached at `99fa48e`, and `782a/AlexDoor-XAS` is absent.
+The latest three commits contain documentation only. The original candidate
+survived in `/tmp/tsdf_candidate.py`, copied byte-for-byte into
+`outputs/evidence/b1/perception/tsdf-double-buffer-recovery-20261015/` alongside
+the original preparation/analysis scripts, independent copies of both captured
+fixtures and the unchanged baseline sources. This directory belongs to the
+primary checkout and has no dependency on a disposable worktree.
+
+The original candidate source is recovered; the runnable harnesses are
+reconstructed from the original generators and the original session's explicit
+half-download patch. `recovery.json` distinguishes them. Searches of the primary
+checkout, surviving worktrees and desktop trash found no original local arrays,
+worker records or interrupted replay payloads. The original session extract and
+committed report preserve the two interruption reports at 388/426 frames; their
+missing raw data cannot be recreated or claimed preserved. All newly produced
+attempts remain in the recovery directory.
+
+Both other active chats finished GPU work and agreed to use
+`/tmp/rtx4090-exclusive.lock`. `validate_suite.py` holds that lock for the entire
+local/fixed/timed suite, including gaps between processes; concurrent-compute
+guards remain enabled. Because raw local evidence is missing, the reconstructed
+24 local correctness pairs, eight real-worker pairs and preset local benefit
+comparison must pass afresh before full equivalence and timed ingress.
 
 ## Single change and ownership
 
@@ -159,10 +187,13 @@ completed local replicas. No other implementation variant is authorized.
 
 ## Evidence
 
-`outputs/evidence/b1/perception/tsdf-double-buffer-20261015/` owns the candidate,
+The historical `outputs/evidence/b1/perception/tsdf-double-buffer-20261015/` owned the candidate,
 source baselines, protocol, original-fixture links, local arrays and JSON,
 all logs, worker request/retained-state/query records and GPU samples.
 `correctness-summary.json` and `worker-reentry-summary.json` own the completed
 correctness boundary. The preceding `tsdf-snapshot-20261014/` evidence, recordings,
 failed attempts and rejected implementation remain untouched. Ignored files,
-including the active checklist, stay uncommitted.
+including the active checklist, stay uncommitted. That original directory is now
+missing; use the recovery directory above for currently available sources and
+new validation, and treat the following original measurements as historical
+reported results until reproduced.
