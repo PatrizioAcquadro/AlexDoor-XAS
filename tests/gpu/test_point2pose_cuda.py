@@ -5,6 +5,76 @@ import subprocess
 from pathlib import Path
 
 
+def readonly_launch():
+    """Compare every fused value and caller buffer against the pre-patch CUDA code."""
+    import ast
+
+    import numpy as np
+    import point2pose.modules.reconstruction.sdf_builder as native
+    import pycuda.driver as cuda
+
+    source = Path(native.__file__).with_suffix(".py.before-tracking-fixes")
+    node = next(
+        n
+        for n in ast.parse(source.read_text()).body
+        if isinstance(n, ast.ClassDef) and n.name == "TSDFVolume"
+    )
+    namespace = vars(native).copy()
+    exec(compile(ast.Module(body=[node], type_ignores=[]), str(source), "exec"), namespace)
+    bounds = np.array([[-0.1, 0.1], [-0.12, 0.12], [0.9, 1.1]])
+    volumes = [cls(bounds.copy(), 0.02) for cls in (namespace["TSDFVolume"], native.TSDFVolume)]
+    rgb = np.arange(30 * 40 * 3, dtype=np.uint8).reshape(30, 40, 3)
+    depth = np.linspace(0.95, 1.05, 30 * 40, dtype=np.float32).reshape(30, 40)
+    intrinsics = np.array([[50, 0, 20], [0, 50, 15], [0, 0, 1]], np.float32)
+    pose = np.eye(4, dtype=np.float32)
+    before = [a.copy() for a in (rgb, depth, intrinsics, pose)]
+    readbacks = []
+    copy = cuda.memcpy_dtoh
+
+    def observe(destination, source):
+        readbacks.append(destination.nbytes)
+        return copy(destination, source)
+
+    cuda.memcpy_dtoh = observe
+    try:
+        for multiloop in (False, True):
+            counts = []
+            for volume in volumes:
+                if multiloop:
+                    volume._max_gpu_grid_dim = np.ones(3, dtype=int)
+                    volume._max_gpu_threads_per_block = 128
+                    volume._n_gpu_loops = int(np.ceil(np.prod(volume._vol_dim) / 128))
+                readbacks.clear()
+                for weight in (1.0, 2.0):
+                    volume.integrate(rgb, depth, intrinsics, pose, obs_weight=weight)
+                counts.append((len(readbacks), sum(readbacks)))
+            loops = volumes[0]._n_gpu_loops
+            assert counts[0][0] - counts[1][0] == 2 * loops * 6
+            assert counts[0][1] - counts[1][1] == 2 * loops * (12 + 36 + 64 + 24 + 2 * depth.nbytes)
+            for old, new in zip(volumes[0].get_volume(), volumes[1].get_volume(), strict=True):
+                np.testing.assert_array_equal(old, new, strict=True)
+            np.testing.assert_array_equal(
+                volumes[0].get_weight_volume(), volumes[1].get_weight_volume(), strict=True
+            )
+        for old, new in zip(before, (rgb, depth, intrinsics, pose), strict=True):
+            np.testing.assert_array_equal(old, new, strict=True)
+
+        # Both paths must raise within integrate, before its caller can publish success.
+        def fail(*args, **kwargs):
+            raise RuntimeError("launch_failed")
+
+        for volume in volumes:
+            volume._cuda_integrate = fail
+            try:
+                volume.integrate(rgb, depth, intrinsics, pose)
+            except RuntimeError as error:
+                assert str(error) == "launch_failed"
+            else:
+                raise AssertionError("CUDA failure was swallowed")
+    finally:
+        cuda.memcpy_dtoh = copy
+
+
 def expansion():
     from types import SimpleNamespace
 
@@ -92,7 +162,8 @@ def test_official_cuda_expansion_preserves_sparse_state():
         [
             str(runtime),
             "-c",
-            f"import runpy; runpy.run_path({str(Path(__file__))!r})['expansion']()",
+            f"import runpy; checks = runpy.run_path({str(Path(__file__))!r}); "
+            "checks['readonly_launch'](); checks['expansion']()",
         ],
         env=env,
         capture_output=True,
