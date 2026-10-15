@@ -82,11 +82,124 @@ utilization inspection before launch. Monitor foreign compute during each stage.
 Retain interference attempts, stop only our worker, wait again and resume only
 incomplete cells or epochs. Free memory alone is not admission.
 
-## Results and limits
+## Completed CUDA evidence
 
-Paired CUDA training and raw-frame verification are pending an exclusive window.
-There is one development identity and one training seed. No test split is used.
-Even a positive offline result cannot transfer physical validity of demonstrations
-from the historical controller to the newer controller. Before comparative rollouts,
-verify demonstrations with the chosen controller and collect new ones if necessary;
-retain the outstanding load/contact/geometry admission requirements.
+Implementation: `6169199`, with arithmetic/resume correction `7aa83ba`.
+Both paired runs completed exactly 96 CUDA updates on RTX 4090. All initial model
+weights are identical across the pair, and the rerun baseline's final weights,
+action/observation statistics and architecture match the original checkpoint
+**exactly**. The original checkpoint hash remains unchanged. All 96 minibatches
+have identical actions and padding across variants. No development checkpoint
+selection, additional seed, overfit trial or larger budget was introduced.
+
+The corrected raw replay covers all 2,445 causal encoder acquisitions across the
+three original recordings, including inspection/history from reset; maximum saved
+versus raw feature difference is 2.3842e-7 in encoded units, below the unchanged
+consistency tolerance. Recorded time/proprioception joins are exact. Synthetic
+raw-observer/export/batch/checkpoint round trips pass for both recipes and both
+families, including refusal to load the opposite recipe. Only ACT A2 is trained.
+Numerical regressions also preserve sensor validity independently of policy scale
+and protect the pooling-roundoff correction.
+
+`accepted-*.json` and `attempts/*/gpu.jsonl` retain the accepted stage boundaries
+and monitoring: no foreign compute or new graphics process was observed during
+any accepted stage. The initial failed raw attempt remains separate; no training
+was performed in it. Ordinary Xorg/shell/portal/TeamViewer and existing browser
+GPU processes are allowed and recorded. The initial supervisor's extra 15% display
+utilization cutoff was removed before training because it rejected ordinary desktop
+activity; the frozen protocol requires idle compute, process/utilization inspection
+and both shared leases, not a utilization threshold. That clarification and the
+initial logs are retained. No scientific criterion, clip or training budget changed.
+The supervisor queues on the shared lease, releases it on completion and preserves
+accepted cells. Long resource waits are not algorithm timing measurements.
+
+## Development predictions
+
+Every sixth tick produces 518 chunks. Full-horizon scoring contains 6,200 valid
+predictions; the actually consumed schedule prefix (positions 0–5) contains 3,103
+actions, each recorded action once. This remains offline prediction analysis.
+The discarded suffix contains 3,097 overlapping predictions. JSON/NPZ retain all
+predictions, targets, phases, positions, native column errors and quantiles.
+
+### Executed prefix: overall errors
+
+| Predictor | Mean translation (mm) | p95 translation (mm) | Mean rotation (deg) | p95 rotation (deg) |
+|---|---:|---:|---:|---:|
+| ACT v1 | 11.927 | 26.121 | 1.5897 | 1.8975 |
+| ACT fixed units | 6.443 | 29.707 | 0.9001 | 2.0853 |
+| Zero | 7.396 | 27.208 | 0.6377 | 1.6704 |
+| Train median | 6.385 | 27.178 | 0.6604 | 1.7100 |
+
+Fixed units reduce prefix mean translation by 46.0% and rotation by 43.4% versus
+the paired ACT baseline. Both p95 errors **worsen** (26.12→29.71 mm and
+1.897→2.085 deg). Train median has slightly lower mean translation (only 0.058 mm difference,
+practically a near tie here) and lower mean rotation; zero also has lower mean
+rotation error. Reduced clipping alone would not establish this
+prediction benefit, and the observed mean benefit is not uniform superiority.
+
+### Executed prefix: target phase
+
+Each predictor cell is **translation mm / rotation deg**, using mean errors.
+
+| Phase | Actions | ACT v1 | ACT fixed units | Zero | Train median |
+|---|---:|---:|---:|---:|---:|
+| approach | 360 | 21.91 / 1.699 | 20.76 / 1.635 | 21.13 / 1.366 | 20.32 / 1.445 |
+| contact | 180 | 6.99 / 1.075 | 3.86 / 0.705 | 4.01 / 0.278 | 2.25 / 0.289 |
+| push | 2203 | 10.83 / 1.644 | 4.01 / 0.789 | 5.26 / 0.501 | 4.09 / 0.515 |
+| hold | 180 | 13.83 / 1.854 | 1.73 / 0.200 | 7.80 / 0.937 | 7.23 / 0.955 |
+| release | 180 | 8.39 / 0.958 | 14.94 / 1.682 | 9.09 / 0.912 | 9.96 / 0.944 |
+
+Push accounts for 2,203/3,103 prefix actions (71%). Gains concentrate in push and
+hold; release regresses from 8.39 to 14.94 mm and 0.958 to 1.682 deg. Approach
+remains approximately 21 mm. Keep the release and upper-tail regression alongside
+the aggregate benefit; do not qualify a manipulation policy from the mean alone.
+
+### Chunk position
+
+Mean translation mm / rotation deg; positions **0–5** form the consumed prefix.
+All phase-position intersections are retained in `summary.json` and each variant's
+`physical-errors.json`; no future/discarded prediction is counted as executed.
+
+| Position | ACT v1 | ACT fixed units | Zero | Train median |
+|---|---:|---:|---:|---:|
+| 0 | 11.99 / 1.615 | 6.44 / 0.918 | 7.39 / 0.638 | 6.38 / 0.660 |
+| 1 | 12.07 / 1.589 | 6.59 / 0.897 | 7.39 / 0.637 | 6.38 / 0.660 |
+| 2 | 11.94 / 1.577 | 6.53 / 0.884 | 7.39 / 0.637 | 6.38 / 0.660 |
+| 3 | 11.82 / 1.574 | 6.41 / 0.885 | 7.40 / 0.638 | 6.38 / 0.660 |
+| 4 | 11.84 / 1.587 | 6.35 / 0.900 | 7.40 / 0.638 | 6.39 / 0.661 |
+| 5 | 11.91 / 1.596 | 6.34 / 0.917 | 7.40 / 0.639 | 6.39 / 0.661 |
+| 6 | 11.96 / 1.602 | 6.35 / 0.925 | 7.41 / 0.639 | 6.39 / 0.661 |
+| 7 | 11.97 / 1.599 | 6.43 / 0.928 | 7.40 / 0.638 | 6.39 / 0.661 |
+| 8 | 11.98 / 1.596 | 6.46 / 0.928 | 7.41 / 0.639 | 6.39 / 0.661 |
+| 9 | 11.99 / 1.594 | 6.42 / 0.933 | 7.41 / 0.639 | 6.39 / 0.661 |
+| 10 | 12.09 / 1.595 | 6.45 / 0.939 | 7.41 / 0.639 | 6.40 / 0.662 |
+| 11 | 12.19 / 1.593 | 6.52 / 0.945 | 7.42 / 0.640 | 6.40 / 0.662 |
+
+Both mean errors improve against ACT v1 at every chunk position, including all six
+consumed positions. Full-horizon means become 11.978→6.441 mm and 1.593→0.917 deg;
+discarded-suffix means become 12.030→6.438 mm and 1.597→0.933 deg. The benefit is
+therefore present on the consumed prefix, not confined to discarded predictions.
+
+Train fit becomes slightly worse: prefix translation changes 1.859→2.106 mm on
+the first train identity and 3.688→3.976 mm on the second; rotation changes
+0.256→0.341 and 0.590→0.659 deg. Final train normalized L1 changes 0.2641→0.3079.
+These are the observed effects of one recipe under one fixed short budget; they
+do not identify which individual visual/proprioceptive feature caused the changes.
+
+## Decision and remaining limits
+
+Implemented and numerically demonstrated: one fixed-unit input transform, zero
+clipping on the saved episodes, and consistent preparation/training/inference.
+Demonstrated on this development identity: lower mean ACT A2 prediction error,
+especially push/hold, with worse release and p95 errors and no aggregate win over
+the train median. Retain v2 as an explicit opt-in pilot recipe; preserve v1/default
+compatibility and all original checkpoints. No further training variant or broader
+campaign is launched from this result.
+
+There are only two train identities, one development identity and one seed. Broad
+generalization, sealed-test performance, contact execution and physical validity
+under the newer controller remain **not demonstrated**. The newer controller is
+unchanged, and the comparison uses only the same historical controller's episodes.
+Before comparative rollouts, verify demonstrations with the chosen controller and
+collect new ones if necessary; also retain the outstanding load/contact/geometry
+admission requirements. Offline improvement does not transfer controller validity.

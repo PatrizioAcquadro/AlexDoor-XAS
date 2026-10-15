@@ -92,3 +92,22 @@ def test_fixed_units_train_only_actions_and_identical_training_transform(tmp_pat
     data.stats.obs.std[0] = 2
     with pytest.raises(ValueError, match="Fixed-unit"):
         check_stats(data.stats, data.dataset.contract)
+
+
+def test_fixed_units_preserve_saved_pooling_roundoff():
+    inspection = json.loads(Path("configs/perception_inspection.json").read_text())
+    options = dict(depth_interval_m=(0.01, 100000))
+    legacy = RGBDEncoder(pilot_binding(inspection, **options), device="cpu")
+    fixed = RGBDEncoder(
+        pilot_binding(inspection, recipe=FIXED_UNITS_RECIPE, **options), device="cpu"
+    )
+    depth = np.linspace(0.1, 40, 32 * 48, dtype=np.float32).reshape(32, 48, 1)
+    depth[0, 0] = np.nan
+    sample = dict(
+        rgb=np.full((32, 48, 3), 128, np.uint8),
+        depth_m=depth,
+        valid_depth=np.isfinite(depth),
+    )
+    saved = legacy.encode(sample).astype(np.float64)
+    saved[192:256] *= 100000 / 5
+    np.testing.assert_array_equal(fixed.encode(sample), saved.astype(np.float32))

@@ -14,7 +14,13 @@ teacher episodes, ACT/Diffusion × A1/A2 short CUDA training and eight checkpoin
 round trips. ACT A2 development regression is retained. The
 [[experiments/b1-pilot-offline-and-robot-dynamics|offline follow-up]] localizes it to
 action components and push/hold, and identifies static-feature clipping; the train
-median remains stronger on aggregate development action error. The
+median remains stronger on aggregate development action error. The isolated
+[[experiments/b1-pilot-preprocessing|fixed-unit preprocessing pair]] removes saved
+input clipping and reduces ACT A2 consumed-prefix means from 11.93 to 6.44 mm
+and 1.590 to 0.900 deg at identical initialization/data/budget. Release and p95
+errors worsen, and train median remains better in aggregate. V2 is opt-in; this
+one-identity offline result does not qualify generalization or historical data
+under the newer controller. The
 earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate
 [[experiments/b1-loaded-hold-and-stop|load-bearing controller correction]] verifies
 robot-only CUDA hold/stop with task-local common impedance and a measured-anchor

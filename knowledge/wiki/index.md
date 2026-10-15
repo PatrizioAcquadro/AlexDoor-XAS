@@ -54,7 +54,7 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
-- [[experiments/b1-pilot-preprocessing|B1 Pilot Fixed-Unit Preprocessing]] — Isolated historical-data input correction and bounded paired ACT A2 evaluation.
+- [[experiments/b1-pilot-preprocessing|B1 Pilot Fixed-Unit Preprocessing]] — Fixed-unit inputs and paired ACT A2 mean gains, with release/tail regression and unqualified generalization.
 
 - [[experiments/b1-loaded-hold-and-stop|B1 Loaded Hold and Measured-Anchor Stop]] — Paired CUDA diagnosis, benchmark-local common impedance, continuing-physics latch/reset and unchanged-calibration limits.
 

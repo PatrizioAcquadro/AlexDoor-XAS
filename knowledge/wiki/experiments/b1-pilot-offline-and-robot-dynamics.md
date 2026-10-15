@@ -113,6 +113,11 @@ This is a demonstrated input-distribution/clipping issue. It does not establish
 that clipping, the encoder, or a particular image cell caused ACT A2 regression:
 no input ablation or preprocessing change was made.
 
+The subsequent [[b1-pilot-preprocessing|fixed-unit preprocessing pair]] isolates
+one input correction on these same historical episodes. It reproduces the ACT A2
+baseline exactly and reports prefix mean gains alongside release/p95 regressions;
+this original diagnosis and its checkpoint values remain unchanged.
+
 ## Evidence versus hypotheses
 
 Demonstrated: train learning, inadequate development action accuracy against
