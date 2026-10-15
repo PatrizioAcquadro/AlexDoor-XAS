@@ -82,6 +82,8 @@ def test_causal_raw_roundtrip_and_models(tmp_path):
     writer.finish(dict(passed=True, termination="bounded_diagnostic"))
     writer.close()
     offline = B1Observer(None, binding, encoder=RGBDEncoder(binding))
+    with pytest.raises(ValueError, match="split"):
+        prepare_recording(path, offline, lambda q, c: tool, {"train-door": "development"})
     episode = prepare_recording(path, offline, lambda q, c: tool, {"train-door": "train"})
     np.testing.assert_array_equal(episode.observations, features)
     assert episode.observations[-1, 320] == pytest.approx(13 / 255)
@@ -93,8 +95,17 @@ def test_causal_raw_roundtrip_and_models(tmp_path):
         asset_id="dev-door",
         split="development",
         observations=episode.observations + 1000,
+        source_recording=None,
     )
     splits = {"train-door": "train", "dev-door": "development"}
+    with pytest.raises(ValueError, match="physical episode"):
+        export_dataset(
+            [replace(dev, source_recording=str(path))],
+            tmp_path / "wrong",
+            binding,
+            TEST_ROBOT_REF,
+            splits,
+        )
     root = export_dataset([episode, dev], tmp_path / "data", binding, TEST_ROBOT_REF, splits)
     with h5py.File(root / "episode_000000.hdf5") as source:
         np.testing.assert_array_equal(source["raw/observations/rgb"][-1], sample["rgb"])

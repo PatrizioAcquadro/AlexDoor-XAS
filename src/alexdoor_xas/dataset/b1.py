@@ -214,6 +214,8 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
         purpose = PILOT_PURPOSE if isinstance(observer.binding, PilotBinding) else PURPOSE
         if metadata.get("purpose") != purpose:
             raise ValueError("Recording purpose differs from the policy binding")
+        if metadata.get("split") != asset_splits.get(metadata["asset_id"]):
+            raise ValueError("Recorded identity split differs from the frozen assignment")
         calibration = json.loads(source["metadata"].attrs["calibration"])
         encoding = observer.binding.config.get("encoding")
         if encoding and calibration["depth_interval_m"] != encoding["depth_interval_m"]:
@@ -288,6 +290,12 @@ def export_dataset(episodes, destination, binding, robot_asset, asset_splits):
                 )
                 if episode.source_recording is not None:
                     with h5py.File(episode.source_recording, "r") as raw:
+                        identity = json.loads(raw["metadata"].attrs["episode"])
+                        if any(
+                            identity.get(key) != getattr(episode, key)
+                            for key in ("episode_id", "asset_id", "split")
+                        ):
+                            raise ValueError("Retained recording differs from the physical episode")
                         retained = out.create_group("raw")
                         retained.attrs.update(raw.attrs)
                         for key in raw:
