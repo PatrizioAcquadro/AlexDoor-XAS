@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-14. **Static 6.0B is maintained; CAD-free Point2Pose is
+Current as of 2026-10-15. **Static 6.0B is maintained; CAD-free Point2Pose is
 implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4, policies and operational thresholds are unchanged.
@@ -88,8 +88,10 @@ error equivalence prevents full fixed/timed replays. Dense replay does not
 verify operational loss. The single [[experiments/tsdf-rebuild-double-buffer|two-buffer successor]]
 preserves every download and passes local CUDA error/lifetime checks and eight
 paired actual-worker reentry fixtures. Preset local medians fall 36.5%/25.0%, with
-about 127/208 MiB higher transient host peaks and unchanged downloads. Fresh full
-fixed-input comparisons are running; production remains unchanged at this checkpoint.
+about 127/208 MiB higher transient host peaks and unchanged downloads. Two fresh full
+fixed-input prefixes were stopped by foreign CUDA work and preserved; an exclusive
+GPU window is required before complete numerical and timed-ingress evaluation.
+Production remains unchanged.
 Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.

@@ -4,8 +4,8 @@
 The one authorized successor to [[tsdf-deferred-snapshot-audit|final-only
 snapshot deferral]] retains a complete CPU download after every integration.
 **Local CUDA correctness, actual worker reentry and the preset local benefit
-gate pass. Fresh full fixed-input and then timed comparisons are in progress;
-production stays at baseline at this checkpoint.**
+gate pass. The complete-comparison gate remains blocked by recurring foreign GPU work.
+Keep production at baseline; adoption is pending, not rejected on local evidence.**
 
 ## Single change and ownership
 
@@ -112,11 +112,50 @@ SAM3/TAPIR provider residency. Sampling does not qualify startup spikes.
 ## Conditional complete comparisons
 
 Both local gates pass: exact correctness and disjoint ranges with at least 10%
-lower median. Fresh complete fixed-input pairs are now authorized and running.
+lower median. Fresh complete fixed-input pairs are authorized but incomplete.
 Full numerical identity then gates fresh timed-ingress comparisons with the
 same recordings, selected recipe and frozen target scoring at 10/15/20 mm and
 5 degrees. No second optimization runs after failure. Even the isolated median
 rebuilds remain 415.4/339.2 ms; local savings do not establish 150 ms availability.
+
+## Complete-comparison interruptions
+
+Foreign `squadbot-av-phase1` CUDA work interrupted the first complete light
+baseline after 388 frames. The guard terminated only this experiment's processes
+and retained the attempt. After 30 continuously idle seconds, a fresh baseline
+was started; foreign compute returned and stopped it after 426 frames. Both
+partial packet/registration/volume/query histories exactly match the preserved
+historical baseline. Neither reaches the mature target or completes a full pair;
+their times are excluded from performance conclusions.
+
+All 66 completed local CUDA cells and all 16 real-worker checks had no observed
+foreign compute. Their results remain valid and are not repeated. The two
+aborted full prefixes remain under `failed-concurrent-compute/attempt-1/` and
+`attempt-2/`. No complete fixed-input comparison or timed-ingress run has
+completed. Effective-frequency quality, publication ages, losses and 150 ms
+availability therefore remain unvalidated for this candidate. Await an exclusive
+GPU window; do not relax the guard, change recovery or add another variant.
+A subsequent three-minute idle-window preflight observed further foreign jobs
+around 6 GiB and never launched a third replay. That preflight was stopped;
+no unattended process or scheduled continuation is left running.
+
+## Decision and concrete remaining work
+
+**Retain the active baseline while preserving the locally validated candidate.**
+The single two-buffer alternative fixes the previous completed-state failure
+and demonstrates substantial local CUDA savings with unchanged downloads.
+It trades approximately one extra transient host snapshot pair for fewer
+allocations and copies. It is not adopted into production because full numerical
+and effective-frequency validation have not completed, not because a quality
+regression has been measured. Adopted production savings are currently zero.
+
+After an exclusive GPU window is available, complete the fresh 3,217-input
+baseline/buffered comparison in both conditions with `run_full.py`. Only exact
+full histories/volumes/queries open the unchanged four timed-ingress runs and
+frozen three-target quality evaluation at 10/15/20 mm with 5 degrees, together
+with service/position/rotation peaks, publication ages, replacements, native
+losses and memory. Preserve the two interrupted prefixes; do not rerun the
+completed local replicas. No other implementation variant is authorized.
 
 ## Evidence
 
