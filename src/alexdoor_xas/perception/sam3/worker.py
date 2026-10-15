@@ -32,7 +32,6 @@ def main():
                 bounded_memory=request.get("bounded_memory", False),
                 detection_reconditioning=request.get("detection_reconditioning", True),
                 trace_reconditioning=request.get("trace_reconditioning", False),
-                compile=request.get("compile", False),
             )
             frontend.runtime["seed"] = request.get("seed")
         send(sys.stdout.buffer, dict(ready=frontend.runtime))

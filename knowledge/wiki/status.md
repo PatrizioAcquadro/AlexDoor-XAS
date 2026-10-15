@@ -104,9 +104,17 @@ in the persistent primary-checkout recovery directory. Original worktree-loss
 limitations remain historical; no completed valid gate was repeated.
 
 The single [[experiments/sam3-official-compilation|official SAM3 compilation]]
-variant is now opt-in with explicit compiler failures and unchanged selected
-recipe/TSDF baseline. Preset dense/sparse CUDA gates precede any full comparison;
-measurement is pending an exclusive shared-GPU window.
+variant now completes paired dense/sparse CUDA evaluation: all seven components
+run, nine graphs stabilize before evaluation and sparse SAM3 medians improve
+19.3%/16.7%. Native quality nevertheless regresses with exactly identical seed
+masks and seed registration traces: correct 20 mm/5 degree counts become 148/180
+for all light targets and 38/204 nominal, versus 153/180 and 153–154/204 eager.
+Native losses rise 27→30 / 47→130. Adoption is rejected and maintained eager
+source is restored; TSDF and every prior result remain unchanged. The pilot
+quality gate closes full fixed/timed comparisons. Isolated-stage composition
+suggests a residual near 199–204 ms before geometry/binding, not a measured
+integrated benefit or operational age. All valid cells and two interference
+prefixes remain; no other optimization or controller/training/contact work ran.
 
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
 both original 2,858-frame CUDA openings. Bounded history alone exactly preserved
