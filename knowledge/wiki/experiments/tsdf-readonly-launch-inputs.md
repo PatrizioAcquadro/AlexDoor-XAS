@@ -219,3 +219,8 @@ allocation/filter work dominate mature rebuilds. Any removal must explicitly
 preserve partially completed failure state as well as the final same-frame query
 state. Ordinary SAM3/TAPIR/CPU registration and diagnostic stalls remain separate
 costs. This record proposes that discussion; it implements no additional change.
+
+Follow-up: [[tsdf-deferred-snapshot-audit|the CUDA snapshot audit]] separately
+measures point/image preparation and full snapshot copies. Final-only deferral
+has a large local gain but is rejected after real partial-failure and worker
+reentry checks; this historical result and implementation remain preserved.

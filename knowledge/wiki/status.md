@@ -79,10 +79,13 @@ rebuild/service benefit. Four timed sessions retain mixed throughput/quality,
 nominal loss/accuracy regressions and zero of 828 steady publications within
 150 ms. Active code is restored to baseline; the reproducible candidate, failures
 and residual profile remain. A follow-up [[experiments/tsdf-deferred-snapshot-audit|deferred-snapshot failure audit]]
-rejects a final-only diagnostic sketch because it changes retained CPU queries
-after a partial write failure. Production remains unchanged; the requested
-CUDA cost split and local measurements await an exclusive GPU. Dense replay
-does not verify operational loss.
+now measures local CUDA rebuild medians of 650.2 -> 281.7 ms light and
+468.5 -> 268.9 ms nominal, with exact successful volumes/queries. Final-only
+snapshots are nevertheless rejected: after a failed in-place write, a real next
+worker request consumes different SDF values. Point/image preparation remains
+separate from measured snapshot copies. Production stays at baseline; failed
+error equivalence prevents full fixed/timed replays. Dense replay does not
+verify operational loss.
 Material correspondence/recovery, hardware/FK/floor bounds and all
 contact/action qualification remain open. Earlier selected quality is historical,
 without automatic transfer to the persistent inspection session.
