@@ -53,7 +53,7 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
-- [[experiments/p2p-ransac-point-buffers|Point2Pose RANSAC Point Buffers]] — One immutable-pool precomputation candidate; isolated saved-input/RNG equivalence passes, local performance and conditional integrated gates pending.
+- [[experiments/p2p-ransac-point-buffers|Point2Pose RANSAC Point Buffers]] — One immutable-pool precomputation candidate; isolated saved-input/RNG equivalence and 15% local benefit pass; full fixed/timed comparisons pending.
 
 - [[experiments/sam3-official-compilation|Official SAM3 Compilation]] — Official CUDA compilation works and saves 17–19% sparse SAM3 time, but matched-initialization native quality/loss regresses; variant rejected and eager baseline restored.
 

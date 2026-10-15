@@ -1,7 +1,8 @@
 # Point2Pose RANSAC Point Buffers
 
 2026-10-15; baseline `fa36656` on `PatrizioAcquadro/b1-observed-a3a4`, initially
-clean. One isolated CPU candidate is under evaluation. SAM3 remains eager and
+clean. Candidate `dd2f0ae` passes isolated correctness and local performance; full
+GPU validation is pending. SAM3 remains eager and
 TSDF remains at the maintained baseline; all
 [[sam3-official-compilation|rejected compilation evidence]] is preserved.
 
@@ -51,4 +52,30 @@ points, weighted/unweighted and zero weights, threshold neighbors, ties and
 injected hypothesis/refit errors. Explicit unsupported refit keeps rejection
 without changing the remaining mask. See `local.py` and `correctness.json`.
 
-Performance and integrated benefit are pending. No GPU replay has started.
+## Local performance
+
+All 1,036 measured pairs are retained: seven repeats of 92 light / 56 nominal
+registration inputs, including failed terminal calls. Per-frame medians across
+repeats yield:
+
+| Condition | Baseline p50 / p95 ms | Candidate p50 / p95 ms | Median reduction | Paired median saving |
+|---|---:|---:|---:|---:|
+| Light | 30.781 / 46.152 | 26.282 / 39.761 | 14.62% | 4.202 ms |
+| Nominal | 19.855 / 32.109 | 16.842 / 27.673 | 15.18% | 2.896 ms |
+
+Both preset benefit gates pass; every repeat aggregate improves. The corpus is
+purposefully enriched with low support/refusals and boundary cases, so these
+medians do not replace full-history costs. Timing uses native NumPy 2.1.3,
+OpenBLAS one thread and OMP four threads. The summary writer failed on a NumPy
+integer after all timings completed; the retained measurements were summarized
+without rerunning the benchmark. Original script/error remain preserved.
+
+A separate instrumented CPU profile attributes most remaining cluster work to
+repeated degeneracy checks and weighted-fit preparation. Its timings include
+profiler overhead and are not a second benefit measurement.
+
+Both full fixed chronological pairs and subsequent timed comparisons are now
+admitted conditionally. Shared GPU preflight currently waits for foreign compute;
+no peer process is interrupted. Integrated quality, memory, service and publication
+age remain unvalidated. The installed source stays baseline until a leased test
+selects its own variant; adoption has not been decided.

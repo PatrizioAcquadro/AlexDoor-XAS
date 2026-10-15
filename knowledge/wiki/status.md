@@ -119,7 +119,9 @@ prefixes remain; no other optimization or controller/training/contact work ran.
 The single [[experiments/p2p-ransac-point-buffers|RANSAC point-buffer candidate]]
 now passes isolated exact comparisons on 148 saved inputs and adversarial
 support/threshold/degeneracy/failure cases, including all samples and final RNG.
-Local performance is being measured against preset gates before any full replay.
+The preset local benefit gate passes: median RANSAC falls 14.62%/15.18%, with
+4.20/2.90 ms paired savings in the enriched saved-input corpus. Full fixed/timed
+GPU comparisons await shared availability; integrated benefit is unvalidated.
 SAM3 eager, TSDF baseline and all prior evidence are retained.
 
 The earlier selected [[experiments/p2p-sam3-selected-development|SAM3 development]] completed
