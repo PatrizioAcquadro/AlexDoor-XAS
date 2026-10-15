@@ -26,9 +26,18 @@ causal joins and limited release exposure, without demonstrating broad input
 aliasing. One 96-update phase-balanced v2 cell improves development release
 median/p95 to 8.10/29.22 mm, but regresses hold and train push and fails the declared
 guards. Retain v2 with the original uniform sampler; no further variant or larger
-budget is launched. Large historical tracking residuals and controller transfer
-remain unresolved. The
-earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate
+budget is launched. The [[experiments/b1-approach-controller-compatibility|frozen-controller approach comparison]]
+verifies saved frames/timing and four robot-only CUDA cases. Right approach p95
+improves 15.24→0.67 mm; left improves 66.13→28.78 mm but still fails 10 mm/5 deg
+tracking, with 100 rate-scaled/129 position-clipped IK steps and actual speed
+0.527 rad/s. All poses have static IK support; torque clipping is absent. Moving
+stops at 2.1 s travel at most 2.57/4.62 mm, but only 108/3,384 residual estimates
+remain inside the old calibration domain despite complete native feedback.
+Next, validate a feasible continuous/timed approach reference under the frozen
+controller, starting with the failing left path; defer policy/memory/training and
+new matched demonstrations. Historical contact data do not transfer automatically.
+
+The earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate
 [[experiments/b1-loaded-hold-and-stop|load-bearing controller correction]] verifies
 robot-only CUDA hold/stop with task-local common impedance and a measured-anchor
 command latch: maximum hold/loaded-stop travel becomes 5.18/5.98 mm versus

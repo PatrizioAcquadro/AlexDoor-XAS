@@ -305,5 +305,10 @@ retained query outlier must be resolved/measured before wall-clock deadlines mat
 The [[experiments/b1-pilot-approach-release|approach/release follow-up]] preserves
 v2 with uniform sampling. One phase-balanced 96-update cell improves release
 but regresses other phases; no observer, controller or geometry interface changes.
-Historical command residuals and causal memory sufficiency remain separate from
-the still-pending new-controller/contact qualification.
+The [[../experiments/b1-approach-controller-compatibility|current-controller comparison]]
+now passes right unloaded approach tracking and two-point local stopping, while
+left timed-path p95 remains 28.78 mm / 7.87 deg with active IK limits despite static
+support. Native feedback is complete, but old load calibration covers only 108 of
+3,384 samples. Validate a feasible approach reference under the frozen controller
+before policy changes; old observations/actions are not relabeled, and matched
+new-controller/contact demonstrations and required 6.0D/E checks remain pending.

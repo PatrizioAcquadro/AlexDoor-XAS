@@ -54,7 +54,7 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
-- [[experiments/b1-approach-controller-compatibility|Historical Approach / Current Controller Compatibility]] — Prespecified saved-reference audit and frozen-control robot-only comparison.
+- [[experiments/b1-approach-controller-compatibility|Historical Approach / Current Controller Compatibility]] — Saved-reference audit and frozen-control CUDA comparison: right tracking passes, left timed path fails; local stops pass, contact remains unqualified.
 
 - [[experiments/b1-pilot-approach-release|ACT A2 Approach and Release Residuals]] — Saved alignment, actual phase exposure, input ambiguity, historical tracking residuals and one fixed-budget sampling test.
 

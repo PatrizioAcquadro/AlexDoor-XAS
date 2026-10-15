@@ -328,25 +328,21 @@ before the single CUDA trial, without changing scoring, decision margins or data
 
 ## Concrete next steps and controller boundary
 
-Before another learning intervention, establish whether a causal memory contract
-actually discriminates the difficult contexts. One bounded saved-data diagnostic
-would match similar current inputs and compare their **preceding 3 s** of observed
-q/dq and commands already issued, using only train to define scales/matching and
-development only for a fixed report. Include a reset/episode-generation check and
-verify identical causal state reconstruction in preparation and execution before
-considering a single input-contract experiment. Teacher phases may index diagnostic
-errors; they must never initialize a memory, start its timer or enter its features.
-A reset clock alone cannot represent variable hold onset. Do not add a timer,
-history or budget merely because it is plausible; this diagnostic is proposed,
-not executed or claimed successful.
+The previously proposed three-second causal-memory audit is unexecuted and
+**deferred**. The
+[[b1-approach-controller-compatibility|historical Cartesian reference/current-controller comparison]]
+now verifies saved conventions and right unloaded tracking, but the left timed path
+still fails despite static IK support. The single next direction is a feasible
+continuous/timed approach reference under the frozen controller, starting on the
+left. No history extension, timer, sampler, budget or controller variant is selected.
 
 Offline command fit does not demonstrate task success, safe motion or controller
 transfer. Before any policy/contact comparison with the newer controller:
 
-- Verify the chosen controller's observation–command semantics and validity of
-  demonstrations/targets under its measured dynamics. Historical compensations
-  cannot simply be treated as new-controller commands; acquire new data only if
-  later authorized and required by that verification.
+- Preserve the verified observation–command semantics and the measured left-path
+  incompatibility. Historical compensations remain old-regime targets. New-controller
+  matched observations/actions require new recording after feasible references and
+  the physical prerequisites; no old observations are relabeled from replay.
 - Complete the outstanding 6.0D load/uncertainty/fault/moving-stop/contact envelope,
   calibration-domain requirements, observed local sweep/response/contact evidence
   and independent 6.0E admission. Existing robot-only ready-pose 0/4 N results

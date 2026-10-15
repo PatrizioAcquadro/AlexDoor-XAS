@@ -91,6 +91,13 @@ only an environment reset re-enables motion. This removes inherited pushing effo
 without disabling support. Free-space load removal does not prove unloading in
 frictional door contact; physical contact stopping remains unqualified.
 
+The [[../experiments/b1-approach-controller-compatibility|unchanged-controller approach comparison]]
+adds unloaded trajectory evidence: right tracking passes, left transient tracking
+fails despite static IK support, and actual speed reaches 0.527 rad/s under the
+0.5 rad/s target-step cap. Two-second moving stops at the prespecified 2.1 s points
+travel 2.57/4.62 mm. Neither the later fast state nor loaded/contact stopping is
+qualified, and the original ready-pose residual domain does not cover these paths.
+
 ## Operational Push Frame
 
 Define the task-owned frame `right_push_tip` relative to

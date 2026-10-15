@@ -457,8 +457,12 @@ load removal and explicit reset. Both 120 Hz samples remain available under the
 unchanged calibration; no calibration or qualification flag is promoted. This is
 partial 6.0D evidence, not completion of the requirements below. Supported local
 geometry and 6.0E, together with the required 6.0D checks, remain prerequisites for
-6.0F. Contact results and demonstrations from the earlier controller need deliberate
-compatibility validation before use with the new impedance.
+6.0F. The [[../experiments/b1-approach-controller-compatibility|historical-reference comparison]]
+now verifies right unloaded approach and local two-point stopping with the same
+controller, but left timed-path tracking still fails and most states exit the old
+residual domain. It neither validates loaded contact phases nor closes 6.0D/E.
+Historical observations/actions stay unchanged; matched new-controller physical
+experience requires new recording after reference and admission prerequisites.
 
 Map documented `tau` to a declared observable; actuator feedback, commanded effort
 and exact external contact wrench are different signals. Unknown origin/precision
