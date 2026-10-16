@@ -214,3 +214,37 @@ terminal session and retains all three shared locks, 5 s interference checks and
 a finite 1,200 s workload ceiling. One launcher-only descriptor-forwarding error
 is preserved before simulation creation; it consumes no physical case. Eleven
 of twelve prerequisite cases are consumed before case 12 starts.
+
+
+## Completed right-cycle verification and shared raw audit
+
+Case 12 completes the right train cycle with unchanged physical scoring: 51.2603
+degrees sustained controlled opening, valid final hold and release, 9.6977 N
+native normal-force peak and 0.32018 rad/s measured joint-speed peak. Independent
+saved-contact/actual-pose reconstruction agrees on every validity tick, with no
+forbidden contact. Release clearance is 25.15 mm. The subsequent 2 s physics
+continuation keeps stopped targets fixed, travels at most 0.0335 mm and ends at
+0.000153 rad/s. The hold advances 1.55 degrees under maintained positive load;
+stationary-angle holding and target-force accuracy are not claimed.
+
+The 83.50% ratio to the historical 61.3931-degree reference is descriptive only.
+A valid matched-condition expert pair is still required before learned evaluation.
+This is a privileged teacher diagnostic, with zero learned commands and no
+imitation promotion. The same solver, gains, placement and teacher apply to left.
+
+The complete raw retains 8,730 synchronized observations, 17,458 native feedback
+samples and all 20 measured joints in 20.97 GiB. Independent double-precision FK
+agrees within 1.03 micrometers and 1.92e-6 rad. Supervisor-only A3 reconstruction
+is exact to numerical precision; 311 A4 segments reproduce recorded goals within
+0.999 mm /0.455 degrees. Inputs needed for later supervision are retained and
+numerically reconstructible for this complete episode. Observed A3/A4 initialization
+and admission remain unqualified; this is not the final matched dataset.
+
+All twelve original prerequisite cases are consumed, preserving all failures. The
+user authorizes the minimal extension to fourteen total cases: common left-cycle
+verification and independent robot-only dynamic load/stop calibration. The local
+three-GPU-hour ceiling is unchanged; about 0.7905 hours is charged before the
+queued observed-only static replay and left verification. No fresh demonstration,
+real training update or learned execution has occurred. The static replay uses
+the existing full chronological scan, the maintained frontend and observation
+fields only; it creates no additional Isaac case or A4 initialization requirement.

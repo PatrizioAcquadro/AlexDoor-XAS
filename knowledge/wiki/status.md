@@ -60,11 +60,15 @@ implemented with explicit uncertainty and unchanged independent scoring; its
 physical calibration remains pending. The resumed teacher has valid sustained
 push after preload regulation, but fixed-pose and prescribed-decay holding lose contact. Pressure-consistent
 holding preserves the final contact window after a physically verified joint-parked
-inspection, then fails measured release speed. Eleven prerequisite cases are
-consumed before the final allocated common-release correction. No full valid
-teacher or matched reference is claimed. Full
+inspection, then fails measured release speed. The common six-second release correction completes the right cycle: 51.26 degrees
+valid sustained opening, valid hold/release, 0.320 rad/s actual peak and verified
+continuing-physics stop. A new matched reference is still pending. Twelve cases
+are consumed; the user authorizes two additional prerequisites for left teacher
+and robot-only load/stop verification, retaining the three-GPU-hour ceiling. Full
 A3/A4 observed initialization is deferred and does not block A1/A2; indispensable
-shared recording inputs still must be retained. Test doors stay sealed.
+shared inputs are retained and current right raw numerically reconstructs A3/A4
+supervision. Raw reuse and supervision reconstruction do not qualify observed
+A3/A4 execution. Test doors stay sealed.
 The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
 both policy families with shared causal preprocessing and checkpoint binding.
 All four A1/A2 software paths pass inside 128 targeted CUDA checks; no new trained
