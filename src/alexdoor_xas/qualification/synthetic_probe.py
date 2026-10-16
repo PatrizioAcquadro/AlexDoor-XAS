@@ -37,6 +37,7 @@ class ProbeSetup:
     angular_speed: float = float(np.deg2rad(5))
     lead_angle: float = float(np.deg2rad(0.3))
     compression_m: float = 0.003
+    normal_admittance_m_n_s: float = 0.0005
     force_limit_n: float = 80.0
     soft_force_n: float = 50.0
     contact_load_guard_n: float = 0.10
@@ -64,6 +65,7 @@ class ProbeSetup:
             self.angular_speed,
             self.lead_angle,
             self.compression_m,
+            self.normal_admittance_m_n_s,
             self.precontact_m,
             self.loaded_force_n,
             self.contact_force_window_s,
@@ -147,18 +149,14 @@ class ContactLoad:
 
 
 def hold_reference(angle, initial_lead, elapsed, duration, mechanical_stop):
-    """Follow the moving material point while smoothly removing opening lead."""
+    """Remove lead about the captured hold angle, never a new coasting angle."""
     u = float(np.clip(elapsed / duration, 0.0, 1.0))
     return min(angle + initial_lead * (1.0 - u * u * (3.0 - 2.0 * u)), mechanical_stop)
 
 
 def push_reference(reference, angle, setup, dt, mechanical_stop):
-    """Advance within the lead budget without falling behind a coasting panel."""
-    return min(
-        max(reference + setup.angular_speed * dt, angle),
-        angle + setup.lead_angle,
-        mechanical_stop,
-    )
+    """Advance on the reference clock; a coasting panel cannot advance the command."""
+    return min(reference + setup.angular_speed * dt, angle + setup.lead_angle, mechanical_stop)
 
 
 def tracking_reserve(samples, horizon):
@@ -188,11 +186,16 @@ def tracking_margin_exhausted(samples, setup, *, orientation=False):
 
 
 def normal_contact_support(compression, force, setup, dt):
-    """Restore light normal loading with bounded motion, without relaxing validity."""
-    shortage = np.clip(1.0 - force / setup.contact_load_guard_n, 0.0, 1.0)
-    increment = setup.compression_m * dt / setup.sustain_s * shortage
+    """Bidirectional bounded force admittance, including removal of excess preload."""
+    rate = setup.normal_admittance_m_n_s * (setup.contact_load_guard_n - force)
+    rate_limit = setup.compression_m / setup.sustain_s
+    increment = np.clip(rate, -rate_limit, rate_limit) * dt
     return float(
-        min(compression + increment, setup.position_tolerance - setup.material_drift_guard_m)
+        np.clip(
+            compression + increment,
+            -setup.position_tolerance + setup.material_drift_guard_m,
+            setup.position_tolerance - setup.material_drift_guard_m,
+        )
     )
 
 
@@ -348,6 +351,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
         setup.contact_force_window_s, setup.loaded_force_n, setup.contact_gap_tolerance_m
     )
     failure, reason, peak, min_margin = None, None, 0.0, 1.0
+    peak_joint_speed = 0.0
     dt = env.step_dt
     last_progress, last_angle = 0.0, 0.0
     missing_time = 0.0
@@ -360,7 +364,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
     compensation = np.zeros(3)
 
     def command(goal_p, goal_r, phase):
-        nonlocal failure, peak, min_margin, min_clearance, compensation
+        nonlocal failure, peak, min_margin, min_clearance, compensation, peak_joint_speed
         applied_compensation = (
             compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
         )
@@ -374,6 +378,8 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
         pe = float(np.linalg.norm(p - goal_p))
         re = float(Rotation.from_matrix(goal_r @ actual_r.T).magnitude())
         joints = tensor(env.robot.data.joint_pos)[0, env.arm_ids].cpu().numpy()
+        actual_speed = max(float(np.max(np.abs(s.dq))) for s in env.load_samples)
+        peak_joint_speed = max(peak_joint_speed, actual_speed)
         limits = env.limits[0].cpu().numpy()
         margin = float(
             np.min(
@@ -414,6 +420,9 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
             failure = "gripper_opened"
         elif np.any(joints < limits[:, 0] - 0.005) or np.any(joints > limits[:, 1] + 0.005):
             failure = "joint_limit_violation"
+        elif actual_speed > setup.max_joint_speed * 1.02:
+            failure = "actual_joint_speed_limit"
+            env.stop_motion()
         elif forbidden:
             failure = "forbidden_contact"
         elif force > setup.force_limit_n:
@@ -473,6 +482,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
                 loaded=loaded,
                 valid=valid,
                 joint_margin=margin,
+                actual_joint_speed_peak_rad_s=actual_speed,
                 joints=joints.tolist(),
                 tool_position=p.tolist(),
                 tool_quaternion=q.tolist(),
@@ -514,23 +524,31 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
         state[1] > setup.position_tolerance or state[2] > setup.orientation_tolerance
     ):
         failure = "approach_tracking"
+    compression = None
     if not failure:
         for tick in range(round(setup.contact_s / dt)):
             offset = -setup.precontact_m + (setup.precontact_m + setup.compression_m) * min(
                 1.0, (tick + 1) * dt / (setup.contact_s * 0.7)
             )
+            if compression is not None:
+                offset = normal_contact_support(compression, contact_load.force, setup, dt)
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
             state = command(
                 *door.contact_pose(angle, setup.contact_fraction, setup.contact_height, offset),
                 "contact",
             )
+            # Freeze the ramp at acquired load; the remaining contact interval
+            # establishes light loading rather than injecting 3 mm of preload.
+            if state[5] or compression is not None:
+                compression = offset
+            traces[-1]["contact_compression_m"] = offset
             if failure:
                 break
         if not failure and not state[5]:
             failure = "no_loaded_contact"
     if not failure:
         reference = state[0]
-        compression = setup.compression_m
+        compression = setup.compression_m if compression is None else compression
         for tick in range(round(setup.horizon_s / dt)):
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
             reference = push_reference(reference, angle, setup, dt, door.mechanical_stop)
@@ -641,12 +659,12 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
     held_angle = None
     if failure is None:
         held = SustainedAngle(setup.sustain_s)
-        initial_lead = reference - state[0]
+        hold_angle = state[0]
+        initial_lead = reference - hold_angle
         for tick in range(round(setup.hold_settle_s / dt)):
             compression = normal_contact_support(compression, contact_load.force, setup, dt)
-            angle = float(tensor(env.door.data.joint_pos)[0, 0])
             target = hold_reference(
-                angle,
+                hold_angle,
                 initial_lead,
                 (tick + 1) * dt,
                 setup.hold_blend_s,
@@ -667,7 +685,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
             failure = failure or "invalid_hold"
     # Clear raised relief before rotating toward a pose that releases wrist limits.
     released = False
-    if failure != "invalid_physics":
+    if failure != "invalid_physics" and not env.motion_stopped:
         final_angle = float(tensor(env.door.data.joint_pos)[0, 0])
         prior = [
             t
@@ -714,6 +732,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
         limit_evidence=limit_evidence,
         safety_detail=safety_detail,
         peak_force_n=peak,
+        peak_actual_joint_speed_rad_s=peak_joint_speed,
         joint_margin=min_margin,
         clearance_m=min_clearance,
         clearance_scope="robot_door_AABB_lower_bound_excluding_distal_panel_pairs",

@@ -7,11 +7,13 @@ from scipy.spatial.transform import Rotation
 from alexdoor_xas.qualification.synthetic_probe import SustainedAngle
 
 
-def test_push_reference_follows_coasting_panel_without_exceeding_lead_or_stop():
+def test_push_reference_does_not_chase_coasting_panel_or_exceed_lead_or_stop():
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, push_reference
 
     setup = ProbeSetup()
-    assert push_reference(0.2, 0.3, setup, 1 / 60, 1.0) == 0.3
+    assert push_reference(0.2, 0.3, setup, 1 / 60, 1.0) == pytest.approx(
+        0.2 + setup.angular_speed / 60
+    )
     assert push_reference(0.2, 0.2, setup, 1 / 60, 1.0) == pytest.approx(
         0.2 + setup.angular_speed / 60
     )
@@ -19,7 +21,7 @@ def test_push_reference_follows_coasting_panel_without_exceeding_lead_or_stop():
     assert push_reference(0.999, 0.999, setup, 1 / 60, 1.0) == 1.0
 
 
-def test_hold_reference_removes_lead_smoothly_but_tracks_the_moving_surface():
+def test_hold_reference_removes_lead_smoothly_about_the_captured_angle():
     from alexdoor_xas.qualification.synthetic_probe import hold_reference
 
     start, lead, duration = 0.9, np.deg2rad(0.3), 3.0
@@ -43,16 +45,21 @@ def test_tracking_reserve_anticipates_growth_but_does_not_amplify_settling():
     assert tracking_reserve([(0, 0.002)], 3) == pytest.approx(0.002)
 
 
-def test_normal_support_only_restores_low_load_and_is_bounded():
+def test_normal_support_removes_excess_preload_and_is_bounded():
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_contact_support
 
     setup = ProbeSetup()
     initial = setup.compression_m
     assert normal_contact_support(initial, setup.contact_load_guard_n, setup, 1 / 60) == initial
-    assert normal_contact_support(initial, 1.0, setup, 1 / 60) == initial
-    assert normal_contact_support(initial, 0.0, setup, 1 / 60) == pytest.approx(initial + 0.0001)
+    assert normal_contact_support(initial, 1.0, setup, 1 / 60) == pytest.approx(
+        initial + setup.normal_admittance_m_n_s * (setup.contact_load_guard_n - 1.0) / 60
+    )
+    assert normal_contact_support(initial, 0.0, setup, 1 / 60) == pytest.approx(
+        initial + setup.normal_admittance_m_n_s * setup.contact_load_guard_n / 60
+    )
     maximum = setup.position_tolerance - setup.material_drift_guard_m
     assert normal_contact_support(maximum, 0.0, setup, 1 / 60) == maximum
+    assert normal_contact_support(-maximum, 1.0, setup, 1 / 60) == -maximum
 
 
 def test_tracking_guard_reserves_hold_margin_but_accepts_stable_bias_and_contact_chatter():

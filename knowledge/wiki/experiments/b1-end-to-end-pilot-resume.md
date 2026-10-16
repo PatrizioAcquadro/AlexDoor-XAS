@@ -76,3 +76,45 @@ evidence, not learned task execution or pilot completion.
 Ignored `outputs/evidence/b1-shared-learned-pilot-20261016/end-to-end-resume/`
 retains the explicit authorization, baseline TODO, budget reconciliation and
 software validation. Active implementation dependencies remain in `TODO.md`.
+
+
+## Teacher-control development
+
+The preserved contact-ramp traces show that the first loaded tick is already a
+brief 7.7–9.7 N impact. Continuing the ramp then maintains 3–6 N, while the old
+reference advances to each coasting measured angle. Across the three identities,
+descriptive force/normal servo-deflection ratios reach 2,574 N/m. These are
+closed-loop descriptive values, not a calibrated material stiffness.
+
+Case 7 tests stopping that ramp at first load, removing excess compression,
+reference-clock advancement and a captured hold anchor. It reduces peak door
+speed to 1.26 deg/s, but the inherited normalized compression gain becomes an
+aggressive bidirectional controller: contact chatters and no 0.5 s valid sustained
+window forms. Measured wrist-X speed reaches 0.521 rad/s and the new actual-speed
+check stops immediately; release is correctly unvalidated. Preserve the failed
+53.10 degree raw opening without calling it controlled progress or changing its
+historical reference. Continuing-physics stopping settles after the latch.
+
+Case 8 changes only the force-admittance gain to 0.0005 m/(N s), retaining the
+6 mm/s cap, 0.1 N target and all physical criteria. A 3,000 N/m design envelope
+above the saved descriptive maximum and the 100 ms feedback window give a
+lag/gain product 0.15 rather than 18 near the previous setpoint. This motivates
+numerical stability; physical contact, holding, release and speed still require
+the new case. It is not a learned-policy trial or expert reference.
+
+
+Case 8 establishes 51.74 degrees of physically valid sustained push on the right
+train identity (84.28% of the preserved historical denominator), with actual
+joint-speed peak 0.320 rad/s and valid release. The complete teacher still fails:
+its fixed hold target loses contact while the door coasts. This is not a successful
+teacher or policy and does not justify a new smaller denominator. Eight of twelve
+prerequisite cases are consumed; four remain. No new demonstration or real training
+has started.
+
+Zero-force intervals in the three preserved failures independently fit passive
+angular decay time constants of 1.556 /1.922 /1.466 s. A captured fixed pose cannot
+brake a unilateral push interface. The next bounded correction will prescribe a
+common 2 s decay of the angular reference from the measured transition speed,
+without refreshing it from the subsequently coasting angle. This uses privileged
+teacher development evidence only; unchanged loaded-contact/hold/release scores
+must still pass. Door dynamics remain untouched.

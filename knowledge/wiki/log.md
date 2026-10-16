@@ -1,5 +1,7 @@
 # Project Milestones
 
+- Resumed B1 teacher development regulates preload and reference advance; right sustained push reaches 51.74 degrees with measured joint peak 0.320 rad/s, but hold still fails. Historical scores remain; see [[experiments/b1-end-to-end-pilot-resume|the bounded resumed pilot]].
+
 A concise record of durable changes. Routine edits, lint and superseded attempts
 belong in Git history, not in agent context.
 
