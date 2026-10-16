@@ -399,3 +399,10 @@ available while the interface is unobserved. This supplies a bounded geometric
 model only: the contact monitor still needs verified robot load, identity,
 uncertainty and independently produced relevant sweep/stop evidence. Missing
 original coverage or pose bounds remains unavailable.
+
+
+`pilot_offline.py prepare --reference-raw` avoids duplicating retained RGB-D in
+learned-view exports. It verifies raw episode identity and records the original
+path; preserve that separate raw archive for later A3/A4 work. Default exports
+remain self-contained and copy all raw groups. Both forms train/load the same
+observed feature/action views without reading supervisor annotations.

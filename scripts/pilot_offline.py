@@ -44,7 +44,7 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
 
 
-def prepare(root, protocol, *, export=True, recipe=RECIPE):
+def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True):
     episodes, audit = [], []
     splits = {e["asset_id"]: e["split"] for e in protocol["episodes"]}
     binding, robot = None, None
@@ -115,7 +115,7 @@ def prepare(root, protocol, *, export=True, recipe=RECIPE):
         episodes.append(episode)
         print(json.dumps(dict(prepared=entry["asset_id"], ticks=len(exact_a1))), flush=True)
     if export:
-        export_dataset(episodes, root / "data", binding, robot, splits)
+        export_dataset(episodes, root / "data", binding, robot, splits, copy_raw=copy_raw)
     name = "data-audit.json" if export else "preflight-label-audit.json"
     write_json(root / name, audit)
 
@@ -391,6 +391,11 @@ if __name__ == "__main__":
         "--recipe", choices=(RECIPE, FIXED_UNITS_RECIPE, LEARNED_RECIPE), default=RECIPE
     )
     parser.add_argument(
+        "--reference-raw",
+        action="store_true",
+        help="Retain original raw recordings separately rather than duplicating them in exports",
+    )
+    parser.add_argument(
         "--asset-id", help="Single declared episode for the read-only preflight audit"
     )
     args = parser.parse_args()
@@ -405,6 +410,6 @@ if __name__ == "__main__":
         prepare(args.root, protocol, export=False, recipe=args.recipe)
     else:
         if args.mode == "prepare":
-            prepare(args.root, protocol, recipe=args.recipe)
+            prepare(args.root, protocol, recipe=args.recipe, copy_raw=not args.reference_raw)
         else:
             train(args.root, protocol)

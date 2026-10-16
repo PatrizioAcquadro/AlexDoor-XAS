@@ -260,8 +260,12 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
         return replace(episode, source_recording=str(Path(path).resolve()))
 
 
-def export_dataset(episodes, destination, binding, robot_asset, asset_splits):
-    """Publish aligned views required by the binding; refuse existing destinations."""
+def export_dataset(episodes, destination, binding, robot_asset, asset_splits, *, copy_raw=True):
+    """Publish aligned views; optionally reference separately retained large raw files.
+
+    The default remains self-contained. Reference mode keeps raw source identity
+    explicit, and never requires privileged raw data to train or load the views.
+    """
     episodes = list(episodes)
     ids = [e.episode_id for e in episodes]
     if not ids or len(set(ids)) != len(ids):
@@ -296,10 +300,16 @@ def export_dataset(episodes, destination, binding, robot_asset, asset_splits):
                             for key in ("episode_id", "asset_id", "split")
                         ):
                             raise ValueError("Retained recording differs from the physical episode")
-                        retained = out.create_group("raw")
-                        retained.attrs.update(raw.attrs)
-                        for key in raw:
-                            raw.copy(key, retained)
+                        if copy_raw:
+                            retained = out.create_group("raw")
+                            retained.attrs.update(raw.attrs)
+                            for key in raw:
+                                raw.copy(key, retained)
+                        else:
+                            out.attrs["source_recording"] = str(
+                                Path(episode.source_recording).resolve()
+                            )
+                            out.attrs["raw_retention"] = "separate_original_file"
                 out.create_dataset("time_s", data=episode.times)
                 out.create_dataset("observations", data=episode.observations)
                 for space in dataset_spaces(binding):

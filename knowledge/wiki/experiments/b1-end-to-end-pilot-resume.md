@@ -48,7 +48,14 @@ inspection/reset/terminal rows. This closes the explicit-pose/full-proprioceptio
 retention omission without changing the observed-only policy schema. Existing raw
 RGB-D, calibration, command poses/targets/timestamps, native 120 Hz feedback and
 supervisor-only phase/material annotations are retained. Numerical stream and
-dataset checks pass; a fresh physical recording has not yet exercised this addition.
+dataset checks pass; the next physical diagnostic exercises this addition.
+
+To respect the 300 GiB allocation while retaining all raw data, `pilot_offline.py
+prepare --reference-raw` now exports only learned views with explicit original raw
+paths after checking episode identity. The default still copies every raw group,
+including `robot_state`. Reference exports are not self-contained archives: keep
+the original synchronized recordings separately. Training/loading uses only the
+observed features/actions and does not require privileged raw groups on Gilbreth.
 
 Six of twelve prerequisite cases are consumed, six remain. Prior monitored
 workload spans plus conservative tails total 0.164 one-GPU hours; charge an
