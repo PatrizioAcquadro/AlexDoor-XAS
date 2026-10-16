@@ -66,11 +66,13 @@ all 24 outcomes and partial progress. This is pilot functionality, not the futur
 >=80% unseen-door reliability claim. Essential A3/A4 recording omissions must be
 resolved; reproducible load/visualize/record/evaluate commands, remote checkpoint
 roundtrip, measured costs and the proposed production/20-run/evaluation budget
-must be delivered before completion. Current state: **incomplete**. Two finite reference candidates are exhausted
-without a valid left approach. No new physical demonstrations, real-data training,
-or learned command is admitted. Essential observed support and remote access also
-remain unresolved. The code rejects both proposed teacher-reference changes; no
-new trajectory is installed in the controller, teacher or policy adapters.
+must be delivered before completion. Current state: **incomplete**. Both reference
+candidates and the one subsequently authorized IK cycle are exhausted without a
+valid left approach. The IK correction is rejected and the original solver is
+restored. No new physical demonstrations, real-data training or learned command
+is admitted. Essential observed support remains unresolved; remote access and
+the A100-to-workstation checkpoint return are verified. No new trajectory is
+installed in the controller, teacher or policy adapters.
 
 Local evidence root: `outputs/evidence/b1-shared-learned-pilot-20261016/`.
 The original objective and completed previous TODO are preserved there. `TODO.md`
@@ -118,9 +120,9 @@ No third endpoint seed, new gain, threshold relaxation or favorable retry runs.
 The rejected planner and its margin option are removed from active source after
 preserving local sources, completed traces, refusals and protocol.
 
-The two-candidate reference ceiling is exhausted. Further physical progress
-requires a separately bounded continuous constrained-IK/redundancy or reference
-strategy, with complete-path validation at the original criteria. No new
+The two-candidate reference ceiling is exhausted. The subsequent one-cycle IK
+authorization and its rejection are described below; neither study establishes
+a feasible continuous left path at the original criteria. No new
 placement range is invented from these failures; the varied-pose panel remains
 unfrozen and unexecuted, rather than counted as 24 evaluated failures.
 
@@ -287,10 +289,11 @@ review immutable archival/transfer capacity. The bounded pilot ceiling remains
 six new episodes / 300 GiB; no production data or 20-run job is launched.
 
 `campaign-budget-proposal.json` retains exact arithmetic, measured inputs,
-assumptions and prerequisites. The next physical step is a new bounded reference
-strategy for the left approach, then local observed sweep/response and dynamic
-load/stopping support. Only after these succeed may the new-controller teacher
-and exact varied-condition panel be frozen and genuine pilot learning begin.
+assumptions and prerequisites. Further physical execution needs a separately
+bounded feasibility decision after the rejected reference and IK cycles, followed
+by local observed sweep/response and dynamic load/stopping support. Only after
+these succeed may the new-controller teacher and exact varied-condition panel be
+frozen and genuine pilot learning begin.
 
 ## Returned checkpoints and completion boundary
 
@@ -320,4 +323,23 @@ physical reference trial, refusal, A3/A4 audit, costs and missing goal criteria.
 Original teacher recordings remain usable historical evidence at
 `outputs/generated/b1-policy-pilot/act-a1a2-pilot/`; no new-controller recording,
 learned episode/video, complete learned evaluation command or learned task result
-is fabricated. The two-reference ceiling is exhausted; the goal is **incomplete**.
+is fabricated. The reference ceiling and additional authorized IK cycle are
+exhausted; the goal is **incomplete**.
+
+## Authorized continuation: one constrained IK cycle
+
+The user explicitly authorizes one additional IK cycle after the reference stage:
+independent numerical comparison followed by at most four robot-only Isaac cases
+within the existing three local GPU-hours. The original six-second Cartesian
+references, gains, damping, physical limits and acceptance criteria stay fixed.
+[[b1-joint-limit-aware-ik|Numerical checks pass; the physical correction is rejected]]: complete left translation p95 improves 28.783 -> 21.363 mm and
+rotation p95 7.873 -> 2.607 deg, while peak actual speed is 0.529 rad/s. Translation
+and speed still fail 10 mm / 0.51 rad/s. Right traces are identical to baseline;
+all stops pass, native feedback is complete and residual-domain refusals remain.
+
+Exactly four new cases complete without interference. Rejected code/tests and
+all evidence are preserved locally, then the active solver is restored. This
+one-cycle ceiling is now exhausted. The next decision is a separately bounded
+execution-feasibility study, beginning with existing train/development placement
+evidence before selecting a pre-episode setup correction. No practical placement
+range or successful learned panel is inferred from these robot-only failures.

@@ -37,12 +37,17 @@ The [[experiments/b1-shared-learned-pilot|shared learned pilot]] now preserves t
 bounded reference candidates. A joint-feasible FK path improves left p95 to
 11.94 mm / 3.22 degrees but still fails 10 mm and clips 184 targets; a 0.05 rad
 interior endpoint variant refuses left local IK before motion. Both candidates
-are rejected; controller, teacher and adapters are unchanged. The reference ceiling
-is exhausted, with no new demonstrations or learned commands. Three historical
+are rejected. One subsequently authorized [[experiments/b1-joint-limit-aware-ik|constrained-IK cycle]]
+passes numerical checks but still fails left translation p95 (21.36 mm) and actual
+speed (0.529 rad/s) in the four-case physical comparison. Right traces are
+unchanged and all stops pass; the original solver is restored. Both bounded
+stages are exhausted, with no new demonstrations or learned commands. Three historical
 episodes numerically reconstruct A3/A4 supervisor labels at existing tolerances,
 but observed first-command geometry/bootstrap and continuous sweep/response/load
-support remain essential missing production dependencies. Next: bounded constrained-reference work, observed local admission and
-new-controller verification before matched recollection; test doors stay sealed.
+support remain essential missing production dependencies. Next: review a new
+bounded execution-feasibility budget, starting from existing train/development
+placement evidence, then observed local admission and new-controller verification
+before matched recollection; test doors stay sealed.
 The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
 both policy families with shared causal preprocessing and checkpoint binding.
 All four A1/A2 software paths pass inside 128 targeted CUDA checks; no new trained

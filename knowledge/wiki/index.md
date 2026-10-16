@@ -54,7 +54,9 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
-- [[experiments/b1-shared-learned-pilot|Shared Learned A1/A2 Pushing Pilot]] — Active finite plan for feasible execution, learned RGB-D, matched pilot episodes, physical evaluation and Gilbreth verification.
+- [[experiments/b1-joint-limit-aware-ik|Joint-Limit-Aware Pose IK]] — One authorized IK cycle: numerical checks pass, four physical cases reject the left path; original solver restored.
+
+- [[experiments/b1-shared-learned-pilot|Shared Learned A1/A2 Pushing Pilot]] — Bounded incomplete pilot: learned RGB-D and Gilbreth verification pass, execution/admission and genuine learned episodes remain blocked.
 
 - [[experiments/b1-approach-controller-compatibility|Historical Approach / Current Controller Compatibility]] — Saved-reference audit and frozen-control CUDA comparison: right tracking passes, left timed path fails; local stops pass, contact remains unqualified.
 
