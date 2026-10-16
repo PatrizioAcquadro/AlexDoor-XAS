@@ -421,3 +421,11 @@ only the neck. Cartesian parking had introduced nullspace self-motion and change
 the subsequent physical condition. The teacher scan and `PurdueIO.hold_step` now
 use the same joint-anchor convention; old recordings remain historical and new
 matched references require physical verification.
+
+
+The physical pilot CLI accepts explicitly declared train/development rollout
+conditions through `--condition`, using `evaluation_panel` when present. Sealed
+identities remain excluded by both protocol selection and corpus split checks.
+Preparation can read each declared episode's `directory`, allowing two physical
+conditions per identity without overwriting recordings or duplicating identity
+selection. Defaults retain the historical one-condition layout.

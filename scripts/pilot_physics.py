@@ -27,6 +27,7 @@ def main():
         "--setup", type=Path, help="Explicit prospective pilot setup; defaults to corpus setup"
     )
     parser.add_argument("--asset-id", required=True)
+    parser.add_argument("--condition", help="One condition explicitly declared by the protocol")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--recording", type=Path)
     parser.add_argument("--space", choices=("A1_joint_delta", "A2_ee_delta"))
@@ -40,15 +41,26 @@ def main():
     )
     args = parser.parse_args()
     protocol = json.loads(args.protocol.read_text())
-    selected = [e for e in protocol["episodes"] if e["asset_id"] == args.asset_id]
+    declared = (
+        protocol.get("evaluation_panel", protocol["episodes"])
+        if args.mode == "rollout"
+        else protocol["episodes"]
+    )
+    condition = args.condition or protocol.get("condition", "nominal")
+    selected = [
+        e
+        for e in declared
+        if e["asset_id"] == args.asset_id
+        and e.get("condition", protocol.get("condition", "nominal")) == condition
+    ]
     if len(selected) != 1 or selected[0]["split"] not in ("train", "development"):
         parser.error("Only explicitly declared train/development identities are allowed")
     if args.mode == "replay" and (args.recording is None or args.space is None):
         parser.error("Replay needs a recording and action space")
-    if args.mode == "rollout" and (
-        args.checkpoint is None or args.family is None or selected[0]["split"] != "development"
-    ):
-        parser.error("Rollout requires one declared development identity and checkpoint family")
+    if args.mode == "rollout" and (args.checkpoint is None or args.family is None):
+        parser.error(
+            "Rollout requires one declared train/development condition and checkpoint family"
+        )
     args.output.mkdir(parents=True, exist_ok=False)
     from alexdoor_xas.qualification.corpus import load_corpus
 
@@ -111,8 +123,8 @@ def main():
         if args.mode == "collect":
             metadata = dict(
                 entry,
-                episode_id=f"{args.asset_id}-nominal-pilot",
-                condition="nominal",
+                episode_id=selected[0].get("episode_id", f"{args.asset_id}-{condition}-pilot"),
+                condition=condition,
                 seed=cfg.seed,
                 setup=setup.to_dict(),
                 teacher="frozen_arm_expert_with_inspection",

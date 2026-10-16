@@ -49,7 +49,7 @@ def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True):
     splits = {e["asset_id"]: e["split"] for e in protocol["episodes"]}
     binding, robot = None, None
     for entry in protocol["episodes"]:
-        directory = root / entry["asset_id"]
+        directory = root / entry.get("directory", entry["asset_id"])
         runtime = json.loads((directory / "runtime.json").read_text())
         identity = RobotAssetRef.from_dict(runtime["robot_asset"])
         if robot is not None and identity != robot:
