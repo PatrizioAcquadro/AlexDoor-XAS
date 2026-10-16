@@ -1,0 +1,50 @@
+{
+  "floor_pose": [
+    -0.437,
+    0.4823268640657401,
+    0.0
+  ],
+  "contact_fraction": 0.295,
+  "contact_height": 1.09,
+  "neck": [
+    -0.7,
+    0.25
+  ],
+  "initial_joints": {
+    "RIGHT_SHOULDER_Y": 0.8000476956367493,
+    "RIGHT_SHOULDER_X": -1.0828592777252197,
+    "RIGHT_SHOULDER_Z": 0.2986214756965637,
+    "RIGHT_ELBOW_Y": -2.0851407051086426,
+    "RIGHT_WRIST_Z": 2.287633180618286,
+    "RIGHT_WRIST_X": 0.10093815624713898,
+    "RIGHT_GRIPPER_Y": 0.5695473551750183,
+    "LEFT_SHOULDER_X": 0.0,
+    "LEFT_ELBOW_Y": -1.0,
+    "LEFT_SHOULDER_Y": 0.5
+  },
+  "max_joint_speed": 0.5,
+  "centering_gain": 2.0,
+  "ik_damping": 0.01,
+  "position_tolerance": 0.01,
+  "orientation_tolerance": 0.08726646259971647,
+  "approach_s": 6.0,
+  "precontact_m": 0.03,
+  "contact_s": 3.0,
+  "release_s": 3.0,
+  "horizon_s": 150.0,
+  "sustain_s": 0.5,
+  "hold_settle_s": 3.0,
+  "angular_speed": 0.017453292519943295,
+  "lead_angle": 0.005235987755982988,
+  "compression_m": 0.003,
+  "force_limit_n": 80.0,
+  "soft_force_n": 50.0,
+  "contact_load_guard_n": 0.1,
+  "loaded_force_n": 0.02,
+  "stall_s": 3.0,
+  "tie_deg": 0.5,
+  "hold_blend_s": 3.0,
+  "material_drift_guard_m": 0.0025,
+  "contact_force_window_s": 0.1,
+  "contact_gap_tolerance_m": 0.0001
+}

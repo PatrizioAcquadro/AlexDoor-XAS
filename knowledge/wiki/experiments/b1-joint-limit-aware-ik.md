@@ -117,11 +117,6 @@ comparison, verification and `outcome.json`. The `accepted/` links mean acquisit
 completed without interference, not controller acceptance. Active source and tests
 are restored byte-for-byte to baseline before the outcome is committed.
 
-The smallest next decision is a separately bounded execution-feasibility study.
-Initial robot placement is already within the goal's train/development domain
-question; inspect that evidence before selecting one practical pre-episode
-placement correction. Keep the base fixed throughout each episode, retain both
-selected doors and original task/acceptance rules. Do not assume placement will
-solve the failure or begin another physical search under this exhausted cycle.
-Observed local sweep/response, load support and the first-command A3/A4 dependency
-still require completion before genuine collection and learning.
+The later separately authorized [[b1-initial-placement-pilot|initial-placement study]] passes unloaded full approaches/stops with the original solver. That does
+not retroactively accept this IK correction or qualify contact, observed sweep/
+response, load support or first-command A3/A4 inputs.

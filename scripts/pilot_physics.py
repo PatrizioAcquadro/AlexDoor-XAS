@@ -23,6 +23,9 @@ def main():
     parser.add_argument("mode", choices=("collect", "replay", "rollout"))
     parser.add_argument("--protocol", type=Path, default=REPO / "configs/b1_policy_pilot.json")
     parser.add_argument("--asset-root", type=Path, required=True)
+    parser.add_argument(
+        "--setup", type=Path, help="Explicit prospective pilot setup; defaults to corpus setup"
+    )
     parser.add_argument("--asset-id", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--recording", type=Path)
@@ -71,7 +74,8 @@ def main():
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA required")
     inspection = load_inspection(REPO / "configs/perception_inspection.json")
-    setup = ProbeSetup(**json.loads((REPO / corpus["setup"]["path"]).read_text()))
+    setup_path = args.setup or REPO / corpus["setup"]["path"]
+    setup = ProbeSetup(**json.loads(setup_path.read_text()))
     setup.neck = tuple(inspection["waypoints"][-1][1:])
     door = PreparedDoor(
         folder,
@@ -92,6 +96,8 @@ def main():
             robot_asset=robot.to_dict(),
             urdf=env.robot.cfg.spawn.asset_path,
             device=torch.cuda.get_device_name(),
+            setup=setup.to_dict(),
+            setup_path=str(setup_path.resolve()),
         ),
     )
     started = perf_counter()

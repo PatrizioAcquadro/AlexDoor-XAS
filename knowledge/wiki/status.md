@@ -41,13 +41,16 @@ are rejected. One subsequently authorized [[experiments/b1-joint-limit-aware-ik|
 passes numerical checks but still fails left translation p95 (21.36 mm) and actual
 speed (0.529 rad/s) in the four-case physical comparison. Right traces are
 unchanged and all stops pass; the original solver is restored. Both bounded
-stages are exhausted, with no new demonstrations or learned commands. Three historical
-episodes numerically reconstruct A3/A4 supervisor labels at existing tolerances,
+stages remain rejected. A later authorized [[experiments/b1-initial-placement-pilot|common-placement study]]
+passes all four unloaded cases with the original solver: approach p95 2.19/5.07 mm,
+peak speed 0.319/0.277 rad/s. The prospective pilot floor Y is 0.482327 m; the
+corpus setup is preserved. No new demonstrations or learned commands are claimed.
+Three historical episodes numerically reconstruct A3/A4 supervisor labels at existing tolerances,
 but observed first-command geometry/bootstrap and continuous sweep/response/load
-support remain essential missing production dependencies. Next: review a new
-bounded execution-feasibility budget, starting from existing train/development
-placement evidence, then observed local admission and new-controller verification
-before matched recollection; test doors stay sealed.
+support remain essential missing production dependencies. Next: dynamic/load/
+contact qualification of that nominal point within the existing prerequisite
+budget, observed local admission and new-controller teacher verification before
+matched recollection. Pose variation remains unqualified; test doors stay sealed.
 The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
 both policy families with shared causal preprocessing and checkpoint binding.
 All four A1/A2 software paths pass inside 128 targeted CUDA checks; no new trained

@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-initial-placement-pilot|Bounded Initial Placement Study]] — One train/dev-derived common placement passes all four unloaded approach/stop cases; load/contact and pose variation remain unqualified.
+
 - [[experiments/b1-joint-limit-aware-ik|Joint-Limit-Aware Pose IK]] — One authorized IK cycle: numerical checks pass, four physical cases reject the left path; original solver restored.
 
 - [[experiments/b1-shared-learned-pilot|Shared Learned A1/A2 Pushing Pilot]] — Bounded incomplete pilot: learned RGB-D and Gilbreth verification pass, execution/admission and genuine learned episodes remain blocked.

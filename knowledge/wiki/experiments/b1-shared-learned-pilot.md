@@ -67,10 +67,11 @@ all 24 outcomes and partial progress. This is pilot functionality, not the futur
 resolved; reproducible load/visualize/record/evaluate commands, remote checkpoint
 roundtrip, measured costs and the proposed production/20-run/evaluation budget
 must be delivered before completion. Current state: **incomplete**. Both reference
-candidates and the one subsequently authorized IK cycle are exhausted without a
-valid left approach. The IK correction is rejected and the original solver is
-restored. No new physical demonstrations, real-data training or learned command
-is admitted. Essential observed support remains unresolved; remote access and
+candidates and the subsequently authorized IK cycle were rejected. A further
+explicitly authorized initial-placement study now passes both full train
+approaches and all four unloaded cases with the original solver. Contact/load
+and observed-admission prerequisites remain incomplete. No new physical
+demonstrations, real-data training or learned command is admitted. Essential observed support remains unresolved; remote access and
 the A100-to-workstation checkpoint return are verified. No new trajectory is
 installed in the controller, teacher or policy adapters.
 
@@ -289,10 +290,9 @@ review immutable archival/transfer capacity. The bounded pilot ceiling remains
 six new episodes / 300 GiB; no production data or 20-run job is launched.
 
 `campaign-budget-proposal.json` retains exact arithmetic, measured inputs,
-assumptions and prerequisites. Further physical execution needs a separately
-bounded feasibility decision after the rejected reference and IK cycles, followed
-by local observed sweep/response and dynamic load/stopping support. Only after
-these succeed may the new-controller teacher and exact varied-condition panel be
+assumptions and prerequisites. Further physical execution needs dynamic/load/stop
+qualification of the later accepted nominal pilot placement, plus local observed
+sweep/response support. Only after these succeed may the new-controller teacher and exact varied-condition panel be
 frozen and genuine pilot learning begin.
 
 ## Returned checkpoints and completion boundary
@@ -323,8 +323,9 @@ physical reference trial, refusal, A3/A4 audit, costs and missing goal criteria.
 Original teacher recordings remain usable historical evidence at
 `outputs/generated/b1-policy-pilot/act-a1a2-pilot/`; no new-controller recording,
 learned episode/video, complete learned evaluation command or learned task result
-is fabricated. The reference ceiling and additional authorized IK cycle are
-exhausted; the goal is **incomplete**.
+is fabricated. The rejected reference/IK cycles remain closed; the later
+placement study resolves only unloaded approach feasibility. The goal is
+**incomplete**.
 
 ## Authorized continuation: one constrained IK cycle
 
@@ -339,7 +340,24 @@ all stops pass, native feedback is complete and residual-domain refusals remain.
 
 Exactly four new cases complete without interference. Rejected code/tests and
 all evidence are preserved locally, then the active solver is restored. This
-one-cycle ceiling is now exhausted. The next decision is a separately bounded
-execution-feasibility study, beginning with existing train/development placement
-evidence before selecting a pre-episode setup correction. No practical placement
-range or successful learned panel is inferred from these robot-only failures.
+one-cycle ceiling is exhausted. The later separately authorized placement study
+below resolves unloaded feasibility with the original solver; it does not
+retroactively accept this correction or establish a learned result.
+
+## Authorized nominal-placement result
+
+One later user-authorized audit derives a single common Y translation from the
+three selected train/development precontact endpoints, without a placement sweep
+or another IK/gain change. [[b1-initial-placement-pilot|The numerical and physical study]] passes both train approaches, endpoint holds/stops and moving
+stops at floor (-0.437, 0.482327, 0). Measured approach p95 is 2.186/5.070 mm and
+0.763/1.701 degrees, actual peak speed 0.319/0.277 rad/s; moving stops travel
+3.434/3.668 mm. All original criteria pass. Native feedback covers all 3,384
+samples, but old-calibration estimates remain available on only 128 samples.
+
+The prospective `configs/b1_shared_pilot_setup.json` changes only common floor Y;
+`pilot_physics.py --setup <path>` explicitly selects and records it. The original
+corpus setup stays intact. This is unloaded robot-only feasibility at one nominal
+point, not door/frame/camera/contact qualification or a placement range. No new
+demonstration or learned outcome is claimed. The next dependency is the existing
+12-case-ceiling dynamic/contact prerequisite phase, followed by observed support
+and new demonstrations; the successful four-case placement study is closed.
