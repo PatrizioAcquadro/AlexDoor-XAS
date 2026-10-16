@@ -414,3 +414,10 @@ requires its own finite footprints and relevant swept-space margins. Initial
 health checking precedes receipt construction; actual dispatch remains gated.
 Measured arm-speed checks include both native substeps, and robot stopping
 precedes perception reset/worker cleanup.
+
+
+The shared inspection parks the arm at its configured joint anchor while moving
+only the neck. Cartesian parking had introduced nullspace self-motion and changed
+the subsequent physical condition. The teacher scan and `PurdueIO.hold_step` now
+use the same joint-anchor convention; old recordings remain historical and new
+matched references require physical verification.

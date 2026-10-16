@@ -44,3 +44,39 @@ def test_inspection_guard_accepts_sample_resolution_but_rejects_meaningful_exces
     assert not inspection_within_limits(metrics, dt, speed)
     metrics["tool_drift_m"] = float("nan")
     assert not inspection_within_limits(metrics, dt, speed)
+
+
+def test_teacher_and_io_scan_hold_the_same_joint_anchor():
+    from types import SimpleNamespace
+
+    import numpy as np
+
+    from alexdoor_xas.perception.inspection import run_inspection
+    from alexdoor_xas.policies.purdue import PurdueIO
+
+    q0 = np.linspace(-0.2, 0.2, 7)
+    targets = []
+    joints = np.r_[q0, 0, 0][None]
+    env = SimpleNamespace(
+        step_dt=0.1,
+        arm_ids=list(range(7)),
+        neck_ids=[7, 8],
+        robot=SimpleNamespace(data=SimpleNamespace(joint_pos=joints)),
+        door=SimpleNamespace(data=SimpleNamespace(joint_pos=np.zeros((1, 1)))),
+        capture=SimpleNamespace(sample=SimpleNamespace(joint_position=joints)),
+        contact_history=[dict(forbidden=False)],
+        tool_pose=lambda: (np.zeros((1, 3)), np.array([[0, 0, 0, 1]])),
+    )
+
+    def step(delta):
+        targets.append(joints[0, :7] + delta)
+        joints[0, :7] += delta
+        joints[0, 0] += 0.0001
+
+    env.step_a1 = step
+    env.set_neck_target = lambda neck: joints.__setitem__((0, slice(7, 9)), neck)
+    run_inspection(env, dict(waypoints=[[0, 0, 0], [0.3, 0.02, 0]], max_neck_speed_rad_s=0.4))
+    io = PurdueIO.__new__(PurdueIO)
+    io.env, io.parked_joints = env, q0.copy()
+    io.hold_step()
+    np.testing.assert_allclose(targets, np.broadcast_to(q0, (4, 7)), atol=1e-15)

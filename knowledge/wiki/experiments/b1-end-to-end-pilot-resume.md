@@ -143,3 +143,27 @@ precede its first receipt, while loaded checks and dispatch remain receipt-gated
 Both 120 Hz robot velocity samples are checked, and a measured-anchor stop occurs
 before perception cleanup, including cleanup failure. These are numerical contract
 checks; no operational admission recipe is thereby qualified.
+
+
+Case 9 keeps valid contact throughout nearly all of the planned deceleration,
+reaching 53.18 degrees valid sustain, but a near-straight-elbow singularity drives
+actual speed to 0.522 rad/s and correctly latches a stop before release. The
+smallest Jacobian singular value drops from 0.0396 at 118 s to 0.00241 at 121.2 s;
+pose reachability alone had not reserved dynamic conditioning. This failed cycle
+remains excluded from imitation and cannot establish a new expert denominator.
+Case 10 tests a common causal conditioning-trend reserve over the hold horizon,
+using twice the unchanged DLS damping as the 80% weakest-task-gain boundary.
+No door-angle cutoff or physical scoring threshold is changed.
+
+The diagnostic raw file retains 7,274 synchronized RGB-D rows, 14,546 native
+feedback samples and all 20 measured robot joints. Independent FK agrees with
+actual tool-link pose within 0.94 micrometer. Images are visually inspected. The
+17.70 GiB file supports raw reuse and supervisor reconstruction; it is a failed
+teacher diagnostic, not an imitation demonstration or operational A3/A4 result.
+
+The saved complete inspection prefixes also show 0.0755 rad of arm self-motion
+under Cartesian hold, despite a stationary tool. Teacher and runner now preserve
+the same configured joint anchor during the common scan. Numerical checks pass;
+physical scan/teacher verification under that exact condition remains pending.
+Keep all old Cartesian-inspection recordings unchanged and establish fresh matched
+expert references before learned evaluation.

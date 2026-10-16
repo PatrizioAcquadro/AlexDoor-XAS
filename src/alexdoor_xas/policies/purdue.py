@@ -206,6 +206,9 @@ class PurdueIO:
         self.env.reset()
         self.safety.reset()
         self.parked_tool = self.tool_pose()
+        from alexdoor_xas.recording.b1_runtime import array
+
+        self.parked_joints = array(self.env.capture.sample.joint_position)[0, :7].copy()
 
     def observe(self):
         import torch
@@ -244,13 +247,10 @@ class PurdueIO:
         self.env.set_neck_target(value)
 
     def hold_step(self):
-        import torch
+        from alexdoor_xas.recording.b1_runtime import array
 
-        env = self.env
-        env.command_pose(
-            self.parked_tool.origin, Rotation.from_matrix(self.parked_tool.rot).as_quat()
-        )
-        env.step(torch.zeros((1, 6), device=env.device))
+        measured = array(self.env.capture.sample.joint_position)[0, :7]
+        self.env.step_a1(self.parked_joints - measured)
 
     def preview(self, command):
         """World endpoint of the actual bounded A1/IK controller; no physics/mutation."""
