@@ -47,9 +47,14 @@ peak speed 0.319/0.277 rad/s. The prospective pilot floor Y is 0.482327 m; the
 corpus setup is preserved. No new demonstrations or learned commands are claimed.
 Three historical episodes numerically reconstruct A3/A4 supervisor labels at existing tolerances,
 but observed first-command geometry/bootstrap and continuous sweep/response/load
-support remain essential missing production dependencies. Next: dynamic/load/
-contact qualification of that nominal point within the existing prerequisite
-budget, observed local admission and new-controller teacher verification before
+support remain essential missing production dependencies. The subsequent
+[[experiments/b1-pilot-contact-prerequisites|three complete teacher diagnostics]]
+all fail: 46.09/35.48/32.62 degrees valid sustain, invalid holding or lost contact,
+no valid pilot cycle. Right full-cycle joint speed reaches 4.47 rad/s. Nine of
+twelve prerequisite cases remain unspent after the frozen stop. The existing
+observed pose budget (>=4 mm) also cannot satisfy the 0.1 mm observed gap-upper
+test; an independently validated contact certificate is missing. Next: a bounded
+shared teacher load/reference correction and that observed interface, before
 matched recollection. Pose variation remains unqualified; test doors stay sealed.
 The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
 both policy families with shared causal preprocessing and checkpoint binding.

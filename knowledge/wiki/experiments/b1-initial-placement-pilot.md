@@ -70,8 +70,10 @@ records its values/source in runtime metadata; omission keeps the corpus setup.
 No new episode, training, learned actuation or final dataset is created here.
 
 This one-candidate/four-case study is closed successfully for its declared scope.
-Continue the already budgeted dynamic/load/contact prerequisites (maximum 12 new
-cases), then observed local admission and new-controller teacher validation.
+The later [[b1-pilot-contact-prerequisites|complete-teacher prerequisite study]]
+uses three of the twelve available cases and fails all three; the current setup
+and unchanged teacher do not yet support a valid pilot task. Its failure rule
+stops that allocation with nine cases unspent.
 Door/frame clearance, camera visibility and a nonzero placement-variation range
 remain unverified; one common nominal point cannot establish those claims.
 

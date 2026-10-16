@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-pilot-contact-prerequisites|Pilot Contact Prerequisites]] — All three complete teacher diagnostics fail; valid partial progress retained, nine cases unspent and observed contact-certificate gap demonstrated.
+
 - [[experiments/b1-initial-placement-pilot|Bounded Initial Placement Study]] — One train/dev-derived common placement passes all four unloaded approach/stop cases; load/contact and pose variation remain unqualified.
 
 - [[experiments/b1-joint-limit-aware-ik|Joint-Limit-Aware Pose IK]] — One authorized IK cycle: numerical checks pass, four physical cases reject the left path; original solver restored.

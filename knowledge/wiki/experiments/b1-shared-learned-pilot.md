@@ -361,3 +361,29 @@ point, not door/frame/camera/contact qualification or a placement range. No new
 demonstration or learned outcome is claimed. The next dependency is the existing
 12-case-ceiling dynamic/contact prerequisite phase, followed by observed support
 and new demonstrations; the successful four-case placement study is closed.
+
+## Complete-teacher/contact prerequisite outcome
+
+After nominal unloaded feasibility passes, the first three of twelve prerequisite
+cases run the unchanged complete teacher on the two train identities and existing
+development identity. [[b1-pilot-contact-prerequisites|All three fail]]: right
+`invalid_hold`, left/development `lost_contact`. Valid sustained opening is
+46.091 /35.480 /32.625 degrees, below 80% of the preserved references; no valid
+holding window remains. All release, but larger later coasting angles do not
+count as controlled progress. Full right-cycle actual joint speed reaches
+4.47 rad/s. The accepted unloaded path is not contact/controller qualification.
+
+The allocation stops under its frozen rule with nine prerequisite cases unspent.
+No dataset or learned outcome is created. A shared teacher load/reference
+correction is the next bounded physical decision; no gain, setup or criterion
+change or favorable completed-case retry is made. The initial missing-USD
+infrastructure failure and three actual failures are preserved separately.
+
+The observed-provider audit also proves a concrete contract gap: the existing
+geometry pose budget has at least 4 mm uncertainty, whereas observed push/hold
+requires gap upper bound <=0.1 mm. An independently validated observed contact
+certificate compatible with the unchanged physical criterion is essential;
+simply connecting the diagnostic provider cannot pass that gate. The one native
+`tracked` versus public `tracking` mismatch is fixed in `8385bbf`, with missing
+bounds/ownership still rejected. No perception-quality change or gate relaxation
+is made. See the canonical prerequisite account for sources and boundaries.
