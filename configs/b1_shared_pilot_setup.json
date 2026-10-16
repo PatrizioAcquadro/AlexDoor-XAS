@@ -30,7 +30,7 @@
   "approach_s": 6.0,
   "precontact_m": 0.03,
   "contact_s": 3.0,
-  "release_s": 3.0,
+  "release_s": 6.0,
   "horizon_s": 150.0,
   "sustain_s": 0.5,
   "hold_settle_s": 3.0,
@@ -46,5 +46,7 @@
   "hold_blend_s": 3.0,
   "material_drift_guard_m": 0.0025,
   "contact_force_window_s": 0.1,
-  "contact_gap_tolerance_m": 0.0001
+  "contact_gap_tolerance_m": 0.0001,
+  "normal_admittance_m_n_s": 0.0005,
+  "hold_force_n": 0.05
 }

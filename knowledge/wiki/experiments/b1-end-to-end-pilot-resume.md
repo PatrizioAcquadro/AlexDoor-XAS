@@ -170,7 +170,9 @@ teacher diagnostic, not an imitation demonstration or operational A3/A4 result.
 The saved complete inspection prefixes also show 0.0755 rad of arm self-motion
 under Cartesian hold, despite a stationary tool. Teacher and runner now preserve
 the same configured joint anchor during the common scan. Numerical checks pass;
-physical scan/teacher verification under that exact condition remains pending.
+case 11 physically verifies the scan anchor (maximum actual arm speed 1.83e-7
+rad/s, tool displacement 0.12 micrometer). The complete teacher under that exact
+condition still requires valid release.
 Keep all old Cartesian-inspection recordings unchanged and establish fresh matched
 expert references before learned evaluation.
 
@@ -191,5 +193,24 @@ loaded contact beyond the same 0.25 s budget as push latches a stop. Independent
 scores still require valid contact and the final contiguous hold window. Report
 actual settling motion, rather than calling a free-coasting angle controlled.
 The conditioning reserve now covers the complete remaining hold and release,
-and case 11 includes the corrected full joint-parked inspection. This candidate
-is unvalidated until its physical result returns.
+and case 11 includes the corrected full joint-parked inspection. All 6,270 push
+ticks and the final contiguous hold window satisfy unchanged contact/pose criteria.
+During the 3 s hold the door advances 1.75 degrees under positive load; final
+mean normal force is 0.281 N rather than the 0.05 N command. This is contact
+maintenance, not proof of stationary holding or target-force accuracy.
+
+Case 11 fails release: the measured elbow peak is 0.526 rad/s at 0.167 s into
+withdrawal. The latched stop is then followed by another release command, causing
+`motion_stopped`; no valid release or continuing-physics stop verification exists
+for that failed cycle. The release loop now exits immediately when stopped.
+Case 12 doubles the common release duration to 6 s, retaining its geometric path
+and zero-start cubic profile, and reserves the complete 3+6 s conditioning tail.
+Its physical result is pending; no threshold, dynamics or gain changes are made.
+
+The case-11 supervisor ended before its simulator child. Preserve the unmonitored
+tail, charge its entire 553.67 s case wall plus startup/tail, and exclude it from
+performance comparisons. The next supervisor is detached from the expiring
+terminal session and retains all three shared locks, 5 s interference checks and
+a finite 1,200 s workload ceiling. One launcher-only descriptor-forwarding error
+is preserved before simulation creation; it consumes no physical case. Eleven
+of twelve prerequisite cases are consumed before case 12 starts.

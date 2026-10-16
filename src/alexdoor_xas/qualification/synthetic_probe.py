@@ -34,7 +34,6 @@ class ProbeSetup:
     sustain_s: float = 0.5
     hold_settle_s: float = 3.0
     hold_blend_s: float = 0.5
-    hold_decay_s: float = 2.0
     angular_speed: float = float(np.deg2rad(5))
     lead_angle: float = float(np.deg2rad(0.3))
     compression_m: float = 0.003
@@ -42,6 +41,7 @@ class ProbeSetup:
     force_limit_n: float = 80.0
     soft_force_n: float = 50.0
     contact_load_guard_n: float = 0.10
+    hold_force_n: float = 0.05
     loaded_force_n: float = 0.02
     contact_force_window_s: float = 0.1
     contact_gap_tolerance_m: float = 0.0001
@@ -63,7 +63,6 @@ class ProbeSetup:
             self.sustain_s,
             self.hold_settle_s,
             self.hold_blend_s,
-            self.hold_decay_s,
             self.angular_speed,
             self.lead_angle,
             self.compression_m,
@@ -93,6 +92,8 @@ class ProbeSetup:
             raise ValueError(
                 "Contact-load guard must lie between loaded and upper force thresholds"
             )
+        if not self.loaded_force_n < self.hold_force_n <= self.contact_load_guard_n:
+            raise ValueError("Hold force target must preserve a positive loaded-contact margin")
         if self.hold_settle_s <= self.sustain_s:
             raise ValueError("Hold budget must include a complete sustain window")
         if self.material_drift_guard_m >= self.position_tolerance:
@@ -150,14 +151,13 @@ class ContactLoad:
         return gap is not None and gap <= self.maximum_gap and self.force >= self.minimum_force
 
 
-def hold_reference(reference, initial_speed, elapsed, decay_s, mechanical_stop):
-    """Planned passive-compatible deceleration, anchored once at the transition.
+def hold_reference(angle, initial_lead, mechanical_stop):
+    """Material-following coordinates for pressure-regulated unilateral holding.
 
-    A unilateral push cannot demand faster braking than passive hinge drag.
-    Subsequent actual door angles never advance this reference.
+    This is not a new opening-angle setpoint. Load loss aborts the hold, so free
+    coasting cannot become controlled progress by geometric following alone.
     """
-    travel = max(0.0, initial_speed) * decay_s * (1.0 - np.exp(-max(0.0, elapsed) / decay_s))
-    return min(reference + travel, mechanical_stop)
+    return min(angle + initial_lead, mechanical_stop)
 
 
 def push_reference(reference, angle, setup, dt, mechanical_stop):
@@ -203,12 +203,18 @@ def conditioning_margin_exhausted(samples, setup):
         return True
     if samples[-1][0] - samples[0][0] < setup.sustain_s - 1e-9:
         return False
-    return -tracking_reserve([(t, -sigma) for t, sigma in samples], setup.hold_settle_s) <= minimum
+    return (
+        -tracking_reserve(
+            [(t, -sigma) for t, sigma in samples], setup.hold_settle_s + setup.release_s
+        )
+        <= minimum
+    )
 
 
-def normal_contact_support(compression, force, setup, dt):
+def normal_contact_support(compression, force, setup, dt, *, target_force=None):
     """Bidirectional bounded force admittance, including removal of excess preload."""
-    rate = setup.normal_admittance_m_n_s * (setup.contact_load_guard_n - force)
+    target_force = setup.contact_load_guard_n if target_force is None else target_force
+    rate = setup.normal_admittance_m_n_s * (target_force - force)
     rate_limit = setup.compression_m / setup.sustain_s
     increment = np.clip(rate, -rate_limit, rate_limit) * dt
     return float(
@@ -693,17 +699,14 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
     held_angle = None
     if failure is None:
         held = SustainedAngle(setup.sustain_s)
-        hold_angle = reference
-        hold_initial_speed = max(0.0, traces[-1]["speed"])
+        initial_lead = reference - state[0]
+        missing_time = 0.0
         for tick in range(round(setup.hold_settle_s / dt)):
-            compression = normal_contact_support(compression, contact_load.force, setup, dt)
-            target = hold_reference(
-                hold_angle,
-                hold_initial_speed,
-                (tick + 1) * dt,
-                setup.hold_decay_s,
-                door.mechanical_stop,
+            compression = normal_contact_support(
+                compression, contact_load.force, setup, dt, target_force=setup.hold_force_n
             )
+            angle = float(tensor(env.door.data.joint_pos)[0, 0])
+            target = hold_reference(angle, initial_lead, door.mechanical_stop)
             state = command(
                 *door.contact_pose(
                     target, setup.contact_fraction, setup.contact_height, compression
@@ -712,6 +715,10 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
             )
             traces[-1]["hold_compression_m"] = compression
             held.update(tick * dt, state[0], state[6])
+            missing_time = 0.0 if state[5] else missing_time + dt
+            if missing_time > 0.25:
+                failure = failure or "lost_hold_contact"
+                env.stop_motion()
             if failure:
                 break
         held_angle = held.current if failure is None else None
@@ -746,7 +753,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
                     setup,
                 )
             state = command(goal_p, goal_r, "release")
-            if failure == "invalid_physics":
+            if failure == "invalid_physics" or env.motion_stopped:
                 break
         actual_p = env.tool_pose()[0][0].cpu().numpy()
         material_p, material_r = door.contact_pose(

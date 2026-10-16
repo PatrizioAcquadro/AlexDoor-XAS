@@ -21,21 +21,12 @@ def test_push_reference_does_not_chase_coasting_panel_or_exceed_lead_or_stop():
     assert push_reference(0.999, 0.999, setup, 1 / 60, 1.0) == 1.0
 
 
-def test_hold_reference_decelerates_on_a_captured_clock_without_following_the_door():
+def test_hold_reference_preserves_material_lead_for_separate_pressure_control():
     from alexdoor_xas.qualification.synthetic_probe import hold_reference
 
-    start, speed, decay = 0.9, np.deg2rad(1), 2.0
-    times = np.linspace(0, 3, 301)
-    angles = np.array([hold_reference(start, speed, t, decay, 2.0) for t in times])
-    velocities = np.diff(angles) / np.diff(times)
-    assert angles[0] == start
-    assert np.all(velocities >= 0)
-    assert np.all(np.diff(velocities) < 0)
-    assert velocities[0] <= speed
-    assert angles[-1] == pytest.approx(start + speed * decay * (1 - np.exp(-1.5)))
-    assert hold_reference(start, 0, 3, decay, 2) == start
-    assert hold_reference(start, -speed, 3, decay, 2) == start
-    assert hold_reference(start, speed, 3, decay, 0.901) == 0.901
+    assert hold_reference(0.9, 0.003, 2) == pytest.approx(0.903)
+    assert hold_reference(0.91, 0.003, 2) == pytest.approx(0.913)
+    assert hold_reference(0.9, 0.003, 0.901) == 0.901
 
 
 def test_tracking_reserve_anticipates_growth_but_does_not_amplify_settling():
@@ -244,3 +235,16 @@ def test_conditioning_guard_reserves_hold_without_an_angle_threshold():
     assert conditioning_margin_exhausted(declining, setup)
     assert not conditioning_margin_exhausted(declining[-2:], setup)
     assert conditioning_margin_exhausted([(0, 2 * setup.ik_damping)], setup)
+
+
+def test_pressure_hold_reduces_force_target_without_changing_physical_contact_score():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_contact_support
+
+    setup = ProbeSetup()
+    assert setup.loaded_force_n == 0.02 and setup.contact_gap_tolerance_m == 0.0001
+    assert (
+        normal_contact_support(
+            0.003, setup.contact_load_guard_n, setup, 1 / 60, target_force=setup.hold_force_n
+        )
+        < 0.003
+    )
