@@ -41,14 +41,16 @@ are rejected; controller, teacher and adapters are unchanged. The reference ceil
 is exhausted, with no new demonstrations or learned commands. Three historical
 episodes numerically reconstruct A3/A4 supervisor labels at existing tolerances,
 but observed first-command geometry/bootstrap and continuous sweep/response/load
-support remain essential missing production dependencies. Gilbreth authentication
-also fails. Next: bounded constrained-reference work, observed local admission and
+support remain essential missing production dependencies. Next: bounded constrained-reference work, observed local admission and
 new-controller verification before matched recollection; test doors stay sealed.
 The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
 both policy families with shared causal preprocessing and checkpoint binding.
 All four A1/A2 software paths pass inside 128 targeted CUDA checks; no new trained
-pilot or admitted learned command is claimed. Remote SSH access is now restored;
-immutable Slurm/checkpoint verification remains pending.
+pilot or admitted learned command is claimed. Remote SSH access is restored. One A100 job on frozen source `a54ef52` saves four
+synthetic infrastructure checkpoints; CUDA loading/prediction parity on RTX 4090
+passes below 9e-7 error. A measured/extrapolated campaign budget is delivered,
+with production storage and observed A3/A4 interfaces unresolved. No production,
+20-run campaign, learned contact result or final-test evaluation is started.
 
 
 The earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate

@@ -35,8 +35,8 @@ than wall time; physics continues after stops.
 - Training: 3,000 updates per four model/representation cells, seed 17; at most
   one common evidence-justified correction with 1,500 further updates per cell.
   This is a ceiling of 18,000 updates, not a mandatory allocation.
-  A separate synthetic cost trial charges 100 updates to this ceiling, leaving
-  at most 17,900 for subsequent real-data work; it produces no pilot checkpoint. Checkpoints
+  The local cost trial plus remote compatibility trial charge 164 synthetic
+  updates to this ceiling, leaving at most 17,836 for subsequent real-data work; it produces no pilot checkpoint. Checkpoints
   selected only by development evidence; no development normalization/updates.
 - Evaluation: three exact initial conditions on each of the two pilot train
   doors, four cells, 24 outcomes. Conditions/physical rules/expert references
@@ -185,14 +185,14 @@ Local audit commands, from the required worktree, use the workstation interprete
 These are read-only numerical audits of historical files. Their JSON reports and
 supervision-only arrays remain in the local evidence root; no raw data is edited.
 
-## Remote access
+## Remote access and versioned execution
 
-`ssh -o BatchMode=yes -o ConnectTimeout=10 gilbreth-purdue ...` fails public-key
-authentication. The configured `~/.ssh/gilbreth-agent.sock` is absent. No Slurm
-job is submitted, no remote resource is consumed and no remote source/data version
-is claimed verified. The user is asked to unlock the configured agent or identify
-an authorized connection. Immutable source/data transfer and checkpoint roundtrip
-remain required after access is restored; Isaac stays on the workstation.
+The initial SSH attempt fails public-key authentication with the old configured
+agent socket absent; its diagnostic is preserved. The user configures a new key,
+and the same connection then succeeds without that socket. One immutable-source/
+synthetic-data Slurm job and its workstation CUDA checkpoint return complete;
+see the measured-cost section. No remote task/production dataset or extended
+campaign is claimed. Isaac remains on the workstation.
 
 ## Learned encoder software milestone
 
@@ -228,6 +228,96 @@ mode and protocol arguments. The old collection/training budget in
 `configs/b1_policy_pilot.json` is historical; do not use its 96-update limit as the
 new learning protocol. No production collection command is authorized by this note.
 
-Remote authentication was restored by the user after the initial failed attempt.
-The same `gilbreth-purdue` connection now succeeds without the old agent socket;
-brief immutable-code/data Slurm verification is in progress, with no campaign.
+Remote authentication is restored; the immutable Slurm/checkpoint verification
+now passes, as detailed below. No campaign is started.
+
+## Measured costs and proposed campaign budget
+
+Local synthetic training measures model/action loss, gradient clipping and AdamW,
+with batch 32 and horizon 12. After five warmup updates, 20 updates/cell measure
+median 6.56/6.74 ms ACT A1/A2 and 5.63/5.63 ms Diffusion; PyTorch allocation peaks
+are about 220/140 MiB. All four first-convolution weights change under the actual
+action loss. There are 100 such local updates and no real-data pilot updates.
+This excludes data I/O, EMA, development selection, checkpoint I/O and simulation.
+
+Gilbreth job `11964913` uses account `euge`, `a100-80gb`, normal QoS, one A100
+80 GB, four CPUs and 8 GiB requested RAM. It completes in 62 seconds allocated
+(0.0172 GPU-hours), with a 54-second Python step and 573,580 KiB step peak RSS.
+Python 3.11.15, PyTorch 2.12.1+cu126 and Diffusers 0.39.0 reuse the personal pilot
+environment; an isolated venv adds existing project dependency SciPy 1.17.1,
+without changing the original environment. No Isaac modules are imported.
+
+The immutable Python-source archive is exactly commit `a54ef52`; its seeded
+synthetic fixture, inspection recipe and robot identity are frozen read-only in
+`/depot/euge/data/pacquadr/alexdoor-xas/b1-shared-20261016-a54ef52/`. Remote work
+does not read a changing checkout. Sixteen action-loss updates per four cells
+change CNN weights and save four 9.07-9.96 MB **infrastructure-only** checkpoints.
+Batch-8 median update cost is 15.36/15.31 ms ACT and 12.94/12.93 ms Diffusion.
+These are synthetic compatibility/cost checks, not door demonstrations or trained
+pilot models; they consume another 64 updates from the declared ceiling.
+
+One concrete **proposal**, not a frozen production protocol, is 19 train doors x
+six verified conditions x two repetitions (228 episodes), plus six development
+doors x six conditions (36 episodes). Which poses/appearance/dynamics constitute
+those conditions remains evidence-dependent and unselected. All 20 eventual runs
+share physical train episodes/input recipe, use train-only statistics, five seeds
+per ACT/Diffusion x A1/A2 cell, and at most 100,000 optimizer updates/run. This
+budget does not claim that those updates achieve the reliability target.
+
+| Resource | Extrapolated work | Proposed ceiling/reserve |
+|---|---:|---:|
+| Production collection, 264 episodes | 24.1 workstation hours from historical 329 s/episode | Included in 200 workstation hours overall |
+| Production raw observations | 3.65 TB from measured 13.82 GB/episode | Archive and transfer plan required |
+| 20 trainings x 100k updates | RTX batch-32 model-only 3.41 GPU-hours; A100 batch-8 model-only 7.85 GPU-hours | 64 A100 GPU-hours including unmeasured batch-32 I/O/EMA/selection overhead; <=8 concurrent allocated GPUs |
+| Future extended evaluation | 20 checkpoints x 7 sealed doors x 3 poses x 2 repetitions = 840 episodes; 76.8 historical workstation hours | Remaining share of 200 workstation hours, including support/review overhead |
+| Evaluation full raw layout | 11.61 TB if retaining historical per-tick RGB-D | 20 TB total archival allowance, subject to retention design |
+| Checkpoints/logs | Measured approximately 9-10 MB per policy checkpoint | 10 GB reserve; optimizer/resumption storage must be included |
+
+The seven final-test doors are **not opened** to create this arithmetic; future
+nominal/varied-pose grouping and exact panel/seed lists require protocol freeze.
+All compute-hour and storage figures beyond the small trials are extrapolations.
+No monetary cost is measured and no paid service is purchased. Actual learning
+or causal geometry failure may require redesign rather than more training time.
+
+The workstation has about 1.6 TiB free and cannot hold the proposed raw campaign.
+Current dense float64 concatenated image vectors would add about 0.824 TB before
+in-memory record copies; duplicating raw files in each export roughly doubles
+raw storage. Before production, use a verified lazy/deduplicated image path and
+review immutable archival/transfer capacity. The bounded pilot ceiling remains
+six new episodes / 300 GiB; no production data or 20-run job is launched.
+
+`campaign-budget-proposal.json` retains exact arithmetic, measured inputs,
+assumptions and prerequisites. The next physical step is a new bounded reference
+strategy for the left approach, then local observed sweep/response and dynamic
+load/stopping support. Only after these succeed may the new-controller teacher
+and exact varied-condition panel be frozen and genuine pilot learning begin.
+
+## Returned checkpoints and completion boundary
+
+All four returned infrastructure checkpoints load through `B1Policy.from_checkpoint`
+on workstation PyTorch 2.10.0+cu128 / RTX 4090. With TF32 disabled on both hosts,
+DDIM 10 steps and sampling seed 23, maximum prediction differences are
+4.18e-7 / 2.54e-7 ACT A1/A2 and 8.95e-7 / 7.16e-7 Diffusion A1/A2, inside the
+predeclared absolute/relative 1e-4 FP32 cross-runtime tolerance. This checks one
+fixed query per checkpoint; it does not establish training equivalence across
+PyTorch versions, physical rollout success or generalization.
+
+The files are in local `gilbreth/returned/` under this experiment's evidence root:
+`act-A1_joint_delta.pt`, `act-A2_ee_delta.pt`, `diffusion-A1_joint_delta.pt`,
+`diffusion-A2_ee_delta.pt`. Metadata explicitly marks them `synthetic=true` and
+`pilot_training=false`. They are **not trained door-pushing pilot checkpoints**.
+The exact source/data, job, load/prediction code and comparisons are preserved.
+
+After acquiring the shared GPU leases, the local load/parity command is:
+
+```bash
+/home/pacquadr/IsaacLab/isaaclab.sh -p outputs/evidence/b1-shared-learned-pilot-20261016/checkpoint-return/checks.py --repo "$PWD" --output /tmp/b1-checkpoint-parity-new
+```
+
+It uses the declared returned artifacts and requires CUDA. Existing accepted
+reports remain unchanged. `pilot-report.json` summarizes every model path,
+physical reference trial, refusal, A3/A4 audit, costs and missing goal criteria.
+Original teacher recordings remain usable historical evidence at
+`outputs/generated/b1-policy-pilot/act-a1a2-pilot/`; no new-controller recording,
+learned episode/video, complete learned evaluation command or learned task result
+is fabricated. The two-reference ceiling is exhausted; the goal is **incomplete**.
