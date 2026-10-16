@@ -79,6 +79,19 @@ def camera_from_joints(calibration, q):
     return transform @ np.asarray(calibration["head_camera"])
 
 
+def record_robot_state(writer, env):
+    """Retain actual tool FK and full joint state without any door quantities."""
+    position, quaternion = [array(v)[0] for v in env.tool_pose()]
+    writer.robot_state(
+        env.capture.sample.time_s,
+        joint_names=env.robot.joint_names,
+        q=array(env.robot.data.joint_pos)[0],
+        dq=array(env.robot.data.joint_vel)[0],
+        tool_position=position,
+        tool_rotation=Rotation.from_quat(quaternion).as_matrix(),
+    )
+
+
 class ExpertRecorder:
     def __init__(
         self, path, metadata, *, purpose="perception_engineering_not_matched_policy_dataset"
@@ -162,6 +175,8 @@ class ExpertRecorder:
             self.observation(env), self.annotation(env, phase), feedback=simulated_feedback(env)
         )
 
+        record_robot_state(self.writer, env)
+
     def transition(self, env, goal_p, goal_r, phase, trace):
         command = dict(
             time_s=np.float64(self.writer.last_time),
@@ -181,6 +196,7 @@ class ExpertRecorder:
             feedback=simulated_feedback(env),
         )
         self.writer.physics_feedback(env.load_samples)
+        record_robot_state(self.writer, env)
 
     def finish(self, result):
         self.writer.file["metadata"].attrs["camera_fk_error"] = json.dumps(
@@ -227,6 +243,7 @@ class PilotRecorder:
     def start(self, phase="inspect", *, annotations=None):
         observation, labels = self.observe(phase, annotations=annotations)
         self.writer.observe(observation, labels, feedback=self.io.robot_feedback())
+        record_robot_state(self.writer, self.io.env)
 
     def transition(self, goal, phase, *, annotations=None):
         """Call after exactly one IO control step; goal is the submitted world pose."""
@@ -243,6 +260,7 @@ class PilotRecorder:
         )
         self.writer.transition(command, observation, labels, feedback=self.io.robot_feedback())
         self.writer.physics_feedback(env.load_samples)
+        record_robot_state(self.writer, env)
 
     def finish(self, outcome):
         self.writer.finish(outcome)

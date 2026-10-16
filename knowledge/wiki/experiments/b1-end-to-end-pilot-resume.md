@@ -34,6 +34,14 @@ episode boundaries and supervisor-only geometric/phase annotations. Keep raw
 reuse, reconstructible supervision and qualified observed execution distinct;
 this pilot is not the final matched A1-A4 dataset.
 
+The recorder now also retains synchronized actual tool FK and complete measured
+robot joint positions/velocities in a separate `robot_state` stream, including
+inspection/reset/terminal rows. This closes the explicit-pose/full-proprioception
+retention omission without changing the observed-only policy schema. Existing raw
+RGB-D, calibration, command poses/targets/timestamps, native 120 Hz feedback and
+supervisor-only phase/material annotations are retained. Numerical stream and
+dataset checks pass; a fresh physical recording has not yet exercised this addition.
+
 Six of twelve prerequisite cases are consumed, six remain. Prior monitored
 workload spans plus conservative tails total 0.164 one-GPU hours; charge an
 additional 120 s reserve for brief unmonitored numerical preparation. Approximately

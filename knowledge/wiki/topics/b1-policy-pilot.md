@@ -383,3 +383,11 @@ The recipe uses maintained PyTorch [Conv2d](https://docs.pytorch.org/docs/stable
 and [adaptive pooling](https://docs.pytorch.org/docs/stable/generated/torch.nn.AdaptiveAvgPool2d.html).
 No architecture search is performed. Data and model cost/limits are in the shared
 pilot experiment; learned checkpoints and admitted rollouts remain pending.
+
+
+New raw pilot recordings additionally retain `robot_state`: actual tool FK and
+all robot joint positions/velocities at each RGB-D timestamp. This stream stays
+outside model inputs and supports later supervision/physical audits. Its clock
+must match observations exactly; old recordings remain readable without it.
+See [[../experiments/b1-end-to-end-pilot-resume|the resumed pilot]] for the deferred
+A3/A4 execution boundary and outstanding physical validation.

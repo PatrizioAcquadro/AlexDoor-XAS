@@ -184,6 +184,34 @@ class B1Writer:
                 ),
             )
 
+    def robot_state(self, time_s, *, joint_names, q, dq, tool_position, tool_rotation):
+        """Synchronized full robot telemetry for reuse, outside policy observations."""
+        if self.last_time is None or time_s != self.last_time:
+            raise ValueError("Robot state must match its observation timestamp")
+        values = dict(
+            time_s=time_s,
+            joint_position=q,
+            joint_velocity=dq,
+            tool_position=tool_position,
+            tool_rotation=tool_rotation,
+        )
+        if (
+            np.shape(q) != (len(joint_names),)
+            or np.shape(dq) != np.shape(q)
+            or np.shape(tool_position) != (3,)
+            or np.shape(tool_rotation) != (3, 3)
+            or any(not np.isfinite(value).all() for value in values.values())
+        ):
+            raise ValueError("Invalid recorded robot state")
+        group = self.file.require_group("robot_state")
+        names = json.dumps(list(joint_names))
+        if "joint_names" in group.attrs and group.attrs["joint_names"] != names:
+            raise ValueError("Recorded robot joint order changed")
+        if "time_s" in group and time_s <= group["time_s"][-1]:
+            raise ValueError("Repeated robot-state timestamp")
+        group.attrs.update(joint_names=names, tool_pose_source="robot_forward_kinematics")
+        self._append("robot_state", values)
+
     def finish(self, outcome):
         if self.count < 2 or len(self.file["commands/time_s"]) != self.count - 1:
             raise ValueError("Incomplete causal episode")
@@ -256,6 +284,12 @@ def validate_episode(path, *, images=True):
                 or np.any(physics["available_s"][:] > times[-1])
             ):
                 raise ValueError("Invalid physics-feedback stream")
+        if "robot_state" in h5:
+            state = h5["robot_state"]
+            if not np.array_equal(state["time_s"][:], times) or any(
+                len(v) != n or not np.isfinite(v[:]).all() for v in state.values()
+            ):
+                raise ValueError("Unsynchronized robot-state stream")
         if "robot_feedback" in h5:
             if any(len(v) != n for v in h5["robot_feedback"].values()):
                 raise ValueError("Feedback length differs from observations")

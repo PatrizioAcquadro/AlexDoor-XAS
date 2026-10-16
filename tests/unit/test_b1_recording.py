@@ -169,3 +169,38 @@ def test_expert_pilot_purpose_is_explicit_and_cannot_publish_matched_data():
     pilot.finish(outcome)
     assert saved == [dict(outcome, termination="force_limit")]
     assert "termination" not in outcome
+
+
+def test_optional_full_robot_state_keeps_policy_schema_and_clock(tmp_path):
+    import h5py
+
+    path = tmp_path / "state.hdf5"
+    writer = B1Writer(
+        path,
+        dict(asset_id="door", split="train", condition="nominal", control_dt=0.1),
+        dict(depth_interval_m=[0.1, 5]),
+    )
+    values = dict(
+        joint_names=["a", "b"],
+        q=np.zeros(2),
+        dq=np.zeros(2),
+        tool_position=np.zeros(3),
+        tool_rotation=np.eye(3),
+    )
+    writer.observe(obs(), {})
+    writer.robot_state(0.0, **values)
+    with pytest.raises(ValueError, match="timestamp"):
+        writer.robot_state(0.0, **values)
+    writer.transition(dict(time_s=0.0, joint_target=np.zeros(7)), obs(0.1, 2), {})
+    with pytest.raises(ValueError, match="timestamp"):
+        writer.robot_state(0.2, **values)
+    writer.robot_state(0.1, **values)
+    writer.finish(dict(passed=True, released=True, hold_angle_deg=50.0))
+    writer.close()
+    assert validate_episode(path)["observations"] == 2
+    with h5py.File(path, "r+") as h5:
+        assert "tool_position" not in h5["observations"]
+        assert json.loads(h5["robot_state"].attrs["joint_names"]) == ["a", "b"]
+        h5["robot_state/time_s"][1] = 0.2
+    with pytest.raises(ValueError, match="Unsynchronized"):
+        validate_episode(path)
