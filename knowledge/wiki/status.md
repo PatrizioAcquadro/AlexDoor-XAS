@@ -50,8 +50,10 @@ but observed first-command geometry/bootstrap and continuous sweep/response/load
 support remain essential missing production dependencies. The subsequent
 [[experiments/b1-pilot-contact-prerequisites|three complete teacher diagnostics]]
 all fail: 46.09/35.48/32.62 degrees valid sustain, invalid holding or lost contact,
-no valid pilot cycle. Right full-cycle joint speed reaches 4.47 rad/s. Nine of
-twelve prerequisite cases remain unspent after the frozen stop. The existing
+no valid pilot cycle. Right full-cycle joint speed reaches 4.47 rad/s. The first
+allocation stops with nine of twelve prerequisite cases unspent. A later [[experiments/b1-observed-contact-certificate|authorized contact-certificate study]] uses three camera cases and preserves the same
+physical failures; the observed component remains unqualified. Six cases now remain
+unspent. The existing
 observed pose budget (>=4 mm) also cannot satisfy the 0.1 mm observed gap-upper
 test; an independently validated contact certificate is missing. Next: a bounded
 shared teacher load/reference correction and that observed interface, before

@@ -92,8 +92,8 @@ without claiming that the indispensable producer evidence exists.
 
 ## Decision and preservation
 
-Stop this prerequisite allocation under its frozen failure rule. Three of twelve
-physical cases are used; **nine remain unspent**, not silently consumed or called
+Stop this prerequisite allocation under its frozen failure rule. At this first
+allocation, three of twelve physical cases are used; **nine remain unspent**, not silently consumed or called
 failed evaluations. No alternative setup, controller variant, physical retry,
 recollection or learning is started from these failures. The four learned cells
 still have zero new physical policy episodes; the planned learned panel is unfrozen
@@ -115,3 +115,12 @@ primary-checkout asset folders after byte-identical prepared/recipe/candidate
 checks. No primary or separate worktree is modified. Kit can return zero after an
 initialization exception; explicit per-child completion markers prevent that from
 being mistaken for completed physical work.
+
+## Later bounded certificate study
+
+The user separately authorizes three camera-enabled diagnostics at the same
+placement and unchanged teacher/controller. [[b1-observed-contact-certificate|The observed contact study]] preserves 41 sparse RGB-D observations and reproduces
+the same three physical failures exactly. Its observed component remains
+unqualified; the tool-center plane distance also differs from the actual
+fingertip separation property. Six of twelve prerequisite cases are now used,
+six remain unspent. This does not reopen a teacher/controller search or learning.

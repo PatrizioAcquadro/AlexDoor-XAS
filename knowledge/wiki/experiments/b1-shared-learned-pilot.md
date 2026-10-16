@@ -399,3 +399,13 @@ simply connecting the diagnostic provider cannot pass that gate. The one native
 `tracked` versus public `tracking` mismatch is fixed in `8385bbf`, with missing
 bounds/ownership still rejected. No perception-quality change or gate relaxation
 is made. See the canonical prerequisite account for sources and boundaries.
+
+## Authorized observed-contact study
+
+A subsequent [[b1-observed-contact-certificate|three-case current-placement camera study]] is complete. The signed fingertip/observed-plane component remains
+unqualified; the existing tool-center gap check also does not measure the same
+property as physical fingertip separation. No admission threshold or runtime flag
+is changed. The same three teacher failures recur with identical numeric command
+and native feedback arrays. Six of twelve prerequisite cases are now used, six
+remain unspent. No genuine pilot training, learned command or evaluation condition
+is produced; essential observed producer/load and A3/A4 dependencies remain.
