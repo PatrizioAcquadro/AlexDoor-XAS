@@ -209,7 +209,7 @@ class B1Writer:
             raise ValueError("Recorded robot joint order changed")
         if "time_s" in group and time_s <= group["time_s"][-1]:
             raise ValueError("Repeated robot-state timestamp")
-        group.attrs.update(joint_names=names, tool_pose_source="robot_forward_kinematics")
+        group.attrs.update(joint_names=names, tool_pose_source="robot_link_state_with_calibrated_tool_offset")
         self._append("robot_state", values)
 
     def finish(self, outcome):

@@ -385,9 +385,17 @@ No architecture search is performed. Data and model cost/limits are in the share
 pilot experiment; learned checkpoints and admitted rollouts remain pending.
 
 
-New raw pilot recordings additionally retain `robot_state`: actual tool FK and
+New raw pilot recordings additionally retain `robot_state`: actual calibrated tool-link pose and
 all robot joint positions/velocities at each RGB-D timestamp. This stream stays
 outside model inputs and supports later supervision/physical audits. Its clock
 must match observations exactly; old recordings remain readable without it.
 See [[../experiments/b1-end-to-end-pilot-resume|the resumed pilot]] for the deferred
 A3/A4 execution boundary and outstanding physical validation.
+
+
+For tracked material, transported finite footprint support and current direct
+depth compatibility are separate diagnostics. Self-occlusion can leave the first
+available while the interface is unobserved. This supplies a bounded geometric
+model only: the contact monitor still needs verified robot load, identity,
+uncertainty and independently produced relevant sweep/stop evidence. Missing
+original coverage or pose bounds remains unavailable.

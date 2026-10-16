@@ -80,7 +80,7 @@ def camera_from_joints(calibration, q):
 
 
 def record_robot_state(writer, env):
-    """Retain actual tool FK and full joint state without any door quantities."""
+    """Retain actual calibrated tool-link pose and full robot joints, without door quantities."""
     position, quaternion = [array(v)[0] for v in env.tool_pose()]
     writer.robot_state(
         env.capture.sample.time_s,

@@ -23,6 +23,14 @@ expected unloading; unexpected load loss or contradictory support latches a stop
 An unresolved recipe, load model, identity or relevant space still refuses.
 The software contract and consumers are checked numerically; calibration and
 independent false-admission/miss/delay/coverage measurements remain pending.
+
+The maintained tracker also keeps two distinct statements: the original finite
+material cover transported by current rigid tracking and its complete uncertainty
+budget, versus current direct depth compatibility at the contact pixels. Occlusion
+no longer erases the former or gets presented as directly measured contact. Both
+statements are explicit in diagnostics. Missing original coverage, pose/identity
+bounds or relevant swept-space evidence still refuses; force/contact admission is
+separate. No hidden interface shape is reconstructed or certified from depth.
 No physical threshold, gain, door dynamics or qualification flag changes here.
 
 ## Scope and budgets
@@ -34,7 +42,7 @@ episode boundaries and supervisor-only geometric/phase annotations. Keep raw
 reuse, reconstructible supervision and qualified observed execution distinct;
 this pilot is not the final matched A1-A4 dataset.
 
-The recorder now also retains synchronized actual tool FK and complete measured
+The recorder now also retains synchronized actual calibrated tool-link pose and complete measured
 robot joint positions/velocities in a separate `robot_state` stream, including
 inspection/reset/terminal rows. This closes the explicit-pose/full-proprioception
 retention omission without changing the observed-only policy schema. Existing raw

@@ -536,3 +536,11 @@ domain and deliberate release/profile compatibility. No diagnostic may forge
 `offline_passed`, `dynamic_passed` or `frozen`. Hand off to 6.1 for all eight action
 paths, raw/live encoding parity, physical replay and observed-geometry integration.
 6.2 policy data and Phase 7 training remain separate milestones.
+
+
+The resumed A1/A2 integration separates transported original finite material
+support from direct depth compatibility at the current contact pixels. The latter
+can be unavailable under self-occlusion without erasing a separately bounded rigid
+material model. Neither statement measures the hidden contact interface or admits
+loaded action by itself; current identity/pose, robot load and relevant sweep/stop
+evidence remain essential. See [[../experiments/b1-end-to-end-pilot-resume|the resumed contact contract]].

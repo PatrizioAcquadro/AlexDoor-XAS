@@ -531,11 +531,23 @@ class PanelTracking:
                 )
                 clearance = slip.finger_clearance_m
                 self.diagnostics["tool_relative_zone"] = vars(slip)
-                if not contact_depth_supported(
+                # Transported, uncertainty-eroded material support is a model;
+                # it does not require seeing through a contacting finger. Keep
+                # direct depth availability explicit instead of erasing that
+                # separate support or pretending the interface was measured.
+                visible = contact_depth_supported(
                     sensor, candidate.pose, tool, self.distal_faces, budget.displacement_m
-                ):
-                    clearance = (None, None)
-                    reason = "missing_current_contact_geometry"
+                )
+                self.diagnostics.setdefault("contact_visibility", {})[candidate.candidate_id] = (
+                    dict(
+                        direct_surface_depth_supported=visible,
+                        contact_directly_measured=False,
+                        reason="current_depth_compatible"
+                        if visible
+                        else "interface_unobserved_or_occluded",
+                        contact_admitted=False,
+                    )
+                )
             patches.append(
                 LocalPatchState(
                     candidate.candidate_id,

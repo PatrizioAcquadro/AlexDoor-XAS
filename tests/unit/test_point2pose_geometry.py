@@ -250,3 +250,53 @@ def test_contact_cover_can_be_localized_while_current_contact_depth_is_unknown()
     captured["valid_depth"][38:42, 34:46] = False
     assert not contact_depth_supported(captured, zone, tool, faces, 0.008)
     assert not contact_depth_supported(sensor(), zone, tool, faces, None)
+
+
+def test_occluded_interface_does_not_erase_independently_transported_material_support(monkeypatch):
+    from types import SimpleNamespace
+
+    import alexdoor_xas.perception.point2pose.tracking as module
+    from alexdoor_xas.perception.contracts import FieldSupport
+    from alexdoor_xas.perception.material_zone import BoundSource, ContactBudget
+
+    tracking = module.PanelTracking(
+        SimpleNamespace(reset=lambda: None),
+        {},
+        calibration={},
+        tool_fk=lambda *_: None,
+        distal_faces=(np.zeros((4, 3)), np.zeros((4, 3))),
+    )
+    tracking.candidates = [
+        SimpleNamespace(
+            candidate_id="material",
+            state="tracked",
+            support=FieldSupport(1, 1, 1, 0),
+            geometry=FieldSupport(0, 0, 0, 0, 0.004, 0.001),
+            material_recovery_unverified=False,
+            ownership="observed_rigid_material",
+            pose=np.eye(4),
+            initial_world=np.eye(4),
+            surface=None,
+        )
+    ]
+    monkeypatch.setattr(
+        tracking,
+        "budget",
+        lambda *_args, **_kw: ContactBudget((BoundSource("local_geometry", 0.004, 0.001, 0.05),)),
+    )
+    monkeypatch.setattr(
+        module,
+        "query_slip",
+        lambda *_args: SimpleNamespace(
+            finger_clearance_m=(0.03, 0.03),
+            loaded_contact_admitted=False,
+        ),
+    )
+    monkeypatch.setattr(module, "contact_depth_supported", lambda *_args: False)
+    state = tracking.local_state(1, dict(joint_position=np.zeros(9)))
+    assert state.patches[0].finger_clearance_m == (0.03, 0.03)
+    visibility = tracking.diagnostics["contact_visibility"]["material"]
+    assert not visibility["direct_surface_depth_supported"]
+    assert not visibility["contact_directly_measured"]
+    assert not visibility["contact_admitted"]
+    assert state.patches[0].pose_support.position_bound_m > 0.004
