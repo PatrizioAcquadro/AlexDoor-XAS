@@ -44,6 +44,11 @@ but observed first-command geometry/bootstrap and continuous sweep/response/load
 support remain essential missing production dependencies. Gilbreth authentication
 also fails. Next: bounded constrained-reference work, observed local admission and
 new-controller verification before matched recollection; test doors stay sealed.
+The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
+both policy families with shared causal preprocessing and checkpoint binding.
+All four A1/A2 software paths pass inside 128 targeted CUDA checks; no new trained
+pilot or admitted learned command is claimed. Remote SSH access is now restored;
+immutable Slurm/checkpoint verification remains pending.
 
 
 The earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate

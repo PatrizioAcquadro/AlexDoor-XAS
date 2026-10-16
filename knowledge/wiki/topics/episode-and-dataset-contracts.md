@@ -54,3 +54,22 @@ use training identities only. `DatasetNormStats` retains the B1 checkpoint wire
 format; its reserved `view_id` is null. Separate historical view files and loaders
 are retired. Reordered observations, invalid statistics and stale membership fail
 before training or policy loading. Asset identity remains mandatory.
+
+## Learned pilot input and reuse boundary
+
+The `rgbd-conv-v1` pilot stores four causal 5x60x96 image tensors and current
+18-value proprioception; the convolution is trained and serialized inside each
+family model, never fitted using development images/statistics. Static/recent
+channel support remains independently timed. Preparation and inference share
+`RGBDEncoder`; `make_model` binds the learned projection to the recorded recipe.
+See [[b1-policy-pilot|the shared implementation and cost]].
+
+The [[../experiments/b1-shared-learned-pilot|three-episode A3/A4 reuse audit]] verifies
+retained raw observations/calibration/commands/feedback and supervisor-only label
+reconstruction. It leaves observed initial geometry, A4 bootstrap, sweep/response
+support and the operational release contract explicitly unresolved. Annotation
+truth is supervision, not an observed estimate or admission. Partial historical
+recordings are not a final matched dataset and are not relabeled for new control.
+Dense concatenated image vectors also require a lazy/deduplicated image-loading
+path before production scale; the current in-memory numerical loader remains
+suitable only for a bounded pilot. No such storage redesign is silently claimed.

@@ -11,6 +11,7 @@ class DiffusionConfigError(ValueError):
 class DiffusionModelCfg:
     horizon: int = 16
     d_model: int = 128
+    visual_recipe: str | None = None
     n_heads: int = 4
     n_decoder_layers: int = 4
     dim_feedforward: int = 512

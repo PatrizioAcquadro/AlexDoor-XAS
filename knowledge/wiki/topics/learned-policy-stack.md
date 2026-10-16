@@ -13,8 +13,10 @@ validation of the eight learning paths remain pending.
 
 The [[b1-policy-pilot|common policy pilot foundation]] adds a separate, explicitly
 unqualified binding for independent encoder/policy and geometry development.
-Partial A1/A2 data and inference use the same family APIs with fixed RGB-D pooling
-and causal history. A local action admission route needs bounded observed material
+Partial A1/A2 data and inference use the same family APIs. The explicit
+`rgbd-conv-v1` recipe adds jointly trained RGB-D convolution inside both models,
+with the common causal history and checkpoint-bound preprocessing. The grid
+recipes remain compatible historical evidence. A local action admission route needs bounded observed material
 and sweep evidence; qualified-release and A3/A4 contracts remain strict. Measured
 solver feedback and robot-only residual load/stop checks are wired but unqualified
 for contact. See the pilot page for measured cost and outstanding prerequisites.

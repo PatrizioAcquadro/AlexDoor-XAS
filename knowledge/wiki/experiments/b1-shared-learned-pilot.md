@@ -1,7 +1,7 @@
 # Shared Learned A1/A2 Door-Pushing Pilot
 
 Baseline `060a0e8af9bb7e8249af9ebdf5aa6db15928ea91`, branch `PatrizioAcquadro/b1-policy-pilot`, October 16, 2026.
-This is an **bounded, incomplete pilot**, not completed end-to-end evidence. See
+This is a **bounded, incomplete pilot**, not completed end-to-end evidence. See
 [[b1-approach-controller-compatibility|the latest controller/reference results]]
 and [[../topics/b1-policy-pilot|existing observation/admission contracts]].
 
@@ -193,3 +193,41 @@ job is submitted, no remote resource is consumed and no remote source/data versi
 is claimed verified. The user is asked to unlock the configured agent or identify
 an authorized connection. Immutable source/data transfer and checkpoint roundtrip
 remain required after access is restored; Isaac stays on the workstation.
+
+## Learned encoder software milestone
+
+`rgbd-conv-v1` is implemented in preparation, both model families, batch units and
+checkpoint inference. [[../topics/b1-policy-pilot|The canonical recipe]] gives the
+architecture and causal/missing-data behavior. All four new family/representation
+paths pass visual-gradient, checkpoint and deterministic prediction checks inside
+128 targeted CUDA checks. No real demonstration optimizer update or admitted
+learned physical command has occurred; there is no new trained pilot checkpoint.
+The historical four grid-policy refusals remain evidence, not new-encoder outcomes.
+
+| New recipe cell | Input/gradient/checkpoint path | Genuine pilot training | Physical rollout |
+|---|---|---|---|
+| ACT A1 | Pass | Not started | Not started |
+| ACT A2 | Pass | Not started | Not started |
+| Diffusion A1 | Pass | Not started | Not started |
+| Diffusion A2 | Pass | Not started | Not started |
+
+No varied-pose panel is evaluated before its conditions are fixed. Neither zero
+executed evaluations nor a synthetic cost trial is reported as 0/24 task failures.
+
+With the required three shared GPU leases and the 180-second idle protocol, use:
+
+```bash
+PYTHONPATH="$PWD/src" /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/benchmark_policy_pilot.py --recipe rgbd-conv-v1 --output outputs/evidence/b1-shared-learned-pilot-20261016/new-model-cost.json
+```
+
+This creates a **new** benchmark report; the accepted report and all failures stay
+unchanged. It is model/software cost measurement, never an admitted rollout.
+Future new-controller preparation explicitly uses
+`scripts/pilot_offline.py --recipe rgbd-conv-v1` with its existing required root,
+mode and protocol arguments. The old collection/training budget in
+`configs/b1_policy_pilot.json` is historical; do not use its 96-update limit as the
+new learning protocol. No production collection command is authorized by this note.
+
+Remote authentication was restored by the user after the initial failed attempt.
+The same `gilbreth-purdue` connection now succeeds without the old agent socket;
+brief immutable-code/data Slurm verification is in progress, with no campaign.

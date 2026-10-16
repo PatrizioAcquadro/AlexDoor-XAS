@@ -30,6 +30,7 @@ from alexdoor_xas.policies.b1 import (  # noqa: E402
 from alexdoor_xas.policies.common.model import OBS_CLIP  # noqa: E402
 from alexdoor_xas.policies.encoding import (  # noqa: E402
     FIXED_UNITS_RECIPE,
+    LEARNED_RECIPE,
     RECIPE,
     RGBDEncoder,
     pilot_binding,
@@ -386,7 +387,9 @@ if __name__ == "__main__":
     parser.add_argument("mode", choices=("audit", "prepare", "train"))
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--protocol", type=Path, default=REPO / "configs/b1_policy_pilot.json")
-    parser.add_argument("--recipe", choices=(RECIPE, FIXED_UNITS_RECIPE), default=RECIPE)
+    parser.add_argument(
+        "--recipe", choices=(RECIPE, FIXED_UNITS_RECIPE, LEARNED_RECIPE), default=RECIPE
+    )
     parser.add_argument(
         "--asset-id", help="Single declared episode for the read-only preflight audit"
     )

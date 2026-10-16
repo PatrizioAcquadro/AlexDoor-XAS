@@ -3,7 +3,9 @@
 This foundation starts at `9b94978` on `PatrizioAcquadro/b1-policy-pilot`.
 It enables independent policy and geometry development. The separate
 [[experiments/b1-act-diffusion-a1a2-pilot|bounded A1/A2 pilot]] now supplies three
-physical teacher episodes and four CUDA-trained prototype checkpoints. These remain
+physical teacher episodes and four CUDA-trained prototype checkpoints. The new
+[[../experiments/b1-shared-learned-pilot|shared learned pilot]] adds the explicit
+`rgbd-conv-v1` input/model recipe below; its pilot remains incomplete. These remain
 unqualified; no final matched A1-A4 dataset, policy contact execution or perception
 release is delivered. SAM3 and Point2Pose are unchanged.
 
@@ -312,3 +314,48 @@ support. Native feedback is complete, but old load calibration covers only 108 o
 3,384 samples. Validate a feasible approach reference under the frozen controller
 before policy changes; old observations/actions are not relabeled, and matched
 new-controller/contact demonstrations and required 6.0D/E checks remain pending.
+
+## Learned RGB-D foundation
+
+New pilot work explicitly selects `rgbd-conv-v1`; the grid recipes remain
+historical compatible paths, with no new comparison. `RGBDEncoder` prepares five
+60x96 image channels: RGB/255, mean valid metric depth saturated at 5 m and divided
+by 5 m, and valid-depth coverage. Invalid depth contributes zero and the coverage
+channel retains its absence; recorded near/far still define sensor validity. Entirely
+missing RGB-D is rejected by `B1Observer`; unsupported input is never imputed as
+fresh. Static inspection plus three oldest-first frames at 10 Hz use the existing
+reset, left-padding and acquisition/publication semantics. Current q/dq remain
+nine canonical joints each. Input width is 115,218: four images plus 18 joint values.
+
+The prepared data contain images rather than pretrained/frozen descriptors.
+`common/visual.py:RGBDProjection` sits **inside both action models**: shared-across-
+frames Conv2d 5->16->32->64 with stride 2, GroupNorm/SiLU, a 3x4 spatial pool,
+64 values per image, then four concatenated image features plus proprioception
+projected to the existing 128-wide action conditioning. PyTorch initializes all
+weights from the declared training seed; the encoder and action model optimize
+jointly. No downloaded weights, extra dependencies, annotation input or hidden
+per-door lookup is added. The 3x4 spatial pool preserves coarse layout; visual
+sufficiency must still be established by genuine learned rollouts.
+
+`make_model` derives `visual_recipe` from the data binding. Both family model
+configurations save it and all convolutional weights in the normal checkpoint;
+saving/loading rejects a mismatch with the input recipe. `None` keeps the legacy
+linear observation projection and historical weights. Fixed observation units
+avoid empirical pixel z-scores; action normalization remains train-only. The
+network recipe, depth scale, image size, history/timing and robot/action contract
+travel with the existing checkpoint binding.
+
+CUDA verification covers offline/live equality, causal/reset/static/missing-depth
+behavior, image-sensitive nonzero visual gradients, train-only statistics,
+ACT/Diffusion x A1/A2 checkpoint and seeded prediction parity. The combined targeted
+suite passes 128 checks. This establishes software paths; it is not training on
+new-controller demonstrations or learned physical task success. Sensor-array to
+prediction p95 is 2.24/2.31 ms ACT and 14.46/15.11 ms Diffusion A1/A2 on RTX 4090
+with random weights and DDIM 10 steps. Camera/rendering, physics, FK, geometry,
+admission and training memory are excluded; no wall-clock deadline is qualified.
+
+The recipe uses maintained PyTorch [Conv2d](https://docs.pytorch.org/docs/stable/generated/torch.nn.Conv2d.html),
+[GroupNorm](https://docs.pytorch.org/docs/stable/generated/torch.nn.GroupNorm.html)
+and [adaptive pooling](https://docs.pytorch.org/docs/stable/generated/torch.nn.AdaptiveAvgPool2d.html).
+No architecture search is performed. Data and model cost/limits are in the shared
+pilot experiment; learned checkpoints and admitted rollouts remain pending.

@@ -23,7 +23,14 @@ from alexdoor_xas.policies.b1 import (
     save_policy,
 )
 from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg
-from alexdoor_xas.policies.encoding import FIXED_UNITS_RECIPE, RECIPE, RGBDEncoder, pilot_binding
+from alexdoor_xas.policies.encoding import (
+    FIXED_UNITS_RECIPE,
+    IMAGE_DIM,
+    LEARNED_RECIPE,
+    RECIPE,
+    RGBDEncoder,
+    pilot_binding,
+)
 from alexdoor_xas.policies.observations import B1Observer
 from alexdoor_xas.recording.b1 import PHASES, B1Writer, robot_feedback_at
 from helpers import TEST_ROBOT_REF
@@ -31,7 +38,7 @@ from helpers import TEST_ROBOT_REF
 pytestmark = pytest.mark.usefixtures("gpu_models")
 
 
-@pytest.mark.parametrize("recipe", [RECIPE, FIXED_UNITS_RECIPE])
+@pytest.mark.parametrize("recipe", [RECIPE, FIXED_UNITS_RECIPE, LEARNED_RECIPE])
 def test_causal_raw_roundtrip_and_models(tmp_path, recipe):
     inspection = json.loads(Path("configs/perception_inspection.json").read_text())
     binding = pilot_binding(inspection, recipe=recipe)
@@ -87,7 +94,9 @@ def test_causal_raw_roundtrip_and_models(tmp_path, recipe):
         prepare_recording(path, offline, lambda q, c: tool, {"train-door": "development"})
     episode = prepare_recording(path, offline, lambda q, c: tool, {"train-door": "train"})
     np.testing.assert_array_equal(episode.observations, features)
-    assert episode.observations[-1, 320] == pytest.approx(13 / 255)
+    assert episode.observations[
+        -1, IMAGE_DIM if recipe == LEARNED_RECIPE else 320
+    ] == pytest.approx(13 / 255)
     live.reset()
     assert live.update(sample | dict(time_s=0, frame=0)).feature_support.recent.acquired_s == 0
     dev = replace(
@@ -124,6 +133,18 @@ def test_causal_raw_roundtrip_and_models(tmp_path, recipe):
             batches, _ = batch_factories(data, family, 12, 2, 0)
             batch = next(iter(batches(0)))
             assert np.isfinite(batch["obs"]).all()
+            if recipe == LEARNED_RECIPE:
+                model.train()
+                obs_tensor = torch.as_tensor(batch["obs"], dtype=torch.float32, device="cuda")
+                projection = model.obs_proj if family == "act" else model.obs_mlp[0]
+                projection(obs_tensor).square().mean().backward()
+                grad = projection.images[0].weight.grad
+                assert grad is not None and torch.isfinite(grad).all() and grad.abs().sum() > 0
+                model.zero_grad(set_to_none=True)
+                model.eval()
+                modified = obs_tensor.clone()
+                modified[:, :IMAGE_DIM] = 0
+                assert not torch.equal(projection(obs_tensor), projection(modified))
             saved = save_policy(tmp_path / f"{family}-{space}.pt", family, model, data)
             policy = B1Policy.from_checkpoint(
                 saved, family, binding=binding, runtime_asset=TEST_ROBOT_REF, num_inference_steps=10
@@ -136,6 +157,49 @@ def test_causal_raw_roundtrip_and_models(tmp_path, recipe):
                     saved, family, binding=incompatible, runtime_asset=TEST_ROBOT_REF
                 )
             assert next(policy.policy.model.parameters()).is_cuda
-            assert policy.predict(features[-1]).shape == (12, data.action_dim)
+            policy.reset(23)
+            expected = policy.predict(features[-1])
+            second = B1Policy.from_checkpoint(
+                saved, family, binding=binding, runtime_asset=TEST_ROBOT_REF, num_inference_steps=10
+            )
+            second.reset(23)
+            np.testing.assert_array_equal(expected, second.predict(features[-1]))
+            assert expected.shape == (12, data.action_dim)
             assert policy.chunk_source(lambda x: x, n_action_steps=6)(features[-1]).shape[0] == 6
             torch.cuda.synchronize()
+
+
+def test_learned_missing_depth_freeze_and_generation():
+    inspection = json.loads(Path("configs/perception_inspection.json").read_text())
+    binding = pilot_binding(inspection, recipe=LEARNED_RECIPE, depth_interval_m=(0.01, 100000))
+    encoder = RGBDEncoder(binding)
+    sample = dict(
+        rgb=np.full((60, 96, 3), 128, np.uint8),
+        depth_m=np.full((60, 96, 1), np.nan, np.float32),
+        valid_depth=np.zeros((60, 96, 1), bool),
+        time_s=0,
+        frame=0,
+    )
+    empty = encoder.encode(sample).reshape(5, 60, 96)
+    assert np.isfinite(empty).all() and np.all(empty[3:] == 0)
+    sample.update(
+        depth_m=np.full((60, 96, 1), 6, np.float32), valid_depth=np.ones((60, 96, 1), bool)
+    )
+    full = encoder.encode(sample).reshape(5, 60, 96)
+    np.testing.assert_allclose(full[3:], 1, atol=1e-6)
+    frozen = encoder.update(sample | dict(time_s=encoder.static_until, frame=1), generation=0)
+    original = frozen.vector.copy()
+    current = encoder.update(
+        sample
+        | dict(time_s=encoder.static_until + 0.1, frame=2, rgb=np.zeros((60, 96, 3), np.uint8)),
+        generation=0,
+    )
+    np.testing.assert_array_equal(current.static.values, frozen.static.values)
+    np.testing.assert_array_equal(frozen.vector, original)
+    assert current.recent.acquired_s > frozen.recent.acquired_s
+    restarted = encoder.update(
+        sample | dict(time_s=0, frame=0, rgb=np.zeros((60, 96, 3), np.uint8)), generation=1
+    )
+    assert restarted.static.generation == restarted.recent.generation == 1
+    assert restarted.static.acquired_s == restarted.recent.acquired_s == 0
+    assert np.all(restarted.static.values.reshape(5, 60, 96)[:3] == 0)

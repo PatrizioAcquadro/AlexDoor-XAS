@@ -1,5 +1,7 @@
 """B1 ACT/Diffusion data, normalization and artifact binding; no training CLI."""
 
+from dataclasses import replace
+
 import numpy as np
 
 from alexdoor_xas.action.b1 import ACTION_DIMS, DISCRETE_COLUMNS
@@ -15,11 +17,11 @@ from alexdoor_xas.policies.common.data import (
     normalize_batch,
 )
 from alexdoor_xas.policies.common.model import OBS_CLIP
-from alexdoor_xas.policies.encoding import FIXED_UNITS_RECIPE
+from alexdoor_xas.policies.encoding import FIXED_UNITS_RECIPE, LEARNED_RECIPE
 
 
 def fixed_observation_units(binding):
-    return binding.config.get("encoder") == FIXED_UNITS_RECIPE
+    return binding.config.get("encoder") in (FIXED_UNITS_RECIPE, LEARNED_RECIPE)
 
 
 FORMATS = {"act": "alexdoor_xas.act.b1.v1", "diffusion": "alexdoor_xas.diffusion.b1.v1"}
@@ -142,6 +144,11 @@ def make_model(data, family, model_cfg, *, seed=0, device="cuda:0"):
     cfg_type, model_type, _ = _family(family)
     if not isinstance(model_cfg, cfg_type):
         raise ValueError("Model configuration belongs to another policy family")
+    recipe = data.dataset.binding.config.get("encoder")
+    expected_visual = LEARNED_RECIPE if recipe == LEARNED_RECIPE else None
+    if model_cfg.visual_recipe not in (None, expected_visual):
+        raise ValueError("Model visual recipe differs from the dataset")
+    model_cfg = replace(model_cfg, visual_recipe=expected_visual)
     torch.manual_seed(seed)
     with torch.device(device):
         return model_type(data.obs_dim, data.action_dim, model_cfg)
@@ -178,6 +185,11 @@ def save_policy(path, family, model, data, *, meta=None):
     validate_data(data)
     if not isinstance(model.cfg, _family(family)[0]):
         raise ValueError("Model configuration belongs to another policy family")
+    expected_visual = (
+        LEARNED_RECIPE if data.dataset.binding.config.get("encoder") == LEARNED_RECIPE else None
+    )
+    if model.cfg.visual_recipe != expected_visual:
+        raise ValueError("Model visual recipe differs from the dataset")
     metadata = dict(meta or {}, b1_contract=data.dataset.contract)
     config = dict(
         dataset=dict(
@@ -203,6 +215,9 @@ def load_policy_payload(path, family, *, binding, runtime_asset, device="cpu"):
     contract = loaded.meta.get("b1_contract")
     validate_contract(contract, binding, loaded.stats.action_space)
     check_stats(loaded.stats, contract)
+    expected_visual = LEARNED_RECIPE if binding.config.get("encoder") == LEARNED_RECIPE else None
+    if loaded.model_cfg.get("visual_recipe") != expected_visual:
+        raise ValueError("Checkpoint visual architecture differs from its bound recipe")
     assert_checkpoint_runtime_compatible(loaded.robot_asset, runtime_asset)
     return loaded, contract
 

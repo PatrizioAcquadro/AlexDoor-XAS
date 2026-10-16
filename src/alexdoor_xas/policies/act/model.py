@@ -7,6 +7,7 @@ from torch import nn
 
 from alexdoor_xas.policies.act.config import ActModelCfg
 from alexdoor_xas.policies.common.model import sinusoidal_table
+from alexdoor_xas.policies.common.visual import observation_projection
 
 
 class ACTModel(nn.Module):
@@ -21,7 +22,7 @@ class ACTModel(nn.Module):
         self.cfg = cfg
 
         d = cfg.d_model
-        self.obs_proj = nn.Linear(obs_dim, d)
+        self.obs_proj = observation_projection(obs_dim, d, cfg.visual_recipe)
         self.action_proj = nn.Linear(action_dim, d)
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, d))
