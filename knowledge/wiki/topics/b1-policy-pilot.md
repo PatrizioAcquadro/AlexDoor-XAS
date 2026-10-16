@@ -65,7 +65,12 @@ The optional geometry provider keeps `binding`, `generation`, `reset()` and
 marked `between_inference_ticks` retains the previous geometry snapshot without
 advancing any support timestamp. Generation changes invalidate cached features
 and geometry. A missing/unavailable geometry provider does not prevent policy
-feature assembly. The qualified-release observer path remains available unchanged.
+feature assembly. Fresh local material patches export the canonical public
+`tracking` state; the tracker retains its internal `tracked` lifecycle. Stale
+patches export `unavailable`. This interface correction does not fill missing
+geometry/FK bounds, resolve ownership or produce sweep/response evidence, so
+admission still refuses unsupported patches. The qualified-release observer path
+remains available unchanged.
 
 ## Timing, Runner and Stop
 

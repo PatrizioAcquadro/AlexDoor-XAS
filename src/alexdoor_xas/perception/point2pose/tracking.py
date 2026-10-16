@@ -552,7 +552,7 @@ class PanelTracking:
                         if candidate.state == "tracking_lost"
                         else "stale_dynamic_support"
                     ),
-                    tracking_state=candidate.state if fresh else "unavailable",
+                    tracking_state="tracking" if fresh else "unavailable",
                     ownership=candidate.ownership,
                     uncertainty_sources=tuple(
                         (s.name, s.position_m, s.rotation_rad, s.lever_m) for s in budget.sources

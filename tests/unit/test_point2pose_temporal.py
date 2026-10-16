@@ -137,12 +137,14 @@ def test_zone_without_local_texture_and_loss_does_not_refresh_support():
         tracking.consume(captured, result, 0.05)
         state = tracking.local_state(0.1)
         assert state.patches[0].world_pose is not None
+        assert state.patches[0].tracking_state == "tracking"
         assert state.patches[0].pose_support.position_bound_m is None  # missing FK bound
         assert state.patches[0].identity_support.reason == "ambiguous_leaf_ownership"
         np.testing.assert_allclose(candidate.pose, original, atol=1e-12)
         articulation = tracking.diagnostics["observed_articulation"][candidate.candidate_id]
         assert articulation["static_reference"]["support"]["supported_s"] == 0.0
         assert tracking.local_state(0.151).patches[0].world_pose is None
+        assert tracking.local_state(0.151).patches[0].tracking_state == "unavailable"
         tracking.consume(sensor(0.1, 1), dict(result, capture_s=0.1), 0.15)
         assert len(tracking.motion_samples[candidate.candidate_id]) == 1
         articulation = tracking.diagnostics["observed_articulation"][candidate.candidate_id]
