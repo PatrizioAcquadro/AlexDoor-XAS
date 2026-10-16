@@ -322,7 +322,10 @@ new-controller/contact demonstrations and required 6.0D/E checks remain pending.
 
 ## Learned RGB-D foundation
 
-New pilot work explicitly selects `rgbd-conv-v1`; the grid recipes remain
+New pilot work explicitly selects `rgbd-conv-v1` with `--recipe` in both
+`pilot_offline.py` and `pilot_physics.py rollout`; both retain the historical grid
+default for existing commands. Runtime derives sensor bounds from the current
+camera and still rejects a checkpoint contract mismatch. The grid recipes remain
 historical compatible paths, with no new comparison. `RGBDEncoder` prepares five
 60x96 image channels: RGB/255, mean valid metric depth saturated at 5 m and divided
 by 5 m, and valid-depth coverage. Invalid depth contributes zero and the coverage

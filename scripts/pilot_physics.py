@@ -32,6 +32,12 @@ def main():
     parser.add_argument("--space", choices=("A1_joint_delta", "A2_ee_delta"))
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--family", choices=("act", "diffusion"))
+    parser.add_argument(
+        "--recipe",
+        choices=("rgbd-grid-v1", "rgbd-grid-fixed-units-v2", "rgbd-conv-v1"),
+        default="rgbd-grid-v1",
+        help="Rollout input recipe; must match the checkpoint and current sensor",
+    )
     args = parser.parse_args()
     protocol = json.loads(args.protocol.read_text())
     selected = [e for e in protocol["episodes"] if e["asset_id"] == args.asset_id]
@@ -257,7 +263,11 @@ def rollout(env, args, protocol, robot, setup, inspection):
     from alexdoor_xas.policies.rollout import B1Runner
     from alexdoor_xas.recording.b1_runtime import array
 
-    binding = pilot_binding(inspection, depth_interval_m=(env.capture.near_m, env.capture.far_m))
+    binding = pilot_binding(
+        inspection,
+        depth_interval_m=(env.capture.near_m, env.capture.far_m),
+        recipe=args.recipe,
+    )
     policy = B1Policy.from_checkpoint(
         args.checkpoint,
         args.family,

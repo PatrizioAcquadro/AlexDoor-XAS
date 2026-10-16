@@ -308,7 +308,19 @@ PyTorch versions, physical rollout success or generalization.
 The files are in local `gilbreth/returned/` under this experiment's evidence root:
 `act-A1_joint_delta.pt`, `act-A2_ee_delta.pt`, `diffusion-A1_joint_delta.pt`,
 `diffusion-A2_ee_delta.pt`. Metadata explicitly marks them `synthetic=true` and
-`pilot_training=false`. They are **not trained door-pushing pilot checkpoints**.
+`pilot_training=false`. They are **not trained door-pushing pilot checkpoints**. Their synthetic depth
+interval is 0.1–5 m, whereas the recorded camera declares approximately 0.01–100,000 m.
+They therefore correctly refuse that physical sensor binding. Do not rewrite their
+metadata to make them appear compatible. Genuine pilot training must retain the
+actual recorded sensor contract.
+
+A subsequent CLI audit finds that `pilot_physics.py rollout` implicitly selected
+only the historical grid recipe. It now accepts explicit `--recipe rgbd-conv-v1`,
+matching offline preparation while retaining the historical default and all strict
+sensor/robot/checkpoint checks. CPU metadata checks reproduce the old mismatch and
+validate all four artifacts under their own learned synthetic binding; this is
+not inference or new physical qualification. Local `cli-recipe-validation.json`
+retains the comparisons.
 The exact source/data, job, load/prediction code and comparisons are preserved.
 
 After acquiring the shared GPU leases, the local load/parity command is:
