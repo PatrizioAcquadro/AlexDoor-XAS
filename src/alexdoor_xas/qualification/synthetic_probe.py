@@ -34,6 +34,7 @@ class ProbeSetup:
     sustain_s: float = 0.5
     hold_settle_s: float = 3.0
     hold_blend_s: float = 0.5
+    hold_decay_s: float = 2.0
     angular_speed: float = float(np.deg2rad(5))
     lead_angle: float = float(np.deg2rad(0.3))
     compression_m: float = 0.003
@@ -62,6 +63,7 @@ class ProbeSetup:
             self.sustain_s,
             self.hold_settle_s,
             self.hold_blend_s,
+            self.hold_decay_s,
             self.angular_speed,
             self.lead_angle,
             self.compression_m,
@@ -148,10 +150,14 @@ class ContactLoad:
         return gap is not None and gap <= self.maximum_gap and self.force >= self.minimum_force
 
 
-def hold_reference(angle, initial_lead, elapsed, duration, mechanical_stop):
-    """Remove lead about the captured hold angle, never a new coasting angle."""
-    u = float(np.clip(elapsed / duration, 0.0, 1.0))
-    return min(angle + initial_lead * (1.0 - u * u * (3.0 - 2.0 * u)), mechanical_stop)
+def hold_reference(reference, initial_speed, elapsed, decay_s, mechanical_stop):
+    """Planned passive-compatible deceleration, anchored once at the transition.
+
+    A unilateral push cannot demand faster braking than passive hinge drag.
+    Subsequent actual door angles never advance this reference.
+    """
+    travel = max(0.0, initial_speed) * decay_s * (1.0 - np.exp(-max(0.0, elapsed) / decay_s))
+    return min(reference + travel, mechanical_stop)
 
 
 def push_reference(reference, angle, setup, dt, mechanical_stop):
@@ -183,6 +189,21 @@ def tracking_margin_exhausted(samples, setup, *, orientation=False):
         error > guard for _, error in recent
     )
     return sustained and tracking_reserve(recent, setup.hold_settle_s) >= margin
+
+
+def conditioning_margin_exhausted(samples, setup):
+    """Reserve hold time before entering the frozen DLS attenuation regime.
+
+    At sigma=2*damping the weakest retained task-space gain is already 80%.
+    This is a controller-derived planning guard, not a changed physical score
+    or proof of global unreachability. Use a sustained trend, never a door angle.
+    """
+    minimum = 2 * setup.ik_damping
+    if samples[-1][1] <= minimum:
+        return True
+    if samples[-1][0] - samples[0][0] < setup.sustain_s - 1e-9:
+        return False
+    return -tracking_reserve([(t, -sigma) for t, sigma in samples], setup.hold_settle_s) <= minimum
 
 
 def normal_contact_support(compression, force, setup, dt):
@@ -360,6 +381,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
     safety_detail = None
     tracking = deque(maxlen=max(2, round(setup.sustain_s / dt) + 1))
     angular_tracking = deque(maxlen=tracking.maxlen)
+    conditioning = deque(maxlen=tracking.maxlen)
     start_p, start_q = [v[0].cpu().numpy() for v in env.tool_pose()]
     compensation = np.zeros(3)
 
@@ -380,6 +402,9 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
         joints = tensor(env.robot.data.joint_pos)[0, env.arm_ids].cpu().numpy()
         actual_speed = max(float(np.max(np.abs(s.dq))) for s in env.load_samples)
         peak_joint_speed = max(peak_joint_speed, actual_speed)
+        sigma = min(
+            float(np.linalg.svd(s.jacobian_world, compute_uv=False)[-1]) for s in env.load_samples
+        )
         limits = env.limits[0].cpu().numpy()
         margin = float(
             np.min(
@@ -483,6 +508,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
                 valid=valid,
                 joint_margin=margin,
                 actual_joint_speed_peak_rad_s=actual_speed,
+                minimum_jacobian_singular_value=sigma,
                 joints=joints.tolist(),
                 tool_position=p.tolist(),
                 tool_quaternion=q.tolist(),
@@ -569,6 +595,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
                 angular_tracking, setup.hold_settle_s
             )
             elapsed = tick * dt
+            conditioning.append((elapsed, traces[-1]["minimum_jacobian_singular_value"]))
             if angle > last_angle + np.deg2rad(0.25):
                 last_progress, last_angle = elapsed, angle
             missing_time = 0.0 if loaded else missing_time + dt
@@ -598,6 +625,13 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
                 break
             if abs(angle - door.mechanical_stop) < np.deg2rad(0.5):
                 reason = "mechanical_stop"
+                break
+            if (
+                elapsed > setup.sustain_s
+                and window.maximum is not None
+                and conditioning_margin_exhausted(conditioning, setup)
+            ):
+                reason, safety_detail = "safety_stop", "conditioning_margin"
                 break
             hold_blocked = False
             if elapsed > 5.0 and (
@@ -659,15 +693,15 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
     held_angle = None
     if failure is None:
         held = SustainedAngle(setup.sustain_s)
-        hold_angle = state[0]
-        initial_lead = reference - hold_angle
+        hold_angle = reference
+        hold_initial_speed = max(0.0, traces[-1]["speed"])
         for tick in range(round(setup.hold_settle_s / dt)):
             compression = normal_contact_support(compression, contact_load.force, setup, dt)
             target = hold_reference(
                 hold_angle,
-                initial_lead,
+                hold_initial_speed,
                 (tick + 1) * dt,
-                setup.hold_blend_s,
+                setup.hold_decay_s,
                 door.mechanical_stop,
             )
             state = command(

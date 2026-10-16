@@ -167,3 +167,12 @@ the same configured joint anchor during the common scan. Numerical checks pass;
 physical scan/teacher verification under that exact condition remains pending.
 Keep all old Cartesian-inspection recordings unchanged and establish fresh matched
 expert references before learned evaluation.
+
+
+Case 10 confirms the conditioning reserve prevents the speed violation: measured
+peak is 0.389 rad/s, release is valid and sustained controlled progress is 51.99
+degrees. The full cycle still fails holding: the prescribed angular decay loses
+loaded contact. A push-only interface needs pressure-consistent material tracking
+rather than an angular decay independent of force. Ten prerequisite cases are
+consumed, two remain. No demonstration, matched expert reference or learned
+execution is claimed from these development failures.

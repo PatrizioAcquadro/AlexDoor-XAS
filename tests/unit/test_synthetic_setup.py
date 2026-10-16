@@ -21,20 +21,21 @@ def test_push_reference_does_not_chase_coasting_panel_or_exceed_lead_or_stop():
     assert push_reference(0.999, 0.999, setup, 1 / 60, 1.0) == 1.0
 
 
-def test_hold_reference_removes_lead_smoothly_about_the_captured_angle():
+def test_hold_reference_decelerates_on_a_captured_clock_without_following_the_door():
     from alexdoor_xas.qualification.synthetic_probe import hold_reference
 
-    start, lead, duration = 0.9, np.deg2rad(0.3), 3.0
-    times = np.linspace(0, duration, 301)
-    angles = np.array([hold_reference(start, lead, t, duration, 2.0) for t in times])
+    start, speed, decay = 0.9, np.deg2rad(1), 2.0
+    times = np.linspace(0, 3, 301)
+    angles = np.array([hold_reference(start, speed, t, decay, 2.0) for t in times])
     velocities = np.diff(angles) / np.diff(times)
-    assert angles[0] == pytest.approx(start + lead)
-    assert np.all(velocities <= 0)
-    assert abs(velocities[0]) < lead * 0.01
-    assert abs(velocities[-1]) < lead * 0.01
-    assert angles[-1] == start
-    assert hold_reference(start + 0.01, lead, duration, duration, 2.0) == start + 0.01
-    assert hold_reference(start, lead, 0, duration, 0.901) == 0.901
+    assert angles[0] == start
+    assert np.all(velocities >= 0)
+    assert np.all(np.diff(velocities) < 0)
+    assert velocities[0] <= speed
+    assert angles[-1] == pytest.approx(start + speed * decay * (1 - np.exp(-1.5)))
+    assert hold_reference(start, 0, 3, decay, 2) == start
+    assert hold_reference(start, -speed, 3, decay, 2) == start
+    assert hold_reference(start, speed, 3, decay, 0.901) == 0.901
 
 
 def test_tracking_reserve_anticipates_growth_but_does_not_amplify_settling():
@@ -231,3 +232,15 @@ def test_local_joint_limit_requires_blocked_direction():
     inward = constrained_step_evidence(jac, q, limits, np.array([-0.02, 0, 0, 0, 0, 0]))
     assert outward["blocked"] and outward["active_joint_indices"] == [0]
     assert not inward["blocked"]
+
+
+def test_conditioning_guard_reserves_hold_without_an_angle_threshold():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, conditioning_margin_exhausted
+
+    setup = ProbeSetup()
+    stable = [(t, 0.025) for t in np.linspace(0, 0.5, 31)]
+    declining = [(t, 0.05 - 0.01 * t) for t in np.linspace(0, 0.5, 31)]
+    assert not conditioning_margin_exhausted(stable, setup)
+    assert conditioning_margin_exhausted(declining, setup)
+    assert not conditioning_margin_exhausted(declining[-2:], setup)
+    assert conditioning_margin_exhausted([(0, 2 * setup.ik_damping)], setup)

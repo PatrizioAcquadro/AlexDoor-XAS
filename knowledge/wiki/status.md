@@ -58,9 +58,10 @@ correcting the sensor/evaluator distinction. The 0.1 mm /0.02 N physical score i
 not operational sensor resolution. A fingertip/identity/load/temporal monitor is
 implemented with explicit uncertainty and unchanged independent scoring; its
 physical calibration remains pending. The resumed teacher has valid sustained
-push after preload regulation, but the fixed hold target loses contact; eight
-prerequisite cases are consumed and four remain. A common planned deceleration
-is the next physical check. Full
+push after preload regulation, but the fixed hold target loses contact; ten
+prerequisite cases are consumed and two remain. Planned angular deceleration
+keeps speed bounded but loses contact; pressure-consistent holding is the next
+physical check. Full
 A3/A4 observed initialization is deferred and does not block A1/A2; indispensable
 shared recording inputs still must be retained. Test doors stay sealed.
 The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
