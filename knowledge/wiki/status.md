@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-15. **Static 6.0B is maintained; CAD-free Point2Pose is
+Current as of 2026-10-16. **Static 6.0B is maintained; CAD-free Point2Pose is
 implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
@@ -33,9 +33,18 @@ tracking, with 100 rate-scaled/129 position-clipped IK steps and actual speed
 0.527 rad/s. All poses have static IK support; torque clipping is absent. Moving
 stops at 2.1 s travel at most 2.57/4.62 mm, but only 108/3,384 residual estimates
 remain inside the old calibration domain despite complete native feedback.
-Next, validate a feasible continuous/timed approach reference under the frozen
-controller, starting with the failing left path; defer policy/memory/training and
-new matched demonstrations. Historical contact data do not transfer automatically.
+The [[experiments/b1-shared-learned-pilot|shared learned pilot]] now preserves two
+bounded reference candidates. A joint-feasible FK path improves left p95 to
+11.94 mm / 3.22 degrees but still fails 10 mm and clips 184 targets; a 0.05 rad
+interior endpoint variant refuses left local IK before motion. Both candidates
+are rejected; controller, teacher and adapters are unchanged. The reference ceiling
+is exhausted, with no new demonstrations or learned commands. Three historical
+episodes numerically reconstruct A3/A4 supervisor labels at existing tolerances,
+but observed first-command geometry/bootstrap and continuous sweep/response/load
+support remain essential missing production dependencies. Gilbreth authentication
+also fails. Next: bounded constrained-reference work, observed local admission and
+new-controller verification before matched recollection; test doors stay sealed.
+
 
 The earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate
 [[experiments/b1-loaded-hold-and-stop|load-bearing controller correction]] verifies
