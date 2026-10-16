@@ -380,3 +380,23 @@ def test_synchronous_simulation_cannot_hide_a_free_running_clock(tmp_path, geome
         assert not provider.static
     finally:
         provider.close()
+
+
+def test_session_factory_forwards_robot_camera_calibration(tmp_path, monkeypatch):
+    class Session:
+        runtime = {}
+
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(module, "PerceptionSession", Session)
+    calibration = {"root_world": np.eye(4).tolist()}
+    provider = module.session_provider(recipe(), "unused", calibration, tmp_path, replay=True)
+    try:
+        assert provider.tracking.calibration is calibration
+        assert provider.tracking.calibration_bound is None
+    finally:
+        provider.close()

@@ -737,6 +737,7 @@ def session_provider(
         tracking=tracking,
         synchronous_simulation=synchronous_simulation,
         inference_period_s=inference_period_s,
+        calibration=calibration,
         **options,
     )
     try:

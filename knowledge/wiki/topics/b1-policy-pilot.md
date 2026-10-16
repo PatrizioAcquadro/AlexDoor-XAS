@@ -466,3 +466,8 @@ unchanged. This supports simulation slower than wall time without backdating an
 asynchronous result or claiming hardware/150 ms wall-time readiness. The frontend
 and selected model settings are unchanged; exact chosen-cadence physical quality
 and local admission still require validation before a learned command can run.
+
+The session factory also forwards its supplied robot/camera calibration into local
+tracking, enabling actual-tool footprint queries when FK/geometry are supplied.
+Calibration error and relative-motion bounds remain explicit separate inputs;
+forwarding the calibration does not invent either bound.
