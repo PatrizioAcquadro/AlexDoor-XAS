@@ -1,23 +1,23 @@
 """Conservative prototype control checks using observed geometry and robot proprioception."""
 
-from collections import deque
-
 import numpy as np
 
-from alexdoor_xas.perception.admission import require_current_admission, rotational_travel
+from alexdoor_xas.perception.admission import require_current_admission
 from alexdoor_xas.perception.contracts import LEGACY_FULL_STATE, geometry_profile, validate_geometry
 
 
 class ObservedControlChecks:
     """RGB-D cannot establish loaded contact or force; never manufacture that feedback."""
 
-    def __init__(self, setup):
+    def __init__(self, setup, *, contact_monitor=None):
         self.setup = setup
+        self.contact_monitor = contact_monitor
         self.reset()
 
     def reset(self):
         self.initial_tool = None
-        self.force_history = deque()
+        if self.contact_monitor is not None:
+            self.contact_monitor.reset()
 
     def check(
         self,
@@ -115,43 +115,29 @@ class ObservedControlChecks:
                 float(sensor["time_s"]),
                 self.setup.force_limit_n,
                 require_contact=False,
-                loaded_force_n=self.setup.loaded_force_n,
             )
             if not result.admitted:
                 return result.reason
             now = float(sensor["time_s"])
-            if not self.force_history or self.force_history[-1][0] != now:
-                self.force_history.append((now, load.normal_lower_n))
-            while now - self.force_history[0][0] >= self.setup.contact_force_window_s - 1e-9:
-                self.force_history.popleft()
-            mean_lower = sum(value for _, value in self.force_history) / len(self.force_history)
-            if not loaded and mean_lower >= self.setup.loaded_force_n:
-                return "unexpected_observed_load"
-            if stage in ("push", "hold"):
-                if support is None or admission is None:
-                    return "unverified_contact_distance"
-                gap_upper = (
-                    abs(normal @ (tool.origin - contact.origin))
-                    + support.position_bound_m
-                    + rotational_travel(
-                        np.linalg.norm(tool.origin - contact.origin), support.rotation_bound_rad
-                    )
-                    + admission.limits.robot_position_bound_m
-                )
-                if (
-                    mean_lower < self.setup.loaded_force_n
-                    or gap_upper > self.setup.contact_gap_tolerance_m
-                ):
-                    return "uncontrolled_observed_contact"
+            if loaded or self.contact_monitor is not None:
+                if self.contact_monitor is None:
+                    return "operational_contact_monitor_unconfigured"
+                evidence = self.contact_monitor.update(now, estimate, tool, load, admission)
+                if not loaded and load.normal_lower_n >= self.contact_monitor.config.force_on_n:
+                    return "unexpected_observed_load"
+                if evidence.status in ("lost", "unavailable"):
+                    return evidence.reason
+                if stage in ("push", "hold") and evidence.status != "contact":
+                    return "observed_contact_not_established"
         return ""
 
 
 class ObservedPurdueSafety:
     """Purdue IO adapter; reads neither the door articulation nor prepared geometry."""
 
-    def __init__(self, io, setup, provider):
+    def __init__(self, io, setup, provider, *, contact_monitor=None):
         self.io, self.provider = io, provider
-        self.checks = ObservedControlChecks(setup)
+        self.checks = ObservedControlChecks(setup, contact_monitor=contact_monitor)
 
     def reset(self):
         self.checks.reset()

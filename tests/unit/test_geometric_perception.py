@@ -100,7 +100,8 @@ def test_reset_discards_public_estimate_and_unsafe_contact_never_reaches_io():
     assert provider.last_estimate is None and provider.encoding is None
     io = PurdueIO.__new__(PurdueIO)
     io.safety = SimpleNamespace(before_command=lambda stage: "force_feedback_unavailable")
-    # No environment exists: rejecting a command must happen before any simulator access.
+    io.env = SimpleNamespace(motion_stopped=False)
+    # Only stop metadata exists: rejection must precede actual simulator access.
     with pytest.raises(RuntimeError, match="force_feedback_unavailable"):
         io.execute(SimpleNamespace(stage="contact"))
 

@@ -409,3 +409,16 @@ is changed. The same three teacher failures recur with identical numeric command
 and native feedback arrays. Six of twelve prerequisite cases are now used, six
 remain unspent. No genuine pilot training, learned command or evaluation condition
 is produced; essential observed producer/load and A3/A4 dependencies remain.
+
+
+## Explicit resumed goal and contract correction
+
+The user clarifies that 0.1 mm /0.02 N are physical evaluator criteria, not
+operational sensor requirements, and defers full A3/A4 observed initialization.
+[[b1-end-to-end-pilot-resume|The resumed pilot]] implements distinct fingertip,
+material-support, calibrated load and temporal contact evidence. Historical
+measurements/failures remain; their interpretation as an indispensable 0.1 mm
+sensor certificate is superseded. Six prerequisite cases remain, with
+evidence-driven iterations authorized within the original budgets. Calibration,
+common teacher correction, shared recording audit and genuine learning/evaluation
+continue; the goal is not complete.

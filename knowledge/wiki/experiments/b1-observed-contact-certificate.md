@@ -6,6 +6,12 @@ contact-certificate study using the existing frontend and unchanged 0.1 mm
 physical rule. No placement, IK, controller, training or threshold variant is run.
 The study is complete; **no operational contact certificate is qualified**.
 
+The [[b1-end-to-end-pilot-resume|resumed A1/A2 pilot]] corrects the earlier
+interpretation: the physical 0.1 mm score is not an operational sensor requirement.
+The measurements below remain preserved component evidence. They neither require
+a 0.1 mm depth detector nor make full A3/A4 initialization a pilot prerequisite.
+The new operational monitor requires separate calibration and validation.
+
 ## Physical property and observed candidate
 
 The existing monitor adds pose/robot uncertainty to the absolute distance between

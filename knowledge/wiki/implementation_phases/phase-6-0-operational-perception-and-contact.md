@@ -29,6 +29,13 @@ available for later train/development qualification. Use one common recipe, one
 simulator at a time and CUDA for model/simulator work. No new training, data
 collection, corpus change, sealed-test access or push belongs to this cleanup.
 
+The [[../experiments/b1-end-to-end-pilot-resume|bounded end-to-end A1/A2 pilot]]
+uses the shared observation, local admission and contact/load requirements below.
+Its user-authorized scope defers full A3/A4 hinge initialization and qualification;
+retain indispensable raw data and supervision annotations before collection.
+The 0.1 mm /0.02 N criteria remain independent physical scores, not required
+operational sensor resolution. This exception does not qualify A3/A4 execution.
+
 ## Approved operational protocol
 
 ### Inputs, ownership and common execution

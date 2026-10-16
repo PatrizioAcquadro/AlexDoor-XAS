@@ -51,13 +51,15 @@ support remain essential missing production dependencies. The subsequent
 [[experiments/b1-pilot-contact-prerequisites|three complete teacher diagnostics]]
 all fail: 46.09/35.48/32.62 degrees valid sustain, invalid holding or lost contact,
 no valid pilot cycle. Right full-cycle joint speed reaches 4.47 rad/s. The first
-allocation stops with nine of twelve prerequisite cases unspent. A later [[experiments/b1-observed-contact-certificate|authorized contact-certificate study]] uses three camera cases and preserves the same
-physical failures; the observed component remains unqualified. Six cases now remain
-unspent. The existing
-observed pose budget (>=4 mm) also cannot satisfy the 0.1 mm observed gap-upper
-test; an independently validated contact certificate is missing. Next: a bounded
-shared teacher load/reference correction and that observed interface, before
-matched recollection. Pose variation remains unqualified; test doors stay sealed.
+allocation stops with nine cases unspent; three later camera diagnostics preserve
+those failures, leaving six of twelve prerequisite cases. The user subsequently
+[[experiments/b1-end-to-end-pilot-resume|resumes the end-to-end pilot]], explicitly
+correcting the sensor/evaluator distinction. The 0.1 mm /0.02 N physical score is
+not operational sensor resolution. A fingertip/identity/load/temporal monitor is
+implemented with explicit uncertainty and unchanged independent scoring; its
+physical calibration and teacher-control validation remain in progress. Full
+A3/A4 observed initialization is deferred and does not block A1/A2; indispensable
+shared recording inputs still must be retained. Test doors stay sealed.
 The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
 both policy families with shared causal preprocessing and checkpoint binding.
 All four A1/A2 software paths pass inside 128 targeted CUDA checks; no new trained

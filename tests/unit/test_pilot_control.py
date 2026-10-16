@@ -154,7 +154,13 @@ def test_monitor_uses_robot_load_and_local_support_without_task_truth():
         contact_force_window_s=0.1,
         contact_gap_tolerance_m=0.01,
     )
-    checks = ObservedControlChecks(setup)
+    from alexdoor_xas.perception.contact import ContactMonitorConfig, ObservedContactMonitor
+
+    monitor = ObservedContactMonitor(
+        ContactMonitorConfig(0.008, 1, 0.5, 0.1, 0.04, 3, 0.03),
+        (np.array([[0, -0.01, 0]]), np.array([[0, 0.01, 0]])),
+    )
+    checks = ObservedControlChecks(setup, contact_monitor=monitor)
     sensor = dict(
         time_s=1,
         joint_position=np.zeros(9),
@@ -168,7 +174,7 @@ def test_monitor_uses_robot_load_and_local_support_without_task_truth():
         estimate,
         proposal.world_poses[0],
         np.tile([-2, 2], (7, 1)),
-        "push",
+        "contact",
         np.zeros(2),
     )
     assert (

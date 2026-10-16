@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-end-to-end-pilot-resume|Resumed End-to-End Pilot]] — Corrected operational contact contract, shared recording scope and reconciled finite budget; physical calibration/teacher and real learned pilot in progress.
+
 - [[experiments/b1-observed-contact-certificate|Observed Contact Certificate Study]] — Three fixed current-placement camera diagnostics; signed distance component remains unqualified, tool-center/contact semantics separated and six prerequisite cases unspent.
 
 - [[experiments/b1-pilot-contact-prerequisites|Pilot Contact Prerequisites]] — All three complete teacher diagnostics fail; valid partial progress retained, nine cases unspent and observed contact-certificate gap demonstrated.

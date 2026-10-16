@@ -145,7 +145,15 @@ class PurdueIO:
     """Adapt an already-created, camera-enabled Purdue environment; never launch one."""
 
     def __init__(
-        self, env, *, binding, robot_asset, setup, observed_provider=None, load_source=None
+        self,
+        env,
+        *,
+        binding,
+        robot_asset,
+        setup,
+        observed_provider=None,
+        load_source=None,
+        contact_monitor=None,
     ):
         from alexdoor_xas.recording.b1_runtime import camera_calibration
 
@@ -189,7 +197,9 @@ class PurdueIO:
         else:
             from alexdoor_xas.perception.control import ObservedPurdueSafety
 
-            self.safety = ObservedPurdueSafety(self, setup, observed_provider)
+            self.safety = ObservedPurdueSafety(
+                self, setup, observed_provider, contact_monitor=contact_monitor
+            )
 
     def reset(self):
         self.admission = None
