@@ -471,3 +471,13 @@ The session factory also forwards its supplied robot/camera calibration into loc
 tracking, enabling actual-tool footprint queries when FK/geometry are supplied.
 Calibration error and relative-motion bounds remain explicit separate inputs;
 forwarding the calibration does not invent either bound.
+
+
+Learned image views contain 115,218 scalars per tick. The B1 loader now maps
+contiguous HDF5 observation storage read-only and exposes ordered column/matrix
+views, so sampling does not duplicate every episode in RAM. Normalization merges
+finite train-only row blocks instead of concatenating all episodes; values, counts,
+identity checks and fixed encoder units remain unchanged. Chunked legacy files
+retain their existing read path. No cache copy or new dataset format is introduced.
+This removes a demonstrated allocation problem in the code path; full real-data
+preparation/training memory and throughput still need measurement.

@@ -164,7 +164,9 @@ def validate_episode(episode, binding, asset_splits):
     ):
         raise ValueError("Pilot control cadence must remain 60 Hz")
     obs = np.asarray(episode.observations)
-    if obs.shape != (n + 1, binding.obs_dim) or not np.isfinite(obs).all():
+    if obs.shape != (n + 1, binding.obs_dim) or not all(
+        np.isfinite(obs[i : i + 64]).all() for i in range(0, n + 1, 64)
+    ):
         raise ValueError("Invalid B1 features or missing terminal observation")
     spaces = dataset_spaces(binding)
     if set(episode.actions) != set(spaces) or set(episode.starts) != set(spaces):
@@ -335,6 +337,7 @@ class B1Record:
     starts: np.ndarray
     times: np.ndarray
     terminal_observation: np.ndarray
+    observation_matrix: np.ndarray | None = None
 
     @property
     def n_steps(self):
@@ -375,30 +378,52 @@ class B1Dataset:
             if Path(name).name != name:
                 raise ValueError("Episode path must stay inside its dataset")
             with h5py.File(directory / name, "r") as source:
+                values = source["observations"]
+                offset = values.id.get_offset()
+                observations = (
+                    np.memmap(
+                        directory / name,
+                        mode="r",
+                        dtype=values.dtype,
+                        offset=offset,
+                        shape=values.shape,
+                    )
+                    if offset is not None and values.chunks is None
+                    else values[:]
+                )
                 episode = MatchedEpisode(
                     source.attrs["episode_id"],
                     source.attrs["asset_id"],
                     source.attrs["split"],
                     source["time_s"][:],
-                    source["observations"][:],
+                    observations,
                     {s: source[s + "/actions"][:] for s in spaces},
                     {s: source[s + "/starts"][:] for s in spaces},
                 )
             validate_episode(episode, self.binding, metadata["asset_splits"])
             starts = episode.starts[space]
-            columns = [
-                observation_columns(row, self.binding) for row in episode.observations[starts]
-            ]
+            matrix = (
+                episode.observations[: len(starts)]
+                if np.array_equal(starts, np.arange(len(starts)))
+                else episode.observations[starts]
+            )
+            widths = [len(v) for v in observation_columns(matrix[0], self.binding).values()]
+            offsets = np.cumsum([0, *widths])
+            columns = {
+                key: matrix[:, begin:end]
+                for key, begin, end in zip(OBS_KEYS, offsets[:-1], offsets[1:], strict=True)
+            }
             self.records.append(
                 B1Record(
                     episode.episode_id,
                     episode.asset_id,
                     episode.split,
                     episode.actions[space],
-                    {key: np.stack([c[key] for c in columns]) for key in OBS_KEYS},
+                    columns,
                     starts,
                     episode.times[starts],
                     episode.observations[-1],
+                    matrix,
                 )
             )
         if not self.records or len(set(self.episode_ids)) != len(self.records):

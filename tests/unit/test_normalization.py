@@ -41,3 +41,16 @@ def test_observations_reject_missing_or_invalid_fields():
         record.obs["position"] = value
         with pytest.raises(ValueError, match="invalid"):
             obs_matrix(record, ("position",))
+
+
+def test_streamed_statistics_match_dense_values_and_reject_a_late_nonfinite_block():
+    values = np.linspace(-3, 7, 219 * 5).reshape(219, 5)
+    stats = NormStats.from_rows(values[i : i + 64] for i in range(0, len(values), 64))
+    assert stats.count == len(values)
+    np.testing.assert_allclose(stats.mean, values.mean(0), rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(stats.std, values.std(0), rtol=1e-12, atol=1e-12)
+    np.testing.assert_array_equal(stats.min, values.min(0))
+    np.testing.assert_array_equal(stats.max, values.max(0))
+    values[-1, -1] = np.nan
+    with pytest.raises(ValueError):
+        NormStats.from_rows(values[i : i + 64] for i in range(0, len(values), 64))

@@ -25,6 +25,7 @@ from alexdoor_xas.policies.b1 import (
     save_policy,
 )
 from alexdoor_xas.policies.common.b1_contract import (
+    OBS_KEYS,
     PILOT_SCHEMA,
     PerceptionBinding,
     PilotBinding,
@@ -443,3 +444,26 @@ def test_pilot_geometry_recipe_is_independent_but_inspection_and_age_must_match(
         provider.binding = PrototypeRecipe(json.dumps(bad))
         with pytest.raises(ValueError, match="inspection or freshness mismatch"):
             B1Observer(provider, pilot_binding, encoder=NumericalEncoder(pilot_binding))
+
+
+def test_policy_views_and_chunk_sampler_share_readonly_disk_matrix(pilot_binding, tmp_path):
+    from alexdoor_xas.dataset.observations import obs_matrix
+    from alexdoor_xas.dataset.sampling import ChunkSampler
+
+    root = export_dataset(
+        [pilot_episode(pilot_binding)],
+        tmp_path / "data",
+        pilot_binding,
+        TEST_ROBOT_REF,
+        {"left": "train"},
+    )
+    dataset = B1Dataset(root, A1_JOINT_DELTA)
+    record = dataset.records[0]
+    assert isinstance(record.observation_matrix, np.memmap)
+    assert not record.observation_matrix.flags.writeable
+    assert np.shares_memory(obs_matrix(record, OBS_KEYS), record.observation_matrix)
+    sampler = ChunkSampler(dataset, 1, obs_keys=OBS_KEYS)
+    assert np.shares_memory(sampler._obs[0], record.observation_matrix)
+    # Explicit replacement of a column cannot be hidden by the canonical fast path.
+    record.obs[OBS_KEYS[-1]] = np.ones_like(record.obs[OBS_KEYS[-1]])
+    assert np.all(obs_matrix(record, OBS_KEYS)[:, -9:] == 1)

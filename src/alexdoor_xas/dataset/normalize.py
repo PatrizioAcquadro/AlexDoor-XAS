@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
@@ -39,23 +40,32 @@ class NormStats:
             raise ValueError("normalization requires positive count/std and min <= max")
 
     @classmethod
-    def from_rows(cls, arrays: list[np.ndarray]) -> NormStats:
-        if not arrays:
+    def from_rows(cls, arrays: Iterable[np.ndarray]) -> NormStats:
+        count, mean, variance_sum, minimum, maximum = 0, None, None, None, None
+        for value in arrays:
+            array = np.asarray(value, dtype=np.float64)
+            if array.ndim != 2 or not array.shape[0] or not np.isfinite(array).all():
+                raise ValueError("normalization inputs must be finite non-empty (N, D) arrays")
+            if mean is not None and array.shape[1] != len(mean):
+                raise ValueError("normalization inputs have inconsistent feature dimensions")
+            size = len(array)
+            block_mean, block_variance = array.mean(0), array.var(0) * size
+            if mean is None:
+                mean, variance_sum = block_mean, block_variance
+                minimum, maximum = array.min(0), array.max(0)
+            else:
+                delta = block_mean - mean
+                variance_sum += block_variance + delta * delta * count * size / (count + size)
+                mean += delta * size / (count + size)
+                minimum, maximum = (
+                    np.minimum(minimum, array.min(0)),
+                    np.maximum(maximum, array.max(0)),
+                )
+            count += size
+        if not count:
             raise ValueError("cannot compute stats from an empty list")
-        rows = [np.asarray(array, dtype=np.float64) for array in arrays]
-        if any(array.ndim != 2 or array.shape[0] == 0 for array in rows):
-            raise ValueError("normalization inputs must all be non-empty (N, D) arrays")
-        if len({array.shape[1] for array in rows}) != 1:
-            raise ValueError("normalization inputs have inconsistent feature dimensions")
-        if not all(np.isfinite(array).all() for array in rows):
-            raise ValueError("normalization inputs must be finite")
-        stacked = np.concatenate(rows)
         return cls(
-            mean=stacked.mean(axis=0),
-            std=np.maximum(stacked.std(axis=0), _STD_FLOOR),
-            min=stacked.min(axis=0),
-            max=stacked.max(axis=0),
-            count=int(stacked.shape[0]),
+            mean, np.maximum(np.sqrt(variance_sum / count), _STD_FLOOR), minimum, maximum, count
         )
 
     @property
@@ -148,7 +158,11 @@ def compute_norm_stats(
         raise ValueError("Normalization requires unique train-only episodes")
     return DatasetNormStats(
         action=NormStats.from_rows([record.actions for record in records]),
-        obs=NormStats.from_rows([obs_matrix(record, obs_keys) for record in records]),
+        obs=NormStats.from_rows(
+            obs_matrix(record, obs_keys, rows=slice(start, start + 64))
+            for record in records
+            for start in range(0, record.n_steps, 64)
+        ),
         obs_keys=obs_keys,
         train_episode_ids=tuple(train_episode_ids),
         action_space=dataset.action_space,
