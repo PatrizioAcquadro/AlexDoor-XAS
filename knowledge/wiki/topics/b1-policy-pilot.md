@@ -445,3 +445,12 @@ observations while preserving rigid-body geometry/dynamics. The default is 1.0;
 this hook does not qualify a visual range or camera noise model. A future pilot
 panel must freeze its common scales using train/development evidence before
 learned evaluation, and preserve every outcome.
+
+
+Pilot observations may use the maintained geometry provider's independent recipe
+with the separately bound visual encoder. Both must declare the same inspection
+and the provider's freshness limit cannot exceed the policy contract. Episode
+generation remains mandatory; release-mode binding identity stays strict. Purdue
+safety uses the IO's operational profile, rather than a prototype recipe's absent
+profile default. This interface compatibility neither resolves material identity
+nor supplies a load calibration, sweep receipt or motion permission.

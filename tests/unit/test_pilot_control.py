@@ -294,3 +294,24 @@ def test_dynamic_residual_bounds_cover_coupling_without_inflating_static_load():
         model.estimate(
             baseline.feedback, np.zeros(7), jac, np.zeros(7), np.zeros(7), np.zeros(7), [1, 0, 0]
         )
+
+
+def test_safety_uses_io_geometry_profile_with_an_independent_provider_recipe():
+    from alexdoor_xas.perception.control import ObservedPurdueSafety
+
+    estimate, proposal, _, _ = local_inputs()
+    provider = SimpleNamespace(binding=SimpleNamespace(config={}), last_estimate=estimate)
+    io = SimpleNamespace(
+        profile=OPERATIONAL_V1,
+        env=SimpleNamespace(
+            load_samples=[], limits=np.zeros((1, 7, 2)), targets=np.zeros((1, 9)), neck_ids=[7, 8]
+        ),
+        load_source=None,
+        robot_feedback=lambda: None,
+        tool_pose=lambda: proposal.world_poses[0],
+        observe=lambda: {},
+        admission=None,
+    )
+    safety = ObservedPurdueSafety(io, SimpleNamespace(max_joint_speed=0.5), provider)
+    safety.checks.check = lambda *args, **kwargs: kwargs["profile"]
+    assert safety.check(None) == OPERATIONAL_V1

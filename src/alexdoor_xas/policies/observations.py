@@ -160,7 +160,15 @@ class B1Observer:
     def __init__(self, provider, binding, *, encoder=None):
         self.pilot = isinstance(binding, PilotBinding)
         if provider is not None and provider.binding != binding:
-            raise ValueError("Perception provider does not match the B1 release")
+            if not self.pilot:
+                raise ValueError("Perception provider does not match the B1 release")
+            # Pilot visual preprocessing and operational geometry are independent
+            # recipes. They must still share the inspection and causal age limit.
+            config = provider.binding.config
+            if config.get("inspection") != binding.config["inspection"] or not (
+                0 < config.get("max_gap_s", float("inf")) <= binding.config["max_gap_s"]
+            ):
+                raise ValueError("Pilot geometry inspection or freshness mismatch")
         if self.pilot:
             if encoder is None or encoder.binding != binding:
                 raise ValueError("Pilot requires an independently bound policy encoder")

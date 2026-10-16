@@ -423,3 +423,23 @@ def test_raw_pilot_preparation_uses_causal_encoder_and_robot_fk(tmp_path, pilot_
     episode = prepare_recording(path, observer, lambda q, calibration: tool, {"left": "train"})
     assert set(episode.actions) == {A1_JOINT_DELTA, A2_EE_DELTA}
     assert episode.observations.shape == (3, pilot_binding.obs_dim)
+
+
+def test_pilot_geometry_recipe_is_independent_but_inspection_and_age_must_match(pilot_binding):
+    from alexdoor_xas.perception.provider import PrototypeRecipe
+
+    provider = operational_provider(pilot_binding)
+    config = {
+        "scan_fusion": "object-v1",
+        "inspection": pilot_binding.config["inspection"],
+        "max_gap_s": pilot_binding.config["max_gap_s"],
+    }
+    provider.binding = PrototypeRecipe(json.dumps(config))
+    observer = B1Observer(provider, pilot_binding, encoder=NumericalEncoder(pilot_binding))
+    observation = observer.update(sensor(0, 0))
+    assert observation.features_available and observation.geometry_available
+    assert not provider.binding.to_dict()["dynamic_passed"]
+    for bad in (config | {"inspection": {}}, config | {"max_gap_s": 0.2}):
+        provider.binding = PrototypeRecipe(json.dumps(bad))
+        with pytest.raises(ValueError, match="inspection or freshness mismatch"):
+            B1Observer(provider, pilot_binding, encoder=NumericalEncoder(pilot_binding))

@@ -3,7 +3,7 @@
 import numpy as np
 
 from alexdoor_xas.perception.admission import require_current_admission
-from alexdoor_xas.perception.contracts import LEGACY_FULL_STATE, geometry_profile, validate_geometry
+from alexdoor_xas.perception.contracts import LEGACY_FULL_STATE, validate_geometry
 
 
 class ObservedControlChecks:
@@ -179,7 +179,7 @@ class ObservedPurdueSafety:
             array(io.env.limits)[0],
             stage,
             array(io.env.targets)[0, io.env.neck_ids],
-            profile=geometry_profile(self.provider.binding),
+            profile=io.profile,
             feedback=feedback,
             load=load,
             admission=io.admission,
