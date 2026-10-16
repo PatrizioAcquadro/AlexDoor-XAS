@@ -101,7 +101,8 @@ def make_surface(captured):
     )
 
 
-def test_zone_without_local_texture_and_loss_does_not_refresh_support():
+@pytest.mark.parametrize("measured_clock", [False, True])
+def test_zone_without_local_texture_and_loss_does_not_refresh_support(measured_clock):
     engine = Point2PoseEngine(lambda _: Worker(), replay=True)
     config = dict(plane_tolerance_m=0.004, voxel_m=0.004, association_angle_deg=5)
     tracking = PanelTracking(engine, config)
@@ -134,7 +135,11 @@ def test_zone_without_local_texture_and_loss_does_not_refresh_support():
             inliers=pack_array(np.ones(6, bool)),
         )
         result = dict(objects=[obj], latency_s=0.05, capture_s=0.0)
-        tracking.consume(captured, result, 0.05)
+        tracking.consume(captured, result, 0.05, clock=(lambda: 0.05) if measured_clock else None)
+        if measured_clock:
+            assert candidate.support.available_s == 0.05
+        else:
+            assert candidate.support.available_s > 0.05
         state = tracking.local_state(0.1)
         assert state.patches[0].world_pose is not None
         assert state.patches[0].tracking_state == "tracking"
