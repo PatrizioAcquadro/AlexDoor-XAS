@@ -429,3 +429,11 @@ identities remain excluded by both protocol selection and corpus split checks.
 Preparation can read each declared episode's `directory`, allowing two physical
 conditions per identity without overwriting recordings or duplicating identity
 selection. Defaults retain the historical one-condition layout.
+
+
+A declared `lighting_scale` multiplies the maintained scene's dome-light intensity
+before reset, and is retained in runtime and raw metadata. It changes rendered
+observations while preserving rigid-body geometry/dynamics. The default is 1.0;
+this hook does not qualify a visual range or camera noise model. A future pilot
+panel must freeze its common scales using train/development evidence before
+learned evaluation, and preserve every outcome.

@@ -4,6 +4,7 @@
 import argparse
 import hashlib
 import json
+import math
 import os
 import sys
 import traceback
@@ -61,6 +62,9 @@ def main():
         parser.error(
             "Rollout requires one declared train/development condition and checkpoint family"
         )
+    lighting_scale = float(selected[0].get("lighting_scale", 1.0))
+    if not math.isfinite(lighting_scale) or lighting_scale <= 0:
+        parser.error("Declared simulated lighting scale must be finite and positive")
     args.output.mkdir(parents=True, exist_ok=False)
     from alexdoor_xas.qualification.corpus import load_corpus
 
@@ -104,6 +108,12 @@ def main():
     cfg.seed = selected[0]["seed"]
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
     env = DoorPushPurdueEnv(cfg)
+    from pxr import UsdLux
+
+    light = UsdLux.DomeLight(env.sim.stage.GetPrimAtPath("/World/Light"))
+    intensity = light.GetIntensityAttr()
+    base_intensity = float(intensity.Get())
+    intensity.Set(base_intensity * lighting_scale)
     robot = RobotAssetRef(
         "purdue_alex003_full_convex_wsg32_umi_v1",
         hashlib.sha256(Path(env.robot.cfg.spawn.asset_path).read_bytes()).hexdigest(),
@@ -116,6 +126,13 @@ def main():
             device=torch.cuda.get_device_name(),
             setup=setup.to_dict(),
             setup_path=str(setup_path.resolve()),
+            condition=condition,
+            lighting=dict(
+                scope="simulated_dome_light",
+                scale=lighting_scale,
+                base_intensity=base_intensity,
+                intensity=base_intensity * lighting_scale,
+            ),
         ),
     )
     started = perf_counter()
@@ -125,6 +142,7 @@ def main():
                 entry,
                 episode_id=selected[0].get("episode_id", f"{args.asset_id}-{condition}-pilot"),
                 condition=condition,
+                lighting_scale=lighting_scale,
                 seed=cfg.seed,
                 setup=setup.to_dict(),
                 teacher="frozen_arm_expert_with_inspection",
