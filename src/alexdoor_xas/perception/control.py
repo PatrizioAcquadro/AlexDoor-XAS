@@ -39,6 +39,8 @@ class ObservedControlChecks:
         dq = np.asarray(sensor["joint_velocity"])
         if q.shape != (9,) or dq.shape != (9,) or not np.isfinite(np.r_[q, dq]).all():
             return "invalid_proprioception"
+        if np.max(np.abs(dq[:7])) > self.setup.max_joint_speed * 1.02:
+            return "actual_joint_speed_limit"
         if np.any(q[:7] < limits[:, 0] - 0.005) or np.any(q[:7] > limits[:, 1] + 0.005):
             return "joint_limit_violation"
         if not np.isfinite(tool.origin).all() or not np.isfinite(tool.rot).all():
@@ -119,12 +121,19 @@ class ObservedControlChecks:
             if not result.admitted:
                 return result.reason
             now = float(sensor["time_s"])
-            if loaded or self.contact_monitor is not None:
+            if (
+                not loaded
+                and self.contact_monitor is not None
+                and load.normal_lower_n >= self.contact_monitor.config.force_on_n
+            ):
+                return "unexpected_observed_load"
+            # The runner checks health before creating its first proposal. No
+            # contact is admitted there; receipt-dependent checks run before
+            # actual dispatch and after each step.
+            if loaded or self.contact_monitor is not None and admission is not None:
                 if self.contact_monitor is None:
                     return "operational_contact_monitor_unconfigured"
                 evidence = self.contact_monitor.update(now, estimate, tool, load, admission)
-                if not loaded and load.normal_lower_n >= self.contact_monitor.config.force_on_n:
-                    return "unexpected_observed_load"
                 if evidence.status in ("lost", "unavailable"):
                     return evidence.reason
                 if stage in ("push", "hold") and evidence.status != "contact":
@@ -149,6 +158,11 @@ class ObservedPurdueSafety:
         from alexdoor_xas.recording.b1_runtime import array
 
         io = self.io
+        if any(
+            np.max(np.abs(sample.dq)) > self.checks.setup.max_joint_speed * 1.02
+            for sample in io.env.load_samples
+        ):
+            return "actual_joint_speed_limit"
         feedback = io.robot_feedback()
         try:
             load = (

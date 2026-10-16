@@ -156,7 +156,7 @@ def test_missing_feedback_blocks_operational_io_before_physics_or_helpful_comman
     assert feedback.torque_nm is None
     sensor = sample(0, 1)
     sensor.update(rgb=np.ones((1, 1, 3)), valid_depth=np.ones((1, 1), bool))
-    checks = ObservedControlChecks(SimpleNamespace(orientation_tolerance=0.1))
+    checks = ObservedControlChecks(SimpleNamespace(orientation_tolerance=0.1, max_joint_speed=0.5))
     reason = checks.check(
         sensor,
         estimate,
@@ -444,3 +444,24 @@ def test_purdue_stop_clears_admission_and_uses_environment_latch():
     io.admission = object()
     io.stop()
     assert io.admission is None and stopped == [True]
+
+
+def test_robot_stop_precedes_failing_perception_cleanup():
+    from collections import deque
+
+    events = []
+    runner = B1Runner.__new__(B1Runner)
+    runner.pending = deque([1])
+    runner.source = object()
+    runner.adapter = SimpleNamespace(reset=lambda: events.append("adapter"))
+    runner.io = SimpleNamespace(stop=lambda: events.append("stop"))
+
+    def cleanup():
+        events.append("observer")
+        raise RuntimeError("worker shutdown failure")
+
+    runner.observer = SimpleNamespace(reset=cleanup)
+    with pytest.raises(RuntimeError, match="shutdown"):
+        runner.stop("fault", 1)
+    assert events == ["stop", "adapter", "observer"]
+    assert runner.stopped and not runner.pending and runner.source is None

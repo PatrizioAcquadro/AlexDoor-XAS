@@ -148,6 +148,7 @@ def test_monitor_uses_robot_load_and_local_support_without_task_truth():
     estimate, proposal, evidence, limits = local_inputs()
     receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
     setup = SimpleNamespace(
+        max_joint_speed=0.5,
         orientation_tolerance=0.1,
         force_limit_n=10,
         loaded_force_n=1,
@@ -182,6 +183,15 @@ def test_monitor_uses_robot_load_and_local_support_without_task_truth():
             *args, profile=OPERATIONAL_V1, feedback=load.feedback, admission=receipt, load=load
         )
         == ""
+    )
+    initial = (*args[:4], None, args[5])
+    unloaded = replace(load, normal_lower_n=-0.05, force_upper_n=0.1)
+    assert (
+        checks.check(*initial, profile=OPERATIONAL_V1, feedback=load.feedback, load=unloaded) == ""
+    )
+    assert (
+        checks.check(*initial, profile=OPERATIONAL_V1, feedback=load.feedback, load=load)
+        == "unexpected_observed_load"
     )
     assert (
         checks.check(*args, profile=OPERATIONAL_V1, feedback=load.feedback, admission=receipt)
@@ -234,3 +244,22 @@ def test_physics_peak_load_cannot_disappear_between_control_ticks(tmp_path):
     with h5py.File(tmp_path / "physics.hdf5") as source:
         assert len(source["physics_feedback/time_s"]) == 2
         np.testing.assert_array_equal(source["physics_feedback/torque_nm"][0], first.torque_nm)
+
+
+def test_measured_speed_guard_includes_both_native_substeps():
+    from alexdoor_xas.perception.control import ObservedPurdueSafety
+
+    setup = SimpleNamespace(max_joint_speed=0.5)
+    checks = ObservedControlChecks(setup)
+    sensor = dict(joint_position=np.zeros(9), joint_velocity=np.r_[0.52, np.zeros(8)])
+    assert checks.check(sensor, None, None, None, None, None) == "actual_joint_speed_limit"
+    io = SimpleNamespace(
+        env=SimpleNamespace(
+            load_samples=[
+                SimpleNamespace(dq=np.r_[0.6, np.zeros(6)]),
+                SimpleNamespace(dq=np.zeros(7)),
+            ]
+        )
+    )
+    safety = ObservedPurdueSafety(io, setup, None)
+    assert safety.check(None) == "actual_joint_speed_limit"

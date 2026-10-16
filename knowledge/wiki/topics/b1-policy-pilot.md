@@ -406,3 +406,11 @@ learned-view exports. It verifies raw episode identity and records the original
 path; preserve that separate raw archive for later A3/A4 work. Default exports
 remain self-contained and copy all raw groups. Both forms train/load the same
 observed feature/action views without reading supervisor annotations.
+
+
+The selected material-zone cover stays distinct from the actual tool-relative
+query, so parked approach does not imply contact. Actual action admission still
+requires its own finite footprints and relevant swept-space margins. Initial
+health checking precedes receipt construction; actual dispatch remains gated.
+Measured arm-speed checks include both native substeps, and robot stopping
+precedes perception reset/worker cleanup.

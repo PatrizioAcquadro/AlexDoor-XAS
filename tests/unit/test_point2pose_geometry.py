@@ -252,7 +252,8 @@ def test_contact_cover_can_be_localized_while_current_contact_depth_is_unknown()
     assert not contact_depth_supported(sensor(), zone, tool, faces, None)
 
 
-def test_occluded_interface_does_not_erase_independently_transported_material_support(monkeypatch):
+@pytest.mark.parametrize("tool_x", [0.0, -0.2])
+def test_occluded_or_parked_tool_does_not_erase_selected_material_support(monkeypatch, tool_x):
     from types import SimpleNamespace
 
     import alexdoor_xas.perception.point2pose.tracking as module
@@ -263,7 +264,9 @@ def test_occluded_interface_does_not_erase_independently_transported_material_su
         SimpleNamespace(reset=lambda: None),
         {},
         calibration={},
-        tool_fk=lambda *_: None,
+        tool_fk=lambda *_: module.object_frame(
+            np.array([[1, 0, 0, tool_x], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
+        ),
         distal_faces=(np.zeros((4, 3)), np.zeros((4, 3))),
     )
     tracking.candidates = [
@@ -287,14 +290,16 @@ def test_occluded_interface_does_not_erase_independently_transported_material_su
     monkeypatch.setattr(
         module,
         "query_slip",
-        lambda *_args: SimpleNamespace(
-            finger_clearance_m=(0.03, 0.03),
+        lambda _surface, _initial, _zone, tool, *_args: SimpleNamespace(
+            finger_clearance_m=(None, None) if abs(tool.origin[0]) > 0.1 else (0.03, 0.03),
             loaded_contact_admitted=False,
         ),
     )
     monkeypatch.setattr(module, "contact_depth_supported", lambda *_args: False)
     state = tracking.local_state(1, dict(joint_position=np.zeros(9)))
     assert state.patches[0].finger_clearance_m == (0.03, 0.03)
+    if abs(tool_x) > 0.1:
+        assert tracking.diagnostics["tool_relative_zone"]["finger_clearance_m"] == (None, None)
     visibility = tracking.diagnostics["contact_visibility"]["material"]
     assert not visibility["direct_surface_depth_supported"]
     assert not visibility["contact_directly_measured"]

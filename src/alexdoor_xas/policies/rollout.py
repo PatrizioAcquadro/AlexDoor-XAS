@@ -302,10 +302,10 @@ class B1Runner:
     def stop(self, reason, steps, *, complete=False):
         self.pending.clear()
         self.source = None
-        self.adapter.reset()
-        self.observer.reset()
         self.io.stop()
         self.stopped = True
+        self.adapter.reset()
+        self.observer.reset()
         return RolloutResult(reason, steps, complete)
 
     def inspect(self):

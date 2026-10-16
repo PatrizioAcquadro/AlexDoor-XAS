@@ -133,3 +133,13 @@ common 2 s decay of the angular reference from the measured transition speed,
 without refreshing it from the subsequently coasting angle. This uses privileged
 teacher development evidence only; unchanged loaded-contact/hold/release scores
 must still pass. Door dynamics remain untouched.
+
+
+The maintained observation/admission interface now distinguishes selected usable
+material coverage from the actual tool's relative-footprint query. A parked arm
+need not already touch the selected zone; every submitted trajectory still needs
+its own actual footprint/sweep evidence. The runner's initial health check may
+precede its first receipt, while loaded checks and dispatch remain receipt-gated.
+Both 120 Hz robot velocity samples are checked, and a measured-anchor stop occurs
+before perception cleanup, including cleanup failure. These are numerical contract
+checks; no operational admission recipe is thereby qualified.

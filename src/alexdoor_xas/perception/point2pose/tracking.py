@@ -498,7 +498,9 @@ class PanelTracking:
                 and self.calibration is not None
             ):
                 tool = self.tool_fk(sensor["joint_position"], self.calibration)
-            budget = self.budget(candidate, now, tool_world=tool)
+            budget = self.budget(
+                candidate, now, tool_world=object_frame(candidate.pose) if fresh else None
+            )
             pose_support = (
                 None
                 if support is None
@@ -512,34 +514,41 @@ class PanelTracking:
                 )
             )
             clearance = (None, None)
-            if (
-                fresh
-                and sensor is not None
-                and self.tool_fk is not None
-                and self.calibration is not None
-                and self.distal_faces is not None
-                and not reason
-            ):
-                slip = query_slip(
+            if fresh and self.distal_faces is not None and not reason:
+                # This field describes the selected material zone, including
+                # while the robot is parked away from it. The action producer
+                # separately checks the actual tool footprints and full sweep.
+                selected = query_slip(
                     candidate.surface,
                     candidate.initial_world,
                     candidate.pose,
-                    tool,
+                    object_frame(candidate.pose),
                     self.distal_faces,
                     budget,
                     self.config,
                 )
-                clearance = slip.finger_clearance_m
-                self.diagnostics["tool_relative_zone"] = vars(slip)
-                # Transported, uncertainty-eroded material support is a model;
-                # it does not require seeing through a contacting finger. Keep
-                # direct depth availability explicit instead of erasing that
-                # separate support or pretending the interface was measured.
-                visible = contact_depth_supported(
-                    sensor, candidate.pose, tool, self.distal_faces, budget.displacement_m
-                )
-                self.diagnostics.setdefault("contact_visibility", {})[candidate.candidate_id] = (
-                    dict(
+                clearance = selected.finger_clearance_m
+                self.diagnostics["selected_material_zone"] = vars(selected)
+                if tool is not None:
+                    tool_budget = self.budget(candidate, now, tool_world=tool)
+                    slip = query_slip(
+                        candidate.surface,
+                        candidate.initial_world,
+                        candidate.pose,
+                        tool,
+                        self.distal_faces,
+                        tool_budget,
+                        self.config,
+                    )
+                    self.diagnostics["tool_relative_zone"] = vars(slip)
+                    # Transported material geometry and direct pixel support are
+                    # different statements; neither measures a hidden interface.
+                    visible = contact_depth_supported(
+                        sensor, candidate.pose, tool, self.distal_faces, tool_budget.displacement_m
+                    )
+                    self.diagnostics.setdefault("contact_visibility", {})[
+                        candidate.candidate_id
+                    ] = dict(
                         direct_surface_depth_supported=visible,
                         contact_directly_measured=False,
                         reason="current_depth_compatible"
@@ -547,7 +556,6 @@ class PanelTracking:
                         else "interface_unobserved_or_occluded",
                         contact_admitted=False,
                     )
-                )
             patches.append(
                 LocalPatchState(
                     candidate.candidate_id,
