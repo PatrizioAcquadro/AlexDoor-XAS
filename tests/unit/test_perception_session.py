@@ -324,3 +324,59 @@ def test_delayed_ingress_uses_publication_clock_without_refreshing_capture(tmp_p
         assert provider.last_publication is None
     finally:
         provider.close()
+
+
+def test_synchronous_simulation_keeps_measured_clock_and_explicit_cadence(tmp_path, geometry):
+    clock = [4.0]
+    sam = Sam([[7], [7]])
+    session = PerceptionSession("unused", recipe(), {}, tmp_path, tracking=False, sam_worker=sam)
+    engine = Point2PoseEngine(
+        lambda _: session, replay=False, capture_session=True, clock=lambda: clock[0]
+    )
+    provider = module.SessionProvider(
+        recipe(), engine, tracking=False, synchronous_simulation=True, inference_period_s=0.1
+    )
+    try:
+        engine.prepare()
+        provider.update(sensor(4.0, 0))
+        assert len(sam.calls) == 1
+        support = provider.static[0].observations[0]
+        assert support.acquired_s == support.available_s == 4.0
+        assert provider.last_publication[1]["publication_clock_domain"] == "simulation"
+        assert provider.last_publication[1]["latency_s"] > 0
+        clock[0] = 4.05
+        provider.update(sensor(4.05, 1))
+        assert len(sam.calls) == 1
+        clock[0] = 4.1
+        provider.update(sensor(4.1, 2))
+        assert len(sam.calls) == 2
+        provider.reset(preload=False)
+        assert provider.last_submitted_s is None
+    finally:
+        provider.close()
+
+
+def test_synchronous_simulation_cannot_hide_a_free_running_clock(tmp_path, geometry):
+    clock = [4.0]
+    sam = Sam([[7]])
+    infer = sam.infer
+
+    def advancing(*args):
+        result = infer(*args)
+        clock[0] += 0.3
+        return result
+
+    sam.infer = advancing
+    session = PerceptionSession("unused", recipe(), {}, tmp_path, tracking=False, sam_worker=sam)
+    engine = Point2PoseEngine(
+        lambda _: session, replay=False, capture_session=True, clock=lambda: clock[0]
+    )
+    provider = module.SessionProvider(recipe(), engine, tracking=False, synchronous_simulation=True)
+    try:
+        engine.prepare()
+        with pytest.raises(ValueError, match="synchronous_simulation_clock_advanced"):
+            provider.update(sensor(4.0, 0))
+        assert provider.diagnostics["error"] == "synchronous_simulation_clock_advanced"
+        assert not provider.static
+    finally:
+        provider.close()

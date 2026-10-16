@@ -261,7 +261,7 @@ class PanelTracking:
         validate_local_transition(self.selection, selection)
         self.selection = selection
 
-    def consume(self, captured, result, ready):
+    def consume(self, captured, result, ready, *, clock=None):
         started = time.perf_counter()
         if len(result["objects"]) != len(self.candidates):
             raise ValueError("point2pose_candidate_identity_count_changed")
@@ -354,7 +354,9 @@ class PanelTracking:
             if consistent and (normal_travel > 2 * p or plane_angle > 2 * a):
                 candidate.ownership = "observed_moving_rigid_candidate"
         result["adapter_latency_s"] = time.perf_counter() - started
-        ready += result["adapter_latency_s"]
+        ready = (
+            max(ready, float(clock())) if clock is not None else ready + result["adapter_latency_s"]
+        )
         for candidate in self.candidates:
             if candidate.state == "tracked":
                 candidate.support = replace(candidate.support, available_s=ready)

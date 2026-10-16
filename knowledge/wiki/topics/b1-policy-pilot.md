@@ -454,3 +454,15 @@ generation remains mandatory; release-mode binding identity stays strict. Purdue
 safety uses the IO's operational profile, rather than a prototype recipe's absent
 profile default. This interface compatibility neither resolves material identity
 nor supplies a load calibration, sweep receipt or motion permission.
+
+
+The session provider now exposes an explicit synchronous-simulation mode with a
+measured simulation-clock callback and a declared inference period no greater than
+the existing freshness limit. It waits for actual compute completion while the
+simulation step is blocked, stamps tracking/publication with that unchanged clock,
+and retains wall compute/publication costs separately. A clock that advances during
+the blocked call refuses; asynchronous and recorded-latency replay defaults remain
+unchanged. This supports simulation slower than wall time without backdating an
+asynchronous result or claiming hardware/150 ms wall-time readiness. The frontend
+and selected model settings are unchanged; exact chosen-cadence physical quality
+and local admission still require validation before a learned command can run.

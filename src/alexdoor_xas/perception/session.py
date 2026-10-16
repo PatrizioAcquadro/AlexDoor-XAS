@@ -415,8 +415,26 @@ class PublishedTrackingEngine:
 class SessionProvider:
     """Shared live/replay ingress with complete episode reset and immutable publications."""
 
-    def __init__(self, recipe, engine, *, tracking=True, **tracking_options):
+    def __init__(
+        self,
+        recipe,
+        engine,
+        *,
+        tracking=True,
+        synchronous_simulation=False,
+        inference_period_s=0.0,
+        **tracking_options,
+    ):
         self.binding, self.config, self.engine = recipe, recipe.config, engine
+        if synchronous_simulation and (engine.replay or not callable(engine.clock)):
+            raise ValueError("synchronous_simulation_requires_measured_clock")
+        if (
+            not np.isfinite(inference_period_s)
+            or not 0 <= inference_period_s <= self.config["max_gap_s"]
+        ):
+            raise ValueError("invalid_geometry_inference_period")
+        self.synchronous_simulation = synchronous_simulation
+        self.inference_period_s = inference_period_s
         self.tracking = (
             PanelTracking(PublishedTrackingEngine(), self.config, **tracking_options)
             if tracking
@@ -443,6 +461,7 @@ class SessionProvider:
         self.scan_available = {}  # Bounded by the stationary inspection window.
         self.last_time = self.last_frame = self.last_estimate = self.last_cue = None
         self.last_publication = None
+        self.last_submitted_s = None
         self.encoding = None
         self.diagnostics = dict(state="searching", semantic_calls=0)
 
@@ -476,7 +495,12 @@ class SessionProvider:
                 self.tracking.candidates = result["initial_candidates"]
                 self.tracking.diagnostics["binding"] = result["binding"]
             if result["objects"]:
-                self.tracking.consume(captured, result, ready)
+                self.tracking.consume(
+                    captured,
+                    result,
+                    ready,
+                    clock=self.engine.clock if self.synchronous_simulation else None,
+                )
                 ready = self.tracking.diagnostics["available_s"]
             self.diagnostics["tracking"] = self.tracking.diagnostics
         self.current_space.views.clear()
@@ -538,7 +562,13 @@ class SessionProvider:
         )
         # Include the complete adapter, timestamp propagation and diagnostics work.
         publication_s = time.perf_counter() - publication_started
-        ready = publication_base + publication_s
+        ready = (
+            max(publication_base, float(self.engine.clock()))
+            if self.synchronous_simulation
+            else publication_base + publication_s
+        )
+        if self.synchronous_simulation:
+            result["publication_clock_domain"] = "simulation"
         result["provider_publication_s"] = publication_s
         result["publication_latency_s"] = ready - float(captured["time_s"])
         result["cue"]["available_s"] = ready
@@ -630,7 +660,18 @@ class SessionProvider:
         # remains visible in support times; only explicit reset starts a new identity.
         self.last_time, self.last_frame = t, frame
         try:
-            self.engine.submit(sensor, start_s=now)
+            if self.synchronous_simulation and abs(now - t) > 1e-9:
+                raise ValueError("synchronous_simulation_clock_mismatch")
+            if (
+                self.last_submitted_s is None
+                or t - self.last_submitted_s >= self.inference_period_s - 1e-9
+            ):
+                self.engine.submit(sensor, start_s=now)
+                self.last_submitted_s = t
+                if self.synchronous_simulation:
+                    self.engine.wait()
+                    if abs(float(self.engine.clock()) - now) > 1e-9:
+                        raise ValueError("synchronous_simulation_clock_advanced")
             self.consume_results(now)
         except (RuntimeError, EOFError, BrokenPipeError, ValueError) as error:
             self.engine.failed = True
@@ -665,6 +706,8 @@ def session_provider(
     selection=None,
     registration_diagnostics=False,
     clock=None,
+    synchronous_simulation=False,
+    inference_period_s=0.0,
     **options,
 ):
     from alexdoor_xas.perception.point2pose.runtime import Point2PoseEngine
@@ -688,7 +731,14 @@ def session_provider(
         return worker
 
     engine = Point2PoseEngine(factory, replay=replay, capture_session=True, clock=clock)
-    provider = SessionProvider(recipe, engine, tracking=tracking, **options)
+    provider = SessionProvider(
+        recipe,
+        engine,
+        tracking=tracking,
+        synchronous_simulation=synchronous_simulation,
+        inference_period_s=inference_period_s,
+        **options,
+    )
     try:
         engine.prepare()
     except BaseException:

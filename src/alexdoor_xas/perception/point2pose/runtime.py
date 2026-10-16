@@ -282,6 +282,11 @@ class Point2PoseEngine(CueEngine):
         self.pending = (self.generation, snapshot, started), result
         return True
 
+    def wait(self):
+        """Wait for actual completion without inventing a publication timestamp."""
+        if self.pending is not None and not self.replay:
+            self.pending[1].result()
+
     def poll(self, now):
         if self.pending is not None and not self.replay:
             (_, sensor, started), future = self.pending
