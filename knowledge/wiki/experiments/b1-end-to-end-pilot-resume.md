@@ -21,6 +21,12 @@ robot-only load, plus causal confirmation/loss and proposed-motion consistency.
 The monitor may stop; it never supplies task motion. A commanded withdrawal permits
 expected unloading; unexpected load loss or contradictory support latches a stop.
 An unresolved recipe, load model, identity or relevant space still refuses.
+Native 120 Hz normal-load intervals now support a completely covered causal
+contact window, while instantaneous upper-force protection remains separate.
+Missing intervals or inadequate history do not establish contact. Whole-arm
+velocity/acceleration terms can express calibrated residual uncertainty without
+forcing the moving-state error onto stationary contact; no new calibration or
+verified flag is inferred from this interface.
 The software contract and consumers are checked numerically; calibration and
 independent false-admission/miss/delay/coverage measurements remain pending.
 
@@ -158,7 +164,7 @@ No door-angle cutoff or physical scoring threshold is changed.
 The diagnostic raw file retains 7,274 synchronized RGB-D rows, 14,546 native
 feedback samples and all 20 measured robot joints. Independent FK agrees with
 actual tool-link pose within 0.94 micrometer. Images are visually inspected. The
-17.70 GiB file supports raw reuse and supervisor reconstruction; it is a failed
+17.70 GiB file retains inputs for supervisor reconstruction, with full A4 termination invalid because release is missing. It is a failed
 teacher diagnostic, not an imitation demonstration or operational A3/A4 result.
 
 The saved complete inspection prefixes also show 0.0755 rad of arm self-motion
@@ -176,3 +182,14 @@ loaded contact. A push-only interface needs pressure-consistent material trackin
 rather than an angular decay independent of force. Ten prerequisite cases are
 consumed, two remain. No demonstration, matched expert reference or learned
 execution is claimed from these development failures.
+
+
+The pressure-hold candidate preserves the material-relative goal lead and reduces
+the common normal-force target from 0.1 to 0.05 N. Its angular following is only a
+coordinate for maintaining light pressure on a unilateral interface; loss of
+loaded contact beyond the same 0.25 s budget as push latches a stop. Independent
+scores still require valid contact and the final contiguous hold window. Report
+actual settling motion, rather than calling a free-coasting angle controlled.
+The conditioning reserve now covers the complete remaining hold and release,
+and case 11 includes the corrected full joint-parked inspection. This candidate
+is unvalidated until its physical result returns.

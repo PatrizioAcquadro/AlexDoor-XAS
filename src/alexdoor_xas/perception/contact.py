@@ -1,5 +1,6 @@
 """Operational contact evidence; never a measurement of evaluator contact gaps."""
 
+from collections import deque
 from dataclasses import dataclass
 
 import numpy as np
@@ -25,6 +26,7 @@ class ContactMonitorConfig:
     max_sample_gap_s: float
     max_seek_s: float
     max_seek_travel_m: float
+    force_window_s: float
 
     def __post_init__(self):
         values = list(vars(self).values())
@@ -35,6 +37,7 @@ class ContactMonitorConfig:
             and 0 < self.confirmation_s < self.max_seek_s
             and 0 < self.max_sample_gap_s <= self.confirmation_s
             and self.max_seek_travel_m > 0
+            and self.max_sample_gap_s <= self.force_window_s < self.max_seek_s
         ):
             raise ValueError("invalid_contact_monitor_recipe")
 
@@ -75,6 +78,48 @@ class ObservedContactMonitor:
         self.seek_started = self.seek_anchor = self.confirm_started = None
         self.established = self.releasing = False
         self.latched_reason = None
+        self.force_samples = deque()
+
+    def contact_load(self, load, now):
+        samples = load.normal_samples
+        if not samples:
+            return None
+        for start, end, value in samples:
+            if (
+                not np.isfinite([start, end, value]).all()
+                or not 0 <= start < end <= load.feedback.timestamp_s
+                or now - start > self.config.max_sample_gap_s + 1e-9
+            ):
+                raise ValueError("invalid_native_contact_load_samples")
+            existing = next(
+                (
+                    v
+                    for a, b, v in self.force_samples
+                    if abs(a - start) < 1e-9 and abs(b - end) < 1e-9
+                ),
+                None,
+            )
+            if existing is not None:
+                if not np.isclose(value, existing, atol=1e-9, rtol=0):
+                    raise ValueError("different_contact_load_at_same_time")
+            else:
+                if self.force_samples and abs(start - self.force_samples[-1][1]) > 1e-9:
+                    raise ValueError("contact_load_coverage_gap")
+                self.force_samples.append((start, end, value))
+        end = load.feedback.timestamp_s
+        if abs(self.force_samples[-1][1] - end) > 1e-9:
+            raise ValueError("invalid_native_contact_load_samples")
+        start = end - self.config.force_window_s
+        while self.force_samples and self.force_samples[0][1] <= start:
+            self.force_samples.popleft()
+        if not self.force_samples or self.force_samples[0][0] > start + 1e-9:
+            return None
+        # Explicit covered physics intervals; do not interpolate across missing
+        # measurements or turn duplicate before/after checks into extra evidence.
+        return float(
+            sum((b - max(a, start)) * v for a, b, v in self.force_samples)
+            / self.config.force_window_s
+        )
 
     def update(self, now, estimate, tool, load, admission):
         if self.latched_reason:
@@ -133,6 +178,9 @@ class ObservedContactMonitor:
                     limits.robot_rotation_bound_rad,
                 )
             )
+            margins = [float(value) for _, value in admission.margins_m]
+            if not margins or not np.isfinite(margins).all() or uncertainty >= min(margins):
+                raise ValueError("contact_uncertainty_exceeds_admitted_margin")
             relative = (tool.origin - patch.world_pose.origin) @ patch.world_pose.rot
             if self.last is not None and now > self.last[0]:
                 allowed = (
@@ -167,11 +215,16 @@ class ObservedContactMonitor:
             ):
                 self.releasing = False
             plausible = bool(np.any(np.abs(signed) <= uncertainty))
-            force = float(load.normal_lower_n)
-            positive = force >= (
+            mean = self.contact_load(load, now)
+            force = None if mean is None else float(mean)
+            positive = force is not None and force >= (
                 self.config.force_off_n if self.established else self.config.force_on_n
             )
-            if positive and not plausible and not self.established:
+            if (
+                load.normal_lower_n >= self.config.force_on_n
+                and not plausible
+                and not self.established
+            ):
                 raise ValueError("load_without_intended_surface")
             if self.established and not positive:
                 if self.releasing:
@@ -196,7 +249,14 @@ class ObservedContactMonitor:
                 status, reason = "separated", "observed_geometric_separation"
             else:
                 self.confirm_started = None
-                status, reason = "seeking", "normal_contact_not_established"
+                status, reason = (
+                    "seeking",
+                    (
+                        "insufficient_contact_load_history"
+                        if mean is None
+                        else "normal_contact_not_established"
+                    ),
+                )
             if admission.proposal.loaded and not self.releasing and status != "contact":
                 if self.seek_started is None:
                     self.seek_started, self.seek_anchor = now, relative.copy()

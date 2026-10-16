@@ -158,7 +158,7 @@ def test_monitor_uses_robot_load_and_local_support_without_task_truth():
     from alexdoor_xas.perception.contact import ContactMonitorConfig, ObservedContactMonitor
 
     monitor = ObservedContactMonitor(
-        ContactMonitorConfig(0.008, 1, 0.5, 0.1, 0.04, 3, 0.03),
+        ContactMonitorConfig(0.008, 1, 0.5, 0.1, 0.04, 3, 0.03, 0.1),
         (np.array([[0, -0.01, 0]]), np.array([[0, 0.01, 0]])),
     )
     checks = ObservedControlChecks(setup, contact_monitor=monitor)
@@ -263,3 +263,34 @@ def test_measured_speed_guard_includes_both_native_substeps():
     )
     safety = ObservedPurdueSafety(io, setup, None)
     assert safety.check(None) == "actual_joint_speed_limit"
+
+
+def test_dynamic_residual_bounds_cover_coupling_without_inflating_static_load():
+    model, jac, baseline = load_inputs()
+    calibration = replace(
+        model.calibration,
+        velocity_residual_nm_per_rad_s=np.full(7, 0.1),
+        acceleration_residual_nm_per_rad_s2=np.full(7, 0.02),
+    )
+    model = ResidualLoadModel(calibration)
+    static = model.estimate(
+        baseline.feedback, np.zeros(7), jac, np.zeros(7), np.zeros(7), np.zeros(7), [1, 0, 0]
+    )
+    moving = model.estimate(
+        baseline.feedback,
+        np.zeros(7),
+        jac,
+        np.zeros(7),
+        np.r_[0, 0.5, np.zeros(5)],
+        np.r_[0, 0, 0.2, np.zeros(4)],
+        [1, 0, 0],
+    )
+    assert static.normal_lower_n == baseline.normal_lower_n
+    np.testing.assert_allclose(moving.residual_bound_nm, np.full(7, 0.104))
+    assert moving.normal_lower_n < static.normal_lower_n
+    assert moving.force_upper_n > static.force_upper_n
+    model = ResidualLoadModel(replace(calibration, velocity_residual_nm_per_rad_s=-np.ones(7)))
+    with pytest.raises(ValueError, match="dynamic_residual"):
+        model.estimate(
+            baseline.feedback, np.zeros(7), jac, np.zeros(7), np.zeros(7), np.zeros(7), [1, 0, 0]
+        )

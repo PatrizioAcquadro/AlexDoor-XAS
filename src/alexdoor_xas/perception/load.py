@@ -48,6 +48,8 @@ class LoadCalibration:
     external_sign: int
     verified: bool = False
     stop_verified: bool = False
+    velocity_residual_nm_per_rad_s: np.ndarray | None = None
+    acceleration_residual_nm_per_rad_s2: np.ndarray | None = None
 
 
 @dataclass(frozen=True)
@@ -60,6 +62,7 @@ class LoadEstimate:
     residual_bound_nm: np.ndarray
     model_verified: bool
     stop_verified: bool
+    normal_samples: tuple = ()  # (interval_start_s, interval_end_s, mean_lower_n)
 
     def admission(self, now, force_limit_n, *, require_contact=False, loaded_force_n=0):
         return admit_load(
@@ -110,6 +113,17 @@ class ResidualLoadModel:
             or np.any(np.abs(ddq) > finite_vector(c.acceleration_max_rad_s2, 7))
         ):
             raise ValueError("outside_verified_load_envelope")
+        # Dynamics couple the arm: a stationary joint can carry residual error
+        # from another joint's motion. Use whole-arm norms, not its own speed.
+        for coefficient, magnitude in (
+            (c.velocity_residual_nm_per_rad_s, np.max(np.abs(dq))),
+            (c.acceleration_residual_nm_per_rad_s2, np.max(np.abs(ddq))),
+        ):
+            if coefficient is not None:
+                coefficient = finite_vector(coefficient, 7)
+                if np.any(coefficient < 0):
+                    raise ValueError("invalid_dynamic_residual_bound")
+                bounds = bounds + coefficient * magnitude
         jac = np.asarray(jacobian_world, dtype=float)
         if jac.shape != (6, 7) or not np.isfinite(jac).all():
             raise ValueError("invalid_load_jacobian")
@@ -202,6 +216,15 @@ class PurdueLoadSource:
             normal_lower_n=min(
                 load.normal_lower_n
                 - load.force_upper_n * 2 * np.sin(min(support.rotation_bound_rad, np.pi) / 2)
+                for load in loads
+            ),
+            normal_samples=tuple(
+                (
+                    load.feedback.timestamp_s - 1 / 120,
+                    load.feedback.timestamp_s,
+                    load.normal_lower_n
+                    - load.force_upper_n * 2 * np.sin(min(support.rotation_bound_rad, np.pi) / 2),
+                )
                 for load in loads
             ),
         )
