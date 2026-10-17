@@ -329,12 +329,18 @@ def observed_material_surface(reference, surfaces, semantic_id, config):
         if not observations:
             continue
         seen.update((o.frame, o.mask_index, o.support_mask) for o in observations)
-        result = fuse_surface(
-            result, replace(surface, observations=observations), config, observations[-1].frame
-        )
-        # Include disagreement among measured planes, not only each fit's residual.
-        result.residual_m = max(
-            result.residual_m, float(np.max(abs(result.points @ result.normal - result.offset)))
+        points = voxel_points(np.r_[result.points, surface.points], config["voxel_m"])
+        # This is a coverage atlas, not a new registration reference. Averaging
+        # nearby relief normals rotates the original material frame and can
+        # invalidate the independently measured normal. Keep its plane intact.
+        result = replace(
+            result,
+            points=points,
+            observations=tuple(result.observations) + observations,
+            residual_m=max(
+                result.residual_m,
+                float(np.max(abs(points @ reference.normal - reference.offset))),
+            ),
         )
     return result
 

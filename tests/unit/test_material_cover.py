@@ -57,3 +57,23 @@ def test_material_union_rejects_tilted_relief_with_similar_plane_offset():
     tilted.offset = float(np.median(tilted.points @ tilted.normal))
     fused = observed_material_surface(surface, [tilted], 7, recipe().config)
     assert fused is surface
+
+
+def test_coverage_atlas_keeps_the_registration_plane_and_seed_unchanged():
+    from alexdoor_xas.perception.scan import observed_material_surface
+
+    seed, _, _ = measured_surface()
+    seed.observations[0].semantic_id = 7
+    other = replace(
+        seed,
+        points=seed.points + [0.002, 0, 0],
+        observations=[replace(seed.observations[0], frame=99)],
+    )
+    other.normal = np.array([1.0, 0.0, 0.001])
+    other.normal /= np.linalg.norm(other.normal)
+    other.offset = seed.offset + 0.002
+    atlas = observed_material_surface(seed, [other], 7, recipe().config)
+    np.testing.assert_array_equal(atlas.normal, seed.normal)
+    assert atlas.offset == seed.offset
+    assert len(seed.observations) == 1
+    assert len(atlas.observations) == 2

@@ -70,7 +70,6 @@ class PanelCandidate:
     local_constraint: SurfacePose | None = None
     local_constraint_reason: str = "local_surface_not_processed"
     local_surface: object | None = None
-    local_geometry: FieldSupport | None = None
 
 
 def metric_registration_bound(source, current, transform, depth_error_m):
@@ -355,10 +354,7 @@ class PanelTracking:
                 candidate.local_surface = observed_material_surface(
                     candidate.surface, scan_memory.surfaces, candidate.sam3_id, self.config
                 )
-                candidate.local_geometry = surface_support(
-                    candidate.local_surface, self.generation, self.config
-                )
-                if candidate.local_geometry.available_s > available_s:
+                if max(o.available_s for o in candidate.local_surface.observations) > available_s:
                     raise ValueError("future_local_material_surface")
 
     def select_zone(self, patch_id, now, *, source):
@@ -542,7 +538,7 @@ class PanelTracking:
                         ) or observation.acquired_s != float(captured["time_s"]):
                             raise ValueError("unsynchronized_local_surface")
                         constraint = constrained_surface_pose(
-                            candidate.local_surface or candidate.surface,
+                            candidate.surface,
                             current,
                             candidate.initial_world @ np.linalg.inv(candidate.map_from_object),
                             captured["camera_world"],
@@ -588,7 +584,6 @@ class PanelTracking:
             registration_position_m=constraint.position_bound_m,
             registration_rotation_rad=constraint.rotation_bound_rad,
             surface=candidate.local_surface or candidate.surface,
-            geometry=candidate.local_geometry or candidate.geometry,
         )
 
     def root_consistent(self, candidate, sensor):
