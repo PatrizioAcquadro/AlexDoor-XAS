@@ -835,3 +835,12 @@ geometry captures create no interpolated or backdated observations. This bounds
 the repeated stationary-map serialization seen in the interrupted dense right
 component run. Existing provider schedules remain the default; the seven-view
 mode requires physical/component verification before pilot admission.
+
+
+The first seven-view integration trial skipped semantic tracking inputs as well
+as map construction and lost the selected identity during the head sweep. That
+trial remains a failure. The corrected mode preserves dense causal SAM ingress
+at the configured provider cadence and limits only stationary 3D extraction/map
+snapshots. Native tracking retains its live cadence after inspection. Acquisition
+clock and dense-semantic/limited-geometry regressions pass; fresh native validation
+remains required.
