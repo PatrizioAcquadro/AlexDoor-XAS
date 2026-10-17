@@ -762,3 +762,24 @@ A1/A2 unloaded admission now accepts an independently eroded full-robot free-spa
 The maintained rollout CLI now requires `--operational-recipe` and builds the real session provider, causal robot exclusion, verified robot load source, contact monitor, full-robot self/static sweep and actual proposed-motion admission. No door asset/evaluator enters these producers. Native substep load projections additionally spend the declared material-normal rate across the different clocks. Actual proposed/applied commands and operational admission/load streams are retained. Both saved train prefixes at25.2/26/27s pass complete numerical free-motion proofs; this is not learned execution or contact qualification. Continuous whole-link stopping is independently checked against all four moving-door holdouts. Earlier insufficient speed coverage is retained and distinguished from its completed correction.
 
 The first real ACT A2 integration dispatches two learned commands through real observed geometry, load and full-volume admission. Inputs, applied targets and native/evaluator streams are retained; the continuing-physics stop passes. It is a declared120-command prerequisite, not a final-panel outcome. The receipt schedule then falsely expires because25.216666666666665+1/60 rounds a few femtoseconds below the simulator clock25.233333333333334. The existing one-nanosecond clock-roundoff allowance now applies to receipt endpoints; an extra control tick remains rejected. The generic safety label additionally retains its exact underlying exception for diagnosis. Earlier missing-worktree-USD allocation and this stopped result remain charged and preserved.
+
+The direct SIFT registration diagnostic is rejected with its fixed minimum12 pairs and unchanged ratio/reprojection gates: both retained seeds lack sufficient textured feature support. A separate dense RGB-D connectivity diagnostic finds237,666 observed right material pixels connected to114,222 root-plane seed pixels, versus115,462 seed pixels alone, with measured12.1mm depth relief. The existing plane-only material representation omits this measured interior relief. This is diagnostic evidence, not yet a qualified material-volume or collision certificate.
+
+
+The clock correction completes the declared120-command ACT A2 prerequisite.
+All120 nonzero learned requests reach the controller; image/feature clocks,
+full20-joint state, actual/applied targets and3264 native samples join causally.
+The two-second continuing-physics stop passes. This is two seconds of free
+motion, with no contact/opening/hold/release success and no final-panel outcome.
+Its295.47s allocation is charged; the recorder retains323,964,793 bytes.
+Admission service has mean185.5ms and p95508.5ms, so real-time operation is not
+established. The complete retained failure before the clock correction remains
+in the denominator of integration attempts.
+
+Static sweep queries now retain the complete adaptive sphere partition. Each
+translated/scaled leaf spends its old free-volume margin on center/radius and
+calibration-lever growth; unknown or occupied new volume still refuses. Static
+source clocks remain original. A retained-prefix numerical profile reduces
+right26s admission from0.859s to0.263s and left26s from1.777s to0.368s; other
+states remain costly, including left27s1.976s. This is a bounded query reuse
+improvement, not a real-time or full-episode cost claim.

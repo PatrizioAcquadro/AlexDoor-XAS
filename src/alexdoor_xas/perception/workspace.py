@@ -33,6 +33,7 @@ class CommonWorkspace:
     def __init__(self, spaces, calibration_bound):
         self.spaces = tuple(deepcopy(space) for space in spaces)
         self._free_covers = {}
+        self._subcovers = {}
         self.cache_hits = 0
         self.calibration_bound = np.asarray(calibration_bound, dtype=float)
         if (
@@ -131,6 +132,11 @@ class CommonWorkspace:
                     self.cache_hits += 1
                 else:
                     margin = None
+            if margin is None and key in self._subcovers:
+                margin = self._subcover_margin(center, radius, key=key)
+                if margin is not None:
+                    self.cache_hits += 1
+                    self._free_covers[key] = (center.copy(), float(radius), float(margin))
             if margin is None:
                 support = self._query_uncached(center[None], np.array([radius]))
                 if support.collision_clearance_m is None and not support.occupied:
@@ -151,7 +157,7 @@ class CommonWorkspace:
                             )
                             break
                 if support.collision_clearance_m is None and not support.occupied:
-                    margin = self._subcover_margin(center, radius)
+                    margin = self._subcover_margin(center, radius, key=key)
                     if margin is not None:
                         support = StaticWorkspaceSupport(margin, False, False, self.source_clocks)
                 if support.collision_clearance_m is None:
@@ -161,42 +167,62 @@ class CommonWorkspace:
             margins.append(margin)
         return StaticWorkspaceSupport(min(margins), False, False, self.source_clocks)
 
-    def _subcover_margin(self, center, radius):
-        """Certify the complete original ball by an adaptive union of free balls.
+    def _subcover_margin(self, center, radius, *, key=None):
+        """Cover the entire requested ball; retain reusable octree leaf proofs.
 
-        A constant-depth ray pyramid can be inconclusive beside an oblique surface.
-        The octree covers every intersecting part of the original sphere. Positive
-        radial margins on every covering ball also certify that same radial margin
-        around their union. Budget/depth exhaustion remains unknown.
+        Unit boxes partition the complete sphere before translation/scaling.
+        Reuse pays ALL leaf-center/radius and calibration-lever growth. Unknown
+        leaves are refined as before; exhausted/failed trees are never adopted.
+        Static capture clocks and the original physical envelope are unchanged.
         """
-        pending = [(center - radius, center + radius, 0)]
-        margins = []
+        previous = self._subcovers.get(key) if key is not None else None
+        pending = list(previous) if previous else [(np.full(3, -1.0), np.full(3, 1.0), 0, None)]
+        margins, leaves = [], []
         queries = 0
         while pending:
-            lower, upper, level = pending.pop()
-            nearest = np.maximum(lower, np.minimum(center, upper))
-            if np.linalg.norm(nearest - center) > radius:
+            lower, upper, level, certificate = pending.pop()
+            nearest = np.maximum(lower, np.minimum(np.zeros(3), upper))
+            if np.linalg.norm(nearest) > 1:
                 continue
-            if queries >= 1024:
-                return None
-            midpoint = (lower + upper) / 2
-            support = self._query_uncached(
-                midpoint[None], np.array([np.linalg.norm(upper - lower) / 2])
-            )
-            queries += 1
-            if support.collision_clearance_m is not None:
-                margins.append(support.collision_clearance_m)
+            midpoint = center + radius * (lower + upper) / 2
+            leaf_radius = radius * np.linalg.norm(upper - lower) / 2
+            margin = None
+            if certificate is not None:
+                old_center, old_radius, old_margin = certificate
+                growth = (
+                    np.linalg.norm(midpoint - old_center)
+                    * (1 + 2 * np.sin(min(self.calibration_bound[1], np.pi) / 2))
+                    + leaf_radius
+                    - old_radius
+                )
+                if old_margin > growth:
+                    margin = old_margin - growth
+            if margin is None:
+                if queries >= 1024:
+                    return None
+                support = self._query_uncached(midpoint[None], np.array([leaf_radius]))
+                queries += 1
+                margin = support.collision_clearance_m
+            if margin is not None:
+                margins.append(margin)
+                leaves.append(
+                    (lower, upper, level, (midpoint.copy(), float(leaf_radius), float(margin)))
+                )
                 continue
             if level >= 6:
                 return None
+            middle = (lower + upper) / 2
             for octant in product((False, True), repeat=3):
                 pending.append(
                     (
-                        np.where(octant, midpoint, lower),
-                        np.where(octant, upper, midpoint),
+                        np.where(octant, middle, lower),
+                        np.where(octant, upper, middle),
                         level + 1,
+                        None,
                     )
                 )
+        if margins and key is not None:
+            self._subcovers[key] = tuple(leaves)
         return min(margins) if margins else None
 
     def _query_uncached(self, centers, radii):

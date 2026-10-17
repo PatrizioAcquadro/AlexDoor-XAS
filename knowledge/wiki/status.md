@@ -5,6 +5,13 @@ implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consol
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
 
+The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
+four real3000-update corrected-data checkpoints and frozen local development
+inference. ACT A2 completes a120-command observed free-motion integration with
+causal recording and a passing continuing-physics stop. There are no final-panel
+outcomes or learned contact/opening/hold/release successes. Finite intended-door
+support, loaded sweep and operational contact metrics remain unresolved.
+
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured
 solver feedback and bounded local admission without a hinge. Offline infrastructure

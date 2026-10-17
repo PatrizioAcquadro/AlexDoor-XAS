@@ -163,3 +163,45 @@ def test_subcover_certifies_whole_ball_beside_oblique_surface_and_keeps_unknown_
     unknown = CommonWorkspace([observed], (0.0, 0.0))
     assert unknown.query_static([[0, 0, 1]], [0.1], cover_ids=["hole"]).unknown_in_envelope
     assert "hole" not in unknown._free_covers
+
+
+def test_moving_scaled_subcover_reuses_complete_partition_and_rejects_new_unknown(monkeypatch):
+    observed = space(2.0, 1.0)
+    view = next(iter(observed.views.values()))
+    u = np.arange(80)[None, :, None]
+    view["depth_m"][:] = 1.18 / (1 - (u - 40) / 100)
+    view["valid_depth"][40, 60] = False
+    workspace = CommonWorkspace([observed], (0.0, 0.0))
+    first = workspace.query_static([[0, 0, 1]], [0.1], cover_ids=["ball"])
+    assert first.collision_clearance_m > 0 and workspace._subcovers["ball"]
+    calls = []
+    original = workspace._query_uncached
+
+    def counted(centers, radii):
+        calls.append(True)
+        return original(centers, radii)
+
+    monkeypatch.setattr(workspace, "_query_uncached", counted)
+    # Translation exceeds the old root margin. Retained leaves still cover the
+    # WHOLE translated/scaled sphere, with each leaf paying its own growth.
+    moved = workspace.query_static([[0.004, 0, 1.004]], [0.101], cover_ids=["ball"])
+    assert moved.collision_clearance_m > 0 and workspace.cache_hits == 1
+    assert moved.collision_clearance_m < 0.18 / np.sqrt(2) - 0.101
+    assert moved.source_clocks == first.source_clocks
+    reused_calls = len(calls)
+    fresh = CommonWorkspace([observed], (0.0, 0.0))
+    fresh_calls = []
+    fresh_original = fresh._query_uncached
+
+    def fresh_counted(centers, radii):
+        fresh_calls.append(True)
+        return fresh_original(centers, radii)
+
+    monkeypatch.setattr(fresh, "_query_uncached", fresh_counted)
+    assert (
+        fresh.query_static([[0.004, 0, 1.004]], [0.101], cover_ids=["ball"]).collision_clearance_m
+        > 0
+    )
+    assert reused_calls < len(fresh_calls)
+    unknown = workspace.query_static([[0.15, 0, 1.15]], [0.101], cover_ids=["ball"])
+    assert unknown.unknown_in_envelope and unknown.collision_clearance_m is None
