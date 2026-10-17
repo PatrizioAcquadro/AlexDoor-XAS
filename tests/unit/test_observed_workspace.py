@@ -297,3 +297,38 @@ def test_background_reuses_largest_valid_ray_certificate_within_each_condition()
     )
     assert result.collision_clearance_m == deep.collision_clearance_m
     assert result.collision_clearance_m > shallow.collision_clearance_m
+
+
+def test_neighboring_cover_keys_reuse_only_complete_containing_free_balls(monkeypatch):
+    workspace = CommonWorkspace([space(2.0, 1.0)], (0.001, 0.01))
+    first = workspace.query_static([[0, 0, 1]], [0.01], cover_ids=["first"])
+    original = workspace._query_uncached
+    calls = []
+
+    def counted(centers, radii):
+        calls.append(True)
+        return original(centers, radii)
+
+    monkeypatch.setattr(workspace, "_query_uncached", counted)
+    nearby = workspace.query_static([[0.001, 0, 1]], [0.012], cover_ids=["different_cell"])
+    assert nearby.collision_clearance_m > 0 and not calls
+    assert nearby.source_clocks == first.source_clocks
+    unknown = workspace.query_static([[0.8, 0, 1]], [0.1], cover_ids=["outside_free_ball"])
+    assert unknown.collision_clearance_m is None and calls
+
+
+def test_camera_pose_error_bounds_farthest_point_of_the_entire_sphere(monkeypatch):
+    workspace = CommonWorkspace([space(2.0, 1.0)], (0.001, 0.01))
+    owned = workspace.spaces[0]
+    query = owned.query
+    radii_seen = []
+
+    def measured(centers, radii):
+        radii_seen.extend(radii)
+        return query(centers, radii)
+
+    monkeypatch.setattr(owned, "query", measured)
+    workspace.query_static([[0, 0, 1]], [0.1])
+    # Rotate the farthest point [0,0,1.1] around the camera's Y axis.
+    farthest_displacement = 2 * 1.1 * np.sin(0.01 / 2)
+    assert radii_seen[0] - 0.1 >= 0.001 + farthest_displacement - 1e-12

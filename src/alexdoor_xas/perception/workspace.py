@@ -34,6 +34,7 @@ class CommonWorkspace:
         self.spaces = tuple(deepcopy(space) for space in spaces)
         self._free_covers = {}
         self._subcovers = {}
+        self._nearby_free = []
         self.cache_hits = 0
         self.calibration_bound = np.asarray(calibration_bound, dtype=float)
         if (
@@ -123,17 +124,19 @@ class CommonWorkspace:
                 old_center, old_radius, old_margin = previous
                 # The original radial certificate is a fixed free volume, not a
                 # renewed observation. Include calibration-lever growth as well.
-                growth = (
-                    np.linalg.norm(center - old_center)
-                    * (1 + 2 * np.sin(min(self.calibration_bound[1], np.pi) / 2))
-                    + radius
-                    - old_radius
+                growth = (np.linalg.norm(center - old_center) + radius - old_radius) * (
+                    1 + 2 * np.sin(min(self.calibration_bound[1], np.pi) / 2)
                 )
                 margin = old_margin - growth
                 if margin > 0:
                     self.cache_hits += 1
                 else:
                     margin = None
+            if margin is None:
+                margin = self._nearby_margin(center, radius)
+                if margin is not None:
+                    self.cache_hits += 1
+                    self._free_covers[key] = (center.copy(), float(radius), float(margin))
             if margin is None and constructive and key in self._subcovers:
                 margin = self._subcover_margin(center, radius, key=key)
                 if margin is not None:
@@ -152,7 +155,9 @@ class CommonWorkspace:
                         seed = self._query_uncached(center[None], np.array([seed_radius]))
                         if seed.collision_clearance_m is None:
                             continue
-                        remaining = seed.collision_clearance_m - (radius - seed_radius)
+                        remaining = seed.collision_clearance_m - (radius - seed_radius) * (
+                            1 + 2 * np.sin(min(self.calibration_bound[1], np.pi) / 2)
+                        )
                         if remaining > 0:
                             support = StaticWorkspaceSupport(
                                 remaining, False, False, self.source_clocks
@@ -166,8 +171,23 @@ class CommonWorkspace:
                     return support
                 margin = support.collision_clearance_m
                 self._free_covers[key] = (center.copy(), float(radius), float(margin))
+                self._remember_free(center, radius, margin)
             margins.append(margin)
         return StaticWorkspaceSupport(min(margins), False, False, self.source_clocks)
+
+    def _remember_free(self, center, radius, margin):
+        self._nearby_free.append((center.copy(), float(radius), float(margin)))
+        del self._nearby_free[:-256]
+
+    def _nearby_margin(self, center, radius):
+        if not self._nearby_free:
+            return None
+        centers = np.array([row[0] for row in self._nearby_free])
+        factor = 1 + 2 * np.sin(min(self.calibration_bound[1], np.pi) / 2)
+        growth = factor * (np.linalg.norm(centers - center, axis=1) + radius)
+        margins = np.array([factor * r + m for _, r, m in self._nearby_free]) - growth
+        best = float(margins.max())
+        return best if best > 0 else None
 
     def _subcover_margin(self, center, radius, *, key=None):
         """Cover the entire requested ball; retain reusable octree leaf proofs.
@@ -191,11 +211,8 @@ class CommonWorkspace:
             margin = None
             if certificate is not None:
                 old_center, old_radius, old_margin = certificate
-                growth = (
-                    np.linalg.norm(midpoint - old_center)
-                    * (1 + 2 * np.sin(min(self.calibration_bound[1], np.pi) / 2))
-                    + leaf_radius
-                    - old_radius
+                growth = (np.linalg.norm(midpoint - old_center) + leaf_radius - old_radius) * (
+                    1 + 2 * np.sin(min(self.calibration_bound[1], np.pi) / 2)
                 )
                 if old_margin > growth:
                     margin = old_margin - growth
@@ -205,6 +222,8 @@ class CommonWorkspace:
                 support = self._query_uncached(midpoint[None], np.array([leaf_radius]))
                 queries += 1
                 margin = support.collision_clearance_m
+                if margin is not None:
+                    self._remember_free(midpoint, leaf_radius, margin)
             if margin is not None:
                 margins.append(margin)
                 leaves.append(
@@ -230,14 +249,17 @@ class CommonWorkspace:
     def _query_uncached(self, centers, radii):
         supports = []
         for space in self.spaces:
-            lever = np.max(
-                np.stack(
-                    [
-                        np.linalg.norm(centers - view["camera_world"][:3, 3], axis=1)
-                        for view in space.views.values()
-                    ]
-                ),
-                axis=0,
+            lever = (
+                np.max(
+                    np.stack(
+                        [
+                            np.linalg.norm(centers - view["camera_world"][:3, 3], axis=1)
+                            for view in space.views.values()
+                        ]
+                    ),
+                    axis=0,
+                )
+                + radii
             )
             enlarged = (
                 radii
@@ -327,7 +349,7 @@ class ObservedBackground(CommonWorkspace):
                 best = None
                 for observed in views:
                     view = next(iter(observed.views.values()))
-                    lever = np.linalg.norm(center - view["camera_world"][:3, 3])
+                    lever = np.linalg.norm(center - view["camera_world"][:3, 3]) + radius
                     enlarged = (
                         radius
                         + self.calibration_bound[0]

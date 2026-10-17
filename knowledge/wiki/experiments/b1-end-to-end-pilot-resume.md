@@ -893,3 +893,15 @@ Historical background queries keep the largest valid free-ray margin within each
 condition, then intersect the conditions. Every chosen margin is a real complete
 volume certificate; occupied historical foreground never becomes a fabricated
 current-free claim. Larger valid margins reduce avoidable cache exhaustion.
+
+Complete static free-ball certificates can now be reused across neighboring CAD
+and stop-cell keys through a bounded256-entry cache. Containment pays center,
+radius and calibration growth; a volume outside all certified balls still needs
+new observed support. Camera rotation uncertainty includes the farthest point
+of the whole sphere, and the same radius factor is spent on cache/seed growth.
+This prevents redundant geometric reconstruction without reducing the sweep,
+stopping envelope or physical thresholds. The previous12000 computational
+query cap is insufficient for the right30s numerical state; a separately declared
+60000-query development cap completes15241queries over2323cells. This is one
+retained-state component result, with zero learned commands and no whole-path or
+real-time qualification.
