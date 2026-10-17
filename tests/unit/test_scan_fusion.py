@@ -429,3 +429,22 @@ def test_scan_fusion_does_not_pick_area_winner_or_erase_material_references():
     previous = provider.scan_state.generation
     provider.reset()
     assert provider.scan_state.generation == previous + 1 and not provider.scan_state.objects
+
+
+def test_material_reference_uses_two_finite_fingers_and_preserves_holes():
+    from alexdoor_xas.perception.scan import supported_material_zone
+
+    surface, _, _ = measured_surface()
+    faces = tuple(
+        np.array(
+            [[0, y - 0.02, -0.02], [0, y + 0.02, -0.02], [0, y + 0.02, 0.02], [0, y - 0.02, 0.02]]
+        )
+        for y in (-0.04, 0.04)
+    )
+    pose = supported_material_zone(surface, faces, recipe().config)
+    assert pose is not None
+    assert footprint_support(surface, pose, faces, recipe().config).supported
+    impossible = tuple(face + [0, 3, 0] for face in faces)
+    assert supported_material_zone(surface, impossible, recipe().config) is None
+    # A line support cannot substitute for the calibrated finite contact band.
+    assert supported_material_zone(surface, tuple(f[:2] for f in faces), recipe().config) is None

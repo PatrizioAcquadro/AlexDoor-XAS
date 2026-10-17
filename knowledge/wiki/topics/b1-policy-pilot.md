@@ -512,3 +512,11 @@ visual and geometry recipes must use identical inspection and compatible causal
 age limits. The encoder/checkpoint binding stays exact. This avoids rejecting
 the explicitly separate geometry recipe at execution after accepting it during
 observation assembly; release bindings remain exact.
+
+The runtime attaches calibrated finite finger covers to each observed native
+reference at acquisition. It chooses a measured material point maximizing the
+minimum boundary clearance of both covers over a fixed deterministic sample.
+The native masks and object tracking are unchanged; this changes material
+coordinates, not a policy goal or robot trajectory. Missing finite support and
+ambiguous ownership still refuse. Physical extrema can be lines and remain
+separate from the existing 3 mm distal-band projection used for support checks.

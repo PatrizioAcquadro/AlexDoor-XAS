@@ -291,6 +291,24 @@ def footprint_support(surface, pose, distal_faces, config):
     )
 
 
+def supported_material_zone(surface, distal_faces, config):
+    """Choose a measured reference with maximum two-finger boundary clearance.
+
+    This is a material-coordinate selection, not a robot goal or ownership proof.
+    Holes and missing support retain their original footprint-query semantics.
+    """
+    best, score = None, -np.inf
+    rotation = contact_frame(surface.normal)
+    indices = np.linspace(0, len(surface.points) - 1, min(128, len(surface.points)), dtype=int)
+    for index in indices:
+        pose = ObjectFrame(surface.points[index].copy(), rotation)
+        support = footprint_support(surface, pose, distal_faces, config)
+        if support.supported and min(support.finger_clearance_m) > score:
+            best = pose
+            score = min(support.finger_clearance_m)
+    return best
+
+
 @dataclass(frozen=True)
 class SpaceSupport:
     collision_clearance_m: float | None

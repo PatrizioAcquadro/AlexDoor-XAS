@@ -34,7 +34,12 @@ from alexdoor_xas.perception.observed_articulation import (
     fit_motion_axis,
 )
 from alexdoor_xas.perception.point2pose.seed import candidate_references, verify_candidate
-from alexdoor_xas.perception.scan import object_members, registered_support, surface_support
+from alexdoor_xas.perception.scan import (
+    object_members,
+    registered_support,
+    supported_material_zone,
+    surface_support,
+)
 
 
 @dataclass
@@ -244,6 +249,31 @@ class PanelTracking:
         )
         self.last_submitted = int(sensor["frame"])
         return True
+
+    def adopt_candidates(self, candidates, sensor):
+        """Attach robot-specific finite support without changing native tracking."""
+        self.candidates = candidates
+        if self.distal_faces is None:
+            return
+        for candidate in candidates:
+            if candidate.geometry.acquired_s != float(sensor["time_s"]):
+                raise ValueError("unsynchronized_material_zone_initialization")
+            zone = supported_material_zone(candidate.surface, self.distal_faces, self.config)
+            self.diagnostics.setdefault("initial_material_zone", {})[candidate.candidate_id] = (
+                "maximum_observed_two_finger_margin"
+                if zone is not None
+                else "no_supported_finite_material_zone"
+            )
+            if zone is None:
+                continue
+            candidate.initial_world = pose_matrix(zone)
+            candidate.map_from_object = (
+                np.linalg.inv(sensor["camera_world"]) @ candidate.initial_world
+            )
+            candidate.object_from_zone = np.eye(4)
+            candidate.static_reference = StaticReference.observed(
+                candidate.initial_world, candidate.geometry
+            )
 
     def select_zone(self, patch_id, now, *, source):
         if source not in ("diagnostic", "policy") or patch_id not in [

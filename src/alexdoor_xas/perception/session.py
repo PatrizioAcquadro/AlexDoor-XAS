@@ -536,7 +536,7 @@ class SessionProvider:
         self.last_cue = captured, result["cue"]
         if self.tracking:
             if result["initial_candidates"]:
-                self.tracking.candidates = result["initial_candidates"]
+                self.tracking.adopt_candidates(result["initial_candidates"], captured)
                 self.tracking.diagnostics["binding"] = result["binding"]
             if result["objects"]:
                 self.tracking.consume(
