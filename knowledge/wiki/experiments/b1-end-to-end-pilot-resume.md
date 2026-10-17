@@ -65,8 +65,7 @@ finger CAD ordering, finite opaque material, complete14-shape sweep, response,
 full2s stopping and self-clearance remain separate required proofs.
 
 Free-motion receipts explicitly prepay normal uncertainty growth and relative
-motion over the control interval; post-step checks spend any excess. Camera,
-raw RGB-D acquisition and control run at60Hz, native feedback at120Hz, and
+motion over the control interval; post-step checks spend any excess. Raw RGB-D acquisition and control run at60Hz, native feedback at120Hz, and
 policy/geometry consume images at10Hz. Actual observation ages remain explicit.
 Certain observed separation ends pending acquisition bookkeeping while preserving
 identity, load history and latched stops. Conservative possible contact still has
@@ -127,10 +126,14 @@ failed panel outcome, not an initialization refusal or a successful task.
 
 The fixed panel is frozen at source `2df0e54`, all four returned checkpoint hashes,
 the unchanged9000-tick protocol and original expert references. The first failure
-counts in its original slot; the remaining23 conditions run sequentially through
-the same maintained CLI and real producers, with no automatic retries. All4must
-execute and all24outcomes must remain retained before goal completion. There is
-still no learned contact/opening/hold/release success.
+counts in its original slot; five initial outcomes now demonstrate all4trained combinations through the real
+runner. ACT A1/A2 right-nominal issue209commands each before orientation stops;
+Diffusion A1/A2 issue72/122commands before measured acceleration exits from the
+verified load domain. All five outcomes have0controlled opening and passing
+retention/continuing-physics-stop audits. The remaining19slots are held at an
+unallocated case boundary for diagnosis; no failure is removed or retried.
+All24final-version outcomes and an identical-checkpoint two-door success remain
+required. There is still no learned contact/opening/hold/release success.
 
 The first complete allocation is331.13s including conservative tail, with0.365GiB
 retained. Its measured policy cycle mean/p95 is245.26/826.38ms. An all-early-stop

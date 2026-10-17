@@ -13,8 +13,9 @@ and the continuing-physics stop pass. This is one failed final-panel outcome;
 there are no learned contact/opening/hold/release successes yet. Finite observed-material,
 rigid-interface and target-envelope components pass bounded independent checks;
 both complete retained observed paths now pass with100ms contact confirmation,
-explicit detection errors and bounded-window limits. The remaining frozen panel slots are running with cumulative budget guards;
-no learned contact success is inferred.
+explicit detection errors and bounded-window limits. All4combinations now issue real learned commands. Five initial failed panel
+outcomes are retained; remaining launches are held for diagnosed orientation and
+native acceleration-domain exits. No learned contact success is inferred.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured
