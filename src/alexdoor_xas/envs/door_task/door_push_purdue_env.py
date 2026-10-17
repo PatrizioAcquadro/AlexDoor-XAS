@@ -84,7 +84,10 @@ class DoorPushPurdueEnv(DirectRLEnv):
             raise RuntimeError("stop impedance joint does not resolve uniquely")
         self.limits = tensor(self.robot.data.joint_pos_limits)[:, self.arm_ids].clone()
         self.velocities = tensor(self.robot.data.joint_vel_limits)[:, self.arm_ids].clone()
-        self.velocities.clamp_(max=cfg.max_joint_speed)
+        # Target-rate clipping alone permits tracking overshoot: the pilot
+        # measured 0.5183 rad/s under a 0.5 rad/s reference. Retain 10% reference
+        # headroom; the independent actual-speed criterion is unchanged.
+        self.velocities.clamp_(max=cfg.max_joint_speed * 0.9)
         self.clamp_excess = torch.zeros((1, 7), device=self.device)
         self.pose_error = torch.zeros((1, 6), device=self.device)
         self.contacts = ContactObserver(

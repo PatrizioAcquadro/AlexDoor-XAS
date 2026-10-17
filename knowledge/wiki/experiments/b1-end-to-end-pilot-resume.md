@@ -236,6 +236,32 @@ checks are reused. Full-v4 freezes this one-value calibration correction at the
 same source/checkpoint/protocol and queues a new first integrated outcome. The
 one full-v3 failure remains separate; its23unallocated slots are held.
 
+The full-v4 ACT A2 outcome executes 231 commands, passes the previous load
+refusal, then violates actual joint speed at native 29.0417 s: elbow 0.51826 rad/s
+against the unchanged 0.51 limit. No contact or opening occurs. The complete
+failed recording and two-second effective stop remain retained. This is a real
+physical criterion violation, not just unavailable calibration evidence.
+
+The selected IK/gains are preserved; a targeted 10% reference-speed headroom
+corrects the demonstrated target-rate/tracking mismatch. Fixed causal robot-only
+replay reproduces 0.51829 rad/s at the old reference cap and measures 0.47323 rad/s
+at the new 0.45 cap, with zero candidate speed violations. The same error floor,
+full-link stop boxes, held-joint bounds and 13 mm / 40 mrad response limits pass;
+measured response maxima are 2.162 mm / 13.608 mrad. The correction is inactive
+on all 8,729 right and 9,256 left teacher target transitions, whose peaks are
+0.31110 / 0.27169 rad/s. The complete teacher-path evidence is reused without
+new demonstrations or repeated geometry studies. A new real learned integration
+and all 24 final-version outcomes remain required; replay is not learned behavior.
+
+The baseline prerequisite finishes physics before a NumPy count serialization
+error. Isaac shutdown returns process exit zero despite that error; its helper
+incorrectly writes a completion marker without a report. The false marker is
+rejected and preserved, and no qualification is accepted from it. Explicit integer
+conversion and a required completed-report check repair the infrastructure. The
+already completed baseline is recovered from raw signals on CPU; only the
+unexecuted candidate runs afterward. Both allocations are charged and all failed
+source/log/raw artifacts remain under `robot-reference-headroom`.
+
 Earlier investigations below preserve their original decisions and failures.
 Their pending-status statements are superseded by the current integration above.
 

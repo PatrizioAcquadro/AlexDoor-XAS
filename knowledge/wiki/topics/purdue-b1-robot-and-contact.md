@@ -98,6 +98,23 @@ fails despite static IK support, and actual speed reaches 0.527 rad/s under the
 travel 2.57/4.62 mm. Neither the later fast state nor loaded/contact stopping is
 qualified, and the original ready-pose residual domain does not cover these paths.
 
+The current resumed pilot adds a targeted reference-speed headroom correction.
+A learned ACT A2 run reaches 0.51826 rad/s under targets bounded at 0.5 rad/s,
+violating the unchanged 0.51 rad/s physical criterion. The shared A1/A2 target
+cap now uses 90% of the configured motion ceiling: 0.45 rad/s for this setup.
+IK, joint centering, gains, joint position limits, stop behavior, door dynamics
+and the physical speed criterion are unchanged. Preview and execution share the
+same cap; raw requests and applied targets remain separately recorded.
+
+A fixed robot-only replay reproduces the original 0.51829 rad/s peak. The same
+requests with headroom peak at 0.47323 rad/s with zero speed violations. Load
+bounds, the complete continuous stop cover and the unchanged 13 mm / 40 mrad
+response limits pass. All 17,985 saved teacher target transitions are below
+0.312 rad/s, so the new cap is inactive on the validated teacher trajectories.
+This finite controller prerequisite is not learned-policy success or a global
+hardware velocity guarantee. Current learned execution remains in
+[[../experiments/b1-end-to-end-pilot-resume|the end-to-end pilot]].
+
 ## Operational Push Frame
 
 Define the task-owned frame `right_push_tip` relative to

@@ -8,9 +8,9 @@ reference. A3/A4 semantics and operational thresholds are unchanged.
 The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
 four genuine3000-update corrected-data checkpoints, verified CUDA loading, frozen
 local development inference and actual nonzero commands from all four combinations.
-Five full-v1, one full-v2 and one full-v3 failed outcome remain separate.
+Five full-v1 and one each full-v2/v3/v4 failed outcome remain separate.
 Corrected current-FK orientation passes the earlier refusal; the latest ACT A2 run
-then full-v3 reaches230commands before the weak acceleration branch refuses a1.012N force upper bound. No learned
+then full-v3 reaches 230 commands before a load-domain refusal. Full-v4 reaches 231 commands, then violates the unchanged actual-speed limit. No learned
 contact, controlled opening, hold, release or task success is demonstrated yet.
 
 Finite observed-material, contact and robot-sweep components pass the earlier
@@ -18,8 +18,12 @@ complete retained-path check with measured detection errors. More conservative
 robot-only torque floors, weak-load acceleration and held-joint allowances now
 pass six independent learned prefixes and sampled motion checks. Both complete revised paths pass with unchanged availability and100ms contact
 confirmation; independent joins report zero detections outside physical Loaded.
-A one-joint main elbow extension is supported by independent loaded robot data and leaves complete v42 values unchanged; frozen full-v4 integration is queued. All24final-version outcomes and identical-checkpoint success on both doors
-remain required. Controller, teacher, checkpoints and physical criteria are unchanged.
+A one-joint main elbow extension leaves complete v42 values unchanged.
+A targeted 10% target-speed headroom then corrects the demonstrated tracking
+overshoot: causal robot replay peaks at 0.47323 rad/s with unchanged physical
+criteria, IK/gains and validated teacher outputs. New real learned execution is
+pending; replay is not task success. All24final-version outcomes and identical-checkpoint success on both doors
+remain required. Teacher, checkpoints and physical criteria are unchanged; the documented controller correction preserves IK/gains.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured
