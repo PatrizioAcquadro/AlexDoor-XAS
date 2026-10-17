@@ -11,6 +11,7 @@ from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA
 from alexdoor_xas.perception.admission import ActionAdmission, nonnegative, rotational_travel
 from alexdoor_xas.perception.contracts import (
+    TIME_ROUNDOFF_S,
     FieldSupport,
     same_pose,
     validate_local_contact,
@@ -128,7 +129,7 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
         travel = np.linalg.norm(b.origin - a.origin)
         rotation = Rotation.from_matrix(b.rot @ a.rot.T).magnitude()
         if (
-            duration > bounds["duration_s"]
+            duration > bounds["duration_s"] + TIME_ROUNDOFF_S
             or travel > bounds["displacement_m"]
             or travel / duration > bounds["speed_m_s"]
             or rotation / duration > bounds["angular_speed_rad_s"]

@@ -121,7 +121,9 @@ short survey captures and longer episodes without inventing or truncating clocks
 The candidate right calibration is merged only into its corresponding calibration
 condition; all conditions must still support each background volume. New sparse
 right-path samples through120s admit; later rows reveal a separate floating-point
-schedule comparison that remains under correction. No final panel has started.
+schedule comparison at130/140s. The existing1ns representational clock tolerance
+now also applies when constructing a local receipt; an extra control tick still
+refuses. Previous numerical refusals remain retained. No final panel has started.
 
 ## Static ray-query cost
 

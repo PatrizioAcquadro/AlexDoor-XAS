@@ -628,9 +628,10 @@ def test_unloaded_full_robot_proof_does_not_require_an_irrelevant_contact_footpr
         )
 
 
-def test_control_receipt_tolerates_actual_float_clock_roundoff_without_an_extra_tick():
+@pytest.mark.parametrize("start", [25.216666666666665, 130.0, 140.0])
+def test_control_receipt_tolerates_actual_float_clock_roundoff_without_an_extra_tick(start):
     estimate, proposal, evidence, limits = local_inputs()
-    start = 25.216666666666665
+    limits = replace(limits, duration_s=1 / 60)
     patch = estimate.local.patches[0]
     support = replace(patch.pose_support, acquired_s=start, supported_s=start, available_s=start)
     patch = replace(patch, geometry_support=support, identity_support=support, pose_support=support)
@@ -644,6 +645,10 @@ def test_control_receipt_tolerates_actual_float_clock_roundoff_without_an_extra_
     evidence = replace(evidence, support=support)
     receipt = admit_local_action(estimate, proposal, evidence, limits, start, generation=0)
     assert receipt.admitted
-    require_current_admission(receipt, estimate, 25.233333333333334)
+    endpoint = (round(start * 60) + 1) / 60
+    require_current_admission(receipt, estimate, endpoint)
     with pytest.raises(ValueError, match="outside_admitted_schedule"):
-        require_current_admission(receipt, estimate, 25.233333333333334 + 1 / 60)
+        require_current_admission(receipt, estimate, endpoint + 1 / 60)
+    extra_tick = replace(proposal, times_s=np.array([start, start + 2 / 60]))
+    refused = admit_local_action(estimate, extra_tick, evidence, limits, start, generation=0)
+    assert not refused.admitted and refused.reason == "action_exceeds_declared_limits"
