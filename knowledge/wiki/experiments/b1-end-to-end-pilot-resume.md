@@ -74,6 +74,17 @@ applies when contact is possible, rather than during certainly separated approac
 Every operational contact result, including acquisition state, is now retained
 separately in `operational-contact.jsonl`.
 
+The first complete replay stops at61.0167s on the right door: conservative normal
+force lower bound18.73mN versus the operational20mN maintenance cutoff, despite
+native intended contact. The stale acquisition deadline also overwrites the real
+loss reason. Both defects are preserved. The corrected operational contract uses
+a strictly positive force lower bound to maintain previously confirmed contact;
+new acquisition still requires30mN for100ms. This detects contact presence rather
+than duplicating the independent evaluator's unchanged20mN loaded-task criterion.
+Zero/negative bounds still stop, and completed acquisition clears only its own
+bookkeeping; lost/unavailable states cannot be relabeled acquisition failures.
+Full replay and independent false-admission/miss/delay metrics remain pending.
+
 A complete before/after-command numerical replay through36s passes both retained
 train streams, with178 confirmed-contact samples each and six unavailable native
 identity warmup samples per door. The complete opening/hold/release replay remains

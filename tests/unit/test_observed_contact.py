@@ -436,3 +436,21 @@ def test_contact_orientation_still_applies_to_possible_contact_not_separated_app
         load=load,
     )
     assert reason == expected
+
+
+def test_zero_operational_off_threshold_still_requires_strictly_positive_bound():
+    m = monitor()
+    m.config = replace(m.config, force_off_n=0)
+    establish(m)
+    assert m.seek_started is None and m.seek_travel_m == 0
+    # A small strictly positive lower bound maintains indirect contact, without
+    # claiming that independent physical loaded-force requirements are met.
+    for tick in range(13, 25):
+        result = m.update(*inputs(1 + tick / 60, force=0.06))
+    assert result.status == "contact"
+    for tick in range(25, 37):
+        result = m.update(*inputs(1 + tick / 60, force=0.05))
+    assert result.status == "lost"
+    assert result.reason == "contact_load_lost_or_uncertain"
+    assert m.latched_reason == result.reason
+    assert m.seek_started is None

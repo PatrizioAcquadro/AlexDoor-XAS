@@ -281,8 +281,13 @@ class ObservedContactMonitor:
             plausible = any(lower <= 0 <= upper for lower, upper in intervals)
             mean = self.contact_load(load, now)
             force = None if mean is None else float(mean)
-            positive = force is not None and force >= (
-                self.config.force_off_n if self.established else self.config.force_on_n
+            # Maintaining contact requires a strictly positive lower force bound,
+            # even when the operational off threshold is zero. Independent
+            # physical task scoring has its own unchanged minimum force.
+            positive = force is not None and (
+                force > self.config.force_off_n
+                if self.established
+                else force >= self.config.force_on_n
             )
             if (
                 load.normal_lower_n >= self.config.force_on_n
@@ -321,18 +326,13 @@ class ObservedContactMonitor:
                         else "normal_contact_not_established"
                     ),
                 )
-            if status == "separated" and not self.established:
-                # A new bounded observation proves no contact attempt is pending.
-                # Clear only acquisition bookkeeping, never identity, force
+            if status == "contact" or status == "separated" and not self.established:
+                # Confirmed contact completes acquisition; bounded separation
+                # ends an unresolved attempt. Neither clears identity, force
                 # history or a latched failure. This transition is reported.
                 self.seek_started = self.seek_anchor = None
                 self.seek_travel_m = 0.0
-            if (
-                admission.proposal.loaded
-                and not self.releasing
-                and status != "contact"
-                and (status == "seeking" or self.seek_started is not None)
-            ):
+            if admission.proposal.loaded and not self.releasing and status == "seeking":
                 if self.seek_started is None:
                     self.seek_started, self.seek_anchor = now, tool.origin.copy()
                 else:
