@@ -399,18 +399,27 @@ def train(root, protocol, *, resume=False, continue_from=None):
         write_json(continuation_path, continuation)
     report_path = destination / "report.json"
     report = json.loads(report_path.read_text()) if resume and report_path.exists() else {}
+    names = {
+        f"{family}-{space}"
+        for space in (A1_JOINT_DELTA, A2_EE_DELTA)
+        for family in ("act", "diffusion")
+    }
+    for name, result in report.items():
+        if (
+            name not in names
+            or not (destination / name / "final.pt").is_file()
+            or result.get("optimizer_updates")
+            != protocol["epochs"] * protocol["max_batches_per_epoch"]
+        ):
+            raise ValueError("Incomplete reported final cell")
     for space in (A1_JOINT_DELTA, A2_EE_DELTA):
+        if all(f"{family}-{space}" in report for family in ("act", "diffusion")):
+            continue
         data = load_b1_data(root / "data", space)
         for family in ("act", "diffusion"):
             name = f"{family}-{space}"
             path = destination / name
             if name in report:
-                if (
-                    not (path / "final.pt").is_file()
-                    or report[name]["optimizer_updates"]
-                    != protocol["epochs"] * protocol["max_batches_per_epoch"]
-                ):
-                    raise ValueError("Incomplete reported final cell")
                 continue
             path.mkdir(exist_ok=resume)
             factory, development = batch_factories(

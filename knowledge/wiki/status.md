@@ -20,13 +20,15 @@ completed outcomes and audits are retained. The 20 unallocated slots are retired
 the matched training continuation. Earlier versions remain separate;
 identical-checkpoint success on both doors is still required.
 
-A matched continuation of all four cells is queued on Gilbreth as job `11974622`,
-from the original
-optimizer/RNG/EMA states: only epochs increase from 30 to 44, adding 1,400 updates
-per cell within the cumulative ceiling. Original checkpoints and outcomes remain
-immutable. This iteration is motivated by retained closed-loop failures and still
-decreasing training loss; improved task behavior is unproven. Remote development
-metrics remain unavailable and no development recordings are transferred.
+The matched 4,400-update continuation is interrupted after both A1 cells finish
+and ACT A2 reaches3,200; Diffusion A2 remains at3,000. Remote use is3,334/3,600
+GPU seconds. Checkpointed updates total15,164including infrastructure, with100
+additional uncheckpointed updates conservatively charged. The same-data cache
+repair is fully byte-verified and reduces shared-file traffic from13.8GB to0.620GB;
+resume now skips completed representations before reopening feature data. The
+remaining2,600updates require the repaired bounded GPU allocation. All partial
+states and original checkpoints remain preserved. Development stays local with
+frozen weights/statistics; no improved task behavior is claimed.
 
 An unconditional left elbow position-domain extension is rejected after an
 independent 8 N lateral-load stop exceeds the original travel/speed criteria.

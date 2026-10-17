@@ -573,3 +573,58 @@ def test_pilot_continuation_allows_only_epoch_increase(tmp_path):
     (tmp_path / "diffusion-A2_ee_delta/training-state.pt").unlink()
     with pytest.raises(ValueError, match="four complete"):
         api["continuation_source"](tmp_path, target)
+
+
+def test_completed_resume_validates_reports_without_reopening_feature_data(tmp_path, monkeypatch):
+    import runpy
+
+    api = runpy.run_path("scripts/pilot_offline.py")
+    destination = tmp_path / "training"
+    destination.mkdir()
+    protocol = dict(epochs=44, max_batches_per_epoch=100, overfit_updates=0)
+    api["write_json"](destination / "protocol.json", protocol)
+    report = {}
+    for space in ("A1_joint_delta", "A2_ee_delta"):
+        for family in ("act", "diffusion"):
+            name = f"{family}-{space}"
+            (destination / name).mkdir()
+            # Metadata/existence guard only; these files are never loaded as models.
+            (destination / name / "final.pt").touch()
+            report[name] = dict(optimizer_updates=4400)
+    api["write_json"](destination / "report.json", report)
+
+    def forbidden_loader(*args, **kwargs):
+        raise AssertionError("Completed cells must not reopen feature data")
+
+    monkeypatch.setitem(api["train"].__globals__, "load_b1_data", forbidden_loader)
+    assert api["train"](tmp_path, protocol, resume=True) == report
+    (destination / "act-A1_joint_delta/final.pt").unlink()
+    with pytest.raises(ValueError, match="Incomplete reported final cell"):
+        api["train"](tmp_path, protocol, resume=True)
+
+
+def test_partial_resume_skips_only_complete_representations(tmp_path, monkeypatch):
+    import runpy
+
+    api = runpy.run_path("scripts/pilot_offline.py")
+    destination = tmp_path / "training"
+    destination.mkdir()
+    protocol = dict(epochs=44, max_batches_per_epoch=100, overfit_updates=0)
+    api["write_json"](destination / "protocol.json", protocol)
+    report = {}
+    for family in ("act", "diffusion"):
+        name = f"{family}-A1_joint_delta"
+        (destination / name).mkdir()
+        (destination / name / "final.pt").touch()
+        report[name] = dict(optimizer_updates=4400)
+    api["write_json"](destination / "report.json", report)
+    called = []
+
+    def loader(directory, space):
+        called.append(space)
+        raise RuntimeError("unfinished data reached")
+
+    monkeypatch.setitem(api["train"].__globals__, "load_b1_data", loader)
+    with pytest.raises(RuntimeError, match="unfinished data reached"):
+        api["train"](tmp_path, protocol, resume=True)
+    assert called == ["A2_ee_delta"]

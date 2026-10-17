@@ -68,6 +68,35 @@ has one missing monitor decision out of 194 endpoints, explicitly unavailable.
 See `learned-contact-metrics-v7.json` for the separate denominators and all four
 cases; no independent evaluator stream enters runtime admission or policy inputs.
 
+## Interrupted continuation and exact cache repair
+
+Job `11974622` times out after completing ACT A1 and Diffusion A1 at 4,400
+updates and saving ACT A2 at 3,200. Diffusion A2 remains at its original 3,000.
+The complete parent/step accounting charges591GPU seconds, including external
+cleanup, bringing cumulative remote allocation to3,334/3,600. All partial states,
+optimizer/RNG/EMA, final A1 checkpoints and logs are retained. Checkpointed
+cumulative updates are15,164including infrastructure; one possible interrupted
+100-update epoch is conservatively charged, giving an upper count15,264.
+The remaining2,600usable updates would finish at17,764checkpointed /at most
+17,864charged updates. Partial training is not complete.
+
+Actual epochs take about3.5seconds per100updates. Cold/shared-file reads of the
+13.8GB flat cache dominate the failed allocation. The resume path now validates
+completed reports before data access and skips complete action representations.
+Pure CPU/I/O repair preserves the original remote cache and repacks the same two
+train episodes into self-contained HDF5 virtual observations. Exact visual-prefix
+reuse reduces physical storage to0.620GB; all original observation/label/time
+bytes, attributes and metadata match. All14,987observation rows and14,985action
+rows remain, with2,498unique visual-prefix tensors and unchanged current q/dq.
+The existing HDF5 reader supports this layout without policy or dataset changes.
+
+The full local data-reader/statistics check takes12.16seconds plus6.98seconds
+for factory validation and exactly matches frozen source normalization. It
+constructs no model and performs no optimizer work. No development payload leaves
+the workstation. The repaired GPU submission must resume saved states with the
+unchanged protocol, seed and target, inside266remaining allocated GPU seconds;
+its successful completion and returned checkpoint verification remain pending.
+
 ## Matched training continuation
 
 The 3,000-update ACT A1 checkpoint reaches 18.790 degrees under full-v7, then
