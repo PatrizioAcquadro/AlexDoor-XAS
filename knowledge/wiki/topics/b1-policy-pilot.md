@@ -625,3 +625,19 @@ self-collision proof, stopping bound or command receipt. No asset identity or
 privileged annotation selects geometry at runtime. The three common front surveys
 are retained; coarse single-sphere body coverage still has unknown shoulder regions
 and must be refined before it can support an actual action.
+
+The handoff correction independently passes the full right teacher cycle: all
+180 hold ticks satisfy the unchanged physical criteria, and the minimum native
+0.1 s mean is 0.0822 N. Fourteen isolated zero-force substeps remain reported;
+the maximum consecutive zero interval is 8.33 ms, replacing the earlier 83 ms
+handoff unloading. No requirement of positive force at every native substep is
+invented. Opening is 51.1111 degrees; the frozen 51.2603-degree nominal reference
+remains more demanding and unchanged.
+
+The two pre-correction fresh nominal recordings keep their original valid physical
+scores, raw data and paired-reference role. Their known handoff command pause is
+excluded from imitation through explicit protocol eligibility/reasons. The four
+remaining declared conditions use the same corrected teacher: right dim/left bright
+for training and both development lights for validation. The raw collection ceiling
+stays six, and the fixed 24-outcome denominator is unchanged. This is a partial
+pilot data selection, not the final matched A1–A4 dataset.

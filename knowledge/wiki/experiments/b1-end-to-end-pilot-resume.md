@@ -450,3 +450,21 @@ inspection-plus-policy horizon. A concrete proposal requests 12 total local hour
 instead of three; it is pending user approval, and current work remains within the
 existing ceiling. Fresh collection, storage, optimizer and Gilbreth ceilings are
 unchanged. The user removed only the prerequisite case-count ceiling so far.
+
+Case 23 (`dae8e77`, physics-only privileged diagnostic) confirms the handoff cause:
+all approach/push commands and prior motion match the baseline up to holding.
+All 180 hold ticks now pass, with minimum native 0.1 s force mean 0.08217 N; the
+14 isolated zero-force substeps never exceed 8.33 ms consecutively. The initial
+analysis incorrectly required every substep to be positive; that extra requirement
+is rejected in favor of the unchanged physical window. Independent physical
+reconstruction has zero validity mismatches/forbidden contacts, valid release and
+0.02056 mm two-second stop travel. Opening is 51.1111 degrees versus the unchanged
+frozen right reference 51.2603; no smaller denominator is introduced.
+
+Remaining demonstration collection uses this common corrected teacher. The two
+already collected nominal records remain valid physical references/evidence but
+are explicitly excluded from imitation because of the demonstrated supervisor
+handoff pause. Their original scores and eligibility audit are preserved; the
+new protocol selection is explicit. The four remaining prescribed lighting/seed
+conditions and all 24 learned panel entries stay unchanged; no favorable retry
+or evaluation-denominator reduction is used.

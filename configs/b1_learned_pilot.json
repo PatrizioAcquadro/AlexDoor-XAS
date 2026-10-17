@@ -8,7 +8,9 @@
       "lighting_scale": 1.0,
       "seed": 6200,
       "directory": "animated-door-1-88abf40/nominal",
-      "episode_id": "animated-door-1-88abf40-nominal-real-pilot"
+      "episode_id": "animated-door-1-88abf40-nominal-real-pilot",
+      "use_for_imitation": false,
+      "imitation_exclusion_reason": "Retain valid physical reference/raw evidence; supervisor contains the now-demonstrated one-tick hold handoff pause. Use corrected common teacher for imitation."
     },
     {
       "asset_id": "animated-door-1-88abf40",
@@ -26,7 +28,9 @@
       "lighting_scale": 1.0,
       "seed": 6200,
       "directory": "door-2738468b94d74c5f/nominal",
-      "episode_id": "door-2738468b94d74c5f-nominal-real-pilot"
+      "episode_id": "door-2738468b94d74c5f-nominal-real-pilot",
+      "use_for_imitation": false,
+      "imitation_exclusion_reason": "Retain valid physical reference/raw evidence; supervisor contains the now-demonstrated one-tick hold handoff pause. Use corrected common teacher for imitation."
     },
     {
       "asset_id": "door-2738468b94d74c5f",
@@ -145,5 +149,7 @@
     "remaining_gilbreth_jobs": 1,
     "remaining_gilbreth_gpu_s": 3538,
     "local_gpu_h": 3
-  }
+  },
+  "imitation_selection": "Two corrected train episodes (right dim, left bright) and two corrected development episodes; earlier valid nominal recordings remain independent references/evidence. All six collection attempts and all 24 learned outcomes stay counted.",
+  "teacher_revision": "dae8e77 common reference-continuity correction, physical right diagnostic independently verified before remaining collection; same force/controller/physics and task starts"
 }

@@ -51,6 +51,22 @@ def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True, urdf=N
     binding, robot = None, None
     for entry in protocol["episodes"]:
         directory = root / entry.get("directory", entry["asset_id"])
+        if entry.get("use_for_imitation") is False:
+            reason = entry.get("imitation_exclusion_reason")
+            path = directory / "episode.hdf5"
+            if not reason or not path.is_file():
+                raise ValueError("Excluded collection requires retained raw evidence and a reason")
+            audit.append(
+                dict(
+                    asset_id=entry["asset_id"],
+                    condition=entry.get("condition"),
+                    used_for_imitation=False,
+                    reason=reason,
+                    source_recording=str(path.resolve()),
+                )
+            )
+            print(json.dumps(audit[-1]), flush=True)
+            continue
         runtime = json.loads((directory / "runtime.json").read_text())
         identity = RobotAssetRef.from_dict(runtime["robot_asset"])
         if robot is not None and identity != robot:
@@ -119,6 +135,8 @@ def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True, urdf=N
             )
         episodes.append(episode)
         print(json.dumps(dict(prepared=entry["asset_id"], ticks=len(exact_a1))), flush=True)
+    if export and not episodes:
+        raise ValueError("No eligible imitation episodes")
     if export:
         export_dataset(episodes, root / "data", binding, robot, splits, copy_raw=copy_raw)
     name = "data-audit.json" if export else "preflight-label-audit.json"
