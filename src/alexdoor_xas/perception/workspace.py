@@ -335,8 +335,11 @@ class ObservedBackground(CommonWorkspace):
                     )
                     result = observed.query(center[None], np.array([enlarged]))
                     if result.collision_clearance_m is not None:
-                        best = result.collision_clearance_m
-                        break
+                        best = (
+                            result.collision_clearance_m
+                            if best is None
+                            else max(best, result.collision_clearance_m)
+                        )
                 if best is None:
                     return StaticWorkspaceSupport(None, True, False, self.source_clocks)
                 margins.append(best)

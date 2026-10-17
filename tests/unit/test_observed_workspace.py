@@ -271,3 +271,29 @@ def test_historical_free_background_never_replaces_current_foreground_or_drops_a
     blocked = ObservedBackground([moving, space(0.9, 1.0)], (0.001, 0.001))
     unknown = blocked.query_background([[0, 0, 1]], [0.01], current_foreground_margin_m=0.02)
     assert unknown.unknown_in_envelope and unknown.collision_clearance_m is None
+
+
+def test_background_reuses_largest_valid_ray_certificate_within_each_condition():
+    from alexdoor_xas.perception.workspace import ObservedBackground
+
+    # Reverse traversal sees the shallow positive witness first. A deeper valid
+    # witness provides a larger real margin, avoiding unnecessary future rebuilds.
+    observed = space(3.0, 1.0)
+    observed.views.update(space(1.05, 2.0).views)
+    result = ObservedBackground([observed], (0.0, 0.0)).query_background(
+        [[0, 0, 1]],
+        [0.01],
+        current_foreground_margin_m=1.0,
+    )
+    shallow = ObservedBackground([space(1.05, 2.0)], (0.0, 0.0)).query_background(
+        [[0, 0, 1]],
+        [0.01],
+        current_foreground_margin_m=1.0,
+    )
+    deep = ObservedBackground([space(3.0, 1.0)], (0.0, 0.0)).query_background(
+        [[0, 0, 1]],
+        [0.01],
+        current_foreground_margin_m=1.0,
+    )
+    assert result.collision_clearance_m == deep.collision_clearance_m
+    assert result.collision_clearance_m > shallow.collision_clearance_m

@@ -452,6 +452,18 @@ class MaterialCover:
         )
         return cover
 
+    def projected_ball_margin(self, center, radius_m):
+        """Finite tangent-circle support only; normal/contact evidence is separate."""
+        center = np.asarray(center, float)
+        if center.shape != (3,) or not np.isfinite(np.r_[center, radius_m]).all() or radius_m < 0:
+            raise ValueError("invalid_projected_material_ball")
+        local = (center @ self.basis)[1:]
+        uv = np.rint((local - self.lower) / self.cell_m).astype(int)
+        if (uv < 0).any() or (uv >= np.array(self.shape)[::-1]).any():
+            return None
+        rounding = np.linalg.norm(local - (self.lower + uv * self.cell_m))
+        return float(self.clearance[uv[1], uv[0]] - rounding - radius_m)
+
     def query(self, pose, distal_faces):
         from alexdoor_xas.perception.scan import FootprintSupport
 

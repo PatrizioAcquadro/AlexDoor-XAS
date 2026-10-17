@@ -133,3 +133,25 @@ def test_complete_normal_slab_spends_local_parallax_and_keeps_inspection_clocks(
     future = dict(view, time_s=0.1, available_s=0.1)
     with pytest.raises(ValueError, match="inspection_after_initialization"):
         MaterialCover.from_inspection(surface, [future], 7, recipe().config, generation=0)
+
+
+def test_projected_ball_margin_is_only_finite_tangent_support_and_preserves_holes():
+    surface, _, _ = measured_surface()
+    cover = MaterialCover(surface, recipe().config, cell_m=0.002)
+    center = np.array([1.0, 0.0, 1.0])
+    margin = cover.projected_ball_margin(center, 0.02)
+    assert margin > 0
+    assert cover.projected_ball_margin(center + [0.5, 0, 0], 0.02) == margin
+    assert cover.projected_ball_margin(center, 1.0) < 0
+    assert cover.projected_ball_margin(center + [0, 2, 0], 0.02) is None
+    observation = surface.observations[0]
+    mask = observation.mask()
+    mask[110:131, 117:124] = False
+    hole = MaterialCover(
+        replace(
+            surface, observations=(replace(observation, support_mask=np.packbits(mask).tobytes()),)
+        ),
+        recipe().config,
+        cell_m=0.002,
+    )
+    assert hole.projected_ball_margin(center, 0.02) <= 0

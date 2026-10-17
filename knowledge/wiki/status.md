@@ -9,8 +9,9 @@ The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] ha
 four real3000-update corrected-data checkpoints and frozen local development
 inference. ACT A2 completes a120-command observed free-motion integration with
 causal recording and a passing continuing-physics stop. There are no final-panel
-outcomes or learned contact/opening/hold/release successes. Finite intended-door
-support, loaded sweep and operational contact metrics remain unresolved.
+outcomes or learned contact/opening/hold/release successes. Finite observed-material,
+rigid-interface and target-envelope components pass bounded independent checks;
+complete loaded sweep and operational contact metrics remain unresolved.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured

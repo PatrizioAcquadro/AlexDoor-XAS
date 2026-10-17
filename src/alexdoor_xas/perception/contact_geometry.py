@@ -60,3 +60,64 @@ def distal_body_order(triangles, face, normal, cone_rad, band_m):
     # convex combination is still in the same real distal convex mesh, so the
     # vertex minima bound the complete clipped body, not just sampled vertices.
     return float(lower.max(1).min())
+
+
+def observed_front_extent(surface, views, config):
+    """Observed conservative front envelope for the fixed pilot rigid target.
+
+    All non-robot RGB-D returns in the root's finite tangent extent contribute,
+    including handles/relief omitted by a planar semantic mask. This is a bounded
+    geometric model requiring independent coverage validation on the pilot
+    domain; it does not certify arbitrary hidden attachments or new objects.
+    """
+    from scipy.sparse import coo_matrix
+    from scipy.sparse.csgraph import connected_components
+    from scipy.spatial import cKDTree
+
+    from alexdoor_xas.perception.geometry import deproject
+
+    basis = surface.basis
+    lower, upper = surface.bounds
+    clouds, clocks = [], []
+    for view in views:
+        depth = np.asarray(view["depth_m"])[..., 0]
+        valid = np.asarray(view["valid_depth"])[..., 0]
+        v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
+        points = deproject(depth[v, u], np.c_[u, v], view["intrinsics"], view["camera_world"])
+        local = points @ basis
+        inset = 2 * config["plane_tolerance_m"]
+        selected = ((local[:, 1:] >= lower[1:] + inset) & (local[:, 1:] <= upper[1:] - inset)).all(
+            1
+        )
+        if selected.any():
+            clouds.append(points[selected])
+            clocks.append((float(view["time_s"]), float(view["available_s"])))
+    if not clouds:
+        raise ValueError("missing_observed_target_front_extent")
+    cloud = np.concatenate(clouds)
+    # Keep each voxel's foremost measured return; unrelated static foreground
+    # cannot join the rigid root merely because its image overlaps the leaf.
+    order = np.argsort(cloud @ surface.normal)
+    _, ids = np.unique(
+        np.floor(cloud[order] / config["voxel_m"]).astype(np.int64), axis=0, return_index=True
+    )
+    points = cloud[order[ids]]
+    pairs = cKDTree(points).query_pairs(config["association_distance_m"], output_type="ndarray")
+    graph = coo_matrix(
+        (np.ones(len(pairs), bool), (pairs[:, 0], pairs[:, 1])), shape=(len(points), len(points))
+    )
+    _, labels = connected_components(graph, directed=False)
+    coordinate = points @ surface.normal
+    seeds = abs(coordinate - surface.offset) <= config["plane_tolerance_m"]
+    if seeds.sum() < config["min_points"]:
+        raise ValueError("missing_observed_front_extent_root")
+    connected = np.isin(labels, np.unique(labels[seeds]))
+    measured = max(0.0, float(surface.offset - coordinate[connected].min()))
+    bound = 1.25 * measured + 0.01 + config["plane_tolerance_m"]
+    return dict(
+        front_extent_m=bound,
+        observed_extent_m=measured,
+        source_clocks=clocks,
+        observed_voxels=len(points),
+        rigid_connected_voxels=int(connected.sum()),
+    )

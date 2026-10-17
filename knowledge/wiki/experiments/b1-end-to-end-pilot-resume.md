@@ -870,3 +870,26 @@ new interface/current-target/background producer is still a development candidat
 pending full sweep and contact-monitor qualification; no new learned or final
 panel outcome is inferred. Planar-only visual-core alternatives fail the unchanged
 finite footprint margins and remain preserved and unadopted.
+
+Observed target-front envelopes now retain non-robot RGB-D components connected
+in3D to the measured root inside its finite tangent extent. This includes
+protrusions excluded by planar material extraction and rejects unrelated
+foreground merely overlapping the leaf image. The existing25mm association
+radius and4mm voxel/depth tolerance remain unchanged. A25% reserve plus10mm and
+the depth tolerance was frozen before independent collider validation. The two
+observed bounds are55.06/128.80mm; independent complete moving-collider extents
+are32.85/91.55mm. All moving collider vertices fit with22.21/37.25mm margins.
+Evaluator geometry is used only in that independent audit, never by the producer.
+The bound is a model qualified for these fixed pilot targets and observed setup;
+it does not certify arbitrary hidden attachments or new hardware.
+
+Finite material queries now support complete projected sphere footprints. Normal
+position and physical contact remain separate: a positive tangent-circle margin
+alone cannot admit contact. The candidate producer combines the observed front
+envelope, actual CAD contact order, current rigid free volumes and independent
+static-background support. Whole-path and live contact qualification remain open.
+
+Historical background queries keep the largest valid free-ray margin within each
+condition, then intersect the conditions. Every chosen margin is a real complete
+volume certificate; occupied historical foreground never becomes a fabricated
+current-free claim. Larger valid margins reduce avoidable cache exhaustion.
