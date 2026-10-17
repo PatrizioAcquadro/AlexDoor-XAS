@@ -129,9 +129,9 @@ contact execution or sealed-test evaluation was produced.
 ## Next action and selected state
 
 For the resumed pilot, the user authorizes 15 cumulative local GPU hours and
-repairs within 3,600 remote allocated GPU seconds. Train-only real preparation
-has completed on Gilbreth; the first fixed training cell is active with resumable
-state. No genuine final checkpoint or learned simulation result is claimed yet.
+repairs within 3,600 remote allocated GPU seconds. All four train-only Gilbreth cells complete 3,000 updates each; returned final
+checkpoint bytes match the remote files and remote round trips pass. Workstation
+CUDA loading/development inference and learned simulation results remain pending.
 Finish observed geometry/contact/full-robot admission, verify integrated execution
 and then retain the fixed 24 outcomes. Case count and deferred A3/A4 work are not
 blockers. See [[experiments/b1-end-to-end-pilot-resume]].

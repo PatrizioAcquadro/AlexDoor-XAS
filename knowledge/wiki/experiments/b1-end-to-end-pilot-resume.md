@@ -13,18 +13,29 @@ hours and removes numerical submission/prerequisite case ceilings. The remote
 3,600 allocated GPU-second, 18,000 optimizer-update, 300 GiB storage and six fresh
 demonstration ceilings remain cumulative. At resume, 2.989649 local GPU hours,
 70 remote GPU seconds and 164 infrastructure updates are consumed; all six fresh
-attempts remain counted. No source changes follow reviewed commit `a9462e9`.
+attempts remain counted. The initial inspection found no subsequent source changes after reviewed commit `a9462e9`.
 
-Repaired train-only job `11969867` is submitted after a Slurm resource dry run and
-recording/robot metadata checks. It reserves the unchanged four 3,000-update cells
-on corrected right-dim and left-bright recordings, seed 17, source `de2d3e6`.
-The CPU environment mismatch is repaired by removing inherited
-`SLURM_TRES_PER_TASK` before explicit `srun --cpus-per-task`. Queue waiting is
-uncharged. No development recordings are transferred; remote development metrics
-remain unavailable. The pending left actual-contact stop and corrected native
-component checks use all three shared leases and the existing idle preflight.
-Training and end-to-end execution remain uncompleted until their actual evidence
-returns. Earlier budget proposals below record their historical authorization.
+The initial repair job fails before updates on missing SciPy, then a second fails
+on the relocated URDF's parent-relative fingertip STL. Both are diagnosed, repaired
+and charged. Job `11970038` completes all four fixed cells on the same corrected
+right-dim/left-bright recordings, seed 17 and source `605730e`: 3,000 updates per
+cell, 12,000 genuine updates total, plus the prior 164 infrastructure updates.
+The full training state is resumable at epoch boundaries. Completed parent/step
+Slurm accounting conservatively includes external-step epilogs: 2,743 allocated
+GPU seconds across all five jobs, leaving 857/3,600. The real train preprocessing
+and remote filesystem reads dominate the allocation; 100-update epochs take about
+3.3–3.6 seconds. All four remote checkpoint round trips have zero prediction error.
+The returned final files match the remote SHA-256 values; workstation CUDA loading
+and local development inference remain pending. No development recording was
+transferred; remote development metrics remain explicitly unavailable.
+
+Both actual-contact stops pass with continuing physics. Corrected right native
+tracking also completes the full 145.48-second recording: all 7,218 post-warmup
+60 Hz local queries retain the same supported identity with nonzero between-capture
+temporal growth. Normal position bounds span about 4.94–31.71 mm, and full pose
+bounds remain distinct. This is an observed component result, not complete contact,
+sweep/admission qualification or learned execution. Earlier failures and historical
+budget proposals below remain preserved.
 
 ## Current observed-space integration
 

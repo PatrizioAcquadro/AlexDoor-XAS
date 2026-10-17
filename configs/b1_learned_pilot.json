@@ -146,9 +146,10 @@
     "prior_infrastructure_updates": 164,
     "initial_real_updates_per_cell": 3000,
     "additional_real_updates_total_remaining": 5836,
-    "remaining_gilbreth_jobs": 1,
-    "remaining_gilbreth_gpu_s": 3538,
-    "local_gpu_h": 3
+    "local_gpu_h": 15,
+    "gilbreth_gpu_s_total_max": 3600,
+    "gilbreth_job_ceiling": null,
+    "accounting": "Cumulative measured consumption is retained in the continuation evidence; these ceilings never reset."
   },
   "imitation_selection": "Two corrected train episodes (right dim, left bright) and two corrected development episodes; earlier valid nominal recordings remain independent references/evidence. All six collection attempts and all 24 learned outcomes stay counted.",
   "teacher_revision": "dae8e77 common reference-continuity correction, physical right diagnostic independently verified before remaining collection; same force/controller/physics and task starts"
