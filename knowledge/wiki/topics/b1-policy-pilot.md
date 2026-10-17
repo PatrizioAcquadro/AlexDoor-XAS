@@ -561,3 +561,10 @@ Physical pilot entry points write a case-start marker only after creating the
 actual Isaac environment. Launcher/preflight errors remain separate from physical
 cases; all created collection/replay/rollout environments remain accountable,
 including later refusals or failures.
+
+The physical entry point now latches the controller and continues physics for
+two seconds after collection/replay/rollout, preserving native speed, pose and
+contact diagnostics separately from imitation commands. A collection's final
+recording outcome includes this stop result; a failed tail cannot remain a valid
+imitation episode merely because the teacher's earlier release passed. Interrupted
+starts retain a separate stop prefix.

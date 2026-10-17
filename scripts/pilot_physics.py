@@ -140,6 +140,7 @@ def main():
         ),
     )
     started = perf_counter()
+    stop_attempted = False
     try:
         if args.mode == "collect":
             metadata = dict(
@@ -167,6 +168,17 @@ def main():
                     capture_evidence=False,
                     inspection=inspection,
                 )
+                from alexdoor_xas.qualification.stop import verify_stop_continuation
+
+                stop_attempted = True
+                result["teacher_cycle_passed"] = result["passed"]
+                result["post_stop"] = verify_stop_continuation(
+                    env, args.output / "post-stop.npz", force_limit_n=setup.force_limit_n
+                )
+                if not result["post_stop"]["passed"]:
+                    result["passed"] = False
+                    result["stop_reason"] = "post_stop_verification_failed"
+                recorder.finish(result)
             finally:
                 recorder.close()
             from alexdoor_xas.recording.b1 import validate_episode
@@ -177,6 +189,15 @@ def main():
             result = replay(env, args, protocol)
         else:
             result = rollout(env, args, protocol, robot, setup, inspection)
+        if not stop_attempted:
+            from alexdoor_xas.qualification.stop import verify_stop_continuation
+
+            stop_attempted = True
+            result["post_stop"] = verify_stop_continuation(
+                env, args.output / "post-stop.npz", force_limit_n=setup.force_limit_n
+            )
+            if not result["post_stop"]["passed"]:
+                result["passed"] = False
         result["wall_s"] = perf_counter() - started
         write_json(args.output / "report.json", result)
         print(json.dumps(result), flush=True)
@@ -189,6 +210,15 @@ def main():
         )
         raise
     finally:
+        if not stop_attempted:
+            from alexdoor_xas.qualification.stop import verify_stop_continuation
+
+            try:
+                verify_stop_continuation(
+                    env, args.output / "interrupted-stop.npz", force_limit_n=setup.force_limit_n
+                )
+            except Exception as stop_error:
+                write_json(args.output / "stop-failure.json", dict(error=repr(stop_error)))
         env.close()
         del app
     return 0 if result.get("passed") else 1
