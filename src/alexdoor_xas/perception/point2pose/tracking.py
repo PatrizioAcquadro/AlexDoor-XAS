@@ -35,6 +35,7 @@ from alexdoor_xas.perception.observed_articulation import (
 )
 from alexdoor_xas.perception.point2pose.seed import candidate_references, verify_candidate
 from alexdoor_xas.perception.scan import (
+    footprint_support,
     object_members,
     registered_support,
     static_material_witnesses,
@@ -609,7 +610,16 @@ class PanelTracking:
                     budget,
                     self.config,
                 )
-                clearance = selected.finger_clearance_m
+                # Publish measured material geometry separately from dynamic
+                # error. Admission charges the complete pose/calibration bounds
+                # against the actual action's footprint and sweep exactly once.
+                measured = footprint_support(
+                    candidate.surface,
+                    object_frame(candidate.initial_world),
+                    self.distal_faces,
+                    self.config,
+                )
+                clearance = measured.finger_clearance_m
                 self.diagnostics["selected_material_zone"] = vars(selected)
                 if tool is not None:
                     tool_budget = self.budget(candidate, now, tool_world=tool)

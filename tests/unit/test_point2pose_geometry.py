@@ -252,8 +252,11 @@ def test_contact_cover_can_be_localized_while_current_contact_depth_is_unknown()
     assert not contact_depth_supported(sensor(), zone, tool, faces, None)
 
 
+@pytest.mark.parametrize("eroded_clearance", [0.03, -0.02])
 @pytest.mark.parametrize("tool_x", [0.0, -0.2])
-def test_occluded_or_parked_tool_does_not_erase_selected_material_support(monkeypatch, tool_x):
+def test_occluded_or_parked_tool_does_not_erase_selected_material_support(
+    monkeypatch, tool_x, eroded_clearance
+):
     from types import SimpleNamespace
 
     import alexdoor_xas.perception.point2pose.tracking as module
@@ -291,9 +294,16 @@ def test_occluded_or_parked_tool_does_not_erase_selected_material_support(monkey
         module,
         "query_slip",
         lambda _surface, _initial, _zone, tool, *_args: SimpleNamespace(
-            finger_clearance_m=(None, None) if abs(tool.origin[0]) > 0.1 else (0.03, 0.03),
+            finger_clearance_m=(None, None)
+            if abs(tool.origin[0]) > 0.1
+            else (eroded_clearance, eroded_clearance),
             loaded_contact_admitted=False,
         ),
+    )
+    monkeypatch.setattr(
+        module,
+        "footprint_support",
+        lambda *_: SimpleNamespace(finger_clearance_m=(0.03, 0.03)),
     )
     monkeypatch.setattr(module, "contact_depth_supported", lambda *_args: False)
     monkeypatch.setattr(

@@ -580,3 +580,12 @@ sensors, TSDF work or a hardware-readiness claim. Retained RGB-D/calibration and
 clock provenance must establish usable common free space; no map, current
 observation or admission certificate is inferred from the camera visibility model.
 Unknown support and dynamic-door exclusions remain necessary checks.
+
+Local patch publication now keeps measured finite material clearances separate
+from the uncertainty-eroded slip diagnostic. The geometric query still preserves
+mask holes, finite finger covers, image/pixel support and its local depth tolerance.
+Pose, calibration and temporal errors remain explicit in `FieldSupport` and are
+charged by the action proof against its actual footprints/sweep. A negative slip
+margin does not erase the measured material model or itself admit a command.
+Missing measured support, missing error bounds and insufficient action margins
+still refuse. Current pixel visibility remains a separate occlusion diagnostic.

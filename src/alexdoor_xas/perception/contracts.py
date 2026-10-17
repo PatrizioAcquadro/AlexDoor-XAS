@@ -111,7 +111,11 @@ class OperationalState:
 
 @dataclass(frozen=True)
 class LocalPatchState:
-    """A material reference is independent of both a hinge and a chosen contact."""
+    """Measured material geometry, independent of a hinge or action permission.
+
+    Finger clearances describe the selected finite covers in the observed model.
+    Pose/calibration uncertainty remains separate and must be charged by admission.
+    """
 
     patch_id: str
     world_pose: ObjectFrame | None

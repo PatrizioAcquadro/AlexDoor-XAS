@@ -384,3 +384,11 @@ The resource reconciliation now separates physical prerequisite cases from fresh
 collection attempts, while charging every monitored workload. Case-count ceiling
 is removed by the user's instruction; six fresh demonstrations, 300 GiB storage,
 three local GPU hours and the prior remote/training ceilings remain unchanged.
+
+The saved observed/load component audit exposed another error-accounting overlap:
+local patch publication supplied already uncertainty-eroded clearances to a
+consumer that separately charges the complete pose/calibration errors. Local
+patches now publish the measured finite material model; the original eroded slip
+query remains diagnostic and the actual action proof retains all uncertainty
+terms. Numerical tests retain finite geometry, missing-support and narrow-margin
+refusals; physical qualification is still pending.

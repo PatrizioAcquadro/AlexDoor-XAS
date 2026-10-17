@@ -560,3 +560,8 @@ the same error formula and the interval's unchanged end time. Missing evidence,
 exhausted margins, identity changes and response-envelope exits still stop.
 This numerical contract does not qualify a physical sweep producer or contact
 recipe; the independent physical criteria remain unchanged.
+
+Published local material clearances describe measured finite support, while the
+slip diagnostic separately reports uncertainty-eroded compatibility. Action
+admission spends the explicit pose/calibration/temporal bounds against actual
+proposal clearances; it cannot infer permission from either field alone.
