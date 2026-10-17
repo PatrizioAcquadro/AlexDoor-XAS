@@ -6,6 +6,7 @@ import hashlib
 import json
 import math
 import os
+import signal
 import sys
 import traceback
 from pathlib import Path
@@ -17,6 +18,10 @@ sys.path.insert(0, str(REPO / "src"))
 
 def write_json(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
+
+
+def interrupt_run(signum, _frame):
+    raise KeyboardInterrupt(f"Pilot interrupted by signal {signum}")
 
 
 def main():
@@ -108,6 +113,7 @@ def main():
     cfg.seed = selected[0]["seed"]
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
     env = DoorPushPurdueEnv(cfg)
+    signal.signal(signal.SIGTERM, interrupt_run)
     write_json(
         args.output / "physical-case-start.json",
         dict(mode=args.mode, condition=condition, wall_time=time()),
@@ -158,6 +164,7 @@ def main():
                 args.output / "episode.hdf5", metadata, purpose="b1_partial_policy_pilot"
             )
             recorder.calibration = camera_calibration(env)
+            result = None
             try:
                 result = run_probe(
                     env,
@@ -179,6 +186,12 @@ def main():
                     result["passed"] = False
                     result["stop_reason"] = "post_stop_verification_failed"
                 recorder.finish(result)
+            except BaseException:
+                if result is not None:
+                    result["passed"] = False
+                    result["stop_reason"] = "collection_continuation_interrupted"
+                    recorder.finish(result)
+                raise
             finally:
                 recorder.close()
             from alexdoor_xas.recording.b1 import validate_episode
