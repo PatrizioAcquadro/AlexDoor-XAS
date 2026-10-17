@@ -309,6 +309,50 @@ def supported_material_zone(surface, distal_faces, config):
     return best
 
 
+def static_material_witnesses(surfaces, zone, distal_faces, config, semantic_id, error_m):
+    """Retain same-identity finite support from geometrically separated views.
+
+    These witness one selected local rigid material region, not a physical hinge
+    or the ownership of every part inside a semantic door mask.
+    """
+    from dataclasses import replace
+
+    if not np.isfinite(error_m) or error_m < config["plane_tolerance_m"]:
+        raise ValueError("missing_static_material_error_bound")
+    observations = []
+    for surface in surfaces:
+        if surface.normal @ zone.rot[:, 0] < np.cos(np.deg2rad(config["association_angle_deg"])):
+            continue
+        if abs(zone.origin @ surface.normal - surface.offset) > 2 * config["plane_tolerance_m"]:
+            continue
+        for observation in surface.observations:
+            if observation.semantic_id != semantic_id:
+                continue
+            one = replace(surface, observations=[observation])
+            support = footprint_support(one, zone, distal_faces, config)
+            if support.supported:
+                observations.append((observation, support))
+    witnesses = []
+    for observation, support in sorted(observations, key=lambda pair: pair[0].acquired_s):
+        origin = observation.camera_world[:3, 3]
+        if all(
+            np.linalg.norm(origin - np.asarray(w["camera_origin_m"])) > 2 * error_m
+            for w in witnesses
+        ):
+            witnesses.append(
+                dict(
+                    frame=int(observation.frame),
+                    acquired_s=float(observation.acquired_s),
+                    available_s=float(observation.available_s),
+                    semantic_id=int(semantic_id),
+                    camera_origin_m=origin.tolist(),
+                    finger_clearance_m=support.finger_clearance_m,
+                    position_error_m=float(error_m),
+                )
+            )
+    return tuple(witnesses)
+
+
 @dataclass(frozen=True)
 class SpaceSupport:
     collision_clearance_m: float | None

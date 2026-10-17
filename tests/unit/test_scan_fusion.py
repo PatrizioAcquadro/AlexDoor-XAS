@@ -448,3 +448,32 @@ def test_material_reference_uses_two_finite_fingers_and_preserves_holes():
     assert supported_material_zone(surface, impossible, recipe().config) is None
     # A line support cannot substitute for the calibrated finite contact band.
     assert supported_material_zone(surface, tuple(f[:2] for f in faces), recipe().config) is None
+
+
+def test_static_material_identity_needs_distinct_calibrated_views_and_two_fingers():
+    from alexdoor_xas.perception.scan import static_material_witnesses
+
+    faces = tuple(
+        np.array(
+            [[0, y - 0.02, -0.02], [0, y + 0.02, -0.02], [0, y + 0.02, 0.02], [0, y - 0.02, 0.02]]
+        )
+        for y in (-0.04, 0.04)
+    )
+    zone = ObjectFrame(np.array([1, 0, 1]), np.eye(3))
+    observed = []
+    for i, lateral in enumerate((-0.05, 0, 0.05)):
+        sensor = camera_sensor(i, 8 + i)
+        sensor["camera_world"][1, 3] = lateral
+        surface, _, _ = measured_surface(sensor)
+        surface.observations = [replace(o, semantic_id=0) for o in surface.observations]
+        observed.append(surface)
+    witnesses = static_material_witnesses(observed, zone, faces, recipe().config, 0, 0.005)
+    assert len(witnesses) == 3
+    assert (
+        len(static_material_witnesses([observed[0]] * 3, zone, faces, recipe().config, 0, 0.005))
+        == 1
+    )
+    assert not static_material_witnesses(observed, zone, faces, recipe().config, 99, 0.005)
+    assert not static_material_witnesses(
+        observed, zone, tuple(f + [0, 3, 0] for f in faces), recipe().config, 0, 0.005
+    )

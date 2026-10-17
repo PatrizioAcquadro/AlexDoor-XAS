@@ -37,6 +37,7 @@ from alexdoor_xas.perception.point2pose.seed import candidate_references, verify
 from alexdoor_xas.perception.scan import (
     object_members,
     registered_support,
+    static_material_witnesses,
     supported_material_zone,
     surface_support,
 )
@@ -62,6 +63,7 @@ class PanelCandidate:
     sam3_id: int | None = None
     p2p_object_id: int | None = None
     material_recovery_unverified: bool = False
+    static_material_witnesses: tuple = ()
 
 
 def metric_registration_bound(source, current, transform, depth_error_m):
@@ -250,7 +252,7 @@ class PanelTracking:
         self.last_submitted = int(sensor["frame"])
         return True
 
-    def adopt_candidates(self, candidates, sensor):
+    def adopt_candidates(self, candidates, sensor, scan_memory=None):
         """Attach robot-specific finite support without changing native tracking."""
         self.candidates = candidates
         if self.distal_faces is None:
@@ -273,6 +275,27 @@ class PanelTracking:
             candidate.object_from_zone = np.eye(4)
             candidate.static_reference = StaticReference.observed(
                 candidate.initial_world, candidate.geometry
+            )
+            if scan_memory is not None and self.calibration_bound is not None:
+                p, a = self.calibration_bound
+                if p is not None and a is not None:
+                    radius = np.linalg.norm(zone.origin - sensor["camera_world"][:3, 3])
+                    error = candidate.geometry.position_bound_m + p + 2 * radius * np.sin(a / 2)
+                    candidate.static_material_witnesses = static_material_witnesses(
+                        scan_memory.surfaces,
+                        zone,
+                        self.distal_faces,
+                        self.config,
+                        candidate.sam3_id,
+                        error,
+                    )
+                    if any(
+                        w["available_s"] > float(sensor["time_s"])
+                        for w in candidate.static_material_witnesses
+                    ):
+                        raise ValueError("future_static_material_witness")
+            self.diagnostics.setdefault("static_material_witnesses", {})[candidate.candidate_id] = (
+                candidate.static_material_witnesses
             )
 
     def select_zone(self, patch_id, now, *, source):
@@ -383,6 +406,16 @@ class PanelTracking:
             ] = consistent
             if consistent and (normal_travel > 2 * p or plane_angle > 2 * a):
                 candidate.ownership = "observed_moving_rigid_candidate"
+            elif (
+                candidate.ownership != "observed_moving_rigid_candidate"
+                and consistent
+                and self.selection is not None
+                and self.selection.patch_id == candidate.candidate_id
+                and len(candidate.static_material_witnesses) >= 3
+            ):
+                candidate.ownership = "observed_rigid_material"
+            elif candidate.ownership == "observed_rigid_material" and not consistent:
+                candidate.ownership = "ambiguous_leaf_candidate"
         result["adapter_latency_s"] = time.perf_counter() - started
         ready = (
             max(ready, float(clock())) if clock is not None else ready + result["adapter_latency_s"]

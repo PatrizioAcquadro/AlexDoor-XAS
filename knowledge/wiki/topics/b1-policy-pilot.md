@@ -531,3 +531,15 @@ criteria are unchanged. The contact monitor spends only its additional
 visible/collision-model discrepancy against the receipt's remaining margin, since
 that receipt already charges geometry, pose and robot errors. It still reports
 the complete uncertainty in the fingertip separation intervals.
+
+For bounded A1/A2 bootstrap, local material identity can be witnessed before
+opening: the explicitly selected semantic region must support both finite finger
+covers in at least three calibrated views whose camera origins are separated
+beyond twice the supplied geometry/calibration error. Witness frames, timestamps,
+origins and clearances are retained. Current native registration and measured
+root geometry must remain consistent before publishing `observed_rigid_material`.
+Missing calibration, repeated stationary views, semantic mismatch and insufficient
+finite support cannot establish this identity. This witnesses the selected local
+material, not a hinge, movable-leaf ownership for the whole mask or A3/A4 operational
+initialization. Independent intended-door/negative-case validation remains required
+before a pilot recipe is qualified.
