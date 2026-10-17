@@ -597,3 +597,13 @@ increment into the first hold endpoint, capped by the existing lead limit.
 Normal force targets, compression update, IK/controller and physical scoring are
 unchanged. Numerical endpoint continuity passes; physical verification of this
 specific handoff correction remains pending. Earlier scores remain original.
+
+`LoadCalibration` can optionally supply a three-coefficient empirical error bound
+for the robot tool-normal wrench projection, with an explicit maximum total-force
+upper bound for that weak-load domain. Native measured joints and calibrated FK
+supply the tool normal; its difference from the observed material normal carries
+the existing full wrench-error radius. The original total force upper bound,
+strong-load fallback, joint/speed/acceleration envelope and missing-data stops are
+unchanged. A scalar recipe must be independently validated before use; the optional
+fields do not change model or stop qualification flags. The current candidate
+remains unqualified and no live contact execution is enabled by this interface.

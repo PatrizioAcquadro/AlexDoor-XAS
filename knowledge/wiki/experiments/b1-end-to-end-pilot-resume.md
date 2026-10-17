@@ -409,3 +409,14 @@ screening but barely changes task hold availability, so it is not implemented.
 A direct robot-tool-normal error bound is under investigation: fit uses only
 unloaded robot calibration; independent known normal/tangential forces remain
 separate. No candidate calibration or operational qualification flags are promoted.
+
+The scalar normal-error candidate materially improves observed right push/hold
+availability without changing force thresholds, but its unrestricted loaded-speed
+calibration fails 34/3,204 available case-17 samples (maximum 0.0572 N undercoverage).
+It is not adopted as a global bound. The implementation therefore supports an
+explicit weak-load force-upper domain and retains the original conservative bound
+above it. The prospective 5 mN scalar floor comes from case-14 zero/tangential
+development noise, with speed/acceleration terms fitted only on unloaded robot
+motion. Known-force independent verification and the new actual contact handoff
+case must establish the final bounded recipe. Missing robot FK or partial optional
+configuration refuses; neither model/stop qualification flag is promoted.

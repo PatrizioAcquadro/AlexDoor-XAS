@@ -50,6 +50,8 @@ class LoadCalibration:
     stop_verified: bool = False
     velocity_residual_nm_per_rad_s: np.ndarray | None = None
     acceleration_residual_nm_per_rad_s2: np.ndarray | None = None
+    tool_normal_residual_n: np.ndarray | None = None  # constant, max |dq|, max |ddq|
+    tool_normal_force_upper_max_n: float | None = None
 
 
 @dataclass(frozen=True)
@@ -84,7 +86,18 @@ class ResidualLoadModel:
     def __init__(self, calibration):
         self.calibration = calibration
 
-    def estimate(self, feedback, expected_torque_nm, jacobian_world, q, dq, ddq, normal_world):
+    def estimate(
+        self,
+        feedback,
+        expected_torque_nm,
+        jacobian_world,
+        q,
+        dq,
+        ddq,
+        normal_world,
+        *,
+        tool_normal_world=None,
+    ):
         """J.T maps an external world wrench at the distal tool into joint torque.
 
         Full column rank is required. The pseudoinverse interval bound includes
@@ -145,6 +158,28 @@ class ResidualLoadModel:
             raise ValueError("invalid_load_normal")
         normal_lower = -normal @ wrench[:3] - np.abs(normal) @ radius[:3]
         upper = np.linalg.norm(wrench[:3]) + np.linalg.norm(radius[:3])
+        if c.tool_normal_residual_n is None and c.tool_normal_force_upper_max_n is not None:
+            raise ValueError("invalid_tool_normal_calibration")
+        if c.tool_normal_residual_n is not None:
+            coefficients = finite_vector(c.tool_normal_residual_n, 3)
+            maximum = c.tool_normal_force_upper_max_n
+            if (
+                np.any(coefficients < 0)
+                or maximum is None
+                or not np.isfinite(maximum)
+                or maximum <= 0
+            ):
+                raise ValueError("invalid_tool_normal_calibration")
+            # The scalar empirical envelope has an explicitly bounded weak-load
+            # domain. Stronger loads retain the original joint-box wrench bound.
+            if upper <= maximum:
+                tool_normal = finite_vector(tool_normal_world, 3)
+                if not np.isclose(np.linalg.norm(tool_normal), 1, atol=1e-6):
+                    raise ValueError("invalid_robot_tool_normal")
+                normal_error = coefficients @ [1.0, np.max(np.abs(dq)), np.max(np.abs(ddq))]
+                normal_error += np.linalg.norm(normal - tool_normal) * np.linalg.norm(radius[:3])
+                normal_lower = max(normal_lower, -normal @ wrench[:3] - normal_error)
+
         return LoadEstimate(
             feedback,
             wrench,
@@ -170,6 +205,7 @@ class PurdueLoadSource:
 
     def __call__(self, io, feedback):
         from alexdoor_xas.perception.contracts import validate_local_contact
+        from alexdoor_xas.recording.b1_runtime import array
 
         env = io.env
         estimate = io.safety.provider.last_estimate
@@ -193,6 +229,11 @@ class PurdueLoadSource:
             or not np.isclose(times[-1] - times[0], 1 / 120, atol=1e-9, rtol=0)
         ):
             raise ValueError("missing_physics_load_samples")
+        neck = (
+            array(env.capture.sample.joint_position)[0, 7:].copy()
+            if self.model.calibration.tool_normal_residual_n is not None
+            else None
+        )
         loads = [
             self.model.estimate(
                 sample.feedback,
@@ -202,6 +243,14 @@ class PurdueLoadSource:
                 sample.dq,
                 sample.ddq,
                 normal,
+                tool_normal_world=(
+                    io.tool_fk(
+                        np.r_[sample.q, neck],
+                        io.calibration,
+                    ).rot[:, 0]
+                    if self.model.calibration.tool_normal_residual_n is not None
+                    else None
+                ),
             )
             for sample in samples
         ]

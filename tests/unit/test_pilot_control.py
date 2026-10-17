@@ -367,3 +367,33 @@ def test_local_receipt_refuses_exhausted_margin_or_missing_evidence(change):
     current = replace(estimate, local=replace(estimate.local, patches=(patch,)))
     with pytest.raises(ValueError, match=reason):
         require_current_admission(receipt, current, 1 + 1 / 60)
+
+
+def test_scalar_tool_normal_calibration_is_optional_and_weak_load_bounded():
+    original_model, jacobian, original_load = load_inputs()
+    calibration, feedback = original_model.calibration, original_load.feedback
+    # Identity wrench coordinates with a redundant seventh measurement.
+    q = dq = ddq = np.zeros(7)
+    weak = replace(feedback, torque_nm=np.array([-0.1, 0, 0, 0, 0, 0, 0]))
+    normal = np.array([1.0, 0, 0])
+    base = ResidualLoadModel(calibration).estimate(weak, np.zeros(7), jacobian, q, dq, ddq, normal)
+    calibrated = replace(
+        calibration,
+        tool_normal_residual_n=np.array([0.005, 0.1, 0.01]),
+        tool_normal_force_upper_max_n=1.0,
+    )
+    model = ResidualLoadModel(calibrated)
+    tight = model.estimate(
+        weak, np.zeros(7), jacobian, q, dq, ddq, normal, tool_normal_world=normal
+    )
+    assert tight.normal_lower_n > base.normal_lower_n
+    assert tight.force_upper_n == base.force_upper_n
+    assert tight.model_verified == base.model_verified
+    with pytest.raises(ValueError):
+        model.estimate(weak, np.zeros(7), jacobian, q, dq, ddq, normal)
+    strong = model.estimate(feedback, np.zeros(7), jacobian, q, dq, ddq, normal)
+    original = ResidualLoadModel(calibration).estimate(
+        feedback, np.zeros(7), jacobian, q, dq, ddq, normal
+    )
+    assert strong.normal_lower_n == original.normal_lower_n
+    np.testing.assert_array_equal(tight.residual_error_nm, base.residual_error_nm)
