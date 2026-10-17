@@ -765,3 +765,20 @@ existing travel ceiling by returning to its anchor. Identity, sweep receipts,
 verified load, confirmation/loss, stop behavior and independent physical thresholds
 remain unchanged. Numerical contact/no-contact/loss/ambiguity cases pass; complete
 physical false-admission/miss/delay/coverage measurements remain pending.
+
+A saved-input wiring audit identifies a separate initialization defect in the old
+ad-hoc component replay: it passed rank-one distal extrema to a finite-footprint
+query. The existing maintained `PushGeometry.contact_covers()` supplies rank-two
+covers; without changing masks, zones or observations, the two saved train seeds
+then each provide a valid finite zone and 13 static material witnesses. This is
+an input-geometry correction, not qualified ownership or a new native result.
+Corrected-convention component replay is prepared with finite covers, full observed
+robot-return exclusion and explicit diagnostic selection; it awaits local budget.
+
+Current-capture normal bounds need no assumed future speed. Without a measured
+speed model they are available at the exact source timestamp and become unavailable
+between captures; no zero-motion bound is fabricated. The preserved whole-finite
+model discrepancy reaches 1.973 mm, so the existing 3 mm reserve is retained.
+A temporary unqualified 1 mm reserve proposal is preserved as incomplete and was
+never used for physical admission. Complete calibration/contact/sweep validation
+remains required.

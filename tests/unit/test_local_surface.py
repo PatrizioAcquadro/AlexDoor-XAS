@@ -159,3 +159,51 @@ def test_measured_plane_fixes_anchor_normal_and_retains_contradictory_pair_error
             0.001,
             map_anchor=anchor + [0.1, 0, 0],
         )
+
+
+def test_current_normal_bounds_do_not_invent_between_capture_speed():
+    from alexdoor_xas.perception.contracts import FieldSupport
+    from alexdoor_xas.perception.point2pose.tracking import PanelCandidate, PanelTracking
+
+    observed = surface(np.eye(3), np.array([1, 0, 0]))
+    points = observed.points[::20]
+    constraint = constrained_surface_pose(
+        observed,
+        observed,
+        np.eye(4),
+        np.eye(4),
+        points,
+        points,
+        0.001,
+        map_anchor=observed.points.mean(0),
+    )
+    anchor = np.eye(4)
+    anchor[:3, 3] = observed.points.mean(0)
+    candidate = PanelCandidate(
+        "m",
+        observed,
+        anchor,
+        anchor.copy(),
+        np.eye(4),
+        FieldSupport(0, 0, 0, 0, 0.004, 0.01),
+        pose=anchor.copy(),
+        support=FieldSupport(1, 1, 1, 0),
+        camera_world=np.eye(4),
+        state="tracked",
+        ownership="observed_rigid_material",
+        local_constraint=constraint,
+    )
+    tracking = PanelTracking(
+        SimpleNamespace(reset=lambda: None),
+        {"local_surface_constraint": {"point_error_m": 0.001, "normal_model_bound_rad": 0.001}},
+        calibration_bound=(0.0001, 0.001),
+        relative_speed_bound=None,
+    )
+    tracking.candidates = [candidate]
+    current = tracking.local_state(1).patches[0]
+    assert current.normal_position_bound_m > 0
+    assert current.normal_rotation_bound_rad > 0
+    later = tracking.local_state(1.01).patches[0]
+    assert later.normal_position_bound_m is None
+    assert later.normal_rotation_bound_rad is None
+    assert later.pose_support.position_bound_m is None

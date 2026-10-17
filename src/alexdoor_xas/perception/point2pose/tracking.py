@@ -738,29 +738,44 @@ class PanelTracking:
             normal_rotation_bound = None
             calibration_angle = (self.calibration_bound or (None, None))[1]
             angular_speed = (self.relative_speed_bound or (None, None))[1]
+            age = None if support is None else max(0.0, now - support.supported_s)
+            angular_growth = (
+                0.0
+                if age == 0
+                else None
+                if age is None or angular_speed is None
+                else age * angular_speed
+            )
             if (
                 candidate.local_constraint is not None
                 and fresh
                 and calibration_angle is not None
-                and angular_speed is not None
-                and np.isfinite([calibration_angle, angular_speed]).all()
-                and min(calibration_angle, angular_speed) >= 0
+                and angular_growth is not None
+                and np.isfinite([calibration_angle, angular_growth]).all()
+                and min(calibration_angle, angular_growth) >= 0
             ):
                 normal_rotation_bound = (
                     candidate.local_constraint.normal_rotation_bound_rad
                     + self.config["local_surface_constraint"]["normal_model_bound_rad"]
                     + calibration_angle
-                    + max(0.0, now - support.supported_s) * angular_speed
+                    + angular_growth
                 )
             normal_position_bound = None
             calibration_position = (self.calibration_bound or (None, None))[0]
             linear_speed = (self.relative_speed_bound or (None, None))[0]
+            linear_growth = (
+                0.0
+                if age == 0
+                else None
+                if age is None or linear_speed is None
+                else age * linear_speed
+            )
             if (
                 normal_rotation_bound is not None
                 and calibration_position is not None
-                and linear_speed is not None
-                and np.isfinite([calibration_position, linear_speed]).all()
-                and min(calibration_position, linear_speed) >= 0
+                and linear_growth is not None
+                and np.isfinite([calibration_position, linear_growth]).all()
+                and min(calibration_position, linear_growth) >= 0
             ):
                 constraint = candidate.local_constraint
                 camera_lever = np.linalg.norm(candidate.pose[:3, 3] - candidate.camera_world[:3, 3])
@@ -776,7 +791,7 @@ class PanelTracking:
                     )
                     + calibration_position
                     + 2 * camera_lever * np.sin(min(calibration_angle, np.pi) / 2)
-                    + max(0.0, now - support.supported_s) * linear_speed
+                    + linear_growth
                 )
             patches.append(
                 LocalPatchState(
