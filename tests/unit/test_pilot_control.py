@@ -473,3 +473,53 @@ def test_actual_response_is_checked_after_real_dispatch_and_latched(
         with pytest.raises(RuntimeError, match="motion_stopped"):
             io.execute(command)
         assert events.count("executed") == 1
+
+
+def test_loaded_alignment_uses_the_supported_normal_without_discarding_full_pose_error():
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    patch = replace(
+        patch,
+        pose_support=replace(patch.pose_support, rotation_bound_rad=0.2),
+        normal_rotation_bound_rad=0.01,
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    wide = replace(evidence, finger_clearance_m=(0.1, 0.1), collision_clearance_m=0.1)
+    receipt = admit_local_action(estimate, proposal, wide, limits, 1, generation=0)
+    assert receipt.admitted
+    setup = SimpleNamespace(max_joint_speed=0.5, orientation_tolerance=0.087, force_limit_n=10)
+    checks = ObservedControlChecks(setup)
+    sensor = dict(
+        time_s=1,
+        joint_position=np.zeros(9),
+        joint_velocity=np.zeros(9),
+        rgb=np.ones((1, 1, 3)),
+        valid_depth=np.ones((1, 1), bool),
+    )
+    _, _, load = load_inputs()
+    args = (
+        sensor,
+        estimate,
+        proposal.world_poses[0],
+        np.tile([-2, 2], (7, 1)),
+        "contact",
+        np.zeros(2),
+    )
+    # Normal alignment passes; the independent contact/load monitor is still required.
+    assert (
+        checks.check(
+            *args, profile=OPERATIONAL_V1, feedback=load.feedback, admission=receipt, load=load
+        )
+        == "operational_contact_monitor_unconfigured"
+    )
+    ambiguous = replace(patch, normal_rotation_bound_rad=0.2)
+    bad = replace(estimate, local=replace(estimate.local, patches=(ambiguous,)))
+    assert (
+        checks.check(
+            sensor, bad, *args[2:], profile=OPERATIONAL_V1, feedback=load.feedback, load=load
+        )
+        == "observed_contact_orientation"
+    )
+    # Full pose error still spends finite footprint/sweep clearance.
+    narrow = replace(wide, finger_clearance_m=(0.005, 0.005))
+    assert not admit_local_action(estimate, proposal, narrow, limits, 1, generation=0).admitted

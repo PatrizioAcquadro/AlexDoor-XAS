@@ -83,9 +83,11 @@ class ObservedControlChecks:
                 patch = validate_local_contact(estimate.local, float(sensor["time_s"]))
                 contact = patch.world_pose
                 support = patch.pose_support
+                normal_bound = patch.normal_rotation_bound_rad
             else:
                 from alexdoor_xas.action.frames import ObjectFrame
 
+                normal_bound = None
                 contact = ObjectFrame(estimate.contact_position, estimate.contact_rotation)
                 support = (
                     estimate.operational.contact.world_support
@@ -94,7 +96,13 @@ class ObservedControlChecks:
                 )
             normal = contact.rot[:, 0]
             alignment = np.arccos(np.clip(tool.rot[:, 0] @ normal, -1, 1))
-            orientation_bound = support.rotation_bound_rad if support is not None else 0
+            orientation_bound = (
+                normal_bound
+                if normal_bound is not None
+                else support.rotation_bound_rad
+                if support is not None
+                else 0
+            )
             if admission is not None:
                 orientation_bound += admission.limits.robot_rotation_bound_rad
             if alignment + orientation_bound > self.setup.orientation_tolerance:

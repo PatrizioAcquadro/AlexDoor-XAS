@@ -452,3 +452,25 @@ def test_provider_converts_source_pixel_centers_once_before_all_geometry(tmp_pat
         np.testing.assert_array_equal(provider.static[0].observations[0].intrinsics, expected)
     finally:
         provider.close()
+
+
+def test_geometry_robot_exclusion_preserves_raw_depth_and_policy_validity(tmp_path, geometry):
+    session = PerceptionSession(
+        "unused", recipe(), {}, tmp_path, tracking=False, sam_worker=Sam([[7]])
+    )
+    engine = Point2PoseEngine(lambda _: session, replay=True, capture_session=True)
+    removed = np.zeros((80, 80), bool)
+    removed[20:30, 25:35] = True
+    provider = module.SessionProvider(
+        recipe(), engine, tracking=False, geometry_filter=lambda sensor, raw: removed
+    )
+    observed = sensor(4, 0)
+    try:
+        provider.update(observed)
+        assert provider.consume_results(engine.pending[1]["available_s"])
+        captured, _ = provider.last_publication
+        assert not captured["valid_depth"][removed].any()
+        np.testing.assert_array_equal(captured["depth_m"], observed["depth_m"])
+        assert observed["valid_depth"].all()
+    finally:
+        provider.close()

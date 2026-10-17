@@ -68,3 +68,7 @@ belong in Git history, not in agent context.
 - 2026-10-16: Corrected the independently demonstrated RTX pixel-center convention
   at pilot geometry ingress, retaining raw data and explicit uncertainty; see
   [[experiments/b1-end-to-end-pilot-resume]].
+
+- 2026-10-16: Added opt-in observed plane/edge constraints for local A1/A2 pose and
+  explicit normal-direction uncertainty, preserving native/global diagnostics and
+  missing-support refusals; [[experiments/b1-end-to-end-pilot-resume]].

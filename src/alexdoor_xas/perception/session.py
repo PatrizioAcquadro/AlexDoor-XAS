@@ -376,6 +376,9 @@ class PerceptionSession:
             self.engine.submit(sensor, [mask])
             native_result = self.engine.result
             state = "tracking" if present else "selected_identity_absent"
+        local_surfaces = None
+        if self.config.get("local_surface_constraint") is not None and native_result is not None:
+            local_surfaces = surfaces(cue, sensor, self.config, dominant_only=True)
         result = dict(native_result or dict(objects=[]))
         native_s = 0 if native_result is None else native_result["latency_s"]
         result.update(
@@ -384,6 +387,7 @@ class PerceptionSession:
             latency_s=time.perf_counter() - started,
             sam3=meta,
             cue=cue,
+            local_surfaces=local_surfaces,
             semantic_absent=not present,
             identity=dict(
                 sam3_id=self.identity,
@@ -471,6 +475,7 @@ class SessionProvider:
         tracking=True,
         synchronous_simulation=False,
         inference_period_s=0.0,
+        geometry_filter=None,
         **tracking_options,
     ):
         self.binding, self.config, self.engine = recipe, recipe.config, engine
@@ -484,6 +489,7 @@ class SessionProvider:
             or not 0 <= inference_period_s <= self.config["max_gap_s"]
         ):
             raise ValueError("invalid_geometry_inference_period")
+        self.geometry_filter = geometry_filter
         self.synchronous_simulation = synchronous_simulation
         self.inference_period_s = inference_period_s
         self.tracking = (
@@ -555,6 +561,7 @@ class SessionProvider:
                     clock=self.engine.clock if self.synchronous_simulation else None,
                 )
                 ready = self.tracking.diagnostics["available_s"]
+                self.tracking.constrain_local(captured, result)
             self.diagnostics["tracking"] = self.tracking.diagnostics
         self.current_space.views.clear()
         self.current_space.add(captured, ready)
@@ -716,6 +723,16 @@ class SessionProvider:
         if reason:
             self.reset(preload=False)
             return DoorEstimate(t, False, reason)
+        if self.geometry_filter is not None:
+            try:
+                removed = np.asarray(self.geometry_filter(sensor, observation))
+                if removed.dtype != bool or removed.shape != depth.shape[:2]:
+                    raise ValueError("invalid_robot_geometry_filter")
+                sensor["valid_depth"] = sensor["valid_depth"].copy()
+                sensor["valid_depth"][removed] = False
+            except (ValueError, KeyError) as error:
+                self.reset(preload=False)
+                return DoorEstimate(t, False, str(error))
         # A capture gap does not fabricate intermediate SAM/P2P steps. Staleness
         # remains visible in support times; only explicit reset starts a new identity.
         self.last_time, self.last_frame = t, frame

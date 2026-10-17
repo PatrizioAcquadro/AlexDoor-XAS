@@ -703,3 +703,18 @@ Pilot preparation records explicit exclusions and whether their unused raw files
 are present on the current host. It does not require transferring excluded nominal
 labels to Gilbreth and does not claim that remote preparation verified workstation
 retention. Eligible train/development inputs remain mandatory.
+
+An opt-in local surface constraint now combines the existing SAM3 depth plane,
+a conditioned observed vertical edge and every measured native registration
+inlier. It recomputes the translation residual and propagates finite plane/edge
+baseline errors from an explicit metric point bound. Missing/ambiguous/degenerate
+geometry or failed material consistency remains unavailable. Native poses and
+A3/A4 diagnostics stay unchanged; no operational qualification is inferred.
+
+The local contact contract can carry a separately supported normal-direction
+error. Loaded alignment uses that direction bound while full pose uncertainty
+continues to erode finite footprints and sweeps. Rotation about a surface normal
+is not uncertainty in the normal direction. Without separate evidence the prior
+full rotation bound remains the fallback. Geometry ingress can exclude calibrated
+robot returns from geometric support while preserving raw policy RGB-D/validity;
+excluded pixels remain unobserved.

@@ -18,6 +18,7 @@ from alexdoor_xas.perception.contracts import (
 )
 from alexdoor_xas.perception.geometry import contact_frame, project, similar_surface
 from alexdoor_xas.perception.ipc import unpack_array
+from alexdoor_xas.perception.local_surface import SurfacePose, constrained_surface_pose
 from alexdoor_xas.perception.material_zone import (
     BoundSource,
     ContactBudget,
@@ -65,6 +66,8 @@ class PanelCandidate:
     p2p_object_id: int | None = None
     material_recovery_unverified: bool = False
     static_material_witnesses: tuple = ()
+    local_constraint: SurfacePose | None = None
+    local_constraint_reason: str = "local_surface_not_processed"
 
 
 def metric_registration_bound(source, current, transform, depth_error_m):
@@ -113,6 +116,15 @@ class PanelTracking:
         relative_speed_bound=None,
     ):
         self.engine, self.config = engine, config
+        constraint = config.get("local_surface_constraint")
+        if constraint is not None and (
+            not isinstance(constraint, dict)
+            or set(constraint) != {"point_error_m", "normal_model_bound_rad"}
+            or not np.isfinite(list(constraint.values())).all()
+            or constraint["point_error_m"] <= 0
+            or constraint["normal_model_bound_rad"] < 0
+        ):
+            raise ValueError("invalid_local_surface_constraint_recipe")
         self.calibration, self.tool_fk, self.distal_faces = calibration, tool_fk, distal_faces
         self.calibration_bound = calibration_bound
         self.relative_speed_bound = relative_speed_bound
@@ -448,6 +460,69 @@ class PanelTracking:
             candidates=len(self.candidates),
         )
 
+    def constrain_local(self, captured, result):
+        """Constrain only A1/A2 local pose; native/A3/A4 diagnostics stay unchanged."""
+        config = self.config.get("local_surface_constraint")
+        if config is None:
+            return
+        for candidate, raw in zip(self.candidates, result["objects"], strict=True):
+            candidate.local_constraint = None
+            try:
+                if candidate.state != "tracked" or candidate.material_recovery_unverified:
+                    raise ValueError("unavailable_native_material_identity")
+                choices = [
+                    s
+                    for s in (result.get("local_surfaces") or [])
+                    if s.observations[0].semantic_id == candidate.sam3_id and abs(s.normal[2]) < 0.3
+                ]
+                areas = [int(s.observations[0].mask().sum()) for s in choices]
+                if not areas or areas.count(max(areas)) != 1:
+                    raise ValueError("missing_or_ambiguous_current_surface")
+                current = choices[int(np.argmax(areas))]
+                if current.observations[0].frame != int(captured["frame"]):
+                    raise ValueError("unsynchronized_local_surface")
+                obj = {
+                    k: unpack_array(v) if isinstance(v, dict) and "data" in v else v
+                    for k, v in raw.items()
+                }
+                measured = obj["measured_correspondences"] & obj["inliers"]
+                constraint = constrained_surface_pose(
+                    candidate.surface,
+                    current,
+                    candidate.initial_world @ np.linalg.inv(candidate.map_from_object),
+                    captured["camera_world"],
+                    obj["source_points"][measured],
+                    obj["current_points"][measured],
+                    config["point_error_m"],
+                )
+                local = self._constrained_candidate(candidate, constraint)
+                if not self.root_consistent(local, captured):
+                    raise ValueError("local_surface_material_inconsistent")
+                candidate.local_constraint = constraint
+                candidate.local_constraint_reason = ""
+            except (ValueError, KeyError) as error:
+                candidate.local_constraint_reason = str(error)
+            self.diagnostics.setdefault("local_surface_constraint", {})[candidate.candidate_id] = {
+                "available": candidate.local_constraint is not None,
+                "reason": candidate.local_constraint_reason,
+                "native_pose_unchanged": True,
+            }
+
+    @staticmethod
+    def _constrained_candidate(candidate, constraint):
+        return replace(
+            candidate,
+            pose=transported_zone(
+                candidate.camera_world,
+                constraint.camera_from_map,
+                candidate.map_from_object,
+                candidate.object_from_zone,
+            ),
+            registration_origin_map=constraint.registration_origin_map,
+            registration_position_m=constraint.position_bound_m,
+            registration_rotation_rad=constraint.rotation_bound_rad,
+        )
+
     def root_consistent(self, candidate, sensor):
         motion = candidate.pose @ np.linalg.inv(candidate.initial_world)
         points = candidate.surface.points[:: max(1, len(candidate.surface.points) // 64)]
@@ -547,14 +622,23 @@ class PanelTracking:
     def local_state(self, now, sensor=None):
         patches = []
         for candidate in self.candidates:
+            constraint_reason = ""
+            if self.config.get("local_surface_constraint") is not None:
+                if candidate.local_constraint is None:
+                    constraint_reason = candidate.local_constraint_reason
+                else:
+                    candidate = self._constrained_candidate(candidate, candidate.local_constraint)
             fresh = (
-                candidate.state == "tracked"
+                not constraint_reason
+                and candidate.state == "tracked"
                 and candidate.support is not None
                 and candidate.support.available_s <= now
                 and 0 <= now - candidate.support.supported_s <= MAX_DYNAMIC_AGE_S + 1e-9
             )
             reason = (
-                "material_recovery_unverified"
+                constraint_reason
+                if constraint_reason
+                else "material_recovery_unverified"
                 if candidate.material_recovery_unverified
                 else "ambiguous_leaf_ownership"
                 if fresh and candidate.ownership == "ambiguous_leaf_candidate"
@@ -648,6 +732,23 @@ class PanelTracking:
                         else "interface_unobserved_or_occluded",
                         contact_admitted=False,
                     )
+            normal_rotation_bound = None
+            calibration_angle = (self.calibration_bound or (None, None))[1]
+            angular_speed = (self.relative_speed_bound or (None, None))[1]
+            if (
+                candidate.local_constraint is not None
+                and fresh
+                and calibration_angle is not None
+                and angular_speed is not None
+                and np.isfinite([calibration_angle, angular_speed]).all()
+                and min(calibration_angle, angular_speed) >= 0
+            ):
+                normal_rotation_bound = (
+                    candidate.local_constraint.normal_rotation_bound_rad
+                    + self.config["local_surface_constraint"]["normal_model_bound_rad"]
+                    + calibration_angle
+                    + max(0.0, now - support.supported_s) * angular_speed
+                )
             patches.append(
                 LocalPatchState(
                     candidate.candidate_id,
@@ -666,6 +767,7 @@ class PanelTracking:
                     ),
                     tracking_state="tracking" if fresh else "unavailable",
                     ownership=candidate.ownership,
+                    normal_rotation_bound_rad=normal_rotation_bound,
                     uncertainty_sources=tuple(
                         (s.name, s.position_m, s.rotation_rad, s.lever_m) for s in budget.sources
                     ),

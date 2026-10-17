@@ -491,3 +491,19 @@ all 180 hold ticks pass on each door. Actual joint peaks are 0.3202/0.2844 rad/s
 and two-second stop travel is 0.02056/0.02077 mm. Both retain complete native
 feedback and 20-joint states with reconstructible supervisor-only A3/A4 labels.
 The fixed nominal expert references remain 51.2603/52.5360 degrees.
+
+Saved observed plane/edge constraints with all measured native inliers reduce
+maximum translation residuals to 28.11/11.14 mm on the fixed right/left sparse
+samples; unrestricted native pairs contain extreme outliers and are retained as
+a rejected diagnostic. Conservative conditioned bounds and missing-edge refusal
+are implemented only as an opt-in local path. Old native maps still use the old
+pixel convention and cannot qualify corrected operational tracking.
+
+A separate evaluator-only ray/triangle audit now checks the reconstructed points
+against authored visible Panel/Handle/Frame meshes. An initial evaluator sign
+conversion error is preserved and explicitly superseded. With the correct native
+angle, 335,999 of 336,000 selected points have independent reference hits; maximum
+range errors are 0.02931/0.00636 mm. One right boundary ray has no reference hit
+and remains explicit. This supports a bounded ideal-simulation point-model study;
+it does not establish full scene coverage, collision-model equivalence, hardware
+accuracy or contact-monitor precision/recall.

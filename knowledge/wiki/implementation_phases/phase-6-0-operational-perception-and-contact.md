@@ -581,3 +581,10 @@ at observed session ingress and static-workspace reading. Raw calibration remain
 unchanged; disagreement between recipe and recording refuses. This fixes metric
 projection without qualifying missing contact, pose, sensor or collision bounds;
 see [[../experiments/b1-end-to-end-pilot-resume|the preserved numerical checks]].
+
+The pilot local constraint can combine current measured plane/edge orientation
+with native measured point correspondences without changing A3/A4 frames. Its
+metric point, model and conditioning errors stay explicit. A separately supported
+normal-direction error can serve loaded alignment while the complete pose bound
+still erodes action footprints and swept space; missing direction evidence retains
+the full rotation bound. Qualification and contact/clearance tests remain open.
