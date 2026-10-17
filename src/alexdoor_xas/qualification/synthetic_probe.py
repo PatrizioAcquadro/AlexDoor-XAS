@@ -151,6 +151,15 @@ class ContactLoad:
         return gap is not None and gap <= self.maximum_gap and self.force >= self.minimum_force
 
 
+def hold_initial_lead(reference, angle, reference_step, lead_limit):
+    """Carry the final commanded angular increment into the first hold endpoint.
+
+    The incoming reference describes the last completed interval. Reusing it as
+    the next endpoint pauses a moving unilateral push for one control tick.
+    """
+    return min(reference + max(0.0, reference_step) - angle, lead_limit)
+
+
 def hold_reference(angle, initial_lead, mechanical_stop):
     """Material-following coordinates for pressure-regulated unilateral holding.
 
@@ -580,10 +589,13 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
             failure = "no_loaded_contact"
     if not failure:
         reference = state[0]
+        reference_step = 0.0
         compression = setup.compression_m if compression is None else compression
         for tick in range(round(setup.horizon_s / dt)):
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
+            previous_reference = reference
             reference = push_reference(reference, angle, setup, dt, door.mechanical_stop)
+            reference_step = reference - previous_reference
             compression = normal_contact_support(compression, contact_load.force, setup, dt)
             state = command(
                 *door.contact_pose(
@@ -699,7 +711,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
     held_angle = None
     if failure is None:
         held = SustainedAngle(setup.sustain_s)
-        initial_lead = reference - state[0]
+        initial_lead = hold_initial_lead(reference, state[0], reference_step, setup.lead_angle)
         missing_time = 0.0
         for tick in range(round(setup.hold_settle_s / dt)):
             compression = normal_contact_support(

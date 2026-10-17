@@ -248,3 +248,14 @@ def test_pressure_hold_reduces_force_target_without_changing_physical_contact_sc
         )
         < 0.003
     )
+
+
+def test_hold_handoff_carries_completed_reference_velocity_without_extra_lead():
+    from alexdoor_xas.qualification.synthetic_probe import hold_initial_lead, hold_reference
+
+    reference, angle, step = 0.9, 0.899, 0.00015
+    lead = hold_initial_lead(reference, angle, step, 0.005)
+    assert hold_reference(angle, lead, 2) == pytest.approx(reference + step)
+    assert hold_initial_lead(reference, angle, 0, 0.005) == pytest.approx(reference - angle)
+    assert hold_initial_lead(reference, angle, 0.02, 0.005) == 0.005
+    assert hold_reference(angle, lead, 0.9001) == 0.9001

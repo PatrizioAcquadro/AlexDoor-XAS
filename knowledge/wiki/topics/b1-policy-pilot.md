@@ -589,3 +589,11 @@ charged by the action proof against its actual footprints/sweep. A negative slip
 margin does not erase the measured material model or itself admit a command.
 Missing measured support, missing error bounds and insufficient action margins
 still refuse. Current pixel visibility remains a separate occlusion diagnostic.
+
+The saved valid teacher cycles contain a brief push-to-hold unloading interval.
+The first hold endpoint reused the just-completed push reference, pausing it for
+one control tick. The common handoff now carries the final commanded angular
+increment into the first hold endpoint, capped by the existing lead limit.
+Normal force targets, compression update, IK/controller and physical scoring are
+unchanged. Numerical endpoint continuity passes; physical verification of this
+specific handoff correction remains pending. Earlier scores remain original.

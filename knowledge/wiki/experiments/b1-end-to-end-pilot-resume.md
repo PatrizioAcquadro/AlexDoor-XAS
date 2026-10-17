@@ -392,3 +392,20 @@ patches now publish the measured finite material model; the original eroded slip
 query remains diagnostic and the actual action proof retains all uncertainty
 terms. Numerical tests retain finite geometry, missing-support and narrow-margin
 refusals; physical qualification is still pending.
+
+Saved right native contacts expose about 83 ms of zero force at the hold handoff,
+including one unloaded physical-score tick; the earlier final-half-second hold
+criterion still passes and is not relabeled. The first hold endpoint equals the
+last completed push endpoint instead of the next interval's endpoint. A common
+correction carries the last commanded angular increment into the initial hold
+lead, bounded by the existing 0.3-degree limit. This tests a concrete reference
+continuity cause, without raising force targets or changing physics/acceptance.
+Numerical continuity and mechanical-stop checks pass; an independent physical
+case is required before treating the correction as demonstrated.
+
+A componentwise residual-bound candidate undercovers independent loaded/moving
+robot samples and is rejected. A coupled wrench-interval calculation passes its
+screening but barely changes task hold availability, so it is not implemented.
+A direct robot-tool-normal error bound is under investigation: fit uses only
+unloaded robot calibration; independent known normal/tangential forces remain
+separate. No candidate calibration or operational qualification flags are promoted.
