@@ -321,7 +321,14 @@ class ObservedContactMonitor:
                     self.latched_reason = "contact_acquisition_budget"
                     status, reason = "lost", self.latched_reason
             self.last = now, relative.copy(), motion_uncertainty, tool.origin.copy()
-            self.result = ContactEvidence(status, reason, now, intervals, force, uncertainty)
+            self.result = ContactEvidence(
+                status,
+                reason,
+                now,
+                intervals,
+                force,
+                uncertainty + max(abs(x) for x in depth_range),
+            )
             return self.result
         except (ValueError, TypeError, AttributeError, IndexError) as error:
             self.confirm_started = None

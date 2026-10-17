@@ -539,6 +539,7 @@ class SessionProvider:
         self.scan_memory = ScanMemory(self.config, self.generation)
         self.current_space = ObservedSpace(self.config, self.generation)
         self.scan_available = {}  # Bounded by the stationary inspection window.
+        self.material_views = []
         self.last_time = self.last_frame = self.last_estimate = self.last_cue = None
         self.last_publication = None
         self.last_submitted_s = None
@@ -587,6 +588,24 @@ class SessionProvider:
                 )
         result["cue"]["available_s"] = ready
         self.last_cue = captured, result["cue"]
+        material_view = None
+        if self.config.get("material_depth_cover") is not None and any(
+            abs(float(captured["time_s"]) - sample) < 1e-9
+            for sample in self.config["inspection"]["sample_times_s"]
+        ):
+            material_view = {
+                key: np.array(captured[key], copy=True)
+                for key in (
+                    "time_s",
+                    "frame",
+                    "depth_m",
+                    "valid_depth",
+                    "intrinsics",
+                    "camera_world",
+                )
+            }
+            material_view.update(semantic=result["cue"], available_s=ready)
+            self.material_views.append(material_view)
         if self.tracking:
             if result["initial_candidates"]:
                 # Worker-local latency estimates are not publication clocks.
@@ -603,6 +622,7 @@ class SessionProvider:
                 self.tracking.adopt_candidates(
                     result["initial_candidates"], captured, self.scan_memory, available_s=ready
                 )
+                self.tracking.attach_material_cover(self.material_views)
                 self.tracking.diagnostics["binding"] = result["binding"]
                 if self.local_selection_source is not None and len(self.tracking.candidates) == 1:
                     self.tracking.select_zone(
@@ -683,6 +703,16 @@ class SessionProvider:
                     obj.support = replace(obj.support, available_s=ready)
         for view in self.current_space.views.values():
             view["available_s"] = ready
+        if material_view is not None:
+            material_view["available_s"] = ready
+        if self.tracking and result["initial_candidates"]:
+            for candidate in self.tracking.candidates:
+                if candidate.material_cover is not None:
+                    cover = candidate.material_cover
+                    cover.support = replace(cover.support, available_s=ready)
+                    for source in cover.diagnostics["captures"]:
+                        if source["acquired_s"] == float(captured["time_s"]):
+                            source["available_s"] = ready
         if self.tracking and result["objects"]:
             for candidate in self.tracking.candidates:
                 if result["initial_candidates"]:

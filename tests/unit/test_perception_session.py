@@ -630,3 +630,33 @@ def test_declared_geometry_views_keep_dense_semantic_ingress_and_current_clocks(
         assert provider.last_submitted_s is None
     finally:
         provider.close()
+
+
+def test_material_inspection_retains_only_declared_captures_and_actual_publications(
+    tmp_path, geometry
+):
+    import json
+
+    binding = recipe()
+    config = binding.config
+    config["material_depth_cover"] = {"cell_m": 0.01}
+    binding = type(binding)(json.dumps(config))
+    session = PerceptionSession(
+        "unused", binding, {}, tmp_path, tracking=False, sam_worker=Sam([[7], [7], [7]])
+    )
+    engine = Point2PoseEngine(lambda _: session, replay=True, capture_session=True)
+    provider = module.SessionProvider(binding, engine, tracking=False)
+    try:
+        for index, capture in enumerate((4.0, 4.3, 7.0)):
+            provider.update(sensor(capture, index))
+            assert provider.consume_results(engine.pending[1]["available_s"] + 0.5)
+        assert [float(v["time_s"]) for v in provider.material_views] == [4.0, 7.0]
+        first, last = provider.material_views
+        assert first["available_s"] < last["available_s"]
+        assert last["available_s"] == provider.diagnostics["available_time_s"]
+        assert last["semantic"]["available_s"] == last["available_s"]
+        assert all(v["available_s"] > float(v["time_s"]) for v in provider.material_views)
+        provider.reset(preload=False)
+        assert provider.material_views == []
+    finally:
+        provider.close()

@@ -91,6 +91,15 @@ class PilotMotionEvidence:
         patch = validate_local_contact(
             observation.estimate.local, now, generation=observation.generation
         )
+        candidate = next(
+            c for c in self.provider.tracking.candidates if c.candidate_id == patch.patch_id
+        )
+        cover = candidate.material_cover
+        if self.provider.config.get("material_depth_cover") is not None and cover is None:
+            raise ValueError("missing_observed_material_cover")
+        if cover is not None:
+            cover.support.require(now, observation.generation)
+        normal_range = (0.0, 0.0) if cover is None else cover.normal_range_m
         kind = "joints" if self.space == A1_JOINT_DELTA else "delta"
         endpoint = (
             io.preview(Command(kind, row)) if kind == "joints" else apply_pose_delta(tool, row)
@@ -144,7 +153,10 @@ class PilotMotionEvidence:
                 + self.config["relative_speed_bound_m_s"] * io.dt
             )
             cell_separation = float(
-                (patch.world_pose.origin - center) @ normal - radius - normal_error
+                (patch.world_pose.origin - center) @ normal
+                + normal_range[0]
+                - radius
+                - normal_error
             )
             support = self.workspace.query_static(
                 center[None], np.array([radius]), cover_ids=[(cell.shape, cell.path)]
@@ -181,9 +193,6 @@ class PilotMotionEvidence:
         )
         fingers = (None, None)
         if loaded:
-            candidate = next(
-                c for c in self.provider.tracking.candidates if c.candidate_id == patch.patch_id
-            )
             surface = candidate.local_surface or candidate.surface
             clearances = []
             for pose in poses:
@@ -194,8 +203,12 @@ class PilotMotionEvidence:
                 original = candidate.initial_world @ np.linalg.inv(pose_matrix(patch.world_pose))
                 original = original @ pose_matrix(projected)
                 clearances.append(
-                    footprint_support(
-                        surface, object_frame(original), self.faces, self.provider.config
+                    (
+                        cover.query(object_frame(original), self.faces)
+                        if cover is not None
+                        else footprint_support(
+                            surface, object_frame(original), self.faces, self.provider.config
+                        )
                     ).finger_clearance_m
                 )
             fingers = tuple(
@@ -223,6 +236,7 @@ class PilotMotionEvidence:
             swept_collision_margin_m=min(float(free_margin), self_margin),
             unloaded_separation_margin_m=None if loaded else float(separation),
             unloaded_normal_lever_m=None if loaded else lever,
+            material_normal_range_m=normal_range,
         )
         return admit_local_action(
             observation.estimate, proposal, evidence, limits, now, generation=observation.generation

@@ -67,7 +67,13 @@ are unchanged. The preceding2mm grid retains three right refusals; all earlier
 failed material variants remain preserved. Native tracking is unchanged. Known
 holes and separate background, complete depth-column parallax and future
 inspection clocks have essential regression coverage. This is numerical component
-evidence; the live producer and whole contact path are not yet qualified.
+evidence. The maintained provider now retains only declared inspection captures
+and their actual publication clocks, attaches the frozen cover to the observed
+candidate, and passes its finite support/depth interval to the actual-motion and
+contact producers. The complete normal interval also reduces free-motion
+separation; it cannot silently become a zero-thickness plane. This path is opt-in
+through the operational geometry recipe; loaded whole-space/contact qualification
+is still pending.
 
 Unassociated straight-edge and upright-edge trials worsen local rotation and
 are rejected; neither remains active. A tighter6.5mm isotropic stop candidate

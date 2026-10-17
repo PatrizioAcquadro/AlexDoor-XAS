@@ -70,6 +70,7 @@ class PanelCandidate:
     local_constraint: SurfacePose | None = None
     local_constraint_reason: str = "local_surface_not_processed"
     local_surface: object | None = None
+    material_cover: object | None = None
 
 
 def metric_registration_bound(source, current, transform, depth_error_m):
@@ -356,6 +357,24 @@ class PanelTracking:
                 )
                 if max(o.available_s for o in candidate.local_surface.observations) > available_s:
                     raise ValueError("future_local_material_surface")
+
+    def attach_material_cover(self, views):
+        """Frozen observed inspection relief; no runtime pose/identity replacement."""
+        from alexdoor_xas.perception.material_zone import MaterialCover
+
+        if self.config.get("material_depth_cover") is None:
+            return
+        for candidate in self.candidates:
+            candidate.material_cover = MaterialCover.from_inspection(
+                candidate.surface,
+                views,
+                candidate.sam3_id,
+                self.config,
+                generation=self.generation,
+            )
+            self.diagnostics.setdefault("material_cover", {})[candidate.candidate_id] = (
+                candidate.material_cover.diagnostics
+            )
 
     def select_zone(self, patch_id, now, *, source):
         if source not in ("diagnostic", "policy") or patch_id not in [

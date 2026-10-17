@@ -320,6 +320,7 @@ def test_bounded_relief_extends_only_possible_surface_interval_and_keeps_far_loa
     result = m.update(t, estimate, tool, load, receipt)
     assert result.status == "seeking" and not result.directly_observed
     assert result.finger_separation_intervals_m[0][1] > 0
+    assert result.uncertainty_m > 0.02
     m.reset()
     t, estimate, tool, load, far = inputs(1, x=0.1)
     far = replace(
