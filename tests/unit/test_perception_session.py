@@ -544,3 +544,27 @@ def test_lazy_session_boots_only_on_first_capture_and_reset_still_recreates(
         assert len(boots) == 2  # A used episode still recreates complete temporal/model state.
     finally:
         provider.close()
+
+
+def test_geometry_robot_exclusion_runs_only_on_submitted_capture_cadence(tmp_path, geometry):
+    session = PerceptionSession(
+        "unused", recipe(), {}, tmp_path, tracking=False, sam_worker=Sam([[7], [7]])
+    )
+    engine = Point2PoseEngine(lambda _: session, replay=True, capture_session=True)
+    calls = []
+
+    def exclude(sensor, raw):
+        calls.append(float(sensor["time_s"]))
+        return np.zeros((80, 80), bool)
+
+    provider = module.SessionProvider(
+        recipe(), engine, tracking=False, inference_period_s=0.1, geometry_filter=exclude
+    )
+    try:
+        provider.update(sensor(4, 0))
+        provider.consume_results(engine.pending[1]["available_s"])
+        provider.update(sensor(4.05, 1))
+        provider.update(sensor(4.1, 2))
+        assert calls == [4, 4.1]
+    finally:
+        provider.close()

@@ -735,19 +735,10 @@ class SessionProvider:
         if reason:
             self.reset(preload=False)
             return DoorEstimate(t, False, reason)
-        if self.geometry_filter is not None:
-            try:
-                removed = np.asarray(self.geometry_filter(sensor, observation))
-                if removed.dtype != bool or removed.shape != depth.shape[:2]:
-                    raise ValueError("invalid_robot_geometry_filter")
-                sensor["valid_depth"] = sensor["valid_depth"].copy()
-                sensor["valid_depth"][removed] = False
-            except (ValueError, KeyError) as error:
-                self.reset(preload=False)
-                return DoorEstimate(t, False, str(error))
         # A capture gap does not fabricate intermediate SAM/P2P steps. Staleness
         # remains visible in support times; only explicit reset starts a new identity.
         self.last_time, self.last_frame = t, frame
+        filtered_this_capture = self.geometry_filter is None
         try:
             if self.synchronous_simulation and abs(now - t) > 1e-9:
                 raise ValueError("synchronous_simulation_clock_mismatch")
@@ -755,6 +746,13 @@ class SessionProvider:
                 self.last_submitted_s is None
                 or t - self.last_submitted_s >= self.inference_period_s - 1e-9
             ):
+                if self.geometry_filter is not None:
+                    removed = np.asarray(self.geometry_filter(sensor, observation))
+                    if removed.dtype != bool or removed.shape != depth.shape[:2]:
+                        raise ValueError("invalid_robot_geometry_filter")
+                    sensor["valid_depth"] = sensor["valid_depth"].copy()
+                    sensor["valid_depth"][removed] = False
+                    filtered_this_capture = True
                 self.engine.submit(sensor, start_s=now)
                 self.last_submitted_s = t
                 if self.synchronous_simulation:
@@ -771,7 +769,13 @@ class SessionProvider:
                     candidate.state = "tracking_lost"
             else:
                 raise
-        local = self.tracking.local_state(now, sensor) if self.tracking else None
+        # Intermediate ticks use bounded material support, not an unfiltered
+        # robot-occluded image as a new direct-depth observation.
+        local = (
+            self.tracking.local_state(now, sensor if filtered_this_capture else None)
+            if self.tracking
+            else None
+        )
         self.last_estimate = DoorEstimate(
             t,
             False,

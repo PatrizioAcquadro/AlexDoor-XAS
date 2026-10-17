@@ -736,3 +736,8 @@ Unused constructor/runner resets then avoid repeatedly loading CUDA workers; a
 used episode reset still destroys/recreates the full temporal/model state. Startup
 metadata is written only after actual worker creation. This changes initialization
 cost, not clocks, observations, readiness or qualification.
+
+Calibrated robot-return exclusion runs at the declared geometric capture cadence,
+before submission to both native tracking and geometry. Intermediate control ticks
+consume bounded existing material support and cannot publish unfiltered robot
+returns as fresh direct-depth evidence. Raw policy inputs remain unchanged.
