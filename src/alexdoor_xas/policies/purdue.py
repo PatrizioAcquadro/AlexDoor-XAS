@@ -166,8 +166,9 @@ class PurdueIO:
             raise ValueError("Pilot requires 120 Hz physics and 60 Hz control")
         if self.profile == OPERATIONAL_V1 and observed_provider is None:
             raise ValueError("Operational IO requires the observed-only monitor")
-        if observed_provider is not None and observed_provider.binding != binding:
-            raise ValueError("Observed monitor provider differs from IO binding")
+        from alexdoor_xas.policies.observations import require_provider_binding
+
+        require_provider_binding(observed_provider, binding)
         if env.cfg.action_mode != "A2" or not env.cfg.cameras or env.cfg.prepared_door is None:
             raise ValueError("B1 rollout requires a prepared-door A2 Purdue environment with RGB-D")
         if not str(env.device).startswith("cuda"):

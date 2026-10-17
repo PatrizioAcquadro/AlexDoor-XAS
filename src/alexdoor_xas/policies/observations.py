@@ -149,6 +149,19 @@ def observation_columns(vector, binding):
     )
 
 
+def require_provider_binding(provider, binding):
+    """Share the pilot geometry/visual recipe contract with the execution IO."""
+    if provider is None or provider.binding == binding:
+        return
+    if not isinstance(binding, PilotBinding):
+        raise ValueError("Perception provider does not match the B1 release")
+    config = provider.binding.config
+    if config.get("inspection") != binding.config["inspection"] or not (
+        0 < config.get("max_gap_s", float("inf")) <= binding.config["max_gap_s"]
+    ):
+        raise ValueError("Pilot geometry inspection or freshness mismatch")
+
+
 class B1Observer:
     """Assemble visual blocks and current proprioception on one causal clock.
 
@@ -159,16 +172,7 @@ class B1Observer:
 
     def __init__(self, provider, binding, *, encoder=None):
         self.pilot = isinstance(binding, PilotBinding)
-        if provider is not None and provider.binding != binding:
-            if not self.pilot:
-                raise ValueError("Perception provider does not match the B1 release")
-            # Pilot visual preprocessing and operational geometry are independent
-            # recipes. They must still share the inspection and causal age limit.
-            config = provider.binding.config
-            if config.get("inspection") != binding.config["inspection"] or not (
-                0 < config.get("max_gap_s", float("inf")) <= binding.config["max_gap_s"]
-            ):
-                raise ValueError("Pilot geometry inspection or freshness mismatch")
+        require_provider_binding(provider, binding)
         if self.pilot:
             if encoder is None or encoder.binding != binding:
                 raise ValueError("Pilot requires an independently bound policy encoder")

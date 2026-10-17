@@ -506,3 +506,9 @@ with the same rotations during admission. The contact monitor explicitly include
 both geometry and dynamic pose terms. Missing calibration or motion bounds remain
 missing; this correction changes neither operational field limits nor physical
 evaluator tolerances and does not establish qualification.
+
+Purdue IO and the observer share the same pilot provider-binding check: independent
+visual and geometry recipes must use identical inspection and compatible causal
+age limits. The encoder/checkpoint binding stays exact. This avoids rejecting
+the explicitly separate geometry recipe at execution after accepting it during
+observation assembly; release bindings remain exact.
