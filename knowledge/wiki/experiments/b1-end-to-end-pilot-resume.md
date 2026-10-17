@@ -529,3 +529,8 @@ specific development-record transfer despite a verified synthetic/redistributabl
 origin and validation-only consumer path; explicit user authorization has been
 requested. Train-only remote preparation/training is a safe independent path;
 missing development metrics stay explicit and must be completed separately.
+
+Runtime wiring exposes lazy initial model startup to avoid duplicate CUDA loads
+from unused observer/runner constructor resets. Numerical lifecycle checks verify
+zero model boots before the first capture, one actual first boot and full worker
+recreation after a used episode. Default existing callers remain eager.

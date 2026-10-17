@@ -730,3 +730,9 @@ not evaluated; it never substitutes training examples for missing development.
 The four fixed final checkpoints still require separate development and physical
 checks. This permits training on the already transferred train data while the
 separately requested development transfer remains blocked by automatic review.
+
+Session construction can explicitly defer model startup to the first capture.
+Unused constructor/runner resets then avoid repeatedly loading CUDA workers; a
+used episode reset still destroys/recreates the full temporal/model state. Startup
+metadata is written only after actual worker creation. This changes initialization
+cost, not clocks, observations, readiness or qualification.

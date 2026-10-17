@@ -797,6 +797,7 @@ def session_provider(
     clock=None,
     synchronous_simulation=False,
     inference_period_s=0.0,
+    preload=True,
     **options,
 ):
     from alexdoor_xas.perception.point2pose.runtime import Point2PoseEngine
@@ -817,6 +818,7 @@ def session_provider(
         )
         if selection is not None:
             worker.select(**selection)
+        (Path(output) / "startup.json").write_text(json.dumps(worker.runtime, indent=2) + "\n")
         return worker
 
     engine = Point2PoseEngine(factory, replay=replay, capture_session=True, clock=clock)
@@ -829,10 +831,10 @@ def session_provider(
         calibration=calibration,
         **options,
     )
-    try:
-        engine.prepare()
-    except BaseException:
-        provider.close()
-        raise
-    (Path(output) / "startup.json").write_text(json.dumps(engine.worker.runtime, indent=2) + "\n")
+    if preload:
+        try:
+            engine.prepare()
+        except BaseException:
+            provider.close()
+            raise
     return provider

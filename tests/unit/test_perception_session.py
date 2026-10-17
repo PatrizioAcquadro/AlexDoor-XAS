@@ -518,3 +518,29 @@ def test_explicit_policy_protocol_selects_one_observed_zone_without_qualifying_o
         assert provider.tracking.selection is None
     finally:
         provider.close()
+
+
+def test_lazy_session_boots_only_on_first_capture_and_reset_still_recreates(
+    tmp_path, geometry, monkeypatch
+):
+    boots = []
+
+    def factory(*args, **kwargs):
+        boots.append(True)
+        return PerceptionSession(*args, **kwargs, sam_worker=Sam([[7]]))
+
+    monkeypatch.setattr(module, "PerceptionSession", factory)
+    provider = module.session_provider(
+        recipe(), "unused", {}, tmp_path, replay=True, tracking=False, preload=False
+    )
+    try:
+        provider.reset()
+        provider.reset()
+        assert not boots and provider.engine.worker is None
+        provider.update(sensor(4, 0))
+        assert len(boots) == 1
+        assert (tmp_path / "startup.json").is_file()
+        provider.reset()
+        assert len(boots) == 2  # A used episode still recreates complete temporal/model state.
+    finally:
+        provider.close()
