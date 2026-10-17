@@ -85,6 +85,28 @@ support, while the robot certificate must already include its own motion, scene
 and stop errors. Missing, nonpositive or unknown sweep evidence still refuses.
 This interface does not create a qualified producer or establish live admission.
 
+## Independent learned-rollout scoring
+
+`pilot_physics.py rollout --expert-reference <frozen JSON>` now scores through an
+independent evaluator. The reference and prepared-door geometry enter only the
+post-execution scoring/recording callback. Policy observations, robot load,
+admission and deployed control receive none of those values. The recorder retains
+FK of the actually submitted joint targets for A1 and A2, as well as requested
+commands, measured tool/robot state and native feedback with their original clocks.
+
+The scorer reuses the unchanged 0.02 N /0.1 mm physical contact window, 0.5 s
+controlled sustain, 10 mm material-position and 5 degree orientation criteria,
+finite distal footprint and native safety limits. A complete three-second active
+loaded-contact window above 80% of the frozen matched reference establishes hold;
+commanded withdrawal after hold plus unloaded >=10 mm separation and valid actual
+target tracking establishes release. Raw angle, controlled angle, hold, release,
+unexpected contact loss and actual learned commands remain separate. Missing native
+samples are explicit errors. Uncommanded/unloaded coasting and a latched stop cannot
+supply success. The corrected teacher references reproduce both physical loaded
+streams exactly and pass these gates when their executed commands are supplied for
+a reference-only scorer audit; this is not learned execution or a panel outcome.
+The live recorder and operational producer remain pending.
+
 ## Scope and budgets
 
 A3/A4 operational hinge/bootstrap/release qualification is deferred. Before new

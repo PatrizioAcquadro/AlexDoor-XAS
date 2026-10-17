@@ -128,10 +128,13 @@ contact execution or sealed-test evaluation was produced.
 
 ## Next action and selected state
 
-For the resumed pilot, resolve the pending local allocation and replacement-job
-requests, then validate the corrected observed geometry/contact/sweep path and
-execute real training and learned rollouts. Case count and deferred A3/A4 work
-are not blockers. See [[experiments/b1-end-to-end-pilot-resume]].
+For the resumed pilot, the user authorizes 15 cumulative local GPU hours and
+repairs within 3,600 remote allocated GPU seconds. Train-only real preparation
+has completed on Gilbreth; the first fixed training cell is active with resumable
+state. No genuine final checkpoint or learned simulation result is claimed yet.
+Finish observed geometry/contact/full-robot admission, verify integrated execution
+and then retain the fixed 24 outcomes. Case count and deferred A3/A4 work are not
+blockers. See [[experiments/b1-end-to-end-pilot-resume]].
 
 The [[experiments/p2p-persistent-session-integration|persistent-session integration]]
 uses the selected configuration throughout maintained scan/smoke/live/replay/offline

@@ -40,6 +40,11 @@ def main():
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--family", choices=("act", "diffusion"))
     parser.add_argument(
+        "--expert-reference",
+        type=Path,
+        help="Frozen matched reference JSON, read only by independent rollout scoring",
+    )
+    parser.add_argument(
         "--recipe",
         choices=("rgbd-grid-v1", "rgbd-grid-fixed-units-v2", "rgbd-conv-v1"),
         default="rgbd-grid-v1",
@@ -334,11 +339,13 @@ def rollout(env, args, protocol, robot, setup, inspection):
     from PIL import Image
     from scipy.spatial.transform import Rotation
 
+    from alexdoor_xas.perception.evaluation import json_safe
     from alexdoor_xas.policies.b1 import B1Policy
     from alexdoor_xas.policies.encoding import RGBDEncoder, pilot_binding
     from alexdoor_xas.policies.observations import B1Observer
     from alexdoor_xas.policies.purdue import PurdueIO, contact_status
     from alexdoor_xas.policies.rollout import B1Runner
+    from alexdoor_xas.qualification.pilot_evaluation import PilotEvaluation, physical_row
     from alexdoor_xas.recording.b1 import PHASES
     from alexdoor_xas.recording.b1_runtime import array
     from alexdoor_xas.recording.rollout import RolloutWriter
@@ -377,13 +384,24 @@ def rollout(env, args, protocol, robot, setup, inspection):
     native_contacts = (args.output / "evaluator-native-contacts.jsonl").open("x")
     evaluator_states = (args.output / "evaluator-control-state.jsonl").open("x")
     pending = None
+    applied_evaluation_goal = None
+    evaluation = None
+    if args.expert_reference is not None:
+        reference = json.loads(args.expert_reference.read_text())
+        if (
+            reference["asset_id"] != args.asset_id
+            or reference["status"] != "qualified"
+            or reference.get("criteria_unchanged") is not True
+        ):
+            raise ValueError("Independent reference differs from the frozen matched pilot")
+        evaluation = PilotEvaluation(setup, reference["theta_expert_d"], io.dt)
 
     recording.file["commands"].attrs["kind_codes"] = json.dumps(
         dict(inspection_hold=0, joints=1, delta=2, pose=3)
     )
 
     def record_step(command, goal):
-        nonlocal pending
+        nonlocal pending, applied_evaluation_goal
         if pending is not None:
             raise RuntimeError("unrecorded_control_step")
         request = np.full(12, np.nan)
@@ -397,6 +415,11 @@ def rollout(env, args, protocol, robot, setup, inspection):
             )
             width, stage = len(value), command.stage
             request[:width] = value
+        # FK of the targets actually submitted, including A1. This is a robot
+        # model quantity for recording/evaluation, never a replacement command.
+        applied_joints = array(env.capture.sample.joint_position)[0].copy()
+        applied_joints[:7] = array(env.targets)[0, env.arm_ids]
+        applied_evaluation_goal = io.tool_fk(applied_joints, io.calibration)
         pending = dict(
             time_s=np.float64(env.capture.sample.time_s - io.dt),
             kind=np.int8(kind),
@@ -409,10 +432,12 @@ def rollout(env, args, protocol, robot, setup, inspection):
             # Snapshot while these are still the applied controller targets.
             joint_target=array(env.targets)[0].copy(),
             effort_target_nm=array(env.robot.data.joint_effort_target)[0].copy(),
+            applied_tool_position=applied_evaluation_goal.origin.copy(),
+            applied_tool_rotation=applied_evaluation_goal.rot.copy(),
         )
 
     def record_observation(sensor, observed):
-        nonlocal pending
+        nonlocal pending, applied_evaluation_goal
         position, quaternion = [array(v)[0] for v in env.tool_pose()]
         recording.observe(
             sensor,
@@ -426,17 +451,22 @@ def rollout(env, args, protocol, robot, setup, inspection):
         )
         # Independent truth is persisted only here, never passed back to IO or
         # the observer. Native contact records keep their original categories.
-        evaluator_states.write(
-            json.dumps(
-                dict(
-                    time_s=float(sensor["time_s"]),
-                    native_door_angle_rad=float(array(env.door.data.joint_pos)[0, 0]),
-                    native_door_speed_rad_s=float(array(env.door.data.joint_vel)[0, 0]),
-                ),
-                allow_nan=False,
-            )
-            + "\n"
+        independent = dict(
+            time_s=float(sensor["time_s"]),
+            native_door_angle_rad=float(array(env.door.data.joint_pos)[0, 0]),
+            native_door_speed_rad_s=float(array(env.door.data.joint_vel)[0, 0]),
         )
+        if pending is not None:
+            physical = physical_row(
+                env,
+                env.cfg.prepared_door,
+                setup,
+                float(sensor["time_s"]),
+                applied_evaluation_goal,
+                learned_command=bool(pending["learned"]),
+            )
+            independent.update(evaluation.update(physical) if evaluation is not None else physical)
+        evaluator_states.write(json.dumps(json_safe(independent), allow_nan=False) + "\n")
         if pending is not None:
             recording.command(pending)
             robot_rows, evaluator_rows = [], []
@@ -490,7 +520,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
                     + "\n"
                 )
             recording.feedback(robot_rows, evaluator_rows)
-            pending = None
+            pending = applied_evaluation_goal = None
 
     io.step_recorder = record_step
     # Passive evaluator telemetry is never returned to the observer, policy or monitor.
@@ -548,12 +578,15 @@ def rollout(env, args, protocol, robot, setup, inspection):
         result = runner.run(
             max_ticks=protocol["rollout_max_ticks"], seed=protocol["inference_seed"]
         )
+        physical_result = None if evaluation is None else evaluation.result()
         recording.finish(
             dict(
-                passed=False,
+                passed=False if physical_result is None else physical_result["task_success"],
                 termination=result.reason,
                 learned_commands=result.control_steps,
-                physical_evaluation="not_completed",
+                physical_evaluation=(
+                    "unavailable_frozen_reference" if physical_result is None else physical_result
+                ),
                 qualification=False,
             )
         )
@@ -575,7 +608,8 @@ def rollout(env, args, protocol, robot, setup, inspection):
         recording_ms=recording_ms,
     )
     return dict(
-        passed=False,
+        passed=False if physical_result is None else physical_result["task_success"],
+        physical_evaluation=physical_result,
         runner=asdict(result),
         family=args.family,
         action_space=policy.action_space,
@@ -594,8 +628,10 @@ def rollout(env, args, protocol, robot, setup, inspection):
         progress_max_deg=float(np.rad2deg(np.max(np.abs(np.asarray(rows)[:, 1])))) if rows else 0.0,
         evaluator_peak_normal_force_n=max((r[2] for r in rows), default=0.0),
         measured_joint_torque_abs_max_nm=max((r[3] for r in rows), default=0.0),
-        released=False,
-        release_attempted=False,
+        released=False if physical_result is None else physical_result["released"],
+        release_attempted=False
+        if physical_result is None
+        else physical_result["release_attempted"],
         hold_cycle_p50_ms=float(np.median(costs)) if costs else None,
         hold_cycle_p95_ms=float(np.percentile(costs, 95)) if costs else None,
         hold_cycle_max_ms=max(costs, default=None),
