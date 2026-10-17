@@ -21,8 +21,9 @@ confirmation; independent joins report zero detections outside physical Loaded.
 A one-joint main elbow extension leaves complete v42 values unchanged.
 A targeted 10% target-speed headroom then corrects the demonstrated tracking
 overshoot: causal robot replay peaks at 0.47323 rad/s with unchanged physical
-criteria, IK/gains and validated teacher outputs. New real learned execution is
-pending; replay is not task success. All24final-version outcomes and identical-checkpoint success on both doors
+criteria, IK/gains and validated teacher outputs. The new full-v5 run executes 232 learned commands, then refuses a finite-material
+action margin before contact, with no physical violation or task success. The
+runner preserves that explicit refusal; saved-input diagnosis is pending. All24final-version outcomes and identical-checkpoint success on both doors
 remain required. Teacher, checkpoints and physical criteria are unchanged; the documented controller correction preserves IK/gains.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D

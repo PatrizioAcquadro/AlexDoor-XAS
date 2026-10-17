@@ -50,6 +50,16 @@ budget proposals below remain preserved.
 
 ## Current observed-runtime integration
 
+The full-v5 ACT A2 right/dim outcome executes 232 genuine learned commands
+and stops before contact at a finite-material action-margin refusal. Independent
+scoring reports no physical violation and no controlled opening, hold or release;
+the continuing-physics stop passes. Its consumed-input audit passes. The runner
+now preserves an explicit producer refusal before adapter validation, avoiding the
+misleading global-state error for a rejected local receipt. The rejection and stop
+remain unchanged. A saved causal RGB-D/proprioception replay is diagnosing the
+specific margin; no admission bound is changed on the basis of this failure alone.
+
+
 The common background now includes explicit 85-degree initial-pose calibration
 surveys for right, left and development doors. Each preserves the original passive
 hinge dynamics and rollout starts; no calibration motion becomes imitation data.

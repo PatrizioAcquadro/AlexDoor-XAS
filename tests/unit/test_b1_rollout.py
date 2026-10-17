@@ -327,6 +327,26 @@ def test_perception_loss_clears_chunk_before_another_command_and_resets_episode(
     assert runner.run(max_ticks=2).control_steps == 2
 
 
+@pytest.mark.parametrize("reason", ["insufficient_local_action_margin", ""])
+def test_rejected_action_preserves_producer_reason_before_adapter_validation(setup_runner, reason):
+    from alexdoor_xas.perception.admission import ActionAdmission
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+
+    runner, io, _, _ = setup_runner("act", A2_EE_DELTA)
+    runner.adapter.profile = OPERATIONAL_V1
+    runner.admission_source = lambda *args: ActionAdmission(False, False, reason)
+
+    def unexpected_command(*args, **kwargs):
+        pytest.fail("Rejected local action reached adapter/global-state validation")
+
+    runner.adapter.command = unexpected_command
+    result = runner.run(max_ticks=1)
+    assert result.reason == (reason or "action_not_admitted")
+    assert result.control_steps == 0 and not io.commands
+    assert io.stops == 1 and runner.stopped and not runner.pending
+    assert runner.source is None and runner.observer.last is None
+
+
 def test_physics_stop_never_invents_release_or_an_extra_tick(setup_runner):
     runner, io, _, _ = setup_runner("diffusion", A4_OBJ_CENTRIC_CHUNK)
     io.fail_after = 3

@@ -369,6 +369,8 @@ class B1Runner:
                     if self.admission_source is None:
                         return self.stop("missing_action_admission_source", steps)
                     admission = self.admission_source(observation, tool, row, budget - steps)
+                    if admission is not None and admission.admitted is False:
+                        return self.stop(admission.reason or "action_not_admitted", steps)
                 command = self.adapter.command(
                     observation,
                     tool,
