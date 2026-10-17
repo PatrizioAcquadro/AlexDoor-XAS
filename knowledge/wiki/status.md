@@ -7,13 +7,14 @@ reference. A3/A4 semantics and operational thresholds are unchanged.
 
 The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
 four real3000-update corrected-data checkpoints and frozen local development
-inference. ACT A2 completes a120-command observed free-motion integration with
-causal recording and a passing continuing-physics stop. There are no final-panel
-outcomes or learned contact/opening/hold/release successes. Finite observed-material,
+inference. The first full-protocol ACT A2 right/dim outcome retains214 learned
+commands and a conservative orientation stop before contact; causal recording
+and the continuing-physics stop pass. This is one failed final-panel outcome;
+there are no learned contact/opening/hold/release successes yet. Finite observed-material,
 rigid-interface and target-envelope components pass bounded independent checks;
 both complete retained observed paths now pass with100ms contact confirmation,
-explicit detection errors and bounded-window limits. The first frozen full learned
-execution is queued; no panel outcome or learned contact success is inferred.
+explicit detection errors and bounded-window limits. The remaining frozen panel slots are running with cumulative budget guards;
+no learned contact success is inferred.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured
@@ -110,10 +111,10 @@ The maintained rollout CLI now wires real observed perception, native robot load
 contact monitoring and actual proposed-motion producers; the first two seconds of
 both complete retained train paths pass numerical whole-robot/contact/admission
 checks with calibrated native load and explicit detection limits. ACT A2 also completes120 actual learned commands in a two-second
-free-motion prerequisite with causal recording and a passing continuing-physics
-stop. Numerical finite-material margins now cover both retained train paths;
+free-motion prerequisite and214commands in the first full-protocol orientation
+stop, with causal recording and a passing continuing-physics stop. Numerical finite-material margins now cover both retained train paths;
 the complete retained operational-path check passes, while actual learned contact
-execution and all24 panel outcomes remain pending. The recorder retains consumed images and separate full-rate commands,
+success and the remaining23panel outcomes remain pending. The recorder retains consumed images and separate full-rate commands,
 robot/native feedback and independent evaluator streams. Current local counters
 and all preserved failures are in [[experiments/b1-end-to-end-pilot-resume]].
 

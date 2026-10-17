@@ -113,21 +113,38 @@ loaded under the unchanged causal-window rule. The single contact decision below
 the physical loaded criterion occurs during right release. Every discrepancy is
 retained in `operational-contact-full-v41/contact-metrics.json`; instantaneous
 contact, bounded-window operational contact and physical scoring stay distinct.
-These are retained-input checks, not learned execution or final-panel outcomes.
-Actual learned execution remains122 ACT A2 commands across short prerequisites,
-with zero learned contact successes and zero final-panel outcomes.
+These are retained-input checks, separate from learned execution.
 
-The first full ACT A2 right-dim execution is frozen at source `2df0e54`, all four
-returned checkpoint hashes, the unchanged9000-tick protocol and original expert
-references. It is queued under shared GPU leases after the complete replay gate.
-Its outcome is retained in the fixed panel even if unfavorable; actual full-run
-cost must be measured before launching the remaining23 outcomes.
+The first full-protocol learned outcome is now retained: ACT A2 right/dim stops
+on `observed_contact_orientation` at28.7667s after214 actual nonzero deltas. The
+robot moves0.2414m;213 applied-target changes and all input/control/native/evaluator
+joins pass. The independent surface gap is31.78mm and true orientation error1.80
+degrees, while operational orientation uncertainty exhausts the unchanged margin.
+There is no physical contact, controlled opening, hold or release. Physics continues
+for2s after stopping:2.78mm maximum tool travel, no violations. This is a complete
+failed panel outcome, not an initialization refusal or a successful task.
 
-Current allocation is4.52911/15 local GPU hours,2743/3600 remote GPU seconds and
-12164/18000 optimizer updates. Consumer-audited removal of regenerable flattened
+The fixed panel is frozen at source `2df0e54`, all four returned checkpoint hashes,
+the unchanged9000-tick protocol and original expert references. The first failure
+counts in its original slot; the remaining23 conditions run sequentially through
+the same maintained CLI and real producers, with no automatic retries. All4must
+execute and all24outcomes must remain retained before goal completion. There is
+still no learned contact/opening/hold/release success.
+
+The first complete allocation is331.13s including conservative tail, with0.365GiB
+retained. Its measured policy cycle mean/p95 is245.26/826.38ms. An all-early-stop
+scenario would cost2.21GPUh for24outcomes; extrapolating this limited service to
+all full horizons gives16.54h, exceeding the remaining budget. Neither scenario
+is a guarantee or measured loaded/left runtime. The prior8.64h estimate is
+superseded; actual cumulative guards apply before every case and during its
+bounded allocation. Full protocol horizon and failure accounting are unchanged.
+
+After the first outcome, closed allocations total4.62109/15 local GPU hours,
+2743/3600 remote GPU seconds and12164/18000 optimizer updates. Subsequent active
+allocations are provisional in the live ledger. Consumer-audited removal of regenerable flattened
 visual features reclaimed24.13GiB. Exact labels/masks, raw complete recordings,
 checkpoints, statistics, failures and reports remain retained; current whole-pilot
-storage is239.03/300GiB after a further11.48GiB lossless
+storage is239.41/300GiB after a further11.48GiB lossless
 container repack of one older failed teacher recording. Every dataset byte and
 attribute is verified before atomic replacement; old/new file hashes remain in
 `preserved-failure-lossless-repack.json`. No raw sample, failure or eligibility
