@@ -188,11 +188,16 @@ def test_self_clearance_filters_fixed_descendants_by_actual_rigid_body(model):
     robot = RobotGeometry(path, ("q",))
     matrices = robot.transforms(dict(q=0, other=0), np.eye(4))
     unfiltered = RobotSelfClearance(robot, ())
-    assert unfiltered.query(matrices, {"q": 0}, relative_model_error_m=0)[0] < 0
+    with pytest.raises(ValueError, match="full-robot joint travel"):
+        unfiltered.query(matrices, {"q": 0}, relative_model_error_m=0)
+    assert unfiltered.query(matrices, {"q": 0, "other": 0}, relative_model_error_m=0)[0] < 0
     filtered = RobotSelfClearance(robot, (("jawA", "jawB"),))
     assert not filtered.pairs
     assert np.isinf(filtered.query(matrices, {"q": 0}, relative_model_error_m=0)[0])
     separated = robot.transforms(dict(q=0, other=1), np.eye(4))
-    margin, pair = unfiltered.query(separated, {"q": 0.1}, relative_model_error_m=0.01)
+    margin, pair = unfiltered.query(separated, {"q": 0.1, "other": 0}, relative_model_error_m=0.01)
     assert margin == pytest.approx(0.69)
     assert set(pair) == {"fingerA", "fingerB"}
+
+    reduced, _ = unfiltered.query(separated, {"q": 0.1, "other": 0.2}, relative_model_error_m=0.01)
+    assert reduced == pytest.approx(0.49)

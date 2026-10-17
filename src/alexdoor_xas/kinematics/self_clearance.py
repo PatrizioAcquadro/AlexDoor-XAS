@@ -48,6 +48,13 @@ class RobotSelfClearance:
                     points = np.array(list(product((-radius, radius), repeat=3)))
                     sphere = (local[:3, 3], radius)
                 convex = Convex(points @ local[:3, :3].T + local[:3, 3])
+                ancestors = set()
+                ancestor = name
+                while ancestor in model.parents:
+                    joint = model.parents[ancestor]
+                    if joint.get("type") != "fixed":
+                        ancestors.add(joint.get("name"))
+                    ancestor = joint.find("parent").get("link")
                 self.shapes.append(
                     dict(
                         link=name,
@@ -55,6 +62,13 @@ class RobotSelfClearance:
                         convex=convex,
                         moving=moving.get((name, index)),
                         sphere=sphere,
+                        joints=ancestors,
+                        center=(convex.points.min(0) + convex.points.max(0)) / 2,
+                        radius=(
+                            sphere[1]
+                            if sphere is not None
+                            else np.linalg.norm(convex.points.max(0) - convex.points.min(0)) / 2
+                        ),
                     )
                 )
         self.pairs = []
@@ -69,16 +83,23 @@ class RobotSelfClearance:
                 or groups in self.filters
             ):
                 continue
-            shared = (
-                set(model.shapes[a["moving"]]["levers"]) & set(model.shapes[b["moving"]]["levers"])
-                if a["moving"] is not None and b["moving"] is not None
-                else set()
-            )
+            shared = a["joints"] & b["joints"]
             self.pairs.append((i, j, shared))
 
     def query(self, matrices, joint_travel, *, relative_model_error_m):
         if not np.isfinite(relative_model_error_m) or relative_model_error_m < 0:
             raise ValueError("Unmeasured relative robot-model error")
+        required = set().union(
+            *(self.shapes[i]["joints"] | self.shapes[j]["joints"] for i, j, _ in self.pairs)
+        )
+        if any(
+            name not in joint_travel
+            or joint_travel[name] is None
+            or not np.isfinite(joint_travel[name])
+            or joint_travel[name] < 0
+            for name in required
+        ):
+            raise ValueError("Unmeasured full-robot joint travel")
         world = []
         for shape in self.shapes:
             t, c = matrices[shape["link"]], shape["convex"]
@@ -92,26 +113,37 @@ class RobotSelfClearance:
                 )
             )
         extra_cache = {}
-        cells = self.model.cells()
         minimum, pair = np.inf, None
         for i, j, shared in self.pairs:
             extra = []
             for index in (i, j):
                 key = (index, tuple(sorted(shared)))
                 if key not in extra_cache:
-                    moved = self.shapes[index]["moving"]
+                    shape = self.shapes[index]
+                    t = matrices[shape["link"]]
+                    center = shape["center"] @ t[:3, :3].T + t[:3, 3]
                     allowance = 0.0
-                    if moved is not None:
-                        cell = cells[moved]
-                        _, radius = self.model.world_ball(
-                            cell,
-                            matrices,
-                            {
-                                name: 0.0 if name in shared else value
-                                for name, value in joint_travel.items()
-                            },
-                        )
-                        allowance = radius - np.linalg.norm(cell.upper - cell.lower) / 2
+                    link = shape["link"]
+                    while link in self.model.parents:
+                        joint = self.model.parents[link]
+                        name = joint.get("name")
+                        parent = joint.find("parent").get("link")
+                        if name in shape["joints"] and name not in shared:
+                            travel = joint_travel[name]
+                            if joint.get("type") == "prismatic":
+                                allowance += travel
+                            else:
+                                frame = matrices[parent] @ origin_matrix(joint.find("origin"))
+                                axis = frame[:3, :3] @ np.fromstring(
+                                    joint.find("axis").get("xyz"), sep=" "
+                                )
+                                offset = center - frame[:3, 3]
+                                lever = (
+                                    np.linalg.norm(offset - axis * (offset @ axis))
+                                    + shape["radius"]
+                                )
+                                allowance += 2 * lever * np.sin(min(travel, np.pi) / 2)
+                        link = parent
                     extra_cache[key] = allowance
                 extra.append(extra_cache[key])
             a, na, ea, sa = world[i]

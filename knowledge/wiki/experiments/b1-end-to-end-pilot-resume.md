@@ -746,3 +746,5 @@ throughput, live evaluation overhead and verified variation ranges remain open.
 The local evidence directory retains `campaign-budget-proposal-revised.json` and
 `.md`, all original proposals and the measured basis. No campaign is authorized;
 deferred observed A4 initialization is not an A1/A2 prerequisite.
+
+Self-clearance now requires explicit travel bounds for every ancestor joint of the relevant active-arm/body pairs, including held head, left arm and jaws. Missing held-joint evidence cannot silently become zero motion. Shared rigid ancestors cancel; existing body-pair filters still inherit to fixed collision descendants. Full recorded-motion qualification remains pending.
