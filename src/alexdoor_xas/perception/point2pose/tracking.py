@@ -626,11 +626,13 @@ class PanelTracking:
         patches = []
         for candidate in self.candidates:
             constraint_reason = ""
+            constraint = None
             if self.config.get("local_surface_constraint") is not None:
-                if candidate.local_constraint is None:
+                constraint = candidate.local_constraint
+                if constraint is None:
                     constraint_reason = candidate.local_constraint_reason
                 else:
-                    candidate = self._constrained_candidate(candidate, candidate.local_constraint)
+                    candidate = self._constrained_candidate(candidate, constraint)
             fresh = (
                 not constraint_reason
                 and candidate.state == "tracked"
@@ -747,7 +749,7 @@ class PanelTracking:
                 else age * angular_speed
             )
             if (
-                candidate.local_constraint is not None
+                constraint is not None
                 and fresh
                 and calibration_angle is not None
                 and angular_growth is not None
@@ -755,7 +757,7 @@ class PanelTracking:
                 and min(calibration_angle, angular_growth) >= 0
             ):
                 normal_rotation_bound = (
-                    candidate.local_constraint.normal_rotation_bound_rad
+                    constraint.normal_rotation_bound_rad
                     + self.config["local_surface_constraint"]["normal_model_bound_rad"]
                     + calibration_angle
                     + angular_growth
@@ -777,7 +779,6 @@ class PanelTracking:
                 and np.isfinite([calibration_position, linear_growth]).all()
                 and min(calibration_position, linear_growth) >= 0
             ):
-                constraint = candidate.local_constraint
                 camera_lever = np.linalg.norm(candidate.pose[:3, 3] - candidate.camera_world[:3, 3])
                 normal_position_bound = (
                     constraint.normal_position_bound_m
