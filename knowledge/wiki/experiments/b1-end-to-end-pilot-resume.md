@@ -848,3 +848,25 @@ states remain costly, including left27s1.976s. This is a bounded query reuse
 improvement, not a real-time or full-episode cost claim.
 
 Historical static-background queries now retain each source recording and its original acquisition/publication clocks. They require a separate positive current-foreground exclusion margin and reject ordinary static-query access. Each declared calibration condition must supply a real free-ray witness; a past moving door or robot return is not asserted to remain occupied. This primitive is not enabled in the rollout recipe: the complete current target/contact exclusion producer is still pending. It does not qualify contact or convert historical free space into current free space.
+
+
+The bounded rigid-interface component is now independently audited on the two
+train records and two local development records. Positive-force native contacts
+share a planar interface; the largest measured indentation is1.38 micrometers.
+The frozen model retains a0.5mm planarity span and0.11mm indentation bound, with
+all original physical evaluator thresholds unchanged. These are contact-model
+bounds, not claims of submillimeter vision accuracy. Absolute visual interface
+offset remains uncertain and is shared by distal/body ordering; current identity,
+normal uncertainty, finite material coverage, load and complete static/moving
+sweeps remain separate requirements. CAD ordering uses actual distal extrema,
+including finite lines, and complete clipped mesh interiors under a normal cone;
+it never substitutes the projected finite footprint for a physical contact face.
+
+The four moving-door stop tails validate nonzero material motion within the
+existing0.04rad response bound; their positive contact force samples are zero.
+They therefore do not qualify strong-load contact stopping. The two independently
+retained first-contact stops remain the relevant strong-load stop evidence. The
+new interface/current-target/background producer is still a development candidate
+pending full sweep and contact-monitor qualification; no new learned or final
+panel outcome is inferred. Planar-only visual-core alternatives fail the unchanged
+finite footprint margins and remain preserved and unadopted.
