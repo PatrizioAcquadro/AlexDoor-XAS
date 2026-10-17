@@ -11,9 +11,9 @@ inference. ACT A2 completes a120-command observed free-motion integration with
 causal recording and a passing continuing-physics stop. There are no final-panel
 outcomes or learned contact/opening/hold/release successes. Finite observed-material,
 rigid-interface and target-envelope components pass bounded independent checks;
-the complete right retained observed path now passes with explicit100ms contact
-confirmation and bounded-window detection limits. The left full path and real
-learned contact execution remain pending; no panel outcome is inferred.
+both complete retained observed paths now pass with100ms contact confirmation,
+explicit detection errors and bounded-window limits. The first frozen full learned
+execution is queued; no panel outcome or learned contact success is inferred.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured
@@ -108,11 +108,12 @@ remain unavailable. Offline imitation error is not task success.
 
 The maintained rollout CLI now wires real observed perception, native robot load,
 contact monitoring and actual proposed-motion producers; the first two seconds of
-both retained train approaches pass numerical whole-robot/free-space/separation
-checks. ACT A2 also completes120 actual learned commands in a two-second
+both complete retained train paths pass numerical whole-robot/contact/admission
+checks with calibrated native load and explicit detection limits. ACT A2 also completes120 actual learned commands in a two-second
 free-motion prerequisite with causal recording and a passing continuing-physics
 stop. Numerical finite-material margins now cover both retained train paths;
-loaded whole-robot/contact qualification and all24 panel outcomes remain pending. The recorder retains consumed images and separate full-rate commands,
+the complete retained operational-path check passes, while actual learned contact
+execution and all24 panel outcomes remain pending. The recorder retains consumed images and separate full-rate commands,
 robot/native feedback and independent evaluator streams. Current local counters
 and all preserved failures are in [[experiments/b1-end-to-end-pilot-resume]].
 

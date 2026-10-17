@@ -83,21 +83,45 @@ new acquisition still requires30mN for100ms. This detects contact presence rathe
 than duplicating the independent evaluator's unchanged20mN loaded-task criterion.
 Zero/negative bounds still stop, and completed acquisition clears only its own
 bookkeeping; lost/unavailable states cannot be relabeled acquisition failures.
-Full replay and independent false-admission/miss/delay metrics remain pending.
+Both complete retained replays and their independent detection metrics now pass
+the bounded operational-path check below; learned closed-loop execution remains
+a separate requirement.
 
-Complete before/after-command replay now passes the right train recording through
-its final145.4833s endpoint:7230samples,7224available,6391contact decisions and no
-latched loss/refusal. The complete left replay is pending. The independent join
-uses actual HDF5 transition endpoints because teacher trace time starts25.0167s
-after the simulation clock origin; the pre-teacher endpoint stays truth-unavailable.
-On the right, confirmation delay is100ms, with six initial missed instantaneous
-contact samples and six later instantaneous-force mismatches: three brief push
-gaps and three release ticks. Only one operational contact tick lacks the frozen
-physical loaded criterion, during release. All counts and bounded-window delay
-remain explicit; no instantaneous contact or physical success is manufactured.
-These are retained-input checks, not learned commands or final-panel outcomes. Actual learned
-execution remains122 ACT A2 commands across the preserved short prerequisites,
+Complete before/after-command replay now passes both corrected train paths through
+their final endpoints, using actual proposed commands, calibrated native load,
+current local geometry, full14-shape sweep, self-clearance and stop/response
+proofs. There are no latched losses or admission refusals. The evidence is bounded
+to retained right-dim/left-bright trajectories; new learned states still receive
+current operational checks and may refuse.
+
+| Metric | Right | Left |
+| --- | ---: | ---: |
+| Complete samples | 7230 | 7757 |
+| Available monitor samples | 7224 | 7751 |
+| Confirmed-contact samples | 6391 | 6921 |
+| Initial confirmation misses | 6 | 6 |
+| Instantaneous-force mismatches | 6 | 7 |
+| Contact decisions outside physical loaded criterion | 1 | 0 |
+| Confirmation delay | 100ms | 100ms |
+| Longest instantaneous-force mismatch | 50ms | 50ms |
+
+The six unavailable samples per door are explicit native-identity warmup. The
+independent join uses actual HDF5 transition endpoints because teacher-relative
+time starts25.0167s after the simulation clock origin; one pre-teacher endpoint
+per door stays truth-unavailable. Brief zero-force push gaps remain physically
+loaded under the unchanged causal-window rule. The single contact decision below
+the physical loaded criterion occurs during right release. Every discrepancy is
+retained in `operational-contact-full-v41/contact-metrics.json`; instantaneous
+contact, bounded-window operational contact and physical scoring stay distinct.
+These are retained-input checks, not learned execution or final-panel outcomes.
+Actual learned execution remains122 ACT A2 commands across short prerequisites,
 with zero learned contact successes and zero final-panel outcomes.
+
+The first full ACT A2 right-dim execution is frozen at source `2df0e54`, all four
+returned checkpoint hashes, the unchanged9000-tick protocol and original expert
+references. It is queued under shared GPU leases after the complete replay gate.
+Its outcome is retained in the fixed panel even if unfavorable; actual full-run
+cost must be measured before launching the remaining23 outcomes.
 
 Current allocation is4.52911/15 local GPU hours,2743/3600 remote GPU seconds and
 12164/18000 optimizer updates. Consumer-audited removal of regenerable flattened
@@ -110,6 +134,9 @@ attribute is verified before atomic replacement; old/new file hashes remain in
 changes. The feature-cache audit and regeneration command are retained separately
 in `derived-feature-cache-removal-audit.json`. No GPU allocation was used for
 these CPU numerical integration checks or storage repairs.
+
+Earlier investigations below preserve their original decisions and failures.
+Their pending-status statements are superseded by the current integration above.
 
 ## Finite material component
 
