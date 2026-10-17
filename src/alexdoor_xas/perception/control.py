@@ -106,10 +106,32 @@ class ObservedControlChecks:
                 if support is not None
                 else 0
             )
+            robot_rotation_bound = 0.0
+            bound_source = "no_admission"
             if admission is not None:
-                orientation_bound += admission.limits.robot_rotation_bound_rad
+                robot_rotation_bound = admission.limits.robot_rotation_bound_rad
+                bound_source = "controller_response_fallback"
+                if self.contact_monitor is not None:
+                    measured = self.contact_monitor.config.robot_fk_rotation_bound_rad
+                    if measured is not None:
+                        # `tool` is current proprioceptive FK. Future controller
+                        # response remains charged by motion admission; it is
+                        # not an error in this already measured current pose.
+                        robot_rotation_bound = measured
+                        bound_source = "calibrated_current_fk"
+                orientation_bound += robot_rotation_bound
             orientation_rejected = alignment + orientation_bound > self.setup.orientation_tolerance
+            orientation_failure = dict(
+                time_s=float(sensor["time_s"]),
+                reason="observed_contact_orientation",
+                alignment_rad=float(alignment),
+                geometry_rotation_bound_rad=float(orientation_bound - robot_rotation_bound),
+                current_robot_rotation_bound_rad=float(robot_rotation_bound),
+                robot_bound_source=bound_source,
+                tolerance_rad=float(self.setup.orientation_tolerance),
+            )
             if orientation_rejected and stage in ("contact", "push", "hold"):
+                self.last_failure = orientation_failure
                 return "observed_contact_orientation"
             # A complete geometric estimate alone cannot certify the frozen force/load rules.
             if feedback is None or feedback.torque_nm is None:
@@ -151,6 +173,7 @@ class ObservedControlChecks:
                 if evidence.status in ("lost", "unavailable"):
                     return evidence.reason
                 if loaded and orientation_rejected and evidence.status != "separated":
+                    self.last_failure = orientation_failure
                     return "observed_contact_orientation"
                 if stage in ("push", "hold") and evidence.status != "contact":
                     return "observed_contact_not_established"

@@ -14,8 +14,9 @@ there are no learned contact/opening/hold/release successes yet. Finite observed
 rigid-interface and target-envelope components pass bounded independent checks;
 both complete retained observed paths now pass with100ms contact confirmation,
 explicit detection errors and bounded-window limits. All4combinations now issue real learned commands. Five initial failed panel
-outcomes are retained; remaining launches are held for diagnosed orientation and
-native acceleration-domain exits. No learned contact success is inferred.
+outcomes are retained. A current-pose/controller-response error-budget mix-up is
+corrected for a new frozen execution version; native acceleration-domain exits
+remain explicit unsupported outcomes. No learned contact success is inferred.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured

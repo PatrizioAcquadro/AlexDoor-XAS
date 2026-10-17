@@ -454,3 +454,69 @@ def test_zero_operational_off_threshold_still_requires_strictly_positive_bound()
     assert result.reason == "contact_load_lost_or_uncertain"
     assert m.latched_reason == result.reason
     assert m.seek_started is None
+
+
+@pytest.mark.parametrize(
+    "angle,fk_bound,expected",
+    [
+        (0.04, 0.0001, ""),
+        (0.04, None, "observed_contact_orientation"),
+        (0.04, 0.07, "observed_contact_orientation"),
+        (0.12, 0.0001, "observed_contact_orientation"),
+    ],
+)
+def test_current_orientation_uses_measured_fk_error_not_future_controller_response(
+    angle, fk_bound, expected
+):
+    from types import SimpleNamespace
+
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+    from alexdoor_xas.perception.control import ObservedControlChecks
+
+    now, estimate, tool, load, receipt = inputs(1, force=0)
+    tool = replace(tool, rot=Rotation.from_euler("y", angle).as_matrix())
+    proposal = replace(
+        receipt.proposal, world_poses=(tool, apply_pose_delta(tool, receipt.proposal.action))
+    )
+    support = replace(receipt.local_evidence, world_poses=proposal.world_poses)
+    limits = replace(receipt.limits, robot_rotation_bound_rad=0.08)
+    receipt = admit_local_action(estimate, proposal, support, limits, now, generation=0)
+    assert receipt.admitted
+    contact = monitor()
+    contact.config = replace(
+        contact.config,
+        robot_fk_position_bound_m=None if fk_bound is None else 0.001,
+        robot_fk_rotation_bound_rad=fk_bound,
+    )
+    checks = ObservedControlChecks(
+        SimpleNamespace(max_joint_speed=0.5, orientation_tolerance=0.1, force_limit_n=6),
+        contact_monitor=contact,
+    )
+    sensor = dict(
+        time_s=now,
+        joint_position=np.zeros(9),
+        joint_velocity=np.zeros(9),
+        valid_depth=np.ones((1, 1), bool),
+        rgb=np.ones((1, 1, 3), np.uint8),
+    )
+    reason = checks.check(
+        sensor,
+        estimate,
+        tool,
+        np.zeros((7, 2)),
+        "policy",
+        np.zeros(2),
+        profile=OPERATIONAL_V1,
+        feedback=load.feedback,
+        admission=receipt,
+        load=load,
+    )
+    assert reason == expected
+    assert receipt.limits.robot_rotation_bound_rad == 0.08
+    if expected:
+        assert checks.last_failure["alignment_rad"] == pytest.approx(angle)
+        assert checks.last_failure["current_robot_rotation_bound_rad"] == (
+            0.08 if fk_bound is None else fk_bound
+        )

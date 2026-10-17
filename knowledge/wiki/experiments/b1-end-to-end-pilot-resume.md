@@ -135,6 +135,23 @@ unallocated case boundary for diagnosis; no failure is removed or retried.
 All24final-version outcomes and an identical-checkpoint two-door success remain
 required. There is still no learned contact/opening/hold/release success.
 
+The saved ACT RGB-D replay identifies the orientation refusal precisely: current
+normal alignment23.05mrad plus observed normal uncertainty26.12mrad plus the
+40mrad **future controller-response** bound exceeds the unchanged5-degree limit.
+The tool pose in this check is already measured by current proprioceptive FK;
+its frozen calibration bound is only26.99microrad. Independent actual tool states
+across all five learned runs give maxima0.821micrometer/1.680microrad, inside the
+preexisting bounds. The corrected check uses that measured FK contribution and
+preserves the13mm/40mrad future response bounds in admission. Missing FK bounds
+retain the previous conservative fallback; physical criteria are unchanged.
+The replay reproduces the old refusal at28.7667s and no corrected orientation
+refusal in the retained prefix. The proposed temporal-normal cache is not adopted.
+
+The correction will receive a new frozen implementation and a complete new
+24-slot final panel. The five full-v1 failures remain separate, never mixed with
+favorable later-version results. All checkpoints remain the genuine3000-update
+files; no weights, training data, normalization, seed or controller changes.
+
 The first complete allocation is331.13s including conservative tail, with0.365GiB
 retained. Its measured policy cycle mean/p95 is245.26/826.38ms. An all-early-stop
 scenario would cost2.21GPUh for24outcomes; extrapolating this limited service to
@@ -143,12 +160,13 @@ is a guarantee or measured loaded/left runtime. The prior8.64h estimate is
 superseded; actual cumulative guards apply before every case and during its
 bounded allocation. Full protocol horizon and failure accounting are unchanged.
 
-After the first outcome, closed allocations total4.62109/15 local GPU hours,
-2743/3600 remote GPU seconds and12164/18000 optimizer updates. Subsequent active
-allocations are provisional in the live ledger. Consumer-audited removal of regenerable flattened
+Closed allocations now total5.00308/15 local GPU hours, including every failure
+and the observation replay whose independent USD join was repaired afterward on
+CPU. Remote consumption remains2743/3600GPU-seconds and optimizer updates12164/18000.
+Active allocations are provisional in the live ledger. Consumer-audited removal of regenerable flattened
 visual features reclaimed24.13GiB. Exact labels/masks, raw complete recordings,
 checkpoints, statistics, failures and reports remain retained; current whole-pilot
-storage is239.41/300GiB after a further11.48GiB lossless
+storage is240.95/300GiB after a further11.48GiB lossless
 container repack of one older failed teacher recording. Every dataset byte and
 attribute is verified before atomic replacement; old/new file hashes remain in
 `preserved-failure-lossless-repack.json`. No raw sample, failure or eligibility
