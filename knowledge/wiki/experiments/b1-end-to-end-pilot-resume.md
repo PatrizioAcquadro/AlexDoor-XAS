@@ -82,6 +82,25 @@ Cartesian-speed subset. No global stop bound is reduced. A separate calibration
 of complete finite-finger tangential and inward travel is retained for subsequent
 qualification; it does not yet authorize contact admission.
 
+## Directional stopping component
+
+A complete link-local stop box is calibrated from all29 robot-only stops, using
+the same continuous per-native-interval velocity/acceleration construction and
+all eight shape corners. The existing radial bound remains; their intersection
+is covered adaptively without discarding physical motion. All four previously
+frozen moving-door holdouts pass the boxes independently. The producer spends
+possible link rotation between the current control state and stop onset.
+Whole-volume, missing-interior and source-query regressions pass.
+
+This covers the four original unsupported volumes using existing static surveys.
+The complete retained sweep exposes further near-contact volumes, so whole-path
+qualification remains open. The left30s numerical state admits after8367 cover
+queries, while contact35s still refuses; this is not learned execution. Historical
+raw RGB-D offers background certificates for remaining examples, but those are
+not current clearance: current moving-foreground exclusion and designated distal
+contact remain necessary. The parked-arm camera preflight does not diagnose
+an occluding robot at those ray centers, so no new survey allocation is launched.
+
 ## Static ray-query cost
 
 Owned static workspace returns now have an immutable spatial index. Occupancy

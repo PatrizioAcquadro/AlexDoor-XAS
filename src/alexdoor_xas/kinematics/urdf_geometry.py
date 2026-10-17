@@ -15,6 +15,45 @@ from alexdoor_xas.assets.purdue import origin_matrix, read_stl_vertices
 from alexdoor_xas.perception.geometry import deproject
 
 
+def stop_box_cover(lower, upper, radial_bound_m, maximum_radius_m, *, certify=None):
+    """Cover the complete calibrated box/sphere intersection with finite balls."""
+    lower, upper = np.asarray(lower, float), np.asarray(upper, float)
+    if (
+        lower.shape != (3,)
+        or upper.shape != (3,)
+        or not np.isfinite(np.r_[lower, upper, radial_bound_m, maximum_radius_m]).all()
+        or (lower > 0).any()
+        or (upper < 0).any()
+        or min(radial_bound_m, maximum_radius_m) <= 0
+    ):
+        raise ValueError("invalid_continuous_stop_box")
+    pending, result = [(lower.copy(), upper.copy(), ())], []
+    while pending:
+        lo, hi, path = pending.pop()
+        nearest = np.maximum(lo, np.minimum(np.zeros(3), hi))
+        if np.linalg.norm(nearest) > radial_bound_m:
+            continue
+        radius = np.linalg.norm(hi - lo) / 2
+        center = (lo + hi) / 2
+        if certify is not None:
+            if certify(center, float(radius), path):
+                result.append((center, float(radius)))
+                continue
+            if radius <= maximum_radius_m:
+                return None
+        elif radius <= maximum_radius_m:
+            result.append((center, float(radius)))
+            continue
+        if len(pending) + len(result) >= 4096:
+            raise ValueError("continuous_stop_cover_budget_exhausted")
+        axis = int(np.argmax(hi - lo))
+        middle = (lo[axis] + hi[axis]) / 2
+        left, right = hi.copy(), lo.copy()
+        left[axis] = right[axis] = middle
+        pending.extend(((lo, left, path + (0,)), (right, hi, path + (1,))))
+    return tuple(result)
+
+
 def mesh_points(path):
     path = Path(path)
     if path.suffix.lower() == ".stl":

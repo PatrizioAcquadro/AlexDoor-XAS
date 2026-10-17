@@ -99,7 +99,7 @@ class CommonWorkspace:
                 spaces.append(space)
         return cls(spaces, calibration_bound)
 
-    def query_static(self, centers, radii, *, cover_ids=None):
+    def query_static(self, centers, radii, *, cover_ids=None, constructive=True):
         centers, radii = np.asarray(centers, float), np.asarray(radii, float)
         if (
             centers.ndim != 2
@@ -134,14 +134,14 @@ class CommonWorkspace:
                     self.cache_hits += 1
                 else:
                     margin = None
-            if margin is None and key in self._subcovers:
+            if margin is None and constructive and key in self._subcovers:
                 margin = self._subcover_margin(center, radius, key=key)
                 if margin is not None:
                     self.cache_hits += 1
                     self._free_covers[key] = (center.copy(), float(radius), float(margin))
             if margin is None:
                 support = self._query_uncached(center[None], np.array([radius]))
-                if support.collision_clearance_m is None and not support.occupied:
+                if support.collision_clearance_m is None and not support.occupied and constructive:
                     # Raster padding can make a larger query inconclusive even
                     # when a nearby ray pyramid certifies its entire volume.
                     # Spend a smaller seed's measured radial margin on ALL of
@@ -158,7 +158,7 @@ class CommonWorkspace:
                                 remaining, False, False, self.source_clocks
                             )
                             break
-                if support.collision_clearance_m is None and not support.occupied:
+                if support.collision_clearance_m is None and not support.occupied and constructive:
                     margin = self._subcover_margin(center, radius, key=key)
                     if margin is not None:
                         support = StaticWorkspaceSupport(margin, False, False, self.source_clocks)

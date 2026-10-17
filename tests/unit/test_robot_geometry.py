@@ -201,3 +201,31 @@ def test_self_clearance_filters_fixed_descendants_by_actual_rigid_body(model):
 
     reduced, _ = unfiltered.query(separated, {"q": 0.1, "other": 0.2}, relative_model_error_m=0.01)
     assert reduced == pytest.approx(0.49)
+
+
+def test_directional_stop_cover_keeps_complete_box_sphere_intersection():
+    from alexdoor_xas.kinematics.urdf_geometry import stop_box_cover
+
+    lower, upper = np.array([-0.013, -0.003, -0.004]), np.array([0.004, 0.009, 0.006])
+    balls = stop_box_cover(lower, upper, 0.014, 0.003)
+    rng = np.random.default_rng(37)
+    points = np.r_[rng.uniform(lower, upper, (2000, 3)), np.zeros((1, 3))]
+    points = points[np.linalg.norm(points, axis=1) <= 0.014]
+    covered = np.zeros(len(points), bool)
+    for center, radius in balls:
+        assert radius <= 0.003
+        covered |= np.linalg.norm(points - center, axis=1) <= radius + 1e-12
+    assert covered.all() and len(balls) > 1
+    with pytest.raises(ValueError, match="invalid_continuous"):
+        stop_box_cover([0.001, 0, 0], upper, 0.014, 0.003)
+
+
+def test_adaptive_stop_cover_keeps_whole_volume_and_refuses_missing_interior():
+    from alexdoor_xas.kinematics.urdf_geometry import stop_box_cover
+
+    lo, hi = np.full(3, -0.01), np.full(3, 0.01)
+    whole = stop_box_cover(lo, hi, 0.02, 0.003, certify=lambda c, r, p: True)
+    assert len(whole) == 1 and whole[0][1] == pytest.approx(np.sqrt(3) * 0.01)
+    # A missing center remains inside the requested physical stop volume.
+    missing = stop_box_cover(lo, hi, 0.02, 0.003, certify=lambda c, r, p: np.linalg.norm(c) > r)
+    assert missing is None

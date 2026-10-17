@@ -10,7 +10,7 @@ from alexdoor_xas.action.b1 import apply_pose_delta
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA
 from alexdoor_xas.assets.purdue import ARM_JOINTS, derive_push_geometry
 from alexdoor_xas.kinematics.self_clearance import RobotSelfClearance
-from alexdoor_xas.kinematics.urdf_geometry import RobotGeometry
+from alexdoor_xas.kinematics.urdf_geometry import RobotGeometry, stop_box_cover
 from alexdoor_xas.perception.admission import ActionAdmission, ActionLimits, ActionProposal
 from alexdoor_xas.perception.contracts import FieldSupport, validate_local_contact
 from alexdoor_xas.perception.evaluation import json_safe
@@ -60,6 +60,21 @@ class PilotMotionEvidence:
             for a in (self.stop, self.acceleration)
         ):
             raise ValueError("invalid_measured_motion_domain")
+        self.stop_boxes = None
+        if boxes := config.get("shape_stop_boxes_m"):
+            lower, upper = np.asarray(boxes["lower"], float), np.asarray(boxes["upper"], float)
+            if (
+                lower.shape != (len(self.model.shapes), 3)
+                or upper.shape != lower.shape
+                or not np.isfinite(
+                    np.r_[lower.ravel(), upper.ravel(), config["stop_cover_radius_m"]]
+                ).all()
+                or (lower > 0).any()
+                or (upper < 0).any()
+                or config["stop_cover_radius_m"] <= 0
+            ):
+                raise ValueError("missing_verified_full_link_stop_boxes")
+            self.stop_boxes = lower, upper
         self.cells = self.model.cells()
         self.log = Path(output).open("x")
         self.last = None
@@ -132,57 +147,121 @@ class PilotMotionEvidence:
         )
         pending, covered = list(self.cells), []
         free_margin, separation, lever = np.inf, np.inf, 0.0
-        checked = 0
-        while pending:
-            cell = pending.pop()
-            center, radius = ball(cell)
-            # Independent whole-link continuous stop calibration has already
-            # covered every bounding-box corner, with held-jaw travel separate.
-            radius += self.shape_stop[cell.shape]
-            if (
-                "JAW" in self.model.shapes[cell.shape]["link"]
-                or "FINGER" in self.model.shapes[cell.shape]["link"]
-            ):
-                radius += self.config["closed_jaw_bound_m"]
-            radius += self.config["robot_model_bound_m"]
+        checked = directional = 0
+        control_angle = float(abs(dq).sum() * io.dt + 0.5 * self.acceleration.sum() * io.dt**2)
+
+        def query(center, radius, key, *, constructive=True):
+            nonlocal checked
+            checked += 1
+            if checked > self.config["maximum_cover_queries"]:
+                raise ValueError("robot_cover_query_budget_exhausted")
             local_lever = float(np.linalg.norm(center - patch.world_pose.origin) + radius)
-            normal_error = (
+            error = (
                 patch.normal_position_bound_m
                 + local_lever * patch.normal_rotation_bound_rad
                 + self.config["normal_model_bound_m"]
                 + self.config["relative_speed_bound_m_s"] * io.dt
             )
-            cell_separation = float(
-                (patch.world_pose.origin - center) @ normal
-                + normal_range[0]
-                - radius
-                - normal_error
+            gap = float(
+                (patch.world_pose.origin - center) @ normal + normal_range[0] - radius - error
             )
             support = self.workspace.query_static(
-                center[None], np.array([radius]), cover_ids=[(cell.shape, cell.path)]
+                center[None],
+                np.array([radius]),
+                cover_ids=[key],
+                constructive=constructive,
             )
-            checked += 1
+            return support, gap, local_lever
+
+        while pending:
+            cell = pending.pop()
+            base_center, base_radius = ball(cell)
+            link = self.model.shapes[cell.shape]["link"]
+            extra = self.config["robot_model_bound_m"]
+            if "JAW" in link or "FINGER" in link:
+                extra += self.config["closed_jaw_bound_m"]
+            center, radius = base_center, base_radius + self.shape_stop[cell.shape] + extra
+            support, gap, local_lever = query(center, radius, (cell.shape, cell.path, "ball"))
+            proofs = None
             if support.collision_clearance_m is not None:
-                lever = max(lever, local_lever)
-                separation = min(separation, cell_separation)
-                free_margin = min(free_margin, support.collision_clearance_m)
-                covered.append(cell)
+                proofs = [(support.collision_clearance_m, gap, local_lever)]
+            elif np.max(cell.upper - cell.lower) > self.config["minimum_cell_m"]:
+                pending.extend(self.model.subdivide(cell))
                 continue
-            if np.max(cell.upper - cell.lower) <= self.config["minimum_cell_m"]:
+            elif self.stop_boxes is not None:
+                # Both stop certificates cover the complete physical domain.
+                # Their intersection is covered without shrinking either model.
+                # Stop axes belong to stop onset, AFTER this control interval.
+                # Spend all possible intervening link rotation explicitly.
+                rotation_reserve = (
+                    2 * self.shape_stop[cell.shape] * np.sin(min(control_angle, np.pi) / 2)
+                )
+                proofs = []
+
+                def certify(
+                    offset,
+                    stop_radius,
+                    path,
+                    *,
+                    base_center=base_center,
+                    base_radius=base_radius,
+                    link=link,
+                    extra=extra,
+                    rotation_reserve=rotation_reserve,
+                    cell=cell,
+                    proofs=proofs,
+                ):
+                    nonlocal center, radius, support, directional
+                    center = base_center + matrices[link][:3, :3] @ offset
+                    radius = base_radius + stop_radius + extra + rotation_reserve
+                    support, gap, local_lever = query(
+                        center,
+                        radius,
+                        (cell.shape, cell.path, "box", path),
+                        constructive=stop_radius <= self.config["stop_cover_radius_m"],
+                    )
+                    directional += 1
+                    if support.collision_clearance_m is None:
+                        return False
+                    proofs.append((support.collision_clearance_m, gap, local_lever))
+                    return True
+
+                lower, upper = self.stop_boxes
+                complete = stop_box_cover(
+                    lower[cell.shape],
+                    upper[cell.shape],
+                    self.shape_stop[cell.shape],
+                    self.config["stop_cover_radius_m"],
+                    certify=certify,
+                )
+                if complete is None:
+                    proofs = None
+            if proofs is None:
                 diagnostics.update(
-                    unsupported_link=self.model.shapes[cell.shape]["link"],
+                    unsupported_link=link,
+                    unsupported_shape=cell.shape,
+                    unsupported_cell_lower_m=cell.lower.tolist(),
+                    unsupported_cell_upper_m=cell.upper.tolist(),
+                    unsupported_base_center=base_center.tolist(),
+                    unsupported_base_radius_m=base_radius,
                     unsupported_center=center.tolist(),
                     unsupported_radius_m=radius,
                     occupied=support.occupied,
                     unknown=support.unknown_in_envelope,
+                    robot_cover_queries=checked,
+                    directional_stop_queries=directional,
                 )
                 raise ValueError("unsupported_actual_robot_sweep_and_stop")
-            if checked > self.config["maximum_cover_queries"]:
-                raise ValueError("robot_cover_query_budget_exhausted")
-            pending.extend(self.model.subdivide(cell))
+            for margin, gap, local_lever in proofs:
+                free_margin = min(free_margin, margin)
+                separation = min(separation, gap)
+                lever = max(lever, local_lever)
+            covered.append(cell)
         self.cells = tuple(covered)
         diagnostics.update(
-            robot_cells=checked,
+            robot_cells=len(covered),
+            robot_cover_queries=checked,
+            directional_stop_queries=directional,
             sweep_margin_m=float(free_margin),
             current_material_separation_margin_m=float(separation),
         )

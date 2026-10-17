@@ -237,3 +237,18 @@ def test_static_point_index_keeps_inclusive_occupancy_at_float_boundaries():
     indexed.index_static_points()
     for z in [np.nextafter(2.014, 0.0), 2.014, np.nextafter(2.014, np.inf)]:
         assert observed.query([[0, 0, z]], [0.01]) == indexed.query([[0, 0, z]], [0.01])
+
+
+def test_coarse_stop_queries_defer_constructive_work_without_caching_unknown():
+    observed = space(2.0, 1.0)
+    view = next(iter(observed.views.values()))
+    u = np.arange(80)[None, :, None]
+    view["depth_m"][:] = 1.18 / (1 - (u - 40) / 100)
+    workspace = CommonWorkspace([observed], (0.0, 0.0))
+    coarse = workspace.query_static([[0, 0, 1]], [0.1], cover_ids=["box"], constructive=False)
+    assert coarse.unknown_in_envelope and "box" not in workspace._free_covers
+    full = workspace.query_static([[0, 0, 1]], [0.1], cover_ids=["box"])
+    assert full.collision_clearance_m > 0
+    reused = workspace.query_static([[0, 0, 1]], [0.1], cover_ids=["box"], constructive=False)
+    assert reused.collision_clearance_m == full.collision_clearance_m
+    assert reused.source_clocks == coarse.source_clocks
