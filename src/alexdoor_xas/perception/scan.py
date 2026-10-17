@@ -315,6 +315,10 @@ def observed_material_surface(reference, surfaces, semantic_id, config):
         if (
             surface.normal @ reference.normal < np.cos(np.deg2rad(config["association_angle_deg"]))
             or abs(surface.offset - reference.offset) > 2 * config["plane_tolerance_m"]
+            # Similar normals/offsets alone admit long tilted relief faces.
+            # Every measured point must belong to the reference plane envelope.
+            or np.max(abs(surface.points @ reference.normal - reference.offset))
+            > 2 * config["plane_tolerance_m"]
             or not surface.observations
             or any(o.semantic_id != semantic_id for o in surface.observations)
         ):

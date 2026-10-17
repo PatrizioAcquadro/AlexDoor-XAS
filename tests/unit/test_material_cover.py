@@ -3,11 +3,11 @@
 from dataclasses import replace
 
 import numpy as np
+from test_scan_fusion import measured_surface
 
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.material_zone import MaterialCover
 from perception_helpers import recipe
-from test_scan_fusion import measured_surface
 
 
 def test_material_union_preserves_holes_and_joins_partial_views():
@@ -43,3 +43,17 @@ def test_material_union_preserves_holes_and_joins_partial_views():
         .query(ObjectFrame(np.array([1.05, 0.0, 1.0]), np.eye(3)), faces)
         .supported
     )
+
+
+def test_material_union_rejects_tilted_relief_with_similar_plane_offset():
+    from alexdoor_xas.perception.scan import observed_material_surface
+
+    surface, _, _ = measured_surface()
+    surface.observations[0].semantic_id = 7
+    tilted = replace(surface, points=surface.points.copy(), observations=list(surface.observations))
+    tilted.points[:, 0] += 0.04 * (tilted.points[:, 2] - 1.0)
+    tilted.normal = np.array([1.0, 0.0, -0.04])
+    tilted.normal /= np.linalg.norm(tilted.normal)
+    tilted.offset = float(np.median(tilted.points @ tilted.normal))
+    fused = observed_material_surface(surface, [tilted], 7, recipe().config)
+    assert fused is surface
