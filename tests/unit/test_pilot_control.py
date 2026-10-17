@@ -835,3 +835,16 @@ def test_weak_position_accepts_positive_future_free_stop_margin():
     model, _, _ = load_inputs()
     calibration = replace(model.calibration, weak_load_q_min=np.full(7, -1.2))
     calibration.require_position_motion_support(np.full(7, -1.1), contact_free_stop_margin_m=0.001)
+
+
+def test_position_motion_guard_only_applies_to_the_extended_joint():
+    model, _, _ = load_inputs()
+    extended = np.full(7, -1.0)
+    extended[3] = -1.2
+    calibration = replace(model.calibration, weak_load_q_min=extended)
+    lower = np.zeros(7)
+    lower[0] = -1.1
+    calibration.require_position_motion_support(lower, contact_free_stop_margin_m=None)
+    lower[3] = -1.1
+    with pytest.raises(ValueError, match="weak_position_requires_contact_free_motion_and_stop"):
+        calibration.require_position_motion_support(lower, contact_free_stop_margin_m=None)

@@ -59,12 +59,16 @@ class LoadCalibration:
         """A weak current load cannot qualify a future stronger-load stop.
 
         Supply conservative joint lower bounds over the proposed motion and
-        stop. If they can leave the main envelope, require independently
+        stop. If an extended joint can leave its main envelope, require independently
         observed separation for that complete interval.
         The caller must include nonzero target motion during that interval.
         """
         lower = finite_vector(motion_q_lower, 7)
-        if self.weak_load_q_min is None or not np.any(lower < finite_vector(self.q_min, 7)):
+        if self.weak_load_q_min is None:
+            return
+        main = finite_vector(self.q_min, 7)
+        extended = finite_vector(self.weak_load_q_min, 7) < main
+        if not np.any(extended & (lower < main)):
             return
         if (
             contact_free_stop_margin_m is None

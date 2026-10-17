@@ -212,7 +212,9 @@ It spends the declared nonzero target translation and angular rates through the
 full stop duration, in addition to capture age and control-interval growth. A
 small current force alone cannot authorize future contact outside the strong
 position envelope. All main position bounds and complete teacher outputs remain
-unchanged. Actual learned integration and task success remain pending.
+unchanged. A narrower strong extension also fails its 8 N lateral stop. The final
+panel keeps the original main position recipe; the optional weak-position recipe
+is inactive. Actual new-checkpoint task success remains pending.
 The approved
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|operational plan]]
 assigns actual torque/device acquisition and signal verification to 6.0D, without

@@ -53,6 +53,16 @@ separation refuses. The original left snapshot is not claimed to pass this
 additional motion guard. All four models use the same guarded recipe in the next
 common panel version. Actual integrated behavior remains pending.
 
+A narrower strong-load check centers the elbow at −2.30, using the same waveform,
+seed, 0/8/10 N levels and three lateral directions. Its prospective operational
+lower edge is −2.315, with required independent excitation below −2.3175.
+It also fails at 8 N /−0.4 rad: 25 mm travel and 0.594 rad/s peak speed. Both
+complete raw stops and the failure-unload continuation are retained; 35.617 GPU
+seconds are charged. The candidate remains disabled. The next final panel keeps
+the original qualified main position calibration and main-13 gripper bound for
+all four models. The optional weak-position recipe is inactive, so its narrower
+future-load support cannot be mistaken for strong contact qualification.
+
 ## Original-checkpoint full-v7 outcomes
 
 Four completed outcomes are retained separately: ACT A1 right/nominal executes
