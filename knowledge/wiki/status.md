@@ -25,7 +25,10 @@ criteria, IK/gains and validated teacher outputs. The new full-v5 run executes 2
 action margin before contact, with no physical violation or task success. The
 runner preserves that explicit refusal. Saved-input diagnosis identifies duplicate
 linear capture-age charging; the corrected numeric accounting retains support
-clocks and all future/response/stop bounds. Fresh integration is pending. All24final-version outcomes and identical-checkpoint success on both doors
+clocks and all future/response/stop bounds. Full-v6 passes that refusal, executes
+239 commands and stops at the additional contact-model margin, with no physical
+violation or learned contact. Its retention/continuing-physics stop audits pass;
+the remaining 23 frozen-version slots are queued. No learned task success yet. All24final-version outcomes and identical-checkpoint success on both doors
 remain required. Teacher, checkpoints and physical criteria are unchanged; the documented controller correction preserves IK/gains.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D

@@ -66,8 +66,17 @@ a 5.959 mm margin after correction. Acquisition/support/availability clocks rema
 29.0 s at the 29.0667 s query; next-tick motion still costs 1.667 mm, and both
 13 mm response terms, 40 mrad rotations and 20 mm stopping allowance are unchanged.
 Existing complete-path margins remain accepted by the nonnegative-credit
-inequality; load/contact, geometry and swept-stop values are unchanged. Fresh real
-execution and all 24 outcomes under the corrected version remain required.
+inequality; load/contact, geometry and swept-stop values are unchanged. The first real full-v6 execution (`d8de2f0`) passes the prior refusal and
+executes 239 learned commands. It then refuses the contact monitor's additional
+3 mm model-discrepancy allowance (`contact_uncertainty_exceeds_admitted_margin`).
+That allowance was not paid by the local receipt and remains required. This is a
+retained failed outcome, not evidence to relax finite support. No physical
+violation, contact, opening, hold or release occurs; the audited 2 s stop travels
+3.533 mm /6.467 mrad and passes. The 23 remaining frozen full-v6 slots are queued
+sequentially with unchanged checkpoints, protocol and cumulative guards. Current
+cost is 5.5322/15 local GPU hours, 2,743/3,600 remote GPU seconds, 12,164/18,000
+updates and 242.946/300 GiB retained. All 24 outcomes and identical-checkpoint
+success on both doors remain required; previous versions remain separate.
 
 
 The common background now includes explicit 85-degree initial-pose calibration
