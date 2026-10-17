@@ -104,6 +104,23 @@ stop motion from actual-door checks. This retention correction changes no stop
 command, duration or physical acceptance. Physical validation of the new sidecar
 remains pending.
 
+The maintained robot geometry now supplies a complete coupled-velocity sweep:
+measured joint velocity defines the nominal curve, endpoint-chord curvature is
+bounded analytically, and an explicit acceleration box covers departure over each
+control interval. One interval's FK is reused across adaptive cells. Stops and
+scene/model uncertainty remain separate; no current-frame bound is extended by
+assuming zero motion. Dense coupled-rotation/acceleration regressions pass; actual
+operational admission and full-path support remain pending.
+
+`RobotSelfClearance` evaluates full authored convex meshes and exact sphere
+support. Shared ancestor motion cancels from relative pair bounds; nonshared
+motion and a supplied model reserve erode separation. Existing importer pair
+filters apply to owning rigid bodies and all fixed descendants, matching the
+retained authored USD. The earlier diagnostic applied them only to named links,
+leaving a spurious nanometer-scale cross-jaw assembly constraint. No simulation
+filter or physical criterion changes. Full recorded-path verification with the
+maintained producer remains separate from the numerical tests.
+
 ## Independent learned-rollout scoring
 
 `pilot_physics.py rollout --expert-reference <frozen JSON>` now scores through an

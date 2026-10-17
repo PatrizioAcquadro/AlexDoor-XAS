@@ -231,6 +231,72 @@ class RobotGeometry:
                 cells.append(CollisionCell(cell.shape, lo, hi, cell.path + (index,)))
         return tuple(cells)
 
+    def velocity_sweep(self, positions, root_world, velocity, acceleration, duration_s):
+        """Prepare whole-volume balls for coupled velocity and bounded acceleration.
+
+        The nominal constant-velocity center curve lies within its endpoint chord
+        plus a conservative second-derivative reserve. A joint acceleration box
+        covers every departure over the entire interval. Kinematics are computed
+        once per proposed interval, then reused for every adaptive collision cell.
+        Stopping, scene/model error and bound-domain checks belong to the caller.
+        """
+        velocity = np.asarray(velocity, float)
+        acceleration = np.asarray(acceleration, float)
+        n = len(self.moving_joints)
+        if (
+            velocity.shape != (n,)
+            or acceleration.shape != (n,)
+            or not np.isfinite(np.r_[velocity, acceleration, duration_s]).all()
+            or (acceleration < 0).any()
+            or duration_s <= 0
+        ):
+            raise ValueError("Unmeasured robot velocity/acceleration envelope")
+        kinds = {j.get("name"): j.get("type") for j in self.parents.values()}
+        if any(kinds[name] not in ("revolute", "continuous") for name in self.moving_joints):
+            raise ValueError("Velocity sweep requires a revolute moving chain")
+        positions = dict(positions)
+        delta = velocity * duration_s
+        end = dict(positions)
+        end.update(
+            (name, positions[name] + value)
+            for name, value in zip(self.moving_joints, delta, strict=True)
+        )
+        start_m, end_m = self.transforms(positions, root_world), self.transforms(end, root_world)
+        travel = np.abs(delta)
+        error = 0.5 * acceleration * duration_s**2
+        weights = travel.sum() * travel / 8 + 2 * np.sin(np.minimum(error, np.pi) / 2)
+        levers = []
+        for shape in self.shapes:
+            offsets, ancestors, suffix = np.zeros(n), np.zeros(n), 0.0
+            link = shape["link"]
+            while link in self.parents:
+                joint = self.parents[link]
+                name = joint.get("name")
+                if name in self.moving_joints:
+                    index = self.moving_joints.index(name)
+                    offsets[index], ancestors[index] = suffix, 1
+                suffix += np.linalg.norm(origin_matrix(joint.find("origin"))[:3, 3])
+                if joint.get("type") == "prismatic":
+                    suffix += abs(positions[name])
+                link = joint.find("parent").get("link")
+            levers.append((offsets, ancestors))
+
+        def ball(cell):
+            local = (cell.lower + cell.upper) / 2
+            link = self.shapes[cell.shape]["link"]
+            c0 = local @ start_m[link][:3, :3].T + start_m[link][:3, 3]
+            c1 = local @ end_m[link][:3, :3].T + end_m[link][:3, 3]
+            offsets, ancestors = levers[cell.shape]
+            # Downstream segment lengths bound the center derivatives even when
+            # a covering cell's center lies outside the actual convex hull.
+            reserve = (offsets + ancestors * np.linalg.norm(local)) @ weights
+            radius = (
+                np.linalg.norm(cell.upper - cell.lower) / 2 + np.linalg.norm(c1 - c0) / 2 + reserve
+            )
+            return (c0 + c1) / 2, float(radius)
+
+        return ball
+
     def world_ball(self, cell, matrices, joint_travel):
         values = np.array([joint_travel.get(name, np.nan) for name in self.moving_joints])
         if not np.isfinite(values).all() or (values < 0).any():

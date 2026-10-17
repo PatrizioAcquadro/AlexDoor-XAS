@@ -136,3 +136,63 @@ def test_cell_levers_cover_coupled_bent_chain_and_prismatic_motion(model):
     _, radius = model.world_ball(cell, matrices, {"shoulder": 0, "extension": 0, "q": 0.1})
     old_extra = model.shapes[cell.shape]["levers"]["q"] * 0.1
     assert radius < np.linalg.norm(cell.upper - cell.lower) / 2 + old_extra
+
+
+def test_velocity_cover_preserves_coupled_motion_and_acceleration_departures(model):
+    path = model.urdf
+    path.write_text("""<robot name="coupled"><link name="base"/><link name="elbow"/>
+<link name="tool"><collision><origin xyz="0.3 0 0"/>
+<geometry><mesh filename="cube.stl"/></geometry></collision></link>
+<joint name="shoulder" type="revolute"><parent link="base"/><child link="elbow"/>
+<origin xyz="0 0 1"/><axis xyz="0 0 1"/></joint>
+<joint name="q" type="revolute"><parent link="elbow"/><child link="tool"/>
+<origin xyz="0.5 0 0"/><axis xyz="0 1 0"/></joint></robot>""")
+    robot = RobotGeometry(path, ("shoulder", "q"))
+    positions = dict(shoulder=0.6, q=-0.4)
+    velocity, acceleration, dt = np.array([0.2, -0.3]), np.array([5.0, 3.0]), 0.05
+    cell = robot.cells()[0]
+    center, radius = robot.velocity_sweep(positions, np.eye(4), velocity, acceleration, dt)(cell)
+    vertices = np.array(list(product(*zip(cell.lower, cell.upper, strict=True))))
+    for fraction in np.linspace(0, 1, 31):
+        t = fraction * dt
+        for signs in product((-1, 0, 1), repeat=2):
+            q = (
+                np.array(list(positions.values()))
+                + velocity * t
+                + 0.5 * acceleration * signs * t**2
+            )
+            matrices = robot.transforms(dict(zip(robot.moving_joints, q, strict=True)), np.eye(4))
+            transform = matrices["tool"]
+            points = vertices @ transform[:3, :3].T + transform[:3, 3]
+            assert (np.linalg.norm(points - center, axis=1) <= radius + 1e-12).all()
+    with pytest.raises(ValueError, match="acceleration"):
+        robot.velocity_sweep(positions, np.eye(4), velocity, [-1, 1], dt)
+
+
+def test_self_clearance_filters_fixed_descendants_by_actual_rigid_body(model):
+    from alexdoor_xas.kinematics.self_clearance import RobotSelfClearance
+
+    path = model.urdf
+    path.write_text("""<robot name="groups"><link name="base"/><link name="jawA"/>
+<link name="jawB"/><link name="fingerA"><collision><geometry>
+<mesh filename="cube.stl"/></geometry></collision></link>
+<link name="fingerB"><collision><geometry><mesh filename="cube.stl"/>
+</geometry></collision></link>
+<joint name="q" type="prismatic"><parent link="base"/><child link="jawA"/>
+<axis xyz="1 0 0"/></joint>
+<joint name="other" type="prismatic"><parent link="base"/><child link="jawB"/>
+<axis xyz="1 0 0"/></joint>
+<joint name="fixedA" type="fixed"><parent link="jawA"/><child link="fingerA"/></joint>
+<joint name="fixedB" type="fixed"><parent link="jawB"/><child link="fingerB"/></joint>
+</robot>""")
+    robot = RobotGeometry(path, ("q",))
+    matrices = robot.transforms(dict(q=0, other=0), np.eye(4))
+    unfiltered = RobotSelfClearance(robot, ())
+    assert unfiltered.query(matrices, {"q": 0}, relative_model_error_m=0)[0] < 0
+    filtered = RobotSelfClearance(robot, (("jawA", "jawB"),))
+    assert not filtered.pairs
+    assert np.isinf(filtered.query(matrices, {"q": 0}, relative_model_error_m=0)[0])
+    separated = robot.transforms(dict(q=0, other=1), np.eye(4))
+    margin, pair = unfiltered.query(separated, {"q": 0.1}, relative_model_error_m=0.01)
+    assert margin == pytest.approx(0.69)
+    assert set(pair) == {"fingerA", "fingerB"}
