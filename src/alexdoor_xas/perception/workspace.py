@@ -1,6 +1,7 @@
 """Observed static workcell calibration, separate from current dynamic evidence."""
 
 import json
+from copy import deepcopy
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -28,7 +29,9 @@ class CommonWorkspace:
     """
 
     def __init__(self, spaces, calibration_bound):
-        self.spaces = tuple(spaces)
+        self.spaces = tuple(deepcopy(space) for space in spaces)
+        self._free_covers = {}
+        self.cache_hits = 0
         self.calibration_bound = np.asarray(calibration_bound, dtype=float)
         if (
             not self.spaces
@@ -89,7 +92,7 @@ class CommonWorkspace:
                 spaces.append(space)
         return cls(spaces, calibration_bound)
 
-    def query_static(self, centers, radii):
+    def query_static(self, centers, radii, *, cover_ids=None):
         centers, radii = np.asarray(centers, float), np.asarray(radii, float)
         if (
             centers.ndim != 2
@@ -101,6 +104,39 @@ class CommonWorkspace:
             or (radii < 0).any()
         ):
             return StaticWorkspaceSupport(None, True, False, self.source_clocks)
+        if cover_ids is None:
+            return self._query_uncached(centers, radii)
+        if len(cover_ids) != len(centers) or len(set(cover_ids)) != len(cover_ids):
+            raise ValueError("invalid_static_cover_identity")
+        margins = []
+        for key, center, radius in zip(cover_ids, centers, radii, strict=True):
+            previous = self._free_covers.get(key)
+            margin = None
+            if previous is not None:
+                old_center, old_radius, old_margin = previous
+                # The original radial certificate is a fixed free volume, not a
+                # renewed observation. Include calibration-lever growth as well.
+                growth = (
+                    np.linalg.norm(center - old_center)
+                    * (1 + 2 * np.sin(min(self.calibration_bound[1], np.pi) / 2))
+                    + radius
+                    - old_radius
+                )
+                margin = old_margin - growth
+                if margin > 0:
+                    self.cache_hits += 1
+                else:
+                    margin = None
+            if margin is None:
+                support = self._query_uncached(center[None], np.array([radius]))
+                if support.collision_clearance_m is None:
+                    return support
+                margin = support.collision_clearance_m
+                self._free_covers[key] = (center.copy(), float(radius), float(margin))
+            margins.append(margin)
+        return StaticWorkspaceSupport(min(margins), False, False, self.source_clocks)
+
+    def _query_uncached(self, centers, radii):
         supports = []
         for space in self.spaces:
             lever = np.max(

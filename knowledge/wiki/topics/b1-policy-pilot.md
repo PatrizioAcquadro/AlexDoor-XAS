@@ -641,3 +641,13 @@ remaining declared conditions use the same corrected teacher: right dim/left bri
 for training and both development lights for validation. The raw collection ceiling
 stays six, and the fixed 24-outcome denominator is unchanged. This is a partial
 pilot data selection, not the final matched A1–A4 dataset.
+
+Static workspace queries may cache a certified free ball. Reuse spends center
+motion, radius growth and the increased camera-calibration lever against the
+original radial margin, without changing the observation clocks or certifying
+new dynamic geometry. Input ray banks are copied; unknown volumes never enter
+the cache. A numerical adaptive cover of the first right command certifies all
+14 moving convex shapes with 108 balls across the three observed conditions.
+Initialization takes 0.70 s; 200 small artificial cache displacements take a
+median 0.194 ms/query. This is CPU geometry feasibility/timing, not a physical
+trajectory, whole-task clearance or hardware real-time qualification.
