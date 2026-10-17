@@ -96,6 +96,7 @@ def run_inspection(env, config, recorder=None):
     p, q = [array(v)[0] for v in env.tool_pose()]
     rotation = Rotation.from_quat(q).as_matrix()
     parked_joints = array(env.robot.data.joint_pos)[0, env.arm_ids].copy()
+    initial_door_angle = float(array(env.door.data.joint_pos)[0, 0])
     maximum = dict(tool_drift_m=0.0, door_angle_rad=0.0, neck_error_rad=0.0)
     for i in range(1, round(points[-1, 0] / env.step_dt) + 1):
         time_s = i * env.step_dt
@@ -106,7 +107,7 @@ def run_inspection(env, config, recorder=None):
         measured = array(env.robot.data.joint_pos)[0, env.arm_ids]
         env.step_a1(parked_joints - measured)
         drift = float(np.linalg.norm(array(env.tool_pose()[0])[0] - p))
-        angle = float(np.abs(array(env.door.data.joint_pos)[0, 0]))
+        angle = float(np.abs(array(env.door.data.joint_pos)[0, 0] - initial_door_angle))
         neck_error = float(np.max(np.abs(array(env.robot.data.joint_pos)[0, env.neck_ids] - neck)))
         metrics = dict(tool_drift_m=drift, door_angle_rad=angle, neck_error_rad=neck_error)
         if not inspection_within_limits(
@@ -119,6 +120,7 @@ def run_inspection(env, config, recorder=None):
             recorder.transition(env, p, rotation, "inspect", dict(valid=True))
     return dict(
         duration_s=float(points[-1, 0]),
+        initial_door_angle_rad=initial_door_angle,
         tolerances=inspection_tolerances(env.step_dt, config["max_neck_speed_rad_s"]),
         **maximum,
     )

@@ -46,7 +46,8 @@ def test_inspection_guard_accepts_sample_resolution_but_rejects_meaningful_exces
     assert not inspection_within_limits(metrics, dt, speed)
 
 
-def test_teacher_and_io_scan_hold_the_same_joint_anchor():
+@pytest.mark.parametrize("initial_angle", [0.0, 1.48])
+def test_teacher_and_io_scan_hold_the_same_joint_anchor(initial_angle):
     from types import SimpleNamespace
 
     import numpy as np
@@ -62,7 +63,7 @@ def test_teacher_and_io_scan_hold_the_same_joint_anchor():
         arm_ids=list(range(7)),
         neck_ids=[7, 8],
         robot=SimpleNamespace(data=SimpleNamespace(joint_pos=joints)),
-        door=SimpleNamespace(data=SimpleNamespace(joint_pos=np.zeros((1, 1)))),
+        door=SimpleNamespace(data=SimpleNamespace(joint_pos=np.full((1, 1), initial_angle))),
         capture=SimpleNamespace(sample=SimpleNamespace(joint_position=joints)),
         contact_history=[dict(forbidden=False)],
         tool_pose=lambda: (np.zeros((1, 3)), np.array([[0, 0, 0, 1]])),
@@ -75,7 +76,11 @@ def test_teacher_and_io_scan_hold_the_same_joint_anchor():
 
     env.step_a1 = step
     env.set_neck_target = lambda neck: joints.__setitem__((0, slice(7, 9)), neck)
-    run_inspection(env, dict(waypoints=[[0, 0, 0], [0.3, 0.02, 0]], max_neck_speed_rad_s=0.4))
+    report = run_inspection(
+        env, dict(waypoints=[[0, 0, 0], [0.3, 0.02, 0]], max_neck_speed_rad_s=0.4)
+    )
+    assert report["initial_door_angle_rad"] == initial_angle
+    assert report["door_angle_rad"] == 0.0
     io = PurdueIO.__new__(PurdueIO)
     io.env, io.parked_joints = env, q0.copy()
     io.hold_step()

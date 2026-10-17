@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--asset-id", required=True)
     parser.add_argument("--view", choices=("front", "back"), required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--initial-opening-deg", type=float, default=0.0)
     args = parser.parse_args()
     from alexdoor_xas.perception.inspection import (
         load_inspection,
@@ -58,6 +59,8 @@ def main():
     validate_inspection(inspection)
     setup.neck = tuple(inspection["waypoints"][-1][1:])
     args.output.mkdir(parents=True, exist_ok=False)
+    import math
+
     from isaaclab.app import AppLauncher
 
     app = AppLauncher(headless=True, enable_cameras=True, device="cuda:0").app
@@ -74,10 +77,20 @@ def main():
         json.loads((folder / "prepared.json").read_text()),
         json.loads((folder / "recipe.json").read_text()),
     )
+    if (
+        not math.isfinite(args.initial_opening_deg)
+        or not 0 <= math.radians(args.initial_opening_deg) < door.mechanical_stop
+    ):
+        raise ValueError("Survey opening must be inside the unchanged mechanical stop")
     cfg = probe_config(door, setup, "cuda:0")
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
     cfg.seed = 6100
     env = DoorPushPurdueEnv(cfg)
+    # A declared calibration initial condition; no hinge control or task policy.
+    # Only observed free space is exported, never this angle as runtime geometry.
+    from alexdoor_xas.envs.door_task.door_push_purdue_env import tensor
+
+    tensor(env.door.data.default_joint_pos)[:] = math.radians(args.initial_opening_deg)
     signal.signal(signal.SIGTERM, interrupted)
     write(args.output / "physical-case-start.json", dict(role="workspace_survey", wall_time=time()))
     metadata = dict(
@@ -85,6 +98,7 @@ def main():
         asset_id=args.asset_id,
         split=entry["split"],
         survey_view=args.view,
+        survey_initial_opening_deg=args.initial_opening_deg,
         survey_floor_pose=setup.floor_pose,
         accepted_task_floor_pose=nominal_floor,
         inspection=inspection,

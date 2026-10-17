@@ -105,6 +105,14 @@ def test_recorded_workspace_normalizes_explicit_legacy_sampling_without_rewritin
     view = next(iter(common.spaces[0].views.values()))
     np.testing.assert_array_equal(view["intrinsics"][:2, 2], raw[:2, 2] - 0.5)
     assert common.source_clocks == (((1.0, 1.0),),)
+    from alexdoor_xas.perception.workspace import ObservedBackground
+
+    background = ObservedBackground.from_recording_groups(
+        [[dict(path=str(path), sample_times_s=[1.0])]], config, [0, 0], [1, 2]
+    )
+    supported = background.query_background([[0, 0, 1]], [0.01], current_foreground_margin_m=0.1)
+    assert supported.collision_clearance_m > 0
+    assert supported.source_clocks == (((str(path.resolve()), 1.0, 1.0),),)
     with h5py.File(path, "r+") as source:
         np.testing.assert_array_equal(source["observations/intrinsics"][0], raw)
         source["metadata"].attrs["calibration"] = json.dumps(

@@ -9,7 +9,7 @@
   "domain": ["animated-door-1-88abf40", "door-2738468b94d74c5f", "psx-industrial-001-4f5561b"],
   "rules": [
     "The base stays fixed throughout each survey; the task's accepted placement is unchanged",
-    "Use the same head ZED, calibrated robot geometry and parked arm; no extra sensor or door motion",
+    "Use the same head ZED, calibrated robot geometry and parked arm; no extra sensor or hinge actuation; an explicitly declared initial opening may expose background while the original dynamics remain active",
     "Retain observed depths and their original calibration/clock; do not fabricate current observations",
     "Only common observed free-space evidence may be reused; no asset-ID-conditioned admission lookup",
     "Unknown regions, scene-change assumptions and dynamic-door exclusion remain explicit"

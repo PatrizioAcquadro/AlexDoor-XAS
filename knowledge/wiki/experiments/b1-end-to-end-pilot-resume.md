@@ -101,6 +101,28 @@ not current clearance: current moving-foreground exclusion and designated distal
 contact remain necessary. The parked-arm camera preflight does not diagnose
 an occluding robot at those ray centers, so no new survey allocation is launched.
 
+## Observed open-pose background calibration
+
+The right35s failed loaded-sweep sphere is not certified even at radius zero by
+any earlier right-scene view, although its center is269mm from the independently
+measured static frame. An explicit85-degree initial-pose survey exposes the
+background using the same head ZED and unchanged passive hinge dynamics. The
+measured10.162mm sphere has107.6mm free clearance; the original radius and all
+camera/depth bounds remain unchanged. The25s survey keeps zero door drift and
+passes the2s continuing-physics stop. Its96.82s workload plus conservative tail
+is charged; no demonstration slot or policy outcome is claimed.
+
+`scripts/pilot_workspace_survey.py --asset-root <prepared-root> --asset-id
+<declared-train-or-development-id> --view front --initial-opening-deg 85 --output
+<new-directory>` reproduces the calibration. Inspection measures drift from its
+declared initial pose; closed-start teacher/runtime behavior is unchanged.
+Historical background groups may name per-record `sample_times_s`, preserving
+short survey captures and longer episodes without inventing or truncating clocks.
+The candidate right calibration is merged only into its corresponding calibration
+condition; all conditions must still support each background volume. New sparse
+right-path samples through120s admit; later rows reveal a separate floating-point
+schedule comparison that remains under correction. No final panel has started.
+
 ## Static ray-query cost
 
 Historical background can now certify a complete convex stop cover against real

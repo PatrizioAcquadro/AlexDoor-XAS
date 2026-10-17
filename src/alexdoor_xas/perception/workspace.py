@@ -311,9 +311,13 @@ class ObservedBackground(CommonWorkspace):
         spaces = []
         for paths in groups:
             bank = ObservedSpace(config)
-            for path in paths:
+            for item in paths:
+                path = item["path"] if isinstance(item, dict) else item
+                record_config = deepcopy(config)
+                if isinstance(item, dict):
+                    record_config["inspection"]["sample_times_s"] = item["sample_times_s"]
                 recorded = CommonWorkspace.from_recordings(
-                    [path], config, calibration_bound
+                    [path], record_config, calibration_bound
                 ).spaces[0]
                 bank.views.update(
                     {(str(Path(path).resolve()), key): view for key, view in recorded.views.items()}
