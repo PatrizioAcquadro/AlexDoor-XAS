@@ -1007,10 +1007,15 @@ workstation hours /5.82 TiB raw and 302.39 evaluation hours from separately meas
 physics/frontend service. The lossless 10 Hz image layout projects 1,315.9 GiB for
 840 evaluation outcomes before other retained streams. Provisional reserves are
 500 workstation hours, 64 allocated A100 hours and 20 TB archive plus models/logs.
-These supersede the earlier single-cycle/historical cost projections; real A100
-throughput, live evaluation overhead and verified variation ranges remain open.
+The completed real two-episode A100 pilot now measures steady100-update epochs
+at3.29–3.50s. Five seeds per four cells at100kupdates project18.66A100GPUh for
+that measured training loop, excluding preparation, larger-data I/O, selection and
+simulation. The64A100h reserve remains provisional. Loaded final-version learned
+runtime, production data throughput and verified variation ranges remain open;
+the earlier302.4h service extrapolation is not a measured evaluation budget.
 The local evidence directory retains `campaign-budget-proposal-revised.json` and
-`.md`, all original proposals and the measured basis. No campaign is authorized;
+`.md`, plus `campaign-budget-proposal-real-training-v2.json`/`.md`, all original
+proposals and measured basis. No campaign is authorized;
 deferred observed A4 initialization is not an A1/A2 prerequisite.
 
 Self-clearance now requires explicit travel bounds for every ancestor joint of the relevant active-arm/body pairs, including held head, left arm and jaws. Missing held-joint evidence cannot silently become zero motion. Shared rigid ancestors cancel; existing body-pair filters still inherit to fixed collision descendants. Full recorded-motion qualification remains pending.
