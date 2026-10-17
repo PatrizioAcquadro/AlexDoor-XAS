@@ -870,5 +870,3 @@ new interface/current-target/background producer is still a development candidat
 pending full sweep and contact-monitor qualification; no new learned or final
 panel outcome is inferred. Planar-only visual-core alternatives fail the unchanged
 finite footprint margins and remain preserved and unadopted.
-
-The existing workspace-survey CLI accepts an explicit calibration-only `--park-arm` in canonical seven-joint order. It records that posture and preserves the task controller, door dynamics, head inspection and accepted rollout placement. This permits a separately qualified unobstructed calibration view when the original parked robot hides a required initial-target volume. It does not alter teacher or learned-rollout initialization. The mirrored safe posture has a9.41mm CAD self-clearance preflight; a new survey has not yet run.
