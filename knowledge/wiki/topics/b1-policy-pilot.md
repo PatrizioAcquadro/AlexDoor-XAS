@@ -607,3 +607,10 @@ strong-load fallback, joint/speed/acceleration envelope and missing-data stops a
 unchanged. A scalar recipe must be independently validated before use; the optional
 fields do not change model or stop qualification flags. The current candidate
 remains unqualified and no live contact execution is enabled by this interface.
+
+Isaac-free offline preparation accepts `--urdf` for a relocated robot asset on
+Gilbreth. Its bytes must match the existing recorded `RobotAssetRef.sha256` before
+FK or preprocessing; raw recordings/runtime metadata remain unchanged. The actual
+preparation path is retained in the label audit. `--reference-raw` avoids another
+large raw copy. Relocation and CLI checks pass; real remote preparation/training
+remain pending.

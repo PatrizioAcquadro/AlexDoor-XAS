@@ -2,6 +2,7 @@
 """Bounded pilot preparation and four CUDA training paths; no physical dispatch."""
 
 import argparse
+import hashlib
 import json
 import sys
 from itertools import islice
@@ -44,7 +45,7 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
 
 
-def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True):
+def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True, urdf=None):
     episodes, audit = [], []
     splits = {e["asset_id"]: e["split"] for e in protocol["episodes"]}
     binding, robot = None, None
@@ -55,7 +56,10 @@ def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True):
         if robot is not None and identity != robot:
             raise ValueError("Different robot across physical episodes")
         robot = identity
-        fk = PurdueFK(runtime["urdf"])
+        urdf_path = Path(runtime["urdf"]) if urdf is None else Path(urdf)
+        if hashlib.sha256(urdf_path.read_bytes()).hexdigest() != identity.sha256:
+            raise ValueError("Preparation URDF differs from the recorded robot asset")
+        fk = PurdueFK(urdf_path)
         path = directory / "episode.hdf5"
         with h5py.File(path) as source:
             calibration = json.loads(source["metadata"].attrs["calibration"])
@@ -94,6 +98,7 @@ def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True):
             audit.append(
                 dict(
                     asset_id=entry["asset_id"],
+                    fk_urdf=str(urdf_path.resolve()),
                     split=entry["split"],
                     learned_ticks=len(exact_a1),
                     raw_observations=len(obs["time_s"]),
@@ -400,6 +405,11 @@ if __name__ == "__main__":
         help="Retain original raw recordings separately rather than duplicating them in exports",
     )
     parser.add_argument(
+        "--urdf",
+        type=Path,
+        help="Relocated byte-identical robot URDF for Isaac-free preparation on Gilbreth",
+    )
+    parser.add_argument(
         "--asset-id", help="Single declared episode for the read-only preflight audit"
     )
     args = parser.parse_args()
@@ -411,9 +421,15 @@ if __name__ == "__main__":
         protocol["episodes"] = [e for e in protocol["episodes"] if e["asset_id"] == args.asset_id]
         if len(protocol["episodes"]) != 1:
             parser.error("Audit requires one declared identity")
-        prepare(args.root, protocol, export=False, recipe=args.recipe)
+        prepare(args.root, protocol, export=False, recipe=args.recipe, urdf=args.urdf)
     else:
         if args.mode == "prepare":
-            prepare(args.root, protocol, recipe=args.recipe, copy_raw=not args.reference_raw)
+            prepare(
+                args.root,
+                protocol,
+                recipe=args.recipe,
+                copy_raw=not args.reference_raw,
+                urdf=args.urdf,
+            )
         else:
             train(args.root, protocol)
