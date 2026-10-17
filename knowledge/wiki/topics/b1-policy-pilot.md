@@ -520,3 +520,14 @@ The native masks and object tracking are unchanged; this changes material
 coordinates, not a policy goal or robot trajectory. Missing finite support and
 ambiguous ownership still refuse. Physical extrema can be lines and remain
 separate from the existing 3 mm distal-band projection used for support checks.
+
+A1/A2 admission requires finite measured local bounds and spends their full
+position/rotation effects against the actual finite-footprint, continuous sweep,
+response and stopping margins. It does not additionally apply the global 10 mm
+A3/A4 frame-qualification cap to that marginal proof. Large uncertainty reduces
+the remaining margin and can still refuse; missing bounds always refuse. The
+physical 10 mm tracking score, 0.1 mm contact gap, force, collision, hold and release
+criteria are unchanged. The contact monitor spends only its additional
+visible/collision-model discrepancy against the receipt's remaining margin, since
+that receipt already charges geometry, pose and robot errors. It still reports
+the complete uncertainty in the fingertip separation intervals.

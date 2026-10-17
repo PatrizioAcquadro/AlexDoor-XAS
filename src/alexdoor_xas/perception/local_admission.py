@@ -49,7 +49,9 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
         if len(patch.finger_clearance_m) != 2:
             raise ValueError("missing_two_finger_support")
         for support in (patch.geometry_support, patch.pose_support):
-            support.require_bounds(position=True, rotation=True, qualification=True)
+            # A1/A2 consume these bounds in the actual footprint/sweep margin
+            # below. Global A3/A4 frame qualification is a separate requirement.
+            support.require_bounds(position=True, rotation=True)
         if proposal.action_space not in (A1_JOINT_DELTA, A2_EE_DELTA):
             raise ValueError("local_admission_requires_robot_world_action")
         if proposal.source != state.selection.source or proposal.source not in (

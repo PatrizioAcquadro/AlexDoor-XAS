@@ -181,7 +181,14 @@ class ObservedContactMonitor:
                 )
             )
             margins = [float(value) for _, value in admission.margins_m]
-            if not margins or not np.isfinite(margins).all() or uncertainty >= min(margins):
+            # The receipt already charges geometry, pose and robot uncertainty.
+            # Only the additional visible/collision-model discrepancy is absent
+            # from that receipt. Do not spend the shared bounds a second time.
+            if (
+                not margins
+                or not np.isfinite(margins).all()
+                or self.config.normal_model_bound_m >= min(margins)
+            ):
                 raise ValueError("contact_uncertainty_exceeds_admitted_margin")
             relative = (tool.origin - patch.world_pose.origin) @ patch.world_pose.rot
             if self.last is not None and now > self.last[0]:

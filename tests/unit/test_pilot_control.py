@@ -315,3 +315,18 @@ def test_safety_uses_io_geometry_profile_with_an_independent_provider_recipe():
     safety = ObservedPurdueSafety(io, SimpleNamespace(max_joint_speed=0.5), provider)
     safety.checks.check = lambda *args, **kwargs: kwargs["profile"]
     assert safety.check(None) == OPERATIONAL_V1
+
+
+def test_axis_free_admission_spends_measured_error_against_the_actual_sweep():
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    patch = replace(patch, pose_support=replace(patch.pose_support, position_bound_m=0.025))
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    # A large but finite frame error cannot fit inside this narrow clearance.
+    evidence = replace(evidence, finger_clearance_m=(0.03, 0.03), collision_clearance_m=0.03)
+    assert not admit_local_action(estimate, proposal, evidence, limits, 1, generation=0).admitted
+    wide = replace(evidence, finger_clearance_m=(0.1, 0.1), collision_clearance_m=0.1)
+    assert admit_local_action(estimate, proposal, wide, limits, 1, generation=0).admitted
+    unknown = replace(patch, pose_support=replace(patch.pose_support, position_bound_m=None))
+    estimate = replace(estimate, local=replace(estimate.local, patches=(unknown,)))
+    assert not admit_local_action(estimate, proposal, wide, limits, 1, generation=0).admitted
