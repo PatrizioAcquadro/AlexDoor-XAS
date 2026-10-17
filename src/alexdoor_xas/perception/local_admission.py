@@ -39,6 +39,10 @@ class LocalActionSupport:
     # producer already includes its own kinematic, scene and stopping errors.
     # Local material uncertainty still spends the finite finger margin below.
     swept_collision_margin_m: float | None = None
+    # Independently eroded separation of the WHOLE robot/stop volume from
+    # current material. With the free-space proof, no contact footprint is used.
+    unloaded_separation_margin_m: float | None = None
+    unloaded_normal_lever_m: float | None = None
 
 
 def _local_error(patch, evidence, limits, now, duration):
@@ -133,22 +137,34 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             raise ValueError("unknown_relevant_swept_space")
         if len(evidence.finger_clearance_m) != 2:
             raise ValueError("missing_two_finger_support")
-        values = evidence.finger_clearance_m
         sweep_margin = evidence.swept_collision_margin_m
-        if sweep_margin is None:
-            values = (*values, evidence.collision_clearance_m)
-        elif nonnegative(sweep_margin, "invalid_robot_sweep_margin") <= 0:
-            raise ValueError("insufficient_robot_sweep_margin")
-        clearance = min(nonnegative(v, "missing_relevant_clearance") for v in values)
-        error = _local_error(patch, evidence, limits, now, duration)
-        if clearance <= error:
-            raise ValueError("insufficient_local_action_margin")
-        if (
-            not proposal.loaded
-            and nonnegative(evidence.unloaded_separation_m, "unmeasured_unloaded_separation")
-            <= error
-        ):
-            raise ValueError("unloaded_contact_not_excluded")
+        free_margin = evidence.unloaded_separation_margin_m
+        if free_margin is not None:
+            if proposal.loaded or sweep_margin is None:
+                raise ValueError("free_motion_requires_unloaded_full_robot_proof")
+            clearance = nonnegative(free_margin, "invalid_unloaded_separation_margin")
+            nonnegative(evidence.unloaded_normal_lever_m, "missing_unloaded_normal_lever")
+            nonnegative(patch.normal_position_bound_m, "missing_unloaded_normal_bound")
+            nonnegative(patch.normal_rotation_bound_rad, "missing_unloaded_normal_bound")
+            if clearance <= 0 or nonnegative(sweep_margin, "invalid_robot_sweep_margin") <= 0:
+                raise ValueError("insufficient_unloaded_full_robot_margin")
+            error = 0.0
+        else:
+            values = evidence.finger_clearance_m
+            if sweep_margin is None:
+                values = (*values, evidence.collision_clearance_m)
+            elif nonnegative(sweep_margin, "invalid_robot_sweep_margin") <= 0:
+                raise ValueError("insufficient_robot_sweep_margin")
+            clearance = min(nonnegative(v, "missing_relevant_clearance") for v in values)
+            error = _local_error(patch, evidence, limits, now, duration)
+            if clearance <= error:
+                raise ValueError("insufficient_local_action_margin")
+            if (
+                not proposal.loaded
+                and nonnegative(evidence.unloaded_separation_m, "unmeasured_unloaded_separation")
+                <= error
+            ):
+                raise ValueError("unloaded_contact_not_excluded")
     except (ValueError, TypeError, AttributeError, IndexError) as error:
         return ActionAdmission(False, False, str(error))
     return ActionAdmission(
@@ -219,6 +235,19 @@ def require_current_local_admission(admission, estimate, now):
     # Spend the original proof's remaining margin on any new uncertainty or
     # local support loss. Small updates are valid only while that proof still fits.
     start, end = admission.proposal.times_s
+    if evidence.unloaded_separation_margin_m is not None:
+        # The original producer proved separation for the complete interval.
+        # Spend any subsequent normal-bound growth; never substitute a finite
+        # patch margin for a free-volume proof or silently assume zero motion.
+        growth = (
+            max(0, patch.normal_position_bound_m - before.normal_position_bound_m)
+            + evidence.unloaded_normal_lever_m
+            * max(0, patch.normal_rotation_bound_rad - before.normal_rotation_bound_rad)
+            + admission.limits.relative_speed_bound_m_s * elapsed
+        )
+        if growth >= evidence.unloaded_separation_margin_m:
+            raise ValueError("admitted_unloaded_separation_exhausted")
+        return
     old_error = _local_error(before, evidence, admission.limits, start, end - start)
     current_error = _local_error(patch, evidence, admission.limits, now, end - now)
     clearance_loss = max(

@@ -583,3 +583,40 @@ def test_independent_robot_sweep_proof_keeps_its_own_residual_margin():
     assert not admit_local_action(estimate, proposal, narrow, limits, 1, generation=0).admitted
     unknown = replace(evidence, unknown_in_envelope=True)
     assert not admit_local_action(estimate, proposal, unknown, limits, 1, generation=0).admitted
+
+
+def test_unloaded_full_robot_proof_does_not_require_an_irrelevant_contact_footprint():
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = replace(
+        estimate.local.patches[0], normal_position_bound_m=0.005, normal_rotation_bound_rad=0.01
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    proposal = replace(proposal, loaded=False)
+    free = replace(
+        evidence,
+        finger_clearance_m=(None, None),
+        collision_clearance_m=None,
+        swept_collision_margin_m=0.02,
+        unloaded_separation_margin_m=0.015,
+        unloaded_normal_lever_m=0.8,
+    )
+    receipt = admit_local_action(estimate, proposal, free, limits, 1, generation=0)
+    assert receipt.admitted
+    require_current_admission(receipt, estimate, 1 + 1 / 60)
+    for bad in [
+        replace(free, swept_collision_margin_m=None),
+        replace(free, unloaded_normal_lever_m=None),
+        replace(free, unloaded_separation_margin_m=0),
+        replace(free, unknown_in_envelope=True),
+    ]:
+        assert not admit_local_action(estimate, proposal, bad, limits, 1, generation=0).admitted
+    assert not admit_local_action(
+        estimate, replace(proposal, loaded=True), free, limits, 1, generation=0
+    ).admitted
+    changed = replace(patch, normal_position_bound_m=0.025)
+    with pytest.raises(ValueError, match="unloaded_separation_exhausted"):
+        require_current_admission(
+            receipt,
+            replace(estimate, local=replace(estimate.local, patches=(changed,))),
+            1 + 1 / 60,
+        )
