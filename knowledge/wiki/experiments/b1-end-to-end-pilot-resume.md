@@ -48,6 +48,34 @@ bounds remain distinct. This is an observed component result, not complete conta
 sweep/admission qualification or learned execution. Earlier failures and historical
 budget proposals below remain preserved.
 
+## Finite material component
+
+The current diagnostic model retains a connected measured RGB-D material mask,
+its complete normal-depth interval and known holes/disconnected background.
+Every metric cell projects its entire normal column through each real inspection
+camera; this spends local parallax instead of attributing a distant grazing
+view's worst error to the entire leaf. The measured planar core conditions
+orientation at the existing1mm point-error resolution; the wider relief/geometry
+tolerance remains unchanged. This is a bounded shallow opaque relief model,
+not a claim that an occluded interface is directly measured or solid everywhere.
+Its contact interval remains separate from physical scoring and full robot space.
+
+The1mm computational grid preserves positive original full action-margin bounds
+at all7224 right and7751 left valid retained queries, including between captures:
+minimum right3.20mm and left99.61mm. The20mm stop reserve and physical evaluator
+are unchanged. The preceding2mm grid retains three right refusals; all earlier
+failed material variants remain preserved. Native tracking is unchanged. Known
+holes and separate background, complete depth-column parallax and future
+inspection clocks have essential regression coverage. This is numerical component
+evidence; the live producer and whole contact path are not yet qualified.
+
+Unassociated straight-edge and upright-edge trials worsen local rotation and
+are rejected; neither remains active. A tighter6.5mm isotropic stop candidate
+also fails the complete29-stop continuous audit, including a proposed slower
+Cartesian-speed subset. No global stop bound is reduced. A separate calibration
+of complete finite-finger tangential and inward travel is retained for subsequent
+qualification; it does not yet authorize contact admission.
+
 ## Current observed-space integration
 
 Continuous recorded robot sweeps use calibrated CAD cells, joint-axis cell levers

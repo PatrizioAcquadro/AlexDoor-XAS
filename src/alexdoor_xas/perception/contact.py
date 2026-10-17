@@ -243,7 +243,12 @@ class ObservedContactMonitor:
             ):
                 raise ValueError("different_contact_pose_at_same_time")
             # Same-clock before/after checks do not accumulate artificial support.
-            intervals = tuple((float(x - uncertainty), float(x + uncertainty)) for x in signed)
+            depth_range = admission.local_evidence.material_normal_range_m
+            depth_range = (0.0, 0.0) if depth_range is None else depth_range
+            intervals = tuple(
+                (float(x + depth_range[0] - uncertainty), float(x + depth_range[1] + uncertainty))
+                for x in signed
+            )
             start, end = admission.proposal.world_poses
             # Every calibrated distal point must withdraw. Center translation
             # alone can hide one finger rotating further into the material.
@@ -260,7 +265,7 @@ class ObservedContactMonitor:
                 self.releasing and not withdrawing and load.normal_lower_n >= self.config.force_on_n
             ):
                 self.releasing = False
-            plausible = bool(np.any(np.abs(signed) <= uncertainty))
+            plausible = any(lower <= 0 <= upper for lower, upper in intervals)
             mean = self.contact_load(load, now)
             force = None if mean is None else float(mean)
             positive = force is not None and force >= (
@@ -290,7 +295,7 @@ class ObservedContactMonitor:
                 reason = "supported_indirect_contact" if self.established else "confirming_contact"
             elif self.releasing:
                 status, reason = "separated", "commanded_withdrawal"
-            elif np.min(signed - uncertainty) > 0:
+            elif min(lower for lower, _ in intervals) > 0:
                 self.confirm_started = None
                 status, reason = "separated", "observed_geometric_separation"
             else:

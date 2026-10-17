@@ -306,3 +306,23 @@ def test_contact_model_error_spends_material_margin_not_independent_static_robot
     result = monitor().update(*values[:-1], narrow)
     assert result.status == "unavailable"
     assert result.reason == "contact_uncertainty_exceeds_admitted_margin"
+
+
+def test_bounded_relief_extends_only_possible_surface_interval_and_keeps_far_load_unavailable():
+    m = monitor()
+    t, estimate, tool, load, receipt = inputs(1, x=0.025)
+    # The exact plane-only monitor cannot associate a surface25mm behind it.
+    assert m.update(t, estimate, tool, load, receipt).reason == "load_without_intended_surface"
+    m.reset()
+    receipt = replace(
+        receipt, local_evidence=replace(receipt.local_evidence, material_normal_range_m=(0.0, 0.02))
+    )
+    result = m.update(t, estimate, tool, load, receipt)
+    assert result.status == "seeking" and not result.directly_observed
+    assert result.finger_separation_intervals_m[0][1] > 0
+    m.reset()
+    t, estimate, tool, load, far = inputs(1, x=0.1)
+    far = replace(
+        far, local_evidence=replace(far.local_evidence, material_normal_range_m=(0.0, 0.02))
+    )
+    assert m.update(t, estimate, tool, load, far).reason == "load_without_intended_surface"

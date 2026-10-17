@@ -42,6 +42,13 @@ def observed_basis(surface, point_error_m):
         or abs(np.linalg.norm(normal) - 1) > 1e-6
     ):
         raise ValueError("invalid_observed_plane")
+    # Orientation uses a finite measured planar core at the declared point
+    # resolution. The wider surface/relief coverage and its original tolerance
+    # remain unchanged at material consumers. Never interpret all shallow relief
+    # as either orientation noise or a smaller complete geometry bound.
+    points = points[abs(points @ normal - surface.offset) <= point_error_m]
+    if len(points) < 5:
+        raise ValueError("missing_measured_planar_core")
     # Select a wide triangle using observed geometry only. Every selected vertex
     # retains the complete point/model error; a tiny fitting residual is not it.
     a = points[np.linalg.norm(points - points[0], axis=1).argmax()]

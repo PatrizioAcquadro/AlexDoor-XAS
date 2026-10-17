@@ -106,8 +106,10 @@ remain unavailable. Offline imitation error is not task success.
 The maintained rollout CLI now wires real observed perception, native robot load,
 contact monitoring and actual proposed-motion producers; the first two seconds of
 both retained train approaches pass numerical whole-robot/free-space/separation
-checks. Live learned execution, contact margins and all24 panel outcomes remain
-pending. The recorder retains consumed images and separate full-rate commands,
+checks. ACT A2 also completes120 actual learned commands in a two-second
+free-motion prerequisite with causal recording and a passing continuing-physics
+stop. Numerical finite-material margins now cover both retained train paths;
+loaded whole-robot/contact qualification and all24 panel outcomes remain pending. The recorder retains consumed images and separate full-rate commands,
 robot/native feedback and independent evaluator streams. Current local counters
 and all preserved failures are in [[experiments/b1-end-to-end-pilot-resume]].
 

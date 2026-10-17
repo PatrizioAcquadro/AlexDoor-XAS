@@ -43,6 +43,9 @@ class LocalActionSupport:
     # current material. With the free-space proof, no contact footprint is used.
     unloaded_separation_margin_m: float | None = None
     unloaded_normal_lever_m: float | None = None
+    # Measured possible material depth relative to the reference plane. This
+    # affects indirect contact intervals, never the independent physical score.
+    material_normal_range_m: tuple[float, float] | None = None
 
 
 def _local_error(patch, evidence, limits, now, duration):
@@ -137,6 +140,14 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             raise ValueError("unknown_relevant_swept_space")
         if len(evidence.finger_clearance_m) != 2:
             raise ValueError("missing_two_finger_support")
+        if evidence.material_normal_range_m is not None:
+            interval = np.asarray(evidence.material_normal_range_m)
+            if (
+                interval.shape != (2,)
+                or not np.isfinite(interval).all()
+                or interval[0] > interval[1]
+            ):
+                raise ValueError("invalid_material_normal_range")
         sweep_margin = evidence.swept_collision_margin_m
         free_margin = evidence.unloaded_separation_margin_m
         if free_margin is not None:

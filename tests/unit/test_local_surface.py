@@ -125,6 +125,11 @@ def test_local_constraint_does_not_rewrite_native_pose_or_hide_missing_geometry(
     tracker.constrain_local(captured, result)
     assert candidate.local_constraint is not None
     np.testing.assert_array_equal(candidate.pose, np.eye(4))
+    candidate.local_surface = surface(np.eye(3), np.array([2, 0, 0]))
+    monkeypatch.setattr(tracker, "root_consistent", lambda c, _: c.surface is initial)
+    tracker.constrain_local(captured, result)
+    assert candidate.local_constraint is not None
+    candidate.local_surface = None
     local = tracker._constrained_candidate(candidate, candidate.local_constraint)
     np.testing.assert_allclose(local.pose[:3, :3], rotation, atol=1e-14)
     wrong = surface(rotation, np.array([1, 0, 0]) @ rotation.T + 0.03 * rotation[:, 0])
@@ -225,3 +230,16 @@ def test_current_normal_bounds_do_not_invent_between_capture_speed():
     assert later.normal_position_bound_m is None
     assert later.normal_rotation_bound_rad is None
     assert later.pose_support.position_bound_m is None
+
+
+def test_planar_core_conditions_orientation_without_rewriting_relief_geometry():
+    original = surface(np.eye(3), np.array([1, 0, 0]))
+    original.points[::9, 0] += 0.003
+    retained = original.points.copy()
+    basis, bound, normal_bound = observed_basis(original, 0.001)
+    assert 0 < normal_bound <= bound < 0.03
+    np.testing.assert_allclose(basis, np.eye(3), atol=1e-14)
+    np.testing.assert_array_equal(original.points, retained)
+    original.points[:, 0] += 0.01
+    with pytest.raises(ValueError, match="missing_measured_planar_core"):
+        observed_basis(original, 0.001)

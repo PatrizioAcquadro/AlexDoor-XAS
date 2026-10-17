@@ -120,13 +120,20 @@ class MaterialCover:
     Pose, calibration, motion and stop errors belong to the action producer.
     """
 
-    def __init__(self, surface, config, *, cell_m=0.002):
+    def __init__(self, surface, config, *, cell_m=0.002, normal_range_m=(0.0, 0.0)):
         import cv2
 
         from alexdoor_xas.perception.geometry import contact_frame, project
 
         if not np.isfinite(cell_m) or cell_m <= 0:
             raise ValueError("invalid_material_cell")
+        normal_range = np.asarray(normal_range_m, float)
+        if (
+            normal_range.shape != (2,)
+            or not np.isfinite(normal_range).all()
+            or normal_range[0] > normal_range[1]
+        ):
+            raise ValueError("invalid_material_normal_range")
         self.surface, self.config, self.cell_m = surface, config, cell_m
         self.basis = contact_frame(surface.normal)
         points = surface.points @ self.basis
@@ -146,7 +153,12 @@ class MaterialCover:
         world = local @ self.basis.T
         offsets = (
             np.array(
-                [[0, a, b] for a in (-cell_m / 2, cell_m / 2) for b in (-cell_m / 2, cell_m / 2)]
+                [
+                    [n, a, b]
+                    for n in normal_range
+                    for a in (-cell_m / 2, cell_m / 2)
+                    for b in (-cell_m / 2, cell_m / 2)
+                ]
             )
             @ self.basis.T
         )
@@ -183,6 +195,262 @@ class MaterialCover:
             0, distance * cell_m - np.sqrt(2) * cell_m - config["plane_tolerance_m"]
         )
         self.clearance.setflags(write=False)
+
+    @classmethod
+    def from_depth(
+        cls, surface, sensor, cue, semantic_id, config, *, generation, available_s, seed_mask=None
+    ):
+        """Observed interior RGB-D mesh, retaining relief and unresolved holes.
+
+        Only a measured component connected to the reference plane is retained.
+        The existing metric tolerance bounds local mesh interpolation. The finite
+        root perimeter excludes adjacent frame material. Registration geometry
+        stays independent: this mesh enlarges material coverage only.
+        """
+        from scipy.ndimage import binary_fill_holes, label
+
+        from alexdoor_xas.perception.contracts import FieldSupport
+        from alexdoor_xas.perception.geometry import contact_frame, deproject
+
+        if not np.isfinite([sensor["time_s"], available_s]).all() or available_s < float(
+            sensor["time_s"]
+        ):
+            raise ValueError("invalid_material_publication_clock")
+        depth = np.asarray(sensor["depth_m"])[..., 0]
+        valid = np.asarray(sensor["valid_depth"])[..., 0]
+        height, width = depth.shape
+        if tuple(cue["shape"]) != depth.shape or cue["ids"].count(semantic_id) != 1:
+            raise ValueError("unavailable_material_semantic_identity")
+        if seed_mask is None and not any(
+            observation.frame == int(sensor["frame"])
+            and observation.acquired_s == float(sensor["time_s"])
+            and observation.semantic_id == semantic_id
+            for observation in surface.observations
+        ):
+            raise ValueError("unsynchronized_material_depth_seed")
+        index = cue["ids"].index(semantic_id)
+        semantic = (
+            np.unpackbits(np.frombuffer(cue["masks"][index], np.uint8), count=depth.size)
+            .reshape(depth.shape)
+            .astype(bool)
+        )
+        v, u = np.indices(depth.shape)
+        safe_depth = np.where(valid & np.isfinite(depth) & (depth > 0), depth, 0)
+        cloud = deproject(
+            safe_depth.ravel(),
+            np.c_[u.ravel(), v.ravel()],
+            sensor["intrinsics"],
+            sensor["camera_world"],
+        ).reshape(height, width, 3)
+        basis = contact_frame(surface.normal)
+        local = cloud @ basis
+        tolerance = config["plane_tolerance_m"]
+        # Same measured coplanar-omission rule as surface extraction. A semantic
+        # hole containing a different depth is not silently filled.
+        semantic |= binary_fill_holes(semantic) & (abs(local[..., 0] - surface.offset) <= tolerance)
+        lower, upper = surface.bounds
+        allowed = valid & (safe_depth > 0) & semantic
+        allowed &= (
+            (local[..., 1:] >= lower[1:] + 2 * tolerance)
+            & (local[..., 1:] <= upper[1:] - 2 * tolerance)
+        ).all(2)
+        pitch = safe_depth / min(sensor["intrinsics"][0, 0], sensor["intrinsics"][1, 1])
+        horizontal_gap = np.linalg.norm(np.diff(cloud, axis=1), axis=2)
+        vertical_gap = np.linalg.norm(np.diff(cloud, axis=0), axis=2)
+        horizontal = allowed[:, :-1] & allowed[:, 1:]
+        horizontal &= horizontal_gap <= np.maximum(
+            2 * tolerance, 2 * np.maximum(pitch[:, :-1], pitch[:, 1:])
+        )
+        vertical = allowed[:-1] & allowed[1:]
+        vertical &= vertical_gap <= np.maximum(2 * tolerance, 2 * np.maximum(pitch[:-1], pitch[1:]))
+        graph = np.zeros((2 * height - 1, 2 * width - 1), bool)
+        graph[::2, ::2], graph[::2, 1::2], graph[1::2, ::2] = allowed, horizontal, vertical
+        labels, _ = label(graph)
+        labels = labels[::2, ::2]
+        if seed_mask is None:
+            seed = np.zeros(depth.shape, bool)
+            for observation in surface.observations:
+                if observation.frame == int(sensor["frame"]):
+                    seed |= observation.mask()
+        else:
+            seed = np.asarray(seed_mask)
+            if (
+                seed.dtype != bool
+                or seed.shape != depth.shape
+                or not (
+                    (
+                        ~seed
+                        | (valid & semantic & (abs(local[..., 0] - surface.offset) <= tolerance))
+                    ).all()
+                )
+            ):
+                raise ValueError("unmeasured_static_material_reference")
+        counts = np.bincount(labels[seed & allowed].ravel())
+        if not len(counts):
+            raise ValueError("missing_measured_material_seed")
+        counts[0] = 0
+        winners = np.flatnonzero(counts == counts.max())
+        if len(winners) != 1 or counts[winners[0]] < config["min_points"]:
+            raise ValueError("ambiguous_measured_material_component")
+        region = allowed & (labels == winners[0])
+        # A bounded shallow relief projects to a finite silhouette on the
+        # reference plane. Keep the measured connected mask (including holes)
+        # and charge its complete ray/plane parallax. This is a bounded relief
+        # model, not a claim that the hidden interface is a measured flat plane.
+        from dataclasses import replace
+
+        from alexdoor_xas.perception.geometry import SurfaceObservation
+
+        rays = cloud[region] - sensor["camera_world"][:3, 3]
+        denominator = abs(rays @ surface.normal)
+        if not len(rays) or (denominator <= tolerance).any():
+            raise ValueError("unconditioned_material_view")
+        points = local[region]
+        parallax = float(
+            np.max(
+                (abs(points[:, 0] - surface.offset) + tolerance)
+                * np.linalg.norm((rays @ basis)[:, 1:], axis=1)
+                / denominator
+            )
+        )
+        observation = SurfaceObservation(
+            int(sensor["frame"]),
+            float(sensor["time_s"]),
+            float(available_s),
+            index,
+            depth.shape,
+            np.packbits(region).tobytes(),
+            np.array(sensor["intrinsics"], copy=True),
+            np.array(sensor["camera_world"], copy=True),
+            np.empty((0, 3)),
+            {},
+            semantic_id,
+        )
+        normal_range = (
+            float(points[:, 0].min() - surface.offset - tolerance),
+            float(points[:, 0].max() - surface.offset + tolerance),
+        )
+        # Project every corner of each complete normal-depth column. Local
+        # parallax is paid by the same measured-mask coverage test, without
+        # charging a distant grazing-view point to every cell of the surface.
+        cover = cls(
+            replace(surface, observations=(observation,)),
+            config,
+            cell_m=config.get("material_depth_cover", {}).get("cell_m", 0.002),
+            normal_range_m=normal_range,
+        )
+        cover.normal_range_m = normal_range
+        timestamp = float(sensor["time_s"])
+        cover.support = FieldSupport(timestamp, available_s, timestamp, generation, tolerance, None)
+        cover.diagnostics = dict(
+            measured_pixels=int(region.sum()),
+            reference_pixels=int((seed & region).sum()),
+            silhouette_parallax_bound_m=parallax,
+            normal_range_m=cover.normal_range_m,
+        )
+        return cover
+
+    @classmethod
+    def from_inspection(cls, surface, views, semantic_id, config, *, generation):
+        """Union independently measured material cells from the frozen inspection.
+
+        Each source capture keeps its original clock and semantic identity. A
+        prior reference is seeded only by currently measured coplanar RGB-D.
+        Coverage does not change the original registration plane or fill holes.
+        """
+        import cv2
+
+        from alexdoor_xas.perception.contracts import FieldSupport
+        from alexdoor_xas.perception.geometry import deproject
+
+        covers = []
+        failures = []
+        capture_cutoff = max(o.acquired_s for o in surface.observations)
+        publication_cutoff = max(o.available_s for o in surface.observations)
+        for view in views:
+            if (
+                float(view["time_s"]) > capture_cutoff
+                or float(view["available_s"]) > publication_cutoff
+                or float(view["available_s"]) < float(view["time_s"])
+            ):
+                raise ValueError("material_inspection_after_initialization")
+            cue = view.get("semantic")
+            if cue is None or semantic_id not in cue["ids"]:
+                failures.append("missing_inspection_semantic_identity")
+                continue
+            depth, valid = view["depth_m"][..., 0], view["valid_depth"][..., 0]
+            v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
+            points = deproject(depth[v, u], np.c_[u, v], view["intrinsics"], view["camera_world"])
+            selected = (
+                np.unpackbits(
+                    np.frombuffer(cue["masks"][cue["ids"].index(semantic_id)], np.uint8),
+                    count=depth.size,
+                )
+                .reshape(depth.shape)
+                .astype(bool)
+            )
+            seed = np.zeros(depth.shape, bool)
+            seed[v, u] = (
+                abs(points @ surface.normal - surface.offset) <= config["plane_tolerance_m"]
+            )
+            seed &= selected
+            try:
+                covers.append(
+                    cls.from_depth(
+                        surface,
+                        view,
+                        cue,
+                        semantic_id,
+                        config,
+                        generation=generation,
+                        available_s=float(view["available_s"]),
+                        seed_mask=seed,
+                    )
+                )
+            except ValueError as error:
+                failures.append(str(error))
+        if not covers:
+            raise ValueError("missing_measured_material_inspection")
+        cover = cls.__new__(cls)
+        cover.surface, cover.config = surface, config
+        cover.basis, cover.cell_m = covers[0].basis, covers[0].cell_m
+        cover.lower = np.min([c.lower for c in covers], axis=0)
+        high = np.max([c.lower + (np.array(c.shape)[::-1] - 1) * c.cell_m for c in covers], axis=0)
+        cover.shape = tuple(
+            int(n) for n in (np.rint((high - cover.lower) / cover.cell_m).astype(int) + 1)[::-1]
+        )
+        if np.prod(cover.shape) > 4_000_000:
+            raise ValueError("excessive_observed_material_extent")
+        known = np.zeros(cover.shape, np.uint8)
+        for source in covers:
+            u, v = np.rint((source.lower - cover.lower) / cover.cell_m).astype(int)
+            known[v : v + source.shape[0], u : u + source.shape[1]] |= (
+                source.clearance > 0
+            ).astype(np.uint8)
+        distance = cv2.distanceTransform(np.pad(known, 1), cv2.DIST_L2, cv2.DIST_MASK_PRECISE)[
+            1:-1, 1:-1
+        ]
+        cover.clearance = np.maximum(0, distance * cover.cell_m - np.sqrt(2) * cover.cell_m)
+        cover.clearance.setflags(write=False)
+        cover.normal_range_m = (
+            min(c.normal_range_m[0] for c in covers),
+            max(c.normal_range_m[1] for c in covers),
+        )
+        cover.support = FieldSupport(
+            min(c.support.acquired_s for c in covers),
+            max(c.support.available_s for c in covers),
+            max(c.support.supported_s for c in covers),
+            generation,
+            config["plane_tolerance_m"],
+            None,
+        )
+        cover.diagnostics = dict(
+            views=len(covers),
+            unmeasured_views=failures,
+            captures=[vars(c.support) for c in covers],
+            normal_range_m=cover.normal_range_m,
+        )
+        return cover
 
     def query(self, pose, distal_faces):
         from alexdoor_xas.perception.scan import FootprintSupport

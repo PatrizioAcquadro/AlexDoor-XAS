@@ -77,3 +77,59 @@ def test_coverage_atlas_keeps_the_registration_plane_and_seed_unchanged():
     assert atlas.offset == seed.offset
     assert len(seed.observations) == 1
     assert len(atlas.observations) == 2
+
+
+def test_dense_material_retains_measured_relief_and_rejects_separate_background():
+    from alexdoor_xas.perception.geometry import surfaces
+
+    seed, sensor, cue = measured_surface()
+    cue["ids"] = [7]
+    identity = 7
+    cue["shape"] = sensor["depth_m"].shape[:2]
+    mask = seed.observations[0].mask()
+    # A measured shallow interior relief remains material, with explicit depth.
+    sensor["depth_m"][90:150, 90:150, 0] = 1.006
+    reference = max(surfaces(cue, sensor, recipe().config), key=lambda s: len(s.points))
+    cover = MaterialCover.from_depth(
+        reference, sensor, cue, identity, recipe().config, generation=0, available_s=0.0
+    )
+    face = np.array([[0.0, a, b] for a in (-0.02, 0.02) for b in (-0.02, 0.02)])
+    pose = ObjectFrame(np.array([1.0, 0.0, 1.0]), np.eye(3))
+    assert cover.query(pose, (face, face)).supported
+    assert cover.normal_range_m[1] >= 0.006
+    # A separate plane behind an aperture is not connected material support.
+    sensor["depth_m"][90:150, 90:150, 0] = 1.1
+    reference = max(surfaces(cue, sensor, recipe().config), key=lambda s: len(s.points))
+    cover = MaterialCover.from_depth(
+        reference, sensor, cue, identity, recipe().config, generation=0, available_s=0.0
+    )
+    assert not cover.query(pose, (face, face)).supported
+    assert cover.normal_range_m[1] < 0.01
+    # A semantic hole at a different depth remains missing, even when nearby.
+    sensor["depth_m"][90:150, 90:150, 0] = 1.006
+    mask[90:150, 90:150] = False
+    cue["masks"] = [np.packbits(mask).tobytes()]
+    reference = max(surfaces(cue, sensor, recipe().config), key=lambda s: len(s.points))
+    cover = MaterialCover.from_depth(
+        reference, sensor, cue, identity, recipe().config, generation=0, available_s=0.0
+    )
+    assert not cover.query(pose, (face, face)).supported
+
+
+def test_complete_normal_slab_spends_local_parallax_and_keeps_inspection_clocks():
+    import pytest
+
+    surface, sensor, cue = measured_surface()
+    face = np.array([[0, y, z] for y in (-0.02, 0.02) for z in (-0.02, 0.02)])
+    pose = ObjectFrame(np.array([1.0, 0.42, 1.0]), np.eye(3))
+    assert MaterialCover(surface, recipe().config).query(pose, (face, face)).supported
+    slab = MaterialCover(surface, recipe().config, normal_range_m=(-0.2, 0.2))
+    assert not slab.query(pose, (face, face)).supported
+    cue["ids"] = [7]
+    cue["shape"] = sensor["depth_m"].shape[:2]
+    view = dict(sensor, semantic=cue, available_s=0.0)
+    result = MaterialCover.from_inspection(surface, [view], 7, recipe().config, generation=0)
+    assert result.support.acquired_s == result.support.available_s == 0.0
+    future = dict(view, time_s=0.1, available_s=0.1)
+    with pytest.raises(ValueError, match="inspection_after_initialization"):
+        MaterialCover.from_inspection(surface, [future], 7, recipe().config, generation=0)

@@ -550,7 +550,12 @@ class PanelTracking:
                             ],
                         )
                         local = self._constrained_candidate(candidate, constraint)
-                        if not self.root_consistent(local, captured):
+                        # Identity belongs to the original measured seed.
+                        # A coverage atlas contains other partial views whose
+                        # occlusion today cannot invalidate that seed's match.
+                        if not self.root_consistent(
+                            replace(local, surface=candidate.surface), captured
+                        ):
                             raise ValueError("local_surface_material_inconsistent")
                         consistent.append((int(observation.mask().sum()), constraint))
                     except (ValueError, KeyError) as error:
