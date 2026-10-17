@@ -28,6 +28,13 @@ immutable. This iteration is motivated by retained closed-loop failures and stil
 decreasing training loss; improved task behavior is unproven. Remote development
 metrics remain unavailable and no development recordings are transferred.
 
+A targeted left elbow position-domain extension is rejected after an independent
+8 N lateral-load stop exceeds the original travel/speed criteria. The completed
+0 N cohort passes original error and full-robot stop bounds. A separate check at
+the existing 1 N weak-load cap is pending; operational position bounds and the
+selected controller remain unchanged. See the continuation experiment for raw
+failure evidence and the conditional scope.
+
 Finite observed-material, contact and robot-sweep components pass the earlier
 complete retained-path check with measured detection errors. More conservative
 robot-only torque floors, weak-load acceleration and held-joint allowances now

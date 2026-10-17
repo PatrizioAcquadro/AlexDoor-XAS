@@ -6,6 +6,32 @@ problems and continue through real demonstrations, short ACT/Diffusion × A1/A2
 training and learned closed-loop simulation. Preserve all previous work/failures,
 fixed physical criteria and sealed test doors. No production campaign or robot work.
 
+## Left position-domain prerequisite
+
+The original ACT A1 left refusal is a joint-position envelope exit: elbow
+−2.305783 rad versus the calibrated lower bound −2.305511, while velocity and
+acceleration remain inside their bounds. An independent robot-only known-wrench
+experiment tests a prospective outer lower bound −2.35, with unchanged error,
+speed, force and stop criteria. The 0 N cohort completes 1,680 native samples
+and passes joint/scalar error bounds and the original continuous 14-shape stop
+boxes (minimum directional margin 0.235 mm). These are robot CAD/stop margins,
+not vision accuracy requirements.
+
+The following 8 N /−0.4 rad lateral-wrench cohort fails its loaded stop:
+24.921 mm travel, 0.09150 rad rotation and 0.59608 rad/s peak joint speed. Its
+failure-unload tail is retained too. The unconditional position-domain candidate
+remains disabled; no operational calibration or controller is changed. All
+3,120 raw samples, both stops and 40.742 charged GPU seconds are preserved in
+`robot-left-elbow-domain`.
+
+A separate prospective test now checks the existing 1 N weak-load cap at three
+wrench yaws, reusing the completed 0 N cohort. Any resulting position extension
+must remain weak-load-only, inside the original main acceleration domain, and
+pass unchanged scalar/error/response/full-robot stop checks. The prospective
+operational lower bound is −2.33, with required independent excitation below
+−2.34. Strong-load position support remains unchanged. No weak extension is yet
+implemented or qualified.
+
 ## Original-checkpoint full-v7 outcomes
 
 Four completed outcomes are retained separately: ACT A1 right/nominal executes
