@@ -483,3 +483,13 @@ def test_excluded_supervision_is_not_required_on_training_host(tmp_path):
     assert audit[0]["used_for_imitation"] is False
     assert audit[0]["recording_available_here"] is False
     assert audit[0]["retention_verified_here"] is False
+
+
+def test_remote_train_only_path_never_substitutes_train_for_missing_development():
+    import runpy
+    from pathlib import Path
+
+    metrics = runpy.run_path(str(Path("scripts/pilot_offline.py")))["raw_metrics"]
+    assert metrics(None, SimpleNamespace(val_ids=()), {}) == dict(
+        evaluated=False, reason="development_records_not_on_this_host"
+    )

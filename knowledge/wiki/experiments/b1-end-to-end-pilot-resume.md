@@ -507,3 +507,25 @@ range errors are 0.02931/0.00636 mm. One right boundary ray has no reference hit
 and remains explicit. This supports a bounded ideal-simulation point-model study;
 it does not establish full scene coverage, collision-model equivalence, hardware
 accuracy or contact-monitor precision/recall.
+
+All six prospectively declared fresh attempts complete. The four corrected-teacher
+records (right dim, left bright, development dim/bright) independently pass physical
+and raw-reuse checks; development opening is 42.2334 degrees in each lighting
+condition, all 180 hold ticks valid, 22.994 mm release separation, 0.3498 rad/s peak
+and 0.01924 mm stop travel. Development remains excluded from weights/statistics.
+The two nominal records remain preserved and explicitly excluded from imitation.
+
+Case 28 tests the actual right first-contact stop with the same teacher/controller.
+A common robot-feedback normal-lower threshold of 1 N triggers at a measured
+9.6977 N physical peak and 0.04449 rad/s native joint speed. Continuing-physics
+stop travel is 0.07063 mm, final speed 0.0001763 rad/s and no violations. This
+extends actual-contact stop evidence on the right; the corresponding left check
+and operational monitor/sweep qualification remain open. The 45.923 s workload
+is charged. No per-case count ceiling is reinstated.
+
+The local allocation is now 2.98965 of 3 GPU hours (37.26 s remain). The existing
+12-total-hour request remains pending. Automatic review separately rejects the
+specific development-record transfer despite a verified synthetic/redistributable
+origin and validation-only consumer path; explicit user authorization has been
+requested. Train-only remote preparation/training is a safe independent path;
+missing development metrics stay explicit and must be completed separately.

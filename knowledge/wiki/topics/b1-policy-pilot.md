@@ -718,3 +718,15 @@ is not uncertainty in the normal direction. Without separate evidence the prior
 full rotation bound remains the fallback. Geometry ingress can exclude calibrated
 robot returns from geometric support while preserving raw policy RGB-D/validity;
 excluded pixels remain unobserved.
+
+The explicit pilot protocol can select the unique initialized observed material
+zone before native support consumption, with a declared policy/diagnostic source.
+This binds the intended target without qualifying ownership, filling missing
+support or changing the selected semantic identity. Episode reset removes it.
+
+The training runner also supports a host containing train records only. It retains
+train-only normalization/optimizer membership and reports development metrics as
+not evaluated; it never substitutes training examples for missing development.
+The four fixed final checkpoints still require separate development and physical
+checks. This permits training on the already transferred train data while the
+separately requested development transfer remains blocked by automatic review.

@@ -476,6 +476,7 @@ class SessionProvider:
         synchronous_simulation=False,
         inference_period_s=0.0,
         geometry_filter=None,
+        local_selection_source=None,
         **tracking_options,
     ):
         self.binding, self.config, self.engine = recipe, recipe.config, engine
@@ -489,6 +490,11 @@ class SessionProvider:
             or not 0 <= inference_period_s <= self.config["max_gap_s"]
         ):
             raise ValueError("invalid_geometry_inference_period")
+        if local_selection_source not in (None, "policy", "diagnostic") or (
+            local_selection_source is not None and not tracking
+        ):
+            raise ValueError("invalid_local_selection_source")
+        self.local_selection_source = local_selection_source
         self.geometry_filter = geometry_filter
         self.synchronous_simulation = synchronous_simulation
         self.inference_period_s = inference_period_s
@@ -553,6 +559,12 @@ class SessionProvider:
                     result["initial_candidates"], captured, self.scan_memory
                 )
                 self.tracking.diagnostics["binding"] = result["binding"]
+                if self.local_selection_source is not None and len(self.tracking.candidates) == 1:
+                    self.tracking.select_zone(
+                        self.tracking.candidates[0].candidate_id,
+                        ready,
+                        source=self.local_selection_source,
+                    )
             if result["objects"]:
                 self.tracking.consume(
                     captured,

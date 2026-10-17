@@ -244,6 +244,8 @@ def roundtrip(path, family, model, data, protocol, *, metadata):
 
 
 def raw_metrics(policy, data, protocol):
+    if not data.val_ids:
+        return dict(evaluated=False, reason="development_records_not_on_this_host")
     from alexdoor_xas.dataset.sampling import BatchIterator, ChunkSampler
 
     sampler = ChunkSampler(
@@ -314,8 +316,10 @@ def train(root, protocol):
                 protocol["batch_size"],
                 protocol["training_seed"],
             )
-            val_batches = list(
-                islice(development(), protocol["evaluation_chunks"] // protocol["batch_size"])
+            val_batches = (
+                list(islice(development(), protocol["evaluation_chunks"] // protocol["batch_size"]))
+                if development is not None
+                else []
             )
             cfg = (
                 ActModelCfg(chunk_size=protocol["chunk_ticks"])
@@ -359,7 +363,7 @@ def train(root, protocol):
                 overfit = dict(skipped=True, optimizer_updates=0)
             write_json(path / "overfit.json", overfit)
             model = make_model(data, family, cfg, seed=protocol["training_seed"])
-            initial = evaluate(model, family, val_batches, protocol)
+            initial = evaluate(model, family, val_batches, protocol) if val_batches else None
             epochs = []
 
             def on_epoch(stats, best, epochs=epochs, name=name):
@@ -373,11 +377,11 @@ def train(root, protocol):
                 lambda epoch, factory=factory: islice(
                     factory(epoch), protocol["max_batches_per_epoch"]
                 ),
-                lambda val_batches=val_batches: iter(val_batches),
+                (lambda val_batches=val_batches: iter(val_batches)) if val_batches else None,
                 protocol,
                 callback=on_epoch,
             )
-            final = evaluate(learned, family, val_batches, protocol)
+            final = evaluate(learned, family, val_batches, protocol) if val_batches else None
             policy, checkpoint_error = roundtrip(
                 path / "final.pt",
                 family,

@@ -474,3 +474,47 @@ def test_geometry_robot_exclusion_preserves_raw_depth_and_policy_validity(tmp_pa
         assert observed["valid_depth"].all()
     finally:
         provider.close()
+
+
+def test_explicit_policy_protocol_selects_one_observed_zone_without_qualifying_ownership(
+    tmp_path, geometry
+):
+    class MeasuredNative(Native):
+        def infer(self, observed, masks):
+            result = super().infer(observed, masks)
+            points = np.array(
+                [
+                    [-0.2, -0.2, 1],
+                    [0.2, -0.2, 1],
+                    [0.2, 0.2, 1],
+                    [-0.2, 0.2, 1],
+                    [0, 0, 1],
+                    [0.1, 0.1, 1],
+                ]
+            )
+            result["objects"][0].update(
+                camera_from_map=pack_array(np.eye(4)),
+                source_points=pack_array(points),
+                current_points=pack_array(points),
+                measured_correspondences=pack_array(np.ones(6, bool)),
+                inliers=pack_array(np.ones(6, bool)),
+            )
+            return result
+
+    session = PerceptionSession(
+        "unused", recipe(), {}, tmp_path, sam_worker=Sam([[7]]), p2p_worker=MeasuredNative()
+    )
+    engine = Point2PoseEngine(lambda _: session, replay=True, capture_session=True)
+    provider = module.SessionProvider(recipe(), engine, local_selection_source="policy")
+    try:
+        provider.update(sensor(25, 0))
+        ready = engine.pending[1]["available_s"]
+        assert provider.consume_results(ready)
+        selection = provider.tracking.selection
+        assert selection.source == "policy" and selection.selected_s == ready
+        assert selection.patch_id == provider.tracking.candidates[0].candidate_id
+        assert provider.tracking.candidates[0].ownership == "ambiguous_leaf_candidate"
+        provider.reset(preload=False)
+        assert provider.tracking.selection is None
+    finally:
+        provider.close()
