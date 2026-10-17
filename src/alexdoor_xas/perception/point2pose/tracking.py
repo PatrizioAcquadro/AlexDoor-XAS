@@ -494,6 +494,7 @@ class PanelTracking:
                     obj["source_points"][measured],
                     obj["current_points"][measured],
                     config["point_error_m"],
+                    map_anchor=(candidate.map_from_object @ candidate.object_from_zone)[:3, 3],
                 )
                 local = self._constrained_candidate(candidate, constraint)
                 if not self.root_consistent(local, captured):

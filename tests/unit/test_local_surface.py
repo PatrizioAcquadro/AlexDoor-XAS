@@ -31,14 +31,30 @@ def test_conditioned_pose_uses_observed_orientation_and_all_pair_residuals():
     current = surface(rotation, np.array([1, 0, 0]) @ rotation.T + shift)
     source = initial.points[::20]
     target = source @ rotation.T + shift
-    result = constrained_surface_pose(initial, current, np.eye(4), np.eye(4), source, target, 0.004)
+    result = constrained_surface_pose(
+        initial,
+        current,
+        np.eye(4),
+        np.eye(4),
+        source,
+        target,
+        0.004,
+        map_anchor=initial.points.mean(0),
+    )
     np.testing.assert_allclose(result.camera_from_map[:3, :3], rotation, atol=1e-14)
     np.testing.assert_allclose(result.camera_from_map[:3, 3], shift, atol=1e-14)
     assert result.position_bound_m == pytest.approx(0.004)
     assert result.rotation_bound_rad > 0
     target[-1] += [0, 0.05, 0]
     changed = constrained_surface_pose(
-        initial, current, np.eye(4), np.eye(4), source, target, 0.004
+        initial,
+        current,
+        np.eye(4),
+        np.eye(4),
+        source,
+        target,
+        0.004,
+        map_anchor=initial.points.mean(0),
     )
     assert changed.pairs == len(source)
     assert changed.position_bound_m > 0.05
@@ -81,11 +97,13 @@ def test_local_constraint_does_not_rewrite_native_pose_or_hide_missing_geometry(
         engine,
         {"local_surface_constraint": {"point_error_m": 0.004, "normal_model_bound_rad": 0.001}},
     )
+    anchor_frame = np.eye(4)
+    anchor_frame[:3, 3] = [1, 0, 0]
     candidate = PanelCandidate(
         "material",
         initial,
-        np.eye(4),
-        np.eye(4),
+        anchor_frame,
+        anchor_frame.copy(),
         np.eye(4),
         FieldSupport(0, 0, 0, 0, 0.004, 0.01),
         pose=np.eye(4),
@@ -114,3 +132,30 @@ def test_local_constraint_does_not_rewrite_native_pose_or_hide_missing_geometry(
     assert candidate.local_constraint is None
     assert candidate.local_constraint_reason == "missing_or_ambiguous_current_surface"
     np.testing.assert_array_equal(candidate.pose, np.eye(4))
+
+
+def test_measured_plane_fixes_anchor_normal_and_retains_contradictory_pair_error():
+    initial = surface(np.eye(3), np.array([1, 0, 0]))
+    current = surface(np.eye(3), np.array([1.1, 0, 0]))
+    source = initial.points[::20]
+    # Every native pair proposes an extra 2 cm normal translation.
+    target = source + [0.12, 0, 0]
+    anchor = initial.points.mean(0)
+    result = constrained_surface_pose(
+        initial, current, np.eye(4), np.eye(4), source, target, 0.001, map_anchor=anchor
+    )
+    point = result.camera_from_map[:3, :3] @ anchor + result.camera_from_map[:3, 3]
+    assert current.normal @ point == pytest.approx(current.offset)
+    assert result.position_bound_m >= 0.021 - 1e-12
+    assert result.pairs == len(source)
+    with pytest.raises(ValueError, match="anchor_outside"):
+        constrained_surface_pose(
+            initial,
+            current,
+            np.eye(4),
+            np.eye(4),
+            source,
+            target,
+            0.001,
+            map_anchor=anchor + [0.1, 0, 0],
+        )

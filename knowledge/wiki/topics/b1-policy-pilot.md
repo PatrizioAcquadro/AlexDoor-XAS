@@ -741,3 +741,10 @@ Calibrated robot-return exclusion runs at the declared geometric capture cadence
 before submission to both native tracking and geometry. Intermediate control ticks
 consume bounded existing material support and cannot publish unfiltered robot
 returns as fresh direct-depth evidence. Raw policy inputs remain unchanged.
+
+The constrained material anchor's normal coordinate is measured from the current
+observed plane; native pairs retain the tangential translation. The anchor must
+belong to the initial observed plane, and the complete pair residual is recomputed
+after the constraint. Inconsistent native translation therefore increases the
+published error rather than disappearing. This estimates material geometry and
+never changes a submitted policy command.

@@ -104,6 +104,8 @@ def constrained_surface_pose(
     source_points,
     current_points,
     point_error_m,
+    *,
+    map_anchor,
 ):
     """Use all supplied measured native inliers; recompute their residual envelope.
 
@@ -114,9 +116,12 @@ def constrained_surface_pose(
     initial_basis, initial_error, _ = observed_basis(initial_surface, point_error_m)
     current_basis, current_error, normal_error = observed_basis(current_surface, point_error_m)
     source, current = np.asarray(source_points, float), np.asarray(current_points, float)
+    anchor = np.asarray(map_anchor, float)
     cameras = (np.asarray(initial_camera, float), np.asarray(current_camera, float))
     if (
-        source.ndim != 2
+        anchor.shape != (3,)
+        or not np.isfinite(anchor).all()
+        or source.ndim != 2
         or source.shape[1:] != (3,)
         or source.shape != current.shape
         or len(source) < 5
@@ -125,8 +130,23 @@ def constrained_surface_pose(
         or any(c.shape != (4, 4) or not np.isfinite(c).all() for c in cameras)
     ):
         raise ValueError("missing_measured_surface_correspondences")
+    initial_anchor = cameras[0][:3, :3] @ anchor + cameras[0][:3, 3]
+    initial_residual = np.max(
+        np.abs(initial_surface.points @ initial_surface.normal - initial_surface.offset)
+    )
+    if (
+        abs(initial_surface.normal @ initial_anchor - initial_surface.offset)
+        > point_error_m + initial_residual
+    ):
+        raise ValueError("material_anchor_outside_observed_plane")
     rotation = cameras[1][:3, :3].T @ current_basis @ initial_basis.T @ cameras[0][:3, :3]
     translation = np.mean(current - source @ rotation.T, axis=0)
+    # The initial material anchor lies on the observed reference plane. Its
+    # normal coordinate is measured again by the current plane, independently
+    # of native point translation. Tangential coordinates still use all pairs.
+    world_anchor = cameras[1][:3, :3] @ (rotation @ anchor + translation) + cameras[1][:3, 3]
+    correction = current_surface.offset - current_surface.normal @ world_anchor
+    translation += cameras[1][:3, :3].T @ current_surface.normal * correction
     residual = np.linalg.norm(source @ rotation.T + translation - current, axis=1)
     pose = np.eye(4)
     pose[:3, :3], pose[:3, 3] = rotation, translation
