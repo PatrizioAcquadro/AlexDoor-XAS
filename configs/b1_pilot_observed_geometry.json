@@ -1,0 +1,14 @@
+{
+  "scan_fusion": "object-v1",
+  "semantic_period_s": 0.2,
+  "max_gap_s": 0.15,
+  "plane_tolerance_m": 0.004,
+  "association_distance_m": 0.025,
+  "association_angle_deg": 5.0,
+  "min_points": 120,
+  "max_points": 4000,
+  "voxel_m": 0.004,
+  "floor_z_m": 0.0,
+  "inspection_path": "configs/perception_inspection.json",
+  "reference_selection": "largest_visible_surface"
+}

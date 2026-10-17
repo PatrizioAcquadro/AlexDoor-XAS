@@ -481,3 +481,13 @@ identity checks and fixed encoder units remain unchanged. Chunked legacy files
 retain their existing read path. No cache copy or new dataset format is introduced.
 This removes a demonstrated allocation problem in the code path; full real-data
 preparation/training memory and throughput still need measurement.
+
+
+The explicit pilot geometry recipe selects a tracker seed from observed candidates
+when the semantic door mask contains several planes: require a unique maximum
+visible surface area and an exclusive interior pixel. Ties and fully overlapping
+alternatives remain unresolved. The choice is latched through the existing explicit
+selection API, uses no prepared geometry or evaluator annotation, and generates
+no robot motion. The maintained default recipe is unchanged. This seed choice
+does not certify rigidity, intended leaf identity, local bounds or contact; native
+tracking and independent physical validation remain necessary.

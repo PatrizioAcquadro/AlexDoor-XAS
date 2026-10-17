@@ -400,3 +400,25 @@ def test_session_factory_forwards_robot_camera_calibration(tmp_path, monkeypatch
         assert provider.tracking.calibration_bound is None
     finally:
         provider.close()
+
+
+def test_observed_reference_selection_preserves_ties_overlap_and_mask_holes():
+    from types import SimpleNamespace
+
+    def surface(mask):
+        return SimpleNamespace(observations=[SimpleNamespace(mask=lambda: mask)])
+
+    large = np.ones((20, 30), bool)
+    small = np.zeros_like(large)
+    small[5:15, 10:20] = True
+    pixel = module.observed_reference_pixel([surface(large), surface(small)])
+    u, v = pixel
+    assert large[v, u] and not small[v, u]
+    assert 0 < u < 29 and 0 < v < 19
+    assert module.observed_reference_pixel([surface(large), surface(large)]) is None
+    # A larger union with no exclusive material cannot become a unique seed.
+    left = large.copy()
+    left[:, 16:] = False
+    right = large.copy()
+    right[:, :14] = False
+    assert module.observed_reference_pixel([surface(large), surface(left), surface(right)]) is None

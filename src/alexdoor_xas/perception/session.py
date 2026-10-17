@@ -32,6 +32,34 @@ def selected_recipe(path=None):
     return json.loads(path.read_text())
 
 
+def observed_reference_pixel(surfaces):
+    """Select a visible seed, never a material-identity or contact certificate.
+
+    The largest observed plane must have a unique area maximum and an exclusive
+    pixel. A padded distance transform keeps the pixel inside measured support.
+    """
+    from scipy.ndimage import distance_transform_edt
+
+    masks = [surface.observations[0].mask() for surface in surfaces]
+    if len(masks) < 2:
+        return None
+    if any(mask.shape != masks[0].shape for mask in masks):
+        raise ValueError("inconsistent_reference_masks")
+    areas = np.array([np.count_nonzero(mask) for mask in masks])
+    winners = np.flatnonzero(areas == areas.max())
+    if len(winners) != 1:
+        return None
+    winner = int(winners[0])
+    exclusive = masks[winner] & ~np.logical_or.reduce(
+        [mask for i, mask in enumerate(masks) if i != winner]
+    )
+    if not exclusive.any():
+        return None
+    distance = distance_transform_edt(np.pad(exclusive, 1))[1:-1, 1:-1]
+    v, u = np.unravel_index(np.argmax(distance), distance.shape)
+    return int(u), int(v)
+
+
 class SerialTrackingEngine:
     """Native IPC without operational availability/queue scheduling."""
 
@@ -78,6 +106,8 @@ class PerceptionSession:
         from alexdoor_xas.perception.sam3.runtime import Sam3Worker
 
         self.config = recipe.config
+        if self.config.get("reference_selection") not in (None, "largest_visible_surface"):
+            raise ValueError("unknown_observed_reference_selection")
         self.selected = selected or self.config.get("point2pose_selected") or selected_recipe()
         self.output = Path(output)
         self.output.mkdir(parents=True, exist_ok=True)
@@ -285,6 +315,20 @@ class PerceptionSession:
                         )
                         for s in options
                     ]
+                    if (
+                        requested_surface is None
+                        and requested_pixel is None
+                        and t >= self.initialize_after
+                        and self.config.get("reference_selection") == "largest_visible_surface"
+                    ):
+                        requested_pixel = observed_reference_pixel(options)
+                        if requested_pixel is not None:
+                            self.select(
+                                self.identity,
+                                reference_pixel=requested_pixel,
+                                after_s=t,
+                                criterion="largest observed surface with exclusive interior pixel",
+                            )
                     if requested_pixel is not None:
                         u, v = requested_pixel
                         selected_surfaces = [
