@@ -85,11 +85,17 @@ Zero/negative bounds still stop, and completed acquisition clears only its own
 bookkeeping; lost/unavailable states cannot be relabeled acquisition failures.
 Full replay and independent false-admission/miss/delay metrics remain pending.
 
-A complete before/after-command numerical replay through36s passes both retained
-train streams, with178 confirmed-contact samples each and six unavailable native
-identity warmup samples per door. The complete opening/hold/release replay remains
-pending. These are causal retained-input checks, with evaluator labels joined only
-afterward; they are not learned commands or final-panel outcomes. Actual learned
+Complete before/after-command replay now passes the right train recording through
+its final145.4833s endpoint:7230samples,7224available,6391contact decisions and no
+latched loss/refusal. The complete left replay is pending. The independent join
+uses actual HDF5 transition endpoints because teacher trace time starts25.0167s
+after the simulation clock origin; the pre-teacher endpoint stays truth-unavailable.
+On the right, confirmation delay is100ms, with six initial missed instantaneous
+contact samples and six later instantaneous-force mismatches: three brief push
+gaps and three release ticks. Only one operational contact tick lacks the frozen
+physical loaded criterion, during release. All counts and bounded-window delay
+remain explicit; no instantaneous contact or physical success is manufactured.
+These are retained-input checks, not learned commands or final-panel outcomes. Actual learned
 execution remains122 ACT A2 commands across the preserved short prerequisites,
 with zero learned contact successes and zero final-panel outcomes.
 
@@ -97,9 +103,13 @@ Current allocation is4.52911/15 local GPU hours,2743/3600 remote GPU seconds and
 12164/18000 optimizer updates. Consumer-audited removal of regenerable flattened
 visual features reclaimed24.13GiB. Exact labels/masks, raw complete recordings,
 checkpoints, statistics, failures and reports remain retained; current whole-pilot
-storage is250.48/300GiB. The complete raw-input audit and regeneration command are
+storage is239.03/300GiB after a further11.48GiB lossless
+container repack of one older failed teacher recording. Every dataset byte and
+attribute is verified before atomic replacement; old/new file hashes remain in
+`preserved-failure-lossless-repack.json`. No raw sample, failure or eligibility
+changes. The feature-cache audit and regeneration command are retained separately
 in `derived-feature-cache-removal-audit.json`. No GPU allocation was used for
-these CPU numerical integration checks.
+these CPU numerical integration checks or storage repairs.
 
 ## Finite material component
 
