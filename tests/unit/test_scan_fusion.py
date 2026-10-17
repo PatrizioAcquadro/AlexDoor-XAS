@@ -477,3 +477,18 @@ def test_static_material_identity_needs_distinct_calibrated_views_and_two_finger
     assert not static_material_witnesses(
         observed, zone, tuple(f + [0, 3, 0] for f in faces), recipe().config, 0, 0.005
     )
+
+
+def test_dominant_local_query_matches_measured_primary_plane_and_retains_occlusion():
+    mask = np.zeros((240, 240), bool)
+    mask[20:230, 60:181] = True
+    mask[20:230, 190:220] = True
+    _, sample, cue = measured_surface(mask=mask)
+    sample["valid_depth"][80:110, 90:120] = False
+    full = surfaces(cue, sample, recipe().config)
+    local = surfaces(cue, sample, recipe().config, dominant_only=True)
+    largest = max(full, key=lambda s: s.observations[0].mask().sum())
+    assert len(full) == 2 and len(local) == 1
+    np.testing.assert_allclose(local[0].normal, largest.normal)
+    np.testing.assert_array_equal(local[0].observations[0].mask(), largest.observations[0].mask())
+    assert not local[0].observations[0].mask()[95, 105]

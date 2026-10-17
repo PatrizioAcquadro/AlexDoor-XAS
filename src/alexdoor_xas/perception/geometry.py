@@ -224,7 +224,12 @@ def contact_frame(normal):
     return np.column_stack((x, np.cross(z, x), z))
 
 
-def surfaces(cue, sensor, config):
+def surfaces(cue, sensor, config, *, dominant_only=False):
+    """Measured mask/depth components; optional first-plane local query only.
+
+    Dominant-only queries keep the largest connected measured part of the first
+    robust plane. They preserve invalid depth/holes and do not assert ownership.
+    """
     from scipy.ndimage import binary_erosion, binary_fill_holes, binary_opening, label
 
     h, w = cue["shape"]
@@ -268,7 +273,12 @@ def surfaces(cue, sensor, config):
             raster[vv[member], uu[member]] = True
             raster = binary_opening(raster, iterations=1)
             components, count = label(raster)
-            for component in range(1, count + 1):
+            chosen_components = (
+                [int(np.argmax(np.bincount(components.ravel())[1:])) + 1]
+                if dominant_only and count
+                else range(1, count + 1)
+            )
+            for component in chosen_components:
                 part = components == component
                 pv, pu = np.nonzero(part)
                 if len(pu) < config["min_points"]:
@@ -345,6 +355,8 @@ def surfaces(cue, sensor, config):
                         observations=(observation,),
                     )
                 )
+            if dominant_only:
+                break
             remaining = remaining[abs(remaining @ normal - offset) > config["plane_tolerance_m"]]
     return result
 

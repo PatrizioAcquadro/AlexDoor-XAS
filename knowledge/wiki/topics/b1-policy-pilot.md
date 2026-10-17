@@ -665,3 +665,11 @@ The observed Purdue monitor now checks all four WSG32 jaw positions from complet
 robot proprioception, preserving the existing 1 mm closed-gripper criterion.
 Missing jaw channels, nonfinite states and opening stop before load/admission.
 The existing measured native arm-speed guard still runs on both substeps.
+
+The maintained mask/depth surface extractor exposes an optional dominant-plane
+local query. It returns the largest connected measured part of the first robust
+plane and preserves invalid depth and true holes. Existing complete extraction
+remains the default. This supports local A1/A2 contact-geometry investigation with
+the same SAM3/RANSAC components; it neither supplies identity/ownership nor labels
+an occluded interface directly observed. Correspondence-based rigid pose bounds,
+current surface normal and finite material support remain distinct evidence.
