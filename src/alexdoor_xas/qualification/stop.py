@@ -20,11 +20,46 @@ def verify_stop_continuation(env, output, *, duration_s=2.0, force_limit_n=80.0)
     anchor, orientation = [array(v)[0].copy() for v in env.tool_pose()]
     rotation = Rotation.from_quat(orientation).as_matrix()
     targets = array(env.targets).copy()
+    anchor_joints = array(env.robot.data.joint_pos)[0].copy()
+    anchor_time_s = float(env._time_s)
+    joints, positions, quaternions, native, evaluator = [], [], [], [], []
     rows, violations = [], []
     try:
         for tick in range(round(duration_s / env.step_dt)):
             env.step(torch.zeros((1, env.cfg.action_space), device=env.device))
             position, quaternion = [array(v)[0] for v in env.tool_pose()]
+            joints.append(array(env.robot.data.joint_pos)[0].copy())
+            positions.append(position.copy())
+            quaternions.append(quaternion.copy())
+            for sample, contact in zip(env.load_samples, env.contact_history, strict=True):
+                fb = sample.feedback
+                native.append(
+                    dict(
+                        time_s=fb.timestamp_s,
+                        available_s=fb.available_s,
+                        joint_position=sample.q.copy(),
+                        joint_velocity=sample.dq.copy(),
+                        joint_acceleration=sample.ddq.copy(),
+                        torque_nm=np.full(7, np.nan)
+                        if fb.torque_nm is None
+                        else np.array(fb.torque_nm),
+                        feedback_present=fb.torque_nm is not None,
+                        feedback_healthy=fb.healthy,
+                        expected_torque_nm=sample.expected_torque_nm.copy(),
+                        jacobian_world=sample.jacobian_world.copy(),
+                    )
+                )
+                intended = [
+                    c for c in contact["contacts"] if c["category"] in ("positive", "negative")
+                ]
+                evaluator.append(
+                    dict(
+                        time_s=fb.timestamp_s,
+                        forbidden=contact["forbidden"],
+                        normal_force_n=sum(c["force_n"] for c in intended),
+                        minimum_gap_m=min((c["separation_m"] for c in intended), default=np.nan),
+                    )
+                )
             dq = np.stack([sample.dq for sample in env.load_samples])
             q = array(env.robot.data.joint_pos)[0, env.arm_ids]
             limits = array(env.limits)[0]
@@ -50,7 +85,28 @@ def verify_stop_continuation(env, output, *, duration_s=2.0, force_limit_n=80.0)
                 )
             )
     finally:
-        np.savez_compressed(output, values=np.asarray(rows), stopped_targets=targets)
+        streams = (
+            {"native_" + key: np.asarray([x[key] for x in native]) for key in native[0]}
+            if native
+            else {}
+        )
+        streams.update(
+            {"evaluator_" + key: np.asarray([x[key] for x in evaluator]) for key in evaluator[0]}
+            if evaluator
+            else {}
+        )
+        np.savez_compressed(
+            output,
+            values=np.asarray(rows),
+            stopped_targets=targets,
+            anchor_time_s=anchor_time_s,
+            anchor_joint_position=anchor_joints,
+            joint_names=np.asarray(env.robot.joint_names),
+            joint_position=np.asarray(joints),
+            tool_position=np.asarray(positions),
+            tool_quaternion=np.asarray(quaternions),
+            **streams,
+        )
     values = np.asarray(rows)
     passed = bool(
         len(rows) == round(duration_s / env.step_dt)

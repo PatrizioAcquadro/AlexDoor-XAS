@@ -85,6 +85,14 @@ support, while the robot certificate must already include its own motion, scene
 and stop errors. Missing, nonpositive or unknown sweep evidence still refuses.
 This interface does not create a qualified producer or establish live admission.
 
+Continuing-physics stop sidecars now retain the measured full-robot anchor and
+control states, absolute tool poses, original native joint/torque/model/Jacobian
+streams and separately named native evaluator force/gap/forbidden streams. Earlier
+sidecars retained only aggregate travel/speed/force and cannot establish per-link
+stop motion from actual-door checks. This retention correction changes no stop
+command, duration or physical acceptance. Physical validation of the new sidecar
+remains pending.
+
 ## Independent learned-rollout scoring
 
 `pilot_physics.py rollout --expert-reference <frozen JSON>` now scores through an
