@@ -553,3 +553,10 @@ sweep/response/stop clearances. Uncertainty cannot be replaced by a qualificatio
 flag or an unobserved free-space assumption. Static local material witnesses do
 not establish a hinge or whole-mask movable-leaf ownership. See
 [[../topics/b1-policy-pilot|the maintained pilot contracts]].
+
+A1/A2 receipt revalidation preserves the original continuous sweep proof. New
+finite uncertainty and local-clearance loss consume its remaining margin, using
+the same error formula and the interval's unchanged end time. Missing evidence,
+exhausted margins, identity changes and response-envelope exits still stop.
+This numerical contract does not qualify a physical sweep producer or contact
+recipe; the independent physical criteria remain unchanged.

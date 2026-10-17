@@ -248,13 +248,15 @@ qualification; see [[../experiments/b1-end-to-end-pilot-resume|resumed pilot]].
 `admit_local_action` accepts A1/A2 only. A selected local material needs explicit
 policy/diagnostic source, resolved rigid-material ownership (`observed_rigid_material`
 for observed static material or the existing `observed_moving_rigid_candidate`),
-tracking, current identity/pose support, the existing 1 cm / 5 degree bounds,
-and two supported finger footprints. The producer must bound the actual continuous
+tracking, finite current identity/pose bounds and two supported finger footprints. The producer must bound the actual continuous
 sweep plus stopping envelope, relevant collision space, material response,
 robot tracking error, relative motion and stop travel. Unknowns and None bounds
 refuse admission. Unloaded proposals additionally prove contact separation.
-Freshness, episode generation, selection changes, uncertainty increases and
-response-envelope exits invalidate a receipt. This is action admission from local
+Freshness, episode generation, selection changes and response-envelope exits
+invalidate a receipt. Revalidation uses the original finite-error formula and
+remaining control interval: any increased uncertainty and lost local clearance
+spend the original remaining margin. Exhausted margins and missing bounds refuse;
+a stronger rigid-to-moving identity witness for the same selected patch is allowed. This is action admission from local
 evidence, not a qualified full-door estimate; `PolicyObservation.valid` is unchanged.
 A3/A4 still require their hinge/angle/segment contracts.
 

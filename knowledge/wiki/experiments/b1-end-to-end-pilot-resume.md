@@ -340,3 +340,10 @@ test requires 180 s without compute/unknown graphics, at least 8 GiB free, and
 both current and 180 s mean utilization at most 10%. Sustained contention and
 every foreign compute process still block. Desktop activity is not a GPU job
 failure, and no other process is terminated.
+
+Receipt revalidation previously rejected any uncertainty increase or local
+clearance decrease, including 0.1 mm updates against ample remaining margin.
+The same original finite-error calculation now rechecks the remaining interval
+and spends positive error increases plus clearance loss against that margin.
+Numerical checks accept bounded updates, reject exhausted/missing support and
+retain the response/identity stops. This does not establish physical admission.

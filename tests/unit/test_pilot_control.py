@@ -330,3 +330,40 @@ def test_axis_free_admission_spends_measured_error_against_the_actual_sweep():
     unknown = replace(patch, pose_support=replace(patch.pose_support, position_bound_m=None))
     estimate = replace(estimate, local=replace(estimate.local, patches=(unknown,)))
     assert not admit_local_action(estimate, proposal, wide, limits, 1, generation=0).admitted
+
+
+@pytest.mark.parametrize("change", ["uncertainty", "clearance", "ownership"])
+def test_local_receipt_spends_existing_margin_on_current_support(change):
+    estimate, proposal, evidence, limits = local_inputs()
+    receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    patch = estimate.local.patches[0]
+    if change == "uncertainty":
+        patch = replace(patch, pose_support=replace(patch.pose_support, position_bound_m=0.0041))
+    elif change == "clearance":
+        patch = replace(patch, finger_clearance_m=(0.0399, 0.0399))
+    else:
+        patch = replace(patch, ownership="observed_moving_rigid_candidate")
+    current = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    require_current_admission(receipt, current, 1 + 1 / 60)
+
+
+@pytest.mark.parametrize("change", ["uncertainty", "clearance", "missing", "ownership"])
+def test_local_receipt_refuses_exhausted_margin_or_missing_evidence(change):
+    estimate, proposal, evidence, limits = local_inputs()
+    receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    patch = estimate.local.patches[0]
+    if change == "uncertainty":
+        patch = replace(patch, pose_support=replace(patch.pose_support, position_bound_m=0.05))
+        reason = "margin_exhausted"
+    elif change == "clearance":
+        patch = replace(patch, finger_clearance_m=(0.001, 0.001))
+        reason = "margin_exhausted"
+    elif change == "missing":
+        patch = replace(patch, pose_support=replace(patch.pose_support, position_bound_m=None))
+        reason = "missing_or_excessive_field_bound"
+    else:
+        patch = replace(patch, ownership="unconfirmed")
+        reason = "reference_changed"
+    current = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    with pytest.raises(ValueError, match=reason):
+        require_current_admission(receipt, current, 1 + 1 / 60)

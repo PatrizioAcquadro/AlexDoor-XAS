@@ -37,6 +37,34 @@ class LocalActionSupport:
     unloaded_separation_m: float | None = None
 
 
+def _local_error(patch, evidence, limits, now, duration):
+    """Same finite footprint, material-response and stopping bound for a receipt."""
+    radius = nonnegative(evidence.footprint_radius_m, "unmeasured_footprint_radius")
+    response = nonnegative(evidence.response_position_bound_m, "unmeasured_material_response")
+    response_rotation = nonnegative(
+        evidence.response_rotation_bound_rad, "unmeasured_material_response"
+    )
+    supports = (patch.geometry_support, patch.pose_support, evidence.support)
+    return (
+        sum(s.position_bound_m for s in supports)
+        + limits.robot_position_bound_m
+        + sum(rotational_travel(radius, s.rotation_bound_rad) for s in supports)
+        + rotational_travel(radius, limits.robot_rotation_bound_rad + response_rotation)
+        + response
+        + limits.relative_speed_bound_m_s
+        * (
+            now
+            - min(
+                patch.pose_support.supported_s,
+                patch.identity_support.supported_s,
+                evidence.support.supported_s,
+            )
+            + duration
+        )
+        + limits.stop_travel_m
+    )
+
+
 def admit_local_action(estimate, proposal, evidence, limits, now, *, generation):
     try:
         state = estimate.local
@@ -105,30 +133,7 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             nonnegative(v, "missing_relevant_clearance")
             for v in (*evidence.finger_clearance_m, evidence.collision_clearance_m)
         )
-        radius = nonnegative(evidence.footprint_radius_m, "unmeasured_footprint_radius")
-        response = nonnegative(evidence.response_position_bound_m, "unmeasured_material_response")
-        response_rotation = nonnegative(
-            evidence.response_rotation_bound_rad, "unmeasured_material_response"
-        )
-        supports = (patch.geometry_support, patch.pose_support, evidence.support)
-        error = (
-            sum(s.position_bound_m for s in supports)
-            + bounds["robot_position_bound_m"]
-            + sum(rotational_travel(radius, s.rotation_bound_rad) for s in supports)
-            + rotational_travel(radius, bounds["robot_rotation_bound_rad"] + response_rotation)
-            + response
-            + bounds["relative_speed_bound_m_s"]
-            * (
-                now
-                - min(
-                    patch.pose_support.supported_s,
-                    patch.identity_support.supported_s,
-                    evidence.support.supported_s,
-                )
-                + duration
-            )
-            + bounds["stop_travel_m"]
-        )
+        error = _local_error(patch, evidence, limits, now, duration)
         if clearance <= error:
             raise ValueError("insufficient_local_action_margin")
         if (
@@ -162,7 +167,13 @@ def require_current_local_admission(admission, estimate, now):
     if (
         current.selection != old.selection
         or patch.patch_id != before.patch_id
-        or patch.ownership != before.ownership
+        or (
+            patch.ownership != before.ownership
+            and not (
+                before.ownership == "observed_rigid_material"
+                and patch.ownership == "observed_moving_rigid_candidate"
+            )
+        )
         or patch.tracking_state != "tracking"
     ):
         raise ValueError("admitted_local_reference_changed")
@@ -175,8 +186,10 @@ def require_current_local_admission(admission, estimate, now):
             raise ValueError("admitted_support_backdated")
         for key in ("position_bound_m", "rotation_bound_rad"):
             old_bound, new_bound = getattr(a, key), getattr(b, key)
-            if old_bound is not None and (new_bound is None or new_bound > old_bound):
-                raise ValueError("admitted_uncertainty_increased")
+            if old_bound is not None and (
+                new_bound is None or not np.isfinite(new_bound) or new_bound < 0
+            ):
+                raise ValueError("admitted_uncertainty_missing")
     if admission.local_evidence is None:
         raise ValueError("missing_local_sweep_evidence")
     evidence = admission.local_evidence
@@ -193,11 +206,21 @@ def require_current_local_admission(admission, estimate, now):
         > evidence.response_rotation_bound_rad
         + before.pose_support.rotation_bound_rad
         + patch.pose_support.rotation_bound_rad
-        or any(
-            new < old
-            for new, old in zip(patch.finger_clearance_m, before.finger_clearance_m, strict=True)
-        )
     ):
         raise ValueError("admitted_local_response_exceeded")
+    # Spend the original proof's remaining margin on any new uncertainty or
+    # local support loss. Small updates are valid only while that proof still fits.
+    start, end = admission.proposal.times_s
+    old_error = _local_error(before, evidence, admission.limits, start, end - start)
+    current_error = _local_error(patch, evidence, admission.limits, now, end - now)
+    clearance_loss = max(
+        max(0.0, old - new)
+        for old, new in zip(before.finger_clearance_m, patch.finger_clearance_m, strict=True)
+    )
+    margin = min(value for _, value in admission.margins_m)
+    if not admission.proposal.loaded:
+        margin = min(margin, evidence.unloaded_separation_m - old_error)
+    if max(0.0, current_error - old_error) + clearance_loss >= margin:
+        raise ValueError("admitted_local_margin_exhausted")
     # Pose changes may follow the bounded material response. The receipt has one
     # control interval only; next command needs freshly produced sweep evidence.

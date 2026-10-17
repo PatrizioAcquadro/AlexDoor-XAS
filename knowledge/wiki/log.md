@@ -2,6 +2,10 @@
 
 - The resumed B1 common teacher completes both train-door cycles and post-release continuing-physics stops. Shared raw and A3/A4 numeric supervision are verified. The fourteen-case ceiling is exhausted; robot-only retained-load stops fail at the new path states, while observed contact calibration and learned execution remain open. See [[experiments/b1-end-to-end-pilot-resume|the resumed pilot]].
 
+A1/A2 receipt revalidation now spends bounded support updates against the original
+remaining margin; missing bounds and exhausted margins still refuse. See
+[[topics/b1-policy-pilot|pilot contracts]].
+
 A concise record of durable changes. Routine edits, lint and superseded attempts
 belong in Git history, not in agent context.
 
