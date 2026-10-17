@@ -50,6 +50,44 @@ budget proposals below remain preserved.
 
 ## Current observed-runtime integration
 
+The complete first nominal comparison now retains five full-v6 failures including
+the original ACT A2 dim slot. Diffusion A1 executes 359 commands and stops at
+observed contact orientation; Diffusion A2 executes 242 and exits the load domain
+before contact. All five consumed-input and continuing-physics stop audits pass;
+no physical violation occurs in this version. Scheduling is held between slots to
+resolve the measured ACT A1 stronger-load gripper dependency, with all five results
+and the full original denominator preserved.
+
+A separate robot-only known-wrench verification keeps every error-model coefficient
+fixed and tests the failed robot state under 8 N and 10 N loads. The abrupt first
+8 N lateral preload causes wrist-X speed 0.5774 rad/s and fails; raw data and the
+missing old failure-stop evidence remain explicit. Its completed zero-load cohort
+(1,056 samples) passes and is reused. Ramping load application/removal over one
+second avoids that fixture-induced speed excursion while preserving final force,
+force directions, gripper excitation, error bounds and speed criterion. All 4,956
+new native transit/ramp/preload/motion/settling/removal samples pass unchanged
+joint-error and force bounds, with peak speed 0.3484 rad/s. The 8/10 N cohorts
+reach gripper accelerations 29.633/29.651 rad/s², exceeding the predeclared 14.3
+coverage requirement for the prospective 13 domain; no parameter is fitted.
+An independently reconstructed completion validates every raw sample and stop file:
+the original wrapper missed its marker after Isaac shutdown and is preserved as
+an infrastructure failure, without a physical rerun.
+
+`qualified-loaded-gripper-domain-calibration.json` changes only main gripper
+acceleration from 10.574482 to 13 rad/s², already the weak and geometric bound.
+Both teachers remain inside the old main domain, so every complete v42 load,
+contact and admission value is unchanged. The real model now accepts the rejected
+ACT A1 native sample with force upper 3.762 N (independent instantaneous normal
+force 3.121 N; episode peak 7.095 N is separate). Its actual continuing-physics
+stop fits all original 14-shape directional/radial bounds, with minimum directional
+margin 0.235 mm and held joints contained. Main elbow, all other joint domains,
+1 N weak gate, 10 N stop domain, response/geometry/clock bounds, 80 N physical
+criterion, teacher, controller and four checkpoints remain unchanged. Accelerations
+above 13 in the verification are stress evidence for the error model, not broader
+operational geometry permission. Full-v7 will verify the identical ACT A1 checkpoint
+on both nominal train doors before completing the remaining frozen panel; all 24
+outcomes under that final version and the original success rule remain required.
+
 The next full-v6 slot, ACT A1 right/nominal, demonstrates the first actual learned
 contact and controlled opening: 18.815704 degrees /36.7062% of the 51.260252-degree
 reference over 1,875 learned commands. It stops at native 56.45 s when gripper

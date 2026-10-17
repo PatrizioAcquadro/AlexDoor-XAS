@@ -194,7 +194,13 @@ sample; hardware acquisition and sensor accuracy remain unverified. Old recordin
 without torque remain unavailable for loaded qualification. Commands and privileged
 contact data never synthesize measured feedback. Freshness, known source/semantics, bounded
 robot-only load evidence and verified stop/contact behavior are separate admission
-requirements. The observed monitor remains blocked for loaded control.
+requirements. B1 local contact has bounded simulation evidence and real learned
+contact under the [[../experiments/b1-end-to-end-pilot-resume|resumed pilot]].
+Complete full-door A3/A4 operational qualification remains separate. The current
+main gripper acceleration bound is 13 rad/s², independently checked under known
+8/10 N wrenches with unchanged error coefficients; geometric motion bounds, 1 N
+weak-load admission and 10 N stop-force domain are unchanged. This is a finite
+simulation recipe, not hardware or arbitrary-motion qualification.
 The approved
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|operational plan]]
 assigns actual torque/device acquisition and signal verification to 6.0D, without
