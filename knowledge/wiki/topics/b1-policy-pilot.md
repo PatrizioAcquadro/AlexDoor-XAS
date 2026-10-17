@@ -491,3 +491,10 @@ selection API, uses no prepared geometry or evaluator annotation, and generates
 no robot motion. The maintained default recipe is unchanged. This seed choice
 does not certify rigidity, intended leaf identity, local bounds or contact; native
 tracking and independent physical validation remain necessary.
+
+For a real short training run, `overfit_updates: 0` skips the already completed
+infrastructure minibatch probe. It records zero probe updates and retains the
+same four independent training paths and checkpoint round trips. Positive values
+retain the previous probe. Count all optimizer updates against the common pilot
+ceiling, including infrastructure updates; the remaining allocation permits
+12,000 initial real updates and at most 5,836 additional updates in total.

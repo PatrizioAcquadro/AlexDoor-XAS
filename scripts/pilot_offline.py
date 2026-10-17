@@ -289,7 +289,6 @@ def train(root, protocol):
                 protocol["batch_size"],
                 protocol["training_seed"],
             )
-            fixed = next(iter(factory(0)))
             val_batches = list(
                 islice(development(), protocol["evaluation_chunks"] // protocol["batch_size"])
             )
@@ -298,37 +297,42 @@ def train(root, protocol):
                 if family == "act"
                 else DiffusionModelCfg(horizon=protocol["chunk_ticks"])
             )
-            model = make_model(data, family, cfg, seed=protocol["training_seed"])
-            before = evaluate(model, family, [fixed], protocol)
-            learned, history = fit(
-                model,
-                family,
-                lambda epoch, fixed=fixed: iter([fixed]),
-                None,
-                protocol,
-                overfit=True,
-            )
-            after = evaluate(learned, family, [fixed], protocol)
-            _, overfit_error = roundtrip(
-                path / "overfit.pt",
-                family,
-                learned,
-                data,
-                protocol,
-                metadata=dict(scope="fixed_train_minibatch_only"),
-            )
-            overfit = dict(
-                initial_l1=before,
-                final_l1=after,
-                fractional_reduction=(before - after) / max(before, 1e-12),
-                criterion_passed=bool(
-                    after <= before * (1 - protocol["criteria"]["overfit_fractional_l1_reduction"])
-                ),
-                checkpoint_prediction_max_error=overfit_error,
-                history=history.to_dict(),
-            )
+            if protocol["overfit_updates"] > 0:
+                fixed = next(iter(factory(0)))
+                model = make_model(data, family, cfg, seed=protocol["training_seed"])
+                before = evaluate(model, family, [fixed], protocol)
+                learned, history = fit(
+                    model,
+                    family,
+                    lambda epoch, fixed=fixed: iter([fixed]),
+                    None,
+                    protocol,
+                    overfit=True,
+                )
+                after = evaluate(learned, family, [fixed], protocol)
+                _, overfit_error = roundtrip(
+                    path / "overfit.pt",
+                    family,
+                    learned,
+                    data,
+                    protocol,
+                    metadata=dict(scope="fixed_train_minibatch_only"),
+                )
+                overfit = dict(
+                    initial_l1=before,
+                    final_l1=after,
+                    fractional_reduction=(before - after) / max(before, 1e-12),
+                    criterion_passed=bool(
+                        after
+                        <= before * (1 - protocol["criteria"]["overfit_fractional_l1_reduction"])
+                    ),
+                    checkpoint_prediction_max_error=overfit_error,
+                    history=history.to_dict(),
+                )
+                del learned, model
+            else:
+                overfit = dict(skipped=True, optimizer_updates=0)
             write_json(path / "overfit.json", overfit)
-            del learned, model
             model = make_model(data, family, cfg, seed=protocol["training_seed"])
             initial = evaluate(model, family, val_batches, protocol)
             epochs = []
