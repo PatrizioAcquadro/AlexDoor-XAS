@@ -63,6 +63,21 @@ the original qualified main position calibration and main-13 gripper bound for
 all four models. The optional weak-position recipe is inactive, so its narrower
 future-load support cannot be mistaken for strong contact qualification.
 
+Two stop-only wrist candidates are also rejected and retained. The 320 Nm/rad
+candidate with damping-ratio scaling oscillates at zero load: 6.071 rad/s peak
+speed with alternating native-step velocity. The revised 160 Nm/rad /1.25 Nms/rad
+candidate, designed for the explicit drive's 120 Hz timestep, passes 0 N and
+all three 8 N physical stops but fails the 10 N /−0.4 rad stop at 10.205 mm
+travel. Independently reconstructed motion response in this proposed extended
+position/load domain is 25.752 mm /0.09450 rad at 8 N, outside the unchanged
+13 mm /0.04 rad bounds. Stop travel alone therefore cannot qualify the proposed
+domain. All original motion/stop gains, position envelope and main-13 gripper
+recipe are restored for the new learned panel. The two candidate allocations
+charge 101.824 GPU seconds together; no teacher/data or operational calibration
+is promoted. Their source snapshots, native feedback and partial cohorts remain
+in `robot-left-elbow-stop-wrist-candidate` and
+`robot-left-elbow-stop-wrist-discrete`.
+
 ## Original-checkpoint full-v7 outcomes
 
 Four completed outcomes are retained separately: ACT A1 right/nominal executes
