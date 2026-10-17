@@ -3,6 +3,7 @@
 import json
 from copy import deepcopy
 from dataclasses import dataclass
+from itertools import product
 from pathlib import Path
 
 import h5py
@@ -149,12 +150,54 @@ class CommonWorkspace:
                                 remaining, False, False, self.source_clocks
                             )
                             break
+                if support.collision_clearance_m is None and not support.occupied:
+                    margin = self._subcover_margin(center, radius)
+                    if margin is not None:
+                        support = StaticWorkspaceSupport(margin, False, False, self.source_clocks)
                 if support.collision_clearance_m is None:
                     return support
                 margin = support.collision_clearance_m
                 self._free_covers[key] = (center.copy(), float(radius), float(margin))
             margins.append(margin)
         return StaticWorkspaceSupport(min(margins), False, False, self.source_clocks)
+
+    def _subcover_margin(self, center, radius):
+        """Certify the complete original ball by an adaptive union of free balls.
+
+        A constant-depth ray pyramid can be inconclusive beside an oblique surface.
+        The octree covers every intersecting part of the original sphere. Positive
+        radial margins on every covering ball also certify that same radial margin
+        around their union. Budget/depth exhaustion remains unknown.
+        """
+        pending = [(center - radius, center + radius, 0)]
+        margins = []
+        queries = 0
+        while pending:
+            lower, upper, level = pending.pop()
+            nearest = np.maximum(lower, np.minimum(center, upper))
+            if np.linalg.norm(nearest - center) > radius:
+                continue
+            if queries >= 1024:
+                return None
+            midpoint = (lower + upper) / 2
+            support = self._query_uncached(
+                midpoint[None], np.array([np.linalg.norm(upper - lower) / 2])
+            )
+            queries += 1
+            if support.collision_clearance_m is not None:
+                margins.append(support.collision_clearance_m)
+                continue
+            if level >= 6:
+                return None
+            for octant in product((False, True), repeat=3):
+                pending.append(
+                    (
+                        np.where(octant, midpoint, lower),
+                        np.where(octant, upper, midpoint),
+                        level + 1,
+                    )
+                )
+        return min(margins) if margins else None
 
     def _query_uncached(self, centers, radii):
         supports = []

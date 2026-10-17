@@ -143,3 +143,23 @@ def test_constructive_cover_never_fills_actual_unknown_or_occupied_volume(occupi
     full = workspace.query_static([[0, 0, 1]], [0.03], cover_ids=["whole_sweep"])
     assert full.collision_clearance_m is None
     assert "whole_sweep" not in workspace._free_covers
+
+
+def test_subcover_certifies_whole_ball_beside_oblique_surface_and_keeps_unknown_holes():
+    observed = space(2.0, 1.0)
+    view = next(iter(observed.views.values()))
+    u = np.arange(80)[None, :, None]
+    # Measured plane z - x = 1.18, normal distance 0.18/sqrt(2) from the center.
+    view["depth_m"][:] = 1.18 / (1 - (u - 40) / 100)
+    workspace = CommonWorkspace([observed], (0.0, 0.0))
+    direct = workspace.query_static([[0, 0, 1]], [0.1])
+    assert direct.collision_clearance_m is None and not direct.occupied
+    full = workspace.query_static([[0, 0, 1]], [0.1], cover_ids=["complete_ball"])
+    assert full.collision_clearance_m > 0
+    assert full.collision_clearance_m < 0.18 / np.sqrt(2) - 0.1
+    assert workspace._free_covers["complete_ball"][1] == 0.1
+    # An off-center missing ray traverses the actual sphere; subdivisions cannot fill it.
+    view["valid_depth"][40, 48] = False
+    unknown = CommonWorkspace([observed], (0.0, 0.0))
+    assert unknown.query_static([[0, 0, 1]], [0.1], cover_ids=["hole"]).unknown_in_envelope
+    assert "hole" not in unknown._free_covers

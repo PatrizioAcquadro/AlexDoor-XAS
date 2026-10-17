@@ -35,6 +35,13 @@ sphere only by spending its measured radial clearance on the complete radius gro
 unknown or occupied volume is never filled. Regression checks cover raster-border
 inconclusiveness, real unknown holes and occupancy. This corrects a constructive
 coverage failure but does not qualify the remaining unsupported fingertip sweep.
+An adaptive union of free covering balls now also certifies the complete original
+sphere when one constant-depth pyramid is inconclusive beside an oblique surface.
+Every intersecting octree cell must be certified; missing interior rays, occupancy
+and bounded-search exhaustion still refuse. The original requested ball and source
+clocks are retained in the cache. A retained failing 36.5 mm sphere is covered by
+41 subqueries without reducing its stop envelope; full recorded-path validation
+remains separate.
 Front, back and one lateral survey are retained; the lateral trial did not resolve
 that gap and its unadopted source remains with the evidence.
 
