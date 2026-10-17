@@ -25,8 +25,19 @@ Slurm accounting conservatively includes external-step epilogs: 2,743 allocated
 GPU seconds across all five jobs, leaving 857/3,600. The real train preprocessing
 and remote filesystem reads dominate the allocation; 100-update epochs take about
 3.3–3.6 seconds. All four remote checkpoint round trips have zero prediction error.
-The returned final files match the remote SHA-256 values; workstation CUDA loading
-and local development inference remain pending. No development recording was
+The returned final files match the remote SHA-256 values. All four load on the
+workstation RTX 4090 and evaluate the two local development recordings using the
+unchanged checkpoint weights and train-only statistics; neither is recomputed or
+updated during inference. Each uses the same 256 sampled chunks /3,064 valid
+actions, no clipping, and no model selection. ACT A2 mean/p95 translation error is
+0.595/2.850 mm; Diffusion A2 is 0.820/2.494 mm. These are offline imitation errors,
+not closed-loop task success. `pilot_offline.py evaluate --checkpoints-root` is
+the maintained local inference command after `prepare --reference-raw`.
+
+The original load-model q/dq/ddq envelope contains all 17,458 right and 18,512 left
+corrected native samples. Both development records have 556 unavailable samples
+after 124.6167 s from joint-position envelope exits; no bound is expanded or
+availability fabricated. Complete load/contact evidence remains a separate gate. No development recording was
 transferred; remote development metrics remain explicitly unavailable.
 
 Both actual-contact stops pass with continuing physics. Corrected right native

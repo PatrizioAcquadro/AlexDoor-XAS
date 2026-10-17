@@ -495,9 +495,65 @@ def train(root, protocol, *, resume=False):
     return report
 
 
+def evaluate_checkpoints(root, protocol, checkpoints):
+    """Workstation-only development inference with returned, frozen train statistics."""
+    from alexdoor_xas.dataset.b1 import B1Dataset
+    from alexdoor_xas.policies.common.data import PolicyData
+
+    destination = root / "evaluation"
+    destination.mkdir()
+    report = {}
+    for space in (A1_JOINT_DELTA, A2_EE_DELTA):
+        dataset = B1Dataset(root / "data", space)
+        train = tuple(r.episode_id for r in dataset.records if r.split == "train")
+        development = tuple(r.episode_id for r in dataset.records if r.split == "development")
+        if not development:
+            raise ValueError("Local development recordings are required for evaluation")
+        for family in ("act", "diffusion"):
+            name = f"{family}-{space}"
+            checkpoint = checkpoints / name / "final.pt"
+            policy = B1Policy.from_checkpoint(
+                checkpoint,
+                family,
+                binding=dataset.binding,
+                runtime_asset=dataset.robot_asset,
+                device="cuda:0",
+                num_inference_steps=protocol["ddim_steps"],
+            )
+            if policy.policy.stats.train_episode_ids != train:
+                raise ValueError("Returned checkpoint train identities differ")
+            data = PolicyData(dataset, train, development, policy.policy.stats, dataset.robot_asset)
+            before_stats = policy.policy.stats.to_dict()
+            model = policy.policy.model
+            before_weights = {key: value.clone() for key, value in model.state_dict().items()}
+            metrics = raw_metrics(policy, data, protocol)
+            if policy.policy.stats.to_dict() != before_stats or any(
+                not torch.equal(before_weights[key], value)
+                for key, value in model.state_dict().items()
+            ):
+                raise ValueError("Offline evaluation changed weights or normalization")
+            report[name] = dict(
+                checkpoint=str(checkpoint.resolve()),
+                offline_development=metrics,
+                train_episode_ids=data.train_ids,
+                development_episode_ids=data.val_ids,
+                frozen_weights_and_statistics=True,
+                device=torch.cuda.get_device_name(),
+                scope=(
+                    "Offline development inference only; no closed-loop outcome or model selection"
+                ),
+            )
+            write_json(destination / f"{name}.json", report[name])
+            write_json(destination / "report.json", report)
+            print(json.dumps(dict(evaluated=name, **report[name])), flush=True)
+            del policy, model, before_weights
+            torch.cuda.empty_cache()
+    return report
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("audit", "prepare", "train"))
+    parser.add_argument("mode", choices=("audit", "prepare", "train", "evaluate"))
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--protocol", type=Path, default=REPO / "configs/b1_policy_pilot.json")
     parser.add_argument(
@@ -517,11 +573,18 @@ if __name__ == "__main__":
         "--asset-id", help="Single declared episode for the read-only preflight audit"
     )
     parser.add_argument(
+        "--checkpoints-root",
+        type=Path,
+        help="Returned training directory containing the four frozen final checkpoints",
+    )
+    parser.add_argument(
         "--resume",
         action="store_true",
         help="Continue unchanged real cells from saved optimizer/RNG/EMA state",
     )
     args = parser.parse_args()
+    if args.mode == "evaluate" and args.checkpoints_root is None:
+        parser.error("evaluate requires --checkpoints-root")
     if args.resume and args.mode != "train":
         parser.error("--resume is only valid for train")
     if not torch.cuda.is_available():
@@ -542,5 +605,7 @@ if __name__ == "__main__":
                 copy_raw=not args.reference_raw,
                 urdf=args.urdf,
             )
+        elif args.mode == "evaluate":
+            evaluate_checkpoints(args.root, protocol, args.checkpoints_root)
         else:
             train(args.root, protocol, resume=args.resume)
