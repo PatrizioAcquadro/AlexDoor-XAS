@@ -544,3 +544,12 @@ can be unavailable under self-occlusion without erasing a separately bounded rig
 material model. Neither statement measures the hidden contact interface or admits
 loaded action by itself; current identity/pose, robot load and relevant sweep/stop
 evidence remain essential. See [[../experiments/b1-end-to-end-pilot-resume|the resumed contact contract]].
+
+For the bounded axis-free pilot, the full-state 1 cm /5 degree qualification
+profile above remains separate from A1/A2's per-proposal local margin proof. The
+latter retains finite measured geometry/calibration/pose errors and charges them
+once, including angular levers, against the actual two-finger and continuous
+sweep/response/stop clearances. Uncertainty cannot be replaced by a qualification
+flag or an unobserved free-space assumption. Static local material witnesses do
+not establish a hinge or whole-mask movable-leaf ownership. See
+[[../topics/b1-policy-pilot|the maintained pilot contracts]].

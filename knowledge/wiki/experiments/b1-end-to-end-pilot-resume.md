@@ -331,3 +331,12 @@ Finite-reference selection and separate frame/contact uncertainty accounting
 are implemented and numerically validated; all missing bounds/space support
 remain explicit. The same observed recipe is now being checked on the saved left
 cycle. Full A4 initialization is not added as a prerequisite.
+
+The case-16 preflight initially starves on repeated 12% utilization spikes from
+whitelisted desktop graphics, with no compute or unknown graphics processes.
+Its pre-physics wait is preserved and restarted without another physical case.
+All three leases and foreign-process monitoring stay intact; the corrected idle
+test requires 180 s without compute/unknown graphics, at least 8 GiB free, and
+both current and 180 s mean utilization at most 10%. Sustained contention and
+every foreign compute process still block. Desktop activity is not a GPU job
+failure, and no other process is terminated.

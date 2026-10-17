@@ -255,6 +255,10 @@ class PanelTracking:
     def adopt_candidates(self, candidates, sensor, scan_memory=None):
         """Attach robot-specific finite support without changing native tracking."""
         self.candidates = candidates
+        for candidate in candidates:
+            candidate.static_material_witnesses = ()
+            if candidate.ownership == "observed_rigid_material":
+                candidate.ownership = "ambiguous_leaf_candidate"
         if self.distal_faces is None:
             return
         for candidate in candidates:

@@ -429,3 +429,10 @@ stationary pin versus bounded diagnostic initialization before policy dispatch,
 separates known simulation floor/FK from correspondence envelopes and verifies
 the unchanged A4 command sensitivity. No initialization motion/contact path is
 implemented.
+
+The bounded A1/A2 pilot now implements explicit local admission independently
+of global hinge qualification. Its finite material selection, retained static
+view witnesses, separated frame/contact uncertainty and common observer/IO
+recipe checks are described in [[b1-policy-pilot|the pilot contract]]. Missing
+relevant collision-space/response support remains a refusal. The global
+operational-v1 and historical complete-state qualification metrics are unchanged.
