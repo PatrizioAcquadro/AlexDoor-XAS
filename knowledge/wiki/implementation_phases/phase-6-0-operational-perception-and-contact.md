@@ -575,3 +575,9 @@ The operational IO verifies actual post-step robot FK against its admitted
 response bounds as well as checking the commanded preview. Response failure
 latches stopping after the executed step; accounting retains that failed command.
 The independent physical limits and continuing-physics stop score still apply.
+
+The bounded pilot normalizes the declared RTX half-pixel sampling convention once
+at observed session ingress and static-workspace reading. Raw calibration remains
+unchanged; disagreement between recipe and recording refuses. This fixes metric
+projection without qualifying missing contact, pose, sensor or collision bounds;
+see [[../experiments/b1-end-to-end-pilot-resume|the preserved numerical checks]].

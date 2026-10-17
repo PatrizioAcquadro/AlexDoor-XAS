@@ -61,6 +61,7 @@ def camera_calibration(env):
         root_world=root_world.tolist(),
         joint_names=list(ARM_JOINTS + NECK_JOINTS),
         depth_interval_m=[env.capture.near_m, env.capture.far_m],
+        pixel_center_offset_xy=[0.5, 0.5],  # RTX sample centers; raw SDK K is retained.
         optical_convention="ROS",
         depth_kind="distance_to_image_plane_m",
     )

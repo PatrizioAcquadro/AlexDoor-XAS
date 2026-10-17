@@ -422,3 +422,33 @@ def test_observed_reference_selection_preserves_ties_overlap_and_mask_holes():
     right = large.copy()
     right[:, :14] = False
     assert module.observed_reference_pixel([surface(large), surface(left), surface(right)]) is None
+
+
+def test_provider_converts_source_pixel_centers_once_before_all_geometry(tmp_path, geometry):
+    import json
+
+    from alexdoor_xas.perception.provider import PrototypeRecipe
+
+    config = recipe().config
+    config["camera_pixel_center_offset_xy"] = [0.5, 0.5]
+    binding = PrototypeRecipe(json.dumps(config))
+    native = Native()
+    session = PerceptionSession(
+        "unused", binding, {}, tmp_path, sam_worker=Sam([[7]]), p2p_worker=native
+    )
+    engine = Point2PoseEngine(lambda _: session, replay=True, capture_session=True)
+    provider = module.SessionProvider(binding, engine, tracking=False)
+    observed = sensor(25, 0)
+    raw = observed["intrinsics"].copy()
+    try:
+        provider.update(observed)
+        assert provider.consume_results(engine.pending[1]["available_s"])
+        captured, _ = provider.last_publication
+        expected = raw.copy()
+        expected[:2, 2] -= 0.5
+        np.testing.assert_array_equal(captured["intrinsics"], expected)
+        np.testing.assert_array_equal(observed["intrinsics"], raw)
+        assert provider.static
+        np.testing.assert_array_equal(provider.static[0].observations[0].intrinsics, expected)
+    finally:
+        provider.close()

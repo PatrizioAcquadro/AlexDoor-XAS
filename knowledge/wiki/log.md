@@ -64,3 +64,7 @@ belong in Git history, not in agent context.
 | 2026-09-28–29 perception engineering | Two 50-episode campaigns, two pilots and one inspection diagnostic acquired. Loss/state corrections fixed train fitting; run-03 still failed all six development doors. Independent confidence fitting did not repair geometry. | `853d46e`, `1bd633e`, `a4ad984`, `7e2bf56`; [[experiments/b1-perception-findings|Perception findings]] |
 | 2026-09-29 component screening | Corrected counter/row alignment supersedes initial plane scores. Boxed SAM 3 improves 92/108 to 97/108 development successes with severe remaining errors. Matched DINOv2/v3 probes fit train but fail development. | `0ea075f`, `9dff5f3`, `e1f98a6`; [[experiments/b1-perception-findings|Perception findings]] |
 | 2026-09-29 targeted cleanup | Model-independent B1 release/provider boundary; rejected estimators, synthetic search and experiment-only tools retired. Original complete recordings, chosen models and essential evidence separated; five interrupted payloads removed explicitly. Numerical/CUDA and bounded RGB-D checks pass without training or collection. New geometric perception remains unimplemented. | Baseline `e1f98a6`, contract `67f32e5`; [[topics/shared-door-perception|Perception boundary]] |
+
+- 2026-10-16: Corrected the independently demonstrated RTX pixel-center convention
+  at pilot geometry ingress, retaining raw data and explicit uncertainty; see
+  [[experiments/b1-end-to-end-pilot-resume]].

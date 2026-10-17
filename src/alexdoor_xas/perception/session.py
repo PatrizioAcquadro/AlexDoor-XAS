@@ -13,7 +13,11 @@ from pathlib import Path
 
 import numpy as np
 
-from alexdoor_xas.perception.geometry import surfaces
+from alexdoor_xas.perception.geometry import (
+    integer_center_intrinsics,
+    pixel_center_offset,
+    surfaces,
+)
 from alexdoor_xas.perception.point2pose.tracking import PanelTracking
 from alexdoor_xas.perception.scan import (
     ObservedSpace,
@@ -470,6 +474,9 @@ class SessionProvider:
         **tracking_options,
     ):
         self.binding, self.config, self.engine = recipe, recipe.config, engine
+        self.pixel_center_offset_xy = pixel_center_offset(
+            self.config, tracking_options.get("calibration")
+        )
         if synchronous_simulation and (engine.replay or not callable(engine.clock)):
             raise ValueError("synchronous_simulation_requires_measured_clock")
         if (
@@ -689,6 +696,13 @@ class SessionProvider:
             or not np.isfinite(sensor["intrinsics"]).all()
         ):
             reason = "invalid_calibration"
+        if reason is None:
+            try:
+                sensor["intrinsics"] = integer_center_intrinsics(
+                    sensor["intrinsics"], self.pixel_center_offset_xy
+                )
+            except ValueError:
+                reason = "invalid_calibration"
         depth, valid = sensor["depth_m"], sensor["valid_depth"]
         if (
             depth.ndim != 3

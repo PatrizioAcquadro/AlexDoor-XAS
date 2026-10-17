@@ -468,3 +468,19 @@ handoff pause. Their original scores and eligibility audit are preserved; the
 new protocol selection is explicit. The four remaining prescribed lighting/seed
 conditions and all 24 learned panel entries stay unchanged; no favorable retry
 or evaluation-denominator reduction is used.
+
+The pilot RTX camera publishes SDK intrinsics with half-integer sample centers.
+Geometry now converts those intrinsics once at session ingress to integer pixel
+indices; new calibration metadata declares `[0.5, 0.5]`, and the explicit pilot
+recipe provides the convention for retained legacy recordings. Conflicting
+metadata refuses. Raw SDK intrinsics, RGB-D, clocks and learned image preprocessing
+remain unchanged. Static workspace maps are rebuilt from normalized rays; prior
+native 3D tracking outputs are not relabeled as corrected.
+
+Independent saved-data checks explain the systematic bias: four visible-floor
+ROIs fall from up to 6.160 mm error to below 1.57 micrometers. Five other fixed
+ROIs include occluders and do not establish floor accuracy. On the fixed sparse
+train contact-plane samples, normalized geometry gives maximum plane errors
+0.06844/0.00199 mm and normal errors 0.000268/0.000266 rad (right/left).
+These are diagnostic numerical results, not a complete sensor uncertainty bound,
+hardware qualification or observed-contact admission.

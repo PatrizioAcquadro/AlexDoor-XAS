@@ -350,3 +350,34 @@ def test_frame_origin_budget_keeps_geometry_and_fingertip_rotation_separate():
     assert finger.displacement_m > 0.004 + frame.displacement_m
     assert finger.rotation_rad == pytest.approx(0.01 + frame.rotation_rad)
     assert "local_geometry" not in [source.name for source in frame.sources]
+
+
+def test_explicit_rtx_pixel_centers_preserve_raw_k_and_integer_geometry():
+    from alexdoor_xas.perception.geometry import (
+        deproject,
+        integer_center_intrinsics,
+        pixel_center_offset,
+        project,
+    )
+
+    raw = np.array([[368.0, 2.0, 480], [0, 368.0, 300], [0, 0, 1]])
+    saved = raw.copy()
+    offset = pixel_center_offset(
+        {"camera_pixel_center_offset_xy": [0.5, 0.5]}, {"pixel_center_offset_xy": [0.5, 0.5]}
+    )
+    converted = integer_center_intrinsics(raw, offset)
+    pixels = np.array([[10, 50], [400, 250]])
+    expected = deproject([1.0, 2.0], pixels + offset, raw, np.eye(4))
+    actual = deproject([1.0, 2.0], pixels, converted, np.eye(4))
+    np.testing.assert_allclose(actual, expected, atol=1e-15)
+    np.testing.assert_allclose(project(actual, converted, np.eye(4))[0], pixels, atol=1e-13)
+    np.testing.assert_array_equal(raw, saved)
+    np.testing.assert_array_equal(pixel_center_offset({}), [0, 0])
+    with pytest.raises(ValueError, match="mismatch"):
+        pixel_center_offset(
+            {"camera_pixel_center_offset_xy": [0.5, 0.5]}, {"pixel_center_offset_xy": [0, 0]}
+        )
+    with pytest.raises(ValueError, match="invalid_pixel_center"):
+        pixel_center_offset({"camera_pixel_center_offset_xy": [np.nan, 0]})
+    with pytest.raises(ValueError, match="invalid_camera"):
+        integer_center_intrinsics(np.zeros((3, 3)), offset)

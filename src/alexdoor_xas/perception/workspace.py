@@ -9,6 +9,7 @@ import h5py
 import numpy as np
 
 from alexdoor_xas.perception.admission import rotational_travel
+from alexdoor_xas.perception.geometry import integer_center_intrinsics, pixel_center_offset
 from alexdoor_xas.perception.scan import ObservedSpace
 
 
@@ -58,6 +59,7 @@ class CommonWorkspace:
                 if not len(times) or not np.isfinite(times).all() or (np.diff(times) <= 0).any():
                     raise ValueError("invalid_workspace_capture_clock")
                 calibration = json.loads(source["metadata"].attrs["calibration"])
+                offset = pixel_center_offset(config, calibration)
                 measured = json.loads(source["metadata"].attrs["camera_fk_error"])
                 if any(
                     not np.isfinite(measured[key]) or measured[key] > bound
@@ -82,6 +84,7 @@ class CommonWorkspace:
                             "camera_world",
                         )
                     }
+                    sensor["intrinsics"] = integer_center_intrinsics(sensor["intrinsics"], offset)
                     depth = sensor["depth_m"]
                     near, far = calibration["depth_interval_m"]
                     if not np.array_equal(

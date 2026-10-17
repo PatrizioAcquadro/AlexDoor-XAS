@@ -10,5 +10,9 @@
   "voxel_m": 0.004,
   "floor_z_m": 0.0,
   "inspection_path": "configs/perception_inspection.json",
-  "reference_selection": "largest_visible_surface"
+  "reference_selection": "largest_visible_surface",
+  "camera_pixel_center_offset_xy": [
+    0.5,
+    0.5
+  ]
 }
