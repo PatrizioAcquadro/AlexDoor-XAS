@@ -66,7 +66,8 @@ full2s stopping and self-clearance remain separate required proofs.
 
 Free-motion receipts explicitly prepay normal uncertainty growth and relative
 motion over the control interval; post-step checks spend any excess. Camera,
-control and native feedback remain10/60/120Hz with actual observation ages.
+raw RGB-D acquisition and control run at60Hz, native feedback at120Hz, and
+policy/geometry consume images at10Hz. Actual observation ages remain explicit.
 Certain observed separation ends pending acquisition bookkeeping while preserving
 identity, load history and latched stops. Conservative possible contact still has
 the original3s/30mm acquisition limit. The5-degree contact orientation criterion
