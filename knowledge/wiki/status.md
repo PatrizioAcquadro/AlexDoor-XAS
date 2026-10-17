@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-16. **Static 6.0B is maintained; CAD-free Point2Pose is
+Current as of 2026-10-17. **Static 6.0B is maintained; CAD-free Point2Pose is
 implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
@@ -77,23 +77,32 @@ preserved and their command labels are explicitly excluded from imitation.
 Prerequisite count is unrestricted. Cases 14–17 preserve the original loaded-stop
 and speed-coverage failures and the later common corrections. Actual right
 first-contact stopping now passes at 9.70 N peak: 0.071 mm travel over two seconds,
-with no violations. Left first-contact stopping and complete operational
-load/contact/sweep qualification remain open. Common observed workspace rays
+with no violations. Left first-contact stopping also passes (7.68 N peak,
+0.184 mm travel). Four independent moving-door stop holdouts pass against the
+continuous whole-link stop calibration; complete operational contact/sweep
+qualification remains open. Common observed workspace rays
 cover all 14 moving robot shapes at the first approach condition; full moving
 coverage is not inferred. The independently demonstrated RTX pixel-center bias
 is corrected at geometry ingress. An opt-in observed plane/edge/native-pair local
 constraint separates normal direction from full material-pose uncertainty;
 corrected native tracking and full contact metrics remain unqualified.
 
-Local consumption is 2.98965 of three GPU hours; only 37.26 seconds remain. The
-12-total-hour proposal is pending. Two Gilbreth jobs consume 70 allocated GPU
-seconds: the real-training launch fails before Python/CUDA because Slurm supplies
-conflicting CPU task variables. Its repair passes scheduling dry-run validation;
-a third submission is requested within the unchanged one-GPU-hour remote ceiling.
-The rollout recorder now retains consumed images and separate full-rate commands/robot/native feedback; numerical and saved-input round trips pass, live validation remains pending.
-No real optimizer updates or learned simulation commands have executed. Automatic
-review separately blocks development-record transfer pending explicit consent;
-train-only preparation/training keeps development evaluation explicitly deferred.
+The resumed cumulative ceilings are 15 local GPU hours, 3,600 remote allocated
+GPU seconds, 18,000 optimizer updates and 300 GiB; six fresh demonstrations remain
+consumed. The four real ACT/Diffusion × A1/A2 cells complete 3,000 updates each on
+the same two eligible corrected train episodes in Gilbreth job11970038. Cumulative
+remote charge is 2,743 GPU-seconds and optimizer count12,164 including infrastructure.
+Returned checkpoint hashes and all four workstation CUDA loads pass. Development
+stays local and uses unchanged checkpoint weights/train statistics; remote metrics
+remain unavailable. Offline imitation error is not task success.
+
+The maintained rollout CLI now wires real observed perception, native robot load,
+contact monitoring and actual proposed-motion producers; the first two seconds of
+both retained train approaches pass numerical whole-robot/free-space/separation
+checks. Live learned execution, contact margins and all24 panel outcomes remain
+pending. The recorder retains consumed images and separate full-rate commands,
+robot/native feedback and independent evaluator streams. Current local counters
+and all preserved failures are in [[experiments/b1-end-to-end-pilot-resume]].
 
 Full A3/A4 observed initialization is deferred and does not block A1/A2. Retained
 raw data and reconstructed supervisor labels do not qualify observed A3/A4

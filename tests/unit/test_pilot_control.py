@@ -233,7 +233,7 @@ def test_physics_peak_load_cannot_disappear_between_control_ticks(tmp_path):
         env=SimpleNamespace(load_samples=samples),
         safety=SimpleNamespace(provider=SimpleNamespace(last_estimate=estimate)),
     )
-    peak = PurdueLoadSource(model.calibration)(io, load.feedback)
+    peak = PurdueLoadSource(model.calibration, normal_angular_speed_rad_s=0.15)(io, load.feedback)
     assert peak.force_upper_n > 8
     assert not peak.admission(1, 6).admitted
     writer = B1Writer(tmp_path / "physics.hdf5", {}, dict(depth_interval_m=[0.1, 5]))
@@ -554,7 +554,7 @@ def test_native_normal_load_uses_its_bound_and_preserves_full_wrench_peak():
         env=SimpleNamespace(load_samples=samples),
         safety=SimpleNamespace(provider=provider),
     )
-    source = PurdueLoadSource(model.calibration)
+    source = PurdueLoadSource(model.calibration, normal_angular_speed_rad_s=0.15)
     conservative = source(io, load.feedback)
     supported = replace(patch, normal_rotation_bound_rad=0.01)
     provider.last_estimate = replace(estimate, local=replace(estimate.local, patches=(supported,)))
@@ -562,9 +562,15 @@ def test_native_normal_load_uses_its_bound_and_preserves_full_wrench_peak():
     assert projected.normal_lower_n > conservative.normal_lower_n
     assert projected.force_upper_n == conservative.force_upper_n
     assert len(projected.normal_samples) == 2
-    expected = load.normal_lower_n - load.force_upper_n * 2 * np.sin(0.01 / 2)
-    assert projected.normal_lower_n == pytest.approx(expected)
-    assert all(v == pytest.approx(expected) for _, _, v in projected.normal_samples)
+    expected = [
+        load.normal_lower_n
+        - load.force_upper_n
+        * 2
+        * np.sin((0.01 + 0.15 * (load.feedback.timestamp_s - s.feedback.timestamp_s)) / 2)
+        for s in samples
+    ]
+    assert projected.normal_lower_n == pytest.approx(min(expected))
+    assert [v for _, _, v in projected.normal_samples] == pytest.approx(expected)
     assert provider.last_estimate.local.patches[0].pose_support.rotation_bound_rad == 0.2
 
 

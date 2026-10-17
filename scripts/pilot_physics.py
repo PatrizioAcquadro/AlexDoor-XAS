@@ -38,6 +38,11 @@ def main():
     parser.add_argument("--recording", type=Path)
     parser.add_argument("--space", choices=("A1_joint_delta", "A2_ee_delta"))
     parser.add_argument("--checkpoint", type=Path)
+    parser.add_argument(
+        "--operational-recipe",
+        type=Path,
+        help="Measured observed perception/load/motion recipe for real rollout",
+    )
     parser.add_argument("--family", choices=("act", "diffusion"))
     parser.add_argument(
         "--expert-reference",
@@ -68,9 +73,12 @@ def main():
         parser.error("Only explicitly declared train/development identities are allowed")
     if args.mode == "replay" and (args.recording is None or args.space is None):
         parser.error("Replay needs a recording and action space")
-    if args.mode == "rollout" and (args.checkpoint is None or args.family is None):
+    if args.mode == "rollout" and (
+        args.checkpoint is None or args.family is None or args.operational_recipe is None
+    ):
         parser.error(
-            "Rollout requires one declared train/development condition and checkpoint family"
+            "Rollout requires a declared train/development condition, checkpoint family "
+            "and operational recipe"
         )
     lighting_scale = float(selected[0].get("lighting_scale", 1.0))
     if not math.isfinite(lighting_scale) or lighting_scale <= 0:
@@ -331,7 +339,7 @@ def replay(env, args, protocol):
 
 
 def rollout(env, args, protocol, robot, setup, inspection):
-    """Run the operational runner with honestly unavailable geometry/admission."""
+    """Run learned commands with observed geometry and actual-motion admission."""
     from dataclasses import asdict
     from types import SimpleNamespace
 
@@ -341,9 +349,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
 
     from alexdoor_xas.perception.evaluation import json_safe
     from alexdoor_xas.policies.b1 import B1Policy
-    from alexdoor_xas.policies.encoding import RGBDEncoder, pilot_binding
-    from alexdoor_xas.policies.observations import B1Observer
-    from alexdoor_xas.policies.purdue import PurdueIO, contact_status
+    from alexdoor_xas.policies.encoding import pilot_binding
+    from alexdoor_xas.policies.pilot_runtime import observed_pilot_runtime
+    from alexdoor_xas.policies.purdue import contact_status
     from alexdoor_xas.policies.rollout import B1Runner
     from alexdoor_xas.qualification.pilot_evaluation import PilotEvaluation, physical_row
     from alexdoor_xas.recording.b1 import PHASES
@@ -363,9 +371,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
         device="cuda:0",
         num_inference_steps=protocol["ddim_steps"],
     )
-    observer = B1Observer(None, binding, encoder=RGBDEncoder(binding))
-    geometry = SimpleNamespace(binding=binding, last_estimate=None)
-    io = PurdueIO(env, binding=binding, robot_asset=robot, setup=setup, observed_provider=geometry)
+    observer, io, geometry, motion, load_log = observed_pilot_runtime(
+        env, binding, robot, setup, args.operational_recipe, args.output, policy.action_space
+    )
     recording = RolloutWriter(
         args.output / "rollout.hdf5",
         dict(
@@ -573,7 +581,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
 
     io.hold_step = measured_hold
     observer.update = measured_update
-    runner = B1Runner(policy, observer, io, n_action_steps=protocol["replan_ticks"])
+    runner = B1Runner(
+        policy, observer, io, n_action_steps=protocol["replan_ticks"], admission_source=motion
+    )
     try:
         result = runner.run(
             max_ticks=protocol["rollout_max_ticks"], seed=protocol["inference_seed"]
@@ -594,6 +604,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
         recording.close()
         native_contacts.close()
         evaluator_states.close()
+        motion.close()
+        load_log.close()
+        geometry.close()
     stop_time = env._time_s
     assert io.env._pending_pose is None and io.env._pending_joints is None
     np.testing.assert_array_equal(array(env.robot.data.joint_pos), array(env.targets))
@@ -620,9 +633,12 @@ def rollout(env, args, protocol, robot, setup, inspection):
         retained_inputs="rollout.hdf5",
         retained_native_contacts="evaluator-native-contacts.jsonl",
         retained_evaluator_states="evaluator-control-state.jsonl",
-        observed_geometry_available=False,
-        load_source_available=False,
-        action_admission_source_available=False,
+        observed_geometry_available=True,
+        load_source_available=True,
+        action_admission_source_available=True,
+        operational_recipe=str(args.operational_recipe),
+        operational_admission="operational-admission.jsonl",
+        operational_load="operational-load.jsonl",
         frozen_target_stop=True,
         stop_sim_time_s=stop_time,
         progress_max_deg=float(np.rad2deg(np.max(np.abs(np.asarray(rows)[:, 1])))) if rows else 0.0,

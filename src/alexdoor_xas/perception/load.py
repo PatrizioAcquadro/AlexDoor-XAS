@@ -200,7 +200,10 @@ class PurdueLoadSource:
     Without that evidence the resulting load admission remains unverified.
     """
 
-    def __init__(self, calibration):
+    def __init__(self, calibration, *, normal_angular_speed_rad_s):
+        if not np.isfinite(normal_angular_speed_rad_s) or normal_angular_speed_rad_s < 0:
+            raise ValueError("unmeasured_material_normal_rate")
+        self.normal_angular_speed_rad_s = float(normal_angular_speed_rad_s)
         self.model = ResidualLoadModel(calibration)
 
     def __call__(self, io, feedback):
@@ -271,7 +274,17 @@ class PurdueLoadSource:
             force_upper_n=max(load.force_upper_n for load in loads),
             normal_lower_n=min(
                 load.normal_lower_n
-                - load.force_upper_n * 2 * np.sin(min(normal_rotation, np.pi) / 2)
+                - load.force_upper_n
+                * 2
+                * np.sin(
+                    min(
+                        normal_rotation
+                        + self.normal_angular_speed_rad_s
+                        * (feedback.timestamp_s - load.feedback.timestamp_s),
+                        np.pi,
+                    )
+                    / 2
+                )
                 for load in loads
             ),
             normal_samples=tuple(
@@ -279,7 +292,17 @@ class PurdueLoadSource:
                     load.feedback.timestamp_s - 1 / 120,
                     load.feedback.timestamp_s,
                     load.normal_lower_n
-                    - load.force_upper_n * 2 * np.sin(min(normal_rotation, np.pi) / 2),
+                    - load.force_upper_n
+                    * 2
+                    * np.sin(
+                        min(
+                            normal_rotation
+                            + self.normal_angular_speed_rad_s
+                            * (feedback.timestamp_s - load.feedback.timestamp_s),
+                            np.pi,
+                        )
+                        / 2
+                    ),
                 )
                 for load in loads
             ),
