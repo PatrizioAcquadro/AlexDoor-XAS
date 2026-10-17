@@ -844,3 +844,12 @@ at the configured provider cadence and limits only stationary 3D extraction/map
 snapshots. Native tracking retains its live cadence after inspection. Acquisition
 clock and dense-semantic/limited-geometry regressions pass; fresh native validation
 remains required.
+
+
+Fresh sampled-map initialization also exposed publication ordering: newly returned
+worker snapshots still contained estimated availability times when material
+witnesses were attached. The provider now restores actual earlier publication
+times and the current measured availability before adoption. Adoption checks
+against publication availability, while acquisition/support times remain intact.
+Current witness availability is finalized with the complete publication. This
+fixes the causal clock mismatch without accepting future evidence.

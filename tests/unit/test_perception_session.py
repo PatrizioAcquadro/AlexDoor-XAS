@@ -506,10 +506,21 @@ def test_explicit_policy_protocol_selects_one_observed_zone_without_qualifying_o
     )
     engine = Point2PoseEngine(lambda _: session, replay=True, capture_session=True)
     provider = module.SessionProvider(recipe(), engine, local_selection_source="policy")
+    adopt = provider.tracking.adopt_candidates
+    adopted_clocks = []
+
+    def checked_adopt(candidates, captured, scan, *, available_s):
+        clocks = [o.available_s for surface in scan.surfaces for o in surface.observations]
+        assert clocks and all(t == available_s for t in clocks)
+        adopted_clocks.append(available_s)
+        return adopt(candidates, captured, scan, available_s=available_s)
+
+    provider.tracking.adopt_candidates = checked_adopt
     try:
         provider.update(sensor(25, 0))
         ready = engine.pending[1]["available_s"]
         assert provider.consume_results(ready)
+        assert adopted_clocks == [ready]
         selection = provider.tracking.selection
         assert selection.source == "policy" and selection.selected_s == ready
         assert selection.patch_id == provider.tracking.candidates[0].candidate_id

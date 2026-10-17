@@ -568,12 +568,29 @@ class SessionProvider:
             self.scan_memory = result["scan_memory"]
             self.scan_memory.generation = self.generation
             self.scan_memory.state.generation = self.generation
+        if result["scan_memory"] is not None:
+            self.scan_available[float(captured["time_s"])] = ready
+            # Worker snapshots contain acquisition-time estimates. Preserve actual
+            # earlier publications when replacing the snapshot; never refresh old
+            # inspection support with a later tracking acquisition.
+            for surface in self.scan_memory.surfaces:
+                for observation in surface.observations:
+                    observation.available_s = self.scan_available.get(
+                        observation.acquired_s, observation.available_s
+                    )
+            for obj in self.scan_memory.state.objects:
+                obj.support = replace(
+                    obj.support,
+                    available_s=self.scan_available.get(
+                        obj.support.supported_s, obj.support.available_s
+                    ),
+                )
         result["cue"]["available_s"] = ready
         self.last_cue = captured, result["cue"]
         if self.tracking:
             if result["initial_candidates"]:
                 self.tracking.adopt_candidates(
-                    result["initial_candidates"], captured, self.scan_memory
+                    result["initial_candidates"], captured, self.scan_memory, available_s=ready
                 )
                 self.tracking.diagnostics["binding"] = result["binding"]
                 if self.local_selection_source is not None and len(self.tracking.candidates) == 1:
@@ -615,23 +632,6 @@ class SessionProvider:
             unresolved_surfaces=len(self.scan_state.unresolved_surfaces),
             queue=self.engine.queue_stats.copy(),
         )
-        if result["scan_memory"] is not None:
-            self.scan_available[float(captured["time_s"])] = ready
-            # Worker snapshots contain acquisition-time estimates. Preserve actual
-            # earlier publications when replacing the snapshot; never refresh old
-            # inspection support with a later tracking acquisition.
-            for surface in self.scan_memory.surfaces:
-                for observation in surface.observations:
-                    observation.available_s = self.scan_available.get(
-                        observation.acquired_s, observation.available_s
-                    )
-            for obj in self.scan_memory.state.objects:
-                obj.support = replace(
-                    obj.support,
-                    available_s=self.scan_available.get(
-                        obj.support.supported_s, obj.support.available_s
-                    ),
-                )
         if self.tracking and result["initial_candidates"]:
             for candidate, binding in zip(self.tracking.candidates, result["binding"], strict=True):
                 candidate.geometry = replace(candidate.geometry, available_s=ready)
@@ -679,6 +679,16 @@ class SessionProvider:
                     candidate.static_reference = replace(
                         candidate.static_reference, support=candidate.geometry
                     )
+                    candidate.static_material_witnesses = tuple(
+                        dict(
+                            w,
+                            available_s=self.scan_available.get(w["acquired_s"], w["available_s"]),
+                        )
+                        for w in candidate.static_material_witnesses
+                    )
+                    self.tracking.diagnostics.setdefault("static_material_witnesses", {})[
+                        candidate.candidate_id
+                    ] = candidate.static_material_witnesses
                 if candidate.state == "tracked" and candidate.support.supported_s == float(
                     captured["time_s"]
                 ):

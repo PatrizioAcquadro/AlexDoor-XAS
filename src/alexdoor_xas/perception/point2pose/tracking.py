@@ -265,8 +265,11 @@ class PanelTracking:
         self.last_submitted = int(sensor["frame"])
         return True
 
-    def adopt_candidates(self, candidates, sensor, scan_memory=None):
-        """Attach robot-specific finite support without changing native tracking."""
+    def adopt_candidates(self, candidates, sensor, scan_memory=None, *, available_s=None):
+        """Attach finite support at its actual publication time; preserve acquisition."""
+        available_s = float(sensor["time_s"]) if available_s is None else float(available_s)
+        if not np.isfinite(available_s) or available_s < float(sensor["time_s"]):
+            raise ValueError("invalid_material_adoption_clock")
         self.candidates = candidates
         for candidate in candidates:
             candidate.static_material_witnesses = ()
@@ -339,8 +342,7 @@ class PanelTracking:
                         error,
                     )
                     if any(
-                        w["available_s"] > float(sensor["time_s"])
-                        for w in candidate.static_material_witnesses
+                        w["available_s"] > available_s for w in candidate.static_material_witnesses
                     ):
                         raise ValueError("future_static_material_witness")
             self.diagnostics.setdefault("static_material_witnesses", {})[candidate.candidate_id] = (
