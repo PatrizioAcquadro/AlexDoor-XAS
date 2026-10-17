@@ -26,6 +26,12 @@ def main():
     parser.add_argument("--asset-id", required=True)
     parser.add_argument("--view", choices=("front", "back"), required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--park-arm",
+        type=float,
+        nargs=7,
+        help="Calibration-only parked right-arm joints in canonical ARM_JOINTS order",
+    )
     args = parser.parse_args()
     from alexdoor_xas.perception.inspection import (
         load_inspection,
@@ -49,6 +55,14 @@ def main():
         ).read_bytes():
             raise ValueError("Survey input differs from the frozen corpus")
     setup = ProbeSetup(**json.loads((REPO / protocol["task_setup"]).read_text()))
+    if args.park_arm is not None:
+        import math
+
+        from alexdoor_xas.assets.purdue import ARM_JOINTS
+
+        if not all(math.isfinite(value) for value in args.park_arm):
+            parser.error("Parked arm joints must be finite")
+        setup.initial_joints.update(zip(ARM_JOINTS, args.park_arm, strict=True))
     nominal_floor = tuple(setup.floor_pose)
     view = protocol["views"][args.view]
     setup.floor_pose = (view["floor_x_m"], nominal_floor[1], view["floor_yaw_rad"])
@@ -85,6 +99,7 @@ def main():
         asset_id=args.asset_id,
         split=entry["split"],
         survey_view=args.view,
+        calibration_parked_arm=args.park_arm,
         survey_floor_pose=setup.floor_pose,
         accepted_task_floor_pose=nominal_floor,
         inspection=inspection,
