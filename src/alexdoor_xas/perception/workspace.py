@@ -366,3 +366,126 @@ class ObservedBackground(CommonWorkspace):
                     return StaticWorkspaceSupport(None, True, False, self.source_clocks)
                 margins.append(best)
         return StaticWorkspaceSupport(min(margins), False, False, self.source_clocks)
+
+    def _cached_pyramid_margin(self, vertices, radius, condition):
+        bank = getattr(self, "_background_pyramids", {}).get(condition, [])
+        if not bank:
+            return None
+        normals = np.array([row[0] for row in bank])
+        offsets = np.array([row[1] for row in bank])
+        cameras = np.array([row[2] for row in bank])
+        distances = np.einsum("ki,pji->pkj", vertices, normals) + offsets[:, None, :]
+        levers = np.linalg.norm(vertices[None, :, :] - cameras[:, None, :], axis=2).max(1) + radius
+        errors = (
+            radius
+            + self.calibration_bound[0]
+            + rotational_travel(levers, self.calibration_bound[1])
+        )
+        depth_bound = self.spaces[condition].config["plane_tolerance_m"]
+        margins = distances.min((1, 2)) - errors - depth_bound
+        best = float(margins.max())
+        return best if best > 0 else None
+
+    def query_cached_background(self, centers, radii, *, current_foreground_margin_m):
+        """Reuse immutable complete ray pyramids, paying every new point/error lever."""
+        guard = current_foreground_margin_m
+        if guard is None or not np.isfinite(guard) or guard <= 0:
+            raise ValueError("missing_current_foreground_exclusion")
+        margins = []
+        for center, radius in zip(centers, radii, strict=True):
+            for condition in range(len(self.spaces)):
+                margin = self._cached_pyramid_margin(np.asarray(center)[None], radius, condition)
+                if margin is None:
+                    return StaticWorkspaceSupport(None, True, False, self.source_clocks)
+                margins.append(margin)
+        return StaticWorkspaceSupport(min(guard, min(margins)), False, False, self.source_clocks)
+
+    def query_convex_background(self, vertices, radius, *, current_foreground_margin_m):
+        """Cover the ENTIRE convex hull plus a radial uncertainty/response bound.
+
+        Every pyramid plane is tested at every vertex, covering the full interior.
+        Radius and model/calibration errors erode all planes. A separately proved
+        CURRENT moving-foreground exclusion is mandatory for historical background.
+        """
+        guard = current_foreground_margin_m
+        if guard is None or not np.isfinite(guard) or guard <= 0:
+            raise ValueError("missing_current_foreground_exclusion")
+        vertices = np.asarray(vertices, float)
+        if (
+            vertices.ndim != 2
+            or vertices.shape[1:] != (3,)
+            or not len(vertices)
+            or not np.isfinite(vertices).all()
+            or not np.isfinite(radius)
+            or radius < 0
+        ):
+            return StaticWorkspaceSupport(None, True, False, self.source_clocks)
+        if not hasattr(self, "_background_pyramids"):
+            self._background_pyramids = {}
+        margins = []
+        signs = np.array(list(product((-1, 1), repeat=3)))
+        for condition, space in enumerate(self.spaces):
+            best = self._cached_pyramid_margin(vertices, radius, condition)
+            if best is not None:
+                margins.append(best)
+                continue
+            witness = None
+            for view in space.views.values():
+                camera, k = view["camera_world"], view["intrinsics"]
+                optical = (vertices - camera[:3, 3]) @ camera[:3, :3]
+                enlarged = (
+                    radius
+                    + self.calibration_bound[0]
+                    + rotational_travel(
+                        np.linalg.norm(optical, axis=1).max() + radius, self.calibration_bound[1]
+                    )
+                )
+                if optical[:, 2].min() <= enlarged:
+                    continue
+                corners = (optical[:, None, :] + enlarged * signs).reshape(-1, 3)
+                uv = corners @ k.T
+                uv = uv[:, :2] / uv[:, 2, None]
+                lo, hi = np.floor(uv.min(0)).astype(int) - 1, np.ceil(uv.max(0)).astype(int) + 1
+                depth, valid = view["depth_m"][..., 0], view["valid_depth"][..., 0]
+                h, w = depth.shape
+                if (lo < 0).any() or hi[0] >= w or hi[1] >= h:
+                    continue
+                for padding in (0, 1, 2, 4, 16, 64):
+                    low, up = np.maximum(lo - padding, 0), np.minimum(hi + padding, [w - 1, h - 1])
+                    region = depth[low[1] : up[1] + 1, low[0] : up[0] + 1]
+                    known = valid[low[1] : up[1] + 1, low[0] : up[0] + 1]
+                    if not (known & np.isfinite(region) & (region > 0)).all():
+                        continue
+                    planes = np.array(
+                        [
+                            k[0] - low[0] * k[2],
+                            up[0] * k[2] - k[0],
+                            k[1] - low[1] * k[2],
+                            up[1] * k[2] - k[1],
+                            [0, 0, 1],
+                            [0, 0, -1],
+                        ]
+                    )
+                    norm = np.linalg.norm(planes, axis=1)
+                    offsets = np.array([0, 0, 0, 0, 0, float(region.min())]) / norm
+                    planes = planes / norm[:, None]
+                    clearance = (
+                        float((optical @ planes.T + offsets).min())
+                        - enlarged
+                        - space.config["plane_tolerance_m"]
+                    )
+                    if clearance > 0 and (best is None or clearance > best):
+                        best = clearance
+                        world_normals = planes @ camera[:3, :3].T
+                        witness = (
+                            world_normals,
+                            offsets - world_normals @ camera[:3, 3],
+                            camera[:3, 3].copy(),
+                        )
+            if best is None:
+                return StaticWorkspaceSupport(None, True, False, self.source_clocks)
+            bank = self._background_pyramids.setdefault(condition, [])
+            bank.append(witness)
+            del bank[:-64]
+            margins.append(best)
+        return StaticWorkspaceSupport(min(guard, min(margins)), False, False, self.source_clocks)

@@ -332,3 +332,41 @@ def test_camera_pose_error_bounds_farthest_point_of_the_entire_sphere(monkeypatc
     # Rotate the farthest point [0,0,1.1] around the camera's Y axis.
     farthest_displacement = 2 * 1.1 * np.sin(0.01 / 2)
     assert radii_seen[0] - 0.1 >= 0.001 + farthest_displacement - 1e-12
+
+
+def test_background_convex_cover_preserves_complete_interiors_and_side_planes():
+    from itertools import product
+
+    from alexdoor_xas.perception.workspace import ObservedBackground
+
+    observed = space(2.0, 1.0)
+    corners = np.array(list(product(*[[-0.3, 0.3], [-0.01, 0.01], [1.8, 1.85]])))
+    background = ObservedBackground([observed], (0.001, 0.001))
+    good = background.query_convex_background(corners, 0.005, current_foreground_margin_m=0.1)
+    assert 0 < good.collision_clearance_m <= 0.1
+    cached = background.query_cached_background(
+        [[0.0, 0.0, 1.8]], [0.005], current_foreground_margin_m=0.1
+    )
+    assert cached.collision_clearance_m > 0
+    assert cached.source_clocks == good.source_clocks
+    assert background.query_cached_background(
+        [[0.0, 0.0, 1.99]], [0.02], current_foreground_margin_m=0.1
+    ).unknown_in_envelope
+    center = corners.mean(0)
+    radius = np.linalg.norm(corners - center, axis=1).max() + 0.005
+    assert background.query_background(
+        [center], [radius], current_foreground_margin_m=0.1, constructive=False
+    ).unknown_in_envelope
+    # A missing INTERIOR ray prevents a complete box certificate.
+    next(iter(observed.views.values()))["valid_depth"][40, 40] = False
+    missing = ObservedBackground([observed], (0.001, 0.001))
+    assert missing.query_convex_background(
+        corners, 0.005, current_foreground_margin_m=0.1
+    ).unknown_in_envelope
+    outside = corners + [2, 0, 0]
+    assert background.query_convex_background(
+        outside, 0.005, current_foreground_margin_m=0.1
+    ).unknown_in_envelope
+    for guard in [None, 0, -1, float("nan")]:
+        with pytest.raises(ValueError, match="foreground"):
+            background.query_convex_background(corners, 0.005, current_foreground_margin_m=guard)

@@ -103,6 +103,20 @@ an occluding robot at those ray centers, so no new survey allocation is launched
 
 ## Static ray-query cost
 
+Historical background can now certify a complete convex stop cover against real
+free ray pyramids. It checks every half-space at every vertex and erodes the
+whole volume for robot/model/camera errors; a separately proved current moving
+target exclusion remains mandatory. Reused pyramids retain their original depths
+and clocks and pay the new complete vertex/radius camera lever on every query.
+This avoids replacing thin oriented volumes by large spheres. Missing interior
+pixels, finite view bounds and unknown space still refuse. The numerical right30s
+nonzero-motion prefix improves from35s to about7.8s per adjacent control tick;
+that remains too costly for the full panel. Sparse loaded-path checks still find
+unsupported volumes on both train doors, so these components do not establish a
+qualified operational path. Static-frame diagnostics are independent evaluator
+evidence only and do not enter admission.
+
+
 Owned static workspace returns now have an immutable spatial index. Occupancy
 queries retain the original projected pixel rectangle, inclusive Euclidean test,
 free-ray margins, unknown handling and source clocks. Current captures keep the
