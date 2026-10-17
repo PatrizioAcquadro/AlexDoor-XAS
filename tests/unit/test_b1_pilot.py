@@ -493,3 +493,44 @@ def test_remote_train_only_path_never_substitutes_train_for_missing_development(
     assert metrics(None, SimpleNamespace(val_ids=()), {}) == dict(
         evaluated=False, reason="development_records_not_on_this_host"
     )
+
+
+def test_pilot_training_state_preserves_payload_and_rejects_changed_experiment(tmp_path):
+    import runpy
+
+    api = runpy.run_path("scripts/pilot_offline.py")
+    # Serialization only: no CPU model training or inference.
+    model = torch.nn.Linear(2, 1)
+    path = tmp_path / "training-state.pt"
+    protocol = dict(training_seed=17, epochs=30, max_batches_per_epoch=100)
+    state = dict(
+        global_step=100,
+        next_epoch=1,
+        optimizer_state={"step": 100},
+        rng_states={"cpu": torch.get_rng_state()},
+        ema_state={"updates": 100},
+    )
+    rows = [dict(epoch=0, batch_count=100)]
+    weights = {k: v.clone() for k, v in model.state_dict().items()}
+    api["save_training_state"](path, model, state, protocol, "act", "A1_joint_delta", rows)
+    assert path.is_file() and not path.with_suffix(".tmp").exists()
+    with torch.no_grad():
+        model.weight.zero_()
+    restored, epochs = api["restore_training_state"](
+        path,
+        model,
+        protocol,
+        "act",
+        "A1_joint_delta",
+    )
+    assert restored["global_step"] == 100 and restored["ema_state"] == {"updates": 100}
+    assert epochs == rows
+    for name, value in weights.items():
+        torch.testing.assert_close(model.state_dict()[name], value, rtol=0, atol=0)
+    for changed, family, space in (
+        ({**protocol, "training_seed": 18}, "act", "A1_joint_delta"),
+        (protocol, "diffusion", "A1_joint_delta"),
+        (protocol, "act", "A2_ee_delta"),
+    ):
+        with pytest.raises(ValueError, match="differs"):
+            api["restore_training_state"](path, model, changed, family, space)

@@ -803,3 +803,15 @@ It retains the full pose bound as the fallback and for material/sweep admission.
 The two native intervals keep their original clocks; peak full-wrench protection
 is unchanged. This closes a consumer mismatch with the separate normal/contact
 bounds. It does not mark a calibration or contact recipe verified.
+
+
+## Interrupted real training
+
+The pilot training CLI now saves `training-state.pt` atomically at initialization
+and after every epoch, using the existing trainer callbacks. It retains raw model
+weights, optimizer, RNG, Diffusion EMA/scheduler state, history and the unchanged
+protocol. `train --resume` continues unfinished cells and preserves completed
+final cells; changed seeds, protocols, families or action spaces are rejected.
+An epoch state is an intermediate artifact and never a completed 3,000-update
+cell. Training losses and remote development metrics keep their existing meanings;
+missing development data remains unavailable.

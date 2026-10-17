@@ -166,7 +166,18 @@ def evaluate(model, family, batches, protocol):
     )
 
 
-def fit(model, family, batches, validation, protocol, *, overfit=False, callback=None):
+def fit(
+    model,
+    family,
+    batches,
+    validation,
+    protocol,
+    *,
+    overfit=False,
+    callback=None,
+    resume_state=None,
+    on_checkpoint=None,
+):
     from alexdoor_xas.policies.act.config import ActTrainCfg
     from alexdoor_xas.policies.act.train import train_act
     from alexdoor_xas.policies.diffusion.config import DiffusionTrainCfg
@@ -189,6 +200,8 @@ def fit(model, family, batches, validation, protocol, *, overfit=False, callback
             ActTrainCfg(**options),
             make_val_batches=policy_validation,
             on_epoch=callback,
+            resume_state=resume_state,
+            on_checkpoint=on_checkpoint,
         )
         return model, history
     cfg = DiffusionTrainCfg(
@@ -206,6 +219,8 @@ def fit(model, family, batches, validation, protocol, *, overfit=False, callback
         make_val_batches=policy_validation,
         ema=ema,
         on_epoch=callback,
+        resume_state=resume_state,
+        on_checkpoint=on_checkpoint,
     )
     return ema.module, history
 
@@ -296,19 +311,65 @@ def raw_metrics(policy, data, protocol):
     return metrics
 
 
-def train(root, protocol):
+def save_training_state(path, model, state, protocol, family, space, epochs):
+    """Atomically retain optimizer, RNG, EMA and model state at epoch boundaries."""
+    temporary = path.with_suffix(".tmp")
+    torch.save(
+        dict(
+            model_state=model.state_dict(),
+            training_state=state,
+            protocol=protocol,
+            family=family,
+            action_space=space,
+            epochs=epochs,
+        ),
+        temporary,
+    )
+    temporary.replace(path)
+
+
+def restore_training_state(path, model, protocol, family, space):
+    payload = torch.load(path, map_location="cpu", weights_only=False)
+    if (
+        payload["protocol"] != protocol
+        or payload["family"] != family
+        or payload["action_space"] != space
+    ):
+        raise ValueError("Resume protocol/family/action space differs")
+    model.load_state_dict(payload["model_state"])
+    return payload["training_state"], payload["epochs"]
+
+
+def train(root, protocol, *, resume=False):
     from alexdoor_xas.policies.act.config import ActModelCfg
     from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg
 
     destination = root / "training"
-    destination.mkdir(exist_ok=False)
-    report = {}
+    destination.mkdir(exist_ok=resume)
+    frozen = destination / "protocol.json"
+    if resume:
+        if json.loads(frozen.read_text()) != protocol:
+            raise ValueError("Resume requires the unchanged training protocol")
+        if protocol["overfit_updates"]:
+            raise ValueError("Fixed-minibatch studies do not support partial resumption")
+    else:
+        write_json(frozen, protocol)
+    report_path = destination / "report.json"
+    report = json.loads(report_path.read_text()) if resume and report_path.exists() else {}
     for space in (A1_JOINT_DELTA, A2_EE_DELTA):
         data = load_b1_data(root / "data", space)
         for family in ("act", "diffusion"):
             name = f"{family}-{space}"
             path = destination / name
-            path.mkdir()
+            if name in report:
+                if (
+                    not (path / "final.pt").is_file()
+                    or report[name]["optimizer_updates"]
+                    != protocol["epochs"] * protocol["max_batches_per_epoch"]
+                ):
+                    raise ValueError("Incomplete reported final cell")
+                continue
+            path.mkdir(exist_ok=resume)
             factory, development = batch_factories(
                 data,
                 family,
@@ -364,12 +425,29 @@ def train(root, protocol):
             write_json(path / "overfit.json", overfit)
             model = make_model(data, family, cfg, seed=protocol["training_seed"])
             initial = evaluate(model, family, val_batches, protocol) if val_batches else None
-            epochs = []
+            resume_path = path / "training-state.pt"
+            state, epochs = (
+                restore_training_state(resume_path, model, protocol, family, space)
+                if resume and resume_path.exists()
+                else (None, [])
+            )
+            if resume and state is None and any(path.glob("*.pt")):
+                raise ValueError("Existing partial cell lacks resumable training state")
 
             def on_epoch(stats, best, epochs=epochs, name=name):
                 row = dict(stats.to_dict(), gpu_allocated_mib=torch.cuda.memory_allocated() / 2**20)
                 epochs.append(row)
                 print(json.dumps(dict(path=name, **row)), flush=True)
+
+            def checkpoint(
+                state,
+                path=resume_path,
+                model=model,
+                family=family,
+                space=space,
+                epochs=epochs,
+            ):
+                save_training_state(path, model, state, protocol, family, space, epochs)
 
             learned, history = fit(
                 model,
@@ -380,6 +458,8 @@ def train(root, protocol):
                 (lambda val_batches=val_batches: iter(val_batches)) if val_batches else None,
                 protocol,
                 callback=on_epoch,
+                resume_state=state,
+                on_checkpoint=checkpoint,
             )
             final = evaluate(learned, family, val_batches, protocol) if val_batches else None
             policy, checkpoint_error = roundtrip(
@@ -436,7 +516,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--asset-id", help="Single declared episode for the read-only preflight audit"
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Continue unchanged real cells from saved optimizer/RNG/EMA state",
+    )
     args = parser.parse_args()
+    if args.resume and args.mode != "train":
+        parser.error("--resume is only valid for train")
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA required; do not silently fall back to CPU")
     protocol = json.loads(args.protocol.read_text())
@@ -456,4 +543,4 @@ if __name__ == "__main__":
                 urdf=args.urdf,
             )
         else:
-            train(args.root, protocol)
+            train(args.root, protocol, resume=args.resume)
