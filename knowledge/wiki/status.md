@@ -68,30 +68,39 @@ fresh right nominal episode independently passes physical, raw-clock and FK
 audits, reconstructs A3/A4 supervision and establishes its matched expert pair
 at 51.2603 degrees. The fresh left nominal episode also independently passes,
 with its matched pair at 52.5360 degrees; both historical denominators are
-unchanged. A newly isolated one-tick push/hold reference pause is corrected in
-source and awaits physical verification; old scores stay preserved. The user now authorizes necessary prerequisite cases without a count ceiling.
-Case 14 preserves loaded-stop failures; the stop-only correction passes case 15
-with maximum travel 9.68 mm over twenty 0/4 N stops and three bounded fault
-stops. Case 16 fails loaded-motion speed coverage despite four physically valid
-stops; its failed report remains unchanged. Case 17 applies a stronger common
-loaded calibration excitation and passes both original speed-coverage and physical
-stop criteria: 4.60/4.51 mm travel from 0.073/0.083 rad/s. Unavailable load estimates
-remain explicit, so no global load/contact qualification is inferred. Separate
-head-ZED workspace calibration has measured free-space coverage for the first
-right approach sweep; full motion/dynamic coverage and learned execution remain
-pending. Work continues within the three-GPU-hour ceiling.
-Full A3/A4 observed initialization is deferred and does not block A1/A2. Both
-complete raw episodes retain shared inputs and reconstruct A3/A4 supervision;
-that does not qualify observed A3/A4 execution. Test doors stay sealed.
-The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
-both policy families with shared causal preprocessing and checkpoint binding.
-All four A1/A2 software paths pass inside 128 targeted CUDA checks; no new trained
-pilot or admitted learned command is claimed. Remote SSH access is restored. One A100 job on frozen source `a54ef52` saves four
-synthetic infrastructure checkpoints; CUDA loading/prediction parity on RTX 4090
-passes below 9e-7 error. A measured/extrapolated campaign budget is delivered,
-with production storage and observed A3/A4 interfaces unresolved. No production,
-20-run campaign, learned contact result or final-test evaluation is started.
+unchanged. The one-tick push/hold reference pause is now physically corrected:
+all 180 hold ticks pass. All six fixed fresh attempts complete; four corrected
+teacher records (two train, two development) independently pass physical/raw/FK
+and supervisor-reconstruction checks. Earlier nominal records/scores remain
+preserved and their command labels are explicitly excluded from imitation.
 
+Prerequisite count is unrestricted. Cases 14–17 preserve the original loaded-stop
+and speed-coverage failures and the later common corrections. Actual right
+first-contact stopping now passes at 9.70 N peak: 0.071 mm travel over two seconds,
+with no violations. Left first-contact stopping and complete operational
+load/contact/sweep qualification remain open. Common observed workspace rays
+cover all 14 moving robot shapes at the first approach condition; full moving
+coverage is not inferred. The independently demonstrated RTX pixel-center bias
+is corrected at geometry ingress. An opt-in observed plane/edge/native-pair local
+constraint separates normal direction from full material-pose uncertainty;
+corrected native tracking and full contact metrics remain unqualified.
+
+Local consumption is 2.98965 of three GPU hours; only 37.26 seconds remain. The
+12-total-hour proposal is pending. Two Gilbreth jobs consume 70 allocated GPU
+seconds: the real-training launch fails before Python/CUDA because Slurm supplies
+conflicting CPU task variables. Its repair passes scheduling dry-run validation;
+a third submission is requested within the unchanged one-GPU-hour remote ceiling.
+No real optimizer updates or learned simulation commands have executed. Automatic
+review separately blocks development-record transfer pending explicit consent;
+train-only preparation/training keeps development evaluation explicitly deferred.
+
+Full A3/A4 observed initialization is deferred and does not block A1/A2. Retained
+raw data and reconstructed supervisor labels do not qualify observed A3/A4
+execution or constitute the final matched dataset. The learned `rgbd-conv-v1`
+foundation and previous synthetic Gilbreth/RTX checkpoint round trips remain
+preserved. Actual learned control, the unchanged 24-outcome panel and at least one
+single checkpoint completing both train doors remain required. No production,
+20-run campaign, sealed-test opening or hardware claim is started.
 
 The earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate
 [[experiments/b1-loaded-hold-and-stop|load-bearing controller correction]] verifies
@@ -117,6 +126,11 @@ contact execution or sealed-test evaluation was produced.
 | 6.2–7 — Data/learning | Partial A1/A2 offline pilot demonstrated; final matched A1-A4 data and training matrix not started. No learned contact task result or sealed-test evaluation. |
 
 ## Next action and selected state
+
+For the resumed pilot, resolve the pending local allocation and replacement-job
+requests, then validate the corrected observed geometry/contact/sweep path and
+execute real training and learned rollouts. Case count and deferred A3/A4 work
+are not blockers. See [[experiments/b1-end-to-end-pilot-resume]].
 
 The [[experiments/p2p-persistent-session-integration|persistent-session integration]]
 uses the selected configuration throughout maintained scan/smoke/live/replay/offline

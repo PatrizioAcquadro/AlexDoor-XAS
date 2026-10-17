@@ -534,3 +534,18 @@ Runtime wiring exposes lazy initial model startup to avoid duplicate CUDA loads
 from unused observer/runner constructor resets. Numerical lifecycle checks verify
 zero model boots before the first capture, one actual first boot and full worker
 recreation after a used episode. Default existing callers remain eager.
+
+The first real train-only Slurm submission, 11968272 (`de2d3e6`), fails before
+Python/CUDA: `SLURM_CPUS_PER_TASK=5` conflicts with step TRES `cpu=4`. Preserve
+its eight allocated GPU seconds and zero updates; two jobs/70 GPU seconds are now
+consumed. The descriptor repair unsets stale step TRES and uses the actual granted
+CPU count. Shell/scheduling dry runs pass without allocating a replacement. One
+extra submission (three jobs total) is requested while retaining the 3,600 GPU-second
+ceiling and all 12,000 planned real updates; no automatic resubmission occurs.
+
+A CPU lossless recording benchmark on 50 fixed right captures projects 51.54 GiB
+for full-frame temporal gzip chunks, reduced to 37.60 GiB with 10x32x64 capture
+chunks. Every raw byte round-trips, including depth float bits. This covers the
+10 Hz RGB-D actually consumed by the encoder/frontend in all 24 maximum-horizon
+outcomes; full-rate proprioception/commands/native feedback and all other evidence
+still need separate retention/budget checks. Demonstration recordings are unchanged.

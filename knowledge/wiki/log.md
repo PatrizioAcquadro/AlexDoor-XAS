@@ -1,12 +1,13 @@
 # Project Milestones
 
-- The resumed B1 teacher passes both train cycles; a first fresh right nominal
-  demonstration and independent matched reference now pass. The stronger common
-  loaded stop test passes while case 16's failed speed coverage remains preserved.
-  Shared raw/A3/A4 numeric supervision is verified; operational sweep/contact and
-  all real learned execution remain open. Prerequisite case count is unrestricted
-  within the unchanged resource ceilings. See
-  [[experiments/b1-end-to-end-pilot-resume|the resumed pilot]].
+- The resumed teacher completes all six fixed fresh attempts; four corrected
+  records pass independent physical/raw reuse checks, with nominal failures of
+  command eligibility preserved. The right actual first-contact stop passes at
+  9.70 N. RTX pixel-center correction and opt-in local plane/edge constraints
+  retain explicit uncertainty and native/global boundaries. The real Gilbreth
+  launch fails before CUDA on a CPU-task environment mismatch; replacement-job
+  and local GPU-budget requests are pending. Real training/learned commands remain
+  zero. See [[experiments/b1-end-to-end-pilot-resume]].
 
 A1/A2 receipt revalidation now spends bounded support updates against the original
 remaining margin; missing bounds and exhausted margins still refuse. See
@@ -17,7 +18,7 @@ belong in Git history, not in agent context.
 
 | Milestone | Outcome | Reference |
 |---|---|---|
-| 2026-10-16 resumed operational contact contract | Physical evaluator and operational sensor requirements separated; fingertip/local identity/load/temporal monitor implemented, physical qualification pending. A3/A4 operational initialization deferred; prerequisite count ceiling removed, resource ceilings retained. Both train teacher cycles and a first fresh right demonstration/matched reference pass. Stronger loaded-speed stops pass; case 16 failure is preserved. Shared raw/supervision verified; actual learned execution remains pending. | [[experiments/b1-end-to-end-pilot-resume|Resumed pilot]] |
+| 2026-10-16 resumed operational contact contract | Common teacher/fresh data and right first-contact stop verified; six fixed attempts retained, four corrected records eligible. Corrected RTX pixel convention and opt-in bounded local constraints; operational contact/sweep and real learned execution remain open. Local GPU and Slurm launch-repair requests pending; physical criteria and historical failures preserved. | [[experiments/b1-end-to-end-pilot-resume|Resumed pilot]] |
 | 2026-10-16 shared learned foundation and bounded execution | Trainable causal RGB-D recipe and A100-to-4090 synthetic checkpoint roundtrip pass. Two reference candidates and one authorized IK cycle fail left full-path acceptance; original solver retained. A later train/dev-derived common placement passes four unloaded cases with the original solver. Three subsequent complete teacher diagnostics fail. A later three-case camera/contact study preserves those failures, exposes tool-center/separation mismatch and leaves the observed component unqualified; six prerequisite cases remain unspent. Observed 4 mm/0.1 mm contact-certificate gap identified, canonical tracker-state mismatch fixed in `8385bbf`. Genuine learned pilot remains incomplete. | Encoder `a54ef52`, remote/costs `7e02074`; [[experiments/b1-shared-learned-pilot|scope and limits]]; [[experiments/b1-joint-limit-aware-ik|rejected IK cycle]]; [[experiments/b1-initial-placement-pilot|accepted unloaded placement]]; [[experiments/b1-pilot-contact-prerequisites|teacher/contact failures]]; [[experiments/b1-observed-contact-certificate|certificate study]] |
 | 2026-10-15 historical approach/controller compatibility | Exact saved frame/time/target audit and four frozen-controller CUDA cases. Right p95 0.67 mm passes; left 28.78 mm / 7.87 deg fails with IK limits and 0.527 rad/s actual speed. Local stops pass; 108/3,384 residual estimates remain in domain. No relabeling, policy/control change, training or contact; feasible reference planning is next. | Protocol `d30b406`, audit `e36901b`; [[experiments/b1-approach-controller-compatibility|measured results and limits]] |
 | 2026-10-15 ACT A2 approach/release residuals | Exact joins; limited release exposure, local boundary similarity and historical tracking residuals distinguished. One paired 96-update sampler cell improves release but regresses hold/push and fails guards; v2/uniform retained, no contact or further variant. | Diagnosis `93cdbfb`; [[experiments/b1-pilot-approach-release|single intervention and decision]] |
@@ -64,11 +65,3 @@ belong in Git history, not in agent context.
 | 2026-09-28–29 perception engineering | Two 50-episode campaigns, two pilots and one inspection diagnostic acquired. Loss/state corrections fixed train fitting; run-03 still failed all six development doors. Independent confidence fitting did not repair geometry. | `853d46e`, `1bd633e`, `a4ad984`, `7e2bf56`; [[experiments/b1-perception-findings|Perception findings]] |
 | 2026-09-29 component screening | Corrected counter/row alignment supersedes initial plane scores. Boxed SAM 3 improves 92/108 to 97/108 development successes with severe remaining errors. Matched DINOv2/v3 probes fit train but fail development. | `0ea075f`, `9dff5f3`, `e1f98a6`; [[experiments/b1-perception-findings|Perception findings]] |
 | 2026-09-29 targeted cleanup | Model-independent B1 release/provider boundary; rejected estimators, synthetic search and experiment-only tools retired. Original complete recordings, chosen models and essential evidence separated; five interrupted payloads removed explicitly. Numerical/CUDA and bounded RGB-D checks pass without training or collection. New geometric perception remains unimplemented. | Baseline `e1f98a6`, contract `67f32e5`; [[topics/shared-door-perception|Perception boundary]] |
-
-- 2026-10-16: Corrected the independently demonstrated RTX pixel-center convention
-  at pilot geometry ingress, retaining raw data and explicit uncertainty; see
-  [[experiments/b1-end-to-end-pilot-resume]].
-
-- 2026-10-16: Added opt-in observed plane/edge constraints for local A1/A2 pose and
-  explicit normal-direction uncertainty, preserving native/global diagnostics and
-  missing-support refusals; [[experiments/b1-end-to-end-pilot-resume]].

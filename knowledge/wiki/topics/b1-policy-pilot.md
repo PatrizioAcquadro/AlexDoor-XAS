@@ -7,7 +7,7 @@ physical teacher episodes and four CUDA-trained prototype checkpoints. The new
 [[../experiments/b1-shared-learned-pilot|shared learned pilot]] adds the explicit
 `rgbd-conv-v1` input/model recipe below; its pilot remains incomplete. These remain
 unqualified; no final matched A1-A4 dataset, policy contact execution or perception
-release is delivered. SAM3 and Point2Pose are unchanged.
+release is delivered. Native SAM3/Point2Pose models and selected controls remain unchanged.
 
 ## Ownership and Exchange
 
@@ -19,8 +19,8 @@ release is delivered. SAM3 and Point2Pose are unchanged.
 The geometry branch should consume these interfaces before changing shared policy,
 dataset or runner code. Action schema, tensor widths, joint order and coordinate
 conventions remain unchanged. `LocalActionSupport` now supplies a bounded A1/A2
-admission route without a hinge. The geometry branch owns production of its
-observed swept-space, material-response and uncertainty evidence.
+admission route without a hinge. This bounded pilot must produce its own observed sweep, response and uncertainty
+evidence; companion A3/A4 qualification is deferred.
 
 ## Four Independent Questions
 
