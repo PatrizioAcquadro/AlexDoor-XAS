@@ -207,7 +207,7 @@ Independent 0/1 N known-wrench samples pass unchanged error, response and all
 14-shape stop bounds; the unconditional stronger-load extension fails and remains
 disabled. No combined weak-position/extended-acceleration domain is admitted.
 The motion producer additionally requires the complete proposed-motion/stop
-volume to remain contact-free whenever the current position uses this extension.
+volume to remain contact-free whenever the conservative joint sweep/stop can enter this extension.
 It spends the declared nonzero target translation and angular rates through the
 full stop duration, in addition to capture age and control-interval growth. A
 small current force alone cannot authorize future contact outside the strong

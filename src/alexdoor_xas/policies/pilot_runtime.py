@@ -597,9 +597,12 @@ class PilotMotionEvidence:
             current_material_separation_margin_m=float(separation),
         )
         diagnostics["contact_free_stop_margin_m"] = float(contact_free_stop_margin)
+        # Apply the weak-position guard before entry, not only after observing
+        # an envelope exit. These are the same joint travel bounds used by the
+        # independently checked full robot sweep and stopping volumes above.
+        motion_q_lower = np.array([positions[name] - joint_travel[name] for name in ARM_JOINTS])
         self.load_calibration.require_position_motion_support(
-            np.array([positions[name] for name in ARM_JOINTS]),
-            contact_free_stop_margin_m=contact_free_stop_margin,
+            motion_q_lower, contact_free_stop_margin_m=contact_free_stop_margin
         )
         loaded = bool(separation <= 0)
         support = FieldSupport(now, now, now, observation.generation, *self.config["camera_bound"])

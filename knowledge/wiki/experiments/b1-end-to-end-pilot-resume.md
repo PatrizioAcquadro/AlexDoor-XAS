@@ -46,7 +46,7 @@ unit normals solely for the force-independent envelope predicate and is not a
 new operational rollout. This is a current-load check, not authorization for a future stronger load.
 The maintained motion producer therefore requires observed separation for every
 proved robot volume throughout the proposed motion and full stop whenever the
-actual q uses the weak position extension. The proof deducts nonzero declared
+conservative joint sweep/stop can enter the weak position extension. The proof deducts nonzero declared
 translation and angular-rate growth through the entire stop, beyond the growth
 already paid for camera age and the control interval. Unknown, zero or negative
 separation refuses. The original left snapshot is not claimed to pass this
