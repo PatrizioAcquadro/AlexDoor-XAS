@@ -24,13 +24,27 @@ remains disabled; no operational calibration or controller is changed. All
 3,120 raw samples, both stops and 40.742 charged GPU seconds are preserved in
 `robot-left-elbow-domain`.
 
-A separate prospective test now checks the existing 1 N weak-load cap at three
-wrench yaws, reusing the completed 0 N cohort. Any resulting position extension
-must remain weak-load-only, inside the original main acceleration domain, and
-pass unchanged scalar/error/response/full-robot stop checks. The prospective
-operational lower bound is −2.33, with required independent excitation below
-−2.34. Strong-load position support remains unchanged. No weak extension is yet
-implemented or qualified.
+A separate test at the existing 1 N weak-load cap completes three wrench yaws
+and 5,040 native samples, reusing the completed 0 N cohort. All unchanged torque,
+scalar-normal and response gates pass: minimum weak scalar margin 0.00501 N,
+maximum tool response 3.850 mm /0.02321 rad against 13 mm /0.04 rad. All three
+loaded stops satisfy the original continuous 14-shape/held/acceleration boxes;
+minimum radial/directional margins are 0.996/0.229 mm. Every cohort excites elbow
+positions below −2.34, beyond the preregistered operational lower bound −2.33.
+The source-path error in the CPU validator is preserved and corrected without
+another physical allocation. This second allocation charges 50.905 GPU seconds.
+
+`LoadCalibration.weak_load_q_min` supplies only a lower-position extension. It
+requires the existing force upper cap ≤1 N and original main acceleration; an
+untested combination with the extended weak acceleration domain is rejected.
+Original main position bounds, stronger loads, upper position limits, speed,
+error coefficients, geometry, response and stop margins are unchanged. Both
+complete teacher paths remain mathematically identical because every sample is
+inside the original position envelope. The actual original left refusal passes
+the new predicate with force upper 0.49918 N; this saved-state check uses arbitrary
+unit normals solely for the force-independent envelope predicate and is not a
+new operational rollout. All four models use the same qualified recipe in the
+next common panel version. Actual integrated behavior remains pending.
 
 ## Original-checkpoint full-v7 outcomes
 

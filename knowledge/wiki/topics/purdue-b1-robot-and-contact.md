@@ -201,6 +201,13 @@ main gripper acceleration bound is 13 rad/s², independently checked under known
 8/10 N wrenches with unchanged error coefficients; geometric motion bounds, 1 N
 weak-load admission and 10 N stop-force domain are unchanged. This is a finite
 simulation recipe, not hardware or arbitrary-motion qualification.
+A separately checked `weak_load_q_min` allows a lower elbow position of −2.33 rad
+only at force upper ≤1 N and inside the original main acceleration envelope.
+Independent 0/1 N known-wrench samples pass unchanged error, response and all
+14-shape stop bounds; the unconditional stronger-load extension fails and remains
+disabled. No combined weak-position/extended-acceleration domain is admitted.
+All main position bounds and complete teacher outputs remain unchanged. This
+parameter recipe requires actual learned integration before task success claims.
 The approved
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|operational plan]]
 assigns actual torque/device acquisition and signal verification to 6.0D, without

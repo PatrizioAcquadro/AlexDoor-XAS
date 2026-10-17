@@ -753,3 +753,67 @@ def test_local_margin_charges_prepaid_capture_age_once_and_keeps_future_motion()
             _local_error(
                 replace(aged, pose_temporal_position_m=paid), evidence, limits, 1 + age, duration
             )
+
+
+@pytest.mark.parametrize(
+    "force,position,acceleration,extension,accepted",
+    [
+        (0.1, -1.1, 0.5, -1.2, True),
+        (4.0, -1.1, 0.5, -1.2, False),
+        (0.1, -1.21, 0.5, -1.2, False),
+        (0.1, 1.01, 0.5, -1.2, False),
+        (0.1, -1.1, 1.5, -1.2, False),  # no combined position/acceleration evidence
+        (0.1, -1.1, 0.5, None, False),
+        (0.1, 0.0, 1.5, -1.2, True),  # original weak-acceleration behavior retained
+        (4.0, 0.0, 0.5, -1.2, True),  # original strong-load domain retained
+    ],
+)
+def test_position_extension_requires_weak_force_and_original_acceleration(
+    force, position, acceleration, extension, accepted
+):
+    original, jacobian, baseline = load_inputs()
+    calibration = replace(
+        original.calibration,
+        weak_load_q_min=None if extension is None else np.full(7, extension),
+        weak_load_acceleration_max_rad_s2=np.full(7, 2.0),
+        tool_normal_force_upper_max_n=1.0,
+        tool_normal_residual_n=np.array([0.005, 0.1, 0.01]),
+    )
+    model = ResidualLoadModel(calibration)
+    feedback = replace(baseline.feedback, torque_nm=np.r_[-force, np.zeros(6)])
+    arguments = (
+        feedback,
+        np.zeros(7),
+        jacobian,
+        np.full(7, position),
+        np.zeros(7),
+        np.full(7, acceleration),
+        np.array([1.0, 0, 0]),
+    )
+    if accepted:
+        model.estimate(*arguments, tool_normal_world=np.array([1.0, 0, 0]))
+    else:
+        with pytest.raises(ValueError, match="outside_verified_load_envelope"):
+            model.estimate(*arguments, tool_normal_world=np.array([1.0, 0, 0]))
+
+
+@pytest.mark.parametrize("extension,cap", [(-0.5, 1.0), (np.nan, 1.0), (-1.2, None)])
+def test_position_extension_rejects_invalid_or_unbounded_recipe(extension, cap):
+    original, jacobian, baseline = load_inputs()
+    model = ResidualLoadModel(
+        replace(
+            original.calibration,
+            weak_load_q_min=np.full(7, extension),
+            tool_normal_force_upper_max_n=cap,
+        )
+    )
+    with pytest.raises(ValueError):
+        model.estimate(
+            baseline.feedback,
+            np.zeros(7),
+            jacobian,
+            np.zeros(7),
+            np.zeros(7),
+            np.zeros(7),
+            np.array([1.0, 0, 0]),
+        )

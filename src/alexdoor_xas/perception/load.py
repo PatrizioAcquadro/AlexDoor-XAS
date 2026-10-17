@@ -53,6 +53,7 @@ class LoadCalibration:
     tool_normal_residual_n: np.ndarray | None = None  # constant, max |dq|, max |ddq|
     tool_normal_force_upper_max_n: float | None = None
     weak_load_acceleration_max_rad_s2: np.ndarray | None = None
+    weak_load_q_min: np.ndarray | None = None  # original main acceleration only
 
 
 @dataclass(frozen=True)
@@ -121,7 +122,21 @@ class ResidualLoadModel:
         q, dq, ddq, bounds = [finite_vector(v, 7) for v in (q, dq, ddq, c.residual_bound_nm)]
         acceleration_max = finite_vector(c.acceleration_max_rad_s2, 7)
         extended_acceleration = c.weak_load_acceleration_max_rad_s2
-        needs_weak_domain = bool(np.any(np.abs(ddq) > acceleration_max))
+        needs_weak_acceleration = bool(np.any(np.abs(ddq) > acceleration_max))
+        q_min = finite_vector(c.q_min, 7)
+        extended_position = c.weak_load_q_min
+        needs_weak_position = bool(np.any(q < q_min))
+        if extended_position is not None:
+            extended_position = finite_vector(extended_position, 7)
+            if (
+                np.any(extended_position > q_min)
+                or c.tool_normal_force_upper_max_n is None
+                or not np.isfinite(c.tool_normal_force_upper_max_n)
+                or c.tool_normal_force_upper_max_n <= 0
+            ):
+                raise ValueError("invalid_weak_load_position_domain")
+        permitted_position = q_min if extended_position is None else extended_position
+        needs_weak_domain = needs_weak_acceleration or needs_weak_position
         if extended_acceleration is not None:
             extended_acceleration = finite_vector(extended_acceleration, 7)
             if (
@@ -136,7 +151,10 @@ class ResidualLoadModel:
         )
         if (
             np.any(bounds < 0)
-            or np.any(q < finite_vector(c.q_min, 7))
+            or np.any(q < permitted_position)
+            # The position extension has no combined extended-acceleration proof.
+            or needs_weak_position
+            and needs_weak_acceleration
             or np.any(q > finite_vector(c.q_max, 7))
             or np.any(np.abs(dq) > finite_vector(c.speed_max_rad_s, 7))
             or np.any(np.abs(ddq) > permitted_acceleration)
@@ -174,8 +192,8 @@ class ResidualLoadModel:
             raise ValueError("invalid_load_normal")
         normal_lower = -normal @ wrench[:3] - np.abs(normal) @ radius[:3]
         upper = np.linalg.norm(wrench[:3]) + np.linalg.norm(radius[:3])
-        # The additional acceleration domain has only unloaded/weak-load evidence.
-        # Keep the original acceleration envelope for all stronger bounded loads.
+        # Additional position/acceleration support is weak-load-only.
+        # Stronger loads retain both original main envelopes.
         if needs_weak_domain and upper > c.tool_normal_force_upper_max_n:
             raise ValueError("outside_verified_load_envelope")
         if c.tool_normal_residual_n is None and c.tool_normal_force_upper_max_n is not None:

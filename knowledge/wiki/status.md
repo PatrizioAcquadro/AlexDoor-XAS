@@ -28,12 +28,15 @@ immutable. This iteration is motivated by retained closed-loop failures and stil
 decreasing training loss; improved task behavior is unproven. Remote development
 metrics remain unavailable and no development recordings are transferred.
 
-A targeted left elbow position-domain extension is rejected after an independent
-8 N lateral-load stop exceeds the original travel/speed criteria. The completed
-0 N cohort passes original error and full-robot stop bounds. A separate check at
-the existing 1 N weak-load cap is pending; operational position bounds and the
-selected controller remain unchanged. See the continuation experiment for raw
-failure evidence and the conditional scope.
+An unconditional left elbow position-domain extension is rejected after an
+independent 8 N lateral-load stop exceeds the original travel/speed criteria.
+A separate weak-load-only interval now passes 0/1 N known-wrench error, response
+and full-robot stop checks. It permits elbow positions down to −2.33 rad only
+when the force upper bound is ≤1 N and acceleration stays in the original main
+domain. Strong-load positions, all error/physical criteria and the selected
+controller remain unchanged. This qualified recipe still needs actual integrated
+execution with the new checkpoints. See the continuation experiment for both
+failed and successful component evidence.
 
 Finite observed-material, contact and robot-sweep components pass the earlier
 complete retained-path check with measured detection errors. More conservative
