@@ -216,6 +216,26 @@ all four genuine3000-update checkpoints, and physical task criteria remain uncha
 The robot-only holdout costs35.65allocated GPU-seconds including tail, bringing
 local consumption to5.10494/15GPUh; remote and optimizer totals are unchanged.
 
+The first full-v3 ACT A2 outcome executes230commands, then stops at29.0333s
+before contact. At29.025s, elbow acceleration7.1064rad/s² is outside the original
+main domain, while force upper1.01175N exceeds the unchanged1N weak branch.
+Independent physical force remains zero; that truth is used only after execution.
+Retention and the2s stop pass, including the existing continuous stop boxes.
+Charge331.04GPU-s and0.368GiB retained. Mean reached-state cycle237.06ms gives
+15.40GPUh for23full horizons as a scenario, not a budget guarantee.
+
+Previously excluded independent loaded robot samples fit the unchanged conservative
+joint-error floor:13extended strong-load samples, including three elbow samples
+up to10.08398rad/s². A targeted main elbow bound12.8rad/s² adds25% plus0.1rad/s²,
+rounded upward0.1. No force limit or error coefficient changes. All other joints
+retain their main limits and existing weak branch. The seven actual learned
+prefixes and stops pass. Both full teacher recordings remain wholly inside the
+original domain, proving every v42 computed load/contact/admission signal unchanged;
+the geometry acceleration cover was already14rad/s² at the elbow. Completed full
+checks are reused. Full-v4 freezes this one-value calibration correction at the
+same source/checkpoint/protocol and queues a new first integrated outcome. The
+one full-v3 failure remains separate; its23unallocated slots are held.
+
 Earlier investigations below preserve their original decisions and failures.
 Their pending-status statements are superseded by the current integration above.
 

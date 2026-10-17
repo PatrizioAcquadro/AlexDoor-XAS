@@ -8,9 +8,9 @@ reference. A3/A4 semantics and operational thresholds are unchanged.
 The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
 four genuine3000-update corrected-data checkpoints, verified CUDA loading, frozen
 local development inference and actual nonzero commands from all four combinations.
-Five full-v1 failed outcomes and one full-v2 failed outcome remain separate.
+Five full-v1, one full-v2 and one full-v3 failed outcome remain separate.
 Corrected current-FK orientation passes the earlier refusal; the latest ACT A2 run
-then stops after223commands at the original load-acceleration envelope. No learned
+then full-v3 reaches230commands before the weak acceleration branch refuses a1.012N force upper bound. No learned
 contact, controlled opening, hold, release or task success is demonstrated yet.
 
 Finite observed-material, contact and robot-sweep components pass the earlier
@@ -18,7 +18,7 @@ complete retained-path check with measured detection errors. More conservative
 robot-only torque floors, weak-load acceleration and held-joint allowances now
 pass six independent learned prefixes and sampled motion checks. Both complete revised paths pass with unchanged availability and100ms contact
 confirmation; independent joins report zero detections outside physical Loaded.
-A new frozen full-v3 learned integration is queued behind shared GPU availability. All24final-version outcomes and identical-checkpoint success on both doors
+A one-joint main elbow extension is supported by independent loaded robot data and leaves complete v42 values unchanged; frozen full-v4 integration is queued. All24final-version outcomes and identical-checkpoint success on both doors
 remain required. Controller, teacher, checkpoints and physical criteria are unchanged.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
