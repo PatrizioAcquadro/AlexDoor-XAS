@@ -178,23 +178,37 @@ changes. The feature-cache audit and regeneration command are retained separatel
 in `derived-feature-cache-removal-audit.json`. No GPU allocation was used for
 these CPU numerical integration checks or storage repairs.
 
-The six retained learned prefixes independently fit the unchanged joint-residual
-and weak tool-normal error coefficients under the earlier frozen stop-acceleration
-vector. That alone does **not** qualify the extension: three stop tails exceed
-the old stopping acceleration envelope, and all six move the head beyond the
-old held-joint allowance after the measured stop anchor. A more conservative
-stopping interpolation and held-joint candidate retains the original radial and
-directional stop boxes and contains these six calibration tails. Independent
-robot-only holdouts and complete proposed-motion/self-clearance checks are pending;
-the candidate qualification flags remain false. The failed original validator
-and its missing-held-joint setup error remain preserved. No physical criterion,
-controller, teacher, checkpoint or torque-error coefficient changes.
+The six retained learned prefixes fit the original joint-residual and weak
+normal-error coefficients under the earlier frozen stop-acceleration vector.
+They also expose three stopping acceleration exits and a24.33mrad head movement
+beyond the old held-joint assumption. More conservative interpolation acceleration
+and held-joint allowances contain all six stop tails with the original radial and
+directional boxes. Six fixed independent robot-only coupled-pulse stops also fit
+those unchanged boxes. All18sampled actual teacher proposals pass the larger
+uncertainty cover; minimum self-clearance/sweep margins are0.358/0.034mm.
 
-An optional weak-load acceleration domain is implemented with behavioral tests.
-It is permitted only when the original joint-box wrench calculation gives a
-force upper bound at most the existing1N weak-load ceiling. Stronger bounded loads
-retain the original acceleration envelope. It is not enabled in a rollout recipe
-until the separate error, stopping and sweep evidence passes.
+The new robot pulses expose an additional defect: the original joint-torque error
+floor misses up to1.15mNm at interior states. A floor fitted only to those pulses
+still fails preserved loaded robot traces; a floor fitted only to the original
+robot traces still fails five interior pulse trials. Both failed candidates remain
+preserved. The conservative union uses the original robot-only29-stop data and
+six interior pulse calibrations, retaining25% plus10micro-Nm reserve. It increases
+declared uncertainty, without changing dynamic coefficients or physical criteria.
+All six actual learned prefixes independently fit this floor. No pulse is claimed
+as independent load validation after it becomes calibration data; its stopping
+holdout remains independent of the stop-box fit.
+
+The optional acceleration extension is permitted only when the original joint-box
+wrench calculation gives a force upper bound at most the existing1N weak-load
+ceiling. Stronger bounded loads retain the original acceleration envelope. Source
+`98e27d5` includes behavioral tests for this distinction. The revised finite-domain
+load/stop component recipe still needs complete causal contact/admission replay on
+both retained teacher paths, including unchanged availability counts. Full-v3 is
+frozen and queued behind that strict prerequisite and shared GPU availability;
+no rollout allocation begins on missing/failed qualification. Teacher/controller,
+all four genuine3000-update checkpoints, and physical task criteria remain unchanged.
+The robot-only holdout costs35.65allocated GPU-seconds including tail, bringing
+local consumption to5.10494/15GPUh; remote and optimizer totals are unchanged.
 
 Earlier investigations below preserve their original decisions and failures.
 Their pending-status statements are superseded by the current integration above.
