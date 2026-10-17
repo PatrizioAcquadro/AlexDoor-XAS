@@ -8,16 +8,21 @@ reference. A3/A4 semantics and operational thresholds are unchanged.
 The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
 four genuine 3,000-update corrected-data checkpoints, verified CUDA loading, frozen
 local development inference and actual commands from all four combinations.
-The full-v6 panel retains five completed failed outcomes of 24. ACT A1
-right/nominal demonstrates learned contact and 18.816 degrees of controlled opening
-(36.7% of its expert reference), then stops outside the verified stronger-load
-acceleration domain. It has no physical violation or contact loss, but no valid
-hold, release or task success. ACT A2 right/dim stops at the additional contact-model
-margin before contact. Both continuing-physics stop and retained-input audits pass.
-Diffusion A1 stops at observed orientation and Diffusion A2 at a load-domain exit.
-The remaining 19 slots are held while a concrete load prerequisite is resolved.
-Earlier versions and failures remain separate; identical-checkpoint success on
-both doors is still required.
+The full-v7 panel uses the independently qualified main gripper load envelope.
+ACT A1 right/nominal executes 1,878 learned commands and reaches 18.790 degrees
+of controlled opening (36.7% of its expert reference), then loses contact at
+56.5 seconds. It has no physical violation, valid hold, release or task success;
+the continuing-physics stop and consumed-input audit pass. The identical ACT A1
+checkpoint stops before contact on the left outside the verified load envelope.
+Other frozen panel entries remain in progress. Earlier versions remain separate;
+identical-checkpoint success on both doors is still required.
+
+A matched continuation of all four cells is being prepared from the original
+optimizer/RNG/EMA states: only epochs increase from 30 to 44, adding 1,400 updates
+per cell within the cumulative ceiling. Original checkpoints and outcomes remain
+immutable. This iteration is motivated by retained closed-loop failures and still
+decreasing training loss; improved task behavior is unproven. Remote development
+metrics remain unavailable and no development recordings are transferred.
 
 Finite observed-material, contact and robot-sweep components pass the earlier
 complete retained-path check with measured detection errors. More conservative

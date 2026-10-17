@@ -534,3 +534,42 @@ def test_pilot_training_state_preserves_payload_and_rejects_changed_experiment(t
     ):
         with pytest.raises(ValueError, match="differs"):
             api["restore_training_state"](path, model, changed, family, space)
+
+
+def test_pilot_continuation_allows_only_epoch_increase(tmp_path):
+    import runpy
+
+    api = runpy.run_path("scripts/pilot_offline.py")
+    source = dict(epochs=30, max_batches_per_epoch=100, overfit_updates=0, training_seed=17)
+    target = source | dict(epochs=44)
+    api["validate_epoch_extension"](source, target)
+    for changed in (
+        source,
+        source | dict(epochs=29),
+        target | dict(training_seed=18),
+        target | dict(max_batches_per_epoch=90),
+        target | dict(overfit_updates=1),
+        target | dict(extra_recipe="changed"),
+    ):
+        with pytest.raises(ValueError, match="strict epoch increase"):
+            api["validate_epoch_extension"](source, changed)
+    api["write_json"](tmp_path / "protocol.json", source)
+    report = {}
+    for space in ("A1_joint_delta", "A2_ee_delta"):
+        for family in ("act", "diffusion"):
+            name = f"{family}-{space}"
+            directory = tmp_path / name
+            directory.mkdir()
+            # File existence/protocol guard only, no inference or optimization.
+            (directory / "final.pt").touch()
+            (directory / "training-state.pt").touch()
+            report[name] = dict(optimizer_updates=3000)
+    api["write_json"](tmp_path / "report.json", report)
+    before = (tmp_path / "protocol.json").read_bytes()
+    assert api["continuation_source"](tmp_path, target) == dict(
+        directory=str(tmp_path.resolve()), protocol=source
+    )
+    assert (tmp_path / "protocol.json").read_bytes() == before
+    (tmp_path / "diffusion-A2_ee_delta/training-state.pt").unlink()
+    with pytest.raises(ValueError, match="four complete"):
+        api["continuation_source"](tmp_path, target)

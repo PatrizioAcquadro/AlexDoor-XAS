@@ -328,6 +328,37 @@ def save_training_state(path, model, state, protocol, family, space, epochs):
     temporary.replace(path)
 
 
+def validate_epoch_extension(source, target):
+    """Continue the same experiment; only its declared final epoch may increase."""
+    if (
+        source.get("overfit_updates", 0)
+        or target.get("overfit_updates", 0)
+        or not isinstance(target.get("epochs"), int)
+        or target["epochs"] <= source["epochs"]
+        or source | {"epochs": target["epochs"]} != target
+    ):
+        raise ValueError("Continuation requires only a strict epoch increase")
+
+
+def continuation_source(directory, protocol):
+    directory = directory.resolve()
+    source_protocol = json.loads((directory / "protocol.json").read_text())
+    validate_epoch_extension(source_protocol, protocol)
+    report = json.loads((directory / "report.json").read_text())
+    expected = source_protocol["epochs"] * source_protocol["max_batches_per_epoch"]
+    for space in (A1_JOINT_DELTA, A2_EE_DELTA):
+        for family in ("act", "diffusion"):
+            name = f"{family}-{space}"
+            cell = directory / name
+            if (
+                report.get(name, {}).get("optimizer_updates") != expected
+                or not (cell / "final.pt").is_file()
+                or not (cell / "training-state.pt").is_file()
+            ):
+                raise ValueError("Continuation requires four complete source cells")
+    return dict(directory=str(directory), protocol=source_protocol)
+
+
 def restore_training_state(path, model, protocol, family, space):
     payload = torch.load(path, map_location="cpu", weights_only=False)
     if (
@@ -340,11 +371,16 @@ def restore_training_state(path, model, protocol, family, space):
     return payload["training_state"], payload["epochs"]
 
 
-def train(root, protocol, *, resume=False):
+def train(root, protocol, *, resume=False, continue_from=None):
     from alexdoor_xas.policies.act.config import ActModelCfg
     from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg
 
     destination = root / "training"
+    if resume and continue_from is not None:
+        raise ValueError("Use resume for a partial destination, or continue-from for a new one")
+    continuation = (
+        continuation_source(continue_from, protocol) if continue_from is not None else None
+    )
     destination.mkdir(exist_ok=resume)
     frozen = destination / "protocol.json"
     if resume:
@@ -354,6 +390,13 @@ def train(root, protocol, *, resume=False):
             raise ValueError("Fixed-minibatch studies do not support partial resumption")
     else:
         write_json(frozen, protocol)
+    continuation_path = destination / "continuation.json"
+    if resume and continuation_path.exists():
+        continuation = json.loads(continuation_path.read_text())
+        if continuation_source(Path(continuation["directory"]), protocol) != continuation:
+            raise ValueError("Continuation source changed")
+    elif continuation is not None:
+        write_json(continuation_path, continuation)
     report_path = destination / "report.json"
     report = json.loads(report_path.read_text()) if resume and report_path.exists() else {}
     for space in (A1_JOINT_DELTA, A2_EE_DELTA):
@@ -424,13 +467,38 @@ def train(root, protocol, *, resume=False):
                 overfit = dict(skipped=True, optimizer_updates=0)
             write_json(path / "overfit.json", overfit)
             model = make_model(data, family, cfg, seed=protocol["training_seed"])
-            initial = evaluate(model, family, val_batches, protocol) if val_batches else None
             resume_path = path / "training-state.pt"
+            source_path, source_protocol = resume_path, protocol
+            if continuation is not None:
+                original = Path(continuation["directory"]) / name
+                final_payload = torch.load(
+                    original / "final.pt", map_location="cpu", weights_only=False
+                )
+                if final_payload["norm_stats"] != data.stats.to_dict():
+                    raise ValueError("Continuation training statistics/data differ")
+                if not resume_path.exists():
+                    source_path = original / "training-state.pt"
+                    source_protocol = continuation["protocol"]
             state, epochs = (
-                restore_training_state(resume_path, model, protocol, family, space)
-                if resume and resume_path.exists()
+                restore_training_state(source_path, model, source_protocol, family, space)
+                if (resume or continuation is not None) and source_path.exists()
                 else (None, [])
             )
+            if (
+                continuation is not None
+                and source_path != resume_path
+                and (
+                    state is None
+                    or state["next_epoch"] != source_protocol["epochs"]
+                    or state["global_step"]
+                    != source_protocol["epochs"] * source_protocol["max_batches_per_epoch"]
+                    or sum(row["batch_count"] for row in epochs) != state["global_step"]
+                    or family == "diffusion"
+                    and state.get("ema_state") is None
+                )
+            ):
+                raise ValueError("Source training state is incomplete")
+            initial = evaluate(model, family, val_batches, protocol) if val_batches else None
             if resume and state is None and any(path.glob("*.pt")):
                 raise ValueError("Existing partial cell lacks resumable training state")
 
@@ -582,9 +650,16 @@ if __name__ == "__main__":
         action="store_true",
         help="Continue unchanged real cells from saved optimizer/RNG/EMA state",
     )
+    parser.add_argument(
+        "--continue-from",
+        type=Path,
+        help="Completed four-cell training directory; only epochs may increase, in a new root",
+    )
     args = parser.parse_args()
     if args.mode == "evaluate" and args.checkpoints_root is None:
         parser.error("evaluate requires --checkpoints-root")
+    if args.continue_from is not None and (args.mode != "train" or args.resume):
+        parser.error("--continue-from requires train without --resume")
     if args.resume and args.mode != "train":
         parser.error("--resume is only valid for train")
     if not torch.cuda.is_available():
@@ -608,4 +683,4 @@ if __name__ == "__main__":
         elif args.mode == "evaluate":
             evaluate_checkpoints(args.root, protocol, args.checkpoints_root)
         else:
-            train(args.root, protocol, resume=args.resume)
+            train(args.root, protocol, resume=args.resume, continue_from=args.continue_from)

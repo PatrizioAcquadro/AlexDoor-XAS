@@ -6,6 +6,27 @@ problems and continue through real demonstrations, short ACT/Diffusion × A1/A2
 training and learned closed-loop simulation. Preserve all previous work/failures,
 fixed physical criteria and sealed test doors. No production campaign or robot work.
 
+## Matched training continuation
+
+The 3,000-update ACT A1 checkpoint reaches 18.790 degrees under full-v7, then
+loses real contact before hold/release; the identical checkpoint also fails on
+the left. All four initial loss curves still decrease at 3,000 updates. The next
+bounded experiment extends all four identically to 4,400 updates (14 additional
+100-update epochs each, 5,600 additional updates; 17,764 cumulative including
+infrastructure). No architecture, data, seed, sampler, normalization, controller,
+replanning or physical criterion changes. Improvement remains unproven.
+
+`pilot_offline.py train --root NEW_ROOT --protocol EXTENDED_PROTOCOL
+--continue-from COMPLETED_ROOT/training` requires a new destination and all four
+completed source cells. The protocol may differ only in its increased epoch count.
+Source model/optimizer/RNG/EMA state and train-only statistics are checked and
+retained; the original directory is never edited. Epoch-boundary state in the new
+destination supports the existing `--resume` command after interruption. Source
+states retain the original protocol rather than being relabeled with the extended
+one. Use the prepared train-only cache on Gilbreth; no repeated raw preparation or
+development transfer. The existing 3,000-update panel remains a separate frozen
+version until a new common checkpoint version is explicitly declared.
+
 ## Current resumption
 
 The October 17 authorization raises the cumulative workstation ceiling to 15 GPU
