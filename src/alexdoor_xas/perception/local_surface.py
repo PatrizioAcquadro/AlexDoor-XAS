@@ -12,6 +12,8 @@ class SurfacePose:
     position_bound_m: float
     rotation_bound_rad: float
     normal_rotation_bound_rad: float
+    normal_position_bound_m: float
+    normal_anchor_lever_m: float
     pairs: int
 
 
@@ -147,6 +149,13 @@ def constrained_surface_pose(
     world_anchor = cameras[1][:3, :3] @ (rotation @ anchor + translation) + cameras[1][:3, 3]
     correction = current_surface.offset - current_surface.normal @ world_anchor
     translation += cameras[1][:3, :3].T @ current_surface.normal * correction
+    world_anchor += current_surface.normal * correction
+    normal_lever = float(np.linalg.norm(world_anchor - current_surface.points.mean(0)))
+    normal_position = (
+        point_error_m
+        + np.max(np.abs(current_surface.points @ current_surface.normal - current_surface.offset))
+        + 2 * normal_lever * np.sin(min(normal_error, np.pi) / 2)
+    )
     residual = np.linalg.norm(source @ rotation.T + translation - current, axis=1)
     pose = np.eye(4)
     pose[:3, :3], pose[:3, 3] = rotation, translation
@@ -156,5 +165,7 @@ def constrained_surface_pose(
         float(residual.max() + point_error_m),
         min(np.pi, initial_error + current_error),
         normal_error,
+        float(normal_position),
+        normal_lever,
         len(source),
     )

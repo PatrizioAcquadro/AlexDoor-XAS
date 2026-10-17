@@ -128,6 +128,7 @@ class LocalPatchState:
     ownership: str = "unconfirmed"
     uncertainty_sources: tuple[tuple[str, float | None, float | None, float | None], ...] = ()
     normal_rotation_bound_rad: float | None = None
+    normal_position_bound_m: float | None = None
 
 
 @dataclass(frozen=True)
@@ -178,10 +179,9 @@ def validate_local_contact(state, now, *, generation=None):
         if support is None:
             raise ValueError(patch.reason or "missing_material_support")
         support.require(now, generation, dynamic=dynamic)
-    if patch.normal_rotation_bound_rad is not None and (
-        not np.isfinite(patch.normal_rotation_bound_rad) or patch.normal_rotation_bound_rad < 0
-    ):
-        raise ValueError("invalid_local_normal_bound")
+    for value in (patch.normal_position_bound_m, patch.normal_rotation_bound_rad):
+        if value is not None and (not np.isfinite(value) or value < 0):
+            raise ValueError("invalid_local_normal_bound")
     patch.geometry_support.require_bounds(position=True, rotation=True)
     patch.pose_support.require_bounds(position=True, rotation=True)
     checked_pose(patch.world_pose)

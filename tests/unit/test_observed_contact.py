@@ -206,3 +206,87 @@ def test_contact_bound_includes_separately_published_material_geometry():
     original = monitor().update(*base)
     measured = monitor().update(now, estimate, tool, load, updated)
     assert measured.uncertainty_m == pytest.approx(original.uncertainty_m + 0.001)
+
+
+def plane_inputs(t, *, force=4, x=0.001, reference_y=0, tool_y=0):
+    now, estimate, tool, load, receipt = inputs(t, force=force, x=x)
+    patch = estimate.local.patches[0]
+    patch = replace(
+        patch,
+        world_pose=replace(patch.world_pose, origin=patch.world_pose.origin + [0, reference_y, 0]),
+        pose_support=replace(patch.pose_support, position_bound_m=0.025, rotation_bound_rad=0.2),
+        normal_position_bound_m=0.001,
+        normal_rotation_bound_rad=0.003,
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    tool = replace(tool, origin=tool.origin + [0, tool_y, 0])
+    proposal = replace(
+        receipt.proposal, world_poses=(tool, apply_pose_delta(tool, receipt.proposal.action))
+    )
+    support = replace(
+        receipt.local_evidence,
+        world_poses=proposal.world_poses,
+        finger_clearance_m=(0.1, 0.1),
+        collision_clearance_m=0.1,
+    )
+    receipt = admit_local_action(estimate, proposal, support, receipt.limits, now, generation=0)
+    assert receipt.admitted
+    return now, estimate, tool, load, receipt
+
+
+def plane_monitor():
+    return ObservedContactMonitor(
+        ContactMonitorConfig(
+            0.001,
+            1,
+            0.5,
+            0.1,
+            0.04,
+            0.5,
+            0.03,
+            0.1,
+            robot_fk_position_bound_m=1e-5,
+            robot_fk_rotation_bound_rad=1e-5,
+        ),
+        (np.array([[0, -0.01, 0]]), np.array([[0, 0.01, 0]])),
+    )
+
+
+def test_plane_normal_distance_is_separate_from_material_pose_and_command_tracking_error():
+    m = plane_monitor()
+    for t in np.linspace(1, 1.2, 13):
+        result = m.update(*plane_inputs(float(t)))
+    assert result.status == "contact" and not result.directly_observed
+    assert 0.002 < result.uncertainty_m < 0.0021
+    # A 25 mm material-coordinate uncertainty cannot make load 20 mm away
+    # from a separately measured plane consistent with intended contact.
+    distant = plane_monitor().update(*plane_inputs(1, x=-0.02))
+    assert distant.status == "unavailable" and distant.reason == "load_without_intended_surface"
+    now, estimate, tool, load, receipt = plane_inputs(1)
+    narrow = replace(receipt.local_evidence, finger_clearance_m=(0.005, 0.005))
+    refused = admit_local_action(
+        estimate, receipt.proposal, narrow, receipt.limits, now, generation=0
+    )
+    assert not refused.admitted  # Complete pose error still protects finite material support.
+
+
+def test_seek_travel_measures_robot_motion_without_material_anchor_jitter():
+    m = plane_monitor()
+    for i, t in enumerate(np.linspace(1, 1.2, 13)):
+        result = m.update(*plane_inputs(float(t), force=0, reference_y=0.02 * (i % 2)))
+    assert result.status == "seeking"
+    moved = m.update(*plane_inputs(1.2 + 1 / 60, force=0, tool_y=0.031))
+    assert moved.status == "lost" and moved.reason == "contact_acquisition_budget"
+
+
+def test_partial_fk_error_configuration_never_supplies_contact_uncertainty():
+    with pytest.raises(ValueError, match="partial_robot_fk"):
+        replace(monitor().config, robot_fk_position_bound_m=1e-5)
+
+
+def test_seek_budget_counts_measured_path_length_even_when_robot_returns_to_anchor():
+    m = plane_monitor()
+    assert m.update(*plane_inputs(1, force=0)).status == "seeking"
+    assert m.update(*plane_inputs(1 + 1 / 60, force=0, tool_y=0.02)).status == "seeking"
+    result = m.update(*plane_inputs(1 + 2 / 60, force=0, tool_y=0))
+    assert result.status == "lost" and result.reason == "contact_acquisition_budget"

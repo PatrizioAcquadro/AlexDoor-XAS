@@ -90,7 +90,7 @@ def test_local_constraint_does_not_rewrite_native_pose_or_hide_missing_geometry(
     rotation = Rotation.from_euler("z", 0.2).as_matrix()
     current = surface(rotation, np.array([1, 0, 0]) @ rotation.T)
     current.observations = [
-        SimpleNamespace(semantic_id=3, frame=0, mask=lambda: np.ones((4, 4), bool))
+        SimpleNamespace(semantic_id=3, frame=0, acquired_s=0.0, mask=lambda: np.ones((4, 4), bool))
     ]
     engine = SimpleNamespace(reset=lambda: None)
     tracker = PanelTracking(
@@ -119,7 +119,7 @@ def test_local_constraint_does_not_rewrite_native_pose_or_hide_missing_geometry(
         measured_correspondences=np.ones(len(source), bool),
         inliers=np.ones(len(source), bool),
     )
-    captured = dict(frame=0, camera_world=np.eye(4))
+    captured = dict(frame=0, time_s=0.0, camera_world=np.eye(4))
     result = dict(objects=[obj], local_surfaces=[current])
     monkeypatch.setattr(tracker, "root_consistent", lambda *args: True)
     tracker.constrain_local(captured, result)

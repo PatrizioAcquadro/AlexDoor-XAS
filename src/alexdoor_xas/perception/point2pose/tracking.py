@@ -479,7 +479,9 @@ class PanelTracking:
                 if not areas or areas.count(max(areas)) != 1:
                     raise ValueError("missing_or_ambiguous_current_surface")
                 current = choices[int(np.argmax(areas))]
-                if current.observations[0].frame != int(captured["frame"]):
+                if current.observations[0].frame != int(captured["frame"]) or current.observations[
+                    0
+                ].acquired_s != float(captured["time_s"]):
                     raise ValueError("unsynchronized_local_surface")
                 obj = {
                     k: unpack_array(v) if isinstance(v, dict) and "data" in v else v
@@ -750,6 +752,32 @@ class PanelTracking:
                     + calibration_angle
                     + max(0.0, now - support.supported_s) * angular_speed
                 )
+            normal_position_bound = None
+            calibration_position = (self.calibration_bound or (None, None))[0]
+            linear_speed = (self.relative_speed_bound or (None, None))[0]
+            if (
+                normal_rotation_bound is not None
+                and calibration_position is not None
+                and linear_speed is not None
+                and np.isfinite([calibration_position, linear_speed]).all()
+                and min(calibration_position, linear_speed) >= 0
+            ):
+                constraint = candidate.local_constraint
+                camera_lever = np.linalg.norm(candidate.pose[:3, 3] - candidate.camera_world[:3, 3])
+                normal_position_bound = (
+                    constraint.normal_position_bound_m
+                    + 2
+                    * constraint.normal_anchor_lever_m
+                    * np.sin(
+                        min(
+                            self.config["local_surface_constraint"]["normal_model_bound_rad"], np.pi
+                        )
+                        / 2
+                    )
+                    + calibration_position
+                    + 2 * camera_lever * np.sin(min(calibration_angle, np.pi) / 2)
+                    + max(0.0, now - support.supported_s) * linear_speed
+                )
             patches.append(
                 LocalPatchState(
                     candidate.candidate_id,
@@ -769,6 +797,7 @@ class PanelTracking:
                     tracking_state="tracking" if fresh else "unavailable",
                     ownership=candidate.ownership,
                     normal_rotation_bound_rad=normal_rotation_bound,
+                    normal_position_bound_m=normal_position_bound,
                     uncertainty_sources=tuple(
                         (s.name, s.position_m, s.rotation_rad, s.lever_m) for s in budget.sources
                     ),

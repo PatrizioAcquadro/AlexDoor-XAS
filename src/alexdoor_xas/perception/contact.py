@@ -17,6 +17,8 @@ class ContactMonitorConfig:
     normal_model_bound_m includes visible-surface/collision-model disagreement;
     patch support and calibrated robot errors are added independently. Neither
     this bound nor a plane-fit residual establishes directly observed contact.
+    Optional robot_fk bounds describe measured tool kinematics, independently of
+    command-tracking error. Seek travel is cumulative measured world tool travel.
     """
 
     normal_model_bound_m: float
@@ -27,9 +29,13 @@ class ContactMonitorConfig:
     max_seek_s: float
     max_seek_travel_m: float
     force_window_s: float
+    robot_fk_position_bound_m: float | None = None
+    robot_fk_rotation_bound_rad: float | None = None
 
     def __post_init__(self):
-        values = list(vars(self).values())
+        values = [v for v in vars(self).values() if v is not None]
+        if (self.robot_fk_position_bound_m is None) != (self.robot_fk_rotation_bound_rad is None):
+            raise ValueError("partial_robot_fk_contact_bound")
         if not np.isfinite(values).all() or min(values) < 0:
             raise ValueError("invalid_contact_monitor_recipe")
         if not (
@@ -76,6 +82,7 @@ class ObservedContactMonitor:
     def reset(self):
         self.identity = self.last = self.result = None
         self.seek_started = self.seek_anchor = self.confirm_started = None
+        self.seek_travel_m = 0.0
         self.established = self.releasing = False
         self.latched_reason = None
         self.force_samples = deque()
@@ -168,7 +175,7 @@ class ObservedContactMonitor:
                 np.linalg.norm(face - patch.world_pose.origin, axis=1).max() for face in points
             )
             support, limits = patch.pose_support, admission.limits
-            uncertainty = (
+            motion_uncertainty = (
                 self.config.normal_model_bound_m
                 + patch.geometry_support.position_bound_m
                 + rotational_travel(radius, patch.geometry_support.rotation_bound_rad)
@@ -180,6 +187,31 @@ class ObservedContactMonitor:
                     limits.robot_rotation_bound_rad,
                 )
             )
+            robot_position = (
+                limits.robot_position_bound_m
+                if self.config.robot_fk_position_bound_m is None
+                else self.config.robot_fk_position_bound_m
+            )
+            robot_rotation = (
+                limits.robot_rotation_bound_rad
+                if self.config.robot_fk_rotation_bound_rad is None
+                else self.config.robot_fk_rotation_bound_rad
+            )
+            if (
+                patch.normal_position_bound_m is not None
+                and patch.normal_rotation_bound_rad is not None
+            ):
+                uncertainty = (
+                    self.config.normal_model_bound_m
+                    + patch.normal_position_bound_m
+                    + rotational_travel(radius, patch.normal_rotation_bound_rad)
+                    + robot_position
+                    + rotational_travel(
+                        max(np.linalg.norm(f, axis=1).max() for f in self.faces), robot_rotation
+                    )
+                )
+            else:
+                uncertainty = motion_uncertainty
             margins = [float(value) for _, value in admission.margins_m]
             # The receipt already charges geometry, pose and robot uncertainty.
             # Only the additional visible/collision-model discrepancy is absent
@@ -193,7 +225,7 @@ class ObservedContactMonitor:
             relative = (tool.origin - patch.world_pose.origin) @ patch.world_pose.rot
             if self.last is not None and now > self.last[0]:
                 allowed = (
-                    uncertainty
+                    motion_uncertainty
                     + self.last[2]
                     + limits.relative_speed_bound_m_s * (now - self.last[0])
                 )
@@ -202,7 +234,10 @@ class ObservedContactMonitor:
             if (
                 self.last is not None
                 and now == self.last[0]
-                and not np.allclose(relative, self.last[1], atol=1e-9, rtol=0)
+                and (
+                    not np.allclose(relative, self.last[1], atol=1e-9, rtol=0)
+                    or not np.allclose(tool.origin, self.last[3], atol=1e-9, rtol=0)
+                )
             ):
                 raise ValueError("different_contact_pose_at_same_time")
             # Same-clock before/after checks do not accumulate artificial support.
@@ -268,14 +303,17 @@ class ObservedContactMonitor:
                 )
             if admission.proposal.loaded and not self.releasing and status != "contact":
                 if self.seek_started is None:
-                    self.seek_started, self.seek_anchor = now, relative.copy()
+                    self.seek_started, self.seek_anchor = now, tool.origin.copy()
+                else:
+                    self.seek_travel_m += float(np.linalg.norm(tool.origin - self.seek_anchor))
+                    self.seek_anchor = tool.origin.copy()
                 if (
                     now - self.seek_started > self.config.max_seek_s
-                    or np.linalg.norm(relative - self.seek_anchor) > self.config.max_seek_travel_m
+                    or self.seek_travel_m > self.config.max_seek_travel_m
                 ):
                     self.latched_reason = "contact_acquisition_budget"
                     status, reason = "lost", self.latched_reason
-            self.last = now, relative.copy(), uncertainty
+            self.last = now, relative.copy(), motion_uncertainty, tool.origin.copy()
             self.result = ContactEvidence(status, reason, now, intervals, force, uncertainty)
             return self.result
         except (ValueError, TypeError, AttributeError, IndexError) as error:

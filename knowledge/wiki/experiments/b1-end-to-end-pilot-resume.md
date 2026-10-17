@@ -549,3 +549,20 @@ chunks. Every raw byte round-trips, including depth float bits. This covers the
 10 Hz RGB-D actually consumed by the encoder/frontend in all 24 maximum-horizon
 outcomes; full-rate proprioception/commands/native feedback and all other evidence
 still need separate retention/budget checks. Demonstration recordings are unchanged.
+
+The local contact patch can now publish independently propagated plane-normal
+position and direction errors at its material anchor. They include the explicit
+metric point/model terms, observed conditioning, angular lever, robot/camera
+calibration and temporal growth; a fit residual alone never supplies them. Full
+material-pose uncertainty still protects finite footprints and sweeps. The contact
+monitor uses these current normal bounds, when present, for fingertip separation
+intervals and separately calibrated actual-tool FK errors rather than commanded
+tracking error. Missing normal evidence keeps the conservative full-pose fallback.
+
+Causal three-dimensional consistency retains the complete pose bound. Acquisition
+travel now accumulates measured world tool path length, so material-coordinate
+jitter cannot masquerade as robot travel and an oscillation cannot evade the
+existing travel ceiling by returning to its anchor. Identity, sweep receipts,
+verified load, confirmation/loss, stop behavior and independent physical thresholds
+remain unchanged. Numerical contact/no-contact/loss/ambiguity cases pass; complete
+physical false-admission/miss/delay/coverage measurements remain pending.
