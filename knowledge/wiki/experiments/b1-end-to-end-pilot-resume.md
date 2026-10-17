@@ -248,3 +248,51 @@ queued observed-only static replay and left verification. No fresh demonstration
 real training update or learned execution has occurred. The static replay uses
 the existing full chronological scan, the maintained frontend and observation
 fields only; it creates no additional Isaac case or A4 initialization requirement.
+
+
+The current full right raw also updates the campaign cost proposal. Its 147.48 s
+simulation takes 570.64 s case wall and 20.97 GiB raw. A single-condition
+extrapolation gives 41.85 workstation hours /5.41 TiB raw for 264 production
+episodes, and 133.15 hours /17.20 TiB for the future 840-outcome sealed evaluation.
+These are projections from one valid right cycle, not corpus measurements or
+permission to run either campaign. The provisional reserve becomes 220 workstation
+hours and 30 TiB archive (including dense views and margin); 64 allocated A100
+hours remains provisional pending real-data pilot throughput. No storage purchase
+or allocation is made. The original historical cost proposal remains preserved.
+
+
+## Common left verification and dynamic load-domain result
+
+Case 13 independently validates the identical corrected teacher on the left train
+identity: 52.5360 degrees controlled sustain, valid final hold and release,
+7.6819 N native normal-force peak and 0.28440 rad/s actual joint-speed peak.
+Every independently reconstructed validity tick agrees; forbidden contacts are
+absent. Hold advances 0.709 degrees under maintained load. Release gap is
+25.89 mm; the subsequent 2 s continuing-physics stop travels 0.0531 mm with
+unchanged targets and final speed 0.000153 rad/s. The 90.83% historical-reference
+ratio is descriptive; matched-condition expert pairs remain pending.
+
+Its 9,257 synchronized observations and 18,512 native samples retain all 20
+joints in 24.69 GiB. Independent FK agrees within 0.793 micrometers /1.72e-6 rad;
+A3 reconstruction is exact and 1,358 A4 supervisor segments reproduce goals
+within 1.000 mm /0.498 degrees. Both engineering cycles remain excluded from
+imitation targets and do not qualify A3/A4 observed execution.
+
+Case 14 completes the declared robot-only calibration/verification sequence:
+100,848 native samples /840.4 simulated seconds, about 700 s case wall. Fitting
+uses only unloaded paths, followed by independently timed paths, weak loads,
+tangential loads, native peaks and four moving stops. The candidate covers
+70,150/70,158 verification samples; unavailable samples and uncertainty remain
+explicit. No calibration or stop qualification flags are promoted. Unloaded
+stops travel 2.15/2.13 mm; retained 4 N loaded stops travel 24.56/26.16 mm and
+fail the unchanged 10 mm criterion despite low final speed and fixed anchors.
+Robot Jacobians and the existing impedance predict 23.58/24.74 mm equilibrium
+deflection at those states, close to measured 23.28/24.80 mm. This supports a
+compliance diagnosis, rather than reference drift or a successful stop claim.
+
+All fourteen authorized prerequisite cases are consumed. Reconciled monitored
+workloads charge 1.421 local GPU-hours before the next observed-only replay; the
+three-hour local ceiling remains unchanged. No fresh demonstrations, real training
+updates or learned commands exist. Saved-data analysis and numerical corrections
+continue within budget; any further physical prerequisite needs an explicit
+extension. Existing completed teacher, raw, encoder and transfer work is retained.

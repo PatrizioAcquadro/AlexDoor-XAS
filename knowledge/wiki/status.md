@@ -60,15 +60,17 @@ implemented with explicit uncertainty and unchanged independent scoring; its
 physical calibration remains pending. The resumed teacher has valid sustained
 push after preload regulation, but fixed-pose and prescribed-decay holding lose contact. Pressure-consistent
 holding preserves the final contact window after a physically verified joint-parked
-inspection, then fails measured release speed. The common six-second release correction completes the right cycle: 51.26 degrees
-valid sustained opening, valid hold/release, 0.320 rad/s actual peak and verified
-continuing-physics stop. A new matched reference is still pending. Twelve cases
-are consumed; the user authorizes two additional prerequisites for left teacher
-and robot-only load/stop verification, retaining the three-GPU-hour ceiling. Full
-A3/A4 observed initialization is deferred and does not block A1/A2; indispensable
-shared inputs are retained and current right raw numerically reconstructs A3/A4
-supervision. Raw reuse and supervision reconstruction do not qualify observed
-A3/A4 execution. Test doors stay sealed.
+inspection, then fails measured release speed. The common six-second release
+correction completes both train cycles: 51.26/52.54 degrees controlled opening,
+valid final hold/release and 0.320/0.284 rad/s actual joint peaks. Independent
+contact/pose audits agree; post-release continuing-physics stops pass. Matched
+expert pairs remain pending. All fourteen authorized prerequisite cases are
+consumed. The robot-only dynamic calibration preserves eight unavailable samples
+and fails both retained-4 N stops (24.56/26.16 mm versus 10 mm); qualification
+remains false. Saved-data analysis continues within the three-GPU-hour ceiling.
+Full A3/A4 observed initialization is deferred and does not block A1/A2. Both
+complete raw episodes retain shared inputs and reconstruct A3/A4 supervision;
+that does not qualify observed A3/A4 execution. Test doors stay sealed.
 The explicit `rgbd-conv-v1` recipe now puts a trainable RGB-D convolution inside
 both policy families with shared causal preprocessing and checkpoint binding.
 All four A1/A2 software paths pass inside 128 targeted CUDA checks; no new trained
