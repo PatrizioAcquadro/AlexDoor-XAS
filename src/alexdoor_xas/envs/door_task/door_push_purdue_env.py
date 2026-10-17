@@ -62,11 +62,26 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._pending_pose = None
         self._pending_joints = None
         self.motion_stopped = False
+        self._motion_impedance = []
         super().__init__(cfg, **kwargs)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
         self.neck_ids = self._resolve_joints(NECK_JOINTS)
         self.observed_ids = self.arm_ids + self.neck_ids
         self.targets = tensor(self.robot.data.default_joint_pos).clone()
+        # Preserve the task impedance across reset; only a latched stop changes it.
+        for actuator in self.robot.actuators.values():
+            if "RIGHT_SHOULDER_X" in actuator.joint_names:
+                column = actuator.joint_names.index("RIGHT_SHOULDER_X")
+                self._motion_impedance.append(
+                    (
+                        actuator,
+                        column,
+                        actuator.stiffness[:, column].clone(),
+                        actuator.damping[:, column].clone(),
+                    )
+                )
+        if len(self._motion_impedance) != 1:
+            raise RuntimeError("stop impedance joint does not resolve uniquely")
         self.limits = tensor(self.robot.data.joint_pos_limits)[:, self.arm_ids].clone()
         self.velocities = tensor(self.robot.data.joint_vel_limits)[:, self.arm_ids].clone()
         self.velocities.clamp_(max=cfg.max_joint_speed)
@@ -339,6 +354,15 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if not bool(torch.isfinite(measured).all()):
             raise RuntimeError("invalid_stop_state")
         self.targets = measured
+        # The measured-anchor spring must also resist load at extended poses.
+        # Stop-only shoulder-X stiffness: J K^-1 J.T predicts <=7.26 mm under
+        # the tested 4 N normal load, versus 37.24 mm with the motion gains.
+        # Preserve its damping ratio; retain every other joint gain and limit.
+        # This candidate requires independent loaded-stop verification.
+        for actuator, column, stiffness, damping in self._motion_impedance:
+            ratio = 320.0 / stiffness
+            actuator.stiffness[:, column] = 320.0
+            actuator.damping[:, column] = damping * ratio.sqrt()
         self.robot.set_joint_position_target_index(target=self.targets)
         self.robot.set_joint_velocity_target_index(target=torch.zeros_like(self.targets))
         self.robot.set_joint_effort_target_index(
@@ -442,6 +466,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
     def _reset_idx(self, env_ids):
         super()._reset_idx(env_ids)
         self.motion_stopped = False
+        for actuator, column, stiffness, damping in self._motion_impedance:
+            actuator.stiffness[:, column] = stiffness
+            actuator.damping[:, column] = damping
         for fixture in self.scene.rigid_objects.values():
             state = tensor(fixture.data.default_root_state).clone()
             fixture.write_root_pose_to_sim_index(root_pose=state[:, :7])

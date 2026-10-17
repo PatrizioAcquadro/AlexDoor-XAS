@@ -279,3 +279,16 @@ trial was performed. Operational pose tolerances are 10 mm / 5 degrees sustained
 for 0.5 s. Phase 4.1 records the frozen common setup, probe/contact criteria and
 force limits, with repeated four-door evidence. These are controller-qualified
 simulation limits, not global kinematic bounds or hardware-safety limits.
+
+
+The resumed pilot exposes a stop-domain limit at extended arm poses: retained
+4 N load causes 24.56/26.16 mm travel despite a fixed measured anchor. A prospective
+stop-only correction raises right shoulder-X stiffness from 26.78 to 320 N m/rad
+and scales its damping by `sqrt(320/26.78)` (8 to 27.65 N m s/rad), preserving its
+damping ratio. Other gains, physical limits, gravity compensation and latch
+semantics are unchanged; reset restores motion impedance. Across both measured
+paths, linearized 4 N normal-load equilibrium displacement is at most 7.26 mm
+versus 37.24 mm with motion gains. This is a numerical design bound for the tested
+load directions, not a dynamic stop certificate or an arbitrary-direction bound.
+Independent physical verification of the candidate is pending; all fourteen
+authorized prerequisite cases are already consumed.
