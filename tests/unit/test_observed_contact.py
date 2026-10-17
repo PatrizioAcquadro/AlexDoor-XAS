@@ -290,3 +290,19 @@ def test_seek_budget_counts_measured_path_length_even_when_robot_returns_to_anch
     assert m.update(*plane_inputs(1 + 1 / 60, force=0, tool_y=0.02)).status == "seeking"
     result = m.update(*plane_inputs(1 + 2 / 60, force=0, tool_y=0))
     assert result.status == "lost" and result.reason == "contact_acquisition_budget"
+
+
+def test_contact_model_error_spends_material_margin_not_independent_static_robot_margin():
+    values = inputs(1.0)
+    receipt = values[-1]
+    receipt = replace(
+        receipt,
+        local_evidence=replace(receipt.local_evidence, swept_collision_margin_m=0.0001),
+        margins_m=receipt.margins_m + (("independent_robot_sweep", 0.0001),),
+    )
+    result = monitor().update(*values[:-1], receipt)
+    assert result.status == "seeking"
+    narrow = replace(receipt, margins_m=(("contact", 0.001), ("independent_robot_sweep", 0.1)))
+    result = monitor().update(*values[:-1], narrow)
+    assert result.status == "unavailable"
+    assert result.reason == "contact_uncertainty_exceeds_admitted_margin"

@@ -212,7 +212,9 @@ class ObservedContactMonitor:
                 )
             else:
                 uncertainty = motion_uncertainty
-            margins = [float(value) for _, value in admission.margins_m]
+            margins = [
+                float(value) for name, value in admission.margins_m if name == patch.patch_id
+            ]
             # The receipt already charges geometry, pose and robot uncertainty.
             # Only the additional visible/collision-model discrepancy is absent
             # from that receipt. Do not spend the shared bounds a second time.

@@ -71,6 +71,13 @@ bounds or relevant swept-space evidence still refuses; force/contact admission i
 separate. No hidden interface shape is reconstructed or certified from depth.
 No physical threshold, gain, door dynamics or qualification flag changes here.
 
+A local action may carry a separately eroded whole-robot sweep/stop residual.
+Its positive finite margin remains independent of the finger material margin:
+material pose, response and contact-model uncertainty spend only finite material
+support, while the robot certificate must already include its own motion, scene
+and stop errors. Missing, nonpositive or unknown sweep evidence still refuses.
+This interface does not create a qualified producer or establish live admission.
+
 ## Scope and budgets
 
 A3/A4 operational hinge/bootstrap/release qualification is deferred. Before new

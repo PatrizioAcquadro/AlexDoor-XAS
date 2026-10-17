@@ -566,3 +566,20 @@ def test_native_normal_load_uses_its_bound_and_preserves_full_wrench_peak():
     assert projected.normal_lower_n == pytest.approx(expected)
     assert all(v == pytest.approx(expected) for _, _, v in projected.normal_samples)
     assert provider.last_estimate.local.patches[0].pose_support.rotation_bound_rad == 0.2
+
+
+def test_independent_robot_sweep_proof_keeps_its_own_residual_margin():
+    estimate, proposal, evidence, limits = local_inputs()
+    evidence = replace(evidence, collision_clearance_m=None, swept_collision_margin_m=0.0001)
+    receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert receipt.admitted
+    assert dict(receipt.margins_m)["independent_robot_sweep"] == 0.0001
+    require_current_admission(receipt, estimate, 1.0)
+    for invalid in (0.0, -0.001, np.nan):
+        bad = replace(evidence, swept_collision_margin_m=invalid)
+        assert not admit_local_action(estimate, proposal, bad, limits, 1, generation=0).admitted
+    # Neither a valid robot proof nor its margin can replace finite material coverage.
+    narrow = replace(evidence, finger_clearance_m=(0.001, 0.001))
+    assert not admit_local_action(estimate, proposal, narrow, limits, 1, generation=0).admitted
+    unknown = replace(evidence, unknown_in_envelope=True)
+    assert not admit_local_action(estimate, proposal, unknown, limits, 1, generation=0).admitted

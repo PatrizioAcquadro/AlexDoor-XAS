@@ -35,6 +35,10 @@ class LocalActionSupport:
     response_rotation_bound_rad: float | None
     footprint_radius_m: float | None
     unloaded_separation_m: float | None = None
+    # Optional independently eroded whole-robot sweep/stop certificate. Its
+    # producer already includes its own kinematic, scene and stopping errors.
+    # Local material uncertainty still spends the finite finger margin below.
+    swept_collision_margin_m: float | None = None
 
 
 def _local_error(patch, evidence, limits, now, duration):
@@ -129,10 +133,13 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             raise ValueError("unknown_relevant_swept_space")
         if len(evidence.finger_clearance_m) != 2:
             raise ValueError("missing_two_finger_support")
-        clearance = min(
-            nonnegative(v, "missing_relevant_clearance")
-            for v in (*evidence.finger_clearance_m, evidence.collision_clearance_m)
-        )
+        values = evidence.finger_clearance_m
+        sweep_margin = evidence.swept_collision_margin_m
+        if sweep_margin is None:
+            values = (*values, evidence.collision_clearance_m)
+        elif nonnegative(sweep_margin, "invalid_robot_sweep_margin") <= 0:
+            raise ValueError("insufficient_robot_sweep_margin")
+        clearance = min(nonnegative(v, "missing_relevant_clearance") for v in values)
         error = _local_error(patch, evidence, limits, now, duration)
         if clearance <= error:
             raise ValueError("insufficient_local_action_margin")
@@ -148,7 +155,8 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
         True,
         False,
         "admitted_local_geometry_only",
-        ((patch.patch_id, clearance - error),),
+        ((patch.patch_id, clearance - error),)
+        + (() if sweep_margin is None else (("independent_robot_sweep", sweep_margin),)),
         deepcopy(proposal),
         deepcopy(estimate),
         limits,
@@ -217,7 +225,10 @@ def require_current_local_admission(admission, estimate, now):
         max(0.0, old - new)
         for old, new in zip(before.finger_clearance_m, patch.finger_clearance_m, strict=True)
     )
-    margin = min(value for _, value in admission.margins_m)
+    material_margins = [value for name, value in admission.margins_m if name == before.patch_id]
+    if len(material_margins) != 1:
+        raise ValueError("missing_local_material_margin")
+    margin = material_margins[0]
     if not admission.proposal.loaded:
         margin = min(margin, evidence.unloaded_separation_m - old_error)
     if max(0.0, current_error - old_error) + clearance_loss >= margin:
