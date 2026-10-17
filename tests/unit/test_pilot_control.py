@@ -716,3 +716,40 @@ def test_invalid_weak_load_acceleration_domain_is_rejected(extension):
             np.zeros(7),
             np.array([1.0, 0, 0]),
         )
+
+
+def test_local_margin_charges_prepaid_capture_age_once_and_keeps_future_motion():
+    from alexdoor_xas.perception.local_admission import _local_error
+
+    estimate, _, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    duration, age = 1 / 60, 4 / 60
+    speed = limits.relative_speed_bound_m_s
+    baseline = _local_error(patch, evidence, limits, 1, duration)
+    aged = replace(
+        patch,
+        pose_support=replace(
+            patch.pose_support,
+            position_bound_m=patch.pose_support.position_bound_m + speed * age,
+        ),
+        pose_temporal_position_m=speed * age,
+    )
+    assert _local_error(aged, evidence, limits, 1 + age, duration) == pytest.approx(
+        baseline + speed * age
+    )
+    assert _local_error(aged, evidence, limits, 1 + age + duration, duration) == pytest.approx(
+        baseline + speed * (age + duration)
+    )
+    assert _local_error(aged, evidence, limits, 1 + age, 2 * duration) == pytest.approx(
+        baseline + speed * (age + duration)
+    )
+    # Producers without a measured prepaid term retain the conservative old behavior.
+    unknown = replace(aged, pose_temporal_position_m=None)
+    assert _local_error(unknown, evidence, limits, 1 + age, duration) == pytest.approx(
+        baseline + 2 * speed * age
+    )
+    for paid in [-1, np.nan, np.inf, aged.pose_support.position_bound_m + 1]:
+        with pytest.raises(ValueError, match="invalid_prepaid_pose_growth"):
+            _local_error(
+                replace(aged, pose_temporal_position_m=paid), evidence, limits, 1 + age, duration
+            )

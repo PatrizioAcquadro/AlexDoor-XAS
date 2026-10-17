@@ -898,6 +898,10 @@ class PanelTracking:
                     ownership=candidate.ownership,
                     normal_rotation_bound_rad=normal_rotation_bound,
                     normal_position_bound_m=normal_position_bound,
+                    pose_temporal_position_m=next(
+                        (s.position_m for s in frame_budget.sources if s.name == "temporal_growth"),
+                        None,
+                    ),
                     uncertainty_sources=tuple(
                         (s.name, s.position_m, s.rotation_rad, s.lever_m) for s in budget.sources
                     ),

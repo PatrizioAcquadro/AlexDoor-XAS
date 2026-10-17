@@ -853,3 +853,13 @@ times and the current measured availability before adoption. Adoption checks
 against publication availability, while acquisition/support times remain intact.
 Current witness availability is finalized with the complete publication. This
 fixes the causal clock mismatch without accepting future evidence.
+
+
+Current local pose bounds include linear/angular growth since the last actual
+RGB-D capture. `pose_temporal_position_m` records the linear portion already
+included by the tracker. Finite-material admission credits at most that amount
+against past linear aging, while preserving original support clocks, freshness,
+all future-command motion, rotation, response and stopping allowances. Missing
+prepaid evidence retains conservative full age charging. This corrects the
+measured double charge in [[../experiments/b1-end-to-end-pilot-resume|full-v5]];
+it does not extend a current-frame bound into the future or change physical scoring.

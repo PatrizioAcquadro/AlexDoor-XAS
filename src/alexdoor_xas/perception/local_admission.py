@@ -60,22 +60,28 @@ def _local_error(patch, evidence, limits, now, duration):
         evidence.response_rotation_bound_rad, "unmeasured_material_response"
     )
     supports = (patch.geometry_support, patch.pose_support, evidence.support)
+    age = now - min(
+        patch.pose_support.supported_s,
+        patch.identity_support.supported_s,
+        evidence.support.supported_s,
+    )
+    paid = patch.pose_temporal_position_m
+    if paid is not None:
+        paid = nonnegative(paid, "invalid_prepaid_pose_growth")
+        if paid > patch.pose_support.position_bound_m:
+            raise ValueError("invalid_prepaid_pose_growth")
+    # The tracker already grows its current pose bound from the last capture.
+    # Credit only that linear aging, never the next command's motion or response.
+    temporal = limits.relative_speed_bound_m_s * (age + duration) - min(
+        limits.relative_speed_bound_m_s * age, paid or 0.0
+    )
     return (
         sum(s.position_bound_m for s in supports)
         + limits.robot_position_bound_m
         + sum(rotational_travel(radius, s.rotation_bound_rad) for s in supports)
         + rotational_travel(radius, limits.robot_rotation_bound_rad + response_rotation)
         + response
-        + limits.relative_speed_bound_m_s
-        * (
-            now
-            - min(
-                patch.pose_support.supported_s,
-                patch.identity_support.supported_s,
-                evidence.support.supported_s,
-            )
-            + duration
-        )
+        + temporal
         + limits.stop_travel_m
     )
 

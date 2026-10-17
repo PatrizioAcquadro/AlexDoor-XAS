@@ -129,6 +129,8 @@ class LocalPatchState:
     uncertainty_sources: tuple[tuple[str, float | None, float | None, float | None], ...] = ()
     normal_rotation_bound_rad: float | None = None
     normal_position_bound_m: float | None = None
+    # Linear aging already included in pose_support; clocks remain acquisition clocks.
+    pose_temporal_position_m: float | None = None
 
 
 @dataclass(frozen=True)

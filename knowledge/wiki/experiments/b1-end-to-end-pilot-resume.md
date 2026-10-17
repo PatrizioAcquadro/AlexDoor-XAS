@@ -57,7 +57,17 @@ the continuing-physics stop passes. Its consumed-input audit passes. The runner
 now preserves an explicit producer refusal before adapter validation, avoiding the
 misleading global-state error for a rejected local receipt. The rejection and stop
 remain unchanged. A saved causal RGB-D/proprioception replay is diagnosing the
-specific margin; no admission bound is changed on the basis of this failure alone.
+specific margin. It reproduces all 232 actions within 5.93e-6 per component and
+the rejection: 114.74 mm finite clearance versus 115.45 mm combined allowance.
+The tracker already includes 6.667 mm of linear capture-age growth in its current
+pose bound; admission charged it again. An explicit numerical prepaid-growth
+term now credits only that already-paid translation. The same saved proposal has
+a 5.959 mm margin after correction. Acquisition/support/availability clocks remain
+29.0 s at the 29.0667 s query; next-tick motion still costs 1.667 mm, and both
+13 mm response terms, 40 mrad rotations and 20 mm stopping allowance are unchanged.
+Existing complete-path margins remain accepted by the nonnegative-credit
+inequality; load/contact, geometry and swept-stop values are unchanged. Fresh real
+execution and all 24 outcomes under the corrected version remain required.
 
 
 The common background now includes explicit 85-degree initial-pose calibration
