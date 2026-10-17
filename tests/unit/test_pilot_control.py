@@ -527,3 +527,42 @@ def test_loaded_alignment_uses_the_supported_normal_without_discarding_full_pose
     # Full pose error still spends finite footprint/sweep clearance.
     narrow = replace(wide, finger_clearance_m=(0.005, 0.005))
     assert not admit_local_action(estimate, proposal, narrow, limits, 1, generation=0).admitted
+
+
+def test_native_normal_load_uses_its_bound_and_preserves_full_wrench_peak():
+    from alexdoor_xas.perception.load import PurdueLoadSource, RobotLoadSample
+
+    model, jac, load = load_inputs()
+    samples = [
+        RobotLoadSample(
+            replace(load.feedback, timestamp_s=t, available_s=t),
+            np.zeros(7),
+            jac,
+            np.zeros(7),
+            np.zeros(7),
+            np.zeros(7),
+        )
+        for t in (1 - 1 / 120, 1)
+    ]
+    estimate = local_inputs()[0]
+    patch = estimate.local.patches[0]
+    patch = replace(patch, pose_support=replace(patch.pose_support, rotation_bound_rad=0.2))
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    provider = SimpleNamespace(last_estimate=estimate)
+    io = SimpleNamespace(
+        admission=None,
+        env=SimpleNamespace(load_samples=samples),
+        safety=SimpleNamespace(provider=provider),
+    )
+    source = PurdueLoadSource(model.calibration)
+    conservative = source(io, load.feedback)
+    supported = replace(patch, normal_rotation_bound_rad=0.01)
+    provider.last_estimate = replace(estimate, local=replace(estimate.local, patches=(supported,)))
+    projected = source(io, load.feedback)
+    assert projected.normal_lower_n > conservative.normal_lower_n
+    assert projected.force_upper_n == conservative.force_upper_n
+    assert len(projected.normal_samples) == 2
+    expected = load.normal_lower_n - load.force_upper_n * 2 * np.sin(0.01 / 2)
+    assert projected.normal_lower_n == pytest.approx(expected)
+    assert all(v == pytest.approx(expected) for _, _, v in projected.normal_samples)
+    assert provider.last_estimate.local.patches[0].pose_support.rotation_bound_rad == 0.2

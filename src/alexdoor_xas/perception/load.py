@@ -217,10 +217,17 @@ class PurdueLoadSource:
         if local:
             patch = validate_local_contact(estimate.local, feedback.timestamp_s)
             normal, support = patch.world_pose.rot[:, 0], patch.pose_support
+            normal_rotation = patch.normal_rotation_bound_rad
         else:
             normal = estimate.contact_rotation[:, 0]
             support = estimate.operational.contact.world_support
+            normal_rotation = None
         support.require_bounds(rotation=True)
+        # Project force onto the independently supported normal. Tangential
+        # frame ambiguity still belongs to finite material/sweep admission.
+        normal_rotation = support.rotation_bound_rad if normal_rotation is None else normal_rotation
+        if not np.isfinite(normal_rotation) or normal_rotation < 0:
+            raise ValueError("invalid_load_normal_bound")
         samples = env.load_samples
         times = [sample.feedback.timestamp_s for sample in samples]
         if (
@@ -264,7 +271,7 @@ class PurdueLoadSource:
             force_upper_n=max(load.force_upper_n for load in loads),
             normal_lower_n=min(
                 load.normal_lower_n
-                - load.force_upper_n * 2 * np.sin(min(support.rotation_bound_rad, np.pi) / 2)
+                - load.force_upper_n * 2 * np.sin(min(normal_rotation, np.pi) / 2)
                 for load in loads
             ),
             normal_samples=tuple(
@@ -272,7 +279,7 @@ class PurdueLoadSource:
                     load.feedback.timestamp_s - 1 / 120,
                     load.feedback.timestamp_s,
                     load.normal_lower_n
-                    - load.force_upper_n * 2 * np.sin(min(support.rotation_bound_rad, np.pi) / 2),
+                    - load.force_upper_n * 2 * np.sin(min(normal_rotation, np.pi) / 2),
                 )
                 for load in loads
             ),

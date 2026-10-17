@@ -795,3 +795,11 @@ directly. This avoids charging the full downstream chain length to every small
 cell. Coupled bent-chain and prismatic numerical coverage passes. It supplies a
 continuous geometric cover, not observed free space, self-clearance, contact or
 a stopping qualification. Unsupported observed queries still refuse.
+
+
+The native 120 Hz robot load source now projects its force interval with the
+independently supported current surface-normal angular error when available.
+It retains the full pose bound as the fallback and for material/sweep admission.
+The two native intervals keep their original clocks; peak full-wrench protection
+is unchanged. This closes a consumer mismatch with the separate normal/contact
+bounds. It does not mark a calibration or contact recipe verified.
