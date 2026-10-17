@@ -332,13 +332,16 @@ def rollout(env, args, protocol, robot, setup, inspection):
 
     import numpy as np
     from PIL import Image
+    from scipy.spatial.transform import Rotation
 
     from alexdoor_xas.policies.b1 import B1Policy
     from alexdoor_xas.policies.encoding import RGBDEncoder, pilot_binding
     from alexdoor_xas.policies.observations import B1Observer
     from alexdoor_xas.policies.purdue import PurdueIO, contact_status
     from alexdoor_xas.policies.rollout import B1Runner
+    from alexdoor_xas.recording.b1 import PHASES
     from alexdoor_xas.recording.b1_runtime import array
+    from alexdoor_xas.recording.rollout import RolloutWriter
 
     binding = pilot_binding(
         inspection,
@@ -356,8 +359,142 @@ def rollout(env, args, protocol, robot, setup, inspection):
     observer = B1Observer(None, binding, encoder=RGBDEncoder(binding))
     geometry = SimpleNamespace(binding=binding, last_estimate=None)
     io = PurdueIO(env, binding=binding, robot_asset=robot, setup=setup, observed_provider=geometry)
+    recording = RolloutWriter(
+        args.output / "rollout.hdf5",
+        dict(
+            purpose="learned_rollout_evaluation",
+            family=args.family,
+            checkpoint=str(args.checkpoint),
+            action_space=policy.action_space,
+            binding=binding.to_dict(),
+            robot_asset=robot.to_dict(),
+            robot_joint_names=list(env.robot.joint_names),
+        ),
+        io.calibration,
+        control_dt=io.dt,
+        image_period_s=binding.config["encoding"]["period_s"],
+    )
+    native_contacts = (args.output / "evaluator-native-contacts.jsonl").open("x")
+    evaluator_states = (args.output / "evaluator-control-state.jsonl").open("x")
+    pending = None
+
+    recording.file["commands"].attrs["kind_codes"] = json.dumps(
+        dict(inspection_hold=0, joints=1, delta=2, pose=3)
+    )
+
+    def record_step(command, goal):
+        nonlocal pending
+        if pending is not None:
+            raise RuntimeError("unrecorded_control_step")
+        request = np.full(12, np.nan)
+        kind, width, stage = 0, 0, "inspect"
+        if command is not None:
+            kind = {"joints": 1, "delta": 2, "pose": 3}[command.kind]
+            value = (
+                np.r_[command.value.origin, command.value.rot.flatten()]
+                if command.kind == "pose"
+                else np.asarray(command.value)
+            )
+            width, stage = len(value), command.stage
+            request[:width] = value
+        pending = dict(
+            time_s=np.float64(env.capture.sample.time_s - io.dt),
+            kind=np.int8(kind),
+            request=request,
+            request_width=np.int8(width),
+            learned=np.bool_(command is not None),
+            submitted_tool_position=np.full(3, np.nan) if goal is None else goal.origin.copy(),
+            submitted_tool_rotation=np.full((3, 3), np.nan) if goal is None else goal.rot.copy(),
+            stage=np.int8(-1 if stage is None else PHASES.index(stage)),
+            # Snapshot while these are still the applied controller targets.
+            joint_target=array(env.targets)[0].copy(),
+            effort_target_nm=array(env.robot.data.joint_effort_target)[0].copy(),
+        )
+
+    def record_observation(sensor, observed):
+        nonlocal pending
+        position, quaternion = [array(v)[0] for v in env.tool_pose()]
+        recording.observe(
+            sensor,
+            observed,
+            dict(
+                robot_joint_position=array(env.robot.data.joint_pos)[0],
+                robot_joint_velocity=array(env.robot.data.joint_vel)[0],
+                actual_tool_position=position,
+                actual_tool_rotation=Rotation.from_quat(quaternion).as_matrix(),
+            ),
+        )
+        # Independent truth is persisted only here, never passed back to IO or
+        # the observer. Native contact records keep their original categories.
+        evaluator_states.write(
+            json.dumps(
+                dict(
+                    time_s=float(sensor["time_s"]),
+                    native_door_angle_rad=float(array(env.door.data.joint_pos)[0, 0]),
+                    native_door_speed_rad_s=float(array(env.door.data.joint_vel)[0, 0]),
+                ),
+                allow_nan=False,
+            )
+            + "\n"
+        )
+        if pending is not None:
+            recording.command(pending)
+            robot_rows, evaluator_rows = [], []
+            for sample, contact in zip(env.load_samples, env.contact_history, strict=True):
+                fb = sample.feedback
+                robot_rows.append(
+                    dict(
+                        time_s=np.float64(fb.timestamp_s),
+                        available_s=np.float64(fb.available_s),
+                        present=np.bool_(fb.torque_nm is not None),
+                        healthy=np.bool_(fb.healthy),
+                        torque_nm=np.full(7, np.nan)
+                        if fb.torque_nm is None
+                        else np.asarray(fb.torque_nm, dtype=np.float64),
+                        expected_torque_nm=sample.expected_torque_nm,
+                        jacobian_world=sample.jacobian_world,
+                        joint_position=sample.q,
+                        joint_velocity=sample.dq,
+                        joint_acceleration=sample.ddq,
+                    )
+                )
+                intended = [
+                    c for c in contact["contacts"] if c["category"] in ("positive", "negative")
+                ]
+                evaluator_rows.append(
+                    dict(
+                        time_s=np.float64(fb.timestamp_s),
+                        forbidden=np.bool_(contact["forbidden"]),
+                        normal_force_n=np.float64(sum(abs(c["force_n"]) for c in intended)),
+                        minimum_separation_m=np.float64(
+                            min((c["separation_m"] for c in intended), default=np.nan)
+                        ),
+                    )
+                )
+                native_contacts.write(
+                    json.dumps(
+                        dict(
+                            time_s=fb.timestamp_s,
+                            contact=contact,
+                            robot_feedback=dict(
+                                source=fb.source,
+                                semantics=fb.semantics,
+                                reason=fb.reason,
+                                joint_names=fb.joint_names,
+                                units=fb.units,
+                                sign_convention=fb.sign_convention,
+                            ),
+                        ),
+                        allow_nan=False,
+                    )
+                    + "\n"
+                )
+            recording.feedback(robot_rows, evaluator_rows)
+            pending = None
+
+    io.step_recorder = record_step
     # Passive evaluator telemetry is never returned to the observer, policy or monitor.
-    rows, costs, cycle_ms, encoding_ms = [], [], [], []
+    rows, costs, cycle_ms, encoding_ms, recording_ms = [], [], [], [], []
     hold = io.hold_step
     update = observer.update
     last_completed = None
@@ -365,9 +502,26 @@ def rollout(env, args, protocol, robot, setup, inspection):
     def measured_update(sensor):
         nonlocal last_completed
         begin = perf_counter()
-        result = update(sensor)
+        try:
+            result = update(sensor)
+        except BaseException:
+            # Preserve the observation after a real step even if preprocessing
+            # fails; no feature support is invented for that state.
+            record_observation(
+                sensor,
+                SimpleNamespace(
+                    time_s=float(sensor["time_s"]),
+                    frame=int(sensor["frame"]),
+                    generation=observer.generation,
+                    feature_support=None,
+                ),
+            )
+            raise
+        observer_end = perf_counter()
+        record_observation(sensor, result)
         end = perf_counter()
-        encoding_ms.append((end - begin) * 1000)
+        encoding_ms.append((observer_end - begin) * 1000)
+        recording_ms.append((end - observer_end) * 1000)
         if last_completed is not None:
             cycle_ms.append((end - last_completed) * 1000)
         last_completed = end
@@ -390,7 +544,23 @@ def rollout(env, args, protocol, robot, setup, inspection):
     io.hold_step = measured_hold
     observer.update = measured_update
     runner = B1Runner(policy, observer, io, n_action_steps=protocol["replan_ticks"])
-    result = runner.run(max_ticks=protocol["rollout_max_ticks"], seed=protocol["inference_seed"])
+    try:
+        result = runner.run(
+            max_ticks=protocol["rollout_max_ticks"], seed=protocol["inference_seed"]
+        )
+        recording.finish(
+            dict(
+                passed=False,
+                termination=result.reason,
+                learned_commands=result.control_steps,
+                physical_evaluation="not_completed",
+                qualification=False,
+            )
+        )
+    finally:
+        recording.close()
+        native_contacts.close()
+        evaluator_states.close()
     stop_time = env._time_s
     assert io.env._pending_pose is None and io.env._pending_joints is None
     np.testing.assert_array_equal(array(env.robot.data.joint_pos), array(env.targets))
@@ -402,6 +572,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         hold_cycle_ms=costs,
         inspection_cycle_ms=cycle_ms,
         observer_update_ms=encoding_ms,
+        recording_ms=recording_ms,
     )
     return dict(
         passed=False,
@@ -412,6 +583,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
         scope="operational_rollout_attempt_no_admission_bypass",
         inspection_ticks=len(rows),
         policy_commands=result.control_steps,
+        retained_inputs="rollout.hdf5",
+        retained_native_contacts="evaluator-native-contacts.jsonl",
+        retained_evaluator_states="evaluator-control-state.jsonl",
         observed_geometry_available=False,
         load_source_available=False,
         action_admission_source_available=False,

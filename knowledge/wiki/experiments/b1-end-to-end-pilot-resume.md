@@ -583,3 +583,21 @@ model discrepancy reaches 1.973 mm, so the existing 3 mm reserve is retained.
 A temporary unqualified 1 mm reserve proposal is preserved as incomplete and was
 never used for physical admission. Complete calibration/contact/sweep validation
 remains required.
+
+
+## Separate-clock rollout recording
+
+The maintained rollout entry point now records consumed images, full-rate robot
+state, actual submitted/applied commands and native feedback using the lossless
+layout tested in the storage projection. Explicit image indices preserve the
+static/three-history input join. Independent contact records and door state stay
+in evaluator channels. The command snapshot precedes a measured-response stop,
+so a stop anchor cannot overwrite the original applied target in evidence.
+A saved two-second prefix retains 121 control states, 21 images and 240 native
+feedback rows with unchanged source clocks; raw bytes and commands round-trip.
+Streaming write plus saved-input reads take 10.46 s (not live runtime cost).
+Initial benchmark column/scalar-check errors and their artifacts are preserved.
+Failed and interrupted boundaries are tested. This is numerical/retention
+validation only: no additional physical run, real training update or learned
+command was executed, and the current admission source remains incomplete.
+See [[../topics/episode-and-dataset-contracts|recording contract]].

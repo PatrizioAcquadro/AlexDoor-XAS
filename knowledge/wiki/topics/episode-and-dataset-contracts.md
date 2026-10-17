@@ -73,3 +73,28 @@ recordings are not a final matched dataset and are not relabeled for new control
 Dense concatenated image vectors also require a lazy/deduplicated image-loading
 path before production scale; the current in-memory numerical loader remains
 suitable only for a bounded pilot. No such storage redesign is silently claimed.
+
+
+## Pilot rollout retention
+
+`recording.rollout.RolloutWriter` and `pilot_physics.py rollout` retain evaluation
+artifacts separately from imitation data. `b1.policy_rollout.v1` stores the raw
+images actually consumed at 10 Hz, all 60 Hz proprioception/full robot/tool
+states, submitted commands and applied targets, and the native 120 Hz robot
+feedback. Lossless gzip/shuffle image tiles avoid repeating the four-image input
+at each control tick. Per-control static/three-history image indices and feature
+acquisition/availability clocks preserve causal reconstruction without saving
+repeated prepared tensors. Invalid feature support remains explicit; sampled
+failed inputs are retained. Raw validity, NaN bit patterns and SDK intrinsics
+are preserved.
+
+The IO recording hook snapshots applied targets after execution and before a
+response failure replaces them with a stop anchor. Cartesian submissions retain
+the actual submitted world goal; A1 retains its submitted joint increment and
+bounded joint targets. Inspection holds and learned submissions have distinct
+codes. Independent contact records, original categories, feedback semantics and
+door state go to evaluator sidecars/streams, never back to the observer. A closed
+failed episode is complete evidence; interrupted files remain incomplete. This
+format is not admitted by the demonstration exporter and supplies no success or
+contact qualification. Numerical round trips and callback ordering pass; live
+Isaac recording and full retained-input audit await the GPU extension.

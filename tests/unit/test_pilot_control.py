@@ -465,7 +465,11 @@ def test_actual_response_is_checked_after_real_dispatch_and_latched(
         Rotation.from_rotvec([0, 0, rotation]).as_matrix() @ goal.rot,
     )
     command = Command("joints", proposal.action, admission=receipt)
+    io.step_recorder = lambda recorded, goal: events.append(("recorded", recorded, goal))
     io.execute(command)
+    assert events[1] == ("recorded", command, None)
+    if violation:
+        assert events[2] == "stop"
     assert events.count("executed") == 1
     assert env.motion_stopped == violation
     assert io.safety_reason(None) == ("actual_robot_response_exceeded" if violation else "")

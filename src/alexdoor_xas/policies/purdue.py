@@ -154,6 +154,7 @@ class PurdueIO:
         observed_provider=None,
         load_source=None,
         contact_monitor=None,
+        step_recorder=None,
     ):
         from alexdoor_xas.recording.b1_runtime import camera_calibration
 
@@ -186,6 +187,7 @@ class PurdueIO:
             raise ValueError("Runtime ready pose differs from the common setup")
         self.env, self.binding, self.robot_asset = env, binding, robot_asset
         self.load_source = load_source
+        self.step_recorder = step_recorder
         self.admission = None
         self.response_violation = None
         self.dt = env.step_dt
@@ -254,6 +256,8 @@ class PurdueIO:
 
         measured = array(self.env.capture.sample.joint_position)[0, :7]
         self.env.step_a1(self.parked_joints - measured)
+        if recorder := getattr(self, "step_recorder", None):
+            recorder(None, None)
 
     def preview(self, command):
         """World endpoint of the actual bounded A1/IK controller; no physics/mutation."""
@@ -321,6 +325,7 @@ class PurdueIO:
                 > limits.robot_rotation_bound_rad
             ):
                 raise ValueError("Controller trajectory exceeds admitted robot error")
+        goal = None
         if command.kind == "joints":
             env.step_a1(command.value)
         elif command.kind in ("delta", "pose"):
@@ -336,6 +341,10 @@ class PurdueIO:
             env.step(torch.zeros((1, 6), device=env.device))
         else:
             raise ValueError("Unknown execution command")
+        # Record the targets actually applied, before a response violation can
+        # replace them with a measured stop anchor. This hook adds no commands.
+        if recorder := getattr(self, "step_recorder", None):
+            recorder(command, goal)
         if profile == OPERATIONAL_V1:
             try:
                 measured = checked_pose(self.tool_pose())
