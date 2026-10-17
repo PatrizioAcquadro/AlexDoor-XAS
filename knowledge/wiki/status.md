@@ -6,17 +6,21 @@ retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
 
 The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
-four real3000-update corrected-data checkpoints and frozen local development
-inference. The first full-protocol ACT A2 right/dim outcome retains214 learned
-commands and a conservative orientation stop before contact; causal recording
-and the continuing-physics stop pass. This is one failed final-panel outcome;
-there are no learned contact/opening/hold/release successes yet. Finite observed-material,
-rigid-interface and target-envelope components pass bounded independent checks;
-both complete retained observed paths now pass with100ms contact confirmation,
-explicit detection errors and bounded-window limits. All4combinations now issue real learned commands. Five initial failed panel
-outcomes are retained. A current-pose/controller-response error-budget mix-up is
-corrected for a new frozen execution version; native acceleration-domain exits
-remain explicit unsupported outcomes. No learned contact success is inferred.
+four genuine3000-update corrected-data checkpoints, verified CUDA loading, frozen
+local development inference and actual nonzero commands from all four combinations.
+Five full-v1 failed outcomes and one full-v2 failed outcome remain separate.
+Corrected current-FK orientation passes the earlier refusal; the latest ACT A2 run
+then stops after223commands at the original load-acceleration envelope. No learned
+contact, controlled opening, hold, release or task success is demonstrated yet.
+
+Finite observed-material, contact and robot-sweep components pass the earlier
+complete retained-path check with measured detection errors. More conservative
+robot-only torque floors, weak-load acceleration and held-joint allowances now
+pass six independent learned prefixes and sampled motion checks. The complete
+revised right path passes; the complete left path is still running. A new frozen
+full-v3 integration waits for both paths at unchanged availability before allocating
+a GPU. All24final-version outcomes and identical-checkpoint success on both doors
+remain required. Controller, teacher, checkpoints and physical criteria are unchanged.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured
@@ -118,8 +122,8 @@ full-v2 passes the previous refusal, then ACT A2 stops after223commands at the
 original acceleration envelope. No learned contact/opening/hold/release succeeds.
 
 A weak-load-only acceleration extension is implemented and tested, but remains
-disabled pending independent stopping and sweep checks. The six retained prefixes
-fit unchanged load-error coefficients; their stop tails expose stopping-acceleration
+disabled pending independent stopping and sweep checks. The conservative torque floor uses robot-only calibration; six learned prefixes
+independently contain zero contact. Stop tails expose stopping-acceleration
 and held-head allowances that require more conservative coverage. Physical criteria,
 teacher/controller and genuine3000-update checkpoints are unchanged. All24outcomes
 of a single final version and identical-checkpoint success on both doors remain
