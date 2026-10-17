@@ -44,6 +44,8 @@ class CommonWorkspace:
             or any(not space.views for space in self.spaces)
         ):
             raise ValueError("missing_observed_workspace_calibration")
+        for space in self.spaces:
+            space.index_static_points()
         self.source_clocks = tuple(
             tuple((float(v["time_s"]), float(v["available_s"])) for v in space.views.values())
             for space in self.spaces

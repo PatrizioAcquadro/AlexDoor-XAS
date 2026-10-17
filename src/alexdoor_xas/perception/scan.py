@@ -428,7 +428,23 @@ class ObservedSpace:
     def __init__(self, config, generation=0):
         self.config, self.generation, self.views = config, generation, {}
 
+    def index_static_points(self):
+        """Index owned immutable static returns; current captures keep direct queries."""
+        from scipy.spatial import cKDTree
+
+        self._static_points = {}
+        for key, view in self.views.items():
+            depth, valid = view["depth_m"][..., 0], view["valid_depth"][..., 0]
+            v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
+            cloud = deproject(depth[v, u], np.c_[u, v], view["intrinsics"], view["camera_world"])
+            self._static_points[key] = (cKDTree(cloud), np.c_[u, v])
+            for value in view.values():
+                if isinstance(value, np.ndarray):
+                    value.setflags(write=False)
+
     def add(self, sensor, available_s=None):
+        if hasattr(self, "_static_points"):
+            del self._static_points
         slot = int(
             np.searchsorted(self.config["inspection"]["sample_times_s"], float(sensor["time_s"]))
         )
@@ -455,7 +471,7 @@ class ObservedSpace:
         margins, unknown, occupied = [], False, False
         for center, radius in zip(centers, radii, strict=True):
             free = []
-            for sensor in self.views.values():
+            for view_key, sensor in self.views.items():
                 camera, k = sensor["camera_world"], sensor["intrinsics"]
                 optical = (center - camera[:3, 3]) @ camera[:3, :3]
                 if optical[2] <= radius:
@@ -473,14 +489,23 @@ class ObservedSpace:
                     valid[lo[1] : hi[1] + 1, lo[0] : hi[0] + 1] & np.isfinite(region) & (region > 0)
                 )
                 if good.any():
-                    v, u = np.nonzero(good)
-                    cloud = deproject(region[v, u], np.c_[u + lo[0], v + lo[1]], k, camera)
-                    occupied |= bool(
-                        (
-                            np.linalg.norm(cloud - center, axis=1)
-                            <= radius + self.config["plane_tolerance_m"]
-                        ).any()
-                    )
+                    indexed = getattr(self, "_static_points", {}).get(view_key)
+                    if indexed is not None:
+                        tree, pixels = indexed
+                        distance = radius + self.config["plane_tolerance_m"]
+                        matches = tree.query_ball_point(center, np.nextafter(distance, np.inf))
+                        matched = pixels[matches]
+                        exact = np.linalg.norm(tree.data[matches] - center, axis=1) <= distance
+                        occupied |= bool((exact & ((matched >= lo) & (matched <= hi)).all(1)).any())
+                    else:
+                        v, u = np.nonzero(good)
+                        cloud = deproject(region[v, u], np.c_[u + lo[0], v + lo[1]], k, camera)
+                        occupied |= bool(
+                            (
+                                np.linalg.norm(cloud - center, axis=1)
+                                <= radius + self.config["plane_tolerance_m"]
+                            ).any()
+                        )
                 if good.all():
                     # A free depth gap alone is not radial clearance: lateral
                     # unseen/occupied rays may be closer. Certify a truncated

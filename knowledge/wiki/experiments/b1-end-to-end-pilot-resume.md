@@ -82,6 +82,16 @@ Cartesian-speed subset. No global stop bound is reduced. A separate calibration
 of complete finite-finger tangential and inward travel is retained for subsequent
 qualification; it does not yet authorize contact admission.
 
+## Static ray-query cost
+
+Owned static workspace returns now have an immutable spatial index. Occupancy
+queries retain the original projected pixel rectangle, inclusive Euclidean test,
+free-ray margins, unknown handling and source clocks. Current captures keep the
+direct path. Fixed-input random/boundary comparisons are identical. Retained26s
+admission calls reduce from0.263/0.368s to0.112/0.169s for right/left;27s calls
+remain0.702/0.878s. These exclude index construction and are numerical service
+profiles, not end-to-end or real-time qualification.
+
 ## Current observed-space integration
 
 Continuous recorded robot sweeps use calibrated CAD cells, joint-axis cell levers

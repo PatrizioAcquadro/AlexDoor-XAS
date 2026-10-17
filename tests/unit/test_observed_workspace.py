@@ -205,3 +205,35 @@ def test_moving_scaled_subcover_reuses_complete_partition_and_rejects_new_unknow
     assert reused_calls < len(fresh_calls)
     unknown = workspace.query_static([[0.15, 0, 1.15]], [0.101], cover_ids=["ball"])
     assert unknown.unknown_in_envelope and unknown.collision_clearance_m is None
+
+
+def test_static_point_index_preserves_direct_occupancy_free_and_unknown_queries():
+    from copy import deepcopy
+
+    observed = space(2.0, 1.0)
+    view = next(iter(observed.views.values()))
+    u = np.arange(80)[None, :, None]
+    view["depth_m"][:] = 1.18 / (1 - (u - 40) / 100)
+    view["valid_depth"][40, 48] = False
+    indexed = deepcopy(observed)
+    indexed.index_static_points()
+    rng = np.random.default_rng(37)
+    for center, radius in zip(
+        rng.uniform([-0.3, -0.2, 0.8], [0.3, 0.2, 1.4], (80, 3)),
+        rng.uniform(0.001, 0.12, 80),
+        strict=True,
+    ):
+        direct = observed.query(center[None], np.array([radius]))
+        fast = indexed.query(center[None], np.array([radius]))
+        assert fast == direct
+    assert not next(iter(indexed.views.values()))["depth_m"].flags.writeable
+
+
+def test_static_point_index_keeps_inclusive_occupancy_at_float_boundaries():
+    from copy import deepcopy
+
+    observed = space(2.0, 1.0)
+    indexed = deepcopy(observed)
+    indexed.index_static_points()
+    for z in [np.nextafter(2.014, 0.0), 2.014, np.nextafter(2.014, np.inf)]:
+        assert observed.query([[0, 0, z]], [0.01]) == indexed.query([[0, 0, z]], [0.01])
