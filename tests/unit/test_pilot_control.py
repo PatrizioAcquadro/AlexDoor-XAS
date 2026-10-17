@@ -655,3 +655,64 @@ def test_control_receipt_tolerates_actual_float_clock_roundoff_without_an_extra_
     extra_tick = replace(proposal, times_s=np.array([start, start + 2 / 60]))
     refused = admit_local_action(estimate, extra_tick, evidence, limits, start, generation=0)
     assert not refused.admitted and refused.reason == "action_exceeds_declared_limits"
+
+
+@pytest.mark.parametrize(
+    "force,acceleration,extension,accepted",
+    [
+        (0.1, 1.5, 2.0, True),
+        (4.0, 1.5, 2.0, False),
+        (0.1, 2.1, 2.0, False),
+        (0.1, 1.5, None, False),
+        (4.0, 0.5, 2.0, True),
+    ],
+)
+def test_acceleration_extension_requires_bounded_weak_load(
+    force, acceleration, extension, accepted
+):
+    original, jacobian, baseline = load_inputs()
+    calibration = replace(
+        original.calibration,
+        weak_load_acceleration_max_rad_s2=None if extension is None else np.full(7, extension),
+        tool_normal_force_upper_max_n=1.0,
+        tool_normal_residual_n=np.array([0.005, 0.1, 0.01]),
+    )
+    model = ResidualLoadModel(calibration)
+    feedback = replace(baseline.feedback, torque_nm=np.r_[-force, np.zeros(6)])
+    arguments = (
+        feedback,
+        np.zeros(7),
+        jacobian,
+        np.zeros(7),
+        np.zeros(7),
+        np.full(7, acceleration),
+        np.array([1.0, 0, 0]),
+    )
+    if accepted:
+        result = model.estimate(*arguments, tool_normal_world=np.array([1.0, 0, 0]))
+        assert result.model_verified and result.stop_verified
+    else:
+        with pytest.raises(ValueError, match="outside_verified_load_envelope"):
+            model.estimate(*arguments, tool_normal_world=np.array([1.0, 0, 0]))
+
+
+@pytest.mark.parametrize("extension", [np.full(7, 0.5), np.full(7, np.nan)])
+def test_invalid_weak_load_acceleration_domain_is_rejected(extension):
+    original, jacobian, baseline = load_inputs()
+    model = ResidualLoadModel(
+        replace(
+            original.calibration,
+            weak_load_acceleration_max_rad_s2=extension,
+            tool_normal_force_upper_max_n=1.0,
+        )
+    )
+    with pytest.raises(ValueError):
+        model.estimate(
+            baseline.feedback,
+            np.zeros(7),
+            jacobian,
+            np.zeros(7),
+            np.zeros(7),
+            np.zeros(7),
+            np.array([1.0, 0, 0]),
+        )

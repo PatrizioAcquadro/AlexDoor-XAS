@@ -109,16 +109,22 @@ Returned checkpoint hashes and all four workstation CUDA loads pass. Development
 stays local and uses unchanged checkpoint weights/train statistics; remote metrics
 remain unavailable. Offline imitation error is not task success.
 
-The maintained rollout CLI now wires real observed perception, native robot load,
-contact monitoring and actual proposed-motion producers; the first two seconds of
-both complete retained train paths pass numerical whole-robot/contact/admission
-checks with calibrated native load and explicit detection limits. ACT A2 also completes120 actual learned commands in a two-second
-free-motion prerequisite and214commands in the first full-protocol orientation
-stop, with causal recording and a passing continuing-physics stop. Numerical finite-material margins now cover both retained train paths;
-the complete retained operational-path check passes, while actual learned contact
-success and the remaining23panel outcomes remain pending. The recorder retains consumed images and separate full-rate commands,
-robot/native feedback and independent evaluator streams. Current local counters
-and all preserved failures are in [[experiments/b1-end-to-end-pilot-resume]].
+The maintained rollout CLI wires real observed perception, native robot load,
+contact monitoring, proposed-motion admission and causal recording. All four real
+checkpoints have executed nonzero commands. Both complete retained teacher paths
+pass the full numerical operational checks, with explicit contact-detection limits.
+Five full-v1 outcomes stop before contact. Corrected current-FK orientation in
+full-v2 passes the previous refusal, then ACT A2 stops after223commands at the
+original acceleration envelope. No learned contact/opening/hold/release succeeds.
+
+A weak-load-only acceleration extension is implemented and tested, but remains
+disabled pending independent stopping and sweep checks. The six retained prefixes
+fit unchanged load-error coefficients; their stop tails expose stopping-acceleration
+and held-head allowances that require more conservative coverage. Physical criteria,
+teacher/controller and genuine3000-update checkpoints are unchanged. All24outcomes
+of a single final version and identical-checkpoint success on both doors remain
+required. Current costs and all failures are in
+[[experiments/b1-end-to-end-pilot-resume]].
 
 Full A3/A4 observed initialization is deferred and does not block A1/A2. Retained
 raw data and reconstructed supervisor labels do not qualify observed A3/A4

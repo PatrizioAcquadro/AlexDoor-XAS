@@ -52,6 +52,7 @@ class LoadCalibration:
     acceleration_residual_nm_per_rad_s2: np.ndarray | None = None
     tool_normal_residual_n: np.ndarray | None = None  # constant, max |dq|, max |ddq|
     tool_normal_force_upper_max_n: float | None = None
+    weak_load_acceleration_max_rad_s2: np.ndarray | None = None
 
 
 @dataclass(frozen=True)
@@ -118,12 +119,27 @@ class ResidualLoadModel:
         if type(c.external_sign) is not int or c.external_sign not in (-1, 1):
             raise ValueError("unverified_feedback_sign")
         q, dq, ddq, bounds = [finite_vector(v, 7) for v in (q, dq, ddq, c.residual_bound_nm)]
+        acceleration_max = finite_vector(c.acceleration_max_rad_s2, 7)
+        extended_acceleration = c.weak_load_acceleration_max_rad_s2
+        needs_weak_domain = bool(np.any(np.abs(ddq) > acceleration_max))
+        if extended_acceleration is not None:
+            extended_acceleration = finite_vector(extended_acceleration, 7)
+            if (
+                np.any(extended_acceleration < acceleration_max)
+                or c.tool_normal_force_upper_max_n is None
+                or not np.isfinite(c.tool_normal_force_upper_max_n)
+                or c.tool_normal_force_upper_max_n <= 0
+            ):
+                raise ValueError("invalid_weak_load_acceleration_domain")
+        permitted_acceleration = (
+            acceleration_max if extended_acceleration is None else extended_acceleration
+        )
         if (
             np.any(bounds < 0)
             or np.any(q < finite_vector(c.q_min, 7))
             or np.any(q > finite_vector(c.q_max, 7))
             or np.any(np.abs(dq) > finite_vector(c.speed_max_rad_s, 7))
-            or np.any(np.abs(ddq) > finite_vector(c.acceleration_max_rad_s2, 7))
+            or np.any(np.abs(ddq) > permitted_acceleration)
         ):
             raise ValueError("outside_verified_load_envelope")
         # Dynamics couple the arm: a stationary joint can carry residual error
@@ -158,6 +174,10 @@ class ResidualLoadModel:
             raise ValueError("invalid_load_normal")
         normal_lower = -normal @ wrench[:3] - np.abs(normal) @ radius[:3]
         upper = np.linalg.norm(wrench[:3]) + np.linalg.norm(radius[:3])
+        # The additional acceleration domain has only unloaded/weak-load evidence.
+        # Keep the original acceleration envelope for all stronger bounded loads.
+        if needs_weak_domain and upper > c.tool_normal_force_upper_max_n:
+            raise ValueError("outside_verified_load_envelope")
         if c.tool_normal_residual_n is None and c.tool_normal_force_upper_max_n is not None:
             raise ValueError("invalid_tool_normal_calibration")
         if c.tool_normal_residual_n is not None:

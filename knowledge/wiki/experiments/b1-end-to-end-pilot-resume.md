@@ -147,8 +147,12 @@ retain the previous conservative fallback; physical criteria are unchanged.
 The replay reproduces the old refusal at28.7667s and no corrected orientation
 refusal in the retained prefix. The proposed temporal-normal cache is not adopted.
 
-The correction will receive a new frozen implementation and a complete new
-24-slot final panel. The five full-v1 failures remain separate, never mixed with
+The corrected full-v2 source `18dd332` passes the previous orientation refusal,
+then stops at28.9167s after223 actual learned commands: elbow acceleration
+6.3549rad/s² exceeds the original5.5411rad/s² load envelope. There is still no
+contact or opening. Its consumed-input audit and2s continuing-physics stop pass.
+This remains one failed full-v2 outcome; the next final version still requires
+all24outcomes. The five full-v1 failures remain separate, never mixed with
 favorable later-version results. All checkpoints remain the genuine3000-update
 files; no weights, training data, normalization, seed or controller changes.
 
@@ -160,19 +164,37 @@ is a guarantee or measured loaded/left runtime. The prior8.64h estimate is
 superseded; actual cumulative guards apply before every case and during its
 bounded allocation. Full protocol horizon and failure accounting are unchanged.
 
-Closed allocations now total5.00308/15 local GPU hours, including every failure
+Closed allocations through the first full-v2 outcome total5.09503/15 local GPU hours, including every failure
 and the observation replay whose independent USD join was repaired afterward on
 CPU. Remote consumption remains2743/3600GPU-seconds and optimizer updates12164/18000.
 Active allocations are provisional in the live ledger. Consumer-audited removal of regenerable flattened
 visual features reclaimed24.13GiB. Exact labels/masks, raw complete recordings,
 checkpoints, statistics, failures and reports remain retained; current whole-pilot
-storage is240.95/300GiB after a further11.48GiB lossless
+storage is241.32/300GiB after a further11.48GiB lossless
 container repack of one older failed teacher recording. Every dataset byte and
 attribute is verified before atomic replacement; old/new file hashes remain in
 `preserved-failure-lossless-repack.json`. No raw sample, failure or eligibility
 changes. The feature-cache audit and regeneration command are retained separately
 in `derived-feature-cache-removal-audit.json`. No GPU allocation was used for
 these CPU numerical integration checks or storage repairs.
+
+The six retained learned prefixes independently fit the unchanged joint-residual
+and weak tool-normal error coefficients under the earlier frozen stop-acceleration
+vector. That alone does **not** qualify the extension: three stop tails exceed
+the old stopping acceleration envelope, and all six move the head beyond the
+old held-joint allowance after the measured stop anchor. A more conservative
+stopping interpolation and held-joint candidate retains the original radial and
+directional stop boxes and contains these six calibration tails. Independent
+robot-only holdouts and complete proposed-motion/self-clearance checks are pending;
+the candidate qualification flags remain false. The failed original validator
+and its missing-held-joint setup error remain preserved. No physical criterion,
+controller, teacher, checkpoint or torque-error coefficient changes.
+
+An optional weak-load acceleration domain is implemented with behavioral tests.
+It is permitted only when the original joint-box wrench calculation gives a
+force upper bound at most the existing1N weak-load ceiling. Stronger bounded loads
+retain the original acceleration envelope. It is not enabled in a rollout recipe
+until the separate error, stopping and sweep evidence passes.
 
 Earlier investigations below preserve their original decisions and failures.
 Their pending-status statements are superseded by the current integration above.
