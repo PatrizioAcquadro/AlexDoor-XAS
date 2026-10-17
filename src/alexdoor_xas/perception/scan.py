@@ -1,6 +1,6 @@
 """Static object evidence and local queries; no door assets, actions or truth inputs."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from itertools import product
 
 import numpy as np
@@ -265,10 +265,21 @@ def footprint_support(surface, pose, distal_faces, config):
                 or (pixels[:, 1] >= h - 1).any()
             ):
                 continue
-            hull = cv2.convexHull(pixels.astype(np.float32))
-            footprint = np.zeros((h, w), np.uint8)
-            cv2.fillConvexPoly(footprint, np.rint(hull).astype(np.int32), 1)
-            if not footprint.any() or not observation.mask()[footprint.astype(bool)].all():
+            hull = np.rint(cv2.convexHull(pixels.astype(np.float32))).astype(np.int32)
+            lower, upper = hull.reshape(-1, 2).min(0), hull.reshape(-1, 2).max(0)
+            footprint = np.zeros((upper[1] - lower[1] + 1, upper[0] - lower[0] + 1), np.uint8)
+            cv2.fillConvexPoly(footprint, hull - lower, 1)
+            rows, columns = np.nonzero(footprint)
+            # Query exactly the same rasterized pixels directly in immutable
+            # packed evidence. Avoid decoding/allocating a complete camera image
+            # for each tiny footprint in every retained inspection view.
+            packed = np.frombuffer(observation.support_mask, np.uint8)
+            indices = (rows + lower[1]) * w + columns + lower[0]
+            if (
+                not len(indices)
+                or len(packed) * 8 < h * w
+                or not ((packed[indices // 8] >> (7 - indices % 8)) & 1).all()
+            ):
                 continue
             local_face = world @ contact_frame(surface.normal)
             boundary = observation.boundary_points @ contact_frame(surface.normal)
@@ -289,6 +300,39 @@ def footprint_support(surface, pose, distal_faces, config):
         supported,
         "observed_footprint" if supported else "insufficient_observed_footprint",
     )
+
+
+def observed_material_surface(reference, surfaces, semantic_id, config):
+    """Retain all measured coplanar support for one observed material identity.
+
+    Each footprint still requires complete pixels from an actual observation;
+    geometric fusion never fills holes or invents support between visible parts.
+    The native seed surface remains unchanged.
+    """
+    result = reference
+    seen = {(o.frame, o.mask_index, o.support_mask) for o in reference.observations}
+    for surface in surfaces:
+        if (
+            surface.normal @ reference.normal < np.cos(np.deg2rad(config["association_angle_deg"]))
+            or abs(surface.offset - reference.offset) > 2 * config["plane_tolerance_m"]
+            or not surface.observations
+            or any(o.semantic_id != semantic_id for o in surface.observations)
+        ):
+            continue
+        observations = tuple(
+            o for o in surface.observations if (o.frame, o.mask_index, o.support_mask) not in seen
+        )
+        if not observations:
+            continue
+        seen.update((o.frame, o.mask_index, o.support_mask) for o in observations)
+        result = fuse_surface(
+            result, replace(surface, observations=observations), config, observations[-1].frame
+        )
+        # Include disagreement among measured planes, not only each fit's residual.
+        result.residual_m = max(
+            result.residual_m, float(np.max(abs(result.points @ result.normal - result.offset)))
+        )
+    return result
 
 
 def supported_material_zone(surface, distal_faces, config, *, support_filter=None):

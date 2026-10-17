@@ -38,6 +38,7 @@ from alexdoor_xas.perception.point2pose.seed import candidate_references, verify
 from alexdoor_xas.perception.scan import (
     footprint_support,
     object_members,
+    observed_material_surface,
     registered_support,
     static_material_witnesses,
     supported_material_zone,
@@ -68,6 +69,8 @@ class PanelCandidate:
     static_material_witnesses: tuple = ()
     local_constraint: SurfacePose | None = None
     local_constraint_reason: str = "local_surface_not_processed"
+    local_surface: object | None = None
+    local_geometry: FieldSupport | None = None
 
 
 def metric_registration_bound(source, current, transform, depth_error_m):
@@ -348,6 +351,15 @@ class PanelTracking:
             self.diagnostics.setdefault("static_material_witnesses", {})[candidate.candidate_id] = (
                 candidate.static_material_witnesses
             )
+            if scan_memory is not None:
+                candidate.local_surface = observed_material_surface(
+                    candidate.surface, scan_memory.surfaces, candidate.sam3_id, self.config
+                )
+                candidate.local_geometry = surface_support(
+                    candidate.local_surface, self.generation, self.config
+                )
+                if candidate.local_geometry.available_s > available_s:
+                    raise ValueError("future_local_material_surface")
 
     def select_zone(self, patch_id, now, *, source):
         if source not in ("diagnostic", "policy") or patch_id not in [
@@ -509,33 +521,50 @@ class PanelTracking:
                     for s in (result.get("local_surfaces") or [])
                     if s.observations[0].semantic_id == candidate.sam3_id and abs(s.normal[2]) < 0.3
                 ]
-                areas = [int(s.observations[0].mask().sum()) for s in choices]
-                if not areas or areas.count(max(areas)) != 1:
+                if not choices:
                     raise ValueError("missing_or_ambiguous_current_surface")
-                current = choices[int(np.argmax(areas))]
-                if current.observations[0].frame != int(captured["frame"]) or current.observations[
-                    0
-                ].acquired_s != float(captured["time_s"]):
-                    raise ValueError("unsynchronized_local_surface")
                 obj = {
                     k: unpack_array(v) if isinstance(v, dict) and "data" in v else v
                     for k, v in raw.items()
                 }
                 measured = obj["measured_correspondences"] & obj["inliers"]
-                constraint = constrained_surface_pose(
-                    candidate.surface,
-                    current,
-                    candidate.initial_world @ np.linalg.inv(candidate.map_from_object),
-                    captured["camera_world"],
-                    obj["source_points"][measured],
-                    obj["current_points"][measured],
-                    config["point_error_m"],
-                    map_anchor=(candidate.map_from_object @ candidate.object_from_zone)[:3, 3],
-                )
-                local = self._constrained_candidate(candidate, constraint)
-                if not self.root_consistent(local, captured):
-                    raise ValueError("local_surface_material_inconsistent")
-                candidate.local_constraint = constraint
+                consistent, failures = [], []
+                # A newly larger visible panel face need not be the original
+                # material plane. Apply the existing depth/rigidity consistency
+                # check before ranking current observed support by area.
+                for current in sorted(
+                    choices, key=lambda s: int(s.observations[0].mask().sum()), reverse=True
+                ):
+                    try:
+                        observation = current.observations[0]
+                        if observation.frame != int(
+                            captured["frame"]
+                        ) or observation.acquired_s != float(captured["time_s"]):
+                            raise ValueError("unsynchronized_local_surface")
+                        constraint = constrained_surface_pose(
+                            candidate.local_surface or candidate.surface,
+                            current,
+                            candidate.initial_world @ np.linalg.inv(candidate.map_from_object),
+                            captured["camera_world"],
+                            obj["source_points"][measured],
+                            obj["current_points"][measured],
+                            config["point_error_m"],
+                            map_anchor=(candidate.map_from_object @ candidate.object_from_zone)[
+                                :3, 3
+                            ],
+                        )
+                        local = self._constrained_candidate(candidate, constraint)
+                        if not self.root_consistent(local, captured):
+                            raise ValueError("local_surface_material_inconsistent")
+                        consistent.append((int(observation.mask().sum()), constraint))
+                    except (ValueError, KeyError) as error:
+                        failures.append(str(error))
+                if not consistent:
+                    raise ValueError(failures[0])
+                areas = [area for area, _ in consistent]
+                if areas.count(max(areas)) != 1:
+                    raise ValueError("missing_or_ambiguous_current_surface")
+                candidate.local_constraint = consistent[int(np.argmax(areas))][1]
                 candidate.local_constraint_reason = ""
             except (ValueError, KeyError) as error:
                 candidate.local_constraint_reason = str(error)
@@ -558,6 +587,8 @@ class PanelTracking:
             registration_origin_map=constraint.registration_origin_map,
             registration_position_m=constraint.position_bound_m,
             registration_rotation_rad=constraint.rotation_bound_rad,
+            surface=candidate.local_surface or candidate.surface,
+            geometry=candidate.local_geometry or candidate.geometry,
         )
 
     def root_consistent(self, candidate, sensor):

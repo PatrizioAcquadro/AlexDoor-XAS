@@ -132,6 +132,22 @@ leaving a spurious nanometer-scale cross-jaw assembly constraint. No simulation
 filter or physical criterion changes. Full recorded-path verification with the
 maintained producer remains separate from the numerical tests.
 
+A complete proposed-footprint audit reveals that the single native seed view is
+insufficient even where earlier inspection views measured the same coplanar material.
+A local-only material surface now reuses same-identity coplanar observations and
+includes their measured plane disagreement. Native/A3-A4 seed geometry remains
+unchanged. Finite footprints still require actual observed pixels; holes and gaps
+between measured regions remain unsupported. Packed-mask ROI queries preserve the
+same raster proof without repeatedly decoding full images.
+
+The development stream also exposes a current-plane association failure: the
+largest visible face can contradict the original material while a smaller face
+remains consistent. The local constraint now applies its existing material-depth
+consistency check before area ranking. Missing support and equal compatible-area
+ambiguity still refuse; native poses and physical thresholds remain unchanged.
+Numerical coverage/identity/ambiguity regressions pass. All fixed native streams
+must be replayed through the corrected local path before operational qualification.
+
 ## Independent learned-rollout scoring
 
 `pilot_physics.py rollout --expert-reference <frozen JSON>` now scores through an

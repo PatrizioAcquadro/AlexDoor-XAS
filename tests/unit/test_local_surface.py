@@ -127,6 +127,24 @@ def test_local_constraint_does_not_rewrite_native_pose_or_hide_missing_geometry(
     np.testing.assert_array_equal(candidate.pose, np.eye(4))
     local = tracker._constrained_candidate(candidate, candidate.local_constraint)
     np.testing.assert_allclose(local.pose[:3, :3], rotation, atol=1e-14)
+    wrong = surface(rotation, np.array([1, 0, 0]) @ rotation.T + 0.03 * rotation[:, 0])
+    wrong.observations = [
+        SimpleNamespace(semantic_id=3, frame=0, acquired_s=0.0, mask=lambda: np.ones((6, 6), bool))
+    ]
+    expected = local.pose[:3, 3].copy()
+    monkeypatch.setattr(
+        tracker, "root_consistent", lambda c, _: np.linalg.norm(c.pose[:3, 3] - expected) < 0.001
+    )
+    result["local_surfaces"] = [wrong, current]
+    tracker.constrain_local(captured, result)
+    assert candidate.local_constraint is not None
+    recovered = tracker._constrained_candidate(candidate, candidate.local_constraint)
+    np.testing.assert_allclose(recovered.pose[:3, 3], expected, atol=1e-14)
+    # Equal compatible support is still ambiguous; no favorable first choice.
+    result["local_surfaces"] = [current, current]
+    tracker.constrain_local(captured, result)
+    assert candidate.local_constraint is None
+    assert candidate.local_constraint_reason == "missing_or_ambiguous_current_surface"
     result["local_surfaces"] = []
     tracker.constrain_local(captured, result)
     assert candidate.local_constraint is None

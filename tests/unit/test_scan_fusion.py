@@ -359,8 +359,17 @@ def finger_faces():
     )
 
 
-def test_entire_two_finger_footprint_rejects_holes_and_edge_clipping():
+@pytest.mark.parametrize("padding", [0, 1])
+def test_entire_two_finger_footprint_rejects_holes_and_edge_clipping(padding):
     surface, _, _ = measured_surface()
+    observation = surface.observations[0]
+    mask = np.pad(observation.mask(), ((0, 0), (0, padding)))
+    surface = replace(
+        surface,
+        observations=(
+            replace(observation, shape=mask.shape, support_mask=np.packbits(mask).tobytes()),
+        ),
+    )
     pose = ObjectFrame(np.array([1, 0, 1]), np.eye(3))
     result = footprint_support(surface, pose, finger_faces(), recipe().config)
     assert result.supported and min(result.finger_clearance_m) > 0.1
@@ -515,3 +524,33 @@ def test_material_anchor_can_require_independent_observed_support():
         )
         is None
     )
+
+
+def test_material_surface_keeps_other_measured_views_but_never_fills_the_gap():
+    from alexdoor_xas.perception.geometry import deproject
+    from alexdoor_xas.perception.scan import observed_material_surface
+
+    sample = camera_sensor()
+    masks = []
+    for lo, hi in ((40, 100), (140, 200)):
+        mask = np.zeros((240, 240), bool)
+        mask[50:190, lo:hi] = True
+        masks.append(mask)
+    a, _, _ = measured_surface(sample, masks[0])
+    b, _, _ = measured_surface(sample, masks[1])
+    a.observations = tuple(replace(o, semantic_id=3) for o in a.observations)
+    b.observations = tuple(replace(o, semantic_id=3) for o in b.observations)
+
+    def pose(u):
+        point = deproject(
+            np.array([1.0]), np.array([[u, 120]]), sample["intrinsics"], sample["camera_world"]
+        )[0]
+        return ObjectFrame(point, np.eye(3))
+
+    fused = observed_material_surface(a, [a, b], 3, recipe().config)
+    assert len(a.observations) == 1 and len(fused.observations) == 2
+    assert not footprint_support(a, pose(170), finger_faces(), recipe().config).supported
+    assert footprint_support(fused, pose(170), finger_faces(), recipe().config).supported
+    assert not footprint_support(fused, pose(120), finger_faces(), recipe().config).supported
+    other = replace(b, observations=tuple(replace(o, semantic_id=4) for o in b.observations))
+    assert len(observed_material_surface(a, [other], 3, recipe().config).observations) == 1
