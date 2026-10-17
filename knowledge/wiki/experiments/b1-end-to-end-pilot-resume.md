@@ -50,6 +50,27 @@ budget proposals below remain preserved.
 
 ## Current observed-runtime integration
 
+The next full-v6 slot, ACT A1 right/nominal, demonstrates the first actual learned
+contact and controlled opening: 18.815704 degrees /36.7062% of the 51.260252-degree
+reference over 1,875 learned commands. It stops at native 56.45 s when gripper
+acceleration reaches 12.997291 rad/s², above the 10.574482 stronger-load limit but
+inside the predeclared weak 13 rad/s² domain. The concurrent stronger load prevents
+using that weak domain. No calibration bound is expanded to admit it. The native
+force peak is 7.0954 N, no physical violation or contact loss is recorded, and the
+continuing-physics stop travels 0.231 mm /0.730 mrad. Hold, release and task success
+remain false. Its complete consumed-input/command audit passes; the fixed panel
+continues with ACT A2 right/nominal.
+
+Independent post-run contact joins retain all 1,876 operational control endpoints:
+1,875 monitor decisions are available and one is missing after the upstream load
+refusal (99.9467% availability). Confirmation takes 100 ms with six initially
+unconfirmed physical Loaded ticks. There are 13 confirmed ticks with instantaneous
+zero force, at most 83.3 ms continuously, but zero confirmed ticks below the unchanged
+physical Loaded criterion. These different denominators are explicit in
+`learned-contact-metrics-v6.json`; finite uncertainty, indirect contact, missing
+endpoints and the bounded force window are not reported as perfect sensing.
+Inspection without a contact receipt is outside this monitor denominator.
+
 The full-v5 ACT A2 right/dim outcome executes 232 genuine learned commands
 and stops before contact at a finite-material action-margin refusal. Independent
 scoring reports no physical violation and no controlled opening, hold or release;

@@ -6,12 +6,16 @@ retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
 
 The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
-four genuine3000-update corrected-data checkpoints, verified CUDA loading, frozen
-local development inference and actual nonzero commands from all four combinations.
-Five full-v1 and one each full-v2/v3/v4 failed outcome remain separate.
-Corrected current-FK orientation passes the earlier refusal; the latest ACT A2 run
-then full-v3 reaches 230 commands before a load-domain refusal. Full-v4 reaches 231 commands, then violates the unchanged actual-speed limit. No learned
-contact, controlled opening, hold, release or task success is demonstrated yet.
+four genuine 3,000-update corrected-data checkpoints, verified CUDA loading, frozen
+local development inference and actual commands from all four combinations.
+The current full-v6 panel retains two completed failed outcomes of 24. ACT A1
+right/nominal demonstrates learned contact and 18.816 degrees of controlled opening
+(36.7% of its expert reference), then stops outside the verified stronger-load
+acceleration domain. It has no physical violation or contact loss, but no valid
+hold, release or task success. ACT A2 right/dim stops at the additional contact-model
+margin before contact. Both continuing-physics stop and retained-input audits pass.
+The fixed driver continues the remaining 22 slots. Earlier versions and failures
+remain separate; identical-checkpoint success on both doors is still required.
 
 Finite observed-material, contact and robot-sweep components pass the earlier
 complete retained-path check with measured detection errors. More conservative
@@ -21,15 +25,11 @@ confirmation; independent joins report zero detections outside physical Loaded.
 A one-joint main elbow extension leaves complete v42 values unchanged.
 A targeted 10% target-speed headroom then corrects the demonstrated tracking
 overshoot: causal robot replay peaks at 0.47323 rad/s with unchanged physical
-criteria, IK/gains and validated teacher outputs. The new full-v5 run executes 232 learned commands, then refuses a finite-material
-action margin before contact, with no physical violation or task success. The
-runner preserves that explicit refusal. Saved-input diagnosis identifies duplicate
-linear capture-age charging; the corrected numeric accounting retains support
-clocks and all future/response/stop bounds. Full-v6 passes that refusal, executes
-239 commands and stops at the additional contact-model margin, with no physical
-violation or learned contact. Its retention/continuing-physics stop audits pass;
-the remaining 23 frozen-version slots are queued. No learned task success yet. All24final-version outcomes and identical-checkpoint success on both doors
-remain required. Teacher, checkpoints and physical criteria are unchanged; the documented controller correction preserves IK/gains.
+criteria, IK/gains and validated teacher outputs. The full-v5 finite-material refusal exposes duplicate linear capture-age charging;
+the corrected numerical accounting retains original support clocks and all future,
+response and stopping allowances. It is frozen in full-v6; no physical criterion,
+checkpoint weight, training statistic, teacher or selected IK/gain changes.
+
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
 pooling/history, partial A1/A2 recording/export, train-only model input, measured
