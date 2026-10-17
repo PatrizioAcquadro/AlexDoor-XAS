@@ -423,3 +423,53 @@ def test_observed_monitor_preserves_closed_gripper_requirement(opening):
         None,
     )
     assert missing.check(None) == "missing_gripper_proprioception"
+
+
+@pytest.mark.parametrize(
+    "translation,rotation,violation", [(0.0005, 0.0, False), (0.002, 0.0, True), (0.0, 0.002, True)]
+)
+def test_actual_response_is_checked_after_real_dispatch_and_latched(
+    translation, rotation, violation
+):
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.action.frames import ObjectFrame
+    from alexdoor_xas.policies.purdue import PurdueIO
+    from alexdoor_xas.policies.rollout import Command
+
+    estimate, proposal, evidence, limits = local_inputs(A1_JOINT_DELTA)
+    receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    events = []
+    env = SimpleNamespace(
+        motion_stopped=False, capture=SimpleNamespace(sample=SimpleNamespace(time_s=1.0))
+    )
+    env.step_a1 = lambda _: events.append("executed")
+
+    def stop():
+        events.append("stop")
+        env.motion_stopped = True
+
+    env.stop_motion = stop
+    io = PurdueIO.__new__(PurdueIO)
+    io.env, io.dt, io.profile = env, 1 / 60, OPERATIONAL_V1
+    io.response_violation = None
+    io.safety = SimpleNamespace(
+        provider=SimpleNamespace(last_estimate=estimate),
+        before_command=lambda _: "",
+        check=lambda _: "",
+    )
+    goal = proposal.world_poses[-1]
+    io.preview = lambda _: goal
+    io.tool_pose = lambda: ObjectFrame(
+        goal.origin + [translation, 0, 0],
+        Rotation.from_rotvec([0, 0, rotation]).as_matrix() @ goal.rot,
+    )
+    command = Command("joints", proposal.action, admission=receipt)
+    io.execute(command)
+    assert events.count("executed") == 1
+    assert env.motion_stopped == violation
+    assert io.safety_reason(None) == ("actual_robot_response_exceeded" if violation else "")
+    if violation:
+        with pytest.raises(RuntimeError, match="motion_stopped"):
+            io.execute(command)
+        assert events.count("executed") == 1

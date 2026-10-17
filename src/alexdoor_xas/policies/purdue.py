@@ -3,7 +3,7 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-from alexdoor_xas.action.b1 import apply_pose_delta, finite_vector
+from alexdoor_xas.action.b1 import apply_pose_delta, checked_pose, finite_vector
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
 from alexdoor_xas.perception.admission import require_current_admission
@@ -187,6 +187,7 @@ class PurdueIO:
         self.env, self.binding, self.robot_asset = env, binding, robot_asset
         self.load_source = load_source
         self.admission = None
+        self.response_violation = None
         self.dt = env.step_dt
         self.max_ticks = int(round(setup.horizon_s / self.dt))
         self.calibration = camera_calibration(env)
@@ -204,6 +205,7 @@ class PurdueIO:
 
     def reset(self):
         self.admission = None
+        self.response_violation = None
         self.env.reset()
         self.safety.reset()
         self.parked_tool = self.tool_pose()
@@ -334,9 +336,26 @@ class PurdueIO:
             env.step(torch.zeros((1, 6), device=env.device))
         else:
             raise ValueError("Unknown execution command")
+        if profile == OPERATIONAL_V1:
+            try:
+                measured = checked_pose(self.tool_pose())
+                exceeded = (
+                    np.linalg.norm(measured.origin - declared.origin)
+                    > limits.robot_position_bound_m
+                    or Rotation.from_matrix(measured.rot @ declared.rot.T).magnitude()
+                    > limits.robot_rotation_bound_rad
+                )
+                if exceeded:
+                    self.response_violation = "actual_robot_response_exceeded"
+            except ValueError:
+                self.response_violation = "invalid_robot_fk"
+            if self.response_violation:
+                # The command really executed. Latch now, then let the runner
+                # count that step and report its measured failure normally.
+                env.stop_motion()
 
     def safety_reason(self, stage):
-        return self.safety.check(stage)
+        return getattr(self, "response_violation", None) or self.safety.check(stage)
 
     def stop(self):
         self.admission = None

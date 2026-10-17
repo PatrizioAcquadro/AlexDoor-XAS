@@ -570,3 +570,8 @@ Calibrated robot geometry may exclude robot returns before interpreting observed
 material depth. Exclusion does not observe the hidden interface or fill missing
 material support. Full-joint feedback retains the unchanged closed-jaw check in
 the observed execution path, in addition to native arm speed and load checks.
+
+The operational IO verifies actual post-step robot FK against its admitted
+response bounds as well as checking the commanded preview. Response failure
+latches stopping after the executed step; accounting retains that failed command.
+The independent physical limits and continuing-physics stop score still apply.

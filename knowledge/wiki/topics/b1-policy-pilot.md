@@ -673,3 +673,12 @@ remains the default. This supports local A1/A2 contact-geometry investigation wi
 the same SAM3/RANSAC components; it neither supplies identity/ownership nor labels
 an occluded interface directly observed. Correspondence-based rigid pose bounds,
 current surface normal and finite material support remain distinct evidence.
+
+Operational Purdue dispatch now compares the actual post-step tool FK with the
+admitted endpoint and its declared robot position/rotation bounds, after the
+existing pre-dispatch controller preview. An excess or invalid measured FK
+latches the physical stop immediately; the runner still counts the command that
+actually executed and reports its fault. Subsequent commands remain refused
+until reset. This verifies measured response rather than treating a commanded
+limit as compliance. Numerical fault cases pass; loaded policy qualification and
+independent physical scoring remain required.
