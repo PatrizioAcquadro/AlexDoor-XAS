@@ -202,9 +202,15 @@ The optional acceleration extension is permitted only when the original joint-bo
 wrench calculation gives a force upper bound at most the existing1N weak-load
 ceiling. Stronger bounded loads retain the original acceleration envelope. Source
 `98e27d5` includes behavioral tests for this distinction. The revised finite-domain
-load/stop component recipe still needs complete causal contact/admission replay on
-both retained teacher paths, including unchanged availability counts. Full-v3 is
-frozen and queued behind that strict prerequisite and shared GPU availability;
+load/stop recipe passes both complete causal paths in `operational-contact-conservative-domain-v42`:
+right7230samples/7224available, left7757/7751, with only the same six identity
+warmup queries unavailable per path and no refusal. Force upper bounds peak at
+9.99397/7.97662N, inside the unchanged10N stop domain. Independent native joins
+retain100ms confirmation, six initial misses per door,5/7instantaneous-force
+mismatches lasting at most33.3/50ms, and zero detections outside physical Loaded.
+One pre-teacher endpoint has unknown independent truth per path. These remain
+finite retained-path component results, not learned success or global guarantees.
+Full-v3 is frozen and queued behind shared GPU availability;
 no rollout allocation begins on missing/failed qualification. Teacher/controller,
 all four genuine3000-update checkpoints, and physical task criteria remain unchanged.
 The robot-only holdout costs35.65allocated GPU-seconds including tail, bringing

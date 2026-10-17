@@ -16,10 +16,9 @@ contact, controlled opening, hold, release or task success is demonstrated yet.
 Finite observed-material, contact and robot-sweep components pass the earlier
 complete retained-path check with measured detection errors. More conservative
 robot-only torque floors, weak-load acceleration and held-joint allowances now
-pass six independent learned prefixes and sampled motion checks. The complete
-revised right path passes; the complete left path is still running. A new frozen
-full-v3 integration waits for both paths at unchanged availability before allocating
-a GPU. All24final-version outcomes and identical-checkpoint success on both doors
+pass six independent learned prefixes and sampled motion checks. Both complete revised paths pass with unchanged availability and100ms contact
+confirmation; independent joins report zero detections outside physical Loaded.
+A new frozen full-v3 learned integration is queued behind shared GPU availability. All24final-version outcomes and identical-checkpoint success on both doors
 remain required. Controller, teacher, checkpoints and physical criteria are unchanged.
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
