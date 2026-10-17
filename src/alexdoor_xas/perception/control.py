@@ -146,6 +146,7 @@ class ObservedPurdueSafety:
 
     def __init__(self, io, setup, provider, *, contact_monitor=None):
         self.io, self.provider = io, provider
+        self.gripper_ids = None
         self.checks = ObservedControlChecks(setup, contact_monitor=contact_monitor)
 
     def reset(self):
@@ -163,6 +164,22 @@ class ObservedPurdueSafety:
             for sample in io.env.load_samples
         ):
             return "actual_joint_speed_limit"
+        if self.gripper_ids is None:
+            names = [
+                f"{side}_WSG32_{joint}"
+                for side in ("left", "right")
+                for joint in ("JAW_OPENING", "JAW_FOLLOWER")
+            ]
+            try:
+                ids, found = io.env.robot.find_joints(names, preserve_order=True)
+            except (AttributeError, ValueError):
+                return "missing_gripper_proprioception"
+            if tuple(found) != tuple(names):
+                return "missing_gripper_proprioception"
+            self.gripper_ids = ids
+        grippers = array(io.env.robot.data.joint_pos)[0, self.gripper_ids]
+        if not np.isfinite(grippers).all() or np.max(np.abs(grippers)) > 0.001:
+            return "gripper_opened"
         feedback = io.robot_feedback()
         try:
             load = (

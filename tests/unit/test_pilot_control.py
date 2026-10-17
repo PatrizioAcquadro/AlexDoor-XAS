@@ -304,7 +304,14 @@ def test_safety_uses_io_geometry_profile_with_an_independent_provider_recipe():
     io = SimpleNamespace(
         profile=OPERATIONAL_V1,
         env=SimpleNamespace(
-            load_samples=[], limits=np.zeros((1, 7, 2)), targets=np.zeros((1, 9)), neck_ids=[7, 8]
+            load_samples=[],
+            limits=np.zeros((1, 7, 2)),
+            targets=np.zeros((1, 9)),
+            neck_ids=[7, 8],
+            robot=SimpleNamespace(
+                data=SimpleNamespace(joint_pos=np.zeros((1, 4))),
+                find_joints=lambda names, **_: (list(range(4)), names),
+            ),
         ),
         load_source=None,
         robot_feedback=lambda: None,
@@ -397,3 +404,22 @@ def test_scalar_tool_normal_calibration_is_optional_and_weak_load_bounded():
     )
     assert strong.normal_lower_n == original.normal_lower_n
     np.testing.assert_array_equal(tight.residual_error_nm, base.residual_error_nm)
+
+
+@pytest.mark.parametrize("opening", [0.002, np.nan])
+def test_observed_monitor_preserves_closed_gripper_requirement(opening):
+    from alexdoor_xas.perception.control import ObservedPurdueSafety
+
+    robot = SimpleNamespace(
+        data=SimpleNamespace(joint_pos=np.array([[0.0, 0, opening, 0]])),
+        find_joints=lambda names, **_: (list(range(4)), names),
+    )
+    io = SimpleNamespace(env=SimpleNamespace(robot=robot, load_samples=[]))
+    safety = ObservedPurdueSafety(io, SimpleNamespace(max_joint_speed=0.5), None)
+    assert safety.check(None) == "gripper_opened"
+    missing = ObservedPurdueSafety(
+        SimpleNamespace(env=SimpleNamespace(load_samples=[])),
+        SimpleNamespace(max_joint_speed=0.5),
+        None,
+    )
+    assert missing.check(None) == "missing_gripper_proprioception"

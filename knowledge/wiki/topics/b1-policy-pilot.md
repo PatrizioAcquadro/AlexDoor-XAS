@@ -651,3 +651,17 @@ the cache. A numerical adaptive cover of the first right command certifies all
 Initialization takes 0.70 s; 200 small artificial cache displacements take a
 median 0.194 ms/query. This is CPU geometry feasibility/timing, not a physical
 trajectory, whole-task clearance or hardware real-time qualification.
+
+`RobotGeometry` supplies calibrated full-joint URDF transforms, conservative convex
+collision cells and visual/collision-volume exclusion of robot depth returns.
+Missing joints or sweep bounds refuse. The cells cover shape interiors and add
+serial-chain joint-travel bounds; they do not command motion or import door assets.
+Pixel queries can restrict their domain to the region the maintained geometry fit
+may inspect, including enclosed mask omissions. Removed pixels remain unobserved.
+Numerical tests compare the pixel prefilter with complete volume membership and
+cover intermediate rotating volumes. Actual full Purdue meshes load successfully.
+
+The observed Purdue monitor now checks all four WSG32 jaw positions from complete
+robot proprioception, preserving the existing 1 mm closed-gripper criterion.
+Missing jaw channels, nonfinite states and opening stop before load/admission.
+The existing measured native arm-speed guard still runs on both substeps.

@@ -565,3 +565,8 @@ Published local material clearances describe measured finite support, while the
 slip diagnostic separately reports uncertainty-eroded compatibility. Action
 admission spends the explicit pose/calibration/temporal bounds against actual
 proposal clearances; it cannot infer permission from either field alone.
+
+Calibrated robot geometry may exclude robot returns before interpreting observed
+material depth. Exclusion does not observe the hidden interface or fill missing
+material support. Full-joint feedback retains the unchanged closed-jaw check in
+the observed execution path, in addition to native arm speed and load checks.
