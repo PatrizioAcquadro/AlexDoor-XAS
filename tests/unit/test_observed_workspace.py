@@ -252,3 +252,22 @@ def test_coarse_stop_queries_defer_constructive_work_without_caching_unknown():
     reused = workspace.query_static([[0, 0, 1]], [0.1], cover_ids=["box"], constructive=False)
     assert reused.collision_clearance_m == full.collision_clearance_m
     assert reused.source_clocks == coarse.source_clocks
+
+
+def test_historical_free_background_never_replaces_current_foreground_or_drops_a_condition():
+    from alexdoor_xas.perception.workspace import ObservedBackground
+
+    moving = space(0.9, 1.0)
+    moving.views.update(space(2.0, 2.0).views)
+    background = ObservedBackground([moving, space(2.1, 1.0)], (0.001, 0.001))
+    with pytest.raises(ValueError, match="requires_current_foreground"):
+        background.query_static([[0, 0, 1]], [0.01])
+    for margin in [None, -0.001, 0.0, float("nan")]:
+        with pytest.raises(ValueError, match="missing_current_foreground"):
+            background.query_background([[0, 0, 1]], [0.01], current_foreground_margin_m=margin)
+    good = background.query_background([[0, 0, 1]], [0.01], current_foreground_margin_m=0.02)
+    assert 0 < good.collision_clearance_m <= 0.02
+    assert good.source_clocks[0] == (("calibration-0", 1.0, 1.0), ("calibration-0", 2.0, 2.0))
+    blocked = ObservedBackground([moving, space(0.9, 1.0)], (0.001, 0.001))
+    unknown = blocked.query_background([[0, 0, 1]], [0.01], current_foreground_margin_m=0.02)
+    assert unknown.unknown_in_envelope and unknown.collision_clearance_m is None

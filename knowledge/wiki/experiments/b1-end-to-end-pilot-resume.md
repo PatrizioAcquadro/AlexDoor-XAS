@@ -846,3 +846,5 @@ source clocks remain original. A retained-prefix numerical profile reduces
 right26s admission from0.859s to0.263s and left26s from1.777s to0.368s; other
 states remain costly, including left27s1.976s. This is a bounded query reuse
 improvement, not a real-time or full-episode cost claim.
+
+Historical static-background queries now retain each source recording and its original acquisition/publication clocks. They require a separate positive current-foreground exclusion margin and reject ordinary static-query access. Each declared calibration condition must supply a real free-ray witness; a past moving door or robot return is not asserted to remain occupied. This primitive is not enabled in the rollout recipe: the complete current target/contact exclusion producer is still pending. It does not qualify contact or convert historical free space into current free space.

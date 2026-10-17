@@ -249,3 +249,95 @@ class CommonWorkspace:
         occupied = any(s.occupied for s in supports)
         clearance = None if unknown or occupied else min(s.collision_clearance_m for s in supports)
         return StaticWorkspaceSupport(clearance, unknown, occupied, self.source_clocks)
+
+
+class ObservedBackground(CommonWorkspace):
+    """Historical free-ray volumes for static background ONLY.
+
+    A current producer must independently exclude every forbidden moving volume.
+    Source clocks belong to the named calibration records, never the current
+    episode. Old occupied foreground is not an assertion of current occupancy.
+    """
+
+    def __init__(self, spaces, calibration_bound):
+        super().__init__(spaces, calibration_bound)
+        self.views_by_condition = []
+        for space in self.spaces:
+            views = []
+            for key, view in reversed(tuple(space.views.items())):
+                single = ObservedSpace(space.config)
+                single.views = {key: view}
+                single._static_points = {key: space._static_points[key]}
+                views.append(single)
+            self.views_by_condition.append(tuple(views))
+        self.source_clocks = tuple(
+            tuple(
+                (
+                    str(key[0]) if isinstance(key, tuple) else f"calibration-{i}",
+                    float(view["time_s"]),
+                    float(view["available_s"]),
+                )
+                for key, view in space.views.items()
+            )
+            for i, space in enumerate(self.spaces)
+        )
+
+    @classmethod
+    def from_recording_groups(cls, groups, config, calibration_bound, sample_times_s):
+        config = deepcopy(config)
+        config["inspection"]["sample_times_s"] = list(sample_times_s)
+        spaces = []
+        for paths in groups:
+            bank = ObservedSpace(config)
+            for path in paths:
+                recorded = CommonWorkspace.from_recordings(
+                    [path], config, calibration_bound
+                ).spaces[0]
+                bank.views.update(
+                    {(str(Path(path).resolve()), key): view for key, view in recorded.views.items()}
+                )
+            spaces.append(bank)
+        return cls(spaces, calibration_bound)
+
+    def query_static(self, *args, **kwargs):
+        raise ValueError("historical_background_requires_current_foreground_exclusion")
+
+    def query_background(
+        self, centers, radii, *, current_foreground_margin_m, cover_ids=None, constructive=True
+    ):
+        margin = current_foreground_margin_m
+        if margin is None or not np.isfinite(margin) or margin <= 0:
+            raise ValueError("missing_current_foreground_exclusion")
+        result = super().query_static(
+            centers, radii, cover_ids=cover_ids, constructive=constructive
+        )
+        return StaticWorkspaceSupport(
+            None
+            if result.collision_clearance_m is None
+            else min(margin, result.collision_clearance_m),
+            result.unknown_in_envelope,
+            result.occupied,
+            result.source_clocks,
+        )
+
+    def _query_uncached(self, centers, radii):
+        margins = []
+        for center, radius in zip(centers, radii, strict=True):
+            for views in self.views_by_condition:
+                best = None
+                for observed in views:
+                    view = next(iter(observed.views.values()))
+                    lever = np.linalg.norm(center - view["camera_world"][:3, 3])
+                    enlarged = (
+                        radius
+                        + self.calibration_bound[0]
+                        + rotational_travel(lever, self.calibration_bound[1])
+                    )
+                    result = observed.query(center[None], np.array([enlarged]))
+                    if result.collision_clearance_m is not None:
+                        best = result.collision_clearance_m
+                        break
+                if best is None:
+                    return StaticWorkspaceSupport(None, True, False, self.source_clocks)
+                margins.append(best)
+        return StaticWorkspaceSupport(min(margins), False, False, self.source_clocks)
