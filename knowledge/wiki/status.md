@@ -90,6 +90,7 @@ Local consumption is 2.98965 of three GPU hours; only 37.26 seconds remain. The
 seconds: the real-training launch fails before Python/CUDA because Slurm supplies
 conflicting CPU task variables. Its repair passes scheduling dry-run validation;
 a third submission is requested within the unchanged one-GPU-hour remote ceiling.
+The rollout recorder now retains consumed images and separate full-rate commands/robot/native feedback; numerical and saved-input round trips pass, live validation remains pending.
 No real optimizer updates or learned simulation commands have executed. Automatic
 review separately blocks development-record transfer pending explicit consent;
 train-only preparation/training keeps development evaluation explicitly deferred.

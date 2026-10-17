@@ -601,3 +601,17 @@ Failed and interrupted boundaries are tested. This is numerical/retention
 validation only: no additional physical run, real training update or learned
 command was executed, and the current admission source remains incomplete.
 See [[../topics/episode-and-dataset-contracts|recording contract]].
+
+
+The refreshed subsequent-campaign proposal uses all four valid corrected-teacher
+records: mean workload 600.75 s and 22.59 GiB raw. Holding the earlier unapproved
+264-collection/840-evaluation assumptions fixed projects 44.06 collection
+workstation hours /5.82 TiB raw and 302.39 evaluation hours from separately measured
+physics/frontend service. The lossless 10 Hz image layout projects 1,315.9 GiB for
+840 evaluation outcomes before other retained streams. Provisional reserves are
+500 workstation hours, 64 allocated A100 hours and 20 TB archive plus models/logs.
+These supersede the earlier single-cycle/historical cost projections; real A100
+throughput, live evaluation overhead and verified variation ranges remain open.
+The local evidence directory retains `campaign-budget-proposal-revised.json` and
+`.md`, all original proposals and the measured basis. No campaign is authorized;
+deferred observed A4 initialization is not an A1/A2 prerequisite.
