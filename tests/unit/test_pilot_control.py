@@ -626,3 +626,24 @@ def test_unloaded_full_robot_proof_does_not_require_an_irrelevant_contact_footpr
             replace(estimate, local=replace(estimate.local, patches=(changed,))),
             1 + 1 / 60,
         )
+
+
+def test_control_receipt_tolerates_actual_float_clock_roundoff_without_an_extra_tick():
+    estimate, proposal, evidence, limits = local_inputs()
+    start = 25.216666666666665
+    patch = estimate.local.patches[0]
+    support = replace(patch.pose_support, acquired_s=start, supported_s=start, available_s=start)
+    patch = replace(patch, geometry_support=support, identity_support=support, pose_support=support)
+    state = replace(
+        estimate.local,
+        patches=(patch,),
+        selection=replace(estimate.local.selection, selected_s=start),
+    )
+    estimate = replace(estimate, timestamp_s=start, local=state)
+    proposal = replace(proposal, times_s=np.array([start, start + 1 / 60]))
+    evidence = replace(evidence, support=support)
+    receipt = admit_local_action(estimate, proposal, evidence, limits, start, generation=0)
+    assert receipt.admitted
+    require_current_admission(receipt, estimate, 25.233333333333334)
+    with pytest.raises(ValueError, match="outside_admitted_schedule"):
+        require_current_admission(receipt, estimate, 25.233333333333334 + 1 / 60)

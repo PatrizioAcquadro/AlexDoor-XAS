@@ -16,6 +16,7 @@ class ObservedControlChecks:
 
     def reset(self):
         self.initial_tool = None
+        self.last_failure = None
         if self.contact_monitor is not None:
             self.contact_monitor.reset()
 
@@ -67,7 +68,8 @@ class ObservedControlChecks:
                 validate_local_contact(estimate.local, float(sensor["time_s"]))
             else:
                 validate_geometry(estimate, float(sensor["time_s"]), 0.15, profile=profile)
-        except ValueError:
+        except ValueError as error:
+            self.last_failure = dict(time_s=float(sensor["time_s"]), reason=str(error))
             return "invalid_perception"
         loaded = stage in ("contact", "push", "hold") or (
             admission is not None and admission.proposal.loaded

@@ -11,6 +11,7 @@ from alexdoor_xas.action.b1 import ACTION_DIMS, checked_pose, finite_vector, rel
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.contracts import (
     OPERATIONAL_V1,
+    TIME_ROUNDOFF_S,
     ContactSelection,
     DoorEstimate,
     FieldSupport,
@@ -286,7 +287,11 @@ def require_current_admission(admission, estimate, now):
     ):
         raise ValueError("action_not_admitted")
     before = admission.estimate.operational
-    if not admission.proposal.times_s[0] <= now <= admission.proposal.times_s[-1]:
+    if not (
+        admission.proposal.times_s[0] - TIME_ROUNDOFF_S
+        <= now
+        <= admission.proposal.times_s[-1] + TIME_ROUNDOFF_S
+    ):
         raise ValueError("outside_admitted_schedule")
     if admission.local_evidence is not None:
         from alexdoor_xas.perception.local_admission import require_current_local_admission

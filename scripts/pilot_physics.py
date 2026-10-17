@@ -636,6 +636,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         observed_geometry_available=True,
         load_source_available=True,
         action_admission_source_available=True,
+        safety_detail=io.safety.checks.last_failure,
         operational_recipe=str(args.operational_recipe),
         operational_admission="operational-admission.jsonl",
         operational_load="operational-load.jsonl",
