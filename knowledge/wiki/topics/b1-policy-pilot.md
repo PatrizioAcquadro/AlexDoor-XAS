@@ -815,3 +815,14 @@ final cells; changed seeds, protocols, families or action spaces are rejected.
 An epoch state is an intermediate artifact and never a completed 3,000-update
 cell. Training losses and remote development metrics keep their existing meanings;
 missing development data remains unavailable.
+
+
+Material-anchor initialization now prefers a finite zone that has at least three
+existing, separated, same-identity inspection witnesses when the widest current
+zone has none. It uses the same measured surface, finite-footprint query and
+calibration bounds. If no supported alternative exists, the original ambiguous
+candidate remains. This changes the material reference only; it supplies no
+robot goal, hinge, task pose or motion. Re-evaluation of the retained corrected
+right native prefix yields supported local identity at 95/96 captures after
+one initialization capture. These are current-capture component results; full
+contact, temporal growth, sweep and live policy execution remain unqualified.

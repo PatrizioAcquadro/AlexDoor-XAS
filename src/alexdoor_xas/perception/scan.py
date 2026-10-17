@@ -291,7 +291,7 @@ def footprint_support(surface, pose, distal_faces, config):
     )
 
 
-def supported_material_zone(surface, distal_faces, config):
+def supported_material_zone(surface, distal_faces, config, *, support_filter=None):
     """Choose a measured reference with maximum two-finger boundary clearance.
 
     This is a material-coordinate selection, not a robot goal or ownership proof.
@@ -304,6 +304,8 @@ def supported_material_zone(surface, distal_faces, config):
         pose = ObjectFrame(surface.points[index].copy(), rotation)
         support = footprint_support(surface, pose, distal_faces, config)
         if support.supported and min(support.finger_clearance_m) > score:
+            if support_filter is not None and not support_filter(pose):
+                continue
             best = pose
             score = min(support.finger_clearance_m)
     return best

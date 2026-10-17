@@ -492,3 +492,26 @@ def test_dominant_local_query_matches_measured_primary_plane_and_retains_occlusi
     np.testing.assert_allclose(local[0].normal, largest.normal)
     np.testing.assert_array_equal(local[0].observations[0].mask(), largest.observations[0].mask())
     assert not local[0].observations[0].mask()[95, 105]
+
+
+def test_material_anchor_can_require_independent_observed_support():
+    from alexdoor_xas.perception.scan import supported_material_zone
+
+    surface, _, _ = measured_surface()
+    selected = supported_material_zone(
+        surface,
+        finger_faces(),
+        recipe().config,
+        support_filter=lambda pose: pose.origin[1] < -0.1,
+    )
+    assert selected is not None and selected.origin[1] < -0.1
+    assert footprint_support(surface, selected, finger_faces(), recipe().config).supported
+    assert (
+        supported_material_zone(
+            surface,
+            finger_faces(),
+            recipe().config,
+            support_filter=lambda pose: False,
+        )
+        is None
+    )

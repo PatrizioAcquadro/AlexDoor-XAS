@@ -285,6 +285,38 @@ class PanelTracking:
             )
             if zone is None:
                 continue
+            if scan_memory is not None and self.calibration_bound is not None:
+                p, a = self.calibration_bound
+                if p is not None and a is not None:
+
+                    def witnesses(zone, candidate=candidate, p=p, a=a):
+                        radius = np.linalg.norm(zone.origin - sensor["camera_world"][:3, 3])
+                        error = candidate.geometry.position_bound_m + p + 2 * radius * np.sin(a / 2)
+                        return static_material_witnesses(
+                            scan_memory.surfaces,
+                            zone,
+                            self.distal_faces,
+                            self.config,
+                            candidate.sam3_id,
+                            error,
+                        )
+
+                    # A broad current-only zone can hide an independently
+                    # supported material anchor elsewhere on the same surface.
+                    # Prefer such an observed anchor; never manufacture views
+                    # or use task geometry to select it. If none exists, keep
+                    # the original ambiguous diagnostic candidate.
+                    if len(witnesses(zone)) < 3:
+                        supported = supported_material_zone(
+                            candidate.surface,
+                            self.distal_faces,
+                            self.config,
+                            support_filter=lambda pose, witnesses=witnesses: (
+                                len(witnesses(pose)) >= 3
+                            ),
+                        )
+                        if supported is not None:
+                            zone = supported
             candidate.initial_world = pose_matrix(zone)
             candidate.map_from_object = (
                 np.linalg.inv(sensor["camera_world"]) @ candidate.initial_world
