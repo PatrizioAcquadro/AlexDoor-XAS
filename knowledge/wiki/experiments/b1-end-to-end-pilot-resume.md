@@ -9,23 +9,23 @@ fixed physical criteria and sealed test doors. No production campaign or robot w
 ## Original-checkpoint full-v7 outcomes
 
 Four completed outcomes are retained separately: ACT A1 right/nominal executes
-1,878commands, reaches18.790degrees controlled opening (36.6568%reference), then
-stops at true contact loss; the same checkpoint left/nominal executes193before
-load-envelope refusal. ACT A2 right/nominal executes239before complete-sweep/stop
-refusal, and Diffusion A1 right/nominal371before observed orientation refusal.
+1,878 commands, reaches 18.790 degrees controlled opening (36.6568% reference), then
+stops at true contact loss; the same checkpoint left/nominal executes 193 before
+load-envelope refusal. ACT A2 right/nominal executes 239 before complete-sweep/stop
+refusal, and Diffusion A1 right/nominal 371 before observed orientation refusal.
 All four input/command/clock/continuing-physics stop audits pass. None succeeds,
-completes hold or releases. All20unallocated slots remain explicitly unevaluated
+completes hold or releases. All 20 unallocated slots remain explicitly unevaluated
 in this retired version; they are never combined with another checkpoint version.
 
-The right ACT A1 contact monitor is available at all1,879operational endpoints.
-Its first confirmation follows instantaneous native contact by100ms. Independent
-joins find16confirmed ticks without instantaneous force presence (maximum83.3ms),
+The right ACT A1 contact monitor is available at all 1,879 operational endpoints.
+Its first confirmation follows instantaneous native contact by 100 ms. Independent
+joins find 16 confirmed ticks without instantaneous force presence (maximum 83.3 ms),
 three below unchanged physical Loaded, and five physical Loaded ticks without
 confirmation. These are measured discrepancies, not zero-error qualification.
 The evaluator keeps its unchanged instantaneous physical requirements and excludes
 uncontrolled intervals from controlled opening. The left upstream load refusal
-has one missing monitor decision out of194endpoints, explicitly unavailable.
-See`learned-contact-metrics-v7.json`for the separate denominators and all four
+has one missing monitor decision out of 194 endpoints, explicitly unavailable.
+See `learned-contact-metrics-v7.json` for the separate denominators and all four
 cases; no independent evaluator stream enters runtime admission or policy inputs.
 
 ## Matched training continuation
@@ -33,7 +33,7 @@ cases; no independent evaluator stream enters runtime admission or policy inputs
 The 3,000-update ACT A1 checkpoint reaches 18.790 degrees under full-v7, then
 loses real contact before hold/release; the identical checkpoint also fails on
 the left. All four initial loss curves still decrease at 3,000 updates. The next
-bounded experiment, submitted as Gilbreth job`11974622`, extends all four identically to 4,400 updates (14 additional
+bounded experiment, submitted as Gilbreth job `11974622`, extends all four identically to 4,400 updates (14 additional
 100-update epochs each, 5,600 additional updates; 17,764 cumulative including
 infrastructure). No architecture, data, seed, sampler, normalization, controller,
 replanning or physical criterion changes. Improvement remains unproven.

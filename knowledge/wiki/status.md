@@ -14,13 +14,13 @@ of controlled opening (36.7% of its expert reference), then loses contact at
 56.5 seconds. It has no physical violation, valid hold, release or task success;
 the continuing-physics stop and consumed-input audit pass. The identical ACT A1
 checkpoint stops before contact on the left outside the verified load envelope.
-ACT A2 right/nominal executes239commands before a full-sweep/stop admission refusal;
-Diffusion A1 executes371before observed-contact-orientation refusal. All four
-completed outcomes and audits are retained. The20unallocated slots are retired for
+ACT A2 right/nominal executes 239 commands before a full-sweep/stop admission refusal;
+Diffusion A1 executes 371 before observed-contact-orientation refusal. All four
+completed outcomes and audits are retained. The 20 unallocated slots are retired for
 the matched training continuation. Earlier versions remain separate;
 identical-checkpoint success on both doors is still required.
 
-A matched continuation of all four cells is queued on Gilbreth as job`11974622`,
+A matched continuation of all four cells is queued on Gilbreth as job `11974622`,
 from the original
 optimizer/RNG/EMA states: only epochs increase from 30 to 44, adding 1,400 updates
 per cell within the cumulative ceiling. Original checkpoints and outcomes remain
