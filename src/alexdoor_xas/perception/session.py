@@ -475,6 +475,7 @@ class SessionProvider:
         tracking=True,
         synchronous_simulation=False,
         inference_period_s=0.0,
+        inspection_samples_only=False,
         geometry_filter=None,
         local_selection_source=None,
         **tracking_options,
@@ -497,7 +498,10 @@ class SessionProvider:
         self.local_selection_source = local_selection_source
         self.geometry_filter = geometry_filter
         self.synchronous_simulation = synchronous_simulation
+        if type(inspection_samples_only) is not bool:
+            raise ValueError("invalid_inspection_geometry_schedule")
         self.inference_period_s = inference_period_s
+        self.inspection_samples_only = inspection_samples_only
         self.tracking = (
             PanelTracking(PublishedTrackingEngine(), self.config, **tracking_options)
             if tracking
@@ -525,6 +529,7 @@ class SessionProvider:
         self.last_time = self.last_frame = self.last_estimate = self.last_cue = None
         self.last_publication = None
         self.last_submitted_s = None
+        self.next_inspection_sample = 0
         self.encoding = None
         self.diagnostics = dict(state="searching", semantic_calls=0)
 
@@ -742,10 +747,22 @@ class SessionProvider:
         try:
             if self.synchronous_simulation and abs(now - t) > 1e-9:
                 raise ValueError("synchronous_simulation_clock_mismatch")
-            if (
+            due = (
                 self.last_submitted_s is None
                 or t - self.last_submitted_s >= self.inference_period_s - 1e-9
-            ):
+            )
+            inspection_times = self.config["inspection"]["sample_times_s"]
+            if self.inspection_samples_only and t < inspection_times[-1] - 1e-9:
+                due = due and (
+                    self.next_inspection_sample < len(inspection_times)
+                    and t >= inspection_times[self.next_inspection_sample] - 1e-9
+                )
+            if due:
+                while (
+                    self.next_inspection_sample < len(inspection_times)
+                    and inspection_times[self.next_inspection_sample] <= t + 1e-9
+                ):
+                    self.next_inspection_sample += 1
                 if self.geometry_filter is not None:
                     removed = np.asarray(self.geometry_filter(sensor, observation))
                     if removed.dtype != bool or removed.shape != depth.shape[:2]:

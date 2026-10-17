@@ -568,3 +568,39 @@ def test_geometry_robot_exclusion_runs_only_on_submitted_capture_cadence(tmp_pat
         assert calls == [4, 4.1]
     finally:
         provider.close()
+
+
+def test_declared_inspection_views_keep_current_clocks_and_resume_live_cadence(tmp_path, geometry):
+    clock = [0.0]
+    sam = Sam([[7]] * 10)
+    session = PerceptionSession("unused", recipe(), {}, tmp_path, tracking=False, sam_worker=sam)
+    engine = Point2PoseEngine(
+        lambda _: session,
+        replay=False,
+        capture_session=True,
+        clock=lambda: clock[0],
+    )
+    provider = module.SessionProvider(
+        recipe(),
+        engine,
+        tracking=False,
+        synchronous_simulation=True,
+        inference_period_s=0.1,
+        inspection_samples_only=True,
+    )
+    submitted = []
+    try:
+        for frame, timestamp in enumerate((0, 4, 4.1, 7, 10, 15, 18, 21, 25, 25.05, 25.1)):
+            before = provider.last_submitted_s
+            clock[0] = timestamp
+            provider.update(sensor(timestamp, frame))
+            if provider.last_submitted_s != before:
+                submitted.append(provider.last_submitted_s)
+                assert provider.last_publication[0]["time_s"] == timestamp
+        assert submitted == [4, 7, 10, 15, 18, 21, 25, 25.1]
+        # Skipping unused geometry captures never creates interpolated observations.
+        assert 4.1 not in [x.observations[0].acquired_s for x in provider.static]
+        provider.reset(preload=False)
+        assert provider.next_inspection_sample == 0
+    finally:
+        provider.close()

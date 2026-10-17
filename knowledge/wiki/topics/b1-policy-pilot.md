@@ -826,3 +826,12 @@ robot goal, hinge, task pose or motion. Re-evaluation of the retained corrected
 right native prefix yields supported local identity at 95/96 captures after
 one initialization capture. These are current-capture component results; full
 contact, temporal growth, sweep and live policy execution remain unqualified.
+
+
+For pilot integration, `SessionProvider` can explicitly acquire geometry only at
+the seven declared inspection views, then use its configured live geometry period.
+Policy RGB-D history and proprioception keep their original cadence. Skipped
+geometry captures create no interpolated or backdated observations. This bounds
+the repeated stationary-map serialization seen in the interrupted dense right
+component run. Existing provider schedules remain the default; the seven-view
+mode requires physical/component verification before pilot admission.
