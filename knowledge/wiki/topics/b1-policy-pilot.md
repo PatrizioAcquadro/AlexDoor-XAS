@@ -568,3 +568,13 @@ contact diagnostics separately from imitation commands. A collection's final
 recording outcome includes this stop result; a failed tail cannot remain a valid
 imitation episode merely because the teacher's earlier release passed. Interrupted
 starts retain a separate stop prefix.
+
+`scripts/pilot_workspace_survey.py` acquires separate simulated pre-task calibration
+with the same head ZED. Two common fixed observer placements view the nominal
+robot work volume before manipulation. The accepted teacher/policy placement and
+initial condition are unchanged; the robot base stays fixed within each survey.
+These are observations, not favorable task starts, extra policy inputs, additional
+sensors, TSDF work or a hardware-readiness claim. Retained RGB-D/calibration and
+clock provenance must establish usable common free space; no map, current
+observation or admission certificate is inferred from the camera visibility model.
+Unknown support and dynamic-door exclusions remain necessary checks.
