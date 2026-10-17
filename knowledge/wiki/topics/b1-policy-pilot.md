@@ -614,3 +614,14 @@ FK or preprocessing; raw recordings/runtime metadata remain unchanged. The actua
 preparation path is retained in the label audit. `--reference-raw` avoids another
 large raw copy. Relocation and CLI checks pass; real remote preparation/training
 remain pending.
+
+`CommonWorkspace` reads only observed depth, depth validity, intrinsics, calibrated
+camera poses and their original capture clocks from complete pre-task recordings.
+It checks recorded camera/FK agreement and propagates the supplied camera bounds
+into covering-ball queries. Every supplied calibration condition must certify
+free space; one unknown/occupied condition refuses. This is static workcell evidence,
+not a new dynamic timestamp, current target identity, dynamic-door exclusion,
+self-collision proof, stopping bound or command receipt. No asset identity or
+privileged annotation selects geometry at runtime. The three common front surveys
+are retained; coarse single-sphere body coverage still has unknown shoulder regions
+and must be refined before it can support an actual action.

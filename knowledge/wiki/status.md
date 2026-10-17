@@ -66,8 +66,10 @@ valid final hold/release and 0.320/0.284 rad/s actual joint peaks. Independent
 contact/pose audits agree; post-release continuing-physics stops pass. The first
 fresh right nominal episode independently passes physical, raw-clock and FK
 audits, reconstructs A3/A4 supervision and establishes its matched expert pair
-at 51.2603 degrees; the historical denominator is unchanged. The left fresh
-nominal collection is underway. The user now authorizes necessary prerequisite cases without a count ceiling.
+at 51.2603 degrees. The fresh left nominal episode also independently passes,
+with its matched pair at 52.5360 degrees; both historical denominators are
+unchanged. A newly isolated one-tick push/hold reference pause is corrected in
+source and awaits physical verification; old scores stay preserved. The user now authorizes necessary prerequisite cases without a count ceiling.
 Case 14 preserves loaded-stop failures; the stop-only correction passes case 15
 with maximum travel 9.68 mm over twenty 0/4 N stops and three bounded fault
 stops. Case 16 fails loaded-motion speed coverage despite four physically valid

@@ -420,3 +420,33 @@ development noise, with speed/acceleration terms fitted only on unloaded robot
 motion. Known-force independent verification and the new actual contact handoff
 case must establish the final bounded recipe. Missing robot FK or partial optional
 configuration refuses; neither model/stop qualification flag is promoted.
+
+The fresh nominal left case independently passes: 52.5360 degrees controlled
+opening, all 180 hold ticks physically valid, 25.889 mm release separation and
+0.2844 rad/s actual joint peak. Two-second stop travel is 0.02076 mm. The 24.696 GiB
+record retains 9,257 synchronized observations, 18,512 native feedback samples
+and all 20 joints; independent FK and A3/A4 supervisor reconstruction pass. Its
+unchanged paired-reference rule yields 52.5360 degrees with zero repeat spread;
+the historical 57.8391-degree denominator/scores remain unchanged.
+
+Both additional common front workspace surveys complete with no manipulation.
+The observed-only reader now intersects all three raw ray banks without reading
+asset identities or evaluator annotations and keeps their original capture clocks.
+A coarse sphere per robot convex shape certifies eleven shapes at the first right
+approach condition, while three shoulder shapes remain unknown. No action is
+admitted by this result; refinement, dynamic-object exclusion, actual response and
+self-collision remain separate requirements.
+
+Source-level verification of the candidate weak-normal/strong-load fallback now
+covers all 123,529 available independent native samples in cases 14–17, with zero
+false contacts among 108,817 zero/tangential samples. All 2,017 envelope exits
+remain unavailable and counted. The total-force upper bound is unchanged. These
+are robot-domain load results, not physical contact-monitor precision/delay/coverage
+or permission to execute through missing geometric/stop evidence.
+
+The fixed 24-outcome learned panel alone projects 8.64 further local GPU allocation
+hours using measured sensing and physics service costs at the 175 s maximum
+inspection-plus-policy horizon. A concrete proposal requests 12 total local hours
+instead of three; it is pending user approval, and current work remains within the
+existing ceiling. Fresh collection, storage, optimizer and Gilbreth ceilings are
+unchanged. The user removed only the prerequisite case-count ceiling so far.
