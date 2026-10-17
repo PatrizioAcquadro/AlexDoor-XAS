@@ -118,6 +118,21 @@ count, one Python/CUDA process, and a 200-second owned task timeout. Its maximum
 waiting is uncharged. Successful completion and returned checkpoint verification
 remain pending.
 
+The same exact representation also compacts the four local train/development
+feature files from 25.906 GB to 1.160 GB, preserving every original tensor,
+label, timestamp and attribute. The redundant flat copy remains until frozen
+CUDA development evaluation finishes, then the verified compact files take its
+place, recovering 23.046 GiB for panel recordings. Raw RGB-D, masks, robot state
+and supervisor labels are untouched. All development remains local.
+
+The two development lighting records have bit-identical numerical action,
+time and proprioception arrays; their visual observations differ. They test
+lighting variation on the same motion, rather than two independent motion
+trials. This does not establish closed-loop performance on unseen doors. Full
+A3/A4 operational initialization remains outside the pilot; the complete raw
+records still support later reconstruction of supervision. The finite HDF5
+virtual-array reader has not demonstrated large-campaign memory/I/O scaling.
+
 ## Matched training continuation
 
 The 3,000-update ACT A1 checkpoint reaches 18.790 degrees under full-v7, then

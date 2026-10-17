@@ -39,7 +39,8 @@ domain. Strong-load positions, all error/physical criteria and the selected
 controller remain unchanged. Weak-position motion additionally requires observed
 separation through the complete proposed motion and stop, including nonzero
 future target growth; a low current force cannot qualify a subsequent strong
-contact. A narrower strong-load interval also fails its 8 N lateral stop. Both extensions
+contact. A narrower strong-load interval also fails its 8 N lateral stop.
+Both extensions
 remain outside the final panel recipe: all four cells retain the original main
 position envelope and qualified main-13 gripper bound. New-checkpoint integrated
 execution remains pending. See the continuation experiment for both
