@@ -132,6 +132,23 @@ class CommonWorkspace:
                     margin = None
             if margin is None:
                 support = self._query_uncached(center[None], np.array([radius]))
+                if support.collision_clearance_m is None and not support.occupied:
+                    # Raster padding can make a larger query inconclusive even
+                    # when a nearby ray pyramid certifies its entire volume.
+                    # Spend a smaller seed's measured radial margin on ALL of
+                    # the original radius growth; never shrink the requested
+                    # sweep or override observed occupancy.
+                    for fraction in (0.95, 0.9, 0.75, 0.5):
+                        seed_radius = radius * fraction
+                        seed = self._query_uncached(center[None], np.array([seed_radius]))
+                        if seed.collision_clearance_m is None:
+                            continue
+                        remaining = seed.collision_clearance_m - (radius - seed_radius)
+                        if remaining > 0:
+                            support = StaticWorkspaceSupport(
+                                remaining, False, False, self.source_clocks
+                            )
+                            break
                 if support.collision_clearance_m is None:
                     return support
                 margin = support.collision_clearance_m

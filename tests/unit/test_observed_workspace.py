@@ -1,6 +1,7 @@
 """Static recorded rays never become fresh dynamic observations or truth geometry."""
 
 import numpy as np
+import pytest
 
 from alexdoor_xas.perception.scan import ObservedSpace
 from alexdoor_xas.perception.workspace import CommonWorkspace
@@ -111,3 +112,34 @@ def test_recorded_workspace_normalizes_explicit_legacy_sampling_without_rewritin
         )
     with pytest.raises(ValueError, match="mismatch"):
         CommonWorkspace.from_recordings([path], config, [0, 0])
+
+
+def test_constructive_ray_pyramid_covers_original_radius_despite_raster_padding():
+    observed = space(2.0, 1.0)
+    view = next(iter(observed.views.values()))
+    view["valid_depth"][35, 40] = False
+    workspace = CommonWorkspace([observed], (0.0, 0.0))
+    # The large raster rectangle includes an unnecessary unknown border pixel.
+    direct = workspace.query_static([[0, 0, 1]], [0.03])
+    assert direct.unknown_in_envelope and direct.collision_clearance_m is None
+    smaller = workspace.query_static([[0, 0, 1]], [0.0285])
+    assert smaller.collision_clearance_m > 0.0015
+    full = workspace.query_static([[0, 0, 1]], [0.03], cover_ids=["whole_sweep"])
+    assert not full.unknown_in_envelope and full.collision_clearance_m > 0
+    assert full.collision_clearance_m <= smaller.collision_clearance_m - 0.0015 + 1e-12
+    assert workspace._free_covers["whole_sweep"][1] == 0.03
+    assert full.source_clocks == workspace.source_clocks
+
+
+@pytest.mark.parametrize("occupied", [False, True])
+def test_constructive_cover_never_fills_actual_unknown_or_occupied_volume(occupied):
+    observed = space(2.0, 1.0)
+    view = next(iter(observed.views.values()))
+    if occupied:
+        view["depth_m"][40, 40] = 1.0
+    else:
+        view["valid_depth"][40, 40] = False
+    workspace = CommonWorkspace([observed], (0.0, 0.0))
+    full = workspace.query_static([[0, 0, 1]], [0.03], cover_ids=["whole_sweep"])
+    assert full.collision_clearance_m is None
+    assert "whole_sweep" not in workspace._free_covers

@@ -26,6 +26,18 @@ component checks use all three shared leases and the existing idle preflight.
 Training and end-to-end execution remain uncompleted until their actual evidence
 returns. Earlier budget proposals below record their historical authorization.
 
+## Current observed-space integration
+
+Continuous recorded robot sweeps use calibrated CAD cells, joint-axis cell levers
+and independently measured stop excursions. Static workcell rays keep their original
+capture/publication clocks. A smaller ray pyramid may certify a larger requested
+sphere only by spending its measured radial clearance on the complete radius growth;
+unknown or occupied volume is never filled. Regression checks cover raster-border
+inconclusiveness, real unknown holes and occupancy. This corrects a constructive
+coverage failure but does not qualify the remaining unsupported fingertip sweep.
+Front, back and one lateral survey are retained; the lateral trial did not resolve
+that gap and its unadopted source remains with the evidence.
+
 ## Corrected boundary and implemented contract
 
 The [[../implementation_phases/phase-6-0-operational-perception-and-contact|existing phase 6.0 contract]] already distinguishes physical 0.1 mm /0.02 N scoring from
