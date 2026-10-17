@@ -236,7 +236,29 @@ class RobotGeometry:
         if not np.isfinite(values).all() or (values < 0).any():
             raise ValueError("Unmeasured robot sweep travel")
         shape = self.shapes[cell.shape]
-        extra = sum(lever * joint_travel[name] for name, lever in shape["levers"].items())
         transform = matrices[shape["link"]]
         center = ((cell.lower + cell.upper) / 2) @ transform[:3, :3].T + transform[:3, 3]
-        return center, float(np.linalg.norm(cell.upper - cell.lower) / 2 + extra)
+        radius = float(np.linalg.norm(cell.upper - cell.lower) / 2)
+        extra = 0.0
+        # Telescope proximal-to-distal joint changes. Before each change its
+        # untouched suffix and axis share a rigid prefix transform, so their
+        # initial perpendicular distance still bounds the rotation lever.
+        # This covers every point in the cell, including simultaneous motion;
+        # a whole-chain length is unnecessary for each small collision cell.
+        link = shape["link"]
+        while link in self.parents:
+            joint = self.parents[link]
+            parent = joint.find("parent").get("link")
+            name = joint.get("name")
+            if name in shape["levers"]:
+                travel = joint_travel[name]
+                if joint.get("type") == "prismatic":
+                    extra += travel
+                else:
+                    frame = matrices[parent] @ origin_matrix(joint.find("origin"))
+                    axis = frame[:3, :3] @ np.fromstring(joint.find("axis").get("xyz"), sep=" ")
+                    offset = center - frame[:3, 3]
+                    lever = np.linalg.norm(offset - axis * (offset @ axis)) + radius
+                    extra += 2 * lever * np.sin(min(travel, np.pi) / 2)
+            link = parent
+        return center, radius + float(extra)

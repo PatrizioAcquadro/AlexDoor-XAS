@@ -94,3 +94,37 @@ def test_pixel_prefilter_matches_full_robot_volume_membership(model):
     domain[:, :60] = True
     selected = model.occluded_pixels(sensor, q, root, (0.001, 0.02), pixel_domain=domain)
     np.testing.assert_array_equal(selected, result & domain)
+
+
+def test_cell_levers_cover_coupled_bent_chain_and_prismatic_motion(model):
+    path = model.urdf
+    path.write_text(path.read_text().replace(
+        '<joint name="q"',
+        '<link name="elbow"/><link name="slider"/>'
+        '<joint name="shoulder" type="revolute"><parent link="base"/>'
+        '<child link="elbow"/><origin xyz="0 0 0"/><axis xyz="0 1 0"/></joint>'
+        '<joint name="extension" type="prismatic"><parent link="elbow"/>'
+        '<child link="slider"/><origin xyz="1 0 0"/><axis xyz="1 0 0"/></joint>'
+        '<joint name="q"',
+    ).replace('<parent link="base"/><child link="tool"/>',
+              '<parent link="slider"/><child link="tool"/>'))
+    model = RobotGeometry(path, ("shoulder", "extension", "q"))
+    initial = {"shoulder": 0.8, "extension": 0.2, "q": -0.7}
+    travel = {"shoulder": 1.4, "extension": 0.15, "q": 2.0}
+    matrices = model.transforms(initial, np.eye(4))
+    cells = [child for cell in model.cells() for child in model.subdivide(cell)]
+    vertices = np.array(list(product((-0.1, 0.0, 0.1), repeat=3)))
+    balls = [model.world_ball(cell, matrices, travel) for cell in cells]
+    for fractions in product(np.linspace(-1, 1, 5), repeat=3):
+        q = {name: initial[name] + f * travel[name]
+             for name, f in zip(travel, fractions, strict=True)}
+        transform = model.transforms(q, np.eye(4))["tool"]
+        world = vertices @ transform[:3, :3].T + transform[:3, 3]
+        assert np.any([
+            np.linalg.norm(world - center, axis=1) <= radius + 1e-12
+            for center, radius in balls
+        ], axis=0).all()
+    cell = cells[0]
+    _, radius = model.world_ball(cell, matrices, {"shoulder": 0, "extension": 0, "q": 0.1})
+    old_extra = model.shapes[cell.shape]["levers"]["q"] * 0.1
+    assert radius < np.linalg.norm(cell.upper - cell.lower) / 2 + old_extra

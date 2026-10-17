@@ -782,3 +782,16 @@ model discrepancy reaches 1.973 mm, so the existing 3 mm reserve is retained.
 A temporary unqualified 1 mm reserve proposal is preserved as incomplete and was
 never used for physical admission. Complete calibration/contact/sweep validation
 remains required.
+
+
+## Continuous robot cell sweeps
+
+`RobotGeometry.world_ball()` covers each collision cell with its intrinsic sphere
+and joint travel, including the measured stopping allowance supplied by the
+caller. Revolute displacement now uses the cell center distance to each actual
+joint axis plus its cell radius. Proximal-to-distal telescoping preserves these
+lever bounds under simultaneous serial-chain motion; prismatic travel is added
+directly. This avoids charging the full downstream chain length to every small
+cell. Coupled bent-chain and prismatic numerical coverage passes. It supplies a
+continuous geometric cover, not observed free space, self-clearance, contact or
+a stopping qualification. Unsupported observed queries still refuse.
