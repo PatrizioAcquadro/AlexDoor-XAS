@@ -498,3 +498,11 @@ same four independent training paths and checkpoint round trips. Positive values
 retain the previous probe. Count all optimizer updates against the common pilot
 ceiling, including infrastructure updates; the remaining allocation permits
 12,000 initial real updates and at most 5,836 additional updates in total.
+
+Local tracking publishes initial material geometry and dynamic frame-origin
+uncertainty separately. The complete fingertip budget remains in finite-cover
+queries; it is not republished as frame translation and charged a second time
+with the same rotations during admission. The contact monitor explicitly includes
+both geometry and dynamic pose terms. Missing calibration or motion bounds remain
+missing; this correction changes neither operational field limits nor physical
+evaluator tolerances and does not establish qualification.

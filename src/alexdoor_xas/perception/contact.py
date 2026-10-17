@@ -170,6 +170,8 @@ class ObservedContactMonitor:
             support, limits = patch.pose_support, admission.limits
             uncertainty = (
                 self.config.normal_model_bound_m
+                + patch.geometry_support.position_bound_m
+                + rotational_travel(radius, patch.geometry_support.rotation_bound_rad)
                 + support.position_bound_m
                 + rotational_travel(radius, support.rotation_bound_rad)
                 + limits.robot_position_bound_m

@@ -296,6 +296,11 @@ def test_occluded_or_parked_tool_does_not_erase_selected_material_support(monkey
         ),
     )
     monkeypatch.setattr(module, "contact_depth_supported", lambda *_args: False)
+    monkeypatch.setattr(
+        tracking,
+        "frame_budget",
+        lambda *_: ContactBudget((BoundSource("dynamic_pose", 0.001, 0.001, 0),)),
+    )
     state = tracking.local_state(1, dict(joint_position=np.zeros(9)))
     assert state.patches[0].finger_clearance_m == (0.03, 0.03)
     if abs(tool_x) > 0.1:
@@ -304,4 +309,34 @@ def test_occluded_or_parked_tool_does_not_erase_selected_material_support(monkey
     assert not visibility["direct_surface_depth_supported"]
     assert not visibility["contact_directly_measured"]
     assert not visibility["contact_admitted"]
-    assert state.patches[0].pose_support.position_bound_m > 0.004
+    assert state.patches[0].geometry_support.position_bound_m == 0.004
+    assert state.patches[0].pose_support.position_bound_m == 0.001
+
+
+def test_frame_origin_budget_keeps_geometry_and_fingertip_rotation_separate():
+    from types import SimpleNamespace
+
+    from alexdoor_xas.perception.contracts import FieldSupport
+    from alexdoor_xas.perception.point2pose.tracking import PanelTracking
+
+    tracking = PanelTracking(
+        SimpleNamespace(reset=lambda: None),
+        {},
+        calibration_bound=(0.0001, 0.001),
+        distal_faces=(np.array([[0, -0.01, 0]]), np.array([[0, 0.01, 0]])),
+    )
+    candidate = SimpleNamespace(
+        geometry=FieldSupport(0, 0, 0, 0, 0.004, 0.01),
+        support=FieldSupport(1, 1, 1, 0),
+        registration_origin_map=np.zeros(3),
+        map_from_object=np.eye(4),
+        object_from_zone=np.eye(4),
+        registration_position_m=0.002,
+        registration_rotation_rad=0.02,
+    )
+    frame, finger = tracking.frame_budget(candidate, 1), tracking.budget(candidate, 1)
+    assert frame.displacement_m == pytest.approx(0.0021)
+    assert frame.rotation_rad == pytest.approx(0.021)
+    assert finger.displacement_m > 0.004 + frame.displacement_m
+    assert finger.rotation_rad == pytest.approx(0.01 + frame.rotation_rad)
+    assert "local_geometry" not in [source.name for source in frame.sources]

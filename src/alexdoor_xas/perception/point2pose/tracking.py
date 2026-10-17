@@ -402,8 +402,20 @@ class PanelTracking:
 
     def budget(self, candidate, now, distal_faces=None, tool_world=None):
         faces = self.distal_faces if distal_faces is None else distal_faces
-        # Each radius is measured from its actual rotation origin to the fingers.
-        finger_r = None if faces is None else max(np.linalg.norm(f, axis=1).max() for f in faces)
+        radius = None if faces is None else max(np.linalg.norm(f, axis=1).max() for f in faces)
+        return self._point_budget(candidate, now, radius, tool_world)
+
+    def frame_budget(self, candidate, now):
+        """Dynamic frame-origin error; local geometry is published separately.
+
+        Do not publish a complete fingertip displacement as frame translation
+        and then charge the same geometry/rotation again in action admission.
+        """
+        complete = self._point_budget(candidate, now, 0.0, None)
+        return ContactBudget(tuple(s for s in complete.sources if s.name != "local_geometry"))
+
+    def _point_budget(self, candidate, now, finger_r, tool_world):
+        # Each angular lever starts at its actual registration/calibration origin.
         registration_origin = candidate.registration_origin_map
         origin_o = (
             None
@@ -503,6 +515,7 @@ class PanelTracking:
             budget = self.budget(
                 candidate, now, tool_world=object_frame(candidate.pose) if fresh else None
             )
+            frame_budget = self.frame_budget(candidate, now)
             pose_support = (
                 None
                 if support is None
@@ -511,8 +524,8 @@ class PanelTracking:
                     support.available_s,
                     support.supported_s,
                     self.generation,
-                    budget.displacement_m,
-                    budget.rotation_rad,
+                    frame_budget.displacement_m,
+                    frame_budget.rotation_rad,
                 )
             )
             clearance = (None, None)

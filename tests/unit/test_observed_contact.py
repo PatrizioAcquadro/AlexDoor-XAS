@@ -187,3 +187,22 @@ def test_impulse_contact_uses_covered_native_mean_while_load_peak_is_preserved()
     result = m.update(*inputs(1.2 + 2 / 60))
     assert result.status == "unavailable"
     assert result.reason == "contact_load_coverage_gap"
+
+
+def test_contact_bound_includes_separately_published_material_geometry():
+    base = inputs(1)
+    now, estimate, tool, load, receipt = base
+    patch = estimate.local.patches[0]
+    changed = replace(
+        patch,
+        geometry_support=replace(
+            patch.geometry_support, position_bound_m=patch.geometry_support.position_bound_m + 0.001
+        ),
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(changed,)))
+    updated = admit_local_action(
+        estimate, receipt.proposal, receipt.local_evidence, receipt.limits, now, generation=0
+    )
+    original = monitor().update(*base)
+    measured = monitor().update(now, estimate, tool, load, updated)
+    assert measured.uncertainty_m == pytest.approx(original.uncertainty_m + 0.001)
