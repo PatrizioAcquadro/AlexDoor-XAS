@@ -748,3 +748,5 @@ The local evidence directory retains `campaign-budget-proposal-revised.json` and
 deferred observed A4 initialization is not an A1/A2 prerequisite.
 
 Self-clearance now requires explicit travel bounds for every ancestor joint of the relevant active-arm/body pairs, including held head, left arm and jaws. Missing held-joint evidence cannot silently become zero motion. Shared rigid ancestors cancel; existing body-pair filters still inherit to fixed collision descendants. Full recorded-motion qualification remains pending.
+
+The material replay exposed worker-estimated seed-observation availability surviving beside correctly timed map observations. The session now assigns seed observations their measured publication time before local material adoption, including synchronous simulation. Original acquisition/support clocks remain unchanged. This closes a concrete initialization failure; it does not backdate asynchronous results.

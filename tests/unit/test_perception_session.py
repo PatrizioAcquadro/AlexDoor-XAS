@@ -512,6 +512,11 @@ def test_explicit_policy_protocol_selects_one_observed_zone_without_qualifying_o
     def checked_adopt(candidates, captured, scan, *, available_s):
         clocks = [o.available_s for surface in scan.surfaces for o in surface.observations]
         assert clocks and all(t == available_s for t in clocks)
+        assert all(
+            observation.available_s == available_s
+            for candidate in candidates
+            for observation in candidate.surface.observations
+        )
         adopted_clocks.append(available_s)
         return adopt(candidates, captured, scan, available_s=available_s)
 

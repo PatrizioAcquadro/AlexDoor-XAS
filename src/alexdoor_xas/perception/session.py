@@ -589,6 +589,17 @@ class SessionProvider:
         self.last_cue = captured, result["cue"]
         if self.tracking:
             if result["initial_candidates"]:
+                # Worker-local latency estimates are not publication clocks.
+                # Seed observations may be separate objects from the map copy;
+                # assign the same measured publication time before adoption.
+                for candidate in result["initial_candidates"]:
+                    for observation in candidate.surface.observations:
+                        observation.available_s = self.scan_available.get(
+                            observation.acquired_s,
+                            ready
+                            if observation.acquired_s == float(captured["time_s"])
+                            else observation.available_s,
+                        )
                 self.tracking.adopt_candidates(
                     result["initial_candidates"], captured, self.scan_memory, available_s=ready
                 )
