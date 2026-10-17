@@ -1,0 +1,149 @@
+{
+  "scope": "bounded_real_shared_encoder_pilot_not_final_matched_dataset",
+  "episodes": [
+    {
+      "asset_id": "animated-door-1-88abf40",
+      "split": "train",
+      "condition": "nominal",
+      "lighting_scale": 1.0,
+      "seed": 6200,
+      "directory": "animated-door-1-88abf40/nominal",
+      "episode_id": "animated-door-1-88abf40-nominal-real-pilot"
+    },
+    {
+      "asset_id": "animated-door-1-88abf40",
+      "split": "train",
+      "condition": "dim",
+      "lighting_scale": 0.9,
+      "seed": 6300,
+      "directory": "animated-door-1-88abf40/dim",
+      "episode_id": "animated-door-1-88abf40-dim-real-pilot"
+    },
+    {
+      "asset_id": "door-2738468b94d74c5f",
+      "split": "train",
+      "condition": "nominal",
+      "lighting_scale": 1.0,
+      "seed": 6200,
+      "directory": "door-2738468b94d74c5f/nominal",
+      "episode_id": "door-2738468b94d74c5f-nominal-real-pilot"
+    },
+    {
+      "asset_id": "door-2738468b94d74c5f",
+      "split": "train",
+      "condition": "bright",
+      "lighting_scale": 1.1,
+      "seed": 6300,
+      "directory": "door-2738468b94d74c5f/bright",
+      "episode_id": "door-2738468b94d74c5f-bright-real-pilot"
+    },
+    {
+      "asset_id": "psx-industrial-001-4f5561b",
+      "split": "development",
+      "condition": "dim",
+      "lighting_scale": 0.9,
+      "seed": 6200,
+      "directory": "psx-industrial-001-4f5561b/dim",
+      "episode_id": "psx-industrial-001-4f5561b-dim-real-pilot"
+    },
+    {
+      "asset_id": "psx-industrial-001-4f5561b",
+      "split": "development",
+      "condition": "bright",
+      "lighting_scale": 1.1,
+      "seed": 6300,
+      "directory": "psx-industrial-001-4f5561b/bright",
+      "episode_id": "psx-industrial-001-4f5561b-bright-real-pilot"
+    }
+  ],
+  "condition": "nominal",
+  "training_seed": 17,
+  "inference_seed": 23,
+  "chunk_ticks": 12,
+  "replan_ticks": 6,
+  "batch_size": 32,
+  "overfit_updates": 0,
+  "epochs": 30,
+  "max_batches_per_epoch": 100,
+  "evaluation_chunks": 256,
+  "lr": 0.0001,
+  "diffusion_warmup_steps": 100,
+  "ddim_steps": 10,
+  "replay_approach_ticks": 180,
+  "rollout_max_ticks": 9000,
+  "criteria": {
+    "position_m": 0.01,
+    "rotation_rad": 0.08726646259971647,
+    "force_limit_n": 80,
+    "overfit_fractional_l1_reduction": 0.2,
+    "checkpoint_prediction_atol": 1e-07
+  },
+  "policy_contact_prerequisites": [
+    "verified_dynamic_peak_load_calibration",
+    "verified_moving_contact_stop_envelope",
+    "observed_local_sweep_response_and_contact"
+  ],
+  "evaluation": "All four final checkpoints on the fixed six-condition panel, 24 outcomes; retain failures/refusals. Panel frozen before real training; simulated lighting only, no pose/dynamics change.",
+  "sealed_test": false,
+  "final_matrix": false,
+  "geometry_recipe": "configs/b1_pilot_observed_geometry.json",
+  "recipe": "rgbd-conv-v1",
+  "evaluation_panel": [
+    {
+      "asset_id": "animated-door-1-88abf40",
+      "split": "train",
+      "condition": "nominal",
+      "lighting_scale": 1.0,
+      "seed": 7100
+    },
+    {
+      "asset_id": "animated-door-1-88abf40",
+      "split": "train",
+      "condition": "dim",
+      "lighting_scale": 0.9,
+      "seed": 7100
+    },
+    {
+      "asset_id": "animated-door-1-88abf40",
+      "split": "train",
+      "condition": "bright",
+      "lighting_scale": 1.1,
+      "seed": 7100
+    },
+    {
+      "asset_id": "door-2738468b94d74c5f",
+      "split": "train",
+      "condition": "nominal",
+      "lighting_scale": 1.0,
+      "seed": 7100
+    },
+    {
+      "asset_id": "door-2738468b94d74c5f",
+      "split": "train",
+      "condition": "dim",
+      "lighting_scale": 0.9,
+      "seed": 7100
+    },
+    {
+      "asset_id": "door-2738468b94d74c5f",
+      "split": "train",
+      "condition": "bright",
+      "lighting_scale": 1.1,
+      "seed": 7100
+    }
+  ],
+  "variation_status": "Prospective moderate dome-light range .9-1.1; qualify from development recordings before learned evaluation, preserve failures without removing panel entries.",
+  "reference_protocol": "Preserved valid nominal teacher diagnostic at seed6100 plus first prospective nominal fresh demonstration at seed6200, both same physical setup/controller; qualify_pair unchanged, two valid cycles with <=2deg spread. Historical scores preserved.",
+  "collection_admission": "Privileged common teacher and independent physical scoring; preserve complete failures and exclude invalid imitation targets. Operational observed admission remains required for learned commands.",
+  "budget": {
+    "fresh_demonstrations_max": 6,
+    "local_storage_max_gib": 300,
+    "optimizer_updates_total_max": 18000,
+    "prior_infrastructure_updates": 164,
+    "initial_real_updates_per_cell": 3000,
+    "additional_real_updates_total_remaining": 5836,
+    "remaining_gilbreth_jobs": 1,
+    "remaining_gilbreth_gpu_s": 3538,
+    "local_gpu_h": 3
+  }
+}

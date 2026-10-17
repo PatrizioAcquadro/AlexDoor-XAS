@@ -543,3 +543,16 @@ finite support cannot establish this identity. This witnesses the selected local
 material, not a hinge, movable-leaf ownership for the whole mask or A3/A4 operational
 initialization. Independent intended-door/negative-case validation remains required
 before a pilot recipe is qualified.
+
+`configs/b1_learned_pilot.json` prospectively declares the real learned-encoder
+pilot: at most six fresh physical episodes, four cells with 3,000 updates each,
+and all 24 learned outcomes on two doors × nominal/dim/bright simulated dome
+lighting × four cells. Train doors each have nominal and one cross-selected
+lighting condition; development dim/bright episodes must qualify the moderate
+0.9–1.1 range before learned evaluation. The unobserved train-door lighting
+condition stays in the panel. No dynamics or placement variation is claimed.
+Invalid episodes remain evidence and never become imitation targets automatically.
+The first fresh nominal episode and the independently preserved valid diagnostic
+form the prospective matched-condition expert pair under unchanged pair criteria;
+historical denominators/scores remain untouched. The current global resource
+ceilings still apply; this protocol is not permission to exceed them.
