@@ -9,7 +9,7 @@ import os
 import sys
 import traceback
 from pathlib import Path
-from time import perf_counter
+from time import perf_counter, time
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
@@ -108,6 +108,10 @@ def main():
     cfg.seed = selected[0]["seed"]
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
     env = DoorPushPurdueEnv(cfg)
+    write_json(
+        args.output / "physical-case-start.json",
+        dict(mode=args.mode, condition=condition, wall_time=time()),
+    )
     from pxr import UsdLux
 
     light = UsdLux.DomeLight(env.sim.stage.GetPrimAtPath("/World/Light"))

@@ -556,3 +556,8 @@ The first fresh nominal episode and the independently preserved valid diagnostic
 form the prospective matched-condition expert pair under unchanged pair criteria;
 historical denominators/scores remain untouched. The current global resource
 ceilings still apply; this protocol is not permission to exceed them.
+
+Physical pilot entry points write a case-start marker only after creating the
+actual Isaac environment. Launcher/preflight errors remain separate from physical
+cases; all created collection/replay/rollout environments remain accountable,
+including later refusals or failures.
