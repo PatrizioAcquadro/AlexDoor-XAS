@@ -484,3 +484,10 @@ train contact-plane samples, normalized geometry gives maximum plane errors
 0.06844/0.00199 mm and normal errors 0.000268/0.000266 rad (right/left).
 These are diagnostic numerical results, not a complete sensor uncertainty bound,
 hardware qualification or observed-contact admission.
+
+The corrected fresh right dim and left bright episodes independently pass the
+physical and raw-reuse audits. Controlled openings are 51.1111/52.5461 degrees;
+all 180 hold ticks pass on each door. Actual joint peaks are 0.3202/0.2844 rad/s
+and two-second stop travel is 0.02056/0.02077 mm. Both retain complete native
+feedback and 20-joint states with reconstructible supervisor-only A3/A4 labels.
+The fixed nominal expert references remain 51.2603/52.5360 degrees.

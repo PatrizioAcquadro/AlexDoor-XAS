@@ -467,3 +467,19 @@ def test_policy_views_and_chunk_sampler_share_readonly_disk_matrix(pilot_binding
     # Explicit replacement of a column cannot be hidden by the canonical fast path.
     record.obs[OBS_KEYS[-1]] = np.ones_like(record.obs[OBS_KEYS[-1]])
     assert np.all(obs_matrix(record, OBS_KEYS)[:, -9:] == 1)
+
+
+def test_excluded_supervision_is_not_required_on_training_host(tmp_path):
+    import runpy
+    from pathlib import Path
+
+    prepare = runpy.run_path(str(Path("scripts/pilot_offline.py")))["prepare"]
+    entry = dict(asset_id="retained", split="train", use_for_imitation=False)
+    with pytest.raises(ValueError, match="explicit reason"):
+        prepare(tmp_path, {"episodes": [entry]}, export=False)
+    entry["imitation_exclusion_reason"] = "Preserved on the collection host; unsuitable labels"
+    prepare(tmp_path, {"episodes": [entry]}, export=False)
+    audit = json.loads((tmp_path / "preflight-label-audit.json").read_text())
+    assert audit[0]["used_for_imitation"] is False
+    assert audit[0]["recording_available_here"] is False
+    assert audit[0]["retention_verified_here"] is False

@@ -698,3 +698,8 @@ train contact-plane samples, normalized geometry gives maximum plane errors
 0.06844/0.00199 mm and normal errors 0.000268/0.000266 rad (right/left).
 These are diagnostic numerical results, not a complete sensor uncertainty bound,
 hardware qualification or observed-contact admission.
+
+Pilot preparation records explicit exclusions and whether their unused raw files
+are present on the current host. It does not require transferring excluded nominal
+labels to Gilbreth and does not claim that remote preparation verified workstation
+retention. Eligible train/development inputs remain mandatory.

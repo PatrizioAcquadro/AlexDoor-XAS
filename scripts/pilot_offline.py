@@ -54,8 +54,8 @@ def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True, urdf=N
         if entry.get("use_for_imitation") is False:
             reason = entry.get("imitation_exclusion_reason")
             path = directory / "episode.hdf5"
-            if not reason or not path.is_file():
-                raise ValueError("Excluded collection requires retained raw evidence and a reason")
+            if not reason:
+                raise ValueError("Excluded collection requires an explicit reason")
             audit.append(
                 dict(
                     asset_id=entry["asset_id"],
@@ -63,6 +63,8 @@ def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True, urdf=N
                     used_for_imitation=False,
                     reason=reason,
                     source_recording=str(path.resolve()),
+                    recording_available_here=path.is_file(),
+                    retention_verified_here=False,
                 )
             )
             print(json.dumps(audit[-1]), flush=True)
