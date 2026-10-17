@@ -395,8 +395,23 @@ class ObservedBackground(CommonWorkspace):
         guard = current_foreground_margin_m
         if guard is None or not np.isfinite(guard) or guard <= 0:
             raise ValueError("missing_current_foreground_exclusion")
+        centers, radii = np.asarray(centers, float), np.asarray(radii, float)
+        if (
+            centers.ndim != 2
+            or centers.shape[1:] != (3,)
+            or not len(centers)
+            or radii.shape != (len(centers),)
+            or not np.isfinite(centers).all()
+            or not np.isfinite(radii).all()
+            or (radii < 0).any()
+        ):
+            return StaticWorkspaceSupport(None, True, False, self.source_clocks)
         margins = []
         for center, radius in zip(centers, radii, strict=True):
+            remembered = self._nearby_margin(center, radius)
+            if remembered is not None:
+                margins.append(remembered)
+                continue
             for condition in range(len(self.spaces)):
                 margin = self._cached_pyramid_margin(np.asarray(center)[None], radius, condition)
                 if margin is None:

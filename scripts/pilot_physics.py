@@ -371,7 +371,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         device="cuda:0",
         num_inference_steps=protocol["ddim_steps"],
     )
-    observer, io, geometry, motion, load_log = observed_pilot_runtime(
+    observer, io, geometry, motion, load_log, contact_log = observed_pilot_runtime(
         env, binding, robot, setup, args.operational_recipe, args.output, policy.action_space
     )
     recording = RolloutWriter(
@@ -606,6 +606,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         evaluator_states.close()
         motion.close()
         load_log.close()
+        contact_log.close()
         geometry.close()
     stop_time = env._time_s
     assert io.env._pending_pose is None and io.env._pending_joints is None

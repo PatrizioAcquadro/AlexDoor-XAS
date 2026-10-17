@@ -114,7 +114,22 @@ def observed_front_extent(surface, views, config):
     connected = np.isin(labels, np.unique(labels[seeds]))
     measured = max(0.0, float(surface.offset - coordinate[connected].min()))
     bound = 1.25 * measured + 0.01 + config["plane_tolerance_m"]
+    protruding = connected & (surface.offset - coordinate > 2 * config["plane_tolerance_m"])
+    tangent_lower = tangent_upper = None
+    if protruding.any():
+        tangent = (points[protruding] @ basis)[:, 1:]
+        reserve = (
+            config["association_distance_m"]
+            + config["plane_tolerance_m"]
+            + 0.01
+            + 0.25 * np.ptp(tangent, axis=0)
+        )
+        tangent_lower = (tangent.min(0) - reserve).tolist()
+        tangent_upper = (tangent.max(0) + reserve).tolist()
     return dict(
+        protrusion_tangent_lower_m=tangent_lower,
+        protrusion_tangent_upper_m=tangent_upper,
+        observed_protrusion_voxels=int(protruding.sum()),
         front_extent_m=bound,
         observed_extent_m=measured,
         source_clocks=clocks,

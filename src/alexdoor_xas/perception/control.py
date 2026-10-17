@@ -9,9 +9,10 @@ from alexdoor_xas.perception.contracts import LEGACY_FULL_STATE, validate_geomet
 class ObservedControlChecks:
     """RGB-D cannot establish loaded contact or force; never manufacture that feedback."""
 
-    def __init__(self, setup, *, contact_monitor=None):
+    def __init__(self, setup, *, contact_monitor=None, on_contact_evidence=None):
         self.setup = setup
         self.contact_monitor = contact_monitor
+        self.on_contact_evidence = on_contact_evidence
         self.reset()
 
     def reset(self):
@@ -107,7 +108,8 @@ class ObservedControlChecks:
             )
             if admission is not None:
                 orientation_bound += admission.limits.robot_rotation_bound_rad
-            if alignment + orientation_bound > self.setup.orientation_tolerance:
+            orientation_rejected = alignment + orientation_bound > self.setup.orientation_tolerance
+            if orientation_rejected and stage in ("contact", "push", "hold"):
                 return "observed_contact_orientation"
             # A complete geometric estimate alone cannot certify the frozen force/load rules.
             if feedback is None or feedback.torque_nm is None:
@@ -144,8 +146,12 @@ class ObservedControlChecks:
                 if self.contact_monitor is None:
                     return "operational_contact_monitor_unconfigured"
                 evidence = self.contact_monitor.update(now, estimate, tool, load, admission)
+                if self.on_contact_evidence is not None:
+                    self.on_contact_evidence(evidence)
                 if evidence.status in ("lost", "unavailable"):
                     return evidence.reason
+                if loaded and orientation_rejected and evidence.status != "separated":
+                    return "observed_contact_orientation"
                 if stage in ("push", "hold") and evidence.status != "contact":
                     return "observed_contact_not_established"
         return ""

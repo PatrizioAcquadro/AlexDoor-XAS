@@ -47,6 +47,9 @@ class LocalActionSupport:
     # Measured possible material depth relative to the reference plane. This
     # affects indirect contact intervals, never the independent physical score.
     material_normal_range_m: tuple[float, float] | None = None
+    # Full-interval position/angular growth ALREADY eroded by the producer,
+    # including relative material motion. Only excess growth spends the residual.
+    unloaded_temporal_bound_m_rad: tuple[float, float] | None = None
 
 
 def _local_error(patch, evidence, limits, now, duration):
@@ -158,6 +161,14 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             nonnegative(evidence.unloaded_normal_lever_m, "missing_unloaded_normal_lever")
             nonnegative(patch.normal_position_bound_m, "missing_unloaded_normal_bound")
             nonnegative(patch.normal_rotation_bound_rad, "missing_unloaded_normal_bound")
+            if evidence.unloaded_temporal_bound_m_rad is not None:
+                temporal = np.asarray(evidence.unloaded_temporal_bound_m_rad)
+                if (
+                    temporal.shape != (2,)
+                    or not np.isfinite(temporal).all()
+                    or (temporal < 0).any()
+                ):
+                    raise ValueError("invalid_unloaded_temporal_bound")
             if clearance <= 0 or nonnegative(sweep_margin, "invalid_robot_sweep_margin") <= 0:
                 raise ValueError("insufficient_unloaded_full_robot_margin")
             error = 0.0
@@ -251,11 +262,18 @@ def require_current_local_admission(admission, estimate, now):
         # The original producer proved separation for the complete interval.
         # Spend any subsequent normal-bound growth; never substitute a finite
         # patch margin for a free-volume proof or silently assume zero motion.
-        growth = (
-            max(0, patch.normal_position_bound_m - before.normal_position_bound_m)
-            + evidence.unloaded_normal_lever_m
-            * max(0, patch.normal_rotation_bound_rad - before.normal_rotation_bound_rad)
+        prepaid_p = prepaid_a = 0.0
+        if evidence.unloaded_temporal_bound_m_rad is not None:
+            fraction = min(1.0, max(0.0, elapsed / (end - start)))
+            prepaid_p, prepaid_a = np.asarray(evidence.unloaded_temporal_bound_m_rad) * fraction
+        growth = max(
+            0.0,
+            patch.normal_position_bound_m
+            - before.normal_position_bound_m
             + admission.limits.relative_speed_bound_m_s * elapsed
+            - prepaid_p,
+        ) + evidence.unloaded_normal_lever_m * max(
+            0.0, patch.normal_rotation_bound_rad - before.normal_rotation_bound_rad - prepaid_a
         )
         if growth >= evidence.unloaded_separation_margin_m:
             raise ValueError("admitted_unloaded_separation_exhausted")

@@ -603,8 +603,9 @@ def test_unloaded_full_robot_proof_does_not_require_an_irrelevant_contact_footpr
         finger_clearance_m=(None, None),
         collision_clearance_m=None,
         swept_collision_margin_m=0.02,
-        unloaded_separation_margin_m=0.015,
+        unloaded_separation_margin_m=0.0001,
         unloaded_normal_lever_m=0.8,
+        unloaded_temporal_bound_m_rad=(limits.relative_speed_bound_m_s / 60, 0.0),
     )
     receipt = admit_local_action(estimate, proposal, free, limits, 1, generation=0)
     assert receipt.admitted
@@ -614,6 +615,8 @@ def test_unloaded_full_robot_proof_does_not_require_an_irrelevant_contact_footpr
         replace(free, unloaded_normal_lever_m=None),
         replace(free, unloaded_separation_margin_m=0),
         replace(free, unknown_in_envelope=True),
+        replace(free, unloaded_temporal_bound_m_rad=(-1.0, 0.0)),
+        replace(free, unloaded_temporal_bound_m_rad=(float("nan"), 0.0)),
     ]:
         assert not admit_local_action(estimate, proposal, bad, limits, 1, generation=0).admitted
     assert not admit_local_action(

@@ -327,3 +327,112 @@ def test_bounded_relief_extends_only_possible_surface_interval_and_keeps_far_loa
         far, local_evidence=replace(far.local_evidence, material_normal_range_m=(0.0, 0.02))
     )
     assert m.update(t, estimate, tool, load, far).reason == "load_without_intended_surface"
+
+
+def test_complete_unloaded_proof_is_not_an_unspent_contact_patch_margin():
+    now, estimate, tool, load, receipt = inputs(1, force=0, x=-0.05)
+    patch = replace(
+        estimate.local.patches[0], normal_position_bound_m=0.005, normal_rotation_bound_rad=0.01
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    proposal = replace(receipt.proposal, loaded=False)
+    support = replace(
+        receipt.local_evidence,
+        finger_clearance_m=(None, None),
+        collision_clearance_m=None,
+        swept_collision_margin_m=0.002,
+        unloaded_separation_margin_m=0.001,
+        unloaded_normal_lever_m=0.1,
+    )
+    free = admit_local_action(estimate, proposal, support, receipt.limits, now, generation=0)
+    assert free.admitted
+    result = monitor().update(now, estimate, tool, load, free)
+    assert result.status == "separated"
+    # Contradictory positive load still cannot establish remote intended contact.
+    positive = replace(
+        load, normal_lower_n=4.0, force_upper_n=4.1, normal_samples=((now - 1 / 60, now, 4.0),)
+    )
+    result = monitor().update(now, estimate, tool, positive, free)
+    assert result.status == "unavailable" and result.reason == "load_without_intended_surface"
+
+
+def test_certain_separation_does_not_start_the_contact_acquisition_deadline():
+    m = monitor()
+    for t in np.arange(1.0, 2.0, 1 / 60):
+        result = m.update(*inputs(float(t), force=0, x=-0.05))
+    assert result.status == "separated"
+    assert m.seek_started is None and not m.latched_reason
+    identity = m.identity
+    # Approach and withdraw continuously within the unchanged travel cap.
+    for t in np.arange(2.0, 2.5, 1 / 60):
+        result = m.update(
+            *inputs(float(t), force=0, x=float(np.interp(t, [2.0, 2.5], [-0.05, -0.005])))
+        )
+    assert m.seek_started is not None and result.status == "seeking"
+    for t in np.arange(2.5, 2.8, 1 / 60):
+        result = m.update(
+            *inputs(float(t), force=0, x=float(np.interp(t, [2.5, 2.8], [-0.005, -0.05])))
+        )
+    assert result.status == "separated" and m.seek_started is None
+    assert m.identity == identity and not m.latched_reason and m.force_samples
+    assert result.acquisition_started_s is None and result.acquisition_travel_m == 0
+    # A later uninterrupted unresolved attempt still reaches the same deadline.
+    for t in np.arange(2.8, 3.3, 1 / 60):
+        result = m.update(
+            *inputs(float(t), force=0, x=float(np.interp(t, [2.8, 3.3], [-0.05, 0.003])))
+        )
+    for t in np.arange(3.3, 3.83, 1 / 60):
+        result = m.update(*inputs(float(t), force=0))
+    assert result.status == "lost" and result.reason == "contact_acquisition_budget"
+
+
+@pytest.mark.parametrize(
+    "stage,x,expected",
+    [
+        ("policy", -0.05, ""),
+        ("policy", 0.003, "observed_contact_orientation"),
+        ("push", -0.05, "observed_contact_orientation"),
+    ],
+)
+def test_contact_orientation_still_applies_to_possible_contact_not_separated_approach(
+    stage, x, expected
+):
+    from types import SimpleNamespace
+
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
+    from alexdoor_xas.perception.control import ObservedControlChecks
+
+    now, estimate, tool, load, receipt = inputs(1, force=0, x=x)
+    tool = replace(tool, rot=Rotation.from_euler("y", 0.2).as_matrix())
+    proposal = replace(
+        receipt.proposal, world_poses=(tool, apply_pose_delta(tool, receipt.proposal.action))
+    )
+    support = replace(receipt.local_evidence, world_poses=proposal.world_poses)
+    receipt = admit_local_action(estimate, proposal, support, receipt.limits, now, generation=0)
+    assert receipt.admitted
+    checks = ObservedControlChecks(
+        SimpleNamespace(max_joint_speed=0.5, orientation_tolerance=np.deg2rad(5), force_limit_n=6),
+        contact_monitor=monitor(),
+    )
+    sensor = dict(
+        time_s=now,
+        joint_position=np.zeros(9),
+        joint_velocity=np.zeros(9),
+        valid_depth=np.ones((1, 1), bool),
+        rgb=np.ones((1, 1, 3), np.uint8),
+    )
+    reason = checks.check(
+        sensor,
+        estimate,
+        tool,
+        np.zeros((7, 2)),
+        stage,
+        np.zeros(2),
+        profile=OPERATIONAL_V1,
+        feedback=load.feedback,
+        admission=receipt,
+        load=load,
+    )
+    assert reason == expected

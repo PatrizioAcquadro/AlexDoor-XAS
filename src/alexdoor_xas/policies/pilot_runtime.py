@@ -1,10 +1,12 @@
 """Observed A1/A2 motion evidence from actual robot state and measured workcell rays."""
 
 import json
+from itertools import product
 from pathlib import Path
 from time import perf_counter
 
 import numpy as np
+from scipy.spatial import ConvexHull
 
 from alexdoor_xas.action.b1 import apply_pose_delta
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA
@@ -12,12 +14,17 @@ from alexdoor_xas.assets.purdue import ARM_JOINTS, derive_push_geometry
 from alexdoor_xas.kinematics.self_clearance import RobotSelfClearance
 from alexdoor_xas.kinematics.urdf_geometry import RobotGeometry, stop_box_cover
 from alexdoor_xas.perception.admission import ActionAdmission, ActionLimits, ActionProposal
+from alexdoor_xas.perception.contact_geometry import distal_body_order, observed_front_extent
 from alexdoor_xas.perception.contracts import FieldSupport, validate_local_contact
 from alexdoor_xas.perception.evaluation import json_safe
 from alexdoor_xas.perception.local_admission import LocalActionSupport, admit_local_action
 from alexdoor_xas.perception.material_zone import object_frame, pose_matrix
-from alexdoor_xas.perception.scan import footprint_support
-from alexdoor_xas.perception.workspace import CommonWorkspace
+from alexdoor_xas.perception.scan import ObservedSpace, footprint_support
+from alexdoor_xas.perception.workspace import (
+    CommonWorkspace,
+    ObservedBackground,
+    StaticWorkspaceSupport,
+)
 from alexdoor_xas.policies.rollout import Command
 from alexdoor_xas.recording.b1_runtime import array
 
@@ -45,9 +52,51 @@ class PilotMotionEvidence:
         self.model = RobotGeometry(io.env.robot.cfg.spawn.asset_path, ARM_JOINTS)
         self.self_clearance = RobotSelfClearance(self.model, BODY_FILTERS)
         self.faces = derive_push_geometry(io.env.robot.cfg.spawn.asset_path).contact_covers()
-        self.workspace = CommonWorkspace.from_recordings(
-            config["workspace_recordings"], recipe.config, config["camera_bound"]
+        self.background_mode = config.get("background_recording_groups") is not None
+        self.workspace = (
+            ObservedBackground.from_recording_groups(
+                config["background_recording_groups"],
+                recipe.config,
+                config["camera_bound"],
+                config["background_sample_times_s"],
+            )
+            if self.background_mode
+            else CommonWorkspace.from_recordings(
+                config["workspace_recordings"], recipe.config, config["camera_bound"]
+            )
         )
+        self.rigid_workspace = self.rigid_identity = None
+        self.rigid_reference_workspace = (
+            CommonWorkspace.from_recordings(
+                config["workspace_recordings"], recipe.config, config["camera_bound"]
+            )
+            if self.background_mode
+            else None
+        )
+        self.interface_model = None
+        if self.background_mode:
+            self.interface_model = json.loads(Path(config["interface_calibration"]).read_text())
+            if self.interface_model["verified"] is not True:
+                raise ValueError("unverified_rigid_interface_component")
+            if (
+                config["stop_duration_s"] != self.interface_model["stop_duration_s"]
+                or config["stop_force_domain_n"] > self.interface_model["force_domain_n"]
+                or config["max_joint_speed_rad_s"] > self.interface_model["max_joint_speed_rad_s"]
+                or config["robot_stop_rotation_bound_rad"]
+                < self.interface_model["robot_stop_rotation_bound_rad"]
+            ):
+                raise ValueError("outside_rigid_interface_calibration_domain")
+            values = [
+                self.interface_model[k]
+                for k in (
+                    "indentation_bound_m",
+                    "planarity_bound_m",
+                    "normal_model_bound_rad",
+                    "panel_front_bound_m",
+                )
+            ] + [config["robot_stop_rotation_bound_rad"], config["stop_duration_s"]]
+            if not np.isfinite(values).all() or min(values) <= 0:
+                raise ValueError("invalid_rigid_interface_domain")
         self.stop = np.asarray(config["stop_joint_bound_rad"], float)
         self.acceleration = np.asarray(config["acceleration_max_rad_s2"], float)
         self.shape_stop = np.asarray(config["shape_stop_bound_m"], float)
@@ -78,6 +127,9 @@ class PilotMotionEvidence:
         self.cells = self.model.cells()
         self.log = Path(output).open("x")
         self.last = None
+        Path(output).with_suffix(".background-sources.json").write_text(
+            json.dumps(self.workspace.source_clocks) + "\n"
+        )
 
     def close(self):
         self.log.close()
@@ -145,32 +197,260 @@ class PilotMotionEvidence:
         ball = self.model.velocity_sweep(
             positions, io.calibration["root_world"], dq, self.acceleration, io.dt
         )
+        point_candidate = (
+            self.provider.tracking._constrained_candidate(candidate, candidate.local_constraint)
+            if candidate.local_constraint is not None
+            else candidate
+        )
+        map_from_current = candidate.initial_world @ np.linalg.inv(pose_matrix(patch.world_pose))
+        if self.background_mode and self.rigid_identity != (observation.generation, patch.patch_id):
+            views = self.provider.material_views
+            if not views:
+                raise ValueError("missing_causal_rigid_target_inspection")
+            initial_space = ObservedSpace(self.provider.config)
+            for view in views:
+                if float(view["available_s"]) > now:
+                    raise ValueError("future_rigid_target_inspection")
+                initial_space.add(view, float(view["available_s"]))
+            self.rigid_workspace = CommonWorkspace([initial_space], self.config["camera_bound"])
+            self.target_front_model = observed_front_extent(
+                candidate.surface, views, self.provider.config
+            )
+            Path(self.log.name).with_suffix(".target-front-model.json").write_text(
+                json.dumps(self.target_front_model) + "\n"
+            )
+            Path(self.log.name).with_suffix(".initial-target-sources.json").write_text(
+                json.dumps(
+                    dict(
+                        generation=observation.generation,
+                        patch_id=patch.patch_id,
+                        source_clocks=self.rigid_workspace.source_clocks,
+                    )
+                )
+                + "\n"
+            )
+            self.rigid_identity = observation.generation, patch.patch_id
         pending, covered = list(self.cells), []
         free_margin, separation, lever = np.inf, np.inf, 0.0
         checked = directional = 0
         control_angle = float(abs(dq).sum() * io.dt + 0.5 * self.acceleration.sum() * io.dt**2)
 
+        order = {}
+        if self.background_mode:
+            # Absolute interface offset is shared and cancels. The two real CAD
+            # distal lines constrain a rigid unilateral interface; the finite
+            # observed material and all static volumes are still checked below.
+            age = now - patch.pose_support.supported_s
+            cone = (
+                patch.normal_rotation_bound_rad
+                + self.interface_model["normal_model_bound_rad"]
+                + self.config["material_angular_speed_rad_s"]
+                * (age + io.dt + self.config["stop_duration_s"])
+                + control_angle
+                + self.config["robot_stop_rotation_bound_rad"]
+                + self.config["camera_bound"][1]
+            )
+            by_link = {}
+            for shape in self.self_clearance.shapes:
+                if shape["moving"] is None or "FINGER" not in shape["link"]:
+                    continue
+                transform = matrices[shape["link"]]
+                world = shape["convex"].points @ transform[:3, :3].T + transform[:3, 3]
+                local = (world - tool.origin) @ tool.rot
+                by_link.setdefault(shape["link"], []).append((shape["moving"], local))
+            for shapes in by_link.values():
+                all_points = np.concatenate([points for _, points in shapes])
+                forward = all_points[:, 0].max()
+                front = all_points[abs(all_points[:, 0] - forward) < 1e-6]
+                for index, points in shapes:
+                    triangles = points[ConvexHull(points).simplices].reshape(-1, 3)
+                    order[index] = distal_body_order(
+                        triangles, front, tool.rot.T @ normal, cone, 0.003
+                    ) - (
+                        2 * self.config["robot_model_bound_m"]
+                        + self.interface_model["planarity_bound_m"]
+                        + self.interface_model["indentation_bound_m"]
+                    )
+            diagnostics.update(interface_normal_cone_rad=cone, non_distal_order_margins_m=order)
+
+        temporal_p = 2 * self.config["relative_speed_bound_m_s"] * io.dt
+        temporal_a = self.config["material_angular_speed_rad_s"] * io.dt
+        foreground_by_key = {}
+
         def query(center, radius, key, *, constructive=True):
             nonlocal checked
             checked += 1
             if checked > self.config["maximum_cover_queries"]:
+                diagnostics.update(
+                    exhausted_cover_key=key,
+                    exhausted_center=center.tolist(),
+                    exhausted_radius_m=radius,
+                    robot_cover_queries=checked,
+                    exhausted_link=self.model.shapes[key[0]]["link"],
+                )
                 raise ValueError("robot_cover_query_budget_exhausted")
             local_lever = float(np.linalg.norm(center - patch.world_pose.origin) + radius)
             error = (
                 patch.normal_position_bound_m
                 + local_lever * patch.normal_rotation_bound_rad
                 + self.config["normal_model_bound_m"]
-                + self.config["relative_speed_bound_m_s"] * io.dt
+                + temporal_p
+                + local_lever * temporal_a
             )
             gap = float(
                 (patch.world_pose.origin - center) @ normal + normal_range[0] - radius - error
             )
-            support = self.workspace.query_static(
-                center[None],
-                np.array([radius]),
-                cover_ids=[key],
-                constructive=constructive,
-            )
+            if self.background_mode:
+                # Proper registration/calibration levers start at this actual
+                # sphere, rather than treating the distant material anchor as
+                # the tool center. The robot/stop volume is already in radius.
+                point_pose = type(tool)(center, tool.rot)
+                point_error = self.provider.tracking.budget(
+                    point_candidate,
+                    now,
+                    distal_faces=(np.array([[radius, 0.0, 0.0]]),) * 2,
+                    tool_world=point_pose,
+                ).displacement_m
+                if point_error is None:
+                    raise ValueError("unmeasured_current_target_point_bound")
+                # Pay future normal-bound growth AND relative motion explicitly;
+                # the response/stopping reserve remains separate and intact.
+                point_error += temporal_p + local_lever * temporal_a
+                response = 0.013 + 2 * (np.linalg.norm(center - tool.origin) + radius) * np.sin(
+                    0.04 / 2
+                )
+                mapped = map_from_current[:3, :3] @ center + map_from_current[:3, 3]
+                enlarged = radius + point_error + response
+                # This complete target envelope also covers attachments, unlike
+                # a plane-only leaf test. The bound is observed, then separately
+                # validated on the fixed pilot domain before execution.
+                model = self.target_front_model
+                lower, upper = (
+                    model["protrusion_tangent_lower_m"],
+                    model["protrusion_tangent_upper_m"],
+                )
+                protrusion_margin = None
+                if lower is not None and upper is not None:
+                    tangent = (mapped @ candidate.surface.basis)[1:]
+                    distance = np.linalg.norm(
+                        np.maximum(
+                            np.asarray(lower) - tangent, np.maximum(tangent - np.asarray(upper), 0)
+                        )
+                    )
+                    protrusion_margin = float(distance - enlarged)
+                # A one-sided Panel front bound is distinct from contact
+                # planarity: recessed surfaces remain behind it. The smaller
+                # bound is valid only outside the ENTIRE observed relief/handle
+                # envelope, with current pose, motion and stop uncertainty paid.
+                front_extent = (
+                    self.interface_model["panel_front_bound_m"]
+                    if protrusion_margin is not None and protrusion_margin > 0
+                    else self.target_front_model["front_extent_m"]
+                )
+                front_gap = (
+                    float((patch.world_pose.origin - center) @ normal)
+                    - radius
+                    - error
+                    - front_extent
+                    - response
+                )
+                foreground = front_gap if front_gap > 0 else None
+                if foreground is not None:
+                    gap = front_gap
+                current = StaticWorkspaceSupport(None, True, False, ())
+                if (
+                    foreground is None
+                    and key[0] in order
+                    and order[key[0]] > 0
+                    and cover is not None
+                ):
+                    reserve = max(0.0, 0.02 - self.shape_stop[key[0]])
+                    finite = cover.projected_ball_margin(mapped, enlarged + reserve)
+                    # Body order applies to the planar interface only. Exclude
+                    # the complete observed handle/relief envelope independently;
+                    # its finite tangent extent includes a calibrated reserve.
+                    finite_protrusion_margin = (
+                        None if protrusion_margin is None else protrusion_margin - reserve
+                    )
+                    if (
+                        finite is not None
+                        and finite > 0
+                        and finite_protrusion_margin is not None
+                        and finite_protrusion_margin > 0
+                    ):
+                        foreground = min(finite, order[key[0]], finite_protrusion_margin)
+                        gap = max(0.0, gap - response)
+                if foreground is None:
+                    # Each fixed initial train target is included in this
+                    # common calibration. No runtime asset lookup selects it.
+                    current = self.rigid_reference_workspace.query_static(
+                        mapped[None],
+                        np.array([enlarged]),
+                        cover_ids=[("initial_target", key)],
+                        constructive=False,
+                    )
+                    if current.collision_clearance_m is None:
+                        current = self.rigid_workspace.query_static(
+                            mapped[None],
+                            np.array([enlarged]),
+                            cover_ids=[key],
+                            constructive=False,
+                        )
+                    foreground = current.collision_clearance_m
+                    gap = 0.0 if foreground is None else float(foreground)
+                foreground_by_key[key] = foreground
+                if foreground is not None and foreground > 0:
+                    # Prefer the already measured world-space proof. Only a
+                    # volume hidden by an old moving foreground needs the
+                    # larger historical-background search.
+                    support = self.workspace.query_cached_background(
+                        center[None],
+                        np.array([radius]),
+                        current_foreground_margin_m=foreground,
+                    )
+                    if support.collision_clearance_m is None:
+                        support = self.rigid_reference_workspace.query_static(
+                            center[None],
+                            np.array([radius]),
+                            cover_ids=[("static_world", key)],
+                            constructive=False,
+                        )
+                    if support.collision_clearance_m is None:
+                        # Initial views of THIS scene also certify stationary
+                        # background in world coordinates. Only the target may
+                        # move; its current exclusion has already been proved.
+                        support = self.rigid_workspace.query_static(
+                            center[None],
+                            np.array([radius]),
+                            cover_ids=[("static_world", key)],
+                            constructive=False,
+                        )
+                    if support.collision_clearance_m is None:
+                        support = self.workspace.query_background(
+                            center[None],
+                            np.array([radius]),
+                            current_foreground_margin_m=foreground,
+                            cover_ids=[key],
+                            constructive=constructive and key[2] == "box",
+                        )
+                    elif support.collision_clearance_m is not None:
+                        support = StaticWorkspaceSupport(
+                            min(foreground, support.collision_clearance_m),
+                            False,
+                            False,
+                            support.source_clocks,
+                        )
+                else:
+                    support = StaticWorkspaceSupport(
+                        None, True, current.occupied, self.workspace.source_clocks
+                    )
+            else:
+                support = self.workspace.query_static(
+                    center[None],
+                    np.array([radius]),
+                    cover_ids=[key],
+                    constructive=constructive,
+                )
             return support, gap, local_lever
 
         while pending:
@@ -183,6 +463,43 @@ class PilotMotionEvidence:
             center, radius = base_center, base_radius + self.shape_stop[cell.shape] + extra
             support, gap, local_lever = query(center, radius, (cell.shape, cell.path, "ball"))
             proofs = None
+            # The radial and directional stop certificates independently cover
+            # every physical point. Prove current foreground with the radial
+            # cover, and background with the complete tighter oriented box.
+            foreground = foreground_by_key.get((cell.shape, cell.path, "ball"))
+            if (
+                support.collision_clearance_m is None
+                and self.background_mode
+                and self.stop_boxes is not None
+                and foreground is not None
+                and foreground > 0
+            ):
+                travel = dict(
+                    zip(
+                        ARM_JOINTS,
+                        abs(dq) * io.dt + 0.5 * self.acceleration * io.dt**2,
+                        strict=True,
+                    )
+                )
+                _, motion_radius = self.model.world_ball(cell, matrices, travel)
+                motion_radius -= np.linalg.norm(cell.upper - cell.lower) / 2
+                rotation_error = (
+                    2 * self.shape_stop[cell.shape] * np.sin(min(control_angle, np.pi) / 2)
+                )
+                lo, hi = self.stop_boxes
+                corners = np.array(list(product((False, True), repeat=3)))
+                local = np.where(corners, cell.upper + hi[cell.shape], cell.lower + lo[cell.shape])
+                world = local @ matrices[link][:3, :3].T + matrices[link][:3, 3]
+                box_support = self.workspace.query_convex_background(
+                    world,
+                    float(motion_radius + extra + rotation_error),
+                    current_foreground_margin_m=foreground,
+                )
+                if box_support.collision_clearance_m is not None:
+                    support = box_support
+                    diagnostics["complete_box_proofs"] = (
+                        diagnostics.get("complete_box_proofs", 0) + 1
+                    )
             if support.collision_clearance_m is not None:
                 proofs = [(support.collision_clearance_m, gap, local_lever)]
             elif np.max(cell.upper - cell.lower) > self.config["minimum_cell_m"]:
@@ -265,7 +582,7 @@ class PilotMotionEvidence:
             sweep_margin_m=float(free_margin),
             current_material_separation_margin_m=float(separation),
         )
-        loaded = separation <= 0
+        loaded = bool(separation <= 0)
         support = FieldSupport(now, now, now, observation.generation, *self.config["camera_bound"])
         limits = ActionLimits(
             io.dt, 0.02, 1.2, 3.0, 0.013, 0.04, self.config["relative_speed_bound_m_s"], 0.02
@@ -315,6 +632,7 @@ class PilotMotionEvidence:
             swept_collision_margin_m=min(float(free_margin), self_margin),
             unloaded_separation_margin_m=None if loaded else float(separation),
             unloaded_normal_lever_m=None if loaded else lever,
+            unloaded_temporal_bound_m_rad=None if loaded else (temporal_p, temporal_a),
             material_normal_range_m=normal_range,
         )
         return admit_local_action(
@@ -412,7 +730,16 @@ def observed_pilot_runtime(env, binding, robot_asset, setup, config_path, output
         load_source=load_source,
         contact_monitor=contact,
     )
+    from dataclasses import asdict
+
+    contact_log = (Path(output) / "operational-contact.jsonl").open("x")
+
+    def record_contact(evidence):
+        contact_log.write(json.dumps(asdict(evidence), allow_nan=False) + "\n")
+        contact_log.flush()
+
+    io.safety.checks.on_contact_evidence = record_contact
     motion = PilotMotionEvidence(
         io, geometry, action_space, recipe, config, Path(output) / "operational-admission.jsonl"
     )
-    return observer, io, geometry, motion, load_log
+    return observer, io, geometry, motion, load_log, contact_log

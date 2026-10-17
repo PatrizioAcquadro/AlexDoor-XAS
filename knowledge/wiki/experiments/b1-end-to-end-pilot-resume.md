@@ -48,6 +48,48 @@ bounds remain distinct. This is an observed component result, not complete conta
 sweep/admission qualification or learned execution. Earlier failures and historical
 budget proposals below remain preserved.
 
+## Current observed-runtime integration
+
+The common background now includes explicit 85-degree initial-pose calibration
+surveys for right, left and development doors. Each preserves the original passive
+hinge dynamics and rollout starts; no calibration motion becomes imitation data.
+The current target is excluded independently before historical static free volumes
+are reused. Complete convex ray volumes and cached certificates retain their
+original acquisition clocks and charge every new position/radius error.
+
+The observed handle/relief envelope has a finite tangent extent. Outside its
+entire enlarged extent, the independently audited one-sided Panel front bound is
+0.5 mm. This is a physical model bound, not visual accuracy or whole-Panel
+coplanarity: the latter is rejected by inward recesses of12.52/66.87mm. Actual
+finger CAD ordering, finite opaque material, complete14-shape sweep, response,
+full2s stopping and self-clearance remain separate required proofs.
+
+Free-motion receipts explicitly prepay normal uncertainty growth and relative
+motion over the control interval; post-step checks spend any excess. Camera,
+control and native feedback remain10/60/120Hz with actual observation ages.
+Certain observed separation ends pending acquisition bookkeeping while preserving
+identity, load history and latched stops. Conservative possible contact still has
+the original3s/30mm acquisition limit. The5-degree contact orientation criterion
+applies when contact is possible, rather than during certainly separated approach.
+Every operational contact result, including acquisition state, is now retained
+separately in `operational-contact.jsonl`.
+
+A complete before/after-command numerical replay through36s passes both retained
+train streams, with178 confirmed-contact samples each and six unavailable native
+identity warmup samples per door. The complete opening/hold/release replay remains
+pending. These are causal retained-input checks, with evaluator labels joined only
+afterward; they are not learned commands or final-panel outcomes. Actual learned
+execution remains122 ACT A2 commands across the preserved short prerequisites,
+with zero learned contact successes and zero final-panel outcomes.
+
+Current allocation is4.52911/15 local GPU hours,2743/3600 remote GPU seconds and
+12164/18000 optimizer updates. Consumer-audited removal of regenerable flattened
+visual features reclaimed24.13GiB. Exact labels/masks, raw complete recordings,
+checkpoints, statistics, failures and reports remain retained; current whole-pilot
+storage is250.48/300GiB. The complete raw-input audit and regeneration command are
+in `derived-feature-cache-removal-audit.json`. No GPU allocation was used for
+these CPU numerical integration checks.
+
 ## Finite material component
 
 The current diagnostic model retains a connected measured RGB-D material mask,

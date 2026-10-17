@@ -57,6 +57,8 @@ class ContactEvidence:
     normal_force_lower_n: float | None = None
     uncertainty_m: float | None = None
     directly_observed: bool = False
+    acquisition_started_s: float | None = None
+    acquisition_travel_m: float = 0.0
 
 
 class ObservedContactMonitor:
@@ -130,7 +132,14 @@ class ObservedContactMonitor:
 
     def update(self, now, estimate, tool, load, admission):
         if self.latched_reason:
-            return ContactEvidence("lost", self.latched_reason, now)
+            self.result = ContactEvidence(
+                "lost",
+                self.latched_reason,
+                now,
+                acquisition_started_s=self.seek_started,
+                acquisition_travel_m=self.seek_travel_m,
+            )
+            return self.result
         try:
             checked_pose(tool)
             require_current_admission(admission, estimate, now)
@@ -218,7 +227,11 @@ class ObservedContactMonitor:
             # The receipt already charges geometry, pose and robot uncertainty.
             # Only the additional visible/collision-model discrepancy is absent
             # from that receipt. Do not spend the shared bounds a second time.
-            if (
+            whole_robot_free = (
+                not admission.proposal.loaded
+                and admission.local_evidence.unloaded_separation_margin_m is not None
+            )
+            if not whole_robot_free and (
                 not margins
                 or not np.isfinite(margins).all()
                 or self.config.normal_model_bound_m >= min(margins)
@@ -308,7 +321,18 @@ class ObservedContactMonitor:
                         else "normal_contact_not_established"
                     ),
                 )
-            if admission.proposal.loaded and not self.releasing and status != "contact":
+            if status == "separated" and not self.established:
+                # A new bounded observation proves no contact attempt is pending.
+                # Clear only acquisition bookkeeping, never identity, force
+                # history or a latched failure. This transition is reported.
+                self.seek_started = self.seek_anchor = None
+                self.seek_travel_m = 0.0
+            if (
+                admission.proposal.loaded
+                and not self.releasing
+                and status != "contact"
+                and (status == "seeking" or self.seek_started is not None)
+            ):
                 if self.seek_started is None:
                     self.seek_started, self.seek_anchor = now, tool.origin.copy()
                 else:
@@ -328,6 +352,8 @@ class ObservedContactMonitor:
                 intervals,
                 force,
                 uncertainty + max(abs(x) for x in depth_range),
+                acquisition_started_s=self.seek_started,
+                acquisition_travel_m=self.seek_travel_m,
             )
             return self.result
         except (ValueError, TypeError, AttributeError, IndexError) as error:

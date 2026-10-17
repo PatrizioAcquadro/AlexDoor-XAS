@@ -65,10 +65,15 @@ def test_front_envelope_retains_connected_relief_and_excludes_unrelated_foregrou
     view = dict(sensor, available_s=float(sensor["time_s"]))
     isolated = observed_front_extent(surface, [view], config)
     assert isolated["observed_extent_m"] < 0.001
+    assert isolated["protrusion_tangent_lower_m"] is None
     # Continuous measured slope joins an attachment to the root. Its front
     # extent must remain in the model; the isolated near object still cannot.
     sensor["depth_m"][60:90, 80:110, 0] = np.linspace(1.0, 0.94, 30)[:, None]
     connected = observed_front_extent(surface, [view], config)
     assert 0.059 < connected["observed_extent_m"] < 0.061
     assert connected["front_extent_m"] > connected["observed_extent_m"]
+    assert connected["observed_protrusion_voxels"] > 0
+    assert (
+        np.array(connected["protrusion_tangent_upper_m"]) > connected["protrusion_tangent_lower_m"]
+    ).all()
     assert connected["source_clocks"] == [(0.0, 0.0)]
