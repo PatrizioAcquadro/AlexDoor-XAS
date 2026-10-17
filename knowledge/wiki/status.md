@@ -64,10 +64,11 @@ inspection, then fails measured release speed. The common six-second release
 correction completes both train cycles: 51.26/52.54 degrees controlled opening,
 valid final hold/release and 0.320/0.284 rad/s actual joint peaks. Independent
 contact/pose audits agree; post-release continuing-physics stops pass. Matched
-expert pairs remain pending. All fourteen authorized prerequisite cases are
-consumed. The robot-only dynamic calibration preserves eight unavailable samples
-and fails both retained-4 N stops (24.56/26.16 mm versus 10 mm); qualification
-remains false. Saved-data analysis continues within the three-GPU-hour ceiling.
+expert pairs remain pending. The user now authorizes necessary prerequisite cases without a count ceiling.
+Case 14 preserves loaded-stop failures; the stop-only correction passes case 15
+with maximum travel 9.68 mm over twenty 0/4 N stops and three bounded fault
+stops. Case 16 checks actual task/approach-speed coverage before qualification.
+Saved-data observed replays and analysis continue within the three-GPU-hour ceiling.
 Full A3/A4 observed initialization is deferred and does not block A1/A2. Both
 complete raw episodes retain shared inputs and reconstruct A3/A4 supervision;
 that does not qualify observed A3/A4 execution. Test doors stay sealed.

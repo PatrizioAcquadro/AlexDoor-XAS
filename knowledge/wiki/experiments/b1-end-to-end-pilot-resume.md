@@ -296,3 +296,38 @@ three-hour local ceiling remains unchanged. No fresh demonstrations, real traini
 updates or learned commands exist. Saved-data analysis and numerical corrections
 continue within budget; any further physical prerequisite needs an explicit
 extension. Existing completed teacher, raw, encoder and transfer work is retained.
+
+
+## Stop correction and continued authorization
+
+The user removes the per-case count ceiling and authorizes necessary prerequisites,
+including twenty or more cases, without new per-case approval. GPU, data and
+training budgets remain unchanged. Counters and every failed outcome remain.
+
+The stop-only shoulder-X correction in `26aa0de` passes case 15's twenty fixed
+0/4 N tests across five states on each path: maximum stop travel 9.6815 mm,
+rotation 0.870 degrees, final joint speed 0.000855 rad/s and return error after
+load removal 0.0168 mm. Actual complete-trace speed peaks at 0.25755 rad/s, with
+no actuator clipping. All three native 10 N envelope-exit pulses stop within one
+control interval and travel at most 1.403 mm. Of 34,696 native estimates, 32,706
+are available and all available bounds cover the independent reference; 1,990
+envelope exits remain explicit refusals. No bound is refitted on these tests.
+
+These moving-stop initial speeds reach only 0.0353 rad/s, so they do not certify
+the full measured approach/task-speed domain. Case 16 prospectively replays the
+same two command paths to their independently selected actual approach and
+push/hold speed maxima, then tests the same stop without changing trajectory,
+load calibration or physical criteria. Global qualification is not inferred
+from a low-speed stop pass.
+
+The observed-only right replay now initializes at 25 s and completes all 1,455
+10 Hz captures through 145.4 s in 611.15 s model wall, without ground-truth inputs
+or another Isaac case. Independent evaluation corrects the trace's separate
+25 s inspection clock before scoring; the initial incorrect-clock audit is
+preserved as an analysis error, not a physical failure. Native tracking alone
+does not establish admission. Saved-data audits expose an unsupported arbitrary
+material anchor, then excessive conservative frame errors at a supported anchor.
+Finite-reference selection and separate frame/contact uncertainty accounting
+are implemented and numerically validated; all missing bounds/space support
+remain explicit. The same observed recipe is now being checked on the saved left
+cycle. Full A4 initialization is not added as a prerequisite.

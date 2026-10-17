@@ -290,5 +290,8 @@ semantics are unchanged; reset restores motion impedance. Across both measured
 paths, linearized 4 N normal-load equilibrium displacement is at most 7.26 mm
 versus 37.24 mm with motion gains. This is a numerical design bound for the tested
 load directions, not a dynamic stop certificate or an arbitrary-direction bound.
-Independent physical verification of the candidate is pending; all fourteen
-authorized prerequisite cases are already consumed.
+Case 15 verifies twenty fixed 0/4 N stops with maximum travel 9.68 mm and
+three native-peak fault stops. Its initial moving speeds reach only 0.0353 rad/s;
+actual approach/task-speed coverage remains under independent verification.
+The user subsequently removes the prerequisite case-count ceiling; resource
+budgets stay fixed.
