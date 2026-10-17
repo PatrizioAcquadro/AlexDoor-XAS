@@ -31,8 +31,9 @@ metrics remain unavailable and no development recordings are transferred.
 Finite observed-material, contact and robot-sweep components pass the earlier
 complete retained-path check with measured detection errors. More conservative
 robot-only torque floors, weak-load acceleration and held-joint allowances now
-pass six independent learned prefixes and sampled motion checks. Both complete revised paths pass with unchanged availability and100ms contact
-confirmation; independent joins report zero detections outside physical Loaded.
+pass six independent learned prefixes and sampled motion checks. Both complete retained teacher paths pass with unchanged availability and 100 ms
+contact confirmation; those joins have zero detections outside physical Loaded.
+The learned-run discrepancies reported above are separate evidence.
 A one-joint main elbow extension leaves complete v42 values unchanged.
 A targeted 10% target-speed headroom then corrects the demonstrated tracking
 overshoot: causal robot replay peaks at 0.47323 rad/s with unchanged physical
@@ -45,8 +46,8 @@ Independent known-wrench tests now justify extending only main gripper accelerat
 from 10.5745 to 13 rad/s². All 4,956 native 8/10 N test/ramp/transit samples fit the
 unchanged error bounds; both teacher paths and the actual learned stop retain their
 previous proofs. Geometry remains bounded at 13 rad/s², weak load at 1 N and stop
-force at 10 N. A new full-v7 execution and all 24 outcomes are required; this
-component result is not learned task success.
+force at 10 N. The four completed full-v7 outcomes above exercise this recipe;
+the component result and partial opening do not establish learned task success.
 
 
 The [[topics/b1-policy-pilot|policy pilot infrastructure]] now implements causal RGB-D
@@ -118,52 +119,27 @@ teacher records (two train, two development) independently pass physical/raw/FK
 and supervisor-reconstruction checks. Earlier nominal records/scores remain
 preserved and their command labels are explicitly excluded from imitation.
 
-Prerequisite count is unrestricted. Cases 14–17 preserve the original loaded-stop
-and speed-coverage failures and the later common corrections. Actual right
-first-contact stopping now passes at 9.70 N peak: 0.071 mm travel over two seconds,
-with no violations. Left first-contact stopping also passes (7.68 N peak,
-0.184 mm travel). Four independent moving-door stop holdouts pass against the
-continuous whole-link stop calibration; complete operational contact/sweep
-qualification remains open. Common observed workspace rays
-cover all 14 moving robot shapes at the first approach condition; full moving
-coverage is not inferred. The independently demonstrated RTX pixel-center bias
-is corrected at geometry ingress. An opt-in observed plane/edge/native-pair local
-constraint separates normal direction from full material-pose uncertainty;
-corrected native tracking and full contact metrics remain unqualified.
+Prerequisite count is unrestricted. Actual first-contact stopping passes on both
+train doors: right 9.70 N /0.071 mm and left 7.68 N /0.184 mm over two seconds,
+with continuing physics and no violations. Four independent moving-door stop
+holdouts pass the continuous whole-link calibration. Corrected RGB-D ingress,
+finite material/footprint support, current identity, robot load, contact detection,
+full proposed robot sweep and stop margins pass both complete retained teacher
+paths in the declared pilot domain. This does not qualify arbitrary future
+states, full A3/A4 initialization or hardware. Failed learned proposals stop
+explicitly when they leave that measured domain.
 
-The resumed cumulative ceilings are 15 local GPU hours, 3,600 remote allocated
-GPU seconds, 18,000 optimizer updates and 300 GiB; six fresh demonstrations remain
-consumed. The four real ACT/Diffusion × A1/A2 cells complete 3,000 updates each on
-the same two eligible corrected train episodes in Gilbreth job11970038. Cumulative
-remote charge is 2,743 GPU-seconds and optimizer count12,164 including infrastructure.
-Returned checkpoint hashes and all four workstation CUDA loads pass. Development
-stays local and uses unchanged checkpoint weights/train statistics; remote metrics
-remain unavailable. Offline imitation error is not task success.
-
-The maintained rollout CLI wires real observed perception, native robot load,
-contact monitoring, proposed-motion admission and causal recording. All four real
-checkpoints have executed nonzero commands. Both complete retained teacher paths
-pass the full numerical operational checks, with explicit contact-detection limits.
-Five full-v1 outcomes stop before contact. Corrected current-FK orientation in
-full-v2 passes the previous refusal, then ACT A2 stops after223commands at the
-original acceleration envelope. No learned contact/opening/hold/release succeeds.
-
-A weak-load-only acceleration extension is implemented and tested, but remains
-disabled pending independent stopping and sweep checks. The conservative torque floor uses robot-only calibration; six learned prefixes
-independently contain zero contact. Stop tails expose stopping-acceleration
-and held-head allowances that require more conservative coverage. Physical criteria,
-teacher/controller and genuine3000-update checkpoints are unchanged. All24outcomes
-of a single final version and identical-checkpoint success on both doors remain
-required. Current costs and all failures are in
-[[experiments/b1-end-to-end-pilot-resume]].
-
-Full A3/A4 observed initialization is deferred and does not block A1/A2. Retained
-raw data and reconstructed supervisor labels do not qualify observed A3/A4
-execution or constitute the final matched dataset. The learned `rgbd-conv-v1`
-foundation and previous synthetic Gilbreth/RTX checkpoint round trips remain
-preserved. Actual learned control, the unchanged 24-outcome panel and at least one
-single checkpoint completing both train doors remain required. No production,
-20-run campaign, sealed-test opening or hardware claim is started.
+The maintained rollout CLI wires these real operational producers to actual
+learned commands, the selected controller, continuing-physics stopping and causal
+recording. All four original checkpoints have executed nonzero commands. The
+current partial-panel outcomes, independent contact discrepancies and matched
+training continuation are reported at the top of this page and in
+[[experiments/b1-end-to-end-pilot-resume]]. All 24 outcomes of one common final
+checkpoint/protocol version and identical-checkpoint success on both doors remain
+required. Four corrected teacher records and reconstructed raw A3/A4 supervision
+remain preserved; they do not constitute the final matched dataset or qualify
+observed A3/A4 execution. No production campaign, sealed-test evaluation or
+hardware execution is authorized by this pilot.
 
 The earlier dynamic follow-up preserves the 106.84 mm loaded-stop failure. The separate
 [[experiments/b1-loaded-hold-and-stop|load-bearing controller correction]] verifies
@@ -172,11 +148,11 @@ command latch: maximum hold/loaded-stop travel becomes 5.18/5.98 mm versus
 56.62/111.47 mm in its paired baseline. All 2,880 corrected samples remain available
 under the unchanged calibration; 72 stopped commands refuse and explicit reset
 re-enables motion. This is local 0/4 N ready-pose evidence, with no contact or
-calibration/qualification promotion. Loaded rollout remains blocked by the remaining
+calibration/qualification promotion. That historical configuration remains blocked by its remaining
 6.0D fault/envelope/contact checks and observed sweep/response evidence. Required
 6.0D checks plus local geometric support and independent 6.0E must pass before diagnostic interaction 6.0F.
-Camera-enabled cycles exceed real-time 60 Hz. No final matched dataset, policy
-contact execution or sealed-test evaluation was produced.
+Camera-enabled cycles exceed real-time 60 Hz. That historical study produced no final matched dataset, policy
+contact execution or sealed-test evaluation; the current bounded pilot above is separate.
 
 | Area | Current state |
 |---|---|
@@ -185,18 +161,19 @@ contact execution or sealed-test evaluation was produced.
 | 6.0A/B — Contracts/static evidence | Operational/local support, explicit selection, admission and feedback contracts; object fusion, ownership alternatives, finite-cover and relevant-space queries. Scans/interfaces do not admit motion. |
 | 6.0C — Tracking | One persistent SAM3 session shared by inspection/tracking, bounded history and renewal-only depth gate; live/replay and serial evaluation share the coordinator. Useful accuracy improves offline, but material identity and 150 ms freshness remain unqualified. |
 | 6.0D–H — Contact/qualification | Common benchmark impedance and latched measured-anchor stop pass local robot-only 0/4 N CUDA checks with the original calibration; earlier failures retained. Full 6.0D uncertainty/fault/domain/contact checks and local geometry/6.0E remain open. |
-| 6.1 — Actions | ACT/Diffusion × A1–A4 observed-input/data/normalization/execution software maintained; qualified-provider integration and physical rollout validation pending. |
-| 6.2–7 — Data/learning | Partial A1/A2 offline pilot demonstrated; final matched A1-A4 data and training matrix not started. No learned contact task result or sealed-test evaluation. |
+| 6.1 — Actions | ACT/Diffusion × A1–A4 software maintained; bounded A1/A2 observed operational execution demonstrated. Full A3/A4 initialization and release qualification remain open. |
+| 6.2–7 — Data/learning | Four genuine A1/A2 checkpoints execute in simulation; ACT A1 reaches partial controlled opening, without task success. Final 24-outcome pilot, matched A1–A4 campaign and sealed-test evaluation remain incomplete. |
 
 ## Next action and selected state
 
-For the resumed pilot, the user authorizes 15 cumulative local GPU hours and
-repairs within 3,600 remote allocated GPU seconds. All four train-only Gilbreth cells complete 3,000 updates each; returned final
-checkpoint bytes match the remote files and remote round trips pass. All four also load on workstation CUDA and complete local offline development
-inference with frozen weights/statistics. Learned simulation results remain pending.
-Finish observed geometry/contact/full-robot admission, verify integrated execution
-and then retain the fixed 24 outcomes. Case count and deferred A3/A4 work are not
-blockers. See [[experiments/b1-end-to-end-pilot-resume]].
+For the resumed pilot, finish the queued matched Gilbreth continuation within
+cumulative budgets, verify all four returned checkpoints on workstation CUDA and
+evaluate development locally with frozen weights/statistics. Freeze the common
+final version, retain its first real integrated outcome, update the measured cost
+forecast and complete the fixed 24 outcomes. Keep all earlier failures separate.
+No checkpoint yet meets the two-door 80% controlled-opening/hold/release rule.
+Case count and deferred A3/A4 work are not blockers. See
+[[experiments/b1-end-to-end-pilot-resume]].
 
 The [[experiments/p2p-persistent-session-integration|persistent-session integration]]
 uses the selected configuration throughout maintained scan/smoke/live/replay/offline
@@ -333,7 +310,8 @@ interface inputs and uncertainty validation against proposed command/sweep/stop
 margins. Correspondence envelopes and evaluator hinge p95 are different quantities;
 neither substitutes for missing calibration bounds. A4 freezes each segment's
 admitted frame, so a fixed local endpoint retains full origin error at approach
-completion. Actual proposals, contact/load/stop and hardware calibration remain absent.
+completion. Full A3/A4 proposed-motion/contact qualification and hardware calibration remain absent;
+the bounded A1/A2 pilot evidence above does not supply them.
 
 The unchanged gates require per-door 95% coverage/accepted precision and 1 cm/5
 degrees; always unavailable fails. Pilot offline and feedback/stop checks precede
@@ -344,8 +322,8 @@ alone supplies neither ownership, hinge nor safe continuous contact/sweeps.
 All 50 engineering-v2 episodes, selected models, corpus/splits, prepared assets,
 qualification evidence and `knowledge/raw` remain intact. Earlier September/October
 cleanups removed explicitly inventoried payloads; `evidence/cleanup.json` records
-those historical removals/relocations, which are not Git-recoverable. Current
-recordings lack torque; the monitor blocks loaded execution. Depth is ideal,
+those historical removals/relocations, which are not Git-recoverable. Historical engineering recordings lack torque; they do not admit loaded execution.
+The current bounded pilot retains native feedback and its separate calibration. Depth is ideal,
 camera mounting and hardware feedback/stopping remain unvalidated. Human local-role
 review and endpoint IK do not qualify whole-object ownership or a continuous path.
 Train contains one 15-door residential family, development one right-hand door;
