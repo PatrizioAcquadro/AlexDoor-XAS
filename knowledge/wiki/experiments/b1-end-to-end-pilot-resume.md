@@ -43,8 +43,15 @@ complete teacher paths remain mathematically identical because every sample is
 inside the original position envelope. The actual original left refusal passes
 the new predicate with force upper 0.49918 N; this saved-state check uses arbitrary
 unit normals solely for the force-independent envelope predicate and is not a
-new operational rollout. All four models use the same qualified recipe in the
-next common panel version. Actual integrated behavior remains pending.
+new operational rollout. This is a current-load check, not authorization for a future stronger load.
+The maintained motion producer therefore requires observed separation for every
+proved robot volume throughout the proposed motion and full stop whenever the
+actual q uses the weak position extension. The proof deducts nonzero declared
+translation and angular-rate growth through the entire stop, beyond the growth
+already paid for camera age and the control interval. Unknown, zero or negative
+separation refuses. The original left snapshot is not claimed to pass this
+additional motion guard. All four models use the same guarded recipe in the next
+common panel version. Actual integrated behavior remains pending.
 
 ## Original-checkpoint full-v7 outcomes
 
@@ -95,7 +102,11 @@ for factory validation and exactly matches frozen source normalization. It
 constructs no model and performs no optimizer work. No development payload leaves
 the workstation. The repaired GPU submission must resume saved states with the
 unchanged protocol, seed and target, inside266remaining allocated GPU seconds;
-its successful completion and returned checkpoint verification remain pending.
+job `11974876` is queued without a pinned node, using the corrected Slurm CPU
+count, one Python/CUDA process, and a 200-second owned task timeout. Its maximum
+260-second additional allocation reservation fits the 266 seconds left. Queue
+waiting is uncharged. Successful completion and returned checkpoint verification
+remain pending.
 
 ## Matched training continuation
 

@@ -206,8 +206,13 @@ only at force upper ≤1 N and inside the original main acceleration envelope.
 Independent 0/1 N known-wrench samples pass unchanged error, response and all
 14-shape stop bounds; the unconditional stronger-load extension fails and remains
 disabled. No combined weak-position/extended-acceleration domain is admitted.
-All main position bounds and complete teacher outputs remain unchanged. This
-parameter recipe requires actual learned integration before task success claims.
+The motion producer additionally requires the complete proposed-motion/stop
+volume to remain contact-free whenever the current position uses this extension.
+It spends the declared nonzero target translation and angular rates through the
+full stop duration, in addition to capture age and control-interval growth. A
+small current force alone cannot authorize future contact outside the strong
+position envelope. All main position bounds and complete teacher outputs remain
+unchanged. Actual learned integration and task success remain pending.
 The approved
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|operational plan]]
 assigns actual torque/device acquisition and signal verification to 6.0D, without

@@ -817,3 +817,21 @@ def test_position_extension_rejects_invalid_or_unbounded_recipe(extension, cap):
             np.zeros(7),
             np.array([1.0, 0, 0]),
         )
+
+
+@pytest.mark.parametrize("margin", [None, np.nan, np.inf, 0.0, -0.001])
+def test_weak_position_rejects_contact_without_complete_free_stop_support(margin):
+    model, _, _ = load_inputs()
+    calibration = replace(model.calibration, weak_load_q_min=np.full(7, -1.2))
+    with pytest.raises(ValueError, match="weak_position_requires_contact_free_motion_and_stop"):
+        calibration.require_position_motion_support(
+            np.full(7, -1.1), contact_free_stop_margin_m=margin
+        )
+    # Original position/contact domain does not depend on free-motion support.
+    calibration.require_position_motion_support(np.zeros(7), contact_free_stop_margin_m=margin)
+
+
+def test_weak_position_accepts_positive_future_free_stop_margin():
+    model, _, _ = load_inputs()
+    calibration = replace(model.calibration, weak_load_q_min=np.full(7, -1.2))
+    calibration.require_position_motion_support(np.full(7, -1.1), contact_free_stop_margin_m=0.001)

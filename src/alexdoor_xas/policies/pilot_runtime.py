@@ -46,9 +46,10 @@ class PilotMotionEvidence:
     proofs. Unmeasured or unsupported volumes fail closed with retained reasons.
     """
 
-    def __init__(self, io, provider, space, recipe, config, output):
+    def __init__(self, io, provider, space, recipe, config, output, *, load_calibration):
         self.io, self.provider, self.space = io, provider, space
         self.config = config
+        self.load_calibration = load_calibration
         self.model = RobotGeometry(io.env.robot.cfg.spawn.asset_path, ARM_JOINTS)
         self.self_clearance = RobotSelfClearance(self.model, BODY_FILTERS)
         self.faces = derive_push_geometry(io.env.robot.cfg.spawn.asset_path).contact_covers()
@@ -232,6 +233,7 @@ class PilotMotionEvidence:
             self.rigid_identity = observation.generation, patch.patch_id
         pending, covered = list(self.cells), []
         free_margin, separation, lever = np.inf, np.inf, 0.0
+        contact_free_stop_margin = np.inf
         checked = directional = 0
         control_angle = float(abs(dq).sum() * io.dt + 0.5 * self.acceleration.sum() * io.dt**2)
 
@@ -572,6 +574,18 @@ class PilotMotionEvidence:
             for margin, gap, local_lever in proofs:
                 free_margin = min(free_margin, margin)
                 separation = min(separation, gap)
+                # Robot stopping travel is already inside each proved volume.
+                # Also pay target translation/normal growth through the entire
+                # stop, beyond the control-interval growth paid in query().
+                contact_free_stop_margin = min(
+                    contact_free_stop_margin,
+                    gap
+                    - self.config["stop_duration_s"]
+                    * (
+                        2 * self.config["relative_speed_bound_m_s"]
+                        + local_lever * self.config["material_angular_speed_rad_s"]
+                    ),
+                )
                 lever = max(lever, local_lever)
             covered.append(cell)
         self.cells = tuple(covered)
@@ -581,6 +595,11 @@ class PilotMotionEvidence:
             directional_stop_queries=directional,
             sweep_margin_m=float(free_margin),
             current_material_separation_margin_m=float(separation),
+        )
+        diagnostics["contact_free_stop_margin_m"] = float(contact_free_stop_margin)
+        self.load_calibration.require_position_motion_support(
+            np.array([positions[name] for name in ARM_JOINTS]),
+            contact_free_stop_margin_m=contact_free_stop_margin,
         )
         loaded = bool(separation <= 0)
         support = FieldSupport(now, now, now, observation.generation, *self.config["camera_bound"])
@@ -740,6 +759,12 @@ def observed_pilot_runtime(env, binding, robot_asset, setup, config_path, output
 
     io.safety.checks.on_contact_evidence = record_contact
     motion = PilotMotionEvidence(
-        io, geometry, action_space, recipe, config, Path(output) / "operational-admission.jsonl"
+        io,
+        geometry,
+        action_space,
+        recipe,
+        config,
+        Path(output) / "operational-admission.jsonl",
+        load_calibration=load_calibration,
     )
     return observer, io, geometry, motion, load_log, contact_log

@@ -55,6 +55,23 @@ class LoadCalibration:
     weak_load_acceleration_max_rad_s2: np.ndarray | None = None
     weak_load_q_min: np.ndarray | None = None  # original main acceleration only
 
+    def require_position_motion_support(self, q, *, contact_free_stop_margin_m):
+        """A weak current load cannot qualify a future stronger-load stop.
+
+        Outside the main position envelope, require independently observed
+        separation for the complete proposed motion AND stopping interval.
+        The caller must include nonzero target motion during that interval.
+        """
+        q = finite_vector(q, 7)
+        if self.weak_load_q_min is None or not np.any(q < finite_vector(self.q_min, 7)):
+            return
+        if (
+            contact_free_stop_margin_m is None
+            or not np.isfinite(contact_free_stop_margin_m)
+            or contact_free_stop_margin_m <= 0
+        ):
+            raise ValueError("weak_position_requires_contact_free_motion_and_stop")
+
 
 @dataclass(frozen=True)
 class LoadEstimate:

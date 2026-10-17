@@ -26,7 +26,7 @@ GPU seconds. Checkpointed updates total15,164including infrastructure, with100
 additional uncheckpointed updates conservatively charged. The same-data cache
 repair is fully byte-verified and reduces shared-file traffic from13.8GB to0.620GB;
 resume now skips completed representations before reopening feature data. The
-remaining2,600updates require the repaired bounded GPU allocation. All partial
+remaining2,600updates are queued in repaired bounded job `11974876`. All partial
 states and original checkpoints remain preserved. Development stays local with
 frozen weights/statistics; no improved task behavior is claimed.
 
@@ -36,8 +36,11 @@ A separate weak-load-only interval now passes 0/1 N known-wrench error, response
 and full-robot stop checks. It permits elbow positions down to −2.33 rad only
 when the force upper bound is ≤1 N and acceleration stays in the original main
 domain. Strong-load positions, all error/physical criteria and the selected
-controller remain unchanged. This qualified recipe still needs actual integrated
-execution with the new checkpoints. See the continuation experiment for both
+controller remain unchanged. Weak-position motion additionally requires observed
+separation through the complete proposed motion and stop, including nonzero
+future target growth; a low current force cannot qualify a subsequent strong
+contact. This guarded recipe still needs actual integrated execution with the
+new checkpoints. See the continuation experiment for both
 failed and successful component evidence.
 
 Finite observed-material, contact and robot-sweep components pass the earlier
