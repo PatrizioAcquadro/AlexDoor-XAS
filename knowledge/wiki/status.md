@@ -44,7 +44,7 @@ unchanged and all stops pass; the original solver is restored. Both bounded
 stages remain rejected. A later authorized [[experiments/b1-initial-placement-pilot|common-placement study]]
 passes all four unloaded cases with the original solver: approach p95 2.19/5.07 mm,
 peak speed 0.319/0.277 rad/s. The prospective pilot floor Y is 0.482327 m; the
-corpus setup is preserved. No new demonstrations or learned commands are claimed.
+corpus setup is preserved. Earlier placement trials did not collect learned data.
 Three historical episodes numerically reconstruct A3/A4 supervisor labels at existing tolerances,
 but observed first-command geometry/bootstrap and continuous sweep/response/load
 support remain essential missing production dependencies. The subsequent
@@ -63,12 +63,21 @@ holding preserves the final contact window after a physically verified joint-par
 inspection, then fails measured release speed. The common six-second release
 correction completes both train cycles: 51.26/52.54 degrees controlled opening,
 valid final hold/release and 0.320/0.284 rad/s actual joint peaks. Independent
-contact/pose audits agree; post-release continuing-physics stops pass. Matched
-expert pairs remain pending. The user now authorizes necessary prerequisite cases without a count ceiling.
+contact/pose audits agree; post-release continuing-physics stops pass. The first
+fresh right nominal episode independently passes physical, raw-clock and FK
+audits, reconstructs A3/A4 supervision and establishes its matched expert pair
+at 51.2603 degrees; the historical denominator is unchanged. The left fresh
+nominal collection is underway. The user now authorizes necessary prerequisite cases without a count ceiling.
 Case 14 preserves loaded-stop failures; the stop-only correction passes case 15
 with maximum travel 9.68 mm over twenty 0/4 N stops and three bounded fault
-stops. Case 16 checks actual task/approach-speed coverage before qualification.
-Saved-data observed replays and analysis continue within the three-GPU-hour ceiling.
+stops. Case 16 fails loaded-motion speed coverage despite four physically valid
+stops; its failed report remains unchanged. Case 17 applies a stronger common
+loaded calibration excitation and passes both original speed-coverage and physical
+stop criteria: 4.60/4.51 mm travel from 0.073/0.083 rad/s. Unavailable load estimates
+remain explicit, so no global load/contact qualification is inferred. Separate
+head-ZED workspace calibration has measured free-space coverage for the first
+right approach sweep; full motion/dynamic coverage and learned execution remain
+pending. Work continues within the three-GPU-hour ceiling.
 Full A3/A4 observed initialization is deferred and does not block A1/A2. Both
 complete raw episodes retain shared inputs and reconstruct A3/A4 supervision;
 that does not qualify observed A3/A4 execution. Test doors stay sealed.

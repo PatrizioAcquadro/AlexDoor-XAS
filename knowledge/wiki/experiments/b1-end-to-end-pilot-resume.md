@@ -347,3 +347,40 @@ The same original finite-error calculation now rechecks the remaining interval
 and spends positive error increases plus clearance loss against that margin.
 Numerical checks accept bounded updates, reject exhausted/missing support and
 retain the response/identity stops. This does not establish physical admission.
+
+Case 16 preserves `stop_verified:false` and `motion_coverage:false`: all four
+physical stops pass but the loaded reference replay fails its original speed
+coverage. No corrected metric relabels that run. Case 17 tests a prospective
+common 0.05 rad half-sine calibration excitation after 4 N preload at the same
+source peak conditions. Both coverage checks and stops pass: right/left initial
+speed 0.0727/0.0831 rad/s, maximum travel 4.598/4.506 mm, final speed below
+0.000342 rad/s. Fourteen envelope exits remain explicit unavailable estimates;
+the calibration flags stay false pending bounded operational qualification.
+
+Case 18 is the first prospectively declared fresh demonstration, right nominal
+seed 6200 with frozen source `722185e`. Independent reconstruction finds zero
+physical-validity mismatches or forbidden contacts, 51.2603 degrees controlled
+opening, valid final hold and 25.15 mm release separation. Peak measured joint
+speed is 0.3202 rad/s; continuing-physics stop travel is 0.02185 mm over two seconds.
+The 20.967 GiB raw record retains 8,730 observations, 17,458 native feedback
+samples and all 20 robot joints. Clock joins and independent FK pass; A3/A4
+supervisor reconstruction passes existing tolerances. This establishes raw reuse
+and reconstructible supervision, not executable observed A3/A4 initialization.
+The unchanged paired-reference rule combines the prior valid nominal diagnostic
+and this fresh episode, yielding right matched reference 51.2603 degrees with
+zero repeat spread. Historical 61.3931-degree reference/scores remain unchanged.
+
+Case 19 acquires a separate 25 s front workspace survey using the same head ZED;
+robot/door motion remains negligible and the two-second stop passes. Its actual
+RGB-D rays cover every external covering ball of the first saved right approach
+command, with a minimum certified free margin of 16.01 mm before the additional
+operational uncertainty budget. Interior balls are separated only by calibrated
+robot geometry. This audit uses unloaded measured stop bounds and does not
+qualify the complete task or dynamic-door/self-collision coverage. The same front
+survey is queued on the other train/development doors; a second observer view is
+not required by this first result. Original sensor clocks remain retained.
+
+The resource reconciliation now separates physical prerequisite cases from fresh
+collection attempts, while charging every monitored workload. Case-count ceiling
+is removed by the user's instruction; six fresh demonstrations, 300 GiB storage,
+three local GPU hours and the prior remote/training ceilings remain unchanged.

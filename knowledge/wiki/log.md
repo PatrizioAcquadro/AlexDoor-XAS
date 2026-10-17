@@ -1,6 +1,12 @@
 # Project Milestones
 
-- The resumed B1 common teacher completes both train-door cycles and post-release continuing-physics stops. Shared raw and A3/A4 numeric supervision are verified. The fourteen-case ceiling is exhausted; robot-only retained-load stops fail at the new path states, while observed contact calibration and learned execution remain open. See [[experiments/b1-end-to-end-pilot-resume|the resumed pilot]].
+- The resumed B1 teacher passes both train cycles; a first fresh right nominal
+  demonstration and independent matched reference now pass. The stronger common
+  loaded stop test passes while case 16's failed speed coverage remains preserved.
+  Shared raw/A3/A4 numeric supervision is verified; operational sweep/contact and
+  all real learned execution remain open. Prerequisite case count is unrestricted
+  within the unchanged resource ceilings. See
+  [[experiments/b1-end-to-end-pilot-resume|the resumed pilot]].
 
 A1/A2 receipt revalidation now spends bounded support updates against the original
 remaining margin; missing bounds and exhausted margins still refuse. See
@@ -11,7 +17,7 @@ belong in Git history, not in agent context.
 
 | Milestone | Outcome | Reference |
 |---|---|---|
-| 2026-10-16 resumed operational contact contract | Physical evaluator and operational sensor requirements separated; fingertip/local identity/load/temporal monitor implemented, physical qualification pending. A3/A4 operational initialization deferred; all fourteen authorized prerequisite cases consumed. Both complete teacher cycles and shared raw/supervision verified; robot-only retained-load stops fail and actual learned execution remains pending. | [[experiments/b1-end-to-end-pilot-resume|Resumed pilot]] |
+| 2026-10-16 resumed operational contact contract | Physical evaluator and operational sensor requirements separated; fingertip/local identity/load/temporal monitor implemented, physical qualification pending. A3/A4 operational initialization deferred; prerequisite count ceiling removed, resource ceilings retained. Both train teacher cycles and a first fresh right demonstration/matched reference pass. Stronger loaded-speed stops pass; case 16 failure is preserved. Shared raw/supervision verified; actual learned execution remains pending. | [[experiments/b1-end-to-end-pilot-resume|Resumed pilot]] |
 | 2026-10-16 shared learned foundation and bounded execution | Trainable causal RGB-D recipe and A100-to-4090 synthetic checkpoint roundtrip pass. Two reference candidates and one authorized IK cycle fail left full-path acceptance; original solver retained. A later train/dev-derived common placement passes four unloaded cases with the original solver. Three subsequent complete teacher diagnostics fail. A later three-case camera/contact study preserves those failures, exposes tool-center/separation mismatch and leaves the observed component unqualified; six prerequisite cases remain unspent. Observed 4 mm/0.1 mm contact-certificate gap identified, canonical tracker-state mismatch fixed in `8385bbf`. Genuine learned pilot remains incomplete. | Encoder `a54ef52`, remote/costs `7e02074`; [[experiments/b1-shared-learned-pilot|scope and limits]]; [[experiments/b1-joint-limit-aware-ik|rejected IK cycle]]; [[experiments/b1-initial-placement-pilot|accepted unloaded placement]]; [[experiments/b1-pilot-contact-prerequisites|teacher/contact failures]]; [[experiments/b1-observed-contact-certificate|certificate study]] |
 | 2026-10-15 historical approach/controller compatibility | Exact saved frame/time/target audit and four frozen-controller CUDA cases. Right p95 0.67 mm passes; left 28.78 mm / 7.87 deg fails with IK limits and 0.527 rad/s actual speed. Local stops pass; 108/3,384 residual estimates remain in domain. No relabeling, policy/control change, training or contact; feasible reference planning is next. | Protocol `d30b406`, audit `e36901b`; [[experiments/b1-approach-controller-compatibility|measured results and limits]] |
 | 2026-10-15 ACT A2 approach/release residuals | Exact joins; limited release exposure, local boundary similarity and historical tracking residuals distinguished. One paired 96-update sampler cell improves release but regresses hold/push and fails guards; v2/uniform retained, no contact or further variant. | Diagnosis `93cdbfb`; [[experiments/b1-pilot-approach-release|single intervention and decision]] |
