@@ -6,6 +6,26 @@ problems and continue through real demonstrations, short ACT/Diffusion × A1/A2
 training and learned closed-loop simulation. Preserve all previous work/failures,
 fixed physical criteria and sealed test doors. No production campaign or robot work.
 
+## Current resumption
+
+The October 17 authorization raises the cumulative workstation ceiling to 15 GPU
+hours and removes numerical submission/prerequisite case ceilings. The remote
+3,600 allocated GPU-second, 18,000 optimizer-update, 300 GiB storage and six fresh
+demonstration ceilings remain cumulative. At resume, 2.989649 local GPU hours,
+70 remote GPU seconds and 164 infrastructure updates are consumed; all six fresh
+attempts remain counted. No source changes follow reviewed commit `a9462e9`.
+
+Repaired train-only job `11969867` is submitted after a Slurm resource dry run and
+recording/robot metadata checks. It reserves the unchanged four 3,000-update cells
+on corrected right-dim and left-bright recordings, seed 17, source `de2d3e6`.
+The CPU environment mismatch is repaired by removing inherited
+`SLURM_TRES_PER_TASK` before explicit `srun --cpus-per-task`. Queue waiting is
+uncharged. No development recordings are transferred; remote development metrics
+remain unavailable. The pending left actual-contact stop and corrected native
+component checks use all three shared leases and the existing idle preflight.
+Training and end-to-end execution remain uncompleted until their actual evidence
+returns. Earlier budget proposals below record their historical authorization.
+
 ## Corrected boundary and implemented contract
 
 The [[../implementation_phases/phase-6-0-operational-perception-and-contact|existing phase 6.0 contract]] already distinguishes physical 0.1 mm /0.02 N scoring from
