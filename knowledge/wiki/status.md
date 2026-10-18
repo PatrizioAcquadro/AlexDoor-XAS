@@ -61,8 +61,12 @@ ACT A1 retains 12,000; Diffusion A1, ACT A2 and Diffusion A2 select 18,000 after
 phase-sampling correction then starts all four latest 18,000 states, preserving
 seed/optimizer/RNG/EMA/statistics. It keeps the fixed development action guards,
 separate three-control patience and a 32,000 per-cell cap; the stopped uniform
-state remains intact. The first 20,000 control is prepared with 8,000 reserved
-updates. No new physical panel is frozen or launched.
+state remains intact. The first 20,000 control completes all four genuine states with unchanged
+normalization and frozen CUDA development. Diffusion A1 passes selection; ACT A1/
+ACT A2 improve below 5%, while Diffusion A2 fails its bright/hold tail guard despite
+a lower mean. Peak RAM is 14.847 GiB with at least 38.228 GiB host headroom;
+281.109 GPU seconds are charged. The common 22,000 control follows. No new
+physical panel is frozen or launched.
 Checkpoint selection precedes final integrated verification and the frozen24 panel.
 No different-version successes are combined; two-door hold/release success remains
 unestablished.

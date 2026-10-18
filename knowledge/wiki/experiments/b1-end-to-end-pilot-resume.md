@@ -197,6 +197,20 @@ within the unchanged 200,000 cumulative ceiling. No new demonstration, physical
 version, seed restart or favorable checkpoint rollback occurs. See
 [[../topics/b1-policy-pilot#Train-only phase-sampling correction|the maintained interface]].
 
+The first corrective control genuinely trains all four to 20,000 and verifies
+optimizer/EMA/history/statistics plus frozen CUDA development inference. It charges
+281.109 GPU seconds; process peak is 14.847 GiB, host headroom stays above
+38.228 GiB, and A1 release drops RSS to 1.852 GiB before A2. No duplicate image
+dataset is loaded. Diffusion A1 improves 5.12% against its selected 18,000 best
+and passes every tail guard, selecting 20,000. ACT A1 and ACT A2 improve 3.03%/
+3.93%, below the significant-progress threshold. Diffusion A2 improves 5.61% in
+primary error but its bright/hold p95 worsens 15.87%, so selection correctly rejects
+it and preserves 18,000. That tail is not rounded or relaxed. No persistent-regression
+or within-sampler training-only flag occurs at this first check. A common 22,000
+control follows under the same declared rules. Actual state/RAM/error evidence is
+`phase-balanced-round-20000/measured-validation.json`; no new physical success
+is inferred from these action metrics.
+
 After selection, verify actual maintained integrated execution before the full
 panel. Freeze all selected checkpoint versions and one common 24-outcome protocol;
 retain any qualifying identical-version execution and every unfavorable outcome.
