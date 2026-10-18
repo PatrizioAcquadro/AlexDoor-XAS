@@ -12,37 +12,40 @@ through the real observed RGB-D/proprioception, robot-load/contact, proposed-mot
 admission, controller, recording and continuing-physics stop path. The active panel keeps frozen physical source `b2969ef`; teacher, selected IK/gains,
 dynamics, expert references and physical criteria are unchanged.
 
-The frozen `selected-v10` panel has **21/24 complete outcomes, all failed**, with
-all three remaining slots retained as pending. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
+The frozen `selected-v10` panel has **22/24 complete outcomes, all failed**, with
+all two remaining slots retained as pending. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
 99.54%** of its frozen reference, with valid hold, but no attempted release.
 After 7,171 real commands, `RIGHT_GRIPPER_Y` exceeds its verified load-model
 position maximum by 0.000279 rad; the correct operational refusal stops the task.
-No model yet completes opening, hold and release on both doors. All 21 complete episodes pass
+No model yet completes opening, hold and release on both doors. All 22 complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
 with no physical violation. Ordinary policy failures remain outcomes and the fixed
 panel continues; no completed result is retried or dropped. A transient external
 RustDesk CUDA context interrupts the ninth slot at inspection time 10 s, before
 learned commands. Its incomplete recording, allocation and healthy two-second
 stop remain; the same frozen slot completes after restored clean availability.
-Earlier versions keep
+A later RustDesk CUDA interruption stops the22nd slot before learned commands;
+its partial recording and143.631 GPU seconds remain, with the old executable
+post-stop evidence explicitly unavailable. The same immutable slot then completes
+after restored availability; its329 commands and healthy stop remain a failed
+task outcome. Earlier versions keep
 their original outcomes and unexecuted denominators. The already-frozen 12,000
 full-v9 plan was held before any simulation allocation and remains intact; v10
 uses new directories and reuses its separately audited identical ACT A1 integration.
 
 The cumulative authorization remains **40 local GPU hours, 32 remote GPU hours
 across Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 total
-demonstration attempts**, all previous use included. At the five-record preparation
-milestone, local allocation is 12.46 GPU hours (including an active provisional
-span), remote use is 3,503 GPU seconds, updates are at most 96,364 (including 200
-possibly lost updates), retained evidence is 388.58 GiB and 11 demonstration
-attempts are consumed. Current machine-readable reconciliation governs every
+demonstration attempts**, all previous use included. After the common30k stop, local allocation is about13.06 GPU hours (including
+an active provisional span), remote use is3,503 GPU seconds, updates are at most
+120,364 (including200 possibly lost updates), retained evidence is about390 GiB
+and11 demonstration attempts are consumed. Current machine-readable reconciliation governs every
 launch and growing retained storage. Development stays local and never updates
 weights or statistics. No remote job is active; Gautschi H100 access/resource
 preflight is verified, with no H100 training allocation yet.
 
 All twelve right-door cell/condition outcomes fail. Therefore, the original
 selected-v10 checkpoint/protocol cohort cannot satisfy identical-checkpoint
-success on both doors, regardless of the remaining left outcomes. Those three
+success on both doors, regardless of the remaining left outcomes. Those two
 outcomes still run and remain in the denominator. The separately frozen one-tick Diffusion A1 integration also fails: 1,619 actual
 learned commands reach 15.9977 controlled degrees (31.21%), below the unchanged
 six-tick comparison and its predeclared adoption threshold. Its independent input/
@@ -81,11 +84,12 @@ checks, 5% inferred development-action progress, all bucket-p95 ratios ≤1.10 a
 common stop after any cell's three unsuccessful or persistently regressing
 controls. It resumes every latest 24,000 state with seed/optimizer/RNG/EMA intact.
 A paired, fixed inferred-train-action suite diagnoses training-only improvement
-before further updates. Old stops and selected controls remain. All four common states now reach 28,000, with no candidate passing every guard.
-Diffusion A2 improves inferred train actions by 4.96% while development regresses
-0.58% from latest24k; paired action diagnosis shows original-right push/hold
-regression against gains on new-right states. The28k action diagnosis also finds ACT training-only gains; all four retain
-counts2/3. The third predeclared control is queued without a patience reset or
+before further updates. Old stops and selected controls remain. All four common states now stop at **30,000**, after three controls without
+guarded progress or recovery from bucket regression.
+At26k, Diffusion A2 improves inferred train actions by4.96% while development
+regresses0.58% from latest24k; paired action diagnosis shows original-right push/hold
+regression against gains on new-right states. The28k diagnosis also finds ACT training-only gains. The30k control reaches
+counts3/3 for every cell and stops the common phase, without a patience reset or
 sampler/guard change. A new evaluated version
 requires actual integrated execution before a distinct frozen 24-outcome panel.
 
@@ -102,8 +106,9 @@ comparing ACT loss to Diffusion MSE. The original frozen panel remains unchanged
 qualified-data continuation. A prospective functional assessment chooses all four
 latest common stopped states, before any new-data closed-loop outcomes. Guarded
 best checkpoints remain separate controls; this cohort does not claim development
-selection or generalization. Actual integration precedes its full24 freeze, with
-unchanged placement, references, controller, physics and success criteria. Development contains two lighting variants of one motion, not an
+selection or generalization. The four30k hashes are now frozen; the maintainedACTA1 right/nominal integration
+is queued, with no full24 freeze yet. Placement, references, controller, physics
+and success criteria remain unchanged. Development contains two lighting variants of one motion, not an
 independent-trajectory or generalization demonstration.
 
 Operational door-contact evidence is separate from complete physical validity:

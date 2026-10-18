@@ -2099,3 +2099,48 @@ wiring diagnosis and unused prospective recipe are preserved and explicitly
 retired before allocation. The optional interval remains inactive; no model,
 controller or qualification flag is changed. A future position extension would
 require its own unchanged error, response and full-robot stop evidence.
+
+
+## Common stop at30k and actual frozen functional cohort
+
+All four combinations complete30,000 updates with exact state/history/
+normalization preservation and CUDA checkpoint reload. Each retains no-progress
+and persistent-regression counts3, so the qualified-data stage stops under its
+unchanged rule. The actual development action means are ACTA1 0.00308872 rad,
+DiffA1 0.00429532 rad, ACTA2 0.0921729 and DiffA2 0.1220008 in the declared
+translation/rotation metric. Better means do not override hold/contact-p95 guards;
+none is promoted to the guarded-development best. All original stage stops and
+12k/22k/18k/22k control checkpoints remain. No further update is reserved.
+
+The30k allocation charges311.073 GPU seconds including tail. Process peak is
+18.148 GiB, released RSS1.807 GiB beforeA2, minimum host availability51.853 GiB.
+Actual checkpoint metadata independently confirms five training records and
+original-two normalization fit in every model. Cumulative optimizer consumption
+is at most120,364, including164 infrastructure and200 possibly lost updates.
+
+The prospectively declared functional cohort freezes all four30k hashes in
+`qualified-latest-v11-integration-right-nominal/frozen-plan.json`. Its actual
+maintained source is`bfabece`, the original main-position/main13 recipe is retained,
+and ACTA1 right/nominal is queued for full-protocol integrated execution. No full24
+manifest is frozen before its actual command/operational/recording/native-clock/
+continuing-physics stop audit. The prepared audit measures allocation and retained
+storage and scales only the learned loop for a new full-horizon scenario, never a
+runtime guarantee. Guarded-development selection and functional assessment remain
+separate reported results.
+
+The original panel reaches22/24 failed outcomes. Its22nd slot has a retained
+RustDesk CUDA interruption during inspection:143.631 GPU seconds, zero learned
+commands, incomplete HDF5 and unavailable final stop. The initial native-only
+telemetry row lacks learned-command fields; all718 readable command flags are
+false, and flushed control counters plus at most60 unflushed ticks remain far
+below the1512-tick warmup. Some compressed timestamp columns fail to read;
+recording integrity is not claimed. The missing old cancellation stop is not
+relabeled as a pass. After the external context releases, the same frozen slot
+resumes with unchanged source/weights/seed/protocol and completes329 commands,
+zero controlled opening and a load-position stop. Its actual complete recording
+and stop audits pass; both attempts remain counted and linked. Preparation-only
+review failures consume no GPU and remain in their diagnosis. Reconciliation now
+charges full measured supervisor allocation wall time plus the existing5s tail,
+including cleanup after the last monitor sample; prior unknown-OOM upper bounds
+remain. Evidence is`selected-v10-slot22-prepolicy-interruption-repair.json` and
+`full-allocation-wall-accounting-fix.json`.
