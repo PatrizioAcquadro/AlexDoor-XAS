@@ -43,6 +43,11 @@ The robot occlusion filter also selects depth once per capture instead of twice
 per mesh: 54 fixed saved captures take 6.30 versus 3.17 seconds and produce
 identical complete masks. No sensor data is cached across captures.
 
+Self-clearance also reuses joint origins/axes within one query. Every new query
+recomputes them from the current matrices and reevaluates travel/model bounds.
+On 201 recorded diagnostic/reference postures, all minimum margins and critical
+pairs remain exact; the isolated queries take 1.34 versus 1.97 seconds.
+
 Local rollout images now use existing lossless LZF/shuffle instead of gzip level
 4. The isolated sample is 39% faster with 31% larger files. On the full recording,
 reader-inclusive rewrite time is 57.16 versus 65.38 seconds; the output is 798 MB

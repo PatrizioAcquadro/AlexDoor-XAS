@@ -112,7 +112,7 @@ class RobotSelfClearance:
                     None if sphere is None else (sphere[0] @ t[:3, :3].T + t[:3, 3], sphere[1]),
                 )
             )
-        extra_cache = {}
+        extra_cache, joint_frames = {}, {}
         minimum, pair = np.inf, None
         for i, j, shared in self.pairs:
             extra = []
@@ -133,11 +133,14 @@ class RobotSelfClearance:
                             if joint.get("type") == "prismatic":
                                 allowance += travel
                             else:
-                                frame = matrices[parent] @ origin_matrix(joint.find("origin"))
-                                axis = frame[:3, :3] @ np.fromstring(
-                                    joint.find("axis").get("xyz"), sep=" "
-                                )
-                                offset = center - frame[:3, 3]
+                                if name not in joint_frames:
+                                    frame = matrices[parent] @ origin_matrix(joint.find("origin"))
+                                    axis = frame[:3, :3] @ np.fromstring(
+                                        joint.find("axis").get("xyz"), sep=" "
+                                    )
+                                    joint_frames[name] = frame[:3, 3], axis
+                                joint_origin, axis = joint_frames[name]
+                                offset = center - joint_origin
                                 lever = (
                                     np.linalg.norm(offset - axis * (offset @ axis))
                                     + shape["radius"]
