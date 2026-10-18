@@ -119,9 +119,9 @@ def test_retired_variants_fail_before_starting_workers(control, tmp_path):
 
     with pytest.raises(ValueError, match="retired_point2pose_variant"):
         OfficialPipeline(tmp_path, {control: True})
-    with pytest.raises(ValueError, match="retired_point2pose_variant"):
+    with pytest.raises(TypeError, match=control):
         Point2PoseWorker(tmp_path, (0.1, 10), 0.004, 1, tmp_path, **{control: True})
-    with pytest.raises(ValueError, match="retired_point2pose_variant"):
+    with pytest.raises(TypeError, match=control):
         offline_episode(None, None, tmp_path / "out", None, **{control: True})
     assert not (tmp_path / "out").exists()
 

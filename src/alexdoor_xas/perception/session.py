@@ -114,6 +114,11 @@ class PerceptionSession:
         if self.config.get("reference_selection") not in (None, "largest_visible_surface"):
             raise ValueError("unknown_observed_reference_selection")
         self.selected = selected or self.config.get("point2pose_selected") or selected_recipe()
+        controls = dict(self.selected["point2pose_controls"])
+        # Read frozen recipes containing disabled historical controls without forwarding them.
+        for key in ("refit_seed_rollback", "selected_registration_only"):
+            if controls.pop(key, False):
+                raise ValueError("retired_point2pose_variant")
         self.output = Path(output)
         self.output.mkdir(parents=True, exist_ok=True)
         self.log = (self.output / "sam3.log").open("a")
@@ -127,9 +132,8 @@ class PerceptionSession:
                     self.config["plane_tolerance_m"],
                     1,
                     self.output / "native",
-                    external_masks=True,
                     registration_diagnostics=registration_diagnostics,
-                    **self.selected["point2pose_controls"],
+                    **controls,
                 )
                 self.native.first_request = False
         except BaseException:

@@ -118,3 +118,7 @@ The opt-in pilot `rgbd-grid-fixed-units-v2` contract uses fixed observation unit
 in shared B1 batches and checkpoint inference, with unchanged train-only action
 normalization. V1 retains its original behavior. See
 [[experiments/b1-pilot-preprocessing|the isolated preprocessing comparison]].
+
+
+The active B1 path uses the family tensor trainers directly; the unused
+`train_model` dispatch wrapper is retired. Training and checkpoint contracts are unchanged.
