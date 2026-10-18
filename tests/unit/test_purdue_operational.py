@@ -113,3 +113,53 @@ def test_target_speed_is_bounded_against_previous_command():
     limits = torch.tensor([[[-1.0, 1.0]] * 7])
     targets, _ = bounded_joint_step(q + 0.2, q, limits, q + 0.5, 0.02, previous)
     torch.testing.assert_close(targets, previous + 0.01)
+
+
+def test_fk_reuse_owns_joint_keys_and_results_and_keeps_calibration_current(monkeypatch):
+    from alexdoor_xas.kinematics import purdue_chain
+    from alexdoor_xas.policies.purdue import PurdueFK
+
+    class Chain:
+        def __init__(self, *args, **kwargs):
+            self.calls = 0
+
+        @staticmethod
+        def array(value):
+            return torch.as_tensor(value, dtype=torch.float32)
+
+        def forward(self, q, *, with_jacobian):
+            assert not with_jacobian
+            self.calls += 1
+            pose = torch.eye(4)[None].clone()
+            pose[:, :3, 3] = q[:, :3]
+            return pose, None
+
+    monkeypatch.setattr(purdue_chain, "PurdueChain", Chain)
+    fk = PurdueFK("unused", "cpu")
+    joints, root = np.zeros(9), np.eye(4)
+    first = fk(joints, {"root_world": root})
+    first.origin[:] = 99
+    root[:3, :3] = [[0, -1, 0], [1, 0, 0], [0, 0, 1]]
+    root[:3, 3] = [1, 2, 3]
+    joints[7:] = 0.1
+    current = fk(joints, {"root_world": root})
+    np.testing.assert_array_equal(current.origin, root[:3, 3])
+    np.testing.assert_array_equal(current.rot, root[:3, :3])
+    assert fk.chain.calls == 1
+    joints[0] = 0.1
+    fk(joints, {"root_world": root})
+    joints[0] = 0
+    fk(joints, {"root_world": root})
+    assert fk.chain.calls == 2
+    # Bounded reuse cannot hide invalid current input, including ignored neck FK.
+    joints[7] = np.nan
+    with pytest.raises(ValueError):
+        fk(joints, {"root_world": root})
+    joints[7] = 0
+    for value in (0.2, 0.3, 0.4, 0.5):
+        joints[0] = value
+        fk(joints, {"root_world": root})
+    before = fk.chain.calls
+    joints[0] = 0
+    fk(joints, {"root_world": root})
+    assert fk.chain.calls == before + 1

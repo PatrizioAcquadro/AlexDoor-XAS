@@ -22,16 +22,24 @@ so the earlier figures below are approximate comparisons. The old 9,000-command
 
 | Workload | Earlier measured runtime | New complete process time | Target | Status |
 |---|---:|---:|---:|---|
-| 1,631-command ACT A1 diagnostic | about 10.7–11.1 min | 466.902 s / 7.78 min | 360 s | Complete workload; target missed |
+| 1,631-command ACT A1 diagnostic | about 10.7–11.1 min | 390.457 s / 6.51 min | 360 s | Complete workload; target missed |
 | 7,217-command reference | about 32.2 min | 1,476.799 s / 24.61 min | 1,200 s | Complete reference cycle; target missed |
 
-The completed diagnostic uses `facad1d`: controlled opening 17.2334 degrees
+The earlier 466.902-second complete diagnostic uses `facad1d`: controlled opening 17.2334 degrees
 versus 17.2595 degrees previously, zero contact losses/physical violations, and a
 healthy 240-sample stop with 0.2379 mm maximum tool travel. All capture/control/
 native counts, image dimensions, intrinsics and capture/control times match the
 earlier prefix. Live commands differ slightly, consistent with different live
 observations; no bitwise physical-simulation requirement or per-run tolerance is
 introduced. This short horizon has no hold/release or learned task success.
+
+After the authorized local-support repair, `1d7b1ee` completes all 1,512
+inspection ticks and 1,631 learned commands in 390.457 seconds. The 360-second
+target is still missed. Controlled opening is 17.2711 degrees, peak force
+7.2339 N, with zero contact losses/physical violations and a healthy 240-sample
+stop (0.2414 mm travel). Full sensor, causal-clock, checkpoint, 47-column and
+command-count audits pass. Earlier refusals and the 466.902-second run remain
+separate outcomes; this prefix still has no hold/release or task-success claim.
 
 The complete reference uses `8d72689` product code: all 7,217 reference commands,
 51.0242 degrees controlled opening, valid hold/release, zero contact losses or
@@ -85,6 +93,15 @@ never crosses an admission call or a surface update. Pose-only robot FK now skip
 the discarded Jacobian while keeping default Jacobian-producing calls unchanged.
 On the RTX 4090, 603 nominal/perturbed recorded postures retain exact poses and
 default Jacobians; totals are 0.284 versus 0.429 seconds including CPU retrieval.
+The fixed URDF arm model now retains at most four previously requested local
+FK poses, keyed by owned exact joint values. Every call still validates all nine
+current inputs and applies current root calibration; returned poses cannot mutate
+the cached local transform. Concurrent calls are serialized. A recorded
+native/control/target call-pattern probe makes 2,412 requests with exact CUDA
+poses, including root/head changes and return-mutation checks; totals are 0.247
+versus 1.216 seconds. This is a component pattern, not a measured runtime hit
+rate. A further CUDA-graph prototype is exact but remains unapplied because its
+additional gain does not justify the capture/lifecycle complexity.
 
 Local rollout images now use existing lossless LZF/shuffle instead of gzip level
 4. The isolated sample is 39% faster with 31% larger files. On the full recording,

@@ -1,5 +1,8 @@
 """Purdue IO with legacy physical stops or observed-only prototype checks."""
 
+from collections import deque
+from threading import Lock
+
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -45,17 +48,29 @@ class PurdueFK:
         from alexdoor_xas.kinematics.purdue_chain import PurdueChain
 
         self.chain = PurdueChain(urdf, device=device)
+        self._local_poses = deque(maxlen=4)
+        self._pose_lock = Lock()
 
     def __call__(self, joints, calibration):
         import torch
 
-        joints = finite_vector(joints, 9)
-        with torch.no_grad():
-            transform, _ = self.chain.forward(
-                self.chain.array(joints[:7])[None], with_jacobian=False
+        arm = finite_vector(joints, 9)[:7].copy()
+        with self._pose_lock:
+            local = next(
+                (pose for previous, pose in self._local_poses if np.array_equal(previous, arm)),
+                None,
             )
-        world = np.asarray(calibration["root_world"]) @ transform[0].cpu().numpy()
-        return ObjectFrame(world[:3, 3], world[:3, :3])
+            if local is None:
+                with torch.no_grad():
+                    transform, _ = self.chain.forward(
+                        self.chain.array(arm)[None], with_jacobian=False
+                    )
+                local = transform[0].cpu().numpy()
+                self._local_poses.append((arm, local))
+            # Only immutable-chain local FK is reused. Every call applies its
+            # current calibration, and the returned matrix owns its storage.
+            world = np.asarray(calibration["root_world"]) @ local
+            return ObjectFrame(world[:3, 3], world[:3, :3])
 
 
 class PurdueSafety:
