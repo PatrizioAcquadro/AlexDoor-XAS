@@ -12,12 +12,12 @@ through the real observed RGB-D/proprioception, robot-load/contact, proposed-mot
 admission, controller, recording and continuing-physics stop path. The active panel keeps frozen physical source `b2969ef`; teacher, selected IK/gains,
 dynamics, expert references and physical criteria are unchanged.
 
-The frozen `selected-v10` panel has **19/24 complete outcomes, all failed**, with
-all five remaining slots retained as pending. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
+The frozen `selected-v10` panel has **20/24 complete outcomes, all failed**, with
+all four remaining slots retained as pending. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
 99.54%** of its frozen reference, with valid hold, but no attempted release.
 After 7,171 real commands, `RIGHT_GRIPPER_Y` exceeds its verified load-model
 position maximum by 0.000279 rad; the correct operational refusal stops the task.
-No model yet completes opening, hold and release on both doors. All 19 complete episodes pass
+No model yet completes opening, hold and release on both doors. All 20 complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
 with no physical violation. Ordinary policy failures remain outcomes and the fixed
 panel continues; no completed result is retried or dropped. A transient external
@@ -42,7 +42,7 @@ preflight is verified, with no H100 training allocation yet.
 
 All twelve right-door cell/condition outcomes fail. Therefore, the original
 selected-v10 checkpoint/protocol cohort cannot satisfy identical-checkpoint
-success on both doors, regardless of the remaining left outcomes. Those five
+success on both doors, regardless of the remaining left outcomes. Those four
 outcomes still run and remain in the denominator. The separately frozen one-tick Diffusion A1 integration also fails: 1,619 actual
 learned commands reach 15.9977 controlled degrees (31.21%), below the unchanged
 six-tick comparison and its predeclared adoption threshold. Its independent input/
@@ -81,14 +81,17 @@ checks, 5% inferred development-action progress, all bucket-p95 ratios ≤1.10 a
 common stop after any cell's three unsuccessful or persistently regressing
 controls. It resumes every latest 24,000 state with seed/optimizer/RNG/EMA intact.
 A paired, fixed inferred-train-action suite diagnoses training-only improvement
-before further updates. Old stops and selected controls remain. No new-data
-optimizer update has run at this preparation milestone. A newly selected version
+before further updates. Old stops and selected controls remain. All four common states now reach 26,000, with no candidate passing every guard.
+Diffusion A2 improves inferred train actions by 4.96% while development regresses
+0.58% from latest24k; paired action diagnosis shows original-right push/hold
+regression against gains on new-right states. One further matched check is
+justified without resetting patience or changing the sampler/guards. A newly selected version
 requires actual integrated execution before a distinct frozen 24-outcome panel.
 
 A read-only 20/50-step DDIM diagnosis fails its improvement
 guards, so the original 10-step sampler remains. No new weights are introduced by these checks.
 
-All four latest common training states reach **24,000** with the same two eligible
+The previous common training states reach **24,000** with the same two eligible
 corrected train episodes, seed 17, optimizer/RNG/EMA and normalization. The declared
 uniform sequence stops at 18,000; one diagnosed phase-sampling correction stops
 at 24,000. Both stops, intermediate weights, rejected tails and training-only

@@ -2030,3 +2030,34 @@ without a development gain holds further updates for diagnosis. The original
 5%/10%-p95/common-three-control stopping rule and global selected controls remain;
 continuation resumes latest24k seed17/optimizer/RNG/EMA, never selected-best states.
 No optimizer update from this cohort has run at this preparation milestone.
+
+
+## First qualified-data action control: 26,000
+
+All four latest24k states complete 2,000 additional updates each and reload with
+zero checkpoint prediction error, exact frozen normalization, preserved history
+and Diffusion EMA update counts. Development metrics during remote/train-only
+training remain unavailable; local frozen inference supplies the separate score.
+The allocation charges 337.564 GPU seconds including tail. Actual training peaks
+at 18.133 GiB process RSS and releases to 1.817 GiB before A2; minimum monitored
+host availability is 51.884 GiB. Queue waiting is unallocated.
+
+On the identical five-record inferred-action suite, train-primary ratios to24k
+are ACT A1 0.7425, Diffusion A1 0.9234, ACT A2 0.8034 and Diffusion A2 0.9504.
+Development-primary ratios to latest24k are respectively 0.9319, 0.9722, 0.9528
+and 1.0058. No26k candidate passes all selected-best bucket-p95 guards; global
+selected checkpoints remain12k/22k/18k/22k. Better average error does not override
+hold/contact regressions. Every exact prediction/target pair remains retained.
+
+The training-only Diffusion A2 flag holds updates for a completed paired diagnosis:
+original-right push translation error grows from 45.24 to189.30 micrometers and
+hold from42.65 to167.41 micrometers, while new-right-plus push falls526.73→362.38
+and hold359.18→212.58 micrometers. These are inferred action errors, not vision or
+physical uncertainty bounds. All corresponding push/hold targets fit the frozen
+output box, so min/max clipping does not explain this tradeoff. State, raw identity/
+time joins, unchanged development windows and frozen statistics pass. One first
+adaptation control does not establish persistent regression; one additional
+matched2k check is justified after diagnosis with no patience reset, threshold,
+sampler or selected-weight change. Subsequent flags still hold further updates.
+Evidence is `state-coverage-round-26000/training-only-diagnosis.json` and the
+preserved selection state before review. No new closed-loop success is claimed.
