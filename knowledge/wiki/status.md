@@ -148,7 +148,11 @@ Further validated source changes reuse joint frames within one clearance query,
 build static indexes only for final condition banks, avoid unused perception
 preloads during single-run shutdown, and mask captured robot depth on CUDA.
 The latter preserves all 201 saved diagnostic/reference masks exactly; complete
-updated timing remains pending. Thread/CPU-affinity alternatives are unadopted;
+updated attempt refuses ownership after inspection (157.024 s, zero learned
+commands), so its full diagnostic timing remains unvalidated. All 253 actual
+robot masks match CPU/CUDA exactly; RGB and semantic seed masks vary. Offline
+ownership diagnosis precedes further physical benchmarks; thresholds and seeds
+remain unchanged. Thread/CPU-affinity alternatives are unadopted;
 no training, panel restart,
 physics/sensing-rate change or safety recalibration is performed. See
 [[experiments/b1-runtime-speed|measured costs, evidence and remaining targets]].

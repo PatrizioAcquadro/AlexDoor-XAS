@@ -36,7 +36,9 @@ introduced. This short horizon has no hold/release or learned task success.
 The complete reference uses `8d72689` product code: all 7,217 reference commands,
 51.0242 degrees controlled opening, valid hold/release, zero contact losses or
 physical violations, and a passing continuing-physics stop. Learned commands and
-learned task success remain zero/false.
+learned task success remain zero/false. All compared control, command, native
+feedback/evaluator columns and capture clocks/calibration match the old reference
+exactly; the independent complete sensor audit passes.
 
 ## Measured changes and correctness
 
@@ -104,6 +106,26 @@ recording without changing values, ownership/contact decisions or non-finite
 rejection. The 148-command failure is not relabeled; the subsequent complete
 diagnostic is a separate outcome after this causal repair.
 
+The latest `optimized-diagnostic-v2` attempt uses the new source at `c0fa69c`
+(launch HEAD `48f6469`). It finishes inspection then refuses
+`load_estimation_failed: ambiguous_leaf_ownership`, with zero learned commands,
+in 157.024 seconds. The failure recording, 1,512-tick inspection, causal/native
+clocks and healthy continuing-physics stop pass. This is an incomplete workload,
+not a six-minute result. The tracked candidate has a valid local constraint but
+only one static material witness. Current code requires three geometrically
+separated supporting views with consistent root geometry, or independently
+observed material motion, to resolve ownership. No subsequent physical retry is
+scheduled.
+
+A separate audit compares every one of its 253 actual robot masks on CPU/CUDA:
+all are exact. Its depth/validity/calibration and control/command/native/evaluator
+prefixes match earlier refused and completed cases exactly. RGB and semantic
+seed masks differ between runs. Mean absolute RGB channel differences are
+0.82–0.98 on the byte scale, with occasional much larger differences; these are
+descriptive measurements, not a new acceptance tolerance. The exact cause of the
+ownership sensitivity remains unresolved; matching robot masks does not prove
+complete perception equivalence. Gates and seeds remain unchanged.
+
 The complete diagnostic spends 164.58 seconds in observer updates, including
 110.12 seconds waiting for perception, about 103 seconds in physics/render/native
 telemetry, 65.42 seconds in motion admission and 36.98 seconds in safety checks.
@@ -120,16 +142,27 @@ The single-run CLI now clears perception state without preloading an unused next
 episode. Profiling found about 10 seconds spent loading that unused worker during
 stop. Explicit `preload_on_reset=False` keeps all reset/worker termination rules;
 a later acquisition creates fresh model state, and the default preload behavior
-for other clients remains unchanged. The initial workload and causal publications
-are unchanged; the end-to-end gain still requires measurement.
+for other clients remains unchanged. The latest refusal measures reset at
+0.230 seconds instead of about ten seconds;
+this partial timing does not establish the complete diagnostic target.
+
+A bounded numeric-row buffering prototype preserves all 47 columns/2.42 GB and
+passes existing recording regressions. Its reader-inclusive rewrite takes 48.29
+versus 57.16 seconds. It remains unintegrated; no broader writer interface or
+failure-handling change is claimed.
 
 No observation, force, stopping, material or physical gate is weakened.
 
 ## Current limit and next action
 
-The speed goal is incomplete: both measured full-process targets are missed. Continue profiling measured dominant
-costs; do not claim success from component gains, an early refusal, opening alone
-or the reference role. The full learned panels remain paused.
+The speed goal is incomplete: both complete measurements miss their targets, and
+the latest source has not completed the diagnostic. Inspect the retained RGB/
+semantic/ownership evidence offline before another physical benchmark. A causal
+repair must preserve current criteria and justify a new attempt; component gains
+and the reference role do not establish learned success. The full learned panels
+remain paused. All allocations/outcomes are reconciled in the separate ignored
+`act-a1-runtime-speed-20261018/progress-report-2.json`; no training or remote
+allocation is added.
 
 See [[b1-operational-tolerances|the closure recipe and physical limits]],
 [[../topics/episode-and-dataset-contracts|recording contracts]] and
