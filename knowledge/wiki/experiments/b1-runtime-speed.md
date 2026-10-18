@@ -106,6 +106,13 @@ both stops pass. The small 2.3% difference does not justify another runtime
 setting; default threads remain. Pinning numerical geometry to performance cores
 adds no gain and is not adopted. An ROI filter candidate retains 54 exact masks
 but saves only about six projected diagnostic seconds; it remains unadopted.
+The single-run CLI now clears perception state without preloading an unused next
+episode. Profiling found about 10 seconds spent loading that unused worker during
+stop. Explicit `preload_on_reset=False` keeps all reset/worker termination rules;
+a later acquisition creates fresh model state, and the default preload behavior
+for other clients remains unchanged. The initial workload and causal publications
+are unchanged; the end-to-end gain still requires measurement.
+
 No observation, force, stopping, material or physical gate is weakened.
 
 ## Current limit and next action

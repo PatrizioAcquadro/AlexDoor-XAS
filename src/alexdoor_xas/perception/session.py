@@ -498,6 +498,7 @@ class SessionProvider:
         inference_period_s=0.0,
         geometry_filter=None,
         local_selection_source=None,
+        preload_on_reset=True,
         **tracking_options,
     ):
         self.binding, self.config, self.engine = recipe, recipe.config, engine
@@ -524,6 +525,7 @@ class SessionProvider:
             if tracking
             else None
         )
+        self.preload_on_reset = preload_on_reset
         self.generation = -1
         self.reset()
 
@@ -535,7 +537,9 @@ class SessionProvider:
     def scan_state(self):
         return self.scan_memory.state
 
-    def reset(self, *, preload=True):
+    def reset(self, *, preload=None):
+        if preload is None:
+            preload = self.preload_on_reset
         self.generation += 1
         self.engine.reset(preload=preload)
         if self.tracking:
@@ -875,6 +879,7 @@ def session_provider(
     synchronous_simulation=False,
     inference_period_s=0.0,
     preload=True,
+    preload_on_reset=True,
     inspection_samples_only=False,
     **options,
 ):
@@ -907,6 +912,7 @@ def session_provider(
         tracking=tracking,
         synchronous_simulation=synchronous_simulation,
         inference_period_s=inference_period_s,
+        preload_on_reset=preload_on_reset,
         calibration=calibration,
         **options,
     )

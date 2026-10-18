@@ -730,6 +730,8 @@ def observed_pilot_runtime(env, binding, robot_asset, setup, config_path, output
         inference_period_s=0.1,
         inspection_samples_only=True,
         preload=False,
+        # Single-run CLI: clear state without loading an unused next episode.
+        preload_on_reset=False,
         tool_fk=fk,
         distal_faces=faces,
         calibration_bound=tuple(config["camera_bound"]),

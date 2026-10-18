@@ -537,8 +537,9 @@ def test_explicit_policy_protocol_selects_one_observed_zone_without_qualifying_o
         provider.close()
 
 
+@pytest.mark.parametrize("preload_on_reset", [True, False])
 def test_lazy_session_boots_only_on_first_capture_and_reset_still_recreates(
-    tmp_path, geometry, monkeypatch
+    tmp_path, geometry, monkeypatch, preload_on_reset
 ):
     boots = []
 
@@ -548,7 +549,14 @@ def test_lazy_session_boots_only_on_first_capture_and_reset_still_recreates(
 
     monkeypatch.setattr(module, "PerceptionSession", factory)
     provider = module.session_provider(
-        recipe(), "unused", {}, tmp_path, replay=True, tracking=False, preload=False
+        recipe(),
+        "unused",
+        {},
+        tmp_path,
+        replay=True,
+        tracking=False,
+        preload=False,
+        preload_on_reset=preload_on_reset,
     )
     try:
         provider.reset()
@@ -558,7 +566,12 @@ def test_lazy_session_boots_only_on_first_capture_and_reset_still_recreates(
         assert len(boots) == 1
         assert (tmp_path / "startup.json").is_file()
         provider.reset()
-        assert len(boots) == 2  # A used episode still recreates complete temporal/model state.
+        assert len(boots) == (2 if preload_on_reset else 1)
+        assert not provider.static and provider.last_estimate is None
+        if not preload_on_reset:
+            assert provider.engine.worker is None
+        provider.update(sensor(5, 1))
+        assert len(boots) == 2  # The next acquisition always owns new model state.
     finally:
         provider.close()
 
