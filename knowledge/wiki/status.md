@@ -12,11 +12,11 @@ through the real observed RGB-D/proprioception, robot-load/contact, proposed-mot
 admission, controller, recording and continuing-physics stop path. The active panel keeps frozen physical source `b2969ef`; teacher, selected IK/gains,
 dynamics, expert references and physical criteria are unchanged.
 
-The frozen `selected-v10` panel has **10/24 complete outcomes, all failed**, with
-all 14 remaining slots retained as pending. Its best controlled opening so far is
-Diffusion A1 right/nominal: 19.724 degrees, **38.5%** of the 51.260-degree reference,
-then an operational contact-load uncertainty stop. No model yet demonstrates
-80% opening with valid hold/release on both doors. All ten complete episodes pass
+The frozen `selected-v10` panel has **13/24 complete outcomes, all failed**, with
+all 11 remaining slots retained as pending. Its best controlled opening so far is
+Diffusion A1 right/bright: 21.500 degrees, **41.94%** of the 51.260-degree reference,
+then a contact-load uncertainty stop, with one independently measured contact loss. No model yet demonstrates
+80% opening with valid hold/release on both doors. All 13 complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
 with no physical violation. Ordinary policy failures remain outcomes and the fixed
 panel continues; no completed result is retried or dropped. A transient external
@@ -30,13 +30,28 @@ uses new directories and reuses its separately audited identical ACT A1 integrat
 
 The cumulative authorization remains **40 local GPU hours, 32 remote GPU hours
 across Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 total
-demonstration attempts**, all previous use included. Through nine closed outcomes and retained diagnostic/interruption allocations,
-local use is 9.6768 GPU hours; remote use is 3,503 GPU seconds,
+demonstration attempts**, all previous use included. Through 13 closed outcomes and retained diagnostic/interruption allocations,
+local use is 10.2989 GPU hours; remote use is 3,503 GPU seconds,
 updates are at most 96,364 (including 200 possibly lost updates), and six fresh
 demonstrations are consumed. Current machine-readable reconciliation governs each
 launch and growing retained storage. Development stays local and never updates
 weights or statistics. No remote job is active; Gautschi H100 access/resource
 preflight is verified, with no H100 training allocation yet.
+
+All twelve right-door cell/condition outcomes fail. Therefore, the original
+selected-v10 checkpoint/protocol cohort cannot satisfy identical-checkpoint
+success on both doors, regardless of the remaining left outcomes. Those 11
+outcomes still run and remain in the denominator. A separate one-tick integration
+uses unchanged selected Diffusion A1 weights and physical criteria before any
+new panel is considered; the next original slot waits without GPU allocation.
+
+The maintained CLI additionally retains its exact first causal policy vector,
+first inferred chunk, backend settings and model-query timing. Existing rollout/
+recording tests pass; actual replay is pending in one separately declared
+same-checkpoint integration with one-tick replanning. The original frozen panel
+continues at six ticks. A read-only 20/50-step DDIM diagnosis fails its improvement
+guards, so the original 10-step sampler remains. No new weights or demonstrations
+are introduced by these checks.
 
 All four latest common training states reach **24,000** with the same two eligible
 corrected train episodes, seed 17, optimizer/RNG/EMA and normalization. The declared
@@ -388,11 +403,3 @@ that does not justify another training run. B0 remains historical: the saturated
 Supported commands/setup are in the root/model READMEs; runtime contracts and
 future work are canonical in [[topics/shared-door-perception|Perception]] and
 [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]].
-
-The maintained CLI additionally retains its exact first causal policy vector,
-first inferred chunk, backend settings and model-query timing. Existing rollout/
-recording tests pass; actual replay is pending in one separately declared
-same-checkpoint integration with one-tick replanning. The original frozen panel
-continues at six ticks. A read-only 20/50-step DDIM diagnosis fails its improvement
-guards, so the original 10-step sampler remains. No new weights or demonstrations
-are introduced by these checks.

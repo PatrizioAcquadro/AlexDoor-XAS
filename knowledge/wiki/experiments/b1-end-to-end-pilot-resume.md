@@ -270,8 +270,12 @@ proof is `selected-v10-first-four-combinations-execution-proof.json`.
 | act-A2_ee_delta / right/dim | 247 | 0.000 deg | contact_acquisition_budget |
 | diffusion-A1_joint_delta / right/dim | 1876 | 18.756 deg | insufficient_local_action_margin |
 | diffusion-A2_ee_delta / right/dim | 884 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
+| act-A1_joint_delta / right/bright | 1239 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
+| act-A2_ee_delta / right/bright | 245 | 0.000 deg | contact_acquisition_budget |
+| diffusion-A1_joint_delta / right/bright | 2181 | 21.500 deg | contact_load_lost_or_uncertain |
+| diffusion-A2_ee_delta / right/bright | 965 | 0.000 deg | observed_contact_orientation |
 
-All nine complete outcomes fail valid hold/release and task success. Diffusion A1 reaches 19.7235
+All 13 complete outcomes fail valid hold/release and task success. Diffusion A1 reaches 19.7235
 controlled degrees (38.4772% reference) before `contact_load_lost_or_uncertain`;
 its raw 20.0090 degrees are reported separately. The final native force window is
 25.7057 mN (physical Loaded), while the operational normal-force lower mean is
@@ -279,7 +283,7 @@ its raw 20.0090 degrees are reported separately. The final native force window i
 physical tolerance. This illustrates justified operational uncertainty versus
 independent physical validity; it is not evidence that a threshold should change
 or that the load model has a diagnosed defect. No calibration/controller correction
-is made during the panel. All 15 remaining slots continue under the frozen version.
+is made during the panel. All 11 remaining slots continue under the frozen version.
 The right/dim Diffusion A1 result reaches 36.6% of reference before a local
 swept-motion margin refusal; its physical criteria and outcome remain separate.
 
@@ -287,6 +291,26 @@ These five outcome allocations total 0.7060 GPU hours, including the
 previously charged identical integration; only 0.5594 new GPU hours
 are added after panel freeze. Cumulative local use through these closed outcomes
 is 9.0957 hours. Reuse does not double-charge lifetime compute.
+
+Through 13 completed outcomes, every right-door combination/lighting case fails
+the task, so this frozen checkpoint/protocol cohort cannot satisfy the two-door
+functional gate. The remaining 11 left outcomes still run. Right/bright Diffusion
+A1 provides the current best controlled opening, 21.50045 degrees (41.94371%),
+then a contact-load uncertainty stop with one independently measured contact loss.
+Its 2,181 learned commands and two-second stop pass all audits without physical
+violation. No valid hold or release occurs. The unchanged one-tick integration
+runs next, before the original next left slot; this is resource ordering only.
+`replan1-integration-resource-order.json` records the launcher-only gate.
+
+The longer right/bright episode charges 771.624 GPU seconds: observer-to-observer
+inspection takes 214.064 s and the 2,181 learned-control intervals take 497.643 s.
+Holding the remaining startup/shutdown cost fixed and scaling only that loop
+to 9,000 controls gives 2,327.529 s per case, or **15.517 GPU hours for 24 full
+horizons of this same case type**. This is a measured-path linear scenario, not
+a guarantee or one-tick forecast. It replaces reliance on the historical 8.64-hour
+extrapolation. The new first-query timing will measure any added inference cost.
+The ledger totals 10.2989 closed local GPU hours through these outcomes/diagnoses;
+the active integration is additionally charged by the live ledger.
 
 The eight complete cases charge 1.0955 GPU hours in total and retain 3.909 GiB.
 Their measured durations give a 2.191-hour mean-failure-length scenario for the
