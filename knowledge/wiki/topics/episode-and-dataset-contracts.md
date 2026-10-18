@@ -70,9 +70,10 @@ reconstruction. It leaves observed initial geometry, A4 bootstrap, sweep/respons
 support and the operational release contract explicitly unresolved. Annotation
 truth is supervision, not an observed estimate or admission. Partial historical
 recordings are not a final matched dataset and are not relabeled for new control.
-Dense concatenated image vectors also require a lazy/deduplicated image-loading
-path before production scale; the current in-memory numerical loader remains
-suitable only for a bounded pilot. No such storage redesign is silently claimed.
+Prepared views now use exact float32 file-backed observations and streaming
+batches, preserving original train-only normalization membership. A1 datasets are
+released before loading A2; host/process RAM guards remain. This bounds the pilot
+path without establishing production-scale or final matched-data qualification.
 
 
 ## Pilot rollout retention
