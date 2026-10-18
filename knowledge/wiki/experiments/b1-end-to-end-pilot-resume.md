@@ -523,8 +523,13 @@ The collector's direct signal-handler exception is caught by Kit's async callbac
 so orderly cleanup fails and the owned supervisor terminates it at its deadline.
 The maintained CLI now records a signal request and raises only before/after
 `env.step`, outside Kit callbacks, restoring original stepping before stop cleanup.
-Essential cancellation/continuation/recording tests pass; actual bounded Isaac
-cancellation verification and a prospectively declared replacement remain pending.
+Essential cancellation/continuation/recording tests pass. The first actual bounded
+Isaac cancellation produces a passed, healthy 240-sample/two-second stop, but Kit
+returns CLI code 0 after an uncaught `KeyboardInterrupt`; the qualification wrapper
+correctly fails and retains its 20.441 GPU-second allocation. The CLI now explicitly
+exits 130 after cancellation, tested through its actual footer. One diagnosed
+exit-contract recheck and the prospectively declared collection replacement remain
+pending; the physical stop result is not relabeled as an entire passed trial.
 No teacher, controller, ordinary command, physical criterion or frozen-panel source
 changes. Evidence is `state-coverage-interruption-diagnosis.json`.
 

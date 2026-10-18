@@ -730,6 +730,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
 if __name__ == "__main__":
     try:
         code = main()
+    except KeyboardInterrupt:
+        traceback.print_exc()
+        code = 130
     except Exception:
         traceback.print_exc()
         code = 1

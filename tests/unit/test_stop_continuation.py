@@ -117,3 +117,31 @@ def test_pending_interruption_allows_full_continuing_physics_stop(tmp_path, monk
     assert result["passed"] and env.tick == 4 and env.stops == 1
     with np.load(tmp_path / "interrupted-stop.npz") as saved:
         np.testing.assert_allclose(saved["native_time_s"], np.arange(1, 9) / 4)
+
+
+def test_cli_interruption_exit_survives_Kit_interpreter_shutdown():
+    import ast
+    from pathlib import Path
+
+    import pytest
+
+    tree = ast.parse(Path("scripts/pilot_physics.py").read_text())
+    footer = ast.Module(body=tree.body[-1].body, type_ignores=[])
+
+    def interrupted():
+        raise KeyboardInterrupt("requested")
+
+    def exit_process(code):
+        raise SystemExit(code)
+
+    namespace = dict(
+        main=interrupted,
+        traceback=SimpleNamespace(print_exc=lambda: None),
+        sys=SimpleNamespace(
+            stdout=SimpleNamespace(flush=lambda: None), stderr=SimpleNamespace(flush=lambda: None)
+        ),
+        os=SimpleNamespace(_exit=exit_process),
+    )
+    with pytest.raises(SystemExit) as error:
+        exec(compile(footer, "pilot_cli_exit", "exec"), namespace)
+    assert error.value.code == 130
