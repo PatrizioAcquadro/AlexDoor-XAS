@@ -216,7 +216,9 @@ class RobotGeometry:
             valid = valid & domain
         v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
         observed_depth = depth[v, u]
-        points = deproject(observed_depth, np.c_[u, v], sensor["intrinsics"], sensor["camera_world"])
+        points = deproject(
+            observed_depth, np.c_[u, v], sensor["intrinsics"], sensor["camera_world"]
+        )
         bounds = np.asarray(calibration_bound, dtype=float)
         if bounds.shape != (2,) or not np.isfinite(bounds).all() or (bounds < 0).any():
             raise ValueError("Unmeasured robot occlusion error")
@@ -236,7 +238,9 @@ class RobotGeometry:
             world = corners @ transform[:3, :3].T + transform[:3, 3]
             optical = (world - camera[:3, 3]) @ camera[:3, :3]
             minimum_z, maximum_z = optical[:, 2].min(), optical[:, 2].max()
-            possible = (~inside) & (observed_depth >= max(0.0, minimum_z)) & (observed_depth <= maximum_z)
+            possible = (
+                (~inside) & (observed_depth >= max(0.0, minimum_z)) & (observed_depth <= maximum_z)
+            )
             if minimum_z > 1e-9:
                 image = optical @ sensor["intrinsics"].T
                 uv = image[:, :2] / image[:, 2, None]
