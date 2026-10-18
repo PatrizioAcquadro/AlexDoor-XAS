@@ -274,8 +274,13 @@ proof is `selected-v10-first-four-combinations-execution-proof.json`.
 | act-A2_ee_delta / right/bright | 245 | 0.000 deg | contact_acquisition_budget |
 | diffusion-A1_joint_delta / right/bright | 2181 | 21.500 deg | contact_load_lost_or_uncertain |
 | diffusion-A2_ee_delta / right/bright | 965 | 0.000 deg | observed_contact_orientation |
+| act-A2_ee_delta / left/nominal | 11 | 0.000 deg | unsupported_actual_robot_sweep_and_stop |
+| diffusion-A1_joint_delta / left/nominal | 485 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
+| diffusion-A2_ee_delta / left/nominal | 351 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
+| act-A1_joint_delta / left/dim | 7171 | 52.295 deg | load_estimation_failed: outside_verified_load_envelope; hold valid, release not attempted |
 
-All 16 complete outcomes fail valid hold/release and task success. Diffusion A1 reaches 19.7235
+All 17 complete outcomes fail task success. ACT A1 left/dim reaches valid hold;
+none completes release. Diffusion A1 reaches 19.7235
 controlled degrees (38.4772% reference) before `contact_load_lost_or_uncertain`;
 its raw 20.0090 degrees are reported separately. The final native force window is
 25.7057 mN (physical Loaded), while the operational normal-force lower mean is
@@ -283,7 +288,7 @@ its raw 20.0090 degrees are reported separately. The final native force window i
 physical tolerance. This illustrates justified operational uncertainty versus
 independent physical validity; it is not evidence that a threshold should change
 or that the load model has a diagnosed defect. No calibration/controller correction
-is made during the panel. All eight remaining slots continue under the frozen version.
+is made during the panel. All seven remaining slots continue under the frozen version.
 The right/dim Diffusion A1 result reaches 36.6% of reference before a local
 swept-motion margin refusal; its physical criteria and outcome remain separate.
 
@@ -292,10 +297,10 @@ previously charged identical integration; only 0.5594 new GPU hours
 are added after panel freeze. Cumulative local use through these closed outcomes
 is 9.0957 hours. Reuse does not double-charge lifetime compute.
 
-Through 16 completed outcomes, every right-door combination/lighting case fails
+Through 17 completed outcomes, every right-door combination/lighting case fails
 the task, so this frozen checkpoint/protocol cohort cannot satisfy the two-door
-functional gate. The remaining eight left outcomes still run. Right/bright Diffusion
-A1 provides the current best controlled opening, 21.50045 degrees (41.94371%),
+functional gate. The remaining seven left outcomes still run. Right/bright Diffusion
+A1 provides the best right-door controlled opening, 21.50045 degrees (41.94371%),
 then a contact-load uncertainty stop with one independently measured contact loss.
 Its 2,181 learned commands and two-second stop pass all audits without physical
 violation. No valid hold or release occurs. The separate one-tick integration completes before the next original left slot;
@@ -422,6 +427,28 @@ one-tick panel is launched. Evidence is `integrated-replan1-diffusion-a1-right-n
 and `first-query-replay-replan1/`. The previous tiny ACT reconstructed-query
 mismatches remain explicitly failed; this new exact-vector audit does not relabel them.
 
+The longer ACT A1 left/dim outcome executes **7,171 actual commands**, reaching
+52.29504 controlled degrees (99.5413% of its unchanged 52.53603-degree reference),
+valid hold and zero contact losses. Release is not attempted or completed, so the
+task fails. At native time 144.7083/144.7167 s, `RIGHT_GRIPPER_Y` is
+0.693643/0.693759 rad versus the verified 0.693480 maximum. All other position,
+speed and main/weak acceleration predicates pass at those samples. The preceding
+operational force upper bound is 0.331 N; a low force alone does not extend the
+verified position domain. No domain, controller or physical criterion changes.
+Evidence is `left-dim-act12-terminal-load-domain.json` and the complete original
+episode. The 240 healthy native stop samples span two continuing simulated
+seconds, with 0.12885 mm travel; all consumed-input/command/clock audits pass and
+no physical violation occurs. This demonstrates controlled opening and hold,
+not a completed learned task.
+
+Its allocation including conservative tail is 2,046.720 s. The measured inspection
+loop is 214.240 s, the 7,171-command learned loop 1,773.510 s, and remaining costs
+58.970 s. Scaling only that loop to 9,000 controls gives 2,499.063 s per case,
+or **16.660 GPU hours for 24 full horizons of this case type**. This is a linear
+planning scenario, not a guarantee for another door/model or queue duration. The
+consumed-input HDF5 is 1,677,736,377 bytes. The original shorter scenarios remain;
+`selected-v10-long-act-runtime-forecast.json` records the new measured cost.
+
 ## Targeted state-coverage data continuation
 
 All twelve right outcomes fail and the feedback-rate candidate worsens opening.
@@ -441,7 +468,8 @@ stop and held-joint uncertainties. A conservative 100 ms interval check rejects
 even the baseline and remains preserved. Refinement to actual 60 Hz intervals
 checks 4,503 states and passes all three variants; lower margins are 16.68, 12.73
 and 87.11 micrometers after existing allowances. These are finite CAD/stop
-clearance results, not vision precision or global hardware qualification. Actual
+clearance results, not vision precision or global hardware qualification. The first new collection is now allocated and charged as attempt seven, before
+startup could fail. Actual
 new teacher physical/raw eligibility remains unavailable until each recording
 and independent audit complete. Evidence is `state-coverage-four-attempts.json`
 and both `state-coverage-initial-self-clearance*.json` reports.
@@ -465,6 +493,17 @@ records against declared new train membership. Essential tests reject developmen
 normalization, altered old exclusions/seed/lr, duplicate/unseen data and lossy
 conversion. No new training stage or optimizer update starts before actual
 eligible data and a separately declared early-stopping rule.
+
+Before any new-data optimizer allocation, `state-coverage-training-rule.json`
+declares common 2,000-update checks through at most 48,000 per cell. The original
+5% inferred-action improvement and 10% bucket-p95 selection guard remain; any
+cell's three no-progress or persistent-regression controls stop all four. Original
+global selected bests remain controls; continuation always starts from latest
+24,000 optimizer/RNG/EMA states. Patience resets only for the explicitly changed
+eligible data, with old stage stops intact. Training-only improvement holds further
+updates for diagnosis. The first changed-data objective establishes a new
+like-for-like objective baseline. At most 96,000 new updates fit the remaining
+103,636 upper allowance. No such training allocation has started.
 
 The offline OOM correction remains required for every stage. The user-reported
 approximately 49 GiB A1-to-A2 peak is caused by retained `PolicyData` ownership;

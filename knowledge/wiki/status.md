@@ -12,11 +12,12 @@ through the real observed RGB-D/proprioception, robot-load/contact, proposed-mot
 admission, controller, recording and continuing-physics stop path. The active panel keeps frozen physical source `b2969ef`; teacher, selected IK/gains,
 dynamics, expert references and physical criteria are unchanged.
 
-The frozen `selected-v10` panel has **16/24 complete outcomes, all failed**, with
-all eight remaining slots retained as pending. Its best controlled opening so far is
-Diffusion A1 right/bright: 21.500 degrees, **41.94%** of the 51.260-degree reference,
-then a contact-load uncertainty stop, with one independently measured contact loss. No model yet demonstrates
-80% opening with valid hold/release on both doors. All 16 complete episodes pass
+The frozen `selected-v10` panel has **17/24 complete outcomes, all failed**, with
+all seven remaining slots retained as pending. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
+99.54%** of its frozen reference, with valid hold, but no attempted release.
+After 7,171 real commands, `RIGHT_GRIPPER_Y` exceeds its verified load-model
+position maximum by 0.000279 rad; the correct operational refusal stops the task.
+No model yet completes opening, hold and release on both doors. All 17 complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
 with no physical violation. Ordinary policy failures remain outcomes and the fixed
 panel continues; no completed result is retried or dropped. A transient external
@@ -33,14 +34,16 @@ across Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 total
 demonstration attempts**, all previous use included. Through 13 closed outcomes and retained diagnostic/interruption allocations,
 local use is 10.2989 GPU hours; remote use is 3,503 GPU seconds,
 updates are at most 96,364 (including 200 possibly lost updates), and six fresh
-demonstrations are consumed. Current machine-readable reconciliation governs each
+demonstrations are consumed at that historical snapshot. The first newly declared
+state-coverage attempt has now allocated; seven attempts are consumed including
+startup, with its physical/raw eligibility still pending. Current machine-readable reconciliation governs each
 launch and growing retained storage. Development stays local and never updates
 weights or statistics. No remote job is active; Gautschi H100 access/resource
 preflight is verified, with no H100 training allocation yet.
 
 All twelve right-door cell/condition outcomes fail. Therefore, the original
 selected-v10 checkpoint/protocol cohort cannot satisfy identical-checkpoint
-success on both doors, regardless of the remaining left outcomes. Those eight
+success on both doors, regardless of the remaining left outcomes. Those seven
 outcomes still run and remain in the denominator. The separately frozen one-tick Diffusion A1 integration also fails: 1,619 actual
 learned commands reach 15.9977 controlled degrees (31.21%), below the unchanged
 six-tick comparison and its predeclared adoption threshold. Its independent input/
@@ -54,7 +57,13 @@ initial arm offsets on each train door, retaining existing seen lighting, teache
 controller, door/body placement, dynamics and physical criteria. Full-robot
 clearance checks at the actual control cadence pass with existing uncertainty and
 stop bounds; the coarser failed check remains. Actual fresh-record physical/raw
-eligibility is pending. Queue waiting consumes no attempt or GPU allocation.
+eligibility is pending; the first collection is running and counted immediately.
+Queue waiting consumes no attempt or GPU allocation.
+
+The longer ACT execution charges 2,046.720 GPU seconds and retains 1.563 GiB
+of consumed-input HDF5. Scaling only its measured learned loop to 9,000 ticks gives
+2,499.063 seconds per case, or a 16.660-hour full-panel scenario; this is not a
+runtime guarantee. The measured near-complete failure and original bounds remain.
 
 The maintained data path now streams exactly representable float32 observations
 into contiguous file-backed training files. Every original train value round-trips
