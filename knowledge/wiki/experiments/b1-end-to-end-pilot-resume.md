@@ -268,8 +268,9 @@ proof is `selected-v10-first-four-combinations-execution-proof.json`.
 | act-A1_joint_delta / right/dim | 387 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
 | act-A2_ee_delta / right/dim | 247 | 0.000 deg | contact_acquisition_budget |
 | diffusion-A1_joint_delta / right/dim | 1876 | 18.756 deg | insufficient_local_action_margin |
+| diffusion-A2_ee_delta / right/dim | 884 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
 
-All eight complete outcomes fail valid hold/release and task success. Diffusion A1 reaches 19.7235
+All nine complete outcomes fail valid hold/release and task success. Diffusion A1 reaches 19.7235
 controlled degrees (38.4772% reference) before `contact_load_lost_or_uncertain`;
 its raw 20.0090 degrees are reported separately. The final native force window is
 25.7057 mN (physical Loaded), while the operational normal-force lower mean is
@@ -277,7 +278,7 @@ its raw 20.0090 degrees are reported separately. The final native force window i
 physical tolerance. This illustrates justified operational uncertainty versus
 independent physical validity; it is not evidence that a threshold should change
 or that the load model has a diagnosed defect. No calibration/controller correction
-is made during the panel. All 16 remaining slots continue under the frozen version.
+is made during the panel. All 15 remaining slots continue under the frozen version.
 The right/dim Diffusion A1 result reaches 36.6% of reference before a local
 swept-motion margin refusal; its physical criteria and outcome remain separate.
 
@@ -302,7 +303,9 @@ zero measured tool travel. No task outcome is available for that attempt.
 restored clean availability. A separate resume-driver preflight error spends no
 GPU allocation; its source/logs and corrected immutable eight-outcome snapshot
 remain in `selected-v10-resume-driver-preflight-repair.json`. The same ninth slot
-resumes with unchanged checkpoint, seed, protocol and physical source.
+completes with unchanged checkpoint, seed, protocol and physical source. Its
+884 real learned commands terminate at the verified load-domain boundary; all
+physical/input/stop audits pass, with no task success.
 
 A read-only CUDA input audit reproduces the first prepared training feature and
 ACT A1 prediction exactly. The real first six recorded requests reconstruct to
@@ -314,8 +317,39 @@ The 25.0-second training start and 25.2-second live start are phase-aligned;
 static depth is identical and arm positions match, with small neck settling.
 No backdating or input correction is applied. `input-parity-selected-v10`
 preserves both the diagnosed wrong-checkout import failure and the completed
-read-only audit. A bounded streaming train-phase inference/backend diagnosis
-is pending, without optimizer, normalization or panel-version changes.
+read-only audit. A bounded streaming train-phase inference/backend diagnosis completes on CUDA
+in 48.091 seconds, with no optimizer, normalization or panel-version change.
+It evaluates all selected and latest 24k weights on the same 320 train chunks.
+
+| Cell | Selected train action primary | Latest 24k train primary | Selected development primary |
+| --- | ---: | ---: | ---: |
+| ACT A1 | 0.00049068 rad | 0.00031089 rad | 0.00312880 rad |
+| Diffusion A1 | 0.00066019 rad | 0.00059219 rad | 0.00488759 rad |
+| ACT A2 | 0.0109206 | 0.0074671 | 0.1121445 |
+| Diffusion A2 | 0.0202242 | 0.0178992 | 0.1235275 |
+
+A1 is physical joint-delta L2 error; A2 is the declared maximum of translation
+error/10 mm and SO(3) error/5 degrees. These are standard inferred actions,
+not ACT reconstruction loss or Diffusion noise MSE. Development has another door
+trajectory, so the 6–10x descriptive gap is not a paired causal effect or proof
+of unseen-door generalization. All latest states fit train actions better while
+the previous guarded development stops remain valid. A zero-command analytical
+reference is retained only for diagnosis and is never deployed. Peak process
+RAM is 1.425 GiB with at least 53.174 GiB host RAM available; no whole dataset is
+loaded. The initial failed diagnostic retains its remote `/depot` raw provenance
+path; the corrected attempt reuses the previously qualified local identity/time
+map without altering the cache. `train-action-fit-diagnosis/interpretation.json`
+and saved action arrays retain the full results.
+
+Toggling cuDNN benchmark to Isaac Lab's default setting produces the same small
+recorded-request discrepancy in three repeats for each condition, excluding that
+backend hypothesis. The original 1e-7 replay check remains failed; no tolerance
+is relaxed. A separately preregistered read-only DDIM diagnosis checks 20 steps,
+then 50 only if necessary, against identical frozen development windows and
+selected weights. Common Diffusion adoption would require at least one 5% mean
+improvement, no mean regression in the other cell, and no phase p95 increase
+over 10%; unchanged ACT predictions are controls. No candidate is yet adopted,
+and the active selected-v10 physical panel remains at its original 10 steps.
 
 The offline OOM correction remains required for every stage. The user-reported
 approximately 49 GiB A1-to-A2 peak is caused by retained `PolicyData` ownership;

@@ -4,7 +4,7 @@
   18k, Diffusion A1/A2 22k), all with real learned-command execution through the
   observed/load/admission/control/recording/stop path. Uniform and corrected
   phase-balanced selection stop at common 18k and 24k. The frozen selected-v10
-  panel has eight complete failures out of 24; no 80% opening/hold/release
+  panel has nine complete failures out of 24; no 80% opening/hold/release
   success is demonstrated. RAM ownership is corrected and bounded; every failed
   allocation, exclusion and previous panel remains. See
   [[experiments/b1-end-to-end-pilot-resume]].
