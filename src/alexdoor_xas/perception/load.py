@@ -248,7 +248,17 @@ class ResidualLoadModel:
             needs_weak_position or needs_position_halo and np.any(tolerance)
         ):
             violations.append(
-                dict(quantity="combined_weak_position_and_acceleration", supported=False)
+                dict(
+                    quantity="combined_weak_position_and_acceleration",
+                    supported=False,
+                    measured_position_rad=q.tolist(),
+                    main_position_lower_rad=q_min.tolist(),
+                    main_position_upper_rad=finite_vector(c.q_max, 7).tolist(),
+                    position_tolerance_rad=tolerance.tolist(),
+                    measured_acceleration_rad_s2=ddq.tolist(),
+                    main_acceleration_max_rad_s2=acceleration_max.tolist(),
+                    uncertainty="no_independent_combined_domain_evidence",
+                )
             )
         if violations:
             raise LoadEnvelopeError(dict(time_s=feedback.timestamp_s, violations=violations))

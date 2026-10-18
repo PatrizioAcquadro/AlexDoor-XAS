@@ -105,6 +105,15 @@ Directional material-margin accounting and numeric refusal diagnostics are
 implemented. Saved right-reference replay has no first operational refusal;
 strong-load position support is rejected by measured error/stop failures. The separately tested 1 N position support passes unchanged error/response/stop
 bounds; strong-load extensions remain blocked. The observed reference completes opening, three-second hold, release and a
-healthy two-second stop; learned command count remains zero. A single fixed ACT A1
-short-window diagnostic is in progress. See
+healthy two-second stop; learned command count remains zero. The single fixed ACT A1 short-window diagnostic stops after 1,631 learned
+commands on an insufficient future material margin (-1.206 mm), with no physical
+violation and a healthy continuing-physics stop. It is a retained task failure,
+not a panel restart. On the same actual trace the old 3 mm rule would prematurely refuse four valid
+states; the later unsupported proposal remains blocked. See
 [[experiments/b1-operational-tolerances|current bounded evidence and limits]].
+
+These diagnostics retain seven GPU launches, including failed/interrupted setup,
+and add approximately 0.912 local allocation hours with the existing five-second
+per-launch tail. This is an increment to the preserved pause ledger, not a new
+budget. No remote allocation or training update is added. Detailed process-time
+and retained-payload accounting is in the separate operational-check report.

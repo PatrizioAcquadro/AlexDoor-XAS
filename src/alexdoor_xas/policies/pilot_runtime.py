@@ -605,11 +605,26 @@ class PilotMotionEvidence:
         # an envelope exit. These are the same joint travel bounds used by the
         # independently checked full robot sweep and stopping volumes above.
         motion_q_lower = np.array([positions[name] - joint_travel[name] for name in ARM_JOINTS])
-        self.load_calibration.require_position_motion_support(
-            motion_q_lower,
-            contact_free_stop_margin_m=contact_free_stop_margin,
-            motion_q_upper=np.array([positions[name] + joint_travel[name] for name in ARM_JOINTS]),
-        )
+        motion_q_upper = np.array([positions[name] + joint_travel[name] for name in ARM_JOINTS])
+        try:
+            self.load_calibration.require_position_motion_support(
+                motion_q_lower,
+                contact_free_stop_margin_m=contact_free_stop_margin,
+                motion_q_upper=motion_q_upper,
+            )
+        except ValueError:
+            diagnostics.update(
+                motion_joint_lower_rad=motion_q_lower.tolist(),
+                motion_joint_upper_rad=motion_q_upper.tolist(),
+                main_load_q_min_rad=list(self.load_calibration.q_min),
+                main_load_q_max_rad=list(self.load_calibration.q_max),
+                position_tolerance_rad=self.load_calibration.position_tolerance_rad,
+                joint_stop_bound_rad=self.stop.tolist(),
+                motion_acceleration_bound_rad_s2=self.acceleration.tolist(),
+                required_contact_free_stop_margin_m=0.0,
+                numerical_tolerance_m=0.0,
+            )
+            raise
         loaded = bool(separation <= 0)
         support = FieldSupport(now, now, now, observation.generation, *self.config["camera_bound"])
         limits = ActionLimits(

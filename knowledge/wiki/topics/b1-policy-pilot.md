@@ -180,7 +180,9 @@ Empirical load position extrema are separate from physical joint limits.
 upper allowances by joint, default zero, with an explicit force domain. Actual
 robot q and Jacobian are used unchanged. Weak support cannot qualify future loaded
 motion or stopping outside the main domain without observed free-space evidence.
-Refusals carry numeric measurement/limit/allowance details.
+Refusals carry numeric measurement/limit/allowance details. New position support
+cannot combine with the independent extended-acceleration interval without
+additional joint evidence.
 
 Contact material margins measure lateral footprint support. With an independent
 robot collision/stop receipt, only the tangential projection of the extra normal

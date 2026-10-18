@@ -133,12 +133,60 @@ short diagnostic horizon cannot establish a complete learned task result.
 Final review identifies a missing combined-domain guard before the first policy
 command: a new position halo could otherwise combine with the independent weak
 acceleration extension. The guard now refuses that unsupported combination, with
-a focused regression. The first short-window attempt is explicitly interrupted
-during inspection and preserved; the corrected single complete outcome remains
-pending. The reference result is unaffected: no state leaves its main position
+a focused regression. The first short-window attempt is explicitly interrupted during inspection at
+25.0 s: zero learned commands, incomplete recording retained and a healthy
+two-second continuing-physics stop. The corrected complete outcome is retained
+separately as `act-a1-window-2`. The reference result is unaffected: no state leaves its main position
 or acceleration domain.
 
 No physical robot result, broader calibration qualification, policy success or
 unseen-door claim follows from these diagnostics. See
 [[../topics/b1-policy-pilot|pilot interfaces]] and
 [[b1-end-to-end-pilot-resume|unchanged historical outcomes]].
+
+
+## Fixed ACT A1 short-window outcome
+
+The corrected run uses source `6ab5b80`, the unchanged latest30k checkpoint,
+original seed/setup and the separately validated weak-position recipe. It
+executes 1,631 learned commands and stops at 52.3833 s with
+`insufficient_local_action_margin`. Controlled opening is 17.2595 degrees;
+there is no hold/release or learned task success. Peak native force is 7.2611 N,
+with zero contact losses and no physical violations. The measured two-second
+stop passes: 0.2422 mm maximum tool travel and 0.0001525 rad/s final speed.
+Recording completeness, consumed-command/control/native clocks and unchanged
+checkpoint audits pass. No native q uses the position halo in this live window.
+
+The first captured input is not bitwise identical to the prior episode: mean
+feature difference is 0.001594 and maximum first-prediction difference is
+0.06289 mrad; backend settings and checkpoint are identical. The earlier 18.3044-
+degree failure is not relabeled, nor is an overall performance gain claimed.
+
+A same-trace comparison isolates the changed contact rule. The old full-3 mm
+lateral charge would refuse four independently physically valid control states
+(six repeated before/after checks). Its first refusal would occur at 51.3833 s:
+actual material margin 0.9768 mm, corrected projected requirement 0.4577 mm,
+remaining margin 0.5190 mm. The corrected rule permits 60 subsequent commands;
+all 61 endpoint states from that boundary through the actual stop are physically
+valid and have no violations. This is a conditional gate comparison on identical
+actual observations, not a new learned-policy success.
+
+At the terminal state the completed interval still has a valid material receipt:
+1.8597 mm margin versus 0.4241 mm additional projected normal error. The next
+proposal is different: minimum finite-finger clearance 141.5858 mm versus
+142.7915 mm total declared uncertainty, leaving **-1.2058 mm**. Its terms include
+83.6183 mm material-pose position uncertainty, 13 mm robot response, 13 mm
+material response and 20 mm stopping allowance; full angular, calibration and
+temporal terms remain in the JSON. The independent whole-robot sweep still has
+0.02575 mm residual. These are distinct certificates. This refusal reports
+insufficient evidence for the next finite footprint, not observed physical loss
+or a missing receipt. Actual current contact validity cannot justify shrinking
+an uncertain future bound after seeing the failure.
+
+No further GPU retry, training or panel is run. Next work, if authorized, is an
+independent calibration of lateral material-pose/response uncertainty on saved
+observations before proposing any tighter bound or longer ACT A1 execution.
+The present stop is retained until that evidence exists. Strong-load position
+extension, broader configurations, hardware and real-time qualification remain
+unvalidated. All original panels, failures, interruptions and frozen checkpoints
+remain unchanged; new diagnostics occupy their own evidence directory.
