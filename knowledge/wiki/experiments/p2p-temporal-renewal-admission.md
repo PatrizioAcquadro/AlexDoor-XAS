@@ -6,8 +6,10 @@
 The saved-data prerequisite fails for both light and nominal: none of the new
 references can distinguish observed body motion from a world-static hypothesis.
 Withholding them also removes every useful moving reference renewal. The criterion
-and chronological evaluator are implemented as diagnostic software; no runtime
-option is connected or activated, and no new CUDA trajectory attempt is justified.
+and chronological evaluator were diagnostic software, now retired from the active
+package. Their source and tests remain at `24a2aa7`; run historical analysis scripts
+against that revision. No runtime option was activated and no new CUDA trajectory
+attempt is justified.
 The selected persistent pipeline remains unchanged.
 
 Baseline checkout is `main` at `9cb0a17`, with no pre-existing tracked changes.

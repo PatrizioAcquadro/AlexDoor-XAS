@@ -97,3 +97,6 @@ geometry exclusively for stop decisions. It checks distal surfaces, forbidden
 contacts, joint/finger limits and controlled contact at the policy's actual panel
 point; it never requires the teacher's exact point, adds corrective motion, or
 uses an expert stopping angle. Physical verification remains pending.
+
+The active B1 path uses the family tensor trainers directly; the unused
+`train_model` dispatch wrapper is retired. Training and checkpoint contracts are unchanged.

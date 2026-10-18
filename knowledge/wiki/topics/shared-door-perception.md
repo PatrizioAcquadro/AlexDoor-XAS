@@ -301,7 +301,8 @@ accuracy are separate from useful availability and release qualification.
 
 The [[../experiments/p2p-temporal-renewal-admission|temporal renewal diagnostic]]
 compares independent observed body/camera motion on chronological saved candidates.
-It is an evaluator-only prototype, rejected before runtime activation because
+Its historical evaluator source remains at `24a2aa7`; the rejected implementation
+and its exclusive tests are retired. It was rejected before runtime activation because
 the current waiting budget cannot separate body/static hypotheses and useful
 support is depleted. The persistent runtime and selected recipe remain unchanged.
 

@@ -238,15 +238,11 @@ def offline_episode(
     registration_diagnostics=False,
     use_key_frame_graph=None,
     allow_partial_reference_batch=None,
-    refit_seed_rollback=False,
-    selected_registration_only=False,
     performance_controls=None,
     sam3_frontend=None,
     reference_depth_edge_filter=None,
 ):
     """One fresh attempt, retaining terminal failures in the scheduled denominator."""
-    if refit_seed_rollback or selected_registration_only:
-        raise ValueError("retired_point2pose_variant")
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     config = recipe.config

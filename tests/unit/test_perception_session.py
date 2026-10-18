@@ -324,3 +324,17 @@ def test_delayed_ingress_uses_publication_clock_without_refreshing_capture(tmp_p
         assert provider.last_publication is None
     finally:
         provider.close()
+
+
+def test_retired_recipe_controls_fail_before_workers_start(tmp_path, monkeypatch):
+    import pytest
+
+    from alexdoor_xas.perception.point2pose import runtime
+    from alexdoor_xas.perception.session import PerceptionSession
+
+    monkeypatch.setattr(runtime, "Point2PoseWorker", lambda *a, **kw: pytest.fail("worker started"))
+    for control in ("refit_seed_rollback", "selected_registration_only"):
+        selected = {"point2pose_controls": {control: True}}
+        with pytest.raises(ValueError, match="retired_point2pose_variant"):
+            PerceptionSession("unused", recipe(), {}, tmp_path / control, selected=selected)
+        assert not (tmp_path / control).exists()
