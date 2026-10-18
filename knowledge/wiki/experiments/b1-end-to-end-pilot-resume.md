@@ -57,7 +57,12 @@ own process group through the existing orderly stop/recording path, with a bound
 a defect escapes the cooperative checks. CUDA verification resumes only with the
 corrected offline source, while physical runtime/controller and panel criteria
 remain unchanged. Both previous partial A1 reports and failed/stopped allocations
-remain preserved.
+remain preserved. The corrected full four-checkpoint CUDA evaluation now also
+completes: peak process RSS 26.206 GiB, at least 27.787 GiB host memory available,
+and all weights/statistics remain unchanged. Previously completed A1 mean-error
+vectors match exactly. The new common 24-outcome version is frozen with physical
+source `b2969ef` and offline memory correction `e8f50cf`; integrated physical
+execution is the next stage.
 
 The remote repair's cause remains documented: CUDA startup takes 75.972 seconds,
 then shared-file reads stall in `rpc_wait_bit_killable`. No new epoch is saved;
@@ -80,7 +85,7 @@ under the unchanged physical/reference/hold/release requirements. Old 3,000-upda
 outcomes and any new outcomes remain separate versions. Exact local cache
 replacement recovers 23.046 GiB while preserving all raw recordings; retained
 pilot storage before the local continuation is 252.399/300 GiB. Local GPU use is
-7.2234/15 hours before the resumed CUDA evaluation. Full-horizon cost remains an
+7.2356/15 hours before the corrected CUDA evaluation. Full-horizon cost remains an
 extrapolation, so measured cost and cumulative guards govern each launch.
 
 The availability preflight is corrected after per-process GPU monitoring shows

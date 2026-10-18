@@ -27,9 +27,11 @@ retained A1 ownership while A2 loads. The correction releases the old dataset an
 training closures, checks logical dataset RAM before allocation, and reserves
 12 GiB for desktop/other work. Full-size CPU validation peaks at 24.766 GiB and
 releases to 0.639 GiB between representations, with at least 28.518 GiB host RAM
-available. Partial metrics and stopped attempts remain preserved. The bounded
-CUDA/panel pipeline resumes with host-RAM monitoring and service memory limits;
-new-version integrated execution and all 24 outcomes remain pending.
+available. Partial metrics and stopped attempts remain preserved. The corrected four-checkpoint CUDA evaluation also completes, peaking at
+26.206 GiB with at least 27.787 GiB host RAM available and unchanged weights/
+statistics. The common 24-outcome version is frozen; the bounded pipeline proceeds
+to integration with host-RAM monitoring and service limits. New-version physical
+outcomes and identical-checkpoint two-door success remain pending.
 The six-demonstration, 18,000-update and 300 GiB ceilings remain unchanged.
 
 An unconditional left elbow position-domain extension is rejected after an
