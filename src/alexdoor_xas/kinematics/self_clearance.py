@@ -100,13 +100,15 @@ class RobotSelfClearance:
             for name in required
         ):
             raise ValueError("Unmeasured full-robot joint travel")
-        world = []
+        world, bounds = [], []
         for shape in self.shapes:
             t, c = matrices[shape["link"]], shape["convex"]
             sphere = shape["sphere"]
+            points = c.points @ t[:3, :3].T + t[:3, 3]
+            bounds.append((points.min(0), points.max(0)))
             world.append(
                 (
-                    c.points @ t[:3, :3].T + t[:3, 3],
+                    points,
                     c.normals @ t[:3, :3].T,
                     c.edges @ t[:3, :3].T,
                     None if sphere is None else (sphere[0] @ t[:3, :3].T + t[:3, 3], sphere[1]),
@@ -152,7 +154,9 @@ class RobotSelfClearance:
             a, na, ea, sa = world[i]
             b, nb, eb, sb = world[j]
             reserve = sum(extra) + relative_model_error_m
-            gap = float(np.max(np.maximum(b.min(0) - a.max(0), a.min(0) - b.max(0))))
+            alo, ahi = bounds[i]
+            blo, bhi = bounds[j]
+            gap = float(np.max(np.maximum(blo - ahi, alo - bhi)))
             if gap <= reserve:
                 gap = max(gap, projection_gap(a, sa, b, sb, np.concatenate((na, nb))))
                 if gap <= reserve:

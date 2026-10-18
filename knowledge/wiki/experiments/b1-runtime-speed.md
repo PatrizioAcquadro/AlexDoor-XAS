@@ -71,6 +71,13 @@ Self-clearance also reuses joint origins/axes within one query. Every new query
 recomputes them from the current matrices and reevaluates travel/model bounds.
 On 201 recorded diagnostic/reference postures, all minimum margins and critical
 pairs remain exact; the isolated queries take 1.34 versus 1.97 seconds.
+Each query now also computes each current shape AABB once before pair checks;
+all pairs, reserves and early refusals remain. A separate 201-posture comparison
+retains exact margins/pairs and takes 0.641 versus 1.279 seconds. Parsed URDF
+origins are fixed for the lifetime of the existing robot-model snapshot, rather
+than reparsed for every FK/sweep. All link matrices and sweep balls remain exact
+on 201 saved postures; the paired calculation takes 0.368 versus 0.728 seconds.
+Live joints, roots, travel bounds and scene checks remain current on every query.
 Within an admission call, repeated target-envelope checks now reuse the unchanged
 surface basis after its first use. All 161 saved-surface tangent coordinates are
 exact; the isolated calculation takes 0.13 versus 2.71 milliseconds. The basis

@@ -98,6 +98,9 @@ class RobotGeometry:
         self.urdf = Path(urdf)
         xml = ET.parse(self.urdf).getroot()
         self.parents = {j.find("child").get("link"): j for j in xml.findall("joint")}
+        self.joint_origins = {
+            link: origin_matrix(joint.find("origin")) for link, joint in self.parents.items()
+        }
         self.links = tuple(e.get("name") for e in xml.findall("link"))
         self.moving_joints = tuple(moving_joints)
         self.occluders, self.shapes = [], []
@@ -178,7 +181,7 @@ class RobotGeometry:
                 matrices[link] = root
                 return root
             joint = self.parents[link]
-            base = forward(joint.find("parent").get("link")) @ origin_matrix(joint.find("origin"))
+            base = forward(joint.find("parent").get("link")) @ self.joint_origins[link]
             motion, kind = np.eye(4), joint.get("type")
             if kind != "fixed":
                 value = float(positions.get(joint.get("name"), np.nan))
@@ -376,7 +379,7 @@ class RobotGeometry:
                 if name in self.moving_joints:
                     index = self.moving_joints.index(name)
                     offsets[index], ancestors[index] = suffix, 1
-                suffix += np.linalg.norm(origin_matrix(joint.find("origin"))[:3, 3])
+                suffix += np.linalg.norm(self.joint_origins[link][:3, 3])
                 if joint.get("type") == "prismatic":
                     suffix += abs(positions[name])
                 link = joint.find("parent").get("link")
@@ -422,7 +425,7 @@ class RobotGeometry:
                 if joint.get("type") == "prismatic":
                     extra += travel
                 else:
-                    frame = matrices[parent] @ origin_matrix(joint.find("origin"))
+                    frame = matrices[parent] @ self.joint_origins[link]
                     axis = frame[:3, :3] @ np.fromstring(joint.find("axis").get("xyz"), sep=" ")
                     offset = center - frame[:3, 3]
                     lever = np.linalg.norm(offset - axis * (offset @ axis)) + radius
