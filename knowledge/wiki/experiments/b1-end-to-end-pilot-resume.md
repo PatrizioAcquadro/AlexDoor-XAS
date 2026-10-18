@@ -60,6 +60,18 @@ pilot storage before the local continuation is 252.399/300 GiB. Local GPU use is
 7.2234/15 hours before the resumed CUDA evaluation. Full-horizon cost remains an
 extrapolation, so measured cost and cumulative guards govern each launch.
 
+The availability preflight is corrected after per-process GPU monitoring shows
+only GNOME desktop graphics at about 30 W and 675 MHz, with no compute process
+and more than 22 GiB free. An added total-utilization cap had falsely treated
+20–55% time occupancy at that low clock as a competing compute job. The launcher
+retains all three leases, 180 continuous seconds without compute or unknown
+graphics, memory/process/utilization checks and stopping only our worker on
+foreign compute. Recognized desktop graphics may additionally pass when current
+and 180-second mean power stay at most 50 W and SM clock at most 1 GHz. The
+original low-utilization branch remains. All 25 unallocated verification/panel
+wrappers use the same rule. No physical, task, controller, checkpoint or panel
+gate changes; measured runtime includes the actual desktop environment.
+
 ## Left position-domain prerequisite
 
 The original ACT A1 left refusal is a joint-position envelope exit: elbow
