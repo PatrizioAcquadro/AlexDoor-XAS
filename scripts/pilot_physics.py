@@ -260,9 +260,10 @@ def main():
             from alexdoor_xas.qualification.stop import verify_stop_continuation
 
             try:
-                verify_stop_continuation(
+                stopping = verify_stop_continuation(
                     env, args.output / "interrupted-stop.npz", force_limit_n=setup.force_limit_n
                 )
+                write_json(args.output / "interrupted-stop.json", stopping)
             except Exception as stop_error:
                 write_json(args.output / "stop-failure.json", dict(error=repr(stop_error)))
         env.close()
