@@ -72,11 +72,15 @@ policy, trains a model or establishes release qualification.
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke --output outputs/generated/b1/perception/NEW_SAM3_SMOKE
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py diagnose-scan --output outputs/generated/b1/perception/NEW_SCAN
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-smoke --output outputs/generated/b1/perception/NEW_P2P_SMOKE
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live-smoke --output outputs/generated/b1/perception/NEW_CONCURRENT
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-replay --output outputs/generated/b1/perception/NEW_REPLAY
-/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-offline --output outputs/generated/b1/perception/NEW_OFFLINE
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-replay --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_REPLAY
+/home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-offline --episode /absolute/path/to/pilot/nominal/episode.hdf5 --output outputs/generated/b1/perception/NEW_OFFLINE
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-live --case camera --asset animated-door-1-88abf40 --output outputs/generated/b1/perception/NEW_LIVE
 ```
+
+Offline/replay require one pilot recording; live requires both `--asset` and
+`--case`. Every invocation starts one attempt. Historical campaign orchestration
+and the concurrent smoke alias remain at `24a2aa7`, alongside the retired temporal
+renewal evaluator. Scientific limits and saved evidence are unchanged.
 
 `smoke` processes two distinct synchronized captures with the same SAM3 session.
 P2P smoke uses 12 samples at stride three and deliberately starts at its bounded

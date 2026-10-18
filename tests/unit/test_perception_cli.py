@@ -1,11 +1,11 @@
-"""CLI process failures are distinct from diagnostic quality scores."""
+"""Explicit single diagnostics; process completion is separate from scientific quality."""
 
 import importlib.util
-import json
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
+
+PILOT = "animated-door-1-88abf40"
 
 
 def cli_module():
@@ -21,7 +21,12 @@ def test_live_does_not_require_recordings(tmp_path, monkeypatch):
     from alexdoor_xas.recording import b1
 
     calls = []
-    monkeypatch.setattr(live, "run_live_smoke", lambda *a, **kw: calls.append((a, kw)))
+
+    def run(*args, **kwargs):
+        calls.append((args, kwargs))
+        return {"complete": True, "diagnostic_passed": False}
+
+    monkeypatch.setattr(live, "run_live", run)
     monkeypatch.setattr(b1, "episode_paths", lambda *a: pytest.fail("live reads recordings"))
     assert (
         cli_module().main(
@@ -29,6 +34,8 @@ def test_live_does_not_require_recordings(tmp_path, monkeypatch):
                 "point2pose-live",
                 "--case",
                 "camera",
+                "--asset",
+                PILOT,
                 "--output",
                 str(tmp_path / "run"),
                 "--data",
@@ -40,24 +47,61 @@ def test_live_does_not_require_recordings(tmp_path, monkeypatch):
     assert len(calls) == 1 and calls[0][1]["case"] == "camera"
 
 
-@pytest.mark.parametrize("outcome", ["complete", "exit_error", "missing", "failure"])
-def test_live_matrix_propagates_child_failures(tmp_path, monkeypatch, outcome):
-    cli = cli_module()
+@pytest.mark.parametrize(
+    "command", ["point2pose-offline", "point2pose-replay", "point2pose-operational"]
+)
+@pytest.mark.parametrize("outcome", ["complete", "incomplete", "failure", "missing", "exception"])
+def test_single_episode_propagates_failures_without_retry(tmp_path, monkeypatch, command, outcome):
+    from alexdoor_xas.perception.diagnostics import offline, operational, replay
+    from alexdoor_xas.recording import b1
 
-    def child(command, **kwargs):
-        folder = Path(command[command.index("--output") + 1])
-        folder.mkdir(parents=True)
-        if outcome != "missing":
-            (folder / "report.json").write_text(json.dumps({"diagnostic_passed": False}))
+    output = tmp_path / "run"
+    episode = tmp_path / PILOT / "nominal/episode.hdf5"
+    calls = []
+
+    def run(path, *args, **kwargs):
+        calls.append(path)
+        if outcome == "exception":
+            raise RuntimeError("worker failed")
         if outcome == "failure":
-            (folder / "failure.json").write_text("{}")
-        return SimpleNamespace(returncode=1 if outcome == "exit_error" else 0)
+            output.mkdir()
+            (output / "failure.json").write_text("{}")
+        return (
+            {}
+            if outcome == "missing"
+            else {
+                "complete": outcome != "incomplete",
+                "diagnostic_passed": False,
+            }
+        )
 
-    monkeypatch.setattr(cli.subprocess, "run", child)
-    monkeypatch.setattr(cli.subprocess, "check_output", lambda *a, **kw: "test-revision")
-    args = SimpleNamespace(
-        output=tmp_path / "matrix", asset="pilot", models="models", config="config"
-    )
-    recipe = SimpleNamespace(to_dict=lambda: {})
-    assert cli.run_live_matrix(args, recipe) == (0 if outcome == "complete" else 1)
-    assert len(json.loads((args.output / "runs.json").read_text())) == 4
+    monkeypatch.setattr(offline, "offline_episode", run)
+    monkeypatch.setattr(replay, "run_replay", run)
+    monkeypatch.setattr(operational, "recorded_operational", run)
+    monkeypatch.setattr(b1, "episode_paths", lambda *a: pytest.fail("reads another episode"))
+    argv = [command, "--episode", str(episode), "--output", str(output)]
+    if outcome == "exception":
+        with pytest.raises(RuntimeError, match="worker failed"):
+            cli_module().main(argv)
+    else:
+        assert cli_module().main(argv) == (0 if outcome == "complete" else 1)
+    assert calls == [episode]
+
+
+@pytest.mark.parametrize(
+    "argv",
+    [
+        ["point2pose-offline"],
+        ["point2pose-replay"],
+        ["point2pose-operational"],
+        ["point2pose-live"],
+        ["point2pose-live", "--asset", PILOT],
+        ["point2pose-live", "--case", "camera"],
+        ["point2pose-live-smoke"],
+    ],
+)
+def test_diagnostics_require_explicit_inputs(tmp_path, argv):
+    with pytest.raises(SystemExit) as stopped:
+        cli_module().main([*argv, "--output", str(tmp_path / "run")])
+    assert stopped.value.code == 2
+    assert not (tmp_path / "run").exists()

@@ -291,7 +291,7 @@ latency includes restart startup. Old requests cannot contaminate the new sessio
 A process failure latches unavailable until reset; it is never retried for a better
 result. Original finite failures and support times remain visible.
 
-Operational replay samples four complete pilot recordings at stride three
+Operational replay samples one explicitly supplied pilot recording at stride three
 (20 Hz); full and independently observable denominators remain distinct. Live
 observer checks run in fresh Isaac processes with a parked arm. Synthetic input
 visibility faults do not validate physical occluders. Setup, execution success and
@@ -311,9 +311,10 @@ serially for every original 60 Hz row, including the final observation. There is
 no replaceable queue or latency-based input selection. SAM3 starts at the first
 scheduled capture; normal initialization follows the 25 s inspection. The API
 accepts an explicit `capture_window_s`: a window starting after inspection can
-reproduce the historical 31 s seed without earlier SAM history. Execution of the
-old four-pilot/three-attempt campaign remains a separate, deliberate command;
-it has not been resumed by integration.
+reproduce the historical 31 s seed without earlier SAM history. The CLI requires one explicit `--episode` and starts exactly one attempt.
+The old four-recording/twelve-attempt campaign, live matrix and concurrent smoke
+alias are retired; their source remains at `24a2aa7`. No scientific acceptance
+threshold or formal qualification requirement changes.
 
 Truth motion belongs only to scoring. Seed-relative error is alignment, not
 absolute initialization/ownership accuracy. Strict initialization failure stops
@@ -333,15 +334,11 @@ coverage retains it. Startup and request/IPC/native compute latency are separate
 the 150 ms deadline never affects offline results. No local contact state is
 published and all official qualification/contact flags remain false.
 
-SIGINT closes the workers, retains the completed prefix, counts the interrupted
-request and remaining scheduled rows as unprocessed, and stops the campaign
-before another attempt. Failed processes still retain their partial results and
-continue to the other planned attempts; an explicit user interruption does not.
-Unstarted full recordings remain in the campaign's expected-frame denominator.
-Unstarted initialization windows have unknown lengths until an automatic seed
-exists. Worker constructors also close a process interrupted during startup.
-The first real campaign was stopped by the user; the retained 4–10 s drift audit
-is documented in [[../experiments/b1-perception-findings|B1 perception findings]].
+SIGINT closes the workers, retains the completed prefix and counts the interrupted
+request and remaining scheduled rows as unprocessed. It starts no further attempt.
+Failed processes retain their partial results. Worker constructors also close a
+process interrupted during startup. Historical campaign outcomes and unstarted
+slots remain in [[../experiments/b1-perception-findings|B1 perception findings]].
 
 For a bounded diagnostic, `offline_episode(..., capture_window_s=(4.0, 10.0),
 registration_diagnostics=True)` processes only that inclusive acquisition window
