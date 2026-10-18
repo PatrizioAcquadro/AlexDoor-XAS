@@ -108,7 +108,22 @@ per door. If only a cell's training improves, diagnose data and observed behavio
 before another round. The maintained evaluator streams selected HDF5 rows rather
 than loading a whole dataset, preserves checkpoint weights/statistics and retains
 actual inferred actions. Essential SO3, tail-regression, patience and existing RAM
-ownership tests pass; actual CUDA suite qualification remains pending.
+ownership tests pass. Actual CUDA qualification now evaluates all eight frozen
+4,400/12,000 models; the 12,000 baseline repeats produce exactly identical actions.
+Streaming process peak RSS is 1.369 GiB, with at least 51.416 GiB host RAM available.
+The whole allocation charges 70.368 GPU seconds, including the conservative tail;
+no optimizer or normalization updates occur.
+
+The phase-balanced primary ratios (12,000/4,400) are 0.5009/0.9283/0.8863/0.9273
+for ACT A1, Diffusion A1, ACT A2 and Diffusion A2. The comparison also preserves an
+unfavorable Diffusion A2 bright/push p95 increase of 10.55%: translation p95 rises
+1.098 to 1.214 mm while mean translation, mean rotation and signed bias improve.
+No threshold is rounded or relaxed; 12,000 is the predeclared new-stage baseline,
+and 4,400 is a historical comparison, not a door-specific selection alternative.
+These results are development action progress, not merely falling training loss
+or uniformly improved tails. A first matched 12,000-to-14,000 round is prepared,
+with 8,000 updates reserved, followed immediately by the same frozen action check
+and stopping decision. No new physical panel has started.
 
 After selection, verify actual maintained integrated execution before the full
 panel. Freeze all selected checkpoint versions and one common 24-outcome protocol;

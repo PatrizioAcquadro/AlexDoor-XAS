@@ -41,7 +41,10 @@ these checkpoints intermediate; the prepared panel is held before any allocation
 Further matched rounds check inferred development actions every 2,000 updates,
 using fixed phase-balanced samples, 5% guarded progress and three-control patience
 as declared in the continuation experiment. The evaluator streams selected rows
-to bound RAM. Training-only improvement requires diagnosis before more updates.
+to bound RAM; actual eight-model CUDA validation peaks at 1.369 GiB and baseline
+repeats are exact. All four phase-balanced means improve, but a 10.55% Diffusion A2
+bright/push tail regression is retained and diagnosed. The first common 14,000-update
+round reserves 8,000 updates under the declared checks. Training-only improvement requires diagnosis before more updates.
 Checkpoint selection precedes integrated verification and the final frozen24 panel.
 No different-version successes are combined; two-door hold/release success remains
 unestablished.
