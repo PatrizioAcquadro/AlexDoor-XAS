@@ -672,6 +672,201 @@ def evaluate_checkpoints(root, protocol, checkpoints):
     return report
 
 
+def evaluate_selection_checkpoints(root, protocol, checkpoints, selection, *, repeats=1):
+    """Stream fixed phase-balanced development windows; never fit normalization."""
+    from alexdoor_xas.policies.common.b1_contract import PilotBinding
+    from alexdoor_xas.policies.pilot_selection import action_errors
+
+    if repeats not in (1, 2) or selection["horizon"] != protocol["chunk_ticks"]:
+        raise ValueError("Selection uses the frozen action horizon and one/two repeat passes")
+    directory = root / "data"
+    metadata = json.loads((directory / "meta.json").read_text())
+    binding = PilotBinding.from_dict(metadata["perception"])
+    robot = RobotAssetRef.from_dict(metadata["robot_asset"])
+    suite, train_ids = [], []
+    horizon = selection["horizon"]
+    for name in metadata["episodes"]:
+        if Path(name).name != name:
+            raise ValueError("Episode path escapes dataset")
+        with h5py.File(directory / name) as data:
+            if data.attrs["split"] == "train":
+                train_ids.append(data.attrs["episode_id"])
+                continue
+            if data.attrs["split"] != "development":
+                raise ValueError("Unexpected selection split")
+            with h5py.File(data.attrs["source_recording"]) as raw:
+                identity = json.loads(raw["metadata"].attrs["episode"])
+                if any(
+                    identity[key] != data.attrs[key] for key in ("episode_id", "asset_id", "split")
+                ):
+                    raise ValueError(
+                        "Raw phase labels differ from the prepared development episode"
+                    )
+                starts = data[f"{A1_JOINT_DELTA}/starts"][:]
+                np.testing.assert_array_equal(starts, data[f"{A2_EE_DELTA}/starts"][:])
+                times = data["time_s"][:][starts]
+                raw_times = raw["commands/time_s"][:]
+                positions = np.searchsorted(raw_times, times)
+                np.testing.assert_allclose(raw_times[positions], times, atol=1e-8, rtol=0)
+                phases = raw["commands/phase"][:][positions]
+            windows = np.lib.stride_tricks.sliding_window_view(phases, horizon)
+            buckets = {}
+            for phase in selection["phases"]:
+                eligible = np.flatnonzero(np.all(windows == PHASES.index(phase), axis=1))
+                count = selection["chunks_per_phase_per_development_episode"]
+                if len(eligible) < count:
+                    raise ValueError("Insufficient complete windows for the frozen phase sample")
+                chosen = eligible[np.linspace(0, len(eligible) - 1, count, dtype=int)]
+                if len(np.unique(chosen)) != count:
+                    raise ValueError("Duplicate selection starts")
+                buckets[phase] = chosen.tolist()
+            suite.append(dict(file=name, episode_id=data.attrs["episode_id"], buckets=buckets))
+    if len(suite) != 2 or len(train_ids) != 2:
+        raise ValueError(
+            "This frozen selection suite requires two train and two development records"
+        )
+    suite_record = dict(selection=selection, episodes=suite, train_episode_ids=train_ids)
+    suite_path = root / "selection-suite.json"
+    if suite_path.exists():
+        if json.loads(suite_path.read_text()) != suite_record:
+            raise ValueError("Frozen development sample changed")
+    else:
+        write_json(suite_path, suite_record)
+    destination = root / "selection-evaluation"
+    destination.mkdir()
+    report = {}
+    for space in (A1_JOINT_DELTA, A2_EE_DELTA):
+        for family in ("act", "diffusion"):
+            cell = f"{family}-{space}"
+            memory_checkpoint(root, f"{cell}_selection_before_load", additional_bytes=512 * 2**20)
+            checkpoint = checkpoints / cell / "final.pt"
+            digest = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+            policy = B1Policy.from_checkpoint(
+                checkpoint,
+                family,
+                binding=binding,
+                runtime_asset=robot,
+                device="cuda:0",
+                num_inference_steps=protocol["ddim_steps"],
+            )
+            if policy.policy.stats.train_episode_ids != tuple(train_ids):
+                raise ValueError("Selection checkpoint training membership differs")
+            before_stats = policy.policy.stats.to_dict()
+            before_weights = {
+                key: value.clone() for key, value in policy.policy.model.state_dict().items()
+            }
+            passes, saved_predictions, saved_targets, labels, indices = [], [], [], [], []
+            for repeat in range(repeats):
+                policy.reset(selection["inference_seed"])
+                buckets = {}
+                predictions, targets = [], []
+                for entry in suite:
+                    with h5py.File(directory / entry["file"]) as data:
+                        for phase, chosen in entry["buckets"].items():
+                            phase_pred, phase_target = [], []
+                            for index in chosen:
+                                observation_index = int(data[f"{space}/starts"][index])
+                                # Model inputs contain only the causal observation.
+                                features = data["observations"][observation_index]
+                                prediction = policy.predict(features)
+                                target = data[f"{space}/actions"][index : index + horizon]
+                                phase_pred.append(prediction)
+                                phase_target.append(target)
+                                if repeat == 0:
+                                    labels.append(entry["episode_id"] + "/" + phase)
+                                    indices.append(index)
+                            pred = np.concatenate(phase_pred)
+                            truth = np.concatenate(phase_target)
+                            errors, components = action_errors(space, pred, truth)
+                            key = entry["episode_id"] + "/" + phase
+                            buckets[key] = dict(
+                                mean=float(errors.mean()),
+                                p95=float(np.percentile(errors, 95)),
+                                **{
+                                    name: dict(
+                                        mean=float(values.mean()),
+                                        p95=float(np.percentile(values, 95)),
+                                    )
+                                    for name, values in components.items()
+                                },
+                            )
+                            predictions.extend(phase_pred)
+                            targets.extend(phase_target)
+                            memory_checkpoint(root, f"{cell}_selection_{repeat}_{phase}")
+                passes.append(
+                    dict(
+                        primary=float(np.mean([row["mean"] for row in buckets.values()])),
+                        bucket_p95={key: row["p95"] for key, row in buckets.items()},
+                        buckets=buckets,
+                    )
+                )
+                saved_predictions.append(np.asarray(predictions))
+                saved_targets.append(np.asarray(targets))
+            repeat_difference = (
+                0.0
+                if repeats == 1
+                else float(np.max(np.abs(saved_predictions[0] - saved_predictions[1])))
+            )
+            relative_repeat = (
+                0.0
+                if repeats == 1
+                else abs(passes[0]["primary"] - passes[1]["primary"])
+                / max(passes[0]["primary"], 1e-12)
+            )
+            if relative_repeat > selection["maximum_baseline_repeat_relative_difference"]:
+                raise ValueError(
+                    "Inference repeat variability invalidates the declared effect threshold"
+                )
+            if (
+                before_stats != policy.policy.stats.to_dict()
+                or any(
+                    not torch.equal(before_weights[key], value)
+                    for key, value in policy.policy.model.state_dict().items()
+                )
+                or hashlib.sha256(checkpoint.read_bytes()).hexdigest() != digest
+            ):
+                raise ValueError("Selection changed model, checkpoint or normalization")
+            np.savez_compressed(
+                destination / f"{cell}-actions.npz",
+                predicted=np.asarray(saved_predictions),
+                target=np.asarray(saved_targets),
+                bucket=np.asarray(labels),
+                start=np.asarray(indices),
+            )
+            report[cell] = dict(
+                **passes[0],
+                checkpoint=str(checkpoint.resolve()),
+                checkpoint_sha256=digest,
+                repeat_max_action_difference=repeat_difference,
+                repeat_relative_score_difference=relative_repeat,
+                repeats=repeats,
+                inferred_chunks=len(labels),
+                valid_actions=len(labels) * horizon,
+                frozen_weights_and_statistics=True,
+                device=torch.cuda.get_device_name(),
+                scope=(
+                    "Local phase-balanced development action inference; "
+                    "one motion/two lighting variants, no closed-loop claim"
+                ),
+            )
+            write_json(destination / "report.json", report)
+            print(
+                json.dumps(
+                    dict(
+                        cell=cell,
+                        primary=passes[0]["primary"],
+                        repeat_relative_difference=relative_repeat,
+                    )
+                ),
+                flush=True,
+            )
+            del policy, before_weights, before_stats, saved_predictions, saved_targets
+            gc.collect()
+            torch.cuda.empty_cache()
+            memory_checkpoint(root, f"{cell}_selection_released")
+    return report
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("audit", "prepare", "train", "evaluate"))
@@ -699,6 +894,12 @@ if __name__ == "__main__":
         help="Returned training directory containing the four frozen final checkpoints",
     )
     parser.add_argument(
+        "--selection-protocol",
+        type=Path,
+        help="Frozen phase-balanced action-inference selection rules; evaluate only",
+    )
+    parser.add_argument("--selection-repeats", type=int, choices=(1, 2), default=1)
+    parser.add_argument(
         "--resume",
         action="store_true",
         help="Continue unchanged real cells from saved optimizer/RNG/EMA state",
@@ -709,6 +910,8 @@ if __name__ == "__main__":
         help="Completed four-cell training directory; only epochs may increase, in a new root",
     )
     args = parser.parse_args()
+    if args.selection_protocol is not None and args.mode != "evaluate":
+        parser.error("--selection-protocol is inference-only evaluation")
     if args.mode == "evaluate" and args.checkpoints_root is None:
         parser.error("evaluate requires --checkpoints-root")
     if args.continue_from is not None and (args.mode != "train" or args.resume):
@@ -734,6 +937,15 @@ if __name__ == "__main__":
                 urdf=args.urdf,
             )
         elif args.mode == "evaluate":
-            evaluate_checkpoints(args.root, protocol, args.checkpoints_root)
+            if args.selection_protocol is None:
+                evaluate_checkpoints(args.root, protocol, args.checkpoints_root)
+            else:
+                evaluate_selection_checkpoints(
+                    args.root,
+                    protocol,
+                    args.checkpoints_root,
+                    json.loads(args.selection_protocol.read_text()),
+                    repeats=args.selection_repeats,
+                )
         else:
             train(args.root, protocol, resume=args.resume, continue_from=args.continue_from)

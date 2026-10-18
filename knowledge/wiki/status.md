@@ -16,7 +16,7 @@ GPU process before any learned command. Its allocation, raw recording and
 continuing-physics stop are retained. No completed outcome is retried.
 
 The cumulative authorization is **40 local GPU hours, 32 remote GPU hours across
-Gilbreth/Gautschi, 100,000 optimizer updates, 1 TiB evidence and 24 demonstrations**,
+Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 demonstrations**,
 including all previous usage. Current completed-stage use is 7.8917 local GPU
 hours, 3,503 remote GPU seconds, at most 48,364 updates and six demonstrations.
 Machine-readable reconciliation governs each new launch; development stays local
@@ -36,10 +36,15 @@ The frozen 4,400 version retains two complete ACT A1 nominal failures: 488 right
 and 2,243 left commands, no contact/opening, and safe contact-acquisition/orientation
 stops. Audits pass with no physical violation. Its 22 unallocated slots are
 explicitly retired for the declared matched continuation; the original fixed plan,
-denominator and all prior outcomes remain preserved. The new complete 24-outcome
-`full-v9-12000` version is prepared, pending four-model frozen local CUDA development
-verification before freezing and integration. No different-version successes are
-combined; two-door success with hold/release remains unestablished.
+denominator and all prior outcomes remain preserved. All four 12,000-update CUDA/development checks now complete. The user declares
+these checkpoints intermediate; the prepared panel is held before any allocation.
+Further matched rounds check inferred development actions every 2,000 updates,
+using fixed phase-balanced samples, 5% guarded progress and three-control patience
+as declared in the continuation experiment. The evaluator streams selected rows
+to bound RAM. Training-only improvement requires diagnosis before more updates.
+Checkpoint selection precedes integrated verification and the final frozen24 panel.
+No different-version successes are combined; two-door hold/release success remains
+unestablished.
 
 The approximately 49 GiB offline OOM is corrected by releasing old dataset owners
 before loading the next representation and retaining 12 GiB host reserve. Corrected

@@ -9,7 +9,7 @@ fixed physical criteria and sealed test doors. No production campaign or robot w
 ## Current fixed-panel continuation
 
 The latest authorization is cumulative: **40 local GPU hours, 32 remote GPU hours
-(115,200 GPU seconds across Gilbreth and authorized Gautschi H100s), 100,000
+(115,200 GPU seconds across Gilbreth and authorized Gautschi H100s), 200,000
 optimizer updates, 1 TiB retained evidence and 24 demonstration attempts**.
 All previous allocations, failures, exclusions and conservative charges remain.
 At completion of the current training stage, local use is 7.8917 GPU hours,
@@ -72,14 +72,49 @@ activity alone does not block sufficient capacity; foreign compute, unknown
 graphics, three shared leases, 180-second preflight and host/VRAM guards remain.
 Only our worker is stopped on interference. Queue waiting is uncharged.
 
-The next version is prepared as `full-v9-12000`. Frozen local CUDA development
-inference must complete for all four models before checkpoint hashes and the
-common 24-outcome plan freeze. It reuses the exact prepared cache and corrected
-offline source; no raw re-export, new demonstration or model update occurs.
-The first actual integrated outcome must pass retention/continuing-stop checks and
-supply measured cost before the remaining 23 run. Original physical source
-`b2969ef`, main-position/main-13 recipe, selected teacher/controller, expert
-references, initial placement, three lighting conditions, seeds and 9,000-tick
+The user subsequently declares 12,000 updates intermediate and authorizes
+**200,000 cumulative optimizer updates**, leaving the other ceilings unchanged.
+All four frozen local CUDA/development checks complete at 12,000. On the original
+paired 256-chunk suite, mean absolute command error falls by 50.9%/22.4% for
+ACT/Diffusion A1. ACT A2 translation mean is nearly unchanged but its translation
+p95 and rotation mean improve; Diffusion A2 translation and rotation errors both
+improve. Objectives such as ACT loss and diffusion MSE are not compared across
+families. These remain one-motion, two-lighting offline measurements.
+
+The prepared `full-v9-12000` panel is held before any physics allocation or final
+freeze. Before further updates, `configs/b1_pilot_selection.json` declares matched
+2,000-update rounds, initially capped at 32,000 per cell, preserving seed and
+training state. Each check infers exactly 32 complete 12-action windows per phase
+and development lighting record: 320 windows, balanced over approach/contact/
+push/hold/release. Raw teacher phases select evaluator windows only; the model
+receives one causal RGB-D/proprioception feature vector and no phase/future data.
+The fixed sample and inference seed remain unchanged between checkpoints.
+
+A1's primary metric is the macro average of per-action L2 joint-delta error in
+radians. A2 uses the macro average of max(translation error/10 mm, SO3 rotation
+error/5 degrees), retaining both physical component errors. No physical acceptance
+criterion changes. A checkpoint must improve its own primary error by at least
+5% with no phase/lighting p95 worsening beyond 10% to replace its selected best.
+This practical effect threshold must exceed verified baseline repeat differences
+(agreement required within 0.1%); it is not a population confidence bound or a
+vision-accuracy requirement. Phase balance prevents the measured 85–86% train
+push exposure from masking hold/release regressions.
+
+Each combination counts controls without guarded progress. For comparable common
+rounds, stop all four when any cell reaches three such controls or three persistent
+regressions (>10% primary or >20% bucket-p95 against its best), or the stage/resource
+ceiling. Select one guarded checkpoint per cell from the declared sequence, never
+per door. If only a cell's training improves, diagnose data and observed behavior
+before another round. The maintained evaluator streams selected HDF5 rows rather
+than loading a whole dataset, preserves checkpoint weights/statistics and retains
+actual inferred actions. Essential SO3, tail-regression, patience and existing RAM
+ownership tests pass; actual CUDA suite qualification remains pending.
+
+After selection, verify actual maintained integrated execution before the full
+panel. Freeze all selected checkpoint versions and one common 24-outcome protocol;
+retain any qualifying identical-version execution and every unfavorable outcome.
+Physical source `b2969ef`, main-position/main-13 recipe, selected teacher/controller,
+expert references, initial placement, lighting conditions, seeds and 9,000-tick
 horizon remain unchanged. Completion still requires all 24 retained outcomes,
 commands from all four models and one identical checkpoint succeeding on both
 doors with at least 80% matched controlled opening, valid hold and release.
