@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 from scipy.spatial import ConvexHull
 
-from alexdoor_xas.qualification.door_geometry import PreparedDoor
 from alexdoor_xas.qualification.expert import (
     continue_pair,
     publish_expert,
@@ -15,6 +14,7 @@ from alexdoor_xas.qualification.expert import (
     trial_summary,
 )
 from alexdoor_xas.qualification.synthetic_probe import SustainedAngle
+from helpers import make_door
 
 
 @pytest.fixture
@@ -111,26 +111,6 @@ def test_sustained_maximum_survives_lower_hold_and_release():
         window.update(tick / 10, 0.8, True)
     window.update(2.0, 1.5, False)
     assert window.maximum == 0.9
-
-
-def make_door(tmp_path, hand):
-    folder = tmp_path / hand
-    (folder / "prepared").mkdir(parents=True)
-    (folder / "prepared/door.usda").touch()
-    sign = 1 if hand == "left" else -1
-    record = dict(
-        handedness=hand,
-        dimensions_m=dict(width_m=0.9, height_m=2, thickness_m=0.06),
-        hinge_m=[0.11, sign * 0.46, 0],
-        panel_center_m=[0.07, 0, 1.03],
-        mechanical_limit_deg=74.5,
-        usd="prepared/door.usda",
-    )
-    door = PreparedDoor(folder, record, {"components": {"Panel": [0]}})
-    points = np.array(list(product([0.04, 0.10], [-0.45, 0.45], [0.03, 2.03])))
-    door._leaf_planes = [ConvexHull(points).equations]
-    door.shapes = {"Panel": [points], "Frame": [points + [0.1, 0.5, 0]], "Handle": []}
-    return door
 
 
 @pytest.mark.parametrize("hand", ["left", "right"])

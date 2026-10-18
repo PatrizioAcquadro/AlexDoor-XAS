@@ -1,47 +1,11 @@
 """Causal policy input assembly with numerical estimator fixtures, no model execution."""
 
-from types import SimpleNamespace
-
 import numpy as np
 import pytest
 
-from alexdoor_xas.action.frames import ObjectFrame
-from alexdoor_xas.perception.contracts import DoorEstimate
 from alexdoor_xas.policies.observations import B1Observer
 from alexdoor_xas.recording.b1 import OBS_KEYS
-
-
-def fake_estimator(binding):
-    estimator = SimpleNamespace(binding=binding, reason="observed")
-
-    def reset():
-        estimator.encoding = None
-        estimator.calls = []
-
-    def update(obs):
-        estimator.calls.append(obs)
-        estimator.encoding = np.arange(binding.obs_dim - 18)
-        return DoorEstimate(
-            obs["time_s"],
-            estimator.reason == "observed",
-            estimator.reason,
-            0.8,
-            ObjectFrame(np.zeros(3), np.eye(3)),
-            np.eye(3),
-            0.0,
-            np.array([0.9, 2.0, 0.04]),
-            np.array([0.0, 0.3, 1.09]),
-            np.eye(3),
-        )
-
-    estimator.reset, estimator.update = reset, update
-    return estimator
-
-
-def sample(t, frame):
-    result = dict.fromkeys(OBS_KEYS, None)
-    result.update(time_s=t, frame=frame, joint_position=np.zeros(9), joint_velocity=np.zeros(9))
-    return result
+from helpers import fake_estimator, operational_provider, sample
 
 
 def test_privileged_metadata_cannot_enter_inputs_and_between_ticks_use_current_joints(b1_binding):
@@ -137,48 +101,6 @@ def test_unequal_visual_blocks_and_incompatible_provider(b1_binding):
     provider.update = wrong_width
     with pytest.raises(ValueError):
         observer.update(sample(0, 1))
-
-
-def operational_provider(binding, count=1):
-    from dataclasses import replace
-
-    from test_operational_admission import operational_estimate
-
-    from alexdoor_xas.perception.contracts import OPERATIONAL_V1
-
-    recipe = SimpleNamespace(
-        config=binding.config | {"geometry_profile": OPERATIONAL_V1}, obs_dim=binding.obs_dim
-    )
-    provider = SimpleNamespace(binding=recipe, generation=-1, between=False, old_result=None)
-
-    def reset():
-        provider.generation += 1
-        provider.encoding = None
-        provider.calls = []
-        provider.selection_time = None
-
-    def update(sensor):
-        provider.calls.append(sensor)
-        if provider.between:
-            return DoorEstimate(sensor["time_s"], False, "between_inference_ticks")
-        estimate = provider.old_result or operational_estimate(
-            sensor["time_s"], provider.generation, count
-        )
-        if provider.selection_time is None:
-            provider.selection_time = sensor["time_s"]
-        state = estimate.operational
-        estimate = replace(
-            estimate,
-            operational=replace(
-                state, contact=replace(state.contact, selected_s=provider.selection_time)
-            ),
-        )
-        provider.encoding = np.arange(recipe.obs_dim - 18)
-        provider.last_estimate = estimate
-        return estimate
-
-    provider.reset, provider.update = reset, update
-    return provider
 
 
 def test_operational_features_qualification_and_truth_feedback_isolation(b1_binding):

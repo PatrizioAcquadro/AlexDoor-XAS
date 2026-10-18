@@ -4,27 +4,12 @@ import numpy as np
 import pytest
 
 from alexdoor_xas.perception.contracts import FieldSupport
-from alexdoor_xas.perception.geometry import Surface, SurfaceObservation, deproject
 from alexdoor_xas.perception.ipc import pack_array
 from alexdoor_xas.perception.point2pose.runtime import Point2PoseEngine
 from alexdoor_xas.perception.point2pose.tracking import PanelTracking
 from alexdoor_xas.recording.b1 import OBS_KEYS
-
-
-def sensor(t=0.0, frame=0):
-    camera = np.eye(4)
-    camera[:3, :3] = [[0, 0, 1], [-1, 0, 0], [0, -1, 0]]
-    return dict(
-        time_s=np.asarray(t),
-        frame=np.asarray(frame),
-        rgb=np.ones((80, 80, 3), np.uint8),
-        depth_m=np.ones((80, 80, 1)),
-        valid_depth=np.ones((80, 80, 1), bool),
-        joint_position=np.zeros(9),
-        joint_velocity=np.zeros(9),
-        camera_world=camera,
-        intrinsics=np.array([[60, 0, 40], [0, 60, 40], [0, 0, 1.0]]),
-    )
+from perception_helpers import tracking_sensor as sensor
+from perception_helpers import tracking_surface as make_surface
 
 
 class Worker:
@@ -70,35 +55,6 @@ def test_latest_queue_wait_is_included_and_episode_recreates_worker():
         assert len(workers) == 2
     finally:
         engine.close()
-
-
-def make_surface(captured):
-    mask = np.zeros((80, 80), bool)
-    mask[15:65, 15:65] = True
-    v, u = np.nonzero(mask)
-    points = deproject(
-        np.ones(len(u)), np.c_[u, v], captured["intrinsics"], captured["camera_world"]
-    )
-    observation = SurfaceObservation(
-        int(captured["frame"]),
-        float(captured["time_s"]),
-        float(captured["time_s"]),
-        0,
-        mask.shape,
-        np.packbits(mask).tobytes(),
-        captured["intrinsics"].copy(),
-        captured["camera_world"].copy(),
-        points[::20],
-        {},
-    )
-    return Surface(
-        points,
-        np.array([1.0, 0, 0]),
-        1.0,
-        0.0,
-        1.0,
-        observations=(observation,),
-    )
 
 
 def test_zone_without_local_texture_and_loss_does_not_refresh_support():
