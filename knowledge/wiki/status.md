@@ -35,8 +35,9 @@ demonstration attempts**, all previous use included. Through 13 closed outcomes 
 local use is 10.2989 GPU hours; remote use is 3,503 GPU seconds,
 updates are at most 96,364 (including 200 possibly lost updates), and six fresh
 demonstrations are consumed at that historical snapshot. The first newly declared
-state-coverage attempt has now allocated; seven attempts are consumed including
-startup, with its physical/raw eligibility still pending. Current machine-readable reconciliation governs each
+state-coverage episode qualifies independently; a second attempt is interrupted
+by a transient RustDesk CUDA context and remains incomplete/excluded. Eight
+attempts are consumed, including the failed allocation. Current machine-readable reconciliation governs each
 launch and growing retained storage. Development stays local and never updates
 weights or statistics. No remote job is active; Gautschi H100 access/resource
 preflight is verified, with no H100 training allocation yet.
@@ -57,7 +58,8 @@ initial arm offsets on each train door, retaining existing seen lighting, teache
 controller, door/body placement, dynamics and physical criteria. Full-robot
 clearance checks at the actual control cadence pass with existing uncertainty and
 stop bounds; the coarser failed check remains. Actual fresh-record physical/raw
-eligibility is pending; the first collection is running and counted immediately.
+eligibility passes for right/plus; left/plus is interrupted and excluded.
+The other two collections and data preparation await the diagnosed infrastructure repair.
 Queue waiting consumes no attempt or GPU allocation.
 
 The longer ACT execution charges 2,046.720 GPU seconds and retains 1.563 GiB

@@ -73,3 +73,47 @@ def test_a_contact_violation_survives_successful_settling(tmp_path):
     result = verify_stop_continuation(env, tmp_path / "stop.npz")
     assert not result["passed"] and "forbidden_contact" in result["violations"]
     assert env.tick == 4
+
+
+def test_interruption_is_raised_after_returning_from_Kit_callback(monkeypatch):
+    import runpy
+    import signal
+
+    import pytest
+
+    api = runpy.run_path("scripts/pilot_physics.py")
+    handlers, returned = {}, []
+    monkeypatch.setattr(signal, "signal", lambda name, handler: handlers.update({name: handler}))
+
+    def original_step():
+        handlers[signal.SIGTERM](signal.SIGTERM, None)
+        returned.append(True)  # Kit returns normally; no exception can be swallowed inside it.
+        return "stepped"
+
+    env = SimpleNamespace(step=original_step)
+    restore = api["install_interruption"](env)
+    with pytest.raises(KeyboardInterrupt, match="signal"):
+        env.step()
+    assert returned == [True]
+    with pytest.raises(KeyboardInterrupt):
+        env.step()  # cancellation remains pending; do not advance another task step
+    assert returned == [True]
+    restore()
+    assert env.step is original_step
+
+
+def test_pending_interruption_allows_full_continuing_physics_stop(tmp_path, monkeypatch):
+    import runpy
+    import signal
+
+    api = runpy.run_path("scripts/pilot_physics.py")
+    handlers = {}
+    monkeypatch.setattr(signal, "signal", lambda name, handler: handlers.update({name: handler}))
+    env = NumericalStopIO()
+    restore = api["install_interruption"](env)
+    handlers[signal.SIGTERM](signal.SIGTERM, None)
+    restore()  # the maintained CLI does this before its finally/stop path
+    result = verify_stop_continuation(env, tmp_path / "interrupted-stop.npz")
+    assert result["passed"] and env.tick == 4 and env.stops == 1
+    with np.load(tmp_path / "interrupted-stop.npz") as saved:
+        np.testing.assert_allclose(saved["native_time_s"], np.arange(1, 9) / 4)

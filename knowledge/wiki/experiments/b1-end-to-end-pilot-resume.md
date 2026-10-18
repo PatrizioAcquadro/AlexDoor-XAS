@@ -505,6 +505,29 @@ updates for diagnosis. The first changed-data objective establishes a new
 like-for-like objective baseline. At most 96,000 new updates fit the remaining
 103,636 upper allowance. No such training allocation has started.
 
+The first new right/dim-plus episode independently qualifies: 51.35275 degrees,
+all 180 hold ticks valid, 25.158 mm release, zero forbidden contacts and validity
+mismatches, and a 21.62-micrometer continuing-physics stop. All 17,600 native
+positions remain inside the original load domain. Raw FK/clock and supervision
+reuse checks pass, retaining 8,801 observations, 20 joints and reconstructible
+supervision-only A3/A4 labels. Operational A3/A4 remains unqualified. At matched
+evaluator angles, first-30-second push joint-state differences average 0.01691 rad
+from the original right record; this is measured coverage, not policy improvement.
+The allocation charges 607.302 GPU seconds and retains 21.058 GiB raw data.
+
+The next left/bright-plus attempt is interrupted by transient RustDesk CUDA PID
+3326006 after 143.580 allocated seconds (148.580 with tail), before loaded pushing.
+It consumes attempt eight and remains incomplete/excluded, with no final stop
+evidence. RustDesk later releases CUDA; no foreign process is killed or exempted.
+The collector's direct signal-handler exception is caught by Kit's async callback,
+so orderly cleanup fails and the owned supervisor terminates it at its deadline.
+The maintained CLI now records a signal request and raises only before/after
+`env.step`, outside Kit callbacks, restoring original stepping before stop cleanup.
+Essential cancellation/continuation/recording tests pass; actual bounded Isaac
+cancellation verification and a prospectively declared replacement remain pending.
+No teacher, controller, ordinary command, physical criterion or frozen-panel source
+changes. Evidence is `state-coverage-interruption-diagnosis.json`.
+
 The offline OOM correction remains required for every stage. The user-reported
 approximately 49 GiB A1-to-A2 peak is caused by retained `PolicyData` ownership;
 the earlier simple-interruption attribution is superseded. A second owned run

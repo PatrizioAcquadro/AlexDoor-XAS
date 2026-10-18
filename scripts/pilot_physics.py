@@ -20,8 +20,27 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
 
 
-def interrupt_run(signum, _frame):
-    raise KeyboardInterrupt(f"Pilot interrupted by signal {signum}")
+def install_interruption(env):
+    """Raise outside Kit callbacks, then restore unguarded stepping for the stop."""
+    pending = []
+    original_step = env.step
+
+    def request(signum, _frame):
+        pending.append(signum)
+
+    def check():
+        if pending:
+            raise KeyboardInterrupt(f"Pilot interrupted by signal {pending[0]}")
+
+    def step(*args, **kwargs):
+        check()
+        result = original_step(*args, **kwargs)
+        check()
+        return result
+
+    env.step = step
+    signal.signal(signal.SIGTERM, request)
+    return lambda: setattr(env, "step", original_step)
 
 
 def main():
@@ -126,7 +145,7 @@ def main():
     cfg.seed = selected[0]["seed"]
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
     env = DoorPushPurdueEnv(cfg)
-    signal.signal(signal.SIGTERM, interrupt_run)
+    restore_interruption = install_interruption(env)
     write_json(
         args.output / "physical-case-start.json",
         dict(mode=args.mode, condition=condition, wall_time=time()),
@@ -236,6 +255,7 @@ def main():
         )
         raise
     finally:
+        restore_interruption()
         if not stop_attempted:
             from alexdoor_xas.qualification.stop import verify_stop_continuation
 
