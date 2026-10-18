@@ -174,7 +174,9 @@ def validate_episode(path, *, images=True):
 
 def episode_paths(root, corpus, *, complete_campaign=True):
     entries = {e["asset_id"]: e for e in corpus["doors"] if e["split"] != "test"}
-    paths = sorted(Path(root).glob("*/*/episode.hdf5"))
+    root = Path(root)
+    single = root.is_file()
+    paths = [root] if single else sorted(root.glob("*/*/episode.hdf5"))
     found = set()
     for path in paths:
         validate_episode(path, images=False)
@@ -186,6 +188,8 @@ def episode_paths(root, corpus, *, complete_campaign=True):
         ):
             raise ValueError(f"Episode does not belong to the frozen corpus: {path}")
         key = (meta["asset_id"], meta["condition"])
+        if single and key != (path.parent.parent.name, path.parent.name):
+            raise ValueError("Recording identity differs from its asset/condition directory")
         if key in found or meta["condition"] not in ("nominal", "light"):
             raise ValueError("Duplicate or unknown perception condition")
         found.add(key)
