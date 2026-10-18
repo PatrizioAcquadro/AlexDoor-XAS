@@ -905,6 +905,6 @@ and the latest common state are preserved. Arbitrary sampler changes, reversal,
 learning-rate changes and seed changes remain refused. Raw train paths use the
 existing protocol episode directories beneath `--root`; exclusions remain in force.
 The two existing eligible records pass a small-array phase/time qualification,
-without loading another RGB-D dataset. Actual GPU adoption requires a separately
-declared comparable stage after the prior stopping sequence; no current physical
-or frozen evaluation version changes through this option.
+without loading another RGB-D dataset. The current continuation declares one comparable correction stage after the
+uniform sequence stops at 18,000. All four resume those latest common states;
+physical versions and completed evaluation outcomes remain unchanged.

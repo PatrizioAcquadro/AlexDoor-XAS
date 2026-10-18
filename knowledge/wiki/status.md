@@ -17,8 +17,8 @@ continuing-physics stop are retained. No completed outcome is retried.
 
 The cumulative authorization is **40 local GPU hours, 32 remote GPU hours across
 Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 demonstrations**,
-including all previous usage. Current completed-stage use is 7.8917 local GPU
-hours, 3,503 remote GPU seconds, at most 48,364 updates and six demonstrations.
+including all previous usage. Closed uniform-stage use is 8.3039 local GPU hours, 3,503 remote GPU seconds,
+at most 72,364 updates and six demonstrations.
 Machine-readable reconciliation governs each new launch; development stays local
 and never updates weights or statistics.
 
@@ -55,7 +55,15 @@ two-second continuing-physics stop audits pass without physical violations. The
 unfavorable outcome remains a final-panel candidate under its predeclared exact
 checkpoint/protocol reuse rule. Actual cost is 527.518 charged GPU seconds and
 0.519 GiB; measured-case/full-horizon panel scenarios are 3.52/13.95 hours, not guarantees.
-Checkpoint selection precedes integrated verification and the final frozen24 panel.
+The uniform sequence now stops at 18,000 under its declared common patience:
+ACT A1 retains 12,000; Diffusion A1, ACT A2 and Diffusion A2 select 18,000 after
+6.30%/7.60%/6.49% guarded action-error reductions. One diagnosed train-only
+phase-sampling correction then starts all four latest 18,000 states, preserving
+seed/optimizer/RNG/EMA/statistics. It keeps the fixed development action guards,
+separate three-control patience and a 32,000 per-cell cap; the stopped uniform
+state remains intact. The first 20,000 control is prepared with 8,000 reserved
+updates. No new physical panel is frozen or launched.
+Checkpoint selection precedes final integrated verification and the frozen24 panel.
 No different-version successes are combined; two-door hold/release success remains
 unestablished.
 

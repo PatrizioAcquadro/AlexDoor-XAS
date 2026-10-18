@@ -12,10 +12,10 @@ The latest authorization is cumulative: **40 local GPU hours, 32 remote GPU hour
 (115,200 GPU seconds across Gilbreth and authorized Gautschi H100s), 200,000
 optimizer updates, 1 TiB retained evidence and 24 demonstration attempts**.
 All previous allocations, failures, exclusions and conservative charges remain.
-At completion of the current training stage, local use is 7.8917 GPU hours,
-remote use 3,503 GPU seconds, retained pilot storage 253.985 GiB and six fresh
-demonstrations consumed. Checkpointed updates are 48,164; 200 potentially lost
-previous updates give an upper consumed count of 48,364. Current machine-readable
+At completion of the uniform 18,000-update controls, local use is 8.3039 GPU
+hours, remote use 3,503 GPU seconds, retained pilot storage 254.829 GiB and six
+fresh demonstrations consumed. Checkpointed updates are 72,164; 200 potentially
+lost previous updates give an upper consumed count of 72,364. Current machine-readable
 reconciliation governs launches; older budget figures below describe prior stages.
 Development stays local and never updates weights or normalization.
 
@@ -165,15 +165,37 @@ more falling training loss alone cannot justify unbounded continuation. Evidence
 `selected-integration-12000-contact-metrics.json` and
 `selected-integration-12000-cost-forecast.json` under the continuation evidence root.
 
-A train-only phase-sampling correction is implemented and numerically checked
-against the actual two eligible records, with no additional image loading. The
-first 6,400 sampled starts contain 1,266–1,302 examples per manipulation phase,
-instead of 85–86% push exposure. It changes example frequency only; labels remain
-supervision and never become policy inputs. Uniform sampling and all physical
-versions remain unchanged. Adoption is conditional on the current declared
-stopping sequence and a separate matched correction stage preserving seed,
-optimizer/RNG/EMA and normalization; this component check is not trained-policy
-improvement. See [[../topics/b1-policy-pilot#Train-only phase-sampling correction|the interface]].
+The uniform sequence completes common 16,000 and 18,000 controls. At 18,000,
+ACT A1 reaches its third control without guarded significant progress, so **all
+uniform continuations stop as declared**. Its primary improves only 1.82% against
+12,000; that remains its selected checkpoint. Diffusion A1, ACT A2 and Diffusion
+A2 improve 6.30%/7.60%/6.49%, with every bucket-p95 inside its guard, and select
+18,000. No persistent-regression or training-only-improvement flag remains.
+The stopped state and all intermediate predictions/checkpoints remain in
+`uniform-selection-finished.json` and `selection-round-{14000,16000,18000}`.
+
+One separately declared correction stage now addresses measured 85–86% push
+exposure and sparse-phase regression by changing **training sampling only**.
+`phase-balanced-stage-plan.json` freezes the intervention before its first update:
+all four start from their latest common 18,000 optimizer/RNG/EMA states, with the
+same two eligible records, seed 17, normalization, targets and RGB-D model.
+Teacher phases balance chunk-start exposure; they never enter policy inputs or
+admission. Actual raw identity/time joins pass without loading another image
+dataset. First-epoch 6,400 starts contain 1,266–1,302 examples per phase.
+Uniform sampling remains supported. The earlier 96-update single-cell balancing
+failure remains a separate rejected study; this stage does not erase or adopt it.
+
+The corrective stage uses the identical 320-window development sample, seed 23,
+5% improvement and phase/lighting p95 guard against each selected best. It has its
+own explicitly declared three-control patience and 32,000-update per-cell cap;
+the original stopped sequence is never resumed or reset. Stop all four if any
+cell exhausts patience or has persistent regression. Own training-objective means
+across the sampler-population change are incomparable; later training-only
+improvement requires diagnosis before another control. Its first 20,000 control
+reserves 8,000 updates. The full possible correction adds at most 56,000 updates,
+within the unchanged 200,000 cumulative ceiling. No new demonstration, physical
+version, seed restart or favorable checkpoint rollback occurs. See
+[[../topics/b1-policy-pilot#Train-only phase-sampling correction|the maintained interface]].
 
 After selection, verify actual maintained integrated execution before the full
 panel. Freeze all selected checkpoint versions and one common 24-outcome protocol;
