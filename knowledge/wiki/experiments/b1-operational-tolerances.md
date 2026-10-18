@@ -109,7 +109,34 @@ Its stop fails the speed criterion because the environment had not yet been rese
 to the configured robot state; that unfavorable result remains. Runtime now resets
 immediately after construction, before fallible checkpoint/reference setup.
 The corrected recording-column path passes an offline 7,217-command preflight.
-A fresh complete cycle is in progress.
+The fresh `reference-cycle-2` completes all 7,217 admitted reference commands.
+Independent scoring gives 51.0242 degrees controlled opening (99.5394% of the
+unchanged 51.2603-degree reference), valid hold and commanded release, zero
+contact losses and no physical violations. All 6,149 push states and all 180
+hold states are physically valid. Peak native force is 7.8637 N; maximum load
+upper bound is 8.0535 N. The two-second stop retains 240 healthy native samples,
+maximum 0.02134 mm tool travel and final speed 0.0001525 rad/s.
+
+The recording, actual-command and control/native clock audit passes. There are
+zero learned commands and no prediction queries; `task_success` remains false,
+while `reference_cycle_success` is true. The minimum actual material margin is
+25.133 mm, leaving 24.758 mm after projected normal-model error. All native q
+and every proposed motion/stop envelope stay in the original main position box;
+the new weak-position recipe therefore makes exactly the same decisions on this
+executed path. No second full reference simulation is needed for inactive bounds.
+
+A single prospectively frozen ACT A1 right/nominal diagnostic uses source
+`618e153`, the new runtime recipe and at most 1,900 learned commands. This extends
+past the earlier 1,757-command/54.4833 s contact-margin refusal without running a
+new panel. Checkpoint, seed, setup and full task criteria remain fixed; its
+short diagnostic horizon cannot establish a complete learned task result.
+Final review identifies a missing combined-domain guard before the first policy
+command: a new position halo could otherwise combine with the independent weak
+acceleration extension. The guard now refuses that unsupported combination, with
+a focused regression. The first short-window attempt is explicitly interrupted
+during inspection and preserved; the corrected single complete outcome remains
+pending. The reference result is unaffected: no state leaves its main position
+or acceleration domain.
 
 No physical robot result, broader calibration qualification, policy success or
 unseen-door claim follows from these diagnostics. See

@@ -244,7 +244,9 @@ class ResidualLoadModel:
                         excess=float(max(lower[j] - measured[j], measured[j] - upper[j])),
                     )
                 )
-        if needs_weak_position and needs_weak_acceleration:
+        if needs_weak_acceleration and (
+            needs_weak_position or needs_position_halo and np.any(tolerance)
+        ):
             violations.append(
                 dict(quantity="combined_weak_position_and_acceleration", supported=False)
             )

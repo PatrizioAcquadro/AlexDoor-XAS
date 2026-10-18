@@ -887,3 +887,35 @@ def test_position_halo_refuses_stronger_load_and_requires_future_free_stop():
     calibration.require_position_motion_support(
         np.zeros(7), motion_q_upper=q, contact_free_stop_margin_m=0.001
     )
+
+
+def test_position_halo_cannot_combine_an_independent_weak_acceleration_extension():
+    model, jac, nominal = load_inputs()
+    allowance = np.zeros((2, 7))
+    allowance[1, 6] = 0.00425
+    calibration = replace(
+        model.calibration,
+        position_tolerance_rad=allowance,
+        position_halo_force_upper_max_n=1.0,
+        weak_load_acceleration_max_rad_s2=np.full(7, 2.0),
+        tool_normal_force_upper_max_n=1.0,
+        tool_normal_residual_n=np.array([0.005, 0.1, 0.01]),
+    )
+    model = ResidualLoadModel(calibration)
+    fb = replace(nominal.feedback, torque_nm=np.zeros(7))
+    q = np.zeros(7)
+    q[6] = 1.001
+    with pytest.raises(ValueError, match="outside_verified_load_envelope") as caught:
+        model.estimate(
+            fb,
+            np.zeros(7),
+            jac,
+            q,
+            np.zeros(7),
+            np.full(7, 1.5),
+            [1, 0, 0],
+            tool_normal_world=[1, 0, 0],
+        )
+    assert caught.value.decision["violations"][-1]["quantity"] == (
+        "combined_weak_position_and_acceleration"
+    )
