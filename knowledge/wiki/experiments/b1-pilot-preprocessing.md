@@ -1,5 +1,11 @@
 # B1 Pilot Fixed-Unit Preprocessing
 
+The comparison is complete. Its launcher and checkpoint-specific diagnosis are
+retired; source remains at `8bbeefe` (`scripts/compare_pilot_preprocessing.py` and
+`scripts/pilot_diagnosis.py`). Commands below describe that historical revision.
+Saved evidence and grid-checkpoint readers remain available.
+
+
 Baseline: `0b986e6`, branch `PatrizioAcquadro/b1-policy-pilot`. This experiment
 isolates one input transformation on the three unchanged historical pilot episodes.
 The newer controller, perception, geometry, action meanings and labels are unchanged.

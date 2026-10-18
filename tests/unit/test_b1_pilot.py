@@ -429,9 +429,9 @@ def test_excluded_supervision_is_not_required_on_training_host(tmp_path):
     prepare = runpy.run_path(str(Path("scripts/pilot_offline.py")))["prepare"]
     entry = dict(asset_id="retained", split="train", use_for_imitation=False)
     with pytest.raises(ValueError, match="explicit reason"):
-        prepare(tmp_path, {"episodes": [entry]}, export=False)
+        prepare(tmp_path, {"episodes": [entry]}, export=False, recipe="rgbd-conv-v1")
     entry["imitation_exclusion_reason"] = "Preserved on the collection host; unsuitable labels"
-    prepare(tmp_path, {"episodes": [entry]}, export=False)
+    prepare(tmp_path, {"episodes": [entry]}, export=False, recipe="rgbd-conv-v1")
     audit = json.loads((tmp_path / "preflight-label-audit.json").read_text())
     assert audit[0]["used_for_imitation"] is False
     assert audit[0]["recording_available_here"] is False

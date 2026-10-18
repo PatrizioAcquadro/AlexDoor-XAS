@@ -3,7 +3,8 @@
 This supervised imitation pilot uses the common foundation at `182a4bc` on
 `PatrizioAcquadro/b1-policy-pilot`. It is separate from Phase 6.2 matched-data
 production and the final training matrix. The executable protocol is
-`configs/b1_policy_pilot.json`.
+`configs/b1_policy_pilot.json` at historical revision `8bbeefe`. That initial
+protocol and its fixed comparison launchers are retired from the active checkout.
 
 ## Declared protocol
 

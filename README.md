@@ -13,8 +13,9 @@ Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
   material identity, 150 ms freshness and loaded contact remain unqualified.
 - **Learning:** B1 observed-input datasets, ACT/Diffusion models, normalization and
   A1–A4 execution adapters are maintained. Qualified perception integration and
-  physical rollout validation remain pending. No matched B1 policy dataset or
-  learned-policy result exists; the sealed test remains closed.
+  physical rollout validation remain pending. The separate A1/A2 pilot executes real learned commands but has no full task
+  success; it remains paused and incomplete. No final matched B1 dataset or
+  qualified policy result is delivered; the sealed test remains closed.
 
 The [project status](knowledge/wiki/status.md) owns current results, limits and
 next work. No repository command controls physical hardware.
@@ -97,6 +98,10 @@ B0 workflows, numerical `phase2.v2` data APIs and standalone `v3` checkpoint loa
 are retired; historical source remains at `097d578`. B1 formats and observation/
 action ordering are unchanged. New perception imports are documented in
 [Shared Door Perception](knowledge/wiki/topics/shared-door-perception.md#module-layout).
+
+Pilot offline and physical commands require an explicit `--protocol`. The declared
+encoder must match data/checkpoints; new production uses `rgbd-conv-v1`. Historical
+grid-checkpoint readers remain available. The pilot remains paused.
 
 Start at the [wiki index](knowledge/wiki/index.md),
 [architecture](knowledge/wiki/topics/system-architecture.md),

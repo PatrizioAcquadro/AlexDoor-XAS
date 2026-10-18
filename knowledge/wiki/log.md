@@ -1,22 +1,9 @@
 # Project Milestones
 
-- The resumed pilot has four genuine selected checkpoints (ACT A1 12k, ACT A2
-  18k, Diffusion A1/A2 22k), all with real learned-command execution through the
-  observed/load/admission/control/recording/stop path. Uniform and corrected
-  phase-balanced selection stop at common 18k and 24k. The frozen selected-v10
-  panel has 19 complete failures out of 24. ACT A1 left/dim reaches 99.54%
-  controlled opening and valid hold, then a measured gripper position-domain
-  refusal before release; no full task success is demonstrated. All right-door combinations/conditions fail; the one-tick
-  candidate worsens controlled opening and is rejected despite exact input/output
-  replay and safe stops. Four targeted initial-state teacher attempts are declared;
-  strict append-only training data and lossless file-backed float32 preserve original
-  normalization and failed exclusions. Actual new data eligibility is pending. RAM ownership is corrected and bounded; every failed
-  allocation, exclusion and previous panel remains. See
-  [[experiments/b1-end-to-end-pilot-resume]].
-
-A1/A2 receipt revalidation now spends bounded support updates against the original
-remaining margin; missing bounds and exhausted margins still refuse. See
-[[topics/b1-policy-pilot|pilot contracts]].
+The pilot remains paused and incomplete. `selected-v10` retains 24/24 failed
+outcomes; `qualified-latest-v11` retains two completed failures, one interruption
+and 21 unallocated slots. Current accounting belongs in [[status]]; complete
+attempts and scientific decisions remain in [[experiments/b1-end-to-end-pilot-resume]].
 
 A concise record of durable changes. Routine edits, lint and superseded attempts
 belong in Git history, not in agent context.
@@ -44,7 +31,7 @@ belong in Git history, not in agent context.
 | 2026-10-07 shared pre-A4 protocol and selected registration | Common initialization/budget specified, no motion admitted. Periodic registration reduces cost but regresses nominal; now historical source, not an active option. | `6df816c`, `b5405ea`, diagnostic `a8d0470`; [[topics/pre-a4-initialization-and-hinge-budget|shared protocol and budget]]; [[experiments/p2p-selected-registration|full comparison and rejection]] |
 | 2026-10-06 Point2Pose own-seed refit rollback | Common adoption/combination rejected: nominal gains accompany light regression and more wrong acceptance. Five inliers/4 mm remain; implementation now historical. | `96c0943`; [[experiments/point2pose-refit-hypotheses|paired evaluation and next intervention]] |
 | 2026-10-06 isolated Point2Pose corrections | Partial batch retained diagnostically with accuracy tradeoffs; 6 mm and promotion geometry rejected. Original prompts, thresholds and failures preserved. | `fac02e5`, `4c6dc25`, `29f194b`, `c919ea8`; [[experiments/point2pose-isolated-improvements|complete comparisons and decisions]] |
-| 2026-10-06 bounded global graph ablation | Removed event spikes but worsened nominal final loss 60→472 frames. Graph ON stays operational default; experimental OFF remains explicit. | `0e6185f`; [[experiments/point2pose-bounded-global-graph-ablation|full-sequence results]] |
+| 2026-10-06 bounded global graph ablation | Removed event spikes but worsened nominal final loss 60→472 frames. Graph ON remained default at that revision; later selection is recorded in current status. | `0e6185f`; [[experiments/point2pose-bounded-global-graph-ablation|full-sequence results]] |
 | 2026-10-06 Point2Pose consumer impact | Saved-data zone/conditional-target scoring separates graph publication from pre-SDF light drift. Missing actual A3/A4 inputs remain missing. | Evaluator `28626c1`; [[experiments/point2pose-consumer-impact-and-failure-windows|consumer impact and two windows]] |
 | 2026-10-05 bounded Point2Pose renewal | 120 active references per object complete both openings; light accuracy, nominal graph outlier/loss and material-occlusion protection remain unresolved. | `94429d9`, `2b127b4`; [[experiments/b1-perception-findings|bounded renewal comparison]] |
 | 2026-10-05 camera-still Point2Pose baselines | Exact short-prefix reproduction; full original 60 Hz openings expose late loss through 63.72 degrees. Videos, strict material audits and all candidates preserved. | `112bbe8`, baseline `10e7330`; [[experiments/b1-perception-findings|complete recorded openings]] |

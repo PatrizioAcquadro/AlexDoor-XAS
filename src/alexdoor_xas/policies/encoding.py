@@ -21,6 +21,16 @@ PERIOD_S = 0.1
 BLOCK_DIM = 5 * GRID * GRID
 
 
+def protocol_recipe(protocol, requested=None):
+    """Resolve explicit protocol identity; an override only names historical inputs."""
+    recipe = protocol.get("recipe", requested)
+    if recipe not in (RECIPE, FIXED_UNITS_RECIPE, LEARNED_RECIPE):
+        raise ValueError("Protocol must declare a supported encoder recipe")
+    if requested is not None and requested != recipe:
+        raise ValueError("Requested encoder differs from the protocol recipe")
+    return recipe
+
+
 def pilot_binding(inspection, *, depth_interval_m=(0.1, 5.0), warmup_s=0.2, recipe=RECIPE):
     """All preprocessing choices travel with data and checkpoints."""
     if recipe not in (RECIPE, FIXED_UNITS_RECIPE, LEARNED_RECIPE):

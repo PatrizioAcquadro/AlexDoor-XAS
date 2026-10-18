@@ -9,7 +9,6 @@ import pytest
 
 from alexdoor_xas.action.spaces import A2_EE_DELTA
 from alexdoor_xas.dataset.b1 import export_dataset
-from alexdoor_xas.dataset.normalize import NormStats
 from alexdoor_xas.policies.b1 import batch_factories, check_stats, load_b1_data
 from alexdoor_xas.policies.encoding import (
     FIXED_UNITS_RECIPE,
@@ -17,15 +16,6 @@ from alexdoor_xas.policies.encoding import (
     pilot_binding,
 )
 from helpers import TEST_ROBOT_REF, pilot_episode
-
-
-def test_units_conversion_alone_does_not_repair_zscore():
-    train = np.array([[1.000, 1.000], [1.001, 1.002]])
-    dev = np.array([[1.5, 1.6]])
-    original = NormStats.from_rows([train])
-    converted = NormStats.from_rows([train / 5])
-    np.testing.assert_allclose(original.normalize(dev), converted.normalize(dev / 5))
-    assert (np.abs(converted.normalize(dev / 5)) > 10).all()
 
 
 def test_policy_depth_scale_is_separate_from_sensor_interval():
@@ -110,3 +100,96 @@ def test_fixed_units_preserve_saved_pooling_roundoff():
     saved = legacy.encode(sample).astype(np.float64)
     saved[192:256] *= 100000 / 5
     np.testing.assert_array_equal(fixed.encode(sample), saved.astype(np.float32))
+
+
+@pytest.mark.parametrize(
+    "declared,requested,expected",
+    [
+        ("rgbd-conv-v1", None, "rgbd-conv-v1"),
+        (None, "rgbd-grid-v1", "rgbd-grid-v1"),
+        (None, "rgbd-grid-fixed-units-v2", "rgbd-grid-fixed-units-v2"),
+    ],
+)
+def test_explicit_protocol_recipe_preserves_historical_identity(declared, requested, expected):
+    from alexdoor_xas.policies.encoding import protocol_recipe
+
+    protocol = {} if declared is None else {"recipe": declared}
+    before = protocol.copy()
+    assert protocol_recipe(protocol, requested) == expected
+    assert protocol == before
+
+
+@pytest.mark.parametrize(
+    "protocol,requested",
+    [
+        ({}, None),
+        ({"recipe": "unknown"}, None),
+        ({"recipe": "rgbd-conv-v1"}, "rgbd-grid-v1"),
+    ],
+)
+def test_missing_or_conflicting_encoder_recipe_is_refused(protocol, requested):
+    from alexdoor_xas.policies.encoding import protocol_recipe
+
+    with pytest.raises(ValueError, match="recipe|encoder"):
+        protocol_recipe(protocol, requested)
+
+
+@pytest.mark.parametrize(
+    "script,argv",
+    [
+        ("pilot_offline", ["prepare"]),
+        ("pilot_physics", ["collect", "--asset-root", "/unused", "--asset-id", "unused"]),
+    ],
+)
+def test_pilot_commands_require_protocol_before_starting_work(tmp_path, script, argv):
+    import runpy
+
+    main = runpy.run_path(str(Path("scripts") / f"{script}.py"))["main"]
+    extra = ["--root", str(tmp_path)] if script == "pilot_offline" else []
+    with pytest.raises(SystemExit) as stopped:
+        main(
+            [*argv, *extra, "--output", str(tmp_path / "result")]
+            if script == "pilot_physics"
+            else [*argv, *extra]
+        )
+    assert stopped.value.code == 2
+    assert not (tmp_path / "result").exists()
+
+
+def test_offline_refuses_dataset_recipe_mismatch_before_cuda(tmp_path):
+    import runpy
+
+    protocol = tmp_path / "protocol.json"
+    protocol.write_text(json.dumps({"recipe": "rgbd-conv-v1"}))
+    (tmp_path / "data").mkdir()
+    (tmp_path / "data/meta.json").write_text(
+        json.dumps({"perception": {"config": {"encoder": "rgbd-grid-v1"}}})
+    )
+    main = runpy.run_path("scripts/pilot_offline.py")["main"]
+    with pytest.raises(SystemExit) as stopped:
+        main(
+            [
+                "evaluate",
+                "--root",
+                str(tmp_path),
+                "--protocol",
+                str(protocol),
+                "--checkpoints-root",
+                str(tmp_path / "checkpoints"),
+            ]
+        )
+    assert stopped.value.code == 2
+    assert not (tmp_path / "evaluation").exists()
+
+
+def test_new_preparation_refuses_historical_grid_without_changing_protocol(tmp_path):
+    import runpy
+
+    protocol = tmp_path / "protocol.json"
+    contents = json.dumps({"recipe": "rgbd-grid-v1"})
+    protocol.write_text(contents)
+    main = runpy.run_path("scripts/pilot_offline.py")["main"]
+    with pytest.raises(SystemExit) as stopped:
+        main(["prepare", "--root", str(tmp_path), "--protocol", str(protocol)])
+    assert stopped.value.code == 2 and protocol.read_text() == contents
+    assert not (tmp_path / "data").exists()

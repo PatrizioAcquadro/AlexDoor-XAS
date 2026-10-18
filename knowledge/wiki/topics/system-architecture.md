@@ -148,3 +148,9 @@ builds wheel/sdist and imports the installed wheel outside the checkout.
 local Isaac/Alex/native resources. Shared fixtures initialize neither simulator
 nor models. Local runtime checks remain necessary; CI does not qualify physical
 execution or perception quality.
+
+Perception diagnostics now run one explicit episode or live asset/case per
+invocation. Retired campaigns and rejected temporal-renewal software use `24a2aa7`
+for historical reproduction. Generic readers, source-installation checks and
+scientific acceptance gates remain maintained. Maintenance preserves all local
+payloads and does not restart the separate paused policy pilot.

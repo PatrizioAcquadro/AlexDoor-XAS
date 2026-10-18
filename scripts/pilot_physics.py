@@ -43,10 +43,10 @@ def install_interruption(env):
     return lambda: setattr(env, "step", original_step)
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("collect", "replay", "rollout"))
-    parser.add_argument("--protocol", type=Path, default=REPO / "configs/b1_policy_pilot.json")
+    parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument("--asset-root", type=Path, required=True)
     parser.add_argument(
         "--setup", type=Path, help="Explicit prospective pilot setup; defaults to corpus setup"
@@ -71,11 +71,18 @@ def main():
     parser.add_argument(
         "--recipe",
         choices=("rgbd-grid-v1", "rgbd-grid-fixed-units-v2", "rgbd-conv-v1"),
-        default="rgbd-grid-v1",
-        help="Rollout input recipe; must match the checkpoint and current sensor",
+        help="Historical recipe identity; must agree with the protocol and checkpoint",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     protocol = json.loads(args.protocol.read_text())
+    from alexdoor_xas.policies.encoding import LEARNED_RECIPE, protocol_recipe
+
+    try:
+        args.recipe = protocol_recipe(protocol, args.recipe)
+    except ValueError as error:
+        parser.error(str(error))
+    if args.mode == "collect" and args.recipe != LEARNED_RECIPE:
+        parser.error("New pilot collection requires rgbd-conv-v1; grid recipes are historical")
     declared = (
         protocol.get("evaluation_panel", protocol["episodes"])
         if args.mode == "rollout"

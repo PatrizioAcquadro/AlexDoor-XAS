@@ -40,6 +40,7 @@ from alexdoor_xas.policies.encoding import (  # noqa: E402
     RECIPE,
     RGBDEncoder,
     pilot_binding,
+    protocol_recipe,
 )
 from alexdoor_xas.policies.observations import B1Observer  # noqa: E402
 from alexdoor_xas.policies.purdue import PurdueFK  # noqa: E402
@@ -73,7 +74,7 @@ def dataset_ram_bytes(directory):
     return size
 
 
-def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True, urdf=None):
+def prepare(root, protocol, *, recipe, export=True, copy_raw=True, urdf=None):
     episodes, audit = [], []
     splits = {e["asset_id"]: e["split"] for e in protocol["episodes"]}
     binding, robot = None, None
@@ -964,13 +965,15 @@ def evaluate_selection_checkpoints(root, protocol, checkpoints, selection, *, re
     return report
 
 
-if __name__ == "__main__":
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("audit", "prepare", "materialize", "train", "evaluate"))
     parser.add_argument("--root", type=Path, required=True)
-    parser.add_argument("--protocol", type=Path, default=REPO / "configs/b1_policy_pilot.json")
+    parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument(
-        "--recipe", choices=(RECIPE, FIXED_UNITS_RECIPE, LEARNED_RECIPE), default=RECIPE
+        "--recipe",
+        choices=(RECIPE, FIXED_UNITS_RECIPE, LEARNED_RECIPE),
+        help="Historical recipe identity; must agree with a declared protocol recipe",
     )
     parser.add_argument(
         "--reference-raw",
@@ -1017,7 +1020,7 @@ if __name__ == "__main__":
         type=Path,
         help="Complete four-cell states; extend epochs or declare phase-balanced sampling",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.selection_protocol is not None and args.mode != "evaluate":
         parser.error("--selection-protocol is inference-only evaluation")
     if args.mode == "evaluate" and args.checkpoints_root is None:
@@ -1028,9 +1031,23 @@ if __name__ == "__main__":
         parser.error("--resume is only valid for train")
     if args.mode == "materialize" and (not args.prepared_data or not args.normalization_episode_id):
         parser.error("materialize needs prepared sources and original normalization identities")
+    protocol = json.loads(args.protocol.read_text())
+    try:
+        args.recipe = protocol_recipe(protocol, args.recipe)
+    except ValueError as error:
+        parser.error(str(error))
+    if args.mode in ("prepare", "materialize", "train") and args.recipe != LEARNED_RECIPE:
+        parser.error(
+            "New pilot data and training require rgbd-conv-v1; grid recipes are historical"
+        )
+    if args.mode in ("train", "evaluate", "materialize"):
+        sources = args.prepared_data if args.mode == "materialize" else [args.root / "data"]
+        for source in sources:
+            metadata = json.loads((source / "meta.json").read_text())
+            if metadata["perception"]["config"]["encoder"] != args.recipe:
+                parser.error("Dataset encoder differs from the protocol recipe")
     if args.mode != "materialize" and not torch.cuda.is_available():
         raise RuntimeError("CUDA required; do not silently fall back to CPU")
-    protocol = json.loads(args.protocol.read_text())
     torch.set_num_threads(4)
     if args.mode == "materialize":
         materialize_train_data(
@@ -1065,3 +1082,7 @@ if __name__ == "__main__":
                 )
         else:
             train(args.root, protocol, resume=args.resume, continue_from=args.continue_from)
+
+
+if __name__ == "__main__":
+    main()
