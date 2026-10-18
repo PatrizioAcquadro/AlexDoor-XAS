@@ -78,7 +78,12 @@ def test_single_episode_propagates_failures_without_retry(tmp_path, monkeypatch,
     monkeypatch.setattr(offline, "offline_episode", run)
     monkeypatch.setattr(replay, "run_replay", run)
     monkeypatch.setattr(operational, "recorded_operational", run)
-    monkeypatch.setattr(b1, "episode_paths", lambda *a: pytest.fail("reads another episode"))
+
+    def validate(path, corpus, *, complete_campaign):
+        assert path == episode and not complete_campaign
+        return [path]
+
+    monkeypatch.setattr(b1, "episode_paths", validate)
     argv = [command, "--episode", str(episode), "--output", str(output)]
     if outcome == "exception":
         with pytest.raises(RuntimeError, match="worker failed"):
@@ -105,3 +110,25 @@ def test_diagnostics_require_explicit_inputs(tmp_path, argv):
         cli_module().main([*argv, "--output", str(tmp_path / "run")])
     assert stopped.value.code == 2
     assert not (tmp_path / "run").exists()
+
+
+def test_single_episode_cannot_bypass_recording_admission(tmp_path, monkeypatch):
+    from alexdoor_xas.perception.diagnostics import offline
+    from alexdoor_xas.recording import b1
+
+    def reject(*args, **kwargs):
+        raise ValueError("outside frozen corpus")
+
+    monkeypatch.setattr(b1, "episode_paths", reject)
+    monkeypatch.setattr(offline, "offline_episode", lambda *a, **kw: pytest.fail("worker started"))
+    with pytest.raises(ValueError, match="frozen corpus"):
+        cli_module().main(
+            [
+                "point2pose-offline",
+                "--episode",
+                str(tmp_path / PILOT / "nominal/episode.hdf5"),
+                "--output",
+                str(tmp_path / "result"),
+            ]
+        )
+    assert not (tmp_path / "result").exists()

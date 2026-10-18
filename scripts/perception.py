@@ -69,6 +69,11 @@ def main(argv=None):
     if args.command in ("point2pose-offline", "point2pose-replay", "point2pose-operational"):
         if args.episode is None or args.episode.parent.parent.name not in PILOTS:
             parser.error("This diagnostic requires one authorized pilot --episode")
+        args.episode = episode_paths(
+            args.episode,
+            load_corpus(REPO / "datasets/doors/b1/corpus.json", REPO),
+            complete_campaign=False,
+        )[0]
         if args.command == "point2pose-offline":
             from alexdoor_xas.perception.diagnostics.offline import offline_episode
 

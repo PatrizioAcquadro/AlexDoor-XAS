@@ -101,10 +101,13 @@ def test_campaign_membership_completeness_and_duplicate_rejection(tmp_path):
         writer.close()
     paths = episode_paths(tmp_path, corpus)
     assert len(paths) == 2
+    assert episode_paths(paths[0], corpus, complete_campaign=False) == [paths[0]]
     with h5py.File(paths[0], "r+") as h5:
         h5["metadata"].attrs["episode"] = json.dumps(
             dict(entry, condition="nominal", control_dt=0.1)
         )
+    with pytest.raises(ValueError, match="directory"):
+        episode_paths(paths[0], corpus, complete_campaign=False)
     with pytest.raises(ValueError, match="Duplicate"):
         episode_paths(tmp_path, corpus)
     paths[0].unlink()
