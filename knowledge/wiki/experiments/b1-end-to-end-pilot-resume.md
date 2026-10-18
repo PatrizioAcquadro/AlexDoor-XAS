@@ -25,16 +25,39 @@ Checkpointed cumulative updates are 17,764; adding the 200 previous potentially
 lost updates gives an upper count of 17,964/18,000. No further meaningful training
 fits the remaining 36 updates without another explicit authorization.
 
-The first local read-only development allocation completes A1 metrics, then ends
-with the chat/tool interruption before A2 metrics or panel launch. Its partial
-results are preserved. Because exact process termination time is unavailable,
-the entire interval through the first host-confirmed absence is charged as a
-conservative allocation upper bound. Local use becomes 7.2234/15 GPU hours.
-The bounded pipeline now runs as user service `alexdoor-b1-pilot-4400-v8`, with
-shared leases and cumulative guards, repeating the same frozen read-only
-256-chunk evaluation into fresh output. No weights, normalization, seeds or
-physical outcomes are selected or changed by that infrastructure resumption.
-All four CUDA/development checks remain required before freezing the new panel.
+The first local development allocation completes A1 metrics, then the user reports
+an OOM at about 49 GiB that also kills Codex. Source inspection confirms the
+cause: `PolicyData` still owns A1 while the next `B1Dataset` constructor loads
+A2. The earlier attribution to a simple chat/tool interruption was incomplete
+and is superseded. Its conservative allocation upper charge and raw metrics stay
+preserved. The second owned service is stopped before another OOM; its journal
+records a 43.4 GiB peak. No final simulation panel has started.
+
+The correction releases evaluation owners and training factory closures before
+loading another action representation. It checks logical HDF5/VDS observation
+bytes before loading, reserves 12 GiB for the desktop/other processes, and logs
+RSS/high-water marks at representation boundaries and during inference. Existing
+epoch checkpoints are saved before a training memory-pressure check. Completed
+family metrics remain on disk if evaluation stops. No data, weights, statistics,
+seeds or numerical evaluation rules change.
+
+A separate CPU-only check loads the actual four-file, 25.902 GB logical dataset
+for A1 and A2 sequentially. Peak process RSS is 24.766 GiB; releasing A1 drops
+RSS to 0.639 GiB before A2, and releasing A2 leaves 0.643 GiB. At least 28.518 GiB
+remains available on the host. The isolated service peaks at 25.210 GiB and
+finishes in 22.78 seconds with zero model inference, optimizer updates or GPU
+allocation. Focused lifetime, logical-VDS-size, low-memory and preprocessing
+regressions pass. This verifies the RAM correction, not new learned task success.
+
+All 25 remaining allocation supervisors additionally check host RAM before launch
+and every half second during work. Below the 12 GiB reserve they stop only their
+own process group through the existing orderly stop/recording path, with a bounded
+30-second shutdown. The durable pipeline uses a 36 GiB memory-high threshold,
+42 GiB hard containment limit and no workload swap; these protect the desktop if
+a defect escapes the cooperative checks. CUDA verification resumes only with the
+corrected offline source, while physical runtime/controller and panel criteria
+remain unchanged. Both previous partial A1 reports and failed/stopped allocations
+remain preserved.
 
 The remote repair's cause remains documented: CUDA startup takes 75.972 seconds,
 then shared-file reads stall in `rpc_wait_bit_killable`. No new epoch is saved;

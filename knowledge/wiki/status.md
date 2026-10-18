@@ -22,10 +22,14 @@ with A1's completed A100 states retained byte-identically.
 All four target 4,400 updates with the same data, seed and optimizer/RNG/EMA.
 All four states reach 4,400 updates; the cumulative upper count is now
 17,964/18,000, including 200 conservatively charged possible lost updates.
-Development stays local and frozen. The interrupted local read-only evaluation retains its two A1 metrics and
-conservative allocation upper charge; the durable bounded pipeline repeats
-the fixed evaluation before CUDA verification and the new common 24-outcome
-panel freeze. Earlier versions remain separate.
+Development stays local and frozen. The user-reported offline OOM is traced to
+retained A1 ownership while A2 loads. The correction releases the old dataset and
+training closures, checks logical dataset RAM before allocation, and reserves
+12 GiB for desktop/other work. Full-size CPU validation peaks at 24.766 GiB and
+releases to 0.639 GiB between representations, with at least 28.518 GiB host RAM
+available. Partial metrics and stopped attempts remain preserved. The bounded
+CUDA/panel pipeline resumes with host-RAM monitoring and service memory limits;
+new-version integrated execution and all 24 outcomes remain pending.
 The six-demonstration, 18,000-update and 300 GiB ceilings remain unchanged.
 
 An unconditional left elbow position-domain extension is rejected after an

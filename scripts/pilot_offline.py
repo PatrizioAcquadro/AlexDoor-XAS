@@ -2,6 +2,7 @@
 """Bounded pilot preparation and four CUDA training paths; no physical dispatch."""
 
 import argparse
+import gc
 import hashlib
 import json
 import sys
@@ -39,10 +40,33 @@ from alexdoor_xas.policies.encoding import (  # noqa: E402
 from alexdoor_xas.policies.observations import B1Observer  # noqa: E402
 from alexdoor_xas.policies.purdue import PurdueFK  # noqa: E402
 from alexdoor_xas.recording.b1 import PHASES  # noqa: E402
+from alexdoor_xas.resources import host_memory_snapshot, require_host_memory  # noqa: E402
 
 
 def write_json(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
+
+
+def memory_checkpoint(root, stage, *, additional_bytes=0):
+    state = host_memory_snapshot()
+    with (root / "host-memory.jsonl").open("a") as stream:
+        stream.write(
+            json.dumps(state | dict(stage=stage, additional_bytes=additional_bytes)) + "\n"
+        )
+    require_host_memory(state, additional_bytes=additional_bytes)
+
+
+def dataset_ram_bytes(directory):
+    """Use logical observation size, including compact/VDS datasets, not file size."""
+    metadata = json.loads((directory / "meta.json").read_text())
+    size = 0
+    for name in metadata["episodes"]:
+        if Path(name).name != name:
+            raise ValueError("Episode path must stay inside its dataset")
+        with h5py.File(directory / name, "r") as source:
+            values = source["observations"]
+            size += int(values.size) * values.dtype.itemsize
+    return size
 
 
 def prepare(root, protocol, *, export=True, recipe=RECIPE, copy_raw=True, urdf=None):
@@ -263,6 +287,8 @@ def raw_metrics(policy, data, protocol):
         return dict(evaluated=False, reason="development_records_not_on_this_host")
     from alexdoor_xas.dataset.sampling import BatchIterator, ChunkSampler
 
+    memory_root = data.dataset.dataset_dir.parent
+    memory_checkpoint(memory_root, "before_development_batch")
     sampler = ChunkSampler(
         data.dataset, protocol["chunk_ticks"], data.stats.obs_keys, list(data.val_ids)
     )
@@ -277,7 +303,9 @@ def raw_metrics(policy, data, protocol):
     )
     predictions, times = [], []
     policy.reset(protocol["inference_seed"])
-    for features in batch["obs"]:
+    for index, features in enumerate(batch["obs"]):
+        if index % 32 == 0:
+            memory_checkpoint(memory_root, f"development_chunk_{index}")
         torch.cuda.synchronize()
         begin = perf_counter()
         predictions.append(policy.predict(features))
@@ -415,7 +443,11 @@ def train(root, protocol, *, resume=False, continue_from=None):
     for space in (A1_JOINT_DELTA, A2_EE_DELTA):
         if all(f"{family}-{space}" in report for family in ("act", "diffusion")):
             continue
+        memory_checkpoint(
+            root, f"{space}_before_load", additional_bytes=dataset_ram_bytes(root / "data")
+        )
         data = load_b1_data(root / "data", space)
+        memory_checkpoint(root, f"{space}_loaded")
         for family in ("act", "diffusion"):
             name = f"{family}-{space}"
             path = destination / name
@@ -523,8 +555,10 @@ def train(root, protocol, *, resume=False, continue_from=None):
                 family=family,
                 space=space,
                 epochs=epochs,
+                name=name,
             ):
                 save_training_state(path, model, state, protocol, family, space, epochs)
+                memory_checkpoint(root, f"{name}_checkpoint_saved")
 
             learned, history = fit(
                 model,
@@ -569,6 +603,9 @@ def train(root, protocol, *, resume=False, continue_from=None):
             write_json(destination / "report.json", report)
             del policy, learned, model
             torch.cuda.empty_cache()
+        del data, factory, development
+        gc.collect()
+        memory_checkpoint(root, f"{space}_released")
     return report
 
 
@@ -581,7 +618,11 @@ def evaluate_checkpoints(root, protocol, checkpoints):
     destination.mkdir()
     report = {}
     for space in (A1_JOINT_DELTA, A2_EE_DELTA):
+        memory_checkpoint(
+            root, f"{space}_before_load", additional_bytes=dataset_ram_bytes(root / "data")
+        )
         dataset = B1Dataset(root / "data", space)
+        memory_checkpoint(root, f"{space}_loaded")
         train = tuple(r.episode_id for r in dataset.records if r.split == "train")
         development = tuple(r.episode_id for r in dataset.records if r.split == "development")
         if not development:
@@ -623,8 +664,11 @@ def evaluate_checkpoints(root, protocol, checkpoints):
             write_json(destination / f"{name}.json", report[name])
             write_json(destination / "report.json", report)
             print(json.dumps(dict(evaluated=name, **report[name])), flush=True)
-            del policy, model, before_weights
+            del policy, model, before_weights, data
             torch.cuda.empty_cache()
+        del dataset
+        gc.collect()
+        memory_checkpoint(root, f"{space}_released")
     return report
 
 

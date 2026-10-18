@@ -863,3 +863,23 @@ all future-command motion, rotation, response and stopping allowances. Missing
 prepaid evidence retains conservative full age charging. This corrects the
 measured double charge in [[../experiments/b1-end-to-end-pilot-resume|full-v5]];
 it does not extend a current-frame bound into the future or change physical scoring.
+
+
+## Host RAM during pilot work
+
+`scripts/pilot_offline.py` releases the dataset and factory owners before loading
+the next action representation. Compact HDF5/VDS storage is budgeted by logical
+observation bytes, since the current reader materializes it in host RAM. The
+supported workstation CLI reserves 12 GiB for desktop/other processes and records
+current RSS, process high-water RSS, available host memory and cgroup residency
+in `host-memory.jsonl` at load/release and inference/checkpoint boundaries.
+Insufficient headroom raises an explicit error before the allocation; existing
+family reports and epoch states remain saved. This changes resource management,
+not observations, action labels, normalization, model state or sampling.
+
+The goal's allocation supervisors also inspect host RAM every half second and
+route pressure through their owned-workload shutdown, preserving recording and
+stop evidence. Their service memory limits are a containment fallback, not proof
+that model training, policy execution or contact qualification succeeds. See
+[[../experiments/b1-end-to-end-pilot-resume|the full-size RAM validation]] for actual
+peaks and the preserved OOM/stopped attempts.
