@@ -229,3 +229,45 @@ def test_adaptive_stop_cover_keeps_whole_volume_and_refuses_missing_interior():
     # A missing center remains inside the requested physical stop volume.
     missing = stop_box_cover(lo, hi, 0.02, 0.003, certify=lambda c, r, p: np.linalg.norm(c) > r)
     assert missing is None
+
+
+def test_cuda_robot_mask_matches_cpu_for_boundaries_domains_and_changed_state(model):
+    import torch
+
+    if not torch.cuda.is_available():
+        pytest.skip("CUDA required for robot occlusion parity")
+    depths = np.full((25, 31, 1), 1.0, dtype=np.float32)
+    depths[0, :5, 0] = [np.nan, np.inf, 0, -1, 2]
+    valid = np.ones_like(depths, bool)
+    valid[1, :5] = False
+    sensor = dict(
+        depth_m=depths,
+        valid_depth=valid,
+        intrinsics=np.array([[100.0, 0, 15], [0, 100.0, 12], [0, 0, 1]]),
+        camera_world=np.eye(4),
+    )
+    gpu = dict(
+        sensor,
+        depth_m=torch.as_tensor(depths, device="cuda"),
+        valid_depth=torch.as_tensor(valid, device="cuda"),
+    )
+    domain = np.indices(depths.shape[:2])[0] % 2 == 0
+    for angle in (0.0, 0.3, -0.2):
+        for bounds in ((0.0, 0.0), (0.001, 0.02)):
+            for pixels in (None, domain, np.zeros_like(domain)):
+                cpu_mask = model.occluded_pixels(
+                    sensor, {"q": angle}, np.eye(4), bounds, pixel_domain=pixels
+                )
+                cuda_mask = model.occluded_pixels(
+                    gpu, {"q": angle}, np.eye(4), bounds, pixel_domain=pixels
+                )
+                np.testing.assert_array_equal(cuda_mask, cpu_mask)
+    for bound in ((None, None), (-0.001, 0)):
+        with pytest.raises(ValueError, match="occlusion error"):
+            model.occluded_pixels(gpu, {"q": 0}, np.eye(4), bound)
+    with pytest.raises(ValueError, match="pixel domain"):
+        model.occluded_pixels(gpu, {"q": 0}, np.eye(4), (0, 0), pixel_domain=domain.astype(int))
+    with pytest.raises(ValueError, match="joint state"):
+        model.occluded_pixels(gpu, {}, np.eye(4), (0, 0))
+    np.testing.assert_array_equal(sensor["depth_m"], depths)
+    np.testing.assert_array_equal(gpu["depth_m"].cpu().numpy(), depths)

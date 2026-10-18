@@ -709,14 +709,16 @@ def observed_pilot_runtime(env, binding, robot_asset, setup, config_path, output
     faces = derive_push_geometry(env.robot.cfg.spawn.asset_path).contact_covers()
 
     def exclude_robot(sensor, raw):
-        del raw
         if float(sensor["time_s"]) != float(env.capture.sample.time_s):
             raise ValueError("unsynchronized_full_robot_geometry_capture")
         positions = dict(
             zip(env.robot.joint_names, array(env.robot.data.joint_pos)[0], strict=True)
         )
         return robot.occluded_pixels(
-            sensor, positions, calibration["root_world"], config["camera_bound"]
+            dict(sensor, depth_m=raw["depth_m"], valid_depth=raw["valid_depth"]),
+            positions,
+            calibration["root_world"],
+            config["camera_bound"],
         )
 
     geometry = session_provider(

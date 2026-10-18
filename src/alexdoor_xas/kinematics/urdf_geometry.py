@@ -207,6 +207,10 @@ class RobotGeometry:
         self, sensor, positions, root_world, calibration_bound, *, pixel_domain=None
     ):
         """Remove known robot returns; excluded material remains unobserved."""
+        if getattr(sensor["depth_m"], "is_cuda", False):
+            return self._occluded_pixels_cuda(
+                sensor, positions, root_world, calibration_bound, pixel_domain=pixel_domain
+            )
         depth = np.asarray(sensor["depth_m"])[..., 0]
         valid = np.asarray(sensor["valid_depth"])[..., 0]
         if pixel_domain is not None:
@@ -256,6 +260,59 @@ class RobotGeometry:
         mask = np.zeros(depth.shape, bool)
         mask[v[inside], u[inside]] = True
         return mask
+
+    def _occluded_pixels_cuda(
+        self, sensor, positions, root_world, calibration_bound, *, pixel_domain=None
+    ):
+        """Same complete local volume membership; four-shape batches bound VRAM."""
+        import torch
+
+        depth, valid = sensor["depth_m"][..., 0], sensor["valid_depth"][..., 0]
+        if pixel_domain is not None:
+            domain = torch.as_tensor(pixel_domain, device=depth.device)
+            if domain.dtype != torch.bool or domain.shape != valid.shape:
+                raise ValueError("Invalid robot occlusion pixel domain")
+            valid = valid & domain
+        bounds = np.asarray(calibration_bound, dtype=float)
+        if bounds.shape != (2,) or not np.isfinite(bounds).all() or (bounds < 0).any():
+            raise ValueError("Unmeasured robot occlusion error")
+        matrices = self.transforms(positions, root_world)
+        with torch.inference_mode():
+            v, u = torch.nonzero(valid & torch.isfinite(depth) & (depth > 0), as_tuple=True)
+            result = torch.zeros(depth.shape, dtype=torch.bool, device=depth.device)
+            if not len(v):
+                return result.cpu().numpy()
+            k = torch.as_tensor(sensor["intrinsics"], dtype=torch.float64, device=depth.device)
+            camera = torch.as_tensor(
+                sensor["camera_world"], dtype=torch.float64, device=depth.device
+            )
+            pixels = torch.stack((u, v, torch.ones_like(u)), dim=1).to(torch.float64)
+            rays = pixels @ torch.linalg.inv(k).T
+            points = (rays * depth[v, u, None]) @ camera[:3, :3].T + camera[:3, 3]
+            error = bounds[0] + 2 * torch.linalg.vector_norm(
+                points - camera[:3, 3], dim=1
+            ) * np.sin(min(bounds[1], np.pi) / 2)
+            inside = torch.zeros(len(points), dtype=torch.bool, device=depth.device)
+            for start in range(0, len(self.occluders), 4):
+                shapes = self.occluders[start : start + 4]
+                transforms = torch.as_tensor(
+                    np.stack([matrices[name] for name, _, _ in shapes]),
+                    dtype=torch.float64,
+                    device=depth.device,
+                )
+                lower = torch.as_tensor(
+                    np.stack([lo for _, lo, _ in shapes]), dtype=torch.float64, device=depth.device
+                )
+                upper = torch.as_tensor(
+                    np.stack([hi for _, _, hi in shapes]), dtype=torch.float64, device=depth.device
+                )
+                local = torch.bmm(points[None] - transforms[:, None, :3, 3], transforms[:, :3, :3])
+                contained = (local >= lower[:, None] - error[None, :, None]) & (
+                    local <= upper[:, None] + error[None, :, None]
+                )
+                inside |= contained.all(dim=2).any(dim=0)
+            result[v[inside], u[inside]] = True
+            return result.cpu().numpy()
 
     def cells(self):
         return tuple(CollisionCell(i, s["lower"], s["upper"]) for i, s in enumerate(self.shapes))

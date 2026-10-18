@@ -48,6 +48,16 @@ The robot occlusion filter also selects depth once per capture instead of twice
 per mesh: 54 fixed saved captures take 6.30 versus 3.17 seconds and produce
 identical complete masks. No sensor data is cached across captures.
 
+When captured depth is already on CUDA, robot masking now evaluates the same
+complete link-local volumes in float64, in four-shape batches, then returns the
+complete Boolean mask before publication. Current joints, calibration errors,
+validity and optional pixel domains remain inputs on every call. The NumPy path
+remains available for recorded CPU inputs. Across 201 diagnostic/reference
+captures all masks are exact: 11.40 seconds on CPU versus 4.70 seconds on CUDA,
+with 237 MB peak allocated CUDA memory in the component probe. Actual-GPU
+boundary, missing-depth, domain and changed-posture regressions pass. This is a
+component result; complete updated runtime measurements remain necessary.
+
 Static workspace loading now validates all recorded rays before building indexes
 only for the final condition banks. Previously it built and discarded the same
 per-record indexes before rebuilding the merged banks. Construction takes 7.34
