@@ -7,19 +7,15 @@ from pathlib import Path
 import numpy as np
 
 
-def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=None, duration_s=65):
+def run_live(recipe, output, models, asset_id, *, case, selection=None, duration_s=65):
     from isaaclab.app import AppLauncher
 
     output = Path(output)
     output.mkdir(parents=True, exist_ok=False)
     app = AppLauncher(headless=True, enable_cameras=True, device="cuda:0").app
-    env = worker = None
+    env = None
     try:
-        import torch
-
         from alexdoor_xas.envs.door_task.door_push_purdue_env import DoorPushPurdueEnv
-        from alexdoor_xas.perception.evaluation import quantiles, write_json
-        from alexdoor_xas.perception.session import PerceptionSession
         from alexdoor_xas.qualification.door_geometry import PreparedDoor
         from alexdoor_xas.qualification.expert import probe_config
         from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
@@ -34,9 +30,7 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=Non
         )
         setup = ProbeSetup(**json.loads((root / "configs/purdue_synthetic_probe.json").read_text()))
         inspection = recipe.config["inspection"]
-        completed = (
-            inspection["waypoints"][0][0] if case is not None else inspection["sample_times_s"][0]
-        )
+        completed = inspection["waypoints"][0][0]
         setup.neck = tuple(
             next(w[1:] for w in reversed(inspection["waypoints"]) if w[0] <= completed)
         )
@@ -58,14 +52,13 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=Non
             epoch[0], acquisition[0] = time.perf_counter(), 0.0
             return epoch[0]
 
-        if case is not None:
-            env.capture.capture = capture
+        env.capture.capture = capture
 
         def observe():
             sample = env.capture.sample
             q = array(sample.joint_position)[0]
             return dict(
-                time_s=np.asarray(sample.time_s if case is None else acquisition[0]),
+                time_s=np.asarray(acquisition[0]),
                 frame=np.asarray(sample.frame),
                 rgb=array(sample.rgb)[0],
                 depth_m=array(sample.depth_m)[0],
@@ -76,74 +69,20 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=Non
                 intrinsics=array(env.camera.data.intrinsic_matrices)[0],
             )
 
-        if case is not None:
-            return observer_case(
-                env,
-                door,
-                setup,
-                calibration,
-                observe,
-                recipe,
-                models,
-                output,
-                case,
-                start_clock,
-                selection,
-                duration_s,
-            )
-        sensor = observe()
-        worker = PerceptionSession(
-            models, recipe, calibration, output, initialize_after_s=float(sensor["time_s"])
+        return observer_case(
+            env,
+            door,
+            setup,
+            calibration,
+            observe,
+            recipe,
+            models,
+            output,
+            case,
+            start_clock,
+            selection,
+            duration_s,
         )
-        if selection is not None:
-            worker.select(**selection)
-        write_json(output / "runtime.json", worker.runtime)
-        initial = worker.infer(sensor)
-        if not initial["objects"]:
-            raise ValueError(initial["identity"]["state"])
-        np.savez_compressed(output / "seed.npz", **sensor, mask=worker.sam.all_masks[0])
-        records = []
-        # The simulator actively steps/renders while CUDA inference is in flight.
-        from concurrent.futures import ThreadPoolExecutor
-
-        with ThreadPoolExecutor(max_workers=1) as pool:
-            for _ in range(12):
-                env.step(torch.zeros((1, 6), device=env.device))
-                sensor = observe()
-                started = time.perf_counter()
-                pending = pool.submit(worker.infer, sensor)
-                render_ticks = 0
-                while not pending.done():
-                    env.step(torch.zeros((1, 6), device=env.device))
-                    render_ticks += 1
-                result = pending.result()
-                objects = result.pop("objects")
-                result.pop("masks")
-                result.update(
-                    render_ticks=render_ticks,
-                    completion_wall_s=time.perf_counter() - started,
-                    lost=any(o["lost"] for o in objects),
-                    correspondences=sum(o["current_points"]["shape"][0] for o in objects),
-                )
-                records.append(result)
-                write_json(output / "frames.json", records)
-        latency = np.asarray([r["completion_wall_s"] for r in records])
-        report = dict(
-            mode="concurrent-live-smoke",
-            asset_id=asset_id,
-            single_isaac=True,
-            automatic_candidate=True,
-            latency_s=quantiles(latency),
-            timely_tracking_fraction=float(
-                np.mean([r["completion_wall_s"] <= 0.15 and not r["lost"] for r in records])
-            ),
-            torch_peak_bytes=max(r["torch_peak_bytes"] for r in records),
-            accuracy_validated=False,
-            qualified=False,
-            loaded_contact_admitted=False,
-        )
-        write_json(output / "smoke.json", report)
-        return report
     except Exception as error:
         from alexdoor_xas.perception.evaluation import write_json
 
@@ -152,8 +91,6 @@ def run_live_smoke(recipe, output, models, asset_id, *, case=None, selection=Non
         )
         raise
     finally:
-        if worker:
-            worker.close()
         if env:
             env.close()
         app.close()
@@ -402,6 +339,7 @@ def observer_case(
         availability = sum(r["available"] for r in observed) / len(observed) if observed else 0.0
         p95 = np.quantile(errors, 0.95, axis=0) if len(errors) else None
         report = dict(
+            complete=True,
             case=case,
             asset_id=door.name,
             frames=len(records),

@@ -15,70 +15,6 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 
-def run_live_matrix(args, recipe):
-    from alexdoor_xas.perception.diagnostics.scan import PILOTS
-    from alexdoor_xas.perception.evaluation import write_json
-
-    args.output.mkdir(parents=True, exist_ok=False)
-    write_json(
-        args.output / "protocol.json",
-        dict(
-            mode="point2pose-observer-matrix",
-            source_commit=subprocess.check_output(
-                ["git", "rev-parse", "HEAD"], cwd=REPO, text=True
-            ).strip(),
-            assets=[args.asset] if args.asset else list(PILOTS),
-            cases=["camera", "panel", "combined", "visibility"],
-            recipe=recipe.to_dict(),
-            useful_availability_min=0.95,
-            p95_position_limit_m=0.01,
-            p95_rotation_limit_deg=5.0,
-            max_dynamic_age_s=0.15,
-            single_isaac=True,
-            fresh_process=True,
-            loaded_contact_admitted=False,
-            official_qualification_evaluated=False,
-        ),
-    )
-    reports = []
-    for asset in (args.asset,) if args.asset else PILOTS:
-        for case in ("camera", "panel", "combined", "visibility"):
-            folder = args.output / asset / case
-            with (args.output / f"{asset}-{case}.log").open("w") as log:
-                result = subprocess.run(
-                    [
-                        sys.executable,
-                        str(Path(__file__).resolve()),
-                        "point2pose-live",
-                        "--output",
-                        str(folder),
-                        "--models",
-                        str(args.models),
-                        "--config",
-                        str(args.config),
-                        "--case",
-                        case,
-                        "--asset",
-                        asset,
-                        *(["--selection", str(args.selection)] if args.selection else []),
-                    ],
-                    stdout=log,
-                    stderr=subprocess.STDOUT,
-                )
-            reports.append(
-                dict(
-                    asset=asset,
-                    case=case,
-                    returncode=result.returncode,
-                    report=str(folder / "report.json"),
-                    complete=(folder / "report.json").exists(),
-                    failed=(folder / "failure.json").exists(),
-                )
-            )
-            write_json(args.output / "runs.json", reports)
-    return int(any(r["returncode"] or not r["complete"] or r["failed"] for r in reports))
-
-
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -87,7 +23,6 @@ def main(argv=None):
             "smoke",
             "diagnose-scan",
             "point2pose-smoke",
-            "point2pose-live-smoke",
             "point2pose-replay",
             "point2pose-offline",
             "point2pose-live",
@@ -109,7 +44,9 @@ def main(argv=None):
     parser.add_argument("--asset", help="Authorized pilot asset for a live case")
     parser.add_argument("--selection", type=Path, help="Explicit observed geometric reference JSON")
     parser.add_argument(
-        "--episode", type=Path, help="Single authorized recording for operational measurement"
+        "--episode",
+        type=Path,
+        help="Single authorized recording for offline, replay or operational measurement",
     )
     parser.add_argument("--mode", choices=("wall-clock", "replay"), default="wall-clock")
     parser.add_argument(
@@ -129,58 +66,53 @@ def main(argv=None):
     from alexdoor_xas.recording.b1 import episode_paths
 
     recipe = load_recipe(args.config, REPO)
-    if args.command == "point2pose-operational":
-        from alexdoor_xas.perception.diagnostics.operational import recorded_operational
-
+    if args.command in ("point2pose-offline", "point2pose-replay", "point2pose-operational"):
         if args.episode is None or args.episode.parent.parent.name not in PILOTS:
-            parser.error("Operational measurement requires one authorized pilot --episode")
-        recorded_operational(
-            args.episode,
-            recipe,
-            args.output,
-            args.models,
-            selection=selection,
-            replay=args.mode == "replay",
-        )
-        return 0
-    if args.command == "point2pose-live":
-        if args.asset and args.asset not in PILOTS:
-            parser.error("Live diagnostics are restricted to the two authorized pilots")
-        if args.case:
-            from alexdoor_xas.perception.diagnostics.live import run_live_smoke
+            parser.error("This diagnostic requires one authorized pilot --episode")
+        if args.command == "point2pose-offline":
+            from alexdoor_xas.perception.diagnostics.offline import offline_episode
 
-            run_live_smoke(
+            report = offline_episode(
+                args.episode, recipe, args.output, args.models, selection=selection
+            )
+        elif args.command == "point2pose-replay":
+            from alexdoor_xas.perception.diagnostics.replay import run_replay
+
+            report = run_replay(args.episode, recipe, args.output, args.models, selection=selection)
+        else:
+            from alexdoor_xas.perception.diagnostics.operational import recorded_operational
+
+            report = recorded_operational(
+                args.episode,
                 recipe,
                 args.output,
                 args.models,
-                args.asset or PILOTS[1],
-                case=args.case,
                 selection=selection,
-                duration_s=args.duration_s,
+                replay=args.mode == "replay",
             )
-        else:
-            return run_live_matrix(args, recipe)
-        return 0
-    if args.command == "point2pose-live-smoke":
-        from alexdoor_xas.perception.diagnostics.live import run_live_smoke
-
-        print(
-            run_live_smoke(recipe, args.output, args.models, PILOTS[1], selection=selection),
-            flush=True,
+        # Process completion is independent of scientific diagnostic_passed/qualification.
+        return int(
+            not report.get("complete", False)
+            or bool(report.get("failure"))
+            or (args.output / "failure.json").exists()
         )
-        return 0
+    if args.command == "point2pose-live":
+        if args.asset not in PILOTS or args.case is None:
+            parser.error("Live diagnostics require an authorized --asset and an explicit --case")
+        from alexdoor_xas.perception.diagnostics.live import run_live
+
+        report = run_live(
+            recipe,
+            args.output,
+            args.models,
+            args.asset,
+            case=args.case,
+            selection=selection,
+            duration_s=args.duration_s,
+        )
+        return int(not report.get("complete", False) or (args.output / "failure.json").exists())
     paths = episode_paths(args.data, load_corpus(REPO / "datasets/doors/b1/corpus.json", REPO))
     paths = [p for p in paths if p.parent.parent.name in PILOTS]
-    if args.command == "point2pose-offline":
-        from alexdoor_xas.perception.diagnostics.offline import run_offline
-
-        reports = run_offline(paths, recipe, args.output, args.models, selection=selection)
-        return 0 if all(r["complete"] for r in reports) else 1
-    if args.command == "point2pose-replay":
-        from alexdoor_xas.perception.diagnostics.replay import run_replay
-
-        run_replay(paths, recipe, args.output, args.models, selection=selection)
-        return 0
     if args.command == "diagnose-scan":
         return run_scan_diagnostics(paths, recipe, args.output, args.models)
     if args.command == "point2pose-smoke":

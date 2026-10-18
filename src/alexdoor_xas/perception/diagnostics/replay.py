@@ -1,4 +1,4 @@
-"""Chronological two-pilot diagnostic scoring, isolated from observed-only inference."""
+"""Chronological single-episode diagnostic scoring, isolated from observed-only inference."""
 
 import json
 import subprocess
@@ -9,7 +9,6 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from alexdoor_xas.action.frames import rot_z
-from alexdoor_xas.perception.diagnostics.scan import PILOTS
 from alexdoor_xas.perception.diagnostics.smoke import sensor_at
 from alexdoor_xas.perception.evaluation import quantiles, write_json
 from alexdoor_xas.perception.geometry import project
@@ -73,6 +72,25 @@ def replay_episode(
     path, recipe, output, models, tool_fk, distal_faces, *, stride=3, selection=None
 ):
     output.mkdir(parents=True, exist_ok=False)
+    write_json(
+        output / "protocol.json",
+        dict(
+            mode="point2pose-pilot-replay",
+            source_commit=subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parents[4], text=True
+            ).strip(),
+            episode=str(path),
+            stride=stride,
+            useful_availability_min=0.95,
+            p95_position_limit_m=0.01,
+            p95_rotation_limit_deg=5.0,
+            max_dynamic_age_s=0.15,
+            recipe=recipe.to_dict(),
+            annotations="evaluator only",
+            loaded_contact_admitted=False,
+            official_qualification_evaluated=False,
+        ),
+    )
     with h5py.File(path, "r") as h5:
         calibration = json.loads(h5["metadata"].attrs["calibration"])
         provider = tracking_provider(
@@ -86,8 +104,10 @@ def replay_episode(
             distal_faces=distal_faces,
         )
         frames, events, reference, last_result_frame = [], [], None, None
+        scheduled_rows = None
         try:
             times = h5["observations/time_s"][:]
+            scheduled_rows = len(range(0, len(times), stride))
             for row in range(0, len(times), stride):
                 sensor = sensor_at(h5, row)
                 estimate = provider.update(sensor)
@@ -250,12 +270,16 @@ def replay_episode(
             )
             write_json(output / "report.json", report)
             return report
-        except Exception as error:
+        except BaseException as error:
             write_json(
                 output / "failure.json",
                 dict(
                     error=f"{type(error).__name__}: {error}",
                     completed_rows=len(frames),
+                    scheduled_rows=scheduled_rows,
+                    not_processed_rows=None
+                    if scheduled_rows is None
+                    else scheduled_rows - len(frames),
                     qualified=False,
                 ),
             )
@@ -266,12 +290,8 @@ def replay_episode(
             provider.close()
 
 
-def run_replay(paths, recipe, output, models, *, stride=3, selection=None):
-    expected = {(pilot, condition) for pilot in PILOTS for condition in ("nominal", "light")}
-    if {(p.parent.parent.name, p.parent.name) for p in paths} != expected or len(paths) != 4:
-        raise ValueError("Exactly the four authorized pilot recordings are required")
+def run_replay(path, recipe, output, models, *, stride=3, selection=None):
     output = Path(output)
-    output.mkdir(parents=True, exist_ok=False)
     from ihmc_alex_isaaclab._paths import REPOSITORY_ROOT as alex_root
 
     from alexdoor_xas.assets.purdue import derive_push_geometry
@@ -283,45 +303,6 @@ def run_replay(paths, recipe, output, models, *, stride=3, selection=None):
     )
     tool_fk = PurdueFK(urdf)
     distal_faces = derive_push_geometry(urdf).contact_covers()
-    write_json(
-        output / "protocol.json",
-        dict(
-            mode="point2pose-pilot-replay",
-            source_commit=subprocess.check_output(
-                ["git", "rev-parse", "HEAD"], cwd=Path(__file__).resolve().parents[4], text=True
-            ).strip(),
-            episodes=[str(p) for p in paths],
-            stride=stride,
-            useful_availability_min=0.95,
-            p95_position_limit_m=0.01,
-            p95_rotation_limit_deg=5.0,
-            max_dynamic_age_s=0.15,
-            recipe=recipe.to_dict(),
-            annotations="evaluator only",
-            loaded_contact_admitted=False,
-            official_qualification_evaluated=False,
-        ),
+    return replay_episode(
+        path, recipe, output, models, tool_fk, distal_faces, stride=stride, selection=selection
     )
-    reports = []
-    for path in paths:
-        reports.append(
-            replay_episode(
-                path,
-                recipe,
-                output / path.parent.parent.name / path.parent.name,
-                models,
-                tool_fk,
-                distal_faces,
-                stride=stride,
-                selection=selection,
-            )
-        )
-        write_json(
-            output / "report.json",
-            dict(
-                episodes=reports,
-                qualified=False,
-                diagnostic_passed=all(r["diagnostic_passed"] for r in reports),
-            ),
-        )
-    return reports
