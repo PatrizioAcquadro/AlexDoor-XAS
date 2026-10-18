@@ -15,29 +15,35 @@ An additional ACT A1 right/dim inspection is interrupted by a foreign RustDesk
 GPU process before any learned command. Its allocation, raw recording and
 continuing-physics stop are retained. No completed outcome is retried.
 
-The user now authorizes 15 additional Gilbreth GPU hours and local RTX training.
-Remote use is 3,503/57,600 GPU seconds; the local ceiling remains 15 hours.
-The matched continuation completes the remaining 2,600 A2 updates locally,
-with A1's completed A100 states retained byte-identically.
-All four target 4,400 updates with the same data, seed and optimizer/RNG/EMA.
-All four states reach 4,400 updates; the cumulative upper count is now
-17,964/18,000, including 200 conservatively charged possible lost updates.
-Development stays local and frozen. The user-reported offline OOM is traced to
-retained A1 ownership while A2 loads. The correction releases the old dataset and
-training closures, checks logical dataset RAM before allocation, and reserves
-12 GiB for desktop/other work. Full-size CPU validation peaks at 24.766 GiB and
-releases to 0.639 GiB between representations, with at least 28.518 GiB host RAM
-available. Partial metrics and stopped attempts remain preserved. The corrected four-checkpoint CUDA evaluation also completes, peaking at
-26.206 GiB with at least 27.787 GiB host RAM available and unchanged weights/
-statistics. The common 24-outcome version is frozen; the bounded pipeline proceeds
-to integration with host-RAM monitoring and service limits. New-version physical
-outcomes and identical-checkpoint two-door success remain pending. The first
-inspection-only attempt is interrupted by a false Chrome graphics-PID change
-alarm, with zero learned commands. Its incomplete boundary and two-second stop
-remain preserved. The corrected classifier keeps compute/unknown-graphics refusals
-and resumes only that diagnosed infrastructure interruption, under the same
-frozen models and physical protocol.
-The six-demonstration, 18,000-update and 300 GiB ceilings remain unchanged.
+The current cumulative authorization is **40 local GPU hours, 32 Gilbreth GPU
+hours, 100,000 optimizer updates, 1 TiB retained pilot evidence and 24 demonstration
+attempts**, including every previous allocation and failure. At the authorization
+change, remote use is 3,503 GPU seconds, optimizer consumption is at most 17,964
+(including 200 possibly lost updates), and six demonstrations are consumed.
+Current machine-readable counters in the continuation evidence govern each launch.
+Local RTX training is explicitly authorized; development remains local and never
+updates weights or normalization.
+
+All four matched models now reach 4,400 updates. A1's completed A100 files remain
+byte-identical; the remaining 2,600 A2 updates complete on RTX 4090 with the same
+data, seed and optimizer/RNG/EMA. Frozen local CUDA development verifies all four.
+The user-reported approximately 49 GiB offline OOM is corrected by releasing A1
+owners before loading A2 and reserving 12 GiB of host RAM. Full CUDA evaluation
+peaks at 26.206 GiB with at least 27.787 GiB available; previous partial metrics,
+failed allocations and conservative charges remain retained.
+
+The common `full-v8-4400` panel is frozen. Its first complete outcome, ACT A1
+right/nominal, executes 488 learned commands and stops at the contact-acquisition
+budget without contact or opening. Retention and continuing-physics stop pass,
+with no physical violation. The remaining fixed slots continue; no learned task
+success is established. A preceding inspection-only attempt is an explicit
+incomplete infrastructure failure caused by a Chrome graphics-PID classification
+bug; it executes zero learned commands and remains in raw-attempt accounting.
+Normal recognized desktop graphics no longer block sufficient GPU capacity;
+foreign compute, unknown graphics, shared leases and host/GPU memory guards remain.
+The physical runtime, checkpoint versions, protocol and acceptance criteria are
+unchanged. Further comparable training or eligible collection must respond to
+measured errors and use a separately frozen evaluation version.
 
 An unconditional left elbow position-domain extension is rejected after an
 independent 8 N lateral-load stop exceeds the original travel/speed criteria.
@@ -51,8 +57,7 @@ future target growth; a low current force cannot qualify a subsequent strong
 contact. A narrower strong-load interval also fails its 8 N lateral stop.
 Both extensions
 remain outside the final panel recipe: all four cells retain the original main
-position envelope and qualified main-13 gripper bound. New-checkpoint integrated
-execution remains pending. See the continuation experiment for both
+position envelope and qualified main-13 gripper bound. New-checkpoint learned command execution is demonstrated; task success remains open. See the continuation experiment for both
 failed and successful component evidence.
 
 Finite observed-material, contact and robot-sweep components pass the earlier

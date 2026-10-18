@@ -8,11 +8,15 @@ fixed physical criteria and sealed test doors. No production campaign or robot w
 
 ## Current fixed-panel continuation
 
-The user expands the remote allocation by 15 GPU hours: the cumulative Gilbreth
-ceiling is now 57,600 GPU seconds, with 3,503 consumed. Local training is also
-explicitly authorized within the existing 15 local GPU hours. The 18,000-update,
-300 GiB and six-demonstration ceilings remain unchanged. No development data
-leave the workstation or update weights or normalization.
+The latest user authorization replaces prior ceilings with cumulative limits of
+40 local GPU hours, 32 Gilbreth GPU hours (115,200 allocated GPU seconds), 100,000
+optimizer updates, 1 TiB retained evidence and 24 demonstration attempts. Every
+previous failure/allocation remains charged. At this change remote use is 3,503
+GPU seconds, at most 17,964 updates and six demonstrations are consumed. Local
+RTX training and necessary additional eligible demonstrations are authorized.
+Development remains local and never updates weights or normalization. The current
+authorization and live reconciliation are retained beside the historical counters;
+older budget figures below describe their original stages, not current limits.
 
 The matched continuation now completes locally from the preserved ACT A2
 3,200-update state and original Diffusion A2 3,000-update state, keeping the same
@@ -22,8 +26,8 @@ remaining 2,600 A2 updates run on RTX 4090 in 101.96 seconds plus the conservati
 five-second tail, with median throughput 46.56/48 updates per second. All four
 state/protocol/update checks pass. This hardware difference is disclosed.
 Checkpointed cumulative updates are 17,764; adding the 200 previous potentially
-lost updates gives an upper count of 17,964/18,000. No further meaningful training
-fits the remaining 36 updates without another explicit authorization.
+lost updates gives an upper count of 17,964. This leaves 82,036 updates under
+the latest cumulative authorization; any continuation retains comparable treatment.
 
 The first local development allocation completes A1 metrics, then the user reports
 an OOM at about 49 GiB that also kills Codex. Source inspection confirms the
@@ -31,7 +35,7 @@ cause: `PolicyData` still owns A1 while the next `B1Dataset` constructor loads
 A2. The earlier attribution to a simple chat/tool interruption was incomplete
 and is superseded. Its conservative allocation upper charge and raw metrics stay
 preserved. The second owned service is stopped before another OOM; its journal
-records a 43.4 GiB peak. No final simulation panel has started.
+records a 43.4 GiB peak. At that interruption no final simulation panel had started.
 
 The correction releases evaluation owners and training factory closures before
 loading another action representation. It checks logical HDF5/VDS observation
@@ -84,21 +88,18 @@ verification, then runs one integrated outcome and the remaining fixed slots
 under the unchanged physical/reference/hold/release requirements. Old 3,000-update
 outcomes and any new outcomes remain separate versions. Exact local cache
 replacement recovers 23.046 GiB while preserving all raw recordings; retained
-pilot storage before the local continuation is 252.399/300 GiB. Local GPU use is
-7.2356/15 hours before the corrected CUDA evaluation. Full-horizon cost remains an
+pilot storage before the local continuation was 252.399 GiB. Local GPU use was
+7.2356 hours before the corrected CUDA evaluation. Full-horizon cost remains an
 extrapolation, so measured cost and cumulative guards govern each launch.
 
-The availability preflight is corrected after per-process GPU monitoring shows
-only GNOME desktop graphics at about 30 W and 675 MHz, with no compute process
-and more than 22 GiB free. An added total-utilization cap had falsely treated
-20–55% time occupancy at that low clock as a competing compute job. The launcher
-retains all three leases, 180 continuous seconds without compute or unknown
-graphics, memory/process/utilization checks and stopping only our worker on
-foreign compute. Recognized desktop graphics may additionally pass when current
-and 180-second mean power stay at most 50 W and SM clock at most 1 GHz. The
-original low-utilization branch remains. All 25 unallocated verification/panel
-wrappers use the same rule. No physical, task, controller, checkpoint or panel
-gate changes; measured runtime includes the actual desktop environment.
+The availability preflight classifies recognized desktop graphics separately from
+competing compute. Under the latest explicit user instruction, normal desktop
+activity alone does not block sufficient capacity, regardless of its utilization,
+power or clock. All 25 verification/panel wrappers retain three shared leases,
+180 continuous seconds without foreign compute or unknown graphics, VRAM and
+host-RAM reserves, and stopping only our worker on foreign interference. GPU
+telemetry remains recorded. This resource change does not alter physical admission,
+control, checkpoints or the frozen panel; queue waiting is uncharged.
 
 The first full-v8 physical allocation is interrupted during inspection at
 17.783 simulated seconds when Chrome starts a new graphics-only GPU process.
@@ -119,6 +120,15 @@ strict. Only the diagnosed zero-command infrastructure interruption may resume
 under the original frozen checkpoint/protocol; no completed policy outcome is
 retried. Reports retain both the fixed 24 planned outcomes and every closed raw
 attempt, including infrastructure interruptions, with separate denominators.
+
+The first complete full-v8 outcome is ACT A1 right/nominal: 488 learned commands,
+zero contact/opening, then `contact_acquisition_budget`. Input/command/native
+retention and the continuing-physics stop pass, with no physical violation.
+It counts as the first failed fixed outcome. Measured charged cost is 385.31 GPU
+seconds and 0.396 GiB retained. The mean reached-state policy service is 0.2262 s;
+extrapolating all remaining 23 slots to 9,000 ticks gives 14.76 GPU hours, an
+explicit scenario rather than a guarantee. The remaining panel continues under
+actual cumulative guards. No outcome from another version substitutes for a slot.
 
 ## Left position-domain prerequisite
 
