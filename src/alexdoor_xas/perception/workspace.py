@@ -54,6 +54,11 @@ class CommonWorkspace:
 
     @classmethod
     def from_recordings(cls, paths, config, calibration_bound):
+        return cls(cls._recorded_spaces(paths, config, calibration_bound), calibration_bound)
+
+    @staticmethod
+    def _recorded_spaces(paths, config, calibration_bound):
+        """Read validated rays; only the final owned workspace builds static indexes."""
         spaces = []
         for path in paths:
             with h5py.File(Path(path), "r") as source:
@@ -98,7 +103,7 @@ class CommonWorkspace:
                         raise ValueError("workspace_depth_validity_mismatch")
                     space.add(sensor)
                 spaces.append(space)
-        return cls(spaces, calibration_bound)
+        return spaces
 
     def query_static(self, centers, radii, *, cover_ids=None, constructive=True):
         centers, radii = np.asarray(centers, float), np.asarray(radii, float)
@@ -316,9 +321,9 @@ class ObservedBackground(CommonWorkspace):
                 record_config = deepcopy(config)
                 if isinstance(item, dict):
                     record_config["inspection"]["sample_times_s"] = item["sample_times_s"]
-                recorded = CommonWorkspace.from_recordings(
+                recorded = CommonWorkspace._recorded_spaces(
                     [path], record_config, calibration_bound
-                ).spaces[0]
+                )[0]
                 bank.views.update(
                     {(str(Path(path).resolve()), key): view for key, view in recorded.views.items()}
                 )

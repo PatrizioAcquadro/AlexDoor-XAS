@@ -76,7 +76,9 @@ def test_workspace_owns_static_input_and_does_not_cache_unknown_geometry():
     assert "unknown" not in workspace._free_covers
 
 
-def test_recorded_workspace_normalizes_explicit_legacy_sampling_without_rewriting(tmp_path):
+def test_recorded_workspace_normalizes_explicit_legacy_sampling_without_rewriting(
+    tmp_path, monkeypatch
+):
     import json
 
     import h5py
@@ -107,9 +109,19 @@ def test_recorded_workspace_normalizes_explicit_legacy_sampling_without_rewritin
     assert common.source_clocks == (((1.0, 1.0),),)
     from alexdoor_xas.perception.workspace import ObservedBackground
 
+    indexed = []
+    original_index = ObservedSpace.index_static_points
+
+    def index(space):
+        indexed.append(len(space.views))
+        return original_index(space)
+
+    monkeypatch.setattr(ObservedSpace, "index_static_points", index)
     background = ObservedBackground.from_recording_groups(
         [[dict(path=str(path), sample_times_s=[1.0])]], config, [0, 0], [1, 2]
     )
+    assert indexed == [1]  # Only the final condition bank is indexed.
+    assert not next(iter(background.spaces[0].views.values()))["depth_m"].flags.writeable
     supported = background.query_background([[0, 0, 1]], [0.01], current_foreground_margin_m=0.1)
     assert supported.collision_clearance_m > 0
     assert supported.source_clocks == (((str(path.resolve()), 1.0, 1.0),),)

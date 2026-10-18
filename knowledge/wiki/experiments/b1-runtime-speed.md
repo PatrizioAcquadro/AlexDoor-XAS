@@ -23,7 +23,7 @@ so the earlier figures below are approximate comparisons. The old 9,000-command
 | Workload | Earlier measured runtime | New complete process time | Target | Status |
 |---|---:|---:|---:|---|
 | 1,631-command ACT A1 diagnostic | about 10.7–11.1 min | 466.902 s / 7.78 min | 360 s | Complete workload; target missed |
-| 7,217-command reference | about 32.2 min | Pending | 1,200 s | Current measured execution in progress |
+| 7,217-command reference | about 32.2 min | 1,476.799 s / 24.61 min | 1,200 s | Complete reference cycle; target missed |
 
 The completed diagnostic uses `facad1d`: controlled opening 17.2334 degrees
 versus 17.2595 degrees previously, zero contact losses/physical violations, and a
@@ -32,6 +32,11 @@ native counts, image dimensions, intrinsics and capture/control times match the
 earlier prefix. Live commands differ slightly, consistent with different live
 observations; no bitwise physical-simulation requirement or per-run tolerance is
 introduced. This short horizon has no hold/release or learned task success.
+
+The complete reference uses `8d72689` product code: all 7,217 reference commands,
+51.0242 degrees controlled opening, valid hold/release, zero contact losses or
+physical violations, and a passing continuing-physics stop. Learned commands and
+learned task success remain zero/false.
 
 ## Measured changes and correctness
 
@@ -42,6 +47,13 @@ validation, separate clocks, 60-tick flushes and completion semantics remain.
 The robot occlusion filter also selects depth once per capture instead of twice
 per mesh: 54 fixed saved captures take 6.30 versus 3.17 seconds and produce
 identical complete masks. No sensor data is cached across captures.
+
+Static workspace loading now validates all recorded rays before building indexes
+only for the final condition banks. Previously it built and discarded the same
+per-record indexes before rebuilding the merged banks. Construction takes 7.34
+versus 14.20 seconds in the paired saved-input check. All 81 views, 40,318,928
+indexed points, pixel coordinates, immutable arrays, source clocks and 18
+free/unknown/occupied queries remain exact. There is no persistent cache.
 
 Self-clearance also reuses joint origins/axes within one query. Every new query
 recomputes them from the current matrices and reevaluates travel/model bounds.
@@ -98,8 +110,7 @@ No observation, force, stopping, material or physical gate is weakened.
 
 ## Current limit and next action
 
-The speed goal is incomplete: the six-minute target is missed and the complete
-reference process is still being measured. Continue profiling measured dominant
+The speed goal is incomplete: both measured full-process targets are missed. Continue profiling measured dominant
 costs; do not claim success from component gains, an early refusal, opening alone
 or the reference role. The full learned panels remain paused.
 
