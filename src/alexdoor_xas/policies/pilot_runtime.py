@@ -282,9 +282,10 @@ class PilotMotionEvidence:
         temporal_p = 2 * self.config["relative_speed_bound_m_s"] * io.dt
         temporal_a = self.config["material_angular_speed_rad_s"] * io.dt
         foreground_by_key = {}
+        surface_basis = None
 
         def query(center, radius, key, *, constructive=True):
-            nonlocal checked
+            nonlocal checked, surface_basis
             checked += 1
             if checked > self.config["maximum_cover_queries"]:
                 diagnostics.update(
@@ -337,7 +338,9 @@ class PilotMotionEvidence:
                 )
                 protrusion_margin = None
                 if lower is not None and upper is not None:
-                    tangent = (mapped @ candidate.surface.basis)[1:]
+                    if surface_basis is None:
+                        surface_basis = candidate.surface.basis
+                    tangent = (mapped @ surface_basis)[1:]
                     distance = np.linalg.norm(
                         np.maximum(
                             np.asarray(lower) - tangent, np.maximum(tangent - np.asarray(upper), 0)
