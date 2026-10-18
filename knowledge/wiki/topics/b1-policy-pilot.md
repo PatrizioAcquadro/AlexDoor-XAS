@@ -417,6 +417,25 @@ path; preserve that separate raw archive for later A3/A4 work. Default exports
 remain self-contained and copy all raw groups. Both forms train/load the same
 observed feature/action views without reading supervisor annotations.
 
+For larger pilot continuations, prepare each raw episode separately, then use
+`pilot_offline.py materialize --prepared-data ... --normalization-episode-id ...`
+to assemble train-only sources. Materialization checks every 64-row block for
+exact float32 round-trip equality, copies action labels unchanged and writes
+contiguous HDF5 observations for the existing memmap loader. Development sources,
+duplicate IDs and lossy conversion refuse; failed staging remains inspectable.
+The mode performs bounded CPU data I/O only. Encoding, training and model
+inference still require CUDA. Preserve original raw files separately.
+
+Optional `normalization_episode_ids` dataset metadata identifies a unique
+train-only fit subset; absent metadata retains the all-train default. Checkpoints
+record actual `training_episode_ids` separately. A continuation may append unique
+train episodes on existing train assets only when all original protocol entries,
+exclusions, normalization fit and other training settings remain unchanged.
+Optimizer/RNG/EMA and seed resume from the latest full state. The selection
+reader streams the fixed development windows and checks both actual training
+membership and normalization fit; development never enters either update.
+Full-size RAM/statistics verification is still required for each enlarged dataset.
+
 
 The selected material-zone cover stays distinct from the actual tool-relative
 query, so parked approach does not imply contact. Actual action admission still
@@ -424,6 +443,15 @@ requires its own finite footprints and relevant swept-space margins. Initial
 health checking precedes receipt construction; actual dispatch remains gated.
 Measured arm-speed checks include both native substeps, and robot stopping
 precedes perception reset/worker cleanup.
+
+The physical CLI records SIGTERM as a pending request, checked before/after
+`env.step` outside Kit callbacks. It restores ordinary stepping before cleanup,
+saves `interrupted-stop.npz` plus the complete independent `interrupted-stop.json`
+result, then exits 130. This prevents Kit from swallowing an in-callback exception
+or reporting cancellation as success. Interrupted data remains incomplete; stop
+cleanup does not make it imitation-eligible. Ordinary control/teacher behavior and
+stop criteria are unchanged. Actual bounded cancellation verification and retained
+failures are in [[../experiments/b1-end-to-end-pilot-resume]].
 
 
 The shared inspection parks the arm at its configured joint anchor while moving
@@ -638,8 +666,10 @@ The two pre-correction fresh nominal recordings keep their original valid physic
 scores, raw data and paired-reference role. Their known handoff command pause is
 excluded from imitation through explicit protocol eligibility/reasons. The four
 remaining declared conditions use the same corrected teacher: right dim/left bright
-for training and both development lights for validation. The raw collection ceiling
-stays six, and the fixed 24-outcome denominator is unchanged. This is a partial
+for training and both development lights for validation in the original six-attempt
+cohort. The later cumulative authorization and added-data eligibility are tracked in
+[[../experiments/b1-end-to-end-pilot-resume]]; every evaluation version keeps its
+fixed 24-outcome denominator. This is a partial
 pilot data selection, not the final matched A1–A4 dataset.
 
 Static workspace queries may cache a certified free ball. Reuse spends center
