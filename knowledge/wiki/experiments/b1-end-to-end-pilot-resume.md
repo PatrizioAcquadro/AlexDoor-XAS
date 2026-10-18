@@ -2186,3 +2186,43 @@ commands and independently valid contact, with an initial4.1mm material error.
 Actual consumed vectors and predictions are retained by the maintained runner.
 This is ongoing execution, not completed opening/hold/release, a stop proof or a
 full24 new-panel freeze. Every unfavorable outcome still must be preserved.
+
+
+## Latest30k integrated outcome retained and full24 frozen
+
+The maintainedACTA1 right/nominal case completes1,757 actual nonzero learned
+requests, with293 real policy queries. Consumed-input/applied-command/robot/native/
+evaluator-clock audits pass. Actual first causal vector, prediction and backend
+settings remain retained. Independent controlled opening is18.30436 degrees,
+35.7087% of the unchanged51.26025-degree reference; raw maximum18.54797 is separate.
+No hold, release or physical contact loss occurs. Peak native force is7.33372N,
+with no physical violation. The actual continuing-physics stop has240 healthy
+native samples over2s, maximum0.24790mm travel and final0.0001524rad/s speed.
+This demonstrates the operational path, not complete task success.
+
+Termination is`invalid_execution: contact_uncertainty_exceeds_admitted_margin`.
+The actual robot sweep residual0.3717mm is a different certificate from the
+per-material margin, whose exact numeric value is unavailable in the compact
+log. Contact consumes the selected material receipt, not that whole-robot residual.
+Code/earlier-study review finds no new double-charge defect: local finite material
+error does not include the extra visible/collision-model discrepancy. The prior
+whole-finite discrepancy reaches1.973mm, so retain the existing3mm allowance.
+Do not weaken it, invent missing support or rerun the failed outcome favorably.
+The same refusal class in earlier full-v6 remains preserved separately.
+
+Actual allocation is667.922GPU seconds, including212.814s inspection loop,
+394.961s learned loop and60.147s other allocation/tail. Retained evidence is
+0.62847GiB. Scaling only the measured learned loop to9000 commands gives2296.095s
+per-case and14.6695GPU-hours for23 same-type full-horizon cases. This is a scenario,
+not a guarantee; the remaining local allocation at freeze is26.407hours.
+
+`fixed-panel-qualified-latest-v11-plan.json` now freezes all four30k checkpoints
+and the original24 cell/door/lighting/placement/seed/physics/reference/hold/release
+protocol, source`bfabece` and original main-position/main13 recipe. Its SHA256 is
+`759cb3ab6c39bac2cf0c105a15f69e416f2e0ea0aef62cff7a3beae755dcbcc4`.
+The actual first failure is reused and counted;23 unallocated slots run once,
+with interruption/physical/stop defects held for diagnosis. The prospective latest
+common stopping-state choice remains distinct from guarded-development controls;
+none is claimed to pass those guards or establish unseen-door generalization.
+Original24 failures and all infrastructure attempts remain. No new weight update,
+controller, dynamics, sensor-accuracy requirement or physical criterion changes.

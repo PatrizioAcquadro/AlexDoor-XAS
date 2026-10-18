@@ -436,6 +436,17 @@ reader streams the fixed development windows and checks both actual training
 membership and normalization fit; development never enters either update.
 Full-size RAM/statistics verification is still required for each enlarged dataset.
 
+Guarded-development selection and a finite-domain functional assessment are
+separate claims. The current continuation prospectively chooses every cell's
+latest state at the common early stop for one functional cohort, while retaining
+its rejected guards and older selected controls. Declare that rule before its
+closed-loop outcomes, freeze one checkpoint per cell across both doors, and count
+an identical full-protocol integrated case regardless of success. Actual commands,
+causal inputs, operational signals, recording and continuing-physics stop must
+pass before the full24 freeze. Neither offline scores, safe refusal nor opening
+without valid hold/release satisfies the unchanged two-door pilot criterion; see
+[[../experiments/b1-end-to-end-pilot-resume|the measured continuation]].
+
 
 The selected material-zone cover stays distinct from the actual tool-relative
 query, so parked approach does not imply contact. Actual action admission still

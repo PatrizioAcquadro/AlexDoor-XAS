@@ -5,12 +5,23 @@ implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consol
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
 
-The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
-four genuinely trained selected checkpoints: **ACT A1 12,000, ACT A2 18,000,
-Diffusion A1/A2 22,000 updates**. All four now execute nonzero learned commands
-through the real observed RGB-D/proprioception, robot-load/contact, proposed-motion
-admission, controller, recording and continuing-physics stop path. The active panel keeps frozen physical source `b2969ef`; teacher, selected IK/gains,
-dynamics, expert references and physical criteria are unchanged.
+The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] now
+evaluates the prospectively declared `qualified-latest-v11` functional cohort:
+**all four ACT/Diffusion × A1/A2 checkpoints at30,000 updates**, from five eligible
+train records with original-two normalization. The first actual integrated
+outcome is retained as a failure: ACTA1 right/nominal executes1,757 learned
+commands, reaches18.304 controlled degrees (35.71% of reference), and stops at
+insufficient contact-model margin. Full causal recording and the healthy two-second
+physics stop pass; actual stop travel is0.248mm. The complete24 panel is now
+frozen, with that first failure counted and the remaining23 running sequentially.
+Source`bfabece`, selected IK/gains, main-position/main13 load recipe, door dynamics,
+expert references and physical criteria remain fixed. No model yet completes the
+full task on both train doors.
+
+The guarded-development control checkpoints remain **ACTA1 12,000, ACTA2 18,000,
+DiffusionA1/A2 22,000**. All four execute real learned commands through observed
+RGB-D/proprioception, robot-load/contact, proposed-motion admission, controller,
+recording and continuing-physics stop. Their original physical source is`b2969ef`.
 
 The frozen `selected-v10` panel has **24/24 complete outcomes, all failed**, with
 all26 physical attempts retained, including two infrastructure interruptions. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
@@ -19,8 +30,7 @@ After 7,171 real commands, `RIGHT_GRIPPER_Y` exceeds its verified load-model
 position maximum by 0.000279 rad; the correct operational refusal stops the task.
 No model yet completes opening, hold and release on both doors. All 24 complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
-with no physical violation. Ordinary policy failures remain outcomes and the fixed
-panel continues; no completed result is retried or dropped. A transient external
+with no physical violation. Ordinary policy failures remain outcomes and that cohort is complete; no completed result is retried or dropped. A transient external
 RustDesk CUDA context interrupts the ninth slot at inspection time 10 s, before
 learned commands. Its incomplete recording, allocation and healthy two-second
 stop remain; the same frozen slot completes after restored clean availability.
@@ -114,9 +124,11 @@ comparing ACT loss to Diffusion MSE. The original frozen panel remains unchanged
 qualified-data continuation. A prospective functional assessment chooses all four
 latest common stopped states, before any new-data closed-loop outcomes. Guarded
 best checkpoints remain separate controls; this cohort does not claim development
-selection or generalization. The four30k hashes are now frozen. The maintainedACTA1 right/nominal integration
-executes actual learned commands and reaches independently valid contact; its
-complete task and stop audit remain pending, with no full24 freeze yet. Placement, references, controller, physics
+selection or generalization. The four30k hashes and common24 protocol are now frozen after actual integration
+and stop audits. The1,757-command first failure is included, with no favorable
+retry. Its measured667.922GPU-second allocation and0.628GiB evidence yield a
+14.669-hour scenario for the remaining23 full9000-tick runs, scaling only the
+learned loop. This is not a runtime guarantee. Placement, references, controller, physics
 and success criteria remain unchanged. Development contains two lighting variants of one motion, not an
 independent-trajectory or generalization demonstration.
 
