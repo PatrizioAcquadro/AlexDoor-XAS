@@ -130,6 +130,30 @@ extrapolating all remaining 23 slots to 9,000 ticks gives 14.76 GPU hours, an
 explicit scenario rather than a guarantee. The remaining panel continues under
 actual cumulative guards. No outcome from another version substitutes for a slot.
 
+A matched 4,400-to-12,000 continuation is now prepared for all four combinations:
+30,400 additional updates, same two eligible train episodes, seed, optimizer/RNG/EMA,
+normalization and learned RGB-D recipe. The first two frozen 4,400 outcomes fail
+before contact (488 commands right; 2,243 left, ending at the orientation guard),
+and train ACT normalized L1 remains about 0.069/0.071. Longer optimization is a
+prospective common test, not a claimed solution or favorable restart. The original
+24-outcome version continues without changing its checkpoints.
+
+Gilbreth job `11975638` stays pending at `AssocGrpGRES` and is cancelled only after
+the current simulation episode releases the shared GPU leases. Authoritative Slurm
+accounting confirms zero allocated seconds and no updates. Gautschi access and the
+existing Python 3.11 / PyTorch CUDA 12.6 environment work; H100 test-only submission
+requires 14 CPUs per GPU and automatic proportional memory. Its predicted start
+is October 23, so no duplicate H100 job is submitted. The user's H100 permission
+extends the allowed training hosts; the 32 remote GPU hours remain a shared
+cumulative cap. Both rejected resource declarations are zero-allocation preflights.
+
+The same continuation is queued on the explicitly authorized RTX, between panel
+episodes, using all shared leases and the RAM/foreign-compute guards. It uses one
+CUDA context and the byte-identical train-only compact cache. The next frozen
+version will require all four complete states, local CUDA loading and separate
+frozen development inference before any learned panel. No new demonstrations,
+seed changes, development training or physical-controller changes are introduced.
+
 ## Left position-domain prerequisite
 
 The original ACT A1 left refusal is a joint-position envelope exit: elbow

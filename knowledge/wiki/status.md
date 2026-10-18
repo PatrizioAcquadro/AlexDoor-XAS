@@ -15,8 +15,8 @@ An additional ACT A1 right/dim inspection is interrupted by a foreign RustDesk
 GPU process before any learned command. Its allocation, raw recording and
 continuing-physics stop are retained. No completed outcome is retried.
 
-The current cumulative authorization is **40 local GPU hours, 32 Gilbreth GPU
-hours, 100,000 optimizer updates, 1 TiB retained pilot evidence and 24 demonstration
+The current cumulative authorization is **40 local GPU hours, 32 remote GPU
+hours across Gilbreth and authorized Gautschi H100s, 100,000 optimizer updates, 1 TiB retained pilot evidence and 24 demonstration
 attempts**, including every previous allocation and failure. At the authorization
 change, remote use is 3,503 GPU seconds, optimizer consumption is at most 17,964
 (including 200 possibly lost updates), and six demonstrations are consumed.
@@ -32,9 +32,9 @@ owners before loading A2 and reserving 12 GiB of host RAM. Full CUDA evaluation
 peaks at 26.206 GiB with at least 27.787 GiB available; previous partial metrics,
 failed allocations and conservative charges remain retained.
 
-The common `full-v8-4400` panel is frozen. Its first complete outcome, ACT A1
-right/nominal, executes 488 learned commands and stops at the contact-acquisition
-budget without contact or opening. Retention and continuing-physics stop pass,
+The common `full-v8-4400` panel is frozen. Its first two complete ACT A1 outcomes
+execute 488 commands right and 2,243 left, then stop without contact or opening
+at contact-acquisition and orientation guards respectively. Retention and continuing-physics stop pass,
 with no physical violation. The remaining fixed slots continue; no learned task
 success is established. A preceding inspection-only attempt is an explicit
 incomplete infrastructure failure caused by a Chrome graphics-PID classification
@@ -42,8 +42,11 @@ bug; it executes zero learned commands and remains in raw-attempt accounting.
 Normal recognized desktop graphics no longer block sufficient GPU capacity;
 foreign compute, unknown graphics, shared leases and host/GPU memory guards remain.
 The physical runtime, checkpoint versions, protocol and acceptance criteria are
-unchanged. Further comparable training or eligible collection must respond to
-measured errors and use a separately frozen evaluation version.
+unchanged. A matched 4,400-to-12,000 continuation is queued on the authorized RTX between
+episodes after zero-allocation Gilbreth cancellation; Gautschi H100 access is
+verified but its test-only queue estimate is October 23. Same data, seed and
+optimizer/RNG/EMA are retained, with 30,400 updates reserved. A separate frozen
+version is required before evaluating those future checkpoints.
 
 An unconditional left elbow position-domain extension is rejected after an
 independent 8 N lateral-load stop exceeds the original travel/speed criteria.
