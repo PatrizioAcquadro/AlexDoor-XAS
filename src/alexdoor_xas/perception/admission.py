@@ -117,6 +117,7 @@ class ActionAdmission:
     estimate: DoorEstimate | None = None
     limits: ActionLimits | None = None
     local_evidence: "LocalActionSupport | None" = None
+    decision: dict | None = None
 
 
 def admit_action(estimate, proposal, hypotheses, limits, now, *, generation):

@@ -143,7 +143,11 @@ class PilotMotionEvidence:
         except (ValueError, TypeError, AttributeError, IndexError) as error:
             result = ActionAdmission(False, False, str(error))
         diagnostics.update(
-            admitted=result.admitted, reason=result.reason, wall_s=perf_counter() - started
+            admitted=result.admitted,
+            reason=result.reason,
+            margins_m=result.margins_m,
+            decision=result.decision,
+            wall_s=perf_counter() - started,
         )
         self.last = json_safe(diagnostics)
         self.log.write(json.dumps(self.last, allow_nan=False) + "\n")
@@ -602,7 +606,9 @@ class PilotMotionEvidence:
         # independently checked full robot sweep and stopping volumes above.
         motion_q_lower = np.array([positions[name] - joint_travel[name] for name in ARM_JOINTS])
         self.load_calibration.require_position_motion_support(
-            motion_q_lower, contact_free_stop_margin_m=contact_free_stop_margin
+            motion_q_lower,
+            contact_free_stop_margin_m=contact_free_stop_margin,
+            motion_q_upper=np.array([positions[name] + joint_travel[name] for name in ARM_JOINTS]),
         )
         loaded = bool(separation <= 0)
         support = FieldSupport(now, now, now, observation.generation, *self.config["camera_bound"])
@@ -723,7 +729,22 @@ def observed_pilot_runtime(env, binding, robot_asset, setup, config_path, output
     load_log = (Path(output) / "operational-load.jsonl").open("x")
 
     def load_source(io, feedback):
-        load = measured_load(io, feedback)
+        try:
+            load = measured_load(io, feedback)
+        except ValueError as error:
+            load_log.write(
+                json.dumps(
+                    dict(
+                        time_s=feedback.timestamp_s,
+                        reason=str(error),
+                        decision=getattr(error, "decision", None),
+                    ),
+                    allow_nan=False,
+                )
+                + "\n"
+            )
+            load_log.flush()
+            raise
         load_log.write(
             json.dumps(
                 dict(
@@ -732,6 +753,8 @@ def observed_pilot_runtime(env, binding, robot_asset, setup, config_path, output
                     force_upper_n=load.force_upper_n,
                     normal_lower_n=load.normal_lower_n,
                     normal_samples=load.normal_samples,
+                    position_halo=load.position_halo,
+                    stop_force_limit_n=config["stop_force_domain_n"],
                     model_verified=load.model_verified,
                     stop_verified=load.stop_verified,
                 )

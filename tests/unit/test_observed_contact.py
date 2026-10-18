@@ -302,7 +302,9 @@ def test_contact_model_error_spends_material_margin_not_independent_static_robot
     )
     result = monitor().update(*values[:-1], receipt)
     assert result.status == "seeking"
-    narrow = replace(receipt, margins_m=(("contact", 0.001), ("independent_robot_sweep", 0.1)))
+    extra = result.decision["additional_tangent_uncertainty_m"]
+    assert 0 < extra < monitor().config.normal_model_bound_m
+    narrow = replace(receipt, margins_m=(("contact", extra / 2), ("independent_robot_sweep", 0.1)))
     result = monitor().update(*values[:-1], narrow)
     assert result.status == "unavailable"
     assert result.reason == "contact_uncertainty_exceeds_admitted_margin"
@@ -520,3 +522,45 @@ def test_current_orientation_uses_measured_fk_error_not_future_controller_respon
         assert checks.last_failure["current_robot_rotation_bound_rad"] == (
             0.08 if fk_bound is None else fk_bound
         )
+
+
+@pytest.mark.parametrize("fraction,blocked", [(0.99, True), (1.0, True), (1.01, False)])
+def test_projected_normal_error_boundary_and_complete_normal_interval(fraction, blocked):
+    values = inputs(1.0)
+    receipt = values[-1]
+    receipt = replace(
+        receipt,
+        local_evidence=replace(
+            receipt.local_evidence,
+            swept_collision_margin_m=0.0001,
+        ),
+    )
+    m = monitor()
+    nominal = m.update(*values[:-1], receipt)
+    tangent = nominal.decision["additional_tangent_uncertainty_m"]
+    projected = replace(receipt, margins_m=(("contact", tangent * fraction),))
+    result = monitor().update(*values[:-1], projected)
+    assert (result.status == "unavailable") is blocked
+    if blocked:
+        assert result.reason == "contact_uncertainty_exceeds_admitted_margin"
+        assert result.decision["material_margin_m"] == tangent * fraction
+    else:
+        assert result.uncertainty_m == nominal.uncertainty_m
+        assert result.uncertainty_m >= m.config.normal_model_bound_m
+
+
+def test_missing_material_receipt_is_distinct_from_insufficient_margin():
+    values = inputs(1.0)
+    receipt = replace(values[-1], margins_m=(("independent_robot_sweep", 0.1),))
+    result = monitor().update(*values[:-1], receipt)
+    assert result.status == "unavailable"
+    assert result.reason == "missing_local_material_margin"
+    assert result.decision["material_margin_m"] is None
+
+
+def test_normal_error_retains_isotropic_fallback_without_independent_collision_proof():
+    values = inputs(1.0)
+    receipt = replace(values[-1], margins_m=(("contact", 0.001),))
+    result = monitor().update(*values[:-1], receipt)
+    assert result.reason == "contact_uncertainty_exceeds_admitted_margin"
+    assert result.decision["additional_tangent_uncertainty_m"] == 0.008

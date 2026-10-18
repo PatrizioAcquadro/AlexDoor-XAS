@@ -28,7 +28,7 @@ class PilotEvaluation:
         self.hold_start = self.last_time = None
         self.hold_valid = self.released = self.release_attempted = False
         self.was_loaded = False
-        self.contact_losses = self.learned_commands = 0
+        self.contact_losses = self.learned_commands = self.reference_commands = 0
         self.violations = set()
         self.peak_force_n = 0.0
         self.raw_max_angle_rad = 0.0
@@ -47,8 +47,9 @@ class PilotEvaluation:
         loaded = self.load.update(t, float(np.mean(force)), gap)
         self.peak_force_n = max(self.peak_force_n, max(force, default=0.0))
         self.violations.update(row["physical_violations"])
-        commanded = bool(row["learned_command"])
-        self.learned_commands += int(commanded)
+        self.learned_commands += int(bool(row["learned_command"]))
+        self.reference_commands += int(bool(row.get("reference_command", False)))
+        commanded = bool(row["learned_command"] or row.get("reference_command", False))
         valid = bool(
             loaded
             and not row["physical_violations"]
@@ -99,15 +100,19 @@ class PilotEvaluation:
 
     def result(self):
         angle = 0.0 if self.window.maximum is None else float(self.window.maximum)
+        complete = bool(
+            angle >= self.required_angle
+            and self.hold_valid
+            and self.released
+            and not self.violations
+            and self.contact_losses == 0
+        )
         return dict(
-            task_success=bool(
-                self.learned_commands
-                and angle >= self.required_angle
-                and self.hold_valid
-                and self.released
-                and not self.violations
-                and self.contact_losses == 0
+            task_success=bool(self.learned_commands and not self.reference_commands and complete),
+            reference_cycle_success=bool(
+                self.reference_commands and not self.learned_commands and complete
             ),
+            reference_commands=self.reference_commands,
             raw_max_opening_deg=float(np.rad2deg(self.raw_max_angle_rad)),
             controlled_opening_deg=float(np.rad2deg(angle)),
             expert_reference_deg=self.reference_deg,
@@ -122,7 +127,9 @@ class PilotEvaluation:
         )
 
 
-def physical_row(env, door, setup, time_s, applied_goal, *, learned_command):
+def physical_row(
+    env, door, setup, time_s, applied_goal, *, learned_command, reference_command=False
+):
     """Evaluator-only extraction. Prepared geometry never returns through robot IO."""
     from alexdoor_xas.recording.b1_runtime import array
 
@@ -196,4 +203,5 @@ def physical_row(env, door, setup, time_s, applied_goal, *, learned_command):
             None if applied_goal is None else float(np.linalg.norm(applied_goal.origin - position))
         ),
         learned_command=bool(learned_command),
+        reference_command=bool(reference_command),
     )

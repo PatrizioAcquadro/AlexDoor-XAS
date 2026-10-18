@@ -59,6 +59,7 @@ class ContactEvidence:
     directly_observed: bool = False
     acquisition_started_s: float | None = None
     acquisition_travel_m: float = 0.0
+    decision: dict | None = None
 
 
 class ObservedContactMonitor:
@@ -140,10 +141,22 @@ class ObservedContactMonitor:
                 acquisition_travel_m=self.seek_travel_m,
             )
             return self.result
+        decision = {}
         try:
             checked_pose(tool)
-            require_current_admission(admission, estimate, now)
             patch = validate_local_contact(estimate.local, now)
+            available = (
+                []
+                if admission is None
+                else [float(v) for name, v in admission.margins_m if name == patch.patch_id]
+            )
+            decision = dict(
+                material_id=patch.patch_id,
+                material_margin_m=available[0] if len(available) == 1 else None,
+                normal_model_bound_m=self.config.normal_model_bound_m,
+                numerical_tolerance_m=0.0,
+            )
+            require_current_admission(admission, estimate, now)
             if admission.local_evidence is None:
                 raise ValueError("missing_local_contact_admission")
             if patch.tracking_state != "tracking" or patch.ownership not in (
@@ -224,19 +237,46 @@ class ObservedContactMonitor:
             margins = [
                 float(value) for name, value in admission.margins_m if name == patch.patch_id
             ]
-            # The receipt already charges geometry, pose and robot uncertainty.
-            # Only the additional visible/collision-model discrepancy is absent
-            # from that receipt. Do not spend the shared bounds a second time.
+            # Material margins are in the tangent plane. A normal discrepancy
+            # spends only its tangential projection when independent whole-robot
+            # collision/stop evidence exists. Keep the full normal interval above.
+            normal_angle = patch.geometry_support.rotation_bound_rad + support.rotation_bound_rad
+            directional = admission.local_evidence.swept_collision_margin_m is not None
+            extra = self.config.normal_model_bound_m * (
+                np.sin(min(normal_angle, np.pi / 2)) if directional else 1.0
+            )
             whole_robot_free = (
                 not admission.proposal.loaded
                 and admission.local_evidence.unloaded_separation_margin_m is not None
             )
-            if not whole_robot_free and (
-                not margins
-                or not np.isfinite(margins).all()
-                or self.config.normal_model_bound_m >= min(margins)
-            ):
-                raise ValueError("contact_uncertainty_exceeds_admitted_margin")
+            decision = dict(
+                material_id=patch.patch_id,
+                material_margin_m=margins[0] if len(margins) == 1 else None,
+                normal_model_bound_m=self.config.normal_model_bound_m,
+                normal_direction_bound_rad=float(normal_angle),
+                additional_tangent_uncertainty_m=float(extra),
+                numerical_tolerance_m=0.0,
+                directional_projection=directional,
+                independent_robot_sweep_margin_m=(
+                    admission.local_evidence.swept_collision_margin_m
+                ),
+                whole_robot_free=whole_robot_free,
+                admission_decision=admission.decision,
+                normal_uncertainty_terms_m=dict(
+                    model=self.config.normal_model_bound_m,
+                    material_position=(
+                        patch.normal_position_bound_m
+                        if patch.normal_position_bound_m is not None
+                        else patch.geometry_support.position_bound_m + support.position_bound_m
+                    ),
+                    total=float(uncertainty),
+                ),
+            )
+            if not whole_robot_free:
+                if len(margins) != 1 or not np.isfinite(margins).all():
+                    raise ValueError("missing_contact_material_margin")
+                if extra >= margins[0]:
+                    raise ValueError("contact_uncertainty_exceeds_admitted_margin")
             relative = (tool.origin - patch.world_pose.origin) @ patch.world_pose.rot
             if self.last is not None and now > self.last[0]:
                 allowed = (
@@ -354,11 +394,12 @@ class ObservedContactMonitor:
                 uncertainty + max(abs(x) for x in depth_range),
                 acquisition_started_s=self.seek_started,
                 acquisition_travel_m=self.seek_travel_m,
+                decision=decision,
             )
             return self.result
         except (ValueError, TypeError, AttributeError, IndexError) as error:
             self.confirm_started = None
             if self.established:
                 self.latched_reason = str(error)
-            self.result = ContactEvidence("unavailable", str(error), now)
+            self.result = ContactEvidence("unavailable", str(error), now, decision=decision)
             return self.result

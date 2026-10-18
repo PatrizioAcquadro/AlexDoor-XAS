@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-operational-tolerances|ACT A1 Operational Tolerances]] — Bounded empirical-position and directional material-margin diagnosis; fixed checkpoint and separately scored reference execution.
+
 - [[experiments/b1-end-to-end-pilot-resume|Resumed End-to-End Pilot]] — Paused, incomplete learned simulation pilot; frozen outcomes, safe stop and reconciled resource accounting.
 
 - [[experiments/b1-observed-contact-certificate|Observed Contact Certificate Study]] — Three fixed current-placement camera diagnostics; signed distance component remains unqualified, tool-center/contact semantics separated and six prerequisite cases unspent.

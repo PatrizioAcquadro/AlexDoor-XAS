@@ -52,14 +52,13 @@ class LocalActionSupport:
     unloaded_temporal_bound_m_rad: tuple[float, float] | None = None
 
 
-def _local_error(patch, evidence, limits, now, duration):
+def _local_error_terms(patch, evidence, limits, now, duration):
     """Same finite footprint, material-response and stopping bound for a receipt."""
     radius = nonnegative(evidence.footprint_radius_m, "unmeasured_footprint_radius")
     response = nonnegative(evidence.response_position_bound_m, "unmeasured_material_response")
     response_rotation = nonnegative(
         evidence.response_rotation_bound_rad, "unmeasured_material_response"
     )
-    supports = (patch.geometry_support, patch.pose_support, evidence.support)
     age = now - min(
         patch.pose_support.supported_s,
         patch.identity_support.supported_s,
@@ -75,18 +74,29 @@ def _local_error(patch, evidence, limits, now, duration):
     temporal = limits.relative_speed_bound_m_s * (age + duration) - min(
         limits.relative_speed_bound_m_s * age, paid or 0.0
     )
-    return (
-        sum(s.position_bound_m for s in supports)
-        + limits.robot_position_bound_m
-        + sum(rotational_travel(radius, s.rotation_bound_rad) for s in supports)
-        + rotational_travel(radius, limits.robot_rotation_bound_rad + response_rotation)
-        + response
-        + temporal
-        + limits.stop_travel_m
+    return dict(
+        geometry_position_m=patch.geometry_support.position_bound_m,
+        pose_position_m=patch.pose_support.position_bound_m,
+        sweep_position_m=evidence.support.position_bound_m,
+        robot_position_m=limits.robot_position_bound_m,
+        geometry_rotation_m=rotational_travel(radius, patch.geometry_support.rotation_bound_rad),
+        pose_rotation_m=rotational_travel(radius, patch.pose_support.rotation_bound_rad),
+        sweep_rotation_m=rotational_travel(radius, evidence.support.rotation_bound_rad),
+        robot_and_response_rotation_m=rotational_travel(
+            radius, limits.robot_rotation_bound_rad + response_rotation
+        ),
+        response_m=response,
+        temporal_m=temporal,
+        stop_m=limits.stop_travel_m,
     )
 
 
+def _local_error(patch, evidence, limits, now, duration):
+    return sum(_local_error_terms(patch, evidence, limits, now, duration).values())
+
+
 def admit_local_action(estimate, proposal, evidence, limits, now, *, generation):
+    decision = {}
     try:
         state = estimate.local
         patch = validate_local_contact(state, now, generation=generation)
@@ -185,7 +195,17 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             elif nonnegative(sweep_margin, "invalid_robot_sweep_margin") <= 0:
                 raise ValueError("insufficient_robot_sweep_margin")
             clearance = min(nonnegative(v, "missing_relevant_clearance") for v in values)
-            error = _local_error(patch, evidence, limits, now, duration)
+            terms = _local_error_terms(patch, evidence, limits, now, duration)
+            error = sum(terms.values())
+            decision = dict(
+                material_id=patch.patch_id,
+                finger_clearance_m=evidence.finger_clearance_m,
+                applicable_clearance_m=clearance,
+                uncertainty_terms_m=terms,
+                total_uncertainty_m=error,
+                material_margin_m=clearance - error,
+                numerical_tolerance_m=0.0,
+            )
             if clearance <= error:
                 raise ValueError("insufficient_local_action_margin")
             if (
@@ -195,7 +215,7 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             ):
                 raise ValueError("unloaded_contact_not_excluded")
     except (ValueError, TypeError, AttributeError, IndexError) as error:
-        return ActionAdmission(False, False, str(error))
+        return ActionAdmission(False, False, str(error), decision=decision)
     return ActionAdmission(
         True,
         False,
@@ -206,6 +226,7 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
         deepcopy(estimate),
         limits,
         deepcopy(evidence),
+        decision=deepcopy(decision),
     )
 
 

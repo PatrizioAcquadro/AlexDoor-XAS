@@ -124,3 +124,22 @@ def test_missing_native_feedback_is_explicitly_unavailable():
     score = holding()
     with pytest.raises(ValueError, match="two native"):
         score.update(row(211 / 60, native_force_n=[], native_gap_m=[]))
+
+
+def test_reference_cycle_uses_same_requirements_and_never_counts_as_learned_success():
+    score = PilotEvaluation(ProbeSetup(), 50.0, 1 / 60)
+    for tick in range(1, 231):
+        changed = dict(learned_command=False, reference_command=True)
+        if tick > 210:
+            changed.update(
+                native_force_n=[0.0, 0.0],
+                native_gap_m=[None, None],
+                commanded_withdrawal=True,
+                applied_withdrawal_m=0.02,
+                surface_separation_m=0.02,
+            )
+        score.update(row(tick / 60, **changed))
+    result = score.result()
+    assert result["reference_cycle_success"]
+    assert result["learned_commands"] == 0 and result["reference_commands"] == 230
+    assert not result["task_success"]

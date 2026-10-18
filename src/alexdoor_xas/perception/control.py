@@ -227,6 +227,11 @@ class ObservedPurdueSafety:
                 else None
             )
         except (ValueError, RuntimeError, TypeError, AttributeError) as error:
+            self.checks.last_failure = dict(
+                time_s=feedback.timestamp_s,
+                reason=str(error),
+                decision=getattr(error, "decision", None),
+            )
             return f"load_estimation_failed: {error}"
         return self.checks.check(
             {key: array(value) for key, value in io.observe().items()},

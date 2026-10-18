@@ -58,6 +58,11 @@ def main(argv=None):
     parser.add_argument("--space", choices=("A1_joint_delta", "A2_ee_delta"))
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument(
+        "--reference-recording",
+        type=Path,
+        help="Diagnostic A1 command replay through the same operational checks; no learned success",
+    )
+    parser.add_argument(
         "--operational-recipe",
         type=Path,
         help="Measured observed perception/load/motion recipe for real rollout",
@@ -74,6 +79,8 @@ def main(argv=None):
         help="Historical recipe identity; must agree with the protocol and checkpoint",
     )
     args = parser.parse_args(argv)
+    if args.reference_recording is not None and (args.mode != "rollout" or args.family != "act"):
+        parser.error("Reference diagnostic requires rollout with the fixed ACT A1 checkpoint")
     protocol = json.loads(args.protocol.read_text())
     from alexdoor_xas.policies.encoding import LEARNED_RECIPE, protocol_recipe
 
@@ -381,7 +388,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
     from alexdoor_xas.policies.encoding import pilot_binding
     from alexdoor_xas.policies.pilot_runtime import observed_pilot_runtime
     from alexdoor_xas.policies.purdue import contact_status
-    from alexdoor_xas.policies.rollout import B1Runner
+    from alexdoor_xas.policies.rollout import B1Runner, MatchedReplay
     from alexdoor_xas.qualification.pilot_evaluation import PilotEvaluation, physical_row
     from alexdoor_xas.recording.b1 import PHASES
     from alexdoor_xas.recording.b1_runtime import array
@@ -403,10 +410,45 @@ def rollout(env, args, protocol, robot, setup, inspection):
     observer, io, geometry, motion, load_log, contact_log = observed_pilot_runtime(
         env, binding, robot, setup, args.operational_recipe, args.output, policy.action_space
     )
+    reference_mode = args.reference_recording is not None
+    if reference_mode:
+        import h5py
+
+        from alexdoor_xas.action.spaces import A1_JOINT_DELTA
+
+        if policy.action_space != A1_JOINT_DELTA:
+            raise ValueError("Reference diagnostic requires fixed ACT A1")
+        with h5py.File(args.reference_recording, "r") as source:
+            if not bool(source.attrs.get("complete", False)):
+                raise ValueError("Incomplete reference recording")
+            metadata = json.loads(source["metadata"].attrs["episode"])
+            if metadata["asset_id"] != args.asset_id:
+                raise ValueError("Reference asset differs from the declared diagnostic")
+            commands = source["commands"]
+            times = commands["time_s"][:]
+            # The recording contains inspection targets too. Reference actions
+            # start after the runner's unchanged common inspection schedule.
+            start = inspection["waypoints"][-1][0] + binding.config["warmup_s"]
+            use = times >= start - 1e-8
+            targets = commands["joint_target"][:][use]
+            if targets.shape != (int(use.sum()), 7):
+                raise ValueError("Reference commands require seven ordered arm targets")
+            measured = source["observations/joint_position"][: len(times)][use, :7]
+            record = SimpleNamespace(times=times[use], actions=targets - measured)
+        dataset = SimpleNamespace(
+            by_id=lambda _: record,
+            binding=binding,
+            robot_asset=robot,
+            action_space=A1_JOINT_DELTA,
+        )
+        policy = MatchedReplay(dataset, "reference")
     recording = RolloutWriter(
         args.output / "rollout.hdf5",
         dict(
-            purpose="learned_rollout_evaluation",
+            purpose="operational_reference_diagnostic"
+            if reference_mode
+            else "learned_rollout_evaluation",
+            reference_recording=str(args.reference_recording) if reference_mode else None,
             family=args.family,
             checkpoint=str(args.checkpoint),
             action_space=policy.action_space,
@@ -462,7 +504,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
             kind=np.int8(kind),
             request=request,
             request_width=np.int8(width),
-            learned=np.bool_(command is not None),
+            learned=np.bool_(command is not None and not reference_mode),
             submitted_tool_position=np.full(3, np.nan) if goal is None else goal.origin.copy(),
             submitted_tool_rotation=np.full((3, 3), np.nan) if goal is None else goal.rot.copy(),
             stage=np.int8(-1 if stage is None else PHASES.index(stage)),
@@ -501,6 +543,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
                 float(sensor["time_s"]),
                 applied_evaluation_goal,
                 learned_command=bool(pending["learned"]),
+                reference_command=bool(reference_mode and pending["request_width"] > 0),
             )
             independent.update(evaluation.update(physical) if evaluation is not None else physical)
         evaluator_states.write(json.dumps(json_safe(independent), allow_nan=False) + "\n")
@@ -610,7 +653,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
 
     io.hold_step = measured_hold
     observer.update = measured_update
-    predict, prediction_ms = policy.predict, []
+    predict, prediction_ms = (None if reference_mode else policy.predict), []
 
     def measured_predict(features):
         # Preserve the actual causal vector before inference, even if it fails.
@@ -647,20 +690,28 @@ def rollout(env, args, protocol, robot, setup, inspection):
             np.save(args.output / "first-policy-prediction.npy", chunk, allow_pickle=False)
         return chunk
 
-    policy.predict = measured_predict
+    if not reference_mode:
+        policy.predict = measured_predict
     runner = B1Runner(
-        policy, observer, io, n_action_steps=protocol["replan_ticks"], admission_source=motion
+        policy,
+        observer,
+        io,
+        n_action_steps=None if reference_mode else protocol["replan_ticks"],
+        admission_source=motion,
     )
     try:
         result = runner.run(
-            max_ticks=protocol["rollout_max_ticks"], seed=protocol["inference_seed"]
+            max_ticks=(policy.control_ticks if reference_mode else protocol["rollout_max_ticks"]),
+            seed=protocol["inference_seed"],
         )
         physical_result = None if evaluation is None else evaluation.result()
+        success_key = "reference_cycle_success" if reference_mode else "task_success"
         recording.finish(
             dict(
-                passed=False if physical_result is None else physical_result["task_success"],
+                passed=False if physical_result is None else physical_result[success_key],
                 termination=result.reason,
-                learned_commands=result.control_steps,
+                learned_commands=0 if reference_mode else result.control_steps,
+                reference_commands=result.control_steps if reference_mode else 0,
                 physical_evaluation=(
                     "unavailable_frozen_reference" if physical_result is None else physical_result
                 ),
@@ -689,15 +740,24 @@ def rollout(env, args, protocol, robot, setup, inspection):
         recording_ms=recording_ms,
     )
     return dict(
-        passed=False if physical_result is None else physical_result["task_success"],
+        passed=False if physical_result is None else physical_result[success_key],
         physical_evaluation=physical_result,
         runner=asdict(result),
         family=args.family,
         action_space=policy.action_space,
         checkpoint=str(args.checkpoint),
-        scope="operational_rollout_attempt_no_admission_bypass",
+        scope=(
+            "operational_reference_diagnostic"
+            if reference_mode
+            else "operational_rollout_attempt_no_admission_bypass"
+        ),
+        reference_recording=str(args.reference_recording) if reference_mode else None,
+        reference_commands=result.control_steps if reference_mode else 0,
+        reference_cycle_success=(
+            False if physical_result is None else physical_result["reference_cycle_success"]
+        ),
         inspection_ticks=len(rows),
-        policy_commands=result.control_steps,
+        policy_commands=0 if reference_mode else result.control_steps,
         retained_inputs="rollout.hdf5",
         first_policy_input="first-policy-input.npz" if prediction_ms else None,
         first_policy_prediction="first-policy-prediction.npy" if prediction_ms else None,

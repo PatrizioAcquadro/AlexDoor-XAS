@@ -799,3 +799,91 @@ def test_position_motion_guard_only_applies_to_the_extended_joint():
     lower[3] = -1.1
     with pytest.raises(ValueError, match="weak_position_requires_contact_free_motion_and_stop"):
         calibration.require_position_motion_support(lower, contact_free_stop_margin_m=None)
+
+
+@pytest.mark.parametrize(
+    "qvalue,accepted",
+    [
+        (1.0, True),
+        (1.004, True),
+        (1.00425, True),
+        (1.004251, False),
+        (-1.00425, True),
+        (-1.004251, False),
+    ],
+)
+def test_position_halo_boundary_preserves_unclipped_load_estimate(qvalue, accepted):
+    from alexdoor_xas.perception.load import LoadEnvelopeError
+
+    model, jac, nominal = load_inputs()
+    model = ResidualLoadModel(
+        replace(
+            model.calibration,
+            position_tolerance_rad=np.full((2, 7), 0.00425),
+            position_halo_force_upper_max_n=5.0,
+        )
+    )
+    q = np.full(7, qvalue)
+    args = (nominal.feedback, np.zeros(7), jac, q, np.zeros(7), np.zeros(7), [1, 0, 0])
+    if accepted:
+        load = model.estimate(*args)
+        np.testing.assert_array_equal(load.wrench, nominal.wrench)
+        np.testing.assert_array_equal(load.residual_bound_nm, nominal.residual_bound_nm)
+    else:
+        with pytest.raises(LoadEnvelopeError) as caught:
+            model.estimate(*args)
+        value = caught.value.decision["violations"][0]
+        assert value["measured"] == qvalue and value["tolerance"] == 0.00425
+        assert value["quantity"] == "position_rad"
+
+
+@pytest.mark.parametrize("quantity", ["speed", "acceleration"])
+def test_position_halo_cannot_relax_motion_envelopes(quantity):
+    model, jac, nominal = load_inputs()
+    model = ResidualLoadModel(
+        replace(
+            model.calibration,
+            position_tolerance_rad=np.full((2, 7), 0.00425),
+            position_halo_force_upper_max_n=5.0,
+        )
+    )
+    dq = np.full(7, 1.00001) if quantity == "speed" else np.zeros(7)
+    ddq = np.full(7, 1.00001) if quantity == "acceleration" else np.zeros(7)
+    with pytest.raises(ValueError, match="outside_verified_load_envelope"):
+        model.estimate(nominal.feedback, np.zeros(7), jac, np.zeros(7), dq, ddq, [1, 0, 0])
+
+
+def test_position_halo_does_not_extend_the_opposite_unverified_boundary():
+    model, jac, nominal = load_inputs()
+    allowance = np.zeros((2, 7))
+    allowance[1, 6] = 0.00425
+    model = ResidualLoadModel(
+        replace(
+            model.calibration, position_tolerance_rad=allowance, position_halo_force_upper_max_n=5.0
+        )
+    )
+    q = np.zeros(7)
+    q[6] = -1.000001
+    with pytest.raises(ValueError, match="outside_verified_load_envelope"):
+        model.estimate(nominal.feedback, np.zeros(7), jac, q, np.zeros(7), np.zeros(7), [1, 0, 0])
+
+
+def test_position_halo_refuses_stronger_load_and_requires_future_free_stop():
+    model, jac, nominal = load_inputs()
+    allowance = np.zeros((2, 7))
+    allowance[1, 6] = 0.00425
+    calibration = replace(
+        model.calibration, position_tolerance_rad=allowance, position_halo_force_upper_max_n=1.0
+    )
+    model = ResidualLoadModel(calibration)
+    q = np.zeros(7)
+    q[6] = 1.001
+    with pytest.raises(ValueError, match="outside_verified_load_envelope"):
+        model.estimate(nominal.feedback, np.zeros(7), jac, q, np.zeros(7), np.zeros(7), [1, 0, 0])
+    with pytest.raises(ValueError, match="requires_contact_free_motion_and_stop"):
+        calibration.require_position_motion_support(
+            np.zeros(7), motion_q_upper=q, contact_free_stop_margin_m=0.0
+        )
+    calibration.require_position_motion_support(
+        np.zeros(7), motion_q_upper=q, contact_free_stop_margin_m=0.001
+    )

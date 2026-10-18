@@ -1,7 +1,8 @@
 # B1 Policy Pilot
 
 The maintained pilot uses ACT/Diffusion × A1/A2 with `rgbd-conv-v1`, observed RGB-D
-and proprioception. It remains paused and incomplete. No final matched A1–A4 dataset,
+and proprioception. The full panels remain deferred and incomplete; the user has
+authorized a bounded ACT A1 operational-check diagnostic. No final matched A1–A4 dataset,
 perception release or full learned opening/hold/release result is delivered.
 [[../status|Project status]] owns current panels and resource accounting;
 [[../experiments/b1-end-to-end-pilot-resume|the end-to-end experiment]] preserves all
@@ -170,3 +171,25 @@ The pilot remains paused. Further training, collection, simulation or physical
 panels require new instructions after review. Software regressions, numerical
 math and checkpoint compatibility do not establish physical success, perception
 qualification, real-time operation or generalization.
+
+
+## Operational tolerance diagnostics
+
+Empirical load position extrema are separate from physical joint limits.
+`LoadCalibration.position_tolerance_rad` supplies independently validated lower/
+upper allowances by joint, default zero, with an explicit force domain. Actual
+robot q and Jacobian are used unchanged. Weak support cannot qualify future loaded
+motion or stopping outside the main domain without observed free-space evidence.
+Refusals carry numeric measurement/limit/allowance details.
+
+Contact material margins measure lateral footprint support. With an independent
+robot collision/stop receipt, only the tangential projection of the extra normal
+model discrepancy spends that margin; the full normal uncertainty remains in the
+separation interval. Logs retain material margin and uncertainty terms, separately
+from the whole-robot sweep residual. Missing support remains a refusal.
+
+An explicit `pilot_physics.py rollout --reference-recording PATH` uses the same
+operational runner and checks for a recorded A1 diagnostic. The fixed checkpoint
+still establishes compatibility; replay commands are non-learned. Independent
+scoring reports `reference_cycle_success` and never counts it as learned success.
+See [[../experiments/b1-operational-tolerances|measurements, failures and limits]].

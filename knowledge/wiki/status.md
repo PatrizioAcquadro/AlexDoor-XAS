@@ -92,3 +92,16 @@ and checkpoints. New production uses `rgbd-conv-v1`; historical grid inputs rema
 readable. The initial numerical protocol and completed preprocessing comparison
 launchers are retired at `8bbeefe`. See [[topics/b1-policy-pilot|current interfaces]]
 and [[experiments/b1-end-to-end-pilot-resume|complete outcomes, budgets and pause]].
+
+
+## Bounded ACT A1 operational-check investigation
+
+New user authorization on 2026-10-18 permits the scoped position-calibration and
+right-door contact-margin diagnosis, focused tests and bounded reference GPU
+execution. The full panels and other policy combinations remain deferred; no
+training resumes. The fixed ACT A1 checkpoint and every previous outcome remain.
+Directional material-margin accounting and numeric refusal diagnostics are
+implemented. Saved right-reference replay has no first operational refusal;
+strong-load position support is rejected by measured error/stop failures. Weak
+support and fresh complete reference execution remain under assessment. See
+[[experiments/b1-operational-tolerances|current bounded evidence and limits]].
