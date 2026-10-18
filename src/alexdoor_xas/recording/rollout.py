@@ -43,6 +43,9 @@ class RolloutWriter:
         )
         for name in ("captures", "control", "commands", "physics_feedback", "evaluator"):
             self.file.create_group(name)
+        # Keep dataset handles alive so their bounded chunk caches survive
+        # between rows. Reopening per value recompresses partial image tiles.
+        self._columns = {name: {} for name in self.file if name != "metadata"}
         self.dt, self.period = control_dt, image_period_s
         self.last_time = self.last_frame = self.last_capture_s = None
         self.captures = {}
@@ -52,7 +55,7 @@ class RolloutWriter:
 
     def append(self, group, values):
         """Numeric columns have stable shape; descriptions live in metadata/sidecars."""
-        target = self.file[group]
+        target = self._columns[group]
         # Validate the whole row before extending any existing column.
         for key, value in values.items():
             arr = np.asarray(value)
@@ -72,7 +75,7 @@ class RolloutWriter:
                     if image
                     else (128, *arr.shape)
                 )
-                target.create_dataset(
+                target[key] = self.file[group].create_dataset(
                     key,
                     shape=(0, *arr.shape),
                     maxshape=(None, *arr.shape),

@@ -141,3 +141,27 @@ def test_unrecorded_static_frame_cannot_be_invented(tmp_path):
     with pytest.raises(ValueError, match="unrecorded_policy_image"):
         log.observe(sensor(1), obs, {})
     log.close()
+
+
+def test_chunk_boundaries_partial_flush_and_invalid_row(tmp_path):
+    path = tmp_path / "chunks.hdf5"
+    log = writer(path)
+    for tick in range(133):
+        log.observe(sensor(tick), observation(tick, tick - tick % 6), {})
+        if tick:
+            log.command(dict(time_s=(tick - 1) / 60, joint_target=np.full(7, tick)))
+    # Shape/dtype/column errors must leave all already written columns intact.
+    before = {key: len(value) for key, value in log.file["commands"].items()}
+    for bad in (dict(time_s=0.0, joint_target=np.zeros(8, int)), dict(time_s=0.0)):
+        with pytest.raises(ValueError, match="changed_rollout_column"):
+            log.append("commands", bad)
+        assert {key: len(value) for key, value in log.file["commands"].items()} == before
+    log.finish(dict(passed=False, termination="fixed_diagnostic_horizon"))
+    log.close()
+    with h5py.File(path) as h5:
+        assert h5.attrs["complete"]
+        assert len(h5["commands/time_s"]) == 132
+        np.testing.assert_array_equal(h5["commands/joint_target"][:, 0], np.arange(1, 133))
+        for index, tick in enumerate(range(0, 133, 6)):
+            for key in ("rgb", "depth_m", "valid_depth"):
+                assert h5[f"captures/{key}"][index].tobytes() == sensor(tick)[key].tobytes()

@@ -87,7 +87,12 @@ at each control tick. Per-control static/three-history image indices and feature
 acquisition/availability clocks preserve causal reconstruction without saving
 repeated prepared tensors. Invalid feature support remains explicit; sampled
 failed inputs are retained. Raw validity, NaN bit patterns and SDK intrinsics
-are preserved.
+are preserved. Dataset handles remain open for the writer lifetime so bounded
+HDF5 chunk caches survive between rows; partial image tiles are compressed at
+flush/close instead of on every reopen. The 60-control-tick flush cadence,
+column validation and completion marker are unchanged. Recorded-input checks
+preserve all numeric/image bytes across chunk boundaries, including NaN payloads.
+This optimization alone does not establish an end-to-end runtime target.
 
 The IO recording hook snapshots applied targets after execution and before a
 response failure replaces them with a stop anchor. Cartesian submissions retain
