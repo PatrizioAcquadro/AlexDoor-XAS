@@ -159,6 +159,7 @@ def main(argv=None):
     cfg.seed = selected[0]["seed"]
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
     env = DoorPushPurdueEnv(cfg)
+    env.reset()  # Establish the configured robot state before any fallible setup.
     restore_interruption = install_interruption(env)
     write_json(
         args.output / "physical-case-start.json",

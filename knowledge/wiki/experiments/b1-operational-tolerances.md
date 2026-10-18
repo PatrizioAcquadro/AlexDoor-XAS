@@ -65,8 +65,27 @@ stop and interruption remain. The corrected strong-load probe retains 21,988
 native measurements. At 10 N, shoulder/gripper stops travel 23.223/31.439 mm,
 exceeding the unchanged 10 mm requirement; gripper model error also exceeds the
 original residual bound in 11 position/speed-eligible samples. This does not
-justify an unconditional or strong-load position extension. Weak-load support
-is being assessed separately against the existing 1 N calibration scope.
+justify an unconditional or strong-load position extension. A separate weak-load probe passes the existing 1 N scope without refitting any
+coefficient: 13,492 position/speed/acceleration-eligible native states and 11,861
+weak-load states. Minimum joint residual margin is 0.0004985 N m; minimum scalar
+normal-error margin is 0.004975 N. Maximum measured tracking response is
+11.514 mm / 0.027763 rad, below unchanged 13 mm / 0.04 rad response limits.
+All four known-1 N stops pass, with tool travel 0.904–3.209 mm. Continuous 14-shape
+radial and directional stop boxes, held-joint travel and acceleration also pass;
+minimum directional residual is 0.2555 mm.
+
+The new recipe is `runtime-recipe.json`, with `weak-position-calibration.json`.
+Only lower shoulder Z/elbow Y and upper wrist X/gripper Y receive 4.25 mrad,
+only while force upper <=1 N. A future main-domain exit still requires independent
+contact-free motion/stop support. Larger, opposite-side, strong-load and combined
+unsupported acceleration cases remain blocked.
+
+Replaying the twelve retained ACT A1 terminal native samples estimates eleven,
+including all seven actual position excursions. The remaining 5.7434 N case
+still refuses its 12.241 rad/s2 main-acceleration excess. This proves estimation
+support, not new actuation or historical task success. The complete saved right
+reference has zero proposed motion/stop envelopes requiring the new position guard;
+there the weak-position recipe and original position recipe behave identically.
 
 ## Reference execution and limits
 
@@ -75,8 +94,12 @@ checkpoint for compatibility and substitutes explicit recorded A1 deltas through
 `MatchedReplay` and the same `B1Runner`, preview, motion, load and contact checks.
 Commands are marked non-learned. Independent scoring reports
 `reference_cycle_success` separately and cannot claim learned task success.
-The first startup rejects a recording-column indexing error before commands;
-its failure and measured stop remain. A corrected complete cycle is pending.
+The first startup rejects a recording-column indexing error before commands.
+Its stop fails the speed criterion because the environment had not yet been reset
+to the configured robot state; that unfavorable result remains. Runtime now resets
+immediately after construction, before fallible checkpoint/reference setup.
+The corrected recording-column path passes an offline 7,217-command preflight.
+A fresh complete cycle is in progress.
 
 No physical robot result, broader calibration qualification, policy success or
 unseen-door claim follows from these diagnostics. See

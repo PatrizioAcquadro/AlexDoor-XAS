@@ -290,6 +290,10 @@ class ResidualLoadModel:
                     measured=float(upper),
                     upper=float(halo_cap),
                     tolerance=0.0,
+                    uncertainty_terms_n=dict(
+                        estimated_force_norm=float(np.linalg.norm(wrench[:3])),
+                        residual_force_radius=float(np.linalg.norm(radius[:3])),
+                    ),
                     position_excess_rad=np.maximum(q_min - q, q - c.q_max).clip(0).tolist(),
                 )
             )
@@ -305,6 +309,13 @@ class ResidualLoadModel:
                     tolerance=0.0,
                     weak_position=needs_weak_position,
                     weak_acceleration=needs_weak_acceleration,
+                    weak_acceleration_excess_rad_s2=(
+                        np.maximum(abs(ddq) - acceleration_max, 0).tolist()
+                    ),
+                    uncertainty_terms_n=dict(
+                        estimated_force_norm=float(np.linalg.norm(wrench[:3])),
+                        residual_force_radius=float(np.linalg.norm(radius[:3])),
+                    ),
                 )
             )
         if c.tool_normal_residual_n is None and c.tool_normal_force_upper_max_n is not None:

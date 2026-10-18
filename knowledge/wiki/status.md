@@ -102,6 +102,7 @@ execution. The full panels and other policy combinations remain deferred; no
 training resumes. The fixed ACT A1 checkpoint and every previous outcome remain.
 Directional material-margin accounting and numeric refusal diagnostics are
 implemented. Saved right-reference replay has no first operational refusal;
-strong-load position support is rejected by measured error/stop failures. Weak
-support and fresh complete reference execution remain under assessment. See
+strong-load position support is rejected by measured error/stop failures. The separately tested 1 N position support passes unchanged error/response/stop
+bounds; strong-load extensions remain blocked. Fresh complete reference execution
+remains under assessment. See
 [[experiments/b1-operational-tolerances|current bounded evidence and limits]].
