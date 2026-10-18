@@ -6,6 +6,38 @@ problems and continue through real demonstrations, short ACT/Diffusion × A1/A2
 training and learned closed-loop simulation. Preserve all previous work/failures,
 fixed physical criteria and sealed test doors. No production campaign or robot work.
 
+## Current fixed-panel continuation
+
+The optional 4,400-update experiment remains incomplete after repair job
+`11974876` stalls in shared-file I/O. CUDA startup takes 75.972 seconds; a later
+owned-process snapshot shows 14 GB resident memory and `rpc_wait_bit_killable`.
+No new epoch checkpoint is saved. Cancellation charges the maximum parent/step
+elapsed time, 169 GPU seconds including cleanup, rather than adding overlapping
+steps. The four original checkpoints and all partial continuation states remain
+unchanged. Cumulative remote allocation is 3,503/3,600 seconds; 97 seconds cannot
+accommodate the remaining 2,600 updates with the measured training loop, startup,
+I/O and cleanup. Two potentially uncheckpointed epochs are conservatively charged
+at 100 updates each, giving 15,164 checkpointed /15,364 upper total updates.
+
+The only complete four-cell set is therefore the original 3,000-update cohort.
+No 4,400-update checkpoint has been evaluated closed-loop. Resume the original
+full-v7 matrix with its exact `d8de2f0` source, protocol, calibration, expert
+references, seeds and four checkpoint hashes. All four completed failures stay
+in the denominator; only the 20 unallocated slots run. There is no retry of a
+completed outcome, comparison-driven checkpoint choice or mixed-version result.
+The original four CUDA loads and frozen local development metrics are reused.
+`full-v7-resumption-after-infrastructure-ceiling.json` records the verified
+original inputs and `resume-original-panel-v7.py` enforces this continuation.
+
+The four measured allocations average 435.40 GPU seconds. Repeating those
+outcomes over the remaining 20 would cost 2.419 GPU hours; extrapolating the first
+case's service cost to every full 9,000-tick horizon gives 12.719 hours. Neither
+scenario is a completion guarantee. The cumulative local budget has 8.280 hours
+left at resume, so actual per-case guards remain mandatory and horizons stay
+unchanged. Exact local cache replacement recovers 23.046 GiB; retained pilot
+storage is 251.685/300 GiB. No new local GPU inference was spent on the incomplete
+4,400 cohort, and all raw episodes remain intact.
+
 ## Left position-domain prerequisite
 
 The original ACT A1 left refusal is a joint-position envelope exit: elbow
@@ -95,8 +127,9 @@ stops at true contact loss; the same checkpoint left/nominal executes 193 before
 load-envelope refusal. ACT A2 right/nominal executes 239 before complete-sweep/stop
 refusal, and Diffusion A1 right/nominal 371 before observed orientation refusal.
 All four input/command/clock/continuing-physics stop audits pass. None succeeds,
-completes hold or releases. All 20 unallocated slots remain explicitly unevaluated
-in this retired version; they are never combined with another checkpoint version.
+completes hold or releases. The 20 unallocated slots were retired for the optional continuation and now
+resume unchanged after its infrastructure budget proves insufficient; the four
+completed failures are never rerun or combined with another checkpoint version.
 
 The right ACT A1 contact monitor is available at all 1,879 operational endpoints.
 Its first confirmation follows instantaneous native contact by 100 ms. Independent

@@ -20,15 +20,22 @@ completed outcomes and audits are retained. The 20 unallocated slots are retired
 the matched training continuation. Earlier versions remain separate;
 identical-checkpoint success on both doors is still required.
 
-The matched 4,400-update continuation is interrupted after both A1 cells finish
-and ACT A2 reaches3,200; Diffusion A2 remains at3,000. Remote use is3,334/3,600
-GPU seconds. Checkpointed updates total15,164including infrastructure, with100
-additional uncheckpointed updates conservatively charged. The same-data cache
-repair is fully byte-verified and reduces shared-file traffic from13.8GB to0.620GB;
-resume now skips completed representations before reopening feature data. The
-remaining2,600updates are queued in repaired bounded job `11974876`. All partial
-states and original checkpoints remain preserved. Development stays local with
-frozen weights/statistics; no improved task behavior is claimed.
+The optional matched 4,400-update continuation remains incomplete. Its repair
+allocation stalls in shared-file I/O after CUDA startup at 76 seconds and adds
+no saved epoch; cancellation charges 169 GPU seconds including cleanup. Remote
+use is now 3,503/3,600 seconds, with 97 left. Checkpointed updates total 15,164
+including infrastructure; two possibly lost 100-update epochs are charged
+conservatively, giving an upper count of 15,364. All partial states remain
+preserved and unused in the final panel.
+
+The original four completed 3,000-update checkpoints remain the only complete,
+comparable set. Their CUDA loading and frozen local development evaluation are
+reused. The original full-v7 panel resumes with exactly its frozen source,
+protocol, recipe, references and checkpoints: four completed failures stay
+counted and only the 20 unallocated slots run. This does not repeat completed
+outcomes or combine versions. The byte-identical compact local feature cache
+recovers 23.046 GiB while preserving all raw recordings. No new demonstration,
+seed change, development transfer or normalization update is authorized.
 
 An unconditional left elbow position-domain extension is rejected after an
 independent 8 N lateral-load stop exceeds the original travel/speed criteria.
