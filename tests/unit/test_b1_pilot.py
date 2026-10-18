@@ -692,6 +692,18 @@ def test_materialized_train_data_keeps_original_fit_and_file_backing(tmp_path, p
     assert isinstance(data.dataset.records[0].observation_matrix, np.memmap)
     assert data.dataset.records[0].observation_matrix.dtype == np.dtype("f4")
     validate_data(data)
+    envelope = SimpleNamespace(
+        obs_dim=data.obs_dim,
+        action_dim=data.action_dim,
+        cfg=ActModelCfg(),
+        state_dict=lambda: {"fixture": torch.ones(1)},
+    )
+    checkpoint = save_policy(tmp_path / "subset.pt", "act", envelope, data)
+    loaded, _ = load_policy_payload(
+        checkpoint, "act", binding=pilot_binding, runtime_asset=TEST_ROBOT_REF
+    )
+    assert loaded.meta["training_episode_ids"] == [original.episode_id, "new"]
+    assert loaded.stats.train_episode_ids == (original.episode_id,)
     with h5py.File(destination / "episode_000001.hdf5") as file:
         np.testing.assert_array_equal(file["observations"][:], new.observations)
         np.testing.assert_array_equal(
