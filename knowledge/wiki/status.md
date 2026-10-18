@@ -65,8 +65,15 @@ state remains intact. The first 20,000 control completes all four genuine states
 normalization and frozen CUDA development. Diffusion A1 passes selection; ACT A1/
 ACT A2 improve below 5%, while Diffusion A2 fails its bright/hold tail guard despite
 a lower mean. Peak RAM is 14.847 GiB with at least 38.228 GiB host headroom;
-281.109 GPU seconds are charged. The common 22,000 control follows. No new
-physical panel is frozen or launched.
+281.109 GPU seconds are charged. The declared corrective sequence then stops at 24,000: ACT A1/A2 exhaust
+patience, and the final inferred-action regression diagnosis is retained. No more
+optimizer updates are launched. Selected-v10 freezes ACT A1 at 12,000, ACT A2 at
+18,000 and both Diffusion checkpoints at 22,000. The identical audited ACT A1
+right/nominal failure is retained as outcome1/24; the other23 execute sequentially
+with unchanged physical criteria and strict recording/stop audits. Original12k
+full-v9 was already frozen but held before any allocation; it remains intact with
+all24unexecuted slots. A prior summary's never-frozen statement is corrected from
+the actual hold record. The new panel uses separate directories.
 Checkpoint selection precedes final integrated verification and the frozen24 panel.
 No different-version successes are combined; two-door hold/release success remains
 unestablished.

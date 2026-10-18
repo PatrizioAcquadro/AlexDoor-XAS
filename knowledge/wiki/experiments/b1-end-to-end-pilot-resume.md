@@ -82,8 +82,14 @@ p95 and rotation mean improve; Diffusion A2 translation and rotation errors both
 improve. Objectives such as ACT loss and diffusion MSE are not compared across
 families. These remain one-motion, two-lighting offline measurements.
 
-The prepared `full-v9-12000` panel is held before any physics allocation or final
-freeze. Before further updates, `configs/b1_pilot_selection.json` declares matched
+The `full-v9-12000` plan freezes at timestamp 1792296240.523 and is held nine
+seconds later, before any physics allocation, for the latest intermediate-12,000
+directive. Its original plan and all 24 unexecuted slots remain intact. A previous
+continuation summary incorrectly said it had never frozen; the actual hold record
+explicitly says `plan_frozen: true`. The new selected panel uses separate execution
+directories, preserving that frozen version. Its retirement record retains the
+original 24-slot denominator and zero completed outcomes; no partial success rate
+is manufactured. Before further updates, `configs/b1_pilot_selection.json` declares matched
 2,000-update rounds, initially capped at 32,000 per cell, preserving seed and
 training state. Each check infers exactly 32 complete 12-action windows per phase
 and development lighting record: 320 windows, balanced over approach/contact/
@@ -219,6 +225,30 @@ expert references, initial placement, lighting conditions, seeds and 9,000-tick
 horizon remain unchanged. Completion still requires all 24 retained outcomes,
 commands from all four models and one identical checkpoint succeeding on both
 doors with at least 80% matched controlled opening, valid hold and release.
+
+The corrective stage stops at **24,000 common updates** under its declared
+patience. ACT A1 and ACT A2 each reach three controls without accepted progress;
+all four latest states, intermediate weights and rejected outcomes remain. ACT A1
+again improves training while its consumed-prefix development error worsens; its
+push p95 grows about 24% and hold p95 about 140% against the selected best. ACT A2
+has lower primary error but hold p95 grows beyond 3x. The final saved-action/data
+analysis resolves the flag for reporting and final selection, not more updates.
+No 26,000 control is prepared or launched.
+
+The frozen `selected-v10` checkpoints are ACT A1 **12,000**, ACT A2 **18,000**,
+Diffusion A1 **22,000** and Diffusion A2 **22,000**, each selected globally across
+doors by the declared development action guards. The actual selected ACT A1
+integration above matches the frozen physical implementation/protocol/condition/
+seed/reference and is retained as the **first failed outcome out of 24**. The other
+23 slots run sequentially in new directories, with strict input/command/native and
+continuing-physics stop audits. No unfavorable result is retried. Current maintained
+physical entry, observer, runner, control and perception code match the actual
+`b2969ef` version; only train factories/evaluation and resource monitoring changed.
+Exact checks are in `current-cli-physical-equivalence.json`. The full frozen plan,
+checkpoints and evolving outcome table are `fixed-panel-selected-v10-plan.json`
+and `fixed-panel-selected-v10-results.{json,md}`. At launch one outcome is complete,
+with no task success; the remaining 23 are unavailable until executed. Completion
+still requires all 24 and an identical successful checkpoint on both doors.
 
 The offline OOM correction remains required for every stage. The user-reported
 approximately 49 GiB A1-to-A2 peak is caused by retained `PolicyData` ownership;
