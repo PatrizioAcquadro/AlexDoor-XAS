@@ -1,9 +1,24 @@
-"""Linux host-RAM accounting shared by bounded pilot workloads."""
+"""Host-RAM and desktop-process accounting for bounded pilot workloads."""
 
 from pathlib import Path
 from time import time
 
 GIB = 1024**3
+
+DESKTOP_GRAPHICS = {
+    "Xorg",
+    "gnome-shell",
+    "xdg-desktop-portal-gnome",
+    "chrome",
+    "ChatGPT",
+    "TeamViewer",
+}
+
+
+def is_desktop_graphics(process):
+    """Recognize graphics-only desktop work; never exempt compute or mixed contexts."""
+    executable = Path(process["name"].split(" ", 1)[0]).name
+    return process["kind"] == "G" and executable in DESKTOP_GRAPHICS
 
 
 def host_memory_snapshot():

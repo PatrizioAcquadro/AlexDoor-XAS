@@ -31,7 +31,12 @@ available. Partial metrics and stopped attempts remain preserved. The corrected 
 26.206 GiB with at least 27.787 GiB host RAM available and unchanged weights/
 statistics. The common 24-outcome version is frozen; the bounded pipeline proceeds
 to integration with host-RAM monitoring and service limits. New-version physical
-outcomes and identical-checkpoint two-door success remain pending.
+outcomes and identical-checkpoint two-door success remain pending. The first
+inspection-only attempt is interrupted by a false Chrome graphics-PID change
+alarm, with zero learned commands. Its incomplete boundary and two-second stop
+remain preserved. The corrected classifier keeps compute/unknown-graphics refusals
+and resumes only that diagnosed infrastructure interruption, under the same
+frozen models and physical protocol.
 The six-demonstration, 18,000-update and 300 GiB ceilings remain unchanged.
 
 An unconditional left elbow position-domain extension is rejected after an

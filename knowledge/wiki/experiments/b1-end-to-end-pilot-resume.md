@@ -100,6 +100,26 @@ original low-utilization branch remains. All 25 unallocated verification/panel
 wrappers use the same rule. No physical, task, controller, checkpoint or panel
 gate changes; measured runtime includes the actual desktop environment.
 
+The first full-v8 physical allocation is interrupted during inspection at
+17.783 simulated seconds when Chrome starts a new graphics-only GPU process.
+The monitor had treated any new graphics PID as foreign even though the preflight
+already recognized that desktop role. There is no foreign compute process and
+at least 34.087 GiB host RAM remains available. The attempt executes zero learned
+commands and stays an explicitly incomplete recording; it is not a completed
+panel outcome. Its last control record precedes the in-step stop anchor by one
+control tick. This gap is retained rather than relabeled as a complete clock join.
+The stop has 240 healthy 120 Hz samples over two seconds, zero tool travel and
+no forbidden contact. Its allocation and all raw signals remain charged/preserved.
+
+A shared desktop classifier now applies consistently before and during each
+allocation. Known graphics-only desktop processes may change PID; compute,
+mixed compute/graphics and unknown graphics remain unexempted. Nine focused
+resource/lifetime regressions pass. The completed-outcome retention gate stays
+strict. Only the diagnosed zero-command infrastructure interruption may resume
+under the original frozen checkpoint/protocol; no completed policy outcome is
+retried. Reports retain both the fixed 24 planned outcomes and every closed raw
+attempt, including infrastructure interruptions, with separate denominators.
+
 ## Left position-domain prerequisite
 
 The original ACT A1 left refusal is a joint-position envelope exit: elbow
