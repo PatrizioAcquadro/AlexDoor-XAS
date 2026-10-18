@@ -625,6 +625,112 @@ def test_partial_resume_skips_only_complete_representations(tmp_path, monkeypatc
         raise RuntimeError("unfinished data reached")
 
     monkeypatch.setitem(api["train"].__globals__, "load_b1_data", loader)
+    monkeypatch.setitem(api["train"].__globals__, "dataset_ram_bytes", lambda _: 0)
+    monkeypatch.setitem(api["train"].__globals__, "memory_checkpoint", lambda *a, **k: None)
     with pytest.raises(RuntimeError, match="unfinished data reached"):
         api["train"](tmp_path, protocol, resume=True)
     assert called == ["A2_ee_delta"]
+
+
+def test_append_only_train_continuation_preserves_exclusions_and_frozen_fit():
+    import runpy
+
+    validate = runpy.run_path("scripts/pilot_offline.py")["validate_epoch_extension"]
+    old = dict(episode_id="old", asset_id="left", split="train")
+    excluded = dict(episode_id="excluded", asset_id="left", split="train", use_for_imitation=False)
+    added = dict(episode_id="new", asset_id="left", split="train")
+    source = dict(
+        epochs=240,
+        training_seed=17,
+        lr=0.0001,
+        overfit_updates=0,
+        episodes=[old, excluded],
+        train_sampling="phase_balanced_v1",
+    )
+    target = source | dict(
+        epochs=260, episodes=[old, excluded, added], normalization_episode_ids=["old"]
+    )
+    validate(source, target)
+    for change in (
+        target | dict(training_seed=18),
+        target | dict(lr=0.0002),
+        target | dict(normalization_episode_ids=["old", "new"]),
+        target | dict(episodes=[old, excluded | dict(use_for_imitation=True), added]),
+        target | dict(episodes=[old, excluded, added | dict(split="development")]),
+        target | dict(episodes=[old, excluded, added | dict(asset_id="unseen")]),
+        target | dict(episodes=[old, excluded, added, added]),
+    ):
+        with pytest.raises(ValueError, match="strict epoch increase"):
+            validate(source, change)
+
+
+def test_materialized_train_data_keeps_original_fit_and_file_backing(tmp_path, pilot_binding):
+    from alexdoor_xas.dataset.b1 import materialize_train_data
+    from alexdoor_xas.policies.b1 import validate_data
+
+    original = pilot_episode(pilot_binding)
+    original = replace(original, observations=original.observations.astype("f4").astype("f8"))
+    new = replace(
+        original,
+        episode_id="new",
+        observations=original.observations + 1000,
+        actions={key: value + 1 for key, value in original.actions.items()},
+    )
+    old_root = export_dataset(
+        [original], tmp_path / "old", pilot_binding, TEST_ROBOT_REF, {original.asset_id: "train"}
+    )
+    new_root = export_dataset(
+        [new], tmp_path / "new", pilot_binding, TEST_ROBOT_REF, {new.asset_id: "train"}
+    )
+    before = load_b1_data(old_root, A1_JOINT_DELTA).stats.to_dict()
+    destination = materialize_train_data(
+        [old_root, new_root], tmp_path / "flat", normalization_episode_ids=[original.episode_id]
+    )
+    data = load_b1_data(destination, A1_JOINT_DELTA)
+    assert data.train_ids == (original.episode_id, "new")
+    assert data.stats.to_dict() == before
+    assert isinstance(data.dataset.records[0].observation_matrix, np.memmap)
+    assert data.dataset.records[0].observation_matrix.dtype == np.dtype("f4")
+    validate_data(data)
+    with h5py.File(destination / "episode_000001.hdf5") as file:
+        np.testing.assert_array_equal(file["observations"][:], new.observations)
+        np.testing.assert_array_equal(
+            file[A1_JOINT_DELTA + "/actions"][:], new.actions[A1_JOINT_DELTA]
+        )
+    metadata = json.loads((destination / "meta.json").read_text())
+    metadata["normalization_episode_ids"] = ["development"]
+    (destination / "meta.json").write_text(json.dumps(metadata))
+    with pytest.raises(ValueError, match="train-only"):
+        load_b1_data(destination, A1_JOINT_DELTA)
+
+
+def test_materialization_rejects_inexact_conversion_and_development(tmp_path, pilot_binding):
+    from alexdoor_xas.dataset.b1 import materialize_train_data
+
+    episode = pilot_episode(pilot_binding)
+    values = episode.observations.copy()
+    values[0, 0] = 0.1  # not an exact float32 value
+    episode = replace(episode, observations=values)
+    source = export_dataset(
+        [episode], tmp_path / "source", pilot_binding, TEST_ROBOT_REF, {episode.asset_id: "train"}
+    )
+    with pytest.raises(ValueError, match="exactly float32"):
+        materialize_train_data(
+            [source], tmp_path / "failed", normalization_episode_ids=[episode.episode_id]
+        )
+    assert not (tmp_path / "failed").exists()
+    assert list(tmp_path.glob(".b1-materialize-*"))  # failed staging retained
+    with h5py.File(source / "episode_000000.hdf5") as file:
+        assert file["observations"][0, 0] == 0.1
+    development = replace(episode, split="development")
+    source_dev = export_dataset(
+        [development],
+        tmp_path / "dev",
+        pilot_binding,
+        TEST_ROBOT_REF,
+        {episode.asset_id: "development"},
+    )
+    with pytest.raises(ValueError, match="Development/test"):
+        materialize_train_data(
+            [source_dev], tmp_path / "failed-dev", normalization_episode_ids=[episode.episode_id]
+        )

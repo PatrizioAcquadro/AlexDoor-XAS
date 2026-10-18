@@ -275,7 +275,7 @@ proof is `selected-v10-first-four-combinations-execution-proof.json`.
 | diffusion-A1_joint_delta / right/bright | 2181 | 21.500 deg | contact_load_lost_or_uncertain |
 | diffusion-A2_ee_delta / right/bright | 965 | 0.000 deg | observed_contact_orientation |
 
-All 13 complete outcomes fail valid hold/release and task success. Diffusion A1 reaches 19.7235
+All 16 complete outcomes fail valid hold/release and task success. Diffusion A1 reaches 19.7235
 controlled degrees (38.4772% reference) before `contact_load_lost_or_uncertain`;
 its raw 20.0090 degrees are reported separately. The final native force window is
 25.7057 mN (physical Loaded), while the operational normal-force lower mean is
@@ -283,7 +283,7 @@ its raw 20.0090 degrees are reported separately. The final native force window i
 physical tolerance. This illustrates justified operational uncertainty versus
 independent physical validity; it is not evidence that a threshold should change
 or that the load model has a diagnosed defect. No calibration/controller correction
-is made during the panel. All 11 remaining slots continue under the frozen version.
+is made during the panel. All eight remaining slots continue under the frozen version.
 The right/dim Diffusion A1 result reaches 36.6% of reference before a local
 swept-motion margin refusal; its physical criteria and outcome remain separate.
 
@@ -292,14 +292,14 @@ previously charged identical integration; only 0.5594 new GPU hours
 are added after panel freeze. Cumulative local use through these closed outcomes
 is 9.0957 hours. Reuse does not double-charge lifetime compute.
 
-Through 13 completed outcomes, every right-door combination/lighting case fails
+Through 16 completed outcomes, every right-door combination/lighting case fails
 the task, so this frozen checkpoint/protocol cohort cannot satisfy the two-door
-functional gate. The remaining 11 left outcomes still run. Right/bright Diffusion
+functional gate. The remaining eight left outcomes still run. Right/bright Diffusion
 A1 provides the current best controlled opening, 21.50045 degrees (41.94371%),
 then a contact-load uncertainty stop with one independently measured contact loss.
 Its 2,181 learned commands and two-second stop pass all audits without physical
-violation. No valid hold or release occurs. The unchanged one-tick integration
-runs next, before the original next left slot; this is resource ordering only.
+violation. No valid hold or release occurs. The separate one-tick integration completes before the next original left slot;
+this changes resource ordering only.
 `replan1-integration-resource-order.json` records the launcher-only gate.
 
 The longer right/bright episode charges 771.624 GPU seconds: observer-to-observer
@@ -393,8 +393,8 @@ The maintained CLI now passively saves `first-policy-input.npz`, the full first
 inferred chunk in `first-policy-prediction.npy`, backend/dtype/stride settings in
 `policy-backend.json`, and per-query timing aggregates. The input is saved before
 inference, including if inference fails; none of these files feeds control. The
-29 existing rollout/recording tests pass. Actual first-vector replay validation
-is pending in the next integrated execution. The active panel keeps its original
+29 existing rollout/recording tests pass. Actual first-vector replay reconstructs consumed inputs, checkpoint output and
+the actual first request with zero discrepancy in the separate integration. The active panel keeps its original
 frozen source; the added observability does not change policy, controller, teacher,
 physical criteria or observation columns.
 
@@ -409,6 +409,62 @@ audits and either complete the unchanged task or improve controlled opening by
 at least 10 percentage points of reference over its retained six-tick counterpart
 before a new panel is considered. All costs and failures remain; no new panel
 is frozen or adopted yet.
+
+The one-tick candidate completes 1,619 learned commands, with 15.99771 controlled
+degrees (31.2088% reference), versus 19.72352 degrees (38.4772%) at six ticks.
+It stops at `contact_uncertainty_exceeds_admitted_margin`, without physical
+violation, hold or release; its 2 s stop travels 0.2683 mm and passes. Strict
+consumed-input/native/clock audits pass. The actual first input/output/request
+replay has zero error. Query p50/p95 are 19.223/20.145 ms, exceeding a 16.7 ms wall
+control interval; this is synchronous simulation, not real-time qualification.
+The predeclared adoption threshold fails, so the candidate is rejected and no
+one-tick panel is launched. Evidence is `integrated-replan1-diffusion-a1-right-nominal/`
+and `first-query-replay-replan1/`. The previous tiny ACT reconstructed-query
+mismatches remain explicitly failed; this new exact-vector audit does not relabel them.
+
+## Targeted state-coverage data continuation
+
+All twelve right outcomes fail and the feedback-rate candidate worsens opening.
+Together with measured training/action errors and early closed-loop state drift,
+this motivates four fresh teacher attempts: two opposite fixed initial-arm offsets
+on each train door, with the original seen lights (right/dim, left/bright) and
+collection seed 6300. Offsets derive from already-observed failed-policy joint
+state residuals, capped at 5 mrad per joint. They move initial TCP by 1.22 mm and
+0.37 degrees, inside existing load position bounds. Failed learner data does not
+become expert supervision. Teacher/controller, body/door placement, dynamics,
+evaluation initial states/references and all physical requirements stay unchanged.
+All old exclusions remain excluded. Every allocated new launch consumes one of
+24 demonstration attempts, including startup failures; queue waiting does not.
+
+Full CAD self-clearance checks over the inspection path retain the same model,
+stop and held-joint uncertainties. A conservative 100 ms interval check rejects
+even the baseline and remains preserved. Refinement to actual 60 Hz intervals
+checks 4,503 states and passes all three variants; lower margins are 16.68, 12.73
+and 87.11 micrometers after existing allowances. These are finite CAD/stop
+clearance results, not vision precision or global hardware qualification. Actual
+new teacher physical/raw eligibility remains unavailable until each recording
+and independent audit complete. Evidence is `state-coverage-four-attempts.json`
+and both `state-coverage-initial-self-clearance*.json` reports.
+
+The maintained `pilot_offline.py materialize` mode streams prepared train-only
+sources in 64-row blocks, requiring exact float64→float32→float64 equality for
+every feature value. It preserves action labels and source files, retains failed
+staging, rejects development input and duplicates, and writes contiguous HDF5
+observations for the existing memmap loader. Full original data (1.727 billion
+values) passes exact conversion in 8.66 s, with 0.309 GiB process peak and at
+least 41.26 GiB host RAM available. This avoids a six-episode float64 eager copy.
+Actual new data and larger training RAM peaks still require measurement.
+
+Dataset metadata may declare `normalization_episode_ids`, a unique train-only
+subset; default behavior still fits all train records. Checkpoints separately
+retain actual `training_episode_ids`. Appended-data continuation requires an exact
+old protocol-entry prefix including exclusions, new IDs only on existing train
+assets, and the unchanged original normalization fit; all other training settings
+and optimizer/RNG/EMA remain intact. Selection streams the unchanged two development
+records against declared new train membership. Essential tests reject development
+normalization, altered old exclusions/seed/lr, duplicate/unseen data and lossy
+conversion. No new training stage or optimizer update starts before actual
+eligible data and a separately declared early-stopping rule.
 
 The offline OOM correction remains required for every stage. The user-reported
 approximately 49 GiB A1-to-A2 peak is caused by retained `PolicyData` ownership;

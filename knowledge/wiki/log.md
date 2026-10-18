@@ -4,10 +4,12 @@
   18k, Diffusion A1/A2 22k), all with real learned-command execution through the
   observed/load/admission/control/recording/stop path. Uniform and corrected
   phase-balanced selection stop at common 18k and 24k. The frozen selected-v10
-  panel has 13 complete failures out of 24; no 80% opening/hold/release
-  success is demonstrated. All right-door combinations/conditions fail; a separately
-  frozen one-tick integration tests current proprioceptive feedback before more
-  training, while remaining left outcomes are retained. RAM ownership is corrected and bounded; every failed
+  panel has 16 complete failures out of 24; no 80% opening/hold/release
+  success is demonstrated. All right-door combinations/conditions fail; the one-tick
+  candidate worsens controlled opening and is rejected despite exact input/output
+  replay and safe stops. Four targeted initial-state teacher attempts are declared;
+  strict append-only training data and lossless file-backed float32 preserve original
+  normalization and failed exclusions. Actual new data eligibility is pending. RAM ownership is corrected and bounded; every failed
   allocation, exclusion and previous panel remains. See
   [[experiments/b1-end-to-end-pilot-resume]].
 

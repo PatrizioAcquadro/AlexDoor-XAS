@@ -12,11 +12,11 @@ through the real observed RGB-D/proprioception, robot-load/contact, proposed-mot
 admission, controller, recording and continuing-physics stop path. The active panel keeps frozen physical source `b2969ef`; teacher, selected IK/gains,
 dynamics, expert references and physical criteria are unchanged.
 
-The frozen `selected-v10` panel has **13/24 complete outcomes, all failed**, with
-all 11 remaining slots retained as pending. Its best controlled opening so far is
+The frozen `selected-v10` panel has **16/24 complete outcomes, all failed**, with
+all eight remaining slots retained as pending. Its best controlled opening so far is
 Diffusion A1 right/bright: 21.500 degrees, **41.94%** of the 51.260-degree reference,
 then a contact-load uncertainty stop, with one independently measured contact loss. No model yet demonstrates
-80% opening with valid hold/release on both doors. All 13 complete episodes pass
+80% opening with valid hold/release on both doors. All 16 complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
 with no physical violation. Ordinary policy failures remain outcomes and the fixed
 panel continues; no completed result is retried or dropped. A transient external
@@ -40,18 +40,32 @@ preflight is verified, with no H100 training allocation yet.
 
 All twelve right-door cell/condition outcomes fail. Therefore, the original
 selected-v10 checkpoint/protocol cohort cannot satisfy identical-checkpoint
-success on both doors, regardless of the remaining left outcomes. Those 11
-outcomes still run and remain in the denominator. A separate one-tick integration
-uses unchanged selected Diffusion A1 weights and physical criteria before any
-new panel is considered; the next original slot waits without GPU allocation.
+success on both doors, regardless of the remaining left outcomes. Those eight
+outcomes still run and remain in the denominator. The separately frozen one-tick Diffusion A1 integration also fails: 1,619 actual
+learned commands reach 15.9977 controlled degrees (31.21%), below the unchanged
+six-tick comparison and its predeclared adoption threshold. Its independent input/
+command/clock and continuing-physics stop audits pass. Exact saved-vector replay
+reconstructs the consumed input, checkpoint output and actual first request with
+zero error. Model-query p50/p95 are 19.22/20.14 ms; synchronous simulation does not
+establish real-time 60 Hz execution. The one-tick profile is rejected.
 
-The maintained CLI additionally retains its exact first causal policy vector,
-first inferred chunk, backend settings and model-query timing. Existing rollout/
-recording tests pass; actual replay is pending in one separately declared
-same-checkpoint integration with one-tick replanning. The original frozen panel
-continues at six ticks. A read-only 20/50-step DDIM diagnosis fails its improvement
-guards, so the original 10-step sampler remains. No new weights or demonstrations
-are introduced by these checks.
+Four fresh teacher attempts are prospectively declared: opposite measured small
+initial arm offsets on each train door, retaining existing seen lighting, teacher,
+controller, door/body placement, dynamics and physical criteria. Full-robot
+clearance checks at the actual control cadence pass with existing uncertainty and
+stop bounds; the coarser failed check remains. Actual fresh-record physical/raw
+eligibility is pending. Queue waiting consumes no attempt or GPU allocation.
+
+The maintained data path now streams exactly representable float32 observations
+into contiguous file-backed training files. Every original train value round-trips
+exactly; the full-size CPU-only check peaks at 0.309 GiB. Added training records
+may retain explicit normalization fit on the original train subset. Strict
+continuation permits only appended train episodes on existing train assets,
+unchanged old entries/exclusions and frozen normalization; seed, optimizer/RNG/EMA
+and other protocol settings remain unchanged. No new optimizer update has run.
+
+A read-only 20/50-step DDIM diagnosis fails its improvement
+guards, so the original 10-step sampler remains. No new weights are introduced by these checks.
 
 All four latest common training states reach **24,000** with the same two eligible
 corrected train episodes, seed 17, optimizer/RNG/EMA and normalization. The declared

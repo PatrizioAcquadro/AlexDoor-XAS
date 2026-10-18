@@ -327,6 +327,68 @@ def export_dataset(episodes, destination, binding, robot_asset, asset_splits, *,
     return destination
 
 
+def materialize_train_data(sources, destination, *, normalization_episode_ids):
+    """Stream exact float32 observations into contiguous train-only HDF5 files.
+
+    A failed conversion leaves its staging directory for diagnosis. Original
+    prepared files and raw recordings are never replaced or relabeled.
+    """
+    destination = Path(destination)
+    if destination.exists():
+        raise FileExistsError(destination)
+    if not sources:
+        raise ValueError("Prepared training sources are required")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".b1-materialize-", dir=destination.parent))
+    metadata, ids = None, []
+    for directory in map(Path, sources):
+        source_meta = json.loads((directory / "meta.json").read_text())
+        if source_meta.get("schema") != PILOT_SCHEMA or source_meta.get("purpose") != PILOT_PURPOSE:
+            raise ValueError("Materialization requires prepared pilot data")
+        if metadata is None:
+            metadata = dict(source_meta, episodes=[], asset_splits={})
+        for key in ("schema", "purpose", "perception", "robot_asset"):
+            if source_meta[key] != metadata[key]:
+                raise ValueError("Prepared training contracts differ")
+        for name in source_meta["episodes"]:
+            if Path(name).name != name:
+                raise ValueError("Episode path escapes the prepared dataset")
+            with h5py.File(directory / name, "r") as source:
+                episode_id, asset_id = source.attrs["episode_id"], source.attrs["asset_id"]
+                if (
+                    source.attrs["split"] != "train"
+                    or source_meta["asset_splits"].get(asset_id) != "train"
+                ):
+                    raise ValueError("Development/test data cannot enter train materialization")
+                if episode_id in ids:
+                    raise ValueError("Duplicate prepared training episode")
+                name = f"episode_{len(ids):06d}.hdf5"
+                with h5py.File(staging / name, "x") as out:
+                    out.attrs.update(source.attrs)
+                    values = source["observations"]
+                    target = out.create_dataset("observations", shape=values.shape, dtype="f4")
+                    for start in range(0, len(values), 64):
+                        block = values[start : start + 64]
+                        converted = block.astype(np.float32)
+                        if not np.isfinite(block).all() or not np.array_equal(
+                            converted.astype(block.dtype), block
+                        ):
+                            raise ValueError("Observations are not exactly float32 representable")
+                        target[start : start + 64] = converted
+                    for key in ("time_s", A1_JOINT_DELTA, A2_EE_DELTA):
+                        source.copy(key, out)
+                ids.append(episode_id)
+                metadata["asset_splits"][asset_id] = "train"
+                metadata["episodes"].append(name)
+    fit_ids = list(normalization_episode_ids)
+    if not fit_ids or len(set(fit_ids)) != len(fit_ids) or not set(fit_ids) <= set(ids):
+        raise ValueError("Normalization requires unique declared train-only episodes")
+    metadata["normalization_episode_ids"] = fit_ids
+    (staging / "meta.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    staging.rename(destination)
+    return destination
+
+
 @dataclass(frozen=True)
 class B1Record:
     episode_id: str
@@ -428,6 +490,14 @@ class B1Dataset:
             )
         if not self.records or len(set(self.episode_ids)) != len(self.records):
             raise ValueError("Empty or duplicate B1 episode membership")
+        train = tuple(r.episode_id for r in self.records if r.split == "train")
+        self.normalization_episode_ids = tuple(metadata.get("normalization_episode_ids", train))
+        if "normalization_episode_ids" in metadata and (
+            not self.normalization_episode_ids
+            or len(set(self.normalization_episode_ids)) != len(self.normalization_episode_ids)
+            or not set(self.normalization_episode_ids) <= set(train)
+        ):
+            raise ValueError("Normalization requires unique declared train-only episodes")
 
     @property
     def action_dim(self):

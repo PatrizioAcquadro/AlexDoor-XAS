@@ -31,7 +31,7 @@ def load_b1_data(directory, space, *, binding=None):
     dataset = B1Dataset(directory, space, binding=binding)
     train = tuple(r.episode_id for r in dataset.records if r.split == "train")
     development = tuple(r.episode_id for r in dataset.records if r.split == "development")
-    stats = _stats(dataset, train)
+    stats = _stats(dataset, dataset.normalization_episode_ids)
     return PolicyData(dataset, train, development, stats, dataset.robot_asset)
 
 
@@ -62,7 +62,8 @@ def validate_data(data):
         data.train_ids != expected_train
         or data.val_ids != expected_dev
         or data.robot_asset != data.dataset.robot_asset
-        or data.stats.to_dict() != _stats(data.dataset, expected_train).to_dict()
+        or data.stats.to_dict()
+        != _stats(data.dataset, data.dataset.normalization_episode_ids).to_dict()
     ):
         raise ValueError("B1 normalization/membership must match the training identities")
     check_stats(data.stats, data.dataset.contract)
@@ -192,7 +193,9 @@ def save_policy(path, family, model, data, *, meta=None):
     )
     if model.cfg.visual_recipe != expected_visual:
         raise ValueError("Model visual recipe differs from the dataset")
-    metadata = dict(meta or {}, b1_contract=data.dataset.contract)
+    metadata = dict(
+        meta or {}, b1_contract=data.dataset.contract, training_episode_ids=list(data.train_ids)
+    )
     config = dict(
         dataset=dict(
             task="b1_door_push",
@@ -227,7 +230,7 @@ def load_policy_payload(path, family, *, binding, runtime_asset, device="cpu"):
 class B1Policy:
     """Family inference with a mandatory observed-input/robot/action contract."""
 
-    def __init__(self, policy, family, contract, *, robot_asset):
+    def __init__(self, policy, family, contract, *, robot_asset, training_episode_ids=None):
         if family not in FORMATS:
             raise ValueError("Unknown B1 policy family")
         if not isinstance(robot_asset, RobotAssetRef):
@@ -238,6 +241,15 @@ class B1Policy:
         self.robot_asset = robot_asset
         self.action_space = contract["action_space"]
         self.chunk_size = policy.chunk_size
+        self.training_episode_ids = tuple(
+            policy.stats.train_episode_ids if training_episode_ids is None else training_episode_ids
+        )
+        if (
+            not self.training_episode_ids
+            or len(set(self.training_episode_ids)) != len(self.training_episode_ids)
+            or not set(policy.stats.train_episode_ids) <= set(self.training_episode_ids)
+        ):
+            raise ValueError("Checkpoint training membership must contain its normalization fit")
 
     @classmethod
     def from_checkpoint(
@@ -268,6 +280,7 @@ class B1Policy:
             family,
             contract,
             robot_asset=loaded.robot_asset,
+            training_episode_ids=loaded.meta.get("training_episode_ids"),
         )
 
     def predict(self, features):

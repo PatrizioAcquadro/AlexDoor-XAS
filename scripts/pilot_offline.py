@@ -21,7 +21,11 @@ sys.path.insert(0, str(REPO / "src"))
 from alexdoor_xas.action.b1 import apply_pose_delta  # noqa: E402
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA  # noqa: E402
 from alexdoor_xas.assets.identity import RobotAssetRef  # noqa: E402
-from alexdoor_xas.dataset.b1 import export_dataset, prepare_recording  # noqa: E402
+from alexdoor_xas.dataset.b1 import (  # noqa: E402
+    export_dataset,
+    materialize_train_data,
+    prepare_recording,
+)
 from alexdoor_xas.policies.b1 import (  # noqa: E402
     B1Policy,
     batch_factories,
@@ -364,6 +368,29 @@ def validate_epoch_extension(source, target):
         and target.get("train_sampling") == "phase_balanced_v1"
     ):
         allowed["train_sampling"] = "phase_balanced_v1"
+    old_entries, new_entries = source.get("episodes", []), target.get("episodes", [])
+    if len(new_entries) > len(old_entries) and new_entries[: len(old_entries)] == old_entries:
+        old_train = [
+            e
+            for e in old_entries
+            if e["split"] == "train" and e.get("use_for_imitation") is not False
+        ]
+        old_ids = {e["episode_id"] for e in old_entries}
+        added = new_entries[len(old_entries) :]
+        fit_ids = source.get("normalization_episode_ids", [e["episode_id"] for e in old_train])
+        if (
+            old_train
+            and all(
+                e["split"] == "train"
+                and e["asset_id"] in {x["asset_id"] for x in old_train}
+                and e.get("use_for_imitation") is not False
+                and e["episode_id"] not in old_ids
+                for e in added
+            )
+            and len({e["episode_id"] for e in added}) == len(added)
+            and target.get("normalization_episode_ids") == fit_ids
+        ):
+            allowed.update(episodes=new_entries, normalization_episode_ids=fit_ids)
     if (
         source.get("overfit_updates", 0)
         or target.get("overfit_updates", 0)
@@ -372,7 +399,8 @@ def validate_epoch_extension(source, target):
         or allowed != target
     ):
         raise ValueError(
-            "Continuation requires a strict epoch increase and only a declared sampler correction"
+            "Continuation requires a strict epoch increase and only a declared sampler correction "
+            "or append-only train data with frozen normalization"
         )
 
 
@@ -692,7 +720,11 @@ def evaluate_checkpoints(root, protocol, checkpoints):
                 device="cuda:0",
                 num_inference_steps=protocol["ddim_steps"],
             )
-            if policy.policy.stats.train_episode_ids != train:
+            if getattr(
+                policy, "training_episode_ids", policy.policy.stats.train_episode_ids
+            ) != train or policy.policy.stats.train_episode_ids != getattr(
+                dataset, "normalization_episode_ids", train
+            ):
                 raise ValueError("Returned checkpoint train identities differ")
             data = PolicyData(dataset, train, development, policy.policy.stats, dataset.robot_asset)
             before_stats = policy.policy.stats.to_dict()
@@ -775,10 +807,18 @@ def evaluate_selection_checkpoints(root, protocol, checkpoints, selection, *, re
                     raise ValueError("Duplicate selection starts")
                 buckets[phase] = chosen.tolist()
             suite.append(dict(file=name, episode_id=data.attrs["episode_id"], buckets=buckets))
-    if len(suite) != 2 or len(train_ids) != 2:
+    expected_train = [
+        e["episode_id"]
+        for e in protocol["episodes"]
+        if e["split"] == "train" and e.get("use_for_imitation") is not False
+    ]
+    if len(suite) != 2 or train_ids != expected_train:
         raise ValueError(
-            "This frozen selection suite requires two train and two development records"
+            "Selection requires the declared training membership and two development records"
         )
+    fit_ids = tuple(metadata.get("normalization_episode_ids", train_ids))
+    if not fit_ids or len(set(fit_ids)) != len(fit_ids) or not set(fit_ids) <= set(train_ids):
+        raise ValueError("Selection normalization must use declared train-only episodes")
     suite_record = dict(selection=selection, episodes=suite, train_episode_ids=train_ids)
     suite_path = root / "selection-suite.json"
     if suite_path.exists():
@@ -803,7 +843,10 @@ def evaluate_selection_checkpoints(root, protocol, checkpoints, selection, *, re
                 device="cuda:0",
                 num_inference_steps=protocol["ddim_steps"],
             )
-            if policy.policy.stats.train_episode_ids != tuple(train_ids):
+            if (
+                policy.training_episode_ids != tuple(train_ids)
+                or policy.policy.stats.train_episode_ids != fit_ids
+            ):
                 raise ValueError("Selection checkpoint training membership differs")
             before_stats = policy.policy.stats.to_dict()
             before_weights = {
@@ -923,7 +966,7 @@ def evaluate_selection_checkpoints(root, protocol, checkpoints, selection, *, re
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("audit", "prepare", "train", "evaluate"))
+    parser.add_argument("mode", choices=("audit", "prepare", "materialize", "train", "evaluate"))
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--protocol", type=Path, default=REPO / "configs/b1_policy_pilot.json")
     parser.add_argument(
@@ -952,6 +995,17 @@ if __name__ == "__main__":
         type=Path,
         help="Frozen phase-balanced action-inference selection rules; evaluate only",
     )
+    parser.add_argument(
+        "--prepared-data",
+        type=Path,
+        action="append",
+        help="Prepared train-only data source; materialize mode",
+    )
+    parser.add_argument(
+        "--normalization-episode-id",
+        action="append",
+        help="Original train-only normalization fit identity; materialize mode",
+    )
     parser.add_argument("--selection-repeats", type=int, choices=(1, 2), default=1)
     parser.add_argument(
         "--resume",
@@ -972,11 +1026,19 @@ if __name__ == "__main__":
         parser.error("--continue-from requires train without --resume")
     if args.resume and args.mode != "train":
         parser.error("--resume is only valid for train")
-    if not torch.cuda.is_available():
+    if args.mode == "materialize" and (not args.prepared_data or not args.normalization_episode_id):
+        parser.error("materialize needs prepared sources and original normalization identities")
+    if args.mode != "materialize" and not torch.cuda.is_available():
         raise RuntimeError("CUDA required; do not silently fall back to CPU")
     protocol = json.loads(args.protocol.read_text())
     torch.set_num_threads(4)
-    if args.mode == "audit":
+    if args.mode == "materialize":
+        materialize_train_data(
+            args.prepared_data,
+            args.root / "data",
+            normalization_episode_ids=args.normalization_episode_id,
+        )
+    elif args.mode == "audit":
         protocol["episodes"] = [e for e in protocol["episodes"] if e["asset_id"] == args.asset_id]
         if len(protocol["episodes"]) != 1:
             parser.error("Audit requires one declared identity")
