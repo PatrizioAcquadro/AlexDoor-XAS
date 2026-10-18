@@ -44,7 +44,7 @@ class RolloutWriter:
         for name in ("captures", "control", "commands", "physics_feedback", "evaluator"):
             self.file.create_group(name)
         # Keep dataset handles alive so their bounded chunk caches survive
-        # between rows. Reopening per value recompresses partial image tiles.
+        # between rows instead of repeating work on partial image tiles.
         self._columns = {name: {} for name in self.file if name != "metadata"}
         self._pending = {name: [] for name in self._columns if name != "captures"}
         self._write_failed = False
@@ -85,13 +85,13 @@ class RolloutWriter:
                     maxshape=(None, *arr.shape),
                     dtype=arr.dtype,
                     chunks=chunks,
-                    compression="lzf",
+                    compression=None if image else "lzf",
                     **(
                         dict(
-                            shuffle=True,
+                            shuffle=False,
                             # Keep one temporal tile set resident while frames
-                            # stream in; otherwise each frame rewrites ten-frame
-                            # chunks after the default 1 MiB cache evicts them.
+                            # stream in, avoiding repeated partial-tile work after
+                            # the default 1 MiB cache would evict them.
                             rdcc_nbytes=max(1 << 20, 12 * arr.nbytes),
                             rdcc_nslots=4099,
                         )

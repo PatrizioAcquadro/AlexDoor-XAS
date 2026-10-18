@@ -106,7 +106,12 @@ additional gain does not justify the capture/lifecycle complexity.
 Local rollout images now use existing lossless LZF/shuffle instead of gzip level
 4. The isolated sample is 39% faster with 31% larger files. On the full recording,
 reader-inclusive rewrite time is 57.16 versus 65.38 seconds; the output is 798 MB
-versus the historical 577 MB. Both complete rewrites preserve every one of the
+versus the historical 577 MB. The subsequent local development writer stores
+image tiles uncompressed, retaining LZF for numeric columns: the same complete
+rewrite takes 42.78 versus 48.25 seconds with buffered LZF and occupies 2.480 GB
+versus about 0.798 GB. This trades local storage for lower compression cost;
+final dataset writers and old compressed readers are unchanged. All complete
+rewrites preserve every one of the
 2,419,788,862 uncompressed bytes in all 47 columns: 524 RGB-D captures, 3,144
 control states, 3,143 total commands including inspection, and 6,286 rows per
 native stream. Missing-depth NaN payloads, causal joins and applied commands
