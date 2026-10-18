@@ -31,13 +31,11 @@ uses new directories and reuses its separately audited identical ACT A1 integrat
 
 The cumulative authorization remains **40 local GPU hours, 32 remote GPU hours
 across Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 total
-demonstration attempts**, all previous use included. Through 13 closed outcomes and retained diagnostic/interruption allocations,
-local use is 10.2989 GPU hours; remote use is 3,503 GPU seconds,
-updates are at most 96,364 (including 200 possibly lost updates), and six fresh
-demonstrations are consumed at that historical snapshot. The first newly declared
-state-coverage episode qualifies independently; a second attempt is interrupted
-by a transient RustDesk CUDA context and remains incomplete/excluded. Eight
-attempts are consumed, including the failed allocation. Current machine-readable reconciliation governs each
+demonstration attempts**, all previous use included. At the five-record preparation
+milestone, local allocation is 12.46 GPU hours (including an active provisional
+span), remote use is 3,503 GPU seconds, updates are at most 96,364 (including 200
+possibly lost updates), retained evidence is 388.58 GiB and 11 demonstration
+attempts are consumed. Current machine-readable reconciliation governs every
 launch and growing retained storage. Development stays local and never updates
 weights or statistics. No remote job is active; Gautschi H100 access/resource
 preflight is verified, with no H100 training allocation yet.
@@ -53,30 +51,39 @@ reconstructs the consumed input, checkpoint output and actual first request with
 zero error. Model-query p50/p95 are 19.22/20.14 ms; synchronous simulation does not
 establish real-time 60 Hz execution. The one-tick profile is rejected.
 
-Four fresh teacher attempts are prospectively declared: opposite measured small
-initial arm offsets on each train door, retaining existing seen lighting, teacher,
-controller, door/body placement, dynamics and physical criteria. Full-robot
-clearance checks at the actual control cadence pass with existing uncertainty and
-stop bounds; the coarser failed check remains. Actual fresh-record physical/raw
-eligibility passes for right/plus; left/plus is interrupted and excluded.
-A bounded real cancellation check now passes exit130 and 240 healthy native
-samples over two continuing simulated seconds, with no violations or travel.
-The identical replacement and two unallocated collections resume after shared
-resource availability; all previous failures remain.
-Queue waiting consumes no attempt or GPU allocation.
+The four declared initial-state conditions are now evaluated with unchanged
+teacher/controller/physics. Right/plus, left/plus and left/minus independently
+qualify; right/minus loses contact and remains excluded, including its valid
+prefix. The earlier incomplete left/plus RustDesk interruption is also excluded.
+The five actual allocations consume attempts 7–11. Full raw/native/FK/clock and
+supervision reuse checks pass for every new eligible episode; operational A3/A4
+remains unqualified. A real cancellation check passes exit130 and 240 healthy
+native samples over two continuing simulated seconds. Queue waiting consumes no
+attempt or GPU allocation.
 
 The longer ACT execution charges 2,046.720 GPU seconds and retains 1.563 GiB
 of consumed-input HDF5. Scaling only its measured learned loop to 9,000 ticks gives
 2,499.063 seconds per case, or a 16.660-hour full-panel scenario; this is not a
 runtime guarantee. The measured near-complete failure and original bounds remain.
 
-The maintained data path now streams exactly representable float32 observations
-into contiguous file-backed training files. Every original train value round-trips
-exactly; the full-size CPU-only check peaks at 0.309 GiB. Added training records
-may retain explicit normalization fit on the original train subset. Strict
-continuation permits only appended train episodes on existing train assets,
-unchanged old entries/exclusions and frozen normalization; seed, optimizer/RNG/EMA
-and other protocol settings remain unchanged. No new optimizer update has run.
+The maintained data path combines the original two and all three new eligible
+train records with exact float32, contiguous file-backed observations. Original
+normalization remains bit-identical, fitted only on the original two train
+records. Full-size A1→A2 qualification peaks at 16.95 GiB process RAM and releases
+to about 0.73 GiB between spaces; cgroup peak including file cache is 36.00 GiB.
+The 40 GiB orderly guard, 42 GiB hard limit and 12 GiB host reserve remain.
+Diffusion retains its original action-range clipping: 0.55% of A1 and 0.95% of A2
+labels exceed the frozen range, with maximum A2 translation-component excess
+0.411 mm. Labels are retained; no normalization refit or physical-gate change.
+
+Before new updates, the qualified-data stage declares the same 2,000-update
+checks, 5% inferred development-action progress, all bucket-p95 ratios ≤1.10 and
+common stop after any cell's three unsuccessful or persistently regressing
+controls. It resumes every latest 24,000 state with seed/optimizer/RNG/EMA intact.
+A paired, fixed inferred-train-action suite diagnoses training-only improvement
+before further updates. Old stops and selected controls remain. No new-data
+optimizer update has run at this preparation milestone. A newly selected version
+requires actual integrated execution before a distinct frozen 24-outcome panel.
 
 A read-only 20/50-step DDIM diagnosis fails its improvement
 guards, so the original 10-step sampler remains. No new weights are introduced by these checks.
@@ -87,8 +94,8 @@ uniform sequence stops at 18,000; one diagnosed phase-sampling correction stops
 at 24,000. Both stops, intermediate weights, rejected tails and training-only
 regression diagnoses are retained. Selection uses fixed phase-balanced inferred
 development actions, 5% guarded progress and three-control patience, without
-comparing ACT loss to Diffusion MSE. No more optimizer updates run during this
-frozen panel. Development contains two lighting variants of one motion, not an
+comparing ACT loss to Diffusion MSE. The original frozen panel remains unchanged during the separately declared
+qualified-data continuation. Development contains two lighting variants of one motion, not an
 independent-trajectory or generalization demonstration.
 
 Operational door-contact evidence is separate from complete physical validity:

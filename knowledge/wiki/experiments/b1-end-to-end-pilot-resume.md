@@ -1982,3 +1982,51 @@ query cap is insufficient for the right30s numerical state; a separately declare
 60000-query development cap completes15241queries over2323cells. This is one
 retained-state component result, with zero learned commands and no whole-path or
 real-time qualification.
+
+
+## Qualified five-record continuation cohort
+
+All four declared initial-state conditions are now evaluated. Three complete
+cycles qualify (right/plus, repaired left/plus and left/minus); right/minus loses
+contact at 23.602 degrees and remains wholly excluded, including its valid prefix.
+Its empty hold phase is explicitly unavailable, never an inferred valid hold.
+The interrupted earlier left/plus remains excluded. Five actual new allocations
+consume attempts 7–11. Every eligible new record passes unchanged full-cycle
+physical, raw/FK/clock and supervision reuse checks; native q/dq/acceleration
+remain within the original model domains. Operational A3/A4 remains unqualified.
+
+Before preprocessing or optimizer updates, the preserved original four-eligible
+plan is amended prospectively in `state-coverage-training-rule-qualified-v4.json`:
+include every complete qualified new episode after all four outcomes are known,
+requiring at least one per train asset. No failed episode is relabeled or replaced
+to fill a favorable count. Actual training membership is five episodes (two
+right, three left); all four model combinations receive the same membership and
+unchanged phase-balanced sampler. Normalization fit remains exactly the original
+two records. Development stays separate and local.
+
+Actual single-record CUDA encoding plus exact-float32 materialization charges
+417.709 GPU seconds, retaining all source recordings. Full five-record A1→A2
+qualification passes with 16.95 GiB process peak; released RSS is 0.73 GiB before
+the next space. Cgroup peak including reclaimable file cache is 36.00 GiB; host
+reserve, 40 GiB orderly guard and 42 GiB hard cap remain. Collection separately
+uses MemoryHigh32 GiB below its unchanged 36 GiB guard to reclaim measured file
+cache before the guard. Evidence is `state-coverage-preparation/data-qualification.json`
+and `collection-file-cache-margin.json`.
+
+New labels remain intact: 206/37,660 A1 and 358/37,660 A2 actions exceed the
+original normalization range. Diffusion's unchanged scheduler clips sampled
+normalized actions to that range; the largest excluded translation-component
+excursion is 0.411 mm, and rotation-component excursion 0.000716 rad. This is a
+known output-support limitation, not a complete physical error bound. ACT does
+not share this min/max clipping. No label clipping, normalization refit or relaxed
+physical criterion is introduced.
+
+Before the first new-data update, `state-coverage-paired-train-action-rule.json`
+freezes 32 complete 12-action windows per phase and qualified train episode,
+seed23 and the same physical action metrics used on development. Latest24k and
+each candidate infer on identical causal vectors; raw phase labels only select
+supervision/evaluation windows. Preserve all predictions. An inferred train gain
+without a development gain holds further updates for diagnosis. The original
+5%/10%-p95/common-three-control stopping rule and global selected controls remain;
+continuation resumes latest24k seed17/optimizer/RNG/EMA, never selected-best states.
+No optimizer update from this cohort has run at this preparation milestone.
