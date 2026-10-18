@@ -89,8 +89,11 @@ repeated prepared tensors. Invalid feature support remains explicit; sampled
 failed inputs are retained. Raw validity, NaN bit patterns and SDK intrinsics
 are preserved. Dataset handles remain open for the writer lifetime so bounded
 HDF5 chunk caches survive between rows; partial image tiles are compressed at
-flush/close instead of on every reopen. The 60-control-tick flush cadence,
-column validation and completion marker are unchanged. Local rollout images use
+flush/close instead of on every reopen. Numeric rows are copied into bounded batches of at most 128 rows per stream,
+then drained before the unchanged 60-control-tick flush and on finish/close.
+Logical clock/column validation includes pending rows. A partial storage error
+leaves the recording incomplete and cannot retry a partly written batch.
+Column validation and the completion marker remain intact. Local rollout images use
 LZF instead of gzip level 4: the fixed saved-input sample writes 39% faster with
 about 31% larger files. Values and schema are unchanged; existing gzip recordings
 remain readable. Recorded-input checks

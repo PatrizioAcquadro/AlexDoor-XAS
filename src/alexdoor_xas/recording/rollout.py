@@ -46,6 +46,8 @@ class RolloutWriter:
         # Keep dataset handles alive so their bounded chunk caches survive
         # between rows. Reopening per value recompresses partial image tiles.
         self._columns = {name: {} for name in self.file if name != "metadata"}
+        self._pending = {name: [] for name in self._columns if name != "captures"}
+        self._write_failed = False
         self.dt, self.period = control_dt, image_period_s
         self.last_time = self.last_frame = self.last_capture_s = None
         self.captures = {}
@@ -55,6 +57,8 @@ class RolloutWriter:
 
     def append(self, group, values):
         """Numeric columns have stable shape; descriptions live in metadata/sidecars."""
+        if self._write_failed:
+            raise RuntimeError("rollout_write_failed")
         target = self._columns[group]
         # Validate the whole row before extending any existing column.
         for key, value in values.items():
@@ -95,9 +99,50 @@ class RolloutWriter:
                         else {}
                     ),
                 )
-            column = target[key]
-            column.resize(len(column) + 1, axis=0)
-            column[-1] = arr
+        if group in self._pending:
+            self._pending[group].append(
+                {key: np.array(value, copy=True) for key, value in values.items()}
+            )
+            if len(self._pending[group]) >= 128:
+                self._flush_group(group)
+        else:
+            for key, value in values.items():
+                column = target[key]
+                column.resize(len(column) + 1, axis=0)
+                column[-1] = value
+
+    def _length(self, group):
+        columns = self._columns[group]
+        written = len(next(iter(columns.values()))) if columns else 0
+        return written + len(self._pending.get(group, ()))
+
+    def _value(self, group, key, index):
+        column = self._columns[group][key]
+        return (
+            column[index] if index < len(column) else self._pending[group][index - len(column)][key]
+        )
+
+    def _flush_group(self, group):
+        rows = self._pending[group]
+        if not rows:
+            return
+        try:
+            for key, column in self._columns[group].items():
+                start = len(column)
+                column.resize(start + len(rows), axis=0)
+                column[start:] = np.stack([row[key] for row in rows])
+        except BaseException:
+            self._write_failed = True
+            raise
+        rows.clear()
+
+    def flush(self):
+        """Drain bounded numeric rows before the unchanged durable HDF5 flush."""
+        if self._write_failed:
+            raise RuntimeError("rollout_write_failed")
+        for group in self._pending:
+            self._flush_group(group)
+        self.file.flush()
 
     def observe(self, sensor, observation, robot_state):
         """Call after the actual observer; its support identifies consumed frames.
@@ -200,14 +245,13 @@ class RolloutWriter:
         self.last_time, self.last_frame = t, frame
         self.count += 1
         if self.count % 60 == 0:
-            self.file.flush()
+            self.flush()
 
     def command(self, values):
         """Append the submitted command and actual bounded targets after execution."""
-        commands = self.file["commands"]
-        index = len(commands["time_s"]) if len(commands) else 0
+        index = self._length("commands")
         if index != self.count - 2 or not np.isclose(
-            float(values["time_s"]), self.file["control/time_s"][index], atol=1e-9, rtol=0
+            float(values["time_s"]), self._value("control", "time_s", index), atol=1e-9, rtol=0
         ):
             raise ValueError("noncausal_recorded_command")
         self.append("commands", values)
@@ -217,13 +261,13 @@ class RolloutWriter:
         for group, rows in (("physics_feedback", robot_rows), ("evaluator", evaluator_rows)):
             for row in rows:
                 timestamp = float(row["time_s"])
-                stream = self.file[group]
+                length = self._length(group)
                 if (
                     self.last_time is None
                     or not np.isfinite(timestamp)
                     or not 0 <= timestamp <= self.last_time
-                    or len(stream)
-                    and timestamp <= stream["time_s"][-1]
+                    or length
+                    and timestamp <= self._value(group, "time_s", length - 1)
                 ):
                     raise ValueError("invalid_rollout_physics_clock")
                 self.append(group, row)
@@ -231,12 +275,18 @@ class RolloutWriter:
     def finish(self, outcome):
         if not isinstance(outcome.get("passed"), bool) or not outcome.get("termination"):
             raise ValueError("missing_explicit_rollout_outcome")
-        commands = self.file["commands"]
-        if self.count == 0 or (len(commands["time_s"]) if len(commands) else 0) != self.count - 1:
+        if self.count == 0 or self._length("commands") != self.count - 1:
             raise ValueError("incomplete_rollout_transitions")
         self.file["metadata"].attrs["outcome"] = json.dumps(outcome, allow_nan=False)
+        self.flush()
         self.file.attrs["complete"] = True
         self.file.flush()
 
     def close(self):
-        self.file.close()
+        if not self.file:
+            return
+        try:
+            if not self._write_failed:
+                self.flush()
+        finally:
+            self.file.close()

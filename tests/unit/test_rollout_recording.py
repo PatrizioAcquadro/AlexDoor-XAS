@@ -165,3 +165,48 @@ def test_chunk_boundaries_partial_flush_and_invalid_row(tmp_path):
         for index, tick in enumerate(range(0, 133, 6)):
             for key in ("rgb", "depth_m", "valid_depth"):
                 assert h5[f"captures/{key}"][index].tobytes() == sensor(tick)[key].tobytes()
+
+
+def test_buffered_numeric_rows_own_inputs_and_flush_on_close(tmp_path):
+    path = tmp_path / "buffered-partial.hdf5"
+    log = writer(path)
+    log.observe(sensor(0), observation(0, 0), {})
+    for tick in range(1, 63):
+        log.observe(sensor(tick), observation(tick, tick - tick % 6), {})
+        target = np.full(7, tick, dtype=float)
+        log.command(dict(time_s=(tick - 1) / 60, joint_target=target))
+        target[:] = -999  # The next producer update cannot rewrite pending evidence.
+        if tick == 59:
+            assert len(log.file["control/time_s"]) == 60
+    log.close()
+    log.close()
+    with h5py.File(path) as h5:
+        assert not h5.attrs["complete"]
+        assert len(h5["control/time_s"]) == 63
+        np.testing.assert_array_equal(h5["commands/joint_target"][:, 0], np.arange(1, 63))
+
+
+def test_partial_storage_failure_is_not_retried_or_marked_complete(tmp_path, monkeypatch):
+    path = tmp_path / "write-failure.hdf5"
+    log = writer(path)
+    log.observe(sensor(0), observation(0, 0), {})
+    original = h5py.Dataset.__setitem__
+    failures = []
+
+    def fail(dataset, key, value):
+        if dataset.name == "/control/time_s":
+            failures.append(True)
+            raise OSError("injected storage failure")
+        return original(dataset, key, value)
+
+    monkeypatch.setattr(h5py.Dataset, "__setitem__", fail)
+    with pytest.raises(OSError, match="storage failure"):
+        log.finish(dict(passed=False, termination="failure"))
+    with pytest.raises(RuntimeError, match="rollout_write_failed"):
+        log.flush()
+    with pytest.raises(RuntimeError, match="rollout_write_failed"):
+        log.append("control", dict(time_s=np.float64(1)))
+    log.close()
+    assert len(failures) == 1
+    with h5py.File(path) as h5:
+        assert not h5.attrs["complete"]

@@ -150,10 +150,13 @@ for other clients remains unchanged. The latest refusal measures reset at
 0.230 seconds instead of about ten seconds;
 this partial timing does not establish the complete diagnostic target.
 
-A bounded numeric-row buffering prototype preserves all 47 columns/2.42 GB and
-passes existing recording regressions. Its reader-inclusive rewrite takes 48.29
-versus 57.16 seconds. It remains unintegrated; no broader writer interface or
-failure-handling change is claimed.
+Bounded numeric-row buffering now copies at most 128 rows per stream and drains
+them at the existing flush cadence and on finish/close. The integrated writer
+preserves all 47 columns/2.42 GB exactly; reader-inclusive rewrite takes 48.25
+versus 57.16 seconds. Input-mutation, partial close, clock/column errors and
+injected storage-failure regressions pass. Partial storage errors stay incomplete
+and cannot retry a partly written batch; complete updated runtime timing remains
+unproven.
 
 No observation, force, stopping, material or physical gate is weakened.
 
