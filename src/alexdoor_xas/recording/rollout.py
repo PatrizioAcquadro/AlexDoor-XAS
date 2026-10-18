@@ -81,10 +81,9 @@ class RolloutWriter:
                     maxshape=(None, *arr.shape),
                     dtype=arr.dtype,
                     chunks=chunks,
-                    compression="gzip" if image else "lzf",
+                    compression="lzf",
                     **(
                         dict(
-                            compression_opts=4,
                             shuffle=True,
                             # Keep one temporal tile set resident while frames
                             # stream in; otherwise each frame rewrites ten-frame

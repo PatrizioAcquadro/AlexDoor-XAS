@@ -87,7 +87,7 @@ def test_lossless_input_joins_and_complete_failure(tmp_path):
                     h5[f"captures/{key}"][row].view(np.uint8), sensor(tick)[key].view(np.uint8)
                 )
         assert "force_n" not in h5["captures"] and "force_n" not in h5["control"]
-        assert h5["captures/depth_m"].compression == "gzip"
+        assert h5["captures/depth_m"].compression == "lzf"
         assert h5["captures/depth_m"].chunks == (10, 4, 6, 1)
     with pytest.raises(FileExistsError):
         writer(path)

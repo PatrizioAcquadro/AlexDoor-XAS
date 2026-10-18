@@ -82,7 +82,7 @@ path without establishing production-scale or final matched-data qualification.
 artifacts separately from imitation data. `b1.policy_rollout.v1` stores the raw
 images actually consumed at 10 Hz, all 60 Hz proprioception/full robot/tool
 states, submitted commands and applied targets, and the native 120 Hz robot
-feedback. Lossless gzip/shuffle image tiles avoid repeating the four-image input
+feedback. Lossless LZF/shuffle image tiles avoid repeating the four-image input
 at each control tick. Per-control static/three-history image indices and feature
 acquisition/availability clocks preserve causal reconstruction without saving
 repeated prepared tensors. Invalid feature support remains explicit; sampled
@@ -90,7 +90,10 @@ failed inputs are retained. Raw validity, NaN bit patterns and SDK intrinsics
 are preserved. Dataset handles remain open for the writer lifetime so bounded
 HDF5 chunk caches survive between rows; partial image tiles are compressed at
 flush/close instead of on every reopen. The 60-control-tick flush cadence,
-column validation and completion marker are unchanged. Recorded-input checks
+column validation and completion marker are unchanged. Local rollout images use
+LZF instead of gzip level 4: the fixed saved-input sample writes 39% faster with
+about 31% larger files. Values and schema are unchanged; existing gzip recordings
+remain readable. Recorded-input checks
 preserve all numeric/image bytes across chunk boundaries, including NaN payloads.
 The robot occlusion filter also reuses its selected depth array within one
 capture instead of copying it twice per mesh. It recomputes the array on every
