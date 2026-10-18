@@ -8,151 +8,100 @@ fixed physical criteria and sealed test doors. No production campaign or robot w
 
 ## Current fixed-panel continuation
 
-The latest user authorization replaces prior ceilings with cumulative limits of
-40 local GPU hours, 32 Gilbreth GPU hours (115,200 allocated GPU seconds), 100,000
-optimizer updates, 1 TiB retained evidence and 24 demonstration attempts. Every
-previous failure/allocation remains charged. At this change remote use is 3,503
-GPU seconds, at most 17,964 updates and six demonstrations are consumed. Local
-RTX training and necessary additional eligible demonstrations are authorized.
-Development remains local and never updates weights or normalization. The current
-authorization and live reconciliation are retained beside the historical counters;
-older budget figures below describe their original stages, not current limits.
+The latest authorization is cumulative: **40 local GPU hours, 32 remote GPU hours
+(115,200 GPU seconds across Gilbreth and authorized Gautschi H100s), 100,000
+optimizer updates, 1 TiB retained evidence and 24 demonstration attempts**.
+All previous allocations, failures, exclusions and conservative charges remain.
+At completion of the current training stage, local use is 7.8917 GPU hours,
+remote use 3,503 GPU seconds, retained pilot storage 253.985 GiB and six fresh
+demonstrations consumed. Checkpointed updates are 48,164; 200 potentially lost
+previous updates give an upper consumed count of 48,364. Current machine-readable
+reconciliation governs launches; older budget figures below describe prior stages.
+Development stays local and never updates weights or normalization.
 
-The matched continuation now completes locally from the preserved ACT A2
-3,200-update state and original Diffusion A2 3,000-update state, keeping the same
-two train episodes, seed 17, optimizer/RNG/EMA and protocol. Both A1 models already
-completed 4,400 updates on A100; their final files remain byte-identical. The
-remaining 2,600 A2 updates run on RTX 4090 in 101.96 seconds plus the conservative
-five-second tail, with median throughput 46.56/48 updates per second. All four
-state/protocol/update checks pass. This hardware difference is disclosed.
-Checkpointed cumulative updates are 17,764; adding the 200 previous potentially
-lost updates gives an upper count of 17,964. This leaves 82,036 updates under
-the latest cumulative authorization; any continuation retains comparable treatment.
+All four models genuinely reach **12,000 updates**. Initial 3,000-update training
+runs on A100; the matched 4,400 stage retains completed A1 A100 states and finishes
+the remaining 2,600 A2 updates on the explicitly authorized RTX. The common
+4,400-to-12,000 continuation then adds 7,600 updates to each cell on RTX, with
+unchanged two eligible train episodes, seed 17, optimizer/RNG/EMA, statistics and
+learned RGB-D recipe. Complete 120-epoch states retain their original 44-epoch
+prefix exactly; diffusion EMA counters also reach 12,000. All four saved CUDA
+round trips have zero prediction discrepancy. Original 3,000/4,400 artifacts
+remain intact; no development-based checkpoint selection is used.
 
-The first local development allocation completes A1 metrics, then the user reports
-an OOM at about 49 GiB that also kills Codex. Source inspection confirms the
-cause: `PolicyData` still owns A1 while the next `B1Dataset` constructor loads
-A2. The earlier attribution to a simple chat/tool interruption was incomplete
-and is superseded. Its conservative allocation upper charge and raw metrics stay
-preserved. The second owned service is stopped before another OOM; its journal
-records a 43.4 GiB peak. At that interruption no final simulation panel had started.
+The new stage charges 729.704 GPU seconds including the five-second conservative
+tail. Median throughput is 49.25/49.56/48.44/48.60 updates per second for ACT A1,
+Diffusion A1, ACT A2 and Diffusion A2. Process peak RSS is 14.848 GiB; more than
+36.6 GiB host RAM remains available. Final train ACT normalized L1 is 0.03972/
+0.04086; diffusion MSE is 0.01354/0.01590. These losses establish optimization,
+not manipulation success. After every model/state check and counter update, an
+argument-variable shadowing error prevents the completion marker. The original
+failed wrapper, traceback and full allocation remain preserved. An independent
+CPU-only saved-state/hash/history/statistics audit recovers explicit completion
+metadata without retraining, GPU allocation, weight changes or double charging.
 
-The correction releases evaluation owners and training factory closures before
-loading another action representation. It checks logical HDF5/VDS observation
-bytes before loading, reserves 12 GiB for the desktop/other processes, and logs
-RSS/high-water marks at representation boundaries and during inference. Existing
-epoch checkpoints are saved before a training memory-pressure check. Completed
-family metrics remain on disk if evaluation stops. No data, weights, statistics,
-seeds or numerical evaluation rules change.
+Gilbreth job `11975638` is cancelled while still pending at `AssocGrpGRES`, only
+after the preceding simulation releases all shared leases. Slurm confirms zero
+allocated seconds and updates. Gautschi access and Python 3.11 / PyTorch CUDA 12.6
+work; H100 test-only submission requires 14 CPUs per GPU and automatic proportional
+memory. Its predicted start is October 23, so no duplicate H100 job is submitted.
+Both rejected resource declarations are zero-allocation preflights. The prepared
+remote path stages compact inputs and checkpoints onto node-local storage to
+correct the earlier shared-file VDS read stall. The earlier failed repair's 169
+GPU seconds, interrupted states and potentially lost updates remain charged.
 
-A separate CPU-only check loads the actual four-file, 25.902 GB logical dataset
-for A1 and A2 sequentially. Peak process RSS is 24.766 GiB; releasing A1 drops
-RSS to 0.639 GiB before A2, and releasing A2 leaves 0.643 GiB. At least 28.518 GiB
-remains available on the host. The isolated service peaks at 25.210 GiB and
-finishes in 22.78 seconds with zero model inference, optimizer updates or GPU
-allocation. Focused lifetime, logical-VDS-size, low-memory and preprocessing
-regressions pass. This verifies the RAM correction, not new learned task success.
+The 4,400-update `full-v8` version retains **two complete failed outcomes**:
+ACT A1 right/nominal executes 488 commands, then stops at the contact-acquisition
+budget; identical-checkpoint left/nominal executes 2,243 commands, then stops at
+the observed orientation guard. Neither reaches physical contact/opening, hold or
+release. Both input/command/native retention audits and continuing-physics stops
+pass with no physical violation. The original frozen 24-slot plan is unchanged;
+only its 22 unallocated slots are retired for the already-declared common training
+continuation. No running GPU episode is interrupted. Those slots remain explicitly
+unexecuted and no complete fixed-panel success rate is reported. All earlier
+3,000-update outcomes remain separate; no favorable versions are combined.
 
-All 25 remaining allocation supervisors additionally check host RAM before launch
-and every half second during work. Below the 12 GiB reserve they stop only their
-own process group through the existing orderly stop/recording path, with a bounded
-30-second shutdown. The durable pipeline uses a 36 GiB memory-high threshold,
-42 GiB hard containment limit and no workload swap; these protect the desktop if
-a defect escapes the cooperative checks. CUDA verification resumes only with the
-corrected offline source, while physical runtime/controller and panel criteria
-remain unchanged. Both previous partial A1 reports and failed/stopped allocations
-remain preserved. The corrected full four-checkpoint CUDA evaluation now also
-completes: peak process RSS 26.206 GiB, at least 27.787 GiB host memory available,
-and all weights/statistics remain unchanged. Previously completed A1 mean-error
-vectors match exactly. The new common 24-outcome version is frozen with physical
-source `b2969ef` and offline memory correction `e8f50cf`; integrated physical
-execution is the next stage.
+The preceding full-v8 inspection interruption is also retained: a new known Chrome
+graphics PID falsely triggers the resource monitor before any learned command.
+The recording remains honestly incomplete, including its one-control-tick gap
+before the actual stop anchor. Its 240 healthy 120 Hz stop samples cover two
+simulated seconds, with zero tool travel and no forbidden contact. This is an
+infrastructure failure, not a completed policy outcome. The shared classifier now
+recognizes desktop graphics consistently before and during work. Normal desktop
+activity alone does not block sufficient capacity; foreign compute, unknown
+graphics, three shared leases, 180-second preflight and host/VRAM guards remain.
+Only our worker is stopped on interference. Queue waiting is uncharged.
 
-The remote repair's cause remains documented: CUDA startup takes 75.972 seconds,
-then shared-file reads stall in `rpc_wait_bit_killable`. No new epoch is saved;
-cancellation charges 169 GPU seconds, including cleanup. Original checkpoints,
-partial states, logs and hashes are preserved. Two potentially lost 100-update
-epochs remain conservatively charged; additional remote time does not erase them.
+The next version is prepared as `full-v9-12000`. Frozen local CUDA development
+inference must complete for all four models before checkpoint hashes and the
+common 24-outcome plan freeze. It reuses the exact prepared cache and corrected
+offline source; no raw re-export, new demonstration or model update occurs.
+The first actual integrated outcome must pass retention/continuing-stop checks and
+supply measured cost before the remaining 23 run. Original physical source
+`b2969ef`, main-position/main-13 recipe, selected teacher/controller, expert
+references, initial placement, three lighting conditions, seeds and 9,000-tick
+horizon remain unchanged. Completion still requires all 24 retained outcomes,
+commands from all four models and one identical checkpoint succeeding on both
+doors with at least 80% matched controlled opening, valid hold and release.
 
-The original full-v7 panel retains five complete failed outcomes, including
-242 actual commands from Diffusion A2 right/nominal. Its next ACT A1 right/dim
-attempt is externally interrupted during inspection when RustDesk appears as a
-GPU compute process. It has zero learned commands; 240 healthy native samples
-retain the two-second continuing-physics interruption stop. That allocation and
-raw recording remain separate from complete panel outcomes. The subsequent
-scheduler is retired before allocating again for the newly authorized matched
-continuation. No completed outcome is repeated or removed.
+The offline OOM correction remains required for every stage. The user-reported
+approximately 49 GiB A1-to-A2 peak is caused by retained `PolicyData` ownership;
+the earlier simple-interruption attribution is superseded. A second owned run
+is stopped before another OOM, with 43.4 GiB journal peak. Both partial A1 reports
+and allocation charges remain. Source `e8f50cf` releases dataset/factory owners,
+checks logical HDF5/VDS RAM before loading, reserves 12 GiB and logs RSS/high-water
+marks. Epoch checkpoints precede training memory-pressure checks. Full-size CPU
+validation peaks at 24.766 GiB and releases to 0.639 GiB before A2; full four-model
+CUDA development peaks at 26.206 GiB with at least 27.787 GiB host RAM available.
+All future supervisors check RAM every half second, request orderly owned-workload
+shutdown below reserve, and use 36/42 GiB service soft/hard containment with no swap.
 
-The next common panel freezes all four 4,400-update checkpoints only after local
-verification, then runs one integrated outcome and the remaining fixed slots
-under the unchanged physical/reference/hold/release requirements. Old 3,000-update
-outcomes and any new outcomes remain separate versions. Exact local cache
-replacement recovers 23.046 GiB while preserving all raw recordings; retained
-pilot storage before the local continuation was 252.399 GiB. Local GPU use was
-7.2356 hours before the corrected CUDA evaluation. Full-horizon cost remains an
-extrapolation, so measured cost and cumulative guards govern each launch.
-
-The availability preflight classifies recognized desktop graphics separately from
-competing compute. Under the latest explicit user instruction, normal desktop
-activity alone does not block sufficient capacity, regardless of its utilization,
-power or clock. All 25 verification/panel wrappers retain three shared leases,
-180 continuous seconds without foreign compute or unknown graphics, VRAM and
-host-RAM reserves, and stopping only our worker on foreign interference. GPU
-telemetry remains recorded. This resource change does not alter physical admission,
-control, checkpoints or the frozen panel; queue waiting is uncharged.
-
-The first full-v8 physical allocation is interrupted during inspection at
-17.783 simulated seconds when Chrome starts a new graphics-only GPU process.
-The monitor had treated any new graphics PID as foreign even though the preflight
-already recognized that desktop role. There is no foreign compute process and
-at least 34.087 GiB host RAM remains available. The attempt executes zero learned
-commands and stays an explicitly incomplete recording; it is not a completed
-panel outcome. Its last control record precedes the in-step stop anchor by one
-control tick. This gap is retained rather than relabeled as a complete clock join.
-The stop has 240 healthy 120 Hz samples over two seconds, zero tool travel and
-no forbidden contact. Its allocation and all raw signals remain charged/preserved.
-
-A shared desktop classifier now applies consistently before and during each
-allocation. Known graphics-only desktop processes may change PID; compute,
-mixed compute/graphics and unknown graphics remain unexempted. Nine focused
-resource/lifetime regressions pass. The completed-outcome retention gate stays
-strict. Only the diagnosed zero-command infrastructure interruption may resume
-under the original frozen checkpoint/protocol; no completed policy outcome is
-retried. Reports retain both the fixed 24 planned outcomes and every closed raw
-attempt, including infrastructure interruptions, with separate denominators.
-
-The first complete full-v8 outcome is ACT A1 right/nominal: 488 learned commands,
-zero contact/opening, then `contact_acquisition_budget`. Input/command/native
-retention and the continuing-physics stop pass, with no physical violation.
-It counts as the first failed fixed outcome. Measured charged cost is 385.31 GPU
-seconds and 0.396 GiB retained. The mean reached-state policy service is 0.2262 s;
-extrapolating all remaining 23 slots to 9,000 ticks gives 14.76 GPU hours, an
-explicit scenario rather than a guarantee. The remaining panel continues under
-actual cumulative guards. No outcome from another version substitutes for a slot.
-
-A matched 4,400-to-12,000 continuation is now prepared for all four combinations:
-30,400 additional updates, same two eligible train episodes, seed, optimizer/RNG/EMA,
-normalization and learned RGB-D recipe. The first two frozen 4,400 outcomes fail
-before contact (488 commands right; 2,243 left, ending at the orientation guard),
-and train ACT normalized L1 remains about 0.069/0.071. Longer optimization is a
-prospective common test, not a claimed solution or favorable restart. The original
-24-outcome version continues without changing its checkpoints.
-
-Gilbreth job `11975638` stays pending at `AssocGrpGRES` and is cancelled only after
-the current simulation episode releases the shared GPU leases. Authoritative Slurm
-accounting confirms zero allocated seconds and no updates. Gautschi access and the
-existing Python 3.11 / PyTorch CUDA 12.6 environment work; H100 test-only submission
-requires 14 CPUs per GPU and automatic proportional memory. Its predicted start
-is October 23, so no duplicate H100 job is submitted. The user's H100 permission
-extends the allowed training hosts; the 32 remote GPU hours remain a shared
-cumulative cap. Both rejected resource declarations are zero-allocation preflights.
-
-The same continuation is queued on the explicitly authorized RTX, between panel
-episodes, using all shared leases and the RAM/foreign-compute guards. It uses one
-CUDA context and the byte-identical train-only compact cache. The next frozen
-version will require all four complete states, local CUDA loading and separate
-frozen development inference before any learned panel. No new demonstrations,
-seed changes, development training or physical-controller changes are introduced.
+The earlier actual left contact-stop check also passes: 7.6819 N independent
+trigger peak, 0.18375 mm maximum travel during the two-second continuing-physics
+stop, and no violation. This complements the right result; pending-left statements
+in historical stages below are superseded. Complete retained teacher-path contact,
+finite material/footprint and robot-sweep qualifications remain distinct from
+learned task success. The selected teacher and controller are preserved.
 
 ## Left position-domain prerequisite
 

@@ -15,38 +15,40 @@ An additional ACT A1 right/dim inspection is interrupted by a foreign RustDesk
 GPU process before any learned command. Its allocation, raw recording and
 continuing-physics stop are retained. No completed outcome is retried.
 
-The current cumulative authorization is **40 local GPU hours, 32 remote GPU
-hours across Gilbreth and authorized Gautschi H100s, 100,000 optimizer updates, 1 TiB retained pilot evidence and 24 demonstration
-attempts**, including every previous allocation and failure. At the authorization
-change, remote use is 3,503 GPU seconds, optimizer consumption is at most 17,964
-(including 200 possibly lost updates), and six demonstrations are consumed.
-Current machine-readable counters in the continuation evidence govern each launch.
-Local RTX training is explicitly authorized; development remains local and never
-updates weights or normalization.
+The cumulative authorization is **40 local GPU hours, 32 remote GPU hours across
+Gilbreth/Gautschi, 100,000 optimizer updates, 1 TiB evidence and 24 demonstrations**,
+including all previous usage. Current completed-stage use is 7.8917 local GPU
+hours, 3,503 remote GPU seconds, at most 48,364 updates and six demonstrations.
+Machine-readable reconciliation governs each new launch; development stays local
+and never updates weights or statistics.
 
-All four matched models now reach 4,400 updates. A1's completed A100 files remain
-byte-identical; the remaining 2,600 A2 updates complete on RTX 4090 with the same
-data, seed and optimizer/RNG/EMA. Frozen local CUDA development verifies all four.
-The user-reported approximately 49 GiB offline OOM is corrected by releasing A1
-owners before loading A2 and reserving 12 GiB of host RAM. Full CUDA evaluation
-peaks at 26.206 GiB with at least 27.787 GiB available; previous partial metrics,
-failed allocations and conservative charges remain retained.
+All four matched models now genuinely reach **12,000 updates**, preserving the
+two eligible train episodes, seed, normalization and optimizer/RNG/EMA. The common
+4,400-to-12,000 RTX continuation adds 30,400 updates in 729.704 charged seconds,
+with about 48–50 updates/s, 14.848 GiB process peak RAM and more than 36.6 GiB host
+headroom. A final marker-writing variable error is retained and corrected through
+an independent CPU-only state audit; no training is repeated or double charged.
+Gilbreth's still-pending job is cancelled at zero allocated seconds; Gautschi H100
+access/resources work, but test-only scheduling predicts October 23. Local RTX
+execution is explicitly authorized.
 
-The common `full-v8-4400` panel is frozen. Its first two complete ACT A1 outcomes
-execute 488 commands right and 2,243 left, then stop without contact or opening
-at contact-acquisition and orientation guards respectively. Retention and continuing-physics stop pass,
-with no physical violation. The remaining fixed slots continue; no learned task
-success is established. A preceding inspection-only attempt is an explicit
-incomplete infrastructure failure caused by a Chrome graphics-PID classification
-bug; it executes zero learned commands and remains in raw-attempt accounting.
-Normal recognized desktop graphics no longer block sufficient GPU capacity;
-foreign compute, unknown graphics, shared leases and host/GPU memory guards remain.
-The physical runtime, checkpoint versions, protocol and acceptance criteria are
-unchanged. A matched 4,400-to-12,000 continuation is queued on the authorized RTX between
-episodes after zero-allocation Gilbreth cancellation; Gautschi H100 access is
-verified but its test-only queue estimate is October 23. Same data, seed and
-optimizer/RNG/EMA are retained, with 30,400 updates reserved. A separate frozen
-version is required before evaluating those future checkpoints.
+The frozen 4,400 version retains two complete ACT A1 nominal failures: 488 right
+and 2,243 left commands, no contact/opening, and safe contact-acquisition/orientation
+stops. Audits pass with no physical violation. Its 22 unallocated slots are
+explicitly retired for the declared matched continuation; the original fixed plan,
+denominator and all prior outcomes remain preserved. The new complete 24-outcome
+`full-v9-12000` version is prepared, pending four-model frozen local CUDA development
+verification before freezing and integration. No different-version successes are
+combined; two-door success with hold/release remains unestablished.
+
+The approximately 49 GiB offline OOM is corrected by releasing old dataset owners
+before loading the next representation and retaining 12 GiB host reserve. Corrected
+four-model CUDA verification peaks at 26.206 GiB with at least 27.787 GiB available;
+previous partial metrics and stopped allocations remain preserved. Supervisors use
+half-second RAM checks and bounded orderly shutdown. Recognized desktop graphics
+alone no longer block available capacity; foreign compute, unknown graphics and
+shared leases remain guarded. Physical source, teacher/controller, protocol,
+references and acceptance criteria are unchanged.
 
 An unconditional left elbow position-domain extension is rejected after an
 independent 8 N lateral-load stop exceeds the original travel/speed criteria.
