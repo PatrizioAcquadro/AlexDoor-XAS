@@ -14,7 +14,8 @@ from alexdoor_xas.perception.contracts import validate_local_contact
 class ContactMonitorConfig:
     """Measured pilot recipe, separate from physical evaluator thresholds.
 
-    normal_model_bound_m includes visible-surface/collision-model disagreement;
+    normal_model_bound_m is an offset along the material normal, including
+    visible-surface/collision-model disagreement;
     patch support and calibrated robot errors are added independently. Neither
     this bound nor a plane-fit residual establishes directly observed contact.
     Optional robot_fk bounds describe measured tool kinematics, independently of
@@ -219,10 +220,11 @@ class ObservedContactMonitor:
                 if self.config.robot_fk_rotation_bound_rad is None
                 else self.config.robot_fk_rotation_bound_rad
             )
-            if (
+            normal_bounds = (
                 patch.normal_position_bound_m is not None
                 and patch.normal_rotation_bound_rad is not None
-            ):
+            )
+            if normal_bounds:
                 uncertainty = (
                     self.config.normal_model_bound_m
                     + patch.normal_position_bound_m
@@ -267,12 +269,26 @@ class ObservedContactMonitor:
                 ),
                 whole_robot_free=whole_robot_free,
                 admission_decision=admission.decision,
+                material_normal_range_m=admission.local_evidence.material_normal_range_m,
                 normal_uncertainty_terms_m=dict(
                     model=self.config.normal_model_bound_m,
                     material_position=(
                         patch.normal_position_bound_m
-                        if patch.normal_position_bound_m is not None
+                        if normal_bounds
                         else patch.geometry_support.position_bound_m + support.position_bound_m
+                    ),
+                    material_rotation=(
+                        rotational_travel(radius, patch.normal_rotation_bound_rad)
+                        if normal_bounds
+                        else rotational_travel(radius, patch.geometry_support.rotation_bound_rad)
+                        + rotational_travel(radius, support.rotation_bound_rad)
+                    ),
+                    robot_position=(
+                        robot_position if normal_bounds else limits.robot_position_bound_m
+                    ),
+                    robot_rotation=rotational_travel(
+                        max(np.linalg.norm(f, axis=1).max() for f in self.faces),
+                        robot_rotation if normal_bounds else limits.robot_rotation_bound_rad,
                     ),
                     total=float(uncertainty),
                 ),

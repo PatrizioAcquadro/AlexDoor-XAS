@@ -28,6 +28,9 @@ footprints to observed material boundaries. The monitor previously spent the
 complete 3 mm normal visible/collision discrepancy against this lateral margin.
 With a separately admitted whole-robot collision/stop proof, it now spends
 `normal_model_bound_m * sin(min(geometry_angle + pose_angle, pi/2))` laterally.
+The preserved `contact-normal-finite-model-development-audit.json` measures
+normal model offset/protrusion up to 1.973 mm across finite footprints; the 3 mm
+normal bound is retained. It is not reduced to make a failed episode pass.
 The complete 3 mm remains in the normal separation interval and existing robot
 collision/interface checks. Without independent collision evidence, the original
 isotropic expenditure remains. Shared geometry/pose errors are not charged twice.
@@ -86,6 +89,13 @@ still refuses its 12.241 rad/s2 main-acceleration excess. This proves estimation
 support, not new actuation or historical task success. The complete saved right
 reference has zero proposed motion/stop envelopes requiring the new position guard;
 there the weak-position recipe and original position recipe behave identically.
+The retained latest30k ACT A1 right/nominal prefix also introduces zero new
+future-position guard refusals. A separate replay of 4,899 independently measured
+8/10 N states outside the main position box rejects every state; none gains an
+estimate from the new weak tolerance. These labels select validation cases only
+and never enter the estimator. `position-halo-validation-v2.json` additionally
+checks the first stop interval from its native anchor, with the same passing
+radial/directional margins and unchanged calibration bytes.
 
 ## Reference execution and limits
 
