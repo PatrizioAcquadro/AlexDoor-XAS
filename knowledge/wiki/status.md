@@ -9,15 +9,14 @@ The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] ha
 four genuinely trained selected checkpoints: **ACT A1 12,000, ACT A2 18,000,
 Diffusion A1/A2 22,000 updates**. All four now execute nonzero learned commands
 through the real observed RGB-D/proprioception, robot-load/contact, proposed-motion
-admission, controller, recording and continuing-physics stop path. Current maintained
-physical runtime matches frozen source `b2969ef`; teacher, selected IK/gains,
+admission, controller, recording and continuing-physics stop path. The active panel keeps frozen physical source `b2969ef`; teacher, selected IK/gains,
 dynamics, expert references and physical criteria are unchanged.
 
-The frozen `selected-v10` panel has **9/24 complete outcomes, all failed**, with
-all 15 remaining slots retained as pending. Its best controlled opening so far is
+The frozen `selected-v10` panel has **10/24 complete outcomes, all failed**, with
+all 14 remaining slots retained as pending. Its best controlled opening so far is
 Diffusion A1 right/nominal: 19.724 degrees, **38.5%** of the 51.260-degree reference,
 then an operational contact-load uncertainty stop. No model yet demonstrates
-80% opening with valid hold/release on both doors. All nine complete episodes pass
+80% opening with valid hold/release on both doors. All ten complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
 with no physical violation. Ordinary policy failures remain outcomes and the fixed
 panel continues; no completed result is retried or dropped. A transient external
@@ -389,3 +388,11 @@ that does not justify another training run. B0 remains historical: the saturated
 Supported commands/setup are in the root/model READMEs; runtime contracts and
 future work are canonical in [[topics/shared-door-perception|Perception]] and
 [[implementation_phases/phase-6-0-operational-perception-and-contact|Phase 6.0]].
+
+The maintained CLI additionally retains its exact first causal policy vector,
+first inferred chunk, backend settings and model-query timing. Existing rollout/
+recording tests pass; actual replay is pending in one separately declared
+same-checkpoint integration with one-tick replanning. The original frozen panel
+continues at six ticks. A read-only 20/50-step DDIM diagnosis fails its improvement
+guards, so the original 10-step sampler remains. No new weights or demonstrations
+are introduced by these checks.

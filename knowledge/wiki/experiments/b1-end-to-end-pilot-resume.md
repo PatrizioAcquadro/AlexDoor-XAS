@@ -241,9 +241,10 @@ doors by the declared development action guards. The actual selected ACT A1
 integration above matches the frozen physical implementation/protocol/condition/
 seed/reference and is retained as the **first failed outcome out of 24**. The other
 23 slots run sequentially in new directories, with strict input/command/native and
-continuing-physics stop audits. No completed unfavorable result is retried. Current maintained
-physical entry, observer, runner, control and perception code match the actual
-`b2969ef` version; only train factories/evaluation and resource monitoring changed.
+continuing-physics stop audits. No completed unfavorable result is retried. The frozen
+physical entry, observer, runner, control and perception use `b2969ef`. Maintained
+code changes outside that physical path cover train factories/evaluation, resource
+monitoring and the passive first-input/query trace described below.
 Exact checks are in `current-cli-physical-equivalence.json`. The full frozen plan,
 checkpoints and evolving outcome table are `fixed-panel-selected-v10-plan.json`
 and `fixed-panel-selected-v10-results.{json,md}`. At launch one outcome is complete,
@@ -348,8 +349,42 @@ is relaxed. A separately preregistered read-only DDIM diagnosis checks 20 steps,
 then 50 only if necessary, against identical frozen development windows and
 selected weights. Common Diffusion adoption would require at least one 5% mean
 improvement, no mean regression in the other cell, and no phase p95 increase
-over 10%; unchanged ACT predictions are controls. No candidate is yet adopted,
-and the active selected-v10 physical panel remains at its original 10 steps.
+over 10%; unchanged ACT predictions are controls. Both candidates fail the preregistered adoption rule: 20-step primary ratios are
+0.99839/0.99973 for Diffusion A1/A2, and 50-step ratios are 0.99979/1.00562.
+The worst A2 phase p95 grows 29.44% at 50 steps. Unchanged ACT controls reproduce
+all saved predictions exactly. The allocation charges 87.868 seconds plus the
+conservative tail; no weights, statistics or training states change. The active
+selected-v10 physical panel remains at its original 10 steps.
+
+Separate read-only controller audits cover 6,053 actual A1 and 2,346 actual A2
+commands from the nine complete episodes. A1 measured-q plus recorded delta,
+previous-target rate limits and physical joint limits reproduce applied targets
+within one float32 ULP; no target rate clipping occurs. A2 robot FK plus the raw
+world delta exactly reproduces submitted positions, with rotation differences
+below 5.5e-15 rad. The hypothesis of accumulated-target versus measured-q action
+semantics is excluded for these commands; the controller remains unchanged.
+Evidence is `selected-v10-actual-a{1,2}-target-semantics.json`.
+
+The maintained CLI now passively saves `first-policy-input.npz`, the full first
+inferred chunk in `first-policy-prediction.npy`, backend/dtype/stride settings in
+`policy-backend.json`, and per-query timing aggregates. The input is saved before
+inference, including if inference fails; none of these files feeds control. The
+29 existing rollout/recording tests pass. Actual first-vector replay validation
+is pending in the next integrated execution. The active panel keeps its original
+frozen source; the added observability does not change policy, controller, teacher,
+physical criteria or observation columns.
+
+One prospective integration changes only the primitive policy replanning interval
+from six ticks to one, using the same selected Diffusion A1 22k checkpoint,
+10-step DDIM, seeds, right/nominal condition, 9,000-tick horizon and independent
+reference. Proprioception is then current at each 60 Hz decision while images
+remain causal at 10 Hz; existing admission and native feedback still run at
+60/120 Hz. No learned command is replaced. This tests feedback cadence before
+adding more optimizer updates or data. The result must retain physical/input/stop
+audits and either complete the unchanged task or improve controlled opening by
+at least 10 percentage points of reference over its retained six-tick counterpart
+before a new panel is considered. All costs and failures remain; no new panel
+is frozen or adopted yet.
 
 The offline OOM correction remains required for every stage. The user-reported
 approximately 49 GiB A1-to-A2 peak is caused by retained `PolicyData` ownership;

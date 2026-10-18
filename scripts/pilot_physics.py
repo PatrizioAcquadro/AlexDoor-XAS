@@ -344,6 +344,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
     from types import SimpleNamespace
 
     import numpy as np
+    import torch
     from PIL import Image
     from scipy.spatial.transform import Rotation
 
@@ -581,6 +582,44 @@ def rollout(env, args, protocol, robot, setup, inspection):
 
     io.hold_step = measured_hold
     observer.update = measured_update
+    predict, prediction_ms = policy.predict, []
+
+    def measured_predict(features):
+        # Preserve the actual causal vector before inference, even if it fails.
+        # These diagnostic files never feed the policy, admission or controller.
+        first = not prediction_ms
+        if first:
+            sample = env.capture.sample
+            np.savez_compressed(
+                args.output / "first-policy-input.npz",
+                features=features,
+                time_s=np.float64(sample.time_s),
+                frame=np.int64(sample.frame),
+            )
+            write_json(
+                args.output / "policy-backend.json",
+                dict(
+                    float32_matmul_precision=torch.get_float32_matmul_precision(),
+                    matmul_tf32=torch.backends.cuda.matmul.allow_tf32,
+                    cudnn_tf32=torch.backends.cudnn.allow_tf32,
+                    cudnn_benchmark=torch.backends.cudnn.benchmark,
+                    mha_fastpath=torch.backends.mha.get_fastpath_enabled(),
+                    inference_mode=torch.is_inference_mode_enabled(),
+                    grad_enabled=torch.is_grad_enabled(),
+                    cuda_autocast=torch.is_autocast_enabled("cuda"),
+                    features_dtype=str(np.asarray(features).dtype),
+                    rgb_stride=list(sample.rgb.stride()),
+                    depth_stride=list(sample.depth_m.stride()),
+                ),
+            )
+        begin = perf_counter()
+        chunk = predict(features)
+        prediction_ms.append((perf_counter() - begin) * 1000)
+        if first:
+            np.save(args.output / "first-policy-prediction.npy", chunk, allow_pickle=False)
+        return chunk
+
+    policy.predict = measured_predict
     runner = B1Runner(
         policy, observer, io, n_action_steps=protocol["replan_ticks"], admission_source=motion
     )
@@ -632,6 +671,13 @@ def rollout(env, args, protocol, robot, setup, inspection):
         inspection_ticks=len(rows),
         policy_commands=result.control_steps,
         retained_inputs="rollout.hdf5",
+        first_policy_input="first-policy-input.npz" if prediction_ms else None,
+        first_policy_prediction="first-policy-prediction.npy" if prediction_ms else None,
+        policy_backend="policy-backend.json" if prediction_ms else None,
+        prediction_queries=len(prediction_ms),
+        prediction_total_s=sum(prediction_ms) / 1000,
+        prediction_p50_ms=float(np.median(prediction_ms)) if prediction_ms else None,
+        prediction_p95_ms=float(np.percentile(prediction_ms, 95)) if prediction_ms else None,
         retained_native_contacts="evaluator-native-contacts.jsonl",
         retained_evaluator_states="evaluator-control-state.jsonl",
         observed_geometry_available=True,
