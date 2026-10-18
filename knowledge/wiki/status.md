@@ -12,12 +12,12 @@ through the real observed RGB-D/proprioception, robot-load/contact, proposed-mot
 admission, controller, recording and continuing-physics stop path. The active panel keeps frozen physical source `b2969ef`; teacher, selected IK/gains,
 dynamics, expert references and physical criteria are unchanged.
 
-The frozen `selected-v10` panel has **22/24 complete outcomes, all failed**, with
-all two remaining slots retained as pending. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
+The frozen `selected-v10` panel has **24/24 complete outcomes, all failed**, with
+all26 physical attempts retained, including two infrastructure interruptions. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
 99.54%** of its frozen reference, with valid hold, but no attempted release.
 After 7,171 real commands, `RIGHT_GRIPPER_Y` exceeds its verified load-model
 position maximum by 0.000279 rad; the correct operational refusal stops the task.
-No model yet completes opening, hold and release on both doors. All 22 complete episodes pass
+No model yet completes opening, hold and release on both doors. All 24 complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
 with no physical violation. Ordinary policy failures remain outcomes and the fixed
 panel continues; no completed result is retried or dropped. A transient external
@@ -45,8 +45,7 @@ preflight is verified, with no H100 training allocation yet.
 
 All twelve right-door cell/condition outcomes fail. Therefore, the original
 selected-v10 checkpoint/protocol cohort cannot satisfy identical-checkpoint
-success on both doors, regardless of the remaining left outcomes. Those two
-outcomes still run and remain in the denominator. The separately frozen one-tick Diffusion A1 integration also fails: 1,619 actual
+success on both doors, regardless of the remaining left outcomes. All24 outcomes remain in the denominator. The separately frozen one-tick Diffusion A1 integration also fails: 1,619 actual
 learned commands reach 15.9977 controlled degrees (31.21%), below the unchanged
 six-tick comparison and its predeclared adoption threshold. Its independent input/
 command/clock and continuing-physics stop audits pass. Exact saved-vector replay
@@ -63,6 +62,15 @@ supervision reuse checks pass for every new eligible episode; operational A3/A4
 remains unqualified. A real cancellation check passes exit130 and 240 healthy
 native samples over two continuing simulated seconds. Queue waiting consumes no
 attempt or GPU allocation.
+
+The completed original panel charges3.71075 GPU hours across26 allocations,
+including interruptions. Operational contact is available on23,743/23,757 endpoints
+(99.941%); 31 confirmed ticks lack instantaneous native force, with maximum83 ms
+mismatch, and44 instantaneous-presence ticks are unconfirmed. Confirmation delay
+is100–117 ms. None of13,201 operational confirmations lacks windowed physical
+Loaded, but1,560 fail complete physical contact criteria; zero lie outside the
+actual footprint. These distinct measures do not establish perfect contact or
+full task success. The new cohort needs its own measured results.
 
 The longer ACT execution charges 2,046.720 GPU seconds and retains 1.563 GiB
 of consumed-input HDF5. Scaling only its measured learned loop to 9,000 ticks gives
@@ -106,8 +114,9 @@ comparing ACT loss to Diffusion MSE. The original frozen panel remains unchanged
 qualified-data continuation. A prospective functional assessment chooses all four
 latest common stopped states, before any new-data closed-loop outcomes. Guarded
 best checkpoints remain separate controls; this cohort does not claim development
-selection or generalization. The four30k hashes are now frozen; the maintainedACTA1 right/nominal integration
-is queued, with no full24 freeze yet. Placement, references, controller, physics
+selection or generalization. The four30k hashes are now frozen. The maintainedACTA1 right/nominal integration
+executes actual learned commands and reaches independently valid contact; its
+complete task and stop audit remain pending, with no full24 freeze yet. Placement, references, controller, physics
 and success criteria remain unchanged. Development contains two lighting variants of one motion, not an
 independent-trajectory or generalization demonstration.
 

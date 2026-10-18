@@ -2144,3 +2144,45 @@ charges full measured supervisor allocation wall time plus the existing5s tail,
 including cleanup after the last monitor sample; prior unknown-OOM upper bounds
 remain. Evidence is`selected-v10-slot22-prepolicy-interruption-repair.json` and
 `full-allocation-wall-accounting-fix.json`.
+
+
+## Original selected-v10 panel complete: zero of24
+
+All24 immutable cell/door/condition outcomes and26 physical attempts are retained.
+Every complete episode passes consumed-input/actual-command/native-clock and
+240-sample continuing-physics stop audits, with no physical violation; both
+prepolicy external interruptions remain separate, including unavailable stop
+and partial timestamp data in the later one. All four cells execute nonzero
+learned commands in simulation. No task succeeds; no identical checkpoint
+succeeds on both train doors. ACTA1 left/dim retains99.54% controlled opening and
+valid hold but no release, so remains a failure. The final DiffA1/DiffA2
+left/bright episodes execute471/368 commands, zero controlled opening and the
+correct load-domain stops. No completed result is retried or removed.
+
+Actual allocation is3.710752 GPU hours for this26-attempt cohort, including
+startup/cleanup and5s tails. It is shorter than a full-horizon cost scenario
+because episodes fail early. It cannot forecast successful full-length runs as a
+guarantee. Checkpoint/protocol/source versions remain fixed and distinct from the
+new latest30k functional cohort.
+
+Independent same-clock contact joins cover23,743 monitored states and23,757
+operational endpoints: availability99.941%, with14 terminal endpoints missing
+monitor output rather than assigned synthetic values. There are13,201 operational
+confirmations,13,241 windowed physicalLoaded states and11,664 complete physical
+valid-contact states. Confirmed ticks without instantaneous intended native force
+number31; the longest run is83.33 ms, within the100ms averaging window. Missed
+instantaneous-force ticks number44; physicalLoaded without confirmation numbers40.
+Confirmation delays across seven contact cases are100–116.67 ms. No confirmation
+falls below windowed physicalLoaded or outside the actual finite footprint;
+1,560 confirmations fail the full material/orientation/commanded physical contact
+rule. These definitions distinguish operational detection/uncertainty, finite
+footprint support and stricter independent task criteria. Do not report zero
+false physical admissions or infer task success from contact detection alone.
+Evidence is`learned-contact-metrics-selected-v10.json`, the complete24-row results
+and`selected-v10-complete-panel-cost-contact-summary.json`.
+
+The first latest30k ACTA1 right/nominal execution now applies genuine learned
+commands and independently valid contact, with an initial4.1mm material error.
+Actual consumed vectors and predictions are retained by the maintained runner.
+This is ongoing execution, not completed opening/hold/release, a stop proof or a
+full24 new-panel freeze. Every unfavorable outcome still must be preserved.
