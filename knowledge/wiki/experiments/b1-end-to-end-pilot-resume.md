@@ -78,6 +78,15 @@ is promoted. Their source snapshots, native feedback and partial cohorts remain
 in `robot-left-elbow-stop-wrist-candidate` and
 `robot-left-elbow-stop-wrist-discrete`.
 
+The final driver verifies the stop against raw native clocks, not only a report
+flag: the stop anchor matches the final consumed control state, all 240 native
+samples continue at 120 Hz for two seconds, native/evaluator clocks match, and
+feedback remains present and healthy. It retains each completed outcome before
+halting for diagnosis if a physical violation or failed stop exposes an
+integration defect. Ordinary task failures and valid refusals continue to count
+without triggering retries. The extended retention audit passes on the preserved
+1,878-command full-v7 episode; that check creates no new learned outcome.
+
 ## Original-checkpoint full-v7 outcomes
 
 Four completed outcomes are retained separately: ACT A1 right/nominal executes
