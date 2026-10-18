@@ -92,7 +92,11 @@ HDF5 chunk caches survive between rows; partial image tiles are compressed at
 flush/close instead of on every reopen. The 60-control-tick flush cadence,
 column validation and completion marker are unchanged. Recorded-input checks
 preserve all numeric/image bytes across chunk boundaries, including NaN payloads.
-This optimization alone does not establish an end-to-end runtime target.
+The robot occlusion filter also reuses its selected depth array within one
+capture instead of copying it twice per mesh. It recomputes the array on every
+call; no observation, pose, freshness or mask is reused across captures. Sampled
+recorded head/arm configurations retain identical complete masks. These component
+improvements do not establish an end-to-end runtime target.
 
 The IO recording hook snapshots applied targets after execution and before a
 response failure replaces them with a stop anchor. Cartesian submissions retain
