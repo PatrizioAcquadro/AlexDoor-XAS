@@ -883,3 +883,28 @@ stop evidence. Their service memory limits are a containment fallback, not proof
 that model training, policy execution or contact qualification succeeds. See
 [[../experiments/b1-end-to-end-pilot-resume|the full-size RAM validation]] for actual
 peaks and the preserved OOM/stopped attempts.
+
+
+## Train-only phase-sampling correction
+
+The maintained pilot trainer supports explicit `train_sampling: phase_balanced_v1`
+in its protocol. It joins each eligible train record's original command times and
+supervisor phases, checks identity/split/time agreement, and balances chunk starts
+across approach/contact/push/hold/release with replacement inside each phase.
+A seeded epoch retains the same number of batches; uniform sampling is unchanged
+when the option is absent. Labels select training examples only and never enter
+policy observations, deployed control, development normalization or admission.
+Existing action targets, padding masks and train-only normalization remain intact.
+
+This optional correction addresses measured 85–86% push exposure and sparse-phase
+inference regressions in the [[../experiments/b1-end-to-end-pilot-resume|current pilot]].
+It does not establish closed-loop robustness. A continuation may explicitly switch
+uniform sampling to this option while increasing epochs; all other protocol
+fields and completed four-cell source states must match. Seed, optimizer/RNG/EMA
+and the latest common state are preserved. Arbitrary sampler changes, reversal,
+learning-rate changes and seed changes remain refused. Raw train paths use the
+existing protocol episode directories beneath `--root`; exclusions remain in force.
+The two existing eligible records pass a small-array phase/time qualification,
+without loading another RGB-D dataset. Actual GPU adoption requires a separately
+declared comparable stage after the prior stopping sequence; no current physical
+or frozen evaluation version changes through this option.

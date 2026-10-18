@@ -83,6 +83,7 @@ class BatchIterator:
         batch_size: int,
         seed: int = 0,
         drop_last: bool = False,
+        sample_groups: np.ndarray | None = None,
     ):
         if batch_size < 1:
             raise ValueError(f"batch_size must be >= 1, got {batch_size}")
@@ -90,9 +91,27 @@ class BatchIterator:
         self.batch_size = batch_size
         self.seed = seed
         self.drop_last = drop_last
+        self.groups = None
+        if sample_groups is not None:
+            labels = np.asarray(sample_groups)
+            if labels.shape != (len(sampler),) or labels.dtype.kind not in "iu":
+                raise ValueError("Sample groups require one integer label per chunk")
+            self.groups = [np.flatnonzero(labels == value) for value in np.unique(labels)]
+            if not self.groups:
+                raise ValueError("Sample groups cannot be empty")
 
     def __iter__(self):
-        order = np.random.default_rng(self.seed).permutation(len(self.sampler))
+        rng = np.random.default_rng(self.seed)
+        if self.groups is None:
+            order = rng.permutation(len(self.sampler))
+        else:
+            # Equal group exposure (within one sample), with replacement inside
+            # each group. No labels are concatenated into policy observations.
+            assignments = rng.permutation(np.arange(len(self.sampler)) % len(self.groups))
+            order = np.empty(len(self.sampler), dtype=np.int64)
+            for group, members in enumerate(self.groups):
+                slots = np.flatnonzero(assignments == group)
+                order[slots] = rng.choice(members, size=len(slots), replace=True)
         for start in range(0, len(order), self.batch_size):
             chosen = order[start : start + self.batch_size]
             if self.drop_last and len(chosen) < self.batch_size:

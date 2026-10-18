@@ -6,6 +6,8 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
+
 from alexdoor_xas.assets.identity import RobotAssetRef
 
 if TYPE_CHECKING:
@@ -52,11 +54,22 @@ def make_train_factory(
     seed: int,
     episode_ids: tuple[str, ...] | None = None,
     normalize: BatchNormalizer = normalize_batch,
+    sample_groups: dict[str, np.ndarray] | None = None,
 ):
     """Per-epoch reshuffled, normalized train batches (``TrainBatchFactory``)."""
     ids = list(episode_ids if episode_ids is not None else data.train_ids)
     sampler = ChunkSampler(data.dataset, chunk_size, obs_keys=data.stats.obs_keys, episode_ids=ids)
     drop_last = len(sampler) >= batch_size
+    labels = None
+    if sample_groups is not None:
+        if set(sample_groups) != set(ids):
+            raise ValueError("Sampling groups must contain only the selected train episodes")
+        for episode_id in ids:
+            if np.asarray(sample_groups[episode_id]).shape != (
+                data.dataset.by_id(episode_id).n_steps,
+            ):
+                raise ValueError("Sampling groups differ from the train chunk count")
+        labels = np.concatenate([sample_groups[episode_id] for episode_id in ids])
 
     def factory(epoch: int):
         iterator = BatchIterator(
@@ -64,6 +77,7 @@ def make_train_factory(
             batch_size,
             seed=seed * EPOCH_SEED_STRIDE + epoch,
             drop_last=drop_last,
+            sample_groups=labels,
         )
         return (normalize(batch, data.stats) for batch in iterator)
 

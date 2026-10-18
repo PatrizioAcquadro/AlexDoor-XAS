@@ -91,7 +91,7 @@ def check_stats(stats, contract):
                 raise ValueError("A4 category/termination normalization must be fixed")
 
 
-def batch_factories(data, family, horizon, batch_size, seed):
+def batch_factories(data, family, horizon, batch_size, seed, *, sample_groups=None):
     if family not in FORMATS or not isinstance(data.dataset, B1Dataset):
         raise ValueError("Expected a B1 dataset and ACT or Diffusion")
     validate_data(data)
@@ -109,7 +109,9 @@ def batch_factories(data, family, horizon, batch_size, seed):
             result["obs"] = np.clip(result["obs"], -OBS_CLIP, OBS_CLIP)
             return result
 
-    train = make_train_factory(data, horizon, batch_size, seed, normalize=normalize)
+    train = make_train_factory(
+        data, horizon, batch_size, seed, normalize=normalize, sample_groups=sample_groups
+    )
     development = (
         make_eval_factory(data, horizon, batch_size, seed, data.val_ids, normalize=normalize)
         if data.val_ids

@@ -165,6 +165,16 @@ more falling training loss alone cannot justify unbounded continuation. Evidence
 `selected-integration-12000-contact-metrics.json` and
 `selected-integration-12000-cost-forecast.json` under the continuation evidence root.
 
+A train-only phase-sampling correction is implemented and numerically checked
+against the actual two eligible records, with no additional image loading. The
+first 6,400 sampled starts contain 1,266–1,302 examples per manipulation phase,
+instead of 85–86% push exposure. It changes example frequency only; labels remain
+supervision and never become policy inputs. Uniform sampling and all physical
+versions remain unchanged. Adoption is conditional on the current declared
+stopping sequence and a separate matched correction stage preserving seed,
+optimizer/RNG/EMA and normalization; this component check is not trained-policy
+improvement. See [[../topics/b1-policy-pilot#Train-only phase-sampling correction|the interface]].
+
 After selection, verify actual maintained integrated execution before the full
 panel. Freeze all selected checkpoint versions and one common 24-outcome protocol;
 retain any qualifying identical-version execution and every unfavorable outcome.

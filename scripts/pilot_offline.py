@@ -357,15 +357,23 @@ def save_training_state(path, model, state, protocol, family, space, epochs):
 
 
 def validate_epoch_extension(source, target):
-    """Continue the same experiment; only its declared final epoch may increase."""
+    """Extend epochs, optionally declaring the diagnosed uniform-to-balanced correction."""
+    allowed = source | {"epochs": target.get("epochs")}
+    if (
+        source.get("train_sampling", "uniform") == "uniform"
+        and target.get("train_sampling") == "phase_balanced_v1"
+    ):
+        allowed["train_sampling"] = "phase_balanced_v1"
     if (
         source.get("overfit_updates", 0)
         or target.get("overfit_updates", 0)
         or not isinstance(target.get("epochs"), int)
         or target["epochs"] <= source["epochs"]
-        or source | {"epochs": target["epochs"]} != target
+        or allowed != target
     ):
-        raise ValueError("Continuation requires only a strict epoch increase")
+        raise ValueError(
+            "Continuation requires a strict epoch increase and only a declared sampler correction"
+        )
 
 
 def continuation_source(directory, protocol):
@@ -397,6 +405,50 @@ def restore_training_state(path, model, protocol, family, space):
         raise ValueError("Resume protocol/family/action space differs")
     model.load_state_dict(payload["model_state"])
     return payload["training_state"], payload["epochs"]
+
+
+def training_sample_groups(root, data, protocol):
+    """Join eligible train-only teacher phases to chunks; never add them to inputs."""
+    mode = protocol.get("train_sampling", "uniform")
+    if mode == "uniform":
+        return None
+    if mode != "phase_balanced_v1":
+        raise ValueError("Unknown training sampler")
+    entries = {
+        entry["episode_id"]: entry
+        for entry in protocol["episodes"]
+        if entry["split"] == "train" and entry.get("use_for_imitation") is not False
+    }
+    if set(entries) != set(data.train_ids):
+        raise ValueError("Phase sampling requires exactly the eligible train episodes")
+    groups, audit = {}, {}
+    for episode_id in data.train_ids:
+        record = data.dataset.by_id(episode_id)
+        entry = entries[episode_id]
+        path = root / entry.get("directory", entry["asset_id"]) / "episode.hdf5"
+        with h5py.File(path) as raw:
+            identity = json.loads(raw["metadata"].attrs["episode"])
+            if (
+                record.split != "train"
+                or identity["episode_id"] != episode_id
+                or identity["asset_id"] != record.asset_id
+                or identity["split"] != "train"
+            ):
+                raise ValueError("Phase labels must match the eligible train record")
+            times = raw["commands/time_s"][:]
+            indices = np.searchsorted(times, record.times)
+            np.testing.assert_allclose(times[indices], record.times, atol=1e-8, rtol=0)
+            labels = raw["commands/phase"][:][indices]
+        expected = {PHASES.index(p) for p in ("approach", "contact", "push", "hold", "release")}
+        if set(labels.tolist()) != expected:
+            raise ValueError("Phase-balanced pilot requires all five manipulation phases")
+        groups[episode_id] = labels
+        audit[episode_id] = dict(
+            source_recording=str(path.resolve()),
+            counts={PHASES[int(p)]: int((labels == p).sum()) for p in sorted(expected)},
+        )
+    write_json(root / "training-sampling.json", dict(mode=mode, train_episodes=audit))
+    return groups
 
 
 def train(root, protocol, *, resume=False, continue_from=None):
@@ -448,6 +500,7 @@ def train(root, protocol, *, resume=False, continue_from=None):
         )
         data = load_b1_data(root / "data", space)
         memory_checkpoint(root, f"{space}_loaded")
+        sample_groups = training_sample_groups(root, data, protocol)
         for family in ("act", "diffusion"):
             name = f"{family}-{space}"
             path = destination / name
@@ -460,6 +513,7 @@ def train(root, protocol, *, resume=False, continue_from=None):
                 protocol["chunk_ticks"],
                 protocol["batch_size"],
                 protocol["training_seed"],
+                sample_groups=sample_groups,
             )
             val_batches = (
                 list(islice(development(), protocol["evaluation_chunks"] // protocol["batch_size"]))
@@ -907,7 +961,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--continue-from",
         type=Path,
-        help="Completed four-cell training directory; only epochs may increase, in a new root",
+        help="Complete four-cell states; extend epochs or declare phase-balanced sampling",
     )
     args = parser.parse_args()
     if args.selection_protocol is not None and args.mode != "evaluate":
