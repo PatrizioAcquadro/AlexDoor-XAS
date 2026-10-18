@@ -74,6 +74,13 @@ per-record indexes before rebuilding the merged banks. Construction takes 7.34
 versus 14.20 seconds in the paired saved-input check. All 81 views, 40,318,928
 indexed points, pixel coordinates, immutable arrays, source clocks and 18
 free/unknown/occupied queries remain exact. There is no persistent cache.
+Index construction now uses at most four independent workers and publishes the
+complete index map only after all builders join. Exceptions leave no partial
+index map. On the complete background/reference setup, 102 views and 49,339,458
+points retain exact view arrays, tree data/indices, pixel mappings and source
+clocks; 36 queries agree. Construction takes 3.05 versus 8.65 seconds, with
+7.42 GB process peak RSS in the paired comparison. Camera/ray validation and
+immutable owned views remain; no calibration or observation is omitted.
 
 Self-clearance also reuses joint origins/axes within one query. Every new query
 recomputes them from the current matrices and reevaluates travel/model bounds.

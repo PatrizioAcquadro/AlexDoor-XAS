@@ -429,15 +429,26 @@ class ObservedSpace:
         self.config, self.generation, self.views = config, generation, {}
 
     def index_static_points(self):
-        """Index owned immutable static returns; current captures keep direct queries."""
+        """Index owned immutable returns with at most four independent builders."""
+        from concurrent.futures import ThreadPoolExecutor
+
         from scipy.spatial import cKDTree
 
         self._static_points = {}
-        for key, view in self.views.items():
+        if not self.views:
+            return
+
+        def build(item):
+            key, view = item
             depth, valid = view["depth_m"][..., 0], view["valid_depth"][..., 0]
             v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
             cloud = deproject(depth[v, u], np.c_[u, v], view["intrinsics"], view["camera_world"])
-            self._static_points[key] = (cKDTree(cloud), np.c_[u, v])
+            return key, (cKDTree(cloud), np.c_[u, v])
+
+        with ThreadPoolExecutor(max_workers=min(4, len(self.views))) as executor:
+            indexed = dict(executor.map(build, self.views.items()))
+        self._static_points = indexed
+        for view in self.views.values():
             for value in view.values():
                 if isinstance(value, np.ndarray):
                     value.setflags(write=False)

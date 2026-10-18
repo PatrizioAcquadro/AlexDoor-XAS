@@ -390,3 +390,27 @@ def test_background_convex_cover_preserves_complete_interiors_and_side_planes():
     for guard in [None, 0, -1, float("nan")]:
         with pytest.raises(ValueError, match="foreground"):
             background.query_convex_background(corners, 0.005, current_foreground_margin_m=guard)
+
+
+def test_parallel_indexes_publish_only_complete_results_and_join_failed_builds(monkeypatch):
+    from threading import Event
+
+    import scipy.spatial
+
+    observed = space(2.0, 1.0)
+    observed.views.update(space(1.0, 2.0).views)
+    original = scipy.spatial.cKDTree
+    completed = Event()
+
+    def build(cloud):
+        if cloud[0, 2] > 1.5:
+            raise ValueError("injected_static_index_failure")
+        result = original(cloud)
+        completed.set()
+        return result
+
+    monkeypatch.setattr(scipy.spatial, "cKDTree", build)
+    with pytest.raises(ValueError, match="injected_static_index_failure"):
+        observed.index_static_points()
+    assert observed._static_points == {}
+    assert completed.is_set()
