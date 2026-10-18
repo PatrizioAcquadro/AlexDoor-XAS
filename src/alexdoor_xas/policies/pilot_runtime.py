@@ -207,6 +207,7 @@ class PilotMotionEvidence:
             if candidate.local_constraint is not None
             else candidate
         )
+        point_budget = self.provider.tracking.point_budget_query(point_candidate, now)
         map_from_current = candidate.initial_world @ np.linalg.inv(pose_matrix(patch.world_pose))
         if self.background_mode and self.rigid_identity != (observation.generation, patch.patch_id):
             views = self.provider.material_views
@@ -312,12 +313,7 @@ class PilotMotionEvidence:
                 # sphere, rather than treating the distant material anchor as
                 # the tool center. The robot/stop volume is already in radius.
                 point_pose = type(tool)(center, tool.rot)
-                point_error = self.provider.tracking.budget(
-                    point_candidate,
-                    now,
-                    distal_faces=(np.array([[radius, 0.0, 0.0]]),) * 2,
-                    tool_world=point_pose,
-                ).displacement_m
+                point_error = point_budget(radius, point_pose).displacement_m
                 if point_error is None:
                     raise ValueError("unmeasured_current_target_point_bound")
                 # Pay future normal-bound growth AND relative motion explicitly;

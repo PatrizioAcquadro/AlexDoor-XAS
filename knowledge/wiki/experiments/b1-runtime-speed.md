@@ -100,7 +100,12 @@ Live joints, roots, travel bounds and scene checks remain current on every query
 Within an admission call, repeated target-envelope checks now reuse the unchanged
 surface basis after its first use. All 161 saved-surface tangent coordinates are
 exact; the isolated calculation takes 0.13 versus 2.71 milliseconds. The basis
-never crosses an admission call or a surface update. Pose-only robot FK now skips
+never crosses an admission call or a surface update.
+The same admission-scoped query also reuses its three unchanged candidate
+inverse matrices, while keeping finite-radius arithmetic and all primitive
+uncertainty sources. It is discarded before the next state/time. Across 6,440
+recorded-state point queries, every source/displacement remains exact, including
+missing registration/calibration/speed cases; totals are 0.164 versus 0.242 s. Pose-only robot FK now skips
 the discarded Jacobian while keeping default Jacobian-producing calls unchanged.
 On the RTX 4090, 603 nominal/perturbed recorded postures retain exact poses and
 default Jacobians; totals are 0.284 versus 0.429 seconds including CPU retrieval.

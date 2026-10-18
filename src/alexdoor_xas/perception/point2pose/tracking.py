@@ -644,18 +644,35 @@ class PanelTracking:
         complete = self._point_budget(candidate, now, 0.0, None)
         return ContactBudget(tuple(s for s in complete.sources if s.name != "local_geometry"))
 
-    def _point_budget(self, candidate, now, finger_r, tool_world):
+    def point_budget_query(self, candidate, now):
+        """Discard this per-admission query before candidate state changes."""
+        inverses = {}
+
+        def inverse(matrix):
+            key = id(matrix)
+            if key not in inverses:
+                inverses[key] = np.linalg.inv(matrix)
+            return inverses[key]
+
+        def query(radius, tool_world):
+            # Preserve the original finite-face radius arithmetic exactly.
+            finger_r = np.linalg.norm(np.array([[radius, 0.0, 0.0]]), axis=1).max()
+            return self._point_budget(candidate, now, finger_r, tool_world, _inverse=inverse)
+
+        return query
+
+    def _point_budget(self, candidate, now, finger_r, tool_world, *, _inverse=np.linalg.inv):
         # Each angular lever starts at its actual registration/calibration origin.
         registration_origin = candidate.registration_origin_map
         origin_o = (
             None
             if registration_origin is None
-            else (np.linalg.inv(candidate.map_from_object) @ np.r_[registration_origin, 1.0])[:3]
+            else (_inverse(candidate.map_from_object) @ np.r_[registration_origin, 1.0])[:3]
         )
         tool_o = candidate.object_from_zone[:3, 3]
         local_r = finger_r
         if tool_world is not None and candidate.pose is not None:
-            relative = np.linalg.inv(candidate.pose) @ pose_matrix(tool_world)
+            relative = _inverse(candidate.pose) @ pose_matrix(tool_world)
             tool_o = (candidate.object_from_zone @ relative)[:3, 3]
             local_r = None if finger_r is None else np.linalg.norm(relative[:3, 3]) + finger_r
         object_r = (
@@ -674,9 +691,7 @@ class PanelTracking:
         calibration = self.calibration_bound or (None, None)
         if tool_world is not None and candidate.camera_world is not None and finger_r is not None:
             camera_r = (
-                np.linalg.norm(
-                    (np.linalg.inv(candidate.camera_world) @ pose_matrix(tool_world))[:3, 3]
-                )
+                np.linalg.norm((_inverse(candidate.camera_world) @ pose_matrix(tool_world))[:3, 3])
                 + finger_r
             )
         age = None if candidate.support is None else max(0.0, now - candidate.support.supported_s)

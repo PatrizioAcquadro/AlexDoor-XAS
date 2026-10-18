@@ -382,3 +382,42 @@ def test_explicit_rtx_pixel_centers_preserve_raw_k_and_integer_geometry():
         pixel_center_offset({"camera_pixel_center_offset_xy": [np.nan, 0]})
     with pytest.raises(ValueError, match="invalid_camera"):
         integer_center_intrinsics(np.zeros((3, 3)), offset)
+
+
+def test_point_budget_query_reuses_only_one_current_candidate_snapshot():
+    from types import SimpleNamespace
+
+    from alexdoor_xas.action.frames import ObjectFrame
+    from alexdoor_xas.perception.contracts import FieldSupport
+    from alexdoor_xas.perception.point2pose.tracking import PanelTracking
+
+    tracking = PanelTracking(
+        SimpleNamespace(reset=lambda: None),
+        {},
+        calibration_bound=(0.0001, 0.001),
+        relative_speed_bound=(0.1, 0.2),
+    )
+    candidate = SimpleNamespace(
+        geometry=FieldSupport(0, 0, 0, 0, 0.004, 0.01),
+        support=FieldSupport(1, 1, 1, 0),
+        registration_origin_map=np.zeros(3),
+        map_from_object=np.eye(4),
+        object_from_zone=np.eye(4),
+        pose=np.eye(4),
+        camera_world=np.eye(4),
+        registration_position_m=0.002,
+        registration_rotation_rad=0.02,
+    )
+    for now in (1.0, 1.05):
+        query = tracking.point_budget_query(candidate, now)
+        for center in ([0, 0, 0], [0, 0.4, 0], [1, 0.2, 0.5]):
+            tool = ObjectFrame(np.asarray(center), np.eye(3))
+            for radius in (0, 0.01, 0.3):
+                faces = (np.array([[radius, 0.0, 0.0]]),) * 2
+                expected = tracking.budget(candidate, now, distal_faces=faces, tool_world=tool)
+                actual = query(radius, tool)
+                assert actual.sources == expected.sources
+                assert actual.displacement_m == expected.displacement_m
+        # The next admission creates its own query after changing the state.
+        candidate.pose[:3, 3] += [0.01, 0, 0]
+        candidate.map_from_object[:3, 3] += [0, 0.02, 0]
