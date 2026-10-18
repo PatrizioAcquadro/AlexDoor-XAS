@@ -13,22 +13,25 @@ admission, controller, recording and continuing-physics stop path. Current maint
 physical runtime matches frozen source `b2969ef`; teacher, selected IK/gains,
 dynamics, expert references and physical criteria are unchanged.
 
-The frozen `selected-v10` panel has **5/24 complete outcomes, all failed**, with
-all 19 remaining slots retained as pending. Its best controlled opening so far is
+The frozen `selected-v10` panel has **8/24 complete outcomes, all failed**, with
+all 16 remaining slots retained as pending. Its best controlled opening so far is
 Diffusion A1 right/nominal: 19.724 degrees, **38.5%** of the 51.260-degree reference,
 then an operational contact-load uncertainty stop. No model yet demonstrates
-80% opening with valid hold/release on both doors. All five complete episodes pass
+80% opening with valid hold/release on both doors. All eight complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
 with no physical violation. Ordinary policy failures remain outcomes and the fixed
-panel continues; no completed result is retried or dropped. Earlier versions keep
+panel continues; no completed result is retried or dropped. A transient external
+RustDesk CUDA context interrupts the ninth slot at inspection time 10 s, before
+learned commands. Its incomplete recording, allocation and healthy two-second
+stop remain; the same frozen slot resumes after restored clean availability. Earlier versions keep
 their original outcomes and unexecuted denominators. The already-frozen 12,000
 full-v9 plan was held before any simulation allocation and remains intact; v10
 uses new directories and reuses its separately audited identical ACT A1 integration.
 
 The cumulative authorization remains **40 local GPU hours, 32 remote GPU hours
 across Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 total
-demonstration attempts**, all previous use included. Through these five closed
-outcomes, local use is 9.0957 GPU hours; remote use is 3,503 GPU seconds,
+demonstration attempts**, all previous use included. Through eight closed outcomes and the retained diagnostic/interruption
+allocations, local use is 9.5281 GPU hours; remote use is 3,503 GPU seconds,
 updates are at most 96,364 (including 200 possibly lost updates), and six fresh
 demonstrations are consumed. Current machine-readable reconciliation governs each
 launch and growing retained storage. Development stays local and never updates

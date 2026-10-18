@@ -241,7 +241,7 @@ doors by the declared development action guards. The actual selected ACT A1
 integration above matches the frozen physical implementation/protocol/condition/
 seed/reference and is retained as the **first failed outcome out of 24**. The other
 23 slots run sequentially in new directories, with strict input/command/native and
-continuing-physics stop audits. No unfavorable result is retried. Current maintained
+continuing-physics stop audits. No completed unfavorable result is retried. Current maintained
 physical entry, observer, runner, control and perception code match the actual
 `b2969ef` version; only train factories/evaluation and resource monitoring changed.
 Exact checks are in `current-cli-physical-equivalence.json`. The full frozen plan,
@@ -265,8 +265,11 @@ proof is `selected-v10-first-four-combinations-execution-proof.json`.
 | act-A2_ee_delta / right/nominal | 232 | 0.000 deg | contact_acquisition_budget |
 | diffusion-A1_joint_delta / right/nominal | 1976 | 19.724 deg | contact_load_lost_or_uncertain |
 | diffusion-A2_ee_delta / right/nominal | 983 | 0.000 deg | observed_contact_orientation |
+| act-A1_joint_delta / right/dim | 387 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
+| act-A2_ee_delta / right/dim | 247 | 0.000 deg | contact_acquisition_budget |
+| diffusion-A1_joint_delta / right/dim | 1876 | 18.756 deg | insufficient_local_action_margin |
 
-All five fail valid hold/release and task success. Diffusion A1 reaches 19.7235
+All eight complete outcomes fail valid hold/release and task success. Diffusion A1 reaches 19.7235
 controlled degrees (38.4772% reference) before `contact_load_lost_or_uncertain`;
 its raw 20.0090 degrees are reported separately. The final native force window is
 25.7057 mN (physical Loaded), while the operational normal-force lower mean is
@@ -274,12 +277,45 @@ its raw 20.0090 degrees are reported separately. The final native force window i
 physical tolerance. This illustrates justified operational uncertainty versus
 independent physical validity; it is not evidence that a threshold should change
 or that the load model has a diagnosed defect. No calibration/controller correction
-is made during the panel. All 19 remaining slots continue under the frozen version.
+is made during the panel. All 16 remaining slots continue under the frozen version.
+The right/dim Diffusion A1 result reaches 36.6% of reference before a local
+swept-motion margin refusal; its physical criteria and outcome remain separate.
 
 These five outcome allocations total 0.7060 GPU hours, including the
 previously charged identical integration; only 0.5594 new GPU hours
 are added after panel freeze. Cumulative local use through these closed outcomes
 is 9.0957 hours. Reuse does not double-charge lifetime compute.
+
+The eight complete cases charge 1.0955 GPU hours in total and retain 3.909 GiB.
+Their measured durations give a 2.191-hour mean-failure-length scenario for the
+remaining 16 cases, or 3.233 hours using the longest observed case. These are
+scenarios, not full-horizon guarantees. The original 9,000-tick limit is unchanged.
+`selected-v10-partial-measured-cost.json` retains the per-case measurements.
+
+A transient external `/usr/share/rustdesk/rustdesk` process appears as CUDA
+type C during the ninth slot inspection. The monitor stops only its owned
+workload; the 132.224-second failed allocation plus conservative tail is charged.
+The incomplete recording retains 600 inspection commands, zero learned commands,
+and all 240 healthy native/evaluator stop samples from 10 to 12 seconds, with
+zero measured tool travel. No task outcome is available for that attempt.
+`selected-v10-prepolicy-interruption-repair.json` records the diagnosis and
+restored clean availability. A separate resume-driver preflight error spends no
+GPU allocation; its source/logs and corrected immutable eight-outcome snapshot
+remain in `selected-v10-resume-driver-preflight-repair.json`. The same ninth slot
+resumes with unchanged checkpoint, seed, protocol and physical source.
+
+A read-only CUDA input audit reproduces the first prepared training feature and
+ACT A1 prediction exactly. The real first six recorded requests reconstruct to
+maximum errors 1.0961e-6 rad (dim) and 4.3556e-7 rad (nominal), exceeding the
+predeclared 1e-7 numerical tolerance; that request-parity check remains **failed**.
+The initial teacher-action L2 error is 1.2913e-3 rad even on the original train
+input, so the numerical discrepancy alone does not explain learned behavior.
+The 25.0-second training start and 25.2-second live start are phase-aligned;
+static depth is identical and arm positions match, with small neck settling.
+No backdating or input correction is applied. `input-parity-selected-v10`
+preserves both the diagnosed wrong-checkout import failure and the completed
+read-only audit. A bounded streaming train-phase inference/backend diagnosis
+is pending, without optimizer, normalization or panel-version changes.
 
 The offline OOM correction remains required for every stage. The user-reported
 approximately 49 GiB A1-to-A2 peak is caused by retained `PolicyData` ownership;

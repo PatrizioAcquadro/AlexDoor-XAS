@@ -1,13 +1,13 @@
 # Project Milestones
 
-- The resumed teacher completes all six fixed fresh attempts; four corrected
-  records pass independent physical/raw reuse checks, with nominal failures of
-  command eligibility preserved. The right actual first-contact stop passes at
-  9.70 N. RTX pixel-center correction and opt-in local plane/edge constraints
-  retain explicit uncertainty and native/global boundaries. The real Gilbreth
-  launch fails before CUDA on a CPU-task environment mismatch; replacement-job
-  and local GPU-budget requests are pending. Real training/learned commands remain
-  zero. See [[experiments/b1-end-to-end-pilot-resume]].
+- The resumed pilot has four genuine selected checkpoints (ACT A1 12k, ACT A2
+  18k, Diffusion A1/A2 22k), all with real learned-command execution through the
+  observed/load/admission/control/recording/stop path. Uniform and corrected
+  phase-balanced selection stop at common 18k and 24k. The frozen selected-v10
+  panel has eight complete failures out of 24; no 80% opening/hold/release
+  success is demonstrated. RAM ownership is corrected and bounded; every failed
+  allocation, exclusion and previous panel remains. See
+  [[experiments/b1-end-to-end-pilot-resume]].
 
 A1/A2 receipt revalidation now spends bounded support updates against the original
 remaining margin; missing bounds and exhausted margins still refuse. See
