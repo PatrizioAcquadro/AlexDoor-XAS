@@ -13,8 +13,9 @@ Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
   material identity, 150 ms freshness and loaded contact remain unqualified.
 - **Learning:** B1 observed-input datasets, ACT/Diffusion models, normalization and
   A1–A4 execution adapters are maintained. Qualified perception integration and
-  physical rollout validation remain pending. No matched B1 policy dataset or
-  learned-policy result exists; the sealed test remains closed.
+  physical rollout validation remain pending. No final matched B1 policy dataset or qualified learned-policy result is
+  delivered; the sealed test remains closed. The separate A1/A2 pilot on
+  `PatrizioAcquadro/b1-policy-pilot` retains failed learned executions and is paused.
 
 The [project status](knowledge/wiki/status.md) owns current results, limits and
 next work. No repository command controls physical hardware.

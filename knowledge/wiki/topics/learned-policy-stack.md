@@ -40,7 +40,7 @@ Numerical model checks do not establish manipulation quality.
 ## B1 Family Integration
 
 `policies/b1.py` provides `load_b1_data`, `batch_factories`, `make_model`,
-`train_model`, `save_policy` and `B1Policy.from_checkpoint`. The existing ACT and
+`save_policy` and `B1Policy.from_checkpoint`, with the family tensor trainers. The existing ACT and
 Diffusion models/trainers consume the same observed tensor and action widths
 7/6/6/17. No model training or policy-dataset production is launched by these APIs.
 

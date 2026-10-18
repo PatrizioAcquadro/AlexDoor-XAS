@@ -95,8 +95,8 @@ view; alternatives and applied seed capture remain in the results. No first-root
 selection is enabled by this option.
 Static scan processes the prescribed inspection without P2P. Operational replay
 uses stride three and measured availability/replaceable latest inputs. Serial
-offline processes every original 60 Hz frame; its four-pilot/three-attempt campaign
-is a deliberate command, not automatically resumed work. Live commands use fresh
+offline processes every original 60 Hz frame of the one supplied episode.
+The historical four-recording/three-attempt campaign is retired at `24a2aa7`. Live commands use fresh
 Isaac processes, require other Isaac sessions closed and do not enumerate recordings.
 Live observer cases follow the common inspection before their observer-only motion;
 `camera|panel|combined|visibility` remain diagnostic cases, without contact.
@@ -104,7 +104,7 @@ Live observer cases follow the common inspection before their observer-only moti
 ## Continuous operational measurement
 
 Use one authorized recording and an explicit observed request; this does not start
-training, manipulation or the four-recording/three-attempt serial campaign.
+training, manipulation or additional attempts.
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py point2pose-operational --episode datasets/recordings/b1/perception/engineering-v2/animated-door-1-88abf40/light/episode.hdf5 --mode wall-clock --selection outputs/evidence/b1/perception/sam3-operational-20261008/selection.json --output outputs/generated/b1/perception/NEW_CONTINUOUS
