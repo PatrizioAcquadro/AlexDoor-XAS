@@ -74,7 +74,10 @@ pairs remain exact; the isolated queries take 1.34 versus 1.97 seconds.
 Within an admission call, repeated target-envelope checks now reuse the unchanged
 surface basis after its first use. All 161 saved-surface tangent coordinates are
 exact; the isolated calculation takes 0.13 versus 2.71 milliseconds. The basis
-never crosses an admission call or a surface update.
+never crosses an admission call or a surface update. Pose-only robot FK now skips
+the discarded Jacobian while keeping default Jacobian-producing calls unchanged.
+On the RTX 4090, 603 nominal/perturbed recorded postures retain exact poses and
+default Jacobians; totals are 0.284 versus 0.429 seconds including CPU retrieval.
 
 Local rollout images now use existing lossless LZF/shuffle instead of gzip level
 4. The isolated sample is 39% faster with 31% larger files. On the full recording,

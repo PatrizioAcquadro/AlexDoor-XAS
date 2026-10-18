@@ -45,14 +45,15 @@ class PurdueChain:
     def array(self, value):
         return torch.as_tensor(value, dtype=torch.float32, device=self.device)
 
-    def forward(self, q):
+    def forward(self, q, *, with_jacobian=True):
         transform = torch.eye(4, device=self.device).expand(q.shape[0], 4, 4).clone()
         origins, axes = {}, {}
         for origin, index, axis, cross in self.chain:
             transform = transform @ origin
             if index is not None:
-                origins[index] = transform[:, :3, 3].clone()
-                axes[index] = transform[:, :3, :3] @ axis
+                if with_jacobian:
+                    origins[index] = transform[:, :3, 3].clone()
+                    axes[index] = transform[:, :3, :3] @ axis
                 angle = q[:, index, None, None]
                 rotation = (
                     torch.eye(3, device=self.device)
@@ -63,6 +64,8 @@ class PurdueChain:
                 motion[:, :3, :3] = rotation
                 transform = transform @ motion
         transform = transform @ self.tip
+        if not with_jacobian:
+            return transform, None
         linear = [torch.linalg.cross(axes[i], transform[:, :3, 3] - origins[i]) for i in range(7)]
         jacobian = torch.cat(
             (torch.stack(linear, -1), torch.stack([axes[i] for i in range(7)], -1)), 1

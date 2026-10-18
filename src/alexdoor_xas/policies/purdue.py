@@ -51,7 +51,9 @@ class PurdueFK:
 
         joints = finite_vector(joints, 9)
         with torch.no_grad():
-            transform, _ = self.chain.forward(self.chain.array(joints[:7])[None])
+            transform, _ = self.chain.forward(
+                self.chain.array(joints[:7])[None], with_jacobian=False
+            )
         world = np.asarray(calibration["root_world"]) @ transform[0].cpu().numpy()
         return ObjectFrame(world[:3, 3], world[:3, :3])
 
