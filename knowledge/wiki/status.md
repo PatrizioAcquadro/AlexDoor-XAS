@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-17. **Static 6.0B is maintained; CAD-free Point2Pose is
+Current as of 2026-10-18. **Static 6.0B is maintained; CAD-free Point2Pose is
 implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consolidation
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
@@ -44,7 +44,17 @@ as declared in the continuation experiment. The evaluator streams selected rows
 to bound RAM; actual eight-model CUDA validation peaks at 1.369 GiB and baseline
 repeats are exact. All four phase-balanced means improve, but a 10.55% Diffusion A2
 bright/push tail regression is retained and diagnosed. The first common 14,000-update
-round reserves 8,000 updates under the declared checks. Training-only improvement requires diagnosis before more updates.
+control completes: no cell meets the guarded 5% improvement, so all selected bests
+remain 12,000. ACT A1 training-only improvement is diagnosed from phase exposure,
+actual predicted actions and a real integrated execution before the 16,000 control.
+That selected ACT A1 right/nominal execution applies 1,139 nonzero commands, reaches
+real contact and 11.8019 degrees raw opening, but zero valid controlled opening,
+hold or release. Material tracking fails the unchanged criterion; a calibrated
+position-domain exit stops the runner. Causal input/native/applied-command and
+two-second continuing-physics stop audits pass without physical violations. The
+unfavorable outcome remains a final-panel candidate under its predeclared exact
+checkpoint/protocol reuse rule. Actual cost is 527.518 charged GPU seconds and
+0.519 GiB; measured-case/full-horizon panel scenarios are 3.52/13.95 hours, not guarantees.
 Checkpoint selection precedes integrated verification and the final frozen24 panel.
 No different-version successes are combined; two-door hold/release success remains
 unestablished.

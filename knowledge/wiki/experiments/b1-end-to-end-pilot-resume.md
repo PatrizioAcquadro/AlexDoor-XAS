@@ -27,7 +27,8 @@ unchanged two eligible train episodes, seed 17, optimizer/RNG/EMA, statistics an
 learned RGB-D recipe. Complete 120-epoch states retain their original 44-epoch
 prefix exactly; diffusion EMA counters also reach 12,000. All four saved CUDA
 round trips have zero prediction discrepancy. Original 3,000/4,400 artifacts
-remain intact; no development-based checkpoint selection is used.
+remain intact. That continuation predates the subsequently declared development
+action-based selection protocol below.
 
 The new stage charges 729.704 GPU seconds including the five-second conservative
 tail. Median throughput is 49.25/49.56/48.44/48.60 updates per second for ACT A1,
@@ -121,9 +122,48 @@ unfavorable Diffusion A2 bright/push p95 increase of 10.55%: translation p95 ris
 No threshold is rounded or relaxed; 12,000 is the predeclared new-stage baseline,
 and 4,400 is a historical comparison, not a door-specific selection alternative.
 These results are development action progress, not merely falling training loss
-or uniformly improved tails. A first matched 12,000-to-14,000 round is prepared,
-with 8,000 updates reserved, followed immediately by the same frozen action check
-and stopping decision. No new physical panel has started.
+or uniformly improved tails.
+
+The first common 14,000-update control completes all four genuine states and
+frozen action checks, adding 8,000 updates in 279.397 charged GPU seconds. Primary
+14,000/12,000 ratios are 1.00427/0.97681/0.97543/0.97176 in the same cell order.
+None satisfies the 5% selection threshold; all selected bests remain 12,000, with
+one no-progress control and no persistent regression. ACT A1 improves its own
+training objective but worsens development release error by 6.8–7.9%. Its first
+six consumed actions also worsen by 0.93%; this is not solely a chunk-suffix effect.
+Both training records contain 85–86% push samples. Sparse hold/release exposure
+and closed-loop distribution shift are hypotheses, not proved input aliasing.
+
+The actual selected ACT A1 12,000 checkpoint is then exercised through the full
+maintained right/nominal protocol: 1,139 nonzero learned commands reach the
+controller; real observed geometry, load/contact and swept-motion admission run.
+It reaches 11.8019 degrees raw opening but **zero valid controlled opening**, with
+no valid hold/release. Material tracking exceeds the unchanged 10 mm criterion.
+The final native shoulder-Z position exits the calibrated lower limit by
+1.11e-6 rad and the runner stops; no envelope is expanded to remove this refusal.
+There are no physical violations. The independent retention audit verifies
+442 consumed captures, 5,302 native samples and all applied targets; 240 healthy
+native stop samples span two seconds of continuing physics, with 0.4214 mm travel.
+
+Independent contact joins cover 1,139 unique queried endpoints: 737 confirmations,
+zero confirmations without instantaneous intended contact, seven instantaneous
+presence samples not confirmed and six physical-Loaded samples not confirmed.
+One final upstream-refusal endpoint has no monitor decision and remains unavailable.
+Operational presence does not certify material tracking or complete physical
+contact validity. This failed episode charges 527.518 GPU seconds and retains
+0.519 GiB. A full-panel scenario at this failure length is 3.52 GPU hours; linear
+full-horizon scaling gives 13.95 hours. Neither is a measured full-panel guarantee.
+
+The failed outcome is retained as a final-panel candidate under the rule frozen
+before execution: count it if the final selected ACT A1 checkpoint and actual
+physical source/protocol/condition/seed/reference are identical, regardless of
+outcome. It is never used for per-door checkpoint selection. Data and behavior
+diagnosis is now recorded before preparing the common 16,000 control from the
+latest 14,000 optimizer/RNG/EMA states. The original patience and thresholds remain;
+more falling training loss alone cannot justify unbounded continuation. Evidence:
+`training-only-diagnosis-14000-completed.json`,
+`selected-integration-12000-contact-metrics.json` and
+`selected-integration-12000-cost-forecast.json` under the continuation evidence root.
 
 After selection, verify actual maintained integrated execution before the full
 panel. Freeze all selected checkpoint versions and one common 24-outcome protocol;
