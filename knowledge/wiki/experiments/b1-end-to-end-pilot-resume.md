@@ -8,35 +8,45 @@ fixed physical criteria and sealed test doors. No production campaign or robot w
 
 ## Current fixed-panel continuation
 
-The optional 4,400-update experiment remains incomplete after repair job
-`11974876` stalls in shared-file I/O. CUDA startup takes 75.972 seconds; a later
-owned-process snapshot shows 14 GB resident memory and `rpc_wait_bit_killable`.
-No new epoch checkpoint is saved. Cancellation charges the maximum parent/step
-elapsed time, 169 GPU seconds including cleanup, rather than adding overlapping
-steps. The four original checkpoints and all partial continuation states remain
-unchanged. Cumulative remote allocation is 3,503/3,600 seconds; 97 seconds cannot
-accommodate the remaining 2,600 updates with the measured training loop, startup,
-I/O and cleanup. Two potentially uncheckpointed epochs are conservatively charged
-at 100 updates each, giving 15,164 checkpointed /15,364 upper total updates.
+The user expands the remote allocation by 15 GPU hours: the cumulative Gilbreth
+ceiling is now 57,600 GPU seconds, with 3,503 consumed. Local training is also
+explicitly authorized within the existing 15 local GPU hours. The 18,000-update,
+300 GiB and six-demonstration ceilings remain unchanged. No development data
+leave the workstation or update weights or normalization.
 
-The only complete four-cell set is therefore the original 3,000-update cohort.
-No 4,400-update checkpoint has been evaluated closed-loop. Resume the original
-full-v7 matrix with its exact `d8de2f0` source, protocol, calibration, expert
-references, seeds and four checkpoint hashes. All four completed failures stay
-in the denominator; only the 20 unallocated slots run. There is no retry of a
-completed outcome, comparison-driven checkpoint choice or mixed-version result.
-The original four CUDA loads and frozen local development metrics are reused.
-`full-v7-resumption-after-infrastructure-ceiling.json` records the verified
-original inputs and `resume-original-panel-v7.py` enforces this continuation.
+The optional matched continuation resumes locally from the preserved ACT A2
+3,200-update state and original Diffusion A2 3,000-update state, keeping the same
+two train episodes, seed 17, optimizer/RNG/EMA and protocol. Both A1 models already
+completed 4,400 updates on A100. The remaining 2,600 A2 updates run on RTX 4090,
+with an 840-second workload cap and at most 900 allocated seconds including
+shutdown. This hardware difference is disclosed. The final cohort remains
+unavailable until all four states, CUDA loads and frozen local development
+inference pass. The upper optimizer count is 15,364 before this continuation,
+and 17,964 if it completes. All failed/interrupted allocations remain charged.
 
-The four measured allocations average 435.40 GPU seconds. Repeating those
-outcomes over the remaining 20 would cost 2.419 GPU hours; extrapolating the first
-case's service cost to every full 9,000-tick horizon gives 12.719 hours. Neither
-scenario is a completion guarantee. The cumulative local budget has 8.280 hours
-left at resume, so actual per-case guards remain mandatory and horizons stay
-unchanged. Exact local cache replacement recovers 23.046 GiB; retained pilot
-storage is 251.685/300 GiB. No new local GPU inference was spent on the incomplete
-4,400 cohort, and all raw episodes remain intact.
+The remote repair's cause remains documented: CUDA startup takes 75.972 seconds,
+then shared-file reads stall in `rpc_wait_bit_killable`. No new epoch is saved;
+cancellation charges 169 GPU seconds, including cleanup. Original checkpoints,
+partial states, logs and hashes are preserved. Two potentially lost 100-update
+epochs remain conservatively charged; additional remote time does not erase them.
+
+The original full-v7 panel retains five complete failed outcomes, including
+242 actual commands from Diffusion A2 right/nominal. Its next ACT A1 right/dim
+attempt is externally interrupted during inspection when RustDesk appears as a
+GPU compute process. It has zero learned commands; 240 healthy native samples
+retain the two-second continuing-physics interruption stop. That allocation and
+raw recording remain separate from complete panel outcomes. The subsequent
+scheduler is retired before allocating again for the newly authorized matched
+continuation. No completed outcome is repeated or removed.
+
+The next common panel freezes all four 4,400-update checkpoints only after local
+verification, then runs one integrated outcome and the remaining fixed slots
+under the unchanged physical/reference/hold/release requirements. Old 3,000-update
+outcomes and any new outcomes remain separate versions. Exact local cache
+replacement recovers 23.046 GiB while preserving all raw recordings; retained
+pilot storage before the local continuation is 252.399/300 GiB. Local GPU use is
+6.8844/15 hours before the new allocation. Full-horizon cost remains an
+extrapolation, so measured cost and cumulative guards govern each launch.
 
 ## Left position-domain prerequisite
 

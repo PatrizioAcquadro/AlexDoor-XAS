@@ -6,36 +6,25 @@ retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
 
 The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
-four genuine 3,000-update corrected-data checkpoints, verified CUDA loading, frozen
-local development inference and actual commands from all four combinations.
-The full-v7 panel uses the independently qualified main gripper load envelope.
-ACT A1 right/nominal executes 1,878 learned commands and reaches 18.790 degrees
-of controlled opening (36.7% of its expert reference), then loses contact at
-56.5 seconds. It has no physical violation, valid hold, release or task success;
-the continuing-physics stop and consumed-input audit pass. The identical ACT A1
-checkpoint stops before contact on the left outside the verified load envelope.
-ACT A2 right/nominal executes 239 commands before a full-sweep/stop admission refusal;
-Diffusion A1 executes 371 before observed-contact-orientation refusal. All four
-completed outcomes and audits are retained. The 20 unallocated slots are retired for
-the matched training continuation. Earlier versions remain separate;
-identical-checkpoint success on both doors is still required.
+four genuine 3,000-update corrected-data checkpoints, verified CUDA loading,
+frozen local development inference and actual commands from all combinations.
+Full-v7 retains five complete failures. ACT A1 right/nominal reaches 18.790
+degrees of controlled opening (36.7% of its reference), then loses contact;
+no checkpoint yet completes valid opening, hold and release on both doors.
+An additional ACT A1 right/dim inspection is interrupted by a foreign RustDesk
+GPU process before any learned command. Its allocation, raw recording and
+continuing-physics stop are retained. No completed outcome is retried.
 
-The optional matched 4,400-update continuation remains incomplete. Its repair
-allocation stalls in shared-file I/O after CUDA startup at 76 seconds and adds
-no saved epoch; cancellation charges 169 GPU seconds including cleanup. Remote
-use is now 3,503/3,600 seconds, with 97 left. Checkpointed updates total 15,164
-including infrastructure; two possibly lost 100-update epochs are charged
-conservatively, giving an upper count of 15,364. All partial states remain
-preserved and unused in the final panel.
-
-The original four completed 3,000-update checkpoints remain the only complete,
-comparable set. Their CUDA loading and frozen local development evaluation are
-reused. The original full-v7 panel resumes with exactly its frozen source,
-protocol, recipe, references and checkpoints: four completed failures stay
-counted and only the 20 unallocated slots run. This does not repeat completed
-outcomes or combine versions. The byte-identical compact local feature cache
-recovers 23.046 GiB while preserving all raw recordings. No new demonstration,
-seed change, development transfer or normalization update is authorized.
+The user now authorizes 15 additional Gilbreth GPU hours and local RTX training.
+Remote use is 3,503/57,600 GPU seconds; the local ceiling remains 15 hours.
+The matched continuation uses the preserved A2 states to complete the remaining
+2,600 updates locally, with A1's completed A100 states retained unchanged.
+All four target 4,400 updates with the same data, seed and optimizer/RNG/EMA.
+Checkpointed updates are 15,164 plus 200 conservatively charged possible lost
+updates before resumption; completion would bring the upper count to 17,964.
+Development stays local and frozen. Only after four-state/CUDA verification may
+the common new 24-outcome panel freeze; earlier versions remain separate.
+The six-demonstration, 18,000-update and 300 GiB ceilings remain unchanged.
 
 An unconditional left elbow position-domain extension is rejected after an
 independent 8 N lateral-load stop exceeds the original travel/speed criteria.
