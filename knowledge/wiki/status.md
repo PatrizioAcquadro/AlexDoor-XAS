@@ -97,23 +97,33 @@ and [[experiments/b1-end-to-end-pilot-resume|complete outcomes, budgets and paus
 
 ## Bounded ACT A1 operational-check investigation
 
-New user authorization on 2026-10-18 permits the scoped position-calibration and
-right-door contact-margin diagnosis, focused tests and bounded reference GPU
-execution. The full panels and other policy combinations remain deferred; no
-training resumes. The fixed ACT A1 checkpoint and every previous outcome remain.
-Directional material-margin accounting and numeric refusal diagnostics are
-implemented. Saved right-reference replay has no first operational refusal;
-strong-load position support is rejected by measured error/stop failures. The separately tested 1 N position support passes unchanged error/response/stop
-bounds; strong-load extensions remain blocked. The observed reference completes opening, three-second hold, release and a
-healthy two-second stop; learned command count remains zero. The single fixed ACT A1 short-window diagnostic stops after 1,631 learned
-commands on an insufficient future material margin (-1.206 mm), with no physical
-violation and a healthy continuing-physics stop. It is a retained task failure,
-not a panel restart. On the same actual trace the old 3 mm rule would prematurely refuse four valid
-states; the later unsupported proposal remains blocked. See
-[[experiments/b1-operational-tolerances|current bounded evidence and limits]].
+The scoped Goal 1 operational-tolerance follow-up is complete under the user's
+2026-10-18 criterion: justified/corrected uncertainty and explicit decisions on
+known small ACT A1 excursions, without requiring learned task success. Goal 2
+has not started. The original full learned-success panels remain paused and
+incomplete; checkpoints, outcomes and physical requirements remain unchanged.
 
-These diagnostics retain seven GPU launches, including failed/interrupted setup,
-and add approximately 0.912 local allocation hours with the existing five-second
-per-launch tail. This is an increment to the preserved pause ledger, not a new
-budget. No remote allocation or training update is added. Detailed process-time
-and retained-payload accounting is in the separate operational-check report.
+One replay of 524 saved ACT A1 captures exactly reconstructs the 83.618 mm
+frame-origin bound. Admission now transports primitive errors directly to the
+actual finite footprint, credits the geometry tolerance already spent by material
+coverage, and separates material interval motion from robot tracking response.
+For the preserved terminal proposal's clearance, even a conservative 20 mm
+endpoint-travel envelope leaves at least 47.755 mm material reserve. No next
+learned action or complete task is executed after that correction.
+
+A single upper-shoulder-Z robot probe validates the existing 4.25 mrad weak-load
+rule on the missing side. All ten known terminal position-excursion samples
+obtain estimates, including the latest30k left 20.683 microradian excess. The
+strong-load/combined-domain restrictions and independent future motion/stop
+guard remain: the saved left proposal path can still refuse without contact-free
+stop evidence. All 4,899 retained strong-load out-of-position samples refuse.
+The earlier reference cycle, policy failures and interruptions retain their
+original classifications. See
+[[experiments/b1-operational-tolerances|evidence, new recipe and qualification limits]].
+
+The investigation retains nine GPU launches in total, including the previous
+failed/interrupted attempts. The two closure checks add 304 allocation-wall
+seconds (log creation to last write plus five-second tails), bringing the
+investigation increment to 0.996111 local GPU hours above the
+preserved pause ledger. No remote allocation or training update is added.
+Detailed counters and analysis failures remain in the separate closure report.

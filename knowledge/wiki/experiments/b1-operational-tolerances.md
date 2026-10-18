@@ -270,3 +270,54 @@ unchanged rate envelopes. Measured next-endpoint robot tracking peaks at
 analysis serialization failure and invalid native-angle handedness join remain
 preserved and explicitly excluded from valid conclusions; neither changed any
 operational decision or original outcome. No ACT A1 learned retry is launched.
+
+
+## Goal 1 follow-up: coherent position rule and closure
+
+The same prospective rule remains **one native sample of travel** at the unchanged
+0.51 rad/s and 120 Hz: 4.25 mrad, only on independently tested joint sides,
+force upper <=1 N and original main acceleration. It is empirical model support,
+not sensor roundoff or a physical joint-limit extension. No per-failure epsilon
+is added. All other sides remain zero and no combined position/acceleration
+extension is admitted.
+
+Existing weak recordings cover no upper-shoulder-Z halo. One additional robot-only
+GPU probe therefore uses the retained latest30k left posture and the original
+weak-load perturbation/force/yaw schedule. It preserves all **5,346 native
+measurements**, including out-of-domain samples: 1,455 are position/speed/main-
+acceleration eligible, 1,215 satisfy the operational weak-load cap and 698 of
+those use the halo. Measured shoulder excursion reaches 7.856 mrad; adoption
+stays at 4.25 mrad. Unchanged joint/scalar residual margins remain positive,
+minimum 0.000533 N m / 0.005079 N. Robot response is 1.899 mm / 0.026681 rad,
+below the original 13 mm / 0.04 rad allowances. The independent known-1 N stop
+travels 0.948 mm, with 1.048 mm radial and 0.256 mm directional reserve; held
+joints, acceleration and continuing-physics stop checks pass unchanged.
+
+The separate adopted recipe is `goal1-closure/runtime-recipe.json`, with
+`goal1-closure/weak-position-calibration.json`; original recipes are untouched.
+It adds upper shoulder Z to the previously supported sides without refitting
+any error coefficient. Review includes 14 retained ACT A1 outcomes and eleven
+terminal domain-exit samples: all ten observed position excursions now obtain
+an estimate. Latest30k left shoulder-Z excesses of 7.331 and 20.683 microradians
+have force uppers 0.06150 and 0.06132 N and are accepted for estimation. The
+remaining 5.743 N acceleration-only case still refuses; all 4,899 retained 8/10 N
+out-of-position states remain refused.
+
+Estimation support is distinct from command permission. On the retained latest
+left trace, the existing prospective guard would already refuse at 30.9333 s:
+its motion/stop envelope can leave the main position domain and its independent
+contact-free stop margin is negative. All 370 such saved proposals remain
+unsupported. A weak current load cannot prove a future stronger loaded stop;
+accepting the tiny measured position excess does not bypass that requirement
+or turn this historical failed task into success.
+
+**Goal 1 closes under the latest user-defined completion criterion:** uncertainty
+is traced and corrected, and every known small ACT A1 position excursion has
+an evidence-based estimation decision plus the unchanged future-motion guard.
+Goal 2 has not started and may be addressed separately. This closure does not
+complete or restart the original paused learned-success panels, qualify stronger
+loads or hardware, or demonstrate post-correction learned task success.
+`goal1-closure/completion-report.json` records the retained checks and incremental
+resource accounting; no training, panel, other combination or post-terminal
+learned-policy attempt is run. Numerical regression and affected-consumer checks
+pass; failed analysis/test attempts remain separately preserved.
