@@ -250,6 +250,37 @@ and `fixed-panel-selected-v10-results.{json,md}`. At launch one outcome is compl
 with no task success; the remaining 23 are unavailable until executed. Completion
 still requires all 24 and an identical successful checkpoint on both doors.
 
+The first five selected-v10 outcomes now demonstrate **actual nonzero learned
+command execution from all four selected checkpoints**, including Cartesian and
+joint requests, applied-target changes, real robot motion, operational geometry/
+load/admission and retained native/evaluator streams. All five strict audits and
+240-sample, two-second continuing-physics stops pass without physical violations.
+This completes the four-model execution gate, not the task-success gate. The
+proof is `selected-v10-first-four-combinations-execution-proof.json`.
+
+| Selected combination / condition | Commands | Controlled opening | Termination |
+| --- | ---: | ---: | --- |
+| act-A1_joint_delta / right/nominal | 1139 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
+| act-A1_joint_delta / left/nominal | 675 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
+| act-A2_ee_delta / right/nominal | 232 | 0.000 deg | contact_acquisition_budget |
+| diffusion-A1_joint_delta / right/nominal | 1976 | 19.724 deg | contact_load_lost_or_uncertain |
+| diffusion-A2_ee_delta / right/nominal | 983 | 0.000 deg | observed_contact_orientation |
+
+All five fail valid hold/release and task success. Diffusion A1 reaches 19.7235
+controlled degrees (38.4772% reference) before `contact_load_lost_or_uncertain`;
+its raw 20.0090 degrees are reported separately. The final native force window is
+25.7057 mN (physical Loaded), while the operational normal-force lower mean is
+−0.7698 mN after several zero-force substeps. Native gaps stay within the original
+physical tolerance. This illustrates justified operational uncertainty versus
+independent physical validity; it is not evidence that a threshold should change
+or that the load model has a diagnosed defect. No calibration/controller correction
+is made during the panel. All 19 remaining slots continue under the frozen version.
+
+These five outcome allocations total 0.7060 GPU hours, including the
+previously charged identical integration; only 0.5594 new GPU hours
+are added after panel freeze. Cumulative local use through these closed outcomes
+is 9.0957 hours. Reuse does not double-charge lifetime compute.
+
 The offline OOM correction remains required for every stage. The user-reported
 approximately 49 GiB A1-to-A2 peak is caused by retained `PolicyData` ownership;
 the earlier simple-interruption attribution is superseded. A second owned run

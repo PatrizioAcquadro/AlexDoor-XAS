@@ -6,77 +6,53 @@ retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
 
 The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] has
-four genuine 3,000-update corrected-data checkpoints, verified CUDA loading,
-frozen local development inference and actual commands from all combinations.
-Full-v7 retains five complete failures. ACT A1 right/nominal reaches 18.790
-degrees of controlled opening (36.7% of its reference), then loses contact;
-no checkpoint yet completes valid opening, hold and release on both doors.
-An additional ACT A1 right/dim inspection is interrupted by a foreign RustDesk
-GPU process before any learned command. Its allocation, raw recording and
-continuing-physics stop are retained. No completed outcome is retried.
+four genuinely trained selected checkpoints: **ACT A1 12,000, ACT A2 18,000,
+Diffusion A1/A2 22,000 updates**. All four now execute nonzero learned commands
+through the real observed RGB-D/proprioception, robot-load/contact, proposed-motion
+admission, controller, recording and continuing-physics stop path. Current maintained
+physical runtime matches frozen source `b2969ef`; teacher, selected IK/gains,
+dynamics, expert references and physical criteria are unchanged.
 
-The cumulative authorization is **40 local GPU hours, 32 remote GPU hours across
-Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 demonstrations**,
-including all previous usage. Closed uniform-stage use is 8.3039 local GPU hours, 3,503 remote GPU seconds,
-at most 72,364 updates and six demonstrations.
-Machine-readable reconciliation governs each new launch; development stays local
-and never updates weights or statistics.
+The frozen `selected-v10` panel has **5/24 complete outcomes, all failed**, with
+all 19 remaining slots retained as pending. Its best controlled opening so far is
+Diffusion A1 right/nominal: 19.724 degrees, **38.5%** of the 51.260-degree reference,
+then an operational contact-load uncertainty stop. No model yet demonstrates
+80% opening with valid hold/release on both doors. All five complete episodes pass
+input/actual-command/native/clock and two-second continuing-physics stop audits,
+with no physical violation. Ordinary policy failures remain outcomes and the fixed
+panel continues; no completed result is retried or dropped. Earlier versions keep
+their original outcomes and unexecuted denominators. The already-frozen 12,000
+full-v9 plan was held before any simulation allocation and remains intact; v10
+uses new directories and reuses its separately audited identical ACT A1 integration.
 
-All four matched models now genuinely reach **12,000 updates**, preserving the
-two eligible train episodes, seed, normalization and optimizer/RNG/EMA. The common
-4,400-to-12,000 RTX continuation adds 30,400 updates in 729.704 charged seconds,
-with about 48–50 updates/s, 14.848 GiB process peak RAM and more than 36.6 GiB host
-headroom. A final marker-writing variable error is retained and corrected through
-an independent CPU-only state audit; no training is repeated or double charged.
-Gilbreth's still-pending job is cancelled at zero allocated seconds; Gautschi H100
-access/resources work, but test-only scheduling predicts October 23. Local RTX
-execution is explicitly authorized.
+The cumulative authorization remains **40 local GPU hours, 32 remote GPU hours
+across Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 total
+demonstration attempts**, all previous use included. Through these five closed
+outcomes, local use is 9.0957 GPU hours; remote use is 3,503 GPU seconds,
+updates are at most 96,364 (including 200 possibly lost updates), and six fresh
+demonstrations are consumed. Current machine-readable reconciliation governs each
+launch and growing retained storage. Development stays local and never updates
+weights or statistics. No remote job is active; Gautschi H100 access/resource
+preflight is verified, with no H100 training allocation yet.
 
-The frozen 4,400 version retains two complete ACT A1 nominal failures: 488 right
-and 2,243 left commands, no contact/opening, and safe contact-acquisition/orientation
-stops. Audits pass with no physical violation. Its 22 unallocated slots are
-explicitly retired for the declared matched continuation; the original fixed plan,
-denominator and all prior outcomes remain preserved. All four 12,000-update CUDA/development checks now complete. The user declares
-these checkpoints intermediate; the prepared panel is held before any allocation.
-Further matched rounds check inferred development actions every 2,000 updates,
-using fixed phase-balanced samples, 5% guarded progress and three-control patience
-as declared in the continuation experiment. The evaluator streams selected rows
-to bound RAM; actual eight-model CUDA validation peaks at 1.369 GiB and baseline
-repeats are exact. All four phase-balanced means improve, but a 10.55% Diffusion A2
-bright/push tail regression is retained and diagnosed. The first common 14,000-update
-control completes: no cell meets the guarded 5% improvement, so all selected bests
-remain 12,000. ACT A1 training-only improvement is diagnosed from phase exposure,
-actual predicted actions and a real integrated execution before the 16,000 control.
-That selected ACT A1 right/nominal execution applies 1,139 nonzero commands, reaches
-real contact and 11.8019 degrees raw opening, but zero valid controlled opening,
-hold or release. Material tracking fails the unchanged criterion; a calibrated
-position-domain exit stops the runner. Causal input/native/applied-command and
-two-second continuing-physics stop audits pass without physical violations. The
-unfavorable outcome remains a final-panel candidate under its predeclared exact
-checkpoint/protocol reuse rule. Actual cost is 527.518 charged GPU seconds and
-0.519 GiB; measured-case/full-horizon panel scenarios are 3.52/13.95 hours, not guarantees.
-The uniform sequence now stops at 18,000 under its declared common patience:
-ACT A1 retains 12,000; Diffusion A1, ACT A2 and Diffusion A2 select 18,000 after
-6.30%/7.60%/6.49% guarded action-error reductions. One diagnosed train-only
-phase-sampling correction then starts all four latest 18,000 states, preserving
-seed/optimizer/RNG/EMA/statistics. It keeps the fixed development action guards,
-separate three-control patience and a 32,000 per-cell cap; the stopped uniform
-state remains intact. The first 20,000 control completes all four genuine states with unchanged
-normalization and frozen CUDA development. Diffusion A1 passes selection; ACT A1/
-ACT A2 improve below 5%, while Diffusion A2 fails its bright/hold tail guard despite
-a lower mean. Peak RAM is 14.847 GiB with at least 38.228 GiB host headroom;
-281.109 GPU seconds are charged. The declared corrective sequence then stops at 24,000: ACT A1/A2 exhaust
-patience, and the final inferred-action regression diagnosis is retained. No more
-optimizer updates are launched. Selected-v10 freezes ACT A1 at 12,000, ACT A2 at
-18,000 and both Diffusion checkpoints at 22,000. The identical audited ACT A1
-right/nominal failure is retained as outcome1/24; the other23 execute sequentially
-with unchanged physical criteria and strict recording/stop audits. Original12k
-full-v9 was already frozen but held before any allocation; it remains intact with
-all24unexecuted slots. A prior summary's never-frozen statement is corrected from
-the actual hold record. The new panel uses separate directories.
-Checkpoint selection precedes final integrated verification and the frozen24 panel.
-No different-version successes are combined; two-door hold/release success remains
-unestablished.
+All four latest common training states reach **24,000** with the same two eligible
+corrected train episodes, seed 17, optimizer/RNG/EMA and normalization. The declared
+uniform sequence stops at 18,000; one diagnosed phase-sampling correction stops
+at 24,000. Both stops, intermediate weights, rejected tails and training-only
+regression diagnoses are retained. Selection uses fixed phase-balanced inferred
+development actions, 5% guarded progress and three-control patience, without
+comparing ACT loss to Diffusion MSE. No more optimizer updates run during this
+frozen panel. Development contains two lighting variants of one motion, not an
+independent-trajectory or generalization demonstration.
+
+Operational door-contact evidence is separate from complete physical validity:
+ACT A1 right/nominal has 737 force-associated confirmations inside the actual
+finite footprint, but zero full physical-valid contacts because material tracking
+fails. Diffusion A1's final physical force window remains Loaded at 25.706 mN while
+its operational lower bound crosses zero; the justified uncertainty stop remains
+in the result. No threshold is rounded or weakened. Operational withdrawal
+recognition uses proposed distal-point motion plus observed geometry/load;
+learned successful hold/release remains undemonstrated.
 
 The approximately 49 GiB offline OOM is corrected by releasing old dataset owners
 before loading the next representation and retaining 12 GiB host reserve. Corrected
