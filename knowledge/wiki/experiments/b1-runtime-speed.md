@@ -126,7 +126,12 @@ versus the historical 577 MB. The subsequent local development writer stores
 image tiles uncompressed, retaining LZF for numeric columns: the same complete
 rewrite takes 42.78 versus 48.25 seconds with buffered LZF and occupies 2.480 GB
 versus about 0.798 GB. This trades local storage for lower compression cost;
-final dataset writers and old compressed readers are unchanged. All complete
+final dataset writers and old compressed readers are unchanged.
+Whole-frame raw chunks then replace the old spatial/temporal compression tiles,
+matching the actual complete-frame consumer. The complete 47-column comparison
+remains exact; file size falls to 2.417 GB and rewrite takes 41.80 seconds.
+Per-image temporal cache/shuffle settings are removed because each raw chunk is
+written once; bounded numeric batching and dataset handles remain. All complete
 rewrites preserve every one of the
 2,419,788,862 uncompressed bytes in all 47 columns: 524 RGB-D captures, 3,144
 control states, 3,143 total commands including inspection, and 6,286 rows per

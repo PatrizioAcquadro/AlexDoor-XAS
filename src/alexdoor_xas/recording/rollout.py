@@ -74,11 +74,7 @@ class RolloutWriter:
             arr = np.asarray(value)
             if key not in target:
                 image = group == "captures" and key in ("rgb", "depth_m", "valid_depth")
-                chunks = (
-                    (10, min(32, arr.shape[0]), min(64, arr.shape[1]), arr.shape[2])
-                    if image
-                    else (128, *arr.shape)
-                )
+                chunks = (1, *arr.shape) if image else (128, *arr.shape)
                 target[key] = self.file[group].create_dataset(
                     key,
                     shape=(0, *arr.shape),
@@ -86,18 +82,6 @@ class RolloutWriter:
                     dtype=arr.dtype,
                     chunks=chunks,
                     compression=None if image else "lzf",
-                    **(
-                        dict(
-                            shuffle=False,
-                            # Keep one temporal tile set resident while frames
-                            # stream in, avoiding repeated partial-tile work after
-                            # the default 1 MiB cache would evict them.
-                            rdcc_nbytes=max(1 << 20, 12 * arr.nbytes),
-                            rdcc_nslots=4099,
-                        )
-                        if image
-                        else {}
-                    ),
                 )
         if group in self._pending:
             self._pending[group].append(
