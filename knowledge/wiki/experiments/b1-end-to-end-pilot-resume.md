@@ -2061,3 +2061,41 @@ matched2k check is justified after diagnosis with no patience reset, threshold,
 sampler or selected-weight change. Subsequent flags still hold further updates.
 Evidence is `state-coverage-round-26000/training-only-diagnosis.json` and the
 preserved selection state before review. No new closed-loop success is claimed.
+
+
+## Second qualified-data control and prospective functional assessment
+
+All four common states complete28k with preserved seed/optimizer/RNG/EMA and
+normalization. Allocation is314.624 GPU seconds; process peak18.146 GiB,
+released RSS1.807 GiB beforeA2, minimum host availability51.698 GiB. No candidate
+passes every selected-best guard. Relative to26k, inferred train-action means
+improve3.78%,6.33%,11.57%,7.67% for ACTA1/DiffA1/ACTA2/DiffA2; development means
+change+1.29%,−2.86%,+0.40%,−0.15%. All four retain no-progress/regression counts2.
+Actual paired phase/bucket diagnosis retains ACT training-only regressions before
+the third declared common control; no sampler, criterion or patience change.
+
+Before the common stop and any new-data closed-loop execution,
+`stopped-latest-functional-assessment-plan.json` declares one separate functional
+cohort: every cell uses its **latest state at the common stopping control**.
+The guarded-development bests remain unchanged controls, with their failed guards
+and original24 outcomes retained. This is an explicitly different assessment,
+not a claim that rejected candidates pass development selection. Fixed inferred
+train gains on the five qualified records warrant measuring actual train-door
+behavior; the development set is two lights of one unseen motion. No new training
+runs beyond the stopping rule, and no checkpoint is chosen by door or subsequent
+favorable rollout outcome. Freeze actual checkpoint hashes before one maintained
+integrated right/nominalACTA1 case; verify causal inputs, actual commands, native/
+evaluator clocks and healthy continuing-physics stop before freezing the full24.
+If exact versions match, count that first outcome regardless of success. Keep
+original placement, references, lights,150s/9000ticks, controller, physical criteria
+and full task rule. This finite simulation assessment makes no unseen-door claim.
+
+A terminal-state audit also identifies multiple original panel position exits
+only1.1–279 microradians beyond verified bounds; the bounds remain enforced.
+The recipe's free-text scope mentions an optional weak-position interval, but
+its actual frozen input deliberately retains the original main calibration, as
+the earlier failed strong-load/response studies required. An initial mistaken
+wiring diagnosis and unused prospective recipe are preserved and explicitly
+retired before allocation. The optional interval remains inactive; no model,
+controller or qualification flag is changed. A future position extension would
+require its own unchanged error, response and full-robot stop evidence.
