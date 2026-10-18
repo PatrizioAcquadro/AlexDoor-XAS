@@ -4,7 +4,7 @@
   18k, Diffusion A1/A2 22k), all with real learned-command execution through the
   observed/load/admission/control/recording/stop path. Uniform and corrected
   phase-balanced selection stop at common 18k and 24k. The frozen selected-v10
-  panel has 17 complete failures out of 24. ACT A1 left/dim reaches 99.54%
+  panel has 19 complete failures out of 24. ACT A1 left/dim reaches 99.54%
   controlled opening and valid hold, then a measured gripper position-domain
   refusal before release; no full task success is demonstrated. All right-door combinations/conditions fail; the one-tick
   candidate worsens controlled opening and is rejected despite exact input/output

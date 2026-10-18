@@ -12,12 +12,12 @@ through the real observed RGB-D/proprioception, robot-load/contact, proposed-mot
 admission, controller, recording and continuing-physics stop path. The active panel keeps frozen physical source `b2969ef`; teacher, selected IK/gains,
 dynamics, expert references and physical criteria are unchanged.
 
-The frozen `selected-v10` panel has **17/24 complete outcomes, all failed**, with
-all seven remaining slots retained as pending. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
+The frozen `selected-v10` panel has **19/24 complete outcomes, all failed**, with
+all five remaining slots retained as pending. Its best controlled opening is now ACT A1 left/dim: **52.295 degrees,
 99.54%** of its frozen reference, with valid hold, but no attempted release.
 After 7,171 real commands, `RIGHT_GRIPPER_Y` exceeds its verified load-model
 position maximum by 0.000279 rad; the correct operational refusal stops the task.
-No model yet completes opening, hold and release on both doors. All 17 complete episodes pass
+No model yet completes opening, hold and release on both doors. All 19 complete episodes pass
 input/actual-command/native/clock and two-second continuing-physics stop audits,
 with no physical violation. Ordinary policy failures remain outcomes and the fixed
 panel continues; no completed result is retried or dropped. A transient external
@@ -44,7 +44,7 @@ preflight is verified, with no H100 training allocation yet.
 
 All twelve right-door cell/condition outcomes fail. Therefore, the original
 selected-v10 checkpoint/protocol cohort cannot satisfy identical-checkpoint
-success on both doors, regardless of the remaining left outcomes. Those seven
+success on both doors, regardless of the remaining left outcomes. Those five
 outcomes still run and remain in the denominator. The separately frozen one-tick Diffusion A1 integration also fails: 1,619 actual
 learned commands reach 15.9977 controlled degrees (31.21%), below the unchanged
 six-tick comparison and its predeclared adoption threshold. Its independent input/
@@ -59,7 +59,10 @@ controller, door/body placement, dynamics and physical criteria. Full-robot
 clearance checks at the actual control cadence pass with existing uncertainty and
 stop bounds; the coarser failed check remains. Actual fresh-record physical/raw
 eligibility passes for right/plus; left/plus is interrupted and excluded.
-The other two collections and data preparation await the diagnosed infrastructure repair.
+A bounded real cancellation check now passes exit130 and 240 healthy native
+samples over two continuing simulated seconds, with no violations or travel.
+The identical replacement and two unallocated collections resume after shared
+resource availability; all previous failures remain.
 Queue waiting consumes no attempt or GPU allocation.
 
 The longer ACT execution charges 2,046.720 GPU seconds and retains 1.563 GiB

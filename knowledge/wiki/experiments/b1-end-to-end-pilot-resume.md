@@ -278,8 +278,10 @@ proof is `selected-v10-first-four-combinations-execution-proof.json`.
 | diffusion-A1_joint_delta / left/nominal | 485 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
 | diffusion-A2_ee_delta / left/nominal | 351 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
 | act-A1_joint_delta / left/dim | 7171 | 52.295 deg | load_estimation_failed: outside_verified_load_envelope; hold valid, release not attempted |
+| act-A2_ee_delta / left/dim | 4 | 0.000 deg | unsupported_actual_robot_sweep_and_stop |
+| diffusion-A1_joint_delta / left/dim | 526 | 0.000 deg | load_estimation_failed: outside_verified_load_envelope |
 
-All 17 complete outcomes fail task success. ACT A1 left/dim reaches valid hold;
+All 19 complete outcomes fail task success. ACT A1 left/dim reaches valid hold;
 none completes release. Diffusion A1 reaches 19.7235
 controlled degrees (38.4772% reference) before `contact_load_lost_or_uncertain`;
 its raw 20.0090 degrees are reported separately. The final native force window is
@@ -288,7 +290,7 @@ its raw 20.0090 degrees are reported separately. The final native force window i
 physical tolerance. This illustrates justified operational uncertainty versus
 independent physical validity; it is not evidence that a threshold should change
 or that the load model has a diagnosed defect. No calibration/controller correction
-is made during the panel. All seven remaining slots continue under the frozen version.
+is made during the panel. All five remaining slots continue under the frozen version.
 The right/dim Diffusion A1 result reaches 36.6% of reference before a local
 swept-motion margin refusal; its physical criteria and outcome remain separate.
 
@@ -297,9 +299,9 @@ previously charged identical integration; only 0.5594 new GPU hours
 are added after panel freeze. Cumulative local use through these closed outcomes
 is 9.0957 hours. Reuse does not double-charge lifetime compute.
 
-Through 17 completed outcomes, every right-door combination/lighting case fails
+Through 19 completed outcomes, every right-door combination/lighting case fails
 the task, so this frozen checkpoint/protocol cohort cannot satisfy the two-door
-functional gate. The remaining seven left outcomes still run. Right/bright Diffusion
+functional gate. The remaining five left outcomes still run. Right/bright Diffusion
 A1 provides the best right-door controlled opening, 21.50045 degrees (41.94371%),
 then a contact-load uncertainty stop with one independently measured contact loss.
 Its 2,181 learned commands and two-second stop pass all audits without physical
@@ -529,7 +531,15 @@ returns CLI code 0 after an uncaught `KeyboardInterrupt`; the qualification wrap
 correctly fails and retains its 20.441 GPU-second allocation. The CLI now explicitly
 exits 130 after cancellation, tested through its actual footer. One diagnosed
 exit-contract recheck and the prospectively declared collection replacement remain
-pending; the physical stop result is not relabeled as an entire passed trial.
+pending at that snapshot; the physical stop result is not relabeled as an entire
+passed trial. The diagnosed exit-only repair then passes an identical real CLI
+check: exit 130, 240 healthy samples from native time 0.73333 to 2.73333 s, zero
+travel and physical violations. It charges 21.525 GPU seconds. Source `bfabece`
+retains the same teacher/controller/stop/recording component bytes. This releases
+the prospectively declared same-setup/seed replacement and two unallocated data
+attempts under completion-plan v3. The original incomplete attempt and earlier
+plans remain; three new launches would bring the cumulative demo count to 11.
+No new training update is authorized by this infrastructure evidence alone.
 No teacher, controller, ordinary command, physical criterion or frozen-panel source
 changes. Evidence is `state-coverage-interruption-diagnosis.json`.
 
