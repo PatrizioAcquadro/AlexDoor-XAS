@@ -99,8 +99,8 @@ and [[experiments/b1-end-to-end-pilot-resume|complete outcomes, budgets and paus
 
 The scoped Goal 1 operational-tolerance follow-up is complete under the user's
 2026-10-18 criterion: justified/corrected uncertainty and explicit decisions on
-known small ACT A1 excursions, without requiring learned task success. Goal 2
-has not started. The original full learned-success panels remain paused and
+known small ACT A1 excursions, without requiring learned task success. A separate
+runtime-speed goal is now active below. The original full learned-success panels remain paused and
 incomplete; checkpoints, outcomes and physical requirements remain unchanged.
 
 One replay of 524 saved ACT A1 captures exactly reconstructs the 83.618 mm
@@ -127,3 +127,21 @@ seconds (log creation to last write plus five-second tails), bringing the
 investigation increment to 0.996111 local GPU hours above the
 preserved pause ledger. No remote allocation or training update is added.
 Detailed counters and analysis failures remain in the separate closure report.
+
+## ACT A1 runtime speed — in progress
+
+The fixed 30,000-update ACT A1 diagnostic completes all 1,631 commands, inspection,
+recording and healthy stop in 466.902 seconds. This improves the historical
+roughly 10.7–11.1-minute runtime, but misses the required 360-second full-process
+target. The 7,217-command reference execution is being measured separately; it
+cannot establish learned-policy success.
+
+Changes reuse bounded HDF5 chunk caches, avoid repeated within-capture depth
+selection and use lossless LZF for local rollout images. Complete saved-input
+rewrites retain all 47 columns/2.42 GB exactly; fixed-input GPU ACT predictions
+remain exact. A live float32 JSON metadata defect is corrected without changing
+any geometry or safety decision. The ownership refusal, external-CUDA
+interruption and 148-command serialization failure remain separate outcomes.
+Thread/CPU-affinity alternatives are unadopted; no training, panel restart,
+physics/sensing-rate change or safety recalibration is performed. See
+[[experiments/b1-runtime-speed|measured costs, evidence and remaining targets]].

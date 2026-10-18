@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-runtime-speed|ACT A1 Runtime Speed]] — Frozen 1,631/7,217-command timing, lossless recording improvements and retained incomplete targets.
+
 - [[experiments/b1-operational-tolerances|ACT A1 Operational Tolerances]] — Bounded empirical-position and directional material-margin diagnosis; fixed checkpoint and separately scored reference execution.
 
 - [[experiments/b1-end-to-end-pilot-resume|Resumed End-to-End Pilot]] — Paused, incomplete learned simulation pilot; frozen outcomes, safe stop and reconciled resource accounting.
