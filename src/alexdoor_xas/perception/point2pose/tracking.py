@@ -895,9 +895,9 @@ class PanelTracking:
                         s.position_m,
                         s.rotation_rad,
                         s.lever_m,
-                        tuple(candidate.camera_world[:3, 3])
+                        tuple(candidate.camera_world[:3, 3].tolist())
                         if s.name == "calibration_fk"
-                        else tuple(registration_world),
+                        else tuple(registration_world.tolist()),
                     )
                     for s in frame_budget.sources
                 )

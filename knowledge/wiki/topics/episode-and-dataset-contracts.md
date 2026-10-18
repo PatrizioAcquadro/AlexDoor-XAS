@@ -98,6 +98,12 @@ call; no observation, pose, freshness or mask is reused across captures. Sampled
 recorded head/arm configurations retain identical complete masks. These component
 improvements do not establish an end-to-end runtime target.
 
+Pose-error source coordinates are emitted as native Python numbers. A live
+recording exposed NumPy float32 camera coordinates nested in contact/admission
+diagnostics, which strict JSON could not serialize. Converting those coordinate
+scalars preserves their exact numeric values and retains strict non-finite
+rejection; geometry, ownership and contact decisions are unchanged.
+
 The IO recording hook snapshots applied targets after execution and before a
 response failure replaces them with a stop anchor. Cartesian submissions retain
 the actual submitted world goal; A1 retains its submitted joint increment and

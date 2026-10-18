@@ -292,3 +292,36 @@ def test_sampled_support_keeps_losses_and_empty_availability_explicit():
     assert support["longest_sampled_span_s"] == pytest.approx(0.1)
     assert [i["samples"] for i in support["intervals"]] == [2, 1]
     assert support_timeline([dict(time_s=0.0, available=False)])["intervals"] == []
+
+
+def test_pose_source_coordinates_are_json_numbers_with_float32_camera():
+    import json
+
+    engine = Point2PoseEngine(lambda _: Worker(), replay=True)
+    tracking = PanelTracking(
+        engine,
+        dict(plane_tolerance_m=0.004, voxel_m=0.004, association_angle_deg=5),
+        calibration_bound=(0.0001, 0.001),
+        relative_speed_bound=(0.1, 0.15),
+    )
+    captured = sensor()
+    captured["camera_world"] = captured["camera_world"].astype(np.float32)
+    captured["camera_world"][:3, 3] = [0.1, -0.2, 0.3]
+    try:
+        assert tracking.initialize([make_surface(captured)], captured)
+        candidate = tracking.candidates[0]
+        candidate.registration_origin_map = np.zeros(3)
+        candidate.pose = candidate.initial_world.copy()
+        candidate.camera_world = captured["camera_world"].copy()
+        candidate.support = FieldSupport(0, 0, 0, tracking.generation)
+        candidate.state = "tracked"
+        patch = tracking.local_state(0).patches[0]
+        assert patch.pose_uncertainty_sources
+        encoded = json.dumps(patch.pose_uncertainty_sources, allow_nan=False)
+        rows = json.loads(encoded)
+        calibration = next(row for row in rows if row[0] == "calibration_fk")
+        np.testing.assert_array_equal(calibration[-1], captured["camera_world"][:3, 3])
+        assert patch.ownership == "ambiguous_leaf_candidate"
+        assert patch.identity_support.reason == "ambiguous_leaf_ownership"
+    finally:
+        engine.close()
