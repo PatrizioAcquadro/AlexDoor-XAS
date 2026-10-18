@@ -5,18 +5,27 @@ implemented but unqualified. Phases 6.0 and 6.1 remain open.** Repository consol
 retains the full B1 core; the selected SAM3 recipe is now the common runtime
 reference. A3/A4 semantics and operational thresholds are unchanged.
 
-The active [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] now
-evaluates the prospectively declared `qualified-latest-v11` functional cohort:
-**all four ACT/Diffusion × A1/A2 checkpoints at30,000 updates**, from five eligible
-train records with original-two normalization. The first actual integrated
-outcome is retained as a failure: ACTA1 right/nominal executes1,757 learned
-commands, reaches18.304 controlled degrees (35.71% of reference), and stops at
-insufficient contact-model margin. Full causal recording and the healthy two-second
-physics stop pass; actual stop travel is0.248mm. The complete24 panel is now
-frozen, with that first failure counted and the remaining23 running sequentially.
-Source`bfabece`, selected IK/gains, main-position/main13 load recipe, door dynamics,
-expert references and physical criteria remain fixed. No model yet completes the
-full task on both train doors.
+**Goal 1 is paused and incomplete at the user's explicit request on October 18.**
+No simulation, training or experiment may start until new instructions after review.
+The [[experiments/b1-end-to-end-pilot-resume|end-to-end continuation]] retains all
+four ACT/Diffusion × A1/A2 checkpoints at 30,000 updates, from five eligible train
+records with original-two normalization. Its frozen `qualified-latest-v11` panel
+has **2/24 completed outcomes, both failed; one interrupted attempt and 21
+unallocated slots**. ACT A1 right/nominal executes 1,757 learned commands and
+reaches 18.304 controlled degrees (35.71% of reference), then refuses insufficient
+contact-model margin. ACT A1 left/nominal executes 714 commands, reaches no
+controlled opening and stops outside the verified load envelope. Both completed
+recording and continuing-physics stop audits pass. Neither achieves hold/release.
+
+ACT A2 right/nominal is interrupted orderly for this pause at retained simulation
+time 27.600 s. Partial recording, 144 independent control rows marked learned,
+CLI exit130 and the complete two-second continuing-physics stop remain. Stop
+travel is 3.617 mm with no violation; its final task outcome is unavailable.
+The full interrupted allocation charges 309.442 GPU seconds including the tail.
+The panel driver is terminal, with automatic restart disabled, and no owned GPU
+workload remains. Source `bfabece`, checkpoint/protocol hashes, controller, load
+recipe, dynamics, references and physical criteria remain frozen. No checkpoint
+has completed the full task on both train doors. Earlier results stay separate.
 
 The guarded-development control checkpoints remain **ACTA1 12,000, ACTA2 18,000,
 DiffusionA1/A2 22,000**. All four execute real learned commands through observed
@@ -45,17 +54,19 @@ uses new directories and reuses its separately audited identical ACT A1 integrat
 
 The cumulative authorization remains **40 local GPU hours, 32 remote GPU hours
 across Gilbreth/Gautschi, 200,000 optimizer updates, 1 TiB evidence and 24 total
-demonstration attempts**, all previous use included. After the common30k stop, local allocation is about13.06 GPU hours (including
-an active provisional span), remote use is3,503 GPU seconds, updates are at most
-120,364 (including200 possibly lost updates), retained evidence is about390 GiB
-and11 demonstration attempts are consumed. Current machine-readable reconciliation governs every
-launch and growing retained storage. Development stays local and never updates
-weights or statistics. No remote job is active; Gautschi H100 access/resource
-preflight is verified, with no H100 training allocation yet.
+demonstration attempts**, all previous use included. At this safe stop, charged
+local allocation is **13.827548 GPU hours**, remote use is **3,503 GPU seconds**,
+updates are **at most 120,364** (120,164 checkpointed plus 200 possibly lost),
+retained evidence is **392.827 GiB**, and **11 demonstration attempts** are consumed.
+All allocations are closed and no optimizer updates are reserved. Failed and
+interrupted attempts remain charged. The pause snapshot and continuation state
+are preserved under `outputs/evidence/b1-shared-learned-pilot-20261016/end-to-end-resume/`.
+Development stays local and never updates weights or statistics. No remote job is
+active; Gautschi resource preflight is verified, with no H100 training allocation.
 
 All twelve right-door cell/condition outcomes fail. Therefore, the original
 selected-v10 checkpoint/protocol cohort cannot satisfy identical-checkpoint
-success on both doors, regardless of the remaining left outcomes. All24 outcomes remain in the denominator. The separately frozen one-tick Diffusion A1 integration also fails: 1,619 actual
+success on both doors. All 24 outcomes remain in the denominator. The separately frozen one-tick Diffusion A1 integration also fails: 1,619 actual
 learned commands reach 15.9977 controlled degrees (31.21%), below the unchanged
 six-tick comparison and its predeclared adoption threshold. Its independent input/
 command/clock and continuing-physics stop audits pass. Exact saved-vector replay

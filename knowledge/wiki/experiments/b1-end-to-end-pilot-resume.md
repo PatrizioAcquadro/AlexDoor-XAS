@@ -6,7 +6,42 @@ problems and continue through real demonstrations, short ACT/Diffusion × A1/A2
 training and learned closed-loop simulation. Preserve all previous work/failures,
 fixed physical criteria and sealed test doors. No production campaign or robot work.
 
-## Current fixed-panel continuation
+## Current fixed-panel continuation — paused
+
+**Goal 1 is paused and incomplete by explicit user request on October 18, 2026.**
+No simulation, training, collection or experiment may resume before new human
+instructions following review. At pause baseline `e718933`, the frozen latest-30k
+`qualified-latest-v11` panel retains two completed failures, one orderly interrupted
+attempt and 21 unallocated slots. The original `selected-v10` panel remains
+24/24 complete with zero task successes. No identical checkpoint completes the
+unchanged success rule on both doors. All checkpoints, exclusions and earlier
+outcomes remain; incomplete outcomes are unavailable, not invented failures or successes.
+
+ACT A1 right/nominal executes 1,757 learned commands and reaches 18.304 controlled
+degrees, then refuses contact-model margin; ACT A1 left/nominal executes 714
+commands, opens zero controlled degrees and stops outside its load envelope.
+Both completed recordings and continuing-physics stops pass, without full hold
+and release. The running ACT A2 right/nominal attempt
+`learned-panel-qualified-latest-v11-00-act-a2/physical-attempts/1792329383045606394`
+receives SIGTERM only after its parent driver is frozen against another launch.
+The existing stop path saves partial recording and `interrupted-stop.json`, then
+exits130. The supervisor and driver terminate with exit1 and `Restart=no`.
+No foreign process is stopped and no owned GPU compute workload remains.
+
+The last retained control time is 27.600 simulated seconds; 144 independent control
+rows are marked learned. Its final command count/task audit is unavailable.
+The saved two-second continuing-physics stop passes: 3.617 mm maximum travel,
+0.007361 rad rotation, final 0.0001527 rad/s and no violations. Its entire allocation
+charges 309.442 GPU seconds including the conservative five-second tail.
+`goal-1-paused-20261018.json`, `goal-1-pause-budget-snapshot.json` and the prepended
+`continuation-state.md` entry preserve the safe stop and prohibit automatic resume.
+
+Closed cumulative consumption is 13.827548/40 local GPU hours, 3,503/115,200
+remote GPU seconds, 120,364/200,000 upper optimizer updates (120,164 checkpointed
+plus 200 possibly lost), 392.827/1,024 GiB and 11/24 demonstration attempts;
+reservations are zero.
+These are the pause counters. Older stage-specific figures below remain historical.
+
 
 The latest authorization is cumulative: **40 local GPU hours, 32 remote GPU hours
 (115,200 GPU seconds across Gilbreth and authorized Gautschi H100s), 200,000
@@ -2220,9 +2255,10 @@ not a guarantee; the remaining local allocation at freeze is26.407hours.
 and the original24 cell/door/lighting/placement/seed/physics/reference/hold/release
 protocol, source`bfabece` and original main-position/main13 recipe. Its SHA256 is
 `759cb3ab6c39bac2cf0c105a15f69e416f2e0ea0aef62cff7a3beae755dcbcc4`.
-The actual first failure is reused and counted;23 unallocated slots run once,
-with interruption/physical/stop defects held for diagnosis. The prospective latest
-common stopping-state choice remains distinct from guarded-development controls;
+The actual first failure is reused and counted. At pause, the second outcome is
+also a retained failure, the third attempt is interrupted, and 21 slots are
+unallocated. No further slot may run before review and new human instructions.
+The prospective latest common stopping-state choice remains distinct from guarded-development controls;
 none is claimed to pass those guards or establish unseen-door generalization.
 Original24 failures and all infrastructure attempts remain. No new weight update,
 controller, dynamics, sensor-accuracy requirement or physical criterion changes.
