@@ -450,8 +450,19 @@ def test_static_material_identity_needs_distinct_calibrated_views_and_two_finger
         surface, _, _ = measured_surface(sensor)
         surface.observations = [replace(o, semantic_id=0) for o in surface.observations]
         observed.append(surface)
-    witnesses = static_material_witnesses(observed, zone, faces, recipe().config, 0, 0.005)
+    memory = ScanMemory(recipe().config, 7)
+    memory.surfaces = observed[:1]
+    memory.ambiguous_associations = {("competing-a",): observed[1], ("competing-b",): observed[2]}
+    assert (
+        len(static_material_witnesses(memory.surfaces, zone, faces, recipe().config, 0, 0.005)) == 1
+    )
+    witnesses = static_material_witnesses(
+        memory.observed_surfaces, zone, faces, recipe().config, 0, 0.005
+    )
     assert len(witnesses) == 3
+    assert memory.surfaces == observed[:1]
+    assert len(memory.ambiguous_associations) == 2
+    assert memory.state.reason == "acquiring_object"
     assert (
         len(static_material_witnesses([observed[0]] * 3, zone, faces, recipe().config, 0, 0.005))
         == 1
@@ -460,6 +471,33 @@ def test_static_material_identity_needs_distinct_calibrated_views_and_two_finger
     assert not static_material_witnesses(
         observed, zone, tuple(f + [0, 3, 0] for f in faces), recipe().config, 0, 0.005
     )
+
+    from types import SimpleNamespace
+
+    from alexdoor_xas.perception.point2pose.tracking import PanelCandidate, PanelTracking
+    from alexdoor_xas.perception.scan import surface_support
+
+    tracking = PanelTracking(
+        SimpleNamespace(reset=lambda: None),
+        recipe().config,
+        distal_faces=faces,
+        calibration_bound=(0.001, 0.0),
+    )
+    candidate = PanelCandidate(
+        "candidate-0",
+        observed[-1],
+        np.eye(4),
+        np.eye(4),
+        np.eye(4),
+        surface_support(observed[-1], 7, recipe().config),
+        sam3_id=0,
+    )
+    tracking.adopt_candidates([candidate], sensor, memory, available_s=2.1)
+    assert len(candidate.static_material_witnesses) == 3
+    assert candidate.ownership == "ambiguous_leaf_candidate"
+    observed[1].observations[0].available_s = 3.0
+    with pytest.raises(ValueError, match="future_static_material_witness"):
+        tracking.adopt_candidates([candidate], sensor, memory, available_s=2.1)
 
 
 def test_dominant_local_query_matches_measured_primary_plane_and_retains_occlusion():

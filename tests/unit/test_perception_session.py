@@ -223,9 +223,18 @@ def test_static_snapshot_preserves_complete_publication_times(tmp_path, geometry
         publications = {}
         for index, capture in enumerate((4.0, 4.3)):
             provider.update(sensor(capture, index))
+            # Global association ambiguity must not leave retained measurements
+            # carrying the worker's estimated publication time.
+            from copy import deepcopy
+
+            memory = engine.pending[1]["scan_memory"]
+            memory.ambiguous_associations[("competing",)] = deepcopy(memory.surfaces[0])
             assert provider.consume_results(engine.pending[1]["available_s"])
             publications[capture] = provider.diagnostics["available_time_s"]
-            observations = [o for s in provider.static for o in s.observations]
+            assert provider.scan_memory.ambiguous_associations
+            observations = [
+                o for s in provider.scan_memory.observed_surfaces for o in s.observations
+            ]
             assert observations
             for observation in observations:
                 assert observation.available_s == publications[observation.acquired_s]

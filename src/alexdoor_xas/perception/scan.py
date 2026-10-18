@@ -590,6 +590,11 @@ class ScanMemory:
         self.state = ScanState(generation, space=self.space)
         self.next_id = 0
 
+    @property
+    def observed_surfaces(self):
+        """All retained measurements; global associations remain unresolved."""
+        return (*self.surfaces, *self.ambiguous_associations.values())
+
     def add(self, candidates, sensor, view, *, available_s=None):
         for surface in candidates:
             geometric = [

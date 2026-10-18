@@ -299,7 +299,7 @@ class PanelTracking:
                         radius = np.linalg.norm(zone.origin - sensor["camera_world"][:3, 3])
                         error = candidate.geometry.position_bound_m + p + 2 * radius * np.sin(a / 2)
                         return static_material_witnesses(
-                            scan_memory.surfaces,
+                            scan_memory.observed_surfaces,
                             zone,
                             self.distal_faces,
                             self.config,
@@ -337,7 +337,7 @@ class PanelTracking:
                     radius = np.linalg.norm(zone.origin - sensor["camera_world"][:3, 3])
                     error = candidate.geometry.position_bound_m + p + 2 * radius * np.sin(a / 2)
                     candidate.static_material_witnesses = static_material_witnesses(
-                        scan_memory.surfaces,
+                        scan_memory.observed_surfaces,
                         zone,
                         self.distal_faces,
                         self.config,

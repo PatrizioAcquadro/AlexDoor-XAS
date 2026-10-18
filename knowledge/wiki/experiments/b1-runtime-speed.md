@@ -121,17 +121,36 @@ clocks and healthy continuing-physics stop pass. This is an incomplete workload,
 not a six-minute result. The tracked candidate has a valid local constraint but
 only one static material witness. Current code requires three geometrically
 separated supporting views with consistent root geometry, or independently
-observed material motion, to resolve ownership. No subsequent physical retry is
-scheduled.
+observed material motion, to resolve ownership. No subsequent physical retry preceded the causal diagnosis below.
 
 A separate audit compares every one of its 253 actual robot masks on CPU/CUDA:
 all are exact. Its depth/validity/calibration and control/command/native/evaluator
 prefixes match earlier refused and completed cases exactly. RGB and semantic
 seed masks differ between runs. Mean absolute RGB channel differences are
 0.82–0.98 on the byte scale, with occasional much larger differences; these are
-descriptive measurements, not a new acceptance tolerance. The exact cause of the
-ownership sensitivity remains unresolved; matching robot masks does not prove
-complete perception equivalence. Gates and seeds remain unchanged.
+descriptive measurements, not a new acceptance tolerance. Matching robot masks alone does not establish complete perception equivalence.
+The paired saved-prefix audit reproduces both ownership outcomes. Globally
+ambiguous scan associations retain real observations that the local witness
+query omitted; the refused prefix has at most two assigned-view witnesses even
+when all 4,000 current anchor points are searched. Its original anchor has three
+independent finite two-finger supports when retained unassigned observations are
+included, captured at 18, 21 and 25 seconds with the same semantic identity.
+
+After automatic review rejected expanding these admission inputs under the
+original speed-only scope, the user explicitly authorized this local correction
+and its verification. Local witness queries now include retained ambiguous
+measurements; global surface associations and the separate local coverage atlas
+remain unchanged. Both scan snapshot replacement and publication assign actual
+availability to all retained measurements without refreshing old acquisitions.
+The three-view, calibrated separation, semantic, footprint, root-consistency and
+future-support checks remain. This correction can change admission and is not
+claimed as behavior-preserving optimization. The original refusal is retained.
+Both 253-capture CUDA replays preserve their actual native masks, anchors,
+geometry and global associations. The refused prefix now has the three real
+witnesses above; the previously successful terminal candidate is unchanged.
+Regression cases retain rejection of future support, wrong identity, duplicate
+camera origins and incomplete finite footprints. These are recorded-input
+results, not completion of either timed physical workload.
 
 The complete diagnostic spends 164.58 seconds in observer updates, including
 110.12 seconds waiting for perception, about 103 seconds in physics/render/native
@@ -161,15 +180,17 @@ injected storage-failure regressions pass. Partial storage errors stay incomplet
 and cannot retry a partly written batch; complete updated runtime timing remains
 unproven.
 
-No observation, force, stopping, material or physical gate is weakened.
+Observation rates, numerical force/stopping/material criteria and physical
+acceptance remain unchanged; the explicitly authorized local evidence expansion
+is separate from the performance changes.
 
 ## Current limit and next action
 
 The speed goal is incomplete: both complete measurements miss their targets, and
-the latest source has not completed the diagnostic. Inspect the retained RGB/
-semantic/ownership evidence offline before another physical benchmark. A causal
-repair must preserve current criteria and justify a new attempt; component gains
-and the reference role do not establish learned success. The full learned panels
+the latest source has not completed the diagnostic. The user-authorized causal
+repair passes paired saved-prefix verification; a complete fixed diagnostic is
+now justified after the measured performance changes. Component gains and the
+reference role do not establish learned success. The full learned panels
 remain paused. All allocations/outcomes are reconciled in the separate ignored
 `act-a1-runtime-speed-20261018/progress-report-2.json`; no training or remote
 allocation is added.

@@ -582,7 +582,7 @@ class SessionProvider:
             # Worker snapshots contain acquisition-time estimates. Preserve actual
             # earlier publications when replacing the snapshot; never refresh old
             # inspection support with a later tracking acquisition.
-            for surface in self.scan_memory.surfaces:
+            for surface in self.scan_memory.observed_surfaces:
                 for observation in surface.observations:
                     observation.available_s = self.scan_available.get(
                         observation.acquired_s, observation.available_s
@@ -702,7 +702,7 @@ class SessionProvider:
         result["cue"]["available_s"] = ready
         if result["scan_memory"] is not None:
             self.scan_available[float(captured["time_s"])] = ready
-            for surface in self.scan_memory.surfaces:
+            for surface in self.scan_memory.observed_surfaces:
                 for observation in surface.observations:
                     if observation.acquired_s == float(captured["time_s"]):
                         observation.available_s = ready
