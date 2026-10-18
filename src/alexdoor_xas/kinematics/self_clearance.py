@@ -85,6 +85,9 @@ class RobotSelfClearance:
                 continue
             shared = a["joints"] & b["joints"]
             self.pairs.append((i, j, shared))
+        self.pair_indices = (
+            np.asarray([(i, j) for i, j, _ in self.pairs], dtype=np.intp).reshape(-1, 2).T
+        )
 
     def query(self, matrices, joint_travel, *, relative_model_error_m):
         if not np.isfinite(relative_model_error_m) or relative_model_error_m < 0:
@@ -114,9 +117,15 @@ class RobotSelfClearance:
                     None if sphere is None else (sphere[0] @ t[:3, :3].T + t[:3, 3], sphere[1]),
                 )
             )
+        bounds = np.asarray(bounds)
+        left, right = self.pair_indices
+        gaps = np.max(
+            np.maximum(bounds[right, 0] - bounds[left, 1], bounds[left, 0] - bounds[right, 1]),
+            axis=1,
+        )
         extra_cache, joint_frames = {}, {}
         minimum, pair = np.inf, None
-        for i, j, shared in self.pairs:
+        for pair_index, (i, j, shared) in enumerate(self.pairs):
             extra = []
             for index in (i, j):
                 key = (index, tuple(sorted(shared)))
@@ -154,9 +163,7 @@ class RobotSelfClearance:
             a, na, ea, sa = world[i]
             b, nb, eb, sb = world[j]
             reserve = sum(extra) + relative_model_error_m
-            alo, ahi = bounds[i]
-            blo, bhi = bounds[j]
-            gap = float(np.max(np.maximum(blo - ahi, alo - bhi)))
+            gap = float(gaps[pair_index])
             if gap <= reserve:
                 gap = max(gap, projection_gap(a, sa, b, sb, np.concatenate((na, nb))))
                 if gap <= reserve:

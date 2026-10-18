@@ -88,7 +88,11 @@ On 201 recorded diagnostic/reference postures, all minimum margins and critical
 pairs remain exact; the isolated queries take 1.34 versus 1.97 seconds.
 Each query now also computes each current shape AABB once before pair checks;
 all pairs, reserves and early refusals remain. A separate 201-posture comparison
-retains exact margins/pairs and takes 0.641 versus 1.279 seconds. Parsed URDF
+retains exact margins/pairs and takes 0.641 versus 1.279 seconds.
+The three-axis AABB gaps for all pairs are also evaluated together before the
+unchanged ordered narrow-phase checks. All 201 saved margins/pairs remain exact
+(0.582 versus 0.696 seconds); empty filtered sets and small overlapping/separated
+geometries retain their existing behavior. Parsed URDF
 origins are fixed for the lifetime of the existing robot-model snapshot, rather
 than reparsed for every FK/sweep. All link matrices and sweep balls remain exact
 on 201 saved postures; the paired calculation takes 0.368 versus 0.728 seconds.
