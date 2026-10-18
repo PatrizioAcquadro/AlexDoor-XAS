@@ -133,8 +133,10 @@ Detailed counters and analysis failures remain in the separate closure report.
 The fixed 30,000-update ACT A1 diagnostic completes all 1,631 commands, inspection,
 recording and healthy stop in 466.902 seconds. This improves the historical
 roughly 10.7–11.1-minute runtime, but misses the required 360-second full-process
-target. The 7,217-command reference execution is being measured separately; it
-cannot establish learned-policy success.
+target. The full 7,217-command reference completes in 1,476.799 seconds versus
+about 32.2 minutes previously, missing the 1,200-second target. Opening, hold,
+release, physical limits and stop pass; all compared numeric reference columns
+remain exact. This is reference execution, with zero learned commands/task success.
 
 Changes reuse bounded HDF5 chunk caches, avoid repeated within-capture depth
 selection and use lossless LZF for local rollout images. Complete saved-input
@@ -142,6 +144,11 @@ rewrites retain all 47 columns/2.42 GB exactly; fixed-input GPU ACT predictions
 remain exact. A live float32 JSON metadata defect is corrected without changing
 any geometry or safety decision. The ownership refusal, external-CUDA
 interruption and 148-command serialization failure remain separate outcomes.
-Thread/CPU-affinity alternatives are unadopted; no training, panel restart,
+Further validated source changes reuse joint frames within one clearance query,
+build static indexes only for final condition banks, avoid unused perception
+preloads during single-run shutdown, and mask captured robot depth on CUDA.
+The latter preserves all 201 saved diagnostic/reference masks exactly; complete
+updated timing remains pending. Thread/CPU-affinity alternatives are unadopted;
+no training, panel restart,
 physics/sensing-rate change or safety recalibration is performed. See
 [[experiments/b1-runtime-speed|measured costs, evidence and remaining targets]].
