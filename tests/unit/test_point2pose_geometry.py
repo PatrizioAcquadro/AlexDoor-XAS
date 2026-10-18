@@ -276,6 +276,7 @@ def test_occluded_or_parked_tool_does_not_erase_selected_material_support(
         SimpleNamespace(
             candidate_id="material",
             state="tracked",
+            registration_origin_map=None,
             support=FieldSupport(1, 1, 1, 0),
             geometry=FieldSupport(0, 0, 0, 0, 0.004, 0.001),
             material_recovery_unverified=False,

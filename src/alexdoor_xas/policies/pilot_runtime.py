@@ -669,9 +669,13 @@ class PilotMotionEvidence:
             fingers,
             None,
             False,
-            0.013,
-            0.04,
+            # Material motion over this interval uses its existing measured
+            # rate envelope. The 13 mm / 0.04 rad limits above describe ROBOT
+            # tracking response and are not a second material response source.
+            self.config["relative_speed_bound_m_s"] * io.dt,
+            self.config["material_angular_speed_rad_s"] * io.dt,
             max(np.linalg.norm(f, axis=1).max() for f in self.faces),
+            geometry_position_prepaid_m=self.provider.config["plane_tolerance_m"],
             swept_collision_margin_m=min(float(free_margin), self_margin),
             unloaded_separation_margin_m=None if loaded else float(separation),
             unloaded_normal_lever_m=None if loaded else lever,

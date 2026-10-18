@@ -131,6 +131,12 @@ class LocalPatchState:
     normal_position_bound_m: float | None = None
     # Linear aging already included in pose_support; clocks remain acquisition clocks.
     pose_temporal_position_m: float | None = None
+    # name, translation, angle, frame-origin lever, actual world rotation origin.
+    # Keeping the pivot allows admission to transport each error to its actual
+    # footprint once, instead of adding two correlated angular lever lengths.
+    pose_uncertainty_sources: tuple[
+        tuple[str, float | None, float | None, float | None, tuple[float, float, float]], ...
+    ] = ()
 
 
 @dataclass(frozen=True)

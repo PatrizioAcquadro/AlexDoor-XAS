@@ -190,3 +190,83 @@ The present stop is retained until that evidence exists. Strong-load position
 extension, broader configurations, hardware and real-time qualification remain
 unvalidated. All original panels, failures, interruptions and frozen checkpoints
 remain unchanged; new diagnostics occupy their own evidence directory.
+
+
+## Goal 1 follow-up: primitive uncertainty and finite footprints
+
+The new 2026-10-18 authorization limits completion to justified uncertainty and
+explicit decisions on known small ACT A1 position excursions. Learned task
+success is not required by this narrower completion rule. All original panel
+outcomes and the earlier pause remain historical evidence. Follow-up artifacts
+are separate under `outputs/evidence/operational-tolerances-20261018/goal1-closure/`.
+
+One GPU replay of the **524 original ACT A1 captures**, without physics, policy
+commands or training, reproduces the terminal 83.6183 mm frame-origin position
+bound exactly. Its components are:
+
+| Primitive | Translation | Rotation propagated to frame origin | Total |
+|---|---:|---:|---:|
+| Native registration | 5.7454 mm | 62.9408 mm | 68.6863 mm |
+| Camera/FK calibration | 0.0129 mm | 0.0087 mm | 0.0216 mm |
+| 83.33 ms acquisition age | 8.3333 mm | 6.5770 mm | 14.9103 mm |
+
+All twelve measured native inliers remain. Maximum pair residual is 4.7454 mm,
+including 4.7374 mm tangential and 2.1713 mm normal residual. The unchanged 1 mm
+point-error assumption is added to that residual. Initial/current finite
+plane-edge basis bounds are 0.035570/0.084123 rad; their sum remains 0.119693 rad.
+No empirical maximum replaces these analytic bounds, and no residual is deleted
+as a favorable outlier. Their predominantly tangential error cannot be removed
+using the normal-plane contact correction.
+
+The 83.6183 mm number belongs to the selected material anchor, **608.279 mm away
+from the actual tool**. Registration uncertainty rotates about the measured
+correspondence centroid, not that arbitrary anchor. The former admission mixed
+an anchor-position bound with only the finger radius for subsequent rotation.
+Simply adding the missing anchor-to-tool lever would instead spend correlated
+rotation twice along a broken path. `LocalPatchState.pose_uncertainty_sources`
+now retains every primitive's translation, angle, original frame lever and world
+rotation origin. Admission transports each primitive directly to the actual
+proposed footprints. At this endpoint the registration lever including the finger
+is 243.367 mm, versus 526.165 mm to the anchor before adding any finger radius.
+Missing primitive detail retains a conservative offset-footprint fallback;
+incomplete or inconsistent supplied detail refuses. Geometry rotation also covers
+the actual offset footprint, and robot tracking rotation retains its tool origin.
+
+Two additional accounting defects are corrected. Both `MaterialCover` and
+`footprint_support` already erode the declared 4 mm geometry tolerance. The
+producer now declares that prepaid amount, credited only against material error
+and only with an independent positive robot sweep proof. Invalid/excessive credit
+refuses; holes and measured coverage remain unchanged. Also, the old 13 mm /
+0.04 rad material-response allowance copied the separately measured **robot**
+response. Material motion over the 1/60 s proposal now uses the existing
+0.1 m/s and 0.15 rad/s envelopes: 1.667 mm and 0.0025 rad. Acquisition aging and
+future material response are charged once in their respective terms. Robot
+13 mm / 0.04 rad response and the 20 mm stopping reserve remain unchanged.
+
+`terminal-uncertainty-audit.json` checks the resulting material-point calculation
+against the existing tracker point budget. The current-point total is 90.145 mm.
+The exact next endpoint was not serialized, so the offline comparison inflates
+all levers by the unchanged maximum 20 mm proposal travel: uncertainty remains
+at most **93.831 mm**, leaving at least **47.755 mm** against the preserved
+141.586 mm proposal clearance. The original -1.206 mm arithmetic refusal is
+therefore unnecessary under the corrected accounting. This is a conservative
+term comparison on saved data; no post-terminal action or new runtime receipt
+was executed. The full 3 mm normal-model bound and independent robot collision,
+force, stop and task requirements are unchanged.
+
+Independent evaluator joins happen only after observed estimates. The latest
+recording has 273 available pose samples and one unavailable initialization
+sample: maximum position/orientation errors are 10.566 mm / 0.001293 rad, with
+zero errors outside the original complete position/angular bounds. Terminal
+acquisition error is 4.506 mm, almost entirely tangent. Two independently retained
+teacher recordings contribute 40 right and 43 left fixed three-second samples;
+all are available and covered, with maximum position errors 14.765/20.060 mm and
+orientation errors 0.001287/0.049556 rad. These finite checks support this pilot
+domain, not hardware or global statistical qualification.
+
+The latest material motion peaks at 0.01435 m/s and 0.01839 rad/s, below the
+unchanged rate envelopes. Measured next-endpoint robot tracking peaks at
+2.035 mm / 0.01333 rad, below the retained robot-response allowances. The first
+analysis serialization failure and invalid native-angle handedness join remain
+preserved and explicitly excluded from valid conclusions; neither changed any
+operational decision or original outcome. No ACT A1 learned retry is launched.

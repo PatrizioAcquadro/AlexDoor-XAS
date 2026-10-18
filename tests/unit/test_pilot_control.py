@@ -691,7 +691,11 @@ def test_local_margin_charges_prepaid_capture_age_once_and_keeps_future_motion()
     assert _local_error(aged, evidence, limits, 1 + age + duration, duration) == pytest.approx(
         baseline + speed * (age + duration)
     )
-    assert _local_error(aged, evidence, limits, 1 + age, 2 * duration) == pytest.approx(
+    # Future material motion is supplied once, over the complete interval.
+    longer = replace(
+        evidence, response_position_bound_m=evidence.response_position_bound_m + speed * duration
+    )
+    assert _local_error(aged, longer, limits, 1 + age, 2 * duration) == pytest.approx(
         baseline + speed * (age + duration)
     )
     # Producers without a measured prepaid term retain the conservative old behavior.
@@ -919,3 +923,107 @@ def test_position_halo_cannot_combine_an_independent_weak_acceleration_extension
     assert caught.value.decision["violations"][-1]["quantity"] == (
         "combined_weak_position_and_acceleration"
     )
+
+
+@pytest.mark.parametrize("prepaid", [-1, np.nan, np.inf, 0.01])
+def test_material_geometry_credit_refuses_invalid_or_uncovered_error(prepaid):
+    estimate, proposal, evidence, limits = local_inputs()
+    evidence = replace(evidence, geometry_position_prepaid_m=prepaid, swept_collision_margin_m=0.01)
+    receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert not receipt.admitted and receipt.reason == "invalid_prepaid_geometry_error"
+
+
+def test_material_geometry_credit_requires_separate_collision_proof_and_preserves_boundary():
+    from alexdoor_xas.perception.local_admission import _local_error
+
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    prepaid = patch.geometry_support.position_bound_m
+    evidence = replace(evidence, geometry_position_prepaid_m=prepaid)
+    receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert not receipt.admitted and receipt.reason == "invalid_prepaid_geometry_error"
+    evidence = replace(evidence, swept_collision_margin_m=0.01)
+    error = _local_error(patch, evidence, limits, 1, 1 / 60)
+    # The complete uncertainty is still required; zero numerical tolerance.
+    for delta, accepted in [(-1e-6, False), (0, False), (1e-6, True)]:
+        boundary = replace(evidence, finger_clearance_m=(error + delta, error + delta))
+        receipt = admit_local_action(estimate, proposal, boundary, limits, 1, generation=0)
+        assert receipt.admitted is accepted
+        assert receipt.decision["geometry_position_prepaid_m"] == prepaid
+        assert receipt.decision["numerical_tolerance_m"] == 0
+
+
+@pytest.mark.parametrize("anchor", [0.0, 0.6, 1.2])
+def test_pose_rotation_transports_each_primitive_directly_to_actual_footprint(anchor):
+    from alexdoor_xas.perception.admission import rotational_travel
+    from alexdoor_xas.perception.local_admission import _local_error_terms
+
+    estimate, _, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    origin = patch.world_pose.origin + [0, 0.2, 0]
+    shifted = replace(patch.world_pose, origin=patch.world_pose.origin + [0, anchor, 0])
+    patch = replace(
+        patch,
+        world_pose=shifted,
+        pose_support=replace(
+            patch.pose_support,
+            position_bound_m=0.002 + rotational_travel(abs(anchor - 0.2), 0.1),
+            rotation_bound_rad=0.1,
+        ),
+        pose_uncertainty_sources=(("dynamic_pose", 0.002, 0.1, abs(anchor - 0.2), tuple(origin)),),
+    )
+    terms = _local_error_terms(patch, evidence, limits, 1, 1 / 60)
+    lever = evidence.footprint_radius_m + max(
+        np.linalg.norm(p.origin - origin) for p in evidence.world_poses
+    )
+    assert terms["pose_position_m"] == 0.002
+    assert terms["pose_rotation_m"] == pytest.approx(rotational_travel(lever, 0.1))
+    # Changing the arbitrary material anchor cannot change this primitive's
+    # displacement at the same actual footprint. A farther tool must cost more.
+    farther = replace(
+        evidence,
+        world_poses=tuple(replace(p, origin=p.origin - [0, 0.2, 0]) for p in evidence.world_poses),
+    )
+    assert (
+        _local_error_terms(patch, farther, limits, 1, 1 / 60)["pose_rotation_m"]
+        > terms["pose_rotation_m"]
+    )
+
+
+def test_legacy_pose_bound_still_covers_offset_footprint_without_primitives():
+    from alexdoor_xas.perception.local_admission import _local_error_terms
+
+    estimate, _, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    nominal = _local_error_terms(patch, evidence, limits, 1, 1 / 60)
+    shifted = replace(
+        patch, world_pose=replace(patch.world_pose, origin=patch.world_pose.origin + [0, 0.5, 0])
+    )
+    larger = _local_error_terms(shifted, evidence, limits, 1, 1 / 60)
+    assert larger["pose_rotation_m"] > nominal["pose_rotation_m"]
+    assert larger["robot_rotation_m"] == nominal["robot_rotation_m"]
+
+
+def test_interval_material_response_is_counted_once_separately_from_robot_tracking():
+    from alexdoor_xas.perception.local_admission import _local_error_terms
+
+    estimate, _, evidence, limits = local_inputs()
+    duration = 1 / 60
+    evidence = replace(
+        evidence, response_position_bound_m=limits.relative_speed_bound_m_s * duration
+    )
+    terms = _local_error_terms(estimate.local.patches[0], evidence, limits, 1, duration)
+    assert terms["response_m"] == limits.relative_speed_bound_m_s * duration
+    assert terms["temporal_m"] == 0
+    assert terms["robot_position_m"] == limits.robot_position_bound_m
+
+
+def test_incomplete_pose_primitives_cannot_reduce_a_published_bound():
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = replace(
+        estimate.local.patches[0],
+        pose_uncertainty_sources=(("dynamic_pose", 0.0, 0.0, 0.0, (0.0, 0.0, 0.0)),),
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert not receipt.admitted and receipt.reason == "incomplete_pose_error_sources"

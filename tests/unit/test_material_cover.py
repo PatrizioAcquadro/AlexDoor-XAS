@@ -154,3 +154,21 @@ def test_projected_ball_margin_is_only_finite_tangent_support_and_preserves_hole
         cell_m=0.002,
     )
     assert hole.projected_ball_margin(center, 0.02) <= 0
+
+
+def test_material_clearance_already_spends_the_declared_geometry_tolerance():
+    from alexdoor_xas.perception.scan import footprint_support
+
+    surface, _, _ = measured_surface()
+    pose = ObjectFrame(np.array([1.0, 0.0, 1.0]), np.eye(3))
+    face = np.array([[0, y, z] for y in (-0.02, 0.02) for z in (-0.02, 0.02)])
+    config = recipe().config
+    enlarged = dict(config, plane_tolerance_m=config["plane_tolerance_m"] + 0.001)
+    for query in (
+        lambda cfg: MaterialCover(surface, cfg).query(pose, (face, face)),
+        lambda cfg: footprint_support(surface, pose, (face, face), cfg),
+    ):
+        before, after = query(config), query(enlarged)
+        np.testing.assert_allclose(
+            np.array(before.finger_clearance_m) - after.finger_clearance_m, 0.001, atol=1e-14
+        )

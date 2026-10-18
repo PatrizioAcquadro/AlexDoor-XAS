@@ -184,6 +184,21 @@ Refusals carry numeric measurement/limit/allowance details. New position support
 cannot combine with the independent extended-acceleration interval without
 additional joint evidence.
 
+Local interval response bounds describe the complete material motion during the
+proposal, including response to actuation. The pilot supplies its existing linear
+and angular rate envelopes times the interval duration. Temporal terms separately
+cover acquisition age, crediting growth already in the tracker. The robot's
+13 mm / 0.04 rad tracking response remains a distinct source.
+
+Pose-error primitives retain their measured world rotation origins. Admission
+propagates each primitive directly to both proposed finite footprints; it does
+not add correlated angular travel via an arbitrary material anchor. Missing
+primitive detail uses the conservative anchor/offset bound, and inconsistent
+supplied primitives refuse. Finite material queries already erode the declared
+geometry tolerance: `LocalActionSupport.geometry_position_prepaid_m` credits only
+that amount, requires an independent positive robot sweep proof, and cannot
+exceed the published geometry error. Default credit remains zero.
+
 Contact material margins measure lateral footprint support. With an independent
 robot collision/stop receipt, only the tangential projection of the extra normal
 model discrepancy spends that margin; the full normal uncertainty remains in the

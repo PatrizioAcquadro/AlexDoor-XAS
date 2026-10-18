@@ -878,6 +878,29 @@ class PanelTracking:
                     + 2 * camera_lever * np.sin(min(calibration_angle, np.pi) / 2)
                     + linear_growth
                 )
+            pose_sources = ()
+            if (
+                fresh
+                and candidate.registration_origin_map is not None
+                and candidate.camera_world is not None
+            ):
+                registration_world = (
+                    candidate.pose
+                    @ np.linalg.inv(candidate.map_from_object @ candidate.object_from_zone)
+                    @ np.r_[candidate.registration_origin_map, 1.0]
+                )[:3]
+                pose_sources = tuple(
+                    (
+                        s.name,
+                        s.position_m,
+                        s.rotation_rad,
+                        s.lever_m,
+                        tuple(candidate.camera_world[:3, 3])
+                        if s.name == "calibration_fk"
+                        else tuple(registration_world),
+                    )
+                    for s in frame_budget.sources
+                )
             patches.append(
                 LocalPatchState(
                     candidate.candidate_id,
@@ -902,6 +925,7 @@ class PanelTracking:
                         (s.position_m for s in frame_budget.sources if s.name == "temporal_growth"),
                         None,
                     ),
+                    pose_uncertainty_sources=pose_sources,
                     uncertainty_sources=tuple(
                         (s.name, s.position_m, s.rotation_rad, s.lever_m) for s in budget.sources
                     ),

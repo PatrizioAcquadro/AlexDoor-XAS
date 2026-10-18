@@ -32,6 +32,8 @@ class LocalActionSupport:
     finger_clearance_m: tuple[float | None, float | None]
     collision_clearance_m: float | None
     unknown_in_envelope: bool
+    # Complete material motion over the proposed interval, including its
+    # response to actuation. Robot tracking response is a separate source.
     response_position_bound_m: float | None
     response_rotation_bound_rad: float | None
     footprint_radius_m: float | None
@@ -44,6 +46,9 @@ class LocalActionSupport:
     # current material. With the free-space proof, no contact footprint is used.
     unloaded_separation_margin_m: float | None = None
     unloaded_normal_lever_m: float | None = None
+    # Position error already eroded from BOTH finite material clearances.
+    # Credit is valid only with an independent whole-robot sweep certificate.
+    geometry_position_prepaid_m: float = 0.0
     # Measured possible material depth relative to the reference plane. This
     # affects indirect contact intervals, never the independent physical score.
     material_normal_range_m: tuple[float, float] | None = None
@@ -70,21 +75,69 @@ def _local_error_terms(patch, evidence, limits, now, duration):
         if paid > patch.pose_support.position_bound_m:
             raise ValueError("invalid_prepaid_pose_growth")
     # The tracker already grows its current pose bound from the last capture.
-    # Credit only that linear aging, never the next command's motion or response.
-    temporal = limits.relative_speed_bound_m_s * (age + duration) - min(
+    # Future material motion belongs to the independently supplied interval
+    # response bound. Charging rate * duration here would spend it twice.
+    temporal = limits.relative_speed_bound_m_s * age - min(
         limits.relative_speed_bound_m_s * age, paid or 0.0
     )
+    prepaid = nonnegative(evidence.geometry_position_prepaid_m, "invalid_prepaid_geometry_error")
+    if prepaid > patch.geometry_support.position_bound_m or (
+        prepaid
+        and (evidence.swept_collision_margin_m is None or evidence.swept_collision_margin_m <= 0)
+    ):
+        raise ValueError("invalid_prepaid_geometry_error")
+    # Frame uncertainty rotates the entire offset footprint about the material
+    # anchor, while robot tracking rotation acts about the tool origin.
+    material_lever = radius + max(
+        np.linalg.norm(pose.origin - patch.world_pose.origin) for pose in evidence.world_poses
+    )
+    pose_position = patch.pose_support.position_bound_m
+    pose_rotation = rotational_travel(material_lever, patch.pose_support.rotation_bound_rad)
+    geometry_lever = material_lever
+    sources = getattr(patch, "pose_uncertainty_sources", ())
+    if sources:
+        pose_position = pose_rotation = 0.0
+        names = set()
+        frame_position = frame_rotation = 0.0
+        for name, position, angle, frame_lever, origin in sources:
+            origin = np.asarray(origin, dtype=float)
+            if name in names or origin.shape != (3,) or not np.isfinite(origin).all():
+                raise ValueError("invalid_pose_error_source")
+            names.add(name)
+            lever = radius + max(
+                np.linalg.norm(pose.origin - origin) for pose in evidence.world_poses
+            )
+            position = nonnegative(position, "invalid_pose_error_source")
+            angle = nonnegative(angle, "invalid_pose_error_source")
+            frame_lever = nonnegative(frame_lever, "invalid_pose_error_source")
+            frame_position += position + rotational_travel(frame_lever, angle)
+            frame_rotation += angle
+            pose_position += position
+            pose_rotation += rotational_travel(lever, angle)
+            if name != "calibration_fk":
+                geometry_lever = max(geometry_lever, lever)
+        # This is a floating-point consistency check on the SAME primitives,
+        # not a physical acceptance tolerance or permission to omit a source.
+        roundoff = 32 * np.finfo(float).eps
+        if not np.allclose(
+            [frame_position, frame_rotation],
+            [patch.pose_support.position_bound_m, patch.pose_support.rotation_bound_rad],
+            rtol=roundoff,
+            atol=roundoff,
+        ):
+            raise ValueError("incomplete_pose_error_sources")
     return dict(
-        geometry_position_m=patch.geometry_support.position_bound_m,
-        pose_position_m=patch.pose_support.position_bound_m,
+        geometry_position_m=patch.geometry_support.position_bound_m - prepaid,
+        pose_position_m=pose_position,
         sweep_position_m=evidence.support.position_bound_m,
         robot_position_m=limits.robot_position_bound_m,
-        geometry_rotation_m=rotational_travel(radius, patch.geometry_support.rotation_bound_rad),
-        pose_rotation_m=rotational_travel(radius, patch.pose_support.rotation_bound_rad),
-        sweep_rotation_m=rotational_travel(radius, evidence.support.rotation_bound_rad),
-        robot_and_response_rotation_m=rotational_travel(
-            radius, limits.robot_rotation_bound_rad + response_rotation
+        geometry_rotation_m=rotational_travel(
+            geometry_lever, patch.geometry_support.rotation_bound_rad
         ),
+        pose_rotation_m=pose_rotation,
+        sweep_rotation_m=rotational_travel(radius, evidence.support.rotation_bound_rad),
+        robot_rotation_m=rotational_travel(radius, limits.robot_rotation_bound_rad),
+        response_rotation_m=rotational_travel(material_lever, response_rotation),
         response_m=response,
         temporal_m=temporal,
         stop_m=limits.stop_travel_m,
@@ -210,6 +263,15 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
                 total_uncertainty_m=error,
                 material_margin_m=clearance - error,
                 numerical_tolerance_m=0.0,
+                geometry_position_prepaid_m=evidence.geometry_position_prepaid_m,
+                frame_origin_position_bound_m=patch.pose_support.position_bound_m,
+                frame_origin_rotation_bound_rad=patch.pose_support.rotation_bound_rad,
+                pose_uncertainty_sources=getattr(patch, "pose_uncertainty_sources", ()),
+                material_rotation_lever_m=evidence.footprint_radius_m
+                + max(
+                    np.linalg.norm(pose.origin - patch.world_pose.origin)
+                    for pose in evidence.world_poses
+                ),
             )
             if clearance <= error:
                 raise ValueError("insufficient_local_action_margin")
@@ -278,7 +340,6 @@ def require_current_local_admission(admission, estimate, now):
     if (
         displacement
         > evidence.response_position_bound_m
-        + admission.limits.relative_speed_bound_m_s * elapsed
         + before.pose_support.position_bound_m
         + patch.pose_support.position_bound_m
         or rotation
