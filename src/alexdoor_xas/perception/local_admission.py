@@ -188,6 +188,11 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             if clearance <= 0 or nonnegative(sweep_margin, "invalid_robot_sweep_margin") <= 0:
                 raise ValueError("insufficient_unloaded_full_robot_margin")
             error = 0.0
+            decision = dict(
+                margin_kind="unloaded_whole_robot_separation",
+                separation_margin_m=clearance,
+                independent_robot_sweep_margin_m=sweep_margin,
+            )
         else:
             values = evidence.finger_clearance_m
             if sweep_margin is None:

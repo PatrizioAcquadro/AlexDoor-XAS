@@ -564,3 +564,25 @@ def test_normal_error_retains_isotropic_fallback_without_independent_collision_p
     result = monitor().update(*values[:-1], receipt)
     assert result.reason == "contact_uncertainty_exceeds_admitted_margin"
     assert result.decision["additional_tangent_uncertainty_m"] == 0.008
+
+
+def test_directional_reserve_contains_normal_cone_offsets_without_spending_normal_twice():
+    values = inputs(1.0)
+    receipt = replace(
+        values[-1],
+        local_evidence=replace(values[-1].local_evidence, swept_collision_margin_m=0.001),
+    )
+    result = monitor().update(*values[:-1], receipt)
+    decision = result.decision
+    angle = decision["normal_direction_bound_rad"]
+    radius = decision["normal_model_bound_m"]
+    # Independently project offsets in every sampled azimuth of the normal cone.
+    for theta in np.linspace(0.0, angle, 17):
+        for azimuth in np.linspace(0.0, 2 * np.pi, 31):
+            offset = radius * np.array(
+                [np.cos(theta), np.sin(theta) * np.cos(azimuth), np.sin(theta) * np.sin(azimuth)]
+            )
+            assert np.linalg.norm(offset[1:]) <= (
+                decision["additional_tangent_uncertainty_m"] + 1e-15
+            )
+    assert result.uncertainty_m >= radius

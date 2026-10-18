@@ -251,7 +251,12 @@ class ObservedContactMonitor:
             )
             decision = dict(
                 material_id=patch.patch_id,
-                material_margin_m=margins[0] if len(margins) == 1 else None,
+                material_margin_m=(
+                    margins[0] if not whole_robot_free and len(margins) == 1 else None
+                ),
+                unloaded_separation_margin_m=(
+                    admission.local_evidence.unloaded_separation_margin_m
+                ),
                 normal_model_bound_m=self.config.normal_model_bound_m,
                 normal_direction_bound_rad=float(normal_angle),
                 additional_tangent_uncertainty_m=float(extra),

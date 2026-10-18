@@ -68,8 +68,9 @@ Maintenance does not authorize new training, simulation, collection or experimen
 
 ## A1/A2 pilot — paused and incomplete
 
-The separate pilot on `PatrizioAcquadro/b1-policy-pilot` remains paused at the
-user's request. No automatic restart, simulation, training or experiment is active.
+The full panels on `PatrizioAcquadro/b1-policy-pilot` remain paused. The user has
+subsequently authorized only the bounded ACT A1 operational-check investigation
+below; no automatic panel restart or training is active.
 Four ACT/Diffusion × A1/A2 latest checkpoints retain 30,000 updates and five eligible
 train records; normalization remains fitted only on the original two train records.
 
