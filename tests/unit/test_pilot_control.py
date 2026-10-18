@@ -5,48 +5,20 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
-from test_local_contact import supported_patch
 
-from alexdoor_xas.action.b1 import apply_pose_delta
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA, A3_OBJ_REL_EE_DELTA
-from alexdoor_xas.assets.purdue import ARM_JOINTS
 from alexdoor_xas.perception.admission import (
-    ActionLimits,
-    ActionProposal,
     require_current_admission,
 )
 from alexdoor_xas.perception.contracts import (
     OPERATIONAL_V1,
-    DoorEstimate,
-    LocalContactSelection,
-    LocalMaterialState,
-    RobotFeedback,
 )
 from alexdoor_xas.perception.control import ObservedControlChecks
-from alexdoor_xas.perception.load import LoadCalibration, ResidualLoadModel
-from alexdoor_xas.perception.local_admission import LocalActionSupport, admit_local_action
+from alexdoor_xas.perception.load import ResidualLoadModel
+from alexdoor_xas.perception.local_admission import admit_local_action
 from alexdoor_xas.policies.observations import PolicyObservation
 from alexdoor_xas.policies.rollout import ActionAdapter
-
-
-def local_inputs(space=A2_EE_DELTA):
-    patch = replace(
-        supported_patch("contact"), tracking_state="tracking", ownership="observed_rigid_material"
-    )
-    state = LocalMaterialState(
-        0, "contact", (patch,), LocalContactSelection("s", "contact", 1, "policy")
-    )
-    estimate = DoorEstimate(1, False, "local_only", local=state)
-    row = np.array([0.001, 0, 0, 0, 0, 0]) if space == A2_EE_DELTA else np.zeros(7)
-    goal = apply_pose_delta(patch.world_pose, row) if space == A2_EE_DELTA else patch.world_pose
-    proposal = ActionProposal(
-        "policy", space, row, np.array([1, 1 + 1 / 60]), (patch.world_pose, goal), "s", True
-    )
-    evidence = LocalActionSupport(
-        patch.pose_support, proposal.world_poses, (0.04, 0.04), 0.04, False, 0.001, 0.001, 0.05
-    )
-    limits = ActionLimits(0.2, 0.01, 0.1, 0.1, 0.001, 0.001, 0.01, 0.001)
-    return estimate, proposal, evidence, limits
+from perception_helpers import load_inputs, local_inputs
 
 
 @pytest.mark.parametrize("space", [A1_JOINT_DELTA, A2_EE_DELTA])
@@ -101,27 +73,6 @@ def test_local_admission_never_fills_missing_support(defect):
     else:
         proposal = replace(proposal, loaded=False)
     assert not admit_local_action(estimate, proposal, evidence, limits, 1, generation=0).admitted
-
-
-def load_inputs(*, verified=True, stop=True):
-    calibration = LoadCalibration(
-        np.full(7, 0.05), -np.ones(7), np.ones(7), np.ones(7), np.ones(7), 1, verified, stop
-    )
-    feedback = RobotFeedback(
-        1,
-        1,
-        ARM_JOINTS,
-        np.array([-4.0, 0, 0, 0, 0, 0, 0]),
-        "simulated_actuator_feedback",
-        "joint_output",
-        True,
-    )
-    jac = np.c_[np.eye(6), np.zeros(6)]
-    model = ResidualLoadModel(calibration)
-    estimate = model.estimate(
-        feedback, np.zeros(7), jac, np.zeros(7), np.zeros(7), np.zeros(7), [1, 0, 0]
-    )
-    return model, jac, estimate
 
 
 def test_robot_residual_bounds_force_and_requires_verified_model_and_stop():
@@ -211,10 +162,10 @@ def test_monitor_uses_robot_load_and_local_support_without_task_truth():
 
 def test_physics_peak_load_cannot_disappear_between_control_ticks(tmp_path):
     import h5py
-    from test_b1_recording import obs
 
     from alexdoor_xas.perception.load import PurdueLoadSource, RobotLoadSample
     from alexdoor_xas.recording.b1 import B1Writer
+    from helpers import raw_observation as obs
 
     model, jac, load = load_inputs()
     first = replace(

@@ -4,11 +4,11 @@ from dataclasses import replace
 
 import numpy as np
 import pytest
-from test_pilot_control import load_inputs, local_inputs
 
 from alexdoor_xas.action.b1 import apply_pose_delta
 from alexdoor_xas.perception.contact import ContactMonitorConfig, ObservedContactMonitor
 from alexdoor_xas.perception.local_admission import admit_local_action
+from perception_helpers import load_inputs, local_inputs
 
 
 def monitor():

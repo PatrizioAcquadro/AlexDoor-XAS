@@ -35,7 +35,7 @@ packages = ["src/alexdoor_xas"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["tests", "tests/unit"]
+pythonpath = ["tests"]
 
 [tool.ruff]
 line-length = 100

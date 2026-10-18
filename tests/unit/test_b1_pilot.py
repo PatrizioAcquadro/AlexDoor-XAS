@@ -8,13 +8,11 @@ import h5py
 import numpy as np
 import pytest
 import torch
-from test_b1_observations import operational_provider, sample
-from test_b1_rollout import NumericalIO
 
 from alexdoor_xas.action.b1 import ACTION_DIMS
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA, A3_OBJ_REL_EE_DELTA
-from alexdoor_xas.dataset.b1 import B1Dataset, compile_episode, export_dataset, validate_episode
+from alexdoor_xas.dataset.b1 import B1Dataset, export_dataset, validate_episode
 from alexdoor_xas.perception.contracts import OPERATIONAL_V1
 from alexdoor_xas.policies.act.config import ActModelCfg
 from alexdoor_xas.policies.b1 import (
@@ -35,12 +33,17 @@ from alexdoor_xas.policies.common.b1_contract import (
 from alexdoor_xas.policies.diffusion.config import DiffusionModelCfg
 from alexdoor_xas.policies.observations import (
     B1Observer,
-    FeatureBlock,
-    VisualEncoding,
     require_features,
 )
 from alexdoor_xas.policies.rollout import ActionAdapter, B1Runner
-from helpers import TEST_ROBOT_REF
+from helpers import (
+    TEST_ROBOT_REF,
+    NumericalEncoder,
+    NumericalIO,
+    operational_provider,
+    pilot_episode,
+)
+from helpers import pilot_sensor as sensor
 
 
 @pytest.fixture
@@ -60,54 +63,6 @@ def pilot_binding(b1_binding):
             dynamic_passed=False,
             frozen=False,
         )
-    )
-
-
-def sensor(t, frame):
-    return sample(t, frame) | dict(
-        rgb=np.ones((2, 2, 3), np.uint8),
-        depth_m=np.ones((2, 2, 1)),
-        valid_depth=np.ones((2, 2, 1), bool),
-        annotations={"hinge": [9, 9, 9]},
-        robot_feedback={"torque": np.ones(7)},
-    )
-
-
-class NumericalEncoder:
-    def __init__(self, binding):
-        self.binding = binding
-        self.reset()
-
-    def reset(self):
-        self.calls = []
-        self.between = False
-
-    def update(self, value, *, generation):
-        self.calls.append(value)
-        if self.between:
-            return None
-        blocks = [
-            FeatureBlock(
-                np.arange(width), value["time_s"], value["time_s"], value["frame"], generation
-            )
-            for width in self.binding.config["visual_dims"]
-        ]
-        return VisualEncoding(*blocks)
-
-
-def pilot_episode(binding):
-    observer = B1Observer(None, binding, encoder=NumericalEncoder(binding))
-    observations = [observer.update(sensor(i / 60, i)) for i in range(3)]
-    tool = ObjectFrame(np.zeros(3), np.eye(3))
-    return compile_episode(
-        episode_id="pilot",
-        asset_id="left",
-        asset_splits={"left": "train"},
-        observations=observations,
-        tools=[tool] * 3,
-        goals=[tool] * 2,
-        joint_targets=np.ones((2, 7)) * 0.01,
-        binding=binding,
     )
 
 
@@ -326,9 +281,8 @@ def test_pilot_io_rejects_cadence_changes_before_runtime_setup(
 
 
 def test_runner_passes_only_predicted_action_to_admission_source(tmp_path, pilot_binding):
-    from test_operational_admission import action_inputs
-
     from alexdoor_xas.perception.admission import admit_action
+    from perception_helpers import action_inputs
 
     root = export_dataset(
         [pilot_episode(pilot_binding)],
@@ -384,11 +338,10 @@ def test_runner_passes_only_predicted_action_to_admission_source(tmp_path, pilot
 
 
 def test_raw_pilot_preparation_uses_causal_encoder_and_robot_fk(tmp_path, pilot_binding):
-    from test_b1_recording import obs
-
     from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
     from alexdoor_xas.dataset.b1 import PILOT_PURPOSE, prepare_recording
     from alexdoor_xas.recording.b1 import B1Writer
+    from helpers import raw_observation as obs
 
     path = tmp_path / "raw.hdf5"
     writer = B1Writer(

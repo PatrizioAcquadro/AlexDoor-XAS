@@ -4,11 +4,10 @@ import json
 
 import numpy as np
 import pytest
-from test_scan_fusion import camera_sensor
 
 from alexdoor_xas.perception.diagnostics.scan import diagnose_scan
 from alexdoor_xas.perception.provider import CueEngine, GeometryProvider
-from perception_helpers import EmptyWorker, recipe
+from perception_helpers import EmptyWorker, camera_sensor, recipe
 
 
 def test_scan_diagnostic_stops_at_25_and_releases_last_result_without_future_rgb(tmp_path):

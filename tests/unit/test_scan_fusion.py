@@ -17,33 +17,7 @@ from alexdoor_xas.perception.scan import (
     registered_support,
     static_hinges,
 )
-from perception_helpers import EmptyWorker, recipe
-
-
-def camera_sensor(time=0, frame=8):
-    h, w = 240, 240
-    return dict(
-        rgb=np.ones((h, w, 3), np.uint8),
-        depth_m=np.full((h, w, 1), 2.0),
-        valid_depth=np.ones((h, w, 1), bool),
-        intrinsics=np.array([[120, 0, 120], [0, 120, 120], [0, 0, 1]], float),
-        camera_world=np.array([[0, 0, 1, 0], [1, 0, 0, 0], [0, -1, 0, 1], [0, 0, 0, 1]], float),
-        time_s=time,
-        frame=frame,
-        joint_position=np.zeros(9),
-        joint_velocity=np.zeros(9),
-    )
-
-
-def measured_surface(sensor=None, mask=None):
-    sample = camera_sensor() if sensor is None else sensor
-    mask = np.zeros((240, 240), bool) if mask is None else mask.copy()
-    if not mask.any():
-        mask[30:211, 60:181] = True
-    sample["depth_m"][mask] = 1
-    cue = EmptyWorker().infer(sample["rgb"])
-    cue["masks"] = [np.packbits(mask).tobytes()]
-    return surfaces(cue, sample, recipe().config)[0], sample, cue
+from perception_helpers import EmptyWorker, camera_sensor, measured_surface, recipe
 
 
 def test_components_split_coplanar_frame_and_preserve_clipped_evidence():

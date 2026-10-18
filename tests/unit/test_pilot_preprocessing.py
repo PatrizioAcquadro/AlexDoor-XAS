@@ -6,7 +6,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from test_b1_pilot import pilot_episode
 
 from alexdoor_xas.action.spaces import A2_EE_DELTA
 from alexdoor_xas.dataset.b1 import export_dataset
@@ -17,7 +16,7 @@ from alexdoor_xas.policies.encoding import (
     RGBDEncoder,
     pilot_binding,
 )
-from helpers import TEST_ROBOT_REF
+from helpers import TEST_ROBOT_REF, pilot_episode
 
 
 def test_units_conversion_alone_does_not_repair_zscore():

@@ -3,11 +3,10 @@
 from dataclasses import replace
 
 import numpy as np
-from test_scan_fusion import measured_surface
 
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.material_zone import MaterialCover
-from perception_helpers import recipe
+from perception_helpers import measured_surface, recipe
 
 
 def test_material_union_preserves_holes_and_joins_partial_views():

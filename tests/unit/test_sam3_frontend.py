@@ -188,10 +188,10 @@ def test_missing_seed_is_loss_even_when_a_new_detection_exists():
 
 
 def test_initialization_passes_one_unchanged_semantic_mask_to_p2p():
-    from test_point2pose_temporal import make_surface, sensor
-
     from alexdoor_xas.perception.point2pose.tracking import PanelTracking
     from perception_helpers import recipe
+    from perception_helpers import tracking_sensor as sensor
+    from perception_helpers import tracking_surface as make_surface
 
     class Engine:
         def reset(self):
@@ -210,11 +210,11 @@ def test_initialization_passes_one_unchanged_semantic_mask_to_p2p():
 
 
 def test_external_mask_must_preserve_measured_geometric_interiors():
-    from test_point2pose_temporal import make_surface, sensor
-
     from alexdoor_xas.perception.point2pose.seed import candidate_references
     from alexdoor_xas.perception.point2pose.tracking import PanelTracking
     from perception_helpers import recipe
+    from perception_helpers import tracking_sensor as sensor
+    from perception_helpers import tracking_surface as make_surface
 
     class Engine:
         def reset(self):

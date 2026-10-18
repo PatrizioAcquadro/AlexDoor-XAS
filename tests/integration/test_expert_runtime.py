@@ -1,32 +1,8 @@
 """Runtime-specific checks separated from portable behavioral tests."""
 
-from itertools import product
-
-import numpy as np
 import pytest
-from scipy.spatial import ConvexHull
 
-from alexdoor_xas.qualification.door_geometry import PreparedDoor
-
-
-def make_door(tmp_path, hand):
-    folder = tmp_path / hand
-    (folder / "prepared").mkdir(parents=True)
-    (folder / "prepared/door.usda").touch()
-    sign = 1 if hand == "left" else -1
-    record = dict(
-        handedness=hand,
-        dimensions_m=dict(width_m=0.9, height_m=2, thickness_m=0.06),
-        hinge_m=[0.11, sign * 0.46, 0],
-        panel_center_m=[0.07, 0, 1.03],
-        mechanical_limit_deg=74.5,
-        usd="prepared/door.usda",
-    )
-    door = PreparedDoor(folder, record, {"components": {"Panel": [0]}})
-    points = np.array(list(product([0.04, 0.10], [-0.45, 0.45], [0.03, 2.03])))
-    door._leaf_planes = [ConvexHull(points).equations]
-    door.shapes = {"Panel": [points], "Frame": [points + [0.1, 0.5, 0]], "Handle": []}
-    return door
+from helpers import make_door
 
 
 def test_pedestal_gate_requires_positive_volume_not_touching(tmp_path):

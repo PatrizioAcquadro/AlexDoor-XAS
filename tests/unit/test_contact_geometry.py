@@ -54,10 +54,8 @@ def test_planar_body_order_requires_real_finite_geometry_and_a_bounded_normal():
 
 
 def test_front_envelope_retains_connected_relief_and_excludes_unrelated_foreground():
-    from test_scan_fusion import measured_surface
-
     from alexdoor_xas.perception.contact_geometry import observed_front_extent
-    from perception_helpers import recipe
+    from perception_helpers import measured_surface, recipe
 
     surface, sensor, _ = measured_surface()
     config = recipe().config

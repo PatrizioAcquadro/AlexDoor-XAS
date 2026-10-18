@@ -7,7 +7,6 @@ from types import SimpleNamespace
 import h5py
 import numpy as np
 import pytest
-from test_point2pose_temporal import make_surface, sensor
 
 from alexdoor_xas.action.frames import rot_z
 from alexdoor_xas.perception.diagnostics import offline as offline
@@ -15,6 +14,8 @@ from alexdoor_xas.perception.ipc import pack_array
 from alexdoor_xas.perception.point2pose.seed import initialization_checks
 from alexdoor_xas.perception.provider import PrototypeRecipe
 from alexdoor_xas.recording.b1 import OBS_KEYS
+from perception_helpers import tracking_sensor as sensor
+from perception_helpers import tracking_surface as make_surface
 
 
 def recording(path, rows=8):

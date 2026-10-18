@@ -185,11 +185,12 @@ def test_vertical_consensus_preserves_noisy_sample_but_rejects_inclined_motion()
 
 def test_finite_finger_slide_preserves_holes_and_can_exceed_one_centimeter():
     from scipy.ndimage import binary_erosion
-    from test_point2pose_temporal import make_surface, sensor
 
     from alexdoor_xas.action.frames import ObjectFrame
     from alexdoor_xas.perception.geometry import deproject
     from alexdoor_xas.perception.material_zone import query_slip
+    from perception_helpers import tracking_sensor as sensor
+    from perception_helpers import tracking_surface as make_surface
 
     surface = make_surface(sensor())
     observation = surface.observations[0]
@@ -231,10 +232,9 @@ def test_finite_finger_slide_preserves_holes_and_can_exceed_one_centimeter():
 
 
 def test_contact_cover_can_be_localized_while_current_contact_depth_is_unknown():
-    from test_point2pose_temporal import sensor
-
     from alexdoor_xas.action.frames import ObjectFrame
     from alexdoor_xas.perception.material_zone import contact_depth_supported
+    from perception_helpers import tracking_sensor as sensor
 
     captured = sensor()
     zone = np.eye(4)
