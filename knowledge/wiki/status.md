@@ -17,13 +17,15 @@ continuing-physics stop are retained. No completed outcome is retried.
 
 The user now authorizes 15 additional Gilbreth GPU hours and local RTX training.
 Remote use is 3,503/57,600 GPU seconds; the local ceiling remains 15 hours.
-The matched continuation uses the preserved A2 states to complete the remaining
-2,600 updates locally, with A1's completed A100 states retained unchanged.
+The matched continuation completes the remaining 2,600 A2 updates locally,
+with A1's completed A100 states retained byte-identically.
 All four target 4,400 updates with the same data, seed and optimizer/RNG/EMA.
-Checkpointed updates are 15,164 plus 200 conservatively charged possible lost
-updates before resumption; completion would bring the upper count to 17,964.
-Development stays local and frozen. Only after four-state/CUDA verification may
-the common new 24-outcome panel freeze; earlier versions remain separate.
+All four states reach 4,400 updates; the cumulative upper count is now
+17,964/18,000, including 200 conservatively charged possible lost updates.
+Development stays local and frozen. The interrupted local read-only evaluation retains its two A1 metrics and
+conservative allocation upper charge; the durable bounded pipeline repeats
+the fixed evaluation before CUDA verification and the new common 24-outcome
+panel freeze. Earlier versions remain separate.
 The six-demonstration, 18,000-update and 300 GiB ceilings remain unchanged.
 
 An unconditional left elbow position-domain extension is rejected after an

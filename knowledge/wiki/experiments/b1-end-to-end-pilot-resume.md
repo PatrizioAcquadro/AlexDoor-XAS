@@ -14,15 +14,27 @@ explicitly authorized within the existing 15 local GPU hours. The 18,000-update,
 300 GiB and six-demonstration ceilings remain unchanged. No development data
 leave the workstation or update weights or normalization.
 
-The optional matched continuation resumes locally from the preserved ACT A2
+The matched continuation now completes locally from the preserved ACT A2
 3,200-update state and original Diffusion A2 3,000-update state, keeping the same
 two train episodes, seed 17, optimizer/RNG/EMA and protocol. Both A1 models already
-completed 4,400 updates on A100. The remaining 2,600 A2 updates run on RTX 4090,
-with an 840-second workload cap and at most 900 allocated seconds including
-shutdown. This hardware difference is disclosed. The final cohort remains
-unavailable until all four states, CUDA loads and frozen local development
-inference pass. The upper optimizer count is 15,364 before this continuation,
-and 17,964 if it completes. All failed/interrupted allocations remain charged.
+completed 4,400 updates on A100; their final files remain byte-identical. The
+remaining 2,600 A2 updates run on RTX 4090 in 101.96 seconds plus the conservative
+five-second tail, with median throughput 46.56/48 updates per second. All four
+state/protocol/update checks pass. This hardware difference is disclosed.
+Checkpointed cumulative updates are 17,764; adding the 200 previous potentially
+lost updates gives an upper count of 17,964/18,000. No further meaningful training
+fits the remaining 36 updates without another explicit authorization.
+
+The first local read-only development allocation completes A1 metrics, then ends
+with the chat/tool interruption before A2 metrics or panel launch. Its partial
+results are preserved. Because exact process termination time is unavailable,
+the entire interval through the first host-confirmed absence is charged as a
+conservative allocation upper bound. Local use becomes 7.2234/15 GPU hours.
+The bounded pipeline now runs as user service `alexdoor-b1-pilot-4400-v8`, with
+shared leases and cumulative guards, repeating the same frozen read-only
+256-chunk evaluation into fresh output. No weights, normalization, seeds or
+physical outcomes are selected or changed by that infrastructure resumption.
+All four CUDA/development checks remain required before freezing the new panel.
 
 The remote repair's cause remains documented: CUDA startup takes 75.972 seconds,
 then shared-file reads stall in `rpc_wait_bit_killable`. No new epoch is saved;
@@ -45,7 +57,7 @@ under the unchanged physical/reference/hold/release requirements. Old 3,000-upda
 outcomes and any new outcomes remain separate versions. Exact local cache
 replacement recovers 23.046 GiB while preserving all raw recordings; retained
 pilot storage before the local continuation is 252.399/300 GiB. Local GPU use is
-6.8844/15 hours before the new allocation. Full-horizon cost remains an
+7.2234/15 hours before the resumed CUDA evaluation. Full-horizon cost remains an
 extrapolation, so measured cost and cumulative guards govern each launch.
 
 ## Left position-domain prerequisite
