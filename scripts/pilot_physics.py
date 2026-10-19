@@ -254,7 +254,7 @@ def main(argv=None):
                 if (
                     origin["asset_id"] != args.asset_id
                     or origin["split"] != entry["split"]
-                    or origin["setup"] != setup.to_dict()
+                    or origin["setup"] != json.loads(json.dumps(setup.to_dict()))
                     or not source_result["passed"]
                     or not source_result["released"]
                     or not source_result["stabilized"]
