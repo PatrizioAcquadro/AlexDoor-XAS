@@ -217,8 +217,12 @@ qualification. Original 0/2 diagnostic outcomes and paused panels remain intact;
 no policy training, collection or architecture changes occurred.
 See [[experiments/b1-act-a1-calibration-stopping|validation, failures and handoff]].
 
-The [[topics/act-a1-observations-and-time|ACT A1 observation/temporal design]] is
-ready for subsequent pipeline implementation: proposed 4 s causal history, sensor
-feedback and applied targets, with prediction/execution horizons kept separate.
-It preserves the completed data work and historical outcomes. No policy, teacher,
-collection, training or runtime change is part of this design.
+The [[topics/act-a1-observations-and-time|ACT A1 temporal data path]] is now
+implemented and CUDA checked: shared causal stream joins, bounded frame-indexed
+sampling, optional complete-stream recorder, finite-history ACT, explicit
+checkpoints and inference reuse. Initial candidate: 4 s, 120×192, chunk12/replan6.
+Batch32 fits the RTX 4090 (1.88 GiB allocated); saved native-input inference p50/
+p95 is 16.75/17.42 ms. This does not establish synchronous 60 Hz hardware dispatch
+or learned physical task completion. Reuse remains off by default. Teacher,
+collection, checkpoints and final test are untouched; next work is complete
+ordinary stabilization collection and its bounded first-tranche checks.
