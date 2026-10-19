@@ -127,6 +127,7 @@ class TemporalExpertRecorder(ExpertRecorder):
             tool_position=p,
             tool_quaternion_xyzw=quat,
             effort_limits_nm=array(env.robot.data.joint_effort_limits)[0, env.arm_ids],
+            camera_frame=np.int64(sample.frame),
         )
         for key, name in (("q", "joint_position"), ("dq", "joint_velocity")):
             self._append(key, raw[name], t, t)
@@ -140,6 +141,7 @@ class TemporalExpertRecorder(ExpertRecorder):
                 acquired=t,
                 available=t,
                 generation=env.generation,
+                frame=int(raw["frame"]),
             )
             values = preprocess_rgbd(
                 *(raw[key] for key in ("rgb", "depth_m", "valid_depth")),
@@ -225,22 +227,26 @@ class TemporalExpertRecorder(ExpertRecorder):
         )
         self.writer.annotate(row)
         if phase != self.last_phase:
-            snap = self.observations.build(env._time_s)
-            path = self.path.parent / f"online-{phase}.npz"
-            np.savez_compressed(
-                path,
-                **snap["obs"],
-                image_source_index=snap["image_source_index"],
-                image_times=snap["image_times"],
-                robot_times=snap["robot_times"],
-                decision_time_s=snap["decision_time_s"],
-                generation=snap["generation"],
-                ready=snap["ready"],
-            )
-            self.online_checks.append(path.name)
+            self._snapshot(phase)
             self.last_phase = phase
 
+    def _snapshot(self, label):
+        snap = self.observations.build(self.env._time_s)
+        path = self.path.parent / f"online-{label}.npz"
+        np.savez_compressed(
+            path,
+            **snap["obs"],
+            image_source_index=snap["image_source_index"],
+            image_times=snap["image_times"],
+            robot_times=snap["robot_times"],
+            decision_time_s=snap["decision_time_s"],
+            generation=snap["generation"],
+            ready=snap["ready"],
+        )
+        self.online_checks.append(path.name)
+
     def finish(self, result):
+        self._snapshot("terminal")
         self.writer.file["metadata"].attrs["camera_fk_error"] = json.dumps(
             dict(position_m=self.max_camera_error_m, rotation_rad=self.max_camera_error_rad)
         )

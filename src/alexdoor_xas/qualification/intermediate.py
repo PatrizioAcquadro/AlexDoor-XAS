@@ -8,7 +8,9 @@ from scipy.spatial.transform import Rotation
 from alexdoor_xas.recording.b1_runtime import array
 
 
-def save_hold_state(path, env, *, compression, compensation, retreat_p, retreat_r, source):
+def save_hold_state(
+    path, env, *, compression, compensation, retreat_p, retreat_r, source, initial_lead
+):
     gains = [
         (array(a.stiffness)[:, c], array(a.damping)[:, c]) for a, c, _, _ in env._motion_impedance
     ]
@@ -23,6 +25,8 @@ def save_hold_state(path, env, *, compression, compensation, retreat_p, retreat_
         damping=np.array([v[1] for v in gains]),
         tool_position=array(env.tool_pose()[0])[0],
         tool_quaternion=array(env.tool_pose()[1])[0],
+        initial_lead=initial_lead,
+        source_generation=env.generation,
         compression=compression,
         compensation=compensation,
         retreat_p=retreat_p,
@@ -52,10 +56,48 @@ def restore_hold_state(env, state, setup):
     for i, (actuator, column, _, _) in enumerate(env._motion_impedance):
         actuator.stiffness[:, column] = t("stiffness")[i]
         actuator.damping[:, column] = t("damping")[i]
-    env.sim.forward()  # refresh articulation/collision transforms before camera read
+    env.sim.forward()
+    env.capture.reset()
+    conditioning = []
+    anchor = env.targets[:, env.arm_ids].clone()
+    for _ in range(6):
+        measured = torch.as_tensor(
+            array(env.robot.data.joint_pos)[:, env.arm_ids], dtype=torch.float32, device=env.device
+        )
+        env.step_a1(anchor - measured)
+        force = max(
+            sum(c["force_n"] for c in row["contacts"] if c["category"] in ("positive", "negative"))
+            for row in env.contact_history
+        )
+        speed = max(float(np.max(abs(sample.dq))) for sample in env.load_samples)
+        if (
+            any(row["forbidden"] for row in env.contact_history)
+            or force > setup.force_limit_n
+            or speed > setup.max_joint_speed * 1.02
+        ):
+            raise ValueError("unsafe_intermediate_reset_conditioning")
+        conditioning.append(
+            dict(
+                time_s=float(env._time_s),
+                requested_delta=(anchor - measured).cpu().tolist(),
+                delivered_target=array(env.targets)[:, env.arm_ids].tolist(),
+                joint_position=array(env.robot.data.joint_pos).tolist(),
+                joint_velocity=array(env.robot.data.joint_vel).tolist(),
+                door_position=array(env.door.data.joint_pos).tolist(),
+                door_velocity=array(env.door.data.joint_vel).tolist(),
+                force_n=force,
+                joint_speed_rad_s=speed,
+                torque_nm=[sample.feedback.torque_nm.tolist() for sample in env.load_samples],
+            )
+        )
+    # Start a new local observation generation after real reset-conditioning
+    # physics. Global simulator time continues; no old prefix is attached.
+    env.generation = max(env.generation, int(state["source_generation"])) + 1
+    env.episode_length_buf.zero_()
+    env._time_s = 0.0
     env.capture.reset()
     env.load_samples = []
-    env._get_observations()  # fresh local t=0 image; no source prefix
+    env._get_observations()
     p, q = [array(v)[0] for v in env.tool_pose()]
     errors = dict(
         joint_position_rad=float(np.max(np.abs(array(env.robot.data.joint_pos) - state["q"]))),
@@ -78,5 +120,11 @@ def restore_hold_state(env, state, setup):
     return dict(
         errors=errors,
         tolerances=bounds,
+        conditioning=conditioning,
+        conditioning_sim_s=6 * env.step_dt,
+        local_clock_origin=(
+            "after six real reset-conditioning control steps; global physics clock continues"
+        ),
+        generation=env.generation,
         solver_state="reconstructed; requires fresh sustained physical contact qualification",
     )

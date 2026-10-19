@@ -490,3 +490,29 @@ contact. `validate_native_recording` reviews actual N+1 support, clocks, q_befor
 clipping/refusal semantics, native torque coverage and near-limit diagnostics.
 The latter comparison is not a hardware saturation certificate. Offline and
 incremental torque ingestion share the origin/order/units/sign predicate.
+
+
+The first native right attempt exposed an input-readiness seam: the original
+teacher approached immediately at 25 s while the temporal recipe first becomes
+ready at 25.2 s. An explicit .4 s parked-joint pre-roll now supplies that .2 s
+readiness plus a 12/60 s horizon for inspection→approach training windows. It
+issues real commands and captures; the original attempt remains preserved.
+The collection protocol can declare `collection_required_opening_deg` from the
+unchanged 80% matched expert-reference task criterion. This tranche uses the
+frozen right/left references 51.260252/52.536029 degrees; it does not replace them
+with the measured teacher opening or the historical corpus placement.
+
+
+Native collection now gates `demonstration_qualified` on numeric training-window
+coverage as well as physical task completion. `training_decisions` is shared by
+collection review and prepared sampling, using builder readiness without visual
+materialization. Task success, N+1 recording completeness, data usability and
+subsequent safety-stop outcome remain separate reported fields.
+
+Intermediate reset preserves the hold controller's initial lead as well as
+compression/compensation. Six real parked-target control ticks rebuild solver
+contact/feedback before the recording starts; their measured states, commands,
+forces and torques are retained in the reset audit. A fresh local generation and
+t=0 capture then start the actual 1 s pre-roll. Global physics continues; the
+local time origin is explicitly rebased. Old reset-state torque is never assigned
+as healthy feedback to the newly reconstructed loaded state.

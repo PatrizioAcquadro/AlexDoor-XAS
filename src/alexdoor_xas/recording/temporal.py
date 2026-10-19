@@ -132,6 +132,7 @@ class TemporalRecorder:
         available,
         generation,
         clock_domain="episode_monotonic",
+        frame=-1,
     ):
         rgb, depth, valid = map(np.asarray, (rgb, depth_m, valid_depth))
         if (
@@ -152,6 +153,7 @@ class TemporalRecorder:
                 intrinsics=np.asarray(intrinsics),
                 camera_world=np.asarray(camera_world),
                 source_index=np.int64(self.frame_index),
+                frame=np.int64(frame),
             ),
         )
         self.frame_index += 1

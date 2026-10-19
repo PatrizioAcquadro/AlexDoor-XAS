@@ -31,6 +31,10 @@ def teacher_eligibility(file):
     result[:] = (
         commands["accepted"][:] & evaluator["physical_safe"][:] & evaluator["phase_valid"][:]
     )
+    metadata = json.loads(file["metadata"].attrs["episode"])
+    cfg = metadata.get("observation_config")
+    if cfg is not None:
+        result &= commands["state_acquired_s"][:] >= cfg["static_time_s"] + cfg["warmup_s"] - 1e-9
     return result
 
 
@@ -155,3 +159,46 @@ def validate_native_recording(path):
             source_group=metadata.get("family", metadata["asset_id"]),
             outcome=json.loads(file["metadata"].attrs.get("outcome", "{}")),
         )
+
+
+def review_native_collection(path):
+    """Collection gate reuses the exact prepared sampler readiness/window rules."""
+    from alexdoor_xas.dataset.temporal import raw_streams, training_decisions
+    from alexdoor_xas.policies.temporal import CausalObservationBuilder, TemporalConfig
+
+    report = validate_native_recording(path)
+    with h5py.File(path, "r") as file:
+        eligible = teacher_eligibility(file)
+        if not report["integrity_passed"] or not report["complete"] or not eligible.any():
+            return dict(report, data_usable=False, training_windows=0, transitions=[])
+        metadata = json.loads(file["metadata"].attrs["episode"])
+        cfg = TemporalConfig(**metadata["observation_config"])
+        streams, _, times, generations = raw_streams(file, cfg)
+        builder = CausalObservationBuilder(cfg, streams, episode_id=metadata["episode_id"])
+        commands = file["commands"]
+        rows = training_decisions(
+            builder,
+            times,
+            generations,
+            commands["state_acquired_s"][:],
+            commands["generation"][:],
+            eligible,
+        )
+        phase, names = file["evaluator/phase"][:], metadata["phase_names"]
+        transitions = []
+        for i in np.flatnonzero(phase[1:] != phase[:-1]) + 1:
+            crossings = rows[(rows < i) & (rows + 12 > i)]
+            transitions.append(
+                dict(
+                    from_phase=names[int(phase[i - 1])],
+                    to_phase=names[int(phase[i])],
+                    command_row=int(i),
+                    valid_crossing_windows=len(crossings),
+                )
+            )
+        usable = bool(
+            len(rows)
+            and all(t["valid_crossing_windows"] for t in transitions)
+            and report["torque_missing_or_unhealthy_samples"] == 0
+        )
+        return dict(report, data_usable=usable, training_windows=len(rows), transitions=transitions)

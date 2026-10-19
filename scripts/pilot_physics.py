@@ -285,6 +285,15 @@ def main(argv=None):
                     inspection=inspection,
                     intermediate=intermediate,
                 )
+                required = protocol.get("collection_required_opening_deg", {}).get(args.asset_id)
+                if required is not None:
+                    result["required_opening_deg"] = required
+                    result["opening_requirement_passed"] = bool(
+                        result["angle_deg"] is not None and result["angle_deg"] >= required
+                    )
+                    if not result["opening_requirement_passed"]:
+                        result["passed"] = False
+                        result["stop_reason"] = "required_opening_not_reached"
                 # One finalization owner, after the ordinary physical tail.
                 # Safety-stop verification happens after detaching the recorder.
                 recorder.finish(result)
@@ -312,9 +321,6 @@ def main(argv=None):
             finally:
                 recorder.close()
             result["online_checks"] = recorder.online_checks
-            result["demonstration_qualified"] = bool(
-                result["task_success"] and result["recording_complete"]
-            )
         elif args.mode == "replay":
             result = replay(env, args, protocol)
         else:
@@ -330,6 +336,18 @@ def main(argv=None):
             if not result["post_stop"]["passed"]:
                 result["passed"] = False
         result["safety_stop_passed"] = bool(result["post_stop"]["passed"])
+        if args.mode == "collect":
+            from alexdoor_xas.recording.quality import review_native_collection
+
+            result["recording_validation"] = review_native_collection(args.output / "episode.hdf5")
+            result["data_usable"] = result["recording_validation"]["data_usable"]
+            result["demonstration_qualified"] = bool(
+                result["task_success"] and result["data_usable"]
+            )
+            result["passed"] = bool(
+                result["demonstration_qualified"] and result["safety_stop_passed"]
+            )
+
         result["wall_s"] = perf_counter() - started
         write_json(args.output / "report.json", result)
         print(json.dumps(result), flush=True)

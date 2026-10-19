@@ -31,6 +31,7 @@ class ProbeSetup:
     precontact_m: float = 0.03
     contact_s: float = 3.0
     release_s: float = 3.0
+    preroll_s: float = 0.4
     stabilization_min_s: float = 2.0
     stabilization_max_s: float = 6.0
     stabilization_window_s: float = 0.5
@@ -65,6 +66,7 @@ class ProbeSetup:
             self.contact_s,
             self.release_s,
             self.horizon_s,
+            self.preroll_s,
             self.stabilization_min_s,
             self.stabilization_max_s,
             self.stabilization_window_s,
@@ -341,6 +343,13 @@ def prepare_probe(env, door, setup, output, recorder, inspection, intermediate=N
 
         audit = run_inspection(env, inspection, recorder)
         (output / "inspection.json").write_text(json.dumps(audit, indent=2) + "\n")
+        # The static reference is acquired at the unchanged inspection endpoint.
+        # Keep real parked-joint control for readiness plus one action horizon,
+        # so a usable chunk can actually cross inspection -> approach.
+        neck = list(inspection["waypoints"][-1][1:])
+        pre_roll = dict(inspection, waypoints=[[0.0, *neck], [setup.preroll_s, *neck]])
+        audit = run_inspection(env, pre_roll, recorder)
+        (output / "preroll.json").write_text(json.dumps(audit, indent=2) + "\n")
     env.sim.stage.Export(str(output / "scene.usda"))
     from alexdoor_xas.kinematics.purdue_chain import PurdueChain
 
@@ -793,7 +802,12 @@ def run_probe(
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
             state = command(
                 *door.contact_pose(
-                    angle, setup.contact_fraction, setup.contact_height, compression
+                    hold_reference(
+                        angle, float(intermediate["initial_lead"]), door.mechanical_stop
+                    ),
+                    setup.contact_fraction,
+                    setup.contact_height,
+                    compression,
                 ),
                 "hold",
             )
@@ -842,6 +856,7 @@ def run_probe(
                 env,
                 compression=compression,
                 compensation=compensation,
+                initial_lead=initial_lead,
                 retreat_p=retreat_p,
                 retreat_r=Rotation.from_quat(retreat_q).as_matrix(),
                 source=dict(
