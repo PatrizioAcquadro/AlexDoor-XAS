@@ -47,6 +47,17 @@ def test_failed_episode_native_clocks_requests_and_lossless_images(tmp_path):
         assert np.isnan(file["commands/applied_s"][1])
         assert np.isnan(file["commands/applied_target"][1]).all()
         assert len(file["control/acquired"]) == 3 and len(file["captures/acquired"]) == 1
+        from alexdoor_xas.dataset.temporal import raw_streams
+        from alexdoor_xas.policies.temporal import CausalObservationBuilder, TemporalConfig
+
+        cfg = TemporalConfig(image_size=(2, 3), static_time_s=0, warmup_s=0)
+        streams, *_ = raw_streams(file, cfg)
+        np.testing.assert_array_equal(streams["target"]["acquired"], [0])
+        snapshot, _ = CausalObservationBuilder(cfg, streams, episode_id="failed").build_support(
+            2 / 60, 0
+        )
+        np.testing.assert_array_equal(snapshot["obs"]["robot"][-1, 25:32], 0.5)
+        assert snapshot["obs"]["robot_valid"][-1, 3]
 
 
 def test_interruption_flushes_without_certifying_completion(tmp_path):

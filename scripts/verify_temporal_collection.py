@@ -51,14 +51,35 @@ def verify(source, output):
                     torque_nm=feedback["torque_nm"][:][use].tolist(),
                 )
         report["representative_torque_traces"] = traces
-        if not report["complete"] or not eligible.any():
-            report.update(
-                data_usable=False, training_windows=0, validation_wall_s=perf_counter() - started
-            )
-            return report
-        assert metadata["split"] == "train", "This check fits statistics on training data only"
+        diagnostic = not report["complete"] or not eligible.any()
+        if not diagnostic:
+            assert metadata["split"] == "train", "This check fits statistics on training data only"
     prepared = output / (source.parent.name + "-240x384.hdf5")
     prepare_temporal(source, prepared, cfg, eligible=eligible, device="cuda:0")
+    if diagnostic:
+        with TemporalEpisode(prepared, cfg) as episode:
+            rows = episode.training_rows()
+            assert not len(rows) and not episode.eligibility.any()
+            assert len(episode.times) == report["states"]
+            assert len(episode.action_times) == report["commands"]
+            assert not episode.sample(len(episode.times) - 1)["supervision_eligible"]
+            report["prefix_recovery"] = dict(
+                prepared=str(prepared),
+                actual_states=len(episode.times),
+                actual_commands=len(episode.action_times),
+                no_invented_terminal=True,
+                source_complete=bool(episode.file.attrs["source_complete"]),
+                source_terminal_support=bool(episode.file.attrs["source_terminal_support"]),
+                training_windows=0,
+            )
+        report.update(
+            data_usable=False,
+            training_windows=0,
+            validation_wall_s=perf_counter() - started,
+            validation_process_peak_rss_gib=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+            / 1024**2,
+        )
+        return report
     with TemporalEpisode(prepared, cfg) as episode:
         rows = episode.training_rows(horizon=12)
         report["prepared"] = str(prepared)

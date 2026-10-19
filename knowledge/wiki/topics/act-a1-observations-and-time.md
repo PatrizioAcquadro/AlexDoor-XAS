@@ -530,3 +530,10 @@ SIGUSR1 is reserved for declared collection resource-budget termination, distinc
 from SIGTERM interruption and physical task failure. An exception before recorder
 startup reports `recording_not_started`; reconstruction physics is retained in
 its own audit instead of claiming a nonexistent episode prefix.
+
+
+Prepared stores now retain `source_complete`, `source_outcome` and
+`source_terminal_support`. Index preparation completion cannot certify a complete
+source episode. The collection verifier also prepares interrupted prefixes with
+all supervision masked, reopens them through `TemporalEpisode`, and checks that
+actual state/command counts are unchanged and no training window is admitted.

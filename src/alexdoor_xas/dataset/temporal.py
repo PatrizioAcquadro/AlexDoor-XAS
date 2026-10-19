@@ -271,6 +271,11 @@ def prepare_temporal(
             ),
             legacy_synchronous=legacy_synchronous,
         )
+        out.attrs["source_complete"] = bool(raw.attrs.get("complete", False))
+        out.attrs["source_outcome"] = raw["metadata"].attrs.get("outcome", "{}")
+        out.attrs["source_terminal_support"] = bool(
+            raw["metadata"].attrs.get("terminal_support", raw.attrs.get("complete", False))
+        )
         streams, metadata, times, gen = raw_streams(
             raw, config, device=device, image_rows=image_rows, legacy_synchronous=legacy_synchronous
         )
