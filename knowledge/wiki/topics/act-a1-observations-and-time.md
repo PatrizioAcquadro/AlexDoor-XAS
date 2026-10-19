@@ -68,7 +68,7 @@ ACT accepts structured batches through recursive `collate_torch` and the existin
 ACT training interface. `obs_dim=32` denotes measured feature width, not a flat
 image vector. Temporal checkpoints bind preprocessing/history, joint order,
 robot identity, A1 semantics and execution horizon. Their format is
-`b1.act.temporal.v1`; legacy checkpoints and flat observations cannot silently
+`b1.act.temporal.v2`; legacy checkpoints and flat observations cannot silently
 enter this recipe. Legacy model/checkpoint behavior remains supported separately.
 The simulator's legacy observer is not automatically switched to this new path.
 
@@ -115,6 +115,13 @@ availability no later than s. The command at t and all requested/future targets
 are excluded. A1 labels remain applied target minus measured q immediately before
 that command. Each executed delta must still be added to the q measured for its
 own execution row by the existing action adapter.
+
+The static image's learned age is the constant `-1` role marker; its arrival
+minus acquisition delay remains relative support. Recent images retain their
+relative ages and delays. Absolute static acquisition/arrival timestamps remain
+outside learned inputs for alignment and diagnostics. The revised temporal v2
+checkpoint format prevents silently reinterpreting experimental v1 weights;
+legacy flat ACT/Diffusion checkpoint formats are unchanged.
 
 Current q/dq and a recent image are required. Historical gaps are masked, not
 turned into automatic refusal. The initial image gap allowance is 0.15 s; state/

@@ -181,3 +181,22 @@ def test_invalid_historical_image_is_masked_but_current_image_is_required():
     np.testing.assert_array_equal(snapshot["obs"]["images"][masked], 0)
     raw["images"]["valid"][30] = False
     assert not builder.build(3, 2)["ready"]
+
+
+def test_static_reference_cannot_clock_episode_progress_after_history_fill():
+    cfg = TemporalConfig(image_size=(2, 3), static_time_s=0.5)
+    raw = streams(cfg)
+    # Constant observations with identical relative support at t=4 and t=5;
+    # reference acquisition remains at 0.5, so only its absolute age differs.
+    for stream in raw.values():
+        stream["values"][:] = 0.25
+    builder = CausalObservationBuilder(cfg, raw, episode_id="same")
+    a, b = builder.build(4 + 1 / 120, 2), builder.build(5 + 1 / 120, 2)
+    assert a["ready"] and b["ready"]
+    assert a["obs"]["image_valid"].all() and b["obs"]["image_valid"].all()
+    for key in a["obs"]:
+        np.testing.assert_allclose(a["obs"][key], b["obs"][key], atol=1e-6, rtol=0, err_msg=key)
+    assert a["image_times"][0, 0] == b["image_times"][0, 0] == 0.5
+    assert a["obs"]["image_timing"][0, 0] == -1
+    assert a["obs"]["image_timing"][-1, 0] == pytest.approx(1 / 120)
+    assert a["obs"]["image_timing"][1, 0] == pytest.approx(cfg.history_s + 1 / 120)

@@ -213,6 +213,9 @@ class CausalObservationBuilder:
         image_timing = np.stack(
             (t - image_times[:, 0], image_times[:, 1] - image_times[:, 0]), axis=-1
         )
+        # A constant negative age identifies the inspection reference. Its
+        # acquisition/arrival clocks remain diagnostic support, never progress.
+        image_timing[0, 0] = -1
         image_timing[~image_valid] = 0
         ready = bool(
             t >= cfg.static_time_s + cfg.warmup_s - 1e-9

@@ -13,7 +13,7 @@ from alexdoor_xas.policies.act.train import _to_device
 from alexdoor_xas.policies.common.checkpoint import load_checkpoint_payload, save_checkpoint_payload
 from alexdoor_xas.policies.temporal import TEMPORAL_RECIPE, TemporalConfig, causal_indices, gather
 
-FORMAT = "b1.act.temporal.v1"
+FORMAT = "b1.act.temporal.v2"
 OBS_KEYS = ("temporal_rgbd_measured_state",)
 
 
@@ -92,6 +92,7 @@ def temporal_model(config=None, *, chunk_size=12, seed=0, **model_options):
 def temporal_contract(config, n_action_steps):
     return dict(
         recipe=TEMPORAL_RECIPE,
+        image_timing="static-role-minus-one-recent-relative-v1",
         config=config.to_dict(),
         arm_joints=list(ARM_JOINTS),
         observed_joints=list(ARM_JOINTS + NECK_JOINTS),
