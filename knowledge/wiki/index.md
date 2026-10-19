@@ -54,6 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/b1-data-pipeline|Bounded B1 Data Pipeline]] — Saved-data streaming preparation, lossless frame reuse, bounded loading and unchanged ACT consumer throughput.
+
 - [[experiments/b1-act-a1-calibration-stopping|ACT A1 Calibration and Stopping]] — Side/load support, corrected loaded stops, independent verification and preserved failures.
 - [[experiments/b1-act-a1-two-door-diagnostic|ACT A1 Two-Door Diagnostic]] — Two completed nominal failures, independent physical results, operational censoring and proposed data/history work.
 - [[experiments/b1-runtime-speed|ACT A1 Runtime Speed]] — Frozen 1,631/7,217-command timing, lossless recording improvements and both measured targets met; learned task remains incomplete.

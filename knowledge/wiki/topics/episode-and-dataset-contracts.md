@@ -100,6 +100,7 @@ Family batch factories prefetch one next normalized batch in one reader thread t
 overlap CPU reads with GPU computation. The queue contains no dataset copy or
 workers per episode. `prefetch=False` keeps synchronous iteration. Early close
 joins the current read; input exceptions propagate before the affected batch is used.
+Close an active prefetched iterator before explicitly closing its dataset.
 
 `index_dataset(source, destination)` is a non-destructive streaming compatibility
 path for historical prepared files. It preserves values, dtype, metadata, splits
@@ -145,3 +146,6 @@ failed episode is complete evidence; interrupted files remain incomplete. This
 format is not admitted by the demonstration exporter and supplies no success or
 contact qualification. Numerical round trips and callback ordering pass; live
 Isaac recording and full retained-input audit await the GPU extension.
+
+The [[../experiments/b1-data-pipeline|bounded pipeline study]] reports comparable
+saved-data preparation, loading, ACT input cost, writer tradeoffs and scaling.

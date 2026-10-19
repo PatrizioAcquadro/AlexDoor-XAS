@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-18. Static 6.0B and the complete B1 software core are
+Current as of 2026-10-19. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
 6.1 and final matched-data production remain open. The sealed test stays closed.
 
@@ -65,6 +65,19 @@ The main scientific limits remain ideal depth, incomplete hardware calibration,
 no physical robot validation and narrow family/handedness coverage. The historical
 B0 576-rollout study selected no winner; its 219.95 N event remains under review.
 Maintenance does not authorize new training, simulation, collection or experiments.
+
+## Data infrastructure
+
+The saved-data pipeline now streams preparation/export, stores exact reusable
+frames and joins, and loads large contiguous/compressed/VDS inputs selectively.
+Across the declared complete two-episode workload, prepared size falls from
+6.06 GiB to 106.5 MiB and peak process-tree RSS from 11.36 to 1.17 GiB. Batch
+prefetch keeps the bounded ACT input consumer within baseline variability; the
+standalone CPU loader is slower than materialized RAM. Values, train-only
+normalization and prior outcomes remain exact. See
+[[experiments/b1-data-pipeline|fixed workloads, results, failures and handoff]] and
+[[topics/episode-and-dataset-contracts|compatibility and commands]]. Expansion,
+observation/temporal design, training and full-task evaluation remain separate.
 
 ## A1/A2 pilot — paused and incomplete
 
