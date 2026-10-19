@@ -214,3 +214,9 @@ simulation support, not global all-speed/workspace, hardware or full ACT task
 qualification. Original 0/2 diagnostic outcomes and paused panels remain intact;
 no policy training, collection or architecture changes occurred.
 See [[experiments/b1-act-a1-calibration-stopping|validation, failures and handoff]].
+
+The [[topics/act-a1-observations-and-time|ACT A1 observation/temporal design]] is
+ready for subsequent pipeline implementation: proposed 4 s causal history, sensor
+feedback and applied targets, with prediction/execution horizons kept separate.
+It preserves the completed data work and historical outcomes. No policy, teacher,
+collection, training or runtime change is part of this design.
