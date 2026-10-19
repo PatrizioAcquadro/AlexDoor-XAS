@@ -24,7 +24,9 @@ class TemporalA1Execution:
             or not np.isclose(cfg.static_time_s, binding.config["inspection"]["waypoints"][-1][0])
             or not np.isclose(cfg.warmup_s, binding.config["warmup_s"])
         ):
-            raise ValueError("Temporal execution requires the explicit 4s/12/6 A1 inspection recipe")
+            raise ValueError(
+                "Temporal execution requires the explicit 4s/12/6 A1 inspection recipe"
+            )
         self.policy, self.binding, self.robot_asset = policy, binding, robot_asset
         self.observations, self.reuse = observations, bool(reuse)
         self.action_space, self.chunk_size = A1_JOINT_DELTA, 12
@@ -51,8 +53,9 @@ class TemporalA1Execution:
         def source(observation):
             if self.snapshot is None or self.snapshot["decision_time_s"] != observation.time_s:
                 raise ValueError("Validate current temporal observations before replanning")
-            chunk = np.asarray(self.policy.predict(self.snapshot, now_s=observation.time_s,
-                                                   reuse=self.reuse))
+            chunk = np.asarray(
+                self.policy.predict(self.snapshot, now_s=observation.time_s, reuse=self.reuse)
+            )
             if chunk.shape != (12, 7) or not np.isfinite(chunk).all():
                 raise ValueError("Invalid temporal A1 action chunk")
             return chunk[:6].copy()
@@ -87,8 +90,17 @@ class TemporalIngressObserver:
 
 
 def temporal_a1_runner(
-    checkpoint, observer, io, *, config, episode_id, events, feedback_contract=None,
-    reuse=False, device="cuda:0", admission_source=None,
+    checkpoint,
+    observer,
+    io,
+    *,
+    config,
+    episode_id,
+    events,
+    feedback_contract=None,
+    reuse=False,
+    device="cuda:0",
+    admission_source=None,
 ):
     """Load a compatible checkpoint and explicitly opt into temporal A1 execution.
 
@@ -105,8 +117,13 @@ def temporal_a1_runner(
     observations = IncrementalObservationBuilder(
         config, episode_id=episode_id, feedback_contract=feedback_contract
     )
-    execution = TemporalA1Execution(policy, observer.binding, io.robot_asset, observations, reuse=reuse)
+    execution = TemporalA1Execution(
+        policy, observer.binding, io.robot_asset, observations, reuse=reuse
+    )
     return B1Runner(
-        execution, TemporalIngressObserver(observer, execution, events), io,
-        n_action_steps=6, admission_source=admission_source,
+        execution,
+        TemporalIngressObserver(observer, execution, events),
+        io,
+        n_action_steps=6,
+        admission_source=admission_source,
     )

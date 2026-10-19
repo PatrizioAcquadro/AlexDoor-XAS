@@ -13,21 +13,32 @@ from helpers import TEST_ROBOT_REF
 from unit.test_temporal_execution import replay_runner  # noqa: F401
 
 
-def test_checkpoint_runner_order_replanning_compatibility_and_reset(tmp_path, replay_runner):
+def test_checkpoint_runner_order_replanning_compatibility_and_reset(tmp_path, request):
     assert torch.cuda.is_available(), "Actual CUDA required"
-    runner, io, _, execution, _, _ = replay_runner
+    runner, io, _, execution, _, _ = request.getfixturevalue("replay_runner")
     cfg = execution.observations.config
-    model = temporal_model(cfg, d_model=32, n_heads=2, dim_feedforward=64,
-                           cvae_encoder_layers=1, encoder_layers=1, decoder_layers=1,
-                           dropout=0).cuda()
+    model = temporal_model(
+        cfg,
+        d_model=32,
+        n_heads=2,
+        dim_feedforward=64,
+        cvae_encoder_layers=1,
+        encoder_layers=1,
+        decoder_layers=1,
+        dropout=0,
+    ).cuda()
 
     def identity(width):
         return NormStats(np.zeros(width), np.ones(width), np.zeros(width), np.ones(width), 1)
 
     stats = DatasetNormStats(identity(7), identity(32), OBS_KEYS, ("fixture",), "A1_joint_delta")
     checkpoint = save_temporal_policy(tmp_path / "temporal.pt", model, stats, TEST_ROBOT_REF)
-    kwargs = dict(config=cfg, episode_id="saved-events", events=runner.observer.events,
-                  admission_source=runner.admission_source)
+    kwargs = dict(
+        config=cfg,
+        episode_id="saved-events",
+        events=runner.observer.events,
+        admission_source=runner.admission_source,
+    )
     maintained = temporal_a1_runner(checkpoint, runner.observer.observer, io, **kwargs)
     predictions = []
     predict = maintained.policy.policy.predict
@@ -41,8 +52,9 @@ def test_checkpoint_runner_order_replanning_compatibility_and_reset(tmp_path, re
     result = maintained.run(max_ticks=13)
     assert result.reason == "time_budget" and not result.predicted_complete
     assert len(predictions) == 3 and len(io.commands) == 13
-    np.testing.assert_array_equal([c.value for c in io.commands],
-                                  np.concatenate([p[:6] for p in predictions])[:13])
+    np.testing.assert_array_equal(
+        [c.value for c in io.commands], np.concatenate([p[:6] for p in predictions])[:13]
+    )
     assert maintained.policy.policy.device.type == "cuda"
     assert not maintained.policy.policy.model.obs_proj.cache
     assert maintained.run(max_ticks=1).control_steps == 1

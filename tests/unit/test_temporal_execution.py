@@ -52,8 +52,13 @@ def replay_runner(tmp_path, b1_binding):
     # Persist the sensory events separately from commands/geometry. On every
     # reset they are re-read as a new generation, never carried across resets.
     path = tmp_path / "measured-events.npz"
-    np.savez(path, times=np.arange(121) / 60, q=np.zeros((121, 9)),
-             dq=np.zeros((121, 9)), images=np.zeros((21, 5, 2, 3), "f4"))
+    np.savez(
+        path,
+        times=np.arange(121) / 60,
+        q=np.zeros((121, 9)),
+        dq=np.zeros((121, 9)),
+        images=np.zeros((21, 5, 2, 3), "f4"),
+    )
     saved = np.load(path)
 
     class Observer:
@@ -64,16 +69,23 @@ def replay_runner(tmp_path, b1_binding):
 
         def update(self, sensor):
             t = sensor["time_s"]
-            return SimpleNamespace(time_s=t, frame=sensor["frame"], generation=self.generation,
-                                   valid=True, features_available=True, reason="numerical_fixture",
-                                   geometry_profile=OPERATIONAL_V1,
-                                   features=np.zeros(binding.obs_dim),
-                                   feature_support=VisualEncoding(
-                                       FeatureBlock(np.zeros(2), min(t, 0.5), min(t, 0.5),
-                                                    sensor["frame"], self.generation),
-                                       FeatureBlock(np.zeros(2), t, t, sensor["frame"], self.generation),
-                                   ),
-                                   estimate=operational_estimate(t, self.generation))
+            return SimpleNamespace(
+                time_s=t,
+                frame=sensor["frame"],
+                generation=self.generation,
+                valid=True,
+                features_available=True,
+                reason="numerical_fixture",
+                geometry_profile=OPERATIONAL_V1,
+                features=np.zeros(binding.obs_dim),
+                feature_support=VisualEncoding(
+                    FeatureBlock(
+                        np.zeros(2), min(t, 0.5), min(t, 0.5), sensor["frame"], self.generation
+                    ),
+                    FeatureBlock(np.zeros(2), t, t, sensor["frame"], self.generation),
+                ),
+                estimate=operational_estimate(t, self.generation),
+            )
 
     class IO(NumericalIO):
         dt, max_ticks = 1 / 60, 120
@@ -96,9 +108,11 @@ def replay_runner(tmp_path, b1_binding):
 
             self.q += 0.001  # distinguish measured q from previous target/chunk anchor
             target, _ = bounded_joint_step(
-                torch.tensor(command.value[None]), torch.tensor(self.q[None]),
+                torch.tensor(command.value[None]),
+                torch.tensor(self.q[None]),
                 torch.tensor(np.tile([-2, 2], (7, 1))[None]),
-                torch.ones(1, 7), self.dt,
+                torch.ones(1, 7),
+                self.dt,
             )
             self.applied.append((self.q.copy(), target.numpy()[0]))
             super().execute(command)
@@ -116,29 +130,54 @@ def replay_runner(tmp_path, b1_binding):
         t = float(saved["times"][i])
         if drop_after[0] is not None and i > drop_after[0]:
             return []
-        result = [dict(field=key, acquired=t, available=t, generation=gen, values=saved[key][i])
-                  for key in ("q", "dq")]
+        result = [
+            dict(field=key, acquired=t, available=t, generation=gen, values=saved[key][i])
+            for key in ("q", "dq")
+        ]
         if i % 6 == 0:
-            result.append(dict(field="images", acquired=t, available=t, generation=gen,
-                               values=saved["images"][i // 6], source_index=i))
+            result.append(
+                dict(
+                    field="images",
+                    acquired=t,
+                    available=t,
+                    generation=gen,
+                    values=saved["images"][i // 6],
+                    source_index=i,
+                )
+            )
         return result
 
     admissions = []
 
     def admission(observation, tool, row, remaining):
         proposal, evidence, limits = action_inputs(observation.estimate)
-        proposal = replace(proposal, source="policy", action_space=A1_JOINT_DELTA,
-                           action=row, loaded=False,
-                           times_s=np.array([observation.time_s, observation.time_s + io.dt]))
+        proposal = replace(
+            proposal,
+            source="policy",
+            action_space=A1_JOINT_DELTA,
+            action=row,
+            loaded=False,
+            times_s=np.array([observation.time_s, observation.time_s + io.dt]),
+        )
         evidence = tuple(replace(e, unloaded_separation_m=0.1) for e in evidence)
-        result = admit_action(observation.estimate, proposal, evidence, limits,
-                              observation.time_s, generation=observation.generation)
+        result = admit_action(
+            observation.estimate,
+            proposal,
+            evidence,
+            limits,
+            observation.time_s,
+            generation=observation.generation,
+        )
         assert result.admitted, result.reason
         admissions.append(row.copy())
         return result
 
-    runner = B1Runner(execution, TemporalIngressObserver(observer, execution, events), io,
-                      admission_source=admission)
+    runner = B1Runner(
+        execution,
+        TemporalIngressObserver(observer, execution, events),
+        io,
+        admission_source=admission,
+    )
     return runner, io, policy, execution, admissions, drop_after
 
 
@@ -147,8 +186,9 @@ def test_saved_events_order_six_of_twelve_replan_current_q_and_reset(replay_runn
     result = runner.run(max_ticks=13)
     assert result.reason == "time_budget" and result.control_steps == 13
     assert not result.predicted_complete
-    expected = np.concatenate([(100 * i + np.arange(84).reshape(12, 7))[:6] / 100000
-                               for i in range(3)])[:13]
+    expected = np.concatenate(
+        [(100 * i + np.arange(84).reshape(12, 7))[:6] / 100000 for i in range(3)]
+    )[:13]
     np.testing.assert_array_equal([c.value for c in io.commands], expected)
     np.testing.assert_array_equal(admissions, expected)
     for row, (q, applied) in zip(expected, io.applied, strict=True):
