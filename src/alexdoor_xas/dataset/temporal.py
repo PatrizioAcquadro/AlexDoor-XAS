@@ -251,6 +251,7 @@ def prepare_temporal(
     image_rows=None,
     legacy_synchronous=False,
     eligible=None,
+    episode_id=None,
 ):
     """Stream one frame at a time to an exclusive new store; never expand windows.
 
@@ -280,6 +281,14 @@ def prepare_temporal(
             raw, config, device=device, image_rows=image_rows, legacy_synchronous=legacy_synchronous
         )
         metadata = dict(metadata)
+        if episode_id is not None:
+            if not isinstance(episode_id, str) or not episode_id.strip():
+                raise ValueError("Explicit derivative episode identity must be nonempty")
+            metadata.setdefault("source_episode_id", metadata["episode_id"])
+            metadata["preparation_source_episode_id"] = metadata["episode_id"]
+            metadata["episode_id"] = episode_id
+        if "feedback_contract" in raw["metadata"].attrs:
+            out.attrs["source_feedback_contract"] = raw["metadata"].attrs["feedback_contract"]
         recorded_dt = metadata.get("control_dt", raw["metadata"].attrs.get("control_dt"))
         if recorded_dt is not None:
             metadata["control_dt"] = float(recorded_dt)
@@ -524,11 +533,12 @@ def mixed_temporal_batch(selections, horizon=12):
     selections = list(selections)
     if not selections:
         raise ValueError("A mixed batch requires episodes")
-    contract = selections[0][0].config.model_contract()
+    first = selections[0][0]
+    contract = (first.config.model_contract(), first.metadata.get("robot_asset"))
     identities = {}
     batches = []
     for episode, rows in selections:
-        if episode.config.model_contract() != contract:
+        if (episode.config.model_contract(), episode.metadata.get("robot_asset")) != contract:
             raise ValueError("Mixed batch observation contracts differ")
         identity = episode.builder.episode_id
         if identity in identities and identities[identity] != episode.path.resolve():
@@ -538,6 +548,84 @@ def mixed_temporal_batch(selections, horizon=12):
     return dict(
         obs={key: np.concatenate([b["obs"][key] for b in batches]) for key in batches[0]["obs"]},
         episode_id=[identity for b in batches for identity in b["episode_id"]],
-        **{key: np.concatenate([b[key] for b in batches]) for key in (
-            "actions", "is_pad", "decision_row", "decision_time_s", "generation")},
+        **{
+            key: np.concatenate([b[key] for b in batches])
+            for key in ("actions", "is_pad", "decision_row", "decision_time_s", "generation")
+        },
     )
+
+
+def phase_focused_rows(episode, *, horizon=12, n_action_steps=6):
+    """Valid source-row views near task events; annotations never enter obs.
+
+    Select the chunk crossing positions (-H+1, -N, -1), the event and its first
+    executed horizon (+1, +N). Stabilization also retains its real final tail.
+    Overlapping event memberships remain one source episode, not new demos.
+    No images are copied or additional prepared store created.
+    """
+    if not 0 < n_action_steps <= horizon:
+        raise ValueError("Execution horizon must fit the prediction chunk")
+    with h5py.File(episode.file.attrs["source"], "r") as raw:
+        metadata = json.loads(raw["metadata"].attrs["episode"])
+        if metadata.get("split") not in ("train", "development"):
+            raise ValueError("Final test remains sealed")
+        if raw.attrs.get("schema") != "b1.temporal-recording.v1":
+            raise ValueError("Phase selection requires native source annotations")
+        if not (
+            np.array_equal(raw["commands/state_acquired_s"][:], episode.action_times)
+            and np.array_equal(raw["commands/generation"][:], episode.action_generations)
+            and metadata["episode_id"]
+            == episode.metadata.get("preparation_source_episode_id", episode.builder.episode_id)
+        ):
+            raise ValueError("Phase annotations differ from the prepared source recording")
+        names = metadata["phase_names"]
+        phase = raw["evaluator/phase"][:]
+        contact = raw["evaluator/contact_valid"][:]
+    valid = episode.training_rows(horizon)
+    events = {
+        name: []
+        for name in ("contact_acquisition", "contact_to_push", "hold_to_release", "stabilization")
+    }
+    if "contact" in names:
+        acquired = np.flatnonzero((phase == names.index("contact")) & contact)
+        if len(acquired):
+            events["contact_acquisition"].append(int(acquired[0]))
+    for i in np.flatnonzero(phase[1:] != phase[:-1]) + 1:
+        pair = (names[int(phase[i - 1])], names[int(phase[i])])
+        for event, target in (
+            ("contact_to_push", ("contact", "push")),
+            ("hold_to_release", ("hold", "release")),
+            ("stabilization", ("release", "stabilize")),
+        ):
+            if pair == target:
+                events[event].append(int(i))
+    offsets = (-horizon + 1, -n_action_steps, -1, 0, 1, n_action_steps)
+    selected = {}
+    for name, command_rows in events.items():
+        rows = []
+        for command_row in command_rows:
+            t = episode.action_times[command_row]
+            gen = episode.action_generations[command_row]
+            for offset in offsets:
+                matches = valid[
+                    (episode.generations[valid] == gen)
+                    & np.isclose(
+                        episode.times[valid],
+                        t + offset * episode.config.control_dt_s,
+                        atol=1e-8,
+                        rtol=0,
+                    )
+                ]
+                rows.extend(matches.tolist())
+        if name == "stabilization" and "stabilize" in names:
+            tail = np.flatnonzero(phase == names.index("stabilize"))
+            if len(tail):
+                t, gen = episode.action_times[tail[-1]], episode.action_generations[tail[-1]]
+                rows.extend(
+                    valid[
+                        (episode.generations[valid] == gen)
+                        & np.isclose(episode.times[valid], t, atol=1e-8, rtol=0)
+                    ].tolist()
+                )
+        selected[name] = np.unique(np.asarray(rows, dtype="i8"))
+    return selected

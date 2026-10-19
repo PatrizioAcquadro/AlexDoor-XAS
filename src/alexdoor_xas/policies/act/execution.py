@@ -21,10 +21,15 @@ class TemporalA1Execution:
             or policy.chunk_size != 12
             or policy.n_action_steps != 6
             or geometry_profile(binding) != OPERATIONAL_V1
-            or (startup is None and (
-                not np.isclose(cfg.static_time_s, binding.config["inspection"]["waypoints"][-1][0])
-                or not np.isclose(cfg.warmup_s, binding.config["warmup_s"])
-            ))
+            or (
+                startup is None
+                and (
+                    not np.isclose(
+                        cfg.static_time_s, binding.config["inspection"]["waypoints"][-1][0]
+                    )
+                    or not np.isclose(cfg.warmup_s, binding.config["warmup_s"])
+                )
+            )
             or (startup is not None and (not callable(startup) or cfg.static_time_s != 0))
         ):
             raise ValueError(

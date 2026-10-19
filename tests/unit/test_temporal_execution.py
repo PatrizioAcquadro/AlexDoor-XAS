@@ -269,8 +269,9 @@ def test_intermediate_startup_skips_closed_door_inspection_and_clears_context(re
 
     execution.startup = startup
     # Constructor validates explicit local-t=0 producer rather than closed inspection.
-    TemporalA1Execution(policy, execution.binding, TEST_ROBOT_REF, execution.observations,
-                        startup=startup)
+    TemporalA1Execution(
+        policy, execution.binding, TEST_ROBOT_REF, execution.observations, startup=startup
+    )
     for _ in range(2):
         result = runner.run(max_ticks=7)
         assert result.reason == "time_budget" and result.control_steps == 7

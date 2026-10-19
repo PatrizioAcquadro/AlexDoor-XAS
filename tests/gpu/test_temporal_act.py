@@ -156,6 +156,7 @@ def test_gradients_masks_cache_invalidation_and_checkpoint(tmp_path):
     )
     intermediate.reset(ep.builder.episode_id, 0)
     from alexdoor_xas.policies.temporal import CausalObservationBuilder
+
     intermediate_snap = CausalObservationBuilder(
         intermediate_cfg, ep.builder.streams, episode_id=ep.builder.episode_id
     ).build(ep.times[25], 0)
@@ -186,3 +187,71 @@ def test_gradients_masks_cache_invalidation_and_checkpoint(tmp_path):
     with pytest.raises(ValueError, match="Reset"):
         policy.predict(snap)
     ep.close()
+
+
+def test_derivative_identity_and_feedback_provenance_preserve_raw(tmp_path):
+    import json
+
+    cfg, ep = prepare_fixture(tmp_path)
+    ep.close()
+    raw = tmp_path / "raw.hdf5"
+    before = raw.read_bytes()
+    destination = tmp_path / "reviewed-derivative.hdf5"
+    prepare_temporal(
+        raw, destination, cfg, eligible=np.ones(30, bool), episode_id="fixture-reviewed-attempt"
+    )
+    with TemporalEpisode(destination, cfg) as derived:
+        assert derived.builder.episode_id == "fixture-reviewed-attempt"
+        assert derived.metadata["source_episode_id"] == "fixture"
+        assert json.loads(derived.file.attrs["source_feedback_contract"])["units"] == "N m"
+    assert raw.read_bytes() == before
+
+
+from unit.test_native_collection_quality import collection  # noqa: F401, E402
+
+
+def test_phase_selection_is_source_row_view_with_real_crossing_history(tmp_path, request):
+    from alexdoor_xas.dataset.temporal import phase_focused_rows
+    from alexdoor_xas.recording.quality import teacher_eligibility
+
+    source, cfg = request.getfixturevalue("collection")
+    with h5py.File(source, "r+") as file:
+        import json
+
+        metadata = json.loads(file["metadata"].attrs["episode"])
+        metadata["source_episode_id"] = "ancestor-not-this-recording"
+        file["metadata"].attrs["episode"] = json.dumps(metadata)
+    with h5py.File(source) as file:
+        eligible = teacher_eligibility(file)
+    prepared = tmp_path / "phases.hdf5"
+    prepare_temporal(source, prepared, cfg, eligible=eligible)
+    source_before, prepared_before = source.stat(), prepared.stat()
+    with TemporalEpisode(prepared, cfg) as episode:
+        focus = phase_focused_rows(episode)
+        assert all(len(rows) for rows in focus.values())
+        assert 48 - 11 in focus["contact_acquisition"]
+        assert 72 - 11 in focus["contact_to_push"]
+        assert 120 - 11 in focus["hold_to_release"]
+        assert 167 in focus["stabilization"]  # real tail with masked absent targets
+        for rows in focus.values():
+            assert set(rows) <= set(episode.training_rows())
+            for batch in episode.batches(rows, batch_size=4):
+                assert not any(k in batch["obs"] for k in ("phase", "subtask", "progress"))
+        crossing = episode.sample(72 - 11)
+        assert not crossing["is_pad"].any()
+        assert crossing["obs"]["robot_valid"][:, 0].any()
+        assert episode.sample(167)["is_pad"].sum() == 11
+    assert source.stat().st_size == source_before.st_size
+    assert prepared.stat().st_size == prepared_before.st_size
+    assert prepared.stat().st_mtime_ns == prepared_before.st_mtime_ns
+
+
+def test_normalization_uses_same_finite_torque_support_as_observations(tmp_path):
+    cfg, episode = prepare_fixture(tmp_path)
+    with episode:
+        # Missingness is retained even if a producer left health=True on NaN.
+        episode.builder.streams["tau"]["values"][18] = np.nan
+        snapshot = episode.builder.build(18 / 60, 0)
+        assert not snapshot["obs"]["robot_valid"][-1, 2]
+        stats = fit_temporal_stats([episode])
+        assert np.isfinite(stats.obs.mean).all() and np.isfinite(stats.obs.std).all()

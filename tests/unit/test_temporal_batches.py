@@ -76,8 +76,9 @@ def test_order_duplicates_masks_holes_padding_and_prefetch_match_samples(prepare
 
 
 def test_mixed_startup_batch_preserves_support_labels_and_identity(prepared_episode, tmp_path):
-    from dataclasses import replace
     import shutil
+    from dataclasses import replace
+
     from alexdoor_xas.dataset.temporal import mixed_temporal_batch
 
     path, cfg = prepared_episode
@@ -87,9 +88,10 @@ def test_mixed_startup_batch_preserves_support_labels_and_identity(prepared_epis
         metadata = json.loads(file.attrs["episode"])
         metadata["episode_id"] = "intermediate-attempt"
         file.attrs["episode"] = json.dumps(metadata)
-    with TemporalEpisode(path, cfg) as nominal, TemporalEpisode(
-        other, replace(cfg, static_time_s=0, warmup_s=0.1)
-    ) as intermediate:
+    with (
+        TemporalEpisode(path, cfg) as nominal,
+        TemporalEpisode(other, replace(cfg, static_time_s=0, warmup_s=0.1)) as intermediate,
+    ):
         batch = mixed_temporal_batch([(nominal, [299]), (intermediate, [10, 250])])
         singles = [nominal.sample(299), intermediate.sample(10), intermediate.sample(250)]
         for key in batch["obs"]:

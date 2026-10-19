@@ -59,6 +59,7 @@ def test_checkpoint_runner_order_replanning_compatibility_and_reset(tmp_path, re
     assert not maintained.policy.policy.model.obs_proj.cache
     assert maintained.run(max_ticks=1).control_steps == 1
     np.testing.assert_allclose(io.commands[0].value, predictions[0][0], atol=1e-6)
+
     def intermediate_startup(observer, io):
         observation = observer.update(io.observe())
         for _ in range(12):
@@ -68,17 +69,23 @@ def test_checkpoint_runner_order_replanning_compatibility_and_reset(tmp_path, re
             observation = observer.update(io.observe())
         return observation, ""
 
-    intermediate_options = dict(kwargs, config=replace(cfg, static_time_s=0),
-                                startup=intermediate_startup)
-    intermediate = temporal_a1_runner(checkpoint, runner.observer.observer, io,
-                                     **intermediate_options)
+    intermediate_options = dict(
+        kwargs, config=replace(cfg, static_time_s=0), startup=intermediate_startup
+    )
+    intermediate = temporal_a1_runner(
+        checkpoint, runner.observer.observer, io, **intermediate_options
+    )
     for _ in range(2):
         assert intermediate.run(max_ticks=7).control_steps == 7
         assert io.clock == 19 and not intermediate.pending
         assert not any(intermediate.policy.observations.rows.values())
     with pytest.raises(ValueError, match="inspection recipe"):
-        temporal_a1_runner(checkpoint, runner.observer.observer, io,
-                           **dict(kwargs, config=replace(cfg, static_time_s=0)))
+        temporal_a1_runner(
+            checkpoint,
+            runner.observer.observer,
+            io,
+            **dict(kwargs, config=replace(cfg, static_time_s=0)),
+        )
     io.robot_asset = replace(TEST_ROBOT_REF, sha256="e" * 64)
     with pytest.raises(ValueError, match="robot asset"):
         temporal_a1_runner(checkpoint, runner.observer.observer, io, **kwargs)

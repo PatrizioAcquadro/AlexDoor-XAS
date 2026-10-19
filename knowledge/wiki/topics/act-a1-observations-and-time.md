@@ -196,6 +196,79 @@ No generic ±10 clipping is applied to measured N m. Dataset grouping remains by
 frozen door/trajectory family; rerenders, crops, recoveries and reset derivatives
 must stay in their source group's split. No final-test reader is authorized.
 
+### Full coverage and reviewed usable supervision
+
+`review_native_collection` reports task outcome/physical-safe command counts,
+recording integrity/completeness/terminal support, required phase/transition
+coverage, and explicit candidate command/window ranges separately.
+`data_usable` means that trusted ready windows exist; it does **not** qualify a
+full demonstration. `required_scope_coverage` requires usable starts in every
+required phase and crossings for every required transition.
+`full_demonstration_coverage` additionally requires a nominal full-task scope. Nominal cycles require
+inspect→approach→contact→push→hold→release→stabilize; the existing qualified
+intermediate requires hold→release→stabilize. `pilot_physics collect` retains this
+scope-coverage requirement for `demonstration_qualified`, plus task and stop gates;
+`full_task_success` remains separate from a qualified continuation.
+
+Successful complete source outcomes remain prerequisites for automatic teacher
+candidates. Accepted, safe, phase-valid actions and qualified contact semantics
+then determine row masks. Failed/interrupted sources never automatically acquire
+expert labels. Unhealthy/missing tau remains optional masked observation support:
+raw substep counts, source contract and actual missing selected historical/current
+slots are reported separately. A short unselected substep gap may affect no token;
+a selected gap affects overlapping histories according to the existing two-tick
+support rule. Neither case invents torque or erases otherwise trusted targets.
+Prepared files retain `source_feedback_contract` as provenance.
+
+The first right attempt remains a physically complete pass with its original
+outcome, no inspect→approach crossing and no full-demonstration qualification.
+The new read-only review identifies 7,337 candidate starts, inclusive zero-based
+rows 1512–8848 (25.2 s onward), covering the later approach/contact/push/hold/
+release/stabilization. Reuse would require a separate explicit **partial-source**
+admission and its reviewed command mask, not the full-demonstration gate. Its
+original episode identity collides with corrected right: if later admitted,
+`prepare_temporal(..., episode_id="...-attempt-1-reviewed-partial")` writes a new
+derivative with `source_episode_id`; raw data stay unchanged and source/family
+split stays train. No such derivative/admission is created here. New native
+attempts receive unique episode IDs while retaining their family/source links.
+Mixed batching and normalization reject duplicate identities across distinct files.
+
+### Phase-focused source views and short subtasks
+
+`phase_focused_rows(episode)` returns valid prepared decision-row views around
+first qualified contact acquisition, contact→push, hold→release and release→
+stabilization. Relative offsets are `(-H+1, -N, -1, 0, 1, N)` for chunk H=12 /
+execution N=6; stabilization also includes the last genuine command. Pass each
+row union directly to the existing `episode.batches` or `mixed_temporal_batch`.
+No image file is copied, history truncated/rebased, boundary-crossing window
+removed or phase annotation passed into `obs`. Existing `training_rows`, causal
+masks and real-tail padding decide admissibility. Missing event coverage is an
+empty row view, not an invented demonstration.
+
+Current admitted data have 16,098 command rows (13,146 push, 81.66%) and 16,061
+valid window starts. Event-focused views retain 25 right, 25 left and 13 C
+windows. These are 63 overlapping source-row views on two nominal source motions
+plus one same-group reset derivative, not 63 demonstrations. Actual prepared
+source references and per-phase denominators are in the
+[consumption audit](../../../outputs/evidence/act-a1-consumption-20261019/sampling-quality.json).
+A later sampler can visit the unique event views explicitly alongside background
+windows using existing batching; no equal-phase quota or training schedule is
+selected here. Keep per-source/door/transition exposure visible so push length
+does not determine all minibatches. Statistical evaluation remains by independent
+source/group, not overlapping rows.
+
+A future short episode declares `metadata.subtask = {name, required_phases}` as
+an ordered phase sequence. Outcome reports `subtask_success` separately from
+`subtask_qualified`; both must be explicitly true, with successful execution,
+complete recording and safe/phase-valid command labels before teacher candidate
+masks can be nonzero. Release/stabilization are required only if in that declared
+subtask sequence. Full-task outcome and nominal full-coverage gates are unchanged.
+Unqualified short episodes remain readable diagnostics with zero automatically
+admitted windows, even when a proposed observable condition says success.
+No contact-acquisition or contact→push reset/physical success criterion is
+qualified by these interface/tests. The existing C hold/release continuation
+retains its measured qualification and separate continuation scope.
+
 ## Causal, reset and storage contract
 
 For historical slot s at decision t, select the latest same-generation acquisition
@@ -519,7 +592,7 @@ frozen matched references (51.260252/52.536029 deg), never a refit on these resu
 
 | Retained attempt | Physical outcome | States/commands | Healthy native tau | Data outcome |
 |---|---|---:|---:|---|
-| First right | 51.11 deg, release + 2 s ordinary tail; stop passes | 8,850/8,849 | 17,699 | Incomplete inspect→approach coverage; diagnostic |
+| First right | 51.11 deg, release + 2 s ordinary tail; stop passes | 8,850/8,849 | 17,699 | Incomplete inspect→approach coverage; 7,337 partial candidates, separate admission required |
 | Corrected right | 51.75 deg, release + 2 s ordinary tail; stop passes | 9,101/9,100 | 18,201 | Qualified; 7,537 training windows |
 | Left | 52.55 deg, release + 2 s ordinary tail; stop passes | 9,509/9,508 | 19,017 | Qualified; 7,996 training windows |
 | Physical reset C | Fresh loaded hold, release + 2 s ordinary tail; stop passes | 541/540 | 1,081 | Qualified continuation; 528 training windows |

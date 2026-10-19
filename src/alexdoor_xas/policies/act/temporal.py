@@ -11,7 +11,7 @@ from alexdoor_xas.policies.act.config import ActModelCfg
 from alexdoor_xas.policies.act.model import ACTModel
 from alexdoor_xas.policies.act.train import _to_device
 from alexdoor_xas.policies.common.checkpoint import load_checkpoint_payload, save_checkpoint_payload
-from alexdoor_xas.policies.temporal import TEMPORAL_RECIPE, TemporalConfig, causal_indices, gather
+from alexdoor_xas.policies.temporal import TEMPORAL_RECIPE, TemporalConfig, select_support
 
 FORMAT = "b1.act.temporal.v2"
 OBS_KEYS = ("temporal_rgbd_measured_state",)
@@ -26,9 +26,10 @@ def fit_temporal_stats(episodes):
     ids, actions, torque = [], [], []
     contract = None
     for episode in episodes:
-        if contract is not None and episode.config.model_contract() != contract:
+        current = (episode.config.model_contract(), episode.metadata.get("robot_asset"))
+        if contract is not None and current != contract:
             raise ValueError("Normalization observation contracts differ")
-        contract = episode.config.model_contract()
+        contract = current
         episode_id = episode.builder.episode_id
         if episode.metadata["split"] != "train" or episode_id in ids:
             raise ValueError("Normalization requires unique training episodes")
@@ -43,9 +44,11 @@ def fit_temporal_stats(episodes):
             slots = times[episode.action_generations[rows] == gen]
             # Availability must hold at each decision, not merely at file end.
             for t in slots:
-                idx = causal_indices(stream, [t], t, gen, episode.config.state_gap_s)
-                if idx[0] >= 0 and ("valid" not in stream or stream["valid"][idx[0]]):
-                    torque.append(gather(stream["values"], idx, (7,)))
+                _, valid, measured, _ = select_support(
+                    stream, [t], t, gen, episode.config.state_gap_s, shape=(7,)
+                )
+                if valid[0]:
+                    torque.append(measured)
     if not actions:
         raise ValueError("No training episodes")
     mean, std = np.zeros(32), np.ones(32)
@@ -179,7 +182,10 @@ class TemporalActPolicy:
     def validate_snapshot(self, snapshot, *, now_s=None):
         if not isinstance(snapshot, dict) or "observation_config" not in snapshot:
             raise ValueError("Explicit temporal snapshot required; legacy arrays are incompatible")
-        if TemporalConfig(**snapshot["observation_config"]).model_contract() != self.config.model_contract():
+        if (
+            TemporalConfig(**snapshot["observation_config"]).model_contract()
+            != self.config.model_contract()
+        ):
             self.model.obs_proj.clear_cache()
             raise ValueError("Snapshot preprocessing/history differs from checkpoint")
         if (snapshot["episode_id"], snapshot["generation"]) != (self.episode_id, self.generation):
@@ -196,6 +202,7 @@ class TemporalActPolicy:
             )
         ):
             raise ValueError("Temporal query unready or stale; replan/stop through existing IO")
+
     @torch.inference_mode()
     def predict(self, snapshot, *, now_s=None, reuse=False):
         self.validate_snapshot(snapshot, now_s=now_s)

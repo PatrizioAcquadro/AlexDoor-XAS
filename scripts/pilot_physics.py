@@ -270,6 +270,12 @@ def main(argv=None):
                 )
             elif args.interrupt_after_commands is not None:
                 metadata["episode_id"] += "-interrupted"
+            # Distinct attempts can later coexist in one train normalization set.
+            # Keep source linkage separately; never rename original recordings.
+            from uuid import uuid4
+
+            metadata["episode_family_id"] = metadata["episode_id"]
+            metadata["episode_id"] += ":" + str(uuid4())
             recorder = TemporalExpertRecorder(
                 args.output / "episode.hdf5",
                 metadata,
@@ -354,8 +360,12 @@ def main(argv=None):
                 )
             )
             result["data_usable"] = result["recording_validation"]["data_usable"]
+            result["full_task_success"] = result["recording_validation"].get(
+                "full_task_success", False
+            )
             result["demonstration_qualified"] = bool(
-                result["task_success"] and result["data_usable"]
+                result["task_success"]
+                and result["recording_validation"].get("required_scope_coverage", False)
             )
             result["passed"] = bool(
                 result["demonstration_qualified"] and result["safety_stop_passed"]

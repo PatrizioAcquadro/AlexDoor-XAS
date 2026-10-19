@@ -28,10 +28,10 @@ def verify(source, output):
     )
     from alexdoor_xas.policies.act.train import _to_device
     from alexdoor_xas.policies.temporal import CausalObservationBuilder, TemporalConfig
-    from alexdoor_xas.recording.quality import teacher_eligibility, validate_native_recording
+    from alexdoor_xas.recording.quality import review_native_collection, teacher_eligibility
 
     started = perf_counter()
-    report = validate_native_recording(source)
+    report = review_native_collection(source)
     assert report["integrity_passed"], report["errors"]
     with h5py.File(source, "r") as file:
         metadata = json.loads(file["metadata"].attrs["episode"])
@@ -44,6 +44,8 @@ def verify(source, output):
         feedback = file["physics_feedback"]
         traces = {}
         for name in ("contact", "hold", "release"):
+            if name not in phase_names:
+                continue
             where = np.flatnonzero(phase == phase_names.index(name))
             if len(where):
                 t = float(file["evaluator/time_s"][where[0]])
@@ -129,7 +131,8 @@ def verify(source, output):
                 selected.append(int(crossing[len(crossing) // 2]))
         report["transitions"] = transitions
         report["all_transitions_covered"] = all(t["valid_crossing_windows"] for t in transitions)
-        report["data_usable"] = bool(report["all_transitions_covered"] and len(rows))
+        report["data_usable"] = bool(len(rows))
+        assert report["training_windows"] == len(rows)
         assert len(rows), "No usable actual-data training windows"
         selected = list(dict.fromkeys([*selected, int(rows[-1])]))
         stats = fit_temporal_stats([episode])
