@@ -1,6 +1,38 @@
+# ACT A1 temporal observations — maintained implementation
+
+The temporal data path is implemented alongside the unchanged legacy recipe.
+`policies/temporal.py` owns the shared causal builder and bounded incremental
+buffer; `dataset/temporal.py` prepares independent frame-indexed streams and
+builds history/target views lazily. `recording/temporal.py` is an opt-in recorder
+for future complete collection. Existing recordings, checkpoints, physical
+limits, teacher and collection lifecycle are unchanged.
+
+Initial recipe: 4 seconds, 22 dynamic images plus one static reference, 241
+measured-state slots (q9/dq9/tau7/previous applied target7), independent chunk 12
+and execution horizon 6. Resolution remains provisional until the declared
+60×96 / 120×192 / 240×384 saved-input GPU comparison is complete. Acquisition,
+availability, generation, per-field masks and source indices are explicit.
+Only relative support age/delay, measured values and masks enter the model.
+Current commands are excluded; legitimate historical gaps are masked. Missing
+feedback is distinct from measured zero. Torque requires a declared supported
+source/order/units/sign; unverified hardware feedback remains unavailable.
+
+Preparation defaults to diagnostic-only supervision. Explicit command-row
+eligibility is required; chunks crossing ambiguous actions are rejected rather
+than relabeled padding. Padding denotes absent targets beyond recorded support,
+never a synthetic stabilization demonstration. Changing history or prediction
+length reuses the same frame store. Legacy arrival times require an explicit
+synchronous-simulation declaration and cannot establish hardware timing.
+
+Implementation checks and measured costs will be recorded here after validation.
+The design below is retained as the preimplementation contract and evidence;
+its statements about work not yet executed describe that historical baseline.
+
+---
+
 # ACT A1 — osservazioni, storia causale e raccolta completa
 
-**Specifica proposta, pronta per l'implementazione; nessuna nuova pipeline o policy è implementata da questo documento.** Verifica del 19 ottobre 2026 sul worktree `/home/pacquadr/.codex/worktrees/23f1/AlexDoor-XAS`, branch `PatrizioAcquadro/b1-policy-pilot`, baseline `825dd67`, albero inizialmente pulito. Analisi con un solo agente, senza simulazioni, dimostrazioni, inferenza, training o scelta di checkpoint.
+**Historical design baseline (before implementation).** Verifica del 19 ottobre 2026 sul worktree `/home/pacquadr/.codex/worktrees/23f1/AlexDoor-XAS`, branch `PatrizioAcquadro/b1-policy-pilot`, baseline `825dd67`, albero inizialmente pulito. Analisi con un solo agente, senza simulazioni, dimostrazioni, inferenza, training o scelta di checkpoint.
 
 L'obiettivo è completare il compito fisico da osservazioni proprie: acquisizione del contatto, apertura richiesta, mantenimento, rilascio e stabilizzazione reale. La somiglianza al teacher aiuta ad addestrare e diagnosticare; non sostituisce `PilotEvaluation`, i requisiti fisici o l'analisi dei rifiuti. Nessuna modifica alle soglie fisiche, alla calibrazione o al final test è implicita.
 

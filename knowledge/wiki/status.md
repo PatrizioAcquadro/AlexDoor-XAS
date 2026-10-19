@@ -77,7 +77,9 @@ standalone CPU loader is slower than materialized RAM. Values, train-only
 normalization and prior outcomes remain exact. See
 [[experiments/b1-data-pipeline|fixed workloads, results, failures and handoff]] and
 [[topics/episode-and-dataset-contracts|compatibility and commands]]. Expansion,
-observation/temporal design, training and full-task evaluation remain separate.
+the maintained temporal path is described in
+[[topics/act-a1-observations-and-time|ACT A1 temporal observations]]. Training,
+collection and physical validation remain separate.
 
 ## A1/A2 pilot — paused and incomplete
 
