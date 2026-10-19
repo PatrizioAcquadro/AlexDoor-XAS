@@ -628,7 +628,9 @@ is retained, within the declared 80 GiB; all per-case/cumulative budgets hold.
 No remote allocation, optimizer update, final-test access or learned evaluation
 is added. This closes the collection tranche, not ACT physical task success.
 
-Next expansion starts from the three admitted records in `handoff.json`, with
+The concrete [[act-a1-four-door-expansion|four-door expansion proposal]] uses
+actual train geometry, measured margins/costs and targeted-start qualification
+boundaries. Next expansion starts from the three admitted records in `handoff.json`, with
 explicit masks and per-record observation configurations. Add data only through
 a declared train protocol and the same release/tail, native-feedback, transition
 and interruption gates; retain every attempt and source-group derivative.

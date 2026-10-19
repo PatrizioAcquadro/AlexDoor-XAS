@@ -81,6 +81,16 @@ the maintained temporal path is described in
 [[topics/act-a1-observations-and-time|ACT A1 temporal observations]]. Training,
 collection and physical validation remain separate.
 
+Temporal ACT A1 consumption now shares one strict model/checkpoint contract across
+normal and fresh intermediate startup metadata. Quality distinguishes complete
+scope coverage, reviewed usable windows and explicitly qualified short subtasks;
+source-row event sampling preserves real history and phase-crossing labels.
+The existing right/left/C admissions and interrupted-prefix outcome remain.
+[[topics/act-a1-four-door-expansion|Four-door expansion]] is a concrete train-only
+proposal; new geometries/start criteria still require physical qualification.
+No new collection, training, learned success or final-test access accompanies this
+software/data closure. See [[topics/act-a1-observations-and-time|current interfaces]].
+
 ## A1/A2 pilot — paused and incomplete
 
 The full panels on `PatrizioAcquadro/b1-policy-pilot` remain paused. The user has
