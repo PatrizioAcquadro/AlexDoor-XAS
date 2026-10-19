@@ -351,6 +351,8 @@ class B1Runner:
                     require_features(observation, self.policy.binding)
                 elif not observation.valid:
                     return self.stop(observation.reason, steps)
+                if validate := getattr(self.policy, "validate_observation", None):
+                    validate(observation)
                 row = None
                 if self.policy.action_space == A4_OBJ_CENTRIC_CHUNK:
                     if self.adapter.motion is None:

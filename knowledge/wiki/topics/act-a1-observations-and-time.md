@@ -72,6 +72,44 @@ robot identity, A1 semantics and execution horizon. Their format is
 enter this recipe. Legacy model/checkpoint behavior remains supported separately.
 The simulator's legacy observer is not automatically switched to this new path.
 
+### Opt-in A1 execution
+
+[`temporal_a1_runner`](../../../src/alexdoor_xas/policies/act/execution.py) loads a
+v2 checkpoint with the runtime robot identity, checks the control interval and
+inspection configuration, and connects an incremental builder to `B1Runner`.
+The entry point fixes history/chunk/execution at **4 s / 12 / 6** and rejects
+ensembling or another execution horizon. The geometry observer remains active.
+
+```python
+runner = temporal_a1_runner(
+    checkpoint, observer, io, config=cfg, episode_id=episode_id,
+    events=drain_native_events, feedback_contract=verified_feedback_contract,
+    admission_source=existing_motion_admission, reuse=False, device="cuda:0",
+)
+result = runner.run(max_ticks=declared_budget)
+```
+
+`drain_native_events(sensor, observation)` supplies newly available event
+arguments for `IncrementalObservationBuilder.append`: field, actual acquisition
+and availability clocks, generation, measured/preprocessed values, image source
+index and validity. Images use the shared `preprocess_rgbd`. Applied-target
+history requires actual delivered/acknowledged targets; the bridge never turns a
+prediction or request into an application. Producers own their reset and clock
+conversion. Native recorder/teacher producer wiring remains the next task.
+
+The bridge checks current sensory readiness and freshness **before every row**,
+including rows pending from the previous prediction. It executes rows 0–5 in
+order, discards rows 6–11, and replans from the next measured history. Reset and
+stop clear pending actions, ingress and visual reuse. Each delta still passes
+through existing per-row admission, `ActionAdapter`, `PurdueIO` and the measured-q
+joint controller; no physical threshold or stop rule changes.
+
+Saved numerical events and an actual CUDA checkpoint verify ordered dispatch,
+replanning, current-q conversion, stale input stopping inside a chunk, reset,
+admission refusal, physical-stop propagation, and robot/joint/control mismatch
+rejection. These checks do not validate physical task completion, a hardware
+producer, real sensor-to-actuator latency or contact qualification.
+
 ### Preparation and consumption
 
 Read `depth_interval_m` from the recording's calibration; do not replace its

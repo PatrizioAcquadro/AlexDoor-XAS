@@ -172,8 +172,7 @@ class TemporalActPolicy:
         self.episode_id, self.generation = str(episode_id), int(generation)
         self.model.obs_proj.clear_cache()
 
-    @torch.inference_mode()
-    def predict(self, snapshot, *, now_s=None, reuse=False):
+    def validate_snapshot(self, snapshot, *, now_s=None):
         if not isinstance(snapshot, dict) or "observation_config" not in snapshot:
             raise ValueError("Explicit temporal snapshot required; legacy arrays are incompatible")
         if TemporalConfig(**snapshot["observation_config"]) != self.config:
@@ -193,6 +192,9 @@ class TemporalActPolicy:
             )
         ):
             raise ValueError("Temporal query unready or stale; replan/stop through existing IO")
+    @torch.inference_mode()
+    def predict(self, snapshot, *, now_s=None, reuse=False):
+        self.validate_snapshot(snapshot, now_s=now_s)
         batch = dict(
             obs={key: value[None] for key, value in snapshot["obs"].items()},
             actions=np.zeros((1, self.chunk_size, 7), "f4"),
