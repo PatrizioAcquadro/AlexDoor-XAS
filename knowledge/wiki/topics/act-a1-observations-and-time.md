@@ -435,3 +435,48 @@ Prior evidence remains in [[../experiments/b1-data-pipeline|data infrastructure]
 [[../experiments/b1-act-a1-two-door-diagnostic|the two preserved diagnostic failures]],
 [[../experiments/b1-act-a1-calibration-stopping|calibration and stopping]] and
 [the observation design analysis](../../../outputs/evidence/act-a1-observation-design-20261019/analysis.md).
+
+
+## Native teacher collection integration
+
+`pilot_physics.py collect` now connects the maintained scripted teacher to
+`TemporalExpertRecorder`: one native event stream feeds both `TemporalRecorder`
+and incremental ACT ingress. Control state is recorded at 60 Hz, retained raw
+RGB-D at 10 Hz, and every supported solver torque sample at 120 Hz, including
+initial feedback. Request types/values, the joint request produced before any
+limiting, delivered targets, q_before, neck/gripper setpoints and effort
+feedforward remain separate columns. Refusals have no dispatch/application time
+or applied target. Simulation clocks explicitly use the local episode time;
+application means controller delivery, not that the robot reached the target.
+
+The teacher retains its approach/contact/push/hold/release behavior and appends
+ordinary Cartesian control after actual withdrawal, for at least 2 s and at
+most 6 s. The final .5 s must have unloaded separation >=10 mm, arm speed no
+larger than one reference step spread over that window (.016667 rad/s), door
+speed <=1 deg/s and tool excursion <=the existing 2.5 mm drift guard. These are
+empirical settling criteria; existing hard physical limits remain independent.
+No final open-angle requirement is introduced. Caller-owned finalization occurs
+once after this tail; safety-stop verification occurs after recorder detachment.
+Exceptions flush the actual prefix with an explicit incomplete outcome.
+
+The optional `--intermediate-state` restores a same-group qualified hold state,
+including full robot q/dq, door angle/velocity, controller targets and impedance.
+It refreshes transforms/camera, uses a new local clock/generation, captures its
+own inspection reference at t=0, then requires a fresh 1 s physical loaded
+pre-roll with a sustained valid .5 s window. It cannot borrow the source's image
+or proprioceptive history. This integration is awaiting the declared physical
+A/B/C/D tranche; implementation checks alone do not qualify demonstrations.
+
+The [declared tranche](../../../outputs/evidence/act-a1-teacher-temporal-20261019/declaration.md)
+records resources and criteria before launch. [StageACT](https://arxiv.org/html/2509.13200v2)
+supports proprioceptive/torque review of contact transitions and identifies
+observational phase ambiguity; its privileged stage input is not adopted.
+[DoorBot](https://arxiv.org/html/2504.09358v1) supports closed-loop haptic
+verification and explicit failures; its sensors and planner are not adopted.
+[MimicGen](https://mimicgen.github.io/docs/tutorials/datagen_custom.html) supports
+task-specific subtask end conditions and diagnostic annotations; its framework
+and randomized offsets are not adopted. None establishes hardware tau availability.
+The existing [hardware audit](../../../outputs/evidence/act-a1-observation-design-20261019/analysis.md)
+continues to leave source/scale/sign/noise/latency and installed F-T/tactile
+availability unverified. Simulated `joint_output` is a projected solver signal,
+not direct contact force or a hardware qualification.

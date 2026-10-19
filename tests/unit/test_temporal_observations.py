@@ -213,9 +213,11 @@ def test_readiness_matches_full_builder_without_reading_images():
         assert ready["ready"] == full["ready"]
         np.testing.assert_array_equal(ready["image_times"], full["image_times"][[0, -1]])
         np.testing.assert_array_equal(ready["robot_times"], full["robot_times"][-1:, :2])
+
     class Unreadable:
         def __getitem__(self, _):
             raise AssertionError("Readiness must never read images")
+
     raw["images"]["values"] = Unreadable()
     assert builder.readiness(3, 2)["ready"]
     raw["q"]["values"][180] = np.nan

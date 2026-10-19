@@ -20,8 +20,13 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n")
 
 
-def install_interruption(env):
+class CollectionBudgetExceeded(TimeoutError):
+    pass
+
+
+def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
     """Raise outside Kit callbacks, then restore unguarded stepping for the stop."""
+    started = perf_counter()
     pending = []
     original_step = env.step
 
@@ -29,6 +34,10 @@ def install_interruption(env):
         pending.append(signum)
 
     def check():
+        if max_wall_s is not None and perf_counter() - started >= max_wall_s:
+            raise CollectionBudgetExceeded("collection_wall_budget")
+        if max_sim_s is not None and env._time_s >= max_sim_s:
+            raise CollectionBudgetExceeded("collection_simulation_budget")
         if pending:
             raise KeyboardInterrupt(f"Pilot interrupted by signal {pending[0]}")
 
@@ -54,6 +63,16 @@ def main(argv=None):
     parser.add_argument("--asset-id", required=True)
     parser.add_argument("--condition", help="One condition explicitly declared by the protocol")
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--intermediate-state",
+        type=Path,
+        help="Qualified source hold-state.npz; fresh reset and loaded pre-roll",
+    )
+    parser.add_argument(
+        "--interrupt-after-commands",
+        type=int,
+        help="Controlled collection interruption after a real dispatch, before post-state",
+    )
     parser.add_argument("--recording", type=Path)
     parser.add_argument("--space", choices=("A1_joint_delta", "A2_ee_delta"))
     parser.add_argument("--checkpoint", type=Path)
@@ -81,6 +100,12 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if args.reference_recording is not None and (args.mode != "rollout" or args.family != "act"):
         parser.error("Reference diagnostic requires rollout with the fixed ACT A1 checkpoint")
+    if (
+        args.intermediate_state or args.interrupt_after_commands is not None
+    ) and args.mode != "collect":
+        parser.error("Intermediate start/interruption are collection-only")
+    if args.interrupt_after_commands is not None and args.interrupt_after_commands < 1:
+        parser.error("Interruption command count must be positive")
     protocol = json.loads(args.protocol.read_text())
     from alexdoor_xas.policies.encoding import LEARNED_RECIPE, protocol_recipe
 
@@ -142,7 +167,8 @@ def main(argv=None):
     from alexdoor_xas.qualification.door_geometry import PreparedDoor
     from alexdoor_xas.qualification.expert import probe_config
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, run_probe
-    from alexdoor_xas.recording.b1_runtime import ExpertRecorder, camera_calibration
+    from alexdoor_xas.recording.b1_runtime import camera_calibration
+    from alexdoor_xas.recording.teacher import TemporalExpertRecorder
 
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA required")
@@ -163,7 +189,10 @@ def main(argv=None):
         cfg.stop_stiffness = tuple(recipe.get("stop_stiffness", cfg.stop_stiffness))
     env = DoorPushPurdueEnv(cfg)
     env.reset()  # Establish the configured robot state before any fallible setup.
-    restore_interruption = install_interruption(env)
+    budget = protocol.get("collection_budget", {}) if args.mode == "collect" else {}
+    restore_interruption = install_interruption(
+        env, max_wall_s=budget.get("wall_s_per_case"), max_sim_s=budget.get("sim_s_per_case")
+    )
     write_json(
         args.output / "physical-case-start.json",
         dict(mode=args.mode, condition=condition, wall_time=time()),
@@ -210,8 +239,38 @@ def main(argv=None):
                 inspection=inspection,
                 robot_asset=robot.to_dict(),
             )
-            recorder = ExpertRecorder(
-                args.output / "episode.hdf5", metadata, purpose="b1_partial_policy_pilot"
+            intermediate = None
+            if args.intermediate_state is not None:
+                import numpy as np
+
+                intermediate = dict(np.load(args.intermediate_state, allow_pickle=False))
+                origin = json.loads(str(intermediate["metadata"]))
+                source_result = json.loads(
+                    (args.intermediate_state.parent / "result.json").read_text()
+                )
+                if (
+                    origin["asset_id"] != args.asset_id
+                    or origin["split"] != entry["split"]
+                    or origin["setup"] != setup.to_dict()
+                    or not source_result["passed"]
+                    or not source_result["released"]
+                    or not source_result["stabilized"]
+                ):
+                    raise ValueError(
+                        "Intermediate start requires a qualified same-group source/setup"
+                    )
+                metadata.update(
+                    intermediate_start=True,
+                    source_episode_id=origin["episode_id"],
+                    source_state=str(args.intermediate_state.resolve()),
+                    episode_id=metadata["episode_id"] + "-intermediate",
+                )
+            elif args.interrupt_after_commands is not None:
+                metadata["episode_id"] += "-interrupted"
+            recorder = TemporalExpertRecorder(
+                args.output / "episode.hdf5",
+                metadata,
+                interrupt_after_commands=args.interrupt_after_commands,
             )
             recorder.calibration = camera_calibration(env)
             result = None
@@ -224,34 +283,43 @@ def main(argv=None):
                     recorder=recorder,
                     capture_evidence=False,
                     inspection=inspection,
+                    intermediate=intermediate,
                 )
-                from alexdoor_xas.qualification.stop import verify_stop_continuation
-
-                stop_attempted = True
-                result["teacher_cycle_passed"] = result["passed"]
-                result["post_stop"] = verify_stop_continuation(
-                    env, args.output / "post-stop.npz", force_limit_n=setup.force_limit_n
-                )
-                if not result["post_stop"]["passed"]:
-                    result["passed"] = False
-                    result["stop_reason"] = "post_stop_verification_failed"
+                # One finalization owner, after the ordinary physical tail.
+                # Safety-stop verification happens after detaching the recorder.
                 recorder.finish(result)
-            except BaseException:
-                if result is not None:
-                    result["passed"] = False
-                    result["stop_reason"] = "collection_continuation_interrupted"
-                    recorder.finish(result)
-                raise
+                result.update(task_success=bool(result["passed"]), recording_complete=True)
+            except BaseException as error:
+                if not isinstance(error, (Exception, KeyboardInterrupt)):
+                    raise
+                termination = (
+                    "budget_termination"
+                    if isinstance(error, CollectionBudgetExceeded)
+                    else "interrupted"
+                    if isinstance(error, KeyboardInterrupt)
+                    else "collection_exception"
+                )
+                result = dict(
+                    passed=False,
+                    task_success=False,
+                    recording_complete=False,
+                    stop_reason=termination,
+                    termination=termination,
+                    error=repr(error),
+                    traceback=traceback.format_exc(),
+                )
+                recorder.interrupt(result)
             finally:
                 recorder.close()
-            from alexdoor_xas.recording.b1 import validate_episode
-
-            if result["passed"]:
-                result["recording_validation"] = validate_episode(args.output / "episode.hdf5")
+            result["online_checks"] = recorder.online_checks
+            result["demonstration_qualified"] = bool(
+                result["task_success"] and result["recording_complete"]
+            )
         elif args.mode == "replay":
             result = replay(env, args, protocol)
         else:
             result = rollout(env, args, protocol, robot, setup, inspection)
+        restore_interruption()
         if not stop_attempted:
             from alexdoor_xas.qualification.stop import verify_stop_continuation
 
@@ -261,6 +329,7 @@ def main(argv=None):
             )
             if not result["post_stop"]["passed"]:
                 result["passed"] = False
+        result["safety_stop_passed"] = bool(result["post_stop"]["passed"])
         result["wall_s"] = perf_counter() - started
         write_json(args.output / "report.json", result)
         print(json.dumps(result), flush=True)

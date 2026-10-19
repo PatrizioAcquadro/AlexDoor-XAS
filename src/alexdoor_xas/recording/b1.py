@@ -10,7 +10,7 @@ from alexdoor_xas.assets.purdue import ARM_JOINTS
 from alexdoor_xas.perception.contracts import RobotFeedback
 
 SCHEMA = "b1.rgbd.v1"
-PHASES = ("approach", "contact", "push", "hold", "release", "inspect")
+PHASES = ("approach", "contact", "push", "hold", "release", "inspect", "stabilize")
 OBS_KEYS = (
     "time_s",
     "frame",

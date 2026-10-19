@@ -208,6 +208,7 @@ def main():
                 capture_evidence=False,
                 inspection=inspection,
             )
+            recorder.finish(result)
     finally:
         recorder.close()
     if not args.inspection_only:

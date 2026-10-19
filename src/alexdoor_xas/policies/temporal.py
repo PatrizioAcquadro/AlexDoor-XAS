@@ -160,10 +160,13 @@ def select_support(stream, slots, decision, generation, gap, *, shape=None, stri
     if values is not None:
         valid &= np.isfinite(values).all(-1)
         values[~valid] = 0
-    times = np.stack([
-        gather(np.asarray(stream[key])[:, None], indices, (1,), np.float64)[:, 0]
-        for key in ("acquired", "available")
-    ], axis=-1)
+    times = np.stack(
+        [
+            gather(np.asarray(stream[key])[:, None], indices, (1,), np.float64)[:, 0]
+            for key in ("acquired", "available")
+        ],
+        axis=-1,
+    )
     times[~valid] = 0
     return indices, valid, values, times
 
@@ -176,8 +179,11 @@ class EventValues:
 
     def __getitem__(self, indices):
         indices = np.atleast_1d(indices)
-        return (np.stack([self.rows[int(i)]["values"] for i in indices])
-                if len(indices) else np.empty((0, *self.shape), "f4"))
+        return (
+            np.stack([self.rows[int(i)]["values"] for i in indices])
+            if len(indices)
+            else np.empty((0, *self.shape), "f4")
+        )
 
 
 class CausalObservationBuilder:
@@ -199,16 +205,26 @@ class CausalObservationBuilder:
         if not np.isfinite(t) or t < 0:
             raise ValueError("Invalid decision time")
         _, image_valid, _, image_times = select_support(
-            self.streams["images"], [min(t, cfg.static_time_s), t],
-            t, generation, cfg.image_gap_s
+            self.streams["images"], [min(t, cfg.static_time_s), t], t, generation, cfg.image_gap_s
         )
-        selected = [select_support(self.streams[key], [t], t, generation,
-                                   cfg.state_gap_s, shape=(9,)) for key in ("q", "dq")]
-        ready = bool(t >= cfg.static_time_s + cfg.warmup_s - 1e-9
-                     and image_valid.all() and all(row[1][0] for row in selected))
-        return dict(ready=ready, episode_id=self.episode_id, generation=int(generation),
-                    decision_time_s=t, observation_config=cfg.to_dict(),
-                    image_times=image_times, robot_times=np.stack([row[3] for row in selected], axis=1))
+        selected = [
+            select_support(self.streams[key], [t], t, generation, cfg.state_gap_s, shape=(9,))
+            for key in ("q", "dq")
+        ]
+        ready = bool(
+            t >= cfg.static_time_s + cfg.warmup_s - 1e-9
+            and image_valid.all()
+            and all(row[1][0] for row in selected)
+        )
+        return dict(
+            ready=ready,
+            episode_id=self.episode_id,
+            generation=int(generation),
+            decision_time_s=t,
+            observation_config=cfg.to_dict(),
+            image_times=image_times,
+            robot_times=np.stack([row[3] for row in selected], axis=1),
+        )
 
     def build_support(self, decision_time_s, generation):
         """Join numeric support without materializing images (for bounded batches)."""
@@ -229,8 +245,13 @@ class CausalObservationBuilder:
         for field, width in zip(FIELDS, WIDTHS, strict=True):
             stream = self.streams[field]
             idx, valid, val, times = select_support(
-                stream, robot_slots, t, generation, cfg.state_gap_s,
-                shape=(width,), strict=field == "target"
+                stream,
+                robot_slots,
+                t,
+                generation,
+                cfg.state_gap_s,
+                shape=(width,),
+                strict=field == "target",
             )
             parts.append(val)
             masks.append(valid)

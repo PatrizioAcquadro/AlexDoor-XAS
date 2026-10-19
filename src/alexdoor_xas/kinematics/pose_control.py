@@ -13,6 +13,8 @@ def bounded_pose_step(
     damping=0.05,
     centering_gain=0.1,
     previous_targets=None,
+    *,
+    return_request=False,
 ):
     """Damped primary solve plus exact-SVD nullspace centering, in world axes."""
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
@@ -47,7 +49,8 @@ def bounded_pose_step(
         dt,
         previous_targets,
     )
-    return targets, (positions + delta - targets).abs()
+    result = (targets, (positions + delta - targets).abs())
+    return (*result, positions + delta) if return_request else result
 
 
 def bounded_joint_step(delta, positions, limits, velocities, dt, previous_targets=None):

@@ -56,6 +56,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if cfg.synthetic_door is not None and cfg.prepared_door is not None:
             raise ValueError("Select either a synthetic or a prepared door")
         cfg.action_space = 7 if cfg.action_mode == "A1" else 6
+        self.event_sink = None
+        self.generation = -1
+        self.command_event = None
         self.capture = None
         self.contacts = None
         self._time_s = 0.0
@@ -320,7 +323,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         world = frame_delta_to_world(delta, frame)
         return self.step(torch.tensor(world, dtype=torch.float32, device=self.device)[None])
 
-    def preview_targets(self, *, joint_delta=None, world_goal=None):
+    def preview_targets(self, *, joint_delta=None, world_goal=None, with_request=False):
         """Pure controller preview, reused verbatim before dispatch and by admission."""
         q = tensor(self.robot.data.joint_pos)[:, self.arm_ids]
         if (joint_delta is None) == (world_goal is None):
@@ -338,7 +341,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         else:
             pe, re = compute_pose_error(*self.tool_pose(), *world_goal, rot_error_type="axis_angle")
             error = torch.cat((pe, re), dim=-1)
-            target, excess = bounded_pose_step(
+            result = bounded_pose_step(
                 self.tool_jacobian(),
                 error,
                 q,
@@ -348,7 +351,12 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 previous_targets=self.targets[:, self.arm_ids],
                 centering_gain=self.cfg.centering_gain,
                 damping=self.cfg.ik_damping,
+                return_request=with_request,
             )
+            target, excess = result[:2]
+        if with_request:
+            requested = q + joint_delta if joint_delta is not None else result[2]
+            return target, excess, error, requested
         return target, excess, error
 
     def stop_motion(self):
@@ -396,14 +404,32 @@ class DoorPushPurdueEnv(DirectRLEnv):
             return
         if self.cfg.action_mode == "A1" or self._pending_joints is not None:
             delta = actions if self._pending_joints is None else self._pending_joints
-            target, excess, error = self.preview_targets(joint_delta=delta)
+            request_kind, request = 1, delta.clone()
+            target, excess, error, requested = self.preview_targets(
+                joint_delta=delta, with_request=True
+            )
         else:
+            request_kind = 2 if self._pending_pose is not None else 3
+            request = (
+                torch.cat(self._pending_pose, dim=-1)
+                if self._pending_pose is not None
+                else torch.cat((actions, torch.zeros((1, 1), device=self.device)), dim=-1)
+            )
             delta = actions.clone()
             delta[:, :3].clamp_(-self.cfg.max_pos_delta_m, self.cfg.max_pos_delta_m)
             delta[:, 3:].clamp_(-self.cfg.max_rot_delta_rad, self.cfg.max_rot_delta_rad)
             goal = self._pending_pose or apply_delta_pose(*self.tool_pose(), delta)
-            target, excess, error = self.preview_targets(world_goal=goal)
+            target, excess, error, requested = self.preview_targets(
+                world_goal=goal, with_request=True
+            )
         self._pending_pose = self._pending_joints = None
+        self.command_event = dict(
+            request_kind=request_kind,
+            request=request.clone(),
+            requested_target=requested.clone(),
+            q_before=tensor(self.robot.data.joint_pos)[:, self.arm_ids].clone(),
+            request_s=self._time_s,
+        )
         self.clamp_excess, self.pose_error = excess, error
         self.targets[:, self.arm_ids] = target
         self.contact_history = []
@@ -414,12 +440,17 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if self._physics_actions > 0:
             from alexdoor_xas.perception.load import simulated_load_sample
 
-            self.load_samples.append(
-                simulated_load_sample(self, self._time_s + self.cfg.sim.dt * self._physics_actions)
+            sample = simulated_load_sample(
+                self, self._time_s + self.cfg.sim.dt * self._physics_actions
             )
+            self.load_samples.append(sample)
+            if self.event_sink is not None:
+                self.event_sink("feedback", sample)
         self.robot.set_joint_position_target_index(target=self.targets)
         gravity = tensor(self.robot.data.gravity_compensation_forces)
         self.robot.set_joint_effort_target_index(target=gravity)
+        if self.event_sink is not None and self._physics_actions == 0 and not self.motion_stopped:
+            self.event_sink("command", self.command_event)
         if self.contacts is not None and self._physics_actions > 0:
             self.contact_history.append(self.contacts.read())
         self._physics_actions += 1
@@ -431,7 +462,10 @@ class DoorPushPurdueEnv(DirectRLEnv):
         from alexdoor_xas.perception.load import simulated_load_sample
 
         self.load_samples = getattr(self, "load_samples", [])
-        self.load_samples.append(simulated_load_sample(self, self._time_s))
+        sample = simulated_load_sample(self, self._time_s)
+        self.load_samples.append(sample)
+        if self.event_sink is not None:
+            self.event_sink("feedback", sample)
         if self.contacts is not None:
             self.contact_history.append(self.contacts.read())
         if self.capture is not None:
@@ -465,6 +499,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 q,
                 dq,
             )
+        if self.event_sink is not None:
+            self.event_sink("state", self)
         return {"policy": torch.cat((q, dq), dim=-1)}
 
     def _get_rewards(self):
@@ -477,6 +513,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
 
     def _reset_idx(self, env_ids):
         super()._reset_idx(env_ids)
+        self.generation += 1
+        self.command_event = None
         self.motion_stopped = False
         for actuator, column, stiffness, damping in self._motion_impedance:
             actuator.stiffness[:, column] = stiffness

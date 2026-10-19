@@ -43,6 +43,9 @@ def test_failed_episode_native_clocks_requests_and_lossless_images(tmp_path):
         np.testing.assert_array_equal(file["commands/requested_target"][0], 1)
         np.testing.assert_array_equal(file["commands/applied_target"][0], 0.5)
         assert not file["commands/accepted"][1]
+        assert np.isnan(file["commands/dispatch_s"][1])
+        assert np.isnan(file["commands/applied_s"][1])
+        assert np.isnan(file["commands/applied_target"][1]).all()
         assert len(file["control/acquired"]) == 3 and len(file["captures/acquired"]) == 1
 
 
@@ -74,3 +77,32 @@ def test_missing_state_keeps_raw_nan_and_field_mask(tmp_path):
         assert not file["control/q_valid"][0]
         assert file["control/dq_valid"][0]
         assert not file.attrs["complete"]
+
+
+def test_refusal_cannot_claim_delivery_or_application(tmp_path):
+    log = recorder(tmp_path / "refusal.hdf5")
+    log.reset(0)
+    log.state(np.zeros(9), np.zeros(9), acquired=0, available=0, generation=0)
+    with pytest.raises(ValueError, match="Refusal"):
+        log.command(
+            request_s=0,
+            dispatch_s=0,
+            applied_s=0,
+            requested_target=np.zeros(7),
+            applied_target=np.zeros(7),
+            q_before=np.zeros(7),
+            accepted=False,
+            generation=0,
+            request_kind=1,
+            request=np.zeros(7),
+            neck_target=np.zeros(2),
+            gripper_target=np.zeros(1),
+            effort_target_nm=np.zeros(9),
+        )
+    record_command(log, 0, accepted=False)
+    log.interrupt(dict(passed=False, termination="interrupted"))
+    log.close()
+    with h5py.File(tmp_path / "refusal.hdf5") as file:
+        assert not file.attrs["complete"]
+        assert not file["metadata"].attrs["terminal_support"]
+        assert json.loads(file["metadata"].attrs["outcome"])["termination"] == "interrupted"

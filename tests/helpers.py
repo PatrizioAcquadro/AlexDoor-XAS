@@ -332,10 +332,10 @@ def temporal_recorder(path):
 def temporal_command(log, t, *, accepted=True):
     log.command(
         request_s=t,
-        dispatch_s=t,
-        applied_s=t,
+        dispatch_s=t if accepted else None,
+        applied_s=t if accepted else None,
         requested_target=np.ones(7),
-        applied_target=np.full(7, 0.5),
+        applied_target=np.full(7, 0.5 if accepted else np.nan),
         q_before=np.zeros(7),
         accepted=accepted,
         generation=0,

@@ -1,5 +1,6 @@
 """Shared controlled door probe. Simulator truth never enters policy adapters."""
 
+import json
 from collections import deque
 from dataclasses import asdict, dataclass, field
 
@@ -30,6 +31,10 @@ class ProbeSetup:
     precontact_m: float = 0.03
     contact_s: float = 3.0
     release_s: float = 3.0
+    stabilization_min_s: float = 2.0
+    stabilization_max_s: float = 6.0
+    stabilization_window_s: float = 0.5
+    intermediate_preroll_s: float = 1.0
     horizon_s: float = 60.0
     sustain_s: float = 0.5
     hold_settle_s: float = 3.0
@@ -60,6 +65,10 @@ class ProbeSetup:
             self.contact_s,
             self.release_s,
             self.horizon_s,
+            self.stabilization_min_s,
+            self.stabilization_max_s,
+            self.stabilization_window_s,
+            self.intermediate_preroll_s,
             self.sustain_s,
             self.hold_settle_s,
             self.hold_blend_s,
@@ -94,6 +103,11 @@ class ProbeSetup:
             )
         if not self.loaded_force_n < self.hold_force_n <= self.contact_load_guard_n:
             raise ValueError("Hold force target must preserve a positive loaded-contact margin")
+        if (
+            not 2 <= self.stabilization_min_s <= self.stabilization_max_s
+            or self.intermediate_preroll_s <= self.sustain_s + self.contact_force_window_s
+        ):
+            raise ValueError("Require ordinary tail >=2s and fresh loaded pre-roll support")
         if self.hold_settle_s <= self.sustain_s:
             raise ValueError("Hold budget must include a complete sustain window")
         if self.material_drift_guard_m >= self.position_tolerance:
@@ -299,7 +313,7 @@ def summarize_trials(trials, *, required_count=None):
     )
 
 
-def prepare_probe(env, door, setup, output, recorder, inspection):
+def prepare_probe(env, door, setup, output, recorder, inspection, intermediate=None):
     import json
 
     from scipy.spatial.transform import Rotation
@@ -310,9 +324,19 @@ def prepare_probe(env, door, setup, output, recorder, inspection):
     (output / "setup.json").write_text(json.dumps(setup.to_dict(), indent=2) + "\n")
     env.reset()
     env.set_neck_target(setup.neck)
+    if intermediate is not None:
+        from alexdoor_xas.qualification.intermediate import restore_hold_state
+
+        audit = restore_hold_state(env, intermediate, setup)
+        (output / "intermediate-restore.json").write_text(json.dumps(audit, indent=2) + "\n")
     if recorder is not None:
-        recorder.start(env, door, setup, phase="inspect" if inspection else "approach")
-    if inspection:
+        recorder.start(
+            env,
+            door,
+            setup,
+            phase="hold" if intermediate is not None else "inspect" if inspection else "approach",
+        )
+    if inspection and intermediate is None:
         from alexdoor_xas.perception.inspection import run_inspection
 
         audit = run_inspection(env, inspection, recorder)
@@ -366,14 +390,24 @@ def write_probe_artifacts(output, result, traces, contacts, images):
         )
 
 
-def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True, inspection=None):
+def run_probe(
+    env,
+    door,
+    setup,
+    output,
+    *,
+    recorder=None,
+    capture_evidence=True,
+    inspection=None,
+    intermediate=None,
+):
     import torch
     from scipy.spatial.transform import Rotation, Slerp
 
     from alexdoor_xas.envs.door_task.door_push_purdue_env import tensor
 
     chain, gripper_ids, root_p, root_r = prepare_probe(
-        env, door, setup, output, recorder, inspection
+        env, door, setup, output, recorder, inspection, intermediate
     )
     zero = torch.zeros((1, 6), device=env.device)
     from alexdoor_xas.qualification.clearance import DoorClearance
@@ -406,6 +440,8 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
             compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
         )
         goal_p = goal_p + goal_r @ applied_compensation
+        if recorder is not None:
+            recorder.phase = phase
         env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
         env.step(zero)
         angle = float(tensor(env.door.data.joint_pos)[0, 0])
@@ -473,6 +509,7 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
         material_error = float(np.linalg.norm(p - material_p))
         orientation_error = float(Rotation.from_matrix(material_r @ actual_r.T).magnitude())
         footprint_inside = door.footprint_inside(distal @ actual_r.T + p, angle)
+        physical_safe = failure is None and not env.motion_stopped
         valid = (
             loaded
             and footprint_inside
@@ -521,6 +558,9 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
                 contact_gap_m=gap,
                 loaded=loaded,
                 valid=valid,
+                physical_safe=physical_safe,
+                phase_valid=physical_safe and (valid if phase in ("push", "hold") else True),
+                separation_m=float(np.dot(material_p - p, material_r[:, 0])),
                 joint_margin=margin,
                 actual_joint_speed_peak_rad_s=actual_speed,
                 minimum_jacobian_singular_value=sigma,
@@ -554,188 +594,229 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
     pre_p, pre_r = door.contact_pose(
         0.0, setup.contact_fraction, setup.contact_height, -setup.precontact_m
     )
-    slerp = Slerp([0, 1], Rotation.from_quat([start_q, Rotation.from_matrix(pre_r).as_quat()]))
-    for tick in range(round(setup.approach_s / dt)):
-        a = min(1.0, (tick + 1) * dt / (setup.approach_s * 0.7))
-        blend = a * a * (3 - 2 * a)
-        state = command(start_p + (pre_p - start_p) * blend, slerp(blend).as_matrix(), "approach")
-        if failure:
-            break
-    if not failure and (
-        state[1] > setup.position_tolerance or state[2] > setup.orientation_tolerance
-    ):
-        failure = "approach_tracking"
-    compression = None
-    if not failure:
-        for tick in range(round(setup.contact_s / dt)):
-            offset = -setup.precontact_m + (setup.precontact_m + setup.compression_m) * min(
-                1.0, (tick + 1) * dt / (setup.contact_s * 0.7)
-            )
-            if compression is not None:
-                offset = normal_contact_support(compression, contact_load.force, setup, dt)
-            angle = float(tensor(env.door.data.joint_pos)[0, 0])
+    if intermediate is None:
+        slerp = Slerp([0, 1], Rotation.from_quat([start_q, Rotation.from_matrix(pre_r).as_quat()]))
+        for tick in range(round(setup.approach_s / dt)):
+            a = min(1.0, (tick + 1) * dt / (setup.approach_s * 0.7))
+            blend = a * a * (3 - 2 * a)
             state = command(
-                *door.contact_pose(angle, setup.contact_fraction, setup.contact_height, offset),
-                "contact",
+                start_p + (pre_p - start_p) * blend, slerp(blend).as_matrix(), "approach"
             )
-            # Freeze the ramp at acquired load; the remaining contact interval
-            # establishes light loading rather than injecting 3 mm of preload.
-            if state[5] or compression is not None:
-                compression = offset
-            traces[-1]["contact_compression_m"] = offset
             if failure:
                 break
-        if not failure and not state[5]:
-            failure = "no_loaded_contact"
-    if not failure:
-        reference = state[0]
-        reference_step = 0.0
-        compression = setup.compression_m if compression is None else compression
-        for tick in range(round(setup.horizon_s / dt)):
-            angle = float(tensor(env.door.data.joint_pos)[0, 0])
-            previous_reference = reference
-            reference = push_reference(reference, angle, setup, dt, door.mechanical_stop)
-            reference_step = reference - previous_reference
-            compression = normal_contact_support(compression, contact_load.force, setup, dt)
-            state = command(
-                *door.contact_pose(
-                    reference, setup.contact_fraction, setup.contact_height, compression
-                ),
-                "push",
-            )
-            traces[-1]["push_compression_m"] = compression
-            angle, pe, re, force, margin, loaded, valid = state
-            tracking.append((tick * dt, traces[-1]["material_error"]))
-            angular_tracking.append((tick * dt, traces[-1]["material_orientation_error"]))
-            predicted_error = tracking_reserve(tracking, setup.hold_settle_s)
-            traces[-1]["predicted_hold_error_m"] = predicted_error
-            traces[-1]["predicted_hold_orientation_rad"] = tracking_reserve(
-                angular_tracking, setup.hold_settle_s
-            )
-            elapsed = tick * dt
-            conditioning.append((elapsed, traces[-1]["minimum_jacobian_singular_value"]))
-            if angle > last_angle + np.deg2rad(0.25):
-                last_progress, last_angle = elapsed, angle
-            missing_time = 0.0 if loaded else missing_time + dt
-            if failure:
-                break
-            if margin < 0.002 and loaded:
-                from alexdoor_xas.qualification.limits import constrained_step_evidence
-
-                next_p, next_r = door.contact_pose(
-                    angle + np.deg2rad(2), setup.contact_fraction, setup.contact_height
+        if not failure and (
+            state[1] > setup.position_tolerance or state[2] > setup.orientation_tolerance
+        ):
+            failure = "approach_tracking"
+        compression = None
+        if not failure:
+            for tick in range(round(setup.contact_s / dt)):
+                offset = -setup.precontact_m + (setup.precontact_m + setup.compression_m) * min(
+                    1.0, (tick + 1) * dt / (setup.contact_s * 0.7)
                 )
-                now_p, now_r = door.contact_pose(
-                    angle, setup.contact_fraction, setup.contact_height
+                if compression is not None:
+                    offset = normal_contact_support(compression, contact_load.force, setup, dt)
+                angle = float(tensor(env.door.data.joint_pos)[0, 0])
+                state = command(
+                    *door.contact_pose(angle, setup.contact_fraction, setup.contact_height, offset),
+                    "contact",
                 )
-                desired = np.r_[next_p - now_p, Rotation.from_matrix(next_r @ now_r.T).as_rotvec()]
-                limit_evidence = constrained_step_evidence(
-                    env.tool_jacobian()[0].cpu().numpy(),
-                    tensor(env.robot.data.joint_pos)[0, env.arm_ids].cpu().numpy(),
-                    env.limits[0].cpu().numpy(),
-                    desired,
-                )
-                if limit_evidence["blocked"]:
-                    reason = "kinematic_limit"
+                # Freeze the ramp at acquired load; the remaining contact interval
+                # establishes light loading rather than injecting 3 mm of preload.
+                if state[5] or compression is not None:
+                    compression = offset
+                traces[-1]["contact_compression_m"] = offset
+                if failure:
                     break
-            if missing_time > 0.25:
-                failure = "lost_contact"
-                break
-            if abs(angle - door.mechanical_stop) < np.deg2rad(0.5):
-                reason = "mechanical_stop"
-                break
-            if (
-                elapsed > setup.sustain_s
-                and window.maximum is not None
-                and conditioning_margin_exhausted(conditioning, setup)
-            ):
-                reason, safety_detail = "safety_stop", "conditioning_margin"
-                break
-            hold_blocked = False
-            if elapsed > 5.0 and (
-                tick % max(1, round(setup.contact_force_window_s / dt)) == 0
-                or predicted_error > setup.material_drift_guard_m
-            ):
-                # A push-only contact cannot brake an inertially coasting panel.
-                # Check future reach even while present tracking is still accurate.
-                endpoint = min(
-                    reference + max(0.0, traces[-1]["speed"]) * setup.hold_settle_s,
-                    door.mechanical_stop,
+            if not failure and not state[5]:
+                failure = "no_loaded_contact"
+        if not failure:
+            reference = state[0]
+            reference_step = 0.0
+            compression = setup.compression_m if compression is None else compression
+            for tick in range(round(setup.horizon_s / dt)):
+                angle = float(tensor(env.door.data.joint_pos)[0, 0])
+                previous_reference = reference
+                reference = push_reference(reference, angle, setup, dt, door.mechanical_stop)
+                reference_step = reference - previous_reference
+                compression = normal_contact_support(compression, contact_load.force, setup, dt)
+                state = command(
+                    *door.contact_pose(
+                        reference, setup.contact_fraction, setup.contact_height, compression
+                    ),
+                    "push",
                 )
-                end_p, end_r = door.contact_pose(
-                    endpoint, setup.contact_fraction, setup.contact_height, compression
+                traces[-1]["push_compression_m"] = compression
+                angle, pe, re, force, margin, loaded, valid = state
+                tracking.append((tick * dt, traces[-1]["material_error"]))
+                angular_tracking.append((tick * dt, traces[-1]["material_orientation_error"]))
+                predicted_error = tracking_reserve(tracking, setup.hold_settle_s)
+                traces[-1]["predicted_hold_error_m"] = predicted_error
+                traces[-1]["predicted_hold_orientation_rad"] = tracking_reserve(
+                    angular_tracking, setup.hold_settle_s
                 )
-                _, end_pe, end_re = chain.solve(
-                    chain.array((end_p - root_p) @ root_r)[None],
-                    chain.array(root_r.T @ end_r)[None],
-                    tensor(env.robot.data.joint_pos)[:, env.arm_ids],
+                elapsed = tick * dt
+                conditioning.append((elapsed, traces[-1]["minimum_jacobian_singular_value"]))
+                if angle > last_angle + np.deg2rad(0.25):
+                    last_progress, last_angle = elapsed, angle
+                missing_time = 0.0 if loaded else missing_time + dt
+                if failure:
+                    break
+                if margin < 0.002 and loaded:
+                    from alexdoor_xas.qualification.limits import constrained_step_evidence
+
+                    next_p, next_r = door.contact_pose(
+                        angle + np.deg2rad(2), setup.contact_fraction, setup.contact_height
+                    )
+                    now_p, now_r = door.contact_pose(
+                        angle, setup.contact_fraction, setup.contact_height
+                    )
+                    desired = np.r_[
+                        next_p - now_p, Rotation.from_matrix(next_r @ now_r.T).as_rotvec()
+                    ]
+                    limit_evidence = constrained_step_evidence(
+                        env.tool_jacobian()[0].cpu().numpy(),
+                        tensor(env.robot.data.joint_pos)[0, env.arm_ids].cpu().numpy(),
+                        env.limits[0].cpu().numpy(),
+                        desired,
+                    )
+                    if limit_evidence["blocked"]:
+                        reason = "kinematic_limit"
+                        break
+                if missing_time > 0.25:
+                    failure = "lost_contact"
+                    break
+                if abs(angle - door.mechanical_stop) < np.deg2rad(0.5):
+                    reason = "mechanical_stop"
+                    break
+                if (
+                    elapsed > setup.sustain_s
+                    and window.maximum is not None
+                    and conditioning_margin_exhausted(conditioning, setup)
+                ):
+                    reason, safety_detail = "safety_stop", "conditioning_margin"
+                    break
+                hold_blocked = False
+                if elapsed > 5.0 and (
+                    tick % max(1, round(setup.contact_force_window_s / dt)) == 0
+                    or predicted_error > setup.material_drift_guard_m
+                ):
+                    # A push-only contact cannot brake an inertially coasting panel.
+                    # Check future reach even while present tracking is still accurate.
+                    endpoint = min(
+                        reference + max(0.0, traces[-1]["speed"]) * setup.hold_settle_s,
+                        door.mechanical_stop,
+                    )
+                    end_p, end_r = door.contact_pose(
+                        endpoint, setup.contact_fraction, setup.contact_height, compression
+                    )
+                    _, end_pe, end_re = chain.solve(
+                        chain.array((end_p - root_p) @ root_r)[None],
+                        chain.array(root_r.T @ end_r)[None],
+                        tensor(env.robot.data.joint_pos)[:, env.arm_ids],
+                    )
+                    traces[-1]["hold_endpoint_error_m"] = float(end_pe[0])
+                    traces[-1]["hold_endpoint_orientation_rad"] = float(end_re[0])
+                    hold_blocked = (
+                        float(end_pe[0]) > setup.material_drift_guard_m
+                        or float(end_re[0]) > 0.5 * setup.orientation_tolerance
+                    )
+                if (
+                    elapsed > 5.0
+                    and window.maximum is not None
+                    and (
+                        tracking_margin_exhausted(tracking, setup)
+                        or hold_blocked
+                        or tracking_margin_exhausted(angular_tracking, setup, orientation=True)
+                    )
+                ):
+                    reason = "safety_stop"
+                    safety_detail = "tracking_margin"
+                    break
+                load_window.append(force)
+                if (
+                    elapsed > 5.0
+                    and window.maximum is not None
+                    and np.mean(load_window) < setup.contact_load_guard_n
+                    and compression >= setup.position_tolerance - setup.material_drift_guard_m
+                ):
+                    reason = "safety_stop"
+                    safety_detail = "declining_contact_load"
+                    break
+                if force >= setup.soft_force_n:
+                    reason = "safety_stop"
+                    safety_detail = "high_normal_force"
+                    break
+                if elapsed - last_progress > setup.stall_s:
+                    # Saturation alone cannot prove the required pose is unreachable.
+                    failure = "solver_tracking_stall"
+                    break
+            else:
+                failure = "timeout"
+        held_angle = None
+        if failure is None:
+            held = SustainedAngle(setup.sustain_s)
+            initial_lead = hold_initial_lead(reference, state[0], reference_step, setup.lead_angle)
+            missing_time = 0.0
+            for tick in range(round(setup.hold_settle_s / dt)):
+                compression = normal_contact_support(
+                    compression, contact_load.force, setup, dt, target_force=setup.hold_force_n
                 )
-                traces[-1]["hold_endpoint_error_m"] = float(end_pe[0])
-                traces[-1]["hold_endpoint_orientation_rad"] = float(end_re[0])
-                hold_blocked = (
-                    float(end_pe[0]) > setup.material_drift_guard_m
-                    or float(end_re[0]) > 0.5 * setup.orientation_tolerance
+                angle = float(tensor(env.door.data.joint_pos)[0, 0])
+                target = hold_reference(angle, initial_lead, door.mechanical_stop)
+                state = command(
+                    *door.contact_pose(
+                        target, setup.contact_fraction, setup.contact_height, compression
+                    ),
+                    "hold",
                 )
-            if (
-                elapsed > 5.0
-                and window.maximum is not None
-                and (
-                    tracking_margin_exhausted(tracking, setup)
-                    or hold_blocked
-                    or tracking_margin_exhausted(angular_tracking, setup, orientation=True)
-                )
-            ):
-                reason = "safety_stop"
-                safety_detail = "tracking_margin"
-                break
-            load_window.append(force)
-            if (
-                elapsed > 5.0
-                and window.maximum is not None
-                and np.mean(load_window) < setup.contact_load_guard_n
-                and compression >= setup.position_tolerance - setup.material_drift_guard_m
-            ):
-                reason = "safety_stop"
-                safety_detail = "declining_contact_load"
-                break
-            if force >= setup.soft_force_n:
-                reason = "safety_stop"
-                safety_detail = "high_normal_force"
-                break
-            if elapsed - last_progress > setup.stall_s:
-                # Saturation alone cannot prove the required pose is unreachable.
-                failure = "solver_tracking_stall"
-                break
-        else:
-            failure = "timeout"
-    held_angle = None
-    if failure is None:
+                traces[-1]["hold_compression_m"] = compression
+                held.update(tick * dt, state[0], state[6])
+                missing_time = 0.0 if state[5] else missing_time + dt
+                if missing_time > 0.25:
+                    failure = failure or "lost_hold_contact"
+                    env.stop_motion()
+                if failure:
+                    break
+            held_angle = held.current if failure is None else None
+            if held_angle is None:
+                failure = failure or "invalid_hold"
+    else:
+        reason = "intermediate_hold_release"
+        compression = float(intermediate["compression"])
+        compensation = np.array(intermediate["compensation"], copy=True)
         held = SustainedAngle(setup.sustain_s)
-        initial_lead = hold_initial_lead(reference, state[0], reference_step, setup.lead_angle)
-        missing_time = 0.0
-        for tick in range(round(setup.hold_settle_s / dt)):
+        for tick in range(round(setup.intermediate_preroll_s / dt)):
             compression = normal_contact_support(
                 compression, contact_load.force, setup, dt, target_force=setup.hold_force_n
             )
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
-            target = hold_reference(angle, initial_lead, door.mechanical_stop)
             state = command(
                 *door.contact_pose(
-                    target, setup.contact_fraction, setup.contact_height, compression
+                    angle, setup.contact_fraction, setup.contact_height, compression
                 ),
                 "hold",
             )
-            traces[-1]["hold_compression_m"] = compression
             held.update(tick * dt, state[0], state[6])
-            missing_time = 0.0 if state[5] else missing_time + dt
-            if missing_time > 0.25:
-                failure = failure or "lost_hold_contact"
-                env.stop_motion()
             if failure:
                 break
         held_angle = held.current if failure is None else None
         if held_angle is None:
-            failure = failure or "invalid_hold"
+            failure = failure or "intermediate_loaded_preroll_unqualified"
+        (output / "intermediate-qualification.json").write_text(
+            json.dumps(
+                dict(
+                    passed=held_angle is not None,
+                    preroll_s=len(traces) * dt,
+                    held_angle_rad=held_angle,
+                    fresh_generation=env.generation,
+                    contact_valid_samples=sum(t["valid"] for t in traces),
+                    total_samples=len(traces),
+                ),
+                indent=2,
+            )
+            + "\n"
+        )
     # Clear raised relief before rotating toward a pose that releases wrist limits.
     released = False
     if failure != "invalid_physics" and not env.motion_stopped:
@@ -745,11 +826,31 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
             for t in traces
             if t["phase"] in ("approach", "push") and t["angle"] <= final_angle - np.deg2rad(5)
         ]
-        if prior:
+        if intermediate is not None:
+            retreat_p = np.array(intermediate["retreat_p"])
+            retreat_q = Rotation.from_matrix(intermediate["retreat_r"]).as_quat()
+        elif prior:
             retreat_p = np.array(prior[-1]["tool_position"])
             retreat_q = np.array(prior[-1]["tool_quaternion"])
         else:
             retreat_p, retreat_q = pre_p, Rotation.from_matrix(pre_r).as_quat()
+        if held_angle is not None and intermediate is None and hasattr(recorder, "observations"):
+            from alexdoor_xas.qualification.intermediate import save_hold_state
+
+            save_hold_state(
+                output / "hold-state.npz",
+                env,
+                compression=compression,
+                compensation=compensation,
+                retreat_p=retreat_p,
+                retreat_r=Rotation.from_quat(retreat_q).as_matrix(),
+                source=dict(
+                    asset_id=door.name,
+                    episode_id=None if recorder is None else recorder.metadata["episode_id"],
+                    split=None if recorder is None else recorder.metadata["split"],
+                    setup=setup.to_dict(),
+                ),
+            )
         current_p, current_q = [v[0].cpu().numpy() for v in env.tool_pose()]
         release_slerp = Slerp([0, 1], Rotation.from_quat([current_q, retreat_q]))
         for tick in range(round(setup.release_s / dt)):
@@ -775,6 +876,33 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
         released = not state[5] and separation >= 0.01 and state[1] <= setup.position_tolerance
     if not released:
         failure = failure or "unsafe_release"
+    stabilized = False
+    tail = []
+    if released and not env.motion_stopped:
+        for tick in range(round(setup.stabilization_max_s / dt)):
+            state = command(goal_p, goal_r, "stabilize")
+            tail.append(traces[-1])
+            supported = tail[-round(setup.stabilization_window_s / dt) :]
+            # Allow one ordinary reference step over the settle window, and
+            # half the existing angular tie per window. No stillness/open-angle gate.
+            joint_speed_limit = setup.max_joint_speed * dt / setup.stabilization_window_s
+            door_speed_limit = np.deg2rad(setup.tie_deg) / setup.stabilization_window_s
+            stabilized = bool(
+                (tick + 1) * dt >= setup.stabilization_min_s
+                and len(supported) * dt >= setup.stabilization_window_s - 1e-9
+                and all(
+                    t["physical_safe"] and not t["loaded"] and t["separation_m"] >= 0.01
+                    for t in supported
+                )
+                and max(t["actual_joint_speed_peak_rad_s"] for t in supported) <= joint_speed_limit
+                and max(abs(t["speed"]) for t in supported) <= door_speed_limit
+                and np.linalg.norm(np.ptp([t["tool_position"] for t in supported], axis=0))
+                <= setup.material_drift_guard_m
+            )
+            if failure or stabilized:
+                break
+        if not stabilized:
+            failure = failure or "stabilization_budget_exhausted"
     measured = window.maximum
     result = dict(
         case=door.name,
@@ -790,6 +918,16 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
         clearance_m=min_clearance,
         clearance_scope="robot_door_AABB_lower_bound_excluding_distal_panel_pairs",
         released=released,
+        stabilized=stabilized,
+        stabilization_duration_s=len(tail) * dt,
+        stabilization_budget_s=setup.stabilization_max_s,
+        stabilization_joint_speed_limit_rad_s=setup.max_joint_speed
+        * dt
+        / setup.stabilization_window_s,
+        stabilization_door_speed_limit_rad_s=float(
+            np.deg2rad(setup.tie_deg) / setup.stabilization_window_s
+        ),
+        intermediate_start=intermediate is not None,
         scope="controlled_door_probe",
         force_components="normal_only",
         visibility=None
@@ -802,6 +940,4 @@ def run_probe(env, door, setup, output, *, recorder=None, capture_evidence=True,
         ),
     )
     write_probe_artifacts(output, result, traces, raw, images)
-    if recorder is not None:
-        recorder.finish(result)
     return result

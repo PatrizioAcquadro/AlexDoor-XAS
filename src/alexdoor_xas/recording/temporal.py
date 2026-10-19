@@ -203,10 +203,20 @@ class TemporalRecorder:
         q_before = np.asarray(q_before, "f8")
         if q_before.shape != (7,) or not np.array_equal(q_before, self.last_q[:7], equal_nan=True):
             raise ValueError("Command q_before differs from measured state")
-        if not np.isfinite([request_s, dispatch_s, applied_s]).all() or not (
-            self.last["control"][1] <= request_s <= dispatch_s <= applied_s
-        ):
-            raise ValueError("Invalid command request/dispatch/application clocks")
+        if not np.isfinite(request_s) or request_s < self.last["control"][1]:
+            raise ValueError("Invalid request clock")
+        if accepted:
+            if (
+                not np.isfinite([dispatch_s, applied_s]).all()
+                or not request_s <= dispatch_s <= applied_s
+            ):
+                raise ValueError("Invalid command request/dispatch/application clocks")
+        elif dispatch_s is not None or applied_s is not None or np.isfinite(applied_target).any():
+            raise ValueError(
+                "Refusal cannot have dispatch/application acknowledgement or applied target"
+            )
+        else:
+            dispatch_s = applied_s = np.nan
         target, requested = np.asarray(applied_target, "f8"), np.asarray(requested_target, "f8")
         if (
             target.shape != (7,)
@@ -246,6 +256,12 @@ class TemporalRecorder:
     def annotate(self, values):
         """Evaluator/teacher data stay write-only and outside the observation adapter."""
         self.writer.append("evaluator", values)
+
+    def interrupt(self, outcome):
+        """Flush the real prefix, with explicit outcome but no invented terminal state."""
+        self.file["metadata"].attrs["outcome"] = json.dumps(outcome, allow_nan=False)
+        self.file["metadata"].attrs["terminal_support"] = not self.pending_command
+        self.writer.flush()
 
     def finish(self, outcome):
         if (

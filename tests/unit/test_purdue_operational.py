@@ -163,3 +163,26 @@ def test_fk_reuse_owns_joint_keys_and_results_and_keeps_calibration_current(monk
     joints[0] = 0
     fk(joints, {"root_world": root})
     assert fk.chain.calls == before + 1
+
+
+def test_pose_request_is_captured_before_position_and_rate_limits():
+    jac = torch.zeros(1, 6, 7)
+    jac[0, :, :6] = torch.eye(6)
+    q = torch.zeros(1, 7)
+    error = torch.ones(1, 6)
+    limits = torch.tensor([[[-0.1, 0.1]] * 7])
+    target, clipped, requested = bounded_pose_step(
+        jac,
+        error,
+        q,
+        limits,
+        torch.ones_like(q),
+        0.01,
+        centering_gain=0,
+        return_request=True,
+    )
+    ordinary = bounded_pose_step(jac, error, q, limits, torch.ones_like(q), 0.01, centering_gain=0)
+    torch.testing.assert_close(target, ordinary[0], rtol=0, atol=0)
+    torch.testing.assert_close(clipped, ordinary[1], rtol=0, atol=0)
+    assert requested[0, :6].min() > 0.9
+    assert target.max() <= 0.010001
