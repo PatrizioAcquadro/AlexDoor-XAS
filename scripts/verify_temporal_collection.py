@@ -37,6 +37,8 @@ def verify(source, output):
         metadata = json.loads(file["metadata"].attrs["episode"])
         cfg = TemporalConfig(**metadata["observation_config"])
         eligible = teacher_eligibility(file)
+        source_actions = file["commands/applied_target"][:] - file["commands/q_before"][:]
+        source_action_times = file["commands/state_acquired_s"][:]
         phase = file["evaluator/phase"][:]
         phase_names = metadata["phase_names"]
         feedback = file["physics_feedback"]
@@ -81,6 +83,9 @@ def verify(source, output):
         )
         return report
     with TemporalEpisode(prepared, cfg) as episode:
+        np.testing.assert_array_equal(episode.file["actions/delta"][:], source_actions)
+        np.testing.assert_array_equal(episode.action_times, source_action_times)
+        report["a1_applied_minus_measured_prestate_labels_exact"] = True
         rows = episode.training_rows(horizon=12)
         report["prepared"] = str(prepared)
         report["training_windows"] = len(rows)
@@ -95,6 +100,17 @@ def verify(source, output):
                 )
             for key in ("image_source_index", "image_times", "robot_times"):
                 np.testing.assert_array_equal(snap[key], saved[key], err_msg=path.name + ":" + key)
+            t = snap["decision_time_s"]
+            robot_slots = t - np.arange(cfg.state_count - 1, -1, -1) / cfg.state_hz
+            valid = snap["obs"]["robot_valid"]
+            acquired, available = snap["robot_times"][..., 0], snap["robot_times"][..., 1]
+            assert np.all(
+                acquired[valid] <= np.broadcast_to(robot_slots[:, None], valid.shape)[valid]
+            )
+            target = valid[:, 3]
+            assert np.all(acquired[target, 3] < robot_slots[target])
+            assert np.all(available[target, 3] <= robot_slots[target])
+            assert np.all(available[valid] <= t)
             agreement.append(path.name)
         report["offline_incremental_agreement"] = agreement
         transitions = []
@@ -184,6 +200,14 @@ def verify(source, output):
             "obs"
         ]["robot"]
         assert np.any(a[:, 18:25] != b[:, 18:25])
+        tensor_a = _to_device(collate_torch(dict(obs=dict(robot=a[None]))), "cuda:0")["obs"][
+            "robot"
+        ]
+        tensor_b = _to_device(collate_torch(dict(obs=dict(robot=b[None]))), "cuda:0")["obs"][
+            "robot"
+        ]
+        assert torch.any(tensor_a[..., 18:25] != tensor_b[..., 18:25])
+
         missing_tau = dict(
             acquired=np.empty(0),
             available=np.empty(0),
@@ -203,6 +227,7 @@ def verify(source, output):
         np.testing.assert_array_equal(policy.predict(missing, reuse=False), reference)
         report["torque_tensor_checks"] = dict(
             valid_measured_change_reaches_normalized_act_input=True,
+            valid_measured_change_reaches_cuda_observation_tensor=True,
             missing_history_masked=True,
             invalid_values_do_not_affect_prediction=True,
         )

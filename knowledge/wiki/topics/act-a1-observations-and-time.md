@@ -1,11 +1,14 @@
 # ACT A1 observations and time
 
-The finite-history data-to-ACT path and opt-in A1 execution bridge are implemented
-and CUDA checked. It is an
-explicit new observation/checkpoint recipe alongside the maintained legacy path.
-No teacher, controller, admission, physical requirement, historical recording,
-checkpoint or final-test data was changed. No optimizer update, demonstration,
-physics simulation or checkpoint selection was performed.
+The finite-history data-to-ACT path, opt-in guarded A1 execution bridge and
+native teacher collection are implemented. The bounded first collection tranche
+qualifies complete right/left demonstrations, a physically reconstructed
+hold/release continuation and recovery of an intentionally interrupted prefix.
+Actual prepared data pass CUDA forward/backward with unchanged weights and zero
+optimizer updates. This is an explicit observation/checkpoint recipe alongside
+the maintained legacy path; no ACT training or learned task success is claimed.
+Historical recordings, checkpoints, physical/admission/stop requirements and the
+sealed final test remain preserved.
 
 The objective remains physical contact acquisition, required opening, hold,
 release and normal stabilization. Offline agreement and teacher imitation do
@@ -55,7 +58,7 @@ flowchart LR
 - [Temporal ACT](../../../src/alexdoor_xas/policies/act/temporal.py):
   `temporal_model`, `fit_temporal_stats`, `normalize_temporal_batch`,
   `save_temporal_policy`, `TemporalActPolicy.from_checkpoint` and `predict`.
-- [Future recorder](../../../src/alexdoor_xas/recording/temporal.py):
+- [Native recorder](../../../src/alexdoor_xas/recording/temporal.py):
   `TemporalRecorder.state/capture/feedback/command/annotate/finish/close`.
 - [Cost harness](../../../scripts/benchmark_temporal_act.py): saved-input
   preparation, loading, native preprocessing, inference and backward-only checks.
@@ -97,7 +100,8 @@ and availability clocks, generation, measured/preprocessed values, image source
 index and validity. Images use the shared `preprocess_rgbd`. Applied-target
 history requires actual delivered/acknowledged targets; the bridge never turns a
 prediction or request into an application. Producers own their reset and clock
-conversion. Native recorder/teacher producer wiring remains the next task.
+conversion. The native teacher adapter now feeds the same measured events to recording and
+incremental observation ingress; measured simulation coverage is described below.
 
 Per-action readiness now selects only static/current image support and current
 q/dq through the same causal selection/validity function as the model-input
@@ -380,169 +384,168 @@ meaningful latency gain and fails the strict numerical criterion. At 240×384 it
 passes this saved-trace check and reduces median/tail time by about 4%; it remains
 an explicit measured option, not a qualified default for a future learned
 checkpoint or hardware producer. Use the preferred 240×384 path with full
-recomputation for the next teacher/data integration. No asynchronous execution,
+recomputation for collection consumption and later ACT work. No asynchronous execution,
 control-rate change or physical threshold adjustment was introduced.
 
-## Validation and exact next work
+## Native teacher collection and phase quality
 
-Passing checks cover shared offline/incremental construction at all nine saved
-cases and all resolutions; startup/tail/reset/missingness, delayed/future data,
-current/future-command and annotation exclusion; target padding and explicit
-supervision; history/density/horizon views without frame duplication; visual,
-temporal and current-state gradients; checkpoint round-trip and legacy ACT;
-reset/weight/preprocessing cache invalidation; raw NaN retention, requested versus
-applied commands, interruption flush and failed-outcome preservation.
-No intermediate physical reset, normal stabilization demonstration, hardware
-bridge/dispatch or learned full-task success was validated.
+[`pilot_physics.py collect`](../../../scripts/pilot_physics.py) connects the
+maintained scripted expert through
+[`TemporalExpertRecorder`](../../../src/alexdoor_xas/recording/teacher.py).
+Actual controller, native feedback and measured state/capture events feed both
+`TemporalRecorder` and incremental causal ingress. Original 600×960 RGB-D,
+validity, calibration, timestamps and native frame IDs remain lossless at 10 Hz;
+control/full robot state is 60 Hz and supported native arm7 feedback is 120 Hz.
+No raw frames or ordinary-control rows are fabricated.
 
-**Teacher changes made in this task: none.** The next collection task must:
+Nominal collection uses the unchanged 25 s inspection reference followed by an
+explicit .4 s parked-joint pre-roll: .2 s current-input readiness plus one 12/60 s
+horizon for inspect→approach windows. Approach/contact/push/hold/release control
+is retained. Real withdrawal is followed by ordinary Cartesian control for at
+least 2 s, extending to at most 6 s. The final .5 s requires unloaded separation
+>=10 mm, arm speed <=.016667 rad/s (one reference step across the window), door
+speed <=1 deg/s (the existing .5 deg tie across the window) and tool excursion
+<=the existing 2.5 mm drift guard. These empirical settling bounds are separate
+from hard safety limits and do not require numerical stillness or an open door.
+The caller finalizes once after this tail. Separate continuing-physics safety
+verification starts after recorder detachment and cannot supply expert tail rows.
+The legacy nominal `stop_reason=safety_stop` names the push-exit guard; it is not
+a latched stop replacing normal release/stabilization.
 
-1. Extend `run_probe` through real release/withdrawal and **ordinary control and
-   recording for at least 2 s afterward**, extending coverage if settling continues.
-   Move recorder finalization after this tail. Keep `verify_stop_continuation`
-   and any final safety stop separate; no `freeze_motion`, zeros or synthetic
-   repeated targets can stand in for stabilization demonstrations.
-2. Wire the new recorder at producer events: RGB-D at declared cadence at least
-   10 Hz, observed/full robot state at 60 Hz, every supported native feedback
-   sample (currently 120 Hz simulated), and every pre-roll/release/tail command.
-   Record verified clock conversion and acquisition/availability independently.
-3. Capture request type/value/time and **joint request before the limiter**, final
-   target delivered, dispatch/application or ack support, q_before, clipping/
-   refusal, neck/gripper targets and effort feedforward. A refusal is never an
-   applied action. Do not reconstruct a missing pre-limiter request from its result.
-4. Preserve contact→push, push→hold, hold→release and release→stabilization
-   transitions continuously. Any varied hold/release timing must follow observable
-   conditions; do not create opposite labels after indistinguishable histories.
-5. Keep reset generations physically honest with qualified pre-roll, q/dq,
-   controller target/gains, door/contact/velocity/solver state and refreshed
-   camera/collision transforms. Old-trajectory prefix is not new-reset history.
-6. Keep ambiguous/failed labels diagnostic until explicit review. In particular,
-   preserve the original **68 weak-load samples in 26 intervals**; exclude chunks
-   intersecting unadmitted labels without renaming them padding. Preserve frozen
-   door/trajectory grouping, all outcomes and the sealed final test.
+Physical safety, task-phase validity, recording completeness and safety-stop
+outcome remain separate. `teacher_eligibility` requires a passed complete cycle.
+Unloaded contact acquisition can qualify before initial contact; once acquired,
+weak/ambiguous contact rows remain diagnostic until validity returns. Push/hold
+require contact/load/footprint/material validity. Qualified withdrawal and normal
+tail rows remain eligible after contact ends. Whole chunks crossing ineligible
+real commands are excluded, preserving phase-crossing windows and genuine tail
+padding. Original **68 weak-load samples in 26 historical intervals** remain
+untouched and diagnostic; corrected right adds 14 separate diagnostic rows.
+Teacher phases, truth, evaluator output, load estimates and absolute progress
+remain outside ACT observations.
 
-Before an extended tranche, check one complete nominal episode including all
-transitions and its real stabilization tail; one physically qualified intermediate
-reset with honest history and masks; and one failed/interrupted recording recovered
-without expert promotion. Verify N+1 states/N command outcomes per generation,
-source-frame joins and sampled offline/live equality, requested/applied limits,
-native feedback health/clocks, unchanged calibration/stop profile and physical
-requirements, grouped membership and prospective quality masks. Declare collection
-resources and stopping before these future physical checks. Their completion
-still does not replace the eventual full-task learned evaluation.
+### Requests, delivery, clocks and units
 
-Prior evidence remains in [[../experiments/b1-data-pipeline|data infrastructure]],
-[[../experiments/b1-act-a1-two-door-diagnostic|the two preserved diagnostic failures]],
-[[../experiments/b1-act-a1-calibration-stopping|calibration and stopping]] and
-[the observation design analysis](../../../outputs/evidence/act-a1-observation-design-20261019/analysis.md).
+The actual request kind/value/time and joint request produced before any limiter
+are retained separately from delivered targets, q_before, clipping, neck/gripper
+setpoints and feedforward effort. A1 labels remain delivered target minus its own
+measured pre-state. Refusals have no dispatch/application acknowledgement or
+applied target and cannot overwrite previous delivered-target history.
+Simulation acquisition/availability use one explicit local episode clock;
+delivery is controller-setter success, not reached position or an invented
+hardware acknowledgement. SIGUSR1 identifies a declared resource-budget
+termination; SIGTERM identifies interruption. Errors before recorder startup
+report `recording_not_started` and preserve reset-physics diagnostics.
 
+Measured arm7 tau comes from `get_dof_projected_joint_forces`, explicitly
+`simulated_actuator_feedback` / `joint_output`, in N m and positive URDF joint
+motion coordinates, with resolved `ARM_JOINTS` order and per-sample health.
+Offline and incremental ingestion share the origin/order/units/sign predicate.
+This is projected solver feedback, not direct contact force or hardware tau
+qualification. Full robot diagnostics declare units per joint: rotational effort
+is N m and prismatic WSG jaw effort is N. The legacy full `effort_target_nm`
+container has explicit `joint_names`, per-joint `units` and feedforward semantics;
+its values never supply measured tau. Unit annotation adds metadata only.
 
-## Native teacher collection integration
+`validate_native_recording` reviews N+1 states/N outcomes, clocks, q_before,
+requested/delivered semantics, native frame uniqueness and all torque substeps.
+`review_native_collection` and prepared `TemporalEpisode.training_rows` share
+`training_decisions` and builder readiness, with no image materialization.
+Prepared-store completion describes index writing: `source_complete`,
+`source_outcome` and `source_terminal_support` retain the source episode status.
+Interrupted sources are prepared/reopened diagnostically with unchanged real
+counts, no added terminal state and no eligible expert windows.
 
-`pilot_physics.py collect` now connects the maintained scripted teacher to
-`TemporalExpertRecorder`: one native event stream feeds both `TemporalRecorder`
-and incremental ACT ingress. Control state is recorded at 60 Hz, retained raw
-RGB-D at 10 Hz, and every supported solver torque sample at 120 Hz, including
-initial feedback. Request types/values, the joint request produced before any
-limiting, delivered targets, q_before, neck/gripper setpoints and effort
-feedforward remain separate columns. Refusals have no dispatch/application time
-or applied target. Simulation clocks explicitly use the local episode time;
-application means controller delivery, not that the robot reached the target.
+### One qualified physical intermediate reset
 
-The teacher retains its approach/contact/push/hold/release behavior and appends
-ordinary Cartesian control after actual withdrawal, for at least 2 s and at
-most 6 s. The final .5 s must have unloaded separation >=10 mm, arm speed no
-larger than one reference step spread over that window (.016667 rad/s), door
-speed <=1 deg/s and tool excursion <=the existing 2.5 mm drift guard. These are
-empirical settling criteria; existing hard physical limits remain independent.
-No final open-angle requirement is introduced. Caller-owned finalization occurs
-once after this tail; safety-stop verification occurs after recorder detachment.
-Exceptions flush the actual prefix with an explicit incomplete outcome.
+`--intermediate-state <qualified-source>/teacher/hold-state.npz` restores full
+robot q/dq, door position/velocity, controller targets/impedance, hold lead and
+compression/compensation. Six actual reset-conditioning ticks rebuild contact
+and feedback, retained in a separate audit. A new local generation/time origin
+then begins with refreshed collision/camera state, its own t=0 inspection image
+and fresh 1 s physical pre-roll. Global physics continues. No source image/state
+prefix is attached. A sustained .5 s loaded/material-valid hold must qualify
+before release; exact solver-cache or bitwise state reproduction is not assumed.
+The per-record static endpoint is 0 s for this reset; learned fields and 4 s /
+240×384 / 12 / 6 recipe remain the same, with unavailable history masked.
 
-The optional `--intermediate-state` restores a same-group qualified hold state,
-including full robot q/dq, door angle/velocity, controller targets and impedance.
-It refreshes transforms/camera, uses a new local clock/generation, captures its
-own inspection reference at t=0, then requires a fresh 1 s physical loaded
-pre-roll with a sustained valid .5 s window. It cannot borrow the source's image
-or proprioceptive history. This integration is awaiting the declared physical
-A/B/C/D tranche; implementation checks alone do not qualify demonstrations.
+The measured reset changes source generation 1 to generation 2. Reconstruction
+errors are 0.566 mrad q, 38.655 mrad/s dq, 0.643 mrad door angle, .259 mm tool
+position and .482 mrad tool rotation, within declared state bounds and existing
+hard safety limits. Fresh pre-roll has 58/60 valid contact samples. Its first
+snapshot has only 2/241 q/dq/tau slots, one previous target and 2/23 images;
+first eligible decisions occur at .2 s, without waiting four seconds.
 
-The [declared tranche](../../../outputs/evidence/act-a1-teacher-temporal-20261019/declaration.md)
-records resources and criteria before launch. [StageACT](https://arxiv.org/html/2509.13200v2)
-supports proprioceptive/torque review of contact transitions and identifies
-observational phase ambiguity; its privileged stage input is not adopted.
+## Bounded physical/data tranche and handoff
+
+[Declaration](../../../outputs/evidence/act-a1-teacher-temporal-20261019/declaration.md),
+[all attempts and commands](../../../outputs/evidence/act-a1-teacher-temporal-20261019/report.md),
+[actual-data verification](../../../outputs/evidence/act-a1-teacher-temporal-20261019/verification-final/report.json)
+and [ready inputs](../../../outputs/evidence/act-a1-teacher-temporal-20261019/handoff.json).
+The fixed train identities are right `animated-door-1-88abf40` and left
+`door-2738468b94d74c5f`, nominal seed 6200. Required opening retains 80% of the
+frozen matched references (51.260252/52.536029 deg), never a refit on these results.
+
+| Retained attempt | Physical outcome | States/commands | Healthy native tau | Data outcome |
+|---|---|---:|---:|---|
+| First right | 51.11 deg, release + 2 s ordinary tail; stop passes | 8,850/8,849 | 17,699 | Incomplete inspect→approach coverage; diagnostic |
+| Corrected right | 51.75 deg, release + 2 s ordinary tail; stop passes | 9,101/9,100 | 18,201 | Qualified; 7,537 training windows |
+| Left | 52.55 deg, release + 2 s ordinary tail; stop passes | 9,509/9,508 | 19,017 | Qualified; 7,996 training windows |
+| Physical reset C | Fresh loaded hold, release + 2 s ordinary tail; stop passes | 541/540 | 1,081 | Qualified continuation; 528 training windows |
+| Controlled interruption D | Delivered command 60, interrupted before post-state; stop passes | 60/60 | 119 | One missing terminal state; recovered, zero expert windows |
+
+The first right exposed a real readiness seam: approach began at 25 s while
+inputs first became ready at 25.2 s. One affected repeat followed the explicit
+.4 s ordinary pre-roll correction. The original outcome/report remain; its early
+demonstration flag predates the completed window gate and does not qualify it
+for handoff. No unchanged favorable retry occurred. All present transitions in
+the three admitted files retain 11 crossing windows. These overlapping windows
+and one reset derivative are not independent demonstrations or a success-rate
+estimate. Source/family train grouping remains frozen; C stays with its source.
+
+All 56,117 native torque vectors across five attempts are finite/healthy under
+the simulator API contract; none is missing, and none of the seven channels
+reaches >=99% of configured effort limits. No saturation flag is exposed: this
+comparison is diagnostic, not sensor saturation certification.
+[Native event-centered traces](../../../outputs/evidence/act-a1-teacher-temporal-20261019/torque-event-traces.json)
+and figures retain all seven channels around contact, hold and real release.
+Actual prepared batches pass finite CUDA forward/backward with image, temporal,
+measured-state and torque gradients, exact unchanged weights and zero optimizer
+updates. Live/offline representative snapshots include true terminal/tail states;
+A1 labels and causal previous-target support agree exactly. Valid N m changes
+reach ACT tensors; invalid/missing tau is masked. D reopens through ACT preparation
+with the real prefix and zero eligible windows. Focused numerical tests pass.
+
+Five whole launches consume 1,229.03 s (20.48 min); final CUDA verification takes
+17.75 s, plus a 5.51 s exact CUDA-tensor reach check. Peak simulation process-tree RSS is 7.73 GiB and total GPU memory is
+6.87 GiB including desktop graphics. Final validation uses 1.96 GiB process RSS
+and peaks at 1.65/3.67 GiB CUDA allocated/reserved. About 28.8 GiB of tranche data
+is retained, within the declared 80 GiB; all per-case/cumulative budgets hold.
+No remote allocation, optimizer update, final-test access or learned evaluation
+is added. This closes the collection tranche, not ACT physical task success.
+
+Next expansion starts from the three admitted records in `handoff.json`, with
+explicit masks and per-record observation configurations. Add data only through
+a declared train protocol and the same release/tail, native-feedback, transition
+and interruption gates; retain every attempt and source-group derivative.
+Statistics fit only on admitted training data. Later learned success must be
+physical opening/hold/release/normal stabilization from the policy's observations;
+teacher trajectory similarity is not the primary criterion.
+
+### Source decisions and remaining limits
+
+[StageACT](https://arxiv.org/html/2509.13200v2) supports proprioceptive/torque review
+of contact transitions and identifies observational phase ambiguity; its
+privileged stage input/architecture is not adopted.
 [DoorBot](https://arxiv.org/html/2504.09358v1) supports closed-loop haptic
-verification and explicit failures; its sensors and planner are not adopted.
+verification and explicit failures; its sensors/planner are not imported.
 [MimicGen](https://mimicgen.github.io/docs/tutorials/datagen_custom.html) supports
 task-specific subtask end conditions and diagnostic annotations; its framework
-and randomized offsets are not adopted. None establishes hardware tau availability.
-The existing [hardware audit](../../../outputs/evidence/act-a1-observation-design-20261019/analysis.md)
-continues to leave source/scale/sign/noise/latency and installed F-T/tactile
-availability unverified. Simulated `joint_output` is a projected solver signal,
-not direct contact force or a hardware qualification.
-
-
-`recording.quality.teacher_eligibility` requires an actually completed, passed
-cycle and phase-specific quality for every command. Failed/interrupted prefixes
-remain entirely diagnostic. Contact validity gates push/hold; successful
-acquisition, withdrawal and ordinary post-release rows can qualify without
-contact. `validate_native_recording` reviews actual N+1 support, clocks, q_before,
-clipping/refusal semantics, native torque coverage and near-limit diagnostics.
-The latter comparison is not a hardware saturation certificate. Offline and
-incremental torque ingestion share the origin/order/units/sign predicate.
-
-
-The first native right attempt exposed an input-readiness seam: the original
-teacher approached immediately at 25 s while the temporal recipe first becomes
-ready at 25.2 s. An explicit .4 s parked-joint pre-roll now supplies that .2 s
-readiness plus a 12/60 s horizon for inspection→approach training windows. It
-issues real commands and captures; the original attempt remains preserved.
-The collection protocol can declare `collection_required_opening_deg` from the
-unchanged 80% matched expert-reference task criterion. This tranche uses the
-frozen right/left references 51.260252/52.536029 degrees; it does not replace them
-with the measured teacher opening or the historical corpus placement.
-
-
-Native collection now gates `demonstration_qualified` on numeric training-window
-coverage as well as physical task completion. `training_decisions` is shared by
-collection review and prepared sampling, using builder readiness without visual
-materialization. Task success, N+1 recording completeness, data usability and
-subsequent safety-stop outcome remain separate reported fields.
-
-Intermediate reset preserves the hold controller's initial lead as well as
-compression/compensation. Six real parked-target control ticks rebuild solver
-contact/feedback before the recording starts; their measured states, commands,
-forces and torques are retained in the reset audit. A fresh local generation and
-t=0 capture then start the actual 1 s pre-roll. Global physics continues; the
-local time origin is explicitly rebased. Old reset-state torque is never assigned
-as healthy feedback to the newly reconstructed loaded state.
-
-
-Physical safety annotations are independent of task-phase failures. A task timeout
-or lost-contact failure does not relabel a subsequently safe withdrawn state as
-a hard physical violation. If safe withdrawal succeeds, failed episodes still
-retain ordinary stabilization before remaining diagnostic. Contact acquisition
-is eligible before initial contact; after acquisition, weak/ambiguous contact
-rows are excluded until contact validity returns. Original 68 ambiguous samples
-in 26 historical intervals remain untouched and diagnostic.
-
-SIGUSR1 is reserved for declared collection resource-budget termination, distinct
-from SIGTERM interruption and physical task failure. An exception before recorder
-startup reports `recording_not_started`; reconstruction physics is retained in
-its own audit instead of claiming a nonexistent episode prefix.
-
-
-Prepared stores now retain `source_complete`, `source_outcome` and
-`source_terminal_support`. Index preparation completion cannot certify a complete
-source episode. The collection verifier also prepares interrupted prefixes with
-all supervision masked, reopens them through `TemporalEpisode`, and checks that
-actual state/command counts are unchanged and no training window is admitted.
-
-
-Full robot diagnostic units are declared per URDF joint: revolute position and
-feedforward effort use rad and N m; prismatic WSG jaws use m and N. The legacy
-full `commands/effort_target_nm` container retains its name for compatibility,
-with explicit per-joint `units`/`joint_names` and feedforward semantics attributes.
-It must not be confused with measured arm7 `physics_feedback/torque_nm`, whose
-seven channels are all N m. Unit annotation adds metadata only; it does not alter
-feedback, commands, outcomes or original captures.
+and randomized offsets are not adopted. These sources do not qualify this reset
+or Alex hardware feedback. The
+[existing hardware audit](../../../outputs/evidence/act-a1-observation-design-20261019/analysis.md)
+continues to leave source/scale/sign/noise/filtering, clocks/latency and installed
+F-T/tactile availability unverified. Historical
+[[../experiments/b1-data-pipeline|data infrastructure]],
+[[../experiments/b1-act-a1-two-door-diagnostic|learned failures]] and
+[[../experiments/b1-act-a1-calibration-stopping|calibration/stopping]] remain unchanged.

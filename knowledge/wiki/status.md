@@ -232,9 +232,37 @@ resident AdamW moments, with no optimizer updates. Reuse stays off by default:
 120×192 fails the existing strict numerical criterion on the longer trace;
 240×384 passes that fixture and saves about 4% steady inference time.
 
-These are bounded saved-input and numerical execution results, not learning,
-physical task completion or hardware dispatch qualification. Teacher, collection,
-trained checkpoints, physical thresholds and final test are untouched. The next
-task can begin teacher integration and the first complete data tranche, with the
-specified complete nominal episode, honest intermediate reset and recoverable
-interruption checks before extending collection.
+These saved-input and numerical execution results do not establish learned task
+completion or hardware dispatch qualification. The separately authorized native
+teacher collection tranche is now complete below; trained checkpoints, physical
+thresholds and final test remain unchanged.
+
+## ACT A1 native teacher collection — bounded tranche complete
+
+The maintained collection entry point produces qualified complete nominal right
+and left train demonstrations (51.75/52.55 deg controlled opening), a physically
+reconstructed loaded hold/release continuation and a recoverable controlled
+interruption. Every completed case includes real release and 2 s ordinary
+stabilization, followed by a separate healthy safety stop. C uses fresh camera,
+collision and controller state, actual reset-conditioning physics, a new local
+generation and 1 s pre-roll; unavailable history stays masked. D retains 60 states
+and 60 delivered commands, one missing terminal state and zero expert windows.
+
+All five attempts remain: the first right physically passes but lacks a ready
+inspect→approach window; one affected repeat follows an explicit .4 s real
+pre-roll correction. The three admitted files have exact N+1 command/state
+alignment, all seven measured simulated joint_output channels, 120 Hz native
+feedback, 60 Hz state and original 10 Hz RGB-D. They retain 7,537/7,996/528 valid
+training windows and 11 crossings per present transition. A1 labels, causal
+live/offline histories and actual-data CUDA gradients pass, with unchanged model
+weights and zero optimizer updates. Raw feedforward effort remains a separate
+diagnostic with per-joint SI units. Historical 68 ambiguous weak-load samples
+remain diagnostic; source/family grouping and final-test closure remain fixed.
+
+Five launches consume 1,229.03 s, peak at 7.73 GiB process-tree RSS / 6.87 GiB total
+GPU memory, and retain about 28.8 GiB. Final CUDA verification takes 17.75 s, plus a 5.51 s exact tensor-reach check, with
+1.96 GiB RSS and 1.65/3.67 GiB allocated/reserved CUDA memory. All declared budgets
+hold. No training, remote allocation or learned physical-task success is added.
+The next data expansion starts from the three admitted records and repeats the
+same physical/tail/torque/transition gates. See
+[[topics/act-a1-observations-and-time|canonical collection, all attempts and handoff]].

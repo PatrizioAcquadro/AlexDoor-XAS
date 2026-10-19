@@ -186,6 +186,16 @@ class EventValues:
         )
 
 
+def current_ready(config, time_s, image_valid, state_valid):
+    """One current-data readiness predicate for full inputs and per-action checks."""
+    return bool(
+        time_s >= config.static_time_s + config.warmup_s - 1e-9
+        and image_valid[0]
+        and image_valid[-1]
+        and np.asarray(state_valid).all()
+    )
+
+
 class CausalObservationBuilder:
     def __init__(self, config, streams, *, episode_id):
         self.config, self.streams, self.episode_id = config, streams, str(episode_id)
@@ -211,11 +221,7 @@ class CausalObservationBuilder:
             select_support(self.streams[key], [t], t, generation, cfg.state_gap_s, shape=(9,))
             for key in ("q", "dq")
         ]
-        ready = bool(
-            t >= cfg.static_time_s + cfg.warmup_s - 1e-9
-            and image_valid.all()
-            and all(row[1][0] for row in selected)
-        )
+        ready = current_ready(cfg, t, image_valid, [row[1][0] for row in selected])
         return dict(
             ready=ready,
             episode_id=self.episode_id,
@@ -270,12 +276,7 @@ class CausalObservationBuilder:
         # acquisition/arrival clocks remain diagnostic support, never progress.
         image_timing[0, 0] = -1
         image_timing[~image_valid] = 0
-        ready = bool(
-            t >= cfg.static_time_s + cfg.warmup_s - 1e-9
-            and image_valid[0]
-            and image_valid[-1]
-            and robot_valid[-1, :2].all()
-        )
+        ready = current_ready(cfg, t, image_valid, robot_valid[-1, :2])
         obs = dict(
             image_valid=image_valid,
             image_timing=image_timing.astype("f4"),

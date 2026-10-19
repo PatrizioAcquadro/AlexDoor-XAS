@@ -1,7 +1,7 @@
-"""Independent lossless streams for future complete causal A1 recordings.
+"""Independent lossless streams for complete causal A1 recordings.
 
-This opt-in writer does not change the expert, collection lifecycle or controller.
-The producer must keep recording pre-roll, release and real normal stabilization.
+The native teacher adapter supplies real producer events and ordinary tail rows.
+Command/state completeness stays separate from physical task success and quality.
 """
 
 import json
