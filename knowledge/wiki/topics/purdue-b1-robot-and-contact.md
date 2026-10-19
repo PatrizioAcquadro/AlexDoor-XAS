@@ -233,7 +233,10 @@ verification; other original weak sides remain at 1 N. This is one full 60 Hz
 control interval of position support at the existing 0.51 rad/s bound, not sensor
 precision. The residual transfer includes the independently checked reference
 point uncertainty once. Main acceleration and combined-domain admission are
-unchanged; measured stop transients use the existing geometry acceleration domain.
+unchanged. A 10.044817 rad/s² unload transient slightly exceeds the nominal
+10 rad/s² control prediction; an independent complete-curve cover verifies that
+it remains inside the existing stop volumes. The control bound is not enlarged
+and the empirical excursion is not called a physical safety violation.
 
 The corrected stop-only profile has right-arm Kp
 `[640, 640, 320, 320, 40, 80, 100]` N m/rad and unchanged damping ratios, measured

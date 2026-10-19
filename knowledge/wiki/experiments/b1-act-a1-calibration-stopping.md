@@ -74,6 +74,21 @@ failures) plus two invalid contact-harness attempts. The corrected controller ha
 18 valid physical passes among 20 total attempts, including those two invalid
 attempts. Original diagnostic/panel denominators remain unchanged.
 
+
+A final native-curve audit includes the complete maintained-load and removal
+trajectory. One left perturbation unload reaches 10.044817 rad/s² at shoulder Z,
+slightly above the nominal 10 rad/s² control prediction. This is an empirical
+model excursion, not a hard physical violation. An independent conservative
+Cartesian chord/curvature cover includes that measured transient and remains
+inside the same radial/directional stop volumes in all 16 changed-controller
+robot-only cases; minimum directional reserve is 0.262 mm. No operational
+acceleration threshold or physical stop requirement changes. Normal-operation
+acceleration/combined-domain guards stay active. The intermediate overly broad
+"all unload accelerations are below nominal" assertion failed and is retained
+as an analysis failure; it was replaced by the actual volume check, not a widened
+operational threshold. 472 native states from the two older physically failed
+10 N halo stops still refuse in their unqualified joint sides.
+
 ## Closeout and next step
 
 Saved decisions now support both terminal estimates and their complete future
