@@ -158,3 +158,26 @@ def test_clock_regression_requires_reset_and_explicit_domain():
     online.reset(1)
     online.append("q", acquired=0, available=0, values=np.zeros(9), generation=1)
     assert not online.build(0)["ready"]
+
+
+def test_incremental_unverified_feedback_stays_masked():
+    cfg = TemporalConfig(image_size=(2, 3), static_time_s=0)
+    online = IncrementalObservationBuilder(cfg, episode_id="hardware-unverified")
+    online.append("tau", acquired=0, available=0, values=np.zeros(7), generation=0)
+    snap = online.build(0)
+    assert not snap["obs"]["robot_valid"][:, 2].any()
+
+
+def test_invalid_historical_image_is_masked_but_current_image_is_required():
+    cfg = TemporalConfig(image_size=(2, 3), static_time_s=0.5)
+    raw = streams(cfg)
+    raw["images"]["valid"] = np.ones(len(raw["images"]["acquired"]), bool)
+    raw["images"]["valid"][10] = False
+    builder = CausalObservationBuilder(cfg, raw, episode_id="e")
+    snapshot = builder.build(3, 2)
+    assert snapshot["ready"]
+    masked = ~snapshot["obs"]["image_valid"]
+    assert masked.any()
+    np.testing.assert_array_equal(snapshot["obs"]["images"][masked], 0)
+    raw["images"]["valid"][30] = False
+    assert not builder.build(3, 2)["ready"]

@@ -162,6 +162,9 @@ def raw_streams(file, config, *, device="cuda:0", image_rows=None, legacy_synchr
         q=_stream(times, state["joint_position"], available=available, generation=gen),
         dq=_stream(times, state["joint_velocity"], available=available, generation=gen),
     )
+    for field in ("q", "dq"):
+        if native and f"{field}_valid" in state:
+            streams[field]["valid"] = state[f"{field}_valid"][:]
     # Native measured feedback only with verified source/order/units/sign.
     torque = file.get("physics_feedback")
     supported = (
@@ -381,6 +384,12 @@ class TemporalEpisode:
                 yield self.batch(rows[start : start + batch_size], horizon)
 
         return prefetch_batches(iterator()) if prefetch else iterator()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.close()
 
     def close(self):
         if getattr(self, "file", None):

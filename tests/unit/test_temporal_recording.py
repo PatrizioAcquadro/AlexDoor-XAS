@@ -60,3 +60,17 @@ def test_interruption_flushes_without_certifying_completion(tmp_path):
         assert len(file["commands/dispatch_s"]) == 1
     with pytest.raises(FileExistsError):
         recorder(path)
+
+
+def test_missing_state_keeps_raw_nan_and_field_mask(tmp_path):
+    path = tmp_path / "missing.hdf5"
+    log = recorder(path)
+    log.reset(0)
+    q = np.full(9, np.nan)
+    log.state(q, np.zeros(9), acquired=0, available=0, generation=0)
+    log.close()
+    with h5py.File(path) as file:
+        assert np.isnan(file["control/joint_position"][0]).all()
+        assert not file["control/q_valid"][0]
+        assert file["control/dq_valid"][0]
+        assert not file.attrs["complete"]

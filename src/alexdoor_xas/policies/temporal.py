@@ -166,12 +166,16 @@ class CausalObservationBuilder:
             indices[0] = -1
         values = gather(images["values"], indices, (5, *cfg.image_size))
         image_valid = indices >= 0
+        if "valid" in images:
+            image_valid &= gather(np.asarray(images["valid"])[:, None], indices, (1,), bool)[:, 0]
+        values[~image_valid] = 0
         image_times = np.zeros((len(indices), 2), np.float64)
         image_source = np.full(len(indices), -1, np.int64)
         for col, key in enumerate(("acquired", "available")):
             image_times[:, col] = gather(
                 np.asarray(images[key])[:, None], indices, (1,), np.float64
             )[:, 0]
+        image_times[~image_valid] = 0
         image_source[image_valid] = np.asarray(images["source_index"])[indices[image_valid]]
         parts, masks, support = [], [], []
         for field, width in zip(FIELDS, WIDTHS, strict=True):
@@ -294,6 +298,8 @@ class IncrementalObservationBuilder:
     ):
         if field not in self.rows or generation != self.generation:
             raise ValueError("Wrong stream or reset generation")
+        if field == "images" and source_index < 0:
+            raise ValueError("Acquired images require a nonnegative source index")
         if self.invalid:
             raise ValueError("Clock invalid until reset")
         if (

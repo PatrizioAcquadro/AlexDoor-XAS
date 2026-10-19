@@ -170,7 +170,10 @@ class TemporalActPolicy:
 
     @torch.inference_mode()
     def predict(self, snapshot, *, now_s=None, reuse=False):
-        if TemporalConfig(**snapshot.get("observation_config", {})) != self.config:
+        if not isinstance(snapshot, dict) or "observation_config" not in snapshot:
+            raise ValueError("Explicit temporal snapshot required; legacy arrays are incompatible")
+        if TemporalConfig(**snapshot["observation_config"]) != self.config:
+            self.model.obs_proj.clear_cache()
             raise ValueError("Snapshot preprocessing/history differs from checkpoint")
         if (snapshot["episode_id"], snapshot["generation"]) != (self.episode_id, self.generation):
             raise ValueError("Reset policy before consuming a new episode generation")
@@ -195,8 +198,10 @@ class TemporalActPolicy:
         )
         if reuse:
             obs["cache_keys"] = [
-                (self.episode_id, self.generation, int(index))
-                for index in snapshot["image_source_index"]
+                (self.episode_id, self.generation, int(index), float(times[0]))
+                for index, times in zip(
+                    snapshot["image_source_index"], snapshot["image_times"], strict=True
+                )
             ]
         prediction = self.model.predict(obs)[0].cpu().numpy()
         return self.stats.action.denormalize(prediction)

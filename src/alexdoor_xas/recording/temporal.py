@@ -93,16 +93,26 @@ class TemporalRecorder:
         available,
         generation,
         clock_domain="episode_monotonic",
+        q_valid=True,
+        dq_valid=True,
         **robot_state,
     ):
         q, dq = np.asarray(q, "f8"), np.asarray(dq, "f8")
-        if q.shape != (9,) or dq.shape != (9,) or not np.isfinite([q, dq]).all():
+        if q.shape != (9,) or dq.shape != (9,):
             raise ValueError("Expected observed9 measured state")
         row = self._clock("control", acquired, available, generation, clock_domain)
         if set(robot_state) & set(row) | set(robot_state) & {"joint_position", "joint_velocity"}:
             raise ValueError("Robot diagnostics cannot override observed state")
         self.writer.append(
-            "control", dict(**row, joint_position=q, joint_velocity=dq, **robot_state)
+            "control",
+            dict(
+                **row,
+                joint_position=q,
+                joint_velocity=dq,
+                q_valid=np.bool_(q_valid and np.isfinite(q).all()),
+                dq_valid=np.bool_(dq_valid and np.isfinite(dq).all()),
+                **robot_state,
+            ),
         )
         self.states[generation] = self.states.get(generation, 0) + 1
         self.last_q = q.copy()
@@ -191,7 +201,7 @@ class TemporalRecorder:
         if generation != self.generation or self.last_q is None or self.pending_command:
             raise ValueError("Command must follow its own measured pre-state")
         q_before = np.asarray(q_before, "f8")
-        if q_before.shape != (7,) or not np.array_equal(q_before, self.last_q[:7]):
+        if q_before.shape != (7,) or not np.array_equal(q_before, self.last_q[:7], equal_nan=True):
             raise ValueError("Command q_before differs from measured state")
         if not np.isfinite([request_s, dispatch_s, applied_s]).all() or not (
             self.last["control"][1] <= request_s <= dispatch_s <= applied_s

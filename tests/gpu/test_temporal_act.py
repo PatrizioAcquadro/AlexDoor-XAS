@@ -138,6 +138,19 @@ def test_gradients_masks_cache_invalidation_and_checkpoint(tmp_path):
         TemporalActPolicy.from_checkpoint(
             path, config=replace(cfg, image_size=(120, 192)), runtime_asset=TEST_ROBOT_REF
         )
+    # Same dimensions with a changed preprocessing recipe are incompatible.
+    changed_recipe = dict(snap, observation_config=replace(cfg, depth_scale_m=6).to_dict())
+    with pytest.raises(ValueError, match="preprocessing"):
+        policy.predict(changed_recipe, reuse=True)
+    with pytest.raises(ValueError, match="legacy"):
+        policy.predict(np.zeros(32))
+    with pytest.raises(ValueError, match="stale"):
+        policy.predict(snap, now_s=snap["decision_time_s"] + 1)
+    policy.model.load_state_dict(policy.model.state_dict())
+    np.testing.assert_allclose(policy.predict(snap, reuse=True), changed, atol=1e-6, rtol=1e-5)
+    policy.model.train()
+    assert not policy.model.obs_proj.cache
+    policy.model.eval()
     policy.reset(ep.builder.episode_id, 1)
     assert not model.obs_proj.cache
     with pytest.raises(ValueError, match="Reset"):
