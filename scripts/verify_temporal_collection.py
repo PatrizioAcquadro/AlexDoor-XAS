@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import resource
 import sys
 from pathlib import Path
 from time import perf_counter
@@ -185,6 +186,9 @@ def verify(source, output):
             invalid_values_do_not_affect_prediction=True,
         )
     report["validation_wall_s"] = perf_counter() - started
+    report["validation_process_peak_rss_gib"] = (
+        resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024**2
+    )
     return report
 
 

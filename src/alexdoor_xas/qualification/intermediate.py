@@ -35,7 +35,7 @@ def save_hold_state(
     )
 
 
-def restore_hold_state(env, state, setup):
+def restore_hold_state(env, state, setup, audit_path):
     """Restore all moving joints, panel velocity, targets and task impedance.
 
     Solver warm-start/contact caches are deliberately rebuilt by actual physics;
@@ -70,12 +70,6 @@ def restore_hold_state(env, state, setup):
             for row in env.contact_history
         )
         speed = max(float(np.max(abs(sample.dq))) for sample in env.load_samples)
-        if (
-            any(row["forbidden"] for row in env.contact_history)
-            or force > setup.force_limit_n
-            or speed > setup.max_joint_speed * 1.02
-        ):
-            raise ValueError("unsafe_intermediate_reset_conditioning")
         conditioning.append(
             dict(
                 time_s=float(env._time_s),
@@ -90,6 +84,24 @@ def restore_hold_state(env, state, setup):
                 torque_nm=[sample.feedback.torque_nm.tolist() for sample in env.load_samples],
             )
         )
+        audit_path.write_text(
+            json.dumps(
+                dict(
+                    scope="real_reset_conditioning_excluded_from_new_observation_history",
+                    generation=env.generation,
+                    anchor_target=anchor.cpu().tolist(),
+                    measured_steps=conditioning,
+                ),
+                indent=2,
+            )
+            + "\n"
+        )
+        if (
+            any(row["forbidden"] for row in env.contact_history)
+            or force > setup.force_limit_n
+            or speed > setup.max_joint_speed * 1.02
+        ):
+            raise ValueError("unsafe_intermediate_reset_conditioning")
     # Start a new local observation generation after real reset-conditioning
     # physics. Global simulator time continues; no old prefix is attached.
     env.generation = max(env.generation, int(state["source_generation"])) + 1

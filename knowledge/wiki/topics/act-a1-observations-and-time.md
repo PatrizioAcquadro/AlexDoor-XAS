@@ -516,3 +516,17 @@ forces and torques are retained in the reset audit. A fresh local generation and
 t=0 capture then start the actual 1 s pre-roll. Global physics continues; the
 local time origin is explicitly rebased. Old reset-state torque is never assigned
 as healthy feedback to the newly reconstructed loaded state.
+
+
+Physical safety annotations are independent of task-phase failures. A task timeout
+or lost-contact failure does not relabel a subsequently safe withdrawn state as
+a hard physical violation. If safe withdrawal succeeds, failed episodes still
+retain ordinary stabilization before remaining diagnostic. Contact acquisition
+is eligible before initial contact; after acquisition, weak/ambiguous contact
+rows are excluded until contact validity returns. Original 68 ambiguous samples
+in 26 historical intervals remain untouched and diagnostic.
+
+SIGUSR1 is reserved for declared collection resource-budget termination, distinct
+from SIGTERM interruption and physical task failure. An exception before recorder
+startup reports `recording_not_started`; reconstruction physics is retained in
+its own audit instead of claiming a nonexistent episode prefix.

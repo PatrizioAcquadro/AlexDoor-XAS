@@ -329,7 +329,9 @@ def prepare_probe(env, door, setup, output, recorder, inspection, intermediate=N
     if intermediate is not None:
         from alexdoor_xas.qualification.intermediate import restore_hold_state
 
-        audit = restore_hold_state(env, intermediate, setup)
+        audit = restore_hold_state(
+            env, intermediate, setup, output / "intermediate-reset-physics.json"
+        )
         (output / "intermediate-restore.json").write_text(json.dumps(audit, indent=2) + "\n")
     if recorder is not None:
         recorder.start(
@@ -499,26 +501,29 @@ def run_probe(
         time = len(traces) * dt
         loaded = contact_load.update(time, float(np.mean(sample_forces)), gap)
         peak, min_margin = max(peak, force), min(min_margin, margin)
+        violation = None
         if not np.isfinite(np.r_[angle, speed, pe, re, joints, force]).all():
-            failure = "invalid_physics"
+            violation = "invalid_physics"
         elif closed_error > 0.001:
-            failure = "gripper_opened"
+            violation = "gripper_opened"
         elif np.any(joints < limits[:, 0] - 0.005) or np.any(joints > limits[:, 1] + 0.005):
-            failure = "joint_limit_violation"
+            violation = "joint_limit_violation"
         elif actual_speed > setup.max_joint_speed * 1.02:
-            failure = "actual_joint_speed_limit"
+            violation = "actual_joint_speed_limit"
             env.stop_motion()
         elif forbidden:
-            failure = "forbidden_contact"
+            violation = "forbidden_contact"
         elif force > setup.force_limit_n:
-            failure = "force_limit"
+            violation = "force_limit"
+        if violation is not None:
+            failure = failure or violation
         material_p, material_r = door.contact_pose(
             angle, setup.contact_fraction, setup.contact_height
         )
         material_error = float(np.linalg.norm(p - material_p))
         orientation_error = float(Rotation.from_matrix(material_r @ actual_r.T).magnitude())
         footprint_inside = door.footprint_inside(distal @ actual_r.T + p, angle)
-        physical_safe = failure is None and not env.motion_stopped
+        physical_safe = violation is None and not env.motion_stopped
         valid = (
             loaded
             and footprint_inside
@@ -568,6 +573,7 @@ def run_probe(
                 loaded=loaded,
                 valid=valid,
                 physical_safe=physical_safe,
+                physical_violation=violation,
                 phase_valid=physical_safe and (valid if phase in ("push", "hold") else True),
                 separation_m=float(np.dot(material_p - p, material_r[:, 0])),
                 joint_margin=margin,
@@ -914,7 +920,7 @@ def run_probe(
                 and np.linalg.norm(np.ptp([t["tool_position"] for t in supported], axis=0))
                 <= setup.material_drift_guard_m
             )
-            if failure or stabilized:
+            if not traces[-1]["physical_safe"] or env.motion_stopped or stabilized:
                 break
         if not stabilized:
             failure = failure or "stabilization_budget_exhausted"
@@ -927,6 +933,9 @@ def run_probe(
         stop_reason=failure or reason,
         limit_evidence=limit_evidence,
         safety_detail=safety_detail,
+        physical_violations=sorted(
+            {t["physical_violation"] for t in traces if t["physical_violation"]}
+        ),
         peak_force_n=peak,
         peak_actual_joint_speed_rad_s=peak_joint_speed,
         joint_margin=min_margin,

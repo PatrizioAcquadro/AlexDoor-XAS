@@ -32,6 +32,14 @@ def teacher_eligibility(file):
         commands["accepted"][:] & evaluator["physical_safe"][:] & evaluator["phase_valid"][:]
     )
     metadata = json.loads(file["metadata"].attrs["episode"])
+    names = metadata.get("phase_names", [])
+    if "contact" in names and "phase" in evaluator and "contact_valid" in evaluator:
+        contact = np.flatnonzero(evaluator["phase"][:] == names.index("contact"))
+        valid = evaluator["contact_valid"][:][contact]
+        # Unloaded acquisition is valid before contact is established. Once
+        # acquired, weak/ambiguous contact rows remain diagnostic until valid again.
+        acquired = np.maximum.accumulate(valid)
+        result[contact] &= ~acquired | valid
     cfg = metadata.get("observation_config")
     if cfg is not None:
         result &= commands["state_acquired_s"][:] >= cfg["static_time_s"] + cfg["warmup_s"] - 1e-9

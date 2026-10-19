@@ -38,6 +38,8 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
             raise CollectionBudgetExceeded("collection_wall_budget")
         if max_sim_s is not None and env._time_s >= max_sim_s:
             raise CollectionBudgetExceeded("collection_simulation_budget")
+        if pending and pending[0] == signal.SIGUSR1:
+            raise CollectionBudgetExceeded("collection_resource_budget")
         if pending:
             raise KeyboardInterrupt(f"Pilot interrupted by signal {pending[0]}")
 
@@ -49,6 +51,7 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
 
     env.step = step
     signal.signal(signal.SIGTERM, request)
+    signal.signal(signal.SIGUSR1, request)
     return lambda: setattr(env, "step", original_step)
 
 
@@ -339,7 +342,17 @@ def main(argv=None):
         if args.mode == "collect":
             from alexdoor_xas.recording.quality import review_native_collection
 
-            result["recording_validation"] = review_native_collection(args.output / "episode.hdf5")
+            path = args.output / "episode.hdf5"
+            result["recording_validation"] = (
+                review_native_collection(path)
+                if path.exists()
+                else dict(
+                    integrity_passed=False,
+                    complete=False,
+                    data_usable=False,
+                    reason="recording_not_started",
+                )
+            )
             result["data_usable"] = result["recording_validation"]["data_usable"]
             result["demonstration_qualified"] = bool(
                 result["task_success"] and result["data_usable"]

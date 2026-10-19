@@ -168,3 +168,32 @@ def test_native_unverified_order_masks_tau_offline(tmp_path):
         file["metadata"].attrs["feedback_contract"] = json.dumps(contract)
         streams, *_ = raw_streams(file, cfg)
         assert not len(streams["tau"]["acquired"])
+
+
+def test_contact_acquisition_does_not_promote_later_ambiguous_load(tmp_path):
+    from alexdoor_xas.recording.quality import teacher_eligibility
+
+    path = tmp_path / "contact.hdf5"
+    log = recorder(path)
+    episode = json.loads(log.file["metadata"].attrs["episode"])
+    episode["phase_names"] = ["contact"]
+    log.file["metadata"].attrs["episode"] = json.dumps(episode)
+    log.reset(0)
+    log.state(np.zeros(9), np.zeros(9), acquired=0, available=0, generation=0)
+    for i, valid in enumerate((False, True, False, True)):
+        record_command(log, i / 60)
+        log.annotate(
+            dict(
+                phase=np.int8(0),
+                phase_valid=np.bool_(True),
+                physical_safe=np.bool_(True),
+                contact_valid=np.bool_(valid),
+            )
+        )
+        log.state(
+            np.zeros(9), np.zeros(9), acquired=(i + 1) / 60, available=(i + 1) / 60, generation=0
+        )
+    log.finish(dict(passed=True, termination="fixture", released=True, stabilized=True))
+    log.close()
+    with h5py.File(path) as file:
+        np.testing.assert_array_equal(teacher_eligibility(file), [True, True, False, True])
