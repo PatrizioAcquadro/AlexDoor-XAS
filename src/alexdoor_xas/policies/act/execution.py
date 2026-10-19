@@ -79,7 +79,11 @@ class TemporalIngressObserver:
 
     def reset(self):
         self.observer.reset()
-        self.execution.observations.reset(self.observer.generation)
+        # B1Observer emits the provider's generation when one is present. The
+        # provider may have been reset before the observer was constructed.
+        provider = getattr(self.observer, "provider", None)
+        generation = getattr(provider, "generation", self.observer.generation)
+        self.execution.observations.reset(generation)
         self.execution.reset()
 
     def update(self, sensor):

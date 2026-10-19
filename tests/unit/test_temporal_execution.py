@@ -12,10 +12,10 @@ from alexdoor_xas.perception.contracts import OPERATIONAL_V1
 from alexdoor_xas.policies.act.execution import TemporalA1Execution, TemporalIngressObserver
 from alexdoor_xas.policies.act.temporal import TemporalActPolicy
 from alexdoor_xas.policies.common.b1_contract import PILOT_SCHEMA, PilotBinding
-from alexdoor_xas.policies.observations import FeatureBlock, VisualEncoding
+from alexdoor_xas.policies.observations import B1Observer, FeatureBlock, VisualEncoding
 from alexdoor_xas.policies.rollout import B1Runner
 from alexdoor_xas.policies.temporal import IncrementalObservationBuilder, TemporalConfig
-from helpers import TEST_ROBOT_REF, NumericalIO
+from helpers import TEST_ROBOT_REF, NumericalIO, operational_provider
 from perception_helpers import action_inputs, operational_estimate
 
 
@@ -228,3 +228,22 @@ def test_execution_rejects_changed_horizon_and_ensembling(replay_runner):
     for options in (dict(n_action_steps=12), dict(temporal_ensemble=True)):
         with pytest.raises(ValueError, match="six"):
             execution.chunk_source(None, **options)
+
+
+def test_preinitialized_provider_generation_drives_temporal_reset(replay_runner):
+    runner, io, policy, execution, _, _ = replay_runner
+    provider = operational_provider(execution.binding)
+    # SessionProvider initializes/resets itself before B1Observer is created.
+    # Its generation is independent of the observer's local reset counter.
+    provider.reset()
+    observer = B1Observer(provider, provider.binding)
+    assert provider.generation != observer.generation
+    execution.binding = io.binding = provider.binding
+    runner.observer = TemporalIngressObserver(observer, execution, runner.observer.events)
+    for ticks in (13, 7):
+        result = runner.run(max_ticks=ticks)
+        assert result.reason == "time_budget" and result.control_steps == ticks
+        assert len(io.commands) == ticks and not result.predicted_complete
+        assert policy.generation == execution.observations.generation == provider.generation
+        assert provider.generation != observer.generation
+        assert not runner.pending and not any(execution.observations.rows.values())

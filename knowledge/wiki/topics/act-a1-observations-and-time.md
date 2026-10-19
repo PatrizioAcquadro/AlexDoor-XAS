@@ -102,7 +102,11 @@ conversion. Native recorder/teacher producer wiring remains the next task.
 The bridge checks current sensory readiness and freshness **before every row**,
 including rows pending from the previous prediction. It executes rows 0–5 in
 order, discards rows 6–11, and replans from the next measured history. Reset and
-stop clear pending actions, ingress and visual reuse. Each delta still passes
+stop clear pending actions, ingress and visual reuse. Ingress reset follows the
+geometry provider's generation, matching the actual `B1Observer` output even when
+the provider was initialized/reset independently; observers without a provider
+use their own generation. A generation change during execution still requires a
+reset and fresh history. Each delta still passes
 through existing per-row admission, `ActionAdapter`, `PurdueIO` and the measured-q
 joint controller; no physical threshold or stop rule changes.
 
