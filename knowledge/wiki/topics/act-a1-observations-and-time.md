@@ -537,3 +537,12 @@ Prepared stores now retain `source_complete`, `source_outcome` and
 source episode. The collection verifier also prepares interrupted prefixes with
 all supervision masked, reopens them through `TemporalEpisode`, and checks that
 actual state/command counts are unchanged and no training window is admitted.
+
+
+Full robot diagnostic units are declared per URDF joint: revolute position and
+feedforward effort use rad and N m; prismatic WSG jaws use m and N. The legacy
+full `commands/effort_target_nm` container retains its name for compatibility,
+with explicit per-joint `units`/`joint_names` and feedforward semantics attributes.
+It must not be confused with measured arm7 `physics_feedback/torque_nm`, whose
+seven channels are all N m. Unit annotation adds metadata only; it does not alter
+feedback, commands, outcomes or original captures.

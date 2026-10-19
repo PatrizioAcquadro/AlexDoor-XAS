@@ -8,7 +8,7 @@ from alexdoor_xas.assets.purdue import ARM_JOINTS
 from alexdoor_xas.dataset.temporal import preprocess_rgbd
 from alexdoor_xas.policies.temporal import IncrementalObservationBuilder, TemporalConfig
 from alexdoor_xas.recording.b1 import PHASES
-from alexdoor_xas.recording.b1_runtime import ExpertRecorder, array
+from alexdoor_xas.recording.b1_runtime import ExpertRecorder, annotate_native_units, array
 from alexdoor_xas.recording.temporal import TemporalRecorder
 
 
@@ -92,6 +92,9 @@ class TemporalExpertRecorder(ExpertRecorder):
             array(env.robot.data.joint_effort_limits)[0, env.arm_ids].tolist()
         )
         self._state()
+        annotate_native_units(
+            self.writer.file, env.robot.cfg.spawn.asset_path, env.robot.joint_names
+        )
         self._feedback(env.load_samples[-1])
         env.event_sink = self._event
 
@@ -200,6 +203,10 @@ class TemporalExpertRecorder(ExpertRecorder):
                 ],
                 effort_target_nm=array(env.robot.data.joint_effort_target)[0],
             )
+            if self.command_count == 0:
+                annotate_native_units(
+                    self.writer.file, env.robot.cfg.spawn.asset_path, env.robot.joint_names
+                )
             self._append("target", applied, t, t)
             self.command_count += 1
             if self.interrupt_after_commands == self.command_count:

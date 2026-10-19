@@ -208,3 +208,14 @@ def test_contact_acquisition_does_not_promote_later_ambiguous_load(tmp_path):
     log.close()
     with h5py.File(path) as file:
         np.testing.assert_array_equal(teacher_eligibility(file), [True, True, False, True])
+
+
+def test_full_robot_diagnostics_declare_rotational_and_jaw_effort_units(tmp_path):
+    from alexdoor_xas.recording.b1_runtime import joint_si_units
+
+    urdf = tmp_path / "robot.urdf"
+    urdf.write_text(
+        '<robot><joint name="arm" type="revolute"/><joint name="jaw" type="prismatic"/></robot>'
+    )
+    units = joint_si_units(urdf, ["arm", "jaw"])
+    assert units == dict(position=["rad", "m"], velocity=["rad/s", "m/s"], effort=["N m", "N"])

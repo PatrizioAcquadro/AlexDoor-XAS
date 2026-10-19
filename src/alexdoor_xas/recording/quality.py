@@ -131,6 +131,12 @@ def validate_native_recording(path):
             )
         if len(captures.get("acquired", ())) > 1:
             require(bool(np.all(np.diff(captures["acquired"][:]) <= 0.1 + 1e-9)), "rgbd_below_10hz")
+        if "frame" in captures:
+            frames, generations = captures["frame"][:], captures["generation"][:]
+            for gen in np.unique(generations):
+                known = frames[generations == gen]
+                if np.all(known >= 0):
+                    require(bool(np.all(np.diff(known) > 0)), "repeated_native_capture_frame")
         expected_feedback = 1 + 2 * (count - 1)
         require(
             len(feedback.get("acquired", ())) == expected_feedback,

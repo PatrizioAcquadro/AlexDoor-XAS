@@ -20,6 +20,43 @@ def array(value):
     return value.detach().cpu().numpy() if isinstance(value, torch.Tensor) else np.asarray(value)
 
 
+def joint_si_units(urdf, names):
+    """Native robot diagnostics include rotational joints and prismatic WSG jaws."""
+    kinds = {
+        joint.get("name"): joint.get("type") for joint in ET.parse(urdf).getroot().findall("joint")
+    }
+    selected = [kinds[name] for name in names]
+    if any(kind not in ("revolute", "continuous", "prismatic") for kind in selected):
+        raise ValueError("Unknown active-joint units")
+    return dict(
+        position=["m" if kind == "prismatic" else "rad" for kind in selected],
+        velocity=["m/s" if kind == "prismatic" else "rad/s" for kind in selected],
+        effort=["N" if kind == "prismatic" else "N m" for kind in selected],
+    )
+
+
+def annotate_native_units(file, urdf, names):
+    """Add explicit SI units to diagnostics; never change samples or outcomes.
+
+    The legacy effort_target_nm container holds full native feedforward effort,
+    including force for prismatic jaws. It is separate from measured arm7 tau.
+    """
+    units = joint_si_units(urdf, names)
+    for field, key in (("full_joint_position", "position"), ("full_joint_velocity", "velocity")):
+        path = "control/" + field
+        if path in file:
+            file[path].attrs.update(
+                joint_names=json.dumps(list(names)), units=json.dumps(units[key])
+            )
+    if "commands/effort_target_nm" in file:
+        file["commands/effort_target_nm"].attrs.update(
+            joint_names=json.dumps(list(names)),
+            units=json.dumps(units["effort"]),
+            semantics="native_feedforward_effort_not_measured_torque; legacy_container_name",
+        )
+    file["metadata"].attrs["full_joint_units"] = json.dumps(units)
+
+
 def camera_calibration(env):
     """Serialize fixed mount + URDF neck chain, never a per-door camera reset cache."""
     from pxr import UsdGeom
