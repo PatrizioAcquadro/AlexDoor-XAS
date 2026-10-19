@@ -42,7 +42,7 @@ class TemporalA1Execution:
         self.snapshot = None
         if observation.generation != self.observations.generation:
             raise ValueError("Temporal execution generation mismatch")
-        snapshot = self.observations.build(observation.time_s)
+        snapshot = self.observations.readiness(observation.time_s)
         self.policy.validate_snapshot(snapshot, now_s=observation.time_s)
         self.snapshot = snapshot
 
@@ -53,8 +53,9 @@ class TemporalA1Execution:
         def source(observation):
             if self.snapshot is None or self.snapshot["decision_time_s"] != observation.time_s:
                 raise ValueError("Validate current temporal observations before replanning")
+            snapshot = self.observations.build(observation.time_s)
             chunk = np.asarray(
-                self.policy.predict(self.snapshot, now_s=observation.time_s, reuse=self.reuse)
+                self.policy.predict(snapshot, now_s=observation.time_s, reuse=self.reuse)
             )
             if chunk.shape != (12, 7) or not np.isfinite(chunk).all():
                 raise ValueError("Invalid temporal A1 action chunk")

@@ -150,6 +150,36 @@ def gather(values, indices, shape, dtype=np.float32):
     return result
 
 
+def select_support(stream, slots, decision, generation, gap, *, shape=None, strict=False):
+    """Shared causal selection, field validity and finite numeric support."""
+    indices = causal_indices(stream, slots, decision, generation, gap, strict=strict)
+    valid = indices >= 0
+    if "valid" in stream:
+        valid &= gather(np.asarray(stream["valid"])[:, None], indices, (1,), bool)[:, 0]
+    values = None if shape is None else gather(stream["values"], indices, shape)
+    if values is not None:
+        valid &= np.isfinite(values).all(-1)
+        values[~valid] = 0
+    times = np.stack([
+        gather(np.asarray(stream[key])[:, None], indices, (1,), np.float64)[:, 0]
+        for key in ("acquired", "available")
+    ], axis=-1)
+    times[~valid] = 0
+    return indices, valid, values, times
+
+
+class EventValues:
+    """Reference existing event arrays; materialize only selected rows."""
+
+    def __init__(self, rows, shape):
+        self.rows, self.shape = rows, shape
+
+    def __getitem__(self, indices):
+        indices = np.atleast_1d(indices)
+        return (np.stack([self.rows[int(i)]["values"] for i in indices])
+                if len(indices) else np.empty((0, *self.shape), "f4"))
+
+
 class CausalObservationBuilder:
     def __init__(self, config, streams, *, episode_id):
         self.config, self.streams, self.episode_id = config, streams, str(episode_id)
@@ -163,6 +193,23 @@ class CausalObservationBuilder:
         snapshot["obs"]["images"] = values
         return snapshot
 
+    def readiness(self, decision_time_s, generation):
+        """Only current q/dq and static/current image support; no visual reads."""
+        cfg, t = self.config, float(decision_time_s)
+        if not np.isfinite(t) or t < 0:
+            raise ValueError("Invalid decision time")
+        _, image_valid, _, image_times = select_support(
+            self.streams["images"], [min(t, cfg.static_time_s), t],
+            t, generation, cfg.image_gap_s
+        )
+        selected = [select_support(self.streams[key], [t], t, generation,
+                                   cfg.state_gap_s, shape=(9,)) for key in ("q", "dq")]
+        ready = bool(t >= cfg.static_time_s + cfg.warmup_s - 1e-9
+                     and image_valid.all() and all(row[1][0] for row in selected))
+        return dict(ready=ready, episode_id=self.episode_id, generation=int(generation),
+                    decision_time_s=t, observation_config=cfg.to_dict(),
+                    image_times=image_times, robot_times=np.stack([row[3] for row in selected], axis=1))
+
     def build_support(self, decision_time_s, generation):
         """Join numeric support without materializing images (for bounded batches)."""
         cfg, t = self.config, float(decision_time_s)
@@ -171,41 +218,20 @@ class CausalObservationBuilder:
         robot_slots = t - np.arange(cfg.state_count - 1, -1, -1) / cfg.state_hz
         image_slots = np.r_[min(t, cfg.static_time_s), t - np.array(cfg.image_offsets_s)]
         images = self.streams["images"]
-        indices = causal_indices(images, image_slots, t, generation, cfg.image_gap_s)
-        # Static reference only exists after its declared inspection endpoint.
+        indices, image_valid, _, image_times = select_support(
+            images, image_slots, t, generation, cfg.image_gap_s
+        )
         if t < cfg.static_time_s:
-            indices[0] = -1
-        image_valid = indices >= 0
-        if "valid" in images:
-            image_valid &= gather(np.asarray(images["valid"])[:, None], indices, (1,), bool)[:, 0]
-        image_times = np.zeros((len(indices), 2), np.float64)
+            indices[0], image_valid[0], image_times[0] = -1, False, 0
         image_source = np.full(len(indices), -1, np.int64)
-        for col, key in enumerate(("acquired", "available")):
-            image_times[:, col] = gather(
-                np.asarray(images[key])[:, None], indices, (1,), np.float64
-            )[:, 0]
-        image_times[~image_valid] = 0
         image_source[image_valid] = np.asarray(images["source_index"])[indices[image_valid]]
         parts, masks, support = [], [], []
         for field, width in zip(FIELDS, WIDTHS, strict=True):
             stream = self.streams[field]
-            idx = causal_indices(
-                stream, robot_slots, t, generation, cfg.state_gap_s, strict=field == "target"
+            idx, valid, val, times = select_support(
+                stream, robot_slots, t, generation, cfg.state_gap_s,
+                shape=(width,), strict=field == "target"
             )
-            val = gather(stream["values"], idx, (width,))
-            valid = idx >= 0
-            if "valid" in stream:
-                valid &= gather(np.asarray(stream["valid"])[:, None], idx, (1,), bool)[:, 0]
-            valid &= np.isfinite(val).all(-1)
-            val[~valid] = 0
-            times = np.stack(
-                [
-                    gather(np.asarray(stream[key])[:, None], idx, (1,), np.float64)[:, 0]
-                    for key in ("acquired", "available")
-                ],
-                axis=-1,
-            )
-            times[~valid] = 0
             parts.append(val)
             masks.append(valid)
             support.append(times)
@@ -347,7 +373,7 @@ class IncrementalObservationBuilder:
             if self.static is None or acquired >= self.static["acquired"]:
                 self.static = row
 
-    def build(self, decision_time_s):
+    def _builder(self, decision_time_s):
         if self.invalid or any(v > decision_time_s for v in self.last_available.values()):
             raise ValueError("Invalid incremental snapshot clock; reset required")
         streams = {}
@@ -367,11 +393,11 @@ class IncrementalObservationBuilder:
                 name: np.asarray([row[name] for row in ordered])
                 for name in ("acquired", "available", "generation", "source_index", "valid")
             }
-            streams[key]["values"] = (
-                np.stack([row["values"] for row in ordered])
-                if ordered
-                else np.empty((0, *width), "f4")
-            )
-        return CausalObservationBuilder(self.config, streams, episode_id=self.episode_id).build(
-            decision_time_s, self.generation
-        )
+            streams[key]["values"] = EventValues(ordered, width)
+        return CausalObservationBuilder(self.config, streams, episode_id=self.episode_id)
+
+    def readiness(self, decision_time_s):
+        return self._builder(decision_time_s).readiness(decision_time_s, self.generation)
+
+    def build(self, decision_time_s):
+        return self._builder(decision_time_s).build(decision_time_s, self.generation)

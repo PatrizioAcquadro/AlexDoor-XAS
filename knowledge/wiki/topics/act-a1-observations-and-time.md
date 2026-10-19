@@ -99,6 +99,17 @@ history requires actual delivered/acknowledged targets; the bridge never turns a
 prediction or request into an application. Producers own their reset and clock
 conversion. Native recorder/teacher producer wiring remains the next task.
 
+Per-action readiness now selects only static/current image support and current
+q/dq through the same causal selection/validity function as the model-input
+builder. It performs no image reads. Replanning alone materializes the full
+history, reading selected events rather than stacking the ingress visual corpus.
+A bounded 60-action numerical runner replay at 240×384 preserved all ordered
+commands, 10 queries and stop behavior. The 50 pending-action ticks fell from
+14.27/16.72 ms p50/p95 to 2.86/2.99 ms; query ticks from 14.88/16.61 to
+10.40/11.22 ms. These costs include observer-to-dispatch with numerical admission
+and IO, not CUDA inference or physics. Evidence:
+[runner replay](../../../outputs/evidence/act-a1-teacher-temporal-20261019/runner-replay-cost.json).
+
 The bridge checks current sensory readiness and freshness **before every row**,
 including rows pending from the previous prediction. It executes rows 0–5 in
 order, discards rows 6–11, and replans from the next measured history. Reset and

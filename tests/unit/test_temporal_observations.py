@@ -201,3 +201,22 @@ def test_static_reference_cannot_clock_episode_progress_after_history_fill():
     assert a["obs"]["image_timing"][0, 0] == -1
     assert a["obs"]["image_timing"][-1, 0] == pytest.approx(1 / 120)
     assert a["obs"]["image_timing"][1, 0] == pytest.approx(cfg.history_s + 1 / 120)
+
+
+def test_readiness_matches_full_builder_without_reading_images():
+    cfg = TemporalConfig(image_size=(2, 3), static_time_s=0.5)
+    raw = streams(cfg)
+    builder = CausalObservationBuilder(cfg, raw, episode_id="e")
+    for t in (0, 0.5, 0.7, 3, 5, 5.2):
+        full = builder.build(t, 2)
+        ready = builder.readiness(t, 2)
+        assert ready["ready"] == full["ready"]
+        np.testing.assert_array_equal(ready["image_times"], full["image_times"][[0, -1]])
+        np.testing.assert_array_equal(ready["robot_times"], full["robot_times"][-1:, :2])
+    class Unreadable:
+        def __getitem__(self, _):
+            raise AssertionError("Readiness must never read images")
+    raw["images"]["values"] = Unreadable()
+    assert builder.readiness(3, 2)["ready"]
+    raw["q"]["values"][180] = np.nan
+    assert not builder.readiness(3, 2)["ready"]
