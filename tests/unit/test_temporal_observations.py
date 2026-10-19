@@ -222,3 +222,15 @@ def test_readiness_matches_full_builder_without_reading_images():
     assert builder.readiness(3, 2)["ready"]
     raw["q"]["values"][180] = np.nan
     assert not builder.readiness(3, 2)["ready"]
+
+
+@pytest.mark.parametrize("changes", [
+    dict(history_s=3, image_offsets_s=None), dict(state_hz=30), dict(control_dt_s=1/30),
+    dict(image_size=(120, 192)), dict(image_gap_s=0.2), dict(state_gap_s=0.1),
+    dict(depth_scale_m=6), dict(depth_interval_m=(0.2, 5)), dict(image_offsets_s=(0.1, 0)),
+])
+def test_only_episode_startup_is_excluded_from_model_contract(changes):
+    from dataclasses import replace
+    cfg = TemporalConfig()
+    assert cfg.model_contract() == replace(cfg, static_time_s=0, warmup_s=1).model_contract()
+    assert cfg.model_contract() != replace(cfg, **changes).model_contract()

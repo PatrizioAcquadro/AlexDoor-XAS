@@ -91,6 +91,15 @@ class TemporalConfig:
     def to_dict(self):
         return asdict(self)
 
+    def model_contract(self):
+        """Learned semantics; reference acquisition/warmup belong to each episode.
+
+        The static token already has a constant role marker, not elapsed episode
+        time. Keep all preprocessing, support/freshness and control rules strict.
+        """
+        return {key: value for key, value in self.to_dict().items()
+                if key not in ("static_time_s", "warmup_s")}
+
 
 def validate_stream(stream):
     acquired, available, generation = (

@@ -247,3 +247,36 @@ def test_preinitialized_provider_generation_drives_temporal_reset(replay_runner)
         assert policy.generation == execution.observations.generation == provider.generation
         assert provider.generation != observer.generation
         assert not runner.pending and not any(execution.observations.rows.values())
+
+
+def test_intermediate_startup_skips_closed_door_inspection_and_clears_context(replay_runner):
+    runner, io, policy, execution, _, _ = replay_runner
+    cfg = replace(execution.observations.config, static_time_s=0)
+    execution.observations = IncrementalObservationBuilder(cfg, episode_id="fresh-intermediate")
+    with pytest.raises(ValueError, match="inspection recipe"):
+        TemporalA1Execution(policy, execution.binding, TEST_ROBOT_REF, execution.observations)
+    calls = []
+
+    def startup(observer, io):
+        calls.append(observer.generation)
+        observation = observer.update(io.observe())
+        for _ in range(12):  # new measured pre-roll, using numerical IO only
+            if reason := io.safety_reason(None):
+                return observation, reason
+            io.hold_step()
+            observation = observer.update(io.observe())
+        return observation, ""
+
+    execution.startup = startup
+    # Constructor validates explicit local-t=0 producer rather than closed inspection.
+    TemporalA1Execution(policy, execution.binding, TEST_ROBOT_REF, execution.observations,
+                        startup=startup)
+    for _ in range(2):
+        result = runner.run(max_ticks=7)
+        assert result.reason == "time_budget" and result.control_steps == 7
+        assert io.clock == 19  # .2 s fresh pre-roll + seven rows; no closed inspection
+        assert not any(execution.observations.rows.values())
+    assert len(set(calls)) == 2
+    execution.startup = lambda observer, io: (observer.update(io.observe()), "unqualified_reset")
+    result = runner.run(max_ticks=7)
+    assert result.reason == "unqualified_reset" and not io.commands

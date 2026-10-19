@@ -310,6 +310,11 @@ class B1Runner:
 
     def inspect(self):
         """Use the common neck schedule and hold the parked tool through warmup."""
+        startup = getattr(self.policy, "startup", None)
+        if startup is not None:
+            # Explicit temporal intermediate producer owns fresh, guarded startup.
+            # Normal per-row readiness/admission checks run before any prediction.
+            return startup(self.observer, self.io)
         cfg = self.observer.binding.config
         points = np.asarray(cfg["inspection"]["waypoints"])
         end = float(points[-1, 0]) + cfg["warmup_s"]

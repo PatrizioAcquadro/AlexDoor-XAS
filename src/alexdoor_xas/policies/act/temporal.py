@@ -24,7 +24,11 @@ def fit_temporal_stats(episodes):
     healthy measurements at admitted training times, with no generic clipping.
     """
     ids, actions, torque = [], [], []
+    contract = None
     for episode in episodes:
+        if contract is not None and episode.config.model_contract() != contract:
+            raise ValueError("Normalization observation contracts differ")
+        contract = episode.config.model_contract()
         episode_id = episode.builder.episode_id
         if episode.metadata["split"] != "train" or episode_id in ids:
             raise ValueError("Normalization requires unique training episodes")
@@ -175,7 +179,7 @@ class TemporalActPolicy:
     def validate_snapshot(self, snapshot, *, now_s=None):
         if not isinstance(snapshot, dict) or "observation_config" not in snapshot:
             raise ValueError("Explicit temporal snapshot required; legacy arrays are incompatible")
-        if TemporalConfig(**snapshot["observation_config"]) != self.config:
+        if TemporalConfig(**snapshot["observation_config"]).model_contract() != self.config.model_contract():
             self.model.obs_proj.clear_cache()
             raise ValueError("Snapshot preprocessing/history differs from checkpoint")
         if (snapshot["episode_id"], snapshot["generation"]) != (self.episode_id, self.generation):
@@ -216,7 +220,10 @@ class TemporalActPolicy:
     def from_checkpoint(cls, path, *, config, runtime_asset, device="cuda:0"):
         loaded = load_checkpoint_payload(path, FORMAT, "temporal ACT", device)
         cfg = ActModelCfg(**loaded.model_cfg)
-        if cfg.temporal_config is None or TemporalConfig(**cfg.temporal_config) != config:
+        if cfg.temporal_config is None:
+            raise ValueError("Checkpoint temporal/preprocessing recipe mismatch")
+        saved_config = TemporalConfig(**cfg.temporal_config)
+        if saved_config.model_contract() != config.model_contract():
             raise ValueError("Checkpoint temporal/preprocessing recipe mismatch")
         contract = loaded.meta.get("temporal_contract", {})
         steps = contract.get("n_action_steps", 0)
@@ -224,7 +231,7 @@ class TemporalActPolicy:
         import json
 
         if json.dumps(contract, sort_keys=True) != json.dumps(
-            temporal_contract(config, steps), sort_keys=True
+            temporal_contract(saved_config, steps), sort_keys=True
         ):
             raise ValueError("Checkpoint temporal robot/action contract mismatch")
         assert_checkpoint_runtime_compatible(loaded.robot_asset, runtime_asset)

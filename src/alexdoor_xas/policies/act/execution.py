@@ -13,16 +13,19 @@ from alexdoor_xas.policies.temporal import IncrementalObservationBuilder
 
 
 class TemporalA1Execution:
-    def __init__(self, policy, binding, robot_asset, observations, *, reuse=False):
+    def __init__(self, policy, binding, robot_asset, observations, *, reuse=False, startup=None):
         cfg = observations.config
         if (
-            policy.config != cfg
+            policy.config.model_contract() != cfg.model_contract()
             or cfg.history_s != 4
             or policy.chunk_size != 12
             or policy.n_action_steps != 6
             or geometry_profile(binding) != OPERATIONAL_V1
-            or not np.isclose(cfg.static_time_s, binding.config["inspection"]["waypoints"][-1][0])
-            or not np.isclose(cfg.warmup_s, binding.config["warmup_s"])
+            or (startup is None and (
+                not np.isclose(cfg.static_time_s, binding.config["inspection"]["waypoints"][-1][0])
+                or not np.isclose(cfg.warmup_s, binding.config["warmup_s"])
+            ))
+            or (startup is not None and (not callable(startup) or cfg.static_time_s != 0))
         ):
             raise ValueError(
                 "Temporal execution requires the explicit 4s/12/6 A1 inspection recipe"
@@ -30,6 +33,7 @@ class TemporalA1Execution:
         self.policy, self.binding, self.robot_asset = policy, binding, robot_asset
         self.observations, self.reuse = observations, bool(reuse)
         self.action_space, self.chunk_size = A1_JOINT_DELTA, 12
+        self.startup = startup
         self.snapshot = None
 
     def reset(self, seed=0):
@@ -106,11 +110,18 @@ def temporal_a1_runner(
     reuse=False,
     device="cuda:0",
     admission_source=None,
+    startup=None,
 ):
     """Load a compatible checkpoint and explicitly opt into temporal A1 execution.
 
     Caller owns the native event source and its reset, actual application acks,
-    and synchronized clocks. This entry point never launches a simulator.
+    and synchronized clocks. For a reconstructed intermediate state, pass
+    config.static_time_s=0 and startup(observer, io) -> (observation, reason).
+    This explicit producer callback must reconstruct/qualify the loaded state,
+    acquire a fresh reference and perform guarded pre-roll after IO reset. A
+    nonempty reason stops through normal IO. No closed-door neck/park sequence
+    is run for this mode; current readiness and per-row admission still apply.
+    This entry point never launches a simulator.
     """
     from alexdoor_xas.policies.rollout import B1Runner
 
@@ -123,7 +134,7 @@ def temporal_a1_runner(
         config, episode_id=episode_id, feedback_contract=feedback_contract
     )
     execution = TemporalA1Execution(
-        policy, observer.binding, io.robot_asset, observations, reuse=reuse
+        policy, observer.binding, io.robot_asset, observations, reuse=reuse, startup=startup
     )
     return B1Runner(
         execution,

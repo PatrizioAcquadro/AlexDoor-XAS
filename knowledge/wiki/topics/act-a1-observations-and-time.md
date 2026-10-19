@@ -72,7 +72,11 @@ no recurrent hidden state, privileged crop or temporal action ensemble.
 ACT accepts structured batches through recursive `collate_torch` and the existing
 ACT training interface. `obs_dim=32` denotes measured feature width, not a flat
 image vector. Temporal checkpoints bind preprocessing/history, joint order,
-robot identity, A1 semantics and execution horizon. Their format is
+robot identity, A1 semantics and execution horizon. `TemporalConfig.model_contract()`
+excludes only `static_time_s` and `warmup_s`: acquisition and readiness metadata
+for each episode, not model features. Existing v2 checkpoint bytes remain valid
+and unchanged; their full saved configuration is still checked internally, while
+runtime/snapshot compatibility compares the model contract. Their format is
 `b1.act.temporal.v2`; legacy checkpoints and flat observations cannot silently
 enter this recipe. Legacy model/checkpoint behavior remains supported separately.
 The simulator's legacy observer is not automatically switched to this new path.
@@ -81,7 +85,7 @@ The simulator's legacy observer is not automatically switched to this new path.
 
 [`temporal_a1_runner`](../../../src/alexdoor_xas/policies/act/execution.py) loads a
 v2 checkpoint with the runtime robot identity, checks the control interval and
-inspection configuration, and connects an incremental builder to `B1Runner`.
+episode startup configuration, and connects an incremental builder to `B1Runner`.
 The entry point fixes history/chunk/execution at **4 s / 12 / 6** and rejects
 ensembling or another execution horizon. The geometry observer remains active.
 
@@ -130,6 +134,33 @@ replanning, current-q conversion, stale input stopping inside a chunk, reset,
 admission refusal, physical-stop propagation, and robot/joint/control mismatch
 rejection. These checks do not validate physical task completion, a hardware
 producer, real sensor-to-actuator latency or contact qualification.
+
+### Startup compatibility and mixed consumption
+
+One initialized model/checkpoint can consume the normal 25 s reference and the
+fresh intermediate t=0 reference. Both use the same static role marker, real
+relative support clocks and masks. No timestamps/history are rewritten. All
+other configuration fields, including freshness rules, remain strict. Readers
+reject startup metadata differing from the recorded episode when it is present.
+
+For nominal execution the shared closed-door inspection remains required. A
+loaded intermediate uses `temporal_a1_runner(..., config=episode_config,
+startup=qualified_startup)`, where `static_time_s=0`. The explicit callable
+`qualified_startup(observer, io)` runs after IO reset and returns `(observation,
+reason)`. The producer owns physical reconstruction, contact qualification,
+fresh local reference and guarded pre-roll; a nonempty reason takes the usual
+stop path. Without this producer an intermediate configuration is rejected.
+The runner never parks/scans a loaded intermediate through nominal inspection.
+This is a maintained numerical execution interface, not a newly validated
+physical learned continuation. Every dispatched row still requires current
+readiness, geometry/admission and the original controller/stop limits.
+
+`mixed_temporal_batch([(episode, rows), ...], horizon=12)` checks common model
+semantics and preserves selection order, masks and action padding. Its top-level
+`episode_id`, `decision_row`, `decision_time_s` and `generation` remain audit
+metadata outside `obs`. Distinct files with the same episode identity are
+rejected. Fit one `fit_temporal_stats` on the unique explicitly admitted train
+episodes, then apply that same normalization to every component of the batch.
 
 ### Preparation and consumption
 

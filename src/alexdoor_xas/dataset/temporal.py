@@ -382,6 +382,12 @@ class TemporalEpisode:
         if self.metadata.get("split") not in ("train", "development"):
             self.close()
             raise ValueError("Final test remains sealed")
+        recorded_config = self.metadata.get("observation_config")
+        if recorded_config is not None and any(
+            recorded_config[key] != getattr(config, key) for key in ("static_time_s", "warmup_s")
+        ):
+            self.close()
+            raise ValueError("Reader startup metadata differs from the recorded episode")
         recorded_dt = self.metadata.get("control_dt")
         if recorded_dt is not None and not np.isclose(
             recorded_dt, config.control_dt_s, atol=1e-9, rtol=0
@@ -467,6 +473,10 @@ class TemporalEpisode:
             obs=obs,
             actions=np.stack([s["actions"] for s in ordered]),
             is_pad=np.stack([s["is_pad"] for s in ordered]),
+            episode_id=[self.builder.episode_id] * len(rows),
+            decision_row=rows.copy(),
+            decision_time_s=self.times[rows].copy(),
+            generation=self.generations[rows].copy(),
         )
 
     def training_rows(self, horizon=12):
@@ -503,3 +513,31 @@ class TemporalEpisode:
     def close(self):
         if getattr(self, "file", None):
             self.file.close()
+
+
+def mixed_temporal_batch(selections, horizon=12):
+    """Concatenate (episode, rows) selections, preserving order and audit identity.
+
+    Startup times may differ; actual model semantics must match. No labels or
+    audit metadata enter obs. Each episode retains its own causal join/masks.
+    """
+    selections = list(selections)
+    if not selections:
+        raise ValueError("A mixed batch requires episodes")
+    contract = selections[0][0].config.model_contract()
+    identities = {}
+    batches = []
+    for episode, rows in selections:
+        if episode.config.model_contract() != contract:
+            raise ValueError("Mixed batch observation contracts differ")
+        identity = episode.builder.episode_id
+        if identity in identities and identities[identity] != episode.path.resolve():
+            raise ValueError("Distinct recordings require unique episode identities")
+        identities[identity] = episode.path.resolve()
+        batches.append(episode.batch(rows, horizon))
+    return dict(
+        obs={key: np.concatenate([b["obs"][key] for b in batches]) for key in batches[0]["obs"]},
+        episode_id=[identity for b in batches for identity in b["episode_id"]],
+        **{key: np.concatenate([b[key] for b in batches]) for key in (
+            "actions", "is_pad", "decision_row", "decision_time_s", "generation")},
+    )

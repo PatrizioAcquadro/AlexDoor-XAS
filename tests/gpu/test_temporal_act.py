@@ -149,6 +149,21 @@ def test_gradients_masks_cache_invalidation_and_checkpoint(tmp_path):
     loaded = TemporalActPolicy.from_checkpoint(path, config=cfg, runtime_asset=TEST_ROBOT_REF)
     loaded.reset(ep.builder.episode_id, 0)
     np.testing.assert_allclose(loaded.predict(snap), changed, atol=1e-6, rtol=1e-5)
+    # Same initialized/saved checkpoint, different real acquisition/warmup metadata.
+    intermediate_cfg = replace(cfg, static_time_s=0, warmup_s=0.2)
+    intermediate = TemporalActPolicy.from_checkpoint(
+        path, config=intermediate_cfg, runtime_asset=TEST_ROBOT_REF
+    )
+    intermediate.reset(ep.builder.episode_id, 0)
+    from alexdoor_xas.policies.temporal import CausalObservationBuilder
+    intermediate_snap = CausalObservationBuilder(
+        intermediate_cfg, ep.builder.streams, episode_id=ep.builder.episode_id
+    ).build(ep.times[25], 0)
+    assert np.isfinite(intermediate.predict(intermediate_snap)).all()
+    loaded.reset(ep.builder.episode_id, 0)
+    np.testing.assert_array_equal(
+        intermediate.predict(intermediate_snap), loaded.predict(intermediate_snap)
+    )
     with pytest.raises(ValueError, match="mismatch"):
         TemporalActPolicy.from_checkpoint(
             path, config=replace(cfg, image_size=(120, 192)), runtime_asset=TEST_ROBOT_REF
