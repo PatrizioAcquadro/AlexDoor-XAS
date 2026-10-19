@@ -217,12 +217,24 @@ qualification. Original 0/2 diagnostic outcomes and paused panels remain intact;
 no policy training, collection or architecture changes occurred.
 See [[experiments/b1-act-a1-calibration-stopping|validation, failures and handoff]].
 
-The [[topics/act-a1-observations-and-time|ACT A1 temporal data path]] is now
-implemented and CUDA checked: shared causal stream joins, bounded frame-indexed
-sampling, optional complete-stream recorder, finite-history ACT, explicit
-checkpoints and inference reuse. Initial candidate: 4 s, 120×192, chunk12/replan6.
-Batch32 fits the RTX 4090 (1.88 GiB allocated); saved native-input inference p50/
-p95 is 16.75/17.42 ms. This does not establish synchronous 60 Hz hardware dispatch
-or learned physical task completion. Reuse remains off by default. Teacher,
-collection, checkpoints and final test are untouched; next work is complete
-ordinary stabilization collection and its bounded first-tranche checks.
+The [[topics/act-a1-observations-and-time|ACT A1 temporal data path]] now removes
+the static-reference progress clock and has an explicit checkpoint/incremental
+entry point through guarded A1 execution: history 4 s, chunk12/replan6. Saved-event
+replay covers ordering, replanning, reset and per-row stale-input stopping while
+retaining existing admission, controller and physical stops. Legacy flat policies
+remain supported; revised temporal semantics require v2 checkpoints.
+
+Representative distinct/overlapping/mixed batch construction falls from
+207/158/173 to 104/65/76 ms at 120×192, and 860/721/770 to 308/185/223 ms at
+240×384. Prefer 240×384, retaining 120×192 as the cheaper alternative: complete
+prefetched batch32 work peaks at 7.39 GiB allocated VRAM and 4.24 GiB RSS, including
+resident AdamW moments, with no optimizer updates. Reuse stays off by default:
+120×192 fails the existing strict numerical criterion on the longer trace;
+240×384 passes that fixture and saves about 4% steady inference time.
+
+These are bounded saved-input and numerical execution results, not learning,
+physical task completion or hardware dispatch qualification. Teacher, collection,
+trained checkpoints, physical thresholds and final test are untouched. The next
+task can begin teacher integration and the first complete data tranche, with the
+specified complete nominal episode, honest intermediate reset and recoverable
+interruption checks before extending collection.

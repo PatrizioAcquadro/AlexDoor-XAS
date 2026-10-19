@@ -1,6 +1,7 @@
 # ACT A1 observations and time
 
-The finite-history data-to-ACT path and opt-in A1 execution bridge are implemented and CUDA checked. It is an
+The finite-history data-to-ACT path and opt-in A1 execution bridge are implemented
+and CUDA checked. It is an
 explicit new observation/checkpoint recipe alongside the maintained legacy path.
 No teacher, controller, admission, physical requirement, historical recording,
 checkpoint or final-test data was changed. No optimizer update, demonstration,
@@ -11,7 +12,7 @@ release and normal stabilization. Offline agreement and teacher imitation do
 not establish any of these outcomes. The original design is retained in Git at
 `da04d38`; its saved analysis and prior negative results remain unchanged.
 
-## Initial configuration
+## Configuration
 
 Prefer **4 s, 240×384 RGB-D, the existing shared CNN architecture, chunk 12 and
 execution horizon 6** for the next integration. Retain explicit `image_size=(120,
@@ -233,7 +234,7 @@ preprocessing is about 8.5–9 ms on this fixture; model construction is about 1
 History fill and first forward are separate startup costs. This is saved-stream
 wall time, not measured sensor-to-actuator hardware latency or physics throughput.
 
-### Inference reuse decision
+### Historical inference reuse decision (12 queries)
 
 The bounded cache stores only deterministic visual features (64 entries), never
 training latents. `reuse=True` keeps host snapshots and transfers/encodes misses
@@ -292,7 +293,80 @@ eligibility, true tail padding, masks, preprocessing and normalization retain
 single-sample semantics. The existing one-next-batch prefetch helper is reused;
 there is no expanded window dataset or GPU feature cache during backward work.
 
-Final timings and inference decisions are recorded below after bounded completion.
+| Resolution | Distinct windows, before → after | Overlapping windows, before → after | Mixed with duplicates, before → after |
+|---|---:|---:|---:|
+| 120×192 | 207 → 104 ms | 158 → 65 ms | 173 → 76 ms |
+| 240×384 | 860 → 308 ms | 721 → 185 ms | 770 → 223 ms |
+
+The original 50% target is met in **5/6** cases. Distinct 120×192 reaches 49.8%
+and remains just below it; the target was not relaxed. The first copy-only
+optimization and its weaker 120×192 results remain in the evidence. Numeric
+retention addresses the measured residual reads; joins themselves were not
+replaced by a second causal implementation. Cold frame reads for the mixed batch
+fall from 243 to 237; direct final-buffer materialization supplies most of the
+benefit. Distinct batches still read 646 frames, overlapping batches 47. A cold
+646-read batch evicts 582 entries from the fixed 64-frame LRU.
+
+[`benchmark_temporal_pipeline.py`](../../../scripts/benchmark_temporal_pipeline.py)
+measures **eight complete batches per workload**, with one bounded CPU prefetch
+thread, normalization, collation, H2D, synchronized float32 forward/backward and
+cleanup. Untimed per-sample comparisons establish exact order, duplicates,
+actions, masks and normalization before timing. The source labels stay diagnostic;
+seeded initial model weights and backward passes are not policy training.
+
+| Resolution | Complete wall / 8 batches: distinct / overlap / mixed, ms per batch | Median H2D | Median GPU forward/backward | Peak allocated / reserved VRAM | Peak RSS |
+|---|---:|---:|---:|---:|---:|
+| 120×192 | 129 / 77 / 91 | 20 ms | 24–25 ms | 1.88 / 2.51 GiB | 2.18 GiB |
+| 240×384 | 355 / 223 / 274 | 85–88 ms | 94 ms | 7.39 / 9.34 GiB | 4.24 GiB |
+
+These wall averages include first delivery and pending-reader cleanup; they are
+not sums of overlapped stage medians. Loading remains the throughput bottleneck.
+One-time first model backward calls and every per-batch duration remain in the
+JSON. The approximately fourfold image/compute cost of 240×384 remains explicit;
+its measured memory and delivery cost are practical within the declared bounded
+workstation budget, supporting the information-preserving default. 120×192
+remains supported as the cheaper alternative. Neither has learning evidence.
+
+AdamW's two FP32 moments were actually allocated without `optimizer.step` and
+remained resident during the batch measurements: **12.50 MiB**, with 6.25 MiB of
+parameters and corresponding gradients. A prospective foreach temporary of about
+one parameter-sized buffer is an **estimate**; optimizer-step latency and its
+transient peak were not measured. No optimizer update occurred.
+
+### Incremental reuse: fill, steady operation and numerical result
+
+The actual `IncrementalObservationBuilder` → `TemporalActPolicy.predict` path
+replays the same native saved events at 151 decisions, six control ticks apart.
+Each query includes new native RGB-D reads/decode, CUDA preprocessing/return,
+numeric event ingress, causal construction, normalization, required transfers,
+ACT and action return. Three trials per mode alternate order. The first history
+and prediction cost is separate (120×192: 366–378 ms; 240×384: 405–415 ms). The
+next **40 queries / one whole 4 s history cycle** are retained as cache fill;
+**110 steady queries per trial, 330 per mode** remain. Serial queries are correlated;
+empirical p95 values do not establish a deadline guarantee.
+
+| Resolution | Full recomputation steady p50 / p95 | Reuse steady p50 / p95 | Untimed strict numerical comparison |
+|---|---:|---:|---|
+| 120×192 | 16.38 / 16.97 ms | 16.40 / 16.88 ms | Fails in 86/150 queries, 109/12,600 components |
+| 240×384 | 41.10 / 41.88 ms | 39.31 / 40.47 ms | Passes in 150/150 queries, 12,600 components |
+
+The table reports the median of the three trial p50/p95 statistics; complete
+trial ranges and all fill/steady samples remain in
+[`summary.json`](../../../outputs/evidence/act-a1-temporal-integration-20261019/summary.json).
+Equivalence comparisons are separate, untimed passes with the existing
+`atol=1e-6, rtol=1e-5` criterion. Maximum absolute output differences are 2.27e-6
+at 120×192 and 1.40e-6 at 240×384 with identity diagnostic action scaling. The
+first strict 120×192 assertion failure and the complete census are both kept;
+no tolerance was changed to pass it. Small absolute differences alone do not
+establish equivalence under the declared criterion or a physical safety result.
+
+**Keep reuse off by default at both resolutions.** At 120×192 it provides no
+meaningful latency gain and fails the strict numerical criterion. At 240×384 it
+passes this saved-trace check and reduces median/tail time by about 4%; it remains
+an explicit measured option, not a qualified default for a future learned
+checkpoint or hardware producer. Use the preferred 240×384 path with full
+recomputation for the next teacher/data integration. No asynchronous execution,
+control-rate change or physical threshold adjustment was introduced.
 
 ## Validation and exact next work
 

@@ -31,6 +31,9 @@ The explicit `rgbd-finite-history-v1` ACT recipe additionally accepts structured
 RGB-D and measured-state history, with a shared CNN and one finite attention
 block. Its current-state readout retains q/dq explicitly. Temporal checkpoints
 and inference are separate from the legacy flat recipe; both remain maintained.
+The v2 temporal checkpoint removes static-reference elapsed time. Its explicit
+`temporal_a1_runner` bridge executes six of twelve rows through the existing
+per-row admission/controller/stop path and validates freshness inside a chunk.
 See [[act-a1-observations-and-time|the causal contract, API, measured costs and collection boundary]]. No new policy has been trained or physically qualified.
 
 ## Maintained Components
