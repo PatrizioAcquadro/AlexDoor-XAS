@@ -53,20 +53,36 @@ class CachedFrames:
     def __init__(self, values, *, capacity=64):
         self.values, self.capacity = values, capacity
         self.cache = OrderedDict()
-        self.reads = 0
+        self.reads = self.evictions = 0
 
-    def __getitem__(self, rows):
-        result = []
-        for row in np.atleast_1d(rows):
+    def gather_into(self, rows, output):
+        """Read each distinct frame once into final caller-owned batch storage.
+
+        Restore every duplicate in place; LRU capacity never grows with a batch.
+        No expanded sliding-window cache or list of sample-sized images exists.
+        """
+        indices = np.asarray(rows).reshape(-1)
+        destination = output.reshape(len(indices), *output.shape[-3:])
+        for row in np.unique(indices):
+            positions = np.flatnonzero(indices == row)
+            if row < 0:
+                destination[positions] = 0
+                continue
             row = int(row)
             if row not in self.cache:
                 self.cache[row] = np.asarray(self.values[row])
                 self.reads += 1
                 if len(self.cache) > self.capacity:
                     self.cache.popitem(last=False)
+                    self.evictions += 1
             self.cache.move_to_end(row)
-            result.append(self.cache[row])
-        return np.stack(result)
+            destination[positions] = self.cache[row]
+
+    def __getitem__(self, rows):
+        rows = np.atleast_1d(rows)
+        output = np.empty((len(rows), *self.values.shape[1:]), dtype=self.values.dtype)
+        self.gather_into(rows, output)
+        return output
 
 
 class RawFrames:
@@ -307,7 +323,7 @@ def prepare_temporal(
 
 
 class TemporalEpisode:
-    """Open one prepared store; small support arrays, <=64 cached image frames."""
+    """Open one store; <=8 MiB retained numeric values and <=64 image frames."""
 
     def __init__(self, path, config, *, cache_frames=64):
         self.path, self.config = Path(path), config
@@ -334,11 +350,21 @@ class TemporalEpisode:
             self.close()
             raise ValueError("Action interval differs from the recorded control rate")
         streams = {}
+        # Residual profiling shows repeated tiny HDF5 numeric gathers. Retain
+        # at most 8 MiB of numeric values; larger stores stay lazy. Images never
+        # enter this budget or materialize as a corpus.
+        numeric_budget = 8 * 1024**2
         for key in ("images", "q", "dq", "tau", "target"):
             streams[key] = {
                 name: value[:] if name != "values" else value
                 for name, value in self.file[key].items()
             }
+            values = streams[key]["values"]
+            if key != "images" and values.nbytes <= numeric_budget:
+                streams[key]["values"] = values[:]
+                numeric_budget -= values.nbytes
+        delta = self.file["actions/delta"]
+        self.action_values = delta[:] if delta.nbytes <= numeric_budget else delta
         self.frames = CachedFrames(streams["images"]["values"], capacity=cache_frames)
         streams["images"]["values"] = self.frames
         self.builder = CausalObservationBuilder(
@@ -353,10 +379,13 @@ class TemporalEpisode:
         self.eligibility = self.file["actions/eligible"][:]
 
     def sample(self, row, horizon=12):
+        snapshot = self.builder.build(self.times[row], self.generations[row])
+        return self._targets(row, horizon, snapshot)
+
+    def _targets(self, row, horizon, snapshot):
         if horizon < 1:
             raise ValueError("Prediction horizon must be positive")
         t, gen = self.times[row], self.generations[row]
-        snapshot = self.builder.build(t, gen)
         rows = np.flatnonzero((self.action_generations == gen) & (self.action_times >= t - 1e-9))
         indices = np.full(horizon, -1, "i8")
         expected = t + np.arange(horizon) * self.config.control_dt_s
@@ -365,7 +394,7 @@ class TemporalEpisode:
             match = rows[np.isclose(self.action_times[rows], tick, atol=1e-8, rtol=0)]
             if len(match):
                 indices[i] = match[0]
-        targets = gather(self.file["actions/delta"], indices, (7,))
+        targets = gather(self.action_values, indices, (7,))
         present = indices >= 0
         eligible = bool(
             snapshot["ready"] and present.any() and self.eligibility[indices[present]].all()
@@ -378,13 +407,27 @@ class TemporalEpisode:
         return dict(**snapshot, actions=targets, is_pad=padding, supervision_eligible=eligible)
 
     def batch(self, rows, horizon=12, *, diagnostics=False):
-        samples = [self.sample(int(row), horizon) for row in rows]
-        if not diagnostics and not all(s["supervision_eligible"] for s in samples):
+        # Join each distinct decision once. Preserve caller order and duplicates.
+        rows = np.asarray(rows, dtype="i8")
+        if rows.ndim != 1 or not len(rows):
+            raise ValueError("A batch requires a nonempty row vector")
+        samples, indices = {}, {}
+        for row in dict.fromkeys(rows.tolist()):
+            snapshot, selected = self.builder.build_support(self.times[row], self.generations[row])
+            samples[row] = self._targets(row, horizon, snapshot)
+            indices[row] = np.where(snapshot["obs"]["image_valid"], selected, -1)
+        if not diagnostics and not all(s["supervision_eligible"] for s in samples.values()):
             raise ValueError("Unready, ambiguous or failed supervision must remain diagnostic-only")
+        ordered = [samples[row] for row in rows]
+        obs = {key: np.stack([s["obs"][key] for s in ordered]) for key in ordered[0]["obs"]}
+        obs["images"] = np.empty(
+            (len(rows), self.config.image_count, 5, *self.config.image_size), "f4"
+        )
+        self.frames.gather_into(np.stack([indices[row] for row in rows]), obs["images"])
         return dict(
-            obs={key: np.stack([s["obs"][key] for s in samples]) for key in samples[0]["obs"]},
-            actions=np.stack([s["actions"] for s in samples]),
-            is_pad=np.stack([s["is_pad"] for s in samples]),
+            obs=obs,
+            actions=np.stack([s["actions"] for s in ordered]),
+            is_pad=np.stack([s["is_pad"] for s in ordered]),
         )
 
     def training_rows(self, horizon=12):

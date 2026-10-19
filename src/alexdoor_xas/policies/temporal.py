@@ -21,7 +21,7 @@ class TemporalConfig:
     history_s: float = 4.0
     state_hz: float = 60.0
     control_dt_s: float = 1 / 60
-    image_size: tuple[int, int] = (120, 192)
+    image_size: tuple[int, int] = (240, 384)
     image_offsets_s: tuple[float, ...] | None = None
     static_time_s: float = 25.0
     warmup_s: float = 0.2
@@ -157,6 +157,14 @@ class CausalObservationBuilder:
             validate_stream(stream)
 
     def build(self, decision_time_s, generation):
+        snapshot, indices = self.build_support(decision_time_s, generation)
+        values = gather(self.streams["images"]["values"], indices, (5, *self.config.image_size))
+        values[~snapshot["obs"]["image_valid"]] = 0
+        snapshot["obs"]["images"] = values
+        return snapshot
+
+    def build_support(self, decision_time_s, generation):
+        """Join numeric support without materializing images (for bounded batches)."""
         cfg, t = self.config, float(decision_time_s)
         if not np.isfinite(t) or t < 0:
             raise ValueError("Invalid decision time")
@@ -167,11 +175,9 @@ class CausalObservationBuilder:
         # Static reference only exists after its declared inspection endpoint.
         if t < cfg.static_time_s:
             indices[0] = -1
-        values = gather(images["values"], indices, (5, *cfg.image_size))
         image_valid = indices >= 0
         if "valid" in images:
             image_valid &= gather(np.asarray(images["valid"])[:, None], indices, (1,), bool)[:, 0]
-        values[~image_valid] = 0
         image_times = np.zeros((len(indices), 2), np.float64)
         image_source = np.full(len(indices), -1, np.int64)
         for col, key in enumerate(("acquired", "available")):
@@ -224,7 +230,6 @@ class CausalObservationBuilder:
             and robot_valid[-1, :2].all()
         )
         obs = dict(
-            images=values,
             image_valid=image_valid,
             image_timing=image_timing.astype("f4"),
             robot=np.concatenate(parts, axis=-1),
@@ -241,7 +246,7 @@ class CausalObservationBuilder:
             image_source_index=image_source,
             image_times=image_times,
             robot_times=robot_times,
-        )
+        ), indices
 
 
 class IncrementalObservationBuilder:

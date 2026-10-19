@@ -1,6 +1,6 @@
 # ACT A1 observations and time
 
-The finite-history data-to-ACT path is implemented and CUDA checked. It is an
+The finite-history data-to-ACT path and opt-in A1 execution bridge are implemented and CUDA checked. It is an
 explicit new observation/checkpoint recipe alongside the maintained legacy path.
 No teacher, controller, admission, physical requirement, historical recording,
 checkpoint or final-test data was changed. No optimizer update, demonstration,
@@ -13,10 +13,11 @@ not establish any of these outcomes. The original design is retained in Git at
 
 ## Initial configuration
 
-Use **4 s, 120×192 RGB-D, the existing shared CNN architecture, chunk 12 and
-execution horizon 6** as the initial implementation baseline. These are
-independent settings, not learned optima. Use full visual recomputation by
-default; inference reuse is optional and its measured limits are below.
+Prefer **4 s, 240×384 RGB-D, the existing shared CNN architecture, chunk 12 and
+execution horizon 6** for the next integration. Retain explicit `image_size=(120,
+192)` as the cheaper alternative. The revised resource measurements below support
+the higher-resolution default; neither resolution has evidence of better learning.
+Use full visual recomputation by default; inference reuse remains opt-in.
 
 | Setting | Initial value | Independent meaning |
 |---|---|---|
@@ -183,12 +184,13 @@ numeric streams and action rows. History/density/prediction changes are reader
 views of the same file. Production preparation retains all native capture rows;
 legacy 60 Hz expert images are viewed at 10 Hz without rewriting raw recordings.
 The benchmark's explicit frame subset is a cost fixture, not a complete new
-recording. Loading has a bounded 64-frame cache and existing one-batch prefetch;
+recording. Loading has a bounded 64-frame cache, at most 8 MiB of retained numeric values
+and existing one-batch prefetch;
 no visual corpus or expanded sliding-window dataset is materialized. Incremental
 ingress has declared rate/capacity bounds, static retention and target carry-in;
 overflow fails visibly. Raw source paths and all historical evidence remain.
 
-## Measured comparison
+## Reviewed baseline measurements (historical)
 
 Evidence: [complete local measurements and attempts](../../../outputs/evidence/act-a1-temporal-implementation-20261019/summary.json),
 [matched native detail](../../../outputs/evidence/act-a1-temporal-implementation-20261019/matched-native-detail.png).
@@ -252,8 +254,8 @@ reuse. Keep reuse **off by default**. It is a measured median-cost option for th
 60×96 visibly merges finger/panel edges. 120×192 retains more contour detail and
 is feasible at batch 32 with substantial VRAM margin; 240×384 retains more fine
 geometry but costs about four times the backward time and allocated VRAM.
-These observations justify 120×192 as the initial compromise, not learning
-superiority. Even native hold/release images show arm self-occlusion; resolution
+These observations justified the original 120×192 compromise, not learning
+superiority; the representative delivery measurements below supersede that default. Even native hold/release images show arm self-occlusion; resolution
 cannot recover hidden contact. No resolution is certified for millimetric contact.
 
 The proposed 16.7 ms deadline applies only if future hardware uses a synchronous
@@ -261,6 +263,36 @@ The proposed 16.7 ms deadline applies only if future hardware uses a synchronous
 The 120×192 saved path already has p95 above that budget before live admission/
 IO costs; startup also exceeds it. Hardware real-time readiness is **unvalidated**.
 No control rate, asynchronous execution or dispatch compensation was introduced.
+
+## Representative input delivery
+
+New evidence is preserved separately in
+[`act-a1-temporal-integration-20261019`](../../../outputs/evidence/act-a1-temporal-integration-20261019/).
+The reviewed measurements above repeat five distinct decisions. The new matched
+before/after profiles use three fixed batch-32 workloads: 32 distinct decisions
+spread across the saved training trajectory; 32 consecutive, overlapping
+decisions; and eight spread decisions plus 20 consecutive decisions and explicit
+duplicates. Every workload retains all 23 RGB-D images, 241 robot tokens and 12
+targets. Diagnostic labels remain ineligible for training.
+
+Profiles precede optimization and are kept with five raw timing repetitions per
+pattern/resolution. They identify repeated visual gathers/stacks/copies as the
+main cost, followed by small numeric HDF5 reads. The target fixed before changing
+the loader was a 50% reduction in matched median construction time, with the same
+64-frame cache, one delivered plus one prefetched batch, 8 GiB RSS and 18 GiB
+allocated VRAM budget. OS page cache was not flushed; application frame-cache
+cold costs must not be called cold-disk measurements.
+
+The builder now exposes numeric support without materializing images. Each batch
+joins each distinct decision once and writes distinct frames directly into final
+batch storage, restoring every duplicate and original sample order. The 64-frame
+LRU never grows with a batch. At most 8 MiB of numeric values are retained per
+open episode; larger numeric datasets remain lazy. Targets, internal holes,
+eligibility, true tail padding, masks, preprocessing and normalization retain
+single-sample semantics. The existing one-next-batch prefetch helper is reused;
+there is no expanded window dataset or GPU feature cache during backward work.
+
+Final timings and inference decisions are recorded below after bounded completion.
 
 ## Validation and exact next work
 

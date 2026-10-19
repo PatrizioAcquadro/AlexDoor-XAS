@@ -51,6 +51,7 @@ def assert_snapshot_equal(a, b):
 def test_four_seconds_and_independent_sampling():
     cfg = TemporalConfig()
     assert cfg.image_count == 23 and cfg.state_count == 241
+    assert cfg.image_size == (240, 384)
     assert replace(cfg, history_s=2, image_offsets_s=None).state_count == 121
     assert replace(cfg, history_s=6, image_offsets_s=None).image_count == 33
     with pytest.raises(ValueError):
