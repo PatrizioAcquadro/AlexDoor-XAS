@@ -1,250 +1,136 @@
 # ACT A1 Runtime Speed
 
-The authorized 2026-10-18 runtime goal fixes ACT A1 at 30,000 updates and uses
+Both measured runtime targets pass on `PatrizioAcquadro/b1-policy-pilot`, with
+product code at `c7c62f8`. The goal fixes ACT A1 at 30,000 updates and uses
 `operational-tolerances-20261018/goal1-closure/runtime-recipe.json`. No training,
-action-space/architecture expansion or full scientific panel is active. The
-initial branch is `PatrizioAcquadro/b1-policy-pilot` at `2cbd144`, with a clean
-tracked/non-ignored tree. Earlier outcomes and ignored evidence remain unchanged.
+architecture/action-space expansion or full scientific panel was resumed.
+The reviewed baseline is `2cbd144`; all subsequent work and outcomes are preserved.
 
-## Workload and measurement
+## Complete measurements
 
 `outputs/evidence/act-a1-runtime-speed-20261018/benchmark-plan.json` was frozen
-before optimization. The diagnostic includes all 1,512 inspection ticks, exactly
-1,631 learned commands and the original two-second physical stop. The reference
-contains all 7,217 recorded commands through the same operational checks and
-original opening/hold/release acceptance; it cannot count as learned success.
+before optimization. Both clocks run from process launch through final recording
+flush, the original continuing-physics stop and shutdown. The unchanged
+180-second exclusive-GPU preflight is outside the clock. Targeted nonphysical
+component probes use five seconds, with the same locks and resource guards.
 
-The external clock starts before launching Isaac and ends after child exit,
-final recording close/flush, safe stop and shutdown. Exclusive-GPU preflight is
-outside this clock. Historical runtime clocks omit startup and part of shutdown,
-so the earlier figures below are approximate comparisons. The old 9,000-command
-38-minute figure remains a projection, not a completed benchmark.
-
-| Workload | Earlier measured runtime | New complete process time | Target | Status |
+| Workload | Earlier complete process clock | Final process clock | Limit | Result |
 |---|---:|---:|---:|---|
-| 1,631-command ACT A1 diagnostic | about 10.7–11.1 min | 390.457 s / 6.51 min | 360 s | Complete workload; target missed |
-| 7,217-command reference | about 32.2 min | 1,476.799 s / 24.61 min | 1,200 s | Complete reference cycle; target missed |
+| 1,512 inspection ticks +1,631 ACT A1 commands | 466.902 s | 344.736 s | 360 s | Pass |
+| Inspection +7,217 reference commands, opening/hold/release | 1,476.799 s | 1,065.262 s | 1,200 s | Pass; reference only |
 
-The earlier 466.902-second complete diagnostic uses `facad1d`: controlled opening 17.2334 degrees
-versus 17.2595 degrees previously, zero contact losses/physical violations, and a
-healthy 240-sample stop with 0.2379 mm maximum tool travel. All capture/control/
-native counts, image dimensions, intrinsics and capture/control times match the
-earlier prefix. Live commands differ slightly, consistent with different live
-observations; no bitwise physical-simulation requirement or per-run tolerance is
-introduced. This short horizon has no hold/release or learned task success.
+Earlier historical runtimes were about 10.7–11.1 and 32.2 minutes, respectively;
+their clocks omit some startup/shutdown and are approximate comparisons. The
+38-minute figure for 9,000 commands remains a projection, not a completed run.
 
-After the authorized local-support repair, `1d7b1ee` completes all 1,512
-inspection ticks and 1,631 learned commands in 390.457 seconds. The 360-second
-target is still missed. Controlled opening is 17.2711 degrees, peak force
-7.2339 N, with zero contact losses/physical violations and a healthy 240-sample
-stop (0.2414 mm travel). Full sensor, causal-clock, checkpoint, 47-column and
-command-count audits pass. Earlier refusals and the 466.902-second run remain
-separate outcomes; this prefix still has no hold/release or task-success claim.
+`optimized-diagnostic-v4` completes every required command with 17.2120 degrees
+controlled opening, 6.8648 N peak native force, zero contact losses/physical
+violations and a healthy 240-sample stop with 0.2410 mm maximum tool travel.
+This bounded prefix has no hold/release or learned task-success claim.
 
-The complete reference uses `8d72689` product code: all 7,217 reference commands,
-51.0242 degrees controlled opening, valid hold/release, zero contact losses or
-physical violations, and a passing continuing-physics stop. Learned commands and
-learned task success remain zero/false. All compared control, command, native
-feedback/evaluator columns and capture clocks/calibration match the old reference
-exactly; the independent complete sensor audit passes.
+`optimized-reference-v2` completes all 7,217 reference commands, 51.0242 degrees
+controlled opening, valid hold/release, zero losses/violations and a healthy
+240-sample stop with 0.02134 mm maximum travel. Learned commands and learned
+task success remain zero/false. All 44 compared non-image columns, applied
+commands, capture clocks/calibration match the previous completed reference exactly; all 7,217 admit/refuse
+outcomes are also preserved. Physical simulation was not required to
+be bitwise identical; this equality is additional measured evidence.
 
-## Measured changes and correctness
+Both full recording/sensor audits pass: 524/1,455 complete 600×960 RGB-D captures,
+3,144/8,730 control states, 3,143/8,729 total commands including inspection and
+6,286/17,458 rows in each native feedback/evaluator stream. Physics remains
+120 Hz, control/render 60 Hz and consumed RGB-D 10 Hz. Causal joins, original
+physical criteria and the checkpoint remain unchanged. No new seed, favorable
+retry, shortened workload or early timing boundary is used.
 
-HDF5 dataset reopening discarded bounded chunk caches and recompressed partial
-image tiles. Keeping handles alive reduces the fixed 120-row/20-capture write
-sample from 6.47 to 1.03 seconds under profiling, including flush/close. All row
-validation, separate clocks, 60-tick flushes and completion semantics remain.
-The robot occlusion filter also selects depth once per capture instead of twice
-per mesh: 54 fixed saved captures take 6.30 versus 3.17 seconds and produce
-identical complete masks. No sensor data is cached across captures.
+## Implemented changes and verification
 
-When captured depth is already on CUDA, robot masking now evaluates the same
-complete link-local volumes in float64, in four-shape batches, then returns the
-complete Boolean mask before publication. Current joints, calibration errors,
-validity and optional pixel domains remain inputs on every call. The NumPy path
-remains available for recorded CPU inputs. Across 201 diagnostic/reference
-captures all masks are exact: 11.40 seconds on CPU versus 4.70 seconds on CUDA,
-with 237 MB peak allocated CUDA memory in the component probe. Actual-GPU
-boundary, missing-depth, domain and changed-posture regressions pass. This is a
-component result; complete updated runtime measurements remain necessary.
+| Change | Preserved contract and measured check |
+|---|---|
+| Recording | Retained dataset handles and at most 128 copied numeric rows per stream; existing 60-tick flush, finish/close and fail-incomplete behavior remain. All 47 columns and 2,419,788,862 bytes in the saved diagnostic rewrite are exact, including NaN payloads, joins and commands. Input/return mutation, partial close and storage failure regressions pass. |
+| Image layout | Local development rollouts use uncompressed whole-frame image chunks and retain LZF for numeric columns. The complete rewrite takes 41.80 s versus 48.25 s with buffered LZF and 65.38 s with the older gzip path. File size is about 2.417 GB versus 0.798 GB LZF: an explicit storage-for-speed tradeoff. Old compressed readers and final dataset writers remain supported. |
+| Robot masking | Captured CUDA depth uses the same complete robot volumes in float64, four shapes at a time; current joints, calibration, validity and optional pixel domains remain inputs. All 201 saved masks and all 253 masks from the retained refusal match CPU/CUDA exactly. GPU boundary, missing-depth, domain and changed-state checks pass; no image is cached across captures. |
+| Static workspaces | All rays are validated before indexes are built only for final banks. At most four independent builders join before the complete map is published; failures publish no partial map. All 102 background/reference views, 49,339,458 points, tree indices, pixel mappings, source clocks and 36 queries are exact; view arrays stay immutable. Construction takes 3.05 versus 8.65 s. No persistent cache is introduced. |
+| Robot geometry | Parsed URDF origins stay within the existing immutable model snapshot. Joint frames, shape bounds and pair gaps are reused only inside the current clearance query; every pair, SAT check, travel reserve and early refusal remains. All 201 saved margins/pairs, full robot matrices and continuous sweep balls are exact; small negative, empty-filter and perturbed cases pass. |
+| Admission | Surface bases and candidate inverses are reused only within one fixed admission query. Finite-radius arithmetic and every uncertainty source remain. All 6,440 recorded-state budgets are exact, including unavailable registration/calibration/speed cases; the next state/time creates a fresh query. |
+| FK | Pose-only requests skip the discarded Jacobian; default Jacobian calls remain unchanged. All 603 nominal/perturbed CUDA poses and default Jacobians are exact. A bounded four-posture cache owns exact arm-joint keys, validates all nine current inputs, applies fresh root calibration and returns independent results. The 2,412-request CUDA pattern is exact; invalid-input, changed-root/head, mutation and eviction checks pass. |
+| Shutdown | The single-run CLI clears perception without preloading an unused next episode. Reset/worker cleanup remains complete; later acquisitions create fresh state. Reset falls from about ten seconds to 0.228 s. |
 
-Static workspace loading now validates all recorded rays before building indexes
-only for the final condition banks. Previously it built and discarded the same
-per-record indexes before rebuilding the merged banks. Construction takes 7.34
-versus 14.20 seconds in the paired saved-input check. All 81 views, 40,318,928
-indexed points, pixel coordinates, immutable arrays, source clocks and 18
-free/unknown/occupied queries remain exact. There is no persistent cache.
-Index construction now uses at most four independent workers and publishes the
-complete index map only after all builders join. Exceptions leave no partial
-index map. On the complete background/reference setup, 102 views and 49,339,458
-points retain exact view arrays, tree data/indices, pixel mappings and source
-clocks; 36 queries agree. Construction takes 3.05 versus 8.65 seconds, with
-7.42 GB process peak RSS in the paired comparison. Camera/ray validation and
-immutable owned views remain; no calibration or observation is omitted.
+Three fixed saved-input GPU checks reproduce ACT features/predictions exactly.
+The combined 266 recording, geometry, causal, contact and documentation
+regressions pass. In the final diagnostic, 26,133 FK requests require 5,166
+forward calculations; the reference has 105,268 requests and 22,855 calculations.
 
-Self-clearance also reuses joint origins/axes within one query. Every new query
-recomputes them from the current matrices and reevaluates travel/model bounds.
-On 201 recorded diagnostic/reference postures, all minimum margins and critical
-pairs remain exact; the isolated queries take 1.34 versus 1.97 seconds.
-Each query now also computes each current shape AABB once before pair checks;
-all pairs, reserves and early refusals remain. A separate 201-posture comparison
-retains exact margins/pairs and takes 0.641 versus 1.279 seconds.
-The three-axis AABB gaps for all pairs are also evaluated together before the
-unchanged ordered narrow-phase checks. All 201 saved margins/pairs remain exact
-(0.582 versus 0.696 seconds); empty filtered sets and small overlapping/separated
-geometries retain their existing behavior. Parsed URDF
-origins are fixed for the lifetime of the existing robot-model snapshot, rather
-than reparsed for every FK/sweep. All link matrices and sweep balls remain exact
-on 201 saved postures; the paired calculation takes 0.368 versus 0.728 seconds.
-Live joints, roots, travel bounds and scene checks remain current on every query.
-Within an admission call, repeated target-envelope checks now reuse the unchanged
-surface basis after its first use. All 161 saved-surface tangent coordinates are
-exact; the isolated calculation takes 0.13 versus 2.71 milliseconds. The basis
-never crosses an admission call or a surface update.
-The same admission-scoped query also reuses its three unchanged candidate
-inverse matrices, while keeping finite-radius arithmetic and all primitive
-uncertainty sources. It is discarded before the next state/time. Across 6,440
-recorded-state point queries, every source/displacement remains exact, including
-missing registration/calibration/speed cases; totals are 0.164 versus 0.242 s. Pose-only robot FK now skips
-the discarded Jacobian while keeping default Jacobian-producing calls unchanged.
-On the RTX 4090, 603 nominal/perturbed recorded postures retain exact poses and
-default Jacobians; totals are 0.284 versus 0.429 seconds including CPU retrieval.
-The fixed URDF arm model now retains at most four previously requested local
-FK poses, keyed by owned exact joint values. Every call still validates all nine
-current inputs and applies current root calibration; returned poses cannot mutate
-the cached local transform. Concurrent calls are serialized. A recorded
-native/control/target call-pattern probe makes 2,412 requests with exact CUDA
-poses, including root/head changes and return-mutation checks; totals are 0.247
-versus 1.216 seconds. This is a component pattern, not a measured runtime hit
-rate. A further CUDA-graph prototype is exact but remains unapplied because its
-additional gain does not justify the capture/lifecycle complexity.
+The passive `phase-comparison.json` separates startup, inspection, perception,
+policy inference, admission, safety, physics/render/native telemetry,
+recording/independent evaluation and shutdown. Method clocks are inclusive and
+nested, not additive. The final reference records 418.65 s in observer updates,
+206.07 s in admission, 281.98 s in physics/render/native telemetry and 29.36 s in
+the complete recording/evaluator callback. ACT inference in the diagnostic is
+still a small cost; the reference executes no learned predictions.
 
-Local rollout images now use existing lossless LZF/shuffle instead of gzip level
-4. The isolated sample is 39% faster with 31% larger files. On the full recording,
-reader-inclusive rewrite time is 57.16 versus 65.38 seconds; the output is 798 MB
-versus the historical 577 MB. The subsequent local development writer stores
-image tiles uncompressed, retaining LZF for numeric columns: the same complete
-rewrite takes 42.78 versus 48.25 seconds with buffered LZF and occupies 2.480 GB
-versus about 0.798 GB. This trades local storage for lower compression cost;
-final dataset writers and old compressed readers are unchanged.
-Whole-frame raw chunks then replace the old spatial/temporal compression tiles,
-matching the actual complete-frame consumer. The complete 47-column comparison
-remains exact; file size falls to 2.417 GB and rewrite takes 41.80 seconds.
-Per-image temporal cache/shuffle settings are removed because each raw chunk is
-written once; bounded numeric batching and dataset handles remain. All complete
-rewrites preserve every one of the
-2,419,788,862 uncompressed bytes in all 47 columns: 524 RGB-D captures, 3,144
-control states, 3,143 total commands including inspection, and 6,286 rows per
-native stream. Missing-depth NaN payloads, causal joins and applied commands
-remain exact. Old gzip files remain readable without a schema change.
+## Explicitly authorized local-support correction
 
-Three fixed recorded-input GPU checks reproduce features and ACT predictions
-exactly, including the first saved prediction. The checkpoint is unchanged.
-Focused recording, geometry, temporal-support and contact regressions pass.
-Numerical equality is used for identical recorded inputs, while live acceptance
-uses the original physical criteria.
+The retained `optimized-diagnostic-v2` refusal was reproduced on its saved
+253-capture prefix; the previously successful prefix was reproduced separately.
+Globally ambiguous scan associations retained real measurements that the local
+material-witness query omitted. Searching all 4,000 current anchor points did
+not produce three assigned-view witnesses. The original anchor does have three
+independent finite two-finger supports at 18, 21 and 25 seconds when retained
+unassigned observations are included, with the same semantic identity.
 
-## Retained blockers and profiling decisions
+Automatic review rejected expanding these admission inputs under the original
+speed-only scope before any mutation. The user then explicitly authorized the
+local correction and its verification. Commit `1d7b1ee` includes those retained
+measurements only in local witness queries and assigns their actual publication
+clocks without refreshing old acquisitions. Global associations and the separate
+coverage atlas remain unchanged. Three calibrated views, semantic identity,
+finite footprints, root consistency and future-support rejection remain required.
 
-The fresh pre-optimization baseline refuses `ambiguous_leaf_ownership` after all
-1,512 inspection ticks and zero policy commands; its 268.815-second duration is
-not a completed diagnostic. The first optimized attempt is interrupted during
-inspection by an external RustDesk CUDA process. Its partial recording and
-healthy stop remain. The initial monitoring helper exited before its runtime
-child finished cleanup; its 142.924-second parent clock is explicitly invalidated
-in the separate interruption audit. The helper now signals the uniquely owned
-runtime handler and waits for actual shutdown. One identical infrastructure
-resumption is declared and retained separately.
+Both recorded CUDA prefixes retain their actual native masks, anchors, geometry
+and global associations. The old successful terminal candidate is unchanged;
+the refused prefix gains the three real witnesses above. This can change
+admission and is distinguished from behavior-preserving performance work. The
+original refusal is preserved, not relabeled as success.
 
-That resumption issues 148 commands before strict JSON rejects a NumPy float32
-camera-coordinate scalar nested in pose-error source metadata. A regression
-reproduces the producer defect. Emitting native Python coordinate scalars fixes
-recording without changing values, ownership/contact decisions or non-finite
-rejection. The 148-command failure is not relabeled; the subsequent complete
-diagnostic is a separate outcome after this causal repair.
+## Retained outcomes and limits
 
-The latest `optimized-diagnostic-v2` attempt uses the new source at `c0fa69c`
-(launch HEAD `48f6469`). It finishes inspection then refuses
-`load_estimation_failed: ambiguous_leaf_ownership`, with zero learned commands,
-in 157.024 seconds. The failure recording, 1,512-tick inspection, causal/native
-clocks and healthy continuing-physics stop pass. This is an incomplete workload,
-not a six-minute result. The tracked candidate has a valid local constraint but
-only one static material witness. Current code requires three geometrically
-separated supporting views with consistent root geometry, or independently
-observed material motion, to resolve ownership. No subsequent physical retry preceded the causal diagnosis below.
+| Retained case | Process time | Actual learned/reference commands | Outcome |
+|---|---:|---:|---|
+| `baseline-diagnostic` | 268.815 s | 0 learned | Ownership refusal after inspection |
+| `optimized-diagnostic` | Invalid parent boundary | 0 learned | External RustDesk CUDA interruption during inspection; partial recording and healthy stop |
+| `optimized-diagnostic-infra-resume1` | 229.079 s | 148 learned | Strict JSON rejected nested NumPy float32 metadata; corrected native Python scalars preserve values and nonfinite rejection |
+| `validated-diagnostic` | 466.902 s | 1,631 learned | Complete workload; target missed |
+| `validated-reference` | 1,476.799 s | 7,217 reference | Complete accepted reference; target missed |
+| `optimized-diagnostic-v2` | 157.024 s | 0 learned | Retained ownership refusal; diagnosed before another physical attempt |
+| `optimized-diagnostic-v3` | 390.457 s | 1,631 learned | Complete repaired workload; target missed |
+| `optimized-diagnostic-v4` | 344.736 s | 1,631 learned | Diagnostic runtime target and correctness pass |
+| `optimized-reference-v2` | 1,065.262 s | 7,217 reference | Reference runtime target, original hold/release and correctness pass |
 
-A separate audit compares every one of its 253 actual robot masks on CPU/CUDA:
-all are exact. Its depth/validity/calibration and control/command/native/evaluator
-prefixes match earlier refused and completed cases exactly. RGB and semantic
-seed masks differ between runs. Mean absolute RGB channel differences are
-0.82–0.98 on the byte scale, with occasional much larger differences; these are
-descriptive measurements, not a new acceptance tolerance. Matching robot masks alone does not establish complete perception equivalence.
-The paired saved-prefix audit reproduces both ownership outcomes. Globally
-ambiguous scan associations retain real observations that the local witness
-query omitted; the refused prefix has at most two assigned-view witnesses even
-when all 4,000 current anchor points are searched. Its original anchor has three
-independent finite two-finger supports when retained unassigned observations are
-included, captured at 18, 21 and 25 seconds with the same semantic identity.
+The original interrupted parent clock of 142.924 seconds is invalid because its
+child was still cleaning up. Its separate correction charges 161.99262 seconds
+including the tail; the raw negative snapshot stays preserved. The helper now
+signals only the owned runtime and waits for actual cleanup. The one identical
+infrastructure resumption remains declared separately.
 
-After automatic review rejected expanding these admission inputs under the
-original speed-only scope, the user explicitly authorized this local correction
-and its verification. Local witness queries now include retained ambiguous
-measurements; global surface associations and the separate local coverage atlas
-remain unchanged. Both scan snapshot replacement and publication assign actual
-availability to all retained measurements without refreshing old acquisitions.
-The three-view, calibrated separation, semantic, footprint, root-consistency and
-future-support checks remain. This correction can change admission and is not
-claimed as behavior-preserving optimization. The original refusal is retained.
-Both 253-capture CUDA replays preserve their actual native masks, anchors,
-geometry and global associations. The refused prefix now has the three real
-witnesses above; the previously successful terminal candidate is unchanged.
-Regression cases retain rejection of future support, wrong identity, duplicate
-camera origins and incomplete finite footprints. These are recorded-input
-results, not completion of either timed physical workload.
+Unapplied alternatives remain evidence: 16 runtime threads/CPU affinity, ROI
+masking, CUDA-graph FK, native batched RANSAC and SAM3 pixel lookup. The latter
+two preserve 705 native results/inliers/remaining masks/RNG states and 523 input
+tensors, respectively, but are not part of either final measured execution.
+Helper failures/interruption are retained separately: wrong RANSAC wrapper
+keyword, a 20-to-seven-joint fixture mapping error, and an oversized synthetic
+SAT uncertainty probe stopped at about 13 GiB RSS. There was no kernel OOM or
+physical workload in that CPU probe; the operational reserve was never changed.
 
-The complete diagnostic spends 164.58 seconds in observer updates, including
-110.12 seconds waiting for perception, about 103 seconds in physics/render/native
-telemetry, 65.42 seconds in motion admission and 36.98 seconds in safety checks.
-These method clocks are nested and must not all be added. ACT inference is only
-0.643 seconds. A full replay of the same 524 captures profiles four fixed native
-tracking/registration frames without physics, policy commands or training.
+Both scoped speed targets are met. This does not qualify Point2Pose generally,
+complete a learned opening/hold/release task or resume the paused full panels.
+No training, remote allocation, dataset expansion, threshold recalibration or
+push was performed. Use this branch for subsequent explicitly authorized
+bounded diagnostics; scientific qualification remains separate.
 
-A 300-step paired GPU probe measures 8.767/8.567 seconds with 32/16 runtime threads;
-both stops pass. The small 2.3% difference does not justify another runtime
-setting; default threads remain. Pinning numerical geometry to performance cores
-adds no gain and is not adopted. An ROI filter candidate retains 54 exact masks
-but saves only about six projected diagnostic seconds; it remains unadopted.
-The single-run CLI now clears perception state without preloading an unused next
-episode. Profiling found about 10 seconds spent loading that unused worker during
-stop. Explicit `preload_on_reset=False` keeps all reset/worker termination rules;
-a later acquisition creates fresh model state, and the default preload behavior
-for other clients remains unchanged. The latest refusal measures reset at
-0.230 seconds instead of about ten seconds;
-this partial timing does not establish the complete diagnostic target.
-
-Bounded numeric-row buffering now copies at most 128 rows per stream and drains
-them at the existing flush cadence and on finish/close. The integrated writer
-preserves all 47 columns/2.42 GB exactly; reader-inclusive rewrite takes 48.25
-versus 57.16 seconds. Input-mutation, partial close, clock/column errors and
-injected storage-failure regressions pass. Partial storage errors stay incomplete
-and cannot retry a partly written batch; complete updated runtime timing remains
-unproven.
-
-Observation rates, numerical force/stopping/material criteria and physical
-acceptance remain unchanged; the explicitly authorized local evidence expansion
-is separate from the performance changes.
-
-## Current limit and next action
-
-The speed goal is incomplete: both complete measurements miss their targets, and
-the latest source has not completed the diagnostic. The user-authorized causal
-repair passes paired saved-prefix verification; a complete fixed diagnostic is
-now justified after the measured performance changes. Component gains and the
-reference role do not establish learned success. The full learned panels
-remain paused. All allocations/outcomes are reconciled in the separate ignored
-`act-a1-runtime-speed-20261018/progress-report-2.json`; no training or remote
-allocation is added.
-
-See [[b1-operational-tolerances|the closure recipe and physical limits]],
+Evidence and allocation closeout are in
+`outputs/evidence/act-a1-runtime-speed-20261018/completion-report.json`, with
+per-case audits, `reference-full-preservation.json`, profiles and all earlier
+outcomes. See [[b1-operational-tolerances|physical limits]],
 [[../topics/episode-and-dataset-contracts|recording contracts]] and
-[[b1-end-to-end-pilot-resume|the original scientific outcomes]].
+[[b1-end-to-end-pilot-resume|the separate paused scientific pilot]].

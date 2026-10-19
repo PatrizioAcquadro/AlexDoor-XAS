@@ -128,31 +128,30 @@ investigation increment to 0.996111 local GPU hours above the
 preserved pause ledger. No remote allocation or training update is added.
 Detailed counters and analysis failures remain in the separate closure report.
 
-## ACT A1 runtime speed — in progress
+## ACT A1 runtime speed — measured targets met
 
-The fixed 30,000-update ACT A1 diagnostic completes all 1,631 commands, inspection,
-recording and healthy stop in 466.902 seconds. This improves the historical
-roughly 10.7–11.1-minute runtime, but misses the required 360-second full-process
-target. The full 7,217-command reference completes in 1,476.799 seconds versus
-about 32.2 minutes previously, missing the 1,200-second target. Opening, hold,
-release, physical limits and stop pass; all compared numeric reference columns
-remain exact. This is reference execution, with zero learned commands/task success.
+On the same `c7c62f8` product source, the complete fixed 30,000-update ACT A1
+1,631-command diagnostic takes **344.736 s**, within 360 s. The full 7,217-command
+reference opening/hold/release takes **1,065.262 s**, within 1,200 s. Both include
+inspection, final recording flush, continuing-physics stop and shutdown. Full
+sensor/clock/checkpoint/recording audits pass, with no losses or physical
+violations. All 44 compared non-image reference columns and all 7,217 admit/refuse
+outcomes match the earlier accepted reference. The long cycle is reference
+execution, with zero learned commands and no learned task-success claim.
 
-Changes reuse bounded HDF5 chunk caches, avoid repeated within-capture depth
-selection and use lossless LZF for local rollout images. Complete saved-input
-rewrites retain all 47 columns/2.42 GB exactly; fixed-input GPU ACT predictions
-remain exact. A live float32 JSON metadata defect is corrected without changing
-any geometry or safety decision. The ownership refusal, external-CUDA
-interruption and 148-command serialization failure remain separate outcomes.
-Further validated source changes reuse joint frames within one clearance query,
-build static indexes only for final condition banks, avoid unused perception
-preloads during single-run shutdown, and mask captured robot depth on CUDA.
-The latter preserves all 201 saved diagnostic/reference masks exactly; complete
-updated attempt refuses ownership after inspection (157.024 s, zero learned
-commands), so its full diagnostic timing remains unvalidated. All 253 actual
-robot masks match CPU/CUDA exactly; RGB and semantic seed masks vary. Offline
-ownership diagnosis precedes further physical benchmarks; thresholds and seeds
-remain unchanged. Thread/CPU-affinity alternatives are unadopted;
-no training, panel restart,
-physics/sensing-rate change or safety recalibration is performed. See
-[[experiments/b1-runtime-speed|measured costs, evidence and remaining targets]].
+Changes remove repeated geometry/FK/index work and recording overhead while
+preserving 120 Hz physics, 60 Hz control/render, 10 Hz consumed RGB-D, sensor
+fidelity and original physical criteria. Local raw images use more storage;
+old compressed recordings remain readable. The user explicitly authorized a
+separate correction allowing retained globally ambiguous observations to support
+existing local material-witness tests. Global ambiguity, three-view/identity/
+finite-footprint/root/causal requirements remain; original refusals and all
+interruptions are preserved.
+
+No native-model algorithm change, training, dataset expansion, full panel,
+remote allocation or push was added. The reconciled cumulative local allocation
+estimate is 16.368/40 GPU hours, including 1.545 hours for this speed goal;
+all failed and interrupted allocations remain charged. The full learned panels above remain
+paused and incomplete. Use this branch for future explicitly authorized bounded
+diagnostics; broad qualification is separate. See
+[[experiments/b1-runtime-speed|complete measurements, preserved outcomes and limits]].

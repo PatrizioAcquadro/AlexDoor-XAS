@@ -43,8 +43,7 @@ class RolloutWriter:
         )
         for name in ("captures", "control", "commands", "physics_feedback", "evaluator"):
             self.file.create_group(name)
-        # Keep dataset handles alive so their bounded chunk caches survive
-        # between rows instead of repeating work on partial image tiles.
+        # Keep bounded numeric chunk caches alive between row batches.
         self._columns = {name: {} for name in self.file if name != "metadata"}
         self._pending = {name: [] for name in self._columns if name != "captures"}
         self._write_failed = False
