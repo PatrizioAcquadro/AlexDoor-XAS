@@ -57,29 +57,74 @@ class B1Writer:
         )
         for name in ("observations", "commands", "annotations"):
             self.file.create_group(name)
+        self._columns, self._pending, self._last = {}, {}, {}
+        self._write_failed = False
+        self._interval = tuple(calibration["depth_interval_m"])
         self.last_time = None
         self.last_frame = None
         self.count = 0
 
     def _append(self, group, values):
+        if self._write_failed:
+            raise RuntimeError("b1_write_failed")
         for name, value in values.items():
             arr = np.asarray(value)
-            if arr.dtype.kind in "OUS":
-                raise ValueError("Step arrays must be numeric")
             key = f"{group}/{name}"
-            if key not in self.file:
-                # One image per chunk keeps memory bounded and supports random reads.
-                self.file.create_dataset(
-                    key,
-                    shape=(0, *arr.shape),
-                    maxshape=(None, *arr.shape),
-                    dtype=arr.dtype,
-                    chunks=(1, *arr.shape),
-                    compression="lzf",
-                )
-            dataset = self.file[key]
-            dataset.resize(len(dataset) + 1, axis=0)
-            dataset[-1] = arr
+            text = group == "robot_feedback" and name in ("source", "semantics", "reason")
+            if arr.dtype.kind in "OUS" and not text:
+                raise ValueError("Step arrays must be numeric")
+            if key in self._columns and self._columns[key].shape[1:] != arr.shape:
+                raise ValueError("Changed B1 column shape")
+        try:
+            for name, value in values.items():
+                arr = np.asarray(value)
+                key = f"{group}/{name}"
+                image = group == "observations" and name in ("rgb", "depth_m", "valid_depth")
+                text = group == "robot_feedback" and name in ("source", "semantics", "reason")
+                if key not in self._columns:
+                    self._columns[key] = self.file.create_dataset(
+                        key,
+                        shape=(0, *arr.shape),
+                        maxshape=(None, *arr.shape),
+                        dtype=h5py.string_dtype() if text else arr.dtype,
+                        chunks=(1 if image else 128, *arr.shape),
+                        compression="lzf",
+                    )
+                    if not image:
+                        self._pending[key] = []
+                column = self._columns[key]
+                if image:
+                    column.resize(len(column) + 1, axis=0)
+                    column[-1] = arr
+                else:
+                    self._pending[key].append(str(value) if text else arr.copy())
+                    if len(self._pending[key]) == 128:
+                        self._flush_column(key)
+                if key in ("physics_feedback/time_s", "robot_state/time_s"):
+                    self._last[key] = arr.copy()
+        except BaseException:
+            self._write_failed = True
+            raise
+
+    def _flush_column(self, key):
+        rows = self._pending[key]
+        if rows:
+            column = self._columns[key]
+            start = len(column)
+            column.resize(start + len(rows), axis=0)
+            column[start:] = rows if column.dtype.kind == "O" else np.stack(rows)
+            rows.clear()
+
+    def flush(self):
+        if self._write_failed:
+            raise RuntimeError("b1_write_failed")
+        try:
+            for key in self._pending:
+                self._flush_column(key)
+            self.file.flush()
+        except BaseException:
+            self._write_failed = True
+            raise
 
     def observe(self, observation, annotation, *, feedback=None):
         if set(observation) != set(OBS_KEYS):
@@ -128,12 +173,10 @@ class B1Writer:
                 healthy=feedback.healthy,
             ),
         )
-        for key in ("source", "semantics", "reason"):
-            if key not in group:
-                group.create_dataset(key, shape=(0,), maxshape=(None,), dtype=h5py.string_dtype())
-            dataset = group[key]
-            dataset.resize(len(dataset) + 1, axis=0)
-            dataset[-1] = getattr(feedback, key)
+        self._append(
+            "robot_feedback",
+            {key: getattr(feedback, key) for key in ("source", "semantics", "reason")},
+        )
         self._append("observations", observation)
         self._append("annotations", annotation)
         self.last_time, self.last_frame = t, frame
@@ -141,7 +184,7 @@ class B1Writer:
 
     @property
     def calibration_interval(self):
-        return json.loads(self.file["metadata"].attrs["calibration"])["depth_interval_m"]
+        return self._interval
 
     def transition(self, command, observation, annotation, *, feedback=None):
         if self.count == 0 or not np.isclose(command["time_s"], self.last_time, atol=1e-9, rtol=0):
@@ -149,7 +192,7 @@ class B1Writer:
         self.observe(observation, annotation, feedback=feedback)
         self._append("commands", command)
         if self.count % 60 == 0:
-            self.file.flush()
+            self.flush()
 
     def physics_feedback(self, samples):
         """Retain independent 120 Hz robot telemetry, never policy features/labels."""
@@ -159,8 +202,8 @@ class B1Writer:
             if (
                 feedback.torque_nm is None
                 or feedback.available_s > self.last_time
-                or "time_s" in group
-                and feedback.timestamp_s <= group["time_s"][-1]
+                or "physics_feedback/time_s" in self._last
+                and feedback.timestamp_s <= self._last["physics_feedback/time_s"]
             ):
                 raise ValueError("Invalid physics-feedback support")
             group.attrs.update(
@@ -207,7 +250,7 @@ class B1Writer:
         names = json.dumps(list(joint_names))
         if "joint_names" in group.attrs and group.attrs["joint_names"] != names:
             raise ValueError("Recorded robot joint order changed")
-        if "time_s" in group and time_s <= group["time_s"][-1]:
+        if "robot_state/time_s" in self._last and time_s <= self._last["robot_state/time_s"]:
             raise ValueError("Repeated robot-state timestamp")
         group.attrs.update(
             joint_names=names, tool_pose_source="robot_link_state_with_calibrated_tool_offset"
@@ -215,14 +258,24 @@ class B1Writer:
         self._append("robot_state", values)
 
     def finish(self, outcome):
-        if self.count < 2 or len(self.file["commands/time_s"]) != self.count - 1:
+        if (
+            self.count < 2
+            or (len(self._columns["commands/time_s"]) + len(self._pending["commands/time_s"]))
+            != self.count - 1
+        ):
             raise ValueError("Incomplete causal episode")
         self.file["metadata"].attrs["outcome"] = json.dumps(outcome)
+        self.flush()
         self.file.attrs["complete"] = True
         self.file.flush()
 
     def close(self):
-        self.file.close()
+        if self.file:
+            try:
+                if not self._write_failed:
+                    self.flush()
+            finally:
+                self.file.close()
 
 
 def validate_episode(path, *, images=True):

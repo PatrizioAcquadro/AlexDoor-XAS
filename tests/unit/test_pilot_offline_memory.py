@@ -37,6 +37,9 @@ def test_evaluation_releases_A1_before_constructing_A2(tmp_path, monkeypatch, of
             self.binding = self.robot_asset = object()
             self.space = space
 
+        def close(self):
+            pass
+
     class Policy:
         @staticmethod
         def from_checkpoint(path, family, **kwargs):
@@ -49,7 +52,7 @@ def test_evaluation_releases_A1_before_constructing_A2(tmp_path, monkeypatch, of
     monkeypatch.setattr(offline, "B1Policy", Policy)
     monkeypatch.setattr(offline, "raw_metrics", lambda *args: {"evaluated": True})
     monkeypatch.setattr(offline, "memory_checkpoint", lambda *args, **kwargs: None)
-    monkeypatch.setattr(offline, "dataset_ram_bytes", lambda *args: 0)
+    monkeypatch.setattr(offline, "dataset_loading_bytes", lambda *args: 0)
     monkeypatch.setattr(offline.torch.cuda, "empty_cache", lambda: None)
     monkeypatch.setattr(offline.torch.cuda, "get_device_name", lambda: "unit-test-no-model")
     report = offline.evaluate_checkpoints(tmp_path, {"ddim_steps": 10}, tmp_path / "models")

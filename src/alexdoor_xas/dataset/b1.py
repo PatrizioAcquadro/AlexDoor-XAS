@@ -519,7 +519,7 @@ class B1Dataset:
     Structure/actions/clocks are checked at open. Selected observations are
     checked before sampling/normalization; check_observations=True additionally
     scans every observation at open using bounded memory. close() releases HDF5
-    handles; subsequent reads reopen them. Contiguous legacy files retain mmaps.
+    handles; subsequent reads reopen them. Small contiguous legacy arrays retain mmaps.
     """
 
     def __init__(self, directory, space, *, binding=None, check_observations=False):
@@ -571,7 +571,7 @@ class B1Dataset:
                 metadata["asset_splits"],
                 check_observations=check_observations,
             )
-            if offset is not None:
+            if offset is not None and np.prod(lazy.shape) * lazy.dtype.itemsize <= 8 * 1024**2:
                 observations = np.memmap(
                     directory / name,
                     mode="r",

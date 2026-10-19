@@ -134,8 +134,11 @@ privileged physical scoring and feedback stay outside policy inputs.
 Raw episodes preserve RGB-D/calibration, applied targets, phases, terminal
 observations and separate feedback/robot-state streams. Learned rollout recording
 retains the consumed input, actual commands, native dynamics and independent
-clocks; missing historical streams stay missing. `--reference-raw` avoids copying
-retained RGB-D while checking identity; default export remains self-contained.
+clocks; missing historical streams stay missing. Raw references are now the default;
+`--copy-raw` explicitly creates a self-contained transfer, and the historical
+`--reference-raw` spelling remains accepted. This avoids copying
+retained RGB-D while checking identity. The library `export_dataset` default
+remains self-contained; the maintained preparation CLI defaults to references.
 Neither partial labels nor schema edits promote data to final matched evidence.
 
 Materialization accepts only declared train data and exact float32 file-backed
@@ -210,3 +213,21 @@ operational runner and checks for a recorded A1 diagnostic. The fixed checkpoint
 still establishes compatibility; replay commands are non-learned. Independent
 scoring reports `reference_cycle_success` and never counts it as learned success.
 See [[../experiments/b1-operational-tolerances|measurements, failures and limits]].
+
+## Bounded data infrastructure
+
+Preparation now yields one frame-indexed episode at a time through the unchanged
+observer/FK and label audit. No corpus of overlapping visual tensors is retained
+in RAM. `pilot_offline.py index --root DEST --protocol PROTOCOL --prepared-data SOURCE`
+converts an existing prepared dataset without CUDA, preprocessing or source edits.
+`DEST/data` must not exist. Metadata, train/development membership and original
+normalization fit remain unchanged; embedded raw data is linked unless `--copy-raw`
+is explicit. Separately referenced raw paths must be available or relocated for
+raw inspection; policy loading is independent of those privileged records.
+
+Loading guards budget active batches/normalization and small eager metadata;
+logical image bytes remain a separate diagnostic, including indexed and VDS data.
+The input factories keep one bounded prefetched batch, with a synchronous library
+option. See [[episode-and-dataset-contracts|storage, validation and compatibility]]
+for close/reopen and value-check timing. These changes select no new encoder,
+history, training strategy, checkpoint or task outcome.

@@ -16,8 +16,14 @@ commands and evaluator annotations remain separate. Preserved engineering record
 measured torque; commands do not substitute for feedback. New recordings retain a
 separate 60 Hz measured feedback channel and 120 Hz robot feedback/dynamics stream,
 including source, joint-output semantics, support times and canonical joint order.
-Partial pilot exports preserve complete raw sensor/calibration/command/phase groups. No recording migration
-or policy-dataset production is performed by repository consolidation.
+The B1 writer retains lossless single-frame LZF RGB/depth/mask chunks and buffers
+small numeric/text columns by at most 128 rows. It drains before each unchanged
+60-control-tick flush and on finish/close. Pending clocks participate in ordering
+checks. Orderly interruption drains buffered values while retaining complete=False;
+a write failure cannot retry a partial drain or publish completion. Raw values,
+including NaN payloads, unavailable feedback and failed outcomes, remain unchanged.
+Pilot preparation references these retained originals by default; explicit
+`--copy-raw` creates a self-contained export for transfer.
 
 ## Matched Policy Data
 
@@ -85,10 +91,15 @@ observation or temporal policy. Raw recordings retain all original information.
 at open; sampling and normalization check selected values before use. Set
 `check_observations=True` for a complete bounded-memory scan, including unused
 rows. Finite-value failure can otherwise occur on first access instead of open.
-Compressed/VDS observations stay selective; contiguous historical files retain
-read-only memory maps. A shared pool limits HDF5 readers to four files with 1 MiB
+Large contiguous, compressed and VDS observations stay selective; contiguous
+historical arrays up to 8 MiB retain read-only memory maps. This prevents a full
+normalization scan from making a multi-GiB visual mapping resident. A shared pool limits HDF5 readers to four files with 1 MiB
 chunk caches per open dataset. `close()` drains handles; later reads reopen them. Batch reads
 group by episode and restore the same seeded order, duplicates and padding.
+Family batch factories prefetch one next normalized batch in one reader thread to
+overlap CPU reads with GPU computation. The queue contains no dataset copy or
+workers per episode. `prefetch=False` keeps synchronous iteration. Early close
+joins the current read; input exceptions propagate before the affected batch is used.
 
 `index_dataset(source, destination)` is a non-destructive streaming compatibility
 path for historical prepared files. It preserves values, dtype, metadata, splits

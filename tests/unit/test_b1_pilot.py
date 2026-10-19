@@ -578,7 +578,7 @@ def test_partial_resume_skips_only_complete_representations(tmp_path, monkeypatc
         raise RuntimeError("unfinished data reached")
 
     monkeypatch.setitem(api["train"].__globals__, "load_b1_data", loader)
-    monkeypatch.setitem(api["train"].__globals__, "dataset_ram_bytes", lambda _: 0)
+    monkeypatch.setitem(api["train"].__globals__, "dataset_loading_bytes", lambda _: 0)
     monkeypatch.setitem(api["train"].__globals__, "memory_checkpoint", lambda *a, **k: None)
     with pytest.raises(RuntimeError, match="unfinished data reached"):
         api["train"](tmp_path, protocol, resume=True)

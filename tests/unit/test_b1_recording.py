@@ -194,3 +194,58 @@ def test_optional_full_robot_state_keeps_policy_schema_and_clock(tmp_path):
         h5["robot_state/time_s"][1] = 0.2
     with pytest.raises(ValueError, match="Unsynchronized"):
         validate_episode(path)
+
+
+@pytest.mark.parametrize("complete", [False, True])
+def test_buffered_rows_survive_boundary_and_orderly_interruption(tmp_path, complete):
+    import h5py
+
+    path = tmp_path / "buffered.hdf5"
+    writer = B1Writer(path, {}, dict(depth_interval_m=[0.1, 5]))
+    for i in range(132):
+        sensor = obs(i / 60, i + 1)
+        # Preserve a non-default NaN payload across the 128-row boundary.
+        sensor["depth_m"] = sensor["depth_m"].astype(np.float32)
+        sensor["depth_m"].view("u4").flat[0] = 0x7FC00011 + i
+        sensor["valid_depth"].flat[0] = False
+        if i == 0:
+            writer.observe(sensor, dict(attempt=np.int64(i)))
+        else:
+            writer.transition(
+                dict(time_s=(i - 1) / 60, joint_target=np.full(7, i)),
+                sensor,
+                dict(attempt=np.int64(i)),
+            )
+    if complete:
+        writer.finish(dict(passed=False, termination="retained_failure"))
+    writer.close()
+    writer.close()
+    with h5py.File(path) as file:
+        assert bool(file.attrs["complete"]) == complete
+        assert len(file["commands/time_s"]) == 131
+        np.testing.assert_array_equal(file["annotations/attempt"][:], np.arange(132))
+        for i in (0, 59, 60, 127, 128, 131):
+            assert file["observations/depth_m"][i].view("u4").flat[0] == 0x7FC00011 + i
+            assert not file["observations/valid_depth"][i].flat[0]
+            assert robot_feedback_at(file, i).torque_nm is None
+
+
+def test_failed_buffer_flush_cannot_mark_complete_or_retry(tmp_path, monkeypatch):
+    import h5py
+
+    path = tmp_path / "storage-failure.hdf5"
+    writer = B1Writer(path, {}, dict(depth_interval_m=[0.1, 5]))
+    writer.observe(obs(), {})
+    writer.transition(dict(time_s=0.0, joint_target=np.zeros(7)), obs(1 / 60, 2), {})
+
+    def failed(key):
+        raise OSError("storage failure")
+
+    monkeypatch.setattr(writer, "_flush_column", failed)
+    with pytest.raises(OSError, match="storage failure"):
+        writer.finish(dict(passed=False, termination="storage_failure"))
+    with pytest.raises(RuntimeError, match="write_failed"):
+        writer.flush()
+    writer.close()
+    with h5py.File(path) as file:
+        assert not file.attrs["complete"]

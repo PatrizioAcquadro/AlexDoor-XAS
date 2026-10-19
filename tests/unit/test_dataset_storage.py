@@ -153,3 +153,56 @@ def test_native_images_preserve_inexact_values_and_signed_zero_when_widening():
         assert source["observations/frames"].dtype == np.dtype("f8")
     values.files.close()
     writer.close()
+
+
+def test_prefetch_preserves_objects_order_errors_and_bounded_lookahead():
+    from alexdoor_xas.policies.common.data import prefetch_batches
+
+    produced = []
+
+    def source():
+        for i in range(9):
+            produced.append(i)
+            yield np.full((2, 3), i)
+        raise ValueError("retained input failure")
+
+    iterator = prefetch_batches(source())
+    np.testing.assert_array_equal(next(iterator), np.zeros((2, 3)))
+    iterator.close()
+    assert len(produced) <= 2
+    iterator = prefetch_batches(source())
+    for i in range(9):
+        np.testing.assert_array_equal(next(iterator), np.full((2, 3), i))
+    with pytest.raises(ValueError, match="retained input failure"):
+        next(iterator)
+
+
+def test_indexed_pilot_has_lossless_dense_float32_compatibility(tmp_path, b1_binding):
+    from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA
+    from alexdoor_xas.dataset.b1 import MatchedEpisode, materialize_train_data
+    from alexdoor_xas.policies.encoding import LEARNED_RECIPE, pilot_binding
+
+    binding = pilot_binding(b1_binding.config["inspection"], recipe=LEARNED_RECIPE)
+    spaces = (A1_JOINT_DELTA, A2_EE_DELTA)
+    values = np.ones((3, binding.obs_dim), dtype=np.float32)
+    episode = MatchedEpisode(
+        "train",
+        "left",
+        "train",
+        np.arange(3) / 60,
+        values,
+        {space: np.zeros((2, ACTION_DIMS[space])) for space in spaces},
+        {space: np.arange(2) for space in spaces},
+    )
+    original = export_dataset(
+        [episode], tmp_path / "source", binding, TEST_ROBOT_REF, {"left": "train"}
+    )
+    indexed = index_dataset(original, tmp_path / "indexed")
+    dense = materialize_train_data(
+        [indexed], tmp_path / "dense", normalization_episode_ids=["train"]
+    )
+    with B1Dataset(dense, A1_JOINT_DELTA) as data:
+        assert isinstance(data.records[0].observation_matrix, np.memmap)
+        np.testing.assert_array_equal(data.records[0].observation_matrix, values[:-1])
+        np.testing.assert_array_equal(data.records[0].terminal_observation, values[-1])
+        assert data.normalization_episode_ids == ("train",)

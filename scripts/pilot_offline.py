@@ -6,7 +6,7 @@ import gc
 import hashlib
 import json
 import sys
-from itertools import islice
+from itertools import chain, islice
 from pathlib import Path
 from time import perf_counter
 
@@ -23,6 +23,7 @@ from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA  # noqa: E402
 from alexdoor_xas.assets.identity import RobotAssetRef  # noqa: E402
 from alexdoor_xas.dataset.b1 import (  # noqa: E402
     export_dataset,
+    index_dataset,
     materialize_train_data,
     prepare_recording,
 )
@@ -70,106 +71,146 @@ def dataset_ram_bytes(directory):
             raise ValueError("Episode path must stay inside its dataset")
         with h5py.File(directory / name, "r") as source:
             values = source["observations"]
-            size += int(values.size) * values.dtype.itemsize
+            if isinstance(values, h5py.Group):
+                width = values["frames"].shape[1]
+                width += values["coverage"].shape[1] if "coverage" in values else 0
+                size += (
+                    len(values["indices"])
+                    * (values["indices"].shape[1] * width + 18)
+                    * np.result_type(values["frames"].dtype, values["proprio"].dtype).itemsize
+                )
+            else:
+                size += int(values.size) * values.dtype.itemsize
     return size
 
 
-def prepare(root, protocol, *, recipe, export=True, copy_raw=True, urdf=None):
-    episodes, audit = [], []
+def dataset_loading_bytes(directory):
+    """Budget active normalization/batches and small eager metadata, not visual corpus."""
+    metadata = json.loads((directory / "meta.json").read_text())
+    size = 256 * 1024**2
+    for name in metadata["episodes"]:
+        if Path(name).name != name:
+            raise ValueError("Episode path must stay inside its dataset")
+        with h5py.File(directory / name, "r") as source:
+            size += source["time_s"].size * source["time_s"].dtype.itemsize
+            for space in (A1_JOINT_DELTA, A2_EE_DELTA):
+                size += sum(v.size * v.dtype.itemsize for v in source[space].values())
+            size += (sum(metadata["perception"]["config"]["visual_dims"]) + 18) * 8
+    return size
+
+
+def prepare(root, protocol, *, recipe, export=True, copy_raw=False, urdf=None):
+    audit = []
     splits = {e["asset_id"]: e["split"] for e in protocol["episodes"]}
     binding, robot = None, None
-    for entry in protocol["episodes"]:
-        directory = root / entry.get("directory", entry["asset_id"])
-        if entry.get("use_for_imitation") is False:
-            reason = entry.get("imitation_exclusion_reason")
+
+    def collect():
+        nonlocal binding, robot
+        for entry in protocol["episodes"]:
+            directory = root / entry.get("directory", entry["asset_id"])
+            if entry.get("use_for_imitation") is False:
+                reason = entry.get("imitation_exclusion_reason")
+                path = directory / "episode.hdf5"
+                if not reason:
+                    raise ValueError("Excluded collection requires an explicit reason")
+                audit.append(
+                    dict(
+                        asset_id=entry["asset_id"],
+                        condition=entry.get("condition"),
+                        used_for_imitation=False,
+                        reason=reason,
+                        source_recording=str(path.resolve()),
+                        recording_available_here=path.is_file(),
+                        retention_verified_here=False,
+                    )
+                )
+                print(json.dumps(audit[-1]), flush=True)
+                continue
+            runtime = json.loads((directory / "runtime.json").read_text())
+            identity = RobotAssetRef.from_dict(runtime["robot_asset"])
+            if robot is not None and identity != robot:
+                raise ValueError("Different robot across physical episodes")
+            robot = identity
+            urdf_path = Path(runtime["urdf"]) if urdf is None else Path(urdf)
+            if hashlib.sha256(urdf_path.read_bytes()).hexdigest() != identity.sha256:
+                raise ValueError("Preparation URDF differs from the recorded robot asset")
+            fk = PurdueFK(urdf_path)
             path = directory / "episode.hdf5"
-            if not reason:
-                raise ValueError("Excluded collection requires an explicit reason")
-            audit.append(
-                dict(
-                    asset_id=entry["asset_id"],
-                    condition=entry.get("condition"),
-                    used_for_imitation=False,
-                    reason=reason,
-                    source_recording=str(path.resolve()),
-                    recording_available_here=path.is_file(),
-                    retention_verified_here=False,
+            with h5py.File(path) as source:
+                calibration = json.loads(source["metadata"].attrs["calibration"])
+                metadata = json.loads(source["metadata"].attrs["episode"])
+                candidate = pilot_binding(
+                    metadata["inspection"],
+                    depth_interval_m=calibration["depth_interval_m"],
+                    recipe=recipe,
                 )
-            )
-            print(json.dumps(audit[-1]), flush=True)
-            continue
-        runtime = json.loads((directory / "runtime.json").read_text())
-        identity = RobotAssetRef.from_dict(runtime["robot_asset"])
-        if robot is not None and identity != robot:
-            raise ValueError("Different robot across physical episodes")
-        robot = identity
-        urdf_path = Path(runtime["urdf"]) if urdf is None else Path(urdf)
-        if hashlib.sha256(urdf_path.read_bytes()).hexdigest() != identity.sha256:
-            raise ValueError("Preparation URDF differs from the recorded robot asset")
-        fk = PurdueFK(urdf_path)
-        path = directory / "episode.hdf5"
-        with h5py.File(path) as source:
-            calibration = json.loads(source["metadata"].attrs["calibration"])
-            metadata = json.loads(source["metadata"].attrs["episode"])
-            candidate = pilot_binding(
-                metadata["inspection"],
-                depth_interval_m=calibration["depth_interval_m"],
-                recipe=recipe,
-            )
-        if binding is not None and candidate != binding:
-            raise ValueError("Different observed-input recipes")
-        binding = candidate
-        observer = B1Observer(None, binding, encoder=RGBDEncoder(binding))
-        episode = prepare_recording(path, observer, fk, splits)
-        with h5py.File(path) as source:
-            obs, commands = source["observations"], source["commands"]
-            start = next(
-                i for i, phase in enumerate(commands["phase"][:]) if PHASES[int(phase)] != "inspect"
-            )
-            q = obs["joint_position"][start:]
-            exact_a1 = commands["joint_target"][start:] - q[:-1, :7]
-            error_a1 = float(np.abs(exact_a1 - episode.actions[A1_JOINT_DELTA]).max())
-            p_errors, r_errors = [], []
-            for tick, action in enumerate(episode.actions[A2_EE_DELTA]):
-                reconstructed = apply_pose_delta(fk(q[tick], calibration), action)
-                p_errors.append(
-                    np.linalg.norm(reconstructed.origin - commands["tool_position"][start + tick])
+            if binding is not None and candidate != binding:
+                raise ValueError("Different observed-input recipes")
+            binding = candidate
+            observer = B1Observer(None, binding, encoder=RGBDEncoder(binding))
+            episode = prepare_recording(path, observer, fk, splits)
+            with h5py.File(path) as source:
+                obs, commands = source["observations"], source["commands"]
+                start = next(
+                    i
+                    for i, phase in enumerate(commands["phase"][:])
+                    if PHASES[int(phase)] != "inspect"
                 )
-                r_errors.append(
-                    Rotation.from_matrix(
-                        reconstructed.rot @ commands["tool_rotation"][start + tick].T
-                    ).magnitude()
+                q = obs["joint_position"][start:]
+                exact_a1 = commands["joint_target"][start:] - q[:-1, :7]
+                error_a1 = float(np.abs(exact_a1 - episode.actions[A1_JOINT_DELTA]).max())
+                p_errors, r_errors = [], []
+                for tick, action in enumerate(episode.actions[A2_EE_DELTA]):
+                    reconstructed = apply_pose_delta(fk(q[tick], calibration), action)
+                    p_errors.append(
+                        np.linalg.norm(
+                            reconstructed.origin - commands["tool_position"][start + tick]
+                        )
+                    )
+                    r_errors.append(
+                        Rotation.from_matrix(
+                            reconstructed.rot @ commands["tool_rotation"][start + tick].T
+                        ).magnitude()
+                    )
+                if max(error_a1, max(p_errors), max(r_errors)) > 1e-7:
+                    raise ValueError("Labels fail observed-state command reconstruction")
+                audit.append(
+                    dict(
+                        asset_id=entry["asset_id"],
+                        fk_urdf=str(urdf_path.resolve()),
+                        split=entry["split"],
+                        learned_ticks=len(exact_a1),
+                        raw_observations=len(obs["time_s"]),
+                        a1_reconstruction_max_rad=error_a1,
+                        a2_reconstruction_max_m=max(p_errors),
+                        a2_reconstruction_max_rad=max(r_errors),
+                        a2_rotation_label_max_rad=float(
+                            np.linalg.norm(episode.actions[A2_EE_DELTA][:, 3:], axis=1).max()
+                        ),
+                        phases={
+                            PHASES[int(p)]: int((commands["phase"][:] == p).sum())
+                            for p in np.unique(commands["phase"][:])
+                        },
+                        physics_feedback_samples=len(source["physics_feedback/time_s"]),
+                        # prepare_recording validates every emitted row.
+                        finite_policy_features=True,
+                        outcome=json.loads(source["metadata"].attrs["outcome"]),
+                    )
                 )
-            if max(error_a1, max(p_errors), max(r_errors)) > 1e-7:
-                raise ValueError("Labels fail observed-state command reconstruction")
-            audit.append(
-                dict(
-                    asset_id=entry["asset_id"],
-                    fk_urdf=str(urdf_path.resolve()),
-                    split=entry["split"],
-                    learned_ticks=len(exact_a1),
-                    raw_observations=len(obs["time_s"]),
-                    a1_reconstruction_max_rad=error_a1,
-                    a2_reconstruction_max_m=max(p_errors),
-                    a2_reconstruction_max_rad=max(r_errors),
-                    a2_rotation_label_max_rad=float(
-                        np.linalg.norm(episode.actions[A2_EE_DELTA][:, 3:], axis=1).max()
-                    ),
-                    phases={
-                        PHASES[int(p)]: int((commands["phase"][:] == p).sum())
-                        for p in np.unique(commands["phase"][:])
-                    },
-                    physics_feedback_samples=len(source["physics_feedback/time_s"]),
-                    finite_policy_features=bool(np.isfinite(episode.observations).all()),
-                    outcome=json.loads(source["metadata"].attrs["outcome"]),
-                )
-            )
-        episodes.append(episode)
-        print(json.dumps(dict(prepared=entry["asset_id"], ticks=len(exact_a1))), flush=True)
-    if export and not episodes:
-        raise ValueError("No eligible imitation episodes")
+            print(json.dumps(dict(prepared=entry["asset_id"], ticks=len(exact_a1))), flush=True)
+            yield episode
+
+    episodes = collect()
+    first = next(episodes, None)
     if export:
-        export_dataset(episodes, root / "data", binding, robot, splits, copy_raw=copy_raw)
+        if first is None:
+            raise ValueError("No eligible imitation episodes")
+        export_dataset(
+            chain((first,), episodes), root / "data", binding, robot, splits, copy_raw=copy_raw
+        )
+    else:
+        for _ in episodes:
+            pass
     name = "data-audit.json" if export else "preflight-label-audit.json"
     write_json(root / name, audit)
 
@@ -525,7 +566,7 @@ def train(root, protocol, *, resume=False, continue_from=None):
         if all(f"{family}-{space}" in report for family in ("act", "diffusion")):
             continue
         memory_checkpoint(
-            root, f"{space}_before_load", additional_bytes=dataset_ram_bytes(root / "data")
+            root, f"{space}_before_load", additional_bytes=dataset_loading_bytes(root / "data")
         )
         data = load_b1_data(root / "data", space)
         memory_checkpoint(root, f"{space}_loaded")
@@ -686,6 +727,7 @@ def train(root, protocol, *, resume=False, continue_from=None):
             write_json(destination / "report.json", report)
             del policy, learned, model
             torch.cuda.empty_cache()
+        data.dataset.close()
         del data, factory, development
         gc.collect()
         memory_checkpoint(root, f"{space}_released")
@@ -702,7 +744,7 @@ def evaluate_checkpoints(root, protocol, checkpoints):
     report = {}
     for space in (A1_JOINT_DELTA, A2_EE_DELTA):
         memory_checkpoint(
-            root, f"{space}_before_load", additional_bytes=dataset_ram_bytes(root / "data")
+            root, f"{space}_before_load", additional_bytes=dataset_loading_bytes(root / "data")
         )
         dataset = B1Dataset(root / "data", space)
         memory_checkpoint(root, f"{space}_loaded")
@@ -753,6 +795,7 @@ def evaluate_checkpoints(root, protocol, checkpoints):
             print(json.dumps(dict(evaluated=name, **report[name])), flush=True)
             del policy, model, before_weights, data
             torch.cuda.empty_cache()
+        dataset.close()
         del dataset
         gc.collect()
         memory_checkpoint(root, f"{space}_released")
@@ -967,7 +1010,9 @@ def evaluate_selection_checkpoints(root, protocol, checkpoints, selection, *, re
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("audit", "prepare", "materialize", "train", "evaluate"))
+    parser.add_argument(
+        "mode", choices=("audit", "prepare", "index", "materialize", "train", "evaluate")
+    )
     parser.add_argument("--root", type=Path, required=True)
     parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument(
@@ -975,11 +1020,20 @@ def main(argv=None):
         choices=(RECIPE, FIXED_UNITS_RECIPE, LEARNED_RECIPE),
         help="Historical recipe identity; must agree with a declared protocol recipe",
     )
-    parser.add_argument(
-        "--reference-raw",
+    retention = parser.add_mutually_exclusive_group()
+    retention.add_argument(
+        "--copy-raw",
         action="store_true",
-        help="Retain original raw recordings separately rather than duplicating them in exports",
+        dest="copy_raw",
+        help="Copy raw recordings into exports; useful for a self-contained transfer",
     )
+    retention.add_argument(
+        "--reference-raw",
+        action="store_false",
+        dest="copy_raw",
+        help="Reference separately retained originals (the default)",
+    )
+    parser.set_defaults(copy_raw=False)
     parser.add_argument(
         "--urdf",
         type=Path,
@@ -1029,6 +1083,8 @@ def main(argv=None):
         parser.error("--continue-from requires train without --resume")
     if args.resume and args.mode != "train":
         parser.error("--resume is only valid for train")
+    if args.mode == "index" and (not args.prepared_data or len(args.prepared_data) != 1):
+        parser.error("index requires exactly one --prepared-data source")
     if args.mode == "materialize" and (not args.prepared_data or not args.normalization_episode_id):
         parser.error("materialize needs prepared sources and original normalization identities")
     protocol = json.loads(args.protocol.read_text())
@@ -1040,16 +1096,20 @@ def main(argv=None):
         parser.error(
             "New pilot data and training require rgbd-conv-v1; grid recipes are historical"
         )
-    if args.mode in ("train", "evaluate", "materialize"):
-        sources = args.prepared_data if args.mode == "materialize" else [args.root / "data"]
+    if args.mode in ("train", "evaluate", "materialize", "index"):
+        sources = (
+            args.prepared_data if args.mode in ("materialize", "index") else [args.root / "data"]
+        )
         for source in sources:
             metadata = json.loads((source / "meta.json").read_text())
             if metadata["perception"]["config"]["encoder"] != args.recipe:
                 parser.error("Dataset encoder differs from the protocol recipe")
-    if args.mode != "materialize" and not torch.cuda.is_available():
+    if args.mode not in ("materialize", "index") and not torch.cuda.is_available():
         raise RuntimeError("CUDA required; do not silently fall back to CPU")
     torch.set_num_threads(4)
-    if args.mode == "materialize":
+    if args.mode == "index":
+        index_dataset(args.prepared_data[0], args.root / "data", copy_raw=args.copy_raw)
+    elif args.mode == "materialize":
         materialize_train_data(
             args.prepared_data,
             args.root / "data",
@@ -1066,7 +1126,7 @@ def main(argv=None):
                 args.root,
                 protocol,
                 recipe=args.recipe,
-                copy_raw=not args.reference_raw,
+                copy_raw=args.copy_raw,
                 urdf=args.urdf,
             )
         elif args.mode == "evaluate":
