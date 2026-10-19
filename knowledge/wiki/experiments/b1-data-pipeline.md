@@ -95,3 +95,21 @@ Measured GPU-job intervals, including CPU waits and retained attempts, total
 11.83 minutes; launcher startup is included in process-tree/CLI measurements and
 excluded from the other intervals. New evidence is about 25.76 GiB. The scientific
 pilot ledger is unchanged. Neither budget is evidence of learning improvement.
+
+
+## Existing generated dataset compaction
+
+The same-day follow-up replaces the three-episode legacy `rgbd-grid-v1` dataset
+at `outputs/generated/b1-policy-pilot/act-a1a2-pilot/data` in place. File allocation
+falls from 41,554,046,976 bytes (38.70 GiB) to 6,021,120 bytes (5.74 MiB), reclaiming
+38.69 GiB after removing the verified redundant files. Separately retained original
+recordings remain unchanged and accessible through relative HDF5 `raw` links;
+prepared observations use indexed storage. The final figure excludes those originals.
+Every raw column/attribute and all 10,158 prepared observations, actions, clocks,
+terminal values and metadata match exactly. A1/A2 batches and train-only statistics
+also match before and after replacement. Historical evidence and benchmark payloads
+remain preserved; this does not claim that every historical dataset was compacted.
+The [migration report](../../../outputs/evidence/data-pipeline-migration-20261019/report.md)
+and [exact validation](../../../outputs/evidence/data-pipeline-migration-20261019/migration.json)
+record the scope and reclaimed blocks. Moving the prepared files requires their raw
+sources or a self-contained `--copy-raw` export.
