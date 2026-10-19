@@ -8,6 +8,15 @@ The explicitly unqualified [[b1-policy-pilot|policy pilot]] additionally support
 `b1.policy-dataset.pilot.v1` with A1/A2 only. Its binding, purpose and policy contract
 are distinct; partial data cannot enter the final matched format below.
 
+The separate opt-in `b1.temporal-recording.v1` and `b1.temporal-frames.v1` path
+supports independent native sensor/control/feedback streams and finite-history
+ACT. Preparation defaults to diagnostic-only labels; explicit admission and
+shared readiness determine training rows without image reads. History sampling,
+action interval and prediction horizon are independent views. Raw NaNs, failures
+and interruptions remain available. See
+[[act-a1-observations-and-time|temporal APIs, semantics and measured limits]].
+The existing matched/pilot formats and prior efficiency results are unchanged.
+
 ## Recording
 
 The RGB-D engineering interface is documented in

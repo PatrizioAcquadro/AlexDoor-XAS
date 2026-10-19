@@ -15,7 +15,7 @@ import torch
 import torch.nn.functional as F
 
 from alexdoor_xas.assets.purdue import ARM_JOINTS
-from alexdoor_xas.policies.temporal import CausalObservationBuilder, gather
+from alexdoor_xas.policies.temporal import CausalObservationBuilder, causal_indices, gather
 
 LAYOUT = "b1.temporal-frames.v1"
 
@@ -254,6 +254,10 @@ def prepare_temporal(
         streams, metadata, times, gen = raw_streams(
             raw, config, device=device, image_rows=image_rows, legacy_synchronous=legacy_synchronous
         )
+        metadata = dict(metadata)
+        recorded_dt = metadata.get("control_dt", raw["metadata"].attrs.get("control_dt"))
+        if recorded_dt is not None:
+            metadata["control_dt"] = float(recorded_dt)
         out.attrs["episode"] = json.dumps(metadata)
         for key, stream in streams.items():
             group = out.create_group(key)
@@ -321,7 +325,14 @@ class TemporalEpisode:
             raise ValueError("Prepared preprocessing differs from observation recipe")
         self.metadata = json.loads(self.file.attrs["episode"])
         if self.metadata.get("split") not in ("train", "development"):
+            self.close()
             raise ValueError("Final test remains sealed")
+        recorded_dt = self.metadata.get("control_dt")
+        if recorded_dt is not None and not np.isclose(
+            recorded_dt, config.control_dt_s, atol=1e-9, rtol=0
+        ):
+            self.close()
+            raise ValueError("Action interval differs from the recorded control rate")
         streams = {}
         for key in ("images", "q", "dq", "tau", "target"):
             streams[key] = {
@@ -348,7 +359,7 @@ class TemporalEpisode:
         snapshot = self.builder.build(t, gen)
         rows = np.flatnonzero((self.action_generations == gen) & (self.action_times >= t - 1e-9))
         indices = np.full(horizon, -1, "i8")
-        expected = t + np.arange(horizon) / self.config.state_hz
+        expected = t + np.arange(horizon) * self.config.control_dt_s
         # A gap inside a generation is missing supervision, never a repeated stop.
         for i, tick in enumerate(expected):
             match = rows[np.isclose(self.action_times[rows], tick, atol=1e-8, rtol=0)]
@@ -375,6 +386,51 @@ class TemporalEpisode:
             actions=np.stack([s["actions"] for s in samples]),
             is_pad=np.stack([s["is_pad"] for s in samples]),
         )
+
+    def training_rows(self, horizon=12):
+        """Admitted ready decision rows using numeric support only, no image reads.
+
+        Sampler ordering/shuffling remains caller-owned. Full chunks crossing
+        ineligible commands or internal holes are rejected; real tails are kept.
+        """
+        if horizon < 1:
+            raise ValueError("Prediction horizon must be positive")
+        cfg, streams = self.config, self.builder.streams
+        admitted = []
+        for row, (t, gen) in enumerate(zip(self.times, self.generations, strict=True)):
+            if t < cfg.static_time_s + cfg.warmup_s - 1e-9:
+                continue
+            commands = np.flatnonzero(self.action_generations == gen)
+            position = np.searchsorted(self.action_times[commands], t - 1e-9)
+            window = commands[position : position + horizon]
+            if (
+                not len(window)
+                or not self.eligibility[window].all()
+                or not np.allclose(
+                    self.action_times[window],
+                    t + np.arange(len(window)) * cfg.control_dt_s,
+                    atol=1e-8,
+                    rtol=0,
+                )
+            ):
+                continue
+            image_idx = causal_indices(
+                streams["images"], [cfg.static_time_s, t], t, gen, cfg.image_gap_s
+            )
+            ready = bool((image_idx >= 0).all())
+            if ready and "valid" in streams["images"]:
+                ready = bool(streams["images"]["valid"][image_idx].all())
+            for key, width in (("q", 9), ("dq", 9)):
+                stream = streams[key]
+                idx = causal_indices(stream, [t], t, gen, cfg.state_gap_s)
+                ready &= bool(
+                    idx[0] >= 0 and np.isfinite(gather(stream["values"], idx, (width,))).all()
+                )
+                if idx[0] >= 0 and "valid" in stream:
+                    ready &= bool(stream["valid"][idx[0]])
+            if ready:
+                admitted.append(row)
+        return np.asarray(admitted, dtype="i8")
 
     def batches(self, rows, *, batch_size=32, horizon=12, prefetch=True):
         from alexdoor_xas.policies.common.data import prefetch_batches

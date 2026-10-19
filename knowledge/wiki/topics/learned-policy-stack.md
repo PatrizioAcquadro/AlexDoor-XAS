@@ -27,6 +27,12 @@ replay, fixed-minibatch learning, four short CUDA runs and checkpoint round trip
 It retains ACT A2 development regression and does not qualify learned contact or
 the eight-path final benchmark.
 
+The explicit `rgbd-finite-history-v1` ACT recipe additionally accepts structured
+RGB-D and measured-state history, with a shared CNN and one finite attention
+block. Its current-state readout retains q/dq explicitly. Temporal checkpoints
+and inference are separate from the legacy flat recipe; both remain maintained.
+See [[act-a1-observations-and-time|the causal contract, API, measured costs and collection boundary]]. No new policy has been trained or physically qualified.
+
 ## Maintained Components
 
 - `ActModelCfg` / `DiffusionModelCfg` and their training dataclasses configure the

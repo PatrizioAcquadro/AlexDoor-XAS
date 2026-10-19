@@ -20,6 +20,7 @@ WIDTHS = (9, 9, 7, 7)
 class TemporalConfig:
     history_s: float = 4.0
     state_hz: float = 60.0
+    control_dt_s: float = 1 / 60
     image_size: tuple[int, int] = (120, 192)
     image_offsets_s: tuple[float, ...] | None = None
     static_time_s: float = 25.0
@@ -36,6 +37,7 @@ class TemporalConfig:
             [
                 self.history_s,
                 self.state_hz,
+                self.control_dt_s,
                 self.static_time_s,
                 self.warmup_s,
                 self.image_gap_s,
@@ -46,6 +48,7 @@ class TemporalConfig:
         ).all() or not (
             0 < self.history_s <= 60
             and 0 < self.state_hz <= 240
+            and self.control_dt_s > 0
             and self.static_time_s >= 0
             and self.warmup_s >= 0
             and self.image_gap_s > 0

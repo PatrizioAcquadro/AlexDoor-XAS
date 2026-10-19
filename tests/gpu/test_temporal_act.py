@@ -68,11 +68,24 @@ def test_preparation_sampling_horizons_padding_and_train_only_stats(tmp_path):
     terminal = ep.sample(30)
     assert terminal["is_pad"].all() and not terminal["supervision_eligible"]
     assert not ep.sample(0)["ready"]
+    ep.frames.cache.clear()
+    before_reads = ep.frames.reads
+    rows = ep.training_rows()
+    assert ep.frames.reads == before_reads
+    expected = [row for row in range(len(ep.times)) if ep.sample(row)["supervision_eligible"]]
+    np.testing.assert_array_equal(rows, expected)
+    assert len(list(ep.batches(rows, batch_size=4))) > 0
     size = ep.path.stat().st_size
     for history in (0.2, 0.4, 0.6):
         view = TemporalEpisode(ep.path, replace(cfg, history_s=history, image_offsets_s=None))
         assert view.sample(25, 64)["actions"].shape == (64, 7)
         view.close()
+    sparse = TemporalEpisode(ep.path, replace(cfg, state_hz=30))
+    np.testing.assert_array_equal(sparse.sample(29)["actions"], ep.sample(29)["actions"])
+    np.testing.assert_array_equal(sparse.sample(29)["is_pad"], ep.sample(29)["is_pad"])
+    sparse.close()
+    with pytest.raises(ValueError, match="control rate"):
+        TemporalEpisode(ep.path, replace(cfg, control_dt_s=1 / 30))
     assert ep.path.stat().st_size == size
     with h5py.File(ep.path) as file:
         assert len(file["images/values"]) == 6
@@ -101,6 +114,7 @@ def test_gradients_masks_cache_invalidation_and_checkpoint(tmp_path):
     ).cuda()
     batch = _to_device(collate_torch(normalize_temporal_batch(ep.batch([25, 26]), stats)), "cuda")
     model.train()
+    batch["obs"]["robot"].requires_grad_(True)
     before = {key: value.detach().clone() for key, value in model.state_dict().items()}
     predicted, mu, logvar = model(batch["obs"], batch["actions"], batch["is_pad"])
     act_loss(predicted, batch["actions"], batch["is_pad"], mu, logvar, 1)["loss"].backward()
@@ -108,6 +122,7 @@ def test_gradients_masks_cache_invalidation_and_checkpoint(tmp_path):
         assert any(p.grad is not None and p.grad.abs().sum() > 0 for p in module.parameters())
         assert all(p.grad is None or p.grad.isfinite().all() for p in module.parameters())
     assert not model.obs_proj.cache
+    assert batch["obs"]["robot"].grad[:, -1, :18].abs().sum() > 0
     for key, value in model.state_dict().items():
         torch.testing.assert_close(value, before[key], rtol=0, atol=0)
     policy = TemporalActPolicy(model, stats)

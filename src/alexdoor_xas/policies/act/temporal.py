@@ -48,7 +48,10 @@ def fit_temporal_stats(episodes):
     low, high = np.zeros(32), np.zeros(32)
     if torque:
         measured = NormStats.from_rows(torque)
-        mean[18:25], std[18:25] = measured.mean, np.maximum(measured.std, 1e-3)
+        mean[18:25], std[18:25] = (
+            measured.mean,
+            np.where(measured.max > measured.min, measured.std, 1.0),
+        )
         low[18:25], high[18:25] = measured.min, measured.max
     return DatasetNormStats(
         NormStats.from_rows(actions),

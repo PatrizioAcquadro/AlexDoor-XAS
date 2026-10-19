@@ -38,6 +38,7 @@ class TemporalProjection(nn.Module):
             num_layers=1,
             enable_nested_tensor=False,
         )
+        self.readout = nn.Linear(output_dim + 18, output_dim)
         self.cache = OrderedDict()
         self.cache_identity = None
         self.cache_capacity = 64
@@ -139,4 +140,7 @@ class TemporalProjection(nn.Module):
             ),
             dim=1,
         )
-        return self.temporal(sequence, src_key_padding_mask=~valid)[:, 0]
+        context = self.temporal(sequence, src_key_padding_mask=~valid)
+        # The current measured-state token is the readout; current q/dq also
+        # remain explicit, as required by the causal observation contract.
+        return self.readout(torch.cat((context[:, -1], robot[:, -1, :18]), dim=-1))
