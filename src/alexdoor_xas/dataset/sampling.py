@@ -158,9 +158,12 @@ def collate_torch(batch: dict[str, Any]):
     """Convert a numpy batch to float32 torch tensors (torch is optional)."""
     import torch
 
-    return {
-        key: torch.as_tensor(value, dtype=torch.float32)
-        if isinstance(value, np.ndarray) and value.dtype != np.int64
-        else (torch.as_tensor(value) if isinstance(value, np.ndarray) else value)
-        for key, value in batch.items()
-    }
+    def convert(value):
+        if isinstance(value, dict):
+            return {key: convert(item) for key, item in value.items()}
+        if isinstance(value, np.ndarray):
+            dtype = torch.float32 if value.dtype.kind == "f" else None
+            return torch.as_tensor(value, dtype=dtype)
+        return value
+
+    return convert(batch)

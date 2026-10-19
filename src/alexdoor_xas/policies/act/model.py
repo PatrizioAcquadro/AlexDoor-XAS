@@ -22,7 +22,17 @@ class ACTModel(nn.Module):
         self.cfg = cfg
 
         d = cfg.d_model
-        self.obs_proj = observation_projection(obs_dim, d, cfg.visual_recipe)
+        if cfg.temporal_config is not None:
+            from alexdoor_xas.policies.common.temporal import TemporalProjection
+            from alexdoor_xas.policies.temporal import TEMPORAL_RECIPE
+
+            if obs_dim != 32 or cfg.visual_recipe != TEMPORAL_RECIPE:
+                raise ValueError("Temporal ACT requires its explicit structured observation recipe")
+            self.obs_proj = TemporalProjection(
+                d, cfg.temporal_config, n_heads=cfg.n_heads, dropout=cfg.dropout
+            )
+        else:
+            self.obs_proj = observation_projection(obs_dim, d, cfg.visual_recipe)
         self.action_proj = nn.Linear(action_dim, d)
 
         self.cls_token = nn.Parameter(torch.zeros(1, 1, d))
@@ -65,32 +75,34 @@ class ACTModel(nn.Module):
         return sum(parameter.numel() for parameter in self.parameters())
 
     def encode(
-        self, obs: torch.Tensor, actions: torch.Tensor, is_pad: torch.Tensor
+        self, obs: torch.Tensor, actions: torch.Tensor, is_pad: torch.Tensor, *, embedding=None
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """CVAE encoder: ``(B, obs_dim), (B, H, A), (B, H)`` -> ``(mu, logvar)``."""
-        batch = obs.shape[0]
+        embedding = self.obs_proj(obs) if embedding is None else embedding
+        batch = embedding.shape[0]
         if actions.shape != (batch, self.cfg.chunk_size, self.action_dim):
             raise ValueError(
                 f"expected actions of shape {(batch, self.cfg.chunk_size, self.action_dim)}, "
                 f"got {tuple(actions.shape)}"
             )
         cls = self.cls_token.expand(batch, -1, -1)
-        obs_token = self.obs_proj(obs).unsqueeze(1)
+        obs_token = embedding.unsqueeze(1)
         action_tokens = self.action_proj(actions)
         sequence = torch.cat([cls, obs_token, action_tokens], dim=1) + self.cvae_pos
-        prefix_mask = torch.zeros(batch, 2, dtype=torch.bool, device=obs.device)
+        prefix_mask = torch.zeros(batch, 2, dtype=torch.bool, device=embedding.device)
         padding_mask = torch.cat([prefix_mask, is_pad.to(torch.bool)], dim=1)
         encoded = self.cvae_encoder(sequence, src_key_padding_mask=padding_mask)
         mu, logvar = self.latent_head(encoded[:, 0]).chunk(2, dim=-1)
         return mu, logvar
 
-    def decode(self, obs: torch.Tensor, z: torch.Tensor) -> torch.Tensor:
+    def decode(self, obs: torch.Tensor, z: torch.Tensor, *, embedding=None) -> torch.Tensor:
         """Policy decoder: ``(B, obs_dim), (B, z_dim)`` -> ``(B, H, action_dim)``."""
-        obs_token = self.obs_proj(obs).unsqueeze(1)
+        embedding = self.obs_proj(obs) if embedding is None else embedding
+        obs_token = embedding.unsqueeze(1)
         z_token = self.z_proj(z).unsqueeze(1)
         memory = torch.cat([obs_token, z_token], dim=1) + self.memory_pos
         memory = self.encoder(memory)
-        queries = self.query_pos.unsqueeze(0).expand(obs.shape[0], -1, -1)
+        queries = self.query_pos.unsqueeze(0).expand(embedding.shape[0], -1, -1)
         decoded = self.decoder(queries, memory)
         return self.action_head(decoded)
 
@@ -98,15 +110,17 @@ class ACTModel(nn.Module):
         self, obs: torch.Tensor, actions: torch.Tensor, is_pad: torch.Tensor
     ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Training pass: returns ``(a_hat, mu, logvar)`` with reparameterized z."""
-        mu, logvar = self.encode(obs, actions, is_pad)
+        embedding = self.obs_proj(obs)
+        mu, logvar = self.encode(obs, actions, is_pad, embedding=embedding)
         z = mu + torch.randn_like(mu) * torch.exp(0.5 * logvar)
-        return self.decode(obs, z), mu, logvar
+        return self.decode(obs, z, embedding=embedding), mu, logvar
 
     @torch.no_grad()
     def predict(self, obs: torch.Tensor) -> torch.Tensor:
         """Inference pass with z = 0 (prior mean): ``(B, obs_dim) -> (B, H, A)``."""
-        z = torch.zeros(obs.shape[0], self.cfg.z_dim, dtype=obs.dtype, device=obs.device)
-        return self.decode(obs, z)
+        embedding = self.obs_proj(obs)
+        z = embedding.new_zeros((embedding.shape[0], self.cfg.z_dim))
+        return self.decode(obs, z, embedding=embedding)
 
 
 def act_loss(

@@ -24,7 +24,20 @@ never a synthetic stabilization demonstration. Changing history or prediction
 length reuses the same frame store. Legacy arrival times require an explicit
 synchronous-simulation declaration and cannot establish hardware timing.
 
-Implementation checks and measured costs will be recorded here after validation.
+`policies/act/temporal.py` supplies the temporal model factory, train-only
+masked torque normalization, batch normalization, inference and versioned
+checkpoint APIs. ACT accepts structured temporal batches through the existing
+collation/training interface; `obs_dim=32` names measured feature width, not a
+flattened image vector. The shared CNN feeds one finite attention block. Visual
+and temporal gradients, masks, checkpoint round-trip and legacy ACT checks pass
+on CUDA without optimizer updates.
+
+Inference reuse is explicit (`reuse=True`) and bounded to 64 visual features.
+It transfers/encodes only cache misses, recomputes temporal context every query,
+and invalidates on physical reset, encoder tensor version/storage, device/dtype
+or preprocessing changes. Training and grad-enabled calls bypass it. It is off
+by default pending a useful measured cost tradeoff; equality alone is insufficient.
+Measured costs will be recorded below after the bounded comparison.
 The design below is retained as the preimplementation contract and evidence;
 its statements about work not yet executed describe that historical baseline.
 

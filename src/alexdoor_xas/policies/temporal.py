@@ -123,7 +123,11 @@ def causal_indices(stream, slots, decision, generation, gap, *, strict=False):
     chosen = candidates[np.maximum(positions, 0)]
     valid = (positions >= 0) & (slots - a[chosen] <= gap + 1e-9)
     # Ack/dispatch availability must already hold at each historical state.
-    if strict:
+    if strict and np.array_equal(v[candidates], a[candidates]):
+        # Synchronous delivered setpoints: searchsorted already enforces the
+        # strict command boundary. Carry-in has no sensor freshness timeout.
+        valid = positions >= 0
+    elif strict:
         for i, slot in enumerate(slots):
             eligible = candidates[(times < slot) & (v[candidates] <= slot)]
             if len(eligible):
@@ -223,6 +227,7 @@ class CausalObservationBuilder:
             episode_id=self.episode_id,
             generation=int(generation),
             decision_time_s=t,
+            observation_config=cfg.to_dict(),
             image_source_index=image_source,
             image_times=image_times,
             robot_times=robot_times,
@@ -237,8 +242,28 @@ class IncrementalObservationBuilder:
     of silently losing events inside the requested window.
     """
 
-    def __init__(self, config, *, episode_id, generation=0, max_image_hz=60, max_state_hz=240):
+    def __init__(
+        self,
+        config,
+        *,
+        episode_id,
+        generation=0,
+        max_image_hz=60,
+        max_state_hz=240,
+        feedback_contract=None,
+    ):
         self.config, self.episode_id = config, str(episode_id)
+        from alexdoor_xas.assets.purdue import ARM_JOINTS
+
+        contract = feedback_contract or {}
+        self.feedback_verified = bool(
+            contract.get("verified") is True
+            and tuple(contract.get("joint_names", ())) == ARM_JOINTS
+            and contract.get("units") == "N m"
+            and contract.get("sign_convention") == "positive_joint_coordinate"
+            and contract.get("source")
+            and contract.get("semantics")
+        )
         self.limits = dict(
             images=int((config.history_s + config.image_gap_s) * max_image_hz) + 4,
             **{
@@ -285,7 +310,7 @@ class IncrementalObservationBuilder:
             values=np.array(values, copy=True),
             generation=int(generation),
             source_index=int(source_index),
-            valid=bool(valid),
+            valid=bool(valid and (field != "tau" or self.feedback_verified)),
         )
         self.last_available[field] = available
         rows = self.rows[field]

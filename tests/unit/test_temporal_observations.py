@@ -61,7 +61,21 @@ def test_offline_incremental_startup_nominal_transition_terminal_and_bounded():
     cfg = TemporalConfig(image_size=(2, 3), static_time_s=0.5)
     raw = streams(cfg)
     offline = CausalObservationBuilder(cfg, raw, episode_id="same")
-    online = IncrementalObservationBuilder(cfg, episode_id="same", generation=2)
+    from alexdoor_xas.assets.purdue import ARM_JOINTS
+
+    online = IncrementalObservationBuilder(
+        cfg,
+        episode_id="same",
+        generation=2,
+        feedback_contract=dict(
+            verified=True,
+            joint_names=ARM_JOINTS,
+            units="N m",
+            sign_convention="positive_joint_coordinate",
+            source="simulated_actuator_feedback",
+            semantics="joint_output",
+        ),
+    )
     for tick in range(301):
         t = tick / 60
         # Native feedback/state before snapshot, current command afterwards.

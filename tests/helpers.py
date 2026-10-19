@@ -308,3 +308,41 @@ def pilot_episode(binding):
         joint_targets=np.ones((2, 7)) * 0.01,
         binding=binding,
     )
+
+
+def temporal_recorder(path):
+    from alexdoor_xas.assets.purdue import ARM_JOINTS
+    from alexdoor_xas.recording.temporal import TemporalRecorder
+
+    return TemporalRecorder(
+        path,
+        dict(split="train", episode_id="fixture"),
+        dict(depth_interval_m=[0.1, 5]),
+        feedback_contract=dict(
+            joint_names=list(ARM_JOINTS),
+            units="N m",
+            sign_convention="positive_joint_coordinate",
+            verified=True,
+            source="simulated_actuator_feedback",
+            semantics="joint_output",
+        ),
+    )
+
+
+def temporal_command(log, t, *, accepted=True):
+    log.command(
+        request_s=t,
+        dispatch_s=t,
+        applied_s=t,
+        requested_target=np.ones(7),
+        applied_target=np.full(7, 0.5),
+        q_before=np.zeros(7),
+        accepted=accepted,
+        generation=0,
+        request_kind=1,
+        request=np.ones(7),
+        clipped=True,
+        neck_target=np.zeros(2),
+        gripper_target=np.zeros(1),
+        effort_target_nm=np.zeros(9),
+    )

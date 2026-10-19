@@ -8,6 +8,7 @@ class ActModelCfg:
     chunk_size: int = 40
     d_model: int = 128
     visual_recipe: str | None = None
+    temporal_config: dict | None = None
     n_heads: int = 4
     dim_feedforward: int = 512
     z_dim: int = 16

@@ -223,6 +223,10 @@ def evaluate_l1(model: ACTModel, batches: Iterable[dict], device: torch.device) 
 
 def _to_device(batch: dict, device: torch.device) -> dict:
     return {
-        key: value.to(device) if isinstance(value, torch.Tensor) else value
+        key: _to_device(value, device)
+        if isinstance(value, dict)
+        else value.to(device)
+        if isinstance(value, torch.Tensor)
+        else value
         for key, value in batch.items()
     }
