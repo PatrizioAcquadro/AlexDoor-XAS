@@ -158,6 +158,9 @@ def main(argv=None):
     cfg = probe_config(door, setup, "cuda:0")
     cfg.seed = selected[0]["seed"]
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
+    if args.operational_recipe is not None:
+        recipe = json.loads(args.operational_recipe.read_text())
+        cfg.stop_stiffness = tuple(recipe.get("stop_stiffness", cfg.stop_stiffness))
     env = DoorPushPurdueEnv(cfg)
     env.reset()  # Establish the configured robot state before any fallible setup.
     restore_interruption = install_interruption(env)

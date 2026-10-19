@@ -280,7 +280,9 @@ class PilotMotionEvidence:
                     )
             diagnostics.update(interface_normal_cone_rad=cone, non_distal_order_margins_m=order)
 
-        temporal_p = 2 * self.config["relative_speed_bound_m_s"] * io.dt
+        # Actual robot motion is covered by velocity_sweep and the stop volume.
+        # This is the target's remaining motion, not another robot sweep.
+        temporal_p = self.config["relative_speed_bound_m_s"] * io.dt
         temporal_a = self.config["material_angular_speed_rad_s"] * io.dt
         foreground_by_key = {}
         surface_basis = None
@@ -316,14 +318,12 @@ class PilotMotionEvidence:
                 point_error = point_budget(radius, point_pose).displacement_m
                 if point_error is None:
                     raise ValueError("unmeasured_current_target_point_bound")
-                # Pay future normal-bound growth AND relative motion explicitly;
-                # the response/stopping reserve remains separate and intact.
+                # Registration and target growth are independent of the actual
+                # robot volume. Target-tracking error is not a second departure
+                # from that measured-state velocity/acceleration/stop volume.
                 point_error += temporal_p + local_lever * temporal_a
-                response = 0.013 + 2 * (np.linalg.norm(center - tool.origin) + radius) * np.sin(
-                    0.04 / 2
-                )
                 mapped = map_from_current[:3, :3] @ center + map_from_current[:3, 3]
-                enlarged = radius + point_error + response
+                enlarged = radius + point_error
                 # This complete target envelope also covers attachments, unlike
                 # a plane-only leaf test. The bound is observed, then separately
                 # validated on the fixed pilot domain before execution.
@@ -357,7 +357,6 @@ class PilotMotionEvidence:
                     - radius
                     - error
                     - front_extent
-                    - response
                 )
                 foreground = front_gap if front_gap > 0 else None
                 if foreground is not None:
@@ -384,7 +383,7 @@ class PilotMotionEvidence:
                         and finite_protrusion_margin > 0
                     ):
                         foreground = min(finite, order[key[0]], finite_protrusion_margin)
-                        gap = max(0.0, gap - response)
+                        gap = max(0.0, gap)
                 if foreground is None:
                     # Each fixed initial train target is included in this
                     # common calibration. No runtime asset lookup selects it.
@@ -585,7 +584,7 @@ class PilotMotionEvidence:
                     gap
                     - self.config["stop_duration_s"]
                     * (
-                        2 * self.config["relative_speed_bound_m_s"]
+                        self.config["relative_speed_bound_m_s"]
                         + local_lever * self.config["material_angular_speed_rad_s"]
                     ),
                 )
@@ -600,7 +599,8 @@ class PilotMotionEvidence:
             current_material_separation_margin_m=float(separation),
         )
         diagnostics["contact_free_stop_margin_m"] = float(contact_free_stop_margin)
-        # Apply the weak-position guard before entry, not only after observing
+        diagnostics["future_stop_force_domain_n"] = self.config["stop_force_domain_n"]
+        # Apply position support before entry, not only after observing
         # an envelope exit. These are the same joint travel bounds used by the
         # independently checked full robot sweep and stopping volumes above.
         motion_q_lower = np.array([positions[name] - joint_travel[name] for name in ARM_JOINTS])
@@ -610,6 +610,7 @@ class PilotMotionEvidence:
                 motion_q_lower,
                 contact_free_stop_margin_m=contact_free_stop_margin,
                 motion_q_upper=motion_q_upper,
+                force_upper_n=self.config["stop_force_domain_n"],
             )
         except ValueError:
             diagnostics.update(
@@ -698,6 +699,10 @@ def observed_pilot_runtime(env, binding, robot_asset, setup, config_path, output
     from alexdoor_xas.recording.b1_runtime import camera_calibration
 
     config = json.loads(Path(config_path).read_text())
+    if "stop_stiffness" in config and not np.array_equal(
+        config["stop_stiffness"], env.cfg.stop_stiffness
+    ):
+        raise ValueError("stop_controller_calibration_mismatch")
     calibration = camera_calibration(env)
     recipe = load_recipe(config["geometry_recipe"], Path(__file__).resolve().parents[3])
     load_calibration = LoadCalibration(**json.loads(Path(config["load_calibration"]).read_text()))

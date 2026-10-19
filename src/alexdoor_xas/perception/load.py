@@ -66,36 +66,68 @@ class LoadCalibration:
     # physical joint-limit allowance. Actual q/J/torque remain unclipped.
     position_tolerance_rad: np.ndarray | None = None  # (lower, upper) by joint
 
-    position_halo_force_upper_max_n: float | None = None
+    # Scalar for a common domain, or (lower, upper) force caps by joint.
+    position_halo_force_upper_max_n: float | np.ndarray | None = None
+
+    def position_support(self):
+        """Empirical support, separate from physical limits and sensor precision."""
+        tolerance = (
+            np.zeros((2, 7))
+            if self.position_tolerance_rad is None
+            else np.asarray(self.position_tolerance_rad, dtype=float)
+        )
+        if tolerance.shape != (2, 7) or not np.isfinite(tolerance).all() or (tolerance < 0).any():
+            raise ValueError("invalid_load_position_tolerance")
+        caps = np.asarray(self.position_halo_force_upper_max_n, dtype=float)
+        if caps.ndim == 0:
+            caps = np.full((2, 7), float(caps))
+        if caps.shape != (2, 7) or (
+            np.any(tolerance)
+            and (not np.isfinite(caps[tolerance > 0]).all() or (caps[tolerance > 0] <= 0).any())
+        ):
+            raise ValueError("unverified_position_halo_force_domain")
+        return tolerance, caps
 
     def require_position_motion_support(
-        self, motion_q_lower, *, contact_free_stop_margin_m, motion_q_upper=None
+        self,
+        motion_q_lower,
+        *,
+        contact_free_stop_margin_m,
+        motion_q_upper=None,
+        force_upper_n=None,
     ):
-        """A weak current load cannot qualify a future stronger-load stop.
+        """Require support for the complete future motion/stop load domain.
 
-        Supply conservative joint lower bounds over the proposed motion and
-        stop. If an extended joint can leave its main envelope, require independently
-        observed separation for that complete interval.
-        The caller must include nonzero target motion during that interval.
+        Position support qualified at the required stop load can support contact.
+        A weaker calibration still needs independently observed contact-free
+        motion and stopping. A weak current load is never the future force bound.
         """
         lower = finite_vector(motion_q_lower, 7)
         main = finite_vector(self.q_min, 7)
+        tolerance, caps = self.position_support()
         extended = (
             np.zeros(7, bool)
             if self.weak_load_q_min is None
             else finite_vector(self.weak_load_q_min, 7) < main
         )
+        extended |= tolerance[0] > 0
+        required_force = np.inf if force_upper_n is None else float(force_upper_n)
+        if force_upper_n is not None and (not np.isfinite(required_force) or required_force <= 0):
+            raise ValueError("invalid_future_stop_force_domain")
+        # Pay only independently qualified position support at this force.
+        loaded_tolerance = np.where(caps >= required_force, tolerance, 0.0)
+        lower_exit = np.any(extended & (lower < main - loaded_tolerance[0]))
         upper_exit = False
-        if self.position_tolerance_rad is not None:
-            tolerance = np.asarray(self.position_tolerance_rad, dtype=float)
-            extended |= tolerance[0] > 0
-            if np.any(tolerance[1] > 0):
-                if motion_q_upper is None:
-                    raise ValueError("missing_position_motion_upper_bound")
-                upper_exit = bool(
-                    np.any((tolerance[1] > 0) & (finite_vector(motion_q_upper, 7) > self.q_max))
-                )
-        if not (np.any(extended & (lower < main)) or upper_exit):
+        if np.any(tolerance[1] > 0):
+            if motion_q_upper is None:
+                raise ValueError("missing_position_motion_upper_bound")
+            upper = finite_vector(motion_q_upper, 7)
+            if np.any(lower > upper):
+                raise ValueError("invalid_position_motion_interval")
+            upper_exit = bool(
+                np.any((tolerance[1] > 0) & (upper > np.asarray(self.q_max) + loaded_tolerance[1]))
+            )
+        if not (lower_exit or upper_exit):
             return
         if (
             contact_free_stop_margin_m is None
@@ -175,16 +207,7 @@ class ResidualLoadModel:
         needs_weak_acceleration = bool(np.any(np.abs(ddq) > acceleration_max))
         q_min = finite_vector(c.q_min, 7)
         extended_position = c.weak_load_q_min
-        tolerance = (
-            np.zeros((2, 7))
-            if c.position_tolerance_rad is None
-            else np.asarray(c.position_tolerance_rad, dtype=float)
-        )
-        if tolerance.shape != (2, 7) or not np.isfinite(tolerance).all() or np.any(tolerance < 0):
-            raise ValueError("invalid_load_position_tolerance")
-        halo_cap = c.position_halo_force_upper_max_n
-        if np.any(tolerance) and (halo_cap is None or not np.isfinite(halo_cap) or halo_cap <= 0):
-            raise ValueError("unverified_position_halo_force_domain")
+        tolerance, halo_caps = c.position_support()
         needs_position_halo = bool(np.any(q < q_min) or np.any(q > c.q_max))
         needs_weak_position = bool(np.any(q < q_min - tolerance[0]))
         if extended_position is not None:
@@ -294,13 +317,15 @@ class ResidualLoadModel:
             raise ValueError("invalid_load_normal")
         normal_lower = -normal @ wrench[:3] - np.abs(normal) @ radius[:3]
         upper = np.linalg.norm(wrench[:3]) + np.linalg.norm(radius[:3])
-        if needs_position_halo and np.any(tolerance) and upper > halo_cap:
+        halo_used = np.stack((q < q_min, q > np.asarray(c.q_max))) & (tolerance > 0)
+        halo_cap = float(np.min(halo_caps[halo_used])) if halo_used.any() else np.inf
+        if upper > halo_cap:
             raise LoadEnvelopeError(
                 dict(
                     time_s=feedback.timestamp_s,
                     quantity="position_halo_force_upper_n",
                     measured=float(upper),
-                    upper=float(halo_cap),
+                    upper=halo_cap,
                     tolerance=0.0,
                     uncertainty_terms_n=dict(
                         estimated_force_norm=float(np.linalg.norm(wrench[:3])),

@@ -1027,3 +1027,93 @@ def test_incomplete_pose_primitives_cannot_reduce_a_published_bound():
     estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
     receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
     assert not receipt.admitted and receipt.reason == "incomplete_pose_error_sources"
+
+
+@pytest.mark.parametrize("side,joint", [(0, 4), (1, 2)])
+def test_position_support_covers_the_future_stop_load_only_on_verified_sides(side, joint):
+    model, _, _ = load_inputs()
+    tolerance = np.full((2, 7), 0.00425)
+    caps = np.ones((2, 7))
+    tolerance[side, joint] = 0.0085
+    caps[side, joint] = 10.0
+    calibration = replace(
+        model.calibration,
+        position_tolerance_rad=tolerance,
+        position_halo_force_upper_max_n=caps,
+    )
+    lower, upper = np.zeros(7), np.zeros(7)
+    if side == 0:
+        lower[joint] = -1.0085
+    else:
+        upper[joint] = 1.0085
+    calibration.require_position_motion_support(
+        lower,
+        motion_q_upper=upper,
+        contact_free_stop_margin_m=-0.2,
+        force_upper_n=10.0,
+    )
+    # A weak measurement cannot certify a future stronger stop; the supplied
+    # quantity is the complete required load domain, not current load.
+    for unsupported_force in [10.0001, 20.0]:
+        with pytest.raises(ValueError, match="requires_contact_free_motion_and_stop"):
+            calibration.require_position_motion_support(
+                lower,
+                motion_q_upper=upper,
+                contact_free_stop_margin_m=0.0,
+                force_upper_n=unsupported_force,
+            )
+    if side == 0:
+        lower[joint] -= 0.00001
+    else:
+        upper[joint] += 0.00001
+    with pytest.raises(ValueError, match="requires_contact_free_motion_and_stop"):
+        calibration.require_position_motion_support(
+            lower,
+            motion_q_upper=upper,
+            contact_free_stop_margin_m=0.0,
+            force_upper_n=10.0,
+        )
+
+
+def test_position_force_caps_do_not_promote_other_sides_or_clip_feedback():
+    model, jac, nominal = load_inputs()
+    caps = np.ones((2, 7))
+    caps[0, 4] = 10.0
+    c = replace(
+        model.calibration,
+        position_tolerance_rad=np.full((2, 7), 0.0085),
+        position_halo_force_upper_max_n=caps,
+    )
+    model = ResidualLoadModel(c)
+    q = np.zeros(7)
+    q[4] = -1.008
+    original = q.copy()
+    estimate = model.estimate(
+        nominal.feedback, np.zeros(7), jac, q, np.zeros(7), np.zeros(7), [1.0, 0.0, 0.0]
+    )
+    np.testing.assert_array_equal(q, original)
+    np.testing.assert_array_equal(estimate.wrench, nominal.wrench)
+    # Same posture distance at an independently weak side still refuses.
+    q[4] = 1.008
+    with pytest.raises(ValueError, match="outside_verified_load_envelope"):
+        model.estimate(
+            nominal.feedback, np.zeros(7), jac, q, np.zeros(7), np.zeros(7), [1.0, 0.0, 0.0]
+        )
+    lower, upper = np.zeros(7), np.zeros(7)
+    upper[2] = 1.001
+    with pytest.raises(ValueError, match="requires_contact_free_motion_and_stop"):
+        c.require_position_motion_support(
+            lower, motion_q_upper=upper, contact_free_stop_margin_m=0.0, force_upper_n=10.0
+        )
+
+
+@pytest.mark.parametrize("caps", [np.ones(7), np.full((2, 7), -1.0), np.full((2, 7), np.nan)])
+def test_position_support_requires_a_valid_force_domain(caps):
+    model, _, _ = load_inputs()
+    c = replace(
+        model.calibration,
+        position_tolerance_rad=np.full((2, 7), 0.0085),
+        position_halo_force_upper_max_n=caps,
+    )
+    with pytest.raises(ValueError, match="unverified_position_halo_force_domain"):
+        c.position_support()

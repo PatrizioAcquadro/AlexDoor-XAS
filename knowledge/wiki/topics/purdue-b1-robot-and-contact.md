@@ -216,6 +216,44 @@ position envelope. All main position bounds and complete teacher outputs remain
 unchanged. A narrower strong extension also fails its 8 N lateral stop. The final
 panel keeps the original main position recipe; the optional weak-position recipe
 is inactive. Actual new-checkpoint task success remains pending.
+### October 19 calibration and stopping correction
+
+The current correction keeps empirical position coverage separate from physical
+limits. `LoadCalibration.position_support()` accepts scalar legacy or lower/upper
+per-joint force caps. Future motion uses the required complete stop-force domain,
+not current weak force. A side qualified at that force may spend its supported
+position range; weaker/exhausted coverage still requires independently observed
+contact-free motion and stopping. Actual feedback is never clipped. Unsupported
+position, speed, acceleration, load and combined domains remain refusals.
+
+The separate local recipe in
+`outputs/evidence/act-a1-calibration-stop-20261019/runtime-recipe.json` supports
+8.5 mrad at lower RIGHT_WRIST_Z and upper RIGHT_SHOULDER_Z with loaded 10 N stop
+verification; other original weak sides remain at 1 N. This is one full 60 Hz
+control interval of position support at the existing 0.51 rad/s bound, not sensor
+precision. The residual transfer includes the independently checked reference
+point uncertainty once. Main acceleration and combined-domain admission are
+unchanged; measured stop transients use the existing geometry acceleration domain.
+
+The corrected stop-only profile has right-arm Kp
+`[640, 640, 320, 320, 40, 80, 100]` N m/rad and unchanged damping ratios, measured
+anchor latch, gravity compensation and physical effort limits. The environment
+validates the seven positive gains; the pilot CLI takes them from the supplied
+recipe, and runtime refuses an explicit controller mismatch. Reset restores all
+normal gains. The default profile preserves the earlier stop behavior for existing
+recipes; normal ACT motion gains never change.
+
+Actual robot sweeps already include motion/acceleration/stopping. Geometry no
+longer adds the 13 mm / 40 mrad tracking allowance as a second robot displacement,
+or spends target translation twice. Target translation/rotation growth still
+covers the complete two-second stop. Existing radial/joint/rotation stop bounds
+are retained; the explicit new recipe's directional boxes conservatively cover
+the changed stop direction. These empirical predictions are distinct from the
+unchanged physical stop requirements. Calibration/stopping evidence is finite
+simulation support, not global all-speed/workspace, hardware or learned task
+qualification. Teacher joint-trajectory similarity remains diagnostic only.
+See [[../experiments/b1-act-a1-calibration-stopping|validation and failures]].
+
 The approved
 [[../implementation_phases/phase-6-0-operational-perception-and-contact|operational plan]]
 assigns actual torque/device acquisition and signal verification to 6.0D, without

@@ -28,6 +28,9 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     prepared_door: object | None = None
     floor_pose: tuple = (0.0, 0.0, 0.0)
     max_joint_speed: float = 0.5
+    # Legacy stop response; a separately validated recipe can supply new gains.
+    # Canonical right-arm order, same damping ratios and physical effort limits.
+    stop_stiffness: tuple = (320.0, 320.0, 160.0, 160.0, 20.0, 10.0, 50.0)
     centering_gain: float = 0.1
     ik_damping: float = 0.05
     max_pos_delta_m: float = 0.01
