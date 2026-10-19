@@ -179,3 +179,25 @@ with 423.988/1024 GiB retained evidence and no owned GPU workload. A proposed co
 four-door data/causal-history task, then development-selected ACT A1 training and
 full-task evaluation, is documented but unstarted; final-test data stay closed.
 See [[experiments/b1-act-a1-two-door-diagnostic|outcomes, interpretation and next task]].
+
+## ACT A1 calibration and stopping — simulation correction complete
+
+The October 19 correction at `2bea7df` addresses both diagnostic stops with
+side-specific empirical/load support and a separately selected loaded-stop
+profile; normal ACT motion and physical/task criteria are unchanged. The explicit
+local recipe is `outputs/evidence/act-a1-calibration-stop-20261019/runtime-recipe.json`.
+Legacy recipes/default stopping retain their earlier behavior.
+
+The original perturbed 10 N stress stops fail at 23.849/16.626 mm. The corrected
+profile passes 12 new matrix cases, four frozen independent cases and two corrected
+corpus-door contact probes; two invalid initialization attempts are preserved.
+Maximum corrected matrix stop travel is 8.627/5.301 mm. Saved decisions support
+both original terminal states and future intervals at required 10 N; weak or
+out-of-domain cases still refuse. Total: 32 physical attempts, 277.741 s charged,
+cumulative 16.777459/40 h; no owned workload remains.
+
+Proceed to the separately scoped data/observation pipeline. This is finite
+simulation support, not global all-speed/workspace, hardware or full ACT task
+qualification. Original 0/2 diagnostic outcomes and paused panels remain intact;
+no policy training, collection or architecture changes occurred.
+See [[experiments/b1-act-a1-calibration-stopping|validation, failures and handoff]].
