@@ -54,7 +54,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
-- [[experiments/b1-runtime-speed|ACT A1 Runtime Speed]] — Frozen 1,631/7,217-command timing, lossless recording improvements and retained incomplete targets.
+- [[experiments/b1-act-a1-two-door-diagnostic|ACT A1 Two-Door Diagnostic]] — Two completed nominal failures, independent physical results, operational censoring and proposed data/history work.
+- [[experiments/b1-runtime-speed|ACT A1 Runtime Speed]] — Frozen 1,631/7,217-command timing, lossless recording improvements and both measured targets met; learned task remains incomplete.
 
 - [[experiments/b1-operational-tolerances|ACT A1 Operational Tolerances]] — Bounded empirical-position and directional material-margin diagnosis; fixed checkpoint and separately scored reference execution.
 

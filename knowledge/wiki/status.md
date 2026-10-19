@@ -69,8 +69,8 @@ Maintenance does not authorize new training, simulation, collection or experimen
 ## A1/A2 pilot — paused and incomplete
 
 The full panels on `PatrizioAcquadro/b1-policy-pilot` remain paused. The user has
-subsequently authorized only the bounded ACT A1 operational-check investigation
-below; no automatic panel restart or training is active.
+subsequently authorized bounded ACT A1 operational-check and two-door diagnostics
+below; both are closed. No automatic panel restart or training is active.
 Four ACT/Diffusion × A1/A2 latest checkpoints retain 30,000 updates and five eligible
 train records; normalization remains fitted only on the original two train records.
 
@@ -155,3 +155,27 @@ all failed and interrupted allocations remain charged. The full learned panels a
 paused and incomplete. Use this branch for future explicitly authorized bounded
 diagnostics; broad qualification is separate. See
 [[experiments/b1-runtime-speed|complete measurements, preserved outcomes and limits]].
+
+
+## ACT A1 two-door diagnostic — complete, 0/2 task successes
+
+The October 19 bounded run uses the unchanged audited 30k ACT A1 checkpoint/current
+runtime, nominal seeds 7100/23, chunk 12/replan 6 and 9,000 commands available after
+inspection on each existing training door. Right executes 6,238 commands in 979.767 s,
+reaches 45.325 deg controlled opening and valid hold, then refuses a load-domain
+wrist-position excursion before release. Left executes 368 commands in 205.022 s,
+never contacts, and refuses a prospective weak-position motion/stop envelope.
+Both have zero physical violations/contact losses and healthy two-second stops.
+The right 10.014-microradian calibration excess and left 12.2-microradian future
+envelope excess do not demonstrate physical danger. Left also retains 19 wrist
+target clips; right retains material-tracking drift beyond the narrow training
+corridor. Operational censoring prevents conclusions about later learned release
+or temporal causation. No retry, recording fix, training, collection or panel restart.
+
+Both full recordings and independent scoring audits pass. Existing expensive speed
+benchmarks were not repeated;344.736 s remains a short learned prefix, while the
+1,065.262 s complete cycle is reference-only. Local allocation is now 16.700309/40 h,
+with 423.988/1024 GiB retained evidence and no owned GPU workload. A proposed combined
+four-door data/causal-history task, then development-selected ACT A1 training and
+full-task evaluation, is documented but unstarted; final-test data stay closed.
+See [[experiments/b1-act-a1-two-door-diagnostic|outcomes, interpretation and next task]].
