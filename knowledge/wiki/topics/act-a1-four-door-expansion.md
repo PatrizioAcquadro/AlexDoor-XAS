@@ -1,7 +1,8 @@
-# ACT A1 four-door expansion proposal
+# ACT A1 four-door expansion
 
-Review-ready plan as of 19 October 2026; **no new collection, simulation or
-training is authorized or performed here**. Retain current physical outcomes,
+The first bounded collection is authorized on 19 October 2026; results below
+remain pending until actual execution. Training and learned evaluation are outside
+this collection task. Retain current physical outcomes,
 all raw attempts and frozen source groups. The usable software/data interfaces
 are in [[act-a1-observations-and-time]]. This replaces the earlier proposed
 36/44-trajectory sweep with coverage-driven stages and current measured costs.
@@ -174,3 +175,31 @@ separate work. Usable now: shared-checkpoint consumption, safe reviewed source
 windows, phase views, the existing C continuation and explicit subtask reporting.
 New doors, posture/placement variants and new short-start success criteria still
 need physical qualification/collection.
+
+## First bounded execution: fixed requirement applicability
+
+The September PSX references use floor Y=.38 rather than the current .482327 m
+and a 3 s release rather than 6 s; they also predate current hold support and
+ordinary stabilization. Their prepared qualification flags do not establish
+current setup applicability. Keep their 80% requirements fixed at 47.770638°
+right / 50.146446° left, without treating the old maxima as current achievable
+maxima. Before scored collection, one dedicated current-setup cycle per door
+must pass that requirement and the unchanged physical/release/tail/independent
+stop gates. This establishes applicability of an externally fixed benchmark; it
+does not publish a new maximum reference or replace the corpus paired-reference
+procedure. A failure blocks scored collection on that door.
+
+`pilot_physics.py qualify` performs this non-supervising check with the shared
+setup and inspection/pre-roll. `collect` and `qualify` first check prescribed
+footprint support, obstructions and pedestal intersection, then retain all
+existing every-row reach/contact/speed/force checks. Detached independent stop
+verification remains separate. The left existing-source continuation qualifies
+reconstruction and sustained loaded pre-roll within its single physical launch,
+then records release and ordinary stabilization; it is not a closed-door opening.
+
+The prospective protocol and resource reconciliation are in
+`outputs/evidence/act-a1-four-door-20261019/declaration.md` and `protocol.json`.
+Five launches are planned, with one diagnosed-correction reserve; maximum six
+launches, two GPU workload hours and 100 GiB additional evidence, within project
+limits. Per-case 1,200 wall s / 210 sim s / 12 GiB RSS / 20 GiB total GPU ceilings
+remain. No later posture/placement tranche is launched here.

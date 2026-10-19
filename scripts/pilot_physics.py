@@ -57,7 +57,7 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("mode", choices=("collect", "replay", "rollout"))
+    parser.add_argument("mode", choices=("collect", "qualify", "replay", "rollout"))
     parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument("--asset-root", type=Path, required=True)
     parser.add_argument(
@@ -116,7 +116,7 @@ def main(argv=None):
         args.recipe = protocol_recipe(protocol, args.recipe)
     except ValueError as error:
         parser.error(str(error))
-    if args.mode == "collect" and args.recipe != LEARNED_RECIPE:
+    if args.mode in ("collect", "qualify") and args.recipe != LEARNED_RECIPE:
         parser.error("New pilot collection requires rgbd-conv-v1; grid recipes are historical")
     declared = (
         protocol.get("evaluation_panel", protocol["episodes"])
@@ -192,7 +192,7 @@ def main(argv=None):
         cfg.stop_stiffness = tuple(recipe.get("stop_stiffness", cfg.stop_stiffness))
     env = DoorPushPurdueEnv(cfg)
     env.reset()  # Establish the configured robot state before any fallible setup.
-    budget = protocol.get("collection_budget", {}) if args.mode == "collect" else {}
+    budget = protocol.get("collection_budget", {}) if args.mode in ("collect", "qualify") else {}
     restore_interruption = install_interruption(
         env, max_wall_s=budget.get("wall_s_per_case"), max_sim_s=budget.get("sim_s_per_case")
     )
@@ -230,7 +230,46 @@ def main(argv=None):
     started = perf_counter()
     stop_attempted = False
     try:
-        if args.mode == "collect":
+        if args.mode in ("collect", "qualify"):
+            # These geometric checks supplement every-row physical contact checks.
+            from alexdoor_xas.envs.door_task.door_push_purdue_env import PEDESTAL
+            import numpy as np
+
+            intersections = door.pedestal_intersections(env.sim.stage, PEDESTAL)
+            contact, rotation = door.contact_pose(
+                0.0, setup.contact_fraction, setup.contact_height
+            )
+            faces = [face @ rotation.T + contact for face in env.push_geometry.distal_faces]
+            support = door.footprint_inside(np.concatenate(faces), 0.0)
+            obstructions = door.footprint_obstructions(
+                faces, setup.position_tolerance, rotation[:, 0]
+            )
+            write_json(args.output / "geometry-support.json", dict(
+                pedestal_intersections=intersections, footprint_inside=bool(support),
+                footprint_obstructions=obstructions,
+            ))
+            if intersections or not support or obstructions:
+                raise ValueError("unsupported_prescribed_contact_geometry")
+        if args.mode == "qualify":
+            # One current-setup applicability check of a prospectively fixed
+            # requirement. This does not publish a new maximum-opening reference
+            # or produce expert supervision; corpus reference pairing is unchanged.
+            result = run_probe(
+                env, door, setup, args.output / "teacher",
+                capture_evidence=False, inspection=inspection,
+            )
+            required = protocol["collection_required_opening_deg"][args.asset_id]
+            result.update(
+                required_opening_deg=required,
+                opening_requirement_passed=bool(
+                    result["angle_deg"] is not None and result["angle_deg"] >= required
+                ),
+                scope="fixed_requirement_current_setup_applicability",
+                expert_supervision=False,
+                publishes_expert_reference=False,
+            )
+            result["passed"] = bool(result["passed"] and result["opening_requirement_passed"])
+        elif args.mode == "collect":
             metadata = dict(
                 entry,
                 episode_id=selected[0].get("episode_id", f"{args.asset_id}-{condition}-pilot"),
