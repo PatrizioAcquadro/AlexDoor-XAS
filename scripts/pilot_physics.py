@@ -232,22 +232,25 @@ def main(argv=None):
     try:
         if args.mode in ("collect", "qualify"):
             # These geometric checks supplement every-row physical contact checks.
-            from alexdoor_xas.envs.door_task.door_push_purdue_env import PEDESTAL
             import numpy as np
 
+            from alexdoor_xas.envs.door_task.door_push_purdue_env import PEDESTAL
+
             intersections = door.pedestal_intersections(env.sim.stage, PEDESTAL)
-            contact, rotation = door.contact_pose(
-                0.0, setup.contact_fraction, setup.contact_height
-            )
+            contact, rotation = door.contact_pose(0.0, setup.contact_fraction, setup.contact_height)
             faces = [face @ rotation.T + contact for face in env.push_geometry.distal_faces]
             support = door.footprint_inside(np.concatenate(faces), 0.0)
             obstructions = door.footprint_obstructions(
                 faces, setup.position_tolerance, rotation[:, 0]
             )
-            write_json(args.output / "geometry-support.json", dict(
-                pedestal_intersections=intersections, footprint_inside=bool(support),
-                footprint_obstructions=obstructions,
-            ))
+            write_json(
+                args.output / "geometry-support.json",
+                dict(
+                    pedestal_intersections=intersections,
+                    footprint_inside=bool(support),
+                    footprint_obstructions=obstructions,
+                ),
+            )
             if intersections or not support or obstructions:
                 raise ValueError("unsupported_prescribed_contact_geometry")
         if args.mode == "qualify":
@@ -255,8 +258,12 @@ def main(argv=None):
             # requirement. This does not publish a new maximum-opening reference
             # or produce expert supervision; corpus reference pairing is unchanged.
             result = run_probe(
-                env, door, setup, args.output / "teacher",
-                capture_evidence=False, inspection=inspection,
+                env,
+                door,
+                setup,
+                args.output / "teacher",
+                capture_evidence=False,
+                inspection=inspection,
             )
             required = protocol["collection_required_opening_deg"][args.asset_id]
             result.update(
