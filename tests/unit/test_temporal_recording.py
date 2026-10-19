@@ -106,3 +106,65 @@ def test_refusal_cannot_claim_delivery_or_application(tmp_path):
         assert not file.attrs["complete"]
         assert not file["metadata"].attrs["terminal_support"]
         assert json.loads(file["metadata"].attrs["outcome"])["termination"] == "interrupted"
+
+
+def test_phase_quality_keeps_released_tail_and_masks_unqualified_load(tmp_path):
+    from alexdoor_xas.recording.quality import teacher_eligibility
+
+    path = tmp_path / "phases.hdf5"
+    log = recorder(path)
+    log.reset(0)
+    log.state(np.zeros(9), np.zeros(9), acquired=0, available=0, generation=0)
+    for i, phase_valid in enumerate((True, False, True, True)):
+        record_command(log, i / 60)
+        log.annotate(
+            dict(
+                phase_valid=np.bool_(phase_valid),
+                physical_safe=np.bool_(True),
+                contact_valid=np.bool_(i == 0),
+            )
+        )
+        log.state(
+            np.zeros(9), np.zeros(9), acquired=(i + 1) / 60, available=(i + 1) / 60, generation=0
+        )
+    log.finish(dict(passed=True, termination="qualified_fixture", released=True, stabilized=True))
+    log.close()
+    with h5py.File(path, "r+") as file:
+        np.testing.assert_array_equal(teacher_eligibility(file), [True, False, True, True])
+        file.attrs["complete"] = False
+        assert not teacher_eligibility(file).any()
+
+
+def test_native_unverified_order_masks_tau_offline(tmp_path):
+    from alexdoor_xas.dataset.temporal import raw_streams
+    from alexdoor_xas.policies.temporal import TemporalConfig
+
+    path = tmp_path / "order.hdf5"
+    log = recorder(path)
+    log.reset(0)
+    log.state(np.zeros(9), np.zeros(9), acquired=0, available=0, generation=0)
+    depth = np.ones((4, 6, 1), "f4")
+    log.capture(
+        np.zeros((4, 6, 3), "u1"),
+        depth,
+        np.ones_like(depth, bool),
+        np.eye(3),
+        np.eye(4),
+        acquired=0,
+        available=0,
+        generation=0,
+    )
+    log.feedback(np.ones(7), acquired=0, available=0, healthy=True, generation=0)
+    record_command(log, 0)
+    log.state(np.zeros(9), np.zeros(9), acquired=1 / 60, available=1 / 60, generation=0)
+    log.finish(dict(passed=False, termination="fixture"))
+    log.close()
+    with h5py.File(path, "r+") as file:
+        cfg = TemporalConfig(image_size=(2, 3), static_time_s=0)
+        streams, *_ = raw_streams(file, cfg)
+        assert len(streams["tau"]["acquired"]) == 1
+        contract = json.loads(file["metadata"].attrs["feedback_contract"])
+        contract["joint_names"] = contract["joint_names"][::-1]
+        file["metadata"].attrs["feedback_contract"] = json.dumps(contract)
+        streams, *_ = raw_streams(file, cfg)
+        assert not len(streams["tau"]["acquired"])

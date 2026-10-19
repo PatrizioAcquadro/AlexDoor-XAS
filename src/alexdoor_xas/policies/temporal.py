@@ -296,6 +296,20 @@ class CausalObservationBuilder:
         ), indices
 
 
+def verified_feedback(contract):
+    """One origin/order/units/sign predicate for recorder-to-model feedback."""
+    from alexdoor_xas.assets.purdue import ARM_JOINTS
+
+    return bool(
+        contract.get("verified") is True
+        and tuple(contract.get("joint_names", ())) == ARM_JOINTS
+        and contract.get("units") == "N m"
+        and contract.get("sign_convention") == "positive_joint_coordinate"
+        and contract.get("source")
+        and contract.get("semantics")
+    )
+
+
 class IncrementalObservationBuilder:
     """Bounded ingress of preprocessed frames and native numeric streams.
 
@@ -315,17 +329,7 @@ class IncrementalObservationBuilder:
         feedback_contract=None,
     ):
         self.config, self.episode_id = config, str(episode_id)
-        from alexdoor_xas.assets.purdue import ARM_JOINTS
-
-        contract = feedback_contract or {}
-        self.feedback_verified = bool(
-            contract.get("verified") is True
-            and tuple(contract.get("joint_names", ())) == ARM_JOINTS
-            and contract.get("units") == "N m"
-            and contract.get("sign_convention") == "positive_joint_coordinate"
-            and contract.get("source")
-            and contract.get("semantics")
-        )
+        self.feedback_verified = verified_feedback(feedback_contract or {})
         self.limits = dict(
             images=int((config.history_s + config.image_gap_s) * max_image_hz) + 4,
             **{

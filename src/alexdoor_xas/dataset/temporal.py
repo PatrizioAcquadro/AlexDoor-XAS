@@ -15,7 +15,12 @@ import torch
 import torch.nn.functional as F
 
 from alexdoor_xas.assets.purdue import ARM_JOINTS
-from alexdoor_xas.policies.temporal import CausalObservationBuilder, causal_indices, gather
+from alexdoor_xas.policies.temporal import (
+    CausalObservationBuilder,
+    causal_indices,
+    gather,
+    verified_feedback,
+)
 
 LAYOUT = "b1.temporal-frames.v1"
 
@@ -187,7 +192,7 @@ def raw_streams(file, config, *, device="cuda:0", image_rows=None, legacy_synchr
         torque is not None
         and "torque_nm" in torque
         and (
-            (native and json.loads(file["metadata"].attrs["feedback_contract"])["verified"])
+            (native and verified_feedback(json.loads(file["metadata"].attrs["feedback_contract"])))
             or (
                 not native
                 and torque.attrs.get("semantics") == "joint_output"

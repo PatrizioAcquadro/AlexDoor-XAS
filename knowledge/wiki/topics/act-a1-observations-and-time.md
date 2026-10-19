@@ -480,3 +480,13 @@ The existing [hardware audit](../../../outputs/evidence/act-a1-observation-desig
 continues to leave source/scale/sign/noise/latency and installed F-T/tactile
 availability unverified. Simulated `joint_output` is a projected solver signal,
 not direct contact force or a hardware qualification.
+
+
+`recording.quality.teacher_eligibility` requires an actually completed, passed
+cycle and phase-specific quality for every command. Failed/interrupted prefixes
+remain entirely diagnostic. Contact validity gates push/hold; successful
+acquisition, withdrawal and ordinary post-release rows can qualify without
+contact. `validate_native_recording` reviews actual N+1 support, clocks, q_before,
+clipping/refusal semantics, native torque coverage and near-limit diagnostics.
+The latter comparison is not a hardware saturation certificate. Offline and
+incremental torque ingestion share the origin/order/units/sign predicate.
