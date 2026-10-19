@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from .observations import obs_matrix, validate_obs_keys
+from .observations import canonical_matrix, obs_matrix, validate_obs_keys
 
 if TYPE_CHECKING:
     from .b1 import B1Dataset
@@ -41,7 +41,13 @@ class ChunkSampler:
         self._records = [dataset.by_id(episode_id) for episode_id in ids]
         if not self._records:
             raise ValueError("sampler has no episodes")
-        self._obs = [obs_matrix(record, obs_keys) for record in self._records]
+        # Keep aliases for contiguous legacy matrices; never gather a corpus.
+        self._obs = [canonical_matrix(record, self.obs_keys) for record in self._records]
+        first_rows = [
+            obs_matrix(record, self.obs_keys, rows=slice(0, 1)) for record in self._records
+        ]
+        self._obs_dim = first_rows[0].shape[1]
+        self._obs_dtype = np.result_type(*(row.dtype for row in first_rows))
         self._index: list[tuple[int, int]] = [
             (rec_idx, t)
             for rec_idx, record in enumerate(self._records)
@@ -50,7 +56,7 @@ class ChunkSampler:
 
     @property
     def obs_dim(self) -> int:
-        return int(self._obs[0].shape[1])
+        return self._obs_dim
 
     @property
     def action_dim(self) -> int:
@@ -68,10 +74,27 @@ class ChunkSampler:
         actions[:n_valid] = window
         is_pad = np.arange(self.horizon) >= n_valid
         return ChunkSample(
-            obs=self._obs[rec_idx][t],
+            obs=obs_matrix(record, self.obs_keys, rows=slice(t, t + 1))[0],
             actions=actions,
             is_pad=is_pad,
         )
+
+    def batch(self, indices):
+        """Group reads by episode, restoring the original seeded sample order."""
+        locations = [self._index[int(index)] for index in indices]
+        obs = np.empty((len(locations), self.obs_dim), dtype=self._obs_dtype)
+        actions = np.zeros((len(locations), self.horizon, self.action_dim), dtype=np.float64)
+        is_pad = np.ones((len(locations), self.horizon), dtype=bool)
+        for rec_idx in dict.fromkeys(record for record, _ in locations):
+            slots = [i for i, (record, _) in enumerate(locations) if record == rec_idx]
+            ticks = np.array([locations[i][1] for i in slots])
+            record = self._records[rec_idx]
+            obs[slots] = obs_matrix(record, self.obs_keys, rows=ticks)
+            for slot, tick in zip(slots, ticks, strict=True):
+                window = record.actions[tick : tick + self.horizon]
+                actions[slot, : len(window)] = window
+                is_pad[slot, : len(window)] = False
+        return dict(obs=obs, actions=actions, is_pad=is_pad)
 
 
 class BatchIterator:
@@ -116,6 +139,9 @@ class BatchIterator:
             chosen = order[start : start + self.batch_size]
             if self.drop_last and len(chosen) < self.batch_size:
                 return
+            if isinstance(self.sampler, ChunkSampler):
+                yield self.sampler.batch(chosen)
+                continue
             samples = [self.sampler.sample(int(i)) for i in chosen]
             yield {
                 "obs": np.stack([s.obs for s in samples]),

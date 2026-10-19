@@ -70,10 +70,35 @@ reconstruction. It leaves observed initial geometry, A4 bootstrap, sweep/respons
 support and the operational release contract explicitly unresolved. Annotation
 truth is supervision, not an observed estimate or admission. Partial historical
 recordings are not a final matched dataset and are not relabeled for new control.
-Prepared views now use exact float32 file-backed observations and streaming
-batches, preserving original train-only normalization membership. A1 datasets are
-released before loading A2; host/process RAM guards remain. This bounds the pilot
-path without establishing production-scale or final matched-data qualification.
+Prepared observations support contiguous arrays, compressed/VDS arrays and the
+`frame-indexed-v1` HDF5 group layout. Raw preparation streams through the unchanged
+observer into a temporary frame store: exact image blocks are stored once while
+per-control image indices and 18-value proprioception reconstruct the same vector.
+Learned RGB/depth frames are uncompressed; coverage uses lossless LZF. Image values
+use native float32 only when the round trip is exact, widening to float64 otherwise;
+reconstructed vectors preserve their original dtype. Exact matching preserves
+signed zero too. No overlapping history tensors or trainable encoder outputs are stored. The binding
+still fixes preprocessing, support and existing history; storage selects no new
+observation or temporal policy. Raw recordings retain all original information.
+
+`B1Dataset` checks identity, actions, boundaries, first/terminal inputs and clocks
+at open; sampling and normalization check selected values before use. Set
+`check_observations=True` for a complete bounded-memory scan, including unused
+rows. Finite-value failure can otherwise occur on first access instead of open.
+Compressed/VDS observations stay selective; contiguous historical files retain
+read-only memory maps. A shared pool limits HDF5 readers to four files with 1 MiB
+chunk caches per open dataset. `close()` drains handles; later reads reopen them. Batch reads
+group by episode and restore the same seeded order, duplicates and padding.
+
+`index_dataset(source, destination)` is a non-destructive streaming compatibility
+path for historical prepared files. It preserves values, dtype, metadata, splits
+and normalization membership. Embedded raw data stays linked to its retained
+source unless copying is explicitly requested. Direct random reads from historical
+VDS layouts remain usable but can be slower; conversion avoids their repeated
+virtual-map traversal. `materialize_train_data` still provides exact-float32 dense
+train-only files when required by an older consumer; it now reads indexed data in
+blocks too. A1 datasets are released before A2; no dataset redesign or physical
+qualification follows from these infrastructure changes.
 
 
 ## Pilot rollout retention
@@ -82,27 +107,16 @@ path without establishing production-scale or final matched-data qualification.
 artifacts separately from imitation data. `b1.policy_rollout.v1` stores the raw
 images actually consumed at 10 Hz, all 60 Hz proprioception/full robot/tool
 states, submitted commands and applied targets, and the native 120 Hz robot
-feedback. Lossless LZF/shuffle image tiles avoid repeating the four-image input
-at each control tick. Per-control static/three-history image indices and feature
-acquisition/availability clocks preserve causal reconstruction without saving
-repeated prepared tensors. Invalid feature support remains explicit; sampled
-failed inputs are retained. Raw validity, NaN bit patterns and SDK intrinsics
-are preserved. Dataset handles remain open for the writer lifetime so bounded
-HDF5 chunk caches survive between rows; partial image tiles are compressed at
-flush/close instead of on every reopen. Numeric rows are copied into bounded batches of at most 128 rows per stream,
-then drained before the unchanged 60-control-tick flush and on finish/close.
-Logical clock/column validation includes pending rows. A partial storage error
-leaves the recording incomplete and cannot retry a partly written batch.
-Column validation and the completion marker remain intact. Local rollout images use
-LZF instead of gzip level 4: the fixed saved-input sample writes 39% faster with
-about 31% larger files. Values and schema are unchanged; existing gzip recordings
-remain readable. Recorded-input checks
-preserve all numeric/image bytes across chunk boundaries, including NaN payloads.
-The robot occlusion filter also reuses its selected depth array within one
-capture instead of copying it twice per mesh. It recomputes the array on every
-call; no observation, pose, freshness or mask is reused across captures. Sampled
-recorded head/arm configurations retain identical complete masks. These component
-improvements do not establish an end-to-end runtime target.
+feedback. Local rollout images are lossless, uncompressed single-frame chunks;
+retained captures are stored once and per-control static/three-history indices
+join them to acquisition/availability clocks. Invalid feature support and sampled
+failed inputs remain explicit. RGB/depth/mask bytes, NaN payloads and raw SDK
+intrinsics are preserved. Numeric streams use bounded batches of at most 128 rows,
+drained before the unchanged 60-control-tick flush and on finish/close. Pending
+rows participate in logical clock and column validation. Storage errors leave the
+file incomplete and cannot retry a partly written batch. Historical compressed
+recordings remain readable. See [[../experiments/b1-runtime-speed|the adopted
+runtime layout and measured limits]].
 
 Pose-error source coordinates are emitted as native Python numbers. A live
 recording exposed NumPy float32 camera coordinates nested in contact/admission

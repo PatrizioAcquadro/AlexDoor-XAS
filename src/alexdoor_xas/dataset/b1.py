@@ -20,6 +20,12 @@ from alexdoor_xas.action.b1 import (
 from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA, A4_OBJ_CENTRIC_CHUNK
 from alexdoor_xas.assets.identity import RobotAssetRef
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS
+from alexdoor_xas.dataset.storage import (
+    FrameObservationWriter,
+    ObservationArray,
+    ObservationFiles,
+    finite_observations,
+)
 from alexdoor_xas.perception.contracts import geometry_profile
 from alexdoor_xas.policies.common.b1_contract import (
     OBS_KEYS,
@@ -51,7 +57,7 @@ class MatchedEpisode:
     asset_id: str
     split: str
     times: np.ndarray
-    observations: np.ndarray  # N+1, including the terminal observation
+    observations: np.ndarray | ObservationArray  # N+1, including the terminal observation
     actions: dict[str, np.ndarray]
     starts: dict[str, np.ndarray]  # indices in the shared physical episode
     source_recording: str | None = None
@@ -68,6 +74,7 @@ def compile_episode(
     goals,
     stages=None,
     binding,
+    observation_writer=None,
 ):
     """Compile an explicitly supplied complete physical episode without inference.
 
@@ -83,25 +90,23 @@ def compile_episode(
     pilot = isinstance(binding, PilotBinding)
     if (
         not n
-        or len(observations) != n + 1
+        or hasattr(observations, "__len__")
+        and len(observations) != n + 1
         or len(tools) != n + 1
         or len(joint_targets) != n
         or not pilot
         and (stages is None or len(stages) != n)
     ):
         raise ValueError("B1 requires N commands and N+1 observations/tool poses")
-    times = np.asarray([o.time_s for o in observations])
-    if not np.isfinite(times).all() or not (np.diff(times) > 0).all():
-        raise ValueError("Noncausal B1 observation times")
-    if not (np.diff([o.frame for o in observations]) > 0).all():
-        raise ValueError("Repeated B1 camera frames")
-    if not np.allclose(np.diff(times), times[1] - times[0], atol=1e-7, rtol=0):
-        raise ValueError("Dropped B1 control observation")
-    if pilot and len({obs.generation for obs in observations}) != 1:
-        raise ValueError("Pilot episode crosses observation generations")
+    times, camera_frames, generations = [], [], set()
     spaces = dataset_spaces(binding)
     frames, angles, features, actions = [], [], [], {s: [] for s in spaces}
     for index, obs in enumerate(observations):
+        if index > n:
+            raise ValueError("B1 requires N commands and N+1 observations/tool poses")
+        times.append(obs.time_s)
+        camera_frames.append(obs.frame)
+        generations.add(obs.generation)
         if obs.geometry_profile != geometry_profile(binding):
             raise ValueError("B1 observation geometry profile differs from its binding")
         require_features(obs, binding)
@@ -116,7 +121,10 @@ def compile_episode(
                 generation=obs.generation,
             )
         columns = observation_columns(obs.features, binding)
-        features.append(obs.features)
+        if observation_writer is None:
+            features.append(obs.features)
+        else:
+            observation_writer.append(obs.features)
         frames.append(obs.estimate.frame)
         angles.append(obs.estimate.signed_angle)
         if index < n:
@@ -129,6 +137,15 @@ def compile_episode(
             rows = robot_actions(*args) if pilot else primitive_actions(*args, obs.estimate.frame)
             for space, row in rows.items():
                 actions[space].append(row)
+    times = np.asarray(times)
+    if len(times) != n + 1:
+        raise ValueError("B1 requires N commands and N+1 observations/tool poses")
+    if not np.isfinite(times).all() or not (np.diff(times) > 0).all():
+        raise ValueError("Noncausal B1 observation times")
+    if not (np.diff(camera_frames) > 0).all():
+        raise ValueError("Repeated B1 camera frames")
+    if pilot and len(generations) != 1:
+        raise ValueError("Pilot episode crosses observation generations")
     starts = {s: np.arange(n, dtype=np.int64) for s in spaces}
     if not pilot:
         starts[A4_OBJ_CENTRIC_CHUNK], actions[A4_OBJ_CENTRIC_CHUNK] = fit_segments(
@@ -139,7 +156,7 @@ def compile_episode(
         asset_id,
         split,
         times,
-        np.stack(features),
+        np.stack(features) if observation_writer is None else observation_writer.finish(),
         {s: np.stack(rows) for s, rows in actions.items()},
         starts,
     )
@@ -147,7 +164,7 @@ def compile_episode(
     return result
 
 
-def validate_episode(episode, binding, asset_splits):
+def validate_episode(episode, binding, asset_splits, *, check_observations=True):
     if (
         episode.split not in ("train", "development")
         or asset_splits.get(episode.asset_id) != episode.split
@@ -163,9 +180,9 @@ def validate_episode(episode, binding, asset_splits):
         np.diff(times), 1 / 60, atol=1e-7, rtol=0
     ):
         raise ValueError("Pilot control cadence must remain 60 Hz")
-    obs = np.asarray(episode.observations)
-    if obs.shape != (n + 1, binding.obs_dim) or not all(
-        np.isfinite(obs[i : i + 64]).all() for i in range(0, n + 1, 64)
+    obs = episode.observations
+    if obs.shape != (n + 1, binding.obs_dim) or (
+        check_observations and not finite_observations(obs)
     ):
         raise ValueError("Invalid B1 features or missing terminal observation")
     spaces = dataset_spaces(binding)
@@ -227,19 +244,21 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
         if metadata.get("inspection") != observer.binding.config["inspection"]:
             raise ValueError("Recorded inspection differs from the frozen perception recipe")
         observer.reset()
-        values, tools = [], []
         obs = source["observations"]
         commands = source["commands"]
         phases = [PHASES[int(v)] for v in commands["phase"][:]]
         start = next((i for i, phase in enumerate(phases) if phase != "inspect"), len(phases))
         if start == len(phases) or "inspect" in phases[start:]:
             raise ValueError("Only a common initial inspection prefix may precede manipulation")
-        for index in range(len(obs["time_s"])):
-            sample = {key: obs[key][index] for key in SENSOR_KEYS}
-            encoded = observer.update(sample)
-            if index >= start:
-                values.append(encoded)
-                tools.append(tool_fk(obs["joint_position"][index], calibration))
+
+        def observations():
+            for index in range(len(obs["time_s"])):
+                sample = {key: obs[key][index] for key in SENSOR_KEYS}
+                encoded = observer.update(sample)
+                if index >= start:
+                    yield encoded
+
+        tools = [tool_fk(q, calibration) for q in obs["joint_position"][start:]]
         from alexdoor_xas.action.frames import ObjectFrame
 
         goals = [
@@ -248,17 +267,23 @@ def prepare_recording(path, observer, tool_fk, asset_splits):
                 commands["tool_position"][start:], commands["tool_rotation"][start:], strict=True
             )
         ]
-        episode = compile_episode(
-            episode_id=metadata["episode_id"],
-            asset_id=metadata["asset_id"],
-            asset_splits=asset_splits,
-            observations=values,
-            tools=tools,
-            joint_targets=commands["joint_target"][start:],
-            goals=goals,
-            stages=phases[start:],
-            binding=observer.binding,
-        )
+        writer = FrameObservationWriter(len(obs["time_s"]) - start, observer.binding)
+        try:
+            episode = compile_episode(
+                episode_id=metadata["episode_id"],
+                asset_id=metadata["asset_id"],
+                asset_splits=asset_splits,
+                observations=observations(),
+                tools=tools,
+                joint_targets=commands["joint_target"][start:],
+                goals=goals,
+                stages=phases[start:],
+                binding=observer.binding,
+                observation_writer=writer,
+            )
+        finally:
+            writer.close()
+        episode.observations.files.close()
         return replace(episode, source_recording=str(Path(path).resolve()))
 
 
@@ -268,12 +293,7 @@ def export_dataset(episodes, destination, binding, robot_asset, asset_splits, *,
     The default remains self-contained. Reference mode keeps raw source identity
     explicit, and never requires privileged raw data to train or load the views.
     """
-    episodes = list(episodes)
-    ids = [e.episode_id for e in episodes]
-    if not ids or len(set(ids)) != len(ids):
-        raise ValueError("B1 export needs distinct nonempty episode identities")
-    for episode in episodes:
-        validate_episode(episode, binding, asset_splits)
+    ids = set()
     destination = Path(destination)
     if destination.exists():
         raise FileExistsError(destination)
@@ -289,6 +309,10 @@ def export_dataset(episodes, destination, binding, robot_asset, asset_splits, *,
             episodes=[],
         )
         for index, episode in enumerate(episodes):
+            if not episode.episode_id or episode.episode_id in ids:
+                raise ValueError("B1 export needs distinct nonempty episode identities")
+            ids.add(episode.episode_id)
+            validate_episode(episode, binding, asset_splits)
             name = f"episode_{index:06d}.hdf5"
             with h5py.File(staging / name, "x") as out:
                 out.attrs.update(
@@ -313,17 +337,94 @@ def export_dataset(episodes, destination, binding, robot_asset, asset_splits, *,
                             )
                             out.attrs["raw_retention"] = "separate_original_file"
                 out.create_dataset("time_s", data=episode.times)
-                out.create_dataset("observations", data=episode.observations)
+                values = episode.observations
+                indexed = (
+                    isinstance(values, ObservationArray)
+                    and isinstance(values.rows, range)
+                    and values.rows == range(values.source_shape[0])
+                    and values.columns == range(values.source_shape[1])
+                    and isinstance(values.files.get(values.path)["observations"], h5py.Group)
+                )
+                if indexed:
+                    values.files.get(values.path).copy("observations", out)
+                    values.files.close()
+                else:
+                    target = out.create_dataset(
+                        "observations", shape=values.shape, dtype=values.dtype
+                    )
+                    for start in range(0, len(values), 64):
+                        target[start : start + 64] = values[start : start + 64]
                 for space in dataset_spaces(binding):
                     group = out.create_group(space)
                     group.create_dataset("actions", data=episode.actions[space])
                     group.create_dataset("starts", data=episode.starts[space])
             metadata["episodes"].append(name)
+        if not ids:
+            raise ValueError("B1 export needs distinct nonempty episode identities")
         (staging / "meta.json").write_text(json.dumps(metadata, indent=2, allow_nan=False) + "\n")
         staging.rename(destination)
     except BaseException:
         shutil.rmtree(staging)
         raise
+    return destination
+
+
+def index_dataset(source_directory, destination, *, copy_raw=False):
+    """Non-destructive streaming conversion of prepared data to frame-indexed storage.
+
+    Preserve metadata, normalization membership and numeric dtype. Embedded raw
+    data can stay linked to the retained original file or be copied explicitly.
+    Original files and their outcomes are never edited. No preprocessing is run.
+    """
+    source_directory, destination = Path(source_directory), Path(destination)
+    metadata = json.loads((source_directory / "meta.json").read_text())
+    binding = observation_binding(metadata["perception"])
+    if destination.exists():
+        raise FileExistsError(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    staging = Path(tempfile.mkdtemp(prefix=".b1-index-", dir=destination.parent))
+    files = ObservationFiles()
+    try:
+        for name in metadata["episodes"]:
+            if Path(name).name != name:
+                raise ValueError("Episode path must stay inside its dataset")
+            path = source_directory / name
+            with h5py.File(path, "r") as source:
+                values = ObservationArray.open(path, files, source["observations"])
+                writer = FrameObservationWriter(len(values), binding, dtype=values.dtype)
+                try:
+                    for start in range(0, len(values), 8):
+                        for row in values[start : start + 8]:
+                            if not np.isfinite(row).all():
+                                raise ValueError("Invalid prepared observation")
+                            writer.append(row)
+                    indexed = writer.finish()
+                    with h5py.File(staging / name, "x") as out:
+                        out.attrs.update(source.attrs)
+                        for key in source:
+                            if key == "observations":
+                                continue
+                            if key == "raw" and not copy_raw:
+                                out[key] = h5py.ExternalLink(str(path.resolve()), "/raw")
+                            else:
+                                source.copy(key, out)
+                        indexed.files.get(indexed.path).copy("observations", out)
+                    indexed.files.close()
+                    del indexed
+                finally:
+                    writer.close()
+                del writer
+            files.close()
+        (staging / "meta.json").write_text(json.dumps(metadata, indent=2) + "\n")
+        # Check complete contracts before publishing, without reconstructing a corpus.
+        with B1Dataset(staging, dataset_spaces(binding)[0], check_observations=True):
+            pass
+        staging.rename(destination)
+    except BaseException:
+        shutil.rmtree(staging)
+        raise
+    finally:
+        files.close()
     return destination
 
 
@@ -365,7 +466,8 @@ def materialize_train_data(sources, destination, *, normalization_episode_ids):
                 name = f"episode_{len(ids):06d}.hdf5"
                 with h5py.File(staging / name, "x") as out:
                     out.attrs.update(source.attrs)
-                    values = source["observations"]
+                    files = ObservationFiles()
+                    values = ObservationArray.open(source.filename, files, source["observations"])
                     target = out.create_dataset("observations", shape=values.shape, dtype="f4")
                     for start in range(0, len(values), 64):
                         block = values[start : start + 64]
@@ -375,6 +477,7 @@ def materialize_train_data(sources, destination, *, normalization_episode_ids):
                         ):
                             raise ValueError("Observations are not exactly float32 representable")
                         target[start : start + 64] = converted
+                    files.close()
                     for key in ("time_s", A1_JOINT_DELTA, A2_EE_DELTA):
                         source.copy(key, out)
                 ids.append(episode_id)
@@ -395,11 +498,11 @@ class B1Record:
     asset_id: str
     split: str
     actions: np.ndarray
-    obs: dict[str, np.ndarray]
+    obs: dict[str, np.ndarray | ObservationArray]
     starts: np.ndarray
     times: np.ndarray
     terminal_observation: np.ndarray
-    observation_matrix: np.ndarray | None = None
+    observation_matrix: np.ndarray | ObservationArray | None = None
 
     @property
     def n_steps(self):
@@ -411,9 +514,15 @@ class B1Record:
 
 
 class B1Dataset:
-    """ChunkSampler-compatible view, indexed by ticks for A1-A3, segments for A4."""
+    """Selective views indexed by ticks for A1-A3, segments for A4.
 
-    def __init__(self, directory, space, *, binding=None):
+    Structure/actions/clocks are checked at open. Selected observations are
+    checked before sampling/normalization; check_observations=True additionally
+    scans every observation at open using bounded memory. close() releases HDF5
+    handles; subsequent reads reopen them. Contiguous legacy files retain mmaps.
+    """
+
+    def __init__(self, directory, space, *, binding=None, check_observations=False):
         directory = Path(directory)
         self.dataset_dir = directory
         metadata = json.loads((directory / "meta.json").read_text())
@@ -436,23 +545,17 @@ class B1Dataset:
         self.robot_asset = RobotAssetRef.from_dict(metadata["robot_asset"])
         self.action_space = space
         self.records = []
+        self._files = ObservationFiles()
         for name in metadata["episodes"]:
             if Path(name).name != name:
                 raise ValueError("Episode path must stay inside its dataset")
             with h5py.File(directory / name, "r") as source:
                 values = source["observations"]
-                offset = values.id.get_offset()
-                observations = (
-                    np.memmap(
-                        directory / name,
-                        mode="r",
-                        dtype=values.dtype,
-                        offset=offset,
-                        shape=values.shape,
-                    )
-                    if offset is not None and values.chunks is None
-                    else values[:]
-                )
+                # Validation reads bounded blocks; create the mmap afterwards so
+                # scanning does not populate the entire mapping's resident set.
+                lazy = ObservationArray.open(directory / name, self._files, values)
+                offset = values.id.get_offset() if isinstance(values, h5py.Dataset) else None
+                observations = lazy
                 episode = MatchedEpisode(
                     source.attrs["episode_id"],
                     source.attrs["asset_id"],
@@ -462,19 +565,39 @@ class B1Dataset:
                     {s: source[s + "/actions"][:] for s in spaces},
                     {s: source[s + "/starts"][:] for s in spaces},
                 )
-            validate_episode(episode, self.binding, metadata["asset_splits"])
-            starts = episode.starts[space]
-            matrix = (
-                episode.observations[: len(starts)]
-                if np.array_equal(starts, np.arange(len(starts)))
-                else episode.observations[starts]
+            validate_episode(
+                episode,
+                self.binding,
+                metadata["asset_splits"],
+                check_observations=check_observations,
             )
+            if offset is not None:
+                observations = np.memmap(
+                    directory / name,
+                    mode="r",
+                    dtype=lazy.dtype,
+                    offset=offset,
+                    shape=lazy.shape,
+                )
+            starts = episode.starts[space]
+            consecutive = np.array_equal(starts, np.arange(len(starts)))
+            if isinstance(observations, ObservationArray):
+                matrix = observations.view(rows=slice(0, len(starts)) if consecutive else starts)
+            else:
+                matrix = observations[: len(starts)] if consecutive else lazy.view(rows=starts)
             widths = [len(v) for v in observation_columns(matrix[0], self.binding).values()]
             offsets = np.cumsum([0, *widths])
             columns = {
-                key: matrix[:, begin:end]
+                key: (
+                    matrix.view(columns=slice(begin, end))
+                    if isinstance(matrix, ObservationArray)
+                    else matrix[:, begin:end]
+                )
                 for key, begin, end in zip(OBS_KEYS, offsets[:-1], offsets[1:], strict=True)
             }
+            terminal = observations[-1]
+            if not np.isfinite(terminal).all():
+                raise ValueError("Invalid B1 terminal observation")
             self.records.append(
                 B1Record(
                     episode.episode_id,
@@ -484,7 +607,7 @@ class B1Dataset:
                     columns,
                     starts,
                     episode.times[starts],
-                    episode.observations[-1],
+                    terminal,
                     matrix,
                 )
             )
@@ -509,3 +632,12 @@ class B1Dataset:
 
     def by_id(self, episode_id):
         return next(r for r in self.records if r.episode_id == episode_id)
+
+    def close(self):
+        self._files.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
