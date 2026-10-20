@@ -273,6 +273,32 @@ Five launches consume 1,229.03 s, peak at 7.73 GiB process-tree RSS / 6.87 GiB t
 GPU memory, and retain about 28.8 GiB. Final CUDA verification takes 17.75 s, plus a 5.51 s exact tensor-reach check, with
 1.96 GiB RSS and 1.65/3.67 GiB allocated/reserved CUDA memory. All declared budgets
 hold. No training, remote allocation or learned physical-task success is added.
-The next data expansion starts from the three admitted records and repeats the
-same physical/tail/torque/transition gates. See
+These three admitted records remain intact in the four-door expansion below,
+which uses the same physical/tail/torque/transition gates. See
 [[topics/act-a1-observations-and-time|canonical collection, all attempts and handoff]].
+
+## First bounded four-door ACT A1 expansion — complete
+
+Both added nominal train geometries pass required opening, hold, release, 2 s
+ordinary stabilization, independent stop and data usability: right PSX front
+51.281° / 7,891 windows; left PSX wood 54.371° /
+9,517 windows. A fresh physical hold/release continuation on the existing
+left source also qualifies (518 windows), without claiming closed-door opening.
+Historical PSX references are audited against the changed setup; separate
+applicability cycles pass the unchanged 80% requirements before scored collection.
+No corpus reference or physical threshold is refitted.
+
+The six-record train union retains four nominal source motions, three families
+and two hold derivatives, with 33,987 complete eligible windows and 126 focused
+source views. Shared-checkpoint CUDA consumption and train-only normalization,
+causal observations, native torque masks, actual action labels and tail support
+pass with zero optimizer updates. Five launches/no retries plus consumption take
+31.54 min and 21.79 GiB new evidence; all resource budgets hold.
+Prior failures, checkpoints, paused panels and final test remain unchanged.
+
+Next: qualify one initial `RIGHT_SHOULDER_Y` −.05 rad variation on the existing
+wide left door, retaining placement/light and all opening/hold/release/stop/data
+requirements. This tests missing independent approach/acquisition variation;
+lighting alone would not fill it. It has not been launched. ACT physical task
+completion from its own observations and nonzero placement/start-state ranges
+remain unqualified. See [[topics/act-a1-four-door-expansion|results, handoff and next physical tranche]].

@@ -1,9 +1,10 @@
 # ACT A1 observations and time
 
 The finite-history data-to-ACT path, opt-in guarded A1 execution bridge and
-native teacher collection are implemented. The bounded first collection tranche
-qualifies complete right/left demonstrations, a physically reconstructed
-hold/release continuation and recovery of an intentionally interrupted prefix.
+native teacher collection are implemented. The initial tranche and first four-door
+expansion qualify four complete nominal train motions and physically reconstructed
+right/left hold/release continuations. Recovery of the intentionally interrupted
+prefix remains diagnostic.
 Actual prepared data pass CUDA forward/backward with unchanged weights and zero
 optimizer updates. This is an explicit observation/checkpoint recipe alongside
 the maintained legacy path; no ACT training or learned task success is claimed.
@@ -245,12 +246,14 @@ removed or phase annotation passed into `obs`. Existing `training_rows`, causal
 masks and real-tail padding decide admissibility. Missing event coverage is an
 empty row view, not an invented demonstration.
 
-Current admitted data have 16,098 command rows (13,146 push, 81.66%) and 16,061
-valid window starts. Event-focused views retain 25 right, 25 left and 13 C
-windows. These are 63 overlapping source-row views on two nominal source motions
-plus one same-group reset derivative, not 63 demonstrations. Actual prepared
-source references and per-phase denominators are in the
-[consumption audit](../../../outputs/evidence/act-a1-consumption-20261019/sampling-quality.json).
+Current admitted data have 34,028 reviewed commands (28,130 push, 82.67%) and
+33,987 usable window starts. Event-focused views retain 25 per nominal and 13 per
+hold continuation: 126 overlapping source-row views on four nominal motions across
+three train families plus two derivatives, not 126 demonstrations. Actual prepared
+references and per-phase denominators are in the
+[four-door audit](../../../outputs/evidence/act-a1-four-door-20261019/verification.json);
+the [original consumption audit](../../../outputs/evidence/act-a1-consumption-20261019/sampling-quality.json)
+remains the three-source baseline.
 A later sampler can visit the unique event views explicitly alongside background
 windows using existing batching; no equal-phase quota or training schedule is
 selected here. Keep per-source/door/transition exposure visible so push length
@@ -560,7 +563,7 @@ Prepared-store completion describes index writing: `source_complete`,
 Interrupted sources are prepared/reopened diagnostically with unchanged real
 counts, no added terminal state and no eligible expert windows.
 
-### One qualified physical intermediate reset
+### Qualified physical hold-state resets
 
 `--intermediate-state <qualified-source>/teacher/hold-state.npz` restores full
 robot q/dq, door position/velocity, controller targets/impedance, hold lead and
@@ -573,14 +576,14 @@ before release; exact solver-cache or bitwise state reproduction is not assumed.
 The per-record static endpoint is 0 s for this reset; learned fields and 4 s /
 240×384 / 12 / 6 recipe remain the same, with unavailable history masked.
 
-The measured reset changes source generation 1 to generation 2. Reconstruction
+The original right reset changes source generation 1 to generation 2. Reconstruction
 errors are 0.566 mrad q, 38.655 mrad/s dq, 0.643 mrad door angle, .259 mm tool
 position and .482 mrad tool rotation, within declared state bounds and existing
 hard safety limits. Fresh pre-roll has 58/60 valid contact samples. Its first
 snapshot has only 2/241 q/dq/tau slots, one previous target and 2/23 images;
 first eligible decisions occur at .2 s, without waiting four seconds.
 
-## Bounded physical/data tranche and handoff
+## Initial bounded physical/data tranche and handoff
 
 [Declaration](../../../outputs/evidence/act-a1-teacher-temporal-20261019/declaration.md),
 [all attempts and commands](../../../outputs/evidence/act-a1-teacher-temporal-20261019/report.md),
@@ -655,3 +658,20 @@ F-T/tactile availability unverified. Historical
 [[../experiments/b1-data-pipeline|data infrastructure]],
 [[../experiments/b1-act-a1-two-door-diagnostic|learned failures]] and
 [[../experiments/b1-act-a1-calibration-stopping|calibration/stopping]] remain unchanged.
+
+## First four-door expansion
+
+The [[act-a1-four-door-expansion|bounded four-door expansion]] now adds physically
+qualified complete nominal recordings for right `psx-front-005-ee7d5c6` and left
+`psx-interior-wood-002-02e442c`, plus a qualified hold/release continuation from the
+existing left source. Current-setup applicability of fixed opening requirements
+is verified separately before scored collection; no maximum reference or physical
+gate is refitted. Original records and this page's initial-tranche outcomes remain.
+
+The six-record train union reuses the same observation/checkpoint contract,
+shared train-only normalization, complete eligible windows and phase-focused
+views. It passes actual CUDA consumption without updates. Fresh left reconstruction
+has its own generation/reference and genuine pre-roll, with unavailable earlier
+history masked. Full nominal task success and continuation success remain separate.
+The linked expansion page owns current counts, costs, evidence and the proposed
+initial-posture tranche. No learned task success or policy training is added.
