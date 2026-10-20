@@ -1,4 +1,4 @@
-"""Task-specific loaded hold reconstruction, followed by fresh physical qualification."""
+"""Source phase reconstruction with fresh physical qualification and legacy compatibility."""
 
 import json
 

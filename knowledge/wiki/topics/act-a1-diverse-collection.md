@@ -1,5 +1,9 @@
 # Diverse bounded ACT A1 collection campaign
 
+**Status: halted, goal unmet.** Six physical attempts produced three individually
+usable episodes and three failures. Only 3/112 target cells pass; no policy training
+or optimizer update occurred. Loaded-stop qualification blocks the main matrix.
+
 ## Prospective declaration
 
 Baseline `a3c7550`, branch `PatrizioAcquadro/b1-policy-pilot`, clean tracked tree.
@@ -31,7 +35,8 @@ These are candidate simulated conditions requiring physical qualification, not
 validated hardware ranges. Use task-space targets and existing feasible IK/control.
 First check individual factors, then the declared combinations, without a Cartesian sweep.
 
-- Pose high/low: contact height 1.11/1.07 m (nominal 1.09 m), with unchanged
+- Pose high/low for complete and late C/D episodes: contact height 1.11/1.07 m
+  (nominal 1.09 m), with unchanged
   material-relative normal/orientation. Screen reach, finite footprint and clearance.
   Complete train episodes use these two conditions per door. Initial unloaded
   approach additionally investigates 20–50 mm normal distance and 20 mm lateral
@@ -43,13 +48,13 @@ First check individual factors, then the declared combinations, without a Cartes
   identified real-door properties. Read actual composed and active PhysX values.
   Compare measured angle/speed/torque/contact response to saved nominal control.
   Contact friction remains .5 unless an interaction requires a separately declared check.
-- Corrective A1/A2: physically executed lateral/yaw misalignment, or a stopped-short
+- Correction cases A-1/A-2: physically executed lateral/yaw misalignment, or a stopped-short
   normal approach, followed by measured realignment/acquisition.
-- Corrective B1/B2: insufficient normal contact, or a bounded weakening pulse during
+- Correction cases B-1/B-2: insufficient normal contact, or a bounded weakening pulse during
   initial opening, followed by force-supported approach/recontact when recoverable.
-- Corrective C1/C2: a weakening normal-contact pulse, or residual motion induced by
+- Correction cases C-1/C-2: a weakening normal-contact pulse, or residual motion induced by
   a brief commanded push-rate increase, followed by maintained support and settling.
-- Corrective D1/D2: incomplete initial withdrawal (8 mm), or a brief residual-contact
+- Correction cases D-1/D-2: incomplete initial withdrawal (8 mm), or a brief residual-contact
   pause, followed by ordinary complete unloading/separation and stabilization.
 
 Disturbances use executed commands/forces, never mid-episode teleportation or
@@ -111,109 +116,153 @@ ancestry, masks, outcomes and all resource costs. None of these gates is passed 
 Local payload and ledger: `outputs/evidence/act-a1-diverse-20261019/` (ignored;
 Git cannot recover it). This page owns campaign state; original evidence is preserved.
 
-## Initial-screen numerical policy
 
-The parked reset screen now compares both hard and soft joint bounds using exactly
-one outward representable float32 bound step. Audits retain the original signed
-margins and identify the rule. Focused checks cover nominal/exact-boundary positions,
-one-step acceptance, two-step and milliradian rejection, NaN, and the shared hard/soft
-screen. This is quantization allowance only; physical limits, planning margins,
-calibration support, every-row safety and independent stop criteria are unchanged.
+## Implemented interfaces and numerical policy
 
-## Implemented producer interfaces — qualification in progress
+The parked screen applies one outward representable float32 bound step to both
+hard and soft reset limits. Original signed margins remain in the audit. Focused
+checks cover exact bounds, one-step acceptance, two-step/real excursion rejection,
+NaN and both hard/soft limits. This is quantization allowance; physical limits,
+planning margins, empirical calibration support and stop criteria are unchanged.
 
-The existing teacher now accepts declared A/B/C/D short scopes with physical
-endpoint evaluation. Early shorts obtain a fresh t=0 camera reference and six
-seconds of actual unloaded approach rather than borrowing an inspection/history
-prefix. C restores a real source captured five seconds before push exit, then
-executes a new push to the existing measured exit guards before hold (15 s
-resource budget, at least 4 s genuine preceding motion). D also starts from genuine preceding push, preserving the original 3 s hold
-budget and acquiring at least 4 s actual history before release. Each loaded reconstruction receives a detached start-stop check,
-a complete reset and fresh conditioning before recording. Placement, contact,
-controller/safety and dynamics fields must match the source; future phase durations
-may differ. Source velocities, gains, targets and contact rebuilding remain explicit.
+The existing producer accepts declared A/B/C/D scopes. Early shorts acquire a
+fresh t=0 camera reference and real approach history. No source prefix is borrowed.
+A/B post-endpoint hold/withdrawal/tails are diagnostic cleanup, excluded from expert
+targets so short collection does not teach early release for the full opening goal.
+Native roles distinguish expert (0), injected excluded (1) and corrective (2).
+Delivered injected targets stay in causal history; chunks crossing them are excluded.
+Phase/role/truth/outcome fields never enter policy observations.
 
-Native annotations distinguish expert (0), injected excluded (1) and corrective
-(2) commands. All delivered actions remain observation history; injected rows and
-all action chunks crossing them are excluded from supervision. A named short B/C
-contact deviation may attempt at most one second of bounded normal recontact while
-physical/material/force checks remain valid. Original complete-task loss criteria
-are unchanged; any detected loss is retained as a full-task failure indicator.
-No physical stop latch is cleared. Original full cycles continue to use their
-unchanged teacher outcome and frozen opening requirements.
+C/D candidates use actual preceding-push states, measured exit guards and the
+original 3 s hold. Extending an already completed hold to obtain history is rejected.
+New loaded starts require restored q/dq, targets, impedance and controller state,
+fresh contact, an independent stop, reset/conditioning and actual preceding movement.
+Older native ledgers may supply reset states, with explicit command-row ancestry;
+these views are not new episodes. Source placement/contact/dynamics/controller fields
+must match; only prospective phase durations may differ for the short scope.
+Experimental source-controller conditioning is opt-in; existing non-campaign hold
+continuations retain their legacy conditioning and exact setup checks.
 
-Uniform density variations scale both panel and handle mass and diagonal inertia,
-preserving geometry, center of mass and principal axes. Overrides are authored in
-the runtime stage before physics; active PhysX mass/inertia/damping are saved
-separately. A changed configuration is not evidence of a changed physical response.
-These interfaces have focused numerical tests; physical qualification and main
-collection gates remain open.
+Short B/C has an explicit, at-most-one-second bounded recontact path only while
+physical/material/force checks remain valid. It never clears a stop latch and does
+not change complete-task loss criteria. This recovery path and C/D starts remain
+**physically unqualified**. Uniform density authoring scales panel/handle mass and
+inertia together, preserves geometry/COM/axes, and saves active PhysX values. No
+new dynamics range has been physically qualified in this halted campaign.
 
-First factor check: `train-1-complete-pose-high` passes unchanged complete-cycle
-criteria (52.885434 degrees sustained opening versus 41.008202 required), hold,
-release, ordinary tail and independent stop, without physical violations. The
-recording has 7,980 usable starts; whole launch 399.136 s. It is one candidate new
-complete train episode, pending the campaign-wide data/observed-coverage handoff.
+Before the main matrix, unlaunched early A/B pose-low candidates were specified as
+20 mm robot-base retreat along world X, 50 mm precontact distance and nominal contact
+height. Late/complete pose-low retains 1.07 m height. These remain untested candidates.
+Static-reference times are per episode; model history/resolution/chunk/execution stay
+4 s / 240×384 / 12 / 6, visual reuse off. Raw stream clocks are actual local episode
+acquisition/availability. Probe trace/endpoint support times use a separate zero-based
+completed-control-row clock; join by the aligned annotation rows, not identical values.
 
-A/B withdrawal, hold and ordinary tails after their early endpoints are diagnostic
-collection cleanup, with explicit supervised-phase masks. They remain in the causal
-recording but cannot teach early release for the unchanged full opening objective.
-C/D terminal supervision is conditional on genuine late source states and the
-unchanged physical exit/hold/release criteria; an arbitrary short-duration stop is
-not a new hidden policy goal. Corrections retain a single opening task throughout.
+## All physical outcomes and fixed denominator
 
-## First reconstruction failure and mechanism
+| Attempt | Outcome and independently measured limitation |
+|---|---|
+| train-1-complete-pose-high | Pass: 52.885° sustained opening versus unchanged 41.008° requirement, valid hold, release, ordinary tail and stop; 7,980 usable starts. |
+| train-1-A-pose-high | Pass: >=.5 s physical loaded/material/footprint support, actual withdrawal/tail/stop; 517 usable starts. |
+| train-1-D-pose-high | Qualification refusal before recording: static joint-anchor conditioning loses moving contact; q-velocity reconstruction error .05712 versus .05 rad/s. Final stop passes. This empirical mismatch alone is not a hard physical violation. |
+| train-1-D-pose-high-conditioned | Source-controller conditioning restores contact, but extra hold consumes the original release reserve. At 2.1 s, joint speed .70034 exceeds the unchanged criterion; subsequent stop peaks at 4.47000 rad/s. Failed 127-command recording, zero expert windows. |
+| train-1-A-correction-1 | Pass: actual bounded precontact misalignment followed by measured residual realignment/acquisition, withdrawal/tail/stop; 507 usable starts. Scope below. |
+| train-1-D-pose-high-from-push | Earlier genuine push state and existing validated stop recipe still fail start-stop settling: final speed .32121 versus .01 rad/s; continuing check reaches 4.46986. No recording starts. |
 
-`train-1-D-pose-high` failed before recording. Six static joint-anchor conditioning
-steps retained zero contact force while the door coasted at approximately .0104 rad/s.
-The right-arm source velocity .05519 rad/s decelerated to -.00192, producing .05712
-rad/s reconstruction error against the existing .05 bound. Position/tool errors
-were small, and the independent stop passed. This is a failed attempt, not new
-release coverage or proof of physical danger from a small empirical excursion.
+All three D attempts address the same required cell and retain their diagnosed
+changes; none is an unchanged favorable retry. Six attempts mean three passed
+individual scopes and three failures, including two qualification refusals before
+recording. No interruption, budget termination or recorded command refusal occurred.
+Missing recordings are unavailable, never reconstructed from a source prefix.
+Conditioning and continuing-stop traces remain preserved for those attempts.
 
-The diagnosed correction continues the source's measured push/hold controller
-through conditioning, carrying compression, compensation and reference forward.
-It requires reconstructed contact before a loaded stop and before recording. The
-original .05 rad/s reconstruction bound and all physical safety gates remain.
-A replacement needs its own recorded attempt and must establish actual contact,
-release and data usability; the original failure stays in the denominator.
+The last failed stop has constant latched joint targets, zero native normal contact
+force, alternating velocity every 1/120 s and approximately 1.019 amplitude growth
+per native step near 2 s. This establishes unresolved stop/runtime instability at
+the visited posture; it does not identify its internal numerical cause. Profiles
+and states differ between attempts, so this is not a paired controller comparison.
+The legacy and separately qualified stop profiles have their original scope; neither
+passes every new visited condition. No new gain or physical threshold is adopted.
+[Measured stop figure](../../../outputs/evidence/act-a1-diverse-20261019/stop-instability.png).
 
-The conditioned D replacement rebuilt contact and passed its start stop, then failed
-at 2.1 s of additional hold: speed .700340 rad/s, minimum Jacobian singular value
-.002106, followed by a failed continuing-physics stop (peak 4.470002 rad/s).
-Its complete 127-command recording has zero expert windows. This hard failure is
-retained unchanged. Adding history after an already completed hold consumed the
-original release reserve and drove the arm toward singularity. No more C/D launches
-use end-of-hold history extension. New D starts must be real preceding push states,
-then use the same measured push exit and original 3 s hold before withdrawal.
+The physical launcher is closed by `campaign-stop.json`, verified without starting
+a simulator. No remaining matrix or development attempt runs after the stop gate.
 
-The earlier launches also used the legacy default stop impedance. Subsequent
-campaign qualification explicitly selects the existing separately validated stop
-recipe from `act-a1-calibration-stop-20261019/runtime-recipe.json` (normal motion
-gains unchanged). This reuses a measured profile; it does not qualify the failed
-state retrospectively or widen any stop criterion. Every new loaded start still
-requires its own actual-condition stop evidence.
+## Actual coverage and data usability
 
-Before the main matrix, unlaunched early pose-low A/B cells are specified as a
-20 mm robot-base retreat along world X and 50 mm precontact distance, with nominal
-contact height. This adds observable robot-door relationship and distance coverage.
-Late pose-low C/D and complete episodes retain the declared 1.07 m contact height;
-all source conditions must match. These phase-specific candidates require fresh
-physical qualification and cannot replace a failed cell with nominal geometry.
+| Train door | A qualified/planned | B | C | D | Complete |
+|---|---:|---:|---:|---:|---:|
+| animated-door-1-88abf40 | 2/6 | 0/6 | 0/6 | 0/6 | 1/2 |
+| door-2738468b94d74c5f | 0/6 | 0/6 | 0/6 | 0/6 | 0/2 |
+| psx-front-005-ee7d5c6 | 0/6 | 0/6 | 0/6 | 0/6 | 0/2 |
+| psx-interior-wood-002-02e442c | 0/6 | 0/6 | 0/6 | 0/6 | 0/2 |
 
-## Campaign halted — completion gates unmet
+Each frozen development identity (`modern-door-2fb8d024`,
+`psx-industrial-001-4f5561b`) remains 0/2 complete, 0/1 acquisition/opening and
+0/1 release/stabilization: 0/8 development total. Short train categories are
+pose 1/32, dynamics 0/32 and correction 1/32. Complete train is 1/8. There are
+109 missing target cells, including the failed D cell; 108 cells were never launched.
 
-The preceding-push replacement also failed its independent start stop: peak/final
-speed .321210 rad/s, above the unchanged final settling requirement, despite no
-first-window hard-speed violation. Its continuing check reached 4.469863 rad/s.
-Native signs alternate at the physics cadence and amplitude grows. This is an
-unresolved stop-stability defect at the actual varied posture, not permission to
-widen tolerances or use an unchanged favorable retry. C/D and the main matrix are
-not qualified. `campaign-stop.json` closes the physical launcher; no further physical
-attempt is authorized by a successful software check alone.
+Higher-contact complete/short records retain approximately 19.99 mm contact-Z
+change versus nominal, with 65 physically valid acquisition rows each. The `A-correction-1` pulse
+produces measured 19.86 mm lateral /4.99° deviation. Its excluded taper removes part
+of the error: eligible teacher correction begins at 5.22 mm /1.75°, reaching about
+.18 mm /.052° after .5 s and then valid contact. This qualifies bounded residual
+realignment; it is not 20 mm exclusively expert recovery or general lost-contact
+coverage. New source groups/door identities are not created. Native selected images
+show changed gripper/arm context with partial contact occlusion; pixels do not prove
+millimetric contact precision. Existing posture-convergence evidence remains unchanged.
 
-The experimental source-controller conditioning is explicitly opt-in for campaign
-qualification. Existing non-campaign hold continuations retain their legacy
-conditioning and exact setup checks. The normal teacher path, original stop
-profiles and all prior evidence/outcomes remain available with their original scope.
-Final inventory, CUDA/data review and resource closeout follow; the goal is unmet.
+The three new admitted recordings provide **9,004 usable windows**. Combined with
+the unchanged seven reviewed controls, the partial inventory has ten train records
+and 50,720 starts: six complete motions on four doors, two historical hold derivatives
+and two new early shorts. These correlated views/conditions are not independent
+families or a success-rate estimate. All failed-source targets remain excluded.
+
+Native integrity, delivered-minus-prestate A1 labels, clipping evidence, supervision
+masks, causal joins, right-side offline/online phase snapshots, recovery-history
+views and true-tail support pass. The existing initialized checkpoint consumes
+representative actual data with finite CUDA forward/backward, exact unchanged
+weights and zero optimizer updates. Normalization remains the original six-train-
+source fit, used only for compatibility; no new normalization or development fit
+occurs. Original raw/prepared controls and checkpoint files remain unchanged.
+Both-direction/new short C/D agreement and the 112-source gate are **not validated**.
+Simulated torque retains its solver joint-output provenance, not direct contact force.
+
+## Costs, handoff and required next work
+
+Six whole physical launches: 580.418 s; complete CUDA preparation/consumption:
+19.556 s. Total GPU workload **599.974 s (10.00 min)**, conservative charge
+634.974 s including allocation tails. Additional retained evidence approximately
+12.34 GiB; reviewed-scope project totals approximately **18.838/40 GPU hours** and
+**572.84/1024 GiB**, with approximately 1080 GiB actual free disk. All campaign
+limits hold: 6/160 attempts, .1764/12 charged GPU hours, 12.34/400 GiB.
+Startup, shutdown, failures, qualification and preparation are included in whole
+wall costs. Accounted episode/conditioning/stop simulation is 218.933 s; runtime
+initialization ticks were not separately instrumented. Sampled physical peaks are
+7.730 GiB process-tree RSS and 6.487 GiB total GPU. CUDA validation uses 2.076 GiB
+RSS and .498/.688 GiB allocated/reserved. CPU-only audits use no GPU allocation.
+
+- [All attempts and reasons](../../../outputs/evidence/act-a1-diverse-20261019/attempts.json).
+- [Every planned cell and gap](../../../outputs/evidence/act-a1-diverse-20261019/coverage.json).
+- [Exact partial train inventory, masks and ancestry](../../../outputs/evidence/act-a1-diverse-20261019/handoff.json).
+- [Actual-data and CUDA validation](../../../outputs/evidence/act-a1-diverse-20261019/verification.json).
+- [Measured variation and response](../../../outputs/evidence/act-a1-diverse-20261019/measured-coverage.json).
+- [Resource ledger](../../../outputs/evidence/act-a1-diverse-20261019/resource-summary.json).
+- [Local commits](../../../outputs/evidence/act-a1-diverse-20261019/local-commits.json).
+
+The completion gates do not all pass: A has 3/112 coverage; B has unresolved loaded
+start/stop validity; C validates only the admitted subset. D delivers an honest
+partial inventory, costs, documentation and local commits, while the requested
+training-ready handoff remains unavailable. The overall goal is unmet. The frozen final test
+remains closed. No policy training, optimizer update, learned evaluation, RL,
+architecture comparison, remote allocation or push occurs.
+
+Next: diagnose and independently qualify stop stability at the actual postures,
+then qualify reusable C/D starts and remaining correction/dynamics cases. Only after
+that may the declared missing cells and both-direction/development data gates resume.
+No new physical attempt follows this closeout. Once the full corpus is qualified,
+a bounded first ACT experiment should test whether causal history improves contact
+acquisition, phase handoff and unloading, and whether genuine observed variation
+improves frozen-development completion without increased refusals/unsafe acceptance.
+This partial corpus cannot test the requested broad recovery/generalization claim.

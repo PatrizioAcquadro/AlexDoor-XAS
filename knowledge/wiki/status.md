@@ -87,9 +87,12 @@ scope coverage, reviewed usable windows and explicitly qualified short subtasks;
 source-row event sampling preserves real history and phase-crossing labels.
 The existing right/left/C admissions and interrupted-prefix outcome remain.
 The later [[topics/act-a1-four-door-expansion|four-door expansion and posture pilot]]
-now supply bounded teacher evidence; unimplemented short-start criteria still
-require physical qualification. That software/data closure itself introduced no
-collection, training, learned success or final-test access. See
+supply bounded teacher evidence. The later
+[[topics/act-a1-diverse-collection|diverse campaign]] adds two usable acquisition
+shorts and one varied complete episode, then halts on loaded-stop qualification.
+Its 112-episode objective remains unmet; C/D starts and broader corrections remain
+unqualified. These data/interface changes add no training, learned success or final-test access;
+the linked campaign owns its physical attempt denominator. See
 [[topics/act-a1-observations-and-time|current interfaces]].
 
 ## A1/A2 pilot — paused and incomplete
@@ -308,9 +311,22 @@ The seven-record train handoff has 41,716 usable starts and 151 focused source
 views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
-Next: qualify a short precontact→acquisition producer with full measured state,
-real preceding history and independent stopping, selecting variation that remains
-observable at acquisition. No demonstration count or next launch is allocated.
-ACT completion from its own observations, continuous posture/placement ranges,
-short contact starts and corrective behavior remain unqualified. See
-[[topics/act-a1-four-door-expansion|results, handoff, costs and smallest next task]].
+The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
+**halted, goal unmet**: 2/96 short train, 1/8 complete train and 0/8 development
+qualified, from six physical attempts with three retained failures. The higher
+contact persists by 19.99 mm; one precontact pulse leaves a measured 5.22 mm/1.75°
+residual for eligible teacher realignment. Failed restored stops exhibit growing
+native velocity oscillation, reaching 4.47 rad/s; no further physical launch occurs.
+
+The three new usable records add 9,004 windows; the partial ten-source train union
+has 50,720 starts. Actual-data CUDA forward/backward and right-side observation
+agreement pass with unchanged weights, frozen train-only normalization and zero
+optimizer updates. This does not qualify both directions, new C/D starts, dynamics,
+general recovery or the requested training-ready corpus. Exact inventories, masks,
+ancestry and all failures remain in the linked campaign handoff.
+
+New GPU workload is 10.00 min and evidence approximately 12.34 GiB. Conservative
+reviewed-scope totals are 18.838/40 GPU hours and 572.84/1024 GiB; 6/160 new attempts.
+The old 24-attempt cap is prospectively superseded for this campaign only. Next is
+independent stop-stability diagnosis/qualification at actual postures before any
+remaining matrix launch. Training, learned evaluation and the final test stay closed.

@@ -80,6 +80,7 @@ def evaluate_phase_endpoint(rows, family, setup):
     return dict(
         passed=bool(evidence),
         family=family,
+        clock="probe_relative_completed_control_row_time",
         support_start_s=None if not evidence else evidence[0]["time"],
         support_end_s=None if not evidence else evidence[-1]["time"],
         supported_samples=len(evidence),

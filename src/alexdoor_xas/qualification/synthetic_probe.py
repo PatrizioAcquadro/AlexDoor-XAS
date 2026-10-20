@@ -1216,7 +1216,7 @@ def run_probe(
             full_task_success=False,
             phase_endpoint=endpoint,
             correction=correction_result,
-            scope="qualified_short_subtask_not_complete_task",
+            scope="short_subtask_not_complete_task",
         )
     write_probe_artifacts(output, result, traces, raw, images)
     return result

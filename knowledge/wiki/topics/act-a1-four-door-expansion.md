@@ -1,5 +1,10 @@
 # ACT A1 four-door expansion
 
+The later [[act-a1-diverse-collection|diverse 112-episode campaign]] is halted with
+three usable new episodes and unresolved loaded-stop qualification. Its partial
+inventory and costs supersede the next-task proposals below; all original outcomes
+on this page remain historical evidence.
+
 The first bounded collection is complete on 19 October 2026: two new nominal
 recordings and one qualified left hold/release continuation. A later single
 initial-posture pilot on the existing left door also passes; its observed

@@ -13,6 +13,12 @@ the maintained legacy path; no ACT training or learned task success is claimed.
 Historical recordings, checkpoints, physical/admission/stop requirements and the
 sealed final test remain preserved.
 
+The subsequent [[act-a1-diverse-collection|112-episode diverse campaign]] is halted
+at loaded-stop qualification: six attempts, three individually usable new episodes,
+three retained failures. The partial ten-source train inventory has 50,720 usable
+starts, including 9,004 new starts. It passes bounded CUDA compatibility without
+updates; the requested 112-episode corpus and first-training handoff remain unmet.
+
 The objective remains physical contact acquisition, required opening, hold,
 release and normal stabilization. Offline agreement and teacher imitation do
 not establish any of these outcomes. The original design is retained in Git at
@@ -248,7 +254,7 @@ removed or phase annotation passed into `obs`. Existing `training_rows`, causal
 masks and real-tail padding decide admissibility. Missing event coverage is an
 empty row view, not an invented demonstration.
 
-Current admitted data have 41,757 reviewed commands (34,647 push, 82.97%) and
+The reviewed seven-source baseline has 41,757 reviewed commands (34,647 push, 82.97%) and
 41,716 usable window starts after the single existing-left posture pilot. The
 seven records contain five complete reset motions on four doors across three
 train families plus two hold derivatives. Event-focused views retain 25 per
