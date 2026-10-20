@@ -1,8 +1,10 @@
 # ACT A1 four-door expansion
 
 The first bounded collection is complete on 19 October 2026: two new nominal
-recordings and one qualified left hold/release continuation. Training and learned
-evaluation remain outside this task. Measured results are below. Retain current
+recordings and one qualified left hold/release continuation. A later single
+initial-posture pilot on the existing left door also passes; its observed
+convergence and limits are reported below. Training and learned evaluation remain
+outside these tasks. Measured results are below. Retain current
 physical outcomes, all raw attempts and frozen source groups. The usable software/data interfaces
 are in [[act-a1-observations-and-time]]. This replaces the earlier proposed
 36/44-trajectory sweep with coverage-driven stages and current measured costs.
@@ -254,47 +256,112 @@ The prior three-source handoff and every historical failed/interrupted outcome
 remain intact. No ACT learned task result is added; the eventual criterion is
 physical completion from its own observations, not teacher trajectory similarity.
 
-## Smallest next physical tranche — proposed, not launched
+## Posture candidate selected after the first expansion
 
-Qualify one initial-posture variation on the existing wide left
-`door-2738468b94d74c5f`: initial `RIGHT_SHOULDER_Y` −.05 rad, with all other initial
-joints, robot-door placement and nominal lighting fixed. This is a candidate,
-not a measured safe range. It adds a distinct approach/acquisition event where
-prior learned execution refused before contact and the path approaches a joint
-boundary; all four nominal motions currently share one initial posture/placement.
-The two hold derivatives add no independent acquisition events.
+The first expansion selected one initial `RIGHT_SHOULDER_Y` −.05 rad variation
+on existing wide left `door-2738468b94d74c5f`, keeping placement/light and loaded
+targets unchanged. At that point all four nominal motions shared one initial
+posture and the two hold derivatives added no acquisition event. The candidate
+was subsequently executed under its own prospective criteria and budgets below;
+no continuous posture range or additional variation was approved.
 
-Check initial runtime joint limits, clearance/visibility and stopping support
-before a full attempt. Keep the loaded targets unchanged. Physical success is
-existing-left opening ≥42.028823°, valid hold, actual release, ≥2 s ordinary
-stabilization and independent healthy stop; data require native integrity,
-reviewed windows and approach/acquisition/crossing/tail support. Retain any
-failure without unchanged favorable retry. A lighting-only cell does not fill
-this physical gap. Nonzero placement ranges and precontact/contact-to-push resets
-still need their dedicated physical qualification; no subsequent tranche is
-launched in this task.
+## Single initial-posture pilot — completed
 
-## Single initial-posture pilot — declared
+The single candidate on existing left train `door-2738468b 94d 74c 5f` passes as a
+teacher demonstration: initial right-arm `RIGHT_SHOULDER_Y` −.05 rad, seed 6200,
+all other actual setup fields/light/robot/controller unchanged. Sustained opening
+52.615259° exceeds the fixed 42.0288232010161° requirement; valid hold, actual
+release, 2 s ordinary stabilization and separate healthy 2 s stop pass. There are no
+physical violations, refusals, interruptions or retries. This qualifies only the
+measured single teacher condition, not learned ACT success or a posture interval.
 
-The next bounded task tests only initial `RIGHT_SHOULDER_Y` −.05 rad on existing
-left train `door-2738468b94d74c5f`, right arm, seed 6200. All other setup and
-loaded targets remain unchanged. The prospective criteria and reconciled budgets
-are in `outputs/evidence/act-a1-posture-20261019/declaration.md` and `protocol.json`.
-One recorded cycle is planned, with at most one diagnosed affected correction;
-total <=1 GPU workload hour and <=30 GiB additional evidence. The prior project
-counter is 21/24 attempts and the conservative GPU allocation is 18.534/40 hours.
+`pilot_physics.py collect --screen-initial-state` audits parked runtime hard/soft
+limits, actual tool pose, imported clearance, all-body contacts and the existing
+visibility predicate before arm motion. This candidate has .215851 rad initial
+joint margin, 2.368 mm AABB lower bound, no contacts and visibility 25/8/28. A detached
+unloaded 2 s stop passes; the maintained producer then resets the complete configured
+state and ordinary impedance before recording inspection onward. The screen is
+for closed-door collection, not loaded reconstruction. Whole-path AABB lower bound
+remains zero, and the initial/final stops do not prove all loaded-state stops.
+Every-row checks and numerical/empirical tolerance handling remain unchanged.
 
-`pilot_physics.py collect --screen-initial-state` audits runtime hard/soft limits,
-actual tool pose, imported clearance bound, raw all-body contacts and the existing
-visibility predicate before arm motion. It requires an unloaded parked state and
-measures its separate two-second continuing-physics stop. The normal producer
-then resets the complete configured state and ordinary impedance before recording
-inspection onward. A zero AABB lower bound remains inconclusive; no new clearance
-threshold or continuous posture range is certified. The post-cycle independent
-stop, every-row checks and existing numerical/empirical tolerances stay unchanged.
-This screening option is for closed-door collection, not loaded reconstruction.
+### Measured coverage
 
-Eligibility is decided after the recorded execution under the original full-task,
-phase/crossing, terminal-support and stop gates. Similarity or difference from the
-nominal source is a data-diversity diagnosis, never an acceptance criterion.
-No learned evaluation, training, reset curriculum or subsequent tranche is launched.
+The perturbation survives inspection: at first policy-ready t=25.2 s the measured
+joint difference is .05 rad, tool displacement 21.772 mm/2.865° and maximum native
+solver-feedback difference .709 N m. Mid-approach tool displacement is 4.403 mm;
+by approach end it is .00435 mm, with maximum joint residual .000965 rad. Both
+sources first qualify measured contact at 33.333333 s (associated command row
+33.316667 s) and have 65/180 loaded/contact-valid acquisition samples. Across the
+3 s acquisition, maximum joint difference is .001001 rad and tool median/max
+distance .00485/.03228 mm. This adds observed early approach/posture variation,
+not a distinct acquisition geometry, contact location or corrective behavior.
+
+Later motion retains measured differences: push is 4.45 s shorter; equal elapsed
+push times differ by up to .108503 rad/7.969 mm because door progress differs.
+Matching measured pre-command door angles over .693–51.933° (6,784 pairs,
+maximum angle mismatch .008736°) gives tool median/max .02560/.17837 mm, joint
+RMS/max .005436/.017662 rad, native tau RMS difference .029292 N m and delivered
+target maximum difference .017813 rad. Thus contact/tool geometry converges,
+while residual joint/feedback and timing variation remains. Event-aligned
+hold/release tool differences stay below .395/.338 mm. These are descriptions,
+not new similarity acceptance thresholds or causal robustness evidence.
+
+Selected original RGB-D pairs confirm early gripper/arm variation and converged
+contact context. Full-image depth mean absolute difference falls from 14.394 mm at
+readiness to .279 mm at first valid contact; median is zero at both, since most
+context is shared. Contact remains partly self-occluded. Pixel differences do not
+certify contact precision. Saved measured traces, clocks, requested/delivered
+actions and the full comparison are in
+[the pilot report](../../../outputs/evidence/act-a1-posture-20261019/report.md).
+
+### Usability, costs and next decision
+
+The complete recording has 9,242 states/9,241 commands, 1,541 native RGB-D captures
+and 18,483 healthy native feedback samples. Reviewed commands/usable starts total
+7,729: inspect 12, approach 360, contact 180, push 6517, hold 180, release 360,
+stabilize 120. All six phase transitions retain 11 crossing starts; 25 focused views
+retain real preceding history without copying training images. At first readiness
+all 23 image / 241 robot-history slots are supported by real inspection, back to 21.2 s.
+The final 11 padded targets describe only the true terminal tail.
+
+Five limited approach requests (maximum .000149727 rad) remain recorded, versus
+nominal 36/.001537085 rad. Every label equals delivered target minus its measured
+pre-state, including all limited rows. The existing initialized shared checkpoint
+with its frozen six-source train-only normalization consumes 32 new windows and
+one two-row backward; finite output/gradients, exact unchanged weights, zero
+optimizer updates. No new model behavior benchmark or learned evaluation runs.
+The seven-record handoff now has 41,716 usable starts and 151 overlapping focused
+views on four door identities/three families; five complete reset recordings
+include this same-door condition, alongside two hold derivatives.
+
+One of at most two launches used; correction reserve unused. Physical whole wall
+434.659 s + CUDA preparation/consumption 15.150 s =449.809 s (7.497 min), conservative
+charge 459.809 s including allocation tails. Accounted simulation 158.017 s includes
+both detached stops. New evidence about 9.49/30 GiB, peak process-tree RSS 7.760 GiB
+and total GPU 6.539 GiB. Project counters 22/24 attempts, conservative 18.661711/40 h,
+about 560.50/1024 GiB logical evidence. All original ceilings hold; failures and
+prior payloads remain preserved. Exact costs/paths are in
+[resource summary](../../../outputs/evidence/act-a1-posture-20261019/resource-summary.json)
+and [handoff](../../../outputs/evidence/act-a1-posture-20261019/handoff.json).
+
+The smallest next task is to qualify a short precontact→acquisition producer:
+closed unlatched same door, measured 30 mm precontact state, full q/dq/targets and
+controller reconstruction, unloaded-to-contact stopping, actual prior approach
+history and a prospectively qualified observable contact/first-opening endpoint.
+Select only a justified one-factor posture/relationship that survives to contact;
+no safe nonzero range or generic reset is assumed. A 16 s recording comprising 4 s
+real approach/history, 3 s acquisition, about 1 s first push, 6 s withdrawal and 2 s tail
+would cost roughly .96 GiB and 1–2 min whole launch **after** physical producer
+qualification; qualification/failures are additional. This is a planning estimate,
+not an allocated tranche or invented demonstration count.
+
+Contact→push continuation is conditional on qualified early-contact reconstruction
+and missing push-entry support (~13–15 s/.8–.9 GiB after qualification). Another full
+posture/placement cycle (~6–8 min/9–10 GiB) should wait for evidence that variation
+will survive acquisition. Representative corrections need a concrete deviation,
+trusted correction and actual pre-deviation history/recontact-stop proof; no
+recovery curriculum is justified now. Full per-proposal starts, observable
+criteria, history and costs are in the report. None is launched; continuous
+posture/placement ranges, hardware transfer and learned ACT task success remain
+unqualified.

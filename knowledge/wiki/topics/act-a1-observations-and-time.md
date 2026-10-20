@@ -3,8 +3,10 @@
 The finite-history data-to-ACT path, opt-in guarded A1 execution bridge and
 native teacher collection are implemented. The initial tranche and first four-door
 expansion qualify four complete nominal train motions and physically reconstructed
-right/left hold/release continuations. Recovery of the intentionally interrupted
-prefix remains diagnostic.
+right/left hold/release continuations. The single existing-left initial-posture
+pilot also qualifies one teacher recording, adding early approach variation while
+acquisition geometry converges; see [[act-a1-four-door-expansion]]. Recovery of the
+intentionally interrupted prefix remains diagnostic.
 Actual prepared data pass CUDA forward/backward with unchanged weights and zero
 optimizer updates. This is an explicit observation/checkpoint recipe alongside
 the maintained legacy path; no ACT training or learned task success is claimed.
@@ -94,7 +96,7 @@ ensembling or another execution horizon. The geometry observer remains active.
 runner = temporal_a1_runner(
     checkpoint, observer, io, config=cfg, episode_id=episode_id,
     events=drain_native_events, feedback_contract=verified_feedback_contract,
-    admission_source=existing_motion_admission, reuse=False, device="cuda:0",
+    admission_source=existing_motion_admission, reuse=False, device="cuda: 0",
 )
 result = runner.run(max_ticks=declared_budget)
 ```
@@ -173,7 +175,7 @@ that hardware arrival clocks were never recorded.
 ```python
 cfg = TemporalConfig(depth_interval_m=recorded_depth_interval)
 prepare_temporal(source, prepared, cfg, eligible=reviewed_command_mask,
-                 legacy_synchronous=True, device="cuda:0")
+                 legacy_synchronous=True, device="cuda: 0")
 with TemporalEpisode(prepared, cfg) as episode:
     rows = episode.training_rows(horizon=12)  # numeric support; no image reads
     stats = fit_temporal_stats([episode])    # unique training episodes only
@@ -246,11 +248,18 @@ removed or phase annotation passed into `obs`. Existing `training_rows`, causal
 masks and real-tail padding decide admissibility. Missing event coverage is an
 empty row view, not an invented demonstration.
 
-Current admitted data have 34,028 reviewed commands (28,130 push, 82.67%) and
-33,987 usable window starts. Event-focused views retain 25 per nominal and 13 per
-hold continuation: 126 overlapping source-row views on four nominal motions across
-three train families plus two derivatives, not 126 demonstrations. Actual prepared
-references and per-phase denominators are in the
+Current admitted data have 41,757 reviewed commands (34,647 push, 82.97%) and
+41,716 usable window starts after the single existing-left posture pilot. The
+seven records contain five complete reset motions on four doors across three
+train families plus two hold derivatives. Event-focused views retain 25 per
+complete source and 13 per hold continuation: 151 overlapping source-row views,
+not 151 demonstrations. The new source contributes 7,729 starts and 25 focused
+views; its bounded consumption reuses the unchanged initialized checkpoint and
+normalization fitted only to the previous six admitted train sources. No
+optimizer update or new fit is performed. See
+[posture audit](../../../outputs/evidence/act-a1-posture-20261019/verification.json)
+and [[act-a1-four-door-expansion|physical/observed coverage and limits]]. Actual prepared
+references and per-phase denominators are in the prior six-source
 [four-door audit](../../../outputs/evidence/act-a1-four-door-20261019/verification.json);
 the [original consumption audit](../../../outputs/evidence/act-a1-consumption-20261019/sampling-quality.json)
 remains the three-source baseline.

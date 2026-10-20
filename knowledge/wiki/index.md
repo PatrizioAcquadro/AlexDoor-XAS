@@ -37,7 +37,7 @@ Current technical behavior and explicitly labeled planned contracts:
 - [[topics/learned-policy-stack|Learned Policy Stack]] — Reusable ACT/Diffusion models, tensor training, checkpoints and explicit observation boundary.
 - [[topics/b1-policy-pilot|Common B1 Policy Pilot Foundation]] — Causal RGB-D/data, measured robot feedback, bounded local A1/A2 admission and separate offline/contact readiness.
 - [[topics/act-a1-observations-and-time|ACT A1 Observations and Time]] — Maintained causal streams, finite-history ACT, guarded execution and future complete-collection requirements; physical qualification remains open.
-- [[topics/act-a1-four-door-expansion|ACT A1 Four-Door Expansion]] — Qualified four-door train recordings, right/left hold continuations, source-row views, costs and next physical coverage.
+- [[topics/act-a1-four-door-expansion|ACT A1 Four-Door Expansion]] — Qualified four-door train recordings, hold continuations, one posture pilot, observed convergence, source-row views, costs and next physical coverage.
 
 - [[topics/perception-model-setup|Perception Model Setup]] — Local models, isolated dependencies and supported commands.
 

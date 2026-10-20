@@ -86,10 +86,11 @@ normal and fresh intermediate startup metadata. Quality distinguishes complete
 scope coverage, reviewed usable windows and explicitly qualified short subtasks;
 source-row event sampling preserves real history and phase-crossing labels.
 The existing right/left/C admissions and interrupted-prefix outcome remain.
-[[topics/act-a1-four-door-expansion|Four-door expansion]] is a concrete train-only
-proposal; new geometries/start criteria still require physical qualification.
-No new collection, training, learned success or final-test access accompanies this
-software/data closure. See [[topics/act-a1-observations-and-time|current interfaces]].
+The later [[topics/act-a1-four-door-expansion|four-door expansion and posture pilot]]
+now supply bounded teacher evidence; unimplemented short-start criteria still
+require physical qualification. That software/data closure itself introduced no
+collection, training, learned success or final-test access. See
+[[topics/act-a1-observations-and-time|current interfaces]].
 
 ## A1/A2 pilot — paused and incomplete
 
@@ -229,7 +230,7 @@ See [[experiments/b1-act-a1-calibration-stopping|validation, failures and handof
 
 The [[topics/act-a1-observations-and-time|ACT A1 temporal data path]] now removes
 the static-reference progress clock and has an explicit checkpoint/incremental
-entry point through guarded A1 execution: history 4 s, chunk12/replan6. Saved-event
+entry point through guarded A1 execution: history 4 s, chunk 12/replan6. Saved-event
 replay covers ordering, replanning, reset and per-row stale-input stopping while
 retaining existing admission, controller and physical stops. Legacy flat policies
 remain supported; revised temporal semantics require v2 checkpoints.
@@ -296,9 +297,20 @@ pass with zero optimizer updates. Five launches/no retries plus consumption take
 31.54 min and 21.79 GiB new evidence; all resource budgets hold.
 Prior failures, checkpoints, paused panels and final test remain unchanged.
 
-Next: qualify one initial `RIGHT_SHOULDER_Y` −.05 rad variation on the existing
-wide left door, retaining placement/light and all opening/hold/release/stop/data
-requirements. This tests missing independent approach/acquisition variation;
-lighting alone would not fill it. It has not been launched. ACT physical task
-completion from its own observations and nonzero placement/start-state ranges
-remain unqualified. See [[topics/act-a1-four-door-expansion|results, handoff and next physical tranche]].
+The subsequent single initial `RIGHT_SHOULDER_Y` −.05 rad pilot on the existing
+wide left door passes: 52.615259°, hold/release, 2 s ordinary stabilization and
+independent stop, with 7,729 usable windows. The offset survives inspection and
+adds 21.772 mm tool/observed approach variation, but first valid contact timing and
+acquisition geometry converge. Later push joint/timing residuals do not establish
+new contact/recovery coverage. One launch/no retry, 7.497 min GPU workload wall,
+about 9.49 GiB; cumulative 22/24 attempts and conservative 18.661711/40 GPU hours.
+The seven-record train handoff has 41,716 usable starts and 151 focused source
+views. Existing shared-checkpoint consumption uses frozen six-source train-only
+normalization with zero updates.
+
+Next: qualify a short precontact→acquisition producer with full measured state,
+real preceding history and independent stopping, selecting variation that remains
+observable at acquisition. No demonstration count or next launch is allocated.
+ACT completion from its own observations, continuous posture/placement ranges,
+short contact starts and corrective behavior remain unqualified. See
+[[topics/act-a1-four-door-expansion|results, handoff, costs and smallest next task]].
