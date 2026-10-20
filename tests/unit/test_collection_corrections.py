@@ -238,10 +238,19 @@ def test_c1_measured_return_fits_recontact_budget_without_exceeding_gap_catchup_
     )
 
 
-def test_c1_handoff_requires_actual_supported_contact_and_preserves_pending_recovery():
-    case = CollectionCorrection("C", "correction-1", ProbeSetup(), 1 / 60)
-    case.counts["push"] = 299
-    case.target(np.zeros(3), np.eye(3), "push", np.zeros(3))
+@pytest.mark.parametrize("variant,last_injected", [("correction-1", 299), ("correction-2", 311)])
+def test_late_handoff_requires_actual_support_and_preserves_pending_recovery(
+    variant, last_injected
+):
+    case = CollectionCorrection("C", variant, ProbeSetup(), 1 / 60)
+    case.counts["push"] = last_injected
+    case.target(
+        np.zeros(3),
+        np.eye(3),
+        "push",
+        np.zeros(3),
+        injected_pose=(np.array([0.001, 0, 0]), np.eye(3)),
+    )
     case.target(np.zeros(3), np.eye(3), "push", np.array([-0.001, 0, 0]))
     row = dict(phase="push", valid=False, physical_safe=True)
     assert not case.needs_supported_hold_handoff(row)

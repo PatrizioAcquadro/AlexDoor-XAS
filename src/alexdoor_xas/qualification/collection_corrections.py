@@ -174,10 +174,10 @@ class CollectionCorrection:
         return position, rotation
 
     def needs_supported_hold_handoff(self, row):
-        """A weakening correction ends at real supported contact, not a path fit."""
+        """Late corrections hand actual support to force holding, not a path fit."""
         return bool(
             self.family == "C"
-            and self.variation == "correction-1"
+            and self.variation in ("correction-1", "correction-2")
             and self.role == CORRECTIVE
             and self.pending
             and not self.supported_hold_handoffs

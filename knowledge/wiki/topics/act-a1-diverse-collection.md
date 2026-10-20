@@ -465,6 +465,20 @@ stops and unchanged-weight CUDA validation pass. The original failed B2 has high
 recovery door speed (.0475 versus .0292 rad/s) and remains a failure. This supports
 the overlap correction in B2; it does not qualify late C holding.
 
+The matched first-door C1 supported-hold check passes physical, data and unchanged-weight
+CUDA gates. First usable supervision retains 0.695 mm native gap, 0.822 mm material
+separation and 0.983 mm adaptive-reference error (distinct quantities); all 47 injected
+commands remain excluded and all 76 corrective commands are usable. One actual-contact
+handoff is followed by the full 180-row hold at 51.91 degrees, release, ordinary
+stabilization and 2+4 s stop checks. A transient contact reloss is retained; recovery
+is not claimed monotonic. The reference changes at the reported handoff, so its later
+tracking error is not a fixed-goal recovery metric. Native gap and actual supported
+settling establish the task result. Other C1 doors still require their own gates.
+`C1-causal-qualification-comparison.json` preserves all four earlier failures and
+rejected explanations. The same supported-hold mechanism is implemented for C2's
+pace-to-settle task; actual delivered pace, residual motion and settling remain
+unqualified until its bounded physical prototype passes.
+
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original
 3 s hold and 20.12 mm height separation. B initial opening has 19.97 mm separation.
