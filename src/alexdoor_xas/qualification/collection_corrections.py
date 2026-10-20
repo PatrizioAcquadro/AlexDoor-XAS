@@ -18,7 +18,6 @@ class CollectionCorrection:
         self.pending = False
         self.injected_commands = self.corrective_commands = 0
         self.recovered_samples = 0
-        self.release_origin = None
         self.contact_loss_detected = False
         self.corrective_origin = None
         self.corrective_elapsed_s = 0.0
@@ -82,10 +81,17 @@ class CollectionCorrection:
         return self.reference_advance_rad
 
     def material_gap_target(self, phase):
-        """B2 declares physical separation from the current panel, not a lead goal."""
+        """Declare separation from the moving material, not a stale world origin."""
         if self.family == "B" and self.variation == "correction-2" and self.pulse(phase) > 0:
             return NORMAL_RETREAT_M["B2"]
+        if self.family == "D" and self.variation == "correction-1" and self.pulse(phase) > 0:
+            return 0.008
         return None
+
+    def holds_release_contact(self):
+        return bool(
+            self.family == "D" and self.variation == "correction-2" and self.pulse("release") > 0
+        )
 
     def position_return_active(self, phase):
         """The declared trajectory owns position error; force unloading stays active."""
@@ -102,8 +108,6 @@ class CollectionCorrection:
         injected_pose=None,
     ):
         position, rotation = np.array(position, copy=True), np.array(rotation, copy=True)
-        if phase == "release" and self.release_origin is None:
-            self.release_origin = np.array(measured_position, copy=True)
         amount = self.pulse(phase)
         previous_role = self.role
         self.role = INJECTED if amount > 0 else CORRECTIVE if self.pending else EXPERT
@@ -152,18 +156,14 @@ class CollectionCorrection:
                 )
             elif key in ("A2", "B1", "C1"):
                 position -= rotation[:, 0] * (NORMAL_RETREAT_M[key] * amount)
-            elif key == "B2":
+            elif key in ("B2", "D1", "D2"):
                 if injected_pose is None:
-                    raise ValueError("B2 requires an executed material-gap pose")
+                    kind = "material-relative" if key == "D2" else "material-gap"
+                    raise ValueError(f"{key} requires an executed {kind} pose")
                 injected_p, injected_r = injected_pose
                 position += amount * (injected_p - position)
                 delta = Rotation.from_matrix(injected_r @ rotation.T).as_rotvec()
                 rotation = Rotation.from_rotvec(amount * delta).as_matrix() @ rotation
-            elif key == "D1":
-                normal = float((position - self.release_origin) @ rotation[:, 0])
-                position += rotation[:, 0] * max(0.0, -0.008 - normal) * amount
-            elif key == "D2":
-                position += (self.release_origin - position) * amount
             elif key == "C2":
                 if injected_pose is None:
                     raise ValueError("C2 requires an executed advanced reference pose")

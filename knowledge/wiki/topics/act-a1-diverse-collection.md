@@ -492,6 +492,17 @@ history: the first correction already follows 5.2 s genuine motion. All speed,
 contact, drift, physical and stop criteria are unchanged. Physical qualification
 of this completion-driven hold remains pending.
 
+Before multiplying D corrections, the implementation now prevents a moving panel
+from automatically cancelling the declared release error. D1 smoothly targets the
+original8mm separation from the current material frame, not a stale release-origin
+world pose. D2 continues the already qualified material-following force hold during
+its excluded pause, rather than letting the panel coast away from a fixed tool pose.
+Pulse times/amplitudes, injected-command masks, ordinary corrective blend, release,
+tail and stop criteria remain unchanged. A moving-material regression exercises
+both paths and their real corrective handoff. After a failure, further error injection is suppressed during ordinary cleanup;
+the failure latch and original outcome remain. Physical D prototypes remain pending;
+actual first-supervised separation/contact must establish their declared scope.
+
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original
 3 s hold and 20.12 mm height separation. B initial opening has 19.97 mm separation.

@@ -29,6 +29,8 @@ def test_every_correction_executes_a_bounded_pulse_and_requires_response(family,
         injected_pose = None if advance is None else (np.array([0.3 * advance, 0, 0]), np.eye(3))
         if (gap := case.material_gap_target(phase)) is not None:
             injected_pose = (np.array([-gap, 0, 0]), np.eye(3))
+        if case.holds_release_contact():
+            injected_pose = (np.zeros(3), np.eye(3))
         p, rotation = case.target(
             np.zeros(3), np.eye(3), phase, np.zeros(3), injected_pose=injected_pose
         )
@@ -264,3 +266,27 @@ def test_late_handoff_requires_actual_support_and_preserves_pending_recovery(
     goal, _ = case.target(achieved, np.eye(3), "hold", achieved)
     np.testing.assert_array_equal(goal, achieved)
     assert case.role == CORRECTIVE
+
+
+@pytest.mark.parametrize("variation", ["correction-1", "correction-2"])
+def test_release_disturbance_tracks_moving_material_until_corrective_handoff(variation):
+    case = CollectionCorrection("D", variation, ProbeSetup(), 1 / 60)
+    case.counts["release"] = 60 if variation == "correction-1" else 30
+    gap = case.material_gap_target("release")
+    assert case.holds_release_contact() == (variation == "correction-2")
+    rotation = np.eye(3)
+    for material_origin in (np.zeros(3), np.array([0.004, 0, 0])):
+        position = material_origin - np.array([gap or 0, 0, 0])
+        delivered, _ = case.target(
+            material_origin - [0.03, 0, 0],
+            rotation,
+            "release",
+            position,
+            injected_pose=(position, rotation),
+        )
+        np.testing.assert_allclose(delivered - material_origin, [-float(gap or 0), 0, 0])
+        assert case.role == INJECTED  # no automatic unloading from material motion
+    case.counts["release"] = 90 if variation == "correction-1" else 60
+    case.target(material_origin - [0.03, 0, 0], rotation, "release", position)
+    assert case.role == CORRECTIVE and case.pending
+    assert case.corrective_start_error["position_m"] >= 0.022 - 1e-10

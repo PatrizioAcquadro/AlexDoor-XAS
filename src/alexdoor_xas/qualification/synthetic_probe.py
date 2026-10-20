@@ -554,11 +554,12 @@ def run_probe(
 
     def command(goal_p, goal_r, phase, *, injected_pose=None):
         nonlocal failure, peak, min_margin, min_clearance, compensation, peak_joint_speed
+        correction_active = correction is not None and failure is None
         applied_compensation = (
             compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
         )
         goal_p = goal_p + goal_r @ applied_compensation
-        if correction is not None:
+        if correction_active:
             gap_target = correction.material_gap_target(phase)
             if gap_target is not None:
                 material_angle = float(tensor(env.door.data.joint_pos)[0, 0])
@@ -713,7 +714,9 @@ def run_probe(
         )
         if any(sample["contacts"] for sample in contacts):
             raw.append(dict(time=time, samples=contacts))
-        if correction is not None:
+        if correction_active:
+            # Preserve the role of the action already delivered, including a
+            # command whose physical feedback first raises the failure latch.
             correction.observe(traces[-1])
         if recorder is not None:
             recorder.transition(env, goal_p, goal_r, phase, traces[-1])
@@ -1126,6 +1129,7 @@ def run_probe(
             failure = failure or "invalid_hold"
     else:
         reason = "intermediate_hold_release"
+        initial_lead = float(intermediate["initial_lead"])
         compression = float(intermediate["compression"])
         compensation = np.array(intermediate["compensation"], copy=True)
         held = SustainedAngle(setup.sustain_s)
@@ -1218,7 +1222,27 @@ def run_probe(
                     (tick + 1) * dt,
                     setup,
                 )
-            state = command(goal_p, goal_r, "release")
+            injected_pose = None
+            if correction is not None and failure is None and correction.holds_release_contact():
+                # The erroneous action is continued real contact, not a world
+                # pose that the moving panel can leave without expert withdrawal.
+                compression = normal_contact_support(
+                    compression,
+                    contact_load.force,
+                    setup,
+                    dt,
+                    target_force=setup.hold_force_n,
+                    gap_m=traces[-1]["contact_gap_m"],
+                )
+                angle = float(tensor(env.door.data.joint_pos)[0, 0])
+                injected_p, injected_r = door.contact_pose(
+                    hold_reference(angle, initial_lead, door.mechanical_stop),
+                    setup.contact_fraction,
+                    setup.contact_height,
+                    compression,
+                )
+                injected_pose = (injected_p + injected_r @ compensation, injected_r)
+            state = command(goal_p, goal_r, "release", injected_pose=injected_pose)
             if failure == "invalid_physics" or env.motion_stopped:
                 break
         actual_p = env.tool_pose()[0][0].cpu().numpy()
