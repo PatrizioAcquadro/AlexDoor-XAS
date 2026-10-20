@@ -343,12 +343,13 @@ class IncrementalObservationBuilder:
     ):
         self.config, self.episode_id = config, str(episode_id)
         self.feedback_verified = verified_feedback(feedback_contract or {})
+        # Capacity and pruning must cover the same horizon. In particular,
+        # native torque may arrive at the declared maximum rate while the image
+        # carry-in gap is longer than the numeric sampling gap.
+        horizon = config.history_s + max(config.image_gap_s, config.state_gap_s)
         self.limits = dict(
-            images=int((config.history_s + config.image_gap_s) * max_image_hz) + 4,
-            **{
-                key: int((config.history_s + config.state_gap_s) * max_state_hz) + 4
-                for key in FIELDS
-            },
+            images=int(horizon * max_image_hz) + 4,
+            **{key: int(horizon * max_state_hz) + 4 for key in FIELDS},
         )
         self.reset(generation)
 

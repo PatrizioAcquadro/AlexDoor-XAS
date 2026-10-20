@@ -244,3 +244,54 @@ def test_only_episode_startup_is_excluded_from_model_contract(changes):
     cfg = TemporalConfig()
     assert cfg.model_contract() == replace(cfg, static_time_s=0, warmup_s=1).model_contract()
     assert cfg.model_contract() != replace(cfg, **changes).model_contract()
+
+
+def test_native_240hz_ingress_retains_the_entire_pruning_horizon():
+    from alexdoor_xas.assets.purdue import ARM_JOINTS
+
+    cfg = TemporalConfig(image_size=(2, 3), static_time_s=0)
+    contract = dict(
+        verified=True,
+        joint_names=ARM_JOINTS,
+        units="N m",
+        sign_convention="positive_joint_coordinate",
+        source="simulated_actuator_feedback",
+        semantics="joint_output",
+    )
+    online = IncrementalObservationBuilder(cfg, episode_id="240hz", feedback_contract=contract)
+    all_rows = {key: [] for key in ("images", "q", "dq", "tau", "target")}
+    for tick in range(1441):
+        t = tick / 240
+        values = dict(tau=np.full(7, t))
+        if tick % 4 == 0:
+            values.update(q=np.full(9, t), dq=np.full(9, t), target=np.full(7, t))
+        if tick % 24 == 0:
+            values["images"] = np.full((5, 2, 3), t)
+        for key, value in values.items():
+            online.append(
+                key,
+                acquired=t,
+                available=t,
+                values=value,
+                generation=0,
+                source_index=len(all_rows[key]),
+            )
+            all_rows[key].append((t, value))
+            assert len(online.rows[key]) <= online.limits[key]
+    raw = {
+        key: dict(
+            acquired=np.array([t for t, _ in rows]),
+            available=np.array([t for t, _ in rows]),
+            generation=np.zeros(len(rows), int),
+            source_index=np.arange(len(rows)),
+            values=np.stack([v for _, v in rows]),
+        )
+        for key, rows in all_rows.items()
+    }
+    expected = CausalObservationBuilder(cfg, raw, episode_id="240hz").build(6, 0)
+    actual = online.build(6)
+    assert expected["ready"] and actual["ready"]
+    for key in actual["obs"]:
+        np.testing.assert_array_equal(actual["obs"][key], expected["obs"][key])
+    np.testing.assert_array_equal(actual["robot_times"], expected["robot_times"])
+    assert len(online.rows["tau"]) > 4 * 240

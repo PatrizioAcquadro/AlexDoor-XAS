@@ -328,3 +328,11 @@ Nineteen campaign attempts have been charged before this first resumed collectio
 six original, six matched/integration diagnostics (one wrapper failure), six
 compatibility controls and one left integration. Exact current totals are in the
 resource ledger; all original costs and failed outcomes remain in the denominator.
+
+The first resumed correction-2 attempt exposed a temporal ingress capacity defect
+at 4.03 s, before disturbance execution. Its prefix remains failed with zero expert
+windows; the two-second stop and four-second continuation pass. Capacity had used
+the shorter numeric gap while pruning retained the longer image/numeric carry-in
+horizon. Capacity now matches that unchanged horizon at the declared native rate;
+a six-second 240 Hz regression checks bounded retention and exact offline/online
+observations. This changes neither sample rates, four-second history nor model input.
