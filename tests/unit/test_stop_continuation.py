@@ -191,3 +191,47 @@ def test_initial_screen_preserves_refusal_before_stop(tmp_path, monkeypatch):
             defect == "none"
         )
     assert seen == [1]  # Refused starts never advance a stop or teacher step.
+
+
+def test_reset_joint_limits_allow_one_float32_step_but_reject_real_excursions():
+    from alexdoor_xas.qualification.limits import within_float32_joint_limits
+
+    limits = np.array([[-1.0, 1.0], [-2.0, 2.0]], dtype="f4")
+    for bound, direction in ((0, -np.inf), (1, np.inf)):
+        edge = limits[:, bound]
+        one_step = np.nextafter(edge, np.float32(direction))
+        two_steps = np.nextafter(one_step, np.float32(direction))
+        assert within_float32_joint_limits(edge, limits)
+        assert within_float32_joint_limits(one_step, limits)
+        assert not within_float32_joint_limits(two_steps, limits)
+        assert not within_float32_joint_limits(edge + np.sign(direction) * 0.001, limits)
+    assert within_float32_joint_limits(np.zeros(2, "f4"), limits)
+    assert not within_float32_joint_limits(np.array([np.nan, 0]), limits)
+    assert not within_float32_joint_limits(np.zeros(2), limits[::-1, ::-1])
+
+
+def test_initial_screen_applies_same_roundoff_rule_to_hard_and_soft_limits(tmp_path, monkeypatch):
+    import json
+    import runpy
+
+    from alexdoor_xas.qualification import clearance, stop, visibility
+    from alexdoor_xas.recording import b1_runtime
+
+    api = runpy.run_path("scripts/pilot_physics.py")
+    env = NumericalStopIO()
+    env.robot.data.joint_pos[0, 0] = float(np.nextafter(np.float32(1), np.float32(np.inf)))
+    env.robot.data.soft_joint_pos_limits = env.limits.clone()
+    env.contacts = SimpleNamespace(read=lambda: dict(forbidden=False, contacts=[]))
+    env.capture = SimpleNamespace(sample=SimpleNamespace(rgb=np.zeros((1, 2, 2, 3), "u1")))
+    monkeypatch.setattr(b1_runtime, "array", lambda x: np.asarray(x))
+    monkeypatch.setattr(
+        clearance, "DoorClearance", lambda env: SimpleNamespace(measure=lambda *a: 0)
+    )
+    monkeypatch.setattr(stop, "verify_stop_continuation", lambda *a, **kw: dict(passed=True))
+    monkeypatch.setattr(visibility, "measure_visibility", lambda *a: dict(passed=True))
+    setup = SimpleNamespace(contact_fraction=0.295, contact_height=1.09, force_limit_n=80)
+    api["screen_initial_state"](env, object(), setup, tmp_path)
+    audit = json.loads((tmp_path / "initial-state.json").read_text())
+    assert audit["passed"]
+    assert audit["minimum_joint_margin_rad"] < 0
+    assert audit["minimum_soft_joint_margin_rad"] == audit["minimum_joint_margin_rad"]

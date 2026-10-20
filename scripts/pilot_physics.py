@@ -61,6 +61,7 @@ def screen_initial_state(env, door, setup, output):
     from PIL import Image
 
     from alexdoor_xas.qualification.clearance import DoorClearance
+    from alexdoor_xas.qualification.limits import within_float32_joint_limits
     from alexdoor_xas.qualification.stop import verify_stop_continuation
     from alexdoor_xas.qualification.visibility import measure_visibility
     from alexdoor_xas.recording.b1_runtime import array
@@ -76,6 +77,7 @@ def screen_initial_state(env, door, setup, output):
         measured_q=q.tolist(),
         runtime_limits=limits.tolist(),
         runtime_soft_limits=soft_limits.tolist(),
+        joint_limit_numerical_policy="one_outward_float32_bound_step_for_hard_and_soft_reset_limits",
         minimum_joint_margin_rad=float(np.minimum(q - limits[:, 0], limits[:, 1] - q).min()),
         minimum_soft_joint_margin_rad=float(
             np.minimum(q - soft_limits[:, 0], soft_limits[:, 1] - q).min()
@@ -89,8 +91,8 @@ def screen_initial_state(env, door, setup, output):
     )
     audit["passed"] = bool(
         np.isfinite(q).all()
-        and audit["minimum_joint_margin_rad"] >= 0
-        and audit["minimum_soft_joint_margin_rad"] >= 0
+        and within_float32_joint_limits(q, limits)
+        and within_float32_joint_limits(q, soft_limits)
         and not contacts["forbidden"]
         and not contacts["contacts"]
         and visibility["passed"]
