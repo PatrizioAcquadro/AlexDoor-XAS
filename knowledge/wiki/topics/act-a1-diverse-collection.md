@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 17/112 target cells pass; no policy training
+usable episodes and three failures. Only 30/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -272,8 +272,8 @@ This partial corpus cannot test the requested broad recovery/generalization clai
 ## Resumed qualification and active collection (20 October)
 
 The original objective and original cumulative resource baseline continue. Current
-admission after the complete-training tranche is **17/112**: 9/96 short train,
-8/8 complete train and 0/8 development; **95 cells remain**. The exact live
+admission after both-direction short qualification is **30/112**: 22/96 short
+train, 8/8 complete train and 0/8 development; **82 cells remain**. The exact live
 inventory is `handoff.json` / `coverage.json`; every physical attempt, including
 qualification and failures, remains in `attempts.json` and the resource ledger.
 The corpus is not ready for the requested training experiment. Training, optimizer
@@ -285,9 +285,16 @@ remain closed.
 The checked and recording starts now both use `continue_controller=True` for the
 campaign. This corrects a later orchestration mismatch, not the earlier instability.
 The preparation regression exercises both actual call paths with the intervening
-stop/reset. Measured C/D starts agree exactly in full robot q/dq, door q/dq and
-delivered targets, with identical reconstructed contact. Actual gain readback and
-controller inputs accompany subsequent reconstruction audits. Fresh preceding push,
+stop/reset. The first matched C/D starts agree exactly in full robot q/dq, door
+q/dq, delivered targets and reconstructed contact. Across eight admitted right/left
+loaded starts, subsequent feedback can differ slightly despite identical inputs:
+maximum joint-position difference 12 microrad and velocity difference .00286 rad/s,
+within the original reset bounds. Initial target and recorded controller/gain inputs
+match exactly; six audits include direct gain readback and two earlier ones do not.
+Post-conditioning contact/target differences remain diagnostic, with independent
+physical contact/phase/stopping admission; bitwise equality is not a physical gate.
+`restoration-path-comparison.json` retains this review and the initial overly strict
+derived comparison. Fresh preceding push,
 not extension of a completed hold, supplies temporal history.
 
 The actual IdealPD model computes stiffness times position error plus damping times
@@ -376,7 +383,8 @@ passes its measured 20 mm root/precontact-gap variation. Both third-door complet
 height conditions pass: 52.86/49.84 degrees held versus 47.77 required, with separate
 ordinary tails, 2+4 s stops, temporal-data and unchanged-weight CUDA checks. Source
 continuations retain ancestry and do not create independent door groups; extracted states/windows never
-fill cells.
+fill cells. All four short families now have admitted examples in both opening
+directions. Third/fourth-door pose cells continue under the same per-case gates.
 
 All eight declared complete-training cells are individually qualified. Held openings
 are compared with the unchanged per-door minimum:
