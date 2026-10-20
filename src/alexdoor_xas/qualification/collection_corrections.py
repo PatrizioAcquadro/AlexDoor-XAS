@@ -23,6 +23,7 @@ class CollectionCorrection:
         self.corrective_elapsed_s = 0.0
         self.corrective_start_error = None
         self.corrective_latest_error = None
+        self.pre_action_reference = None
 
     def elapsed(self, phase):
         return self.counts.get(phase, 0) * self.dt
@@ -64,13 +65,18 @@ class CollectionCorrection:
         previous_role = self.role
         self.role = INJECTED if amount > 0 else CORRECTIVE if self.pending else EXPERT
         measured_rotation = rotation if measured_rotation is None else measured_rotation
+        error = dict(
+            position_m=float(np.linalg.norm(position - measured_position)),
+            rotation_rad=float(Rotation.from_matrix(rotation @ measured_rotation.T).magnitude()),
+        )
+        # Retain the ordinary teacher reference before either injection or the
+        # corrective blend. This evaluator trace never enters policy observations.
+        self.pre_action_reference = dict(
+            position_m=position.tolist(),
+            quaternion_xyzw=Rotation.from_matrix(rotation).as_quat().tolist(),
+            error=error,
+        )
         if self.role == CORRECTIVE:
-            error = dict(
-                position_m=float(np.linalg.norm(position - measured_position)),
-                rotation_rad=float(
-                    Rotation.from_matrix(rotation @ measured_rotation.T).magnitude()
-                ),
-            )
             if previous_role == INJECTED:
                 # The disturbance stays fully applied until this handoff. Begin
                 # corrective supervision from the actual residual, then execute
@@ -113,6 +119,8 @@ class CollectionCorrection:
 
     def observe(self, row):
         row["action_role"] = self.role
+        if self.pre_action_reference is not None:
+            row["correction_reference"] = self.pre_action_reference
         if self.role == INJECTED:
             self.recovered_samples = 0
         elif self.pending:

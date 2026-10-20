@@ -62,6 +62,14 @@ def test_full_disturbance_survives_until_measured_corrective_handoff():
     assert case.corrective_start_error["position_m"] == pytest.approx(0.02)
     assert case.corrective_start_error["rotation_rad"] == pytest.approx(np.deg2rad(5))
     assert 0 < np.linalg.norm(p - measured_p) < 0.001
+    row = dict(valid=False, loaded=False, separation_m=0)
+    case.observe(row)
+    reference = row["correction_reference"]
+    assert reference["error"]["position_m"] == pytest.approx(0.02)
+    np.testing.assert_allclose(reference["position_m"], 0)
+    # The recorded error belongs to the pre-action state and ordinary goal,
+    # rather than the tiny displacement of the first blended command.
+    assert reference["error"]["position_m"] > 10 * np.linalg.norm(p - measured_p)
     for _ in range(30):
         measured_p, measured_r = p, r
         p, r = case.target(np.zeros(3), np.eye(3), "approach", measured_p, measured_r)

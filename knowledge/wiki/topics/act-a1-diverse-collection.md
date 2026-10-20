@@ -359,7 +359,13 @@ errors. At .5 s the measured residuals are 1.53 mm and 1.08 mm. The normal-error
 retention review excludes moving-approach lag from its peak denominator; its initial
 derived review is preserved, with no new simulation or altered physical outcome.
 B/C/D correction mechanisms and new dynamics remain unqualified until their own
-physical/observed-response checks pass.
+physical/observed-response checks pass. New correction traces retain the ordinary teacher
+pose and measured pre-action error before injection or corrective blending. That
+reference includes existing normal/tangential support; it is an evaluator diagnostic,
+not a counterfactual trajectory or policy input. This permits first-eligible-row
+recovery measurements even when phase validity excludes some corrective commands.
+Bounded recontact feedback during injection must be checked for premature error
+cancellation before the B/C conditions are multiplied.
 
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original
