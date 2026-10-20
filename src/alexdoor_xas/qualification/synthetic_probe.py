@@ -192,6 +192,20 @@ def hold_reference(angle, initial_lead, mechanical_stop):
     return min(angle + initial_lead, mechanical_stop)
 
 
+def achieved_contact_hold_state(door, setup, row):
+    """One measured position-to-force handoff; no state or gain is changed."""
+    if not row["valid"] or not row["physical_safe"]:
+        raise ValueError("Supported physical contact is required for hold handoff")
+    angle = row["angle"]
+    origin, rotation = door.contact_pose(angle, setup.contact_fraction, setup.contact_height)
+    local = (np.asarray(row["tool_position"]) - origin) @ rotation
+    bound = setup.position_tolerance - setup.material_drift_guard_m
+    if abs(local[0]) > bound or np.linalg.norm(local[1:]) > bound:
+        raise ValueError("Achieved contact exceeds existing controller offset bounds")
+    tangent = np.array([0.0, local[1], local[2]])
+    return angle, float(local[0]), tangent
+
+
 def push_reference(reference, angle, setup, dt, mechanical_stop):
     """Advance on the reference clock; a coasting panel cannot advance the command."""
     return min(reference + setup.angular_speed * dt, angle + setup.lead_angle, mechanical_stop)
@@ -1007,6 +1021,20 @@ def run_probe(
                 ),
             )
             traces[-1]["push_compression_m"] = compression
+            if correction is not None and correction.needs_supported_hold_handoff(traces[-1]):
+                reference, compression, compensation = achieved_contact_hold_state(
+                    door, setup, traces[-1]
+                )
+                reference_step = 0.0
+                correction.accept_supported_hold_handoff()
+                traces[-1]["supported_hold_handoff"] = dict(
+                    reference_angle=reference,
+                    compression_m=compression,
+                    tangential_compensation_m=compensation.tolist(),
+                    scope="One achieved-contact position-to-force handoff; ordinary hold follows",
+                )
+                reason = "corrected_late_push_to_hold"
+                break
             missing_time = 0.0 if state[5] else missing_time + dt
             if missing_time > 0.25:
                 if correction is not None and correction.permit_recontact(traces[-1], missing_time):

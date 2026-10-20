@@ -35,6 +35,7 @@ class CollectionCorrection:
         self.reference_advance_rad = 0.0
         self.had_contact = False
         self.unloaded_s = 0.0
+        self.supported_hold_handoffs = 0
 
     def elapsed(self, phase):
         return self.counts.get(phase, 0) * self.dt
@@ -172,6 +173,26 @@ class CollectionCorrection:
         self.corrective_commands += int(self.role == CORRECTIVE)
         return position, rotation
 
+    def needs_supported_hold_handoff(self, row):
+        """A weakening correction ends at real supported contact, not a path fit."""
+        return bool(
+            self.family == "C"
+            and self.variation == "correction-1"
+            and self.role == CORRECTIVE
+            and self.pending
+            and not self.supported_hold_handoffs
+            and row["phase"] == "push"
+            and row["valid"]
+            and row["physical_safe"]
+        )
+
+    def accept_supported_hold_handoff(self):
+        """Runtime has reconstructed the achieved contact goal for force holding."""
+        self.corrective_origin = None
+        self.corrective_transition_complete = True
+        self.supported_hold_handoffs += 1
+        # Actual sustained loaded support must still complete this correction.
+
     def observe(self, row):
         row["action_role"] = self.role
         self.unloaded_s = 0.0 if row["loaded"] else self.unloaded_s + self.dt
@@ -227,6 +248,7 @@ class CollectionCorrection:
             corrective_latest_error=self.corrective_latest_error,
             injected_reference_advance_rad=self.reference_advance_rad,
             corrective_transition_s=self.corrective_transition_s,
+            supported_hold_handoffs=self.supported_hold_handoffs,
             transfer="full disturbance until handoff; measured-origin cosine correction",
             action_roles={
                 "expert": EXPERT,

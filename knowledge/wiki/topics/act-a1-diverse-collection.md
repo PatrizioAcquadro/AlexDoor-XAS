@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 52/112 target cells pass; no policy training
+usable episodes and three failures. Only 53/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -443,6 +443,27 @@ return; the resulting requested normal peak is 5.86 mm/s, within the existing
 a pulse/return timing incompatibility without shortening the pulse or relaxing a
 physical/task/loss criterion. Physical qualification remains pending; the failed
 matched attempt and its ordinary cleanup/stable stop are preserved.
+
+The shorter C1 return restores contact but fails the subsequent near-reach hold;
+a genuine earlier source also fails. These are retained physical failures, not
+qualified examples. The angular-reference audit rejects windup: lead remains
+exactly 0.3 degree throughout. Continuing the position return/positive opening
+lead after contact is already restored produces excessive panel momentum and
+exhausts reach during hold. The next bounded test makes one explicit achieved-contact
+handoff from position correction to ordinary force holding. At actual valid physical
+contact it expresses the achieved tool position in the current material frame,
+within unchanged normal/tangential offset bounds, then begins the complete 3 s hold
+with zero additional opening lead. Physics, gains, velocities and robot/door states
+are never reset. Recovery still needs sustained real contact; all original hold,
+release, stabilization and independent stop criteria remain. This is teacher
+implementation pending physical qualification, not a demonstrated cure.
+
+The opposite-direction B2 matched no-overlap test passes: first-used native gap
+is 1.415 mm, all 29 injected actions excluded, zero corrective actions masked, actual
+contact restored by .5 s and sustained thereafter. Its task, ordinary tail, 2+4 s
+stops and unchanged-weight CUDA validation pass. The original failed B2 has higher
+recovery door speed (.0475 versus .0292 rad/s) and remains a failure. This supports
+the overlap correction in B2; it does not qualify late C holding.
 
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original

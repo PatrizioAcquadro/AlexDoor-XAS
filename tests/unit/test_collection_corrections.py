@@ -3,7 +3,11 @@
 import numpy as np
 import pytest
 
-from alexdoor_xas.qualification.collection_corrections import INJECTED, CollectionCorrection
+from alexdoor_xas.qualification.collection_corrections import (
+    CORRECTIVE,
+    INJECTED,
+    CollectionCorrection,
+)
 from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
 
 
@@ -232,3 +236,22 @@ def test_c1_measured_return_fits_recontact_budget_without_exceeding_gap_catchup_
         CollectionCorrection("B", "correction-2", ProbeSetup(), 1 / 60).corrective_transition_s
         == 0.5
     )
+
+
+def test_c1_handoff_requires_actual_supported_contact_and_preserves_pending_recovery():
+    case = CollectionCorrection("C", "correction-1", ProbeSetup(), 1 / 60)
+    case.counts["push"] = 299
+    case.target(np.zeros(3), np.eye(3), "push", np.zeros(3))
+    case.target(np.zeros(3), np.eye(3), "push", np.array([-0.001, 0, 0]))
+    row = dict(phase="push", valid=False, physical_safe=True)
+    assert not case.needs_supported_hold_handoff(row)
+    row["valid"] = True
+    assert case.needs_supported_hold_handoff(row)
+    case.accept_supported_hold_handoff()
+    assert case.pending
+    assert case.corrective_origin is None
+    assert not case.needs_supported_hold_handoff(row)
+    achieved = np.array([0.0001, 0.0002, 0.0003])
+    goal, _ = case.target(achieved, np.eye(3), "hold", achieved)
+    np.testing.assert_array_equal(goal, achieved)
+    assert case.role == CORRECTIVE

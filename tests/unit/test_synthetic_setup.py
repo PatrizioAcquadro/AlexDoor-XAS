@@ -280,3 +280,25 @@ def test_measured_separating_gap_has_bounded_support_before_contact_deadline():
     assert normal_contact_support(maximum, 0, setup, dt, gap_m=0.1) == maximum
     with pytest.raises(ValueError, match="contact gap"):
         normal_contact_support(initial, 0, setup, dt, gap_m=np.nan)
+
+
+def test_achieved_contact_hold_reconstructs_position_in_rotated_material_frame():
+    from types import SimpleNamespace
+
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, achieved_contact_hold_state
+
+    origin = np.array([0.3, -0.4, 1.09])
+    rotation = Rotation.from_euler("z", 0.9).as_matrix()
+    door = SimpleNamespace(contact_pose=lambda *args: (origin, rotation))
+    local = np.array([-0.0002, 0.001, -0.0003])
+    position = origin + rotation @ local
+    row = dict(valid=True, physical_safe=True, angle=0.9, tool_position=position)
+    angle, compression, tangent = achieved_contact_hold_state(door, ProbeSetup(), row)
+    assert angle == 0.9
+    np.testing.assert_allclose(origin + rotation @ (tangent + [compression, 0, 0]), position)
+    row["physical_safe"] = False
+    with pytest.raises(ValueError, match="Supported physical contact"):
+        achieved_contact_hold_state(door, ProbeSetup(), row)
+    row.update(physical_safe=True, tool_position=origin + rotation @ [0.008, 0, 0])
+    with pytest.raises(ValueError, match="offset bounds"):
+        achieved_contact_hold_state(door, ProbeSetup(), row)
