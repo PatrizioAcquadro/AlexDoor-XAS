@@ -268,7 +268,9 @@ def normal_contact_support(compression, force, setup, dt, *, target_force=None, 
             # Correct the measured separating displacement at the next control
             # boundary. The low-level servo still evolves physically; retain
             # normal rate/extent bounds and force-unloading priority.
-            rate = max(rate, gap_m / dt)
+            # Gap catch-up restores geometry; it must not replace the positive
+            # force-error admittance that establishes load beyond first touch.
+            rate += gap_m / dt
     rate_limit = setup.compression_m / setup.sustain_s
     increment = np.clip(rate, -rate_limit, rate_limit) * dt
     return float(
@@ -507,10 +509,8 @@ def run_probe(
         correction = CollectionCorrection(family, campaign["variation"], setup, env.step_dt)
     if family is not None:
         from alexdoor_xas.qualification.collection_phase import evaluate_phase_endpoint
-    pace_settling = (
-        correction is not None and family == "C" and campaign["variation"] == "correction-2"
-    )
-    hold_budget_s = setup.hold_settle_s * (2 if pace_settling else 1)
+    settle_c_hold = family == "C"
+    hold_budget_s = setup.hold_settle_s * (2 if settle_c_hold else 1)
     late_states = deque(maxlen=round(5.0 / env.step_dt) + 1)
     zero = torch.zeros((1, 6), device=env.device)
     from alexdoor_xas.qualification.clearance import DoorClearance
@@ -1114,12 +1114,14 @@ def run_probe(
                     env.stop_motion()
                 if failure:
                     break
-                if pace_settling:
+                if settle_c_hold:
                     from alexdoor_xas.qualification.collection_phase import correction_hold_complete
 
-                    if not correction.pending and correction_hold_complete(traces, setup, dt):
+                    if (correction is None or not correction.pending) and correction_hold_complete(
+                        traces, setup, dt
+                    ):
                         break
-            if pace_settling and not failure:
+            if settle_c_hold and not failure:
                 from alexdoor_xas.qualification.collection_phase import correction_hold_complete
 
                 if not correction_hold_complete(traces, setup, dt):

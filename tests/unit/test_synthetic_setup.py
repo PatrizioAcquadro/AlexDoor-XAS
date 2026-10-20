@@ -268,7 +268,7 @@ def test_measured_separating_gap_has_bounded_support_before_contact_deadline():
     dt, initial = 1 / 60, 0.00023
     force_only = normal_contact_support(initial, 0, setup, dt)
     measured = normal_contact_support(initial, 0, setup, dt, gap_m=30e-6)
-    assert measured - initial == pytest.approx(30e-6)
+    assert measured - initial == pytest.approx(30e-6 + force_only - initial)
     assert measured > force_only
     for gap in (None, 0, -1e-4):
         assert normal_contact_support(initial, 0, setup, dt, gap_m=gap) == force_only
@@ -302,3 +302,18 @@ def test_achieved_contact_hold_reconstructs_position_in_rotated_material_frame()
     row.update(physical_safe=True, tool_position=origin + rotation @ [0.008, 0, 0])
     with pytest.raises(ValueError, match="offset bounds"):
         achieved_contact_hold_state(door, ProbeSetup(), row)
+
+
+def test_geometric_catchup_does_not_starve_positive_force_error():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_contact_support
+
+    setup = ProbeSetup()
+    dt, gap = 1 / 60, 6e-6
+    pressure = setup.normal_admittance_m_n_s * setup.contact_load_guard_n * dt
+    moved = normal_contact_support(0, 0, setup, dt, gap_m=gap)
+    assert moved == pytest.approx(gap + pressure)
+    assert moved > gap  # touching geometry alone cannot establish the requested load
+    # Existing force unloading wins even when geometry reports a separating gap.
+    unloaded = normal_contact_support(0, 1, setup, dt, gap_m=gap)
+    assert unloaded == normal_contact_support(0, 1, setup, dt)
+    assert unloaded < 0

@@ -489,8 +489,11 @@ the complete .5 s support/speed/tool-travel window. The configured speed bound i
 ordinary supported holding only until the current final .5 s meets the original
 criteria, bounded at 6 s. This is controlled settling, not additional temporal
 history: the first correction already follows 5.2 s genuine motion. All speed,
-contact, drift, physical and stop criteria are unchanged. Physical qualification
-of this completion-driven hold remains pending.
+contact, drift, physical and stop criteria are unchanged. The matched physical check passes after3.2s with all59 injected actions excluded,
+all41 corrective actions usable, one supported-hold handoff, the original tail and
+independent2+4s stops. All C collection holds now use this completion-driven rule;
+non-C holds retain their existing duration. Earlier passing3s C records retain
+scope; this never extends a completed hold for temporal history.
 
 Before multiplying D corrections, the implementation now prevents a moving panel
 from automatically cancelling the declared release error. D1 smoothly targets the
@@ -502,6 +505,18 @@ tail and stop criteria remain unchanged. A moving-material regression exercises
 both paths and their real corrective handoff. After a failure, further error injection is suppressed during ordinary cleanup;
 the failure latch and original outcome remain. Physical D prototypes remain pending;
 actual first-supervised separation/contact must establish their declared scope.
+
+The light model's full source and C/D targets pass their individual gates. The
+first resistant full source instead loses ordinary contact near36 degrees; its
+independent stop passes and all raw outcomes remain failed. Native traces show
+4–6 micrometre geometric gaps with force near zero for the unchanged .25 s loss
+window. The controller selects max(gap catch-up, force admittance), so the larger
+geometric term masks the positive pressure increment needed beyond first touch.
+The corrected composition adds the two distinct terms while retaining the same
+admittance gain, 6 mm/s rate bound, offset bounds, force-unloading priority and all
+physical/task/loss criteria. A focused regression exercises this measured weak-load
+condition. Matched resistant-source physical qualification remains pending; this
+contact-feedback defect is separate from the already corrected PD stopping pole.
 
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original
