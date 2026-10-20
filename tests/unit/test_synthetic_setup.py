@@ -317,3 +317,23 @@ def test_geometric_catchup_does_not_starve_positive_force_error():
     unloaded = normal_contact_support(0, 1, setup, dt, gap_m=gap)
     assert unloaded == normal_contact_support(0, 1, setup, dt)
     assert unloaded < 0
+
+
+def test_contact_pause_reserves_its_physical_duration_without_changing_nominal_guard():
+    from alexdoor_xas.qualification.collection_corrections import CollectionCorrection
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, conditioning_margin_exhausted
+
+    setup = ProbeSetup()
+    pause = CollectionCorrection("D", "correction-2", setup, 1 / 60)
+    extra = pause.additional_contact_reserve_s()
+    assert extra == 1.0 + pause.corrective_transition_s
+    assert (
+        CollectionCorrection("D", "correction-1", setup, 1 / 60).additional_contact_reserve_s() == 0
+    )
+    horizon = setup.hold_settle_s + setup.release_s
+    end_sigma = 2 * setup.ik_damping + 0.003 * horizon + 0.0015
+    samples = [(t, end_sigma + 0.003 * (0.5 - t)) for t in np.linspace(0, 0.5, 31)]
+    assert not conditioning_margin_exhausted(samples, setup)
+    assert conditioning_margin_exhausted(samples, setup, extra_contact_s=extra)
+    with pytest.raises(ValueError, match="contact reserve"):
+        conditioning_margin_exhausted(samples, setup, extra_contact_s=-1)

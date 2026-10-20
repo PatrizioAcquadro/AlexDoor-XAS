@@ -93,6 +93,12 @@ class CollectionCorrection:
             self.family == "D" and self.variation == "correction-2" and self.pulse("release") > 0
         )
 
+    def additional_contact_reserve_s(self):
+        """Reserve the intentional pause and its complete corrective transition."""
+        if self.family == "D" and self.variation == "correction-2":
+            return 1.0 + self.corrective_transition_s
+        return 0.0
+
     def position_return_active(self, phase):
         """The declared trajectory owns position error; force unloading stays active."""
         return self.pulse(phase) > 0 or (self.pending and not self.corrective_transition_complete)

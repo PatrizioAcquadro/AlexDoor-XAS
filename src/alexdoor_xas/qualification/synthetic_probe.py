@@ -237,13 +237,15 @@ def tracking_margin_exhausted(samples, setup, *, orientation=False):
     return sustained and tracking_reserve(recent, setup.hold_settle_s) >= margin
 
 
-def conditioning_margin_exhausted(samples, setup):
+def conditioning_margin_exhausted(samples, setup, *, extra_contact_s=0.0):
     """Reserve hold time before entering the frozen DLS attenuation regime.
 
     At sigma=2*damping the weakest retained task-space gain is already 80%.
     This is a controller-derived planning guard, not a changed physical score
     or proof of global unreachability. Use a sustained trend, never a door angle.
     """
+    if not np.isfinite(extra_contact_s) or extra_contact_s < 0:
+        raise ValueError("Additional contact reserve must be finite and nonnegative")
     minimum = 2 * setup.ik_damping
     if samples[-1][1] <= minimum:
         return True
@@ -251,7 +253,8 @@ def conditioning_margin_exhausted(samples, setup):
         return False
     return (
         -tracking_reserve(
-            [(t, -sigma) for t, sigma in samples], setup.hold_settle_s + setup.release_s
+            [(t, -sigma) for t, sigma in samples],
+            setup.hold_settle_s + setup.release_s + extra_contact_s,
         )
         <= minimum
     )
@@ -1058,11 +1061,18 @@ def run_probe(
                 reason = "mechanical_stop"
                 break
             if window.maximum is not None and elapsed > setup.sustain_s:
-                if conditioning_margin_exhausted(conditioning, setup):
+                extra_contact_s = (
+                    0.0 if correction is None else correction.additional_contact_reserve_s()
+                )
+                traces[-1]["additional_contact_reserve_s"] = extra_contact_s
+                if conditioning_margin_exhausted(
+                    conditioning, setup, extra_contact_s=extra_contact_s
+                ):
                     reason, safety_detail = "safety_stop", "conditioning_margin"
                     break
                 endpoint_angle = min(
-                    reference + max(0.0, traces[-1]["speed"]) * setup.hold_settle_s,
+                    reference
+                    + max(0.0, traces[-1]["speed"]) * (setup.hold_settle_s + extra_contact_s),
                     door.mechanical_stop,
                 )
                 end_p, end_r = door.contact_pose(

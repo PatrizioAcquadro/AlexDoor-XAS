@@ -635,3 +635,11 @@ A first collision sample cannot cancel the ongoing corrective return. This chang
 no supervision validity, contact-loss deadline, pulse or physical threshold.
 Matched left qualification remains pending; earlier qualified right sources keep
 their demonstrated scope.
+
+The D2 zero-opening-lead trial still exceeds speed before correction (.522rad/s),
+with stable stopping. Its push-exit prediction reserves the ordinary hold and
+release but omits the intentional1s loaded pause and complete.5s corrective blend.
+The next matched candidate includes this declared1.5s support duration in the same
+conditioning and endpoint-reach projections. It does not extend hold/history or
+change any rate or physical criterion. Removing lead alone is explicitly
+insufficient; the new supported-start qualification remains pending.
