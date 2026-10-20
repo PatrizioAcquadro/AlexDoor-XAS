@@ -174,12 +174,13 @@ class CollectionCorrection:
         return position, rotation
 
     def needs_supported_hold_handoff(self, row):
-        """Late corrections hand actual support to force holding, not a path fit."""
+        """Hand sustained support to force holding; first impact is insufficient."""
         return bool(
             self.family == "C"
             and self.variation in ("correction-1", "correction-2")
             and self.role == CORRECTIVE
-            and self.pending
+            and self.injected_commands > 0
+            and self.recovered_samples * self.dt >= self.setup.sustain_s
             and not self.supported_hold_handoffs
             and row["phase"] == "push"
             and row["valid"]

@@ -625,3 +625,13 @@ also establishes prerequisite phase physics for an independent later C/D launch;
 a missing A diversity cell does not invalidate safe contact already executed.
 
 The final handoff must still satisfy every original coverage, physical, data and resource gate.
+
+The left C1 prototype recontacts with a5.08N impact, then loses support after the
+first-touch handoff; speed and its independent stop remain safe. Retained older
+no-handoff right runs establish sustained contact before their later failure.
+New C handoffs therefore require the original.5s contiguous valid-contact window,
+including reset on intervening loss, before switching to achieved force hold.
+A first collision sample cannot cancel the ongoing corrective return. This changes
+no supervision validity, contact-loss deadline, pulse or physical threshold.
+Matched left qualification remains pending; earlier qualified right sources keep
+their demonstrated scope.

@@ -241,7 +241,7 @@ def test_c1_measured_return_fits_recontact_budget_without_exceeding_gap_catchup_
 
 
 @pytest.mark.parametrize("variant,last_injected", [("correction-1", 299), ("correction-2", 311)])
-def test_late_handoff_requires_actual_support_and_preserves_pending_recovery(
+def test_late_handoff_requires_sustained_support_before_controller_transition(
     variant, last_injected
 ):
     case = CollectionCorrection("C", variant, ProbeSetup(), 1 / 60)
@@ -256,10 +256,21 @@ def test_late_handoff_requires_actual_support_and_preserves_pending_recovery(
     case.target(np.zeros(3), np.eye(3), "push", np.array([-0.001, 0, 0]))
     row = dict(phase="push", valid=False, physical_safe=True)
     assert not case.needs_supported_hold_handoff(row)
-    row["valid"] = True
+    row.update(valid=True, loaded=True, separation_m=0)
+    for _ in range(29):
+        case.observe(row.copy())
+        assert not case.needs_supported_hold_handoff(row)
+    # A loss resets the same unchanged sustain predicate; first impact cannot
+    # cancel the corrective return or change the position-to-force controller.
+    case.observe(dict(row, valid=False))
+    for _ in range(29):
+        case.observe(row.copy())
+        assert not case.needs_supported_hold_handoff(row)
+    case.observe(row.copy())
+    assert not case.pending
     assert case.needs_supported_hold_handoff(row)
     case.accept_supported_hold_handoff()
-    assert case.pending
+    assert not case.pending
     assert case.corrective_origin is None
     assert not case.needs_supported_hold_handoff(row)
     achieved = np.array([0.0001, 0.0002, 0.0003])
