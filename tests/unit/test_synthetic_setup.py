@@ -268,7 +268,7 @@ def test_measured_separating_gap_has_bounded_support_before_contact_deadline():
     dt, initial = 1 / 60, 0.00023
     force_only = normal_contact_support(initial, 0, setup, dt)
     measured = normal_contact_support(initial, 0, setup, dt, gap_m=30e-6)
-    assert measured - initial == pytest.approx(30e-6 / setup.contact_force_window_s * dt)
+    assert measured - initial == pytest.approx(30e-6)
     assert measured > force_only
     for gap in (None, 0, -1e-4):
         assert normal_contact_support(initial, 0, setup, dt, gap_m=gap) == force_only

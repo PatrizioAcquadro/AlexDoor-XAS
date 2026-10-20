@@ -251,10 +251,10 @@ def normal_contact_support(compression, force, setup, dt, *, target_force=None, 
         if not np.isfinite(gap_m):
             raise ValueError("Invalid measured contact gap")
         if force < target_force and gap_m > 0:
-            # Close a measured separating gap on the existing force-window
-            # timescale, before the unchanged contact-loss deadline. Keep the
-            # same normal motion rate/extent and force-unloading priority.
-            rate = max(rate, gap_m / setup.contact_force_window_s)
+            # Correct the measured separating displacement at the next control
+            # boundary. The low-level servo still evolves physically; retain
+            # normal rate/extent bounds and force-unloading priority.
+            rate = max(rate, gap_m / dt)
     rate_limit = setup.compression_m / setup.sustain_s
     increment = np.clip(rate, -rate_limit, rate_limit) * dt
     return float(

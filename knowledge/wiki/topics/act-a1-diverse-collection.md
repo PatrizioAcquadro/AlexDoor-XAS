@@ -385,3 +385,11 @@ a coasting panel. Gap feedback is disabled during excluded injected pulses so it
 cannot erase the declared error before eligible correction. Source conditioning
 uses the same feedback when available on both restoration paths. Unit boundaries
 pass; the same full left high-contact condition requires a causal physical rerun.
+
+The first gap-feedback full rerun also fails and remains excluded. It reduces the
+separating gap from about30µm to about3µm by the unchanged loss deadline, but .1s
+asymptotic gap response plus servo lag does not reestablish load in time. The next
+bounded candidate corrects the measured gap at the next60Hz command boundary,
+still clipped by the same6mm/s normal rate and existing displacement/force bounds.
+This is a measured ordinary-control correction; independent stopping still latches
+one fixed target. No contact deadline, force criterion or physical limit changes.
