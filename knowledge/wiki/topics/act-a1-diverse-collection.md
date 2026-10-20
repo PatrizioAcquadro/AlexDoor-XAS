@@ -146,10 +146,10 @@ continuations retain their legacy conditioning and exact setup checks.
 
 Short B/C has an explicit, at-most-one-second bounded recontact path only while
 physical/material/force checks remain valid. It never clears a stop latch and does
-not change complete-task loss criteria. This recovery path and C/D starts remain
-**physically unqualified**. Uniform density authoring scales panel/handle mass and
+not change complete-task loss criteria. Broader recovery paths and new variation starts require their own
+physical qualification. Uniform density authoring scales panel/handle mass and
 inertia together, preserves geometry/COM/axes, and saves active PhysX values. No
-new dynamics range has been physically qualified in this halted campaign.
+new dynamics range has yet been physically qualified.
 
 Before the main matrix, unlaunched early A/B pose-low candidates were specified as
 20 mm robot-base retreat along world X, 50 mm precontact distance and nominal contact
@@ -159,7 +159,7 @@ Static-reference times are per episode; model history/resolution/chunk/execution
 acquisition/availability. Probe trace/endpoint support times use a separate zero-based
 completed-control-row clock; join by the aligned annotation rows, not identical values.
 
-## All physical outcomes and fixed denominator
+## Initial six physical outcomes and fixed denominator
 
 | Attempt | Outcome and independently measured limitation |
 |---|---|
@@ -186,10 +186,11 @@ The legacy and separately qualified stop profiles have their original scope; nei
 passes every new visited condition. No new gain or physical threshold is adopted.
 [Measured stop figure](../../../outputs/evidence/act-a1-diverse-20261019/stop-instability.png).
 
-The physical launcher is closed by `campaign-stop.json`, verified without starting
-a simulator. No remaining matrix or development attempt runs after the stop gate.
+The initial physical launcher was closed by `campaign-stop.json`, verified without
+starting a simulator. The resumed qualification decision below now permits scoped
+collection; all original stop outcomes remain unchanged.
 
-## Actual coverage and data usability
+## Initial closeout coverage and data usability
 
 | Train door | A qualified/planned | B | C | D | Complete |
 |---|---:|---:|---:|---:|---:|
@@ -230,7 +231,7 @@ occurs. Original raw/prepared controls and checkpoint files remain unchanged.
 Both-direction/new short C/D agreement and the 112-source gate are **not validated**.
 Simulated torque retains its solver joint-output provenance, not direct contact force.
 
-## Costs, handoff and required next work
+## Initial closeout costs and handoff
 
 Six whole physical launches: 580.418 s; complete CUDA preparation/consumption:
 19.556 s. Total GPU workload **599.974 s (10.00 min)**, conservative charge
@@ -262,151 +263,124 @@ architecture comparison, remote allocation or push occurs.
 Next: diagnose and independently qualify stop stability at the actual postures,
 then qualify reusable C/D starts and remaining correction/dynamics cases. Only after
 that may the declared missing cells and both-direction/development data gates resume.
-No new physical attempt follows this closeout. Once the full corpus is qualified,
+The resumed investigation below continues from this preserved closeout. Once the full corpus is qualified,
 a bounded first ACT experiment should test whether causal history improves contact
 acquisition, phase handoff and unloading, and whether genuine observed variation
 improves frozen-development completion without increased refusals/unsafe acceptance.
 This partial corpus cannot test the requested broad recovery/generalization claim.
 
-## Resumed investigation (20 October)
+## Resumed qualification and active collection (20 October)
 
-The original 112-cell objective and original cumulative resource baseline continue.
-Bulk collection remains halted while bounded matched-state diagnostics investigate
-ordinary and stopping control. The checked start and recording start now both opt
-into the same source-controller reconstruction (robot/door state, targets, impedance,
-controller state and fresh contact). A focused preparation regression exercises both
-restorations with the intervening stop/reset. This fixes a later orchestration mismatch;
-it does not explain or qualify the earlier recorded oscillation. Existing three usable
-recordings retain their demonstrated scopes pending runtime compatibility assessment.
+The original objective and original cumulative resource baseline continue. Current
+admission is **10/112**: 7/96 short train, 3/8 complete train and
+0/8 development; **102 cells remain**. The exact live
+inventory is `handoff.json` / `coverage.json`; every physical attempt, including
+qualification and failures, remains in `attempts.json` and the resource ledger.
+The corpus is not ready for the requested training experiment. Training, optimizer
+updates, learned evaluation, RL, architecture comparison and final-test access
+remain closed.
 
-Future correction pulses now ramp into the error and retain its full target until
-handoff. Eligible correction starts from the measured tool pose and returns to the
-ordinary task target over a reported .5 s cosine transition through existing IK,
-physical speed/force/contact gates and delivered-action accounting. Start/latest
-position and orientation residuals are evaluator metadata. Injected commands remain
-excluded; the old 5.22 mm example is unchanged. This mechanism passes focused target
-and mask checks but requires physical qualification before multiplying its cells.
+### Restoration and numerical stopping cause
 
-Matched native diagnostics reproduce both failures at 120 Hz: the earlier push stop
-ends at .32121 rad/s after 2 s and grows to the 4.47 rad/s configured ceiling; the
-retained ordinary-hold target replay reproduces .70034 rad/s before stopping.
-Changing only integration to 240 Hz (four native steps per unchanged 60 Hz command)
-stabilizes both: push final speed .000216 rad/s; ordinary replay peak .47379 rad/s,
-stop final .000791 rad/s, with no delayed growth through 6 s. At the push posture,
-the right-arm explicit-PD/semi-implicit integration linearization using actual mass
-and existing armature predicts -1.01896 per step, matching the observed -1.01899.
-The alternating numerical mode explains this stopping failure; the velocity ceiling
-is saturation, not stability. No gains, mass, inertia, armature or criteria changed.
-The local calculation omits jaw constraints/nonlinear contact and is not a global
-stability proof. Fresh right-side push/hold/release/ordinary-tail progression also
-passes; both-direction loaded and nearby controls remain under qualification.
+The checked and recording starts now both use `continue_controller=True` for the
+campaign. This corrects a later orchestration mismatch, not the earlier instability.
+The preparation regression exercises both actual call paths with the intervening
+stop/reset. Measured C/D starts agree exactly in full robot q/dq, door q/dq and
+delivered targets, with identical reconstructed contact. Actual gain readback and
+controller inputs accompany subsequent reconstruction audits. Fresh preceding push,
+not extension of a completed hold, supplies temporal history.
 
-An opt-in `physics_substeps=4` recipe refines physics to 240 Hz while retaining
-60 Hz control/render boundaries and 10 Hz native RGB-D. Default recipes retain
-120 Hz. Native feedback retains every actual substep; history, image size, action
-chunk and execution length are unchanged. Old 120 Hz calibration/stop scope is not
-automatically transferred. Diagnostic records live under `runtime-diagnostics/`;
-`runtime-diagnostic-plan.json` and `runtime-diagnostic-attempts.json` retain all cases.
+The actual IdealPD model computes stiffness times position error plus damping times
+velocity error and one gravity feedforward term each native physics step. Recorded
+computed effort matches that formula to about 1e-6 N m; applied effort matches
+physical effort clipping exactly. The failed push stop has fixed targets and zero
+normal contact force. Using its actual mass matrix and existing .01 joint armature,
+the local arm integration model predicts an alternating multiplier **-1.01896**;
+the measured multiplier is **-1.01899**, with .9999998 velocity-mode alignment.
+This establishes a local discrete explicit-PD/physics instability. The 4.47 rad/s
+plateau is the unchanged shoulder-Z velocity ceiling, not stable settling.
 
-The 240 Hz compatibility check now passes all six right/left 10 N normal/cone and
-unloaded controls against the unchanged residual, joint, held-joint, shape-stop and
-rotation bounds. No calibration fit or bound increase occurred. Analysis explicitly
-aligns the fourth native substep with the first 60 Hz pose; motion excludes the
-independently timed stop/removal rows. Raw diagnostics retain the original phase
-annotation limitation; the corrected joins are in `analyze_compatibility.py`.
-Both opening directions pass fresh push, original hold, release and ordinary
-stabilization, with separate 2 s stops and 4 s fixed-anchor continuations. These
-are qualification executions without recordings; they do not fill target cells.
+Only the physics timestep changes in the matched comparison. At 120 Hz the push
+stop reaches .32121 rad/s at 2 s and later 4.47 rad/s. At 240 Hz it ends at .000216
+rad/s and remains stable through 6 s. The identical failed ordinary-hold target
+replay reaches .70034 rad/s at 120 Hz; at 240 Hz it peaks at .47379 rad/s, then
+passes the two-second stop and four-second continuation. Fresh push, the original
+hold, release and ordinary stabilization also pass in both opening directions.
+Six right/left loaded 10 N normal/cone and unloaded controls pass the unchanged
+residual, joint, held-joint, geometric stop-envelope and rotation bounds. No load
+calibration fit, bound increase, mass/inertia/friction/armature change or solver
+migration occurs. TGS/backend settings are retained. The local linear model omits
+nonlinear contact/jaw constraints; sampled qualification is not a global theorem.
 
-`runtime-qualification-decision.json` admits scoped collection. The first resumed
-cell is A correction-2, to physically qualify the measured-origin corrective handoff.
-Each new variation retains task/physical/diversity admission. Every resumed collection
-also records a separate delayed stop continuation after the unchanged 2 s gate.
-Native load monitoring checks every configured 120/240 Hz substep, including peak
-load between unchanged 60 Hz decisions. The legacy 120 Hz inputs remain supported.
-Nineteen campaign attempts have been charged before this first resumed collection:
-six original, six matched/integration diagnostics (one wrapper failure), six
-compatibility controls and one left integration. Exact current totals are in the
-resource ledger; all original costs and failed outcomes remain in the denominator.
+The opt-in recipe uses four 240 Hz physics steps per unchanged 60 Hz command/render
+boundary and unchanged 10 Hz native RGB-D. Every actual native feedback sample is
+retained. Four-second history, 240×384 model images, chunk 12, execution 6 and visual
+reuse off remain unchanged. Existing 120 Hz recordings retain their demonstrated
+physical/data scopes; their cadence is declared per source. New conditions retain
+independent physical and diversity admission. Every resumed collection records the
+unchanged 2 s stopping gate followed by 4 s diagnostic continuation with the same
+latched target. [Matched native figure](../../../outputs/evidence/act-a1-diverse-20261019/runtime-before-after.png),
+`controller-mechanism.json` and `runtime-qualification-decision.json` preserve proof
+and scope.
 
-The first resumed correction-2 attempt exposed a temporal ingress capacity defect
-at 4.03 s, before disturbance execution. Its prefix remains failed with zero expert
-windows; the two-second stop and four-second continuation pass. Capacity had used
-the shorter numeric gap while pruning retained the longer image/numeric carry-in
-horizon. Capacity now matches that unchanged horizon at the declared native rate;
-a six-second 240 Hz regression checks bounded retention and exact offline/online
-observations. This changes neither sample rates, four-second history nor model input.
+### Ordinary contact support and actual corrections
 
-The corrected acquisition attempt passes physical, temporal and measured-diversity
-admission: first eligible prestate 14.95 mm, 9.20 mm after .25 s, 2.95 mm after .5 s,
-.377 mm after 1 s and .284 mm after 1.5 s. 119 injected commands stay excluded, while
-actual delivered actions remain in history. CUDA consumption/gradients are finite
-with unchanged weights and zero optimizer updates. Current coverage is 4/112:
-3/96 short train, 1/8 complete train, 0/8 development; 108 cells remain.
-[Matched native before/after](../../../outputs/evidence/act-a1-diverse-20261019/runtime-before-after.png)
-shows both diagnosed conditions with unchanged physical/task criteria.
+The left high-contact full attempt acquired contact, then lost it for .267 s as a
+roughly 31 µm separating gap opened while the panel briefly coasted ahead of the
+reference clock. No hard physical violation or stopping instability occurred. A
+.1 s gap response reduced the gap but still failed the unchanged loss deadline;
+that attempt remains failed. Correcting the measured displacement at the next
+60 Hz boundary, within the existing 6 mm/s normal rate and displacement bounds,
+reduces the maximum early gap to 9.88 µm and maximum unloaded interval to .10 s.
+The complete condition then passes **53.54 degrees versus 42.03 required**, hold,
+release, ordinary stabilization and the separate 2+4 s stop observations. Excess
+force retains unloading priority and the push reference never chases a coasting
+panel. Gap feedback is disabled during excluded injected pulses. Both restoration
+paths use the same support logic. `left-contact-causal-comparison.json` retains
+all three conditions and their original outcomes.
 
-The first C pose-high source now passes all three admission layers. It contains
-4.4 s of genuine fresh push before the original hold,180 supported hold rows and
-20.11 mm actual tool-height separation from the nominal control. Checked/recording
-reconstruction has zero measured difference in full robot q/dq, door q/dq and
-joint targets, with identical .18468 N reconstructed normal contact. Separate
-2 s stopping and4 s continuation pass. Native240Hz observations, phase seams,
-causal labels/masks and unchanged-weight CUDA forward/backward pass. Coverage is
-5/112 (4 short train,1 complete train,0 development),107 missing. New diagnostic
-executions do not count as target cells. The corrected D recording follows the
-same qualified runtime with its own genuine preceding push and original3s hold.
+Future disturbance targets ramp into the error and retain it until handoff. Eligible
+teacher correction starts from the measured tool pose and executes a reported .5 s
+cosine return through ordinary IK and all physical gates. The first new normal-error
+case transfers **14.95 mm** of its requested 15 mm to eligible supervision, then
+measures 9.20 mm after .25 s, 2.95 mm after .5 s, .377 mm after 1 s and .284 mm after
+1.5 s. All 119 injected commands stay excluded while delivered actions and their
+actual consequences remain causal history. The original 5.22 mm example is unchanged
+and retains that honest scope. Subsequent A cells measure the actual injected peak
+and retained eligible residual; physical acquisition, withdrawal, stabilization and
+stopping determine task success, not reproduction of one exact error curve.
+B/C/D correction mechanisms and new dynamics remain unqualified until their own
+physical/observed-response checks pass.
 
-The initial resumed short-family tranche now admits B, C and D pose-high plus the
-15 mm acquisition recovery. B demonstrates sustained >=1 degree initial opening
-with19.97mm observed height separation. D has6.12s genuine pre-release history,
-the original3s hold and20.12mm observed height separation. Both pass physical,
-data/mask, diversity and delayed-stop checks. Coverage is7/112:6 short train,
-1 complete train and0 development;105 cells remain. The declared complete-pose
-matrix continues. Earlier states and failure outcomes remain unchanged.
+C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
+separation from nominal. D records 6.12 s genuine pre-release history, the original
+3 s hold and 20.12 mm height separation. B initial opening has 19.97 mm separation.
+The lower-height complete right episode passes 49.96 degrees versus 41.01 required
+and has -19.95 mm actual hold-height change. The base-retreat acquisition condition
+passes its measured 20 mm root/precontact-gap variation. Source continuations retain
+ancestry and do not create independent door groups; extracted states/windows never
+fill cells.
 
-Native computed effort agrees with the explicit PD plus one gravity feedforward
-term to about1e-6Nm; applied effort matches the physical effort clip exactly.
-Fixed targets have zero native variation. The observed unstable velocity vector
-aligns with the predicted120Hz local eigenmode at .9999998 cosine similarity.
-Unchanged TGS/backend settings, actual mass matrices and existing .01 armature
-are retained in `controller-mechanism.json`; no parameter was invented to suppress
-oscillation. Actual gain readback and controller inputs now accompany each new
-reconstruction audit, alongside native q/dq, targets, door state and contact.
+### Temporal usability and continuing limits
 
-The left high-contact complete attempt is retained as failed: contact was acquired,
-then a separating gap grew to about30µm while the panel briefly coasted ahead of
-the unchanged reference clock. Native force fell to zero for the existing .25s
-loss deadline; no physical limit violation or stopping instability occurred.
-The candidate normal-support correction closes a measured positive gap on the
-existing .1s force-window timescale, within unchanged normal rate/extent bounds.
-Actual excess force still has unloading priority; the push reference never chases
-a coasting panel. Gap feedback is disabled during excluded injected pulses so it
-cannot erase the declared error before eligible correction. Source conditioning
-uses the same feedback when available on both restoration paths. Unit boundaries
-pass; the same full left high-contact condition requires a causal physical rerun.
+The first resumed 240 Hz recording exposed an ingress capacity/pruning mismatch at
+4.03 s, before disturbance execution. Its failed prefix has zero expert windows;
+its stops pass. Buffer capacity now covers the same unchanged history/carry-in
+horizon as pruning. A six-second 240 Hz regression verifies bounded retention and
+exact offline/online observations. The native-feedback denominator now uses recorded
+`sim_dt` with the legacy 120 Hz fallback. Earlier raw outcomes/reports remain intact;
+`native-quality-rate-review.json` corrects their derived count text. Admitted 240 Hz
+sources have every expected native sample.
 
-The first gap-feedback full rerun also fails and remains excluded. It reduces the
-separating gap from about30µm to about3µm by the unchanged loss deadline, but .1s
-asymptotic gap response plus servo lag does not reestablish load in time. The next
-bounded candidate corrects the measured gap at the next60Hz command boundary,
-still clipped by the same6mm/s normal rate and existing displacement/force bounds.
-This is a measured ordinary-control correction; independent stopping still latches
-one fixed target. No contact deadline, force criterion or physical limit changes.
+Actual-data masks, delivered-minus-prestate labels, causal joins, phase transitions,
+tails, native provenance and representative CUDA forward/backward pass for admitted
+sources. Weights remain exactly unchanged with zero optimizer updates. The original
+six-train-source normalization remains frozen for compatibility; development never
+fits it. More windows and correlated source continuations do not establish diversity.
 
-The command-boundary gap correction passes the complete left high-contact condition:
-53.54 degrees sustained opening versus the unchanged42.03-degree requirement,
-with hold, release, ordinary stabilization and separate2+4s stopping. Maximum
-consecutive unloaded time is .10s, compared with .267s in each preserved failure.
-The maximum early gap is9.88µm versus31.41µm originally. The ordinary task endpoint,
-not exact agreement with one teacher curve, determines success. The base-retreat
-A case also passes actual20mm robot-root/precontact-gap variation and all data gates.
-The runtime/ordinary-control decision now permits the declared pose scope; remaining
-dynamics and B/C/D corrections require their own qualification.
-
-The quality report now computes its native feedback denominator from each source's
-recorded physics cadence (legacy fallback120Hz). Earlier resumed reports keep their
-original text; `native-quality-rate-review.json` corrects derived accounting without
-editing raw outcomes. All admitted240Hz recordings have every expected native sample.
-The handoff remains active and not training-ready; the original112-cell target and
-original budgets do not reset.
+The active pose wave stops for diagnosis on any failed gate. New dynamics require
+matched nominal/mass-only initial-opening checks, active PhysX mass/inertia/damping
+readback, observed response differences, and full same-dynamics sources before C/D.
+Sixteen necessary factor/source qualifications are prospectively declared; they add
+no target cells and consume the original attempt/GPU/storage limits. The final handoff
+must still satisfy every original coverage, physical, data and resource gate.

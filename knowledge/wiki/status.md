@@ -313,32 +313,25 @@ The seven-record train handoff has 41,716 usable starts and 151 focused source
 views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
-The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] has
-resumed with the original 112-cell objective: currently 7/96 short train, 3/8 complete
-train and 0/8 development qualified. The original six attempts and every resumed
-failure/diagnostic remain in the cumulative ledger. The original 20 mm acquisition
-pulse retains its honest 5.22 mm eligible-correction scope. The new normal-shortfall
-case transfers 14.95 mm to eligible expert control and reaches .38mm after 1 s, with
-injected actions excluded and real consequences retained in causal history.
+The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
+active with the original 112-cell objective: **10/112 qualified**, comprising
+7/96 short train, 3/8 complete train and 0/8 development.
+The original six attempts and every resumed diagnostic/failure remain in the same
+resource denominator. The requested training-ready handoff remains unavailable.
 
-Matched native comparisons identify an explicit-PD integration mode at 120 Hz;
-240 Hz physics preserves 60 Hz control, 10 Hz RGB-D and the unchanged temporal/action
-configuration. Both-direction fresh push/hold/release/ordinary tails, 2 s independent
-stops plus 4 s continuations, and six frozen-load/geometric-bound controls pass.
-An ingress capacity/pruning-horizon mismatch exposed by 240 Hz was corrected with
-exact offline/online regression coverage. Every failed prefix remains excluded.
+Matched native evidence identifies a 120 Hz explicit-PD integration instability;
+240 Hz physics retains 60 Hz control, 10 Hz RGB-D and the existing history/action
+configuration. Both-direction phase progression, 2 s stopping plus 4 s diagnostic
+continuation, and six unchanged-bound loaded/unloaded compatibility controls pass.
+A separate measured-gap normal-support correction qualifies the left high-contact
+full condition at 53.54 degrees versus 42.03 required, preserving both earlier
+contact-loss failures. The actual recovery example transfers 14.95 mm to eligible
+teacher control; injected commands stay excluded and their consequences stay causal.
 
-Actual-data CUDA consumption and gradients pass without weight changes or optimizer
-updates. The initial seven-source controls and original three usable new recordings
-remain valid for their demonstrated scopes. The first C recording has 4.4 s genuine preceding push and 20.11 mm actual
-height variation; checked and recording reconstructions agree exactly. D recording passes with 6.12 s genuine history before release. Remaining
-meaningful dynamics,
-new poses and broader corrections must still pass admission; the corpus is not yet
-ready for the requested training experiment. The campaign handoff/resource summary
-owns exact current inventories and cumulative costs. Training, learned evaluation,
-RL, architecture comparison and final-test access remain closed.
-
-The complete left high-contact condition now passes53.54degrees versus42.03required
-following a bounded measured-gap control correction; two earlier contact-loss
-failures remain excluded. The maximum unsupported interval falls from.267s to.10s,
-with all physical/contact criteria unchanged. The declared pose matrix continues.
+Admitted sources pass native alignment, masks, phase/tail and unchanged-weight CUDA
+checks with zero optimizer updates. The original valid recordings retain their
+measured scopes. Current pose collection continues; new dynamics, B/C/D corrections
+and remaining development cells still require qualification. Exact live inventories,
+source ancestry, coverage and cumulative costs are in the linked campaign handoff.
+Training, learned evaluation, RL, architecture comparison and final-test access stay
+closed.
