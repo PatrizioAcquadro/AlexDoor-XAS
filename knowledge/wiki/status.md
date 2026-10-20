@@ -314,8 +314,8 @@ views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
 The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
-active with the original 112-cell objective: **15/112 qualified**, comprising
-9/96 short train, 6/8 complete train and 0/8 development.
+active with the original 112-cell objective: **17/112 qualified** after the
+complete-training tranche: 9/96 short train, 8/8 complete train and 0/8 development.
 The original six attempts and every resumed diagnostic/failure remain in the same
 resource denominator. The requested training-ready handoff remains unavailable.
 

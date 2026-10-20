@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 15/112 target cells pass; no policy training
+usable episodes and three failures. Only 17/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -272,8 +272,8 @@ This partial corpus cannot test the requested broad recovery/generalization clai
 ## Resumed qualification and active collection (20 October)
 
 The original objective and original cumulative resource baseline continue. Current
-admission is **15/112**: 9/96 short train, 6/8 complete train and
-0/8 development; **97 cells remain**. The exact live
+admission after the complete-training tranche is **17/112**: 9/96 short train,
+8/8 complete train and 0/8 development; **95 cells remain**. The exact live
 inventory is `handoff.json` / `coverage.json`; every physical attempt, including
 qualification and failures, remains in `attempts.json` and the resource ledger.
 The corpus is not ready for the requested training experiment. Training, optimizer
@@ -377,6 +377,23 @@ height conditions pass: 52.86/49.84 degrees held versus 47.77 required, with sep
 ordinary tails, 2+4 s stops, temporal-data and unchanged-weight CUDA checks. Source
 continuations retain ancestry and do not create independent door groups; extracted states/windows never
 fill cells.
+
+All eight declared complete-training cells are individually qualified. Held openings
+are compared with the unchanged per-door minimum:
+
+| Train door | High / low held opening | Required minimum |
+|---|---:|---:|
+| animated-door-1 | 52.89 / 49.96 degrees | 41.01 degrees |
+| door-2738468 | 53.54 / 50.95 degrees | 42.03 degrees |
+| PSX front | 52.86 / 49.84 degrees | 47.77 degrees |
+| PSX wood | 55.95 / 52.84 degrees | 50.15 degrees |
+
+The last low-wood push ends at its existing predictive tracking-margin guard,
+then qualifies hold, release and stabilization without a physical violation.
+All new complete episodes pass separate 2+4 s stop observations and actual-data
+CUDA checks. The original high-right 120 Hz episode retains its original scope.
+Observed high/low contact-height changes are approximately +20/-20 mm; the eight
+complete episodes do not fill any of the distinct short-family cells.
 
 ### Temporal usability and continuing limits
 
