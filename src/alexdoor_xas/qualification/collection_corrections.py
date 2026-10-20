@@ -5,6 +5,7 @@ from scipy.spatial.transform import Rotation
 
 # These diagnostic annotations never enter observation streams.
 EXPERT, INJECTED, CORRECTIVE = 0, 1, 2
+NORMAL_RETREAT_M = {"A2": 0.015, "B1": 0.003, "B2": 0.0015, "C1": 0.001}
 
 
 class CollectionCorrection:
@@ -72,6 +73,12 @@ class CollectionCorrection:
         self.reference_advance_rad += (self.rate_scale() - 1) * max(0.0, nominal_step)
         return self.reference_advance_rad
 
+    def material_gap_target(self, phase):
+        """B2 declares physical separation from the current panel, not a lead goal."""
+        if self.family == "B" and self.variation == "correction-2" and self.pulse(phase) > 0:
+            return NORMAL_RETREAT_M["B2"]
+        return None
+
     def target(
         self,
         position,
@@ -127,9 +134,15 @@ class CollectionCorrection:
                 rotation = (
                     rotation @ Rotation.from_rotvec([0, 0, np.deg2rad(5) * amount]).as_matrix()
                 )
-            elif key in ("A2", "B1", "B2", "C1"):
-                distance = {"A2": 0.015, "B1": 0.003, "B2": 0.0015, "C1": 0.001}[key]
-                position -= rotation[:, 0] * (distance * amount)
+            elif key in ("A2", "B1", "C1"):
+                position -= rotation[:, 0] * (NORMAL_RETREAT_M[key] * amount)
+            elif key == "B2":
+                if injected_pose is None:
+                    raise ValueError("B2 requires an executed material-gap pose")
+                injected_p, injected_r = injected_pose
+                position += amount * (injected_p - position)
+                delta = Rotation.from_matrix(injected_r @ rotation.T).as_rotvec()
+                rotation = Rotation.from_rotvec(amount * delta).as_matrix() @ rotation
             elif key == "D1":
                 normal = float((position - self.release_origin) @ rotation[:, 0])
                 position += rotation[:, 0] * max(0.0, -0.008 - normal) * amount

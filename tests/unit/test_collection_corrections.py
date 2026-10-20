@@ -23,6 +23,8 @@ def test_every_correction_executes_a_bounded_pulse_and_requires_response(family,
         maximum = max(maximum, case.rate_scale())
         advance = case.injected_reference_advance(0.0001)
         injected_pose = None if advance is None else (np.array([0.3 * advance, 0, 0]), np.eye(3))
+        if (gap := case.material_gap_target(phase)) is not None:
+            injected_pose = (np.array([-gap, 0, 0]), np.eye(3))
         p, rotation = case.target(
             np.zeros(3), np.eye(3), phase, np.zeros(3), injected_pose=injected_pose
         )
@@ -179,3 +181,18 @@ def test_only_safe_bounded_corrective_recontact_can_be_supervised(changed):
     assert row["recovery_valid"] is (changed is None)
     assert row["phase_valid"] is (changed is None)
     assert case.pending  # closing motion never stands in for restored loaded support
+
+
+def test_b2_material_gap_is_independent_of_the_ordinary_forward_lead():
+    case = CollectionCorrection("B", "correction-2", ProbeSetup(), 1 / 60)
+    case.counts["push"] = 75
+    goal = np.array([0.0008, 0, 0])  # the ordinary goal is ahead of the current panel
+    gap = case.material_gap_target("push")
+    assert gap == 0.0015
+    with pytest.raises(ValueError, match="material-gap pose"):
+        case.target(goal, np.eye(3), "push", goal)
+    p, _ = case.target(
+        goal, np.eye(3), "push", goal, injected_pose=(np.array([-gap, 0, 0]), np.eye(3))
+    )
+    assert p[0] == pytest.approx(-0.0015)
+    assert p[0] != pytest.approx(goal[0] - 0.0015)

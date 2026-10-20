@@ -540,6 +540,12 @@ def run_probe(
         )
         goal_p = goal_p + goal_r @ applied_compensation
         if correction is not None:
+            gap_target = correction.material_gap_target(phase)
+            if gap_target is not None:
+                material_angle = float(tensor(env.door.data.joint_pos)[0, 0])
+                injected_pose = door.contact_pose(
+                    material_angle, setup.contact_fraction, setup.contact_height, -gap_target
+                )
             if injected_pose is not None:
                 injected_p, injected_r = injected_pose
                 injected_pose = (injected_p + injected_r @ applied_compensation, injected_r)

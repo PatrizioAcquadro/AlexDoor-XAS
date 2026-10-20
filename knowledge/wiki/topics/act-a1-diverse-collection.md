@@ -387,7 +387,15 @@ contact. Injection remains excluded. The original measured-origin transition and
 ordinary contact feedback perform the correction. Actual loaded support still
 controls correction completion and the task endpoint. The optional evaluator
 `recovery_valid` flag never enters policy observations; legacy files retain their
-original masks. A matched physical B2 check is pending before expansion. New correction traces retain the ordinary teacher
+original masks. The matched repair physically succeeds, restores contact and includes all48
+corrective commands from its first row; its0.983mm native initial gap remains
+below the prospectively declared1mm coverage floor, so it does not fill the cell.
+The input audit finds0.33–0.38mm ordinary forward lead, leaving only1.12–1.17mm
+requested separation from a1.5mm relative action. B2 now smoothly targets the
+original1.5mm separation from the current material plane, with unchanged amplitude,
+stage timing, coverage floor and physical limits. Physical qualification of that
+input realization is pending; both earlier physical successes and limited scopes
+remain unchanged. New correction traces retain the ordinary teacher
 pose and measured pre-action error before injection or corrective blending. That
 reference includes existing normal/tangential support; it is an evaluator diagnostic,
 not a counterfactual trajectory or policy input. This permits first-eligible-row
