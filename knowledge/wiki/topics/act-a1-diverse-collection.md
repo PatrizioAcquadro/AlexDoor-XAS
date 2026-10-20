@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 10/112 target cells pass; no policy training
+usable episodes and three failures. Only 15/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -272,8 +272,8 @@ This partial corpus cannot test the requested broad recovery/generalization clai
 ## Resumed qualification and active collection (20 October)
 
 The original objective and original cumulative resource baseline continue. Current
-admission is **10/112**: 7/96 short train, 3/8 complete train and
-0/8 development; **102 cells remain**. The exact live
+admission is **15/112**: 9/96 short train, 6/8 complete train and
+0/8 development; **97 cells remain**. The exact live
 inventory is `handoff.json` / `coverage.json`; every physical attempt, including
 qualification and failures, remains in `attempts.json` and the resource ledger.
 The corpus is not ready for the requested training experiment. Training, optimizer
@@ -353,6 +353,11 @@ actual consequences remain causal history. The original 5.22 mm example is uncha
 and retains that honest scope. Subsequent A cells measure the actual injected peak
 and retained eligible residual; physical acquisition, withdrawal, stabilization and
 stopping determine task success, not reproduction of one exact error curve.
+Left acquisition corrections transfer 20.04 mm / 5.01 degrees and 14.96 mm to
+eligible teacher control, retaining 99.98% and 99.72% of their stationary injected
+errors. At .5 s the measured residuals are 1.53 mm and 1.08 mm. The normal-error
+retention review excludes moving-approach lag from its peak denominator; its initial
+derived review is preserved, with no new simulation or altered physical outcome.
 B/C/D correction mechanisms and new dynamics remain unqualified until their own
 physical/observed-response checks pass.
 
@@ -361,8 +366,10 @@ separation from nominal. D records 6.12 s genuine pre-release history, the origi
 3 s hold and 20.12 mm height separation. B initial opening has 19.97 mm separation.
 The lower-height complete right episode passes 49.96 degrees versus 41.01 required
 and has -19.95 mm actual hold-height change. The base-retreat acquisition condition
-passes its measured 20 mm root/precontact-gap variation. Source continuations retain
-ancestry and do not create independent door groups; extracted states/windows never
+passes its measured 20 mm root/precontact-gap variation. Both third-door complete
+height conditions pass: 52.86/49.84 degrees held versus 47.77 required, with separate
+ordinary tails, 2+4 s stops, temporal-data and unchanged-weight CUDA checks. Source
+continuations retain ancestry and do not create independent door groups; extracted states/windows never
 fill cells.
 
 ### Temporal usability and continuing limits
@@ -386,5 +393,8 @@ The active pose wave stops for diagnosis on any failed gate. New dynamics requir
 matched nominal/mass-only initial-opening checks, active PhysX mass/inertia/damping
 readback, observed response differences, and full same-dynamics sources before C/D.
 Sixteen necessary factor/source qualifications are prospectively declared; they add
-no target cells and consume the original attempt/GPU/storage limits. The final handoff
-must still satisfy every original coverage, physical, data and resource gate.
+no target cells and consume the original attempt/GPU/storage limits. The prospective
+matched-response review requires at least 10% change and a material absolute effect
+(0.1 degree angle, 0.1 degree/s speed, 0.02 N mean force or 0.02 N s impulse). These
+are coverage criteria; physical safety and task predicates remain unchanged.
+The final handoff must still satisfy every original coverage, physical, data and resource gate.

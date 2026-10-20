@@ -314,8 +314,8 @@ views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
 The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
-active with the original 112-cell objective: **10/112 qualified**, comprising
-7/96 short train, 3/8 complete train and 0/8 development.
+active with the original 112-cell objective: **15/112 qualified**, comprising
+9/96 short train, 6/8 complete train and 0/8 development.
 The original six attempts and every resumed diagnostic/failure remain in the same
 resource denominator. The requested training-ready handoff remains unavailable.
 
@@ -325,8 +325,8 @@ configuration. Both-direction phase progression, 2 s stopping plus 4 s diagnosti
 continuation, and six unchanged-bound loaded/unloaded compatibility controls pass.
 A separate measured-gap normal-support correction qualifies the left high-contact
 full condition at 53.54 degrees versus 42.03 required, preserving both earlier
-contact-loss failures. The actual recovery example transfers 14.95 mm to eligible
-teacher control; injected commands stay excluded and their consequences stay causal.
+contact-loss failures. Right and left recovery examples transfer 14.95 mm and
+20.04/14.96 mm to eligible teacher control; injected commands stay excluded and their consequences stay causal.
 
 Admitted sources pass native alignment, masks, phase/tail and unchanged-weight CUDA
 checks with zero optimizer updates. The original valid recordings retain their
