@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 3/112 target cells pass; no policy training
+usable episodes and three failures. Only 5/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -336,3 +336,23 @@ the shorter numeric gap while pruning retained the longer image/numeric carry-in
 horizon. Capacity now matches that unchanged horizon at the declared native rate;
 a six-second 240 Hz regression checks bounded retention and exact offline/online
 observations. This changes neither sample rates, four-second history nor model input.
+
+The corrected acquisition attempt passes physical, temporal and measured-diversity
+admission: first eligible prestate 14.95 mm, 9.20 mm after .25 s, 2.95 mm after .5 s,
+.377 mm after 1 s and .284 mm after 1.5 s. 119 injected commands stay excluded, while
+actual delivered actions remain in history. CUDA consumption/gradients are finite
+with unchanged weights and zero optimizer updates. Current coverage is 4/112:
+3/96 short train, 1/8 complete train, 0/8 development; 108 cells remain.
+[Matched native before/after](../../../outputs/evidence/act-a1-diverse-20261019/runtime-before-after.png)
+shows both diagnosed conditions with unchanged physical/task criteria.
+
+The first C pose-high source now passes all three admission layers. It contains
+4.4 s of genuine fresh push before the original hold,180 supported hold rows and
+20.11 mm actual tool-height separation from the nominal control. Checked/recording
+reconstruction has zero measured difference in full robot q/dq, door q/dq and
+joint targets, with identical .18468 N reconstructed normal contact. Separate
+2 s stopping and4 s continuation pass. Native240Hz observations, phase seams,
+causal labels/masks and unchanged-weight CUDA forward/backward pass. Coverage is
+5/112 (4 short train,1 complete train,0 development),107 missing. New diagnostic
+executions do not count as target cells. The corrected D recording follows the
+same qualified runtime with its own genuine preceding push and original3s hold.

@@ -89,9 +89,11 @@ The existing right/left/C admissions and interrupted-prefix outcome remain.
 The later [[topics/act-a1-four-door-expansion|four-door expansion and posture pilot]]
 supply bounded teacher evidence. The later
 [[topics/act-a1-diverse-collection|diverse campaign]] adds two usable acquisition
-shorts and one varied complete episode, then halts on loaded-stop qualification.
-Its 112-episode objective remains unmet; C/D starts and broader corrections remain
-unqualified. These data/interface changes add no training, learned success or final-test access;
+shorts and one varied complete episode. After a diagnosed 120 Hz explicit-PD
+instability, the scoped 240 Hz runtime passes matched failures, both-direction
+phase progression and frozen-bound compatibility controls. A further 15 mm recovery
+passes physical/data/diversity admission; the original 112-cell objective remains
+unmet, and remaining variations require independent qualification. These data/interface changes add no training, learned success or final-test access;
 the linked campaign owns its physical attempt denominator. See
 [[topics/act-a1-observations-and-time|current interfaces]].
 
@@ -311,29 +313,27 @@ The seven-record train handoff has 41,716 usable starts and 151 focused source
 views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
-The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
-**halted, goal unmet**: 2/96 short train, 1/8 complete train and 0/8 development
-qualified, from six physical attempts with three retained failures. The higher
-contact persists by 19.99 mm; one precontact pulse leaves a measured 5.22 mm/1.75°
-residual for eligible teacher realignment. Failed restored stops exhibit growing
-native velocity oscillation, reaching 4.47 rad/s; no further physical launch occurs.
+The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] has
+resumed with the original 112-cell objective: currently 4/96 short train, 1/8 complete
+train and 0/8 development qualified. The original six attempts and every resumed
+failure/diagnostic remain in the cumulative ledger. The original 20 mm acquisition
+pulse retains its honest 5.22 mm eligible-correction scope. The new normal-shortfall
+case transfers 14.95 mm to eligible expert control and reaches .38mm after 1 s, with
+injected actions excluded and real consequences retained in causal history.
 
-The three new usable records add 9,004 windows; the partial ten-source train union
-has 50,720 starts. Actual-data CUDA forward/backward and right-side observation
-agreement pass with unchanged weights, frozen train-only normalization and zero
-optimizer updates. This does not qualify both directions, new C/D starts, dynamics,
-general recovery or the requested training-ready corpus. Exact inventories, masks,
-ancestry and all failures remain in the linked campaign handoff.
+Matched native comparisons identify an explicit-PD integration mode at 120 Hz;
+240 Hz physics preserves 60 Hz control, 10 Hz RGB-D and the unchanged temporal/action
+configuration. Both-direction fresh push/hold/release/ordinary tails, 2 s independent
+stops plus 4 s continuations, and six frozen-load/geometric-bound controls pass.
+An ingress capacity/pruning-horizon mismatch exposed by 240 Hz was corrected with
+exact offline/online regression coverage. Every failed prefix remains excluded.
 
-New GPU workload is 10.00 min and evidence approximately 12.34 GiB. Conservative
-reviewed-scope totals are 18.838/40 GPU hours and 572.84/1024 GiB; 6/160 new attempts.
-The old 24-attempt cap is prospectively superseded for this campaign only. Next is
-independent stop-stability diagnosis/qualification at actual postures before any
-remaining matrix launch. Training, learned evaluation and the final test stay closed.
-
-The diverse ACT A1 campaign has resumed bounded qualification on 20 October. Matched
-native traces identify a 120 Hz explicit-PD integration instability; opt-in 240 Hz
-physics preserves 60 Hz control and 10 Hz RGB-D. Both-direction phase progression,
-2 s stopping plus delayed continuation, and six frozen-bound compatibility controls
-pass. The 112-cell objective remains unmet; new recovery/dynamics/pose cells still
-require physical and diversity admission. See [[act-a1-diverse-collection]].
+Actual-data CUDA consumption and gradients pass without weight changes or optimizer
+updates. The initial seven-source controls and original three usable new recordings
+remain valid for their demonstrated scopes. The first C recording has 4.4 s genuine preceding push and 20.11 mm actual
+height variation; checked and recording reconstructions agree exactly. Remaining
+D data, meaningful dynamics,
+new poses and broader corrections must still pass admission; the corpus is not yet
+ready for the requested training experiment. The campaign handoff/resource summary
+owns exact current inventories and cumulative costs. Training, learned evaluation,
+RL, architecture comparison and final-test access remain closed.
