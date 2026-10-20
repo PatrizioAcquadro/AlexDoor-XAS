@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 30/112 target cells pass; no policy training
+usable episodes and three failures. Only 51/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -159,7 +159,8 @@ physical/material/force checks remain valid. It never clears a stop latch and do
 not change complete-task loss criteria. Broader recovery paths and new variation starts require their own
 physical qualification. Uniform density authoring scales panel/handle mass and
 inertia together, preserves geometry/COM/axes, and saves active PhysX values. No
-new dynamics range has yet been physically qualified.
+first-door light density/damping4 early A/B scope is now qualified; full/late
+dynamics and other doors retain their own gates.
 
 Before the main matrix, unlaunched early A/B pose-low candidates were specified as
 20 mm robot-base retreat along world X, 50 mm precontact distance and nominal contact
@@ -282,8 +283,9 @@ This partial corpus cannot test the requested broad recovery/generalization clai
 ## Resumed qualification and active collection (20 October)
 
 The original objective and original cumulative resource baseline continue. Current
-admission after both-direction short qualification is **30/112**: 22/96 short
-train, 8/8 complete train and 0/8 development; **82 cells remain**. The exact live
+admission after pose/acquisition correction and initial dynamics/recontact qualification
+is **51/112**: 43/96 short train, 8/8 complete train and 0/8 development;
+**61 cells remain**. The exact live
 inventory is `handoff.json` / `coverage.json`; every physical attempt, including
 qualification and failures, remains in `attempts.json` and the resource ledger.
 The corpus is not ready for the requested training experiment. Training, optimizer
@@ -387,15 +389,20 @@ contact. Injection remains excluded. The original measured-origin transition and
 ordinary contact feedback perform the correction. Actual loaded support still
 controls correction completion and the task endpoint. The optional evaluator
 `recovery_valid` flag never enters policy observations; legacy files retain their
-original masks. The matched repair physically succeeds, restores contact and includes all48
-corrective commands from its first row; its0.983mm native initial gap remains
-below the prospectively declared1mm coverage floor, so it does not fill the cell.
-The input audit finds0.33–0.38mm ordinary forward lead, leaving only1.12–1.17mm
-requested separation from a1.5mm relative action. B2 now smoothly targets the
-original1.5mm separation from the current material plane, with unchanged amplitude,
+original masks. The matched repair physically succeeds, restores contact and includes all 48
+corrective commands from its first row; its 0.983 mm native initial gap remains
+below the prospectively declared 1 mm coverage floor, so it does not fill the cell.
+The input audit finds 0.33–0.38mm ordinary forward lead, leaving only 1.12–1.17mm
+requested separation from a 1.5 mm relative action. B2 now smoothly targets the
+original 1.5 mm separation from the current material plane, with unchanged amplitude,
 stage timing, coverage floor and physical limits. Physical qualification of that
-input realization is pending; both earlier physical successes and limited scopes
-remain unchanged. New correction traces retain the ordinary teacher
+input realization passes: first eligible supervision starts at **1.241 mm native
+contact gap**, with zero masked corrective commands and 18 independently checked
+bounded-recontact annotations. At .5 s the native gap is .000145 mm with actual
+loaded contact (3.21 N); the original task endpoint, ordinary tail and 2+4 s stop
+also pass. Both earlier physical successes and limited scopes remain unchanged.
+`B-recontact-causal-comparison.json` separates native gap, material separation and
+adaptive-reference tracking error; they are not interchangeable recovery magnitudes. New correction traces retain the ordinary teacher
 pose and measured pre-action error before injection or corrective blending. That
 reference includes existing normal/tangential support; it is an evaluator diagnostic,
 not a counterfactual trajectory or policy input. This permits first-eligible-row
@@ -459,7 +466,16 @@ sources. Weights remain exactly unchanged with zero optimizer updates. The origi
 six-train-source normalization remains frozen for compatibility; development never
 fits it. More windows and correlated source continuations do not establish diversity.
 
-The active pose wave stops for diagnosis on any failed gate. New dynamics require
+All 32 train pose cells and all eight A correction cells are admitted, retaining
+the historical 5.22 mm scope of the original A1 example. The first light-dynamics
+A/B cells pass active .7 mass/inertia scaling with damping4; over a matched56-row
+initial-opening interval, mean contact force is .433 N versus .712 N nominal
+(39% lower). Motion/endpoint similarity does not erase that measured dynamic
+response. Earlier unequal-window analysis is retained, and no threshold or
+physical outcome is changed. Remaining dynamics still require their factor/source
+qualifications.
+
+Each wave stops for diagnosis on any failed gate. New dynamics require
 matched nominal/mass-only initial-opening checks, active PhysX mass/inertia/damping
 readback, observed response differences, and full same-dynamics sources before C/D.
 Sixteen necessary factor/source qualifications are prospectively declared; they add
