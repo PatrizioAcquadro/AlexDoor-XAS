@@ -314,7 +314,7 @@ views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
 The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
-active with the original 112-cell objective: **51/112 qualified**, comprising 43/96 short train,
+active with the original 112-cell objective: **58/112 qualified**, comprising 50/96 short train,
 8/8 complete train and 0/8 development.
 The original six attempts and every resumed diagnostic/failure remain in the same
 resource denominator. The requested training-ready handoff remains unavailable.
@@ -331,7 +331,7 @@ contact-loss failures. Right and left recovery examples transfer 14.95 mm and
 Admitted sources pass native alignment, masks, phase/tail and unchanged-weight CUDA
 checks with zero optimizer updates. The original valid recordings retain their
 measured scopes. All train pose/A-correction cells, first light-dynamics A/B and
-first B2-recontact scopes are admitted. Remaining dynamics, B/C/D corrections and development cells
+all B correction scopes are admitted. C1 still needs its matched physical handoff qualification. Remaining dynamics, C/D corrections and development cells
 still require qualification. Exact live inventories,
 source ancestry, coverage and cumulative costs are in the linked campaign handoff.
 Training, learned evaluation, RL, architecture comparison and final-test access stay

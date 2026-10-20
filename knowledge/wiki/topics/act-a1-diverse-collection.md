@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 53/112 target cells pass; no policy training
+usable episodes and three failures. Only 58/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -511,7 +511,7 @@ sources. Weights remain exactly unchanged with zero optimizer updates. The origi
 six-train-source normalization remains frozen for compatibility; development never
 fits it. More windows and correlated source continuations do not establish diversity.
 
-All 32 train pose cells and all eight A correction cells are admitted, retaining
+All 32 train pose cells and all eight A and eight B correction cells are admitted, retaining
 the historical 5.22 mm scope of the original A1 example. The first light-dynamics
 A/B cells pass active .7 mass/inertia scaling with damping 4; over a matched 56-row
 initial-opening interval, mean contact force is .433 N versus .712 N nominal
@@ -523,8 +523,18 @@ qualifications.
 Each wave stops for diagnosis on any failed gate. New dynamics require
 matched nominal/mass-only initial-opening checks, active PhysX mass/inertia/damping
 readback, observed response differences, and full same-dynamics sources before C/D.
-Sixteen necessary factor/source qualifications are prospectively declared; they add
-no target cells and consume the original attempt/GPU/storage limits. The prospective
+The original sixteen-control plan reuses three already qualified nominal B2
+pre-pulse prefixes (all contact and first 61 push rows are ordinary expert actions).
+It therefore needs thirteen auxiliary training factor/full-source executions;
+no additional target cells arise. The first mass-only control is physically safe
+but its 4.1% contact-force change is below the target diversity criterion; this
+negative result is preserved. It remains a separate-factor control, never a diverse
+target. Resistant target admission still requires the original measured criterion.
+Resistant full sources prospectively allow 225 s push and 300 s total simulation,
+scaling the original 150 s push budget by viscous damping 6/4. The 1200 s wall guard,
+all task/physical criteria, teacher speed, sensor/control rates and ACT configuration
+remain unchanged. This permits slower physical progress; it adds no policy information
+per second. Every execution consumes the original campaign ceilings. The prospective
 matched-response review requires at least 10% change and a material absolute effect
 (0.1 degree angle, 0.1 degree/s speed, 0.02 N mean force or 0.02 N s impulse). These
 are coverage criteria; physical safety and task predicates remain unchanged.
