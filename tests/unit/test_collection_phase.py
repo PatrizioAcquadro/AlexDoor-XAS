@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from alexdoor_xas.qualification.collection_phase import (
+    correction_hold_complete,
     evaluate_phase_endpoint,
     qualify_phase_result,
 )
@@ -114,3 +115,27 @@ def test_b_cleanup_review_never_overrides_other_failures(failure):
         stabilized=True,
     )
     assert not qualify_phase_result(trace, "B", ProbeSetup(), original)["passed"]
+
+
+def test_pace_hold_waits_for_current_settling_after_full_minimum():
+    setup = ProbeSetup()
+    limit = np.deg2rad(setup.tie_deg) / setup.stabilization_window_s
+    push = rows("push", count=301, motion=np.deg2rad(0.6))
+    hold = rows("hold", start=301 / 60, count=180, speed=1.8 * limit)
+    for row, speed in zip(hold[-30:], np.linspace(1.1 * limit, 0.9 * limit, 30)):
+        row["speed"] = speed
+    # The terminal value is already below the speed bound; its full window is not.
+    assert not correction_hold_complete(push + hold, setup, 1 / 60)
+    settled = rows("hold", start=481 / 60, count=31, speed=0.9 * limit)
+    assert correction_hold_complete(push + hold + settled, setup, 1 / 60)
+    later = rows("hold", start=512 / 60, count=2, speed=1.1 * limit)
+    assert not correction_hold_complete(push + hold + settled + later, setup, 1 / 60)
+    assert not correction_hold_complete(
+        push + rows("hold", start=301 / 60, count=60), setup, 1 / 60
+    )
+    settled[-1]["loaded"] = False
+    assert not correction_hold_complete(push + hold + settled, setup, 1 / 60)
+    settled[-1]["loaded"] = True
+    for i, row in enumerate(settled):
+        row["tool_position"] = [0.003 * i / 30, 0, 0]
+    assert not correction_hold_complete(push + hold + settled, setup, 1 / 60)

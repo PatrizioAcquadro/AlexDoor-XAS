@@ -507,6 +507,10 @@ def run_probe(
         correction = CollectionCorrection(family, campaign["variation"], setup, env.step_dt)
     if family is not None:
         from alexdoor_xas.qualification.collection_phase import evaluate_phase_endpoint
+    pace_settling = (
+        correction is not None and family == "C" and campaign["variation"] == "correction-2"
+    )
+    hold_budget_s = setup.hold_settle_s * (2 if pace_settling else 1)
     late_states = deque(maxlen=round(5.0 / env.step_dt) + 1)
     zero = torch.zeros((1, 6), device=env.device)
     from alexdoor_xas.qualification.clearance import DoorClearance
@@ -1088,7 +1092,7 @@ def run_probe(
         initial_lead = hold_initial_lead(reference, state[0], reference_step, setup.lead_angle)
         missing_time = 0.0
         if not failure:
-            for tick in range(round(setup.hold_settle_s / dt)):
+            for tick in range(round(hold_budget_s / dt)):
                 compression = support_normal(compression, "hold")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 state = command(
@@ -1107,6 +1111,16 @@ def run_probe(
                     env.stop_motion()
                 if failure:
                     break
+                if pace_settling:
+                    from alexdoor_xas.qualification.collection_phase import correction_hold_complete
+
+                    if not correction.pending and correction_hold_complete(traces, setup, dt):
+                        break
+            if pace_settling and not failure:
+                from alexdoor_xas.qualification.collection_phase import correction_hold_complete
+
+                if not correction_hold_complete(traces, setup, dt):
+                    failure = "unsettled_hold_budget_exhausted"
         held_angle = held.current if not failure else None
         if held_angle is None:
             failure = failure or "invalid_hold"
@@ -1248,6 +1262,8 @@ def run_probe(
         passed=failure is None and (window.maximum is not None or family == "A"),
         angle_deg=None if measured is None else float(np.rad2deg(measured)),
         hold_angle_deg=None if held_angle is None else float(np.rad2deg(held_angle)),
+        hold_control_duration_s=sum(row["phase"] == "hold" for row in traces) * dt,
+        hold_duration_budget_s=hold_budget_s,
         stop_reason=failure or reason,
         limit_evidence=limit_evidence,
         safety_detail=safety_detail,

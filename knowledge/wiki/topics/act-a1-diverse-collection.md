@@ -479,6 +479,19 @@ rejected explanations. The same supported-hold mechanism is implemented for C2's
 pace-to-settle task; actual delivered pace, residual motion and settling remain
 unqualified until its bounded physical prototype passes.
 
+The first physical C2 input executes only 52/59 injected commands before the unchanged
+predictive guard selects hold; it loses hold contact and remains failed. An earlier
+25 s native source permits all 59 commands and one supported-hold handoff, with no
+physical violation and successful release/stabilization/independent stopping. It still
+fails the C endpoint: the fixed 3 s hold ends at 0.90 degree/s without satisfying
+the complete .5 s support/speed/tool-travel window. The configured speed bound is
+1 degree/s, with at most2.5mm tool travel; a terminal value alone is insufficient. C2 now retains the full 3 s minimum and continues
+ordinary supported holding only until the current final .5 s meets the original
+criteria, bounded at 6 s. This is controlled settling, not additional temporal
+history: the first correction already follows 5.2 s genuine motion. All speed,
+contact, drift, physical and stop criteria are unchanged. Physical qualification
+of this completion-driven hold remains pending.
+
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original
 3 s hold and 20.12 mm height separation. B initial opening has 19.97 mm separation.
@@ -528,7 +541,7 @@ fits it. More windows and correlated source continuations do not establish diver
 All 32 train pose cells and all eight A and eight B correction cells are admitted, retaining
 the historical 5.22 mm scope of the original A1 example. The first light-dynamics
 A/B cells pass active .7 mass/inertia scaling with damping 4; over a matched 56-row
-initial-opening interval, mean contact force is .433 N versus .712 N nominal
+initial-opening interval, mean control-tick native peak force is .433 N versus .712 N nominal
 (39% lower). Motion/endpoint similarity does not erase that measured dynamic
 response. Earlier unequal-window analysis is retained, and no threshold or
 physical outcome is changed. Remaining dynamics still require their factor/source

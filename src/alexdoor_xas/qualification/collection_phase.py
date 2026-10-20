@@ -92,6 +92,19 @@ def evaluate_phase_endpoint(rows, family, setup):
     )
 
 
+def correction_hold_complete(rows, setup, dt):
+    """Finish a real hold only after its minimum and current settling window."""
+    hold = [row for row in rows if row["phase"] == "hold"]
+    if len(hold) * dt < setup.hold_settle_s - 1e-9:
+        return False
+    cutoff = hold[-1]["time"] - setup.sustain_s - 1e-9
+    # Keep the genuine push evidence, but an earlier passing hold window cannot
+    # excuse later residual motion, load loss, or unsafe feedback.
+    current = [row for row in rows if row["phase"] == "push"]
+    current += [row for row in hold if row["time"] >= cutoff]
+    return evaluate_phase_endpoint(current, "C", setup)["passed"]
+
+
 def qualify_phase_result(rows, family, setup, probe_result, correction=None):
     """Apply the declared subtask contract without granting complete-task success.
 
