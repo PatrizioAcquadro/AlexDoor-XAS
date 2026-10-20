@@ -12,8 +12,7 @@ from alexdoor_xas.recording.quality import review_native_collection, teacher_eli
 from helpers import temporal_command, temporal_recorder
 
 
-@pytest.fixture
-def collection(tmp_path):
+def make_collection(tmp_path, substeps=2):
     path = tmp_path / "complete.hdf5"
     log = temporal_recorder(path)
     names = ["inspect", "approach", "contact", "push", "hold", "release", "stabilize"]
@@ -25,6 +24,7 @@ def collection(tmp_path):
             episode_id="attempt-1",
             phase_names=names,
             observation_config=cfg.to_dict(),
+            sim_dt=1 / (60 * substeps),
         )
     )
     log.file["metadata"].attrs["arm_effort_limits_nm"] = json.dumps([100] * 7)
@@ -32,9 +32,15 @@ def collection(tmp_path):
     for tick in range(169):
         t = tick / 60
         if tick:
-            log.feedback(
-                np.ones(7), acquired=t - 1 / 120, available=t - 1 / 120, healthy=True, generation=0
-            )
+            for offset in range(substeps - 1, 0, -1):
+                native_time = t - offset / (60 * substeps)
+                log.feedback(
+                    np.ones(7),
+                    acquired=native_time,
+                    available=native_time,
+                    healthy=True,
+                    generation=0,
+                )
         log.feedback(np.ones(7), acquired=t, available=t, healthy=True, generation=0)
         log.state(np.zeros(9), np.zeros(9), acquired=t, available=t, generation=0)
         if tick % 6 == 0:
@@ -62,6 +68,20 @@ def collection(tmp_path):
     log.finish(dict(passed=True, released=True, stabilized=True, termination="fixture"))
     log.close()
     return path, cfg
+
+
+@pytest.fixture
+def collection(tmp_path):
+    return make_collection(tmp_path)
+
+
+@pytest.mark.parametrize("substeps", [2, 4])
+def test_native_feedback_denominator_uses_recorded_physics_cadence(tmp_path, substeps):
+    path, _ = make_collection(tmp_path, substeps)
+    report = review_native_collection(path)
+    assert report["expected_native_torque_samples"] == 1 + 168 * substeps
+    assert report["native_torque_samples"] == report["expected_native_torque_samples"]
+    assert report["native_feedback_coverage_complete"] and report["integrity_passed"]
 
 
 def test_incomplete_transition_preserves_trusted_later_windows(collection):

@@ -151,7 +151,16 @@ def validate_native_recording(path):
                 known = frames[generations == gen]
                 if np.all(known >= 0):
                     require(bool(np.all(np.diff(known) > 0)), "repeated_native_capture_frame")
-        expected_feedback = 1 + 2 * (count - 1)
+        control_dt = float(file["metadata"].attrs["control_dt"])
+        # Historical recordings predate explicit sim_dt metadata and used two
+        # native samples per control interval. New recordings declare their rate.
+        sim_dt = float(metadata.get("sim_dt", control_dt / 2))
+        if not np.isfinite(sim_dt) or sim_dt <= 0:
+            raise ValueError("Invalid recorded physics cadence")
+        substeps = control_dt / sim_dt
+        if not np.isfinite(substeps) or substeps < 1 or not np.isclose(substeps, round(substeps)):
+            raise ValueError("Nonintegral recorded physics cadence")
+        expected_feedback = 1 + round(substeps) * (count - 1)
         tau = feedback["torque_nm"][:]
         healthy = feedback["healthy"][:] & np.isfinite(tau).all(axis=1)
         limits = np.asarray(json.loads(file["metadata"].attrs["arm_effort_limits_nm"]))
