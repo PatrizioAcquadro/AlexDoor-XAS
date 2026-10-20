@@ -196,3 +196,21 @@ def test_b2_material_gap_is_independent_of_the_ordinary_forward_lead():
     )
     assert p[0] == pytest.approx(-0.0015)
     assert p[0] != pytest.approx(goal[0] - 0.0015)
+
+
+def test_gap_catchup_waits_for_measured_position_return_to_finish():
+    case = CollectionCorrection("C", "correction-1", ProbeSetup(), 1 / 60)
+    case.counts["push"] = 280
+    assert case.position_return_active("push")
+    # Last injected command and its actual displaced state.
+    p, r = case.target(np.zeros(3), np.eye(3), "push", np.zeros(3))
+    case.counts["push"] = 300
+    assert case.position_return_active("push")  # before first corrective dispatch
+    for _ in range(15):
+        p, r = case.target(np.zeros(3), np.eye(3), "hold", p, r)
+        assert case.position_return_active("hold")
+    for _ in range(16):
+        p, r = case.target(np.zeros(3), np.eye(3), "hold", p, r)
+    assert case.corrective_transition_complete
+    assert not case.position_return_active("hold")
+    assert case.pending  # transition completion alone is not physical recovery

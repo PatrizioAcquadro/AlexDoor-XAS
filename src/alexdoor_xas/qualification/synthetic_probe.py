@@ -521,8 +521,9 @@ def run_probe(
 
     def support_normal(compression, phase):
         gap = traces[-1]["contact_gap_m"] if traces else None
-        if correction is not None and correction.pulse(phase) > 0:
-            # Do not cancel an injected error before eligible correction starts.
+        if correction is not None and correction.position_return_active(phase):
+            # The measured-origin transition already corrects position error.
+            # Do not stack a second gap catch-up; keep force unloading active.
             gap = None
         return normal_contact_support(
             compression,
@@ -1005,6 +1006,7 @@ def run_probe(
                     reference + advance, setup.contact_fraction, setup.contact_height, compression
                 ),
             )
+            traces[-1]["push_compression_m"] = compression
             missing_time = 0.0 if state[5] else missing_time + dt
             if missing_time > 0.25:
                 if correction is not None and correction.permit_recontact(traces[-1], missing_time):

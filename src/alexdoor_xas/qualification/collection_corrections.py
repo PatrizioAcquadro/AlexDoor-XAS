@@ -22,6 +22,7 @@ class CollectionCorrection:
         self.contact_loss_detected = False
         self.corrective_origin = None
         self.corrective_elapsed_s = 0.0
+        self.corrective_transition_complete = False
         self.corrective_start_error = None
         self.corrective_latest_error = None
         self.pre_action_reference = None
@@ -79,6 +80,10 @@ class CollectionCorrection:
             return NORMAL_RETREAT_M["B2"]
         return None
 
+    def position_return_active(self, phase):
+        """The declared trajectory owns position error; force unloading stays active."""
+        return self.pulse(phase) > 0 or (self.pending and not self.corrective_transition_complete)
+
     def target(
         self,
         position,
@@ -117,11 +122,13 @@ class CollectionCorrection:
                     np.array(measured_rotation, copy=True),
                 )
                 self.corrective_elapsed_s = 0.0
+                self.corrective_transition_complete = False
                 self.corrective_start_error = error
             self.corrective_latest_error = error
             if self.corrective_origin is not None:
                 self.corrective_elapsed_s += self.dt
                 blend = 0.5 - 0.5 * np.cos(np.pi * min(self.corrective_elapsed_s / 0.5, 1.0))
+                self.corrective_transition_complete = blend >= 1.0
                 origin_p, origin_r = self.corrective_origin
                 position = origin_p + blend * (position - origin_p)
                 delta = Rotation.from_matrix(rotation @ origin_r.T).as_rotvec()

@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 51/112 target cells pass; no policy training
+usable episodes and three failures. Only 52/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -420,6 +420,19 @@ exercises the saturated-cap path, actual requested progression and retained hand
 error. This is implementation only; C2 remains unqualified until actual motion,
 contact, corrective labels, tail and stopping demonstrate its declared scope.
 `pace-pulse-cap-audit.json` and prospective protocol preserve the distinction.
+
+A subsequent right late-C1 and left B2 prototype fail required sustained contact
+without physical limit violations; both independent stops pass. Their original
+recordings/outcomes remain failures. Native traces show contact-force and panel-speed
+overshoot after recontact, distinct from the repaired alternating PD instability.
+In C1 the ordinary normal target advances approximately 1.2 mm during the first
+half of its measured-origin corrective return. Gap-position feedback now waits
+until that 0.5 s return finishes; force admittance/unloading remains active.
+A focused regression crosses push into hold and checks both completion and pending
+physical recovery. This is a causal hypothesis under matched physical comparison,
+not a qualified cure. Same-source C1, opposite-direction B2 and a nominal-direction
+B2 compatibility control are prospectively declared; criteria, pulses, gains,
+physics rates and source states remain unchanged.
 
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original
