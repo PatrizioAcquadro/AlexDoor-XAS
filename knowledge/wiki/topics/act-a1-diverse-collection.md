@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 7/112 target cells pass; no policy training
+usable episodes and three failures. Only 10/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -393,3 +393,20 @@ bounded candidate corrects the measured gap at the next60Hz command boundary,
 still clipped by the same6mm/s normal rate and existing displacement/force bounds.
 This is a measured ordinary-control correction; independent stopping still latches
 one fixed target. No contact deadline, force criterion or physical limit changes.
+
+The command-boundary gap correction passes the complete left high-contact condition:
+53.54 degrees sustained opening versus the unchanged42.03-degree requirement,
+with hold, release, ordinary stabilization and separate2+4s stopping. Maximum
+consecutive unloaded time is .10s, compared with .267s in each preserved failure.
+The maximum early gap is9.88µm versus31.41µm originally. The ordinary task endpoint,
+not exact agreement with one teacher curve, determines success. The base-retreat
+A case also passes actual20mm robot-root/precontact-gap variation and all data gates.
+The runtime/ordinary-control decision now permits the declared pose scope; remaining
+dynamics and B/C/D corrections require their own qualification.
+
+The quality report now computes its native feedback denominator from each source's
+recorded physics cadence (legacy fallback120Hz). Earlier resumed reports keep their
+original text; `native-quality-rate-review.json` corrects derived accounting without
+editing raw outcomes. All admitted240Hz recordings have every expected native sample.
+The handoff remains active and not training-ready; the original112-cell target and
+original budgets do not reset.

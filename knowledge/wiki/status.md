@@ -314,7 +314,7 @@ views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
 The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] has
-resumed with the original 112-cell objective: currently 6/96 short train, 1/8 complete
+resumed with the original 112-cell objective: currently 7/96 short train, 3/8 complete
 train and 0/8 development qualified. The original six attempts and every resumed
 failure/diagnostic remain in the cumulative ledger. The original 20 mm acquisition
 pulse retains its honest 5.22 mm eligible-correction scope. The new normal-shortfall
@@ -337,3 +337,8 @@ new poses and broader corrections must still pass admission; the corpus is not y
 ready for the requested training experiment. The campaign handoff/resource summary
 owns exact current inventories and cumulative costs. Training, learned evaluation,
 RL, architecture comparison and final-test access remain closed.
+
+The complete left high-contact condition now passes53.54degrees versus42.03required
+following a bounded measured-gap control correction; two earlier contact-loss
+failures remain excluded. The maximum unsupported interval falls from.267s to.10s,
+with all physical/contact criteria unchanged. The declared pose matrix continues.
