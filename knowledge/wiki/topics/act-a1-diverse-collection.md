@@ -285,3 +285,24 @@ physical speed/force/contact gates and delivered-action accounting. Start/latest
 position and orientation residuals are evaluator metadata. Injected commands remain
 excluded; the old 5.22 mm example is unchanged. This mechanism passes focused target
 and mask checks but requires physical qualification before multiplying its cells.
+
+Matched native diagnostics reproduce both failures at 120 Hz: the earlier push stop
+ends at .32121 rad/s after 2 s and grows to the 4.47 rad/s configured ceiling; the
+retained ordinary-hold target replay reproduces .70034 rad/s before stopping.
+Changing only integration to 240 Hz (four native steps per unchanged 60 Hz command)
+stabilizes both: push final speed .000216 rad/s; ordinary replay peak .47379 rad/s,
+stop final .000791 rad/s, with no delayed growth through 6 s. At the push posture,
+the right-arm explicit-PD/semi-implicit integration linearization using actual mass
+and existing armature predicts -1.01896 per step, matching the observed -1.01899.
+The alternating numerical mode explains this stopping failure; the velocity ceiling
+is saturation, not stability. No gains, mass, inertia, armature or criteria changed.
+The local calculation omits jaw constraints/nonlinear contact and is not a global
+stability proof. Fresh right-side push/hold/release/ordinary-tail progression also
+passes; both-direction loaded and nearby controls remain under qualification.
+
+An opt-in `physics_substeps=4` recipe refines physics to 240 Hz while retaining
+60 Hz control/render boundaries and 10 Hz native RGB-D. Default recipes retain
+120 Hz. Native feedback retains every actual substep; history, image size, action
+chunk and execution length are unchanged. Old 120 Hz calibration/stop scope is not
+automatically transferred. Diagnostic records live under `runtime-diagnostics/`;
+`runtime-diagnostic-plan.json` and `runtime-diagnostic-attempts.json` retain all cases.

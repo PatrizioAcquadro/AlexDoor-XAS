@@ -325,3 +325,20 @@ def test_preparation_checks_and_records_the_same_source_controller_reset(tmp_pat
     assert restored[0][2] == restored[1][2] == original
     assert restored[0][3] == restored[1][3] == dict(continue_controller=True)
     assert [v for v in calls if isinstance(v, str)] == ["reset", "stop", "reset", "record"]
+
+
+def test_refined_physics_preserves_control_render_and_task_time():
+    import pytest
+
+    from alexdoor_xas.qualification.expert import configure_physics_substeps
+
+    cfg = SimpleNamespace(sim=SimpleNamespace(dt=1 / 120, render_interval=2), decimation=2)
+    for steps in (2, 4):
+        configure_physics_substeps(cfg, steps)
+        assert cfg.sim.dt * cfg.decimation == 1 / 60
+        assert cfg.sim.dt * cfg.sim.render_interval == 1 / 60
+        assert round(6 / cfg.sim.dt) // cfg.decimation == 360
+        assert round(0.1 / cfg.sim.dt) // cfg.decimation == 6
+    for invalid in (1, 3, True, 2.5):
+        with pytest.raises(ValueError):
+            configure_physics_substeps(cfg, invalid)

@@ -517,7 +517,9 @@ maintained scripted expert through
 Actual controller, native feedback and measured state/capture events feed both
 `TemporalRecorder` and incremental causal ingress. Original 600×960 RGB-D,
 validity, calibration, timestamps and native frame IDs remain lossless at 10 Hz;
-control/full robot state is 60 Hz and supported native arm7 feedback is 120 Hz.
+control/full robot state is 60 Hz. Legacy native arm7 feedback is 120 Hz; the
+opt-in diverse-collection runtime records every 240 Hz physics substep while keeping
+control and RGB-D rates unchanged (see [[act-a1-diverse-collection]]).
 No raw frames or ordinary-control rows are fabricated.
 
 Nominal collection uses the unchanged 25 s inspection reference followed by an
