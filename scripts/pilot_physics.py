@@ -419,6 +419,8 @@ def main(argv=None):
                     "horizon_s",
                     "intermediate_preroll_s",
                 }
+                if campaign is None:
+                    timing_fields = set()
                 same_condition = all(
                     json.loads(json.dumps(value)) == json.loads(json.dumps(actual_setup[key]))
                     for key, value in origin_setup.items()

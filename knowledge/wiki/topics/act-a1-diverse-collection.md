@@ -200,3 +200,20 @@ contact height. This adds observable robot-door relationship and distance covera
 Late pose-low C/D and complete episodes retain the declared 1.07 m contact height;
 all source conditions must match. These phase-specific candidates require fresh
 physical qualification and cannot replace a failed cell with nominal geometry.
+
+## Campaign halted — completion gates unmet
+
+The preceding-push replacement also failed its independent start stop: peak/final
+speed .321210 rad/s, above the unchanged final settling requirement, despite no
+first-window hard-speed violation. Its continuing check reached 4.469863 rad/s.
+Native signs alternate at the physics cadence and amplitude grows. This is an
+unresolved stop-stability defect at the actual varied posture, not permission to
+widen tolerances or use an unchanged favorable retry. C/D and the main matrix are
+not qualified. `campaign-stop.json` closes the physical launcher; no further physical
+attempt is authorized by a successful software check alone.
+
+The experimental source-controller conditioning is explicitly opt-in for campaign
+qualification. Existing non-campaign hold continuations retain their legacy
+conditioning and exact setup checks. The normal teacher path, original stop
+profiles and all prior evidence/outcomes remain available with their original scope.
+Final inventory, CUDA/data review and resource closeout follow; the goal is unmet.

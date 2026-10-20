@@ -69,7 +69,7 @@ def capture_phase_state(
     }
 
 
-def restore_hold_state(env, state, setup, audit_path):
+def restore_hold_state(env, state, setup, audit_path, *, continue_controller=False):
     """Restore all moving joints, panel velocity, targets and task impedance.
 
     Solver warm-start/contact caches are deliberately rebuilt by actual physics;
@@ -94,7 +94,7 @@ def restore_hold_state(env, state, setup, audit_path):
     env.capture.reset()
     conditioning = []
     anchor = env.targets[:, env.arm_ids].clone()
-    door = env.cfg.prepared_door
+    door = env.cfg.prepared_door if continue_controller else None
     phase = str(state.get("phase", "hold"))
     compression = float(state["compression"])
     compensation = np.array(state["compensation"], copy=True)
@@ -112,52 +112,60 @@ def restore_hold_state(env, state, setup, audit_path):
         measured = torch.as_tensor(
             array(env.robot.data.joint_pos)[:, env.arm_ids], dtype=torch.float32, device=env.device
         )
-        angle = float(array(env.door.data.joint_pos)[0, 0])
-        compression = normal_contact_support(
-            compression,
-            force,
-            setup,
-            env.step_dt,
-            target_force=setup.hold_force_n if phase == "hold" else setup.contact_load_guard_n,
-        )
-        if phase == "push":
-            reference = push_reference(reference, angle, setup, env.step_dt, door.mechanical_stop)
+        if continue_controller:
+            angle = float(array(env.door.data.joint_pos)[0, 0])
+            compression = normal_contact_support(
+                compression,
+                force,
+                setup,
+                env.step_dt,
+                target_force=setup.hold_force_n if phase == "hold" else setup.contact_load_guard_n,
+            )
+            if phase == "push":
+                reference = push_reference(
+                    reference, angle, setup, env.step_dt, door.mechanical_stop
+                )
+            else:
+                reference = hold_reference(angle, initial_lead, door.mechanical_stop)
+            goal_p, goal_r = door.contact_pose(
+                reference,
+                setup.contact_fraction,
+                setup.contact_height,
+                compression,
+            )
+            goal_p = goal_p + goal_r @ compensation
+            env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
+            env.step(torch.zeros((1, 6), device=env.device))
         else:
-            reference = hold_reference(angle, initial_lead, door.mechanical_stop)
-        goal_p, goal_r = door.contact_pose(
-            reference,
-            setup.contact_fraction,
-            setup.contact_height,
-            compression,
-        )
-        goal_p = goal_p + goal_r @ compensation
-        env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
-        env.step(torch.zeros((1, 6), device=env.device))
+            env.step_a1(anchor - measured)
         force = max(
             sum(c["force_n"] for c in row["contacts"] if c["category"] in ("positive", "negative"))
             for row in env.contact_history
         )
         speed = max(float(np.max(abs(sample.dq))) for sample in env.load_samples)
-        actual_p = array(env.tool_pose()[0])[0]
-        material_p, material_r = door.contact_pose(
-            float(array(env.door.data.joint_pos)[0, 0]),
-            setup.contact_fraction,
-            setup.contact_height,
-        )
-        compensation = tangential_compensation(
-            compensation,
-            (material_p - actual_p) @ material_r,
-            force >= setup.loaded_force_n,
-            setup,
-            env.step_dt,
-        )
+        if continue_controller:
+            actual_p = array(env.tool_pose()[0])[0]
+            material_p, material_r = door.contact_pose(
+                float(array(env.door.data.joint_pos)[0, 0]),
+                setup.contact_fraction,
+                setup.contact_height,
+            )
+            compensation = tangential_compensation(
+                compensation,
+                (material_p - actual_p) @ material_r,
+                force >= setup.loaded_force_n,
+                setup,
+                env.step_dt,
+            )
         conditioning.append(
             dict(
                 time_s=float(env._time_s),
                 source_target_delta=(anchor - measured).cpu().tolist(),
-                commanded_tool_position=goal_p.tolist(),
-                commanded_tool_quaternion=Rotation.from_matrix(goal_r).as_quat().tolist(),
-                phase_controller=phase,
+                commanded_tool_position=goal_p.tolist() if continue_controller else None,
+                commanded_tool_quaternion=Rotation.from_matrix(goal_r).as_quat().tolist()
+                if continue_controller
+                else None,
+                phase_controller=phase if continue_controller else "legacy_joint_anchor",
                 delivered_target=array(env.targets)[:, env.arm_ids].tolist(),
                 joint_position=array(env.robot.data.joint_pos).tolist(),
                 joint_velocity=array(env.robot.data.joint_vel).tolist(),

@@ -339,7 +339,11 @@ def prepare_probe(
         from alexdoor_xas.qualification.intermediate import restore_hold_state
 
         audit = restore_hold_state(
-            env, intermediate, setup, output / "intermediate-reset-physics.json"
+            env,
+            intermediate,
+            setup,
+            output / "intermediate-reset-physics.json",
+            continue_controller=qualify_start_stop,
         )
         if qualify_start_stop:
             if audit["conditioning_contact_force_n"][-1] < setup.loaded_force_n:
