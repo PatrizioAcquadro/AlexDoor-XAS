@@ -266,3 +266,14 @@ a bounded first ACT experiment should test whether causal history improves conta
 acquisition, phase handoff and unloading, and whether genuine observed variation
 improves frozen-development completion without increased refusals/unsafe acceptance.
 This partial corpus cannot test the requested broad recovery/generalization claim.
+
+## Resumed investigation (20 October)
+
+The original 112-cell objective and original cumulative resource baseline continue.
+Bulk collection remains halted while bounded matched-state diagnostics investigate
+ordinary and stopping control. The checked start and recording start now both opt
+into the same source-controller reconstruction (robot/door state, targets, impedance,
+controller state and fresh contact). A focused preparation regression exercises both
+restorations with the intervening stop/reset. This fixes a later orchestration mismatch;
+it does not explain or qualify the earlier recorded oscillation. Existing three usable
+recordings retain their demonstrated scopes pending runtime compatibility assessment.

@@ -253,3 +253,75 @@ def test_collection_simulation_guard_counts_steps_across_local_clock_resets(monk
         env.step()
     assert env.collection_physics_s == 1.0
     restore()
+
+
+def test_preparation_checks_and_records_the_same_source_controller_reset(tmp_path, monkeypatch):
+    """Exercise both actual prepare_probe branches, including the intervening stop/reset."""
+    import sys
+
+    import pytest
+
+    from alexdoor_xas.qualification import intermediate, stop, synthetic_probe
+
+    # prepare_probe only needs this conversion after recorder.start; no simulator is
+    # imported for this orchestration regression. Physics qualification is separate.
+    module = SimpleNamespace(tensor=torch.as_tensor)
+    monkeypatch.setitem(sys.modules, "alexdoor_xas.envs.door_task.door_push_purdue_env", module)
+    state = dict(
+        q=[1],
+        dq=[2],
+        door_q=[3],
+        door_dq=[4],
+        targets=[5],
+        stiffness=[6],
+        damping=[7],
+        compression=0.003,
+        compensation=[0, 0, 0],
+        reference_angle=0.2,
+        initial_lead=0.01,
+    )
+    original = dict(state)
+    calls = []
+    env = SimpleNamespace(
+        reset=lambda: calls.append("reset"), set_neck_target=lambda v: calls.append(("neck", v))
+    )
+    controller = dict(
+        compression=0.0029, compensation=[0.001, 0, 0], reference_angle=0.201, initial_lead=0.01
+    )
+
+    def restore(env, source, setup, path, **kwargs):
+        calls.append(("restore", path.name, dict(source), kwargs))
+        return dict(conditioning_contact_force_n=[0.05], conditioned_controller=controller)
+
+    monkeypatch.setattr(intermediate, "restore_hold_state", restore)
+    monkeypatch.setattr(
+        stop, "verify_stop_continuation", lambda *a, **kw: calls.append("stop") or dict(passed=True)
+    )
+
+    class RecordingStarted(Exception):
+        pass
+
+    def start(*args, **kwargs):
+        assert state == dict(original, **controller)
+        calls.append("record")
+        raise RecordingStarted
+
+    setup = SimpleNamespace(neck=[0, 0], loaded_force_n=0.02, force_limit_n=80, to_dict=lambda: {})
+    with pytest.raises(RecordingStarted):
+        synthetic_probe.prepare_probe(
+            env,
+            object(),
+            setup,
+            tmp_path,
+            SimpleNamespace(start=start),
+            None,
+            state,
+            qualify_start_stop=True,
+        )
+    restored = [v for v in calls if isinstance(v, tuple) and v[0] == "restore"]
+    assert len(restored) == 2
+    assert restored[0][1] == "intermediate-reset-physics.json"
+    assert restored[1][1] == "intermediate-recording-reset-physics.json"
+    assert restored[0][2] == restored[1][2] == original
+    assert restored[0][3] == restored[1][3] == dict(continue_controller=True)
+    assert [v for v in calls if isinstance(v, str)] == ["reset", "stop", "reset", "record"]

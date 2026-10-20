@@ -365,6 +365,7 @@ def prepare_probe(
                 intermediate,
                 setup,
                 output / "intermediate-recording-reset-physics.json",
+                continue_controller=qualify_start_stop,
             )
         if qualify_start_stop:
             if audit["conditioning_contact_force_n"][-1] < setup.loaded_force_n:
