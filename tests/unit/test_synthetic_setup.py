@@ -259,3 +259,24 @@ def test_hold_handoff_carries_completed_reference_velocity_without_extra_lead():
     assert hold_initial_lead(reference, angle, 0, 0.005) == pytest.approx(reference - angle)
     assert hold_initial_lead(reference, angle, 0.02, 0.005) == 0.005
     assert hold_reference(angle, lead, 0.9001) == 0.9001
+
+
+def test_measured_separating_gap_has_bounded_support_before_contact_deadline():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_contact_support
+
+    setup = ProbeSetup()
+    dt, initial = 1 / 60, 0.00023
+    force_only = normal_contact_support(initial, 0, setup, dt)
+    measured = normal_contact_support(initial, 0, setup, dt, gap_m=30e-6)
+    assert measured - initial == pytest.approx(30e-6 / setup.contact_force_window_s * dt)
+    assert measured > force_only
+    for gap in (None, 0, -1e-4):
+        assert normal_contact_support(initial, 0, setup, dt, gap_m=gap) == force_only
+    # A contradictory positive gap never defeats unloading under actual force.
+    assert normal_contact_support(initial, 1, setup, dt, gap_m=0.01) < initial
+    limited = normal_contact_support(initial, 0, setup, dt, gap_m=0.1)
+    assert limited - initial == pytest.approx(setup.compression_m / setup.sustain_s * dt)
+    maximum = setup.position_tolerance - setup.material_drift_guard_m
+    assert normal_contact_support(maximum, 0, setup, dt, gap_m=0.1) == maximum
+    with pytest.raises(ValueError, match="contact gap"):
+        normal_contact_support(initial, 0, setup, dt, gap_m=np.nan)

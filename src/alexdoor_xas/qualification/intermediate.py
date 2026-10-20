@@ -101,6 +101,7 @@ def restore_hold_state(env, state, setup, audit_path, *, continue_controller=Fal
     reference = float(state.get("reference_angle", 0.0))
     initial_lead = float(state["initial_lead"])
     force = 0.0
+    contact_gap = None
     reconstruction = dict(
         continue_controller=continue_controller,
         gain_joint_names=[a.joint_names[c] for a, c, _, _ in env._motion_impedance],
@@ -133,6 +134,7 @@ def restore_hold_state(env, state, setup, audit_path, *, continue_controller=Fal
                 setup,
                 env.step_dt,
                 target_force=setup.hold_force_n if phase == "hold" else setup.contact_load_guard_n,
+                gap_m=contact_gap,
             )
             if phase == "push":
                 reference = push_reference(
@@ -155,6 +157,18 @@ def restore_hold_state(env, state, setup, audit_path, *, continue_controller=Fal
             sum(c["force_n"] for c in row["contacts"] if c["category"] in ("positive", "negative"))
             for row in env.contact_history
         )
+        gaps = [
+            min(
+                (
+                    c["separation_m"]
+                    for c in row["contacts"]
+                    if c["category"] in ("positive", "negative")
+                ),
+                default=None,
+            )
+            for row in env.contact_history
+        ]
+        contact_gap = max(gaps) if gaps and all(g is not None for g in gaps) else None
         speed = max(float(np.max(abs(sample.dq))) for sample in env.load_samples)
         if continue_controller:
             actual_p = array(env.tool_pose()[0])[0]

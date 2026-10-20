@@ -243,10 +243,18 @@ def conditioning_margin_exhausted(samples, setup):
     )
 
 
-def normal_contact_support(compression, force, setup, dt, *, target_force=None):
+def normal_contact_support(compression, force, setup, dt, *, target_force=None, gap_m=None):
     """Bidirectional bounded force admittance, including removal of excess preload."""
     target_force = setup.contact_load_guard_n if target_force is None else target_force
     rate = setup.normal_admittance_m_n_s * (target_force - force)
+    if gap_m is not None:
+        if not np.isfinite(gap_m):
+            raise ValueError("Invalid measured contact gap")
+        if force < target_force and gap_m > 0:
+            # Close a measured separating gap on the existing force-window
+            # timescale, before the unchanged contact-loss deadline. Keep the
+            # same normal motion rate/extent and force-unloading priority.
+            rate = max(rate, gap_m / setup.contact_force_window_s)
     rate_limit = setup.compression_m / setup.sustain_s
     increment = np.clip(rate, -rate_limit, rate_limit) * dt
     return float(
@@ -501,6 +509,20 @@ def run_probe(
     start_p, start_q = [v[0].cpu().numpy() for v in env.tool_pose()]
     compensation = np.zeros(3)
 
+    def support_normal(compression, phase):
+        gap = traces[-1]["contact_gap_m"] if traces else None
+        if correction is not None and correction.pulse(phase) > 0:
+            # Do not cancel an injected error before eligible correction starts.
+            gap = None
+        return normal_contact_support(
+            compression,
+            contact_load.force,
+            setup,
+            dt,
+            target_force=setup.hold_force_n if phase == "hold" else None,
+            gap_m=gap,
+        )
+
     def command(goal_p, goal_r, phase):
         nonlocal failure, peak, min_margin, min_clearance, compensation, peak_joint_speed
         applied_compensation = (
@@ -693,7 +715,7 @@ def run_probe(
                     1.0, (tick + 1) * dt / (setup.contact_s * 0.7)
                 )
                 if compression is not None:
-                    offset = normal_contact_support(compression, contact_load.force, setup, dt)
+                    offset = support_normal(compression, "contact")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 state = command(
                     *door.contact_pose(angle, setup.contact_fraction, setup.contact_height, offset),
@@ -725,7 +747,7 @@ def run_probe(
                     door.mechanical_stop,
                 )
                 reference_step = reference - previous_reference
-                compression = normal_contact_support(compression, contact_load.force, setup, dt)
+                compression = support_normal(compression, "push")
                 state = command(
                     *door.contact_pose(
                         reference, setup.contact_fraction, setup.contact_height, compression
@@ -889,9 +911,7 @@ def run_probe(
             initial_lead = hold_initial_lead(reference, state[0], reference_step, setup.lead_angle)
             missing_time = 0.0
             for tick in range(round(setup.hold_settle_s / dt)):
-                compression = normal_contact_support(
-                    compression, contact_load.force, setup, dt, target_force=setup.hold_force_n
-                )
+                compression = support_normal(compression, "hold")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 target = hold_reference(angle, initial_lead, door.mechanical_stop)
                 state = command(
@@ -930,7 +950,7 @@ def run_probe(
                 door.mechanical_stop,
             )
             reference_step = reference - previous
-            compression = normal_contact_support(compression, contact_load.force, setup, dt)
+            compression = support_normal(compression, "push")
             state = command(
                 *door.contact_pose(
                     reference,
@@ -997,13 +1017,7 @@ def run_probe(
         missing_time = 0.0
         if not failure:
             for tick in range(round(setup.hold_settle_s / dt)):
-                compression = normal_contact_support(
-                    compression,
-                    contact_load.force,
-                    setup,
-                    dt,
-                    target_force=setup.hold_force_n,
-                )
+                compression = support_normal(compression, "hold")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 state = command(
                     *door.contact_pose(
@@ -1030,9 +1044,7 @@ def run_probe(
         compensation = np.array(intermediate["compensation"], copy=True)
         held = SustainedAngle(setup.sustain_s)
         for tick in range(round(setup.intermediate_preroll_s / dt)):
-            compression = normal_contact_support(
-                compression, contact_load.force, setup, dt, target_force=setup.hold_force_n
-            )
+            compression = support_normal(compression, "hold")
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
             state = command(
                 *door.contact_pose(

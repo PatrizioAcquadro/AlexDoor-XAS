@@ -373,3 +373,15 @@ Unchanged TGS/backend settings, actual mass matrices and existing .01 armature
 are retained in `controller-mechanism.json`; no parameter was invented to suppress
 oscillation. Actual gain readback and controller inputs now accompany each new
 reconstruction audit, alongside native q/dq, targets, door state and contact.
+
+The left high-contact complete attempt is retained as failed: contact was acquired,
+then a separating gap grew to about30µm while the panel briefly coasted ahead of
+the unchanged reference clock. Native force fell to zero for the existing .25s
+loss deadline; no physical limit violation or stopping instability occurred.
+The candidate normal-support correction closes a measured positive gap on the
+existing .1s force-window timescale, within unchanged normal rate/extent bounds.
+Actual excess force still has unloading priority; the push reference never chases
+a coasting panel. Gap feedback is disabled during excluded injected pulses so it
+cannot erase the declared error before eligible correction. Source conditioning
+uses the same feedback when available on both restoration paths. Unit boundaries
+pass; the same full left high-contact condition requires a causal physical rerun.
