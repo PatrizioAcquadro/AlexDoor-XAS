@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 58/112 target cells pass; no policy training
+usable episodes and three failures. Only 65/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -517,8 +517,13 @@ admittance gain, 6 mm/s rate bound, offset bounds, force-unloading priority and 
 physical/task/loss criteria. A focused regression exercises this measured weak-load
 condition. The full-opening report now also preserves the primary physical failure instead
 of overwriting lost_contact with required_opening_not_reached. Old reports remain
-unchanged; their original teacher result retains the cause. Matched resistant-source physical qualification remains pending; this
-contact-feedback defect is separate from the already corrected PD stopping pole.
+unchanged; their original teacher result retains the cause. Matched initial robot/tool/door states and setup are exactly equal. The corrected
+resistant full source passes51.53 degrees versus41.01 required, including hold,
+release, stabilization and independent2+4s stopping. All31 observed control rows
+just beyond the former failure angle retain valid contact. The derived causal
+comparison is pressure-composition-qualification.json. Its C/D continuations also
+pass individually. This contact-feedback defect is separate from the already
+corrected PD stopping pole; other postures/models retain their own gates.
 
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original
@@ -593,4 +598,21 @@ per second. Every execution consumes the original campaign ceilings. The prospec
 matched-response review requires at least 10% change and a material absolute effect
 (0.1 degree angle, 0.1 degree/s speed, 0.02 N mean force or 0.02 N s impulse). These
 are coverage criteria; physical safety and task predicates remain unchanged.
+Late-dynamics admission additionally requires cadence-correct native force
+integrals or measured kinematic response. A mean of per-control native maxima is
+only a peak-envelope metric; it cannot alone establish a force difference between
+120 and240Hz recordings. The first light C/D and resistant C/D cells meet this
+additional review, including their complete ordinary hold. The observed effects
+are conditional responses of the actual model and reconstructed posture, not an
+isolated local mass estimate; matched early factor controls address that question.
+
+The resistant A example at the original .1N acquisition target remains unqualified
+for diversity. Its whole-contact native mean changes .1247 to .1224N; the final
+window changes .1685 to .1807N, below the declared material criterion. A large
+single native maximum does not rescue it. Before spending an A attempt in another
+unchanged context, its actual already-executed B acquisition prefix is reviewed.
+This can reject a redundant launch, never fill a second cell. Qualified B contact
+also establishes prerequisite phase physics for an independent later C/D launch;
+a missing A diversity cell does not invalidate safe contact already executed.
+
 The final handoff must still satisfy every original coverage, physical, data and resource gate.
