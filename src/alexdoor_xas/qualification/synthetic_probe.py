@@ -363,6 +363,16 @@ def prepare_probe(
                 output / "start-stop.npz",
                 force_limit_n=setup.force_limit_n,
             )
+            diagnostic_s = getattr(env.cfg, "stop_diagnostic_continuation_s", 0.0)
+            if diagnostic_s:
+                stopping["two_second_gate_passed"] = stopping["passed"]
+                stopping["diagnostic_continuation"] = verify_stop_continuation(
+                    env,
+                    output / "start-stop-diagnostic.npz",
+                    duration_s=diagnostic_s,
+                    force_limit_n=setup.force_limit_n,
+                )
+                stopping["passed"] &= stopping["diagnostic_continuation"]["passed"]
             (output / "start-stop.json").write_text(json.dumps(stopping, indent=2) + "\n")
             if not stopping["passed"]:
                 raise ValueError("intermediate_start_stop_unqualified")

@@ -3,6 +3,7 @@
 from types import SimpleNamespace
 
 import numpy as np
+import pytest
 import torch
 
 from alexdoor_xas.qualification.stop import verify_stop_continuation
@@ -255,7 +256,10 @@ def test_collection_simulation_guard_counts_steps_across_local_clock_resets(monk
     restore()
 
 
-def test_preparation_checks_and_records_the_same_source_controller_reset(tmp_path, monkeypatch):
+@pytest.mark.parametrize("diagnostic_s", [0.0, 4.0])
+def test_preparation_checks_and_records_the_same_source_controller_reset(
+    tmp_path, monkeypatch, diagnostic_s
+):
     """Exercise both actual prepare_probe branches, including the intervening stop/reset."""
     import sys
 
@@ -283,7 +287,9 @@ def test_preparation_checks_and_records_the_same_source_controller_reset(tmp_pat
     original = dict(state)
     calls = []
     env = SimpleNamespace(
-        reset=lambda: calls.append("reset"), set_neck_target=lambda v: calls.append(("neck", v))
+        cfg=SimpleNamespace(stop_diagnostic_continuation_s=diagnostic_s),
+        reset=lambda: calls.append("reset"),
+        set_neck_target=lambda v: calls.append(("neck", v)),
     )
     controller = dict(
         compression=0.0029, compensation=[0.001, 0, 0], reference_angle=0.201, initial_lead=0.01
@@ -324,7 +330,12 @@ def test_preparation_checks_and_records_the_same_source_controller_reset(tmp_pat
     assert restored[1][1] == "intermediate-recording-reset-physics.json"
     assert restored[0][2] == restored[1][2] == original
     assert restored[0][3] == restored[1][3] == dict(continue_controller=True)
-    assert [v for v in calls if isinstance(v, str)] == ["reset", "stop", "reset", "record"]
+    assert [v for v in calls if isinstance(v, str)] == [
+        "reset",
+        *(["stop"] * (1 + bool(diagnostic_s))),
+        "reset",
+        "record",
+    ]
 
 
 def test_refined_physics_preserves_control_render_and_task_time():

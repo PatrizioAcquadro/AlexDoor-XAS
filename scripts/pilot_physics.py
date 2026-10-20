@@ -106,6 +106,16 @@ def screen_initial_state(env, door, setup, output):
     stopping = verify_stop_continuation(
         env, output / "initial-stop.npz", force_limit_n=setup.force_limit_n
     )
+    diagnostic_s = getattr(env.cfg, "stop_diagnostic_continuation_s", 0.0)
+    if diagnostic_s:
+        stopping["two_second_gate_passed"] = stopping["passed"]
+        stopping["diagnostic_continuation"] = verify_stop_continuation(
+            env,
+            output / "initial-stop-diagnostic.npz",
+            duration_s=diagnostic_s,
+            force_limit_n=setup.force_limit_n,
+        )
+        stopping["passed"] &= stopping["diagnostic_continuation"]["passed"]
     write_json(output / "initial-stop.json", stopping)
     if not stopping["passed"]:
         raise ValueError("initial_stop_failed")
@@ -265,6 +275,7 @@ def main(argv=None):
         stop_diagnostic_s = float(recipe.get("stop_diagnostic_continuation_s", 0.0))
         if not math.isfinite(stop_diagnostic_s) or stop_diagnostic_s < 0:
             raise ValueError("Invalid stop diagnostic duration")
+        cfg.stop_diagnostic_continuation_s = stop_diagnostic_s
     env = DoorPushPurdueEnv(cfg)
     env.reset()  # Establish the configured robot state before any fallible setup.
     budget = (
