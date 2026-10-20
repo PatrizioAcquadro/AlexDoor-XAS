@@ -24,6 +24,7 @@ class CollectionCorrection:
         self.corrective_start_error = None
         self.corrective_latest_error = None
         self.pre_action_reference = None
+        self.reference_advance_rad = 0.0
 
     def elapsed(self, phase):
         return self.counts.get(phase, 0) * self.dt
@@ -57,7 +58,28 @@ class CollectionCorrection:
             else 1.0
         )
 
-    def target(self, position, rotation, phase, measured_position, measured_rotation=None):
+    def injected_reference_advance(self, nominal_step):
+        """Execute the pace error beyond the unchanged ordinary reference cap.
+
+        Scaling only its clock is ineffective whenever the ordinary lead cap is
+        active. Accumulate the extra delivered progression separately; keep it
+        fully applied until corrective control takes over, without a fall taper.
+        """
+        if self.family != "C" or self.variation != "correction-2" or self.pulse("push") <= 0:
+            return None
+        self.reference_advance_rad += (self.rate_scale() - 1) * max(0.0, nominal_step)
+        return self.reference_advance_rad
+
+    def target(
+        self,
+        position,
+        rotation,
+        phase,
+        measured_position,
+        measured_rotation=None,
+        *,
+        injected_pose=None,
+    ):
         position, rotation = np.array(position, copy=True), np.array(rotation, copy=True)
         if phase == "release" and self.release_origin is None:
             self.release_origin = np.array(measured_position, copy=True)
@@ -111,7 +133,10 @@ class CollectionCorrection:
                 position += rotation[:, 0] * max(0.0, -0.008 - normal) * amount
             elif key == "D2":
                 position += (self.release_origin - position) * amount
-            # C2 perturbs the actual reference advancement, not recorded states.
+            elif key == "C2":
+                if injected_pose is None:
+                    raise ValueError("C2 requires an executed advanced reference pose")
+                position, rotation = (np.array(v, copy=True) for v in injected_pose)
         self.counts[phase] = self.counts.get(phase, 0) + 1
         self.injected_commands += int(self.role == INJECTED)
         self.corrective_commands += int(self.role == CORRECTIVE)
@@ -155,6 +180,7 @@ class CollectionCorrection:
             full_task_contact_loss=self.contact_loss_detected,
             corrective_start_error=self.corrective_start_error,
             corrective_latest_error=self.corrective_latest_error,
+            injected_reference_advance_rad=self.reference_advance_rad,
             transfer="full disturbance until handoff; measured-origin 0.5s cosine correction",
             action_roles={
                 "expert": EXPERT,

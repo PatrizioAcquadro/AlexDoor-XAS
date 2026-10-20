@@ -382,7 +382,17 @@ reference includes existing normal/tangential support; it is an evaluator diagno
 not a counterfactual trajectory or policy input. This permits first-eligible-row
 recovery measurements even when phase validity excludes some corrective commands.
 Bounded recontact feedback during injection must be checked for premature error
-cancellation before the B/C conditions are multiplied.
+cancellation before the B/C conditions are multiplied. A retained-trace C2 audit
+finds that multiplying the ordinary reference clock by 1.5 changes no request in
+826 visited C states because the lead cap is active. The corrected mechanism
+accumulates half the positive ordinary reference progression during the pulse
+and physically executes that extra material-angle advance as an excluded action.
+The ordinary clock/cap and all physical limits remain unchanged. No taper removes
+the accumulated offset before measured-origin corrective control. A regression
+exercises the saturated-cap path, actual requested progression and retained handoff
+error. This is implementation only; C2 remains unqualified until actual motion,
+contact, corrective labels, tail and stopping demonstrate its declared scope.
+`pace-pulse-cap-audit.json` and prospective protocol preserve the distinction.
 
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original

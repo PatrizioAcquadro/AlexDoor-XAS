@@ -21,7 +21,11 @@ def test_every_correction_executes_a_bounded_pulse_and_requires_response(family,
     maximum = 0.0
     for _ in range(480):
         maximum = max(maximum, case.rate_scale())
-        p, rotation = case.target(np.zeros(3), np.eye(3), phase, np.zeros(3))
+        advance = case.injected_reference_advance(0.0001)
+        injected_pose = None if advance is None else (np.array([0.3 * advance, 0, 0]), np.eye(3))
+        p, rotation = case.target(
+            np.zeros(3), np.eye(3), phase, np.zeros(3), injected_pose=injected_pose
+        )
         assert np.isfinite(p).all() and np.isfinite(rotation).all()
         assert np.linalg.norm(p) <= 0.021
         case.observe(dict(valid=False, loaded=True, separation_m=0))
@@ -75,3 +79,58 @@ def test_full_disturbance_survives_until_measured_corrective_handoff():
         p, r = case.target(np.zeros(3), np.eye(3), "approach", measured_p, measured_r)
     np.testing.assert_allclose(p, 0, atol=1e-12)
     assert case.corrective_latest_error["position_m"] < 1e-12
+
+
+def test_pace_pulse_changes_executed_reference_when_ordinary_clock_is_capped():
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.qualification.collection_corrections import CORRECTIVE
+    from alexdoor_xas.qualification.synthetic_probe import push_reference
+
+    dt = 1 / 60
+    setup = ProbeSetup()
+    case = CollectionCorrection("C", "correction-2", setup, dt)
+    reference = 0.0
+    measured_p, measured_r = np.array([0.3, 0, 0]), np.eye(3)
+    previous_requested = None
+    injected_ratios = []
+    last_advance = 0.0
+    handed_off = False
+    for tick in range(400):
+        angle = 0.006 * tick * dt
+        nominal = push_reference(reference, angle, setup, dt, np.pi / 2)
+        if case.pulse("push") > 0:
+            assert push_reference(reference, angle, setup, 1.5 * dt, np.pi / 2) == nominal
+        step = nominal - reference
+        reference = nominal
+        scale = case.rate_scale()
+        advance = case.injected_reference_advance(step)
+
+        def pose(value):
+            return np.array([0.3 * np.cos(value), 0.3 * np.sin(value), 0]), Rotation.from_euler(
+                "z", value
+            ).as_matrix()
+
+        p, r = pose(reference)
+        injected = None if advance is None else pose(reference + advance)
+        prior_role = case.role
+        p, r = case.target(p, r, "push", measured_p, measured_r, injected_pose=injected)
+        requested = Rotation.from_matrix(r).as_euler("xyz")[2]
+        if case.role == INJECTED:
+            if prior_role == INJECTED and scale == 1.5:
+                injected_ratios.append((requested - previous_requested) / step)
+            last_advance = advance
+        elif case.role == CORRECTIVE and prior_role == INJECTED:
+            handed_off = True
+            assert case.corrective_start_error["rotation_rad"] > 0.9 * last_advance
+        previous_requested = requested
+        measured_p, measured_r = p, r
+    assert handed_off and last_advance > 0.002
+    np.testing.assert_allclose(injected_ratios, 1.5, atol=1e-10, rtol=0)
+
+
+def test_pace_injection_cannot_silently_omit_the_advanced_pose():
+    case = CollectionCorrection("C", "correction-2", ProbeSetup(), 1 / 60)
+    case.counts["push"] = 280
+    with pytest.raises(ValueError, match="advanced reference pose"):
+        case.target(np.zeros(3), np.eye(3), "push", np.zeros(3))

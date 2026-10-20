@@ -533,16 +533,24 @@ def run_probe(
             gap_m=gap,
         )
 
-    def command(goal_p, goal_r, phase):
+    def command(goal_p, goal_r, phase, *, injected_pose=None):
         nonlocal failure, peak, min_margin, min_clearance, compensation, peak_joint_speed
         applied_compensation = (
             compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
         )
         goal_p = goal_p + goal_r @ applied_compensation
         if correction is not None:
+            if injected_pose is not None:
+                injected_p, injected_r = injected_pose
+                injected_pose = (injected_p + injected_r @ applied_compensation, injected_r)
             measured_p, measured_q = [v[0].cpu().numpy() for v in env.tool_pose()]
             goal_p, goal_r = correction.target(
-                goal_p, goal_r, phase, measured_p, Rotation.from_quat(measured_q).as_matrix()
+                goal_p,
+                goal_r,
+                phase,
+                measured_p,
+                Rotation.from_quat(measured_q).as_matrix(),
+                injected_pose=injected_pose,
             )
         if recorder is not None:
             recorder.phase = phase
@@ -753,16 +761,29 @@ def run_probe(
                     reference,
                     angle,
                     setup,
-                    dt * (1.0 if correction is None else correction.rate_scale()),
+                    dt,
                     door.mechanical_stop,
                 )
                 reference_step = reference - previous_reference
                 compression = support_normal(compression, "push")
+                advance = (
+                    None
+                    if correction is None
+                    else correction.injected_reference_advance(reference_step)
+                )
                 state = command(
                     *door.contact_pose(
                         reference, setup.contact_fraction, setup.contact_height, compression
                     ),
                     "push",
+                    injected_pose=None
+                    if advance is None
+                    else door.contact_pose(
+                        reference + advance,
+                        setup.contact_fraction,
+                        setup.contact_height,
+                        compression,
+                    ),
                 )
                 traces[-1]["push_compression_m"] = compression
                 if family is None and hasattr(recorder, "observations"):
@@ -956,11 +977,16 @@ def run_probe(
                 reference,
                 angle,
                 setup,
-                dt * (1.0 if correction is None else correction.rate_scale()),
+                dt,
                 door.mechanical_stop,
             )
             reference_step = reference - previous
             compression = support_normal(compression, "push")
+            advance = (
+                None
+                if correction is None
+                else correction.injected_reference_advance(reference_step)
+            )
             state = command(
                 *door.contact_pose(
                     reference,
@@ -969,6 +995,11 @@ def run_probe(
                     compression,
                 ),
                 "push",
+                injected_pose=None
+                if advance is None
+                else door.contact_pose(
+                    reference + advance, setup.contact_fraction, setup.contact_height, compression
+                ),
             )
             missing_time = 0.0 if state[5] else missing_time + dt
             if missing_time > 0.25:
