@@ -177,11 +177,11 @@ class PurdueIO:
 
         self.profile = geometry_profile(binding)
         if isinstance(binding, PilotBinding) and (
-            not np.isclose(env.cfg.sim.dt, 1 / 120, atol=1e-10, rtol=0)
-            or env.cfg.decimation != 2
+            env.cfg.decimation not in (2, 4)
+            or not np.isclose(env.cfg.sim.dt * env.cfg.decimation, 1 / 60, atol=1e-10, rtol=0)
             or not np.isclose(env.step_dt, 1 / 60, atol=1e-10, rtol=0)
         ):
-            raise ValueError("Pilot requires 120 Hz physics and 60 Hz control")
+            raise ValueError("Pilot requires 120/240 Hz physics and 60 Hz control")
         if self.profile == OPERATIONAL_V1 and observed_provider is None:
             raise ValueError("Operational IO requires the observed-only monitor")
         from alexdoor_xas.policies.observations import require_provider_binding

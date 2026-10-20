@@ -160,7 +160,8 @@ def test_monitor_uses_robot_load_and_local_support_without_task_truth():
     )
 
 
-def test_physics_peak_load_cannot_disappear_between_control_ticks(tmp_path):
+@pytest.mark.parametrize("substeps", [2, 4])
+def test_physics_peak_load_cannot_disappear_between_control_ticks(tmp_path, substeps):
     import h5py
 
     from alexdoor_xas.perception.load import PurdueLoadSource, RobotLoadSample
@@ -170,18 +171,33 @@ def test_physics_peak_load_cannot_disappear_between_control_ticks(tmp_path):
     model, jac, load = load_inputs()
     first = replace(
         load.feedback,
-        timestamp_s=1 - 1 / 120,
-        available_s=1 - 1 / 120,
+        timestamp_s=1 - (substeps - 1) / (60 * substeps),
+        available_s=1 - (substeps - 1) / (60 * substeps),
         torque_nm=load.feedback.torque_nm * 2,
     )
     samples = [
         RobotLoadSample(fb, np.zeros(7), jac, np.zeros(7), np.zeros(7), np.zeros(7))
-        for fb in (first, load.feedback)
+        for fb in (
+            first,
+            *[
+                replace(
+                    load.feedback,
+                    timestamp_s=1 - k / (60 * substeps),
+                    available_s=1 - k / (60 * substeps),
+                )
+                for k in range(substeps - 2, -1, -1)
+            ],
+        )
     ]
     estimate = local_inputs()[0]
     io = SimpleNamespace(
         admission=None,
-        env=SimpleNamespace(load_samples=samples),
+        env=SimpleNamespace(
+            load_samples=samples,
+            cfg=SimpleNamespace(
+                sim=SimpleNamespace(dt=1 / (60 * len(samples))), decimation=len(samples)
+            ),
+        ),
         safety=SimpleNamespace(provider=SimpleNamespace(last_estimate=estimate)),
     )
     peak = PurdueLoadSource(model.calibration, normal_angular_speed_rad_s=0.15)(io, load.feedback)
@@ -193,7 +209,7 @@ def test_physics_peak_load_cannot_disappear_between_control_ticks(tmp_path):
     writer.physics_feedback(samples)
     writer.close()
     with h5py.File(tmp_path / "physics.hdf5") as source:
-        assert len(source["physics_feedback/time_s"]) == 2
+        assert len(source["physics_feedback/time_s"]) == substeps
         np.testing.assert_array_equal(source["physics_feedback/torque_nm"][0], first.torque_nm)
 
 
@@ -502,7 +518,12 @@ def test_native_normal_load_uses_its_bound_and_preserves_full_wrench_peak():
     provider = SimpleNamespace(last_estimate=estimate)
     io = SimpleNamespace(
         admission=None,
-        env=SimpleNamespace(load_samples=samples),
+        env=SimpleNamespace(
+            load_samples=samples,
+            cfg=SimpleNamespace(
+                sim=SimpleNamespace(dt=1 / (60 * len(samples))), decimation=len(samples)
+            ),
+        ),
         safety=SimpleNamespace(provider=provider),
     )
     source = PurdueLoadSource(model.calibration, normal_angular_speed_rad_s=0.15)

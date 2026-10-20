@@ -86,7 +86,7 @@ def publish_expert(folder, original, report, output):
 
 def configure_physics_substeps(cfg, substeps):
     """Refine integration while retaining 60 Hz control and rendering boundaries."""
-    if isinstance(substeps, bool) or substeps not in (2, 4):
+    if type(substeps) is not int or substeps not in (2, 4):
         raise ValueError("Supported physics substeps are 2 (120 Hz) and 4 (240 Hz)")
     cfg.sim.dt = 1 / (60 * substeps)
     cfg.decimation = substeps

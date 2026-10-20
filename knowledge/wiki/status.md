@@ -330,3 +330,10 @@ reviewed-scope totals are 18.838/40 GPU hours and 572.84/1024 GiB; 6/160 new att
 The old 24-attempt cap is prospectively superseded for this campaign only. Next is
 independent stop-stability diagnosis/qualification at actual postures before any
 remaining matrix launch. Training, learned evaluation and the final test stay closed.
+
+The diverse ACT A1 campaign has resumed bounded qualification on 20 October. Matched
+native traces identify a 120 Hz explicit-PD integration instability; opt-in 240 Hz
+physics preserves 60 Hz control and 10 Hz RGB-D. Both-direction phase progression,
+2 s stopping plus delayed continuation, and six frozen-bound compatibility controls
+pass. The 112-cell objective remains unmet; new recovery/dynamics/pose cells still
+require physical and diversity admission. See [[act-a1-diverse-collection]].

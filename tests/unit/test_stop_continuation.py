@@ -339,6 +339,6 @@ def test_refined_physics_preserves_control_render_and_task_time():
         assert cfg.sim.dt * cfg.sim.render_interval == 1 / 60
         assert round(6 / cfg.sim.dt) // cfg.decimation == 360
         assert round(0.1 / cfg.sim.dt) // cfg.decimation == 6
-    for invalid in (1, 3, True, 2.5):
+    for invalid in (1, 3, True, 2.5, 4.0):
         with pytest.raises(ValueError):
             configure_physics_substeps(cfg, invalid)

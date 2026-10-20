@@ -443,10 +443,14 @@ class PurdueLoadSource:
             raise ValueError("invalid_load_normal_bound")
         samples = env.load_samples
         times = [sample.feedback.timestamp_s for sample in samples]
+        native_dt = env.cfg.sim.dt
+        substeps = env.cfg.decimation
+        expected_times = feedback.timestamp_s - native_dt * np.arange(substeps - 1, -1, -1)
         if (
-            len(samples) != 2
-            or times[-1] != feedback.timestamp_s
-            or not np.isclose(times[-1] - times[0], 1 / 120, atol=1e-9, rtol=0)
+            substeps not in (2, 4)
+            or not np.isclose(native_dt * substeps, 1 / 60, atol=1e-10, rtol=0)
+            or len(samples) != substeps
+            or not np.allclose(times, expected_times, atol=1e-9, rtol=0)
         ):
             raise ValueError("missing_physics_load_samples")
         neck = (
@@ -477,7 +481,7 @@ class PurdueLoadSource:
         if any(not load.feedback.healthy or load.feedback.torque_nm is None for load in loads):
             raise ValueError("unhealthy_physics_feedback")
         # Retain the current measured feedback identity, and monitor the peak
-        # bound across both 120 Hz substeps rather than only the 60 Hz endpoint.
+        # bound across every native substep rather than only the 60 Hz endpoint.
         return replace(
             loads[-1],
             feedback=feedback,
@@ -500,7 +504,7 @@ class PurdueLoadSource:
             position_halo=tuple(row for load in loads for row in load.position_halo),
             normal_samples=tuple(
                 (
-                    load.feedback.timestamp_s - 1 / 120,
+                    load.feedback.timestamp_s - native_dt,
                     load.feedback.timestamp_s,
                     load.normal_lower_n
                     - load.force_upper_n

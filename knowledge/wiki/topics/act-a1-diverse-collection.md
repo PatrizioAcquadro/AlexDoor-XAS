@@ -1,8 +1,9 @@
 # Diverse bounded ACT A1 collection campaign
 
-**Status: halted, goal unmet.** Six physical attempts produced three individually
+**Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
 usable episodes and three failures. Only 3/112 target cells pass; no policy training
-or optimizer update occurred. Loaded-stop qualification blocks the main matrix.
+or optimizer update occurred. The resumed runtime decision below permits bounded
+collection in qualified scopes; unsupported variations retain independent gates.
 
 ## Prospective declaration
 
@@ -306,3 +307,24 @@ An opt-in `physics_substeps=4` recipe refines physics to 240 Hz while retaining
 chunk and execution length are unchanged. Old 120 Hz calibration/stop scope is not
 automatically transferred. Diagnostic records live under `runtime-diagnostics/`;
 `runtime-diagnostic-plan.json` and `runtime-diagnostic-attempts.json` retain all cases.
+
+The 240 Hz compatibility check now passes all six right/left 10 N normal/cone and
+unloaded controls against the unchanged residual, joint, held-joint, shape-stop and
+rotation bounds. No calibration fit or bound increase occurred. Analysis explicitly
+aligns the fourth native substep with the first 60 Hz pose; motion excludes the
+independently timed stop/removal rows. Raw diagnostics retain the original phase
+annotation limitation; the corrected joins are in `analyze_compatibility.py`.
+Both opening directions pass fresh push, original hold, release and ordinary
+stabilization, with separate 2 s stops and 4 s fixed-anchor continuations. These
+are qualification executions without recordings; they do not fill target cells.
+
+`runtime-qualification-decision.json` admits scoped collection. The first resumed
+cell is A correction-2, to physically qualify the measured-origin corrective handoff.
+Each new variation retains task/physical/diversity admission. Every resumed collection
+also records a separate delayed stop continuation after the unchanged 2 s gate.
+Native load monitoring checks every configured 120/240 Hz substep, including peak
+load between unchanged 60 Hz decisions. The legacy 120 Hz inputs remain supported.
+Nineteen campaign attempts have been charged before this first resumed collection:
+six original, six matched/integration diagnostics (one wrapper failure), six
+compatibility controls and one left integration. Exact current totals are in the
+resource ledger; all original costs and failed outcomes remain in the denominator.

@@ -257,10 +257,14 @@ def main(argv=None):
     cfg = probe_config(door, setup, "cuda:0")
     cfg.seed = selected[0]["seed"]
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
+    stop_diagnostic_s = 0.0
     if args.operational_recipe is not None:
         recipe = json.loads(args.operational_recipe.read_text())
         cfg.stop_stiffness = tuple(recipe.get("stop_stiffness", cfg.stop_stiffness))
         configure_physics_substeps(cfg, recipe.get("physics_substeps", cfg.decimation))
+        stop_diagnostic_s = float(recipe.get("stop_diagnostic_continuation_s", 0.0))
+        if not math.isfinite(stop_diagnostic_s) or stop_diagnostic_s < 0:
+            raise ValueError("Invalid stop diagnostic duration")
     env = DoorPushPurdueEnv(cfg)
     env.reset()  # Establish the configured robot state before any fallible setup.
     budget = (
@@ -272,7 +276,7 @@ def main(argv=None):
     restore_interruption = install_interruption(
         env,
         max_wall_s=budget.get("wall_s_per_case"),
-        max_sim_s=None if sim_guard is None else sim_guard - 2.0,
+        max_sim_s=None if sim_guard is None else sim_guard - 2.0 - stop_diagnostic_s,
     )
     write_json(
         args.output / "physical-case-start.json",
@@ -536,7 +540,17 @@ def main(argv=None):
             )
             if not result["post_stop"]["passed"]:
                 result["passed"] = False
-        result["safety_stop_passed"] = bool(result["post_stop"]["passed"])
+        if stop_diagnostic_s:
+            result["post_stop_diagnostic"] = verify_stop_continuation(
+                env,
+                args.output / "post-stop-diagnostic.npz",
+                duration_s=stop_diagnostic_s,
+                force_limit_n=setup.force_limit_n,
+            )
+        result["safety_stop_passed"] = bool(
+            result["post_stop"]["passed"]
+            and result.get("post_stop_diagnostic", {"passed": True})["passed"]
+        )
         if args.mode == "collect":
             from alexdoor_xas.recording.quality import review_native_collection
 
@@ -568,7 +582,9 @@ def main(argv=None):
             )
 
         result["accounted_simulation_s"] = (
-            env.collection_physics_s + result["post_stop"]["duration_s"]
+            env.collection_physics_s
+            + result["post_stop"]["duration_s"]
+            + result.get("post_stop_diagnostic", {}).get("duration_s", 0.0)
         )
         result["wall_s"] = perf_counter() - started
         write_json(args.output / "report.json", result)
