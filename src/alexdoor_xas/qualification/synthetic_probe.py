@@ -1212,6 +1212,7 @@ def run_probe(
             )
         current_p, current_q = [v[0].cpu().numpy() for v in env.tool_pose()]
         release_slerp = Slerp([0, 1], Rotation.from_quat([current_q, retreat_q]))
+        release_pause_started = False
         for tick in range(round(setup.release_s / dt)):
             a = min(1.0, (tick + 1) * dt / (setup.release_s * 0.7))
             goal_p, goal_r = current_p + (retreat_p - current_p) * a, release_slerp(a).as_matrix()
@@ -1225,7 +1226,23 @@ def run_probe(
                     setup,
                 )
             injected_pose = None
+            pause_handoff = None
             if correction is not None and failure is None and correction.holds_release_contact():
+                if not release_pause_started:
+                    # The declared error is continued support, not another push.
+                    # Capture achieved offsets once and remove the old angular
+                    # opening lead; physics, gains and velocities keep evolving.
+                    _, compression, compensation = achieved_contact_hold_state(
+                        door, setup, traces[-1]
+                    )
+                    initial_lead = 0.0
+                    release_pause_started = True
+                    pause_handoff = dict(
+                        compression_m=compression,
+                        tangential_compensation_m=compensation.tolist(),
+                        opening_lead_rad=initial_lead,
+                        scope="One achieved-contact handoff to excluded force-support pause",
+                    )
                 # The erroneous action is continued real contact, not a world
                 # pose that the moving panel can leave without expert withdrawal.
                 compression = normal_contact_support(
@@ -1245,6 +1262,8 @@ def run_probe(
                 )
                 injected_pose = (injected_p + injected_r @ compensation, injected_r)
             state = command(goal_p, goal_r, "release", injected_pose=injected_pose)
+            if pause_handoff is not None:
+                traces[-1]["release_contact_pause_handoff"] = pause_handoff
             if failure == "invalid_physics" or env.motion_stopped:
                 break
         actual_p = env.tool_pose()[0][0].cpu().numpy()

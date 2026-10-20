@@ -503,8 +503,17 @@ its excluded pause, rather than letting the panel coast away from a fixed tool p
 Pulse times/amplitudes, injected-command masks, ordinary corrective blend, release,
 tail and stop criteria remain unchanged. A moving-material regression exercises
 both paths and their real corrective handoff. After a failure, further error injection is suppressed during ordinary cleanup;
-the failure latch and original outcome remain. Physical D prototypes remain pending;
-actual first-supervised separation/contact must establish their declared scope.
+the failure latch and original outcome remain. D1's physical prototype passes with7.33mm first-supervised material separation,
+20.85mm ordinary-reference error, all59 injected actions excluded and all37
+corrective actions usable. It exceeds10mm separation within.25s and reduces
+reference error to.92mm by1.5s; ordinary tail and2+4s stops pass.
+D2's continued-contact pause instead reaches.533rad/s before correction, with its
+independent stop stable. The inherited positive opening lead continues driving the
+door near the reach boundary. The matched candidate captures achieved supported
+offsets once and removes this angular opening lead, while continuing ordinary
+bounded force support. This is an excluded intentional contact pause, not another
+opening push. Physical qualification remains pending; original failed states and
+native oscillation-free stopping remain preserved.
 
 The light model's full source and C/D targets pass their individual gates. The
 first resistant full source instead loses ordinary contact near36 degrees; its
