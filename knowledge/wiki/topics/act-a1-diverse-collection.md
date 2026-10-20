@@ -434,6 +434,16 @@ not a qualified cure. Same-source C1, opposite-direction B2 and a nominal-direct
 B2 compatibility control are prospectively declared; criteria, pulses, gains,
 physics rates and source states remain unchanged.
 
+The matched no-overlap C1 attempt also fails, now at the unchanged one-second
+recontact deadline: 0.352 mm gap remains while the 0.5 s return is still active.
+Its first corrective row has 0.933 mm normal-reference residual and only 0.25 s
+of remaining loss allowance. C1 alone now uses a 0.25 s measured-origin cosine
+return; the resulting requested normal peak is 5.86 mm/s, within the existing
+6 mm/s gap catch-up rate. Other correction transitions remain 0.5 s. This repairs
+a pulse/return timing incompatibility without shortening the pulse or relaxing a
+physical/task/loss criterion. Physical qualification remains pending; the failed
+matched attempt and its ordinary cleanup/stable stop are preserved.
+
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height
 separation from nominal. D records 6.12 s genuine pre-release history, the original
 3 s hold and 20.12 mm height separation. B initial opening has 19.97 mm separation.

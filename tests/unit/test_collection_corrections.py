@@ -206,11 +206,29 @@ def test_gap_catchup_waits_for_measured_position_return_to_finish():
     p, r = case.target(np.zeros(3), np.eye(3), "push", np.zeros(3))
     case.counts["push"] = 300
     assert case.position_return_active("push")  # before first corrective dispatch
-    for _ in range(15):
+    for _ in range(7):
         p, r = case.target(np.zeros(3), np.eye(3), "hold", p, r)
         assert case.position_return_active("hold")
-    for _ in range(16):
+    for _ in range(9):
         p, r = case.target(np.zeros(3), np.eye(3), "hold", p, r)
     assert case.corrective_transition_complete
     assert not case.position_return_active("hold")
     assert case.pending  # transition completion alone is not physical recovery
+
+
+def test_c1_measured_return_fits_recontact_budget_without_exceeding_gap_catchup_rate():
+    case = CollectionCorrection("C", "correction-1", ProbeSetup(), 1 / 60)
+    case.counts["push"] = 299
+    case.target(np.zeros(3), np.eye(3), "push", np.array([-0.0009333347, 0, 0]))
+    positions = [-0.0009333347]
+    for _ in range(16):
+        p, _ = case.target(np.zeros(3), np.eye(3), "push", np.array([positions[-1], 0, 0]))
+        positions.append(p[0])
+    assert max(np.diff(positions)) / case.dt <= 0.006
+    assert positions[-2] == pytest.approx(0, abs=1e-10)
+    assert case.corrective_transition_complete
+    assert case.pending  # still needs measured sustained valid contact
+    assert (
+        CollectionCorrection("B", "correction-2", ProbeSetup(), 1 / 60).corrective_transition_s
+        == 0.5
+    )

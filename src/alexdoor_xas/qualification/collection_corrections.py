@@ -23,6 +23,12 @@ class CollectionCorrection:
         self.corrective_origin = None
         self.corrective_elapsed_s = 0.0
         self.corrective_transition_complete = False
+        # C1's .8 s weakening pulse leaves only .25 s before the unchanged
+        # recontact deadline. Its measured .93 mm normal return peaks at
+        # 5.86 mm/s over .25 s, within the ordinary 6 mm/s gap catch-up rate.
+        self.corrective_transition_s = (
+            0.25 if family == "C" and variation == "correction-1" else 0.5
+        )
         self.corrective_start_error = None
         self.corrective_latest_error = None
         self.pre_action_reference = None
@@ -127,7 +133,9 @@ class CollectionCorrection:
             self.corrective_latest_error = error
             if self.corrective_origin is not None:
                 self.corrective_elapsed_s += self.dt
-                blend = 0.5 - 0.5 * np.cos(np.pi * min(self.corrective_elapsed_s / 0.5, 1.0))
+                blend = 0.5 - 0.5 * np.cos(
+                    np.pi * min(self.corrective_elapsed_s / self.corrective_transition_s, 1.0)
+                )
                 self.corrective_transition_complete = blend >= 1.0
                 origin_p, origin_r = self.corrective_origin
                 position = origin_p + blend * (position - origin_p)
@@ -218,7 +226,8 @@ class CollectionCorrection:
             corrective_start_error=self.corrective_start_error,
             corrective_latest_error=self.corrective_latest_error,
             injected_reference_advance_rad=self.reference_advance_rad,
-            transfer="full disturbance until handoff; measured-origin 0.5s cosine correction",
+            corrective_transition_s=self.corrective_transition_s,
+            transfer="full disturbance until handoff; measured-origin cosine correction",
             action_roles={
                 "expert": EXPERT,
                 "injected_excluded": INJECTED,
