@@ -161,3 +161,19 @@ recording but cannot teach early release for the unchanged full opening objectiv
 C/D terminal supervision is conditional on genuine late source states and the
 unchanged physical exit/hold/release criteria; an arbitrary short-duration stop is
 not a new hidden policy goal. Corrections retain a single opening task throughout.
+
+## First reconstruction failure and mechanism
+
+`train-1-D-pose-high` failed before recording. Six static joint-anchor conditioning
+steps retained zero contact force while the door coasted at approximately .0104 rad/s.
+The right-arm source velocity .05519 rad/s decelerated to -.00192, producing .05712
+rad/s reconstruction error against the existing .05 bound. Position/tool errors
+were small, and the independent stop passed. This is a failed attempt, not new
+release coverage or proof of physical danger from a small empirical excursion.
+
+The diagnosed correction continues the source's measured push/hold controller
+through conditioning, carrying compression, compensation and reference forward.
+It requires reconstructed contact before a loaded stop and before recording. The
+original .05 rad/s reconstruction bound and all physical safety gates remain.
+A replacement needs its own recorded attempt and must establish actual contact,
+release and data usability; the original failure stays in the denominator.

@@ -342,6 +342,8 @@ def prepare_probe(
             env, intermediate, setup, output / "intermediate-reset-physics.json"
         )
         if qualify_start_stop:
+            if audit["conditioning_contact_force_n"][-1] < setup.loaded_force_n:
+                raise ValueError("loaded_start_contact_not_reconstructed")
             from alexdoor_xas.qualification.stop import verify_stop_continuation
 
             stopping = verify_stop_continuation(
@@ -360,6 +362,10 @@ def prepare_probe(
                 setup,
                 output / "intermediate-recording-reset-physics.json",
             )
+        if qualify_start_stop:
+            if audit["conditioning_contact_force_n"][-1] < setup.loaded_force_n:
+                raise ValueError("recording_start_contact_not_reconstructed")
+            intermediate.update(audit["conditioned_controller"])
         (output / "intermediate-restore.json").write_text(json.dumps(audit, indent=2) + "\n")
     if recorder is not None:
         recorder.start(

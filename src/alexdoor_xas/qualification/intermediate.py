@@ -94,20 +94,70 @@ def restore_hold_state(env, state, setup, audit_path):
     env.capture.reset()
     conditioning = []
     anchor = env.targets[:, env.arm_ids].clone()
+    door = env.cfg.prepared_door
+    phase = str(state.get("phase", "hold"))
+    compression = float(state["compression"])
+    compensation = np.array(state["compensation"], copy=True)
+    reference = float(state.get("reference_angle", 0.0))
+    initial_lead = float(state["initial_lead"])
+    force = 0.0
+    from alexdoor_xas.qualification.synthetic_probe import (
+        hold_reference,
+        normal_contact_support,
+        push_reference,
+        tangential_compensation,
+    )
+
     for _ in range(6):
         measured = torch.as_tensor(
             array(env.robot.data.joint_pos)[:, env.arm_ids], dtype=torch.float32, device=env.device
         )
-        env.step_a1(anchor - measured)
+        angle = float(array(env.door.data.joint_pos)[0, 0])
+        compression = normal_contact_support(
+            compression,
+            force,
+            setup,
+            env.step_dt,
+            target_force=setup.hold_force_n if phase == "hold" else setup.contact_load_guard_n,
+        )
+        if phase == "push":
+            reference = push_reference(reference, angle, setup, env.step_dt, door.mechanical_stop)
+        else:
+            reference = hold_reference(angle, initial_lead, door.mechanical_stop)
+        goal_p, goal_r = door.contact_pose(
+            reference,
+            setup.contact_fraction,
+            setup.contact_height,
+            compression,
+        )
+        goal_p = goal_p + goal_r @ compensation
+        env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
+        env.step(torch.zeros((1, 6), device=env.device))
         force = max(
             sum(c["force_n"] for c in row["contacts"] if c["category"] in ("positive", "negative"))
             for row in env.contact_history
         )
         speed = max(float(np.max(abs(sample.dq))) for sample in env.load_samples)
+        actual_p = array(env.tool_pose()[0])[0]
+        material_p, material_r = door.contact_pose(
+            float(array(env.door.data.joint_pos)[0, 0]),
+            setup.contact_fraction,
+            setup.contact_height,
+        )
+        compensation = tangential_compensation(
+            compensation,
+            (material_p - actual_p) @ material_r,
+            force >= setup.loaded_force_n,
+            setup,
+            env.step_dt,
+        )
         conditioning.append(
             dict(
                 time_s=float(env._time_s),
-                requested_delta=(anchor - measured).cpu().tolist(),
+                source_target_delta=(anchor - measured).cpu().tolist(),
+                commanded_tool_position=goal_p.tolist(),
+                commanded_tool_quaternion=Rotation.from_matrix(goal_r).as_quat().tolist(),
+                phase_controller=phase,
                 delivered_target=array(env.targets)[:, env.arm_ids].tolist(),
                 joint_position=array(env.robot.data.joint_pos).tolist(),
                 joint_velocity=array(env.robot.data.joint_vel).tolist(),
@@ -173,4 +223,11 @@ def restore_hold_state(env, state, setup, audit_path):
         ),
         generation=env.generation,
         solver_state="reconstructed; requires fresh sustained physical contact qualification",
+        conditioned_controller=dict(
+            compression=compression,
+            compensation=compensation.tolist(),
+            reference_angle=reference,
+            initial_lead=initial_lead,
+        ),
+        conditioning_contact_force_n=[row["force_n"] for row in conditioning],
     )
