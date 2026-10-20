@@ -860,11 +860,9 @@ def run_probe(
                     if correction is not None and correction.permit_recontact(
                         traces[-1], missing_time
                     ):
-                        compression = min(
-                            compression + setup.compression_m * dt / setup.sustain_s,
-                            setup.position_tolerance - setup.material_drift_guard_m,
-                        )
-                        reference = min(reference, angle + setup.lead_angle)
+                        # Do not cancel the injected error with an independent
+                        # compression ramp. The reported corrective transition
+                        # and ordinary contact feedback own physical recontact.
                         traces[-1]["bounded_recontact"] = True
                     else:
                         failure = "lost_contact"
@@ -1004,10 +1002,7 @@ def run_probe(
             missing_time = 0.0 if state[5] else missing_time + dt
             if missing_time > 0.25:
                 if correction is not None and correction.permit_recontact(traces[-1], missing_time):
-                    compression = min(
-                        compression + setup.compression_m * dt / setup.sustain_s,
-                        setup.position_tolerance - setup.material_drift_guard_m,
-                    )
+                    traces[-1]["bounded_recontact"] = True
                 else:
                     failure = failure or "lost_contact"
             if failure:

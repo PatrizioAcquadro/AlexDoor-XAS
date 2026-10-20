@@ -33,7 +33,7 @@ def test_every_correction_executes_a_bounded_pulse_and_requires_response(family,
     assert maximum > 1 if family == "C" and variant == 2 else maximum == 1
     for _ in range(31):
         case.role = 2
-        case.observe(dict(valid=True, loaded=False, separation_m=0.02))
+        case.observe(dict(valid=True, loaded=family != "D", separation_m=0.02))
     assert not case.pending
     unsafe = dict(
         physical_safe=False,
@@ -134,3 +134,48 @@ def test_pace_injection_cannot_silently_omit_the_advanced_pose():
     case.counts["push"] = 280
     with pytest.raises(ValueError, match="advanced reference pose"):
         case.target(np.zeros(3), np.eye(3), "push", np.zeros(3))
+
+
+@pytest.mark.parametrize(
+    "changed",
+    [
+        None,
+        "physical_safe",
+        "footprint_inside",
+        "material_error",
+        "material_orientation_error",
+        "force",
+        "duration",
+        "injected",
+    ],
+)
+def test_only_safe_bounded_corrective_recontact_can_be_supervised(changed):
+    from alexdoor_xas.qualification.collection_corrections import CORRECTIVE
+
+    case = CollectionCorrection("B", "correction-2", ProbeSetup(), 1 / 60)
+    case.had_contact = case.pending = True
+    case.unloaded_s = 0.4 if changed != "duration" else 1.1
+    case.role = INJECTED if changed == "injected" else CORRECTIVE
+    row = dict(
+        valid=False,
+        loaded=False,
+        physical_safe=True,
+        footprint_inside=True,
+        material_error=0.001,
+        material_orientation_error=0.01,
+        force=0.0,
+        separation_m=0.001,
+        phase_valid=False,
+    )
+    if changed in ("physical_safe", "footprint_inside"):
+        row[changed] = False
+    elif changed == "material_error":
+        row[changed] = 0.02
+    elif changed == "material_orientation_error":
+        row[changed] = 0.3
+    elif changed == "force":
+        row[changed] = 80.0
+    case.observe(row)
+    assert row["recovery_valid"] is (changed is None)
+    assert row["phase_valid"] is (changed is None)
+    assert case.pending  # closing motion never stands in for restored loaded support

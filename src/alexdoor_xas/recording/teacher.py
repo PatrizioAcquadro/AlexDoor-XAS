@@ -224,6 +224,7 @@ class TemporalExpertRecorder(ExpertRecorder):
             generation=np.int64(env.generation),
             phase=np.int8(PHASES.index(phase)),
             action_role=np.int8(trace.get("action_role", 0)),
+            recovery_valid=np.bool_(trace.get("recovery_valid", False)),
             physical_safe=np.bool_(trace.get("physical_safe", trace["valid"])),
             phase_valid=np.bool_(trace.get("phase_valid", trace["valid"])),
             contact_valid=np.bool_(trace["valid"]),

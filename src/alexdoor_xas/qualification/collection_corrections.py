@@ -25,6 +25,8 @@ class CollectionCorrection:
         self.corrective_latest_error = None
         self.pre_action_reference = None
         self.reference_advance_rad = 0.0
+        self.had_contact = False
+        self.unloaded_s = 0.0
 
     def elapsed(self, phase):
         return self.counts.get(phase, 0) * self.dt
@@ -144,6 +146,17 @@ class CollectionCorrection:
 
     def observe(self, row):
         row["action_role"] = self.role
+        self.unloaded_s = 0.0 if row["loaded"] else self.unloaded_s + self.dt
+        row["recovery_valid"] = bool(
+            self.role == CORRECTIVE
+            and self.pending
+            and self.had_contact
+            and not row["loaded"]
+            and self.recontact_supported(row, self.unloaded_s)
+        )
+        if row["recovery_valid"]:
+            row["phase_valid"] = True
+        self.had_contact |= row["valid"]
         if self.pre_action_reference is not None:
             row["correction_reference"] = self.pre_action_reference
         if self.role == INJECTED:
@@ -161,6 +174,10 @@ class CollectionCorrection:
     def permit_recontact(self, row, missing_s):
         """Only a named recoverable short deviation; never clear a physical stop/failure."""
         self.contact_loss_detected = True
+        return self.recontact_supported(row, missing_s)
+
+    def recontact_supported(self, row, missing_s):
+        """Physical envelope for named short recovery, independent of action role."""
         return bool(
             self.family in ("B", "C")
             and self.variation.startswith("correction-")

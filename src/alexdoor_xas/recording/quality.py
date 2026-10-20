@@ -39,10 +39,20 @@ def teacher_eligibility(file):
     result[:] = (
         commands["accepted"][:] & evaluator["physical_safe"][:] & evaluator["phase_valid"][:]
     )
+    recovery = np.zeros(n, bool)
     if "action_role" in evaluator:
         # Injected errors remain actual delivered-target observation history, but
         # cannot be expert targets. The window builder rejects crossing chunks.
-        result &= np.isin(evaluator["action_role"][:], (0, 2))
+        roles = evaluator["action_role"][:]
+        result &= np.isin(roles, (0, 2))
+        case = metadata.get("collection_case", {})
+        if (
+            subtask is not None
+            and subtask.get("name") in ("B", "C")
+            and case.get("variation", "").startswith("correction-")
+            and "recovery_valid" in evaluator
+        ):
+            recovery = (roles == 2) & evaluator["recovery_valid"][:]
     names = metadata.get("phase_names", [])
     if subtask is not None and "supervised_phases" in subtask:
         supervised = [names.index(name) for name in subtask["supervised_phases"]]
@@ -53,7 +63,11 @@ def teacher_eligibility(file):
         # Unloaded acquisition is valid before contact is established. Once
         # acquired, weak/ambiguous contact rows remain diagnostic until valid again.
         acquired = np.maximum.accumulate(valid)
-        result[contact] &= ~acquired | valid
+        result[contact] &= ~acquired | valid | recovery[contact]
+    if "contact_valid" in evaluator and "phase" in evaluator:
+        loaded_phases = [names.index(name) for name in ("push", "hold") if name in names]
+        selected = np.isin(evaluator["phase"][:], loaded_phases)
+        result[selected] &= evaluator["contact_valid"][:][selected] | recovery[selected]
     cfg = metadata.get("observation_config")
     if cfg is not None:
         result &= commands["state_acquired_s"][:] >= cfg["static_time_s"] + cfg["warmup_s"] - 1e-9

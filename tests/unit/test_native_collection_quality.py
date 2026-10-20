@@ -273,3 +273,38 @@ def test_short_cleanup_is_recorded_but_excluded_from_expert_targets(collection):
     report = review_native_collection(path)
     assert report["required_scope_coverage"] and not report["full_task_success"]
     assert report["terminal_support"]
+
+
+def test_named_recontact_labels_preserve_injection_and_physical_masks(collection):
+    path, cfg = collection
+    with h5py.File(path, "r+") as file:
+        metadata = json.loads(file["metadata"].attrs["episode"])
+        metadata["subtask"] = dict(name="B", required_phases=["contact", "push"])
+        metadata["collection_case"] = dict(family="B", variation="correction-2")
+        file["metadata"].attrs["episode"] = json.dumps(metadata)
+        outcome = json.loads(file["metadata"].attrs["outcome"])
+        outcome.update(subtask_success=True, subtask_qualified=True)
+        file["metadata"].attrs["outcome"] = json.dumps(outcome)
+        roles = np.zeros(168, "i1")
+        roles[58:60] = 1
+        roles[60:64] = 2
+        roles[73:77] = 2
+        flags = np.zeros(168, bool)
+        flags[58:64] = True
+        flags[73:78] = True
+        flags[63] = False
+        file["evaluator"].create_dataset("action_role", data=roles)
+        file["evaluator"].create_dataset("recovery_valid", data=flags)
+        file["evaluator/contact_valid"][58:64] = False
+        file["evaluator/contact_valid"][73:78] = False
+        file["evaluator/physical_safe"][62] = False
+        mask = teacher_eligibility(file)
+        assert not mask[58:60].any()  # never unmask injected actions
+        assert mask[60:62].all() and mask[73:77].all()
+        assert not mask[62] and not mask[63] and not mask[77]
+        streams, *_ = raw_streams(file, cfg)
+        assert set(streams) == {"images", "q", "dq", "tau", "target"}
+        metadata.pop("subtask")  # full tasks cannot borrow this scoped admission
+        file["metadata"].attrs["episode"] = json.dumps(metadata)
+        mask = teacher_eligibility(file)
+        assert not mask[60:64].any() and not mask[73:78].any()

@@ -375,8 +375,19 @@ eligible teacher control, retaining 99.98% and 99.72% of their stationary inject
 errors. At .5 s the measured residuals are 1.53 mm and 1.08 mm. The normal-error
 retention review excludes moving-approach lag from its peak denominator; its initial
 derived review is preserved, with no new simulation or altered physical outcome.
-B/C/D correction mechanisms and new dynamics remain unqualified until their own
-physical/observed-response checks pass. New correction traces retain the ordinary teacher
+B/C/D corrections and remaining dynamics stay gated by their own physical/response checks.
+The first B2 physically succeeds but does not fill its cell: nine bounded-recontact
+compression increments shrink the native gap from 1.83 to .65 mm during excluded
+injection; its first 14 actual corrective closing commands are also masked.
+First usable supervision starts at only .062 mm normal separation, although the
+adaptive-reference tracking error is 4.26 mm; those are different measurements.
+The repair removes that independent compression catch-up and explicitly admits
+only physically bounded, at-most-one-second corrective recontact after prior valid
+contact. Injection remains excluded. The original measured-origin transition and
+ordinary contact feedback perform the correction. Actual loaded support still
+controls correction completion and the task endpoint. The optional evaluator
+`recovery_valid` flag never enters policy observations; legacy files retain their
+original masks. A matched physical B2 check is pending before expansion. New correction traces retain the ordinary teacher
 pose and measured pre-action error before injection or corrective blending. That
 reference includes existing normal/tangential support; it is an evaluator diagnostic,
 not a counterfactual trajectory or policy input. This permits first-eligible-row
