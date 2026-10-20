@@ -101,6 +101,19 @@ def restore_hold_state(env, state, setup, audit_path, *, continue_controller=Fal
     reference = float(state.get("reference_angle", 0.0))
     initial_lead = float(state["initial_lead"])
     force = 0.0
+    reconstruction = dict(
+        continue_controller=continue_controller,
+        gain_joint_names=[a.joint_names[c] for a, c, _, _ in env._motion_impedance],
+        stiffness=[array(a.stiffness)[:, c].tolist() for a, c, _, _ in env._motion_impedance],
+        damping=[array(a.damping)[:, c].tolist() for a, c, _, _ in env._motion_impedance],
+        controller_input=dict(
+            phase=phase,
+            compression=compression,
+            compensation=compensation.tolist(),
+            reference_angle=reference,
+            initial_lead=initial_lead,
+        ),
+    )
     from alexdoor_xas.qualification.synthetic_probe import (
         hold_reference,
         normal_contact_support,
@@ -182,6 +195,7 @@ def restore_hold_state(env, state, setup, audit_path, *, continue_controller=Fal
                     scope="real_reset_conditioning_excluded_from_new_observation_history",
                     generation=env.generation,
                     anchor_target=anchor.cpu().tolist(),
+                    reconstruction=reconstruction,
                     measured_steps=conditioning,
                 ),
                 indent=2,
@@ -224,6 +238,7 @@ def restore_hold_state(env, state, setup, audit_path, *, continue_controller=Fal
     return dict(
         errors=errors,
         tolerances=bounds,
+        reconstruction=reconstruction,
         conditioning=conditioning,
         conditioning_sim_s=6 * env.step_dt,
         local_clock_origin=(

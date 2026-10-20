@@ -314,7 +314,7 @@ views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
 The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] has
-resumed with the original 112-cell objective: currently 4/96 short train, 1/8 complete
+resumed with the original 112-cell objective: currently 6/96 short train, 1/8 complete
 train and 0/8 development qualified. The original six attempts and every resumed
 failure/diagnostic remain in the cumulative ledger. The original 20 mm acquisition
 pulse retains its honest 5.22 mm eligible-correction scope. The new normal-shortfall
@@ -331,8 +331,8 @@ exact offline/online regression coverage. Every failed prefix remains excluded.
 Actual-data CUDA consumption and gradients pass without weight changes or optimizer
 updates. The initial seven-source controls and original three usable new recordings
 remain valid for their demonstrated scopes. The first C recording has 4.4 s genuine preceding push and 20.11 mm actual
-height variation; checked and recording reconstructions agree exactly. Remaining
-D data, meaningful dynamics,
+height variation; checked and recording reconstructions agree exactly. D recording passes with 6.12 s genuine history before release. Remaining
+meaningful dynamics,
 new poses and broader corrections must still pass admission; the corpus is not yet
 ready for the requested training experiment. The campaign handoff/resource summary
 owns exact current inventories and cumulative costs. Training, learned evaluation,

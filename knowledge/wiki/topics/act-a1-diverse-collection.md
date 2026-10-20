@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 5/112 target cells pass; no policy training
+usable episodes and three failures. Only 7/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -356,3 +356,20 @@ causal labels/masks and unchanged-weight CUDA forward/backward pass. Coverage is
 5/112 (4 short train,1 complete train,0 development),107 missing. New diagnostic
 executions do not count as target cells. The corrected D recording follows the
 same qualified runtime with its own genuine preceding push and original3s hold.
+
+The initial resumed short-family tranche now admits B, C and D pose-high plus the
+15 mm acquisition recovery. B demonstrates sustained >=1 degree initial opening
+with19.97mm observed height separation. D has6.12s genuine pre-release history,
+the original3s hold and20.12mm observed height separation. Both pass physical,
+data/mask, diversity and delayed-stop checks. Coverage is7/112:6 short train,
+1 complete train and0 development;105 cells remain. The declared complete-pose
+matrix continues. Earlier states and failure outcomes remain unchanged.
+
+Native computed effort agrees with the explicit PD plus one gravity feedforward
+term to about1e-6Nm; applied effort matches the physical effort clip exactly.
+Fixed targets have zero native variation. The observed unstable velocity vector
+aligns with the predicted120Hz local eigenmode at .9999998 cosine similarity.
+Unchanged TGS/backend settings, actual mass matrices and existing .01 armature
+are retained in `controller-mechanism.json`; no parameter was invented to suppress
+oscillation. Actual gain readback and controller inputs now accompany each new
+reconstruction audit, alongside native q/dq, targets, door state and contact.
