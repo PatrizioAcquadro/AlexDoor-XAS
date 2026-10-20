@@ -40,3 +40,30 @@ def test_every_correction_executes_a_bounded_pulse_and_requires_response(family,
     )
     assert not case.permit_recontact(unsafe, 0.5)
     assert case.role != INJECTED
+
+
+def test_full_disturbance_survives_until_measured_corrective_handoff():
+    from alexdoor_xas.qualification.collection_corrections import CORRECTIVE
+
+    dt = 1 / 60
+    case = CollectionCorrection("A", "correction-1", ProbeSetup(), dt)
+    measured_p, measured_r = np.zeros(3), np.eye(3)
+    delivered = []
+    for _ in range(360):
+        p, r = case.target(np.zeros(3), np.eye(3), "approach", measured_p, measured_r)
+        # This orchestration test uses exact tracking to isolate the target/mask
+        # mechanism; physical tracking and safety are separately qualified.
+        measured_p, measured_r = p, r
+        delivered.append(p.copy())
+    np.testing.assert_allclose(delivered[-15:], np.tile([0, 0.02, 0], (15, 1)))
+    assert case.role == INJECTED
+    p, r = case.target(np.zeros(3), np.eye(3), "approach", measured_p, measured_r)
+    assert case.role == CORRECTIVE
+    assert case.corrective_start_error["position_m"] == pytest.approx(0.02)
+    assert case.corrective_start_error["rotation_rad"] == pytest.approx(np.deg2rad(5))
+    assert 0 < np.linalg.norm(p - measured_p) < 0.001
+    for _ in range(30):
+        measured_p, measured_r = p, r
+        p, r = case.target(np.zeros(3), np.eye(3), "approach", measured_p, measured_r)
+    np.testing.assert_allclose(p, 0, atol=1e-12)
+    assert case.corrective_latest_error["position_m"] < 1e-12

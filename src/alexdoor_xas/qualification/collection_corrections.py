@@ -19,6 +19,10 @@ class CollectionCorrection:
         self.recovered_samples = 0
         self.release_origin = None
         self.contact_loss_detected = False
+        self.corrective_origin = None
+        self.corrective_elapsed_s = 0.0
+        self.corrective_start_error = None
+        self.corrective_latest_error = None
 
     def elapsed(self, phase):
         return self.counts.get(phase, 0) * self.dt
@@ -43,7 +47,7 @@ class CollectionCorrection:
         if not start <= t < end:
             return 0.0
         ramp = min(0.25, (end - start) / 3)
-        return float(np.clip(min((t - start) / ramp, (end - t) / ramp), 0, 1))
+        return float(np.clip((t - start) / ramp, 0, 1))
 
     def rate_scale(self):
         return (
@@ -52,12 +56,39 @@ class CollectionCorrection:
             else 1.0
         )
 
-    def target(self, position, rotation, phase, measured_position):
+    def target(self, position, rotation, phase, measured_position, measured_rotation=None):
         position, rotation = np.array(position, copy=True), np.array(rotation, copy=True)
         if phase == "release" and self.release_origin is None:
             self.release_origin = np.array(measured_position, copy=True)
         amount = self.pulse(phase)
+        previous_role = self.role
         self.role = INJECTED if amount > 0 else CORRECTIVE if self.pending else EXPERT
+        measured_rotation = rotation if measured_rotation is None else measured_rotation
+        if self.role == CORRECTIVE:
+            error = dict(
+                position_m=float(np.linalg.norm(position - measured_position)),
+                rotation_rad=float(
+                    Rotation.from_matrix(rotation @ measured_rotation.T).magnitude()
+                ),
+            )
+            if previous_role == INJECTED:
+                # The disturbance stays fully applied until this handoff. Begin
+                # corrective supervision from the actual residual, then execute
+                # a smooth return to the ordinary task target through normal IK.
+                self.corrective_origin = (
+                    np.array(measured_position, copy=True),
+                    np.array(measured_rotation, copy=True),
+                )
+                self.corrective_elapsed_s = 0.0
+                self.corrective_start_error = error
+            self.corrective_latest_error = error
+            if self.corrective_origin is not None:
+                self.corrective_elapsed_s += self.dt
+                blend = 0.5 - 0.5 * np.cos(np.pi * min(self.corrective_elapsed_s / 0.5, 1.0))
+                origin_p, origin_r = self.corrective_origin
+                position = origin_p + blend * (position - origin_p)
+                delta = Rotation.from_matrix(rotation @ origin_r.T).as_rotvec()
+                rotation = Rotation.from_rotvec(blend * delta).as_matrix() @ origin_r
         if amount > 0:
             self.pending = True
             key = self.family + self.variation[-1]
@@ -114,6 +145,9 @@ class CollectionCorrection:
             corrective_commands=self.corrective_commands,
             pending_correction=self.pending,
             full_task_contact_loss=self.contact_loss_detected,
+            corrective_start_error=self.corrective_start_error,
+            corrective_latest_error=self.corrective_latest_error,
+            transfer="full disturbance until handoff; measured-origin 0.5s cosine correction",
             action_roles={
                 "expert": EXPERT,
                 "injected_excluded": INJECTED,

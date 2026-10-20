@@ -277,3 +277,11 @@ controller state and fresh contact). A focused preparation regression exercises 
 restorations with the intervening stop/reset. This fixes a later orchestration mismatch;
 it does not explain or qualify the earlier recorded oscillation. Existing three usable
 recordings retain their demonstrated scopes pending runtime compatibility assessment.
+
+Future correction pulses now ramp into the error and retain its full target until
+handoff. Eligible correction starts from the measured tool pose and returns to the
+ordinary task target over a reported .5 s cosine transition through existing IK,
+physical speed/force/contact gates and delivered-action accounting. Start/latest
+position and orientation residuals are evaluator metadata. Injected commands remain
+excluded; the old 5.22 mm example is unchanged. This mechanism passes focused target
+and mask checks but requires physical qualification before multiplying its cells.

@@ -508,8 +508,10 @@ def run_probe(
         )
         goal_p = goal_p + goal_r @ applied_compensation
         if correction is not None:
-            measured_p = env.tool_pose()[0][0].cpu().numpy()
-            goal_p, goal_r = correction.target(goal_p, goal_r, phase, measured_p)
+            measured_p, measured_q = [v[0].cpu().numpy() for v in env.tool_pose()]
+            goal_p, goal_r = correction.target(
+                goal_p, goal_r, phase, measured_p, Rotation.from_quat(measured_q).as_matrix()
+            )
         if recorder is not None:
             recorder.phase = phase
         env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
