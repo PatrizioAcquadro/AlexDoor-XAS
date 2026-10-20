@@ -145,3 +145,49 @@ def test_cli_interruption_exit_survives_Kit_interpreter_shutdown():
     with pytest.raises(SystemExit) as error:
         exec(compile(footer, "pilot_cli_exit", "exec"), namespace)
     assert error.value.code == 130
+
+
+def test_initial_screen_preserves_refusal_before_stop(tmp_path, monkeypatch):
+    import json
+    import runpy
+
+    import pytest
+
+    from alexdoor_xas.qualification import clearance, stop, visibility
+    from alexdoor_xas.recording import b1_runtime
+
+    api = runpy.run_path("scripts/pilot_physics.py")
+    env = NumericalStopIO()
+    env.robot.data.soft_joint_pos_limits = env.limits
+    env.contacts = SimpleNamespace(read=lambda: dict(forbidden=False, contacts=[]))
+    env.capture = SimpleNamespace(sample=SimpleNamespace(rgb=np.zeros((1, 2, 2, 3), "u1")))
+    monkeypatch.setattr(b1_runtime, "array", lambda x: np.asarray(x))
+    monkeypatch.setattr(
+        clearance, "DoorClearance", lambda env: SimpleNamespace(measure=lambda *a: 0.0)
+    )
+    seen = []
+    monkeypatch.setattr(
+        stop, "verify_stop_continuation", lambda *a, **kw: seen.append(1) or dict(passed=True)
+    )
+    support = dict(passed=True)
+    monkeypatch.setattr(visibility, "measure_visibility", lambda *a: support)
+    setup = SimpleNamespace(contact_fraction=0.295, contact_height=1.09, force_limit_n=80)
+    for defect in ("soft_limit", "contact", "visibility", "none"):
+        folder = tmp_path / defect
+        folder.mkdir()
+        env.robot.data.soft_joint_pos_limits = env.limits.clone()
+        if defect == "soft_limit":
+            env.robot.data.soft_joint_pos_limits[0, 0, 0] = 0.01
+        env.contacts.read = lambda: dict(
+            forbidden=False, contacts=[{}] if defect == "contact" else []
+        )
+        support["passed"] = defect != "visibility"
+        if defect == "none":
+            api["screen_initial_state"](env, object(), setup, folder)
+        else:
+            with pytest.raises(ValueError, match="unsupported_initial_state"):
+                api["screen_initial_state"](env, object(), setup, folder)
+        assert json.loads((folder / "initial-state.json").read_text())["passed"] == (
+            defect == "none"
+        )
+    assert seen == [1]  # Refused starts never advance a stop or teacher step.

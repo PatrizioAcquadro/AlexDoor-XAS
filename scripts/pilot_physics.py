@@ -55,6 +55,60 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
     return lambda: setattr(env, "step", original_step)
 
 
+def screen_initial_state(env, door, setup, output):
+    """Audit a parked nominal reset, then measure its unloaded stop before collection."""
+    import numpy as np
+    from PIL import Image
+
+    from alexdoor_xas.qualification.clearance import DoorClearance
+    from alexdoor_xas.qualification.stop import verify_stop_continuation
+    from alexdoor_xas.qualification.visibility import measure_visibility
+    from alexdoor_xas.recording.b1_runtime import array
+
+    q = array(env.robot.data.joint_pos)[0, env.arm_ids]
+    limits = array(env.limits)[0]
+    soft_limits = array(env.robot.data.soft_joint_pos_limits)[0, env.arm_ids]
+    contacts = env.contacts.read()
+    visibility = measure_visibility(env, door, 0.0, setup.contact_fraction, setup.contact_height)
+    position, quaternion = [array(v)[0] for v in env.tool_pose()]
+    audit = dict(
+        joint_names=[env.robot.joint_names[i] for i in env.arm_ids],
+        measured_q=q.tolist(),
+        runtime_limits=limits.tolist(),
+        runtime_soft_limits=soft_limits.tolist(),
+        minimum_joint_margin_rad=float(np.minimum(q - limits[:, 0], limits[:, 1] - q).min()),
+        minimum_soft_joint_margin_rad=float(
+            np.minimum(q - soft_limits[:, 0], soft_limits[:, 1] - q).min()
+        ),
+        tool_position=position.tolist(),
+        tool_quaternion=quaternion.tolist(),
+        clearance_lower_bound_m=DoorClearance(env).measure(door, 0.0),
+        contacts=contacts,
+        visibility=visibility,
+        scope="Parked reset only; no continuous posture range or loaded stop qualification",
+    )
+    audit["passed"] = bool(
+        np.isfinite(q).all()
+        and audit["minimum_joint_margin_rad"] >= 0
+        and audit["minimum_soft_joint_margin_rad"] >= 0
+        and not contacts["forbidden"]
+        and not contacts["contacts"]
+        and visibility["passed"]
+    )
+    write_json(output / "initial-state.json", audit)
+    Image.fromarray(array(env.capture.sample.rgb)[0]).save(output / "initial-rgb.png")
+    if not audit["passed"]:
+        raise ValueError("unsupported_initial_state")
+    stopping = verify_stop_continuation(
+        env, output / "initial-stop.npz", force_limit_n=setup.force_limit_n
+    )
+    write_json(output / "initial-stop.json", stopping)
+    if not stopping["passed"]:
+        raise ValueError("initial_stop_failed")
+    # run_probe resets the complete configured state and ordinary impedance.
+    # This detached diagnostic stop never enters the recorded teacher history.
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("mode", choices=("collect", "qualify", "replay", "rollout"))
@@ -66,6 +120,11 @@ def main(argv=None):
     parser.add_argument("--asset-id", required=True)
     parser.add_argument("--condition", help="One condition explicitly declared by the protocol")
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--screen-initial-state",
+        action="store_true",
+        help="Audit the parked reset and its unloaded stop before a nominal collection",
+    )
     parser.add_argument(
         "--intermediate-state",
         type=Path,
@@ -101,6 +160,8 @@ def main(argv=None):
         help="Historical recipe identity; must agree with the protocol and checkpoint",
     )
     args = parser.parse_args(argv)
+    if args.screen_initial_state and (args.mode != "collect" or args.intermediate_state):
+        parser.error("Initial screening requires closed-door collection")
     if args.reference_recording is not None and (args.mode != "rollout" or args.family != "act"):
         parser.error("Reference diagnostic requires rollout with the fixed ACT A1 checkpoint")
     if (
@@ -253,6 +314,8 @@ def main(argv=None):
             )
             if intersections or not support or obstructions:
                 raise ValueError("unsupported_prescribed_contact_geometry")
+        if args.screen_initial_state:
+            screen_initial_state(env, door, setup, args.output)
         if args.mode == "qualify":
             # One current-setup applicability check of a prospectively fixed
             # requirement. This does not publish a new maximum-opening reference

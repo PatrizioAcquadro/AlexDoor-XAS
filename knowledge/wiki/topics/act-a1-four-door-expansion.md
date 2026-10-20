@@ -273,3 +273,28 @@ failure without unchanged favorable retry. A lighting-only cell does not fill
 this physical gap. Nonzero placement ranges and precontact/contact-to-push resets
 still need their dedicated physical qualification; no subsequent tranche is
 launched in this task.
+
+## Single initial-posture pilot — declared
+
+The next bounded task tests only initial `RIGHT_SHOULDER_Y` −.05 rad on existing
+left train `door-2738468b94d74c5f`, right arm, seed 6200. All other setup and
+loaded targets remain unchanged. The prospective criteria and reconciled budgets
+are in `outputs/evidence/act-a1-posture-20261019/declaration.md` and `protocol.json`.
+One recorded cycle is planned, with at most one diagnosed affected correction;
+total <=1 GPU workload hour and <=30 GiB additional evidence. The prior project
+counter is 21/24 attempts and the conservative GPU allocation is 18.534/40 hours.
+
+`pilot_physics.py collect --screen-initial-state` audits runtime hard/soft limits,
+actual tool pose, imported clearance bound, raw all-body contacts and the existing
+visibility predicate before arm motion. It requires an unloaded parked state and
+measures its separate two-second continuing-physics stop. The normal producer
+then resets the complete configured state and ordinary impedance before recording
+inspection onward. A zero AABB lower bound remains inconclusive; no new clearance
+threshold or continuous posture range is certified. The post-cycle independent
+stop, every-row checks and existing numerical/empirical tolerances stay unchanged.
+This screening option is for closed-door collection, not loaded reconstruction.
+
+Eligibility is decided after the recorded execution under the original full-task,
+phase/crossing, terminal-support and stop gates. Similarity or difference from the
+nominal source is a data-diversity diagnosis, never an acceptance criterion.
+No learned evaluation, training, reset curriculum or subsequent tranche is launched.
