@@ -158,13 +158,14 @@ Short B/C has an explicit, at-most-one-second bounded recontact path only while
 physical/material/force checks remain valid. It never clears a stop latch and does
 not change complete-task loss criteria. Broader recovery paths and new variation starts require their own
 physical qualification. Uniform density authoring scales panel/handle mass and
-inertia together, preserves geometry/COM/axes, and saves active PhysX values. No
-first-door light density/damping4 early A/B scope is now qualified; full/late
+inertia together, preserves geometry/COM/axes, and saves active PhysX values. The
+first-door light density/damping 4 early A/B scope is now qualified; full/late
 dynamics and other doors retain their own gates.
 
 Before the main matrix, unlaunched early A/B pose-low candidates were specified as
 20 mm robot-base retreat along world X, 50 mm precontact distance and nominal contact
-height. Late/complete pose-low retains 1.07 m height. These remain untested candidates.
+height. Late/complete pose-low retains 1.07 m height. All eight early A/B pose-low cells now pass their measured 20 mm base/precontact
+variation and independent physical/data gates.
 Static-reference times are per episode; model history/resolution/chunk/execution stay
 4 s / 240×384 / 12 / 6, visual reuse off. Raw stream clocks are actual local episode
 acquisition/availability. Probe trace/endpoint support times use a separate zero-based
@@ -468,7 +469,7 @@ fits it. More windows and correlated source continuations do not establish diver
 
 All 32 train pose cells and all eight A correction cells are admitted, retaining
 the historical 5.22 mm scope of the original A1 example. The first light-dynamics
-A/B cells pass active .7 mass/inertia scaling with damping4; over a matched56-row
+A/B cells pass active .7 mass/inertia scaling with damping 4; over a matched 56-row
 initial-opening interval, mean contact force is .433 N versus .712 N nominal
 (39% lower). Motion/endpoint similarity does not erase that measured dynamic
 response. Earlier unequal-window analysis is retained, and no threshold or
