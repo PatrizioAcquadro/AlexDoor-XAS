@@ -102,6 +102,8 @@ def probe_config(door, setup, device, cameras=True):
         "NECK_Z": setup.neck[0],
         "NECK_Y": setup.neck[1],
     }
+    cfg.door_mass_scale = setup.door_mass_scale
+    cfg.door_hinge_damping = setup.door_hinge_damping
     cfg.max_joint_speed = setup.max_joint_speed
     cfg.centering_gain = setup.centering_gain
     cfg.ik_damping = setup.ik_damping

@@ -119,3 +119,45 @@ margins and identify the rule. Focused checks cover nominal/exact-boundary posit
 one-step acceptance, two-step and milliradian rejection, NaN, and the shared hard/soft
 screen. This is quantization allowance only; physical limits, planning margins,
 calibration support, every-row safety and independent stop criteria are unchanged.
+
+## Implemented producer interfaces — qualification in progress
+
+The existing teacher now accepts declared A/B/C/D short scopes with physical
+endpoint evaluation. Early shorts obtain a fresh t=0 camera reference and six
+seconds of actual unloaded approach rather than borrowing an inspection/history
+prefix. C restores a real source captured five seconds before push exit, then
+executes a new push to the existing measured exit guards before hold (15 s
+resource budget, at least 4 s genuine preceding motion). D uses a source hold plus 4.5 s fresh
+physical support. Each loaded reconstruction receives a detached start-stop check,
+a complete reset and fresh conditioning before recording. Placement, contact,
+controller/safety and dynamics fields must match the source; future phase durations
+may differ. Source velocities, gains, targets and contact rebuilding remain explicit.
+
+Native annotations distinguish expert (0), injected excluded (1) and corrective
+(2) commands. All delivered actions remain observation history; injected rows and
+all action chunks crossing them are excluded from supervision. A named short B/C
+contact deviation may attempt at most one second of bounded normal recontact while
+physical/material/force checks remain valid. Original complete-task loss criteria
+are unchanged; any detected loss is retained as a full-task failure indicator.
+No physical stop latch is cleared. Original full cycles continue to use their
+unchanged teacher outcome and frozen opening requirements.
+
+Uniform density variations scale both panel and handle mass and diagonal inertia,
+preserving geometry, center of mass and principal axes. Overrides are authored in
+the runtime stage before physics; active PhysX mass/inertia/damping are saved
+separately. A changed configuration is not evidence of a changed physical response.
+These interfaces have focused numerical tests; physical qualification and main
+collection gates remain open.
+
+First factor check: `train-1-complete-pose-high` passes unchanged complete-cycle
+criteria (52.885434 degrees sustained opening versus 41.008202 required), hold,
+release, ordinary tail and independent stop, without physical violations. The
+recording has 7,980 usable starts; whole launch 399.136 s. It is one candidate new
+complete train episode, pending the campaign-wide data/observed-coverage handoff.
+
+A/B withdrawal, hold and ordinary tails after their early endpoints are diagnostic
+collection cleanup, with explicit supervised-phase masks. They remain in the causal
+recording but cannot teach early release for the unchanged full opening objective.
+C/D terminal supervision is conditional on genuine late source states and the
+unchanged physical exit/hold/release criteria; an arbitrary short-duration stop is
+not a new hidden policy goal. Corrections retain a single opening task throughout.

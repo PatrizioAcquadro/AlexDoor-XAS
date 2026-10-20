@@ -206,3 +206,50 @@ def test_declared_short_subtask_needs_qualification_but_not_release(collection):
         outcome["passed"] = False
         file["metadata"].attrs["outcome"] = json.dumps(outcome)
     assert not review_native_collection(path)["data_usable"]
+
+
+def test_injected_commands_remain_causal_history_but_never_action_targets(collection):
+    path, cfg = collection
+    with h5py.File(path, "r+") as file:
+        roles = np.zeros(168, "i1")
+        roles[72:78] = 1
+        roles[78:90] = 2
+        file["evaluator"].create_dataset("action_role", data=roles)
+        file["commands/applied_target"][72] = 0.25
+        eligible = teacher_eligibility(file)
+        assert not eligible[72:78].any()
+        assert eligible[78:90].all()
+        streams, *_ = raw_streams(file, cfg)
+        assert set(streams) == {"images", "q", "dq", "tau", "target"}
+        np.testing.assert_array_equal(streams["target"]["values"][72], 0.25)
+        snap, _ = CausalObservationBuilder(cfg, streams, episode_id="attempt-1").build_support(
+            73 / 60, 0
+        )
+        np.testing.assert_array_equal(snap["obs"]["robot"][-1, -7:], 0.25)
+    report = review_native_collection(path)
+    assert report["integrity_passed"]
+    starts = {i for a, b in report["usable_window_ranges"] for i in range(a, b + 1)}
+    assert not starts.intersection(range(61, 78))
+    assert 78 in starts
+
+
+def test_short_cleanup_is_recorded_but_excluded_from_expert_targets(collection):
+    path, _ = collection
+    with h5py.File(path, "r+") as file:
+        metadata = json.loads(file["metadata"].attrs["episode"])
+        metadata["subtask"] = dict(
+            name="A",
+            required_phases=["approach", "contact"],
+            supervised_phases=["approach", "contact"],
+        )
+        file["metadata"].attrs["episode"] = json.dumps(metadata)
+        outcome = json.loads(file["metadata"].attrs["outcome"])
+        outcome.update(subtask_success=True, subtask_qualified=True)
+        file["metadata"].attrs["outcome"] = json.dumps(outcome)
+        eligible = teacher_eligibility(file)
+        assert eligible[24:72].all()
+        assert not eligible[72:].any()
+        assert len(file["commands/accepted"]) == 168
+    report = review_native_collection(path)
+    assert report["required_scope_coverage"] and not report["full_task_success"]
+    assert report["terminal_support"]

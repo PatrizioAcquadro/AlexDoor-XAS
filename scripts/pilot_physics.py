@@ -28,6 +28,7 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
     """Raise outside Kit callbacks, then restore unguarded stepping for the stop."""
     started = perf_counter()
     pending = []
+    env.collection_physics_s = 0.0
     original_step = env.step
 
     def request(signum, _frame):
@@ -36,7 +37,7 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
     def check():
         if max_wall_s is not None and perf_counter() - started >= max_wall_s:
             raise CollectionBudgetExceeded("collection_wall_budget")
-        if max_sim_s is not None and env._time_s >= max_sim_s:
+        if max_sim_s is not None and env.collection_physics_s >= max_sim_s:
             raise CollectionBudgetExceeded("collection_simulation_budget")
         if pending and pending[0] == signal.SIGUSR1:
             raise CollectionBudgetExceeded("collection_resource_budget")
@@ -46,6 +47,7 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
     def step(*args, **kwargs):
         check()
         result = original_step(*args, **kwargs)
+        env.collection_physics_s += getattr(env, "step_dt", 0.0)
         check()
         return result
 
@@ -204,6 +206,11 @@ def main(argv=None):
             "Rollout requires a declared train/development condition, checkpoint family "
             "and operational recipe"
         )
+    campaign = selected[0].get("collection_case")
+    if campaign is not None and (
+        args.mode != "collect" or campaign.get("family") not in ("A", "B", "C", "D")
+    ):
+        parser.error("A short campaign cell requires collect and family A/B/C/D")
     lighting_scale = float(selected[0].get("lighting_scale", 1.0))
     if not math.isfinite(lighting_scale) or lighting_scale <= 0:
         parser.error("Declared simulated lighting scale must be finite and positive")
@@ -255,9 +262,16 @@ def main(argv=None):
         cfg.stop_stiffness = tuple(recipe.get("stop_stiffness", cfg.stop_stiffness))
     env = DoorPushPurdueEnv(cfg)
     env.reset()  # Establish the configured robot state before any fallible setup.
-    budget = protocol.get("collection_budget", {}) if args.mode in ("collect", "qualify") else {}
+    budget = (
+        selected[0].get("collection_budget", protocol.get("collection_budget", {}))
+        if args.mode in ("collect", "qualify")
+        else {}
+    )
+    sim_guard = budget.get("sim_s_per_case")
     restore_interruption = install_interruption(
-        env, max_wall_s=budget.get("wall_s_per_case"), max_sim_s=budget.get("sim_s_per_case")
+        env,
+        max_wall_s=budget.get("wall_s_per_case"),
+        max_sim_s=None if sim_guard is None else sim_guard - 2.0,
     )
     write_json(
         args.output / "physical-case-start.json",
@@ -288,6 +302,15 @@ def main(argv=None):
                 base_intensity=base_intensity,
                 intensity=base_intensity * lighting_scale,
             ),
+        ),
+    )
+    from alexdoor_xas.qualification.collection_dynamics import active_door_dynamics
+
+    write_json(
+        args.output / "active-dynamics.json",
+        dict(
+            active=active_door_dynamics(env),
+            authored=getattr(env, "door_dynamics_override", None),
         ),
     )
     started = perf_counter()
@@ -353,6 +376,27 @@ def main(argv=None):
                 inspection=inspection,
                 robot_asset=robot.to_dict(),
             )
+            if campaign is not None:
+                required_phases = {
+                    "A": ["approach", "contact"],
+                    "B": ["approach", "contact", "push"],
+                    "C": ["push", "hold", "release", "stabilize"],
+                    "D": ["hold", "release", "stabilize"],
+                }[campaign["family"]]
+                metadata.update(
+                    subtask=dict(
+                        name=campaign["family"],
+                        required_phases=required_phases,
+                        supervised_phases=required_phases,
+                    ),
+                    collection_case=campaign,
+                    static_reference_time_s=0.0,
+                    action_roles={"expert": 0, "injected_excluded": 1, "corrective": 2},
+                )
+                if campaign["family"] in ("C", "D") and args.intermediate_state is None:
+                    raise ValueError(
+                        "Late short phases require a qualified actual-condition source"
+                    )
             intermediate = None
             if args.intermediate_state is not None:
                 import numpy as np
@@ -362,10 +406,29 @@ def main(argv=None):
                 source_result = json.loads(
                     (args.intermediate_state.parent / "result.json").read_text()
                 )
+                origin_setup = ProbeSetup(**origin["setup"]).to_dict()
+                actual_setup = setup.to_dict()
+                timing_fields = {
+                    "approach_s",
+                    "contact_s",
+                    "release_s",
+                    "preroll_s",
+                    "horizon_s",
+                    "intermediate_preroll_s",
+                }
+                same_condition = all(
+                    json.loads(json.dumps(value)) == json.loads(json.dumps(actual_setup[key]))
+                    for key, value in origin_setup.items()
+                    if key not in timing_fields
+                )
+                expected_phase = (
+                    "push" if campaign is not None and campaign["family"] == "C" else "hold"
+                )
                 if (
-                    origin["asset_id"] != args.asset_id
+                    str(intermediate.get("phase", "hold")) != expected_phase
+                    or origin["asset_id"] != args.asset_id
                     or origin["split"] != entry["split"]
-                    or origin["setup"] != json.loads(json.dumps(setup.to_dict()))
+                    or not same_condition
                     or not source_result["passed"]
                     or not source_result["released"]
                     or not source_result["stabilized"]
@@ -402,10 +465,15 @@ def main(argv=None):
                     args.output / "teacher",
                     recorder=recorder,
                     capture_evidence=False,
-                    inspection=inspection,
+                    inspection=None if campaign is not None else inspection,
                     intermediate=intermediate,
+                    campaign=campaign,
                 )
-                required = protocol.get("collection_required_opening_deg", {}).get(args.asset_id)
+                required = (
+                    None
+                    if campaign is not None
+                    else protocol.get("collection_required_opening_deg", {}).get(args.asset_id)
+                )
                 if required is not None:
                     result["required_opening_deg"] = required
                     result["opening_requirement_passed"] = bool(
@@ -417,7 +485,10 @@ def main(argv=None):
                 # One finalization owner, after the ordinary physical tail.
                 # Safety-stop verification happens after detaching the recorder.
                 recorder.finish(result)
-                result.update(task_success=bool(result["passed"]), recording_complete=True)
+                result.update(
+                    task_success=bool(result["passed"] and campaign is None),
+                    recording_complete=True,
+                )
             except BaseException as error:
                 if not isinstance(error, (Exception, KeyboardInterrupt)):
                     raise
@@ -475,13 +546,20 @@ def main(argv=None):
                 "full_task_success", False
             )
             result["demonstration_qualified"] = bool(
-                result["task_success"]
+                (
+                    result.get("subtask_success", False)
+                    if campaign is not None
+                    else result["task_success"]
+                )
                 and result["recording_validation"].get("required_scope_coverage", False)
             )
             result["passed"] = bool(
                 result["demonstration_qualified"] and result["safety_stop_passed"]
             )
 
+        result["accounted_simulation_s"] = (
+            env.collection_physics_s + result["post_stop"]["duration_s"]
+        )
         result["wall_s"] = perf_counter() - started
         write_json(args.output / "report.json", result)
         print(json.dumps(result), flush=True)

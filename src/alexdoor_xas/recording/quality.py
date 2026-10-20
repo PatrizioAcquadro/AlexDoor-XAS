@@ -39,7 +39,14 @@ def teacher_eligibility(file):
     result[:] = (
         commands["accepted"][:] & evaluator["physical_safe"][:] & evaluator["phase_valid"][:]
     )
+    if "action_role" in evaluator:
+        # Injected errors remain actual delivered-target observation history, but
+        # cannot be expert targets. The window builder rejects crossing chunks.
+        result &= np.isin(evaluator["action_role"][:], (0, 2))
     names = metadata.get("phase_names", [])
+    if subtask is not None and "supervised_phases" in subtask:
+        supervised = [names.index(name) for name in subtask["supervised_phases"]]
+        result &= np.isin(evaluator["phase"][:], supervised)
     if "contact" in names and "phase" in evaluator and "contact_valid" in evaluator:
         contact = np.flatnonzero(evaluator["phase"][:] == names.index("contact"))
         valid = evaluator["contact_valid"][:][contact]

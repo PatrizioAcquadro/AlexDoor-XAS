@@ -187,6 +187,15 @@ class DoorPushPurdueEnv(DirectRLEnv):
             if self.cfg.prepared_door is not None:
                 spawn = sim_utils.UsdFileCfg(usd_path=str(geometry.usd))
                 spawn.func(root, spawn)
+                if self.cfg.door_mass_scale != 1.0 or self.cfg.door_hinge_damping is not None:
+                    from alexdoor_xas.qualification.collection_dynamics import author_door_dynamics
+
+                    self.door_dynamics_override = author_door_dynamics(
+                        self.sim.stage,
+                        root,
+                        mass_scale=self.cfg.door_mass_scale,
+                        hinge_damping=self.cfg.door_hinge_damping,
+                    )
                 geometry.load_stage(self.sim.stage, root)
             else:
                 author_synthetic_door(self.sim.stage, root, geometry)

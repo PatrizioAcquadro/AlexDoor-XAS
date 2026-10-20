@@ -51,8 +51,8 @@ class TemporalExpertRecorder(ExpertRecorder):
     def start(self, env, door, setup, phase="approach"):
         self.env, self.door, self.setup, self.phase = env, door, setup, phase
         self.config = TemporalConfig(
-            static_time_s=0.0
-            if self.metadata.get("intermediate_start")
+            static_time_s=float(self.metadata.get("static_reference_time_s", 0.0))
+            if self.metadata.get("intermediate_start") or "static_reference_time_s" in self.metadata
             else float(self.metadata["inspection"]["waypoints"][-1][0]),
             depth_interval_m=(env.capture.near_m, env.capture.far_m),
         )
@@ -222,6 +222,7 @@ class TemporalExpertRecorder(ExpertRecorder):
             time_s=np.float64(env._time_s),
             generation=np.int64(env.generation),
             phase=np.int8(PHASES.index(phase)),
+            action_role=np.int8(trace.get("action_role", 0)),
             physical_safe=np.bool_(trace.get("physical_safe", trace["valid"])),
             phase_valid=np.bool_(trace.get("phase_valid", trace["valid"])),
             contact_valid=np.bool_(trace["valid"]),

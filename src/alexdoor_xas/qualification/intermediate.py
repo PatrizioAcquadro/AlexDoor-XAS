@@ -11,11 +11,40 @@ from alexdoor_xas.recording.b1_runtime import array
 def save_hold_state(
     path, env, *, compression, compensation, retreat_p, retreat_r, source, initial_lead
 ):
+    np.savez_compressed(
+        path,
+        **capture_phase_state(
+            env,
+            phase="hold",
+            compression=compression,
+            compensation=compensation,
+            retreat_p=retreat_p,
+            retreat_r=retreat_r,
+            source=source,
+            initial_lead=initial_lead,
+        ),
+    )
+
+
+def capture_phase_state(
+    env,
+    *,
+    phase,
+    compression,
+    compensation,
+    retreat_p,
+    retreat_r,
+    source,
+    initial_lead,
+    reference_angle=0.0,
+):
+    """Complete native state; contact caches require new physical evolution."""
     gains = [
         (array(a.stiffness)[:, c], array(a.damping)[:, c]) for a, c, _, _ in env._motion_impedance
     ]
-    np.savez_compressed(
-        path,
+    state = dict(
+        phase=phase,
+        reference_angle=reference_angle,
         q=array(env.robot.data.joint_pos),
         dq=array(env.robot.data.joint_vel),
         targets=array(env.targets),
@@ -33,6 +62,11 @@ def save_hold_state(
         retreat_r=retreat_r,
         metadata=json.dumps(source),
     )
+
+    return {
+        key: value.copy() if isinstance(value, np.ndarray) else value
+        for key, value in state.items()
+    }
 
 
 def restore_hold_state(env, state, setup, audit_path):

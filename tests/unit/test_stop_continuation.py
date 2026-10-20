@@ -235,3 +235,21 @@ def test_initial_screen_applies_same_roundoff_rule_to_hard_and_soft_limits(tmp_p
     assert audit["passed"]
     assert audit["minimum_joint_margin_rad"] < 0
     assert audit["minimum_soft_joint_margin_rad"] == audit["minimum_joint_margin_rad"]
+
+
+def test_collection_simulation_guard_counts_steps_across_local_clock_resets(monkeypatch):
+    import runpy
+    import signal
+
+    import pytest
+
+    api = runpy.run_path("scripts/pilot_physics.py")
+    monkeypatch.setattr(signal, "signal", lambda *a: None)
+    env = SimpleNamespace(step=lambda: None, step_dt=0.5, _time_s=0.0)
+    restore = api["install_interruption"](env, max_sim_s=1.0)
+    env.step()
+    env._time_s = 0.0
+    with pytest.raises(api["CollectionBudgetExceeded"], match="simulation_budget"):
+        env.step()
+    assert env.collection_physics_s == 1.0
+    restore()

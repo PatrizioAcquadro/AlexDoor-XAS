@@ -21,6 +21,8 @@ class ProbeSetup:
             "RIGHT_ELBOW_Y": -1.0,
         }
     )
+    door_mass_scale: float = 1.0
+    door_hinge_damping: float | None = None
     max_joint_speed: float = 0.5
     centering_gain: float = 2.0
     ik_damping: float = 0.01
@@ -56,6 +58,7 @@ class ProbeSetup:
 
     def __post_init__(self):
         positive = (
+            self.door_mass_scale,
             self.max_joint_speed,
             self.centering_gain,
             self.ik_damping,
@@ -114,6 +117,10 @@ class ProbeSetup:
             raise ValueError("Hold budget must include a complete sustain window")
         if self.material_drift_guard_m >= self.position_tolerance:
             raise ValueError("Material drift guard must reserve tracking margin for hold")
+        if self.door_hinge_damping is not None and (
+            not np.isfinite(self.door_hinge_damping) or self.door_hinge_damping < 0
+        ):
+            raise ValueError("Invalid simulated hinge damping")
         if not np.isfinite(list(self.initial_joints.values())).all():
             raise ValueError("Non-finite ready joint pose")
 
@@ -315,7 +322,9 @@ def summarize_trials(trials, *, required_count=None):
     )
 
 
-def prepare_probe(env, door, setup, output, recorder, inspection, intermediate=None):
+def prepare_probe(
+    env, door, setup, output, recorder, inspection, intermediate=None, *, qualify_start_stop=False
+):
     import json
 
     from scipy.spatial.transform import Rotation
@@ -332,6 +341,25 @@ def prepare_probe(env, door, setup, output, recorder, inspection, intermediate=N
         audit = restore_hold_state(
             env, intermediate, setup, output / "intermediate-reset-physics.json"
         )
+        if qualify_start_stop:
+            from alexdoor_xas.qualification.stop import verify_stop_continuation
+
+            stopping = verify_stop_continuation(
+                env,
+                output / "start-stop.npz",
+                force_limit_n=setup.force_limit_n,
+            )
+            (output / "start-stop.json").write_text(json.dumps(stopping, indent=2) + "\n")
+            if not stopping["passed"]:
+                raise ValueError("intermediate_start_stop_unqualified")
+            env.reset()
+            env.set_neck_target(setup.neck)
+            audit = restore_hold_state(
+                env,
+                intermediate,
+                setup,
+                output / "intermediate-recording-reset-physics.json",
+            )
         (output / "intermediate-restore.json").write_text(json.dumps(audit, indent=2) + "\n")
     if recorder is not None:
         recorder.start(
@@ -411,6 +439,7 @@ def run_probe(
     capture_evidence=True,
     inspection=None,
     intermediate=None,
+    campaign=None,
 ):
     import torch
     from scipy.spatial.transform import Rotation, Slerp
@@ -418,8 +447,24 @@ def run_probe(
     from alexdoor_xas.envs.door_task.door_push_purdue_env import tensor
 
     chain, gripper_ids, root_p, root_r = prepare_probe(
-        env, door, setup, output, recorder, inspection, intermediate
+        env,
+        door,
+        setup,
+        output,
+        recorder,
+        inspection,
+        intermediate,
+        qualify_start_stop=campaign is not None and intermediate is not None,
     )
+    family = None if campaign is None else campaign["family"]
+    correction = None
+    if campaign is not None and campaign.get("variation", "").startswith("correction-"):
+        from alexdoor_xas.qualification.collection_corrections import CollectionCorrection
+
+        correction = CollectionCorrection(family, campaign["variation"], setup, env.step_dt)
+    if family is not None:
+        from alexdoor_xas.qualification.collection_phase import evaluate_phase_endpoint
+    late_states = deque(maxlen=round(5.0 / env.step_dt) + 1)
     zero = torch.zeros((1, 6), device=env.device)
     from alexdoor_xas.qualification.clearance import DoorClearance
 
@@ -451,6 +496,9 @@ def run_probe(
             compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
         )
         goal_p = goal_p + goal_r @ applied_compensation
+        if correction is not None:
+            measured_p = env.tool_pose()[0][0].cpu().numpy()
+            goal_p, goal_r = correction.target(goal_p, goal_r, phase, measured_p)
         if recorder is not None:
             recorder.phase = phase
         env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
@@ -587,6 +635,8 @@ def run_probe(
         )
         if any(sample["contacts"] for sample in contacts):
             raw.append(dict(time=time, samples=contacts))
+        if correction is not None:
+            correction.observe(traces[-1])
         if recorder is not None:
             recorder.transition(env, goal_p, goal_r, phase, traces[-1])
         if env.capture is not None and capture_evidence and len(traces) % 30 == 0:
@@ -645,14 +695,22 @@ def run_probe(
                     break
             if not failure and not state[5]:
                 failure = "no_loaded_contact"
-        if not failure:
+        if not failure and family == "A":
+            reason = "short_acquisition_endpoint"
+        if not failure and family != "A":
             reference = state[0]
             reference_step = 0.0
             compression = setup.compression_m if compression is None else compression
             for tick in range(round(setup.horizon_s / dt)):
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 previous_reference = reference
-                reference = push_reference(reference, angle, setup, dt, door.mechanical_stop)
+                reference = push_reference(
+                    reference,
+                    angle,
+                    setup,
+                    dt * (1.0 if correction is None else correction.rate_scale()),
+                    door.mechanical_stop,
+                )
                 reference_step = reference - previous_reference
                 compression = normal_contact_support(compression, contact_load.force, setup, dt)
                 state = command(
@@ -662,6 +720,40 @@ def run_probe(
                     "push",
                 )
                 traces[-1]["push_compression_m"] = compression
+                if family is None and hasattr(recorder, "observations"):
+                    from alexdoor_xas.qualification.intermediate import capture_phase_state
+
+                    late_states.append(
+                        capture_phase_state(
+                            env,
+                            phase="push",
+                            compression=compression,
+                            compensation=compensation,
+                            retreat_p=pre_p,
+                            retreat_r=pre_r,
+                            initial_lead=hold_initial_lead(
+                                reference, state[0], reference_step, setup.lead_angle
+                            ),
+                            reference_angle=reference,
+                            source=dict(
+                                asset_id=door.name,
+                                episode_id=recorder.metadata["episode_id"],
+                                split=recorder.metadata["split"],
+                                setup=setup.to_dict(),
+                            ),
+                        )
+                    )
+                if (
+                    family == "B"
+                    and not failure
+                    and evaluate_phase_endpoint(traces, family, setup)["passed"]
+                    and (
+                        correction is None
+                        or (correction.injected_commands and not correction.pending)
+                    )
+                ):
+                    reason = "short_controlled_opening_endpoint"
+                    break
                 angle, pe, re, force, margin, loaded, valid = state
                 tracking.append((tick * dt, traces[-1]["material_error"]))
                 angular_tracking.append((tick * dt, traces[-1]["material_orientation_error"]))
@@ -699,8 +791,18 @@ def run_probe(
                         reason = "kinematic_limit"
                         break
                 if missing_time > 0.25:
-                    failure = "lost_contact"
-                    break
+                    if correction is not None and correction.permit_recontact(
+                        traces[-1], missing_time
+                    ):
+                        compression = min(
+                            compression + setup.compression_m * dt / setup.sustain_s,
+                            setup.position_tolerance - setup.material_drift_guard_m,
+                        )
+                        reference = min(reference, angle + setup.lead_angle)
+                        traces[-1]["bounded_recontact"] = True
+                    else:
+                        failure = "lost_contact"
+                        break
                 if abs(angle - door.mechanical_stop) < np.deg2rad(0.5):
                     reason = "mechanical_stop"
                     break
@@ -769,7 +871,7 @@ def run_probe(
             else:
                 failure = "timeout"
         held_angle = None
-        if failure is None:
+        if failure is None and family != "A":
             held = SustainedAngle(setup.sustain_s)
             initial_lead = hold_initial_lead(reference, state[0], reference_step, setup.lead_angle)
             missing_time = 0.0
@@ -796,6 +898,119 @@ def run_probe(
             held_angle = held.current if failure is None else None
             if held_angle is None:
                 failure = failure or "invalid_hold"
+    elif str(intermediate.get("phase", "hold")) == "push":
+        # A genuine late-push source is physically restored under the same model.
+        # The same measured exit guards choose hold; duration is only a budget.
+        reason = "short_late_push_hold"
+        compression = float(intermediate["compression"])
+        compensation = np.array(intermediate["compensation"], copy=True)
+        reference = float(intermediate["reference_angle"])
+        reference_step = 0.0
+        for tick in range(round(15.0 / dt)):
+            angle = float(tensor(env.door.data.joint_pos)[0, 0])
+            previous = reference
+            reference = push_reference(
+                reference,
+                angle,
+                setup,
+                dt * (1.0 if correction is None else correction.rate_scale()),
+                door.mechanical_stop,
+            )
+            reference_step = reference - previous
+            compression = normal_contact_support(compression, contact_load.force, setup, dt)
+            state = command(
+                *door.contact_pose(
+                    reference,
+                    setup.contact_fraction,
+                    setup.contact_height,
+                    compression,
+                ),
+                "push",
+            )
+            missing_time = 0.0 if state[5] else missing_time + dt
+            if missing_time > 0.25:
+                if correction is not None and correction.permit_recontact(traces[-1], missing_time):
+                    compression = min(
+                        compression + setup.compression_m * dt / setup.sustain_s,
+                        setup.position_tolerance - setup.material_drift_guard_m,
+                    )
+                else:
+                    failure = failure or "lost_contact"
+            if failure:
+                break
+            elapsed = tick * dt
+            tracking.append((elapsed, traces[-1]["material_error"]))
+            angular_tracking.append((elapsed, traces[-1]["material_orientation_error"]))
+            conditioning.append((elapsed, traces[-1]["minimum_jacobian_singular_value"]))
+            if abs(state[0] - door.mechanical_stop) < np.deg2rad(0.5):
+                reason = "mechanical_stop"
+                break
+            if window.maximum is not None and elapsed > setup.sustain_s:
+                if conditioning_margin_exhausted(conditioning, setup):
+                    reason, safety_detail = "safety_stop", "conditioning_margin"
+                    break
+                endpoint_angle = min(
+                    reference + max(0.0, traces[-1]["speed"]) * setup.hold_settle_s,
+                    door.mechanical_stop,
+                )
+                end_p, end_r = door.contact_pose(
+                    endpoint_angle,
+                    setup.contact_fraction,
+                    setup.contact_height,
+                    compression,
+                )
+                _, end_pe, end_re = chain.solve(
+                    chain.array((end_p - root_p) @ root_r)[None],
+                    chain.array(root_r.T @ end_r)[None],
+                    tensor(env.robot.data.joint_pos)[:, env.arm_ids],
+                )
+                if (
+                    tracking_margin_exhausted(tracking, setup)
+                    or tracking_margin_exhausted(angular_tracking, setup, orientation=True)
+                    or float(end_pe[0]) > setup.material_drift_guard_m
+                    or float(end_re[0]) > 0.5 * setup.orientation_tolerance
+                ):
+                    reason, safety_detail = "safety_stop", "tracking_margin"
+                    break
+            if state[3] >= setup.soft_force_n:
+                reason, safety_detail = "safety_stop", "high_normal_force"
+                break
+        else:
+            failure = "short_push_exit_unresolved"
+        if not failure and len(traces) * dt < 4.0:
+            failure = "insufficient_fresh_push_history"
+        held = SustainedAngle(setup.sustain_s)
+        initial_lead = hold_initial_lead(reference, state[0], reference_step, setup.lead_angle)
+        missing_time = 0.0
+        if not failure:
+            for tick in range(round(setup.hold_settle_s / dt)):
+                compression = normal_contact_support(
+                    compression,
+                    contact_load.force,
+                    setup,
+                    dt,
+                    target_force=setup.hold_force_n,
+                )
+                angle = float(tensor(env.door.data.joint_pos)[0, 0])
+                state = command(
+                    *door.contact_pose(
+                        hold_reference(angle, initial_lead, door.mechanical_stop),
+                        setup.contact_fraction,
+                        setup.contact_height,
+                        compression,
+                    ),
+                    "hold",
+                )
+                held.update(tick * dt, state[0], state[6])
+                missing_time = 0.0 if state[5] else missing_time + dt
+                if missing_time > 0.25:
+                    failure = failure or "lost_hold_contact"
+                    env.stop_motion()
+                if failure:
+                    break
+        held_angle = held.current if not failure else None
+        if held_angle is None:
+            failure = failure or "invalid_hold"
     else:
         reason = "intermediate_hold_release"
         compression = float(intermediate["compression"])
@@ -855,6 +1070,12 @@ def run_probe(
         else:
             retreat_p, retreat_q = pre_p, Rotation.from_matrix(pre_r).as_quat()
         if held_angle is not None and intermediate is None and hasattr(recorder, "observations"):
+            if late_states:
+                late_state = late_states[0]
+                late_state.update(
+                    retreat_p=retreat_p, retreat_r=Rotation.from_quat(retreat_q).as_matrix()
+                )
+                np.savez_compressed(output / "late-push-state.npz", **late_state)
             from alexdoor_xas.qualification.intermediate import save_hold_state
 
             save_hold_state(
@@ -877,7 +1098,7 @@ def run_probe(
         for tick in range(round(setup.release_s / dt)):
             a = min(1.0, (tick + 1) * dt / (setup.release_s * 0.7))
             goal_p, goal_r = current_p + (retreat_p - current_p) * a, release_slerp(a).as_matrix()
-            if held_angle is not None:
+            if held_angle is not None or family == "A":
                 goal_p, goal_r = release_reference(
                     current_p,
                     Rotation.from_quat(current_q).as_matrix(),
@@ -927,7 +1148,7 @@ def run_probe(
     measured = window.maximum
     result = dict(
         case=door.name,
-        passed=failure is None and window.maximum is not None,
+        passed=failure is None and (window.maximum is not None or family == "A"),
         angle_deg=None if measured is None else float(np.rad2deg(measured)),
         hold_angle_deg=None if held_angle is None else float(np.rad2deg(held_angle)),
         stop_reason=failure or reason,
@@ -963,5 +1184,25 @@ def run_probe(
             scope="geometric_panel_contact_surround_frame_observability",
         ),
     )
+    if family is not None:
+        endpoint = evaluate_phase_endpoint(traces, family, setup)
+        correction_result = None if correction is None else correction.summary()
+        corrected = correction is None or (
+            correction.injected_commands > 0
+            and correction.corrective_commands > 0
+            and not correction.pending
+        )
+        passed = bool(
+            result["passed"] and endpoint["passed"] and released and stabilized and corrected
+        )
+        result.update(
+            passed=passed,
+            subtask_success=passed,
+            subtask_qualified=passed,
+            full_task_success=False,
+            phase_endpoint=endpoint,
+            correction=correction_result,
+            scope="qualified_short_subtask_not_complete_task",
+        )
     write_probe_artifacts(output, result, traces, raw, images)
     return result

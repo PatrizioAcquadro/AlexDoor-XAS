@@ -26,6 +26,8 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     camera_mount_pitch_rad: float = 0.0
     synthetic_door: object | None = None
     prepared_door: object | None = None
+    door_mass_scale: float = 1.0
+    door_hinge_damping: float | None = None
     floor_pose: tuple = (0.0, 0.0, 0.0)
     max_joint_speed: float = 0.5
     # Legacy stop response; a separately validated recipe can supply new gains.
