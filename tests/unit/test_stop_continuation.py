@@ -178,7 +178,7 @@ def test_initial_screen_preserves_refusal_before_stop(tmp_path, monkeypatch):
         env.robot.data.soft_joint_pos_limits = env.limits.clone()
         if defect == "soft_limit":
             env.robot.data.soft_joint_pos_limits[0, 0, 0] = 0.01
-        env.contacts.read = lambda: dict(
+        env.contacts.read = lambda defect=defect: dict(
             forbidden=False, contacts=[{}] if defect == "contact" else []
         )
         support["passed"] = defect != "visibility"
