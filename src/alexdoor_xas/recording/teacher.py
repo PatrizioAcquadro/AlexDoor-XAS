@@ -44,6 +44,7 @@ class TemporalExpertRecorder(ExpertRecorder):
         self.phase = None
         self.last_capture = -np.inf
         self.last_phase = None
+        self.last_role = 0
         self.online_checks = []
         self.command_count = 0
         self.complete = False
@@ -237,6 +238,10 @@ class TemporalExpertRecorder(ExpertRecorder):
         if phase != self.last_phase:
             self._snapshot(phase)
             self.last_phase = phase
+        role = int(row["action_role"])
+        if role != self.last_role:
+            self._snapshot(f"role-{self.command_count}-{role}")
+            self.last_role = role
 
     def _snapshot(self, label):
         snap = self.observations.build(self.env._time_s)

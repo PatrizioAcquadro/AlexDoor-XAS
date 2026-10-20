@@ -983,7 +983,7 @@ def run_probe(
                 break
         else:
             failure = "short_push_exit_unresolved"
-        if not failure and len(traces) * dt < 4.0:
+        if not failure and family == "C" and len(traces) * dt < 4.0:
             failure = "insufficient_fresh_push_history"
         held = SustainedAngle(setup.sustain_s)
         initial_lead = hold_initial_lead(reference, state[0], reference_step, setup.lead_angle)
@@ -1193,6 +1193,10 @@ def run_probe(
     if family is not None:
         endpoint = evaluate_phase_endpoint(traces, family, setup)
         correction_result = None if correction is None else correction.summary()
+        if family == "D":
+            before_release = [row for row in traces if row["phase"] in ("push", "hold")]
+            endpoint["fresh_pre_release_history_s"] = len(before_release) * dt
+            endpoint["passed"] &= len(before_release) * dt >= 4.0
         corrected = correction is None or (
             correction.injected_commands > 0
             and correction.corrective_commands > 0

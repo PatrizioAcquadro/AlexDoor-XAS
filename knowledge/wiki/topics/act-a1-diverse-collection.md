@@ -127,8 +127,8 @@ endpoint evaluation. Early shorts obtain a fresh t=0 camera reference and six
 seconds of actual unloaded approach rather than borrowing an inspection/history
 prefix. C restores a real source captured five seconds before push exit, then
 executes a new push to the existing measured exit guards before hold (15 s
-resource budget, at least 4 s genuine preceding motion). D uses a source hold plus 4.5 s fresh
-physical support. Each loaded reconstruction receives a detached start-stop check,
+resource budget, at least 4 s genuine preceding motion). D also starts from genuine preceding push, preserving the original 3 s hold
+budget and acquiring at least 4 s actual history before release. Each loaded reconstruction receives a detached start-stop check,
 a complete reset and fresh conditioning before recording. Placement, contact,
 controller/safety and dynamics fields must match the source; future phase durations
 may differ. Source velocities, gains, targets and contact rebuilding remain explicit.
@@ -177,3 +177,26 @@ It requires reconstructed contact before a loaded stop and before recording. The
 original .05 rad/s reconstruction bound and all physical safety gates remain.
 A replacement needs its own recorded attempt and must establish actual contact,
 release and data usability; the original failure stays in the denominator.
+
+The conditioned D replacement rebuilt contact and passed its start stop, then failed
+at 2.1 s of additional hold: speed .700340 rad/s, minimum Jacobian singular value
+.002106, followed by a failed continuing-physics stop (peak 4.470002 rad/s).
+Its complete 127-command recording has zero expert windows. This hard failure is
+retained unchanged. Adding history after an already completed hold consumed the
+original release reserve and drove the arm toward singularity. No more C/D launches
+use end-of-hold history extension. New D starts must be real preceding push states,
+then use the same measured push exit and original 3 s hold before withdrawal.
+
+The earlier launches also used the legacy default stop impedance. Subsequent
+campaign qualification explicitly selects the existing separately validated stop
+recipe from `act-a1-calibration-stop-20261019/runtime-recipe.json` (normal motion
+gains unchanged). This reuses a measured profile; it does not qualify the failed
+state retrospectively or widen any stop criterion. Every new loaded start still
+requires its own actual-condition stop evidence.
+
+Before the main matrix, unlaunched early pose-low A/B cells are specified as a
+20 mm robot-base retreat along world X and 50 mm precontact distance, with nominal
+contact height. This adds observable robot-door relationship and distance coverage.
+Late pose-low C/D and complete episodes retain the declared 1.07 m contact height;
+all source conditions must match. These phase-specific candidates require fresh
+physical qualification and cannot replace a failed cell with nominal geometry.

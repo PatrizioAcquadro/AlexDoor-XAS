@@ -296,6 +296,7 @@ def main(argv=None):
             setup=setup.to_dict(),
             setup_path=str(setup_path.resolve()),
             condition=condition,
+            stop_stiffness=list(cfg.stop_stiffness),
             lighting=dict(
                 scope="simulated_dome_light",
                 scale=lighting_scale,
@@ -404,7 +405,9 @@ def main(argv=None):
                 intermediate = dict(np.load(args.intermediate_state, allow_pickle=False))
                 origin = json.loads(str(intermediate["metadata"]))
                 source_result = json.loads(
-                    (args.intermediate_state.parent / "result.json").read_text()
+                    Path(
+                        origin.get("source_result", args.intermediate_state.parent / "result.json")
+                    ).read_text()
                 )
                 origin_setup = ProbeSetup(**origin["setup"]).to_dict()
                 actual_setup = setup.to_dict()
@@ -422,7 +425,7 @@ def main(argv=None):
                     if key not in timing_fields
                 )
                 expected_phase = (
-                    "push" if campaign is not None and campaign["family"] == "C" else "hold"
+                    "push" if campaign is not None and campaign["family"] in ("C", "D") else "hold"
                 )
                 if (
                     str(intermediate.get("phase", "hold")) != expected_phase
