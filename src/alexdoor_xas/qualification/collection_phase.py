@@ -90,3 +90,62 @@ def evaluate_phase_endpoint(rows, family, setup):
         else float(np.rad2deg(min(r["angle"] for r in evidence))),
         scope="measured_subtask_endpoint_requires_separate_release_tail_and_stop",
     )
+
+
+def qualify_phase_result(rows, family, setup, probe_result, correction=None):
+    """Apply the declared subtask contract without granting complete-task success.
+
+    B ends at sustained initial opening. Its excluded cleanup still executes all
+    hold physics/guards, withdrawal and stabilization; a missing final hold window
+    is diagnostic rather than an additional B endpoint. Other failures stay failed.
+    Independent stopping remains a separate gate owned by the recording caller.
+    """
+    endpoint = evaluate_phase_endpoint(rows, family, setup)
+    if family == "D":
+        before_release = [row for row in rows if row["phase"] in ("push", "hold")]
+        endpoint["fresh_pre_release_history_s"] = len(before_release) / 60
+        endpoint["passed"] &= len(before_release) / 60 >= 4.0
+    corrected = correction is None or (
+        correction["injected_commands"] > 0
+        and correction["corrective_commands"] > 0
+        and not correction["pending_correction"]
+    )
+    cleanup_only = bool(
+        family == "B"
+        and endpoint["passed"]
+        and corrected
+        and probe_result["stop_reason"] == "invalid_hold"
+        and not probe_result["physical_violations"]
+        and rows
+        and all(row["physical_safe"] for row in rows)
+        and probe_result["released"]
+        and probe_result["stabilized"]
+    )
+    passed = bool(
+        (probe_result["passed"] or cleanup_only)
+        and endpoint["passed"]
+        and probe_result["released"]
+        and probe_result["stabilized"]
+        and corrected
+    )
+    result = dict(
+        passed=passed,
+        subtask_success=passed,
+        subtask_qualified=passed,
+        full_task_success=False,
+        phase_endpoint=endpoint,
+        correction=correction,
+        scope="short_subtask_not_complete_task",
+    )
+    if cleanup_only:
+        result.update(
+            stop_reason="short_controlled_opening_endpoint",
+            cleanup_hold_review=dict(
+                original_probe_passed=probe_result["passed"],
+                original_stop_reason=probe_result["stop_reason"],
+                final_hold_window_qualified=False,
+                hold_rows_preserved=sum(row["phase"] == "hold" for row in rows),
+                scope="B endpoint passed; final cleanup hold is not the B task endpoint",
+            ),
+        )
+    return result

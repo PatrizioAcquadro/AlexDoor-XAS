@@ -129,7 +129,17 @@ planning margins, empirical calibration support and stop criteria are unchanged.
 The existing producer accepts declared A/B/C/D scopes. Early shorts acquire a
 fresh t=0 camera reference and real approach history. No source prefix is borrowed.
 A/B post-endpoint hold/withdrawal/tails are diagnostic cleanup, excluded from expert
-targets so short collection does not teach early release for the full opening goal.
+targets so short collection does not teach early release for the full opening goal. B requires
+its measured sustained initial-opening endpoint, not the full probe's final hold
+window. The full 3 s cleanup hold still executes with unchanged physical/contact-loss
+guards; full/C/D end-hold criteria are unchanged. One retained low-front B attempt
+passed its endpoint and every physical/release/tail/stop gate but was refused by
+the extra cleanup predicate: 178/180 hold rows valid, a 33 ms gap near the end.
+Its original failed report and raw outcome remain immutable. An explicit
+metadata-only HDF5 view links the same native streams and episode identity for
+independent B-scope review, with zero new physical execution. Temporal/CUDA and
+pose-diversity review must pass before that view fills its single original cell;
+`B-cleanup-scope-review.json` owns the decision. No in-episode safety stop is cleared.
 Native roles distinguish expert (0), injected excluded (1) and corrective (2).
 Delivered injected targets stay in causal history; chunks crossing them are excluded.
 Phase/role/truth/outcome fields never enter policy observations.

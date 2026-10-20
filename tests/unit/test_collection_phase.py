@@ -3,8 +3,12 @@
 from dataclasses import replace
 
 import numpy as np
+import pytest
 
-from alexdoor_xas.qualification.collection_phase import evaluate_phase_endpoint
+from alexdoor_xas.qualification.collection_phase import (
+    evaluate_phase_endpoint,
+    qualify_phase_result,
+)
 from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
 
 
@@ -68,3 +72,45 @@ def test_release_needs_prior_support_and_actual_unloading():
     for row in tail:
         row["separation_m"] = 0.009
     assert not evaluate_phase_endpoint(rows("hold") + tail, "D", setup)["passed"]
+
+
+def test_b_endpoint_does_not_require_a_final_window_in_excluded_cleanup():
+    trace = rows("contact") + rows("push", start=2, motion=np.deg2rad(4))
+    cleanup = rows("hold", start=4, count=180)
+    cleanup[-3]["loaded"] = cleanup[-2]["loaded"] = False
+    trace += cleanup + rows("stabilize", start=7, loaded=False)
+    original = dict(
+        passed=False,
+        stop_reason="invalid_hold",
+        physical_violations=[],
+        released=True,
+        stabilized=True,
+    )
+    result = qualify_phase_result(trace, "B", ProbeSetup(), original)
+    assert result["passed"] and result["subtask_qualified"]
+    assert not result["full_task_success"]
+    assert result["cleanup_hold_review"]["hold_rows_preserved"] == 180
+    assert not result["cleanup_hold_review"]["final_hold_window_qualified"]
+    assert original["passed"] is False and original["stop_reason"] == "invalid_hold"
+    assert not qualify_phase_result(trace, "C", ProbeSetup(), original)["passed"]
+    pending = dict(injected_commands=1, corrective_commands=1, pending_correction=True)
+    assert not qualify_phase_result(trace, "B", ProbeSetup(), original, pending)["passed"]
+    no_opening = rows("contact") + rows("push", start=2)
+    assert not qualify_phase_result(no_opening, "B", ProbeSetup(), original)["passed"]
+    trace[0]["physical_safe"] = False
+    assert not qualify_phase_result(trace, "B", ProbeSetup(), original)["passed"]
+
+
+@pytest.mark.parametrize(
+    "failure", ["lost_hold_contact", "actual_joint_speed_limit", "unsafe_release"]
+)
+def test_b_cleanup_review_never_overrides_other_failures(failure):
+    trace = rows("contact") + rows("push", start=2, motion=np.deg2rad(4))
+    original = dict(
+        passed=False,
+        stop_reason=failure,
+        physical_violations=[],
+        released=True,
+        stabilized=True,
+    )
+    assert not qualify_phase_result(trace, "B", ProbeSetup(), original)["passed"]

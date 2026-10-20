@@ -1220,28 +1220,12 @@ def run_probe(
         ),
     )
     if family is not None:
-        endpoint = evaluate_phase_endpoint(traces, family, setup)
-        correction_result = None if correction is None else correction.summary()
-        if family == "D":
-            before_release = [row for row in traces if row["phase"] in ("push", "hold")]
-            endpoint["fresh_pre_release_history_s"] = len(before_release) * dt
-            endpoint["passed"] &= len(before_release) * dt >= 4.0
-        corrected = correction is None or (
-            correction.injected_commands > 0
-            and correction.corrective_commands > 0
-            and not correction.pending
-        )
-        passed = bool(
-            result["passed"] and endpoint["passed"] and released and stabilized and corrected
-        )
+        from alexdoor_xas.qualification.collection_phase import qualify_phase_result
+
         result.update(
-            passed=passed,
-            subtask_success=passed,
-            subtask_qualified=passed,
-            full_task_success=False,
-            phase_endpoint=endpoint,
-            correction=correction_result,
-            scope="short_subtask_not_complete_task",
+            qualify_phase_result(
+                traces, family, setup, result, None if correction is None else correction.summary()
+            )
         )
     write_probe_artifacts(output, result, traces, raw, images)
     return result
