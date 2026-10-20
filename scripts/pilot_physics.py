@@ -500,13 +500,11 @@ def main(argv=None):
                     else protocol.get("collection_required_opening_deg", {}).get(args.asset_id)
                 )
                 if required is not None:
-                    result["required_opening_deg"] = required
-                    result["opening_requirement_passed"] = bool(
-                        result["angle_deg"] is not None and result["angle_deg"] >= required
+                    from alexdoor_xas.qualification.collection_phase import (
+                        qualify_opening_requirement,
                     )
-                    if not result["opening_requirement_passed"]:
-                        result["passed"] = False
-                        result["stop_reason"] = "required_opening_not_reached"
+
+                    result = qualify_opening_requirement(result, required)
                 # One finalization owner, after the ordinary physical tail.
                 # Safety-stop verification happens after detaching the recorder.
                 recorder.finish(result)

@@ -8,6 +8,7 @@ import pytest
 from alexdoor_xas.qualification.collection_phase import (
     correction_hold_complete,
     evaluate_phase_endpoint,
+    qualify_opening_requirement,
     qualify_phase_result,
 )
 from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
@@ -122,7 +123,7 @@ def test_pace_hold_waits_for_current_settling_after_full_minimum():
     limit = np.deg2rad(setup.tie_deg) / setup.stabilization_window_s
     push = rows("push", count=301, motion=np.deg2rad(0.6))
     hold = rows("hold", start=301 / 60, count=180, speed=1.8 * limit)
-    for row, speed in zip(hold[-30:], np.linspace(1.1 * limit, 0.9 * limit, 30)):
+    for row, speed in zip(hold[-30:], np.linspace(1.1 * limit, 0.9 * limit, 30), strict=True):
         row["speed"] = speed
     # The terminal value is already below the speed bound; its full window is not.
     assert not correction_hold_complete(push + hold, setup, 1 / 60)
@@ -139,3 +140,18 @@ def test_pace_hold_waits_for_current_settling_after_full_minimum():
     for i, row in enumerate(settled):
         row["tool_position"] = [0.003 * i / 30, 0, 0]
     assert not correction_hold_complete(push + hold + settled, setup, 1 / 60)
+
+
+def test_opening_requirement_preserves_the_primary_physical_failure():
+    failed = dict(passed=False, angle_deg=36, stop_reason="lost_contact")
+    reviewed = qualify_opening_requirement(failed, 41)
+    assert not reviewed["passed"] and not reviewed["opening_requirement_passed"]
+    assert reviewed["stop_reason"] == "lost_contact"
+    assert "required_opening_deg" not in failed
+    insufficient = qualify_opening_requirement(
+        dict(passed=True, angle_deg=36, stop_reason="held"), 41
+    )
+    assert not insufficient["passed"]
+    assert insufficient["stop_reason"] == "required_opening_not_reached"
+    enough = qualify_opening_requirement(dict(passed=True, angle_deg=42, stop_reason="held"), 41)
+    assert enough["passed"] and enough["opening_requirement_passed"]

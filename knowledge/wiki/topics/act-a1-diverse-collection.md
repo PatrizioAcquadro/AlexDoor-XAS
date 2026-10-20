@@ -515,7 +515,9 @@ geometric term masks the positive pressure increment needed beyond first touch.
 The corrected composition adds the two distinct terms while retaining the same
 admittance gain, 6 mm/s rate bound, offset bounds, force-unloading priority and all
 physical/task/loss criteria. A focused regression exercises this measured weak-load
-condition. Matched resistant-source physical qualification remains pending; this
+condition. The full-opening report now also preserves the primary physical failure instead
+of overwriting lost_contact with required_opening_not_reached. Old reports remain
+unchanged; their original teacher result retains the cause. Matched resistant-source physical qualification remains pending; this
 contact-feedback defect is separate from the already corrected PD stopping pole.
 
 C pose-high records 4.4 s genuine push before hold and 20.11 mm actual height

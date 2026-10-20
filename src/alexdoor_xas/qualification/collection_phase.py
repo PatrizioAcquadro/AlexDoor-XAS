@@ -162,3 +162,16 @@ def qualify_phase_result(rows, family, setup, probe_result, correction=None):
             ),
         )
     return result
+
+
+def qualify_opening_requirement(result, required):
+    """Apply full-task opening admission without hiding an earlier physical failure."""
+    qualified = dict(result)
+    angle = result["angle_deg"]
+    enough = angle is not None and angle >= required
+    qualified.update(required_opening_deg=required, opening_requirement_passed=bool(enough))
+    if not enough:
+        if result["passed"]:
+            qualified["stop_reason"] = "required_opening_not_reached"
+        qualified["passed"] = False
+    return qualified
