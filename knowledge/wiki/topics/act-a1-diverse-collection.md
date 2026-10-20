@@ -309,7 +309,10 @@ hold, release and ordinary stabilization also pass in both opening directions.
 Six right/left loaded 10 N normal/cone and unloaded controls pass the unchanged
 residual, joint, held-joint, geometric stop-envelope and rotation bounds. No load
 calibration fit, bound increase, mass/inertia/friction/armature change or solver
-migration occurs. TGS/backend settings are retained. The local linear model omits
+migration occurs. Compatibility analysis uses the fourth native sample for the
+60 Hz pose join and independent stop clocks to exclude callback rows with stale
+motion/reference annotations after force removal; raw files are unchanged. See
+`runtime-compatibility/measurement-notes.json`. TGS/backend settings are retained. The local linear model omits
 nonlinear contact/jaw constraints; sampled qualification is not a global theorem.
 
 The opt-in recipe uses four 240 Hz physics steps per unchanged 60 Hz command/render
@@ -319,7 +322,8 @@ reuse off remain unchanged. Existing 120 Hz recordings retain their demonstrated
 physical/data scopes; their cadence is declared per source. New conditions retain
 independent physical and diversity admission. Every resumed collection records the
 unchanged 2 s stopping gate followed by 4 s diagnostic continuation with the same
-latched target. [Matched native figure](../../../outputs/evidence/act-a1-diverse-20261019/runtime-before-after.png),
+latched target. Newly screened/restored starts also receive their own 2+4 s check
+before a fresh recording begins. [Matched native figure](../../../outputs/evidence/act-a1-diverse-20261019/runtime-before-after.png),
 `controller-mechanism.json` and `runtime-qualification-decision.json` preserve proof
 and scope.
 
