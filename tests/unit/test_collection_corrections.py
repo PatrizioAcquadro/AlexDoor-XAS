@@ -5,6 +5,7 @@ import pytest
 
 from alexdoor_xas.qualification.collection_corrections import (
     CORRECTIVE,
+    EXPERT,
     INJECTED,
     CollectionCorrection,
 )
@@ -276,7 +277,7 @@ def test_late_handoff_requires_sustained_support_before_controller_transition(
     achieved = np.array([0.0001, 0.0002, 0.0003])
     goal, _ = case.target(achieved, np.eye(3), "hold", achieved)
     np.testing.assert_array_equal(goal, achieved)
-    assert case.role == CORRECTIVE
+    assert case.role == EXPERT  # sustained physical recovery has already completed
 
 
 @pytest.mark.parametrize("variation", ["correction-1", "correction-2"])
