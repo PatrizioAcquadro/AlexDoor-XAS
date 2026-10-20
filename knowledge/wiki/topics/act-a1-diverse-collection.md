@@ -89,7 +89,9 @@ source prefix or repeated frames presented as movement. Keep source ancestry.
 
 Verified baseline: 18.661711 conservative local GPU hours, 560.493949 GiB logical
 retained evidence, 22 historical physical attempts, approximately 1.1 TiB free disk.
-Campaign ceilings: 160 new attempts, 12 additional GPU workload wall-hours,
+The original160-attempt campaign ceiling was explicitly raised to220 total
+campaign attempts on October20, including every already charged attempt.
+No counter or baseline resets. Current ceilings:220 campaign attempts,12 additional GPU workload wall-hours,
 400 GiB additional retained evidence; cumulative 40 hours and 1 TiB remain binding.
 Count each episode separately even in a reused simulator. Include all qualification,
 failed/interrupted attempts, startup/shutdown, preparation, stop continuations and
