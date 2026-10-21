@@ -425,3 +425,10 @@ criterion. Corrective settling had prematurely selected the.05N hold target whil
 reacquisition remained pending. The next matched prototype restores the existing
 .1N push/recontact target until ordinary hold actually begins, where.05N remains.
 No new force/gain/bound value or admission criterion is introduced.
+
+Restoring acquisition pressure does not establish sustained load. Saved desired
+normal increments match controller arithmetic within3.5e-17m. A matched comparison
+now uses the existing.1s force-feedback window with the transported world goal and
+original.1/.05N phase targets. C1 and raw240Hz forces/velocities remain unchanged.
+The earlier filtered trial used the rejected moving world goal, so it does not
+qualify this different control model. Physical qualification remains pending.

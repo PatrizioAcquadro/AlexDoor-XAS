@@ -562,11 +562,11 @@ def run_probe(
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
         source = "contact_qualification_window"
-        force_hold = correction is not None and correction.force_hold_active()
         if (
             correction is not None
+            and correction.variation == "correction-1"
             and correction.supported_hold_handoffs
-            and (phase == "hold" or force_hold)
+            and phase == "hold"
         ):
             # After the position-to-force handoff, stale impact load must not
             # suppress catch-up after actual contact disappears. Keep the .1s
