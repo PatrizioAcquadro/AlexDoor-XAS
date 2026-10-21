@@ -556,7 +556,14 @@ def run_probe(
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
         source = "contact_qualification_window"
-        if phase == "hold" and correction is not None and correction.supported_hold_handoffs:
+        if (
+            phase == "hold"
+            and correction is not None
+            and correction.variation == "correction-1"
+            and correction.supported_hold_handoffs
+        ):
+            # C1's recontact needs current load feedback. C2 retains the ordinary
+            # force window during its faster residual-motion settling.
             # After the position-to-force handoff, stale impact load must not
             # suppress catch-up after actual contact disappears. Keep the .1s
             # load window for qualification; control uses the preceding native

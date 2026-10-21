@@ -232,8 +232,14 @@ The front C2 at40.31degrees also enters hold before its sustained push handoff,
 then fails ordinary speed near the workspace boundary; its independent2+4s stop
 passes without a growing native mode. Earlier front38.50-degree and wood43.14-degree
 native late-push candidates are declared explicitly with source ancestry and the
-same initial Jacobian reserve. They retain the full4.2–5.2s pulse, correction,
-endpoints and all criteria; qualification is pending. No failed attempt is replaced
+same initial Jacobian reserve. The earlier front attempt executes the full59-action
+pulse and one sustained handoff, but still reaches the speed criterion after5.13s
+hold; its2+4s stop is stable. Mean native load is.640N versus.05N target. On the
+preserved observations, short-interval feedback produces nine positive geometric
+catch-up ticks versus two with the existing.1s window. This arithmetic does not
+predict physical behavior. One matched C2 prototype tests only the.1s force window
+after handoff; C1 feedback, source, model, low-level PD, full pulse, endpoints and
+all criteria are unchanged. Qualification is pending. No failed attempt is replaced
 silently or converted to a success.
 
 D1 targets8mm separation in the moving material frame, preserving the incomplete
