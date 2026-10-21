@@ -366,3 +366,12 @@ A same-state comparison now begins the existing current-native force feedback
 when physical return completes, rather than waiting for sustained recovery to finish.
 The contact qualification window, gains, bounds and rates are unchanged; qualification
 is pending. No native oscillation or physical threshold is hidden.
+
+Earlier native feedback alone still reaches the speed limit after3s hold; numerical
+stop decay remains bounded but forbidden contact fails its physical gate. The next
+matched C force-hold comparison closes measured geometric gap over the existing
+.1s contact-feedback window instead of one1/60s interval. Native records showed
+intermittent positive gap kicks adding preload despite mean force above target.
+This changes only the outer geometric correction horizon: pressure admittance,
+force target,6mm/s rate/offset bounds, model/PD gains,60Hz control,10Hz observations
+and every contact/hold/stop criterion stay fixed. Qualification remains pending.

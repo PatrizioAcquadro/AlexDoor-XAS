@@ -353,3 +353,39 @@ def test_reexpressed_contact_goal_preserves_position_without_angular_push_lead()
     origin, rotation = Door().contact_pose(reference, setup.contact_fraction, setup.contact_height)
     np.testing.assert_allclose(origin + rotation @ (tangent + [compression, 0, 0]), actual)
     assert reference == row["angle"]
+
+
+def test_force_hold_gap_horizon_limits_kicks_but_preserves_unloading_and_rate_bound():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_contact_support
+
+    setup = ProbeSetup()
+    dt = 1 / 60
+    target = setup.hold_force_n
+    fast = normal_contact_support(0, 0, setup, dt, target_force=target, gap_m=0.0002)
+    held = normal_contact_support(
+        0,
+        0,
+        setup,
+        dt,
+        target_force=target,
+        gap_m=0.0002,
+        gap_horizon_s=setup.contact_force_window_s,
+    )
+    assert held == pytest.approx((0.0002 / 0.1 + setup.normal_admittance_m_n_s * target) * dt)
+    assert 0 < held < fast
+    ordinary_unload = normal_contact_support(0, 1, setup, dt, target_force=target, gap_m=0.001)
+    scoped_unload = normal_contact_support(
+        0,
+        1,
+        setup,
+        dt,
+        target_force=target,
+        gap_m=0.001,
+        gap_horizon_s=0.1,
+    )
+    assert scoped_unload == ordinary_unload < 0
+    assert normal_contact_support(0, 0, setup, dt, gap_m=1, gap_horizon_s=0.1) == pytest.approx(
+        setup.compression_m / setup.sustain_s * dt
+    )
+    with pytest.raises(ValueError, match="control interval"):
+        normal_contact_support(0, 0, setup, dt, gap_horizon_s=dt / 2)
