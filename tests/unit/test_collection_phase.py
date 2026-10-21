@@ -155,3 +155,24 @@ def test_opening_requirement_preserves_the_primary_physical_failure():
     assert insufficient["stop_reason"] == "required_opening_not_reached"
     enough = qualify_opening_requirement(dict(passed=True, angle_deg=42, stop_reason="held"), 41)
     assert enough["passed"] and enough["opening_requirement_passed"]
+
+
+def test_release_preparation_requires_current_supported_task_goal_and_genuine_prefix():
+    from alexdoor_xas.qualification.collection_phase import release_preparation_ready
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
+
+    setup = ProbeSetup()
+    goal = np.deg2rad(41)
+    rows = [
+        dict(time=i / 60, phase="push", valid=True, physical_safe=True, angle=goal + 0.01)
+        for i in range(84)
+    ]
+    options = dict(opening_goal_rad=goal, required_history_s=4.4, dt=1 / 60)
+    assert release_preparation_ready(rows, setup, **options)
+    assert not release_preparation_ready(rows[:-1], setup, **options)
+    # An old supported window cannot authorize release after current loss,
+    # physical failure, or failure to meet the original opening requirement.
+    for change in ({"valid": False}, {"physical_safe": False}, {"angle": goal - 0.001}):
+        changed = [*rows[:-1], dict(rows[-1], **change)]
+        assert not release_preparation_ready(changed, setup, **options)
+    assert setup.hold_settle_s == 3.0  # actual ordinary hold still runs in full

@@ -175,3 +175,32 @@ def qualify_opening_requirement(result, required):
             qualified["stop_reason"] = "required_opening_not_reached"
         qualified["passed"] = False
     return qualified
+
+
+def release_preparation_ready(rows, setup, *, opening_goal_rad, required_history_s, dt):
+    """Plan release at its actual task goal, reserving the ordinary hold once.
+
+    The hold must still be physically executed and qualified. Its original
+    duration is never extended to fill history; actual recording checks admit
+    observations only after the real preceding motion and hold have occurred.
+    """
+    if (
+        not np.isfinite([opening_goal_rad, required_history_s, dt]).all()
+        or min(opening_goal_rad, required_history_s, dt) <= 0
+    ):
+        raise ValueError("Invalid release preparation requirements")
+    if not rows or len(rows) * dt + setup.hold_settle_s < required_history_s - 1e-9:
+        return False
+    cutoff = rows[-1]["time"] - setup.sustain_s - 1e-9
+    window = [row for row in rows if row["time"] >= cutoff]
+    return bool(
+        window
+        and window[-1]["time"] - window[0]["time"] >= setup.sustain_s - 1e-9
+        and all(
+            row["phase"] == "push"
+            and row["valid"]
+            and row["physical_safe"]
+            and row["angle"] >= opening_goal_rad
+            for row in window
+        )
+    )

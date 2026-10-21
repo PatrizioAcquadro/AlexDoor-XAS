@@ -1070,6 +1070,25 @@ def run_probe(
             if failure:
                 break
             elapsed = tick * dt
+            if family == "D" and campaign.get("opening_goal_deg") is not None:
+                from alexdoor_xas.qualification.collection_phase import release_preparation_ready
+
+                required_history_s = float(campaign["pre_release_history_s"])
+                if release_preparation_ready(
+                    traces,
+                    setup,
+                    opening_goal_rad=np.deg2rad(campaign["opening_goal_deg"]),
+                    required_history_s=required_history_s,
+                    dt=dt,
+                ):
+                    traces[-1]["release_preparation"] = dict(
+                        opening_goal_deg=campaign["opening_goal_deg"],
+                        fresh_motion_s=len(traces) * dt,
+                        ordinary_hold_s=setup.hold_settle_s,
+                        required_pre_release_history_s=required_history_s,
+                    )
+                    reason = "supported_task_opening_goal_before_release"
+                    break
             tracking.append((elapsed, traces[-1]["material_error"]))
             angular_tracking.append((elapsed, traces[-1]["material_orientation_error"]))
             conditioning.append((elapsed, traces[-1]["minimum_jacobian_singular_value"]))
@@ -1195,6 +1214,10 @@ def run_probe(
             )
             + "\n"
         )
+    if family == "D" and campaign.get("opening_goal_deg") is not None:
+        if held_angle is None or np.rad2deg(held_angle) < campaign["opening_goal_deg"]:
+            failure = failure or "required_opening_not_reached_before_release"
+
     # Clear raised relief before rotating toward a pose that releases wrist limits.
     released = False
     if failure != "invalid_physics" and not env.motion_stopped:

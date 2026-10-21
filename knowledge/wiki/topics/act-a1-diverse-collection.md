@@ -657,3 +657,25 @@ admittance, bounds, contact-loss/hold/stop criteria and all rates are unchanged.
 Ordinary nominal/pose/dynamics holds retain their previous controller. The matched
 left candidate remains unqualified until its physical/data/recovery gates pass.
 Both prior failed handoffs are preserved; no old valid recording is relabeled.
+
+The matched current-native-force C1 trial passes its original3s hold, recovery,
+ordinary tail, native/data/CUDA and2+4s stopping gates. Before handoff the source
+and corrective residual are unchanged:1.835mm reference error and.490mm native
+contact gap at the first usable corrective action, with47 injected actions excluded
+and no corrective labels masked. Recontact is measured directly; a changed
+post-handoff reference is not claimed as fixed-goal error reduction. The initial
+review-command import failure was repaired using project Python, without another
+physical or CUDA run.
+
+D2's extra1.5s linear reach reserve still fails at.530rad/s; all59 injected actions
+execute, but corrective supervision has not begun. Native RIGHT_SHOULDER_Y velocity
+is same-sign within physics intervals, with60Hz target-tracking lag at Jacobian
+sigma.00136. This differs from the corrected alternating stopping pole; fixed-target
+stopping remains stable. The next candidate keeps the exact saved start and
+finishes pushing after the original supported task-opening goal and sufficient
+real pre-release history, rather than pushing onward to the reach boundary. It
+still physically executes the original3s hold once,1s loaded pause,.5s corrective
+transition, full ordinary tail and2+4s stopping. The held opening must also meet
+the original full-task minimum. This is an explicit task-based phase-planning
+correction, not a claim that the previously failed maximum-opening posture is
+qualified. Its physical result remains pending.
