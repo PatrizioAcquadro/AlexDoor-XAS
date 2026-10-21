@@ -308,3 +308,31 @@ def test_named_recontact_labels_preserve_injection_and_physical_masks(collection
         file["metadata"].attrs["episode"] = json.dumps(metadata)
         mask = teacher_eligibility(file)
         assert not mask[60:64].any() and not mask[73:78].any()
+
+
+def test_C_cleanup_stays_physical_but_never_crosses_supervised_chunks(collection):
+    path, _ = collection
+    with h5py.File(path, "r+") as file:
+        metadata = json.loads(file["metadata"].attrs["episode"])
+        metadata["collection_case"] = dict(family="C", variation="nominal")
+        metadata["subtask"] = dict(
+            name="C",
+            required_phases=["push", "hold", "release", "stabilize"],
+            # Exercise the already recorded, overbroad metadata as well.
+            supervised_phases=["push", "hold", "release", "stabilize"],
+        )
+        file["metadata"].attrs["episode"] = json.dumps(metadata)
+        outcome = json.loads(file["metadata"].attrs["outcome"])
+        outcome.update(subtask_success=True, subtask_qualified=True)
+        file["metadata"].attrs["outcome"] = json.dumps(outcome)
+        eligible = teacher_eligibility(file)
+        assert eligible[72:120].all()
+        assert not eligible[:72].any() and not eligible[120:].any()
+        assert len(file["commands/accepted"]) == 168
+    report = review_native_collection(path)
+    starts = {i for a, b in report["usable_window_ranges"] for i in range(a, b + 1)}
+    assert 108 in starts and max(starts) == 108
+    assert report["required_scope_coverage"] and report["terminal_support"]
+    with h5py.File(path, "r+") as file:
+        file["evaluator/phase"][120:144] = metadata["phase_names"].index("hold")
+    assert not review_native_collection(path)["required_scope_coverage"]

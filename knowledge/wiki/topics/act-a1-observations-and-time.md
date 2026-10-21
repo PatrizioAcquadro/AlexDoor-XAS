@@ -711,3 +711,10 @@ cover every recording row; trace-specific speed peaks join after the explicitly
 recorded inspect prefix and verify the remaining evaluator phases exactly. The
 inspection prefix is retained and reported separately, never truncated to hide
 motion. Short phase recordings have no inspection prefix.
+
+C short episodes physically retain push, hold, release and stabilization, but only
+push/hold supplies expert labels. The shared scope rule also constrains older
+recordings whose metadata listed cleanup as supervision. Required recorded-phase
+coverage remains distinct from required supervised transitions; absent physical
+cleanup still fails. Original broad-mask prepared files remain preserved while
+fresh task-only stores receive separately charged compatibility validation.

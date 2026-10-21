@@ -3,6 +3,16 @@
 import numpy as np
 
 
+def collection_supervised_phases(family):
+    """Keep physically executed short-episode cleanup out of task supervision."""
+    return {
+        "A": ["approach", "contact"],
+        "B": ["approach", "contact", "push"],
+        "C": ["push", "hold"],
+        "D": ["hold", "release", "stabilize"],
+    }[family]
+
+
 def sustained_rows(rows, duration, predicate):
     """Return a real contiguous support window, or no evidence."""
     window = []

@@ -5,6 +5,7 @@ import json
 import h5py
 import numpy as np
 
+from alexdoor_xas.qualification.collection_phase import collection_supervised_phases
 from alexdoor_xas.recording.temporal import SCHEMA
 
 
@@ -56,6 +57,12 @@ def teacher_eligibility(file):
     names = metadata.get("phase_names", [])
     if subtask is not None and "supervised_phases" in subtask:
         supervised = [names.index(name) for name in subtask["supervised_phases"]]
+        result &= np.isin(evaluator["phase"][:], supervised)
+    case = metadata.get("collection_case", {})
+    if subtask is not None and case.get("family") == subtask.get("name"):
+        # Older campaign metadata included C's release/tail in supervised_phases.
+        # Retain those real physical rows while enforcing the declared task scope.
+        supervised = [names.index(name) for name in collection_supervised_phases(case["family"])]
         result &= np.isin(evaluator["phase"][:], supervised)
     if "contact" in names and "phase" in evaluator and "contact_valid" in evaluator:
         contact = np.flatnonzero(evaluator["phase"][:] == names.index("contact"))
@@ -288,6 +295,11 @@ def review_native_collection(path):
             or (subtask is not None and any(p not in names for p in required))
         ):
             raise ValueError("Required phases must be a nonempty unique recorded phase sequence")
+        supervised_required = required
+        if subtask is not None and metadata.get("collection_case", {}).get("family") == subtask.get(
+            "name"
+        ):
+            supervised_required = collection_supervised_phases(subtask["name"])
         coverage = []
         for name in required:
             commands_in_phase = np.flatnonzero(phase == names.index(name)) if name in names else []
@@ -301,13 +313,20 @@ def review_native_collection(path):
             )
         missing = [
             dict(from_phase=a, to_phase=b)
-            for a, b in zip(required[:-1], required[1:], strict=True)
+            for a, b in zip(supervised_required[:-1], supervised_required[1:], strict=True)
             if not any(
                 t["from_phase"] == a and t["to_phase"] == b and t["valid_crossing_windows"]
                 for t in transitions
             )
         ]
-        full = bool(len(rows) and all(c["usable_window_starts"] for c in coverage) and not missing)
+        full = bool(
+            len(rows)
+            and all(c["commands"] for c in coverage)
+            and all(
+                c["usable_window_starts"] for c in coverage if c["phase"] in supervised_required
+            )
+            and not missing
+        )
         # A raw missing substep does not imply a missing selected token. Conversely,
         # one long gap may affect many overlapping histories. Count actual support.
         affected, unsupported_slots = [], 0
@@ -342,6 +361,8 @@ def review_native_collection(path):
             reviewed_command_ranges=row_ranges(np.flatnonzero(eligible)),
             supervision_admission="Explicit source/command-mask review required; candidates only",
             phase_coverage=coverage,
+            required_supervised_phases=supervised_required,
+            required_recorded_phases=required,
             transitions=transitions,
             missing_required_transitions=missing,
             torque_support=dict(

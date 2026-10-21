@@ -398,6 +398,8 @@ def main(argv=None):
                 robot_asset=robot.to_dict(),
             )
             if campaign is not None:
+                from alexdoor_xas.qualification.collection_phase import collection_supervised_phases
+
                 required_phases = {
                     "A": ["approach", "contact"],
                     "B": ["approach", "contact", "push"],
@@ -408,7 +410,7 @@ def main(argv=None):
                     subtask=dict(
                         name=campaign["family"],
                         required_phases=required_phases,
-                        supervised_phases=required_phases,
+                        supervised_phases=collection_supervised_phases(campaign["family"]),
                     ),
                     collection_case=campaign,
                     static_reference_time_s=0.0,

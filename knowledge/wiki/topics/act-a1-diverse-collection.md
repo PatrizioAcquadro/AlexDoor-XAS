@@ -55,7 +55,12 @@ Complete episodes retain each door's original opening, hold, release and tail cr
 Task outcomes, rather than matching one teacher trajectory, decide success.
 
 Every short physically executes ordinary withdrawal/stabilization and an independent
-continuing-physics stop. A/B post-endpoint hold/release/tail is excluded diagnostic
+continuing-physics stop. A data audit found that older C masks supervised cleanup.
+All14 affected admissions are held for a data-only revision: original raw/prepared
+files and physical outcomes stay intact, new prepared masks supervise only push/hold,
+and separately charged bounded CUDA validation must pass before readmission. New
+C recordings use the same task-only mask. Recorded phase/tail presence and physical
+completion remain required; excluded cleanup transitions need no expert-label chunks. A/B post-endpoint hold/release/tail and C post-hold release/tail are excluded diagnostic
 cleanup so short supervision does not teach premature release in a full task.
 B's cleanup still executes3s with unchanged loss/physical guards; it need not satisfy
 an additional complete-task final-hold predicate. The retained front-door low B
