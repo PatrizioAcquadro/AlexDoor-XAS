@@ -337,3 +337,19 @@ def test_contact_pause_reserves_its_physical_duration_without_changing_nominal_g
     assert conditioning_margin_exhausted(samples, setup, extra_contact_s=extra)
     with pytest.raises(ValueError, match="contact reserve"):
         conditioning_margin_exhausted(samples, setup, extra_contact_s=-1)
+
+
+def test_reexpressed_contact_goal_preserves_position_without_angular_push_lead():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, achieved_contact_hold_state
+
+    class Door:
+        def contact_pose(self, angle, fraction, height):
+            return np.array([0.3, 0.2, height]), np.eye(3)
+
+    setup = ProbeSetup()
+    actual = np.array([0.301, 0.202, setup.contact_height - 0.001])
+    row = dict(valid=True, physical_safe=True, angle=0.8, tool_position=actual)
+    reference, compression, tangent = achieved_contact_hold_state(Door(), setup, row)
+    origin, rotation = Door().contact_pose(reference, setup.contact_fraction, setup.contact_height)
+    np.testing.assert_allclose(origin + rotation @ (tangent + [compression, 0, 0]), actual)
+    assert reference == row["angle"]

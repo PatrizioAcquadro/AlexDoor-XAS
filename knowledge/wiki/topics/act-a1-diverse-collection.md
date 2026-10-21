@@ -347,3 +347,12 @@ is physically complete, while recovery remains pending until the original.5s
 valid contact window. This avoids continuing the push during ordinary C hold;
 no pose/state/gain/physics/phase-clock reset or criterion relaxation occurs.
 Only its bounded qualification is allowed; bulk collection remains halted.
+
+Removing the C lead without a continuous contact-position goal avoids the unsafe
+reach but loses hold contact after.267s;2+4s stopping passes. The native trace shows
+a near2mm transient separating gap after the angular-reference change. The next
+same-state comparison re-expresses the actually achieved contact position in the
+material frame before removing lead, after the physical return completes. It does
+not clear pending recovery, reset the clock, or change pressure feedback/criteria.
+The future retreat also receives the separately qualified preceding-pose correction;
+that field cannot affect push/hold or their causal comparison. Qualification is pending.

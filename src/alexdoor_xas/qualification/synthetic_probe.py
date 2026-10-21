@@ -1163,7 +1163,16 @@ def run_probe(
             for tick in range(round(hold_budget_s / dt)):
                 prior_lead = initial_lead
                 if correction is not None:
-                    initial_lead = correction.hold_opening_lead(initial_lead)
+                    next_lead = correction.hold_opening_lead(initial_lead)
+                    if next_lead != initial_lead and traces[-1]["valid"]:
+                        # Keep the physical position goal continuous while moving
+                        # all normal preload into the existing force regulator.
+                        # The return has completed; sustained recovery is still
+                        # independently pending and the phase clock continues.
+                        reference, compression, compensation = achieved_contact_hold_state(
+                            door, setup, traces[-1]
+                        )
+                        initial_lead = next_lead
                 compression = support_normal(compression, "hold")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 state = command(
@@ -1180,6 +1189,8 @@ def run_probe(
                         previous_rad=prior_lead,
                         current_rad=initial_lead,
                         return_complete=True,
+                        position_goal_reexpressed_from_actual_contact=True,
+                        recovery_still_pending=correction.pending,
                         sustained_support_s=correction.recovered_samples * dt,
                         scope="End prior push after return; recovery remains pending",
                     )
