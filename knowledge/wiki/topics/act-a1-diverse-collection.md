@@ -465,3 +465,10 @@ the excluded pulse directly. The next prototype physically performs post-pulse
 corrective support with the original.1N acquisition target and1s recontact envelope,
 without opening lead. After.5s fresh expert contact it enters the unchanged.05N
 ordinary hold. No injected row is unmasked and no phase/transition gate is relaxed.
+
+Post-pulse expert support reaches ordinary hold safely for6s: final speed-window
+peak.190degrees/s, minimum hold sigma.0765 and no physical violation. Its longest
+valid loaded window is.433s versus.5s required; occasional.016–.020N means miss the
+unchanged.020N threshold. The next matched case maintains the already used.1N
+acquisition target into hold instead of halving it to.05N. No criterion, gain,
+model or control bound changes; this preserves actual positive-load margin.
