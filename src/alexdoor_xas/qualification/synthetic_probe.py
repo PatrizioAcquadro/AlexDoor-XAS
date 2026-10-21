@@ -556,13 +556,18 @@ def run_probe(
     start_p, start_q = [v[0].cpu().numpy() for v in env.tool_pose()]
     compensation = np.zeros(3)
     normal_feedback = None
+    pace_exit_active = False
 
     def support_normal(compression, phase):
         nonlocal normal_feedback
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
         source = "contact_qualification_window"
-        if phase == "hold" and correction is not None and correction.supported_hold_handoffs:
+        if (
+            correction is not None
+            and correction.supported_hold_handoffs
+            and (phase == "hold" or pace_exit_active)
+        ):
             # After the position-to-force handoff, stale impact load must not
             # suppress catch-up after actual contact disappears. Keep the .1s
             # load window for qualification; control uses the preceding native
@@ -1043,7 +1048,9 @@ def run_probe(
         reference_step = 0.0
         for tick in range(round(15.0 / dt)):
             if (
-                campaign.get("supported_pace_exit", False)
+                campaign is not None
+                and campaign.get("supported_pace_exit", False)
+                and not pace_exit_active
                 and correction is not None
                 and correction.supported_pace_exit(traces)
             ):
@@ -1061,16 +1068,22 @@ def run_probe(
                     tangential_compensation_m=compensation.tolist(),
                     scope="Full pace pulse ended with actual sustained contact; rate remains",
                 )
+                pace_exit_active = True
+            if pace_exit_active and not correction.pending:
+                reference = float(tensor(env.door.data.joint_pos)[0, 0])
+                reference_step = 0.0
+                traces[-1]["post_pulse_expert_support"] = dict(
+                    duration_s=correction.recovered_samples * dt,
+                    scope="Actual expert contact support before ordinary hold",
+                )
                 reason = "supported_pace_to_force_hold"
                 break
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
             previous = reference
-            reference = push_reference(
-                reference,
-                angle,
-                setup,
-                dt,
-                door.mechanical_stop,
+            reference = (
+                angle
+                if pace_exit_active
+                else push_reference(reference, angle, setup, dt, door.mechanical_stop)
             )
             reference_step = reference - previous
             compression = support_normal(compression, "push")

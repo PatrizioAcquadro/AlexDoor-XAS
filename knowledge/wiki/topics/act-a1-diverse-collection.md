@@ -458,3 +458,10 @@ full59-action pulse. This does not rewind the door: the first eligible actual ra
 residual remains and must physically decay into the original hold window. Stale
 reference distance is diagnostic, not a claimed corrected error. A focused test
 requires the executed pulse and real contiguous safe support before one handoff.
+
+Immediate pulse-to-hold transfer loses contact after.283s and passes stopping.
+It also lacks an admissible expert push-to-hold chunk because the boundary follows
+the excluded pulse directly. The next prototype physically performs post-pulse
+corrective support with the original.1N acquisition target and1s recontact envelope,
+without opening lead. After.5s fresh expert contact it enters the unchanged.05N
+ordinary hold. No injected row is unmasked and no phase/transition gate is relaxed.
