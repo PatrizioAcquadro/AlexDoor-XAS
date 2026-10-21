@@ -127,7 +127,7 @@ and cone10N loaded/contact-free calibration controls, the original2s stop and a
 separate4s diagnostic continuation. Earlier usable120Hz recordings keep their
 original demonstrated scope; no continuation is fabricated for them. The scoped
 [runtime decision](../../../outputs/evidence/act-a1-diverse-20261019/runtime-qualification-decision.json)
-and [all13 runtime cases](../../../outputs/evidence/act-a1-diverse-20261019/runtime-diagnostic-attempts.json)
+and [all runtime cases](../../../outputs/evidence/act-a1-diverse-20261019/runtime-diagnostic-attempts.json)
 include intentional failures and the failed integration wrapper.
 
 Other observed defects were isolated separately from this numerical pole:
@@ -186,7 +186,55 @@ pulse missing the final current-window hold are preserved failures. The qualifie
 right case settles at3.2s,59 actions excluded,41 usable corrective actions. Actual
 speed rises from.447 to1.611degrees/s; input factor1.5 is not an assertion that the
 physical speed ratio equals1.5. The recorded extra request.006693347rad matches the
-sum of delivered pulse increments. Other C1/C2 starts require their own gates.
+sum of delivered pulse increments. Other C1/C2 starts retain individual gates.
+
+Phase-state retreat ancestry is independently corrected. A left C2 completed its
+pulse/correction/hold but withdrew only7.05mm versus10mm required: its earlier start
+had inherited a retreat from the source's later full hold. Preparation now chooses
+an actually achieved pose at least5degrees before the selected start, preserving
+current q/dq, targets, gains and controller state. The matched comparison retains
+739 control rows and all native feedback/efforts exactly through recovery, hold and
+the first3s withdrawal; corrected final separation is45.79mm. Full tail,2+4s stops,
+data and measured recovery pass. Original states and failure remain preserved.
+[Retreat qualification](../../../outputs/evidence/act-a1-diverse-20261019/preceding-retreat-qualification.json).
+
+Front C1 at46.26degrees reveals insufficient physical reserve for perturbation
+momentum and settling. Its predictive guard enters hold before sustained recovery,
+then forbidden contact occurs. A hold-phase handoff trial instead reaches.528rad/s
+near Jacobian sigma.00136. Its stop decays to.000222rad/s at2s and.0000969rad/s at6s,
+but fails forbidden contact. Matched actual-profile saved-target replays reproduce
+all460 commands,1840 native incoming q/dq/target/effort rows and the failure exactly.
+Removing only door collision after the latched stop makes2+4s stop checks pass;
+retaining contact fails. This isolates contact at an already unsafe geometry, not
+a growing PD mode. Contact-off results never qualify that loaded posture or data.
+An accidentally copied older-profile pair also remains preserved and charged.
+[Contact comparison](../../../outputs/evidence/act-a1-diverse-20261019/front-stop-contact-causal-comparison.json).
+
+Bounded same-state C controller variants were tested and rejected: removing opening
+lead loses contact at.267s; continuous goal capture, earlier native force feedback
+and a.1s gap horizon each reach the unchanged speed criterion before a supported
+hold completes. Two contact-stop failures also halt dependent work until examined.
+Native gap kicks/preload are diagnostic evidence, not an established general cure.
+All trial code, raw failures and charges remain in history; active code returns to
+the physically qualified push-handoff/native-feedback controller.
+
+Explicitly declared earlier C1 native starts retain the same1mm disturbance,
+correction, endpoints and criteria: front40.31degrees (84% of its47.77-degree
+full-task minimum), wood45.42degrees (91% of50.15). Both pass full recovery,3s hold,
+ordinary release/stabilization,2+4s stops and data/diversity checks. Front first-used
+reference error is1.001mm, native gap.685mm;47 injected actions are excluded and no
+corrective labels are masked. Peak actual speed is.167rad/s and minimum hold sigma
+.0810. This qualifies those late-push scopes; old near-boundary starts stay
+unsupported. No disturbance, mass, damping, velocity ceiling or criterion changes.
+[C1 reserve decision](../../../outputs/evidence/act-a1-diverse-20261019/C1-reach-reserve-qualification.json).
+
+The front C2 at40.31degrees also enters hold before its sustained push handoff,
+then fails ordinary speed near the workspace boundary; its independent2+4s stop
+passes without a growing native mode. Earlier front38.50-degree and wood43.14-degree
+native late-push candidates are declared explicitly with source ancestry and the
+same initial Jacobian reserve. They retain the full4.2–5.2s pulse, correction,
+endpoints and all criteria; qualification is pending. No failed attempt is replaced
+silently or converted to a success.
 
 D1 targets8mm separation in the moving material frame, preserving the incomplete
 withdrawal until corrective supervision; the right first-used separation is7.33mm
@@ -313,92 +361,3 @@ temporal data for all counted recordings; C complete pipeline/CUDA checks with n
 weight change and complete resource accounting. A partial inventory or one repaired
 runtime does not complete the goal. Continue independent qualified scopes while a
 local mechanism is diagnosed; shared unstable stopping halts dependent collection.
-
-A later left C2 attempt passes the full pace/correction/hold endpoint but fails
-cleanup release at7.05mm actual separation versus10mm required; its stop is stable.
-The earlier phase state inherited a retreat pose selected near the source's later
-full hold. Phase-state preparation now selects an actually achieved source pose
-at least5degrees before the selected start, preserving every q/dq, delivered target,
-gain and current controller field. Original states are retained. A matched C2
-retreat-only prototype gates dependent D2 launches; physical qualification is pending.
-
-The front C1 failure is distinct: its predictive push guard enters hold at5.333s,
-before recovery has.5s contiguous valid support. The handoff check only ran during
-push, so no achieved-contact force-hold transition occurs; a forbidden jaw contact
-is measured at7.433s. The failure and stable stop remain. The same one-time handoff
-is now also checked during ordinary hold, with unchanged support criteria and no
-state/gain/phase-clock reset. A matched front qualification is pending; no forbidden
-contact predicate is relaxed or old failed episode salvaged.
-
-The front hold-phase handoff occurs at5.65s but does not cure the near-reach case:
-joint speed reaches.528rad/s as Jacobian sigma falls to.00136. The independent
-stop decays to.000222rad/s at2s and.0000969rad/s at6s, but fails forbidden contact.
-Collection is halted. Two actual-profile matched saved-target replays reproduce
-all460 commands and the same unsafe velocity. Their incoming states/targets/gains
-and native q/dq/efforts are exactly equal. Removing only door collision at the
-latched stop makes both2s and4s checks pass; retaining contact reproduces the
-original failure exactly. This isolates physical contact at an already unsafe
-terminal geometry, not a growing PD mode. Contact-off diagnostics never qualify
-data or that loaded geometry. An accidentally copied older-profile pair is also
-preserved and charged separately.
-
-A same-state candidate stops the positive opening lead once corrective return
-is physically complete, while recovery remains pending until the original.5s
-valid contact window. This avoids continuing the push during ordinary C hold;
-no pose/state/gain/physics/phase-clock reset or criterion relaxation occurs.
-Only its bounded qualification is allowed; bulk collection remains halted.
-
-Removing the C lead without a continuous contact-position goal avoids the unsafe
-reach but loses hold contact after.267s;2+4s stopping passes. The native trace shows
-a near2mm transient separating gap after the angular-reference change. The next
-same-state comparison re-expresses the actually achieved contact position in the
-material frame before removing lead, after the physical return completes. It does
-not clear pending recovery, reset the clock, or change pressure feedback/criteria.
-The future retreat also receives the separately qualified preceding-pose correction;
-that field cannot affect push/hold or their causal comparison. Qualification is pending.
-
-The continuous-goal trial preserves contact and completes one sustained handoff,
-but reaches the unchanged speed limit at3.733s hold; its stop passes. Actual mean
-native hold force is.448N versus.05N target. Thirteen intermittent positive gap
-corrections accompany a net positive bounded compression increment despite negative
-force-error unloading (increment accounting excludes the explicit goal captures).
-A same-state comparison now begins the existing current-native force feedback
-when physical return completes, rather than waiting for sustained recovery to finish.
-The contact qualification window, gains, bounds and rates are unchanged; qualification
-is pending. No native oscillation or physical threshold is hidden.
-
-Earlier native feedback alone still reaches the speed limit after3s hold; numerical
-stop decay remains bounded but forbidden contact fails its physical gate. The next
-matched C force-hold comparison closes measured geometric gap over the existing
-.1s contact-feedback window instead of one1/60s interval. Native records showed
-intermittent positive gap kicks adding preload despite mean force above target.
-This changes only the outer geometric correction horizon: pressure admittance,
-force target,6mm/s rate/offset bounds, model/PD gains,60Hz control,10Hz observations
-and every contact/hold/stop criterion stay fixed. Qualification remains pending.
-
-The.1s gap-horizon trial also reaches the speed criterion before completing the
-near-boundary hold; its independent stop passes. The unqualified hold-entry lead,
-goal-capture, early-feedback and gap-horizon controller variants are rejected and
-removed from the active implementation through a new commit; every variant,
-negative recording and charge remains preserved. The active C controller returns
-to the physically qualified push-handoff/native-feedback behavior.
-
-The next explicitly declared C1 starts retain the same1mm disturbance, correction,
-endpoints and all criteria, but use earlier actual late-push native states already
-prepared for C2: front40.31degrees (84% of its47.77-degree full-task minimum),
-wood45.42degrees (91% of50.15). Both remain loaded late-push phases with genuine
-fresh motion. They add physical settling travel before the measured singularity;
-no mass, damping, velocity limit, teacher-error amplitude or task criterion changes.
-The old near-boundary postures remain unsupported. Front qualification is pending;
-other collection stays gated.
-
-The earlier front C1 start passes the full unchanged recovery and3s hold, ordinary
-release/stabilization and2+4s stops. First usable correction has1.001mm ordinary-
-reference error and.685mm actual native gap; all47 injected commands are excluded,
-with no masked corrective targets. Peak actual joint speed is.167rad/s and minimum
-hold Jacobian sigma.0810, versus the failed near-boundary collapse to.00136.
-The active controller remains the previously qualified implementation. The
-[C1 reserve decision](../../../outputs/evidence/act-a1-diverse-20261019/C1-reach-reserve-qualification.json)
-records the exact new start and all remaining limits; it permits only individually
-gated original-matrix collection. Other C starts, development and front dynamics
-still require their own physical, diversity and pipeline checks.
