@@ -239,8 +239,14 @@ preserved observations, short-interval feedback produces nine positive geometric
 catch-up ticks versus two with the existing.1s window. This arithmetic does not
 predict physical behavior. One matched C2 prototype tests only the.1s force window
 after handoff; C1 feedback, source, model, low-level PD, full pulse, endpoints and
-all criteria are unchanged. Qualification is pending. No failed attempt is replaced
-silently or converted to a success.
+all criteria are unchanged. That comparison fails the ordinary speed criterion
+at4.15s hold and forbidden contact during stopping, despite numerical velocity
+decay through6s; it is rejected and prior native feedback restored. A subsequent
+matched C2 prototype holds the achieved handoff angle during ordinary contact
+holding instead of advancing that angular goal with the moving door. Normal
+force/tangent support, all guards, full pulse and separate independent stop remain
+unchanged. Qualification is pending. No failed attempt is replaced silently or
+converted to a success.
 
 D1 targets8mm separation in the moving material frame, preserving the incomplete
 withdrawal until corrective supervision; the right first-used separation is7.33mm

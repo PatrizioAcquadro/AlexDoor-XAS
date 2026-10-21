@@ -556,14 +556,7 @@ def run_probe(
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
         source = "contact_qualification_window"
-        if (
-            phase == "hold"
-            and correction is not None
-            and correction.variation == "correction-1"
-            and correction.supported_hold_handoffs
-        ):
-            # C1's recontact needs current load feedback. C2 retains the ordinary
-            # force window during its faster residual-motion settling.
+        if phase == "hold" and correction is not None and correction.supported_hold_handoffs:
             # After the position-to-force handoff, stale impact load must not
             # suppress catch-up after actual contact disappears. Keep the .1s
             # load window for qualification; control uses the preceding native
@@ -1170,9 +1163,19 @@ def run_probe(
             for tick in range(round(hold_budget_s / dt)):
                 compression = support_normal(compression, "hold")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
+                # C2 corrects excess progression by holding the achieved angle,
+                # rather than advancing its goal with the disturbed panel.
+                # Normal force/position support and all physical guards remain active.
+                hold_angle = (
+                    reference
+                    if correction is not None
+                    and correction.variation == "correction-2"
+                    and correction.supported_hold_handoffs
+                    else hold_reference(angle, initial_lead, door.mechanical_stop)
+                )
                 state = command(
                     *door.contact_pose(
-                        hold_reference(angle, initial_lead, door.mechanical_stop),
+                        hold_angle,
                         setup.contact_fraction,
                         setup.contact_height,
                         compression,
