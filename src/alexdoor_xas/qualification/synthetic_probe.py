@@ -556,11 +556,10 @@ def run_probe(
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
         source = "contact_qualification_window"
-        if phase == "hold" and correction is not None and correction.supported_hold_handoffs:
-            # After the position-to-force handoff, stale impact load must not
-            # suppress catch-up after actual contact disappears. Keep the .1s
-            # load window for qualification; control uses the preceding native
-            # interval's measured average, with the same admittance and bounds.
+        if correction is not None and correction.uses_native_hold_force(phase):
+            # Once physical return completes, stale impact load must not delay
+            # pressure feedback. Keep the .1s window for load qualification;
+            # control uses the preceding native average with unchanged bounds.
             force = traces[-1]["native_mean_normal_force_n"]
             source = "preceding_native_interval_mean"
         normal_feedback = dict(force_n=force, source=source)

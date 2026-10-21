@@ -356,3 +356,13 @@ material frame before removing lead, after the physical return completes. It doe
 not clear pending recovery, reset the clock, or change pressure feedback/criteria.
 The future retreat also receives the separately qualified preceding-pose correction;
 that field cannot affect push/hold or their causal comparison. Qualification is pending.
+
+The continuous-goal trial preserves contact and completes one sustained handoff,
+but reaches the unchanged speed limit at3.733s hold; its stop passes. Actual mean
+native hold force is.448N versus.05N target. Thirteen intermittent positive gap
+corrections accompany a net positive bounded compression increment despite negative
+force-error unloading (increment accounting excludes the explicit goal captures).
+A same-state comparison now begins the existing current-native force feedback
+when physical return completes, rather than waiting for sustained recovery to finish.
+The contact qualification window, gains, bounds and rates are unchanged; qualification
+is pending. No native oscillation or physical threshold is hidden.

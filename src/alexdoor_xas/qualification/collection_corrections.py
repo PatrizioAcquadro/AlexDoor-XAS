@@ -179,11 +179,18 @@ class CollectionCorrection:
         self.corrective_commands += int(self.role == CORRECTIVE)
         return position, rotation
 
+    def uses_native_hold_force(self, phase):
+        """Pressure feedback starts after return; qualification keeps its own window."""
+        return bool(
+            phase == "hold"
+            and self.family == "C"
+            and self.injected_commands
+            and self.corrective_transition_complete
+        )
+
     def hold_opening_lead(self, lead):
         """After the return, hold support without continuing the prior push."""
-        if self.family == "C" and self.injected_commands and self.corrective_transition_complete:
-            return 0.0
-        return lead
+        return 0.0 if self.uses_native_hold_force("hold") else lead
 
     def needs_supported_hold_handoff(self, row):
         """Hand sustained support to force holding; first impact is insufficient."""
