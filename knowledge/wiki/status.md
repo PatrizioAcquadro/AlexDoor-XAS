@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-19. Static 6.0B and the complete B1 software core are
+Current as of 2026-10-20. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
 6.1 and final matched-data production remain open. The sealed test stays closed.
 
@@ -314,7 +314,7 @@ views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
 The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
-active with the original 112-cell objective: **65/112 qualified**, comprising 57/96 short train,
+active with the original 112-cell objective: **81/112 qualified**, comprising 73/96 short train,
 8/8 complete train and 0/8 development.
 The original six attempts and every resumed diagnostic/failure remain in the same
 resource denominator. The requested training-ready handoff remains unavailable.
@@ -331,7 +331,7 @@ contact-loss failures. Right and left recovery examples transfer 14.95 mm and
 Admitted sources pass native alignment, masks, phase/tail and unchanged-weight CUDA
 checks with zero optimizer updates. The original valid recordings retain their
 measured scopes. All train pose/A-correction cells, first light-dynamics A/B and
-all B correction scopes are admitted. The first C1/C2 corrections and right-opening light/resistant C/D dynamics pass.
+all B correction scopes are admitted. All train A/B dynamics and first C1/C2 corrections pass; current-native-force feedback also qualifies the left C1 hold. The right D2 pause qualifies with task-based release preparation. Right light/resistant C/D dynamics pass.
 The matched resistant full-source pressure correction reaches51.53 degrees versus
 41.01 required, preserving its prior contact-loss failure. Late force comparisons
 use native integrals and hold response; the resistant A context remains

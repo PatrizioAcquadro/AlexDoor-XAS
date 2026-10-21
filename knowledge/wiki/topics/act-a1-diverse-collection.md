@@ -1,7 +1,7 @@
 # Diverse bounded ACT A1 collection campaign
 
 **Status: scoped resumption, goal unmet.** The original six physical attempts produced three individually
-usable episodes and three failures. Only 65/112 target cells pass; no policy training
+usable episodes and three failures. Only 81/112 target cells pass; no policy training
 or optimizer update occurred. The resumed runtime decision below permits bounded
 collection in qualified scopes; unsupported variations retain independent gates.
 
@@ -679,3 +679,31 @@ transition, full ordinary tail and2+4s stopping. The held opening must also meet
 the original full-task minimum. This is an explicit task-based phase-planning
 correction, not a claim that the previously failed maximum-opening posture is
 qualified. Its physical result remains pending.
+
+The task-goal D2 trial passes from the same saved start; its first84 push rows are
+physically exact against the failed reserve-only trial. Held opening is50.53 degrees,
+above the unchanged41.01-degree task minimum. The original3s hold and4.4s actual
+pre-release context yield complete eligible windows without extending a completed
+hold. Expert control begins with19.07mm reference error and real loaded contact
+(native gap1.26micrometres); all59 injected actions are excluded and no corrective
+actions are masked. Peak actual joint speed is.498rad/s versus.530 before; full
+ordinary stabilization and2+4s stopping pass. The old maximum-opening pause posture
+is still unsupported. Other D2 candidates use the first actual supported window
+meeting their unchanged full-task opening goal; each must pass fresh reconstruction
+and its own complete physical/data/recovery gates.
+
+The remaining right A resistant cell passes at a prospectively matched1N teacher
+acquisition target: .55 versus.71degree opening response (23% difference), with
+unchanged physical/task criteria. Both pair members use the same excitation; the
+original.1N target negative remains. This is a declared teacher context change,
+not a measured hardware parameter. Direct true-native-force/kinematic light-versus-
+resistant audits additionally pass all ten currently available dynamics pairs;
+six late pairs remain pending. Conditional late-state differences are not claimed
+as isolated local mass estimates.
+
+The original A1 example remains usable for its measured5.22mm correction. A single
+full-transfer follow-up is declared to close that original20mm target in full;
+it must deliver at least90% of both20mm and5degrees to actual usable corrective
+supervision. Only after it passes will the old narrower example move to a separate
+retained usable-scope inventory. Its original physical/data outcomes and recordings
+stay unchanged, and only one episode can fill the target cell.
