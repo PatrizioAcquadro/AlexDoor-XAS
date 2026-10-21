@@ -309,6 +309,13 @@ original failure remains. The same rule is declared before launching remaining
 complete sources/development targets; each retains its own physical/data gates.
 [Qualification](../../../outputs/evidence/act-a1-diverse-20261019/development-task-goal-hold-qualification.json).
 
+All eight declared development cells now pass physical, measured-variation and
+causal data/CUDA gates. Both industrial full variants retain their37.60-degree
+opening requirement: high/low hold43.45/40.38degrees and measured height changes
++19.99/-20.02mm. Both B1/D1 correction pairs retain actual residuals and complete
+ordinary tails. Development sources remain excluded from normalization fitting;
+weights and the final test remain untouched.
+
 ## Data admission, budgets and handoff
 
 Each admitted source passes native integrity, clocks, causal joins, actual A1 labels,
