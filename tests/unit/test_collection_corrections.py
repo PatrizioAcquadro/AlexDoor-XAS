@@ -43,6 +43,13 @@ def test_every_correction_executes_a_bounded_pulse_and_requires_response(family,
     for _ in range(31):
         case.role = 2
         case.observe(dict(valid=True, loaded=family != "D", separation_m=0.02))
+    if family == "C" and variant == 2:
+        assert case.pending  # contact alone did not settle the excess pace
+        row = dict(phase="push", valid=True, physical_safe=True, loaded=True, speed=0.0)
+        assert case.needs_supported_hold_handoff(row)
+        case.accept_supported_hold_handoff()
+        for _ in range(31):
+            case.observe(row.copy())
     assert not case.pending
     unsafe = dict(
         physical_safe=False,
@@ -268,10 +275,27 @@ def test_late_handoff_requires_sustained_support_before_controller_transition(
         case.observe(row.copy())
         assert not case.needs_supported_hold_handoff(row)
     case.observe(row.copy())
-    assert not case.pending
+    assert case.pending == (variant == "correction-2")
     assert case.needs_supported_hold_handoff(row)
     case.accept_supported_hold_handoff()
-    assert not case.pending
+    assert case.pending == (variant == "correction-2")
+    if variant == "correction-2":
+        # Contact alone did not correct the pace error. Keep the original
+        # corrective role until a fresh sustained low-speed contact window.
+        assert case.holding_achieved_angle()
+        for _ in range(60):
+            case.observe(dict(row, speed=np.deg2rad(1.3)))
+        assert case.pending
+        slow = dict(row, speed=np.deg2rad(0.5))
+        for _ in range(29):
+            case.observe(slow.copy())
+        assert case.pending
+        case.observe(dict(slow, valid=False))
+        for _ in range(29):
+            case.observe(slow.copy())
+        assert case.pending
+        case.observe(slow.copy())
+        assert not case.pending
     assert case.corrective_origin is None
     assert not case.needs_supported_hold_handoff(row)
     achieved = np.array([0.0001, 0.0002, 0.0003])

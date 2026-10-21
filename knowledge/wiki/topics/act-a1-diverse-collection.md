@@ -390,3 +390,13 @@ temporal data for all counted recordings; C complete pipeline/CUDA checks with n
 weight change and complete resource accounting. A partial inventory or one repaired
 runtime does not complete the goal. Continue independent qualified scopes while a
 local mechanism is diagnosed; shared unstable stopping halts dependent collection.
+
+The fixed-angle prototype decelerates1.28→1.06degrees/s with no physical-speed
+violation, but loses ordinary-hold contact after.283s; stopping passes. This exposes
+premature C2 recovery completion: contact-only support had cleared the corrective
+state while excess pace remained. The next prototype keeps the captured goal in
+corrective settling with the existing1s bounded recontact envelope. It requires a
+fresh.5s valid low-speed contact window before starting the original3–6s ordinary
+hold, whose.25s loss guard remains unchanged. Forward-opening forecasts do not
+advance a captured stationary corrective goal; all native physical/IK, contact,
+footprint and independent stopping criteria remain active. Qualification is pending.

@@ -193,11 +193,22 @@ class CollectionCorrection:
             and row["physical_safe"]
         )
 
+    def holding_achieved_angle(self):
+        """C2's rate correction holds a captured goal before ordinary hold starts."""
+        return bool(
+            self.family == "C"
+            and self.variation == "correction-2"
+            and self.supported_hold_handoffs
+        )
+
     def accept_supported_hold_handoff(self):
         """Runtime has reconstructed the achieved contact goal for force holding."""
         self.corrective_origin = None
         self.corrective_transition_complete = True
         self.supported_hold_handoffs += 1
+        if self.holding_achieved_angle():
+            self.pending = True
+            self.recovered_samples = 0
         # Actual sustained loaded support must still complete this correction.
 
     def observe(self, row):
@@ -223,8 +234,15 @@ class CollectionCorrection:
                 if self.family in ("A", "B", "C")
                 else (not row["loaded"] and row["separation_m"] >= 0.01)
             )
+            pace_correction = self.family == "C" and self.variation == "correction-2"
+            if self.holding_achieved_angle():
+                supported &= abs(row["speed"]) <= (
+                    np.deg2rad(self.setup.tie_deg) / self.setup.stabilization_window_s
+                )
             self.recovered_samples = self.recovered_samples + 1 if supported else 0
-            if self.recovered_samples * self.dt >= self.setup.sustain_s:
+            if self.recovered_samples * self.dt >= self.setup.sustain_s and (
+                not pace_correction or self.holding_achieved_angle()
+            ):
                 self.pending = False
 
     def permit_recontact(self, row, missing_s):
