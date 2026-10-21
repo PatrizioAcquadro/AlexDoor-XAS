@@ -241,9 +241,10 @@ def test_c1_measured_return_fits_recontact_budget_without_exceeding_gap_catchup_
     )
 
 
+@pytest.mark.parametrize("phase", ["push", "hold"])
 @pytest.mark.parametrize("variant,last_injected", [("correction-1", 299), ("correction-2", 311)])
 def test_late_handoff_requires_sustained_support_before_controller_transition(
-    variant, last_injected
+    variant, last_injected, phase
 ):
     case = CollectionCorrection("C", variant, ProbeSetup(), 1 / 60)
     case.counts["push"] = last_injected
@@ -255,7 +256,7 @@ def test_late_handoff_requires_sustained_support_before_controller_transition(
         injected_pose=(np.array([0.001, 0, 0]), np.eye(3)),
     )
     case.target(np.zeros(3), np.eye(3), "push", np.array([-0.001, 0, 0]))
-    row = dict(phase="push", valid=False, physical_safe=True)
+    row = dict(phase=phase, valid=False, physical_safe=True)
     assert not case.needs_supported_hold_handoff(row)
     row.update(valid=True, loaded=True, separation_m=0)
     for _ in range(29):

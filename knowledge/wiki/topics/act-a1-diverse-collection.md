@@ -321,3 +321,11 @@ full hold. Phase-state preparation now selects an actually achieved source pose
 at least5degrees before the selected start, preserving every q/dq, delivered target,
 gain and current controller field. Original states are retained. A matched C2
 retreat-only prototype gates dependent D2 launches; physical qualification is pending.
+
+The front C1 failure is distinct: its predictive push guard enters hold at5.333s,
+before recovery has.5s contiguous valid support. The handoff check only ran during
+push, so no achieved-contact force-hold transition occurs; a forbidden jaw contact
+is measured at7.433s. The failure and stable stop remain. The same one-time handoff
+is now also checked during ordinary hold, with unchanged support criteria and no
+state/gain/phase-clock reset. A matched front qualification is pending; no forbidden
+contact predicate is relaxed or old failed episode salvaged.

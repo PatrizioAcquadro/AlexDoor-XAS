@@ -188,7 +188,7 @@ class CollectionCorrection:
             and self.injected_commands > 0
             and self.recovered_samples * self.dt >= self.setup.sustain_s
             and not self.supported_hold_handoffs
-            and row["phase"] == "push"
+            and row["phase"] in ("push", "hold")
             and row["valid"]
             and row["physical_safe"]
         )

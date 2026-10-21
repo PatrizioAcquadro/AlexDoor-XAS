@@ -1173,6 +1173,18 @@ def run_probe(
                     "hold",
                 )
                 held.update(tick * dt, state[0], state[6])
+                if correction is not None and correction.needs_supported_hold_handoff(traces[-1]):
+                    reference, compression, compensation = achieved_contact_hold_state(
+                        door, setup, traces[-1]
+                    )
+                    initial_lead = 0.0
+                    correction.accept_supported_hold_handoff()
+                    traces[-1]["supported_hold_handoff"] = dict(
+                        reference_angle=reference,
+                        compression_m=compression,
+                        tangential_compensation_m=compensation.tolist(),
+                        scope="One sustained-contact handoff completed during ordinary hold",
+                    )
                 missing_time = 0.0 if state[5] else missing_time + dt
                 if missing_time > 0.25:
                     failure = failure or "lost_hold_contact"
