@@ -539,16 +539,28 @@ def run_probe(
     conditioning = deque(maxlen=tracking.maxlen)
     start_p, start_q = [v[0].cpu().numpy() for v in env.tool_pose()]
     compensation = np.zeros(3)
+    normal_feedback = None
 
     def support_normal(compression, phase):
+        nonlocal normal_feedback
         gap = traces[-1]["contact_gap_m"] if traces else None
+        force = contact_load.force
+        source = "contact_qualification_window"
+        if phase == "hold" and correction is not None and correction.supported_hold_handoffs:
+            # After the position-to-force handoff, stale impact load must not
+            # suppress catch-up after actual contact disappears. Keep the .1s
+            # load window for qualification; control uses the preceding native
+            # interval's measured average, with the same admittance and bounds.
+            force = traces[-1]["native_mean_normal_force_n"]
+            source = "preceding_native_interval_mean"
+        normal_feedback = dict(force_n=force, source=source)
         if correction is not None and correction.position_return_active(phase):
             # The measured-origin transition already corrects position error.
             # Do not stack a second gap catch-up; keep force unloading active.
             gap = None
         return normal_contact_support(
             compression,
-            contact_load.force,
+            force,
             setup,
             dt,
             target_force=setup.hold_force_n if phase == "hold" else None,
@@ -698,7 +710,11 @@ def run_probe(
                 footprint_inside=footprint_inside,
                 closed_gripper_error_m=closed_error,
                 force=force,
+                native_mean_normal_force_n=float(np.mean(sample_forces)),
                 filtered_force_n=contact_load.force,
+                normal_control_feedback=normal_feedback
+                if phase in ("contact", "push", "hold")
+                else None,
                 contact_gap_m=gap,
                 loaded=loaded,
                 valid=valid,

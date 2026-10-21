@@ -645,3 +645,15 @@ The next matched candidate includes this declared1.5s support duration in the sa
 conditioning and endpoint-reach projections. It does not extend hold/history or
 change any rate or physical criterion. Removing lead alone is explicitly
 insufficient; the new supported-start qualification remains pending.
+
+Sustained support alone does not fix left C1: the matched trial still loses hold
+contact after.317s, with stable stopping. At the recovered-contact handoff, the
+.1s qualification window retains about.606N while the latest native intervals
+already have zero force. This stale impact load suppresses positive geometric
+catch-up until the tool has recoiled away. Only the new recovered C force-hold mode
+now uses the preceding native interval's average force for pressure feedback.
+The original rolling window still decides loaded qualification; targets,
+admittance, bounds, contact-loss/hold/stop criteria and all rates are unchanged.
+Ordinary nominal/pose/dynamics holds retain their previous controller. The matched
+left candidate remains unqualified until its physical/data/recovery gates pass.
+Both prior failed handoffs are preserved; no old valid recording is relabeled.
