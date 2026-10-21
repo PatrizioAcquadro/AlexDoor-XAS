@@ -375,3 +375,19 @@ intermittent positive gap kicks adding preload despite mean force above target.
 This changes only the outer geometric correction horizon: pressure admittance,
 force target,6mm/s rate/offset bounds, model/PD gains,60Hz control,10Hz observations
 and every contact/hold/stop criterion stay fixed. Qualification remains pending.
+
+The.1s gap-horizon trial also reaches the speed criterion before completing the
+near-boundary hold; its independent stop passes. The unqualified hold-entry lead,
+goal-capture, early-feedback and gap-horizon controller variants are rejected and
+removed from the active implementation through a new commit; every variant,
+negative recording and charge remains preserved. The active C controller returns
+to the physically qualified push-handoff/native-feedback behavior.
+
+The next explicitly declared C1 starts retain the same1mm disturbance, correction,
+endpoints and all criteria, but use earlier actual late-push native states already
+prepared for C2: front40.31degrees (84% of its47.77-degree full-task minimum),
+wood45.42degrees (91% of50.15). Both remain loaded late-push phases with genuine
+fresh motion. They add physical settling travel before the measured singularity;
+no mass, damping, velocity limit, teacher-error amplitude or task criterion changes.
+The old near-boundary postures remain unsupported. Front qualification is pending;
+other collection stays gated.

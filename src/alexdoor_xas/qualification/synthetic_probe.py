@@ -260,25 +260,20 @@ def conditioning_margin_exhausted(samples, setup, *, extra_contact_s=0.0):
     )
 
 
-def normal_contact_support(
-    compression, force, setup, dt, *, target_force=None, gap_m=None, gap_horizon_s=None
-):
+def normal_contact_support(compression, force, setup, dt, *, target_force=None, gap_m=None):
     """Bidirectional bounded force admittance, including removal of excess preload."""
     target_force = setup.contact_load_guard_n if target_force is None else target_force
-    horizon = dt if gap_horizon_s is None else gap_horizon_s
-    if not np.isfinite(horizon) or horizon < dt:
-        raise ValueError("Gap correction horizon must cover a control interval")
     rate = setup.normal_admittance_m_n_s * (target_force - force)
     if gap_m is not None:
         if not np.isfinite(gap_m):
             raise ValueError("Invalid measured contact gap")
         if force < target_force and gap_m > 0:
-            # Correct separation over the declared control horizon. The
-            # low-level servo still evolves physically; retain
+            # Correct the measured separating displacement at the next control
+            # boundary. The low-level servo still evolves physically; retain
             # normal rate/extent bounds and force-unloading priority.
             # Gap catch-up restores geometry; it must not replace the positive
             # force-error admittance that establishes load beyond first touch.
-            rate += gap_m / horizon
+            rate += gap_m / dt
     rate_limit = setup.compression_m / setup.sustain_s
     increment = np.clip(rate, -rate_limit, rate_limit) * dt
     return float(
@@ -561,18 +556,14 @@ def run_probe(
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
         source = "contact_qualification_window"
-        if correction is not None and correction.uses_native_hold_force(phase):
-            # Once physical return completes, stale impact load must not delay
-            # pressure feedback. Keep the .1s window for load qualification;
-            # control uses the preceding native average with unchanged bounds.
+        if phase == "hold" and correction is not None and correction.supported_hold_handoffs:
+            # After the position-to-force handoff, stale impact load must not
+            # suppress catch-up after actual contact disappears. Keep the .1s
+            # load window for qualification; control uses the preceding native
+            # interval's measured average, with the same admittance and bounds.
             force = traces[-1]["native_mean_normal_force_n"]
             source = "preceding_native_interval_mean"
-        gap_horizon = (
-            setup.contact_force_window_s
-            if correction is not None and correction.uses_native_hold_force(phase)
-            else env.step_dt
-        )
-        normal_feedback = dict(force_n=force, source=source, gap_horizon_s=gap_horizon)
+        normal_feedback = dict(force_n=force, source=source)
         if correction is not None and correction.position_return_active(phase):
             # The measured-origin transition already corrects position error.
             # Do not stack a second gap catch-up; keep force unloading active.
@@ -584,7 +575,6 @@ def run_probe(
             dt,
             target_force=setup.hold_force_n if phase == "hold" else None,
             gap_m=gap,
-            gap_horizon_s=gap_horizon,
         )
 
     def command(goal_p, goal_r, phase, *, injected_pose=None):
@@ -1171,18 +1161,6 @@ def run_probe(
         missing_time = 0.0
         if not failure:
             for tick in range(round(hold_budget_s / dt)):
-                prior_lead = initial_lead
-                if correction is not None:
-                    next_lead = correction.hold_opening_lead(initial_lead)
-                    if next_lead != initial_lead and traces[-1]["valid"]:
-                        # Keep the physical position goal continuous while moving
-                        # all normal preload into the existing force regulator.
-                        # The return has completed; sustained recovery is still
-                        # independently pending and the phase clock continues.
-                        reference, compression, compensation = achieved_contact_hold_state(
-                            door, setup, traces[-1]
-                        )
-                        initial_lead = next_lead
                 compression = support_normal(compression, "hold")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 state = command(
@@ -1194,30 +1172,7 @@ def run_probe(
                     ),
                     "hold",
                 )
-                if initial_lead != prior_lead:
-                    traces[-1]["corrective_hold_opening_lead_removed"] = dict(
-                        previous_rad=prior_lead,
-                        current_rad=initial_lead,
-                        return_complete=True,
-                        position_goal_reexpressed_from_actual_contact=True,
-                        recovery_still_pending=correction.pending,
-                        sustained_support_s=correction.recovered_samples * dt,
-                        scope="End prior push after return; recovery remains pending",
-                    )
-                traces[-1]["hold_compression_m"] = compression
                 held.update(tick * dt, state[0], state[6])
-                if correction is not None and correction.needs_supported_hold_handoff(traces[-1]):
-                    reference, compression, compensation = achieved_contact_hold_state(
-                        door, setup, traces[-1]
-                    )
-                    initial_lead = 0.0
-                    correction.accept_supported_hold_handoff()
-                    traces[-1]["supported_hold_handoff"] = dict(
-                        reference_angle=reference,
-                        compression_m=compression,
-                        tangential_compensation_m=compensation.tolist(),
-                        scope="One sustained-contact handoff completed during ordinary hold",
-                    )
                 missing_time = 0.0 if state[5] else missing_time + dt
                 if missing_time > 0.25:
                     failure = failure or "lost_hold_contact"
