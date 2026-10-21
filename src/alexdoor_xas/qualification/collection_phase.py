@@ -235,3 +235,19 @@ def preceding_retreat_row(rows, angle):
         ),
         None,
     )
+
+
+def diagnostic_hold_minimum(setup, campaign, budget_s):
+    """Extend observation only for an explicitly excluded qualification control."""
+    value = None if campaign is None else campaign.get("diagnostic_hold_min_s")
+    if value is None:
+        return setup.hold_settle_s
+    value = float(value)
+    if not (
+        campaign.get("qualification_only") is True
+        and campaign.get("family") == "C"
+        and np.isfinite(value)
+        and setup.hold_settle_s <= value <= budget_s
+    ):
+        raise ValueError("Diagnostic hold must retain the ordinary minimum and existing budget")
+    return value

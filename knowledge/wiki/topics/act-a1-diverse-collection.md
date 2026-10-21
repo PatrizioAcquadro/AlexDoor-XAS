@@ -479,3 +479,11 @@ qualified ProbeSetup/source and declares acquisition-load continuity as a C2
 teacher-phase option after supported recovery. Robot/door physics, reconstruction
 and all preceding commands remain unchanged. Actual requested force targets are
 retained in evaluator traces; loaded-window and every physical/stop gate stay fixed.
+
+The declared load-continuity case passes4.45s hold, physical tail,2+4s stops,
+causal/CUDA and actual-rate recovery review. Pulse speed is1.639degrees/s versus
+.404 before, first eligible residual rate1.546; final hold-window peak.434 and
+tool range.823mm. Peak actual joint speed is.181rad/s. Admission still awaits
+qualification-only loaded and nearby39-degree starts observed through6s holding,
+beyond the former5.13s divergence. A controlled loaded-stop prefix and a complete
+nearby tail remain excluded from policy supervision; no target cell is added.

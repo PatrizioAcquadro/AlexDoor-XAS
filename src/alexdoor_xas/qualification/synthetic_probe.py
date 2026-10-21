@@ -530,6 +530,9 @@ def run_probe(
         raise ValueError("Continued acquisition load requires the declared C2 pace transition")
     settle_c_hold = family == "C"
     hold_budget_s = setup.hold_settle_s * (2 if settle_c_hold else 1)
+    from alexdoor_xas.qualification.collection_phase import diagnostic_hold_minimum
+
+    hold_minimum_s = diagnostic_hold_minimum(setup, campaign, hold_budget_s)
     if task_hold is not None:
         if family is not None or intermediate is not None:
             raise ValueError("Task-goal hold requires an ordinary complete episode")
@@ -1236,8 +1239,10 @@ def run_probe(
                 if settle_c_hold:
                     from alexdoor_xas.qualification.collection_phase import correction_hold_complete
 
-                    if (correction is None or not correction.pending) and correction_hold_complete(
-                        traces, setup, dt
+                    if (
+                        (tick + 1) * dt >= hold_minimum_s - 1e-9
+                        and (correction is None or not correction.pending)
+                        and correction_hold_complete(traces, setup, dt)
                     ):
                         break
             if settle_c_hold and not failure:

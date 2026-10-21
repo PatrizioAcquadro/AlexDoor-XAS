@@ -211,3 +211,22 @@ def test_phase_retreat_is_before_selected_start_not_future_full_hold():
     # The later full-source hold would select45degrees, ahead of this40degree start.
     assert preceding_retreat_row(rows, rows[-1]["angle"]) is rows[3]
     assert preceding_retreat_row(rows[:1], rows[0]["angle"]) is None
+
+
+def test_diagnostic_hold_keeps_real_minimum_and_excludes_collection_use():
+    from alexdoor_xas.qualification.collection_phase import diagnostic_hold_minimum
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
+
+    setup = ProbeSetup()
+    assert diagnostic_hold_minimum(setup, None, 6) == 3
+    control = dict(family="C", qualification_only=True, diagnostic_hold_min_s=6)
+    assert diagnostic_hold_minimum(setup, control, 6) == 6
+    assert setup.hold_settle_s == 3
+    for changed in [
+        dict(control, qualification_only=False),
+        dict(control, diagnostic_hold_min_s=2),
+        dict(control, diagnostic_hold_min_s=6.01),
+        dict(control, diagnostic_hold_min_s=float("nan")),
+    ]:
+        with pytest.raises(ValueError):
+            diagnostic_hold_minimum(setup, changed, 6)
