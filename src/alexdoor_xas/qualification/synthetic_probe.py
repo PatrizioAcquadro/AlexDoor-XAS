@@ -564,9 +564,8 @@ def run_probe(
         source = "contact_qualification_window"
         if (
             correction is not None
-            and correction.variation == "correction-1"
             and correction.supported_hold_handoffs
-            and phase == "hold"
+            and (phase == "hold" or correction.force_hold_active())
         ):
             # After the position-to-force handoff, stale impact load must not
             # suppress catch-up after actual contact disappears. Keep the .1s
@@ -603,7 +602,11 @@ def run_probe(
         compression, compensation = contact_goal_coordinates(world_goal, origin, rotation)
         compression = support_normal(compression, phase)
         compensation = tangential_compensation(compensation, np.zeros(3), True, setup, dt)
-        return origin + rotation[:, 0] * compression, rotation
+        world_goal = origin + rotation @ (compensation + [compression, 0.0, 0.0])
+        _, held_rotation = door.contact_pose(
+            reference, setup.contact_fraction, setup.contact_height
+        )
+        return world_goal, held_rotation
 
     def command(goal_p, goal_r, phase, *, injected_pose=None):
         nonlocal failure, peak, min_margin, min_clearance, compensation, peak_joint_speed
@@ -611,7 +614,10 @@ def run_probe(
         applied_compensation = (
             compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
         )
-        goal_p = goal_p + goal_r @ applied_compensation
+        # C2's transported world pressure point already includes its material
+        # tangent offset. Other pose commands retain the ordinary composition.
+        if correction is None or not correction.force_hold_active():
+            goal_p = goal_p + goal_r @ applied_compensation
         if correction_active:
             gap_target = correction.material_gap_target(phase)
             if gap_target is not None:

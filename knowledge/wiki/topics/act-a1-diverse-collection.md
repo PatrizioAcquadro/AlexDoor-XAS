@@ -432,3 +432,10 @@ now uses the existing.1s force-feedback window with the transported world goal a
 original.1/.05N phase targets. C1 and raw240Hz forces/velocities remain unchanged.
 The earlier filtered trial used the rejected moving world goal, so it does not
 qualify this different control model. Physical qualification remains pending.
+
+The filtered transported-goal trial remains physically within speed limits but
+exhausts15s with intermittent load and no ordinary hold. It remains failed. The
+next matched prototype restores native feedback and fixes only gripper orientation
+at the captured handoff while retaining transported world-pressure coordinates.
+Earlier fixed-orientation results had a different, saturated fixed-origin offset.
+All native evidence, force targets, contact/orientation bounds and stops remain.
