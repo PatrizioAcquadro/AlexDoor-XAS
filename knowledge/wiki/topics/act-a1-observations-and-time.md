@@ -701,3 +701,10 @@ observation allowlist. Projected solver joint output remains the distinct measur
 simulated torque input, with hardware verification false. Computed/applied effort
 refers to the preceding native interval, not a force measurement. No native rate,
 control/visual rate, model feature, label or older recording changes.
+
+A full recording includes the actual head-inspection prefix, while teacher/trace.json
+uses a probe-relative clock beginning after inspection. Native motion/target audits
+cover every recording row; trace-specific speed peaks join after the explicitly
+recorded inspect prefix and verify the remaining evaluator phases exactly. The
+inspection prefix is retained and reported separately, never truncated to hide
+motion. Short phase recordings have no inspection prefix.

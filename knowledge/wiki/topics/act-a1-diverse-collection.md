@@ -707,3 +707,11 @@ it must deliver at least90% of both20mm and5degrees to actual usable corrective
 supervision. Only after it passes will the old narrower example move to a separate
 retained usable-scope inventory. Its original physical/data outcomes and recordings
 stay unchanged, and only one episode can fill the target cell.
+
+The first-door full-transfer A1 follow-up passes:19.82mm and5.01degrees reach
+eligible expert correction, with100% measured plateau retention and all119 injected
+actions excluded. Physical acquisition, cleanup/tail, native/data/CUDA and2+4s
+stopping pass. It now fills the original full-dose target. The earlier5.22mm
+example remains separately listed in retained_usable_scope_examples, with its
+original recording, admission and outcome preserved; target coverage counts one
+physical episode only.
