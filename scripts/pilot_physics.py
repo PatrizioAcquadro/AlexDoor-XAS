@@ -477,6 +477,16 @@ def main(argv=None):
 
             metadata["episode_family_id"] = metadata["episode_id"]
             metadata["episode_id"] += ":" + str(uuid4())
+            task_hold = None
+            if selected[0].get("completion_hold_max_s") is not None:
+                if campaign is not None or intermediate is not None:
+                    raise ValueError("Task-goal hold requires complete collection")
+                task_hold = dict(
+                    required_opening_deg=protocol["collection_required_opening_deg"][args.asset_id],
+                    minimum_s=setup.hold_settle_s,
+                    maximum_s=float(selected[0]["completion_hold_max_s"]),
+                )
+                metadata["task_hold_completion"] = task_hold
             recorder = TemporalExpertRecorder(
                 args.output / "episode.hdf5",
                 metadata,
@@ -495,6 +505,7 @@ def main(argv=None):
                     inspection=None if campaign is not None else inspection,
                     intermediate=intermediate,
                     campaign=campaign,
+                    task_hold=task_hold,
                 )
                 required = (
                     None

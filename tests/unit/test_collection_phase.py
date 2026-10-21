@@ -176,3 +176,22 @@ def test_release_preparation_requires_current_supported_task_goal_and_genuine_pr
         changed = [*rows[:-1], dict(rows[-1], **change)]
         assert not release_preparation_ready(changed, setup, **options)
     assert setup.hold_settle_s == 3.0  # actual ordinary hold still runs in full
+
+
+def test_opening_hold_needs_current_goal_window_and_original_minimum():
+    from alexdoor_xas.qualification.collection_phase import opening_hold_complete
+    from alexdoor_xas.qualification.synthetic_probe import SustainedAngle
+
+    held = SustainedAngle(0.5)
+    goal = np.deg2rad(43.52440513489278)
+    for tick in range(181):
+        held.update(tick / 60, goal + np.deg2rad((tick / 60 - 2.9) * 0.5), True)
+    # The terminal angle exceeds the goal; the current valid window still does not.
+    assert held.samples[-1][1] > goal
+    assert not opening_hold_complete(held.current, 3, 3, goal)
+    for tick in range(181, 205):
+        held.update(tick / 60, goal + np.deg2rad((tick / 60 - 2.9) * 0.5), True)
+    assert opening_hold_complete(held.current, 3.4, 3, goal)
+    assert not opening_hold_complete(held.current, 2.9, 3, goal)
+    held.update(205 / 60, goal + 0.01, False)
+    assert not opening_hold_complete(held.current, 3.5, 3, goal)

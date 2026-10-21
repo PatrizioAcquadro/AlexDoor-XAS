@@ -214,3 +214,12 @@ def release_preparation_ready(rows, setup, *, opening_goal_rad, required_history
             for row in window
         )
     )
+
+
+def opening_hold_complete(current_angle, duration_s, minimum_s, required_angle):
+    """Require the real current supported window and the original hold minimum."""
+    return bool(
+        duration_s >= minimum_s - 1e-9
+        and current_angle is not None
+        and current_angle >= required_angle
+    )

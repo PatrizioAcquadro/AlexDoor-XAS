@@ -244,6 +244,17 @@ response diversity is not an isolated local mass estimate. Resistant source push
 budgets allow225s (150s×6/4 damping),300s total simulation, unchanged1200s wall guard,
 speeds, task criteria and observations per physical second.
 
+The first development low-height full episode is a retained task failure:
+43.2708degrees sustained versus43.5244 required, with successful ordinary tail and
+2+4s stopping. Its terminal hold angle43.5841 already crosses the goal, but the
+current.5s valid-support minimum does not; unloaded release angle cannot count.
+Actual hold/release Jacobian sigma remains>=.0396, with no physical violation.
+A scoped candidate retains the original3s minimum and continues the same supported
+hold only until the unchanged opening-goal window passes, bounded at6s. All push
+planning, physical/model/stop criteria and temporal/action rates stay fixed. This
+is incomplete task-goal execution, not extension of a completed hold for history.
+The physical before/after comparison is pending; the original failure stays failed.
+
 ## Data admission, budgets and handoff
 
 Each admitted source passes native integrity, clocks, causal joins, actual A1 labels,

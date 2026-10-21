@@ -488,6 +488,7 @@ def run_probe(
     inspection=None,
     intermediate=None,
     campaign=None,
+    task_hold=None,
 ):
     import torch
     from scipy.spatial.transform import Rotation, Slerp
@@ -514,6 +515,15 @@ def run_probe(
         from alexdoor_xas.qualification.collection_phase import evaluate_phase_endpoint
     settle_c_hold = family == "C"
     hold_budget_s = setup.hold_settle_s * (2 if settle_c_hold else 1)
+    if task_hold is not None:
+        if family is not None or intermediate is not None:
+            raise ValueError("Task-goal hold requires an ordinary complete episode")
+        goal, maximum = task_hold["required_opening_deg"], task_hold["maximum_s"]
+        if not np.isfinite([goal, maximum]).all() or not (
+            goal > 0 and setup.hold_settle_s <= maximum <= 2 * setup.hold_settle_s
+        ):
+            raise ValueError("Invalid bounded task-goal hold")
+        hold_budget_s = maximum
     late_states = deque(maxlen=round(5.0 / env.step_dt) + 1)
     zero = torch.zeros((1, 6), device=env.device)
     from alexdoor_xas.qualification.clearance import DoorClearance
@@ -986,7 +996,7 @@ def run_probe(
             held = SustainedAngle(setup.sustain_s)
             initial_lead = hold_initial_lead(reference, state[0], reference_step, setup.lead_angle)
             missing_time = 0.0
-            for tick in range(round(setup.hold_settle_s / dt)):
+            for tick in range(round(hold_budget_s / dt)):
                 compression = support_normal(compression, "hold")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 target = hold_reference(angle, initial_lead, door.mechanical_stop)
@@ -1004,6 +1014,16 @@ def run_probe(
                     env.stop_motion()
                 if failure:
                     break
+                if task_hold is not None:
+                    from alexdoor_xas.qualification.collection_phase import opening_hold_complete
+
+                    if opening_hold_complete(
+                        held.current,
+                        (tick + 1) * dt,
+                        setup.hold_settle_s,
+                        np.deg2rad(task_hold["required_opening_deg"]),
+                    ):
+                        break
             held_angle = held.current if failure is None else None
             if held_angle is None:
                 failure = failure or "invalid_hold"
