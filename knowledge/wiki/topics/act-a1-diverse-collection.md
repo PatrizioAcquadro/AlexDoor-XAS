@@ -335,6 +335,16 @@ probe trace have distinct clocks: the development join fix compares the proper
 probe suffix while auditing every prefix q/dq/target row. Its first failed validation
 allocation remains charged; physical recording is reused, not recollected.
 
+A later resistant-D validation refuses one initial-push observation NPZ because
+its ZIP CRC metadata disagrees with the compressed payload. The actual stored
+image payload matches the causal raw-data reconstruction byte for byte; the other
+fields and four phase snapshots are intact. A separate reviewed copy changes only
+the local/central CRC fields, preserving all compressed payloads and the original
+file. Strict causal/CUDA validation then passes without recollecting physics. Both
+failed CUDA allocations remain charged. The metadata-corruption origin remains
+undetermined; no observation value, native trace or original outcome is changed.
+[Container review](../../../outputs/evidence/act-a1-diverse-20261019/train-3-D-dynamics-resistant/snapshot-crc-review.json).
+
 Original baseline:18.661711 conservative GPU hours,560.493949GiB logical evidence
 and22 historical physical attempts. The user raised only the campaign attempt
 ceiling from160 to220 total on October20; all existing costs remain. Other caps:
