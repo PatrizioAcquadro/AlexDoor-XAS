@@ -167,10 +167,17 @@ class TemporalRecorder:
         healthy,
         generation,
         clock_domain="episode_monotonic",
+        diagnostic_state=None,
     ):
         values = np.asarray(torque_nm, "f8")
         if values.shape != (7,):
             raise ValueError("Expected native arm7 feedback")
+        diagnostics = {}
+        for key, value in (diagnostic_state or {}).items():
+            value = np.asarray(value, "f8")
+            if not key.startswith("diagnostic_") or value.shape != (7,):
+                raise ValueError("Expected named native arm7 diagnostics")
+            diagnostics[key] = value
         row = self._clock("physics_feedback", acquired, available, generation, clock_domain)
         self.writer.append(
             "physics_feedback",
@@ -178,6 +185,7 @@ class TemporalRecorder:
                 **row,
                 torque_nm=values,
                 healthy=np.bool_(healthy and self.feedback_verified and np.isfinite(values).all()),
+                **diagnostics,
             ),
         )
 

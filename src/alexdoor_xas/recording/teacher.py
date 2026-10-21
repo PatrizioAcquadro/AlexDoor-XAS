@@ -92,6 +92,16 @@ class TemporalExpertRecorder(ExpertRecorder):
         self.writer.file["metadata"].attrs["arm_effort_limits_nm"] = json.dumps(
             array(env.robot.data.joint_effort_limits)[0, env.arm_ids].tolist()
         )
+        self.writer.file["metadata"].attrs["native_control_diagnostics"] = json.dumps(
+            dict(
+                q_dq="Simulated arm feedback at native acquisition time",
+                target="Delivered position target for preceding native interval",
+                computed_effort="Explicit PD effort before clipping for preceding native interval",
+                applied_effort="Clipped commanded effort sent to solver; not measured joint output",
+                gravity="Gravity feedforward for preceding native interval",
+                policy_observation=False,
+            )
+        )
         self._state()
         annotate_native_units(
             self.writer.file, env.robot.cfg.spawn.asset_path, env.robot.joint_names
@@ -173,6 +183,20 @@ class TemporalExpertRecorder(ExpertRecorder):
             available=f.available_s,
             healthy=healthy,
             generation=self.env.generation,
+            diagnostic_state=dict(
+                diagnostic_joint_position=sample.q,
+                diagnostic_joint_velocity=sample.dq,
+                diagnostic_position_target=array(self.env.targets)[0, self.env.arm_ids],
+                diagnostic_computed_effort_nm=array(self.env.robot.data.computed_torque)[
+                    0, self.env.arm_ids
+                ],
+                diagnostic_applied_effort_nm=array(self.env.robot.data.applied_torque)[
+                    0, self.env.arm_ids
+                ],
+                diagnostic_gravity_feedforward_nm=array(
+                    self.env.robot.data.gravity_compensation_forces
+                )[0, self.env.arm_ids],
+            ),
         )
         self._append("tau", tau, f.timestamp_s, f.available_s, valid=healthy)
 

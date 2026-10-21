@@ -219,3 +219,35 @@ def test_full_robot_diagnostics_declare_rotational_and_jaw_effort_units(tmp_path
     )
     units = joint_si_units(urdf, ["arm", "jaw"])
     assert units == dict(position=["rad", "m"], velocity=["rad/s", "m/s"], effort=["N m", "N"])
+
+
+def test_native_control_diagnostics_retain_actual_oscillation_separately_from_feedback(tmp_path):
+    path = tmp_path / "native-diagnostics.hdf5"
+    log = recorder(path)
+    log.reset(0)
+    for i in range(5):
+        log.feedback(
+            np.full(7, 3.0),
+            acquired=i / 240,
+            available=i / 240,
+            healthy=True,
+            generation=0,
+            diagnostic_state=dict(
+                diagnostic_joint_position=np.full(7, i * 0.001),
+                diagnostic_joint_velocity=np.full(7, (-1.0) ** i * (i + 1)),
+                diagnostic_position_target=np.ones(7),
+                diagnostic_computed_effort_nm=np.full(7, 100.0),
+                diagnostic_applied_effort_nm=np.full(7, 80.0),
+            ),
+        )
+    log.close()
+    with h5py.File(path) as file:
+        native = file["physics_feedback"]
+        np.testing.assert_array_equal(native["diagnostic_joint_velocity"][:, 0], [1, -2, 3, -4, 5])
+        np.testing.assert_array_equal(native["torque_nm"][:], np.full((5, 7), 3.0))
+        np.testing.assert_array_equal(
+            native["diagnostic_applied_effort_nm"][:], np.full((5, 7), 80.0)
+        )
+        # Diagnostic effort and velocity never replace the allowlisted measured
+        # torque stream consumed by the observation reader.
+        assert len(native["acquired"]) == len(native["diagnostic_joint_position"]) == 5
