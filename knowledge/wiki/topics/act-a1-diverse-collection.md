@@ -329,3 +329,21 @@ is measured at7.433s. The failure and stable stop remain. The same one-time hand
 is now also checked during ordinary hold, with unchanged support criteria and no
 state/gain/phase-clock reset. A matched front qualification is pending; no forbidden
 contact predicate is relaxed or old failed episode salvaged.
+
+The front hold-phase handoff occurs at5.65s but does not cure the near-reach case:
+joint speed reaches.528rad/s as Jacobian sigma falls to.00136. The independent
+stop decays to.000222rad/s at2s and.0000969rad/s at6s, but fails forbidden contact.
+Collection is halted. Two actual-profile matched saved-target replays reproduce
+all460 commands and the same unsafe velocity. Their incoming states/targets/gains
+and native q/dq/efforts are exactly equal. Removing only door collision at the
+latched stop makes both2s and4s checks pass; retaining contact reproduces the
+original failure exactly. This isolates physical contact at an already unsafe
+terminal geometry, not a growing PD mode. Contact-off diagnostics never qualify
+data or that loaded geometry. An accidentally copied older-profile pair is also
+preserved and charged separately.
+
+A same-state candidate stops the positive opening lead once corrective return
+is physically complete, while recovery remains pending until the original.5s
+valid contact window. This avoids continuing the push during ordinary C hold;
+no pose/state/gain/physics/phase-clock reset or criterion relaxation occurs.
+Only its bounded qualification is allowed; bulk collection remains halted.

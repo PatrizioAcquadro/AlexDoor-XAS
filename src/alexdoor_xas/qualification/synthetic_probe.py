@@ -1161,6 +1161,9 @@ def run_probe(
         missing_time = 0.0
         if not failure:
             for tick in range(round(hold_budget_s / dt)):
+                prior_lead = initial_lead
+                if correction is not None:
+                    initial_lead = correction.hold_opening_lead(initial_lead)
                 compression = support_normal(compression, "hold")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 state = command(
@@ -1172,6 +1175,14 @@ def run_probe(
                     ),
                     "hold",
                 )
+                if initial_lead != prior_lead:
+                    traces[-1]["corrective_hold_opening_lead_removed"] = dict(
+                        previous_rad=prior_lead,
+                        current_rad=initial_lead,
+                        return_complete=True,
+                        sustained_support_s=correction.recovered_samples * dt,
+                        scope="End the prior push after physical corrective return; recovery still pending",
+                    )
                 held.update(tick * dt, state[0], state[6])
                 if correction is not None and correction.needs_supported_hold_handoff(traces[-1]):
                     reference, compression, compensation = achieved_contact_hold_state(

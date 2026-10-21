@@ -303,3 +303,21 @@ def test_release_disturbance_tracks_moving_material_until_corrective_handoff(var
     case.target(material_origin - [0.03, 0, 0], rotation, "release", position)
     assert case.role == CORRECTIVE and case.pending
     assert case.corrective_start_error["position_m"] >= 0.022 - 1e-10
+
+
+def test_corrective_hold_ends_opening_lead_without_claiming_sustained_recovery():
+    case = CollectionCorrection("C", "correction-1", ProbeSetup(), 1 / 60)
+    case.counts["push"] = 299
+    case.target(np.zeros(3), np.eye(3), "push", np.zeros(3))
+    lead = np.deg2rad(0.3)
+    assert case.hold_opening_lead(lead) == lead
+    for _ in range(15):
+        case.target(np.zeros(3), np.eye(3), "hold", np.array([-0.001, 0, 0]))
+    assert case.corrective_transition_complete
+    assert case.hold_opening_lead(lead) == 0
+    assert case.pending and case.supported_hold_handoffs == 0
+    assert not case.needs_supported_hold_handoff(dict(phase="hold", valid=True, physical_safe=True))
+    ordinary = CollectionCorrection("D", "correction-1", ProbeSetup(), 1 / 60)
+    ordinary.corrective_transition_complete = True
+    ordinary.injected_commands = 1
+    assert ordinary.hold_opening_lead(lead) == lead
