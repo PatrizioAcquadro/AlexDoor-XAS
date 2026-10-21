@@ -339,26 +339,17 @@ def test_contact_pause_reserves_its_physical_duration_without_changing_nominal_g
         conditioning_margin_exhausted(samples, setup, extra_contact_s=-1)
 
 
-def test_pressure_hold_separates_position_reference_from_contact_orientation():
-    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, pressure_hold_pose
+def test_contact_goal_transport_preserves_world_position_across_material_motion():
+    from alexdoor_xas.qualification.synthetic_probe import contact_goal_coordinates
 
-    class Door:
-        def contact_pose(self, angle, fraction, height, compression):
-            rotation = Rotation.from_rotvec([0, 0, angle]).as_matrix()
-            return np.array([np.cos(angle), np.sin(angle), height]) + rotation[
-                :, 0
-            ] * compression, rotation
-
-    setup = ProbeSetup()
-    door = Door()
-    captured, _ = door.contact_pose(0.7, setup.contact_fraction, setup.contact_height, 0.001)
-    position, rotation = pressure_hold_pose(door, setup, 0.7, 0.72, 0.001)
-    np.testing.assert_array_equal(position, captured)
-    np.testing.assert_allclose(rotation, Rotation.from_rotvec([0, 0, 0.72]).as_matrix())
-    nominal = pressure_hold_pose(door, setup, 0.7, 0.7, 0.001)
-    for actual, expected in zip(
-        nominal,
-        door.contact_pose(0.7, setup.contact_fraction, setup.contact_height, 0.001),
-        strict=True,
-    ):
-        np.testing.assert_array_equal(actual, expected)
+    goal = np.array([0.25, -0.2, 1.09])
+    for angle, origin in [
+        (0.7, np.array([0.2, -0.25, 1.09])),
+        (0.72, np.array([0.202, -0.248, 1.09])),
+    ]:
+        rotation = Rotation.from_rotvec([0, 0, angle]).as_matrix()
+        compression, tangent = contact_goal_coordinates(goal, origin, rotation)
+        assert tangent[0] == 0
+        np.testing.assert_allclose(
+            origin + rotation @ (tangent + [compression, 0, 0]), goal, atol=1e-15
+        )

@@ -408,3 +408,13 @@ offset bound, and loading is intermittent. The next matched prototype changes on
 contact orientation to track the panel, retaining the captured pressure-position
 reference, normal/tangential gains and all correction/hold/physical/stop criteria.
 No earlier failed run is admitted. Qualification remains pending.
+
+Orientation alignment removes the angular mismatch but still fails sustained
+contact when the normal-support offset reaches7.5mm relative to the old captured
+origin. Speed decays safely and2+4s stopping passes. The next prototype carries the
+desired world pressure point, re-expresses it in the current material frame without
+moving it, and applies the unchanged normal/tangential increments and bounds.
+Panel orientation remains aligned. This avoids charging panel-frame motion to a
+pressure offset or feeding that motion directly into the desired world point.
+A rotation/translation regression verifies world-position preservation. Actual
+corrective settling, ordinary hold and independent stopping remain required.

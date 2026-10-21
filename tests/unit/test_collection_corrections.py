@@ -282,7 +282,7 @@ def test_late_handoff_requires_sustained_support_before_controller_transition(
     if variant == "correction-2":
         # Contact alone did not correct the pace error. Keep the original
         # corrective role until a fresh sustained low-speed contact window.
-        assert case.holding_achieved_angle()
+        assert case.force_hold_active()
         for _ in range(60):
             case.observe(dict(row, speed=np.deg2rad(1.3)))
         assert case.pending

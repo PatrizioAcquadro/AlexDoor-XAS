@@ -193,8 +193,8 @@ class CollectionCorrection:
             and row["physical_safe"]
         )
 
-    def holding_achieved_angle(self):
-        """C2's rate correction holds a captured goal before ordinary hold starts."""
+    def force_hold_active(self):
+        """C2 carries a pressure goal while settling before ordinary hold starts."""
         return bool(
             self.family == "C"
             and self.variation == "correction-2"
@@ -206,7 +206,7 @@ class CollectionCorrection:
         self.corrective_origin = None
         self.corrective_transition_complete = True
         self.supported_hold_handoffs += 1
-        if self.holding_achieved_angle():
+        if self.force_hold_active():
             self.pending = True
             self.recovered_samples = 0
         # Actual sustained loaded support must still complete this correction.
@@ -235,13 +235,13 @@ class CollectionCorrection:
                 else (not row["loaded"] and row["separation_m"] >= 0.01)
             )
             pace_correction = self.family == "C" and self.variation == "correction-2"
-            if self.holding_achieved_angle():
+            if self.force_hold_active():
                 supported &= abs(row["speed"]) <= (
                     np.deg2rad(self.setup.tie_deg) / self.setup.stabilization_window_s
                 )
             self.recovered_samples = self.recovered_samples + 1 if supported else 0
             if self.recovered_samples * self.dt >= self.setup.sustain_s and (
-                not pace_correction or self.holding_achieved_angle()
+                not pace_correction or self.force_hold_active()
             ):
                 self.pending = False
 
