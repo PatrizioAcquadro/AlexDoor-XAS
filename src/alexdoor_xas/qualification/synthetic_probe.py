@@ -192,6 +192,17 @@ def hold_reference(angle, initial_lead, mechanical_stop):
     return min(angle + initial_lead, mechanical_stop)
 
 
+def pressure_hold_pose(door, setup, position_angle, orientation_angle, compression):
+    """Keep the pressure-position reference while aligning the contact faces."""
+    position, _ = door.contact_pose(
+        position_angle, setup.contact_fraction, setup.contact_height, compression
+    )
+    _, rotation = door.contact_pose(
+        orientation_angle, setup.contact_fraction, setup.contact_height, compression
+    )
+    return position, rotation
+
+
 def achieved_contact_hold_state(door, setup, row):
     """One measured position-to-force handoff; no state or gain is changed."""
     if not row["valid"] or not row["physical_safe"]:
@@ -557,8 +568,10 @@ def run_probe(
         force = contact_load.force
         source = "contact_qualification_window"
         achieved_angle = correction is not None and correction.holding_achieved_angle()
-        if correction is not None and correction.supported_hold_handoffs and (
-            phase == "hold" or achieved_angle
+        if (
+            correction is not None
+            and correction.supported_hold_handoffs
+            and (phase == "hold" or achieved_angle)
         ):
             # After the position-to-force handoff, stale impact load must not
             # suppress catch-up after actual contact disappears. Keep the .1s
@@ -1058,11 +1071,8 @@ def run_probe(
                 else correction.injected_reference_advance(reference_step)
             )
             state = command(
-                *door.contact_pose(
-                    reference,
-                    setup.contact_fraction,
-                    setup.contact_height,
-                    compression,
+                *pressure_hold_pose(
+                    door, setup, reference, angle if settling_pace else reference, compression
                 ),
                 "push",
                 injected_pose=None
@@ -1187,15 +1197,17 @@ def run_probe(
                 # Normal force/position support and all physical guards remain active.
                 hold_angle = (
                     reference
-                    if correction is not None
-                    and correction.holding_achieved_angle()
+                    if correction is not None and correction.holding_achieved_angle()
                     else hold_reference(angle, initial_lead, door.mechanical_stop)
                 )
                 state = command(
-                    *door.contact_pose(
+                    *pressure_hold_pose(
+                        door,
+                        setup,
                         hold_angle,
-                        setup.contact_fraction,
-                        setup.contact_height,
+                        angle
+                        if correction is not None and correction.holding_achieved_angle()
+                        else hold_angle,
                         compression,
                     ),
                     "hold",

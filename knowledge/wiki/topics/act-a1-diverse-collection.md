@@ -400,3 +400,11 @@ fresh.5s valid low-speed contact window before starting the original3–6s ordin
 hold, whose.25s loss guard remains unchanged. Forward-opening forecasts do not
 advance a captured stationary corrective goal; all native physical/IK, contact,
 footprint and independent stopping criteria remain active. Qualification is pending.
+
+Corrective settling with the fully fixed pose decelerates safely but fails sustained
+loading before ordinary hold starts; its complete cleanup and2+4s stop pass.
+Orientation error grows while the panel coasts, normal support reaches its existing
+offset bound, and loading is intermittent. The next matched prototype changes only
+contact orientation to track the panel, retaining the captured pressure-position
+reference, normal/tangential gains and all correction/hold/physical/stop criteria.
+No earlier failed run is admitted. Qualification remains pending.
