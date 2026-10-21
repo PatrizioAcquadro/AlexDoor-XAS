@@ -13,11 +13,14 @@ the maintained legacy path; no ACT training or learned task success is claimed.
 Historical recordings, checkpoints, physical/admission/stop requirements and the
 sealed final test remain preserved.
 
-The subsequent [[act-a1-diverse-collection|112-episode diverse campaign]] is halted
-at loaded-stop qualification: six attempts, three individually usable new episodes,
-three retained failures. The partial ten-source train inventory has 50,720 usable
-starts, including 9,004 new starts. It passes bounded CUDA compatibility without
-updates; the requested 112-episode corpus and first-training handoff remain unmet.
+The subsequent [[act-a1-diverse-collection|112-episode diverse campaign]] is active
+within individually qualified scopes. Matched native-state diagnostics repair the
+explicit-PD integration instability with240Hz physics while retaining60Hz control,
+10Hz RGB-D and the same model/action configuration. Its original six attempts,
+three usable episodes and three failures remain in the cumulative evidence ledger.
+The linked campaign inventory owns current coverage, recovery magnitudes and all
+costs. Bounded CUDA compatibility checks leave weights unchanged; the full requested
+corpus remains unmet until every physical, diversity, temporal and pipeline gate passes.
 
 The objective remains physical contact acquisition, required opening, hold,
 release and normal stabilization. Offline agreement and teacher imitation do
