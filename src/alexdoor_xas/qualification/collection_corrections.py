@@ -9,7 +9,7 @@ NORMAL_RETREAT_M = {"A2": 0.015, "B1": 0.003, "B2": 0.0015, "C1": 0.001}
 
 
 class CollectionCorrection:
-    def __init__(self, family, variation, setup, dt):
+    def __init__(self, family, variation, setup, dt, *, corrective_transition_s=None):
         if family not in ("A", "B", "C", "D"):
             raise ValueError("Unknown phase family")
         self.family, self.variation, self.setup, self.dt = family, variation, setup, dt
@@ -28,6 +28,16 @@ class CollectionCorrection:
         self.corrective_transition_s = (
             0.25 if family == "C" and variation == "correction-1" else 0.5
         )
+        if corrective_transition_s is not None:
+            value = float(corrective_transition_s)
+            if (
+                family != "C"
+                or variation != "correction-2"
+                or not np.isfinite(value)
+                or not 0 < value <= 1.0
+            ):
+                raise ValueError("C2 return must fit its existing one-second recontact envelope")
+            self.corrective_transition_s = value
         self.corrective_start_error = None
         self.corrective_latest_error = None
         self.pre_action_reference = None
@@ -193,22 +203,11 @@ class CollectionCorrection:
             and row["physical_safe"]
         )
 
-    def force_hold_active(self):
-        """C2 carries a pressure goal while settling before ordinary hold starts."""
-        return bool(
-            self.family == "C"
-            and self.variation == "correction-2"
-            and self.supported_hold_handoffs
-        )
-
     def accept_supported_hold_handoff(self):
         """Runtime has reconstructed the achieved contact goal for force holding."""
         self.corrective_origin = None
         self.corrective_transition_complete = True
         self.supported_hold_handoffs += 1
-        if self.force_hold_active():
-            self.pending = True
-            self.recovered_samples = 0
         # Actual sustained loaded support must still complete this correction.
 
     def observe(self, row):
@@ -234,15 +233,8 @@ class CollectionCorrection:
                 if self.family in ("A", "B", "C")
                 else (not row["loaded"] and row["separation_m"] >= 0.01)
             )
-            pace_correction = self.family == "C" and self.variation == "correction-2"
-            if self.force_hold_active():
-                supported &= abs(row["speed"]) <= (
-                    np.deg2rad(self.setup.tie_deg) / self.setup.stabilization_window_s
-                )
             self.recovered_samples = self.recovered_samples + 1 if supported else 0
-            if self.recovered_samples * self.dt >= self.setup.sustain_s and (
-                not pace_correction or self.force_hold_active()
-            ):
+            if self.recovered_samples * self.dt >= self.setup.sustain_s:
                 self.pending = False
 
     def permit_recontact(self, row, missing_s):

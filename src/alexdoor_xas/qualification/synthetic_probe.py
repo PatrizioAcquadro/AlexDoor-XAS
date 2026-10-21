@@ -192,12 +192,6 @@ def hold_reference(angle, initial_lead, mechanical_stop):
     return min(angle + initial_lead, mechanical_stop)
 
 
-def contact_goal_coordinates(position, origin, rotation):
-    """Express a carried world goal in the current material frame without moving it."""
-    local = (np.asarray(position) - origin) @ rotation
-    return float(local[0]), np.array([0.0, local[1], local[2]])
-
-
 def achieved_contact_hold_state(door, setup, row):
     """One measured position-to-force handoff; no state or gain is changed."""
     if not row["valid"] or not row["physical_safe"]:
@@ -516,7 +510,13 @@ def run_probe(
     if campaign is not None and campaign.get("variation", "").startswith("correction-"):
         from alexdoor_xas.qualification.collection_corrections import CollectionCorrection
 
-        correction = CollectionCorrection(family, campaign["variation"], setup, env.step_dt)
+        correction = CollectionCorrection(
+            family,
+            campaign["variation"],
+            setup,
+            env.step_dt,
+            corrective_transition_s=campaign.get("corrective_transition_s"),
+        )
     if family is not None:
         from alexdoor_xas.qualification.collection_phase import evaluate_phase_endpoint
     settle_c_hold = family == "C"
@@ -562,11 +562,7 @@ def run_probe(
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
         source = "contact_qualification_window"
-        if (
-            correction is not None
-            and correction.supported_hold_handoffs
-            and (phase == "hold" or correction.force_hold_active())
-        ):
+        if phase == "hold" and correction is not None and correction.supported_hold_handoffs:
             # After the position-to-force handoff, stale impact load must not
             # suppress catch-up after actual contact disappears. Keep the .1s
             # load window for qualification; control uses the preceding native
@@ -587,37 +583,13 @@ def run_probe(
             gap_m=gap,
         )
 
-    def pressure_hold_goal(angle, phase):
-        nonlocal compression, compensation
-        previous = traces[-1]
-        origin, rotation = door.contact_pose(angle, setup.contact_fraction, setup.contact_height)
-        if "supported_hold_handoff" in previous:
-            world_goal = np.asarray(previous["tool_position"])
-        else:
-            # Carry the prior desired world point and the pending tangential
-            # correction; material motion itself must not advance that point.
-            tangent_step = compensation - np.asarray(previous["tangential_compensation_m"])
-            world_goal = np.asarray(previous["correction_reference"]["position_m"])
-            world_goal = world_goal + rotation @ tangent_step
-        compression, compensation = contact_goal_coordinates(world_goal, origin, rotation)
-        compression = support_normal(compression, phase)
-        compensation = tangential_compensation(compensation, np.zeros(3), True, setup, dt)
-        world_goal = origin + rotation @ (compensation + [compression, 0.0, 0.0])
-        _, held_rotation = door.contact_pose(
-            reference, setup.contact_fraction, setup.contact_height
-        )
-        return world_goal, held_rotation
-
     def command(goal_p, goal_r, phase, *, injected_pose=None):
         nonlocal failure, peak, min_margin, min_clearance, compensation, peak_joint_speed
         correction_active = correction is not None and failure is None
         applied_compensation = (
             compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
         )
-        # C2's transported world pressure point already includes its material
-        # tangent offset. Other pose commands retain the ordinary composition.
-        if correction is None or not correction.force_hold_active():
-            goal_p = goal_p + goal_r @ applied_compensation
+        goal_p = goal_p + goal_r @ applied_compensation
         if correction_active:
             gap_target = correction.material_gap_target(phase)
             if gap_target is not None:
@@ -1072,30 +1044,27 @@ def run_probe(
         for tick in range(round(15.0 / dt)):
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
             previous = reference
-            settling_pace = correction is not None and correction.force_hold_active()
-            if not settling_pace:
-                reference = push_reference(
-                    reference,
-                    angle,
-                    setup,
-                    dt,
-                    door.mechanical_stop,
-                )
+            reference = push_reference(
+                reference,
+                angle,
+                setup,
+                dt,
+                door.mechanical_stop,
+            )
             reference_step = reference - previous
-            if settling_pace:
-                goal = pressure_hold_goal(angle, "push")
-            else:
-                compression = support_normal(compression, "push")
-                goal = door.contact_pose(
-                    reference, setup.contact_fraction, setup.contact_height, compression
-                )
+            compression = support_normal(compression, "push")
             advance = (
                 None
                 if correction is None
                 else correction.injected_reference_advance(reference_step)
             )
             state = command(
-                *goal,
+                *door.contact_pose(
+                    reference,
+                    setup.contact_fraction,
+                    setup.contact_height,
+                    compression,
+                ),
                 "push",
                 injected_pose=None
                 if advance is None
@@ -1114,21 +1083,10 @@ def run_probe(
                     reference_angle=reference,
                     compression_m=compression,
                     tangential_compensation_m=compensation.tolist(),
-                    scope="Achieved-contact force handoff; C2 settles before ordinary hold",
+                    scope="One achieved-contact position-to-force handoff; ordinary hold follows",
                 )
                 reason = "corrected_late_push_to_hold"
-                if not correction.force_hold_active():
-                    break
-            if correction is not None and correction.force_hold_active():
-                settling_pace = True
-                traces[-1]["corrective_settling"] = dict(
-                    achieved_angle=reference,
-                    pending=correction.pending,
-                    scope="Carried pressure goal; original bounded correction recontact",
-                )
-                if not correction.pending:
-                    reason = "corrected_late_push_to_hold"
-                    break
+                break
             missing_time = 0.0 if state[5] else missing_time + dt
             if missing_time > 0.25:
                 if correction is not None and correction.permit_recontact(traces[-1], missing_time):
@@ -1163,10 +1121,7 @@ def run_probe(
             if abs(state[0] - door.mechanical_stop) < np.deg2rad(0.5):
                 reason = "mechanical_stop"
                 break
-            # The forward-opening forecast chooses when to stop advancing.
-            # A captured corrective goal is already stationary; its original
-            # native physical/IK guards and bounded recontact still apply.
-            if window.maximum is not None and elapsed > setup.sustain_s and not settling_pace:
+            if window.maximum is not None and elapsed > setup.sustain_s:
                 extra_contact_s = (
                     0.0 if correction is None else correction.additional_contact_reserve_s()
                 )
@@ -1212,19 +1167,17 @@ def run_probe(
         missing_time = 0.0
         if not failure:
             for tick in range(round(hold_budget_s / dt)):
+                compression = support_normal(compression, "hold")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
-                if correction is not None and correction.force_hold_active():
-                    goal = pressure_hold_goal(angle, "hold")
-                else:
-                    compression = support_normal(compression, "hold")
-                    goal = door.contact_pose(
+                state = command(
+                    *door.contact_pose(
                         hold_reference(angle, initial_lead, door.mechanical_stop),
                         setup.contact_fraction,
                         setup.contact_height,
                         compression,
-                    )
-                state = command(*goal, "hold")
-                traces[-1]["hold_compression_m"] = compression
+                    ),
+                    "hold",
+                )
                 held.update(tick * dt, state[0], state[6])
                 missing_time = 0.0 if state[5] else missing_time + dt
                 if missing_time > 0.25:

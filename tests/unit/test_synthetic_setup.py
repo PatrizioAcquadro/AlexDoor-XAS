@@ -337,19 +337,3 @@ def test_contact_pause_reserves_its_physical_duration_without_changing_nominal_g
     assert conditioning_margin_exhausted(samples, setup, extra_contact_s=extra)
     with pytest.raises(ValueError, match="contact reserve"):
         conditioning_margin_exhausted(samples, setup, extra_contact_s=-1)
-
-
-def test_contact_goal_transport_preserves_world_position_across_material_motion():
-    from alexdoor_xas.qualification.synthetic_probe import contact_goal_coordinates
-
-    goal = np.array([0.25, -0.2, 1.09])
-    for angle, origin in [
-        (0.7, np.array([0.2, -0.25, 1.09])),
-        (0.72, np.array([0.202, -0.248, 1.09])),
-    ]:
-        rotation = Rotation.from_rotvec([0, 0, angle]).as_matrix()
-        compression, tangent = contact_goal_coordinates(goal, origin, rotation)
-        assert tangent[0] == 0
-        np.testing.assert_allclose(
-            origin + rotation @ (tangent + [compression, 0, 0]), goal, atol=1e-15
-        )

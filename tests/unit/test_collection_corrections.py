@@ -43,13 +43,6 @@ def test_every_correction_executes_a_bounded_pulse_and_requires_response(family,
     for _ in range(31):
         case.role = 2
         case.observe(dict(valid=True, loaded=family != "D", separation_m=0.02))
-    if family == "C" and variant == 2:
-        assert case.pending  # contact alone did not settle the excess pace
-        row = dict(phase="push", valid=True, physical_safe=True, loaded=True, speed=0.0)
-        assert case.needs_supported_hold_handoff(row)
-        case.accept_supported_hold_handoff()
-        for _ in range(31):
-            case.observe(row.copy())
     assert not case.pending
     unsafe = dict(
         physical_safe=False,
@@ -275,27 +268,10 @@ def test_late_handoff_requires_sustained_support_before_controller_transition(
         case.observe(row.copy())
         assert not case.needs_supported_hold_handoff(row)
     case.observe(row.copy())
-    assert case.pending == (variant == "correction-2")
+    assert not case.pending
     assert case.needs_supported_hold_handoff(row)
     case.accept_supported_hold_handoff()
-    assert case.pending == (variant == "correction-2")
-    if variant == "correction-2":
-        # Contact alone did not correct the pace error. Keep the original
-        # corrective role until a fresh sustained low-speed contact window.
-        assert case.force_hold_active()
-        for _ in range(60):
-            case.observe(dict(row, speed=np.deg2rad(1.3)))
-        assert case.pending
-        slow = dict(row, speed=np.deg2rad(0.5))
-        for _ in range(29):
-            case.observe(slow.copy())
-        assert case.pending
-        case.observe(dict(slow, valid=False))
-        for _ in range(29):
-            case.observe(slow.copy())
-        assert case.pending
-        case.observe(slow.copy())
-        assert not case.pending
+    assert not case.pending
     assert case.corrective_origin is None
     assert not case.needs_supported_hold_handoff(row)
     achieved = np.array([0.0001, 0.0002, 0.0003])
@@ -326,3 +302,35 @@ def test_release_disturbance_tracks_moving_material_until_corrective_handoff(var
     case.target(material_origin - [0.03, 0, 0], rotation, "release", position)
     assert case.role == CORRECTIVE and case.pending
     assert case.corrective_start_error["position_m"] >= 0.022 - 1e-10
+
+
+def test_c2_soft_return_keeps_full_residual_and_original_recontact_envelope():
+    case = CollectionCorrection(
+        "C", "correction-2", ProbeSetup(), 1 / 60, corrective_transition_s=0.75
+    )
+    case.counts["push"] = 311
+    case.target(
+        np.zeros(3),
+        np.eye(3),
+        "push",
+        np.zeros(3),
+        injected_pose=(np.array([0.00148, 0, 0]), np.eye(3)),
+    )
+    points = [np.array([0.00148, 0, 0])]
+    for _ in range(45):
+        target, _ = case.target(np.zeros(3), np.eye(3), "push", points[0])
+        points.append(target)
+    assert case.corrective_start_error["position_m"] == pytest.approx(0.00148)
+    assert points[1][0] > 0.00147  # no excluded taper or automatic cancellation
+    np.testing.assert_allclose(points[-1], 0, atol=1e-12)
+    assert np.max(np.linalg.norm(np.diff(points, axis=0), axis=1)) * 60 < 0.0032
+    assert case.pending  # actual contact, hold and stopping still decide success
+    assert (
+        CollectionCorrection("C", "correction-2", ProbeSetup(), 1 / 60).corrective_transition_s
+        == 0.5
+    )
+    for invalid in (-1, 0, 1.01, float("nan")):
+        with pytest.raises(ValueError):
+            CollectionCorrection(
+                "C", "correction-2", ProbeSetup(), 1 / 60, corrective_transition_s=invalid
+            )

@@ -439,3 +439,12 @@ next matched prototype restores native feedback and fixes only gripper orientati
 at the captured handoff while retaining transported world-pressure coordinates.
 Earlier fixed-orientation results had a different, saturated fixed-origin offset.
 All native evidence, force targets, contact/orientation bounds and stops remain.
+
+The transported-point/fixed-orientation trial also fails contact and passes
+stopping. All unqualified force-hold variants are rejected and removed from active
+code, retaining their commits, raw traces and costs. The physically qualified
+right/left C2 controller is restored. Wood C2 is independently checked under that
+controller. A matched front prototype changes only the supervised return from.5
+to.75s: its measured1.48mm residual implies3.10mm/s cosine peak, within the existing
+6mm/s bound and with.25s margin inside the unchanged1s recontact envelope. The full
+pulse remains applied until eligible correction; all physical/task/stop gates stay.
