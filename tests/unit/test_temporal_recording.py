@@ -251,3 +251,42 @@ def test_native_control_diagnostics_retain_actual_oscillation_separately_from_fe
         # Diagnostic effort and velocity never replace the allowlisted measured
         # torque stream consumed by the observation reader.
         assert len(native["acquired"]) == len(native["diagnostic_joint_position"]) == 5
+
+
+def test_teacher_native_diagnostics_never_substitute_commanded_effort_for_feedback():
+    from types import SimpleNamespace
+
+    from alexdoor_xas.assets.purdue import ARM_JOINTS
+    from alexdoor_xas.perception.contracts import RobotFeedback
+    from alexdoor_xas.recording.teacher import TemporalExpertRecorder
+
+    ids = [1, 3, 5, 7, 9, 11, 13]
+    data = SimpleNamespace(
+        joint_vel_target=np.zeros((1, 14)),
+        computed_torque=np.arange(14)[None] + 100,
+        applied_torque=np.arange(14)[None] + 80,
+        gravity_compensation_forces=np.arange(14)[None] + 10,
+    )
+    env = SimpleNamespace(
+        arm_ids=ids,
+        generation=2,
+        targets=np.arange(14)[None],
+        robot=SimpleNamespace(data=data),
+    )
+    stored, observed = [], []
+    log = TemporalExpertRecorder.__new__(TemporalExpertRecorder)
+    log.env = env
+    log.writer = SimpleNamespace(feedback=lambda tau, **kw: stored.append((tau, kw)))
+    log._append = lambda *args, **kw: observed.append((args, kw))
+    feedback = RobotFeedback(
+        0.25, 0.25, ARM_JOINTS, np.full(7, 3.0), "simulated_actuator_feedback", "joint_output", True
+    )
+    sample = SimpleNamespace(feedback=feedback, q=np.zeros(7), dq=np.full(7, 4.47))
+    log._feedback(sample)
+    np.testing.assert_array_equal(stored[0][0], 3)
+    diagnostics = stored[0][1]["diagnostic_state"]
+    np.testing.assert_array_equal(diagnostics["diagnostic_joint_velocity"], 4.47)
+    np.testing.assert_array_equal(diagnostics["diagnostic_position_target"], ids)
+    np.testing.assert_array_equal(diagnostics["diagnostic_computed_effort_nm"], np.array(ids) + 100)
+    assert len(observed) == 1 and observed[0][0][0] == "tau"
+    np.testing.assert_array_equal(observed[0][0][1], 3)
