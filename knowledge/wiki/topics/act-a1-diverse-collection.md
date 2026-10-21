@@ -253,7 +253,13 @@ A scoped candidate retains the original3s minimum and continues the same support
 hold only until the unchanged opening-goal window passes, bounded at6s. All push
 planning, physical/model/stop criteria and temporal/action rates stay fixed. This
 is incomplete task-goal execution, not extension of a completed hold for history.
-The physical before/after comparison is pending; the original failure stays failed.
+The matched comparison passes: all5679 control rows and native q/dq, targets and
+computed/applied efforts through the original3s hold are exactly equal. At3.417s
+the valid window reaches43.5294degrees versus43.5244 required. Ordinary tail,
+2+4s stopping, actual-data/CUDA and measured low-height variation all pass; the
+original failure remains. The same rule is declared before launching remaining
+complete sources/development targets; each retains its own physical/data gates.
+[Qualification](../../../outputs/evidence/act-a1-diverse-20261019/development-task-goal-hold-qualification.json).
 
 ## Data admission, budgets and handoff
 
