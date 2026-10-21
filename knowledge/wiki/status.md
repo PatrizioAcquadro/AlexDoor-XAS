@@ -314,8 +314,8 @@ views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
 The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
-active with the original 112-cell objective: **83/112 qualified**, comprising 75/96 short train,
-8/8 complete train and 0/8 development.
+active with the original112-cell objective. The canonical campaign handoff owns
+current fully qualified counts and temporarily held data revisions.
 The original six attempts and every resumed diagnostic/failure remain in the same
 resource denominator. The requested training-ready handoff remains unavailable.
 
@@ -329,8 +329,9 @@ contact-loss failures. Right and left recovery examples transfer 14.95 mm and
 20.04/14.96 mm to eligible teacher control; injected commands stay excluded and their consequences stay causal.
 
 Admitted sources pass native alignment, masks, phase/tail and unchanged-weight CUDA
-checks with zero optimizer updates. All32 training pose, eight complete, eight A
-correction, eight B correction and16 early A/B dynamics targets are qualified.
+checks with zero optimizer updates. All training pose/complete, A/B correction and early A/B dynamics physical scopes
+are qualified. Fourteen C admissions undergo preserved-file mask revision to
+exclude cleanup labels; fresh CUDA checks precede their readmission.
 The first A1 full-transfer follow-up delivers19.82mm/5.01degrees to eligible expert
 control; the original5.22mm example remains separately usable at its original scope.
 Current native-force feedback qualifies the matched left C1 hold; task-goal release

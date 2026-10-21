@@ -1,7 +1,9 @@
 # Diverse bounded ACT A1 collection campaign
 
-**Status: scoped collection active; goal unmet.** 83/112 target cells are
-individually admitted (75/96 short training,8/8 complete training,0/8 development).
+**Status: scoped collection active; goal unmet.** Current fully qualified counts,
+remaining cells and any temporarily held data revisions are in the canonical
+coverage and handoff records linked below. Physical C scopes are preserved while
+cleanup-supervision masks are revalidated.
 The objective remains all112 physically qualified, meaningfully varied, temporally
 valid target cells. No policy training, optimizer update, RL, architecture comparison,
 learned evaluation or final-test access is part of this campaign.
