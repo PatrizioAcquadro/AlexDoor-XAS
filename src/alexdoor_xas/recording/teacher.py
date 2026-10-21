@@ -96,7 +96,7 @@ class TemporalExpertRecorder(ExpertRecorder):
             dict(
                 q_dq="Simulated arm feedback at native acquisition time",
                 target="Delivered position target for preceding native interval",
-                computed_effort="Explicit PD effort before clipping for preceding native interval",
+                computed_effort="PD plus feedforward before clipping; preceding native interval",
                 applied_effort="Clipped commanded effort sent to solver; not measured joint output",
                 gravity="Gravity feedforward for preceding native interval",
                 policy_observation=False,
@@ -187,6 +187,9 @@ class TemporalExpertRecorder(ExpertRecorder):
                 diagnostic_joint_position=sample.q,
                 diagnostic_joint_velocity=sample.dq,
                 diagnostic_position_target=array(self.env.targets)[0, self.env.arm_ids],
+                diagnostic_velocity_target=array(self.env.robot.data.joint_vel_target)[
+                    0, self.env.arm_ids
+                ],
                 diagnostic_computed_effort_nm=array(self.env.robot.data.computed_torque)[
                     0, self.env.arm_ids
                 ],

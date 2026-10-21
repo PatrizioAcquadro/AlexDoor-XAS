@@ -694,7 +694,7 @@ The linked expansion page owns current counts, costs, evidence and the proposed
 initial-posture tranche. No learned task success or policy training is added.
 
 Native teacher recordings additionally retain diagnostic arm q/dq, delivered
-position targets, computed PD effort, clipped commanded effort and gravity
+position/velocity targets, computed PD plus feedforward effort, clipped commanded effort and gravity
 feedforward at every existing physics-feedback acquisition. These fields preserve
 oscillations and saturation for failure diagnosis; they are excluded from the
 observation allowlist. Projected solver joint output remains the distinct measured
