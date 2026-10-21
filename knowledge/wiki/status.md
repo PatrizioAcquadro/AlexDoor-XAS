@@ -314,7 +314,7 @@ views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
 The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
-active with the original 112-cell objective: **81/112 qualified**, comprising 73/96 short train,
+active with the original 112-cell objective: **83/112 qualified**, comprising 75/96 short train,
 8/8 complete train and 0/8 development.
 The original six attempts and every resumed diagnostic/failure remain in the same
 resource denominator. The requested training-ready handoff remains unavailable.
@@ -329,14 +329,22 @@ contact-loss failures. Right and left recovery examples transfer 14.95 mm and
 20.04/14.96 mm to eligible teacher control; injected commands stay excluded and their consequences stay causal.
 
 Admitted sources pass native alignment, masks, phase/tail and unchanged-weight CUDA
-checks with zero optimizer updates. The original valid recordings retain their
-measured scopes. All train pose/A-correction cells, first light-dynamics A/B and
-all B correction scopes are admitted. All train A/B dynamics and first C1/C2 corrections pass; current-native-force feedback also qualifies the left C1 hold. The right D2 pause qualifies with task-based release preparation. Right light/resistant C/D dynamics pass.
-The matched resistant full-source pressure correction reaches51.53 degrees versus
-41.01 required, preserving its prior contact-loss failure. Late force comparisons
-use native integrals and hold response; the resistant A context remains
-unqualified for diversity. Remaining dynamics, C/D corrections and development cells
-still require qualification. Exact live inventories,
+checks with zero optimizer updates. All32 training pose, eight complete, eight A
+correction, eight B correction and16 early A/B dynamics targets are qualified.
+The first A1 full-transfer follow-up delivers19.82mm/5.01degrees to eligible expert
+control; the original5.22mm example remains separately usable at its original scope.
+Current native-force feedback qualifies the matched left C1 hold; task-goal release
+preparation qualifies the right D2 loaded pause. Their earlier failures remain.
+
+The matched resistant full-source pressure correction reaches51.53degrees versus
+41.01 required, preserving its prior contact-loss failure. Late dynamics comparisons
+require true native force or kinematic response, rather than per-control peak
+averages across different physics cadences. The right resistant A trial at.1N
+remains a diversity failure; a prospectively matched nominal/resistant1N comparison
+passes with23% different opening response. Remaining late dynamics, C/D correction
+and development cells still require individual qualification. Exact live inventories,
 source ancestry, coverage and cumulative costs are in the linked campaign handoff.
+The total campaign attempt ceiling is220, explicitly raised by the user with no
+counter or resource-baseline reset; all other limits and criteria remain unchanged.
 Training, learned evaluation, RL, architecture comparison and final-test access stay
 closed.
