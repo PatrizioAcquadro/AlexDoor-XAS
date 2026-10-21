@@ -13,14 +13,17 @@ the maintained legacy path; no ACT training or learned task success is claimed.
 Historical recordings, checkpoints, physical/admission/stop requirements and the
 sealed final test remain preserved.
 
-The subsequent [[act-a1-diverse-collection|112-episode diverse campaign]] is active
-within individually qualified scopes. Matched native-state diagnostics repair the
-explicit-PD integration instability with240Hz physics while retaining60Hz control,
-10Hz RGB-D and the same model/action configuration. Its original six attempts,
-three usable episodes and three failures remain in the cumulative evidence ledger.
-The linked campaign inventory owns current coverage, recovery magnitudes and all
-costs. Bounded CUDA compatibility checks leave weights unchanged; the full requested
-corpus remains unmet until every physical, diversity, temporal and pipeline gate passes.
+The subsequent [[act-a1-diverse-collection|112-episode diverse campaign]] is complete:
+96 short training, eight complete training and eight development episodes pass
+individual physical, measured-diversity and temporal/pipeline gates. Matched native
+state diagnostics repair the explicit-PD integration instability with 240 Hz physics,
+retaining 60 Hz control,10Hz RGB-D and the same model/action configuration. Original
+and resumed failures remain in the cumulative ledger. C masks supervise push/hold
+only; release and ordinary stabilization remain fully recorded diagnostic cleanup.
+All counted data pass bounded CUDA forward/backward checks with unchanged initialized
+weights, frozen train-only normalization and zero optimizer updates. The linked
+campaign owns exact scope, recovery magnitudes, compatibility limits and resource
+costs. Collection is closed; no policy learning or final-test access is authorized.
 
 The objective remains physical contact acquisition, required opening, hold,
 release and normal stabilization. Offline agreement and teacher imitation do

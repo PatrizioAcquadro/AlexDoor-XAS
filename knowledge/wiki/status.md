@@ -1,6 +1,6 @@
 # Project Status
 
-Current as of 2026-10-20. Static 6.0B and the complete B1 software core are
+Current as of 2026-10-21. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
 6.1 and final matched-data production remain open. The sealed test stays closed.
 
@@ -87,14 +87,15 @@ scope coverage, reviewed usable windows and explicitly qualified short subtasks;
 source-row event sampling preserves real history and phase-crossing labels.
 The existing right/left/C admissions and interrupted-prefix outcome remain.
 The later [[topics/act-a1-four-door-expansion|four-door expansion and posture pilot]]
-supply bounded teacher evidence. The later
-[[topics/act-a1-diverse-collection|diverse campaign]] adds two usable acquisition
-shorts and one varied complete episode. After a diagnosed 120 Hz explicit-PD
-instability, the scoped 240 Hz runtime passes matched failures, both-direction
-phase progression and frozen-bound compatibility controls. A further 15 mm recovery
-passes physical/data/diversity admission; the original 112-cell objective remains
-unmet, and remaining variations require independent qualification. These data/interface changes add no training, learned success or final-test access;
-the linked campaign owns its physical attempt denominator. See
+supply bounded teacher evidence. The subsequent
+[[topics/act-a1-diverse-collection|diverse campaign]] is complete: all 112 original
+cells pass individual physical, measured-diversity and causal temporal/CUDA gates,
+with zero missing. A causally demonstrated 120 Hz explicit-PD instability is repaired
+with 240 Hz physics while 60 Hz control,10Hz RGB-D and the observation/action recipe stay
+fixed. Fifty loaded starts pass consistent checked/recording reconstruction. All
+failures and narrower prior usable examples remain preserved. The campaign report
+owns precise scopes, resources and limitations. Weights, normalization and final
+test remain untouched; policy training and learned evaluation remain closed. See
 [[topics/act-a1-observations-and-time|current interfaces]].
 
 ## A1/A2 pilot — paused and incomplete
@@ -314,38 +315,30 @@ views. Existing shared-checkpoint consumption uses frozen six-source train-only
 normalization with zero updates.
 
 The subsequent [[topics/act-a1-diverse-collection|diverse ACT A1 campaign]] is
-active with the original112-cell objective. The canonical campaign handoff owns
-current fully qualified counts and temporarily held data revisions.
-The original six attempts and every resumed diagnostic/failure remain in the same
-resource denominator. The requested training-ready handoff remains unavailable.
+complete: 96 short training, eight complete training and eight development episodes,
+all 112 individually qualified and zero missing. All original coverage, physical,
+diversity, causal temporal/data and bounded CUDA gates pass with unchanged weights,
+frozen normalization and zero optimizer updates. The 14 earlier C stores retain
+original files and pass data-only cleanup-mask revision; no physics was recollected.
 
-Matched native evidence identifies a 120 Hz explicit-PD integration instability;
-240 Hz physics retains 60 Hz control, 10 Hz RGB-D and the existing history/action
-configuration. Both-direction phase progression, 2 s stopping plus 4 s diagnostic
-continuation, and six unchanged-bound loaded/unloaded compatibility controls pass.
-A separate measured-gap normal-support correction qualifies the left high-contact
-full condition at 53.54 degrees versus 42.03 required, preserving both earlier
-contact-loss failures. Right and left recovery examples transfer 14.95 mm and
-20.04/14.96 mm to eligible teacher control; injected commands stay excluded and their consequences stay causal.
+Matched native comparisons establish a 120 Hz explicit-PD integration pole and its
+240Hz correction, retaining 60 Hz control,10Hz RGB-D and the existing history/action
+configuration. Two-second stopping plus four-second observation, both directions,
+loaded/contact-free compatibility, actual phase starts and ordinary tails are
+qualified for their declared scopes. Separate contact/reach and phase-transition
+failures have preserved causal investigations and scoped corrections. The final
+front C2 full pulse retains 1.546degrees/s at eligible correction and settles to
+.434degrees/s; extended nominal/nearby controls pass beyond its former divergence.
+Full-transfer A1 targets retain approximately 20 mm/5 degrees for actual expert
+correction; the original5.22mm residual example stays separately usable at its
+honest narrower scope. Native diagnostics never become privileged policy inputs.
 
-Admitted sources pass native alignment, masks, phase/tail and unchanged-weight CUDA
-checks with zero optimizer updates. All training pose/complete, A/B correction and early A/B dynamics physical scopes
-are qualified. All14 earlier C stores passed preserved-file mask revision and fresh CUDA checks,
-excluding cleanup labels without recollecting physics.
-The first A1 full-transfer follow-up delivers19.82mm/5.01degrees to eligible expert
-control; the original5.22mm example remains separately usable at its original scope.
-Current native-force feedback qualifies the matched left C1 hold; task-goal release
-preparation qualifies the right D2 loaded pause. Their earlier failures remain.
-
-The matched resistant full-source pressure correction reaches51.53degrees versus
-41.01 required, preserving its prior contact-loss failure. Late dynamics comparisons
-require true native force or kinematic response, rather than per-control peak
-averages across different physics cadences. The right resistant A trial at.1N
-remains a diversity failure; a prospectively matched nominal/resistant1N comparison
-passes with23% different opening response. Remaining late dynamics, C/D correction
-and development cells still require individual qualification. Exact live inventories,
-source ancestry, coverage and cumulative costs are in the linked campaign handoff.
-The total campaign attempt ceiling is220, explicitly raised by the user with no
-counter or resource-baseline reset; all other limits and criteria remain unchanged.
-Training, learned evaluation, RL, architecture comparison and final-test access stay
-closed.
+The canonical handoff and full report preserve194 campaign attempts,56 failed,
+refused or intentionally negative checks, and two failed CUDA allocations. Charged
+additional GPU workload is9.410130/12h, cumulative upper allocation28.071841/40h;
+additional evidence approximately349.97/400GiB, cumulative910.46/1024GiB. The 220 total
+attempt ceiling is the user's explicit increase; no counter or baseline was reset.
+Collection is closed with no pending workload or blocker for the recorded scopes.
+Unsafe near-boundary recovery starts, global stability, physical hardware and
+learned task success remain unqualified. Training, learned evaluation, RL,
+architecture comparison and final-test access remain closed.
