@@ -330,8 +330,8 @@ contact-loss failures. Right and left recovery examples transfer 14.95 mm and
 
 Admitted sources pass native alignment, masks, phase/tail and unchanged-weight CUDA
 checks with zero optimizer updates. All training pose/complete, A/B correction and early A/B dynamics physical scopes
-are qualified. Fourteen C admissions undergo preserved-file mask revision to
-exclude cleanup labels; fresh CUDA checks precede their readmission.
+are qualified. All14 earlier C stores passed preserved-file mask revision and fresh CUDA checks,
+excluding cleanup labels without recollecting physics.
 The first A1 full-transfer follow-up delivers19.82mm/5.01degrees to eligible expert
 control; the original5.22mm example remains separately usable at its original scope.
 Current native-force feedback qualifies the matched left C1 hold; task-goal release

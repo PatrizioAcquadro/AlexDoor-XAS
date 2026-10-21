@@ -2,8 +2,7 @@
 
 **Status: scoped collection active; goal unmet.** Current fully qualified counts,
 remaining cells and any temporarily held data revisions are in the canonical
-coverage and handoff records linked below. Physical C scopes are preserved while
-cleanup-supervision masks are revalidated.
+coverage and handoff records linked below. The14 earlier C stores have completed data-only cleanup-mask revalidation.
 The objective remains all112 physically qualified, meaningfully varied, temporally
 valid target cells. No policy training, optimizer update, RL, architecture comparison,
 learned evaluation or final-test access is part of this campaign.
@@ -58,10 +57,11 @@ Task outcomes, rather than matching one teacher trajectory, decide success.
 
 Every short physically executes ordinary withdrawal/stabilization and an independent
 continuing-physics stop. A data audit found that older C masks supervised cleanup.
-All14 affected admissions are held for a data-only revision: original raw/prepared
-files and physical outcomes stay intact, new prepared masks supervise only push/hold,
-and separately charged bounded CUDA validation must pass before readmission. New
-C recordings use the same task-only mask. Recorded phase/tail presence and physical
+All14 affected admissions passed a data-only revision: original raw/prepared files
+and physical outcomes stay intact, fresh masks supervise only push/hold, and
+separately charged bounded CUDA validation passed before readmission, with zero
+physical recollections and unchanged weights. New C recordings use the same
+task-only mask. Recorded phase/tail presence and physical
 completion remain required; excluded cleanup transitions need no expert-label chunks. A/B post-endpoint hold/release/tail and C post-hold release/tail are excluded diagnostic
 cleanup so short supervision does not teach premature release in a full task.
 B's cleanup still executes3s with unchanged loss/physical guards; it need not satisfy
