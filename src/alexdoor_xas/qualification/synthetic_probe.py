@@ -1181,7 +1181,9 @@ def run_probe(
                         current_rad=initial_lead,
                         return_complete=True,
                         sustained_support_s=correction.recovered_samples * dt,
-                        scope="End the prior push after physical corrective return; recovery still pending",
+                        scope=(
+                            "End the prior push after physical corrective return; recovery still pending"
+                        ),
                     )
                 held.update(tick * dt, state[0], state[6])
                 if correction is not None and correction.needs_supported_hold_handoff(traces[-1]):
