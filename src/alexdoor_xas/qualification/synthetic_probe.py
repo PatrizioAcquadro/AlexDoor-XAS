@@ -1042,6 +1042,27 @@ def run_probe(
         reference = float(intermediate["reference_angle"])
         reference_step = 0.0
         for tick in range(round(15.0 / dt)):
+            if (
+                campaign.get("supported_pace_exit", False)
+                and correction is not None
+                and correction.supported_pace_exit(traces)
+            ):
+                # A rate pulse cannot be undone by retreating to a pressure
+                # target integrated during the disturbance. Carry the actual
+                # supported pose into force holding; actual rate still must settle.
+                reference, compression, compensation = achieved_contact_hold_state(
+                    door, setup, traces[-1]
+                )
+                reference_step = 0.0
+                correction.accept_supported_hold_handoff()
+                traces[-1]["supported_hold_handoff"] = dict(
+                    reference_angle=reference,
+                    compression_m=compression,
+                    tangential_compensation_m=compensation.tolist(),
+                    scope="Full pace pulse ended with actual sustained contact; rate remains",
+                )
+                reason = "supported_pace_to_force_hold"
+                break
             angle = float(tensor(env.door.data.joint_pos)[0, 0])
             previous = reference
             reference = push_reference(

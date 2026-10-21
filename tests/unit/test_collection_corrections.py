@@ -334,3 +334,19 @@ def test_c2_soft_return_keeps_full_residual_and_original_recontact_envelope():
             CollectionCorrection(
                 "C", "correction-2", ProbeSetup(), 1 / 60, corrective_transition_s=invalid
             )
+
+
+def test_pace_exit_needs_executed_pulse_and_real_contiguous_loaded_support():
+    case = CollectionCorrection("C", "correction-2", ProbeSetup(), 1 / 60)
+    rows = [dict(time=i / 60, valid=True, physical_safe=True) for i in range(31)]
+    case.counts["push"] = 311
+    case.role = INJECTED
+    case.injected_commands = 59
+    assert not case.supported_pace_exit(rows)  # pulse still active
+    case.counts["push"] = 312
+    assert case.supported_pace_exit(rows)
+    assert not case.supported_pace_exit(rows[1:])  # no invented earlier support
+    assert not case.supported_pace_exit([*rows[:-1], dict(rows[-1], valid=False)])
+    assert not case.supported_pace_exit([*rows[:-1], dict(rows[-1], physical_safe=False)])
+    case.accept_supported_hold_handoff()
+    assert not case.supported_pace_exit(rows)  # only one carried-state transition

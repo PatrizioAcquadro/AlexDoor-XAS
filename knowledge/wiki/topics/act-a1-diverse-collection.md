@@ -448,3 +448,13 @@ controller. A matched front prototype changes only the supervised return from.5
 to.75s: its measured1.48mm residual implies3.10mm/s cosine peak, within the existing
 6mm/s bound and with.25s margin inside the unchanged1s recontact envelope. The full
 pulse remains applied until eligible correction; all physical/task/stop gates stay.
+
+Wood C2 passes under the original qualified controller, bringing coverage to111.
+The front.75s return misses contact before the unchanged deadline; stopping passes.
+The preserved front pulse ends with.5s valid loaded contact, but the nominal
+pressure goal is1.48mm behind the actual contact pose. A single declared prototype
+carries that supported state into ordinary force holding immediately after the
+full59-action pulse. This does not rewind the door: the first eligible actual rate
+residual remains and must physically decay into the original hold window. Stale
+reference distance is diagnostic, not a claimed corrected error. A focused test
+requires the executed pulse and real contiguous safe support before one handoff.

@@ -189,6 +189,26 @@ class CollectionCorrection:
         self.corrective_commands += int(self.role == CORRECTIVE)
         return position, rotation
 
+    def supported_pace_exit(self, rows):
+        """Handoff an executed pace pulse only with actual sustained loaded contact."""
+        if not (
+            self.family == "C"
+            and self.variation == "correction-2"
+            and self.role == INJECTED
+            and self.injected_commands > 0
+            and self.pulse("push") == 0
+            and self.elapsed("push") >= 5.2
+            and not self.supported_hold_handoffs
+            and rows
+        ):
+            return False
+        cutoff = rows[-1]["time"] - self.setup.sustain_s - 1e-9
+        window = [row for row in rows if row["time"] >= cutoff]
+        return bool(
+            window[-1]["time"] - window[0]["time"] >= self.setup.sustain_s - 1e-9
+            and all(row["valid"] and row["physical_safe"] for row in window)
+        )
+
     def needs_supported_hold_handoff(self, row):
         """Hand sustained support to force holding; first impact is insufficient."""
         return bool(
