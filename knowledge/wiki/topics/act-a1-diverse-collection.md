@@ -418,3 +418,10 @@ Panel orientation remains aligned. This avoids charging panel-frame motion to a
 pressure offset or feeding that motion directly into the desired world point.
 A rotation/translation regression verifies world-position preservation. Actual
 corrective settling, ordinary hold and independent stopping remain required.
+
+Transported goals prevent offset windup and decelerate safely, but sustained
+contact still fails: mean native force is.013N, below the unchanged.02N loaded
+criterion. Corrective settling had prematurely selected the.05N hold target while
+reacquisition remained pending. The next matched prototype restores the existing
+.1N push/recontact target until ordinary hold actually begins, where.05N remains.
+No new force/gain/bound value or admission criterion is introduced.

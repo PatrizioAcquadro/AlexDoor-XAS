@@ -584,7 +584,7 @@ def run_probe(
             force,
             setup,
             dt,
-            target_force=setup.hold_force_n if phase == "hold" or force_hold else None,
+            target_force=setup.hold_force_n if phase == "hold" else None,
             gap_m=gap,
         )
 
