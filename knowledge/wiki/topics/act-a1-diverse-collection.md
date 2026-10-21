@@ -472,3 +472,10 @@ valid loaded window is.433s versus.5s required; occasional.016–.020N means mis
 unchanged.020N threshold. The next matched case maintains the already used.1N
 acquisition target into hold instead of halving it to.05N. No criterion, gain,
 model or control bound changes; this preserves actual positive-load margin.
+
+The full-setup hold-target change is correctly refused before recording by source
+fidelity admission; the refusal remains charged. The next case keeps the exact
+qualified ProbeSetup/source and declares acquisition-load continuity as a C2
+teacher-phase option after supported recovery. Robot/door physics, reconstruction
+and all preceding commands remain unchanged. Actual requested force targets are
+retained in evaluator traces; loaded-window and every physical/stop gate stay fixed.

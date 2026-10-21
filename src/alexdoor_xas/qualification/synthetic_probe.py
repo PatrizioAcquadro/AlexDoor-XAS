@@ -519,6 +519,15 @@ def run_probe(
         )
     if family is not None:
         from alexdoor_xas.qualification.collection_phase import evaluate_phase_endpoint
+    maintain_acquisition_load = bool(
+        campaign is not None and campaign.get("maintain_acquisition_load", False)
+    )
+    if maintain_acquisition_load and not (
+        family == "C"
+        and campaign.get("variation") == "correction-2"
+        and campaign.get("supported_pace_exit", False)
+    ):
+        raise ValueError("Continued acquisition load requires the declared C2 pace transition")
     settle_c_hold = family == "C"
     hold_budget_s = setup.hold_settle_s * (2 if settle_c_hold else 1)
     if task_hold is not None:
@@ -574,7 +583,12 @@ def run_probe(
             # interval's measured average, with the same admittance and bounds.
             force = traces[-1]["native_mean_normal_force_n"]
             source = "preceding_native_interval_mean"
-        normal_feedback = dict(force_n=force, source=source)
+        target_force = (
+            setup.hold_force_n
+            if phase == "hold" and not maintain_acquisition_load
+            else setup.contact_load_guard_n
+        )
+        normal_feedback = dict(force_n=force, source=source, target_force_n=target_force)
         if correction is not None and correction.position_return_active(phase):
             # The measured-origin transition already corrects position error.
             # Do not stack a second gap catch-up; keep force unloading active.
@@ -584,7 +598,7 @@ def run_probe(
             force,
             setup,
             dt,
-            target_force=setup.hold_force_n if phase == "hold" else None,
+            target_force=target_force,
             gap_m=gap,
         )
 
