@@ -223,3 +223,15 @@ def opening_hold_complete(current_angle, duration_s, minimum_s, required_angle):
         and current_angle is not None
         and current_angle >= required_angle
     )
+
+
+def preceding_retreat_row(rows, angle):
+    """Choose an achieved pose behind this phase start, not a later source hold."""
+    return next(
+        (
+            row
+            for row in reversed(rows)
+            if row["phase"] in ("approach", "push") and row["angle"] <= angle - np.deg2rad(5)
+        ),
+        None,
+    )

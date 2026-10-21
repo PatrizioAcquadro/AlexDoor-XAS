@@ -313,3 +313,11 @@ temporal data for all counted recordings; C complete pipeline/CUDA checks with n
 weight change and complete resource accounting. A partial inventory or one repaired
 runtime does not complete the goal. Continue independent qualified scopes while a
 local mechanism is diagnosed; shared unstable stopping halts dependent collection.
+
+A later left C2 attempt passes the full pace/correction/hold endpoint but fails
+cleanup release at7.05mm actual separation versus10mm required; its stop is stable.
+The earlier phase state inherited a retreat pose selected near the source's later
+full hold. Phase-state preparation now selects an actually achieved source pose
+at least5degrees before the selected start, preserving every q/dq, delivered target,
+gain and current controller field. Original states are retained. A matched C2
+retreat-only prototype gates dependent D2 launches; physical qualification is pending.

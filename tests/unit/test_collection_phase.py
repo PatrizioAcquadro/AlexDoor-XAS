@@ -195,3 +195,19 @@ def test_opening_hold_needs_current_goal_window_and_original_minimum():
     assert not opening_hold_complete(held.current, 2.9, 3, goal)
     held.update(205 / 60, goal + 0.01, False)
     assert not opening_hold_complete(held.current, 3.5, 3, goal)
+
+
+def test_phase_retreat_is_before_selected_start_not_future_full_hold():
+    from alexdoor_xas.qualification.collection_phase import preceding_retreat_row
+
+    rows = [
+        dict(phase="push", angle=np.deg2rad(a), tool_position=[a, 0, 0])
+        for a in (30, 35, 40, 45, 50)
+    ]
+    selected_start = rows[2]
+    retreat = preceding_retreat_row(rows[:3], selected_start["angle"])
+    assert retreat is rows[1]
+    assert retreat["tool_position"] == [35, 0, 0]
+    # The later full-source hold would select45degrees, ahead of this40degree start.
+    assert preceding_retreat_row(rows, rows[-1]["angle"]) is rows[3]
+    assert preceding_retreat_row(rows[:1], rows[0]["angle"]) is None

@@ -1242,17 +1242,15 @@ def run_probe(
     released = False
     if failure != "invalid_physics" and not env.motion_stopped:
         final_angle = float(tensor(env.door.data.joint_pos)[0, 0])
-        prior = [
-            t
-            for t in traces
-            if t["phase"] in ("approach", "push") and t["angle"] <= final_angle - np.deg2rad(5)
-        ]
+        from alexdoor_xas.qualification.collection_phase import preceding_retreat_row
+
+        prior = preceding_retreat_row(traces, final_angle)
         if intermediate is not None:
             retreat_p = np.array(intermediate["retreat_p"])
             retreat_q = Rotation.from_matrix(intermediate["retreat_r"]).as_quat()
-        elif prior:
-            retreat_p = np.array(prior[-1]["tool_position"])
-            retreat_q = np.array(prior[-1]["tool_quaternion"])
+        elif prior is not None:
+            retreat_p = np.array(prior["tool_position"])
+            retreat_q = np.array(prior["tool_quaternion"])
         else:
             retreat_p, retreat_q = pre_p, Rotation.from_matrix(pre_r).as_quat()
         if held_angle is not None and intermediate is None and hasattr(recorder, "observations"):
