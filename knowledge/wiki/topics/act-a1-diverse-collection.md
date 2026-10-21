@@ -391,3 +391,14 @@ fresh motion. They add physical settling travel before the measured singularity;
 no mass, damping, velocity limit, teacher-error amplitude or task criterion changes.
 The old near-boundary postures remain unsupported. Front qualification is pending;
 other collection stays gated.
+
+The earlier front C1 start passes the full unchanged recovery and3s hold, ordinary
+release/stabilization and2+4s stops. First usable correction has1.001mm ordinary-
+reference error and.685mm actual native gap; all47 injected commands are excluded,
+with no masked corrective targets. Peak actual joint speed is.167rad/s and minimum
+hold Jacobian sigma.0810, versus the failed near-boundary collapse to.00136.
+The active controller remains the previously qualified implementation. The
+[C1 reserve decision](../../../outputs/evidence/act-a1-diverse-20261019/C1-reach-reserve-qualification.json)
+records the exact new start and all remaining limits; it permits only individually
+gated original-matrix collection. Other C starts, development and front dynamics
+still require their own physical, diversity and pipeline checks.
