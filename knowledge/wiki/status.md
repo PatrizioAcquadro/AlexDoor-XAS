@@ -3,8 +3,9 @@
 ## ACT A1 first learned completion — active
 
 The user authorized temporal ACT A1 training and genuine closed-loop evaluation
-from the completed qualified corpus. The short local pilot has completed128
-updates and identical checkpoint reload; native learned execution is active.
+from the completed qualified corpus. The short local pilot completed128 updates and identical checkpoint reload.
+Both full-start attempts failed before contact. One separately validated
+linear-aging accounting correction removes a duplicated uncertainty charge.
 No complete task success has been established. Two-direction completion and the
 fixed development panel remain required. Original panels, failures and cumulative
 resource charges remain preserved. See [[experiments/act-a1-first-completion]].

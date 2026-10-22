@@ -1138,3 +1138,61 @@ def test_position_support_requires_a_valid_force_domain(caps):
     )
     with pytest.raises(ValueError, match="unverified_position_halo_force_domain"):
         c.position_support()
+
+
+def test_unloaded_tracker_aging_spends_the_prepaid_interval_once():
+    estimate, proposal, evidence, limits = local_inputs()
+    limits = replace(limits, relative_speed_bound_m_s=0.1)
+    dt = proposal.times_s[-1] - proposal.times_s[0]
+    motion = limits.relative_speed_bound_m_s * dt
+    patch = replace(
+        estimate.local.patches[0],
+        normal_position_bound_m=0.005,
+        normal_rotation_bound_rad=0.01,
+        pose_temporal_position_m=0.001,
+    )
+    patch = replace(patch, pose_support=replace(patch.pose_support, position_bound_m=0.01))
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    proposal = replace(proposal, loaded=False)
+    evidence = replace(
+        evidence,
+        finger_clearance_m=(None, None),
+        collision_clearance_m=None,
+        swept_collision_margin_m=0.02,
+        unloaded_separation_margin_m=0.0004,
+        unloaded_normal_lever_m=0.8,
+        unloaded_temporal_bound_m_rad=(motion, 0.0),
+    )
+    receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert receipt.admitted
+    current = replace(
+        patch,
+        normal_position_bound_m=patch.normal_position_bound_m + motion,
+        pose_temporal_position_m=patch.pose_temporal_position_m + motion,
+    )
+
+    def check(value, admission=receipt):
+        require_current_admission(
+            admission, replace(estimate, local=replace(estimate.local, patches=(value,))), 1 + dt
+        )
+
+    # Static geometry with only the already-eroded observation aging remains valid.
+    check(current)
+    # Real additional normal uncertainty still exhausts the unchanged small margin.
+    with pytest.raises(ValueError, match="separation_exhausted"):
+        check(replace(current, normal_position_bound_m=current.normal_position_bound_m + 0.00041))
+    # Missing or invalid aging attribution cannot receive the credit.
+    with pytest.raises(ValueError, match="separation_exhausted"):
+        check(replace(current, pose_temporal_position_m=None))
+    with pytest.raises(ValueError, match="invalid_prepaid"):
+        check(replace(current, pose_temporal_position_m=0.02))
+    unreserved = admit_local_action(
+        estimate,
+        proposal,
+        replace(evidence, unloaded_temporal_bound_m_rad=None),
+        limits,
+        1,
+        generation=0,
+    )
+    with pytest.raises(ValueError, match="separation_exhausted"):
+        check(current, unreserved)

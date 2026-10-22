@@ -70,7 +70,11 @@ class ObservedControlChecks:
             else:
                 validate_geometry(estimate, float(sensor["time_s"]), 0.15, profile=profile)
         except ValueError as error:
-            self.last_failure = dict(time_s=float(sensor["time_s"]), reason=str(error))
+            self.last_failure = dict(
+                time_s=float(sensor["time_s"]),
+                reason=str(error),
+                decision=getattr(error, "decision", None),
+            )
             return "invalid_perception"
         loaded = stage in ("contact", "push", "hold") or (
             admission is not None and admission.proposal.loaded

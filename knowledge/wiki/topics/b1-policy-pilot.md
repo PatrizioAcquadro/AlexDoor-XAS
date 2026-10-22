@@ -231,3 +231,14 @@ The input factories keep one bounded prefetched batch, with a synchronous librar
 option. See [[episode-and-dataset-contracts|storage, validation and compatibility]]
 for close/reopen and value-check timing. These changes select no new encoder,
 history, training strategy, checkpoint or task outcome.
+
+## Identified normal-bound aging
+
+For an unloaded whole-robot proof, the interval erosion already covers relative
+material motion. The tracker publishes the same identified linear-aging primitive
+inside pose and normal-position bounds. Receipt renewal credits its positive
+normal-bound growth once, capped at the explicit interval motion term. Other
+uncertainty growth still spends the original remaining margin; absent attribution,
+missing prepaid erosion, missing support or true margin exhaustion still refuses.
+This changes accounting, not physical limits. The finite native prefix validation
+and preserved pilot refusals are in [[act-a1-first-completion]].

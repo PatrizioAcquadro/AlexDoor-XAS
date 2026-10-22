@@ -72,9 +72,22 @@ partial task progress are not completion.
 The local seed9100 pilot completed128 optimizer updates in133.977 s of Python
 process time,141.019 s charged allocation including startup and tail. Checkpoints
 at64/128 updates reload with identical predictions. The18 focused numerical
-regressions pass. Native full-start right evaluation is active; more than188
-actual learned commands have executed with no physical violations so far. This
-establishes dispatch progress only, not task completion. Final outcome is pending.
+regressions pass. Both full-start pilot evaluations failed before contact: right1019 learned
+commands, left1 command, controlled opening0 degrees in both. Both stop with
+`admitted_unloaded_separation_exhausted`, without physical violations; each2s stop
+and separate4s continuation passes. These original0/2 outcomes remain preserved.
+
+The native tracker includes the same linear aging in pose and normal-position
+bounds. The unloaded receipt also charged explicit relative motion, then credited
+only one prepaid interval, duplicating the identified normal aging. The correction
+credits only positive growth of the existing identified temporal primitive, bounded
+by explicit relative motion. New registration/calibration growth, missing/invalid
+attribution and absent prepaid interval retain refusal. No physical bound, margin,
+model/controller parameter or success threshold changes.137 focused regressions
+pass. A single predeclared120-command left prefix with unchanged pilot checkpoint
+executes all120 commands and passes2+4s stops, with zero contact/violations. It is a
+separate accounting diagnostic, not a favorable replacement or full-task success.
+
 
 The launcher now explicitly accepts `--temporal-act`. Native measured feedback,
 RGB-D and acknowledged delivered targets feed the existing temporal runner;

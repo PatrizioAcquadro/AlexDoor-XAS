@@ -129,7 +129,8 @@ class LocalPatchState:
     uncertainty_sources: tuple[tuple[str, float | None, float | None, float | None], ...] = ()
     normal_rotation_bound_rad: float | None = None
     normal_position_bound_m: float | None = None
-    # Linear aging already included in pose_support; clocks remain acquisition clocks.
+    # Same linear aging is included in pose_support and the normal-position bound
+    # when present. Clocks remain acquisition clocks; this is one shared primitive.
     pose_temporal_position_m: float | None = None
     # name, translation, angle, frame-origin lever, actual world rotation origin.
     # Keeping the pivot allows admission to transport each error to its actual

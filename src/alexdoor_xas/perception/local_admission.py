@@ -359,17 +359,45 @@ def require_current_local_admission(admission, estimate, now):
         if evidence.unloaded_temporal_bound_m_rad is not None:
             fraction = min(1.0, max(0.0, elapsed / (end - start)))
             prepaid_p, prepaid_a = np.asarray(evidence.unloaded_temporal_bound_m_rad) * fraction
+        # The maintained tracker includes the SAME linear aging primitive in
+        # both its pose and normal-position bounds. Credit that identified
+        # growth once, bounded by the interval's explicit relative-motion term.
+        # Unidentified registration/calibration growth receives no such credit.
+        linear_aging_credit = 0.0
+        aging = (before.pose_temporal_position_m, patch.pose_temporal_position_m)
+        if all(value is not None for value in aging):
+            for state, value in zip((before, patch), aging, strict=True):
+                if not np.isfinite(value) or not 0 <= value <= min(
+                    state.normal_position_bound_m, state.pose_support.position_bound_m
+                ):
+                    raise ValueError("invalid_prepaid_pose_growth")
+            linear_aging_credit = min(
+                admission.limits.relative_speed_bound_m_s * elapsed,
+                max(0.0, aging[1] - aging[0]),
+            )
         growth = max(
             0.0,
             patch.normal_position_bound_m
             - before.normal_position_bound_m
             + admission.limits.relative_speed_bound_m_s * elapsed
+            - linear_aging_credit
             - prepaid_p,
         ) + evidence.unloaded_normal_lever_m * max(
             0.0, patch.normal_rotation_bound_rad - before.normal_rotation_bound_rad - prepaid_a
         )
         if growth >= evidence.unloaded_separation_margin_m:
-            raise ValueError("admitted_unloaded_separation_exhausted")
+            error = ValueError("admitted_unloaded_separation_exhausted")
+            error.decision = dict(
+                normal_position_growth_m=patch.normal_position_bound_m
+                - before.normal_position_bound_m,
+                explicit_relative_motion_m=admission.limits.relative_speed_bound_m_s * elapsed,
+                identified_linear_aging_credit_m=linear_aging_credit,
+                prepaid_interval_position_m=float(prepaid_p),
+                prepaid_interval_rotation_rad=float(prepaid_a),
+                excess_growth_m=float(growth),
+                remaining_separation_margin_m=evidence.unloaded_separation_margin_m,
+            )
+            raise error
         return
     old_error = _local_error(before, evidence, admission.limits, start, end - start)
     current_error = _local_error(patch, evidence, admission.limits, now, end - now)
