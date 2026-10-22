@@ -1096,6 +1096,13 @@ def rollout(env, args, protocol, robot, setup, inspection):
             n_action_steps=None if reference_mode else protocol["replan_ticks"],
             admission_source=motion,
         )
+    if args.temporal_act:
+        # Independent terminal scoring only; no teacher action, takeover or
+        # privileged feature reaches the policy. Ordinary stabilization has
+        # already been physically commanded before this predicate can pass.
+        runner.completion_source = lambda: (
+            evaluation is not None and evaluation.result()["task_success"]
+        )
     try:
         result = runner.run(
             max_ticks=(policy.control_ticks if reference_mode else protocol["rollout_max_ticks"]),

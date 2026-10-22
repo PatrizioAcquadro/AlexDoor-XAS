@@ -161,3 +161,16 @@ This measures action errors only,not simulated phase completion. Overall action
 magnitudes are not uniformly collapsed; release errors remain comparatively large.
 The physical comparison uses fixed seed order9101/9102/9103 on both predeclared
 normal starts and selects primarily by actual task completion/progress.
+
+## Evaluation termination
+
+Temporal A1 has no end token. Native evaluation now uses an external task-complete
+predicate after the real action, observation, feature and safety checks. It can
+end an episode only after the independent unchanged opening/hold/release criteria
+and ordinary stabilization pass; it never supplies an action or policy input.
+The result distinguishes evaluated completion from predicted termination, and
+the independent safety stop remains required. No completed phase or task had been
+observed when this interface was corrected. All previous refusals are preserved.
+150 focused regressions pass, including safety priority and no completion before
+a real policy step. An obsolete unit-test error-message assertion was aligned
+with the previously qualified120/240Hz runtime; its rejection behavior is unchanged.

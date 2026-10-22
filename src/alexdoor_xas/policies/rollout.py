@@ -270,6 +270,7 @@ class B1Runner:
         n_action_steps=None,
         pilot_inference_only=False,
         admission_source=None,
+        completion_source=None,
     ):
         if observer.binding != policy.binding or io.binding != policy.binding:
             raise ValueError("Policy and observer perception bindings differ")
@@ -279,6 +280,7 @@ class B1Runner:
             raise ValueError("Inference-only pilot requires an explicit pilot binding")
         self.pilot_inference_only = pilot_inference_only
         self.admission_source = admission_source
+        self.completion_source = completion_source
         self.source_options = dict(
             temporal_ensemble=temporal_ensemble, n_action_steps=n_action_steps
         )
@@ -394,6 +396,11 @@ class B1Runner:
                     require_features(observation, self.policy.binding)
                 elif not observation.valid:
                     return self.stop(observation.reason, steps)
+                # Evaluation may end a completed task AFTER actual dispatch,
+                # observation and safety checks. It supplies no action or policy
+                # feature and is distinct from a model-predicted end token.
+                if self.completion_source is not None and self.completion_source():
+                    return self.stop("evaluated_task_complete", steps)
                 if isinstance(self.policy, MatchedReplay) and steps == self.policy.control_ticks:
                     return self.stop("replay_complete", steps)
                 if self.adapter.done:

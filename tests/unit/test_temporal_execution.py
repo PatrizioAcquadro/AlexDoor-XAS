@@ -281,3 +281,23 @@ def test_intermediate_startup_skips_closed_door_inspection_and_clears_context(re
     execution.startup = lambda observer, io: (observer.update(io.observe()), "unqualified_reset")
     result = runner.run(max_ticks=7)
     assert result.reason == "unqualified_reset" and not io.commands
+
+
+def test_external_completion_ends_only_after_a_real_safe_policy_step(replay_runner):
+    runner, io, *_ = replay_runner
+    seen = []
+    runner.completion_source = lambda: seen.append(len(io.commands)) or True
+    result = runner.run(max_ticks=13)
+    assert result.reason == "evaluated_task_complete" and result.control_steps == 1
+    assert not result.predicted_complete
+    assert seen == [1] and len(io.commands) == 1 and runner.stopped
+
+
+def test_physical_safety_failure_has_priority_over_external_completion(replay_runner):
+    runner, io, *_ = replay_runner
+    seen = []
+    runner.completion_source = lambda: seen.append(True) or True
+    io.safety_reason = lambda stage: "forced_safety" if io.commands else ""
+    result = runner.run(max_ticks=13)
+    assert result.reason == "forced_safety" and result.control_steps == 1
+    assert seen == [] and not result.predicted_complete and runner.stopped

@@ -89,6 +89,14 @@ flowchart LR
 - [Cost harness](../../../scripts/benchmark_temporal_act.py): saved-input
   preparation, loading, native preprocessing, inference and backward-only checks.
 
+Temporal native evaluation ends after the independent scorer establishes opening,
+required loaded hold, release and ordinary stabilization. The external completion
+predicate runs only after real policy dispatch, fresh observation and safety
+checks; it generates no command or policy input. `predicted_complete` remains
+false because A1 has no learned end token. A separate healthy stop is still
+required. Neither a safety refusal nor a partially completed phase can terminate
+as task success. Legacy callers without this predicate retain their behavior.
+
 The CNN is exactly the maintained `rgbd-conv-v1` architecture: five channels,
 three convolutions, GroupNorm and the 3×4 spatial grid. One finite attention block
 contextualizes image and robot tokens. The **current measured-state token** is
