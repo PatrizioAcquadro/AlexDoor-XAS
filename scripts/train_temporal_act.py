@@ -67,7 +67,8 @@ def main():
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=1e-4)
     step = 0
     if args.resume:
-        previous = torch.load(args.resume, map_location="cuda", weights_only=False)
+        # RNG byte states must remain on CPU; load_state_dict moves model/optimizer tensors.
+        previous = torch.load(args.resume, map_location="cpu", weights_only=False)
         if previous["seed"] != args.seed or previous["stats"] != stats.to_dict():
             raise ValueError("Resume seed/normalization mismatch")
         model.load_state_dict(previous["model"])

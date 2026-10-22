@@ -103,3 +103,12 @@ The corrected index uses the canonical qualification handoff group assignments.
 No data or original split was changed. Exact panel files are in
 `outputs/evidence/act-a1-first-completion-20261022/evaluation-protocol.json`.
 
+
+## Resumable training check
+
+The resumed training loader keeps RNG byte states on CPU; model and optimizer
+`load_state_dict` move their tensors to the active GPU. Loading the entire resume
+file onto CUDA would make `torch.set_rng_state` reject the CPU RNG state. An actual
+CUDA continuation from128 to129 updates passes, with all saved AdamW counters at129,
+112 unchanged train normalization identities and identical checkpoint reload. This
+one additional engineering update is charged and is not a new task evaluation.
