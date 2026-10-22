@@ -94,7 +94,9 @@ required loaded hold, release and ordinary stabilization. The external completio
 predicate runs only after real policy dispatch, fresh observation and safety
 checks; it generates no command or policy input. `predicted_complete` remains
 false because A1 has no learned end token. A separate healthy stop is still
-required. Neither a safety refusal nor a partially completed phase can terminate
+required. The accepted terminal reason and all configured stop continuations
+must pass the overall episode result. Raw physical completion remains separate.
+Neither a safety refusal nor a partially completed phase can terminate
 as task success. Legacy callers without this predicate retain their behavior.
 
 The CNN is exactly the maintained `rgbd-conv-v1` architecture: five channels,

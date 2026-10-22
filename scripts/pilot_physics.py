@@ -580,6 +580,8 @@ def main(argv=None):
             result["post_stop"]["passed"]
             and result.get("post_stop_diagnostic", {"passed": True})["passed"]
         )
+        if args.temporal_act:
+            result["passed"] = bool(result["passed"] and result["safety_stop_passed"])
         if args.mode == "collect":
             from alexdoor_xas.recording.quality import review_native_collection
 
@@ -1110,9 +1112,12 @@ def rollout(env, args, protocol, robot, setup, inspection):
         )
         physical_result = None if evaluation is None else evaluation.result()
         success_key = "reference_cycle_success" if reference_mode else "task_success"
+        episode_passed = False if physical_result is None else physical_result[success_key]
+        if args.temporal_act:
+            episode_passed &= result.reason == "evaluated_task_complete"
         recording.finish(
             dict(
-                passed=False if physical_result is None else physical_result[success_key],
+                passed=episode_passed,
                 termination=result.reason,
                 learned_commands=0 if reference_mode else result.control_steps,
                 reference_commands=result.control_steps if reference_mode else 0,
@@ -1144,7 +1149,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         recording_ms=recording_ms,
     )
     return dict(
-        passed=False if physical_result is None else physical_result[success_key],
+        passed=episode_passed,
         physical_evaluation=physical_result,
         runner=asdict(result),
         family=args.family,
