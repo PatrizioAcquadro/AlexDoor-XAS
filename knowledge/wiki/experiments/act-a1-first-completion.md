@@ -360,3 +360,22 @@ right0.97/0.97. These action diagnostics delimit demonstrated fitting; they do
 not count as physical recovery or phase completion and do not select checkpoints.
 All96 results are retained in `frozen-phase-step4096.json`;32.559s shares the same
 owned A100 allocation. Fresh simulator results remain required.
+
+
+At5,120 updates the same96 histories have lower mean action error in each of the
+eight strata than at4,096. Transitions remain the largest-error stratum. In the
+fixed initial image intervention, left action cosine rises from0.35 to0.84 and
+image contrast to0.000685rad; action magnitudes remain below the source labels.
+These are fitting diagnostics, not measured task progress. Results and nonfatal
+Slurm transport warnings are retained separately; all queries share the existing
+owned A100 allocation and perform zero optimizer updates.
+
+Preserve the5,120 model and matching optimizer/RNG state before the next save:
+all128 AdamW counters are5,120 and normalization equals the original112-source fit.
+Prospectively evaluate its fresh normal right/left starts between seed9103/2,048
+and seed9101/6,144, using an immutable local copy with remote-matched SHA256.
+This adds no training run and provides earlier physical feedback while the same
+bounded curriculum finishes. Maximum queued local allocation, including the two
+loaded diagnostics, all three candidate pairs and four conditional development
+cases, totals37.83 cumulative GPU hours under the40h cap. Per-case storage and
+allocation guards remain active. Every previous attempt remains in the inventory.
