@@ -11,12 +11,17 @@ attempts, the retained count is0/12, with healthy stops and no recorded physical
 violations. No complete learned task success is established.
 
 Seed9103 reaches2,048 on Gilbreth and awaits fresh physical evaluation. One bounded
-seed9101 curriculum now targets6,144 on A100: half the batch focuses on the two
+seed9101 curriculum completes6,144 on A100: half the batch focuses on the two
 complete nominal sources' critical transitions, half retains all112 training
-sources and valid recovery scopes. Normalization/model/physical gates are fixed.
+sources and valid recovery scopes. All2,048 new updates complete; whole allocation
+charge5,792s, final checkpoint and matching optimizer/RNG retrieved. Normalization,
+model and physical gates are fixed.
 The qualified local simulator is waiting for an unrelated GPU workload; Blackwell
 also remains occupied. Loaded-state diagnostic integration retains its original
 failed/unavailable starts and revised cells; it cannot count as full completion.
+One separately labeled reference feasibility check precedes the new full candidate
+pairs; replay parity is required before interpretation and never counts as learned
+success.
 
 The same saved file must still complete fresh right and left normal starts, then
 undergo all four predefined development conditions. All original outcomes, raw

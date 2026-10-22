@@ -376,6 +376,28 @@ Prospectively evaluate its fresh normal right/left starts between seed9103/2,048
 and seed9101/6,144, using an immutable local copy with remote-matched SHA256.
 This adds no training run and provides earlier physical feedback while the same
 bounded curriculum finishes. Maximum queued local allocation, including the two
-loaded diagnostics, all three candidate pairs and four conditional development
-cases, totals37.83 cumulative GPU hours under the40h cap. Per-case storage and
+loaded diagnostics, one separate reference, all three candidate pairs and four conditional development
+cases, totals38.51 cumulative GPU hours under the40h cap. Per-case storage and
 allocation guards remain active. Every previous attempt remains in the inventory.
+
+
+The bounded curriculum completes all2,048 new updates at6,144 on A100, with
+5,745.822s Python process time and5,792s charged whole allocation including
+shared diagnostic steps and shutdown. Final weights and optimizer/RNG are locally
+retrieved; all128 AdamW counters match6,144 and original112-source normalization
+is unchanged. No further training starts before new native task evidence.
+
+The preserved4,096 right trace has19.378mm positive native surface separation,
+40.135mm material-point error and zero force when3.0167s seeking exhausts the
+unchanged acquisition budget. A single prospective right reference diagnostic
+will send the qualified nominal commands through current observed admission,
+240Hz physics and independent stops. Source120Hz/current240Hz prefix parity must
+be measured before attributing a failure to admission; no guard is relaxed.
+The legacy reference entry point consumes a numeric naming adapter built only
+from recorded `state_acquired_s`, `q_before` and `applied_target`. Lossless float64
+promotion reproduces the qualified A1 subtraction exactly. Its7,588 post-inspection
+deltas equal the selected prepared labels; source report, completeness and robot
+identity checks pass. This is neither new acquisition nor a learned execution,
+and remains ineligible for full-task success regardless of its physical outcome.
+The two loaded cells, reference and three new candidate pairs remain queued behind
+unrelated workstation GPU work; no new physical result is assumed.
