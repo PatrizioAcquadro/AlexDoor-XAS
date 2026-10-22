@@ -142,7 +142,7 @@ def main(argv=None):
     parser.add_argument(
         "--intermediate-state",
         type=Path,
-        help="Qualified source hold-state.npz; fresh reset and loaded pre-roll",
+        help="Qualified source state; collection or separate temporal ACT phase diagnostic",
     )
     parser.add_argument(
         "--interrupt-after-commands",
@@ -185,10 +185,10 @@ def main(argv=None):
         parser.error("Initial screening requires closed-door collection")
     if args.reference_recording is not None and (args.mode != "rollout" or args.family != "act"):
         parser.error("Reference diagnostic requires rollout with the fixed ACT A1 checkpoint")
-    if (
-        args.intermediate_state or args.interrupt_after_commands is not None
-    ) and args.mode != "collect":
-        parser.error("Intermediate start/interruption are collection-only")
+    if args.intermediate_state and not (args.mode == "collect" or args.temporal_act):
+        parser.error("Intermediate start requires collection or temporal ACT phase diagnostic")
+    if args.interrupt_after_commands is not None and args.mode != "collect":
+        parser.error("Interruption is collection-only")
     if args.interrupt_after_commands is not None and args.interrupt_after_commands < 1:
         parser.error("Interruption command count must be positive")
     protocol = json.loads(args.protocol.read_text())
@@ -582,6 +582,8 @@ def main(argv=None):
         )
         if args.temporal_act:
             result["passed"] = bool(result["passed"] and result["safety_stop_passed"])
+            if "intermediate_phase_success" in result:
+                result["intermediate_phase_success"] &= result["safety_stop_passed"]
         if args.mode == "collect":
             from alexdoor_xas.recording.quality import review_native_collection
 
@@ -767,9 +769,20 @@ def rollout(env, args, protocol, robot, setup, inspection):
         from alexdoor_xas.recording.teacher import simulated_feedback_contract
 
         config = TemporalConfig(
-            static_time_s=float(inspection["waypoints"][-1][0]),
+            static_time_s=0.0 if args.intermediate_state else float(inspection["waypoints"][-1][0]),
             depth_interval_m=(env.capture.near_m, env.capture.far_m),
         )
+        startup = None
+        if args.intermediate_state:
+            from alexdoor_xas.qualification.temporal_loaded_start import loaded_phase_startup
+
+            startup = loaded_phase_startup(
+                env,
+                setup,
+                args.intermediate_state,
+                asset_id=args.asset_id,
+                output=args.output / "loaded-initialization",
+            )
         if env.cfg.decimation != 4:
             raise ValueError("Temporal learned evaluation requires qualified 240 Hz physics")
         observer, io, geometry, motion, load_log, contact_log = observed_pilot_runtime(
@@ -785,6 +798,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
             events=events,
             feedback_contract=simulated_feedback_contract(env),
             admission_source=motion,
+            startup=startup,
         )
         observer, policy = runner.observer, runner.policy
     else:
@@ -836,7 +850,11 @@ def rollout(env, args, protocol, robot, setup, inspection):
         dict(
             purpose="operational_reference_diagnostic"
             if reference_mode
+            else "intermediate_phase_diagnostic"
+            if args.intermediate_state
             else "learned_rollout_evaluation",
+            intermediate_state=str(args.intermediate_state) if args.intermediate_state else None,
+            full_task_eligible=not bool(args.intermediate_state),
             reference_recording=str(args.reference_recording) if reference_mode else None,
             family=args.family,
             checkpoint=str(args.checkpoint),
@@ -1115,9 +1133,13 @@ def rollout(env, args, protocol, robot, setup, inspection):
         episode_passed = False if physical_result is None else physical_result[success_key]
         if args.temporal_act:
             episode_passed &= result.reason == "evaluated_task_complete"
+        phase_passed = bool(episode_passed and args.intermediate_state)
+        episode_passed &= not bool(args.intermediate_state)
         recording.finish(
             dict(
                 passed=episode_passed,
+                intermediate_phase_success=phase_passed,
+                full_task_eligible=not bool(args.intermediate_state),
                 termination=result.reason,
                 learned_commands=0 if reference_mode else result.control_steps,
                 reference_commands=result.control_steps if reference_mode else 0,
@@ -1150,6 +1172,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
     )
     return dict(
         passed=episode_passed,
+        intermediate_phase_success=phase_passed,
+        full_task_eligible=not bool(args.intermediate_state),
+        intermediate_state=str(args.intermediate_state) if args.intermediate_state else None,
         physical_evaluation=physical_result,
         runner=asdict(result),
         family=args.family,
@@ -1158,6 +1183,8 @@ def rollout(env, args, protocol, robot, setup, inspection):
         scope=(
             "operational_reference_diagnostic"
             if reference_mode
+            else "intermediate_phase_diagnostic"
+            if args.intermediate_state
             else "operational_rollout_attempt_no_admission_bypass"
         ),
         reference_recording=str(args.reference_recording) if reference_mode else None,

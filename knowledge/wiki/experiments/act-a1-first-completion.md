@@ -174,3 +174,28 @@ observed when this interface was corrected. All previous refusals are preserved.
 150 focused regressions pass, including safety priority and no completion before
 a real policy step. An obsolete unit-test error-message assertion was aligned
 with the previously qualified120/240Hz runtime; its rejection behavior is unchanged.
+
+
+## Separate loaded-phase diagnostics
+
+`pilot_physics.py rollout --temporal-act --intermediate-state` accepts an existing
+qualified matching training state. Its source must be in the checkpoint's selected
+training IDs. The maintained reconstruction restores joints, velocities, targets,
+door motion and task gains, and repeats the independent loaded start-stop gate
+before reconstructing the recording start. The native producer then resets its
+history and acquires one second of fresh held-pose observations, requiring sustained
+loaded support and unchanged physical limits. No source history is imported.
+The existing partial-history masks represent unavailable pre-start observations.
+
+This mode is explicitly an intermediate-phase diagnostic: the source opening is
+initialization, and overall `passed` is always false for full-task accounting.
+`intermediate_phase_success` describes only the subsequent learned continuation,
+with accepted termination and independent stop continuations required. Physical
+rows and initialization audits remain inspectable. Teacher/simulator information
+is confined to reconstruction and qualification; after handoff, ACT and the
+unchanged observed admission/controller generate all manipulation commands.
+
+The 42 related numerical tests pass, including source rejection, reset ordering,
+fresh observation acquisition, missing loaded support and stop continuations.
+Native loaded-phase applicability remains to be measured; this implementation
+alone is not evidence of later-phase or recovery success.
