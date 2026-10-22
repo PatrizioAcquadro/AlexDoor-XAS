@@ -1,7 +1,7 @@
 # Phase 7 — Training and Generalization Evaluation
 
 > Planned. Two subphases train the models, then evaluate and analyze them.
-> Requires Phase 6; no training or evaluation is performed by this revision.
+> Requires Phase 6; no Phase 7 benchmark training or evaluation is performed by this revision.
 
 ## Objective
 
@@ -21,8 +21,10 @@ on development doors only with the common validity-adjusted progress objective.
 
 #### Key Decisions
 
-- Use actual compatible GPUs. The workstation owns Isaac workloads; Gilbreth
-  A100s or the available Gautschi H100 allocation can run non-Isaac training.
+- Use actual compatible GPUs. The workstation owns the existing B1 Isaac Sim
+  workload; Gilbreth A100s and Gautschi H100s can run tensor training. The
+  [[topics/cluster-training|official kit-less runtime]] has separate bounded
+  Newton/application checks; custom B1 simulation migration is not qualified.
 - Report failed cells and seed variation; do not replace failures with favorable
   extra seeds or report only the best run.
 - Keep training independent of simulator imports and test-door data.

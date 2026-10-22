@@ -1,6 +1,7 @@
 # Project Status
 
-Current as of 2026-10-18. Static 6.0B and the complete B1 software core are
+Scientific state as of 2026-10-18; cluster runtime verification added on
+2026-10-22. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
 6.1 and final matched-data production remain open. The sealed test stays closed.
 
@@ -10,6 +11,7 @@ maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
 | Corpus | 32 qualified doors, 12 reviewed families and frozen 19 train / 6 development / 7 test split. Rights: 29 redistributable, two local-only, one private/noncommercial. |
 | Perception | One persistent SAM3 inspection/tracking frontend; observed static fusion, explicit reference selection and externally masked Point2Pose. Identity, hinge and 150 ms freshness remain unqualified. |
 | Policy software | ACT/Diffusion, A1–A4 math/adapters, observed-input datasets, train-only normalization and checkpoint contracts. Software availability does not qualify physical execution. |
+| Cluster training | Official NVIDIA kit-less runtime and separate application environments verified on Gilbreth A100 and Gautschi H100. Bounded runtime/trainer checks do not qualify policies or migrate the custom simulator. See [[topics/cluster-training|deployment and limits]]. |
 
 ## Selected perception and decisions
 

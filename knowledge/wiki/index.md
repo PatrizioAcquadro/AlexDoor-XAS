@@ -35,6 +35,7 @@ Current technical behavior and explicitly labeled planned contracts:
 - [[topics/action-representations-and-adapters|Action Representations and Adapters]] — A1-A4 meanings and maintained execution boundaries.
 - [[topics/episode-and-dataset-contracts|Episode and Dataset Contracts]] — B1 RGB-D, observed-input policy data, atomic exports and train-only normalization.
 - [[topics/learned-policy-stack|Learned Policy Stack]] — Reusable ACT/Diffusion models, tensor training, checkpoints and explicit observation boundary.
+- [[topics/cluster-training|Official NVIDIA Cluster Training]] — Vanilla kit-less runtime, A100/H100 deployment checks and project compatibility boundaries.
 
 - [[topics/perception-model-setup|Perception Model Setup]] — Local models, isolated dependencies and supported commands.
 
