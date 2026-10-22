@@ -276,7 +276,7 @@ def test_pilot_io_rejects_cadence_changes_before_runtime_setup(
         cfg=SimpleNamespace(sim=SimpleNamespace(dt=physics_dt), decimation=decimation),
         step_dt=control_dt,
     )
-    with pytest.raises(ValueError, match="120 Hz physics and 60 Hz control"):
+    with pytest.raises(ValueError, match="120/240 Hz physics and 60 Hz control"):
         PurdueIO(env, binding=pilot_binding, robot_asset=TEST_ROBOT_REF, setup=None)
 
 
