@@ -288,6 +288,7 @@ def test_preparation_checks_and_records_the_same_source_controller_reset(
     calls = []
     env = SimpleNamespace(
         cfg=SimpleNamespace(stop_diagnostic_continuation_s=diagnostic_s),
+        step_dt=1 / 60,
         reset=lambda: calls.append("reset"),
         set_neck_target=lambda v: calls.append(("neck", v)),
     )
@@ -297,7 +298,14 @@ def test_preparation_checks_and_records_the_same_source_controller_reset(
 
     def restore(env, source, setup, path, **kwargs):
         calls.append(("restore", path.name, dict(source), kwargs))
-        return dict(conditioning_contact_force_n=[0.05], conditioned_controller=controller)
+        return dict(
+            conditioning_contact_force_n=[0.05],
+            conditioned_controller=controller,
+            conditioning=[
+                dict(time_s=(i + 1) / 60, native_force_n=[0.05] * 4, native_gap_m=[0.0] * 4)
+                for i in range(6)
+            ],
+        )
 
     monkeypatch.setattr(intermediate, "restore_hold_state", restore)
     monkeypatch.setattr(
@@ -312,7 +320,14 @@ def test_preparation_checks_and_records_the_same_source_controller_reset(
         calls.append("record")
         raise RecordingStarted
 
-    setup = SimpleNamespace(neck=[0, 0], loaded_force_n=0.02, force_limit_n=80, to_dict=lambda: {})
+    setup = SimpleNamespace(
+        neck=[0, 0],
+        loaded_force_n=0.02,
+        force_limit_n=80,
+        contact_force_window_s=0.1,
+        contact_gap_tolerance_m=0.0001,
+        to_dict=lambda: {},
+    )
     with pytest.raises(RecordingStarted):
         synthetic_probe.prepare_probe(
             env,
@@ -353,3 +368,18 @@ def test_refined_physics_preserves_control_render_and_task_time():
     for invalid in (1, 3, True, 2.5, 4.0):
         with pytest.raises(ValueError):
             configure_physics_substeps(cfg, invalid)
+
+
+@pytest.mark.parametrize("gap,loaded", [(0.0, True), (0.0002, False), (None, False)])
+def test_conditioning_uses_physical_force_window_even_when_last_tick_is_zero(gap, loaded):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, conditioning_loaded
+
+    rows = [
+        dict(time_s=(i + 1) / 60, native_force_n=[force] * 4, native_gap_m=[gap] * 4)
+        for i, force in enumerate([0.2, 0, 0.2, 0, 0.2, 0])
+    ]
+    assert conditioning_loaded(dict(conditioning=rows), ProbeSetup(), 1 / 60) == loaded
+    assert not conditioning_loaded(dict(conditioning=rows[1:]), ProbeSetup(), 1 / 60)
+    for row in rows:
+        row["native_force_n"] = [0.0] * 4
+    assert not conditioning_loaded(dict(conditioning=rows), ProbeSetup(), 1 / 60)

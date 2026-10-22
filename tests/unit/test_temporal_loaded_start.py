@@ -49,6 +49,8 @@ def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
     order = []
     env = SimpleNamespace(
         cfg=SimpleNamespace(prepared_door="door"),
+        targets=np.full((1, 9), 0.001),
+        arm_ids=list(range(7)),
         _motion_impedance=[(None, None, np.ones(1), np.ones(1))] * 7,
         capture=SimpleNamespace(sample=SimpleNamespace(joint_position=np.zeros((1, 9)))),
         contact_history=[
@@ -69,6 +71,14 @@ def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
         args[3].mkdir()
 
     monkeypatch.setattr("alexdoor_xas.qualification.synthetic_probe.prepare_probe", prepare)
+
+    def source_step(env, setup, state):
+        clock[0] += 1 / 60
+        return SimpleNamespace(origin=np.zeros(3), rot=np.eye(3))
+
+    monkeypatch.setattr(
+        "alexdoor_xas.qualification.temporal_loaded_start._source_step", source_step
+    )
     observed = [10.0]
 
     def reset():
@@ -94,8 +104,13 @@ def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
         safety_reason=lambda _: "",
         hold_step=lambda: clock.__setitem__(0, clock[0] + 1 / 60),
     )
+    initialization_commands = []
+    io.step_recorder = lambda command, goal: initialization_commands.append(io.initializing_phase)
     startup = loaded_phase_startup(env, setup, path, asset_id="door", output=tmp_path / "out")
     observation, reason = startup(observer, io)
+    assert len(initialization_commands) == round(setup.intermediate_preroll_s / io.dt)
+    assert all(initialization_commands) and not io.initializing_phase
+    np.testing.assert_array_equal(io.parked_joints, env.targets[0, :7])
     assert order == ["restore_and_stop_qualification", "reset_history", "reset_monitor"]
     assert observed[0] == 0 and observation.time_s == pytest.approx(setup.intermediate_preroll_s)
     assert len(observed) == round(setup.intermediate_preroll_s / io.dt) + 1

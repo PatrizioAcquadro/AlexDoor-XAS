@@ -255,3 +255,11 @@ admission and physical stops remain active. Initialized opening cannot establish
 full task completion: this mode always sets full-task `passed` false, and reports
 only a separate intermediate-phase outcome. See [[act-a1-first-completion]] for
 current tests, native applicability and the fixed normal-start completion panel.
+
+
+Loaded diagnostic pre-roll reproduces the maintained source controller before ACT
+handoff, recording its commands as initialization. The six-step loaded-start check
+uses the existing physical force window and current-gap gate, retaining native
+samples; it does not require a single arbitrarily chosen tick to have positive
+force. Empty startup failures remain incomplete recordings with explicit outcomes.
+The experiment page preserves original harness failures and revised native cells.

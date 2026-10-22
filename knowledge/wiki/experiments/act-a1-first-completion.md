@@ -256,3 +256,33 @@ loaded intermediate starts. The attempt inventory also retains allocated trials
 whose reports are unavailable, separately from completed physical outcomes; they
 cannot disappear from attempted denominators.20 related evaluator/stop regressions
 pass after this reporting-boundary correction.
+
+
+## Loaded initialization revision
+
+The first loaded right diagnostic executes zero ACT commands: the new harness
+replaced restored preload targets by measured q, immediately unloading the panel.
+Its source restoration/start-stop check passes, but fresh pre-roll has zero force.
+The left source alternates loaded/unloaded native intervals during its six reset
+steps; an instantaneous last-tick force check refuses before any observation.
+The empty rollout then raises an incomplete-transition error, obscuring the
+startup reason. Both allocated attempts and all raw conditioning records remain.
+These outcomes do not measure ACT's later-phase capability.
+
+The corrected initializer preserves restored controller state and runs the
+maintained material-following source controller only during genuine pre-roll.
+Its requested poses, actual targets, sensor rows and feedback are retained with
+`learned=false`; it ends before ACT dispatch. No old history is attached. Loaded
+start qualification uses the unchanged0.1s causal mean,0.02N minimum and0.1mm
+current native gap criterion across the six real conditioning steps, matching
+physical task contact semantics. Native per-substep force/gap values are now
+retained alongside the original maximum-force diagnostic. Missing support and
+excess gap still refuse; physical limits, gains and stop requirements are fixed.
+
+An empty failed initialization can record its explicit outcome while keeping the
+HDF5 recording incomplete and observation-free. It cannot claim success or discard
+existing samples. Runner results are also saved before transition finalization,
+so a recording failure cannot conceal the original execution reason.63 related
+regressions pass. Revision2 prospectively allocates exactly one right and one left
+loaded diagnostic with the SAME4,096 checkpoint and SAME source states, preserving
+both original failed/unavailable attempts. No revised native outcome is assumed.

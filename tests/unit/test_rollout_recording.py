@@ -210,3 +210,24 @@ def test_partial_storage_failure_is_not_retried_or_marked_complete(tmp_path, mon
     assert len(failures) == 1
     with h5py.File(path) as h5:
         assert not h5.attrs["complete"]
+
+
+def test_unstarted_failure_retains_empty_recording_and_cannot_claim_success(tmp_path):
+    path = tmp_path / "startup-failure.hdf5"
+    log = writer(path)
+    with pytest.raises(ValueError, match="empty_failed_initialization"):
+        log.finish_unavailable(dict(passed=True, termination="wrong"))
+    outcome = dict(
+        passed=False, termination="loaded_start_contact_not_reconstructed", learned_commands=0
+    )
+    log.finish_unavailable(outcome)
+    log.close()
+    with h5py.File(path) as h5:
+        assert not h5.attrs["complete"] and h5.attrs["initial_observation_unavailable"]
+        assert json.loads(h5["metadata"].attrs["outcome"]) == outcome
+        assert not list(h5["control"]) and not list(h5["commands"])
+    log = writer(tmp_path / "observed.hdf5")
+    log.observe(sensor(0), observation(0, 0), {})
+    with pytest.raises(ValueError, match="empty_failed_initialization"):
+        log.finish_unavailable(outcome)
+    log.close()

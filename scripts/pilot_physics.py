@@ -917,7 +917,11 @@ def rollout(env, args, protocol, robot, setup, inspection):
             kind=np.int8(kind),
             request=request,
             request_width=np.int8(width),
-            learned=np.bool_(command is not None and not reference_mode),
+            learned=np.bool_(
+                command is not None
+                and not reference_mode
+                and not getattr(io, "initializing_phase", False)
+            ),
             submitted_tool_position=np.full(3, np.nan) if goal is None else goal.origin.copy(),
             submitted_tool_rotation=np.full((3, 3), np.nan) if goal is None else goal.rot.copy(),
             stage=np.int8(-1 if stage is None else PHASES.index(stage)),
@@ -1135,20 +1139,32 @@ def rollout(env, args, protocol, robot, setup, inspection):
             episode_passed &= result.reason == "evaluated_task_complete"
         phase_passed = bool(episode_passed and args.intermediate_state)
         episode_passed &= not bool(args.intermediate_state)
-        recording.finish(
-            dict(
-                passed=episode_passed,
-                intermediate_phase_success=phase_passed,
-                full_task_eligible=not bool(args.intermediate_state or reference_mode),
-                termination=result.reason,
-                learned_commands=0 if reference_mode else result.control_steps,
-                reference_commands=result.control_steps if reference_mode else 0,
-                physical_evaluation=(
-                    "unavailable_frozen_reference" if physical_result is None else physical_result
-                ),
-                qualification=False,
-            )
+        outcome = dict(
+            passed=episode_passed,
+            intermediate_phase_success=phase_passed,
+            full_task_eligible=not bool(args.intermediate_state or reference_mode),
+            termination=result.reason,
+            learned_commands=0 if reference_mode else result.control_steps,
+            reference_commands=result.control_steps if reference_mode else 0,
+            physical_evaluation=(
+                "unavailable_frozen_reference" if physical_result is None else physical_result
+            ),
+            qualification=False,
         )
+        write_json(
+            args.output / "runner-result.json",
+            dict(
+                runner=asdict(result),
+                physical_evaluation=physical_result,
+                recording_observations=recording.count,
+            ),
+        )
+        if recording.count:
+            recording.finish(outcome)
+        else:
+            recording.finish_unavailable(outcome)
+        recording_complete = bool(recording.file.attrs["complete"])
+
     finally:
         recording.close()
         native_contacts.close()
@@ -1172,6 +1188,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
     )
     return dict(
         passed=episode_passed,
+        recording_complete=recording_complete,
         intermediate_phase_success=phase_passed,
         full_task_eligible=not bool(args.intermediate_state or reference_mode),
         intermediate_state=str(args.intermediate_state) if args.intermediate_state else None,

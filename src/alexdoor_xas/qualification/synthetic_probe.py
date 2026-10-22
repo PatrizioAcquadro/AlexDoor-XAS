@@ -349,6 +349,32 @@ def summarize_trials(trials, *, required_count=None):
     )
 
 
+def conditioning_loaded(audit, setup, dt):
+    """Use the task's existing causal force window and current native gap gate."""
+    rows = audit["conditioning"]
+    if len(rows) * dt < setup.contact_force_window_s - 1e-9:
+        return False
+    load = ContactLoad(
+        setup.contact_force_window_s, setup.loaded_force_n, setup.contact_gap_tolerance_m
+    )
+    previous, loaded = None, False
+    for row in rows:
+        t, force, gaps = row["time_s"], row["native_force_n"], row["native_gap_m"]
+        if (
+            previous is not None
+            and not np.isclose(t - previous, dt, atol=1e-9, rtol=0)
+            or not force
+            or len(force) != len(gaps)
+            or not np.isfinite(force).all()
+            or min(force) < 0
+        ):
+            return False
+        gap = max(gaps) if all(g is not None and np.isfinite(g) for g in gaps) else None
+        loaded = load.update(t, float(np.mean(force)), gap)
+        previous = t
+    return bool(loaded)
+
+
 def prepare_probe(
     env, door, setup, output, recorder, inspection, intermediate=None, *, qualify_start_stop=False
 ):
@@ -373,7 +399,7 @@ def prepare_probe(
             continue_controller=qualify_start_stop,
         )
         if qualify_start_stop:
-            if audit["conditioning_contact_force_n"][-1] < setup.loaded_force_n:
+            if not conditioning_loaded(audit, setup, env.step_dt):
                 raise ValueError("loaded_start_contact_not_reconstructed")
             from alexdoor_xas.qualification.stop import verify_stop_continuation
 
@@ -405,7 +431,7 @@ def prepare_probe(
                 continue_controller=qualify_start_stop,
             )
         if qualify_start_stop:
-            if audit["conditioning_contact_force_n"][-1] < setup.loaded_force_n:
+            if not conditioning_loaded(audit, setup, env.step_dt):
                 raise ValueError("recording_start_contact_not_reconstructed")
             intermediate.update(audit["conditioned_controller"])
         (output / "intermediate-restore.json").write_text(json.dumps(audit, indent=2) + "\n")

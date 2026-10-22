@@ -199,6 +199,15 @@ def restore_hold_state(env, state, setup, audit_path, *, continue_controller=Fal
                 door_position=array(env.door.data.joint_pos).tolist(),
                 door_velocity=array(env.door.data.joint_vel).tolist(),
                 force_n=force,
+                native_force_n=[
+                    sum(
+                        c["force_n"]
+                        for c in row["contacts"]
+                        if c["category"] in ("positive", "negative")
+                    )
+                    for row in env.contact_history
+                ],
+                native_gap_m=gaps,
                 joint_speed_rad_s=speed,
                 torque_nm=[sample.feedback.torque_nm.tolist() for sample in env.load_samples],
             )

@@ -742,3 +742,12 @@ recordings whose metadata listed cleanup as supervision. Required recorded-phase
 coverage remains distinct from required supervised transitions; absent physical
 cleanup still fails. Original broad-mask prepared files remain preserved while
 fresh task-only stores receive separately charged compatibility validation.
+
+
+Loaded ACT diagnostic initialization retains source targets/pressure and acquires
+fresh native history while the maintained source controller follows the material.
+Initialization commands are recorded separately and stop before policy dispatch;
+source truth never becomes a policy feature. Start support uses the same causal
+physical force window and gap criterion as task qualification. Empty initial
+observations remain unavailable, not synthesized. Current validation and preserved
+harness failures are in [[../experiments/act-a1-first-completion]].

@@ -265,6 +265,21 @@ class RolloutWriter:
         self.file.attrs["complete"] = True
         self.file.flush()
 
+    def finish_unavailable(self, outcome):
+        """Retain a failed initialization without inventing an initial observation."""
+        if (
+            outcome.get("passed") is not False
+            or not outcome.get("termination")
+            or outcome.get("learned_commands", 0) != 0
+            or outcome.get("reference_commands", 0) != 0
+            or self.count
+            or any(self._length(group) for group in self._pending)
+        ):
+            raise ValueError("unavailable_rollout_requires_empty_failed_initialization")
+        self.file["metadata"].attrs["outcome"] = json.dumps(outcome, allow_nan=False)
+        self.file.attrs["initial_observation_unavailable"] = True
+        self.flush()
+
     def close(self):
         if not self.file:
             return

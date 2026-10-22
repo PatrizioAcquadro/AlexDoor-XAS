@@ -8,12 +8,86 @@ import numpy as np
 from alexdoor_xas.recording.b1_runtime import array
 
 
+def _source_step(env, setup, state):
+    """Advance the maintained material-following controller during initialization."""
+    import torch
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.action.frames import ObjectFrame
+    from alexdoor_xas.qualification.synthetic_probe import (
+        hold_reference,
+        normal_contact_support,
+        push_reference,
+        tangential_compensation,
+    )
+
+    door = env.cfg.prepared_door
+    phase = str(state.get("phase", "hold"))
+    forces = [
+        sum(c["force_n"] for c in row["contacts"] if c["category"] in ("positive", "negative"))
+        for row in env.contact_history
+    ]
+    gaps = [
+        min(
+            (
+                c["separation_m"]
+                for c in row["contacts"]
+                if c["category"] in ("positive", "negative")
+            ),
+            default=None,
+        )
+        for row in env.contact_history
+    ]
+    gap = max(gaps) if all(g is not None for g in gaps) else None
+    compression = normal_contact_support(
+        float(state["compression"]),
+        max(forces),
+        setup,
+        env.step_dt,
+        target_force=setup.hold_force_n if phase == "hold" else setup.contact_load_guard_n,
+        gap_m=gap,
+    )
+    angle = float(array(env.door.data.joint_pos)[0, 0])
+    reference = (
+        push_reference(
+            float(state.get("reference_angle", 0)), angle, setup, env.step_dt, door.mechanical_stop
+        )
+        if phase == "push"
+        else hold_reference(angle, float(state["initial_lead"]), door.mechanical_stop)
+    )
+    position, rotation = door.contact_pose(
+        reference, setup.contact_fraction, setup.contact_height, compression
+    )
+    position = position + rotation @ np.asarray(state["compensation"])
+    env.command_pose(position, Rotation.from_matrix(rotation).as_quat())
+    env.step(torch.zeros((1, 6), device=env.device))
+    force = max(
+        sum(c["force_n"] for c in row["contacts"] if c["category"] in ("positive", "negative"))
+        for row in env.contact_history
+    )
+    material, frame = door.contact_pose(
+        float(array(env.door.data.joint_pos)[0, 0]), setup.contact_fraction, setup.contact_height
+    )
+    state.update(
+        compression=compression,
+        reference_angle=reference,
+        compensation=tangential_compensation(
+            np.asarray(state["compensation"]),
+            (material - array(env.tool_pose()[0])[0]) @ frame,
+            force >= setup.loaded_force_n,
+            setup,
+            env.step_dt,
+        ),
+    )
+    return ObjectFrame(position, rotation)
+
+
 def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
     """Return a startup producer; source truth is used only before policy control.
 
     Reuse the maintained state reconstruction and independent start-stop checks.
-    No old observation prefix is attached. The fresh pre-roll uses the same held
-    measured joint pose as qualified short intermediate episodes.
+    No old observation prefix is attached. Fresh pre-roll uses the maintained
+    source controller and ends before any ACT manipulation command.
     """
     state_path, output = Path(state_path), Path(output)
     with np.load(state_path, allow_pickle=False) as source:
@@ -52,6 +126,10 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
             )
         ):
             raise ValueError("Loaded source would change qualified normal-motion gains")
+        current = {
+            key: value.copy() if isinstance(value, np.ndarray) else value
+            for key, value in state.items()
+        }
         prepare_probe(
             env,
             env.cfg.prepared_door,
@@ -59,16 +137,13 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
             output,
             None,
             None,
-            {
-                key: value.copy() if isinstance(value, np.ndarray) else value
-                for key, value in state.items()
-            },
+            current,
             qualify_start_stop=True,
         )
         observer.reset()
         io.safety.reset()
         io.parked_tool = io.tool_pose()
-        io.parked_joints = array(env.capture.sample.joint_position)[0, :7].copy()
+        io.parked_joints = array(env.targets)[0, env.arm_ids].copy()
         observation = observer.update(io.observe())
         load = ContactLoad(
             setup.contact_force_window_s,
@@ -80,7 +155,14 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
         for _ in range(round(setup.intermediate_preroll_s / io.dt)):
             if reason := io.safety_reason("inspect"):
                 break
-            io.hold_step()
+            from alexdoor_xas.policies.rollout import Command
+
+            io.initializing_phase = True
+            try:
+                goal = _source_step(env, setup, current)
+                io.step_recorder(Command("pose", goal, "hold"), goal)
+            finally:
+                io.initializing_phase = False
             observation = observer.update(io.observe())
             force = [
                 sum(
@@ -137,6 +219,7 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
                     source_episode=metadata["episode_id"],
                     scope="initialization_only_not_learned_task_completion",
                     old_history_imported=False,
+                    preroll_controller="qualified_source_initialization_only",
                     rows=rows,
                     passed=not reason,
                     reason=reason,
