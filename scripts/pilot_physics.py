@@ -854,7 +854,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
             if args.intermediate_state
             else "learned_rollout_evaluation",
             intermediate_state=str(args.intermediate_state) if args.intermediate_state else None,
-            full_task_eligible=not bool(args.intermediate_state),
+            full_task_eligible=not bool(args.intermediate_state or reference_mode),
             reference_recording=str(args.reference_recording) if reference_mode else None,
             family=args.family,
             checkpoint=str(args.checkpoint),
@@ -1139,7 +1139,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
             dict(
                 passed=episode_passed,
                 intermediate_phase_success=phase_passed,
-                full_task_eligible=not bool(args.intermediate_state),
+                full_task_eligible=not bool(args.intermediate_state or reference_mode),
                 termination=result.reason,
                 learned_commands=0 if reference_mode else result.control_steps,
                 reference_commands=result.control_steps if reference_mode else 0,
@@ -1173,7 +1173,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
     return dict(
         passed=episode_passed,
         intermediate_phase_success=phase_passed,
-        full_task_eligible=not bool(args.intermediate_state),
+        full_task_eligible=not bool(args.intermediate_state or reference_mode),
         intermediate_state=str(args.intermediate_state) if args.intermediate_state else None,
         physical_evaluation=physical_result,
         runner=asdict(result),

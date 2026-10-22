@@ -249,3 +249,10 @@ Startup rejects differing saved motion gains before reconstruction; it cannot
 silently replace the authoritative normal controller. The43 related numerical
 regressions pass. This configuration check still does not qualify native loaded
 reconstruction, phase performance or recovery behavior.
+
+
+Reference replay is explicitly ineligible for learned full-task accounting, as are
+loaded intermediate starts. The attempt inventory also retains allocated trials
+whose reports are unavailable, separately from completed physical outcomes; they
+cannot disappear from attempted denominators.20 related evaluator/stop regressions
+pass after this reporting-boundary correction.
