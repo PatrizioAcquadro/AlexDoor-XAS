@@ -44,6 +44,14 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
 
         if metadata["episode_id"] not in observer.execution.policy.stats.train_episode_ids:
             raise ValueError("Loaded source is outside selected training data")
+        if len(state["stiffness"]) != len(env._motion_impedance) or any(
+            not np.array_equal(saved_k, array(stiffness))
+            or not np.array_equal(saved_d, array(damping))
+            for (_, _, stiffness, damping), saved_k, saved_d in zip(
+                env._motion_impedance, state["stiffness"], state["damping"], strict=True
+            )
+        ):
+            raise ValueError("Loaded source would change qualified normal-motion gains")
         prepare_probe(
             env,
             env.cfg.prepared_door,

@@ -17,6 +17,8 @@ def source(tmp_path):
     path = parent / "teacher/hold-state.npz"
     np.savez(
         path,
+        stiffness=np.ones((7, 1)),
+        damping=np.ones((7, 1)),
         metadata=json.dumps(
             dict(asset_id="door", split="train", episode_id="source", setup=setup.to_dict())
         ),
@@ -47,6 +49,7 @@ def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
     order = []
     env = SimpleNamespace(
         cfg=SimpleNamespace(prepared_door="door"),
+        _motion_impedance=[(None, None, np.ones(1), np.ones(1))] * 7,
         capture=SimpleNamespace(sample=SimpleNamespace(joint_position=np.zeros((1, 9)))),
         contact_history=[
             dict(
@@ -100,3 +103,16 @@ def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
     report = json.loads((tmp_path / "out/fresh-loaded-preroll.json").read_text())
     assert report["old_history_imported"] is False and report["passed"] == passes
     assert not passes or report["scope"] == "initialization_only_not_learned_task_completion"
+
+
+def test_loaded_state_cannot_replace_qualified_normal_gains(tmp_path):
+    path, setup = source(tmp_path)
+    observer = SimpleNamespace(
+        execution=SimpleNamespace(
+            policy=SimpleNamespace(stats=SimpleNamespace(train_episode_ids=("source",)))
+        )
+    )
+    env = SimpleNamespace(_motion_impedance=[(None, None, np.ones(1) * 2, np.ones(1))] * 7)
+    startup = loaded_phase_startup(env, setup, path, asset_id="door", output=tmp_path / "out")
+    with pytest.raises(ValueError, match="qualified normal-motion gains"):
+        startup(observer, None)

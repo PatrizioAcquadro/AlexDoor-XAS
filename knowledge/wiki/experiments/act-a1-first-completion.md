@@ -241,3 +241,11 @@ This early exposure is not convergence evidence or proof of missing data. At the
 first live query, seven arm positions, validity masks and image ages match the
 corresponding teacher state exactly; small rendered and feedback differences
 remain. Later behavior, not first-query equality, determines task performance.
+
+
+The loaded-source preflight confirms both nominal IDs are in the112-source train
+fit and their saved normal stiffness/damping match the qualified runtime exactly.
+Startup rejects differing saved motion gains before reconstruction; it cannot
+silently replace the authoritative normal controller. The43 related numerical
+regressions pass. This configuration check still does not qualify native loaded
+reconstruction, phase performance or recovery behavior.
