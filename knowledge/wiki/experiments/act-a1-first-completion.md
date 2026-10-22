@@ -300,3 +300,33 @@ native feedback primes the existing operational force window. No teacher geometr
 or force is substituted for observed operational evidence.64 related regressions
 pass. Revision3 fixes exactly two further cells, right then left, same checkpoint
 and source states, with every earlier failed/unavailable attempt retained.
+
+
+## Bounded nominal-transition curriculum
+
+At4,096 updates seed9101 remains0/2 from full normal starts. Right reaches40.1mm
+material error before the unchanged3s contact-acquisition budget, compared with
+149.5mm at1,024; left instead terminates at249.8mm after462 commands. Both stops
+pass without physical violations. The512/1,024/4,096 failures remain preserved.
+The original seed9103 continuation reaches2,048 on A100 (job12006518,2,832s whole
+allocation charge); fresh full evaluation is waiting for the unrelated local GPU
+workload. No checkpoint has completed the task.
+
+One prospective intervention addresses sparse nominal initiation exposure while
+the simulator GPU is unavailable: resume seed9101 from4,096 to6,144 on Gilbreth.
+Half of each32-item batch uses the two original complete nominal sources equally,
+then uniformly chooses initiation (first1s of admitted decisions), approach,
+contact, transitions or release. The other half keeps the original four-door,
+phase/source-balanced112-source sampler, including valid recovery supervision.
+Every item retains its genuine4s history and contiguous12 target rows. Narrow
+short-task sources cannot be declared complete focal cycles. The original sampler
+remains the default, with no extra RNG calls in that path.
+
+Normalization remains the original selected112-source train fit. No label,
+observation, model, optimizer, learning rate, physical/runtime parameter or final
+panel changes. `--focus-episode` records explicit source IDs and recipe
+`primary-nominal-critical-v2` in the run metadata. This is one bounded sampling
+hypothesis, not a parameter search or new collection.13 related numerical tests
+pass. Select or extend using fresh full task progress/completion on both fixed
+normal conditions; imitation loss remains diagnostic. If the same file completes
+both, run all four predefined development conditions and report every outcome.

@@ -40,6 +40,12 @@ def main():
     parser.add_argument("--wall-seconds", type=float, default=900)
     parser.add_argument("--normalization", type=Path)
     parser.add_argument("--resume", type=Path)
+    parser.add_argument(
+        "--focus-episode",
+        action="append",
+        default=[],
+        help="Half-batch focus on an admitted full-cycle train episode; repeatable",
+    )
     args = parser.parse_args()
     started = time.monotonic()
     if args.index_handoff:
@@ -51,7 +57,9 @@ def main():
         parser.error("Positive limits and --output required")
     args.output.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
-    train = TemporalTrainingSet(args.manifest, data_root=args.data_root)
+    train = TemporalTrainingSet(
+        args.manifest, data_root=args.data_root, focus_episode_ids=args.focus_episode
+    )
     dev = TemporalTrainingSet(args.manifest, split="development", data_root=args.data_root)
     stats = (
         DatasetNormStats.from_dict(json.loads(args.normalization.read_text()))
@@ -84,7 +92,8 @@ def main():
         start_epoch_s=time.time(),
         initial_step=step,
         updates_this_run=0,
-        recipe="door-phase-transition-recovery-v1",
+        recipe=train.recipe,
+        focus_episode_ids=list(train.focus_episode_ids),
         batch_size=args.batch_size,
         final_test_opened=False,
         learned_success=False,

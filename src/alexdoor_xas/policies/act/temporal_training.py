@@ -75,12 +75,33 @@ def build_training_index(handoff, destination):
 
 
 class TemporalTrainingSet:
-    def __init__(self, manifest, *, split="train", data_root=None):
+    def __init__(self, manifest, *, split="train", data_root=None, focus_episode_ids=()):
         if split not in ("train", "development"):
             raise ValueError("Final test remains sealed")
         self.records = [
             r for r in json.loads(Path(manifest).read_text())["records"] if r["split"] == split
         ]
+        self.focus_episode_ids = tuple(focus_episode_ids)
+        selected = {r["episode_id"]: r for r in self.records}
+        if self.focus_episode_ids and (
+            split != "train"
+            or len(set(self.focus_episode_ids)) != len(self.focus_episode_ids)
+            or not set(self.focus_episode_ids) <= set(selected)
+        ):
+            raise ValueError("Focus requires unique selected training episodes")
+        required = ("approach", "contact", "transition", "release")
+        if any(
+            not selected[key].get("rows")
+            or any(not selected[key]["strata"].get(name) for name in required)
+            for key in self.focus_episode_ids
+        ):
+            raise ValueError("Full-cycle focus requires admitted initiation/contact/release scope")
+        self.recipe = (
+            "primary-nominal-critical-v2"
+            if self.focus_episode_ids
+            else "door-phase-transition-recovery-v1"
+        )
+        self.focus = {}
         self.episodes = []
         self.doors = defaultdict(lambda: defaultdict(list))
         for i, record in enumerate(self.records):
@@ -94,20 +115,35 @@ class TemporalTrainingSet:
             self.episodes.append(ep)
             for name in record["strata"]:
                 self.doors[record["asset_id"]][name].append(i)
+            if record["episode_id"] in self.focus_episode_ids:
+                rows = np.asarray(record["rows"])
+                initiation = rows[ep.times[rows] < ep.times[rows[0]] + 1.0 - 1e-9].tolist()
+                self.focus[i] = dict(
+                    initiation=initiation, **{name: record["strata"][name] for name in required}
+                )
         if not self.episodes:
             raise ValueError("Empty split")
 
     def batch(self, seed, *, batch_size=32, stats=None):
         if batch_size < 4 or batch_size % 4:
             raise ValueError("Batch size must be a positive multiple of four")
+        if self.focus and batch_size % 8:
+            raise ValueError("Half-batch focus requires a multiple of eight")
         rng = np.random.default_rng(seed)
         selections = defaultdict(list)
         doors = list(self.doors)
-        for _ in range(batch_size // 4):
-            door = self.doors[doors[int(rng.integers(len(doors)))]]
-            name = list(door)[int(rng.integers(len(door)))]
-            index = int(rng.choice(door[name]))
-            selections[index].extend(rng.choice(self.records[index]["strata"][name], 4).tolist())
+        for block in range(batch_size // 4):
+            if self.focus and block < batch_size // 8:
+                index = int(rng.choice(list(self.focus)))
+                strata = self.focus[index]
+                name = list(strata)[int(rng.integers(len(strata)))]
+                rows = strata[name]
+            else:
+                door = self.doors[doors[int(rng.integers(len(doors)))]]
+                name = list(door)[int(rng.integers(len(door)))]
+                index = int(rng.choice(door[name]))
+                rows = self.records[index]["strata"][name]
+            selections[index].extend(rng.choice(rows, 4).tolist())
         batch = mixed_temporal_batch((self.episodes[i], rows) for i, rows in selections.items())
         return normalize_temporal_batch(batch, stats) if stats is not None else batch
 

@@ -13,9 +13,7 @@ from alexdoor_xas.qualification.pilot_evaluation import PilotEvaluation
 from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
 
 
-def test_door_sampling_ignores_duration_and_preserves_source_rows(
-    request, tmp_path, monkeypatch
-):
+def test_door_sampling_ignores_duration_and_preserves_source_rows(request, tmp_path, monkeypatch):
     path, cfg = request.getfixturevalue("prepared_episode")
     second = tmp_path / "short.hdf5"
     shutil.copyfile(path, second)
@@ -97,3 +95,69 @@ def test_four_native_samples_and_real_stabilization_required():
     assert not score.result()["stabilized"] and not score.result()["task_success"]
     with pytest.raises(ValueError, match="native"):
         score.update(row(352 / 60))
+
+
+def test_half_batch_focus_retains_broad_data_and_admitted_sequence_starts(
+    request, tmp_path, monkeypatch
+):
+    path, cfg = request.getfixturevalue("prepared_episode")
+    records = []
+    for i in range(4):
+        dest = tmp_path / f"episode{i}.hdf5"
+        shutil.copyfile(path, dest)
+        identity = f"episode{i}"
+        with h5py.File(dest, "r+") as file:
+            file.attrs["episode"] = json.dumps(
+                dict(episode_id=identity, split="train", control_dt=1 / 60)
+            )
+        records.append(
+            dict(
+                path=str(dest),
+                config=cfg.to_dict(),
+                split="train",
+                asset_id=f"door{i}",
+                episode_id=identity,
+                rows=list(range(230, 299)),
+                strata=dict(
+                    approach=list(range(230, 241)),
+                    contact=list(range(241, 251)),
+                    transition=[240, 241, 269, 270],
+                    release=list(range(270, 286)),
+                    recovery=[250, 251],
+                ),
+            )
+        )
+    manifest = tmp_path / "focus.json"
+    manifest.write_text(json.dumps(dict(records=records)))
+    selected = []
+    monkeypatch.setattr(
+        temporal_training,
+        "mixed_temporal_batch",
+        lambda pairs: (
+            selected.extend((e.builder.episode_id, tuple(rows)) for e, rows in pairs) or {}
+        ),
+    )
+    data = temporal_training.TemporalTrainingSet(
+        manifest, focus_episode_ids=["episode0", "episode1"]
+    )
+    try:
+        for seed in range(256):
+            data.batch(seed, batch_size=32)
+        counts = {
+            name: sum(len(rows) for identity, rows in selected if identity == name)
+            for name in [f"episode{i}" for i in range(4)]
+        }
+        assert 0.72 < (counts["episode0"] + counts["episode1"]) / sum(counts.values()) < 0.78
+        assert counts["episode2"] and counts["episode3"]
+        assert all(set(rows) <= set(range(230, 299)) for _, rows in selected)
+        assert data.recipe == "primary-nominal-critical-v2"
+        with pytest.raises(ValueError, match="multiple of eight"):
+            data.batch(0, batch_size=4)
+    finally:
+        data.close()
+    with pytest.raises(ValueError, match="selected training"):
+        temporal_training.TemporalTrainingSet(manifest, focus_episode_ids=["missing"])
+    records[0]["strata"].pop("release")
+    manifest.write_text(json.dumps(dict(records=records)))
+    with pytest.raises(ValueError, match="Full-cycle focus"):
+        temporal_training.TemporalTrainingSet(manifest, focus_episode_ids=["episode0"])

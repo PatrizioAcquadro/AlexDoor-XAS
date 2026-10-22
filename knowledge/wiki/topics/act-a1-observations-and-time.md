@@ -751,3 +751,12 @@ source truth never becomes a policy feature. Start support uses the same causal
 physical force window and gap criterion as task qualification. Empty initial
 observations remain unavailable, not synthesized. Current validation and preserved
 harness failures are in [[../experiments/act-a1-first-completion]].
+
+
+An optional primary-nominal curriculum reserves half the training batch for
+explicit admitted complete source IDs and critical initiation/contact/transition/
+release strata. The remaining half preserves the full door/phase/recovery sampler;
+all actual histories, target chunks, eligibility masks and train-only statistics
+remain. This changes sampling only and leaves the original default intact.
+The bounded hypothesis and task-based acceptance are in
+[[../experiments/act-a1-first-completion]].
