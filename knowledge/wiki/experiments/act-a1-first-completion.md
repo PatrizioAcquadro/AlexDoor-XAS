@@ -112,3 +112,26 @@ file onto CUDA would make `torch.set_rng_state` reject the CPU RNG state. An act
 CUDA continuation from128 to129 updates passes, with all saved AdamW counters at129,
 112 unchanged train normalization identities and identical checkpoint reload. This
 one additional engineering update is charged and is not a new task evaluation.
+
+## Initial training placement
+
+All 120 selected prepared stores (112 train, eight development) were copied
+losslessly and verified on both remote hosts. Gilbreth jobs `12005026` and
+`12005027` run independent seeds 9101/9102 on A100 80 GB GPUs, initially targeting
+1,024 updates with checkpoint 512. Their measured full update times are about
+2.6–2.8 s, including input loading. The local pilot measured about 0.8–1.0 s.
+
+An unrelated Blackwell workload acquired its existing GPU lock before launch.
+Seed 9103 waited on that lock for 900 s without a GPU allocation; the lock remained
+held and the wait ended without a training start. The permitted placement
+adaptation uses the idle local RTX 4090 for seed 9103 with identical data, model,
+normalization, optimizer and sampling. Its first 512 updates precede native task
+evaluation, then the same optimizer/RNG can continue to the initial 1,024 target.
+The RNG-loading fix does not alter the initial learning recipe.
+
+Only newly created Blackwell input replicas were retired after verifying no
+training/queue process remained. Original qualified stores and the byte-verified
+Gilbreth copy remain; all results, failures, code and transfer records are kept.
+This frees 38,684,943,269 bytes under the cumulative retained-storage cap. No
+training cost or prior outcome is refunded. Exact placement, commands and costs
+are in `outputs/evidence/act-a1-first-completion-20261022/`.

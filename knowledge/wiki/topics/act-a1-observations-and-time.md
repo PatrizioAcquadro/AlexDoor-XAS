@@ -7,9 +7,10 @@ right/left hold/release continuations. The single existing-left initial-posture
 pilot also qualifies one teacher recording, adding early approach variation while
 acquisition geometry converges; see [[act-a1-four-door-expansion]]. Recovery of the
 intentionally interrupted prefix remains diagnostic.
-Actual prepared data pass CUDA forward/backward with unchanged weights and zero
-optimizer updates. This is an explicit observation/checkpoint recipe alongside
-the maintained legacy path; no ACT training or learned task success is claimed.
+Qualification checks used actual prepared data, unchanged weights and zero
+optimizer updates. The separately authorized [[act-a1-first-completion|learning
+and execution experiment]] now uses the maintained temporal training and native
+rollout entry points. No learned full-task completion has been established.
 Historical recordings, checkpoints, physical/admission/stop requirements and the
 sealed final test remain preserved.
 
@@ -23,7 +24,8 @@ only; release and ordinary stabilization remain fully recorded diagnostic cleanu
 All counted data pass bounded CUDA forward/backward checks with unchanged initialized
 weights, frozen train-only normalization and zero optimizer updates. The linked
 campaign owns exact scope, recovery magnitudes, compatibility limits and resource
-costs. Collection is closed; no policy learning or final-test access is authorized.
+costs. Collection remains closed. Policy learning and guarded evaluation are
+separately authorized by [[act-a1-first-completion]]; final test remains sealed.
 
 The objective remains physical contact acquisition, required opening, hold,
 release and normal stabilization. Offline agreement and teacher imitation do
@@ -73,6 +75,16 @@ flowchart LR
 - [Temporal ACT](../../../src/alexdoor_xas/policies/act/temporal.py):
   `temporal_model`, `fit_temporal_stats`, `normalize_temporal_batch`,
   `save_temporal_policy`, `TemporalActPolicy.from_checkpoint` and `predict`.
+- [Training](../../../scripts/train_temporal_act.py) and
+  [sampling](../../../src/alexdoor_xas/policies/act/temporal_training.py): index the
+  admitted handoff, balance doors then phase/transition/recovery strata, fit only
+  selected training data and save self-contained checkpoints plus optimizer/RNG
+  state. `--resume` preserves step counts and requires the same seed/statistics.
+- [Native event ingress](../../../src/alexdoor_xas/policies/act/native_temporal.py)
+  and [simulator launcher](../../../scripts/pilot_physics.py): explicit
+  `rollout --temporal-act` uses fresh measured RGB-D/q/dq/verified feedback and
+  acknowledged controller targets. Qualified physics is 240 Hz; geometry,
+  per-row admission, ordinary control and independent stopping remain active.
 - [Native recorder](../../../src/alexdoor_xas/recording/temporal.py):
   `TemporalRecorder.state/capture/feedback/command/annotate/finish/close`.
 - [Cost harness](../../../scripts/benchmark_temporal_act.py): saved-input
