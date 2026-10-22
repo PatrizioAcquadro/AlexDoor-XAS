@@ -57,6 +57,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/act-a1-first-completion|ACT A1 First Learned Completion]] — Authorized temporal training, guarded execution and fixed two-direction completion experiment.
+
 - [[experiments/b1-data-pipeline|Bounded B1 Data Pipeline]] — Saved-data streaming preparation, lossless frame reuse, bounded loading and unchanged ACT consumer throughput.
 
 - [[experiments/b1-act-a1-calibration-stopping|ACT A1 Calibration and Stopping]] — Side/load support, corrected loaded stops, independent verification and preserved failures.

@@ -1,5 +1,14 @@
 # Project Status
 
+## ACT A1 first learned completion — active
+
+The user authorized temporal ACT A1 training and genuine closed-loop evaluation
+from the completed qualified corpus. The short local pilot has completed128
+updates and identical checkpoint reload; native learned execution is active.
+No complete task success has been established. Two-direction completion and the
+fixed development panel remain required. Original panels, failures and cumulative
+resource charges remain preserved. See [[experiments/act-a1-first-completion]].
+
 Current as of 2026-10-21. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
 6.1 and final matched-data production remain open. The sealed test stays closed.

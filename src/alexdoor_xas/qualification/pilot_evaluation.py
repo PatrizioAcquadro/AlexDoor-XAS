@@ -1,5 +1,7 @@
 """Independent learned-pilot scoring; no result is supplied to deployed control."""
 
+from collections import deque
+
 import numpy as np
 from scipy.spatial.transform import Rotation
 
@@ -13,9 +15,18 @@ class PilotEvaluation:
     stop callback, policy input or access to the operational admission producer.
     """
 
-    def __init__(self, setup, expert_degrees, control_dt):
+    def __init__(
+        self, setup, expert_degrees, control_dt, *, native_samples=2, require_stabilization=False
+    ):
         if not np.isfinite(expert_degrees) or expert_degrees <= 0:
             raise ValueError("Missing frozen matched expert reference")
+        if not isinstance(native_samples, int) or native_samples < 1:
+            raise ValueError("Invalid native physics sample count")
+        self.native_samples = native_samples
+        self.require_stabilization = require_stabilization
+        self.stabilized = False
+        self.release_time = None
+        self.tail = deque(maxlen=round(setup.stabilization_window_s / control_dt))
         self.setup, self.dt = setup, control_dt
         self.reference_deg = float(expert_degrees)
         self.required_angle = np.deg2rad(0.8 * expert_degrees)
@@ -41,8 +52,16 @@ class PilotEvaluation:
         self.last_time = t
         force = row["native_force_n"]
         gaps = row["native_gap_m"]
-        if len(force) != 2 or len(gaps) != 2 or not np.isfinite(force).all():
-            raise ValueError("Missing two native physical samples")
+        if (
+            len(force) != self.native_samples
+            or len(gaps) != self.native_samples
+            or not np.isfinite(force).all()
+        ):
+            raise ValueError(
+                "Missing two native physical samples"
+                if self.native_samples == 2
+                else "Missing declared native physical samples"
+            )
         gap = max(gaps) if all(v is not None for v in gaps) else None
         loaded = self.load.update(t, float(np.mean(force)), gap)
         self.peak_force_n = max(self.peak_force_n, max(force, default=0.0))
@@ -84,7 +103,30 @@ class PilotEvaluation:
         )
         if self.released and loaded:
             self.violations.add("recontact_after_release")
+        if released_now and not self.released:
+            self.release_time = t
         self.released |= released_now
+        if self.require_stabilization and self.released:
+            self.tail.append(dict(row, loaded=loaded))
+            self.stabilized = bool(
+                t - self.release_time >= self.setup.stabilization_min_s - 1e-9
+                and len(self.tail) * self.dt >= self.setup.stabilization_window_s - 1e-9
+                and all(
+                    r["learned_command"]
+                    and not r["physical_violations"]
+                    and not r["loaded"]
+                    and r["surface_separation_m"] is not None
+                    and r["surface_separation_m"] >= 0.01
+                    for r in self.tail
+                )
+                and max(r["actual_joint_speed_peak_rad_s"] for r in self.tail)
+                <= self.setup.max_joint_speed * self.dt / self.setup.stabilization_window_s
+                and max(abs(r["door_speed_rad_s"]) for r in self.tail)
+                <= np.deg2rad(self.setup.tie_deg) / self.setup.stabilization_window_s
+                and np.linalg.norm(np.ptp([r["tool_position"] for r in self.tail], axis=0))
+                <= self.setup.material_drift_guard_m
+            )
+
         if (
             self.was_loaded
             and not loaded
@@ -106,6 +148,7 @@ class PilotEvaluation:
             and self.released
             and not self.violations
             and self.contact_losses == 0
+            and (not self.require_stabilization or self.stabilized)
         )
         return dict(
             task_success=bool(self.learned_commands and not self.reference_commands and complete),
@@ -118,6 +161,8 @@ class PilotEvaluation:
             expert_reference_deg=self.reference_deg,
             controlled_fraction_of_expert=float(np.rad2deg(angle) / self.reference_deg),
             hold_valid=self.hold_valid,
+            stabilization_required=self.require_stabilization,
+            stabilized=self.stabilized,
             released=self.released,
             release_attempted=self.release_attempted,
             contact_losses=self.contact_losses,
@@ -178,6 +223,11 @@ def physical_row(
     return dict(
         time_s=float(time_s),
         opening_angle_rad=abs(angle),
+        door_speed_rad_s=float(array(env.door.data.joint_vel)[0, 0]),
+        actual_joint_speed_peak_rad_s=max(
+            (float(np.max(abs(s.dq))) for s in env.load_samples), default=0.0
+        ),
+        tool_position=position.tolist(),
         native_force_n=force,
         native_gap_m=gaps,
         physical_violations=sorted(set(violations)),

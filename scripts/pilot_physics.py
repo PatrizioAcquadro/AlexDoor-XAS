@@ -153,6 +153,9 @@ def main(argv=None):
     parser.add_argument("--space", choices=("A1_joint_delta", "A2_ee_delta"))
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument(
+        "--temporal-act", action="store_true", help="Native causal temporal ACT A1 checkpoint"
+    )
+    parser.add_argument(
         "--reference-recording",
         type=Path,
         help="Diagnostic A1 command replay through the same operational checks; no learned success",
@@ -174,6 +177,10 @@ def main(argv=None):
         help="Historical recipe identity; must agree with the protocol and checkpoint",
     )
     args = parser.parse_args(argv)
+    if args.temporal_act and (
+        args.mode != "rollout" or args.family != "act" or args.reference_recording
+    ):
+        parser.error("Temporal ACT requires learned ACT rollout without reference replay")
     if args.screen_initial_state and (args.mode != "collect" or args.intermediate_state):
         parser.error("Initial screening requires closed-door collection")
     if args.reference_recording is not None and (args.mode != "rollout" or args.family != "act"):
@@ -750,17 +757,46 @@ def rollout(env, args, protocol, robot, setup, inspection):
         depth_interval_m=(env.capture.near_m, env.capture.far_m),
         recipe=args.recipe,
     )
-    policy = B1Policy.from_checkpoint(
-        args.checkpoint,
-        args.family,
-        binding=binding,
-        runtime_asset=robot,
-        device="cuda:0",
-        num_inference_steps=protocol["ddim_steps"],
-    )
-    observer, io, geometry, motion, load_log, contact_log = observed_pilot_runtime(
-        env, binding, robot, setup, args.operational_recipe, args.output, policy.action_space
-    )
+    if args.temporal_act:
+        from alexdoor_xas.action.spaces import A1_JOINT_DELTA
+        from alexdoor_xas.policies.act.execution import temporal_a1_runner
+        from alexdoor_xas.policies.act.native_temporal import NativeTemporalEvents
+        from alexdoor_xas.policies.temporal import TemporalConfig
+        from alexdoor_xas.recording.teacher import simulated_feedback_contract
+
+        config = TemporalConfig(
+            static_time_s=float(inspection["waypoints"][-1][0]),
+            depth_interval_m=(env.capture.near_m, env.capture.far_m),
+        )
+        if env.cfg.decimation != 4:
+            raise ValueError("Temporal learned evaluation requires qualified 240 Hz physics")
+        observer, io, geometry, motion, load_log, contact_log = observed_pilot_runtime(
+            env, binding, robot, setup, args.operational_recipe, args.output, A1_JOINT_DELTA
+        )
+        events = NativeTemporalEvents(env, config)
+        runner = temporal_a1_runner(
+            args.checkpoint,
+            observer,
+            io,
+            config=config,
+            episode_id=args.output.name,
+            events=events,
+            feedback_contract=simulated_feedback_contract(env),
+            admission_source=motion,
+        )
+        observer, policy = runner.observer, runner.policy
+    else:
+        policy = B1Policy.from_checkpoint(
+            args.checkpoint,
+            args.family,
+            binding=binding,
+            runtime_asset=robot,
+            device="cuda:0",
+            num_inference_steps=protocol["ddim_steps"],
+        )
+        observer, io, geometry, motion, load_log, contact_log = observed_pilot_runtime(
+            env, binding, robot, setup, args.operational_recipe, args.output, policy.action_space
+        )
     reference_mode = args.reference_recording is not None
     if reference_mode:
         import h5py
@@ -824,7 +860,13 @@ def rollout(env, args, protocol, robot, setup, inspection):
             or reference.get("criteria_unchanged") is not True
         ):
             raise ValueError("Independent reference differs from the frozen matched pilot")
-        evaluation = PilotEvaluation(setup, reference["theta_expert_d"], io.dt)
+        evaluation = PilotEvaluation(
+            setup,
+            reference["theta_expert_d"],
+            io.dt,
+            native_samples=env.cfg.decimation,
+            require_stabilization=args.temporal_act,
+        )
 
     recording.file["commands"].attrs["kind_codes"] = json.dumps(
         dict(inspection_hold=0, joints=1, delta=2, pose=3)
@@ -1004,9 +1046,10 @@ def rollout(env, args, protocol, robot, setup, inspection):
 
     io.hold_step = measured_hold
     observer.update = measured_update
-    predict, prediction_ms = (None if reference_mode else policy.predict), []
+    prediction_policy = policy.policy if args.temporal_act else policy
+    predict, prediction_ms = (None if reference_mode else prediction_policy.predict), []
 
-    def measured_predict(features):
+    def measured_predict(features, **options):
         # Preserve the actual causal vector before inference, even if it fails.
         # These diagnostic files never feed the policy, admission or controller.
         first = not prediction_ms
@@ -1014,7 +1057,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
             sample = env.capture.sample
             np.savez_compressed(
                 args.output / "first-policy-input.npz",
-                features=features,
+                **(features["obs"] if args.temporal_act else dict(features=features)),
                 time_s=np.float64(sample.time_s),
                 frame=np.int64(sample.frame),
             )
@@ -1029,27 +1072,30 @@ def rollout(env, args, protocol, robot, setup, inspection):
                     inference_mode=torch.is_inference_mode_enabled(),
                     grad_enabled=torch.is_grad_enabled(),
                     cuda_autocast=torch.is_autocast_enabled("cuda"),
-                    features_dtype=str(np.asarray(features).dtype),
+                    features_dtype="temporal_dict"
+                    if args.temporal_act
+                    else str(np.asarray(features).dtype),
                     rgb_stride=list(sample.rgb.stride()),
                     depth_stride=list(sample.depth_m.stride()),
                 ),
             )
         begin = perf_counter()
-        chunk = predict(features)
+        chunk = predict(features, **options)
         prediction_ms.append((perf_counter() - begin) * 1000)
         if first:
             np.save(args.output / "first-policy-prediction.npy", chunk, allow_pickle=False)
         return chunk
 
     if not reference_mode:
-        policy.predict = measured_predict
-    runner = B1Runner(
-        policy,
-        observer,
-        io,
-        n_action_steps=None if reference_mode else protocol["replan_ticks"],
-        admission_source=motion,
-    )
+        prediction_policy.predict = measured_predict
+    if not args.temporal_act:
+        runner = B1Runner(
+            policy,
+            observer,
+            io,
+            n_action_steps=None if reference_mode else protocol["replan_ticks"],
+            admission_source=motion,
+        )
     try:
         result = runner.run(
             max_ticks=(policy.control_ticks if reference_mode else protocol["rollout_max_ticks"]),
