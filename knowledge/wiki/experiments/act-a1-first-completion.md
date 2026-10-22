@@ -135,3 +135,29 @@ Gilbreth copy remain; all results, failures, code and transfer records are kept.
 This frees 38,684,943,269 bytes under the cumulative retained-storage cap. No
 training cost or prior outcome is refunded. Exact placement, commands and costs
 are in `outputs/evidence/act-a1-first-completion-20261022/`.
+
+## Initial 1,024-update tranche
+
+Seeds 9101/9102 complete 1,024 updates on A100, taking 2,854.289/2,812.590 s of
+Python process time. Slurm extern lifetimes are 2,897/2,856 s; charge the maximum
+whole allocation plus five seconds each, totaling 5,763 remote GPU seconds.
+Seed 9103 completes 512+512 updates on RTX 4090 in 377.119+356.060 s of process
+time, preserving AdamW/RNG state. All checkpoints retain the same model, robot
+identity and 112-source training-only statistics. Final test remains sealed.
+
+At checkpoint 512, seed 9103 has 0/2 full nominal completions: right 2,062 commands
+then prospective position/stop support refusal; left 467 commands then verified
+load-domain refusal. Neither acquires contact; both independent2+4s stops pass
+without physical violations. The right future shoulder-Z interval exceeds the
+main empirical minimum by20.7microradians; this is not evidence of physical danger.
+The policy approach is also slow and differs from the nominal teacher path. No
+calibration or physical threshold is enlarged to accept this checkpoint.
+
+A fixed saved-input diagnostic evaluates96 qualified intermediate source states
+across approach/contact/push/hold/release/stabilization/transitions/recovery on all
+three1024 checkpoints (288 CUDA queries,zero updates). Original causal histories
+and eligibility masks remain; future labels are excluded from policy queries.
+This measures action errors only,not simulated phase completion. Overall action
+magnitudes are not uniformly collapsed; release errors remain comparatively large.
+The physical comparison uses fixed seed order9101/9102/9103 on both predeclared
+normal starts and selects primarily by actual task completion/progress.

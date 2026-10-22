@@ -8,8 +8,7 @@ pilot also qualifies one teacher recording, adding early approach variation whil
 acquisition geometry converges; see [[act-a1-four-door-expansion]]. Recovery of the
 intentionally interrupted prefix remains diagnostic.
 Qualification checks used actual prepared data, unchanged weights and zero
-optimizer updates. The separately authorized [[act-a1-first-completion|learning
-and execution experiment]] now uses the maintained temporal training and native
+optimizer updates. The separately authorized [[act-a1-first-completion|learning and execution experiment]] now uses the maintained temporal training and native
 rollout entry points. No learned full-task completion has been established.
 Historical recordings, checkpoints, physical/admission/stop requirements and the
 sealed final test remain preserved.

@@ -6,7 +6,8 @@ The user authorized temporal ACT A1 training and genuine closed-loop evaluation
 from the completed qualified corpus. The short local pilot completed128 updates and identical checkpoint reload.
 Both full-start attempts failed before contact. One separately validated
 linear-aging accounting correction removes a duplicated uncertainty charge.
-Two A100 seed runs and one local RTX 4090 seed run are active; the planned
+Two A100 seed runs and one local RTX 4090 seed run completed1,024 updates each.
+The complete native checkpoint comparison is active; the planned
 Blackwell run could not acquire the unrelated workload GPU lock within 15 minutes.
 No complete task success has been established. Two-direction completion and the
 fixed development panel remain required. Original panels, failures and cumulative
