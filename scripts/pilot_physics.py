@@ -786,7 +786,14 @@ def rollout(env, args, protocol, robot, setup, inspection):
         if env.cfg.decimation != 4:
             raise ValueError("Temporal learned evaluation requires qualified 240 Hz physics")
         observer, io, geometry, motion, load_log, contact_log = observed_pilot_runtime(
-            env, binding, robot, setup, args.operational_recipe, args.output, A1_JOINT_DELTA
+            env,
+            binding,
+            robot,
+            setup,
+            args.operational_recipe,
+            args.output,
+            A1_JOINT_DELTA,
+            initialization_s=setup.intermediate_preroll_s if args.intermediate_state else None,
         )
         events = NativeTemporalEvents(env, config)
         runner = temporal_a1_runner(

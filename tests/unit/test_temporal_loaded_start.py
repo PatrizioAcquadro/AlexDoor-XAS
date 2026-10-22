@@ -131,3 +131,27 @@ def test_loaded_state_cannot_replace_qualified_normal_gains(tmp_path):
     startup = loaded_phase_startup(env, setup, path, asset_id="door", output=tmp_path / "out")
     with pytest.raises(ValueError, match="qualified normal-motion gains"):
         startup(observer, None)
+
+
+def test_loaded_observation_schedule_retains_all_gates_and_original_workspace_times():
+    from alexdoor_xas.perception.provider import PrototypeRecipe
+    from alexdoor_xas.policies.pilot_runtime import loaded_observation_recipe
+
+    config = dict(
+        scan_fusion="object-v1",
+        inspection=dict(sample_times_s=[5, 10, 15, 20, 25]),
+        physical_and_observation_limits=dict(gap=0.0001, position=0.01),
+    )
+    recipe = PrototypeRecipe(json.dumps(config))
+    assert loaded_observation_recipe(recipe, None) is recipe
+    loaded = loaded_observation_recipe(recipe, 1.0)
+    np.testing.assert_allclose(
+        loaded.config["inspection"]["sample_times_s"], [0, 0.2, 0.4, 0.6, 0.8]
+    )
+    assert (
+        loaded.config["physical_and_observation_limits"]
+        == config["physical_and_observation_limits"]
+    )
+    assert recipe.config == config
+    with pytest.raises(ValueError, match="all inspection captures"):
+        loaded_observation_recipe(recipe, 0.5)

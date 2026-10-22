@@ -164,6 +164,11 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
             finally:
                 io.initializing_phase = False
             observation = observer.update(io.observe())
+            local = getattr(getattr(observation, "estimate", None), "local", None)
+            if local is not None and local.selection is not None and io.load_source is not None:
+                # Prime the same operational force window from actual native feedback.
+                measured = io.load_source(io, io.robot_feedback())
+                io.safety.checks.contact_monitor.contact_load(measured, observation.time_s)
             force = [
                 sum(
                     c["force_n"] for c in r["contacts"] if c["category"] in ("positive", "negative")

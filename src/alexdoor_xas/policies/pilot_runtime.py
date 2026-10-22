@@ -687,7 +687,24 @@ class PilotMotionEvidence:
         )
 
 
-def observed_pilot_runtime(env, binding, robot_asset, setup, config_path, output, action_space):
+def loaded_observation_recipe(recipe, preroll_s):
+    """Schedule genuine loaded-start captures; leave workspace calibration alone."""
+    from alexdoor_xas.perception.provider import PrototypeRecipe
+
+    if preroll_s is None:
+        return recipe
+    config = recipe.config
+    count = len(config["inspection"]["sample_times_s"])
+    last = float(preroll_s) - 0.2
+    if count < 2 or not np.isfinite(last) or last < (count - 1) * 0.1 - 1e-9:
+        raise ValueError("Loaded pre-roll needs all inspection captures plus fresh tracking")
+    config["inspection"]["sample_times_s"] = np.linspace(0.0, last, count).tolist()
+    return PrototypeRecipe(json.dumps(config, sort_keys=True, allow_nan=False))
+
+
+def observed_pilot_runtime(
+    env, binding, robot_asset, setup, config_path, output, action_space, *, initialization_s=None
+):
     """Build real sensing/load/contact/control inputs from a measured recipe."""
     from alexdoor_xas.perception.contact import ContactMonitorConfig, ObservedContactMonitor
     from alexdoor_xas.perception.load import LoadCalibration, PurdueLoadSource
@@ -725,8 +742,22 @@ def observed_pilot_runtime(env, binding, robot_asset, setup, config_path, output
             config["camera_bound"],
         )
 
+    live_recipe = loaded_observation_recipe(recipe, initialization_s)
+    if initialization_s is not None:
+        (Path(output) / "observed-initialization.json").write_text(
+            json.dumps(
+                dict(
+                    scope="fresh_loaded_state_acquisition_only",
+                    workspace_sample_times_s=recipe.config["inspection"]["sample_times_s"],
+                    live_sample_times_s=live_recipe.config["inspection"]["sample_times_s"],
+                    limits_and_calibration_unchanged=True,
+                ),
+                indent=2,
+            )
+            + "\n"
+        )
     geometry = session_provider(
-        recipe,
+        live_recipe,
         config["perception_models"],
         calibration,
         Path(output) / "perception",

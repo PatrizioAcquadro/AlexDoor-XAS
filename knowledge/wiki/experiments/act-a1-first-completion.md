@@ -286,3 +286,17 @@ so a recording failure cannot conceal the original execution reason.63 related
 regressions pass. Revision2 prospectively allocates exactly one right and one left
 loaded diagnostic with the SAME4,096 checkpoint and SAME source states, preserving
 both original failed/unavailable attempts. No revised native outcome is assumed.
+
+
+Revision2 passes both fresh loaded pre-rolls and independent stops, but dispatches
+zero ACT commands: the observed geometry engine still waits for the common5–25s
+inspection captures while the loaded pre-roll ends at1s. Thus no explicit observed
+contact selection exists at handoff. Both outcomes remain operational setup
+refusals, not ACT phase failures. The new producer preserves five actual captures
+at0/0.2/0.4/0.6/0.8s for this loaded-only acquisition. The independent recorded
+workspace retains its original capture schedule and all calibrated limits;
+normal-start acquisition is unchanged. Once observed selection exists, actual
+native feedback primes the existing operational force window. No teacher geometry
+or force is substituted for observed operational evidence.64 related regressions
+pass. Revision3 fixes exactly two further cells, right then left, same checkpoint
+and source states, with every earlier failed/unavailable attempt retained.

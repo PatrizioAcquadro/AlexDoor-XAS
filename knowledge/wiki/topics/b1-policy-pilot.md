@@ -263,3 +263,11 @@ uses the existing physical force window and current-gap gate, retaining native
 samples; it does not require a single arbitrarily chosen tick to have positive
 force. Empty startup failures remain incomplete recordings with explicit outcomes.
 The experiment page preserves original harness failures and revised native cells.
+
+
+Loaded startup acquires the original number of genuine geometry views during its
+pre-roll, with fresh tracking afterward. This live schedule is separate from the
+original workspace-recording capture times and does not change calibrated bounds.
+Observed selection then permits the normal load estimator/contact window to warm
+from actual native feedback before policy handoff. Ordinary full-start inspection
+keeps the common schedule.
