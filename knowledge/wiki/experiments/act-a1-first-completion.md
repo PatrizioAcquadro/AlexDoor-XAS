@@ -199,3 +199,45 @@ The 42 related numerical tests pass, including source rejection, reset ordering,
 fresh observation acquisition, missing loaded support and stop continuations.
 Native loaded-phase applicability remains to be measured; this implementation
 alone is not evidence of later-phase or recovery success.
+
+
+## Full initial checkpoint panel
+
+All three1,024-update checkpoints complete both fixed normal-start attempts:
+0/6 full successes, zero controlled opening. Every2+4s independent stop passes;
+no physical violation is recorded. These six failures remain separate from the
+prior128/512-update attempts and the120-command accounting diagnostic.
+
+| Seed | Direction | ACT commands | Terminal reason |
+|---|---|---:|---|
+| 9101 | right | 570 | `weak_position_requires_contact_free_motion_and_stop` |
+| 9101 | left | 791 | `observed_contact_orientation` |
+| 9102 | right | 192 | `load_estimation_failed: outside_verified_load_envelope` |
+| 9102 | left | 136 | `load_estimation_failed: outside_verified_load_envelope` |
+| 9103 | right | 311 | `observed_contact_orientation` |
+| 9103 | left | 5,383 | `load_estimation_failed: outside_verified_load_envelope` |
+
+Seed9101left reaches8.878N native peak and1.409degrees raw door motion, but never
+satisfies controlled contact/opening. This is not learned task completion. Its
+observed contact orientation exceeds the unchanged combined requirement. Seed9103
+left remains contact-free for5,383 commands; terminal measured shoulderX exits
+an empirical load position domain by8.70microradians. That numerical exit is an
+operational refusal, not a physical violation. Its preceding slow approach also
+fails to reach the prescribed material point; the refused domain alone does not
+establish an otherwise successful policy.
+
+The three checkpoints tie on the declared completion/minimum/summed controlled
+opening criteria. Fixed seed order breaks the tie: only9101continues, to4,096
+updates with checkpoints2,048/4,096, preserving optimizer/RNG and the exact data,
+normalization, sampler and model. The successful actual resume migrates from
+Gilbreth PyTorch2.12.1 to local PyTorch2.10; initial continued updates execute on
+CUDA. Blackwell still has an unrelated compute workload. The local continuation
+reserves at mostone GPU hour plusfive further local evaluation hours before launch.
+
+A deterministic sampler audit counts32,768 sampled windows/21,087 distinct source
+starts in seed9101's initial tranche. Every phase/event stratum receives roughly
+one ninth of windows; the two nominal approach sources contribute40/76 windows.
+This early exposure is not convergence evidence or proof of missing data. At the
+first live query, seven arm positions, validity masks and image ages match the
+corresponding teacher state exactly; small rendered and feedback differences
+remain. Later behavior, not first-query equality, determines task performance.

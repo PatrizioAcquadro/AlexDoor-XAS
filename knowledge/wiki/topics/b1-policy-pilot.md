@@ -242,3 +242,16 @@ uncertainty growth still spends the original remaining margin; absent attributio
 missing prepaid erosion, missing support or true margin exhaustion still refuses.
 This changes accounting, not physical limits. The finite native prefix validation
 and preserved pilot refusals are in [[act-a1-first-completion]].
+
+
+## Temporal loaded-phase diagnostics
+
+`pilot_physics.py rollout --temporal-act --intermediate-state PATH` separately
+assesses a learned continuation from an existing qualified selected training state.
+It reuses loaded-state reconstruction and independent start-stop qualification,
+then acquires fresh native observation history with unavailable prefix masked.
+After handoff, the unchanged temporal ACT runner owns manipulation; observed
+admission and physical stops remain active. Initialized opening cannot establish
+full task completion: this mode always sets full-task `passed` false, and reports
+only a separate intermediate-phase outcome. See [[act-a1-first-completion]] for
+current tests, native applicability and the fixed normal-start completion panel.
