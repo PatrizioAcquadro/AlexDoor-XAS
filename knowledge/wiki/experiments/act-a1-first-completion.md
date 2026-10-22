@@ -330,3 +330,15 @@ hypothesis, not a parameter search or new collection.13 related numerical tests
 pass. Select or extend using fresh full task progress/completion on both fixed
 normal conditions; imitation loss remains diagnostic. If the same file completes
 both, run all four predefined development conditions and report every outcome.
+
+
+A fixed zero-update image intervention uses the two qualified source histories at
+25.4s with identical four-second arm history. For each immutable checkpoint, only
+the door images change while the robot tokens stay fixed. Teacher actions remain
+outside the queries. Seed9101/4,096 and seed9103/2,048 both respond to images, but
+produce about0.00038/0.00037rad L2 image contrast versus0.00290rad teacher contrast
+across six actions. Initial action norms are16–26% of teacher norms; source-left
+cosines are0.35/0.50. This local diagnostic supports initiation weighting; it does
+not establish deployed causal success or justify action rescaling. Eight queries
+execute in1.717s within the existing owned A100 allocation12006811, zero updates
+and no additional GPU reservation. The whole job charge includes this shared step.

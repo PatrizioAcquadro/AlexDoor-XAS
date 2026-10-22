@@ -2,16 +2,26 @@
 
 ## ACT A1 first learned completion — active
 
-The user authorized temporal ACT A1 training and genuine closed-loop evaluation
-from the completed qualified corpus. The short local pilot completed128 updates and identical checkpoint reload.
-Both full-start attempts failed before contact. One separately validated
-linear-aging accounting correction removes a duplicated uncertainty charge.
-Two A100 seed runs and one local RTX 4090 seed run completed1,024 updates each.
-The complete native checkpoint comparison is active; the planned
-Blackwell run could not acquire the unrelated workload GPU lock within 15 minutes.
-No complete task success has been established. Two-direction completion and the
-fixed development panel remain required. Original panels, failures and cumulative
-resource charges remain preserved. See [[experiments/act-a1-first-completion]].
+The user authorized training from the completed qualified temporal corpus and
+fresh closed-loop simulation. Three initial seeds reach1,024 updates with0/6
+full nominal completions. The seed9101 continuation reaches4,096 and remains0/2:
+right acquisition improves but times out before contact; left stops outside the
+empirical load domain. Across the pilot/512/1,024/4,096 complete normal-start
+attempts, the retained count is0/12, with healthy stops and no recorded physical
+violations. No complete learned task success is established.
+
+Seed9103 reaches2,048 on Gilbreth and awaits fresh physical evaluation. One bounded
+seed9101 curriculum now targets6,144 on A100: half the batch focuses on the two
+complete nominal sources' critical transitions, half retains all112 training
+sources and valid recovery scopes. Normalization/model/physical gates are fixed.
+The qualified local simulator is waiting for an unrelated GPU workload; Blackwell
+also remains occupied. Loaded-state diagnostic integration retains its original
+failed/unavailable starts and revised cells; it cannot count as full completion.
+
+The same saved file must still complete fresh right and left normal starts, then
+undergo all four predefined development conditions. All original outcomes, raw
+evidence and cumulative allocation charges remain. See
+[[experiments/act-a1-first-completion]].
 
 Current as of 2026-10-21. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
