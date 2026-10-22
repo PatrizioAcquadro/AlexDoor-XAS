@@ -338,7 +338,25 @@ the door images change while the robot tokens stay fixed. Teacher actions remain
 outside the queries. Seed9101/4,096 and seed9103/2,048 both respond to images, but
 produce about0.00038/0.00037rad L2 image contrast versus0.00290rad teacher contrast
 across six actions. Initial action norms are16–26% of teacher norms; source-left
-cosines are0.35/0.50. This local diagnostic supports initiation weighting; it does
+cosines are0.35/0.50. This saved-input diagnostic supports initiation weighting; it does
 not establish deployed causal success or justify action rescaling. Eight queries
 execute in1.717s within the existing owned A100 allocation12006811, zero updates
 and no additional GPU reservation. The whole job charge includes this shared step.
+
+
+An exact first-query numerical check uses the recorded right/left native causal
+inputs, the immutable4,096 weights, original normalization and matching backend
+flags. A100/PyTorch2.12.1 predictions differ from recorded RTX4090/PyTorch2.10
+outputs by at most7.31e-8rad, within the existing1e-7 round-trip tolerance. This
+rules out a material network-forward discrepancy for these two inputs; it does
+not prove later closed-loop equivalence. Two queries take1.806s within the same
+owned allocation, zero optimizer updates and no additional GPU allocation.
+
+The frozen96 genuine training histories are also queried at4,096, retaining
+future labels only in the diagnostic caller. Contact/hold predictions align
+closely with source actions, while transitions have the weakest mean direction
+agreement. Left approach and recovery cosine means remain0.61/0.45, compared with
+right0.97/0.97. These action diagnostics delimit demonstrated fitting; they do
+not count as physical recovery or phase completion and do not select checkpoints.
+All96 results are retained in `frozen-phase-step4096.json`;32.559s shares the same
+owned A100 allocation. Fresh simulator results remain required.
