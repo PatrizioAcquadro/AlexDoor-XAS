@@ -20,9 +20,10 @@ model and physical gates are fixed.
 The qualified local simulator is waiting for an unrelated GPU workload; Blackwell
 also remains occupied. Loaded-state diagnostic integration retains its original
 failed/unavailable starts and revised cells; it cannot count as full completion.
-One separately labeled reference feasibility check precedes the new full candidate
-pairs; replay parity is required before interpretation and never counts as learned
-success.
+The separate120-to240Hz reference check has exact numerical command delivery but
+physical drift and an observed-identity refusal. It cannot establish an admission
+defect or learned success. A single existing240Hz reference prefix is predeclared
+only if all saved candidate pairs fail; see the experiment for the source audit.
 
 The same saved file must still complete fresh right and left normal starts, then
 undergo all four predefined development conditions. All original outcomes, raw

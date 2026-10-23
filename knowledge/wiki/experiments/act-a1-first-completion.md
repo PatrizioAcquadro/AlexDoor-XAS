@@ -400,8 +400,8 @@ promotion reproduces the qualified A1 subtraction exactly. Its7,588 post-inspect
 deltas equal the selected prepared labels; source report, completeness and robot
 identity checks pass. This is neither new acquisition nor a learned execution,
 and remains ineligible for full-task success regardless of its physical outcome.
-The two loaded cells, reference and three new candidate pairs remain queued behind
-unrelated workstation GPU work; no new physical result is assumed.
+The reference outcome is recorded below. The remaining candidate/loaded cases
+use the serialized queue; no unmeasured physical result is assumed.
 
 
 Native attempts now queue on the existing local GPU mutex through a read-only
@@ -439,3 +439,24 @@ Thus physical replay parity is not established, and this outcome cannot prove a
 contact-guard defect. Diagnose the A1 controller/runtime contract before more
 training. Seed9103/2,048 right separately stops after626 learned commands at the
 acquisition budget, with zero contact/opening, healthy stops and no violations.
+
+
+## Current-runtime reference control
+
+A CPU metadata audit of the112 selected training sources finds10 at120Hz and102
+at240Hz. Both focused nominal full cycles use120Hz; seven other complete cycles
+use240Hz. Their original qualification and admitted scopes remain intact. This
+coverage difference and the measured reference drift do not establish invalid
+labels or a contact-guard defect. A1 and A2 share native target application and
+gravity compensation; the inspected A1 requests and delivered targets match.
+
+If all three saved candidate pairs fail, run exactly one360-command unloaded
+right prefix from the existing qualified240Hz pose-low full cycle before further
+training. The source and normal native pre-command full q/dq, tool pose and
+preceding arm controller targets match exactly; adapter labels equal the prepared
+A1 targets. The prefix contains the recorded0.2s inspection tail and5.8s approach.
+Use its actual setup, unchanged240/60/10Hz runtime, admission and independent stops.
+This is a controller/runtime diagnostic, never learned success or new collection.
+No physical parity threshold is invented. The plan and checks are in
+`current240-reference-prefix-plan.json` and `training-runtime-coverage.json` under
+the experiment evidence directory. No further training is justified by loss alone.
