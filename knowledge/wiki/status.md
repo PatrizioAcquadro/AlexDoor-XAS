@@ -4,9 +4,9 @@
 
 The human authorizes the time needed for substantial training and subsequent
 evaluations within unchanged48local/32aggregate remote GPUh,200,000cumulative
-updates and1TiB retained. Principal seed9101 has resumed from6,144updates on the
-RTX4090 toward16,000 with automatic monitoring; all20 earlier learned normal-start
-attempts remain failures. No learned full-task
+updates and1TiB retained. Principal seed9101 completes6,144→16,000updates on the
+RTX4090; the16,000→30,000block is running on an actual Gilbreth A100 as
+Slurm12011121. All20 earlier learned normal-start attempts remain failures. No learned full-task
 completion or native development evaluation is established; final test is sealed.
 
 Both complete observed references now pass with exact source parity:4,108 right
@@ -15,9 +15,13 @@ hold/release/stabilization, no contact losses or physical violations and healthy
 independent2+4s stops. They contain zero learned actions. The prior interrupted
 right reference is retained; all59 native attempts remain. The AV task has released
 the shared mutex and local GPU; Blackwell remains coordinated for VLA-LEGO.
-The user now selects Gilbreth A100 for the next eligible training allocations;
-finish the current4090 block without preemption, then preserve the full resume
-state and recheck Slurm/cumulative budgets before submission.
+The4090 lease is released. The user-selected A100 continuation preserves the
+complete optimizer/RNG state, frozen normalization and all114 train sources. The
+first substantial block improves smoothed fixed train/development error by16.4%
+and10.4%, and actual rolling loss by20.9%; offline evidence supports continuation.
+The A100 job has an independent offline monitor, finite12h allocation and complete
+final-evaluation time/storage reserves. Current costs before that allocation are
+37.395local/4.978remote GPUh and139,565updates; retained accounting is992.39GiB.
 
 The admitted compatible union is114 train sources/168,178windows, including valid
 corrections and two new complete cycles, plus eight development sources/23,705

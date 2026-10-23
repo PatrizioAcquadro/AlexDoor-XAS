@@ -1,8 +1,9 @@
 # ACT A1 first learned completion
 
-Status: substantial base training is running on the RTX4090 on 2026-10-23;
-no learned completion is established. Principal seed9101 resumes its6,144-update
-checkpoint toward16,000 on the complete admitted union.
+Status: principal seed9101 has reached16,000 updates on 2026-10-23. The first
+substantial block completes normally; no learned completion is established.
+The user-selected A100 continuation16,000→30,000 is running as Slurm12011121.
+This is a compute boundary, not final training completion.
 The new authorization covers the time needed for training and subsequent
 evaluations within unchanged cumulative48local/32aggregate remote GPUh,
 200,000updates and1TiB retained. The earlier expired work window and its
@@ -33,17 +34,41 @@ native attempts are inventoried. See local `base-reference-review.json`.
 The AV agent has released the shared mutex after completing its panels; it plans
 no further GPU work. The4090 is available and its measured training path is faster
 than the existing A100 path. Blackwell remains coordinated for VLA-LEGO; the H100
-queue was occupied at inspection. The local guarded job has actually resumed on
-CUDA with all114 sources, frozen normalization and no nominal focus. It saves
-every1,000 updates; no physical evaluation interrupts the6,144-to16,000 block.
+queue was occupied at inspection. The local guarded block completes
+all9,856 new CUDA updates with114 sources, frozen normalization and no nominal
+focus. Checkpoints are saved every1,000 updates; no native evaluation occurs.
 A verified122-file/38.110GiB Gilbreth replica is ready for later remote placement;
 Gautschi shares those depot files rather than retaining a second replica.
-The user's subsequent explicit placement request selects the Gilbreth A100 for
-next eligible training allocations. The current4090 block finishes normally;
-weights, optimizer, RNG and frozen normalization continue unchanged. The A100
-partition is up with mixed nodes and no owned queued jobs at the latest read-only
-check, but a slot is not reserved. Check Slurm and all cumulative budgets again
-before submission, and report an A100 constraint before choosing another host.
+The user's subsequent explicit placement request selects Gilbreth A100 for next
+eligible training allocations. The4090 block finishes normally and releases its
+GPU lease. A byte-identical19.84MB resume preserves model weights,128optimizer
+states and Python/NumPy/CPU/CUDA RNG, with unchanged112-source normalization.
+Slurm12011121 runs on an actual A10080GB for16k→30k, with a12h allocation ceiling and
+finite internal authorization. No second dataset copy is made. A monitor inside
+the allocation aggregates the full earlier diagnostic history, requests a saved
+stop for the declared offline criteria, and diagnoses ten minutes without optimizer
+progress. Local mirroring/accounting continues independently of chat sampling.
+Check Slurm and all cumulative budgets before each later submission; report an
+A100 constraint before choosing another host.
+
+At16k, the fixed offline evidence supports continuation. Comparing the first
+complete three-checkpoint window7k–9k with14k–16k gives:
+
+| Median metric | 7k–9k | 14k–16k | Reduction |
+|---|---:|---:|---:|
+| Fixed training L1 | 0.116819 | 0.097681 | 16.4% |
+| Fixed development L1 | 0.377594 | 0.338470 | 10.4% |
+| Actual rolling optimizer loss | 0.160609 | 0.127048 | 20.9% |
+
+The final single-checkpoint train/development errors are0.087736/0.337347.
+There is no numerical divergence or qualifying stagnation. The local allocation
+charges7,005.25GPU seconds with return0 and no timeout. At this boundary all
+historical costs are37.395local GPUh,4.978remote GPUh and139,565optimizer updates;
+retained accounting is992.39GiB. The next full12h reservation raises the remote
+upper reservation to16.979h and updates to153,565. Five local GPUh,31GiB for the
+complete final native panel, and0.25GiB for subsequent checkpoint download are
+reserved before submission. Native learned outcomes remain0/20; all59 earlier
+native attempts remain, with no new native/development case or final-test access.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,
@@ -96,7 +121,8 @@ Storage audit verifies48.649GiB of repeated hardlink paths: the current cap coun
 distinct stored local inodes plus all remote replicas and outputs, while preserving
 the historical conservative path sum alongside it. The1TiB cap is unchanged;
 no evidence or attempt is deleted to obtain this correction. Reserve one40GiB
-lossless Gilbreth input copy,5local GPUh and12GiB for evaluation. Copies are
+lossless Gilbreth input copy,5local GPUh and31GiB for the complete final
+evaluation panel. Copies are
 verified before retiring newly created transfer staging files. No second remote
 input replica or broad new collection is planned. Exact protocol, source audit,
 job reservations and previous failed audit are local evidence under
