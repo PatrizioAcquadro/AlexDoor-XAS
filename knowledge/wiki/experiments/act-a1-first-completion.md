@@ -77,7 +77,12 @@ internal deadlines, safe saved stopping and cumulative-resource guards.
 Before the final simulation panel, record `base-training-finalization.json` with
 verified final termination reason (`long_offline_plateau` or
 `maximum_main_updates`), final main step, finished training allocation and selected
-checkpoint. The panel rejects execution without this gate. The updated plan and
+checkpoint. The panel rejects execution without this gate. It checks every
+training allocation and remaining update reservation, verifies the selected
+checkpoint step/hash and final training result, and recomputes the offline stop
+from the complete diagnostic-file list in the current plan. The finalization
+record names that list, the final training result and the selected checkpoint;
+a partial history or an ongoing improvement cannot qualify as final stagnation. The updated plan and
 `base-training-evaluation-policy.json` override legacy state labels cached by the
 already-running first-block supervisor. Its active training is not restarted.
 
