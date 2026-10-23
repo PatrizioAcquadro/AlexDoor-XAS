@@ -133,21 +133,22 @@ def test_loaded_state_cannot_replace_qualified_normal_gains(tmp_path):
         startup(observer, None)
 
 
-def test_loaded_observation_schedule_retains_all_gates_and_original_workspace_times():
+def test_loaded_observation_schedule_retains_all_gates_and_original_workspace_times(b1_binding):
     from alexdoor_xas.perception.provider import PrototypeRecipe
     from alexdoor_xas.policies.pilot_runtime import loaded_observation_recipe
 
     config = dict(
         scan_fusion="object-v1",
-        inspection=dict(sample_times_s=[5, 10, 15, 20, 25]),
+        inspection=b1_binding.config["inspection"],
         physical_and_observation_limits=dict(gap=0.0001, position=0.01),
     )
     recipe = PrototypeRecipe(json.dumps(config))
     assert loaded_observation_recipe(recipe, None) is recipe
     loaded = loaded_observation_recipe(recipe, 1.0)
-    np.testing.assert_allclose(
-        loaded.config["inspection"]["sample_times_s"], [0, 0.2, 0.4, 0.6, 0.8]
-    )
+    times = np.asarray(loaded.config["inspection"]["sample_times_s"])
+    assert len(times) == len(recipe.config["inspection"]["sample_times_s"])
+    np.testing.assert_allclose(times[[0, -1]], [0.1, 0.8])
+    assert np.all(np.diff(times) >= 0.1 - 1e-9)
     assert (
         loaded.config["physical_and_observation_limits"]
         == config["physical_and_observation_limits"]
@@ -155,3 +156,52 @@ def test_loaded_observation_schedule_retains_all_gates_and_original_workspace_ti
     assert recipe.config == config
     with pytest.raises(ValueError, match="all inspection captures"):
         loaded_observation_recipe(recipe, 0.5)
+
+
+def test_loaded_acquisition_uses_a_real_matching_observer_and_io_contract(b1_binding):
+    from alexdoor_xas.perception.provider import PrototypeRecipe
+    from alexdoor_xas.policies.encoding import LEARNED_RECIPE, RGBDEncoder, pilot_binding
+    from alexdoor_xas.policies.observations import B1Observer, require_provider_binding
+    from alexdoor_xas.policies.pilot_runtime import (
+        live_observation_binding,
+        loaded_observation_recipe,
+    )
+
+    binding = pilot_binding(b1_binding.config["inspection"], recipe=LEARNED_RECIPE)
+    recipe = PrototypeRecipe(
+        json.dumps(
+            dict(scan_fusion="object-v1", inspection=binding.config["inspection"], max_gap_s=0.15)
+        )
+    )
+    assert live_observation_binding(binding, recipe) is binding
+    loaded = loaded_observation_recipe(recipe, 1.0)
+    live = live_observation_binding(binding, loaded)
+    provider = SimpleNamespace(binding=loaded, generation=0)
+    provider.reset = lambda: setattr(provider, "generation", provider.generation + 1)
+    with pytest.raises(ValueError, match="inspection or freshness mismatch"):
+        B1Observer(provider, binding, encoder=RGBDEncoder(binding, device="cpu"))
+    observer = B1Observer(provider, live, encoder=RGBDEncoder(live, device="cpu"))
+    require_provider_binding(provider, live)  # Same strict check used by PurdueIO.
+    assert observer.binding == live
+    original_config, live_config = binding.config, live.config
+    assert live_config.pop("inspection") == loaded.config["inspection"]
+    original_inspection = original_config.pop("inspection")
+    assert live_config == original_config
+    assert recipe.config["inspection"] == original_inspection
+    points = np.asarray(loaded.config["inspection"]["waypoints"])
+    np.testing.assert_array_equal(points[:, 1:], [points[0, 1:]] * 2)
+    np.testing.assert_array_equal(points[:, 0], [0.0, 1.0])
+    assert live.config["max_gap_s"] == binding.config["max_gap_s"]
+    loaded_observation_recipe(recipe, 0.9)  # Seven real captures plus tracking margin.
+    with pytest.raises(ValueError, match="all inspection captures"):
+        loaded_observation_recipe(recipe, 0.899)
+
+    changed = loaded.config
+    changed["inspection"]["mount_pitch_rad"] += 0.01
+    with pytest.raises(ValueError, match="cannot change inspection calibration"):
+        live_observation_binding(binding, PrototypeRecipe(json.dumps(changed)))
+    changed = loaded.config
+    changed["max_gap_s"] = binding.config["max_gap_s"] + 0.01
+    provider.binding = PrototypeRecipe(json.dumps(changed))
+    with pytest.raises(ValueError, match="inspection or freshness mismatch"):
+        B1Observer(provider, live, encoder=RGBDEncoder(live, device="cpu"))

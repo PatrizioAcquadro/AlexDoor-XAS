@@ -795,6 +795,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
             A1_JOINT_DELTA,
             initialization_s=setup.intermediate_preroll_s if args.intermediate_state else None,
         )
+        binding = observer.binding
         events = NativeTemporalEvents(env, config)
         runner = temporal_a1_runner(
             args.checkpoint,

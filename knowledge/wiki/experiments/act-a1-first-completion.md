@@ -289,11 +289,12 @@ both original failed/unavailable attempts. No revised native outcome is assumed.
 
 
 Revision2 passes both fresh loaded pre-rolls and independent stops, but dispatches
-zero ACT commands: the observed geometry engine still waits for the common5–25s
+zero ACT commands: the observed geometry engine still waits for the common4–25s
 inspection captures while the loaded pre-roll ends at1s. Thus no explicit observed
 contact selection exists at handoff. Both outcomes remain operational setup
-refusals, not ACT phase failures. The new producer preserves five actual captures
-at0/0.2/0.4/0.6/0.8s for this loaded-only acquisition. The independent recorded
+refusals, not ACT phase failures. The producer schedules the original capture count across the short loaded-only
+acquisition prefix. The actual runtime contract has seven captures; the original
+unit fixture covered five. The independent recorded
 workspace retains its original capture schedule and all calibrated limits;
 normal-start acquisition is unchanged. Once observed selection exists, actual
 native feedback primes the existing operational force window. No teacher geometry
@@ -413,3 +414,28 @@ This replaces availability polling as the serialization mechanism while retainin
 the final empty-GPU check and all existing resource guards. Mutex waiting consumes
 no GPU allocation and is not an attempted evaluation. Details remain in
 `gpu-mutex-scheduling.json`; no cross-chat scheduling message is needed.
+
+
+Both revision3 loaded allocations fail before ACT dispatch at the unchanged
+provider/observer inspection-binding check. Their failure files and unavailable
+reports are preserved; these do not measure policy behavior. The live producer
+had a short capture schedule while observer/IO still declared nominal inspection.
+The correction binds loaded acquisition explicitly: held restored head pose,
+all seven captures between0.1–0.8s, then0.2s fresh tracking. Observer, encoder and
+IO use that strict binding; independent workspace calibration keeps its original
+recipe. Camera calibration and freshness changes still reject, and normal-start
+binding validation is unchanged.34 focused CPU regressions pass, including the
+real observer constructor and nominal/boundary/perturbed contracts. Two further
+loaded cells are prospectively limited to the same4,096 checkpoint and source
+states after the first candidate pair if that pair fails; every old result stays.
+
+The single reference executes1,506 commands, then refuses unavailable observed
+material identity. It has zero controlled opening,13.765deg raw motion, no physical
+violations and healthy2+4s stops; it is never learned success. Requested deltas
+are exactly reconstructed and actual targets match plain float32 A1 addition.
+However the approach prefix already differs by up to17.882mm from its120Hz source;
+whole-prefix drift reaches24.446mm. Native feedback confirms240Hz/four samples.
+Thus physical replay parity is not established, and this outcome cannot prove a
+contact-guard defect. Diagnose the A1 controller/runtime contract before more
+training. Seed9103/2,048 right separately stops after626 learned commands at the
+acquisition budget, with zero contact/opening, healthy stops and no violations.

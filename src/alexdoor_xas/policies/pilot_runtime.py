@@ -695,11 +695,33 @@ def loaded_observation_recipe(recipe, preroll_s):
         return recipe
     config = recipe.config
     count = len(config["inspection"]["sample_times_s"])
-    last = float(preroll_s) - 0.2
-    if count < 2 or not np.isfinite(last) or last < (count - 1) * 0.1 - 1e-9:
+    first, last = 0.1, float(preroll_s) - 0.2
+    if count < 2 or not np.isfinite(last) or last - first < (count - 1) * 0.1 - 1e-9:
         raise ValueError("Loaded pre-roll needs all inspection captures plus fresh tracking")
-    config["inspection"]["sample_times_s"] = np.linspace(0.0, last, count).tolist()
+    neck = config["inspection"]["waypoints"][-1][1:]
+    config["inspection"]["waypoints"] = [[0.0, *neck], [float(preroll_s), *neck]]
+    config["inspection"]["sample_times_s"] = np.linspace(first, last, count).tolist()
     return PrototypeRecipe(json.dumps(config, sort_keys=True, allow_nan=False))
+
+
+def live_observation_binding(binding, recipe):
+    """Bind actual acquisition; the independent workspace retains its own recipe."""
+    from alexdoor_xas.policies.common.b1_contract import PilotBinding
+
+    inspection = recipe.config["inspection"]
+    if inspection == binding.config["inspection"]:
+        return binding
+    if not isinstance(binding, PilotBinding):
+        raise ValueError("Changed acquisition requires an explicit pilot binding")
+    original = binding.config["inspection"]
+    acquisition_keys = {"waypoints", "sample_times_s"}
+    if {k: v for k, v in original.items() if k not in acquisition_keys} != {
+        k: v for k, v in inspection.items() if k not in acquisition_keys
+    }:
+        raise ValueError("Loaded acquisition cannot change inspection calibration")
+    payload = binding.to_dict()
+    payload["config"]["inspection"] = inspection
+    return PilotBinding.from_dict(payload)
 
 
 def observed_pilot_runtime(
@@ -743,6 +765,9 @@ def observed_pilot_runtime(
         )
 
     live_recipe = loaded_observation_recipe(recipe, initialization_s)
+    live_binding = (
+        binding if initialization_s is None else live_observation_binding(binding, live_recipe)
+    )
     if initialization_s is not None:
         (Path(output) / "observed-initialization.json").write_text(
             json.dumps(
@@ -750,6 +775,7 @@ def observed_pilot_runtime(
                     scope="fresh_loaded_state_acquisition_only",
                     workspace_sample_times_s=recipe.config["inspection"]["sample_times_s"],
                     live_sample_times_s=live_recipe.config["inspection"]["sample_times_s"],
+                    live_waypoints=live_recipe.config["inspection"]["waypoints"],
                     limits_and_calibration_unchanged=True,
                 ),
                 indent=2,
@@ -779,7 +805,7 @@ def observed_pilot_runtime(
         geometry_filter=exclude_robot,
         local_selection_source="policy",
     )
-    observer = B1Observer(geometry, binding, encoder=RGBDEncoder(binding))
+    observer = B1Observer(geometry, live_binding, encoder=RGBDEncoder(live_binding))
     contact = ObservedContactMonitor(ContactMonitorConfig(**config["contact_monitor"]), faces)
     measured_load = PurdueLoadSource(
         load_calibration, normal_angular_speed_rad_s=config["material_angular_speed_rad_s"]
@@ -826,7 +852,7 @@ def observed_pilot_runtime(
 
     io = PurdueIO(
         env,
-        binding=binding,
+        binding=live_binding,
         robot_asset=robot_asset,
         setup=setup,
         observed_provider=geometry,

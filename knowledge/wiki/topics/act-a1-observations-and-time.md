@@ -191,6 +191,15 @@ This is a maintained numerical execution interface, not a newly validated
 physical learned continuation. Every dispatched row still requires current
 readiness, geometry/admission and the original controller/stop limits.
 
+Loaded acquisition keeps the real seven-capture inspection count while holding
+its restored head pose. The one-second diagnostic prefix captures between0.1
+and0.8s, with0.2s left for fresh tracking. Observer, encoder and IO share a strict
+live binding for that acquisition. The independent workspace still reads the
+original4/7/10/15/18/21/25s recipe. Camera calibration, freshness limits and normal
+inspection validation cannot change through this adapter. The rollout records
+the actual live binding; temporal ACT retains its own genuine t=0 static image.
+Native applicability remains separately evaluated from the numerical interface.
+
 `mixed_temporal_batch([(episode, rows), ...], horizon=12)` checks common model
 semantics and preserves selection order, masks and action padding. Its top-level
 `episode_id`, `decision_row`, `decision_time_s` and `generation` remain audit
