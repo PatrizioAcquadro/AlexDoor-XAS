@@ -639,3 +639,25 @@ def test_online_continuity_refusal_matches_posthoc_first_loss_and_keeps_release_
     refusals = [r["time"] for r in rows if monitor.update(r)]
     assert refusals == [40 / 60]
     assert monitor.result() == pre_release_contact_continuity(rows, ProbeSetup())
+
+
+def test_push_pressure_target_is_separate_from_acquisition_hold_and_acceptance_limits():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_force_target
+
+    old = ProbeSetup()
+    setup = ProbeSetup(push_force_n=0.3)
+    assert normal_force_target(old, "push") == old.contact_load_guard_n
+    assert normal_force_target(setup, "push") == 0.3
+    assert normal_force_target(setup, "contact") == old.contact_load_guard_n
+    assert normal_force_target(setup, "hold") == old.hold_force_n
+    assert (
+        normal_force_target(setup, "hold", maintain_acquisition_load=True)
+        == old.contact_load_guard_n
+    )
+    assert setup.loaded_force_n == old.loaded_force_n == 0.02
+    assert setup.contact_load_guard_n == old.contact_load_guard_n == 0.1
+    assert setup.force_limit_n == old.force_limit_n
+    assert setup.normal_admittance_m_n_s == old.normal_admittance_m_n_s
+    for value in (0.01, 50.0, float("nan")):
+        with pytest.raises(ValueError, match="Push force target"):
+            ProbeSetup(push_force_n=value)

@@ -55,6 +55,7 @@ class ProbeSetup:
     force_limit_n: float = 80.0
     soft_force_n: float = 50.0
     contact_load_guard_n: float = 0.10
+    push_force_n: float | None = None
     hold_force_n: float = 0.05
     loaded_force_n: float = 0.02
     contact_force_window_s: float = 0.1
@@ -112,6 +113,11 @@ class ProbeSetup:
             raise ValueError(
                 "Contact-load guard must lie between loaded and upper force thresholds"
             )
+        if self.push_force_n is not None and (
+            not np.isfinite(self.push_force_n)
+            or not self.loaded_force_n < self.push_force_n < self.soft_force_n
+        ):
+            raise ValueError("Push force target must lie between loaded and soft force limits")
         if not self.loaded_force_n < self.hold_force_n <= self.contact_load_guard_n:
             raise ValueError("Hold force target must preserve a positive loaded-contact margin")
         if (
@@ -338,6 +344,15 @@ class ContactContinuity:
             clock_domain="probe_relative_after_common_inspection",
             scope="Unchanged full-task loaded-contact continuity before intentional release",
         )
+
+
+def normal_force_target(setup, phase, *, maintain_acquisition_load=False):
+    """Teacher force targets are control requests, separate from qualification thresholds."""
+    if phase == "hold" and not maintain_acquisition_load:
+        return setup.hold_force_n
+    if phase == "push" and setup.push_force_n is not None:
+        return setup.push_force_n
+    return setup.contact_load_guard_n
 
 
 def support_force_feedback(
@@ -766,10 +781,8 @@ def run_probe(
         nonlocal normal_feedback, gap_recovery_active
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
-        target_force = (
-            setup.hold_force_n
-            if phase == "hold" and not maintain_acquisition_load
-            else setup.contact_load_guard_n
+        target_force = normal_force_target(
+            setup, phase, maintain_acquisition_load=maintain_acquisition_load
         )
         force, source = support_force_feedback(
             force,

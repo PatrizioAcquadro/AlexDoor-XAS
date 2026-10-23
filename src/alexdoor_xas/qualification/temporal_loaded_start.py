@@ -17,6 +17,7 @@ def _source_step(env, setup, state):
     from alexdoor_xas.qualification.synthetic_probe import (
         hold_reference,
         normal_contact_support,
+        normal_force_target,
         push_reference,
         tangential_compensation,
     )
@@ -44,7 +45,7 @@ def _source_step(env, setup, state):
         max(forces),
         setup,
         env.step_dt,
-        target_force=setup.hold_force_n if phase == "hold" else setup.contact_load_guard_n,
+        target_force=normal_force_target(setup, phase),
         gap_m=gap,
     )
     angle = float(array(env.door.data.joint_pos)[0, 0])

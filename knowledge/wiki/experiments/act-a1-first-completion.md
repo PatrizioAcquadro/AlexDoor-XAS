@@ -980,3 +980,46 @@ all source scopes and every cost/outcome remain. These are storage-only changes,
 not GPU/data additions or a resource-limit increase. Sidecars contain original
 SHA-256/byte counts and exact restoration commands; ignored payloads are never
 represented as recoverable through Git. All other storage ceilings remain.
+
+
+## Qualified left complete reference and right pressure diagnosis
+
+The original tracked-support left collection finishes its full physical cycle:
+52.540deg,5.095N peak, no prerelease loss, valid hold, release, ordinary
+stabilization and healthy independent stops. A storage monitor terminates its
+wrapper during finalization, but the simulator child completes the recording and
+report afterward. The operational termination and negative wrapper exit remain
+explicit; the source is reconciled without repeating its trajectory. The local
+allocation guardian now waits for every live process in the command group.
+A retrospective audit charges the additional115.905GPU seconds conservatively;
+no historical resource charge is refunded.
+
+This source passes8,126 temporal data windows, all transitions, offline/online
+snapshot and exact A1 label checks, and finite actual CUDA backward with zero
+optimizer updates. Its fresh full observed reference then dispatches exactly all
+8,126 commands. Controlled opening52.564deg exceeds the unchanged original
+80% requirement42.029deg, hold/release/ordinary stabilization pass, no contact
+loss or physical violation occurs, and the2+4s independent stop remains healthy.
+Requests, delivered deltas, joint states and tool positions match the source
+exactly. The fixed command sequence requires1,551.53wall seconds; its resource
+watchdog is extended in the same attempt from1,500 to1,800 seconds within the
+collection cap. Original limit/flag and the extension record remain separate;
+the effective watchdog does not time out. No action or physical criterion changes.
+This is reference-only operational proof, with zero learned commands.
+
+The guarded filtered-feedback right candidate fails prerelease continuity once at
+13.776deg with6.862N peak and healthy release/stabilization/stops. Saved native
+contact torque and hinge velocity explain a remaining control-demand mismatch:
+the measured normal moment arm is about0.249m and actual hinge damping4Nms/rad.
+At the unchanged1deg/s reference, the damping term alone requires about0.281N;
+the previous0.1N push request supports about0.356deg/s. A bounded native-data fit
+predicts0.298N steady demand. Tangential force and finite-difference errors limit
+that fit; it supports one fixed0.3N right push request, not a parameter search.
+
+`ProbeSetup.push_force_n` is optional and defaults to the previous acquisition
+request. It affects teacher push support only, consistently across ordinary,
+intermediate and loaded-start controllers. Acquisition0.1N, hold0.05N, loaded
+acceptance0.02N, pressure gains,10N operational support,80N physical limit and
+all original task criteria remain unchanged. The guarded filtered feedback and
+motion-continuous ramp remain. The new right source and reference are pending;
+the positive original left source and full reference are reused without retry.

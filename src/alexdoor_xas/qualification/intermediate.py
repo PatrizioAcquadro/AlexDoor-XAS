@@ -118,6 +118,7 @@ def restore_hold_state(env, state, setup, audit_path, *, continue_controller=Fal
     from alexdoor_xas.qualification.synthetic_probe import (
         hold_reference,
         normal_contact_support,
+        normal_force_target,
         push_reference,
         tangential_compensation,
     )
@@ -133,7 +134,7 @@ def restore_hold_state(env, state, setup, audit_path, *, continue_controller=Fal
                 force,
                 setup,
                 env.step_dt,
-                target_force=setup.hold_force_n if phase == "hold" else setup.contact_load_guard_n,
+                target_force=normal_force_target(setup, phase),
                 gap_m=contact_gap,
             )
             if phase == "push":

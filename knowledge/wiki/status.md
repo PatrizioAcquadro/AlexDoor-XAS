@@ -20,26 +20,35 @@ duplicate travel charge. Slow-tail teachers resolve acquisition, but their exact
 observed references stop during early push at contact-load loss. These diagnostic
 replays never count as learned completion.
 
-A1s teacher push ramp delays the right source's contact loss but leaves two later
-losses; the left source retains one early loss. Both original teacher/end-state
-reports and valid-window scopes remain; unchanged common-evaluator replay rejects
-full-cycle qualification. Their observed references and training are blocked.
-A gate-activation defect is corrected: every ordinary full cycle now requires
-continuous prerelease loading regardless of extended-hold timing. Scoped recovery
-examples keep their declared scope. The next fixed pair uses explicit teacher-only
-completed-native-interval pressure feedback during push/hold, replacing the stale
-100ms qualification-filter feedback. The independent qualification window, force
-targets, admittance/compression budgets, acquisition and runtime remain unchanged.
-Native benefit remains pending. Only two fully qualified new sources with both
-complete observed reference paths may join the original112 for a bounded2,048
-update continuation; original112-only normalization stays frozen.
+The full-cycle continuity mismatch is corrected, including ordinary cycles without
+extended hold. Instantaneous native feedback variants fail; their physical traces
+and all valid-window scopes remain preserved. The left motion-continuous,
+pending-motion corrected source qualifies, including8,126 temporal CUDA windows
+with zero optimizer updates. Its fresh observed reference now completes all8,126
+commands:52.564deg controlled opening, valid hold, release and ordinary
+stabilization, no contact losses or physical violations, healthy2+4s stops.
+Requests, delivered deltas, joint states and tool positions exactly match the
+source. This proves the left operational path with zero learned commands.
+
+The guarded filtered-feedback right source fails continuity at13.776deg. Saved
+native torque/velocity and actual4Nms/rad hinge damping show that the previous
+0.1N push request supports only about0.356deg/s at the measured contact arm,
+below the1deg/s reference. A separate optional teacher push-force request permits
+one fixed0.3N right candidate, supported by the fitted0.298N steady demand.
+Acquisition0.1N, hold0.05N, loaded acceptance0.02N, gains and all physical/runtime
+gates stay unchanged. Right qualification and its complete observed reference
+remain pending. Only both fully qualified sources with both complete operational
+paths may join the original112 for a bounded2,048-update continuation; the
+original112-only normalization stays frozen.
 
 All29 authorized inactive failed native rollouts are preserved in reversible gzip
 archives with complete decompressed SHA-256 equality;19.40GiB is recovered, with
 no cost or failure removed. New prepared temporal image stores can also select
 lossless gzip1/byte shuffle; CUDA tests retain every value bit and sampling rules.
-On six existing frames this uses46.55% of uncompressed space; actual whole-run
-performance remains to be measured. Existing stores are unchanged.
+On six existing frames this uses46.55% of uncompressed space; the actual qualified left preparation also passes CUDA sampling/backward checks.
+Eight inactive, never-trained preparation derivatives are separately preserved
+in exact reversible archives. Original teacher recordings, selected inputs,
+normalization, checkpoints, outcomes and resource charges remain.
 
 Authorized limits are48local GPUh,32aggregate remote GPUh,200,000 cumulative
 updates and1TiB retained. The collection ceilings are281 launches,13.5GPUh and
