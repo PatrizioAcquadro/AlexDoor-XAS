@@ -891,3 +891,25 @@ six bounded existing240x384 float32 frames, uncompressed/LZF/gzip1-shuffle use
 pass with zero optimizer updates, charged under `prepared-compression-gpu`.
 The option affects only new derivatives; original source/prepared/checkpoint files
 remain untouched. Whole training performance is still an unmeasured limit.
+
+
+## Diagnostic stabilization command-source correction
+
+Review exposes a separate latent evaluator defect: ordinary stabilization requires
+`learned_command` on every quiet-tail row even in a pure reference diagnostic.
+The reference path explicitly requires ordinary stabilization, making its full
+success impossible under that bookkeeping condition. The physical tail now
+accepts either actually dispatched learned or reference commands. All2s duration,
+separation, speed, movement, contact and violation requirements remain. Learned
+success still requires learned commands and zero reference commands; a mixed or
+reference execution cannot become learned success. Quiet uncommanded stopping
+still cannot provide ordinary stabilization. Paired numerical regressions cover
+both command sources and the uncommanded-tail negative controls. Existing failed
+native references stop earlier, so none of their outcomes is reclassified.
+
+The first causal-native-feedback right source remains a failure:51.265deg held,
+release/stabilization and healthy independent stop, but four prerelease contact
+losses and12.982N native peak. It fails the newly active full-continuity gate and
+is also incompatible with10N operating support. No CUDA data check, observed
+reference or training is launched for this source. The predeclared left source
+runs once; further work returns to diagnosis, not automatic training.

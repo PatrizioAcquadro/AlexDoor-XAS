@@ -143,3 +143,55 @@ def test_reference_cycle_uses_same_requirements_and_never_counts_as_learned_succ
     assert result["reference_cycle_success"]
     assert result["learned_commands"] == 0 and result["reference_commands"] == 230
     assert not result["task_success"]
+
+
+@pytest.mark.parametrize("reference", [False, True])
+def test_ordinary_stabilization_has_same_physical_gate_for_reference_and_policy(reference):
+    score = PilotEvaluation(ProbeSetup(), 50.0, 1 / 60, require_stabilization=True)
+    for tick in range(1, 401):
+        changed = dict(
+            learned_command=not reference,
+            reference_command=reference,
+            door_speed_rad_s=0.0,
+            actual_joint_speed_peak_rad_s=0.0,
+            tool_position=[0.0, 0.0, 0.0],
+        )
+        if tick > 210:
+            changed.update(
+                native_force_n=[0.0, 0.0],
+                native_gap_m=[None, None],
+                commanded_withdrawal=True,
+                surface_separation_m=0.02,
+            )
+        score.update(row(tick / 60, **changed))
+    result = score.result()
+    assert result["stabilized"]
+    assert result["task_success"] is (not reference)
+    assert result["reference_cycle_success"] is reference
+    assert result["learned_commands"] == (0 if reference else 400)
+    assert result["reference_commands"] == (400 if reference else 0)
+
+
+@pytest.mark.parametrize("reference", [False, True])
+def test_uncommanded_quiet_tail_cannot_supply_ordinary_stabilization(reference):
+    score = PilotEvaluation(ProbeSetup(), 50.0, 1 / 60, require_stabilization=True)
+    for tick in range(1, 401):
+        changed = dict(
+            learned_command=not reference and tick <= 230,
+            reference_command=reference and tick <= 230,
+            door_speed_rad_s=0.0,
+            actual_joint_speed_peak_rad_s=0.0,
+            tool_position=[0.0, 0.0, 0.0],
+        )
+        if tick > 210:
+            changed.update(
+                native_force_n=[0.0, 0.0],
+                native_gap_m=[None, None],
+                commanded_withdrawal=True,
+                surface_separation_m=0.02,
+            )
+        score.update(row(tick / 60, **changed))
+    result = score.result()
+    assert result["released"]
+    assert not result["stabilized"]
+    assert not result["task_success"] and not result["reference_cycle_success"]

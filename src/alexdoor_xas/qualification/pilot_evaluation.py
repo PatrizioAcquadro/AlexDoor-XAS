@@ -112,7 +112,7 @@ class PilotEvaluation:
                 t - self.release_time >= self.setup.stabilization_min_s - 1e-9
                 and len(self.tail) * self.dt >= self.setup.stabilization_window_s - 1e-9
                 and all(
-                    r["learned_command"]
+                    (r["learned_command"] or r.get("reference_command", False))
                     and not r["physical_violations"]
                     and not r["loaded"]
                     and r["surface_separation_m"] is not None
