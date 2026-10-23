@@ -29,6 +29,9 @@ base behavior permits short focused refinement.
 Read-only storage audit identifies48.649GiB of duplicate hardlink paths; resource
 guards now count distinct stored inodes plus every remote copy/output, preserving
 the earlier conservative path sum. The1TiB cap and every prior outcome remain.
+Verified cleanup reclaims58.63GiB remote and3.38GiB local
+from redundant historical replicas/caches; every original and outcome remains.
+The previously omitted legacy remote payloads are now included in accounting.
 One bounded lossless Gilbreth input replica is being prepared; no new broad
 collection, RL, architecture comparison or threshold change is authorized.
 After the same checkpoint completes both fresh normal starts, evaluate all four

@@ -82,6 +82,33 @@ separation, temporal observations, batches and execution. The new substantial
 training and right operational reference remain pending; these checks do not
 establish learned task success.
 
+## Retained-storage reconciliation and authorized cleanup
+
+The inherited ledger omitted historical B1 remote inputs. A complete remote
+inventory found59.8GiB in the three older Gilbreth roots; Gautschi uses the same
+depot files and is not a second replica. Blackwell retains only a small code/log
+tree. Initial new-input staging was stopped and its sixteen new verified copies
+retired while this omission was reconciled. The exact short transient aggregate
+peak is unavailable; a brief1TiB excess is possible and no uninterrupted
+cap-compliance claim is made for that interval. No GPU training or new simulation
+was launched during that staging interval.
+
+The human explicitly authorizes removing storage unnecessary for current/future
+development. Two old remote raw copies are SHA-256-identical to the preserved
+local originals. Two large old remote numerical caches exactly match every
+observation, action, start index, timestamp and root attribute in maintained local
+compact caches; the remote files contain no other datasets. Two old local
+compressed caches also have identical logical values/metadata to those compact
+copies. With no owned Slurm jobs active, only these redundant payloads are
+retired: 58.627GiB remote and
+3.383GiB local. Original raw files, compact
+datasets, metadata, checkpoints, reports and every outcome remain. The proof
+catalog is `base-cleanup-summary.json`; current accounting includes every remaining
+legacy remote B1 payload, all new replicas, local distinct inodes and remote
+output allowance. Costs and failures are not refunded. New input staging resumes
+under the complete accounting, without a GPU training launch before both
+operational references pass.
+
 ## Fixed experiment
 
 Start with the existing temporal ACT configuration: 4 s genuine causal history,
