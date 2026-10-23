@@ -39,11 +39,14 @@ remain preserved. This is finite component qualification, not learned success.
 Matched nominal right/left references then reproduce488 commands exactly and
 stop at13.067/15.248N upper estimates against the10N stop domain. Each teacher has
 only one native sample above10N, at first contact. A fixed16N qualification fails
-11.255mm stop travel and0.580rad/s speed, so its limit is not adopted. The next
-minimal addition is one gentler acquisition per direction; full continuations
-will qualify that changed handoff. An explicit teacher-only eased ramp preserves
-all defaults, normal control, physical/task gates and policy inputs. Training has
-not resumed; normalization stays fitted only on the original selected train data.
+11.255mm stop travel,0.580rad/s primary speed and0.5154rad/s removal speed, so
+its limit is not adopted. Exactly one gentler full teacher cycle per direction
+now passes all physical/data gates at6.604/5.141N native peaks, adding13,290 valid
+windows. The teacher-only eased ramp preserves defaults, normal control,
+physical/task gates and policy inputs. The prepared union has116 train sources;
+normalization remains frozen on the original112. A full right/left-prefix observed
+execution check precedes the bounded6,144-to8,192 continuation. Training has not
+resumed and teacher/reference outcomes cannot satisfy learned completion.
 Original inputs/results remain; only verified remote transfer replicas were retired.
 
 The same saved file must still complete fresh right and left normal starts, then

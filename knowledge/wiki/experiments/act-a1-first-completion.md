@@ -657,9 +657,10 @@ contact. Both actual2+4s stops pass with no task physical violation. These are
 operational reference failures, not learned successes or unfavorable replacements.
 The original18 learned failures remain unchanged.
 
-One fixed16N proposal uses the same gains. Its seventh robot-only case fails both
-unchanged hard limits:11.255mm travel and0.580rad/s. It stops immediately after
-that measured primary failure; its missing continuation is not a pass. The16N
+One fixed16N proposal uses the same gains. Its sixth robot-only case fails the
+load-removal speed limit at0.5154rad/s. Its seventh case fails both primary stop
+limits:11.255mm travel and0.580rad/s. It stops immediately after that measured
+primary failure; its missing continuation is not a pass. The16N
 proposal is not adopted, no further gain search follows, and the separately
 qualified10N recipe stays active. Interface force support also remains10N.
 
@@ -690,3 +691,25 @@ uncompressed; write/flush/close takes0.331/0.117/0.020s respectively. Gzip uses7
 of LZF space. These are storage-only measurements; whole-runtime cost is still
 to be measured. No simulator, optimizer update or original recording is changed
 by the benchmark. Future full evaluations may explicitly select gzip.
+
+
+## Qualified gentle acquisition sources
+
+Both fixed attempts pass full teacher opening, required hold, release, ordinary
+stabilization and independent2+4s stops. Native first-contact peaks fall to6.604N
+right and5.141N left, within the existing10N operating support. Neither has a
+physical violation. Temporal qualification admits6,546/6,744 windows with every
+required phase transition, exact A1 labels and finite actual CUDA gradients.
+These are teacher/data results, zero learned successes. The collection worker
+ends after the left recording; orchestration resumes from both completed reports
+without repeating either physical attempt, and completes the pending data check.
+
+The prepared union contains116 training sources/182,266 windows and the unchanged
+eight development sources/23,705 windows. The original112-source train-only
+normalization remains exactly frozen; the final test remains sealed. A full right
+and1000-command left acquisition reference must be reviewed before training.
+The next predeclared continuation, if that gate passes, is seed9101 from6,144
+to8,192 with half-batch gentle-cycle initiation/approach/contact/transition/release
+focus and half-batch diverse/valid-recovery sampling. No other seed extends
+automatically. The same saved file then receives one fresh full nominal attempt
+per direction; decreasing imitation loss cannot satisfy the task gate.
