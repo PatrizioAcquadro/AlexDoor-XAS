@@ -1088,3 +1088,36 @@ rollout writer now directly records `command_event.request_s`, matching native
 setter acknowledgments; physical execution, policy inputs, strict causal rules
 and old recordings remain unchanged. This is a recording/audit clock correction,
 not a favorable physical retry or a relaxed comparison tolerance.
+
+
+## Binding collection allowance and resumable handoff
+
+At this closeout, all owned allocations are finished and the shared GPU lease is
+released. Cumulative upper accounting is35.017local GPUh,4.978remote GPUh and
+129,709updates; retained accounting is about1,001.67GiB of1,024GiB. All57allocated
+native attempts remain in `attempt-outcomes.csv`, including20failed learned full
+starts,14teacher attempts,23diagnostics and three older missing diagnostic reports.
+The only complete reference success is the newly verified left path. There is no
+selected learned completion checkpoint. Seed endpoints remain129pilot,6,144main,
+1,024second and2,048third; the two newly qualified sources have never entered
+training. Native development has zero attempts and final test remains sealed.
+
+The extra50launches raise the collection ceiling to281; actual usage is239.
+The prior collection subcap remains13.5GPUh pending an explicit human answer.
+Actual upper usage13.34551h leaves556.16seconds. The prepared full right reference
+reserves1,800seconds plus65seconds shutdown/accounting, requiring13.86357h total.
+It is unattempted, recorded as a resource refusal rather than a physical or policy
+failure. Global48local/32aggregate remote/200,000updates/1TiB and collection432GiB
+remain unchanged. The fixed work deadline remains14:55UTC/10:55Indiana; it is not
+slid forward by waiting or a later response.
+
+The concrete continuation is prepared but gated: run that one right reference,
+retain its actual outcome and exact prefix/full parity audit, and review both full
+paths. Only if they pass, select the original112plus exactly these two new train
+sources, retain original112-only normalization and resume the6,144file by exactly
+2,048updates to8,192. Evaluate that saved file on both frozen full starts; paired
+success then requires all four predefined development outcomes. The valid fixed
+phase definition can diagnose remaining contact failure without counting its
+staging as learned control. Further blocks require measured task progress;
+remaining recovery evaluation keeps the original demonstrated recovery scope.
+No additional broad collection is justified by the present phase failure.

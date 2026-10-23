@@ -1,6 +1,6 @@
 # Project Status
 
-## ACT A1 first learned completion — active
+## ACT A1 first learned completion — incomplete; collection GPU reservation blocked
 
 Three initial seeds reach1,024 updates; the selected seed9101 continuation reaches
 6,144. All20 complete learned normal-start attempts remain failures, with healthy
@@ -36,9 +36,11 @@ native torque/velocity and actual4Nms/rad hinge damping show that the previous
 below the1deg/s reference. A separate optional teacher push-force request permits
 one fixed0.3N right candidate, supported by the fitted0.298N steady demand.
 Acquisition0.1N, hold0.05N, loaded acceptance0.02N, gains and all physical/runtime
-gates stay unchanged. The right source now qualifies at50.220deg,6.862N peak with no prerelease loss,
+gates stay unchanged. The right source qualifies at50.220deg,6.862N peak with no
+prerelease loss,
 valid hold/release/stabilization and healthy stops. Its4,108-window CUDA check
-also passes with zero updates. Its complete observed reference remains pending. Only both fully qualified sources with both complete operational
+also passes with zero updates. Its complete observed reference remains pending.
+Only both fully qualified sources with both complete operational
 paths may join the original112 for a bounded2,048-update continuation; the
 original112-only normalization stays frozen.
 
@@ -46,7 +48,8 @@ All29 authorized inactive failed native rollouts are preserved in reversible gzi
 archives with complete decompressed SHA-256 equality;19.40GiB is recovered, with
 no cost or failure removed. New prepared temporal image stores can also select
 lossless gzip1/byte shuffle; CUDA tests retain every value bit and sampling rules.
-On six existing frames this uses46.55% of uncompressed space; the actual qualified left preparation also passes CUDA sampling/backward checks.
+On six existing frames this uses46.55% of uncompressed space; the actual qualified
+left preparation also passes CUDA sampling/backward checks.
 Eight inactive, never-trained preparation derivatives are separately preserved
 in exact reversible archives. Original teacher recordings, selected inputs,
 normalization, checkpoints, outcomes and resource charges remain.
@@ -58,12 +61,17 @@ The collection GPU subcap currently prevents reserving the full right reference;
 only an explicit answer to the pending subcap question can extend it. A separate
 observed-prefix ACT phase diagnostic is implemented: real normal inspection and
 measured history, fixed six-row staging, permanent handoff, unchanged per-row
-safety and no full learned-success eligibility. The first native left early-push phase start is valid:4s real history and648
+safety and no full learned-success eligibility. The first native left early-push
+phase start is valid:4s real history and648
 exact staging commands, then66 ACT commands. ACT adds1.128deg with valid loaded
 contact before losing it after1.1s; delivery is exact and2+4s stops are healthy.
 This is a retained policy phase failure, never a full completion. A passive clock
 recording correction retains actual command-request timestamps for exact joins.
-All historical charges/outcomes remain in the cumulative ledger; the shared4090
+The closed allocations account for35.017local and4.978remote GPUh, with129,709
+cumulative update upper bound. Collection uses239/281launches and13.346/13.5GPUh;
+its remaining556s cannot reserve the1,865s complete right reference. The pending
+subcap question blocks that stage and subsequent training. No owned GPU work
+remains active. All historical charges/outcomes remain in the ledger; the shared4090
 mutex is released between stages and coordinated with the other authorized chat.
 See [[experiments/act-a1-first-completion]].
 

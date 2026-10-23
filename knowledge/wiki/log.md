@@ -1,6 +1,6 @@
 # Project Milestones
 
-The pilot remains paused and incomplete. `selected-v10` retains 24/24 failed
+The historical pilot remains paused and incomplete. `selected-v10` retains 24/24 failed
 outcomes; `qualified-latest-v11` retains two completed failures, one interruption
 and 21 unallocated slots. Current accounting belongs in [[status]]; complete
 attempts and scientific decisions remain in [[experiments/b1-end-to-end-pilot-resume]].
@@ -10,6 +10,7 @@ belong in Git history, not in agent context.
 
 | Milestone | Outcome | Reference |
 |---|---|---|
+| 2026-10-23 ACT A1 qualified-source and phase closeout | Two full continuous sources qualify with zero-update CUDA checks; the fresh left observed reference completes8,126commands/52.564deg with hold/release/stabilization and healthy2+4s stops. A valid real-history early-push start dispatches66ACTcommands, then loses contact; every action is delivered exactly. Full learned outcomes remain0/20. The right full reference is prepared but unattempted because its reservation exceeds the existing13.5GPUh collection subcap; new-source training and development remain blocked. | [[experiments/act-a1-first-completion|Sources, observed path, phase failure and binding budget]] |
 | 2026-10-19 diverse ACT A1 collection halted | Six attempts: one varied complete and two acquisition shorts usable, three failures; 3/112 coverage. Loaded stops develop growing native velocity oscillation; main matrix halted. Partial inventory/CUDA compatibility passes with zero updates; no training-ready handoff. | [[topics/act-a1-diverse-collection|All outcomes, coverage and stop defect]] |
 | 2026-10-19 single ACT A1 posture pilot | One right-arm shoulder-Y −.05rad condition on the existing left train door passes full teacher/recording/stop gates; observed approach changes, acquisition geometry/timing converges. One launch, no retry/training; short acquisition-start qualification proposed next. | [[topics/act-a1-four-door-expansion|Measured coverage and costs]] |
 | 2026-10-19 first four-door ACT A1 expansion | Two added nominal geometries and an existing-left hold/release continuation pass physical and data gates. Separate current-setup checks retain fixed opening requirements; one initialized shared-normalization CUDA check passes without updates. Five launches, no retries; next initial-posture variation is proposed only. | [[topics/act-a1-four-door-expansion|Outcomes, costs and next coverage]] |
