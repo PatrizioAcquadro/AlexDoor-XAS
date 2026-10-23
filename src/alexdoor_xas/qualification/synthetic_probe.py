@@ -115,8 +115,10 @@ class ProbeSetup:
             or self.intermediate_preroll_s <= self.sustain_s + self.contact_force_window_s
         ):
             raise ValueError("Require ordinary tail >=2s and fresh loaded pre-roll support")
-        if self.contact_ramp_profile not in ("linear", "ease_out"):
+        if self.contact_ramp_profile not in ("linear", "ease_out", "slow_tail"):
             raise ValueError("Unknown teacher contact ramp profile")
+        if self.contact_ramp_profile == "slow_tail" and self.precontact_m <= 0.005:
+            raise ValueError("Slow-tail ramp requires precontact beyond the5mm slowdown")
         if self.contact_ramp_compression_m is not None and (
             not np.isfinite(self.contact_ramp_compression_m)
             or not 0 < self.contact_ramp_compression_m <= self.compression_m
@@ -149,6 +151,17 @@ def contact_ramp_offset(elapsed_s, setup):
         if setup.contact_ramp_compression_m is None
         else setup.contact_ramp_compression_m
     )
+    if setup.contact_ramp_profile == "slow_tail":
+        # Preserve the old linear approach to5mm. The failed eased reference
+        # doubled initial speed and exhausted cumulative seek travel. Slow only
+        # the final5mm, retaining0.3s of the default contact interval for loading.
+        slowdown = 0.005
+        initial_speed = (setup.precontact_m + setup.compression_m) / (setup.contact_s * 0.7)
+        junction_s = (setup.precontact_m - slowdown) / initial_speed
+        if elapsed_s <= junction_s:
+            return -setup.precontact_m + (setup.precontact_m + setup.compression_m) * fraction
+        fraction = min(1.0, (elapsed_s - junction_s) / (setup.contact_s * 0.9 - junction_s))
+        return -slowdown + (slowdown + compression) * fraction
     return -setup.precontact_m + (setup.precontact_m + compression) * fraction
 
 

@@ -37,9 +37,10 @@ class TemporalExpertRecorder(ExpertRecorder):
     retain fresh native pixels at 10 Hz. No independent hardware time is inferred.
     """
 
-    def __init__(self, path, metadata, *, interrupt_after_commands=None):
+    def __init__(self, path, metadata, *, interrupt_after_commands=None, image_compression=None):
         super().__init__(path, metadata, purpose="b1_partial_policy_pilot")
         self.interrupt_after_commands = interrupt_after_commands
+        self.image_compression = image_compression
         self.env = None
         self.phase = None
         self.last_capture = -np.inf
@@ -81,6 +82,7 @@ class TemporalExpertRecorder(ExpertRecorder):
             self.calibration,
             feedback_contract=contract,
             control_dt=env.step_dt,
+            image_compression=self.image_compression,
         )
         self.writer.reset(env.generation)
         self.observations = IncrementalObservationBuilder(

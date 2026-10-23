@@ -387,3 +387,33 @@ def test_teacher_contact_ramp_rejects_unknown_profile_and_bad_clock():
         ProbeSetup(contact_ramp_profile="unknown")
     with pytest.raises(ValueError, match="ramp time"):
         contact_ramp_offset(-1, ProbeSetup())
+
+
+def test_slow_tail_preserves_linear_prefix_and_slows_before_contact():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, contact_ramp_offset
+
+    old = ProbeSetup()
+    setup = ProbeSetup(contact_ramp_profile="slow_tail", contact_ramp_compression_m=0.001)
+    speed = (old.precontact_m + old.compression_m) / (old.contact_s * 0.7)
+    junction = (old.precontact_m - 0.005) / speed
+    for time in np.arange(0, junction, 1 / 60):
+        assert contact_ramp_offset(time, setup) == contact_ramp_offset(time, old)
+    assert contact_ramp_offset(junction, setup) == pytest.approx(-0.005)
+    assert contact_ramp_offset(setup.contact_s * 0.9, setup) == pytest.approx(0.001)
+    offsets = np.array([contact_ramp_offset(t / 60, setup) for t in range(181)])
+    assert np.all(np.diff(offsets) >= 0)
+    assert offsets[-1] == pytest.approx(0.001)
+    # The fixed tail starts before physical contact, retaining a loading tail.
+    tail_speed = 0.006 / (setup.contact_s * 0.9 - junction)
+    assert tail_speed < 0.35 * speed
+    contact_time = junction + 0.005 / tail_speed
+    assert junction < contact_time < setup.contact_s - 0.4
+    assert setup.compression_m == old.compression_m
+    assert setup.normal_admittance_m_n_s == old.normal_admittance_m_n_s
+
+
+def test_slow_tail_requires_separated_initial_ramp():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
+
+    with pytest.raises(ValueError, match="5mm slowdown"):
+        ProbeSetup(contact_ramp_profile="slow_tail", precontact_m=0.004)

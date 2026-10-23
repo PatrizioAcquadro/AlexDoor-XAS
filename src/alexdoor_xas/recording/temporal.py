@@ -24,6 +24,7 @@ class TemporalRecorder:
         feedback_contract,
         control_dt=1 / 60,
         image_period_s=0.1,
+        image_compression=None,
     ):
         required = dict(
             joint_names=list(ARM_JOINTS), units="N m", sign_convention="positive_joint_coordinate"
@@ -37,7 +38,12 @@ class TemporalRecorder:
         if metadata.get("split") not in ("train", "development"):
             raise ValueError("Recorder requires explicit non-test membership")
         self.writer = RolloutWriter(
-            path, metadata, calibration, control_dt=control_dt, image_period_s=image_period_s
+            path,
+            metadata,
+            calibration,
+            control_dt=control_dt,
+            image_period_s=image_period_s,
+            image_compression=image_compression,
         )
         self.file = self.writer.file
         self.file.attrs["schema"] = SCHEMA

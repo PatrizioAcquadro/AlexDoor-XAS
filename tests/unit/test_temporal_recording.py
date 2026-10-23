@@ -10,9 +10,10 @@ from helpers import temporal_command as record_command
 from helpers import temporal_recorder as recorder
 
 
-def test_failed_episode_native_clocks_requests_and_lossless_images(tmp_path):
+@pytest.mark.parametrize("image_compression", [None, "lzf", "gzip"])
+def test_failed_episode_native_clocks_requests_and_lossless_images(tmp_path, image_compression):
     path = tmp_path / "failure.hdf5"
-    log = recorder(path)
+    log = recorder(path, image_compression=image_compression)
     log.reset(0)
     depth = np.ones((4, 6, 1), "f4")
     depth.view("u4")[0, 0, 0] = 0x7FC00017
@@ -38,6 +39,7 @@ def test_failed_episode_native_clocks_requests_and_lossless_images(tmp_path):
     log.close()
     with h5py.File(path) as file:
         assert file.attrs["complete"]
+        assert file["captures/depth_m"].compression == image_compression
         assert not json.loads(file["metadata"].attrs["outcome"])["passed"]
         np.testing.assert_array_equal(file["captures/depth_m"][0].view("u4"), depth.view("u4"))
         np.testing.assert_array_equal(file["commands/requested_target"][0], 1)

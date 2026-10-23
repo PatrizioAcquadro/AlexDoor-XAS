@@ -713,3 +713,53 @@ to8,192 with half-batch gentle-cycle initiation/approach/contact/transition/rele
 focus and half-batch diverse/valid-recovery sampling. No other seed extends
 automatically. The same saved file then receives one fresh full nominal attempt
 per direction; decreasing imitation loss cannot satisfy the task gate.
+
+
+## Seek-budget diagnosis and slow-tail correction
+
+Both gentle references retain exact source deltas, joints and tool positions,
+then refuse before force at461/465 commands. Healthy2+4s stops and zero physical
+violations remain. These are operational reference failures, not learned results.
+The contact monitor is called three times per clock but does not duplicate travel:
+its cumulative curve agrees with independent source positions within0.409micrometers,
+and same-clock travel spread is zero. The3s deadline is not exhausted.
+
+| Direction | Final seek starts | Refusal time | Elapsed | Measured travel | First native force | Source curve through first contact interval |
+|---|---:|---:|---:|---:|---:|---:|
+| Right |31.4167s|32.8833s|1.4667s|30.0087mm|33.1250s|31.7143mm|
+| Left |31.3167s|32.9500s|1.6333s|30.0749mm|33.1333s|31.2968mm|
+
+Fresh10Hz geometry repeatedly proves separation and clears pending acquisition.
+Between frames, legitimate temporal uncertainty expands the normal interval back
+across zero. The last fresh positive lower gaps are0.74mm right and2.47mm left;
+the following control samples become unresolved. At refusal, observed finger
+intervals span approximately[-40.7,52.2]mm right and[-38.6,32.2]mm left, while
+actual physical gaps remain1.710/1.229mm. Native contact starts later as shown.
+No simulator gap/force becomes an operational input. Rendered RGB differs between
+fresh runs before the pacing change, despite bit-exact depth/validity at sampled
+clocks. Therefore geometric reset-clock variation cannot be attributed only to
+the teacher ramp. `gentle240-seek-diagnosis.json` retains exact bounds and clocks.
+
+The eased teacher reference starts at29.52mm/s versus the old linear15.71mm/s,
+then slows near contact. Its curved actual arm motion exceeds the30mm seek budget
+from the observed starts. The new explicit `slow_tail` teacher profile preserves
+the old linear reference exactly until5mm precontact, then slows to5.41mm/s and
+reaches the existing1mm endpoint at2.7s of the3s contact interval. This is a
+diagnosis-driven compatibility hypothesis, not measured native qualification.
+Default linear/eased profiles, normal gains, force admittance, policy inputs,
+3s/30mm acquisition,10N operating support and every task/physical gate remain.
+Both full source and observed reference paths must qualify before new training.
+
+New temporal teacher recordings can explicitly use the already-tested lossless
+image compression through `--collection-compression gzip`; defaults remain
+uncompressed and numeric streams/clocks/labels stay unchanged. CPU regressions
+verify exact depth NaN payloads and causal joins through TemporalRecorder.
+
+The user increases only the global local GPU ceiling from40to48h; remote32h,
+200,000 cumulative updates and1TiB retained evidence remain. Historical charges
+are unchanged. The conservative collection increment is219/220 launch slots,
+11.20090/12GPUh and393.910/400GiB before the correction. Exactly two corrected
+teachers, two CUDA checks and two complete observed references require six slots
+and conservative totals up to12.5093h/416.911GiB. The concrete plan requests only
+225 slots/13h/420GiB for that increment, retaining all global limits; it has not
+been authorized or launched. See `slow-tail240-plan.json`.

@@ -49,6 +49,17 @@ execution check precedes the bounded6,144-to8,192 continuation. Training has not
 resumed and teacher/reference outcomes cannot satisfy learned completion.
 Original inputs/results remain; only verified remote transfer replicas were retired.
 
+Both gentle observed references now stop before physical contact at the unchanged
+30mm seek budget, after1.467/1.633s rather than the3s deadline. Native parity is
+exact and independent stops pass. A read-only audit rules out duplicate travel;
+geometry uncertainty and actual curved motion exhaust the budget before first
+force at33.125/33.133s. A teacher-only slow-tail reference now preserves the old
+linear prefix and slows only within5mm of contact; native qualification is pending.
+No new training starts before both complete observed paths pass. The user raises
+the local global ceiling to48GPUh; remote32h,200,000updates and1TiB stay fixed.
+The separate collection increment remains219/220slots,11.201/12h,393.910/400GiB;
+the minimal six-stage paired correction requires an explicit increment extension.
+
 The same saved file must still complete fresh right and left normal starts, then
 undergo all four predefined development conditions. All original outcomes, raw
 evidence and cumulative allocation charges remain. See

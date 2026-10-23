@@ -310,7 +310,7 @@ def pilot_episode(binding):
     )
 
 
-def temporal_recorder(path):
+def temporal_recorder(path, *, image_compression=None):
     from alexdoor_xas.assets.purdue import ARM_JOINTS
     from alexdoor_xas.recording.temporal import TemporalRecorder
 
@@ -318,6 +318,7 @@ def temporal_recorder(path):
         path,
         dict(split="train", episode_id="fixture"),
         dict(depth_interval_m=[0.1, 5]),
+        image_compression=image_compression,
         feedback_contract=dict(
             joint_names=list(ARM_JOINTS),
             units="N m",

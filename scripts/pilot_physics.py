@@ -167,6 +167,12 @@ def main(argv=None):
         help="Optional lossless RGB-D compression for retained rollout evidence",
     )
     parser.add_argument(
+        "--collection-compression",
+        choices=("none", "lzf", "gzip"),
+        default="none",
+        help="Optional lossless RGB-D compression for new teacher recordings",
+    )
+    parser.add_argument(
         "--operational-recipe",
         type=Path,
         help="Measured observed perception/load/motion recipe for real rollout",
@@ -189,6 +195,8 @@ def main(argv=None):
         parser.error("Temporal ACT requires learned ACT rollout without reference replay")
     if args.rollout_compression != "none" and args.mode != "rollout":
         parser.error("Rollout compression is only available for rollout evidence")
+    if args.collection_compression != "none" and args.mode != "collect":
+        parser.error("Collection compression is only available for teacher collection")
     if args.screen_initial_state and (args.mode != "collect" or args.intermediate_state):
         parser.error("Initial screening requires closed-door collection")
     if args.reference_recording is not None and (args.mode != "rollout" or args.family != "act"):
@@ -506,6 +514,9 @@ def main(argv=None):
                 args.output / "episode.hdf5",
                 metadata,
                 interrupt_after_commands=args.interrupt_after_commands,
+                image_compression=(
+                    None if args.collection_compression == "none" else args.collection_compression
+                ),
             )
             recorder.calibration = camera_calibration(env)
             result = None
