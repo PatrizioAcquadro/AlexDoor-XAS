@@ -54,7 +54,9 @@ Offline absence of progress requires the scheduled behavioral review before a
 plateau can stop training. A single fluctuation or brief plateau cannot stop it.
 
 Nonfinite loss/gradients stop immediately. Three consecutive diagnostics at least
-three times the rolling training loss trigger diagnosis. Persistent overfitting
+three times the rolling training loss trigger diagnosis. This uses the mean of
+the most recent256 actual optimizer losses at each checkpoint; fixed prior-action
+errors remain separate diagnostics and cannot alone establish numerical divergence. Persistent overfitting
 requires at least10,000 updates with10% better fixed train error,20% worse
 development error and no task improvement. Proven data/runtime defects also stop
 affected work. The trainer can save and stop at an update boundary when its

@@ -4,6 +4,7 @@
 import argparse
 import json
 import time
+from collections import deque
 from pathlib import Path
 
 import torch
@@ -94,6 +95,7 @@ def main():
         restore_rng_states(previous["rng"])
         step = previous["step"]
     updates_this_run = 0
+    recent_losses = deque(maxlen=256)
     log = (args.output / "progress.jsonl").open("x", buffering=1)
     result = dict(
         seed=args.seed,
@@ -194,7 +196,9 @@ def main():
                 duration_s=time.monotonic() - begin,
                 **{k: float(v.detach()) for k, v in losses.items()},
             )
+            recent_losses.append(row["loss"])
             if step % args.save_every == 0 or step == args.updates:
+                row["training_loss_rolling"] = sum(recent_losses) / len(recent_losses)
                 row["checkpoint"] = save()
                 row.update(diagnose())
             log.write(json.dumps(row) + "\n")
