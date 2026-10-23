@@ -7,11 +7,12 @@ fresh closed-loop simulation. Three initial seeds reach1,024 updates with0/6
 full nominal completions. The seed9101 continuation reaches4,096 and remains0/2:
 right acquisition improves but times out before contact; left stops outside the
 empirical load domain. Across the pilot/512/1,024/4,096 complete normal-start
-attempts, the retained count is0/13, with healthy stops and no recorded physical
+attempts plus the2,048 pair, the retained count is0/14, with healthy stops and no recorded physical
 violations. No complete learned task success is established.
 
 Seed9103 reaches2,048 on Gilbreth; its fresh right attempt stops before contact
-after626 commands. The left attempt remains pending. One bounded
+after626 commands; left stops after601 outside the calibrated load domain, also
+without contact or controlled opening. One bounded
 seed9101 curriculum completes6,144 on A100: half the batch focuses on the two
 complete nominal sources' critical transitions, half retains all112 training
 sources and valid recovery scopes. All2,048 new updates complete; whole allocation

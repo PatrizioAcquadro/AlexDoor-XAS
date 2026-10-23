@@ -41,9 +41,12 @@ def test_loaded_start_requires_matching_qualified_selected_train_source(tmp_path
         startup(observer, None)
 
 
-@pytest.mark.parametrize("force,passes", [(1.0, True), (0.0, False)])
+@pytest.mark.parametrize(
+    "force,load_ready_s,passes",
+    [(1.0, None, True), (0.0, None, False), (1.0, 0.9, True), (1.0, 2.0, False)],
+)
 def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
-    tmp_path, monkeypatch, force, passes
+    tmp_path, monkeypatch, force, load_ready_s, passes
 ):
     path, setup = source(tmp_path)
     order = []
@@ -87,7 +90,12 @@ def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
 
     def update(sensor):
         observed.append(sensor)
-        return SimpleNamespace(time_s=sensor)
+        return SimpleNamespace(
+            time_s=sensor,
+            estimate=SimpleNamespace(
+                local=SimpleNamespace(selection="selected") if sensor >= 0.8 else None
+            ),
+        )
 
     observer = SimpleNamespace(
         execution=SimpleNamespace(
@@ -104,6 +112,20 @@ def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
         safety_reason=lambda _: "",
         hold_step=lambda: clock.__setitem__(0, clock[0] + 1 / 60),
     )
+    load_calls = []
+    if load_ready_s is not None:
+
+        def measured_load(io, feedback):
+            load_calls.append(clock[0])
+            if clock[0] < load_ready_s - 1e-9:
+                raise ValueError("unavailable_native_material_identity")
+            return "supported_load"
+
+        io.load_source = measured_load
+        io.robot_feedback = lambda: None
+        io.safety.checks = SimpleNamespace(
+            contact_monitor=SimpleNamespace(contact_load=lambda measured, time_s: None)
+        )
     initialization_commands = []
     io.step_recorder = lambda command, goal: initialization_commands.append(io.initializing_phase)
     startup = loaded_phase_startup(env, setup, path, asset_id="door", output=tmp_path / "out")
@@ -118,6 +140,11 @@ def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
     report = json.loads((tmp_path / "out/fresh-loaded-preroll.json").read_text())
     assert report["old_history_imported"] is False and report["passed"] == passes
     assert not passes or report["scope"] == "initialization_only_not_learned_task_completion"
+    if load_ready_s is not None:
+        assert load_calls[0] < 0.9 and load_calls[-1] == pytest.approx(1.0)
+        assert any(row["operational_load_reason"] for row in report["rows"])
+        assert report["rows"][-1]["operational_load_ready"] == passes
+        assert passes or "observed_load_unavailable" in reason
 
 
 def test_loaded_state_cannot_replace_qualified_normal_gains(tmp_path):

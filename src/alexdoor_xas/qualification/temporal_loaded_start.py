@@ -151,6 +151,8 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
             setup.contact_gap_tolerance_m,
         )
         rows, sustained_since = [], None
+        load_source = getattr(io, "load_source", None)
+        load_reason = "missing_explicit_contact_selection" if load_source is not None else ""
         reason = ""
         for _ in range(round(setup.intermediate_preroll_s / io.dt)):
             if reason := io.safety_reason("inspect"):
@@ -165,10 +167,18 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
                 io.initializing_phase = False
             observation = observer.update(io.observe())
             local = getattr(getattr(observation, "estimate", None), "local", None)
-            if local is not None and local.selection is not None and io.load_source is not None:
-                # Prime the same operational force window from actual native feedback.
-                measured = io.load_source(io, io.robot_feedback())
-                io.safety.checks.contact_monitor.contact_load(measured, observation.time_s)
+            if load_source is not None:
+                load_reason = "missing_explicit_contact_selection"
+                if local is not None and local.selection is not None:
+                    # Acquisition is still initializing. Preserve unavailable samples
+                    # through the existing warmup; require current support at handoff.
+                    try:
+                        measured = load_source(io, io.robot_feedback())
+                        io.safety.checks.contact_monitor.contact_load(measured, observation.time_s)
+                    except ValueError as error:
+                        load_reason = str(error)
+                    else:
+                        load_reason = ""
             force = [
                 sum(
                     c["force_n"] for c in r["contacts"] if c["category"] in ("positive", "negative")
@@ -206,6 +216,8 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
                     force_n=force,
                     gap_m=gap,
                     physical_ok=physical_ok,
+                    operational_load_ready=not load_reason,
+                    operational_load_reason=load_reason,
                 )
             )
             if not physical_ok:
@@ -213,6 +225,8 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
                 break
         if not reason:
             reason = io.safety_reason("inspect")
+        if not reason and load_reason:
+            reason = "loaded_diagnostic_observed_load_unavailable: " + load_reason
         if not reason and (
             sustained_since is None or observation.time_s - sustained_since < setup.sustain_s - 1e-9
         ):

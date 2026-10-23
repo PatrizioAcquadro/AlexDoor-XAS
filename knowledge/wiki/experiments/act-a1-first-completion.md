@@ -460,3 +460,22 @@ This is a controller/runtime diagnostic, never learned success or new collection
 No physical parity threshold is invented. The plan and checks are in
 `current240-reference-prefix-plan.json` and `training-runtime-coverage.json` under
 the experiment evidence directory. No further training is justified by loss alone.
+
+
+## Loaded acquisition handoff
+
+Both revision4 loaded cells now pass observer construction but execute zero ACT
+commands: right fails observed material identity at0.8s; left has no explicit
+contact selection at handoff. These are operational initialization failures, not
+measured policy phase failures. Both reports and independent stop results remain.
+
+The right initializer attempted load estimation at the first inspection result,
+before its existing0.2s fresh tracking warmup. Acquisition now records unavailable
+operational-load samples and continues only the already authorized initialization
+controller within the unchanged1s prefix. Current supported operational load is
+required at handoff; persistent unavailability refuses before ACT. Physical force,
+speed, contact/gap and sustained-load checks remain active on every native step.
+No normal-start policy path, tracking requirement, physical threshold or time
+budget changes. Focused regressions cover transient recovery and persistent
+unavailability as well as the original physical startup checks. Native benefit
+remains unverified; no new phase outcome is inferred from these CPU tests.
