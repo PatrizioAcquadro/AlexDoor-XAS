@@ -5,7 +5,7 @@
 The user authorized training from the completed qualified temporal corpus and
 fresh closed-loop simulation. Three initial seeds reach1,024 updates with0/6
 full nominal completions. The seed9101 continuation/curriculum reaches6,144;
-all18 complete normal-start attempts remain failures, with healthy stops and no
+all20 complete normal-start attempts remain failures, with healthy stops and no
 recorded physical violations. New5120/6144 pairs stop before contact at acquisition,
 orientation or motion/stop-support checks. No complete learned task success is
 established.
@@ -58,7 +58,11 @@ linear prefix and slows only within5mm of contact; native qualification is pendi
 No new training starts before both complete observed paths pass. The user raises
 the local global ceiling to48GPUh; remote32h,200,000updates and1TiB stay fixed.
 The separate collection increment remains219/220slots,11.201/12h,393.910/400GiB;
-the minimal six-stage paired correction requires an explicit increment extension.
+the user authorizes225slots/13h/420GiB for exactly the six-stage paired correction.
+The extra fixed6144 pair with the qualified runtime fails at377/581 commands
+(orientation/contact-free stop support), with zero contact/controlled opening,
+healthy independent stops and no physical violations. All20 learned attempts
+remain; no new data has entered training.
 
 The same saved file must still complete fresh right and left normal starts, then
 undergo all four predefined development conditions. All original outcomes, raw

@@ -760,6 +760,18 @@ The user increases only the global local GPU ceiling from40to48h; remote32h,
 are unchanged. The conservative collection increment is219/220 launch slots,
 11.20090/12GPUh and393.910/400GiB before the correction. Exactly two corrected
 teachers, two CUDA checks and two complete observed references require six slots
-and conservative totals up to12.5093h/416.911GiB. The concrete plan requests only
-225 slots/13h/420GiB for that increment, retaining all global limits; it has not
-been authorized or launched. See `slow-tail240-plan.json`.
+and conservative totals up to12.5093h/416.911GiB. The user explicitly authorizes225 slots/13h/420GiB for exactly those six stages,
+retaining all global limits and prior counters. Native qualification remains
+pending; the worker waits for the other task's remaining two acquisitions and
+then uses the shared lock at each stage. See `slow-tail240-plan.json` and
+`collection-increment-authorization.json`.
+
+
+The additional fixed6144 pair under the separately qualified current240 recipe
+also fails: right377 commands at observed contact orientation; left581 at
+contact-free motion/stop support. Both have zero native force/controlled opening,
+healthy independent stops and no physical violations. The saved weights and both
+original6144 failures remain. The complete normal-start denominator is now0/20;
+no development native case has run. Updated runtime qualification alone has not
+resolved learned acquisition. No optimizer update has used the new nominal or
+gentle sources.
