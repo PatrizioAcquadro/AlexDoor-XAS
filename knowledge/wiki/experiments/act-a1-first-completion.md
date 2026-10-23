@@ -609,3 +609,39 @@ excluded. Loaded diagnostics use the selected scope. CPU source-isolation tests
 pass, and an actual CUDA checkpoint-to-runner check preserves the expanded selected
 IDs and original normalization fit through real six-step execution/replanning.
 No optimizer update or data-membership change has run through this interface yet.
+
+
+## Current240 load and stopping qualification
+
+The original profile fails two nominal contact-neighborhood10N stops at11.071/
+10.633mm, and one late-right native residual sample. A proximal-only correction
+still fails one oblique load; adding wrist stiffness leaves10.759mm travel. A
+further global proximal increase produces4.471rad/s shoulder-Z oscillation at the
+late-right pose and is interrupted. All cases and partial reports remain. An
+initial linearized precheck omitted the configured motor armature and incorrectly
+refused before stopping; the corrected diagnostic includes native armature in
+forward-dynamics inertia. It leaves the separately calibrated projected-feedback
+load model unchanged. No unsafe profile enters policy evaluation.
+
+The final isolated stop profile increases shoulder-Y/elbow support while retaining
+stable shoulder-X/Z and wrist gains:14 fitting and21 separately frozen independent
+cases pass physical/residual/FK and complete continuous robot-volume checks. The
+independent set includes the original four loaded-stop controls and three unique
+ready/stabilized states. All105,000 positive-panel native samples remain; every
+failed earlier proposal is also retained in `calibration-attempts.json`. Minimum
+independent directional reserve is0.248mm; physical FK position error is at most
+1.039micrometers against the existing12.882micrometer bound. The original residual
+base/dynamic coefficients and weak scalar need no change. Main empirical q/accel
+support comes from actual robot-only fitting extrema and covers both new nominal
+source-native traces. Normal-motion acceleration and stop transients have separate
+recorded bases. No clipping, per-failure epsilon or physical threshold change.
+
+Use the separately saved `runtime-recipe-current240-v5r2-qualified.json` in this
+experiment's evidence directory; the original recipe/calibration remain intact.
+Its qualification decision links all fitting/independent results and preserved
+failures. Scope is finite simulated operating/load neighborhoods, not global
+robustness, hardware qualification or learned task performance. The next single
+full nominal-right reference has6,510 exact source deltas and the unchanged full
+physical/stabilization/stop requirements. It remains ineligible for learned
+success. ACT has not trained on the two new sources yet; full normal outcomes
+remain0/18 and the predefined development panel remains unopened.

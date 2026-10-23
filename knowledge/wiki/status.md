@@ -29,17 +29,24 @@ Exactly two new unchanged nominal240Hz teacher cycles, one per direction, pass
 opening/hold/release/stabilization and temporal CUDA data checks. They add6,464 and
 6,568 qualified windows; neither has entered training. Their native audit exposes
 larger acceleration excursions and a right wrist-position support gap, so numerical
-padding is unjustified. The next bounded check is independent robot-only current240
-load/stop qualification with fixed residual and physical bounds. All original
-sources/failures remain preserved. Completed remote jobs permit retirement of only
-their120 derived input replicas, freeing38,684,943,269 bytes without deleting results.
+padding is unjustified. A separate240Hz load/stop recipe now passes14 fitting and21 independent robot-only
+cases, including the original loaded-stop controls and actual ready/stabilized
+poses. Normal gains, physics and physical requirements are unchanged; residual
+coefficients and the weak scalar also remain unchanged. The new stop-only gains
+and empirical domains have measured support; minimum independent directional
+volume margin is0.248mm. Failed proposals, including two unstable stop cases,
+remain preserved. This is finite component qualification, not learned success.
+The next check is one complete nominal-right reference through observed admission,
+then a bounded ACT continuation using the prepared114-source union with the
+original112-source normalization. Original inputs/results remain; only verified
+remote transfer replicas were retired.
 
 The same saved file must still complete fresh right and left normal starts, then
 undergo all four predefined development conditions. All original outcomes, raw
 evidence and cumulative allocation charges remain. See
 [[experiments/act-a1-first-completion]].
 
-Current as of 2026-10-22. Static 6.0B and the complete B1 software core are
+Current as of 2026-10-23. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
 6.1 and final matched-data production remain open. The sealed test stays closed.
 
