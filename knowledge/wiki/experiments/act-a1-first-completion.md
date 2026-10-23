@@ -782,8 +782,11 @@ gentle sources.
 Both fixed slow-tail teachers complete their original teacher/end-state gates
 and zero-update CUDA data checks: right50.864deg/6.862N/6,644 windows;
 left52.216deg/5.095N/6,892 windows. All independent stops pass and neither has
-a physical violation. Native observed reference checks remain separate and
-pending. No new-data optimizer update has run.
+a physical violation. Both native observed references acquire contact with exact source requests, joints
+and tool positions, then refuse early push at `contact_load_lost_or_uncertain`: right
+625 commands/0.5954deg controlled opening, left595/0.1428deg. Their6.862/5.095N
+native peaks, independent2+4s stops and zero physical violations remain. They
+are operational failures; no new-data optimizer update has run.
 
 A CPU replay of retained native contacts through the unchanged PilotEvaluation
 identifies a second incompatibility. After valid sustained contact, the right
@@ -809,3 +812,31 @@ controller and target. It addresses the abrupt first-push motion rather than
 relaxing the contact rule. CPU regressions pass; no native source with this push
 ramp has been collected and no benefit is claimed. Native checks of the already
 registered slow-tail sources remain diagnostic and ineligible for learned success.
+
+
+## Authorized push handoff correction and overnight window
+
+The user authorizes exactly two fixed1s push-ramp sources, their two CUDA data
+checks and two complete observed references, initially extending the conservative
+collection ceiling to231 launches/13.5GPUh/432GiB. The new full-goal teacher gate
+requires continuous prerelease loading after sustained support; no thresholds,
+gains or physical criteria change. Training remains blocked until both complete
+observed reference paths pass. Afterward the intended selected training set is
+the original112 sources plus these two fully qualified sources, retaining the
+original112-only normalization and unchanged development split.
+
+The user also authorizes reversible gzip archives of29 specified inactive failed
+native rollout containers. Each original byte is retained; complete decompressed
+SHA-256 and byte-count verification precede removal of the redundant uncompressed
+representation. Reports, failures, contacts, policy inputs, checkpoints and all
+charges remain. The inventory records archive paths and exact restoration commands.
+Archiving is storage maintenance, not evidence exclusion or a GPU-cost refund.
+
+A subsequent direct instruction adds50 launch slots, bringing the collection
+ceiling to281, and sets a maximum eight-hour continuation window ending
+2026-10-23at14:55UTC (10:55Indiana time). The other collection ceilings remain
+13.5GPUh/432GiB; global limits remain48local GPUh,32aggregate remote GPUh,
+200,000 cumulative updates and1TiB. New allocation wall time is bounded by the
+same deadline, including shutdown allowance. Every prior allocation and outcome
+is preserved. The shared4090 mutex is released between stages and scheduling
+requests are coordinated with the other authorized chat.
