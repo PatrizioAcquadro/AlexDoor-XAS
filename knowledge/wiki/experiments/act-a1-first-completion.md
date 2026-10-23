@@ -1,11 +1,86 @@
 # ACT A1 first learned completion
 
-Status: authorized implementation and training; no learned completion established.
-Baseline `7024110`, branch `PatrizioAcquadro/b1-policy-pilot`, clean tracked tree.
-The objective is one saved temporal ACT A1 checkpoint completing acquisition,
-opening, required hold, release and stabilization in both opening directions.
-[[act-a1-diverse-collection|Qualified collection]] remains closed;
-its original failures and narrower usable scopes remain preserved.
+Status: substantial base training authorized on 2026-10-23; no learned
+completion established. The current principal seed9101 endpoint is6,144 updates.
+The new authorization covers the time needed for training and subsequent
+evaluations within unchanged cumulative48local/32aggregate remote GPUh,
+200,000updates and1TiB retained. The earlier expired work window and its
+deadline-limited right reference remain historical outcomes.
+
+## Current substantial base-training protocol
+
+Continue the same model/optimizer/RNG from6,144 toward16,000 and30,000, then
+45,000/60,000/75,000 only while useful learning and cumulative resources permit.
+30,000 is an intermediate review, not an endpoint;75,000 is the principal model's
+maximum total. No further seed or architecture comparison is planned. Short
+2,000–4,000 focused blocks are reserved for a satisfactory base: both directions
+acquire/sustain contact and reach80% required opening, with at least one valid
+hold and no physical violations. Those are curriculum criteria, not relaxed
+physical acceptance or task success.
+
+Before training, complete the same4,108-command qualified right observed reference
+with adequate wall time and reuse the fully verified8,126-command left path.
+The new right attempt retains the earlier deadline interruption. Both paths must
+pass unchanged physical/operational gates with zero learned commands. Neither can
+count as a learned success. The shared AV mutex queues local work; Blackwell
+remains available to the separately coordinated VLA-LEGO work.
+
+The admitted union has114 train sources/168,178 windows and eight development
+sources/23,705 windows. It contains the original112 compatible train sources,
+including valid corrective labels, plus the two newly qualified continuous cycles.
+Older nominal/gentle/slow-tail/handoff candidates retain their original teacher
+reports but lack the required native operational or continuity qualification;
+they are not silently admitted as compatible full cycles. Existing admitted
+narrower scopes remain in the original union. Every original attempt is retained.
+Sampling gives equal mass to each of four training doors, then available
+phase/transition/recovery strata, then source and real eligible start. No
+half-batch nominal focus is used for substantial base training. Four-second
+genuine histories, contiguous12-action targets and intervention masks stay fixed;
+long push duration confers no extra mass. Frozen112-source training-only
+normalization is reused for continuation; development and final test never fit
+statistics or weights. The model's strict measured RGB-D/proprioception contract
+is unchanged.
+
+Save every1,000 updates and evaluate fixed balanced training/development draws
+with the same seeds. Diagnostics preserve training RNG and do not update weights.
+Physical normal-start pairs occur at16k,30k and then15k intervals; zero completion
+alone never interrupts base training. For plateau review, require at least15,000
+updates without a2% relative improvement in either fixed offline diagnostic
+(three-checkpoint medians), no meaningful task improvement over the same window,
+and a current model step of at least30,000. A newly completed phase, first valid
+contact, five percentage points more controlled opening,20% longer sustained
+contact, or valid hold/release/stabilization resets the useful-learning window.
+Offline absence of progress requires the scheduled behavioral review before a
+plateau can stop training. A single fluctuation or brief plateau cannot stop it.
+
+Nonfinite loss/gradients stop immediately. Three consecutive diagnostics at least
+three times the rolling training loss trigger diagnosis. Persistent overfitting
+requires at least10,000 updates with10% better fixed train error,20% worse
+development error and no task improvement. Proven data/runtime defects also stop
+affected work. The trainer can save and stop at an update boundary when its
+explicit monitor stop-file appears. Every job retains a finite internal deadline,
+process-group shutdown and cumulative-resource guards; the renewed open-ended
+human task authorization does not remove those safeguards.
+
+Storage audit verifies48.649GiB of repeated hardlink paths: the current cap counts
+distinct stored local inodes plus all remote replicas and outputs, while preserving
+the historical conservative path sum alongside it. The1TiB cap is unchanged;
+no evidence or attempt is deleted to obtain this correction. Reserve one40GiB
+lossless Gilbreth input copy,5local GPUh and12GiB for evaluation. Copies are
+verified before retiring newly created transfer staging files. No second remote
+input replica or broad new collection is planned. Exact protocol, source audit,
+job reservations and previous failed audit are local evidence under
+`outputs/evidence/act-a1-first-completion-20261022/`.
+
+Completion remains the same saved checkpoint completing both fresh nominal
+directions entirely through its own actions, followed by all four frozen
+development cases with every outcome reported. Intermediate/reference starts
+cannot satisfy that gate. The final test remains sealed.
+
+The42 focused numerical regressions pass for balanced sampling, source/normalization
+separation, temporal observations, batches and execution. The new substantial
+training and right operational reference remain pending; these checks do not
+establish learned task success.
 
 ## Fixed experiment
 

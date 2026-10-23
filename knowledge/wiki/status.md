@@ -1,77 +1,38 @@
 # Project Status
 
-## ACT A1 first learned completion — incomplete; authorized wall window ended
+## ACT A1 first learned completion — substantial base training authorized
 
-Three initial seeds reach1,024 updates; the selected seed9101 continuation reaches
-6,144. All20 complete learned normal-start attempts remain failures, with healthy
-independent stops and no recorded physical violations. No new source has entered
-training. Normalization remains frozen on the original112 training sources; the
-final test and native development panel remain unopened. The same saved file must
-still complete the declared right/left normal starts and then receive all four
-predefined development evaluations.
+The human authorizes the time needed for substantial training and subsequent
+evaluations within unchanged48local/32aggregate remote GPUh,200,000cumulative
+updates and1TiB retained. The principal seed9101 model remains at6,144updates;
+all20 earlier learned normal-start attempts remain failures. No learned full-task
+completion or native development evaluation is established; final test is sealed.
 
-The separately qualified current240Hz10N load/stop recipe passes14 fitting and21
-independent component cases with unchanged normal gains, residual coefficients
-and physical/task thresholds. Earlier failed proposals remain, including the
-rejected16N extension. Exact nominal references expose single first-contact peaks
-above10N. Gentle teachers reduce impact but exhaust the unchanged30mm seek budget
-before physical force. Independent clock/travel/geometry diagnosis rules out a
-duplicate travel charge. Slow-tail teachers resolve acquisition, but their exact
-observed references stop during early push at contact-load loss. These diagnostic
-replays never count as learned completion.
+The next operational gate is one complete right reference with adequate wall time,
+retaining the previous deadline-limited attempt. The8,126-command left path already
+passes acquisition/opening/hold/release/stabilization and independent stops, with
+exact source parity and zero learned actions. Both references must pass before
+base training; neither counts as learned success. Shared-mutex coordination
+preserves ongoing AV and VLA-LEGO workloads.
 
-The full-cycle continuity mismatch is corrected, including ordinary cycles without
-extended hold. Instantaneous native feedback variants fail; their physical traces
-and all valid-window scopes remain preserved. The left motion-continuous,
-pending-motion corrected source qualifies, including8,126 temporal CUDA windows
-with zero optimizer updates. Its fresh observed reference now completes all8,126
-commands:52.564deg controlled opening, valid hold, release and ordinary
-stabilization, no contact losses or physical violations, healthy2+4s stops.
-Requests, delivered deltas, joint states and tool positions exactly match the
-source. This proves the left operational path with zero learned commands.
+The admitted compatible union is114 train sources/168,178windows, including valid
+corrections and two new complete cycles, plus eight development sources/23,705
+windows. Sampling balances four doors, phases/transitions/recoveries and sources;
+genuine temporal sequences and frozen112-source train-only normalization remain.
+The same model resumes toward16k/30k, then15k milestones up to75k if useful learning
+and cumulative resources allow. Save/diagnose every1k; physical pairs are spaced
+at16k/30k/45k/60k/75k. A plateau needs15kupdates without meaningful offline AND task
+progress, never zero completion alone or a short fluctuation. Divergence, sustained
+overfitting and proven execution/data defects require diagnosis. Only satisfactory
+base behavior permits short focused refinement.
 
-The guarded filtered-feedback right source fails continuity at13.776deg. Saved
-native torque/velocity and actual4Nms/rad hinge damping show that the previous
-0.1N push request supports only about0.356deg/s at the measured contact arm,
-below the1deg/s reference. A separate optional teacher push-force request permits
-one fixed0.3N right candidate, supported by the fitted0.298N steady demand.
-Acquisition0.1N, hold0.05N, loaded acceptance0.02N, gains and all physical/runtime
-gates stay unchanged. The right source qualifies at50.220deg,6.862N peak with no
-prerelease loss,
-valid hold/release/stabilization and healthy stops. Its4,108-window CUDA check
-also passes with zero updates. Its observed reference was attempted after the GPU subcap authorization; the
-retained result is deadline-limited and does not establish a complete right path.
-Only both fully qualified sources with both complete operational
-paths may join the original112 for a bounded2,048-update continuation; the
-original112-only normalization stays frozen.
-
-All29 authorized inactive failed native rollouts are preserved in reversible gzip
-archives with complete decompressed SHA-256 equality;19.40GiB is recovered, with
-no cost or failure removed. New prepared temporal image stores can also select
-lossless gzip1/byte shuffle; CUDA tests retain every value bit and sampling rules.
-On six existing frames this uses46.55% of uncompressed space; the actual qualified
-left preparation also passes CUDA sampling/backward checks.
-Eight inactive, never-trained preparation derivatives are separately preserved
-in exact reversible archives. Original teacher recordings, selected inputs,
-normalization, checkpoints, outcomes and resource charges remain.
-
-The human removed the13.5GPUh collection subcap by authorizing use of the
-remaining global local GPU allowance. Global48local/32aggregate remote GPUh,
-200,000updates/1TiB,281collection launches and432GiB remain. The original work
-window ends2026-10-23at14:55UTC/10:55Indiana; it is not shifted by the late answer.
-One full4,108-command right reference was launched with a630s body watchdog and
-shutdown reserve. Retained progress reaches34.403deg;
-its complete-path result isFalse and timeout isTrue.
-No optimizer updates or native development cases ran in the remaining window.
-Current upper accounting is35.196local and
-4.978remote GPUh,129,709updates and
-1003.07GiB retained. Every attempted outcome remains.
-The earlier valid observed-prefix ACT phase remains a separate66-command contact
-failure, never full completion. No owned GPU work remains; the shared lease is
-released for the coordinated AV evaluations. The next work requires a new time
-window, complete right path proof if still incomplete, then the bounded2,048
-update continuation with unchanged normalization and task gates.
-See [[experiments/act-a1-first-completion]].
+Read-only storage audit identifies48.649GiB of duplicate hardlink paths; resource
+guards now count distinct stored inodes plus every remote copy/output, preserving
+the earlier conservative path sum. The1TiB cap and every prior outcome remain.
+One bounded lossless Gilbreth input replica is being prepared; no new broad
+collection, RL, architecture comparison or threshold change is authorized.
+After the same checkpoint completes both fresh normal starts, evaluate all four
+frozen development cases. See [[experiments/act-a1-first-completion]].
 
 Current as of 2026-10-23. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,

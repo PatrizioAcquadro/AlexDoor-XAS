@@ -41,6 +41,10 @@ def main():
     parser.add_argument("--wall-seconds", type=float, default=900)
     parser.add_argument("--normalization", type=Path)
     parser.add_argument("--resume", type=Path)
+    parser.add_argument("--diagnostic-batches", type=int, default=4)
+    parser.add_argument(
+        "--stop-file", type=Path, help="Save and stop at an update boundary when present"
+    )
     parser.add_argument(
         "--focus-episode",
         action="append",
@@ -54,7 +58,10 @@ def main():
         return
     if not torch.cuda.is_available():
         raise RuntimeError("Actual CUDA required; no CPU fallback")
-    if args.output is None or min(args.updates, args.save_every, args.wall_seconds) <= 0:
+    if (
+        args.output is None
+        or min(args.updates, args.save_every, args.wall_seconds, args.diagnostic_batches) <= 0
+    ):
         parser.error("Positive limits and --output required")
     args.output.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
@@ -102,6 +109,8 @@ def main():
         normalization_fit_episode_ids=list(stats.train_episode_ids),
         final_test_opened=False,
         learned_success=False,
+        diagnostic_batches=args.diagnostic_batches,
+        stop_file=None if args.stop_file is None else str(args.stop_file),
     )
     (args.output / "run.json").write_text(json.dumps(result, indent=2))
 
@@ -134,8 +143,38 @@ def main():
         )
         return str(checkpoint)
 
+    def diagnose():
+        # Compare fixed balanced causal draws without perturbing training RNG.
+        rng = capture_rng_states()
+        try:
+            return dict(
+                step=step,
+                training_l1_diagnostic=evaluate_l1(
+                    model,
+                    (
+                        train.batch(9300 + i, batch_size=8, stats=stats)
+                        for i in range(args.diagnostic_batches)
+                    ),
+                    torch.device("cuda"),
+                ),
+                development_l1_diagnostic=evaluate_l1(
+                    model,
+                    (
+                        dev.batch(9200 + i, batch_size=8, stats=stats)
+                        for i in range(args.diagnostic_batches)
+                    ),
+                    torch.device("cuda"),
+                ),
+            )
+        finally:
+            restore_rng_states(rng)
+
     try:
+        if args.diagnostic_batches != 4:
+            log.write(json.dumps(dict(diagnose(), initial_diagnostic=True)) + "\n")
         while step < args.updates and time.monotonic() - started < args.wall_seconds - 60:
+            if args.stop_file is not None and args.stop_file.exists():
+                break
             begin = time.monotonic()
             batch = train.batch(args.seed * 1000000 + step, batch_size=args.batch_size, stats=stats)
             tensors = _to_device(collate_torch(batch), torch.device("cuda"))
@@ -157,16 +196,18 @@ def main():
             )
             if step % args.save_every == 0 or step == args.updates:
                 row["checkpoint"] = save()
-                row["development_l1_diagnostic"] = evaluate_l1(
-                    model,
-                    (dev.batch(9200 + i, batch_size=8, stats=stats) for i in range(4)),
-                    torch.device("cuda"),
-                )
+                row.update(diagnose())
             log.write(json.dumps(row) + "\n")
             if step % 16 == 0:
                 print(json.dumps(row), flush=True)
         result["checkpoint"] = save()
-        result["stop_reason"] = "update_limit" if step >= args.updates else "wall_limit"
+        result["stop_reason"] = (
+            "monitor_stop"
+            if args.stop_file is not None and args.stop_file.exists()
+            else "update_limit"
+            if step >= args.updates
+            else "wall_limit"
+        )
     except BaseException as error:
         result["stop_reason"] = type(error).__name__ + ": " + str(error)
         raise
