@@ -46,10 +46,12 @@ class ProbeSetup:
     hold_blend_s: float = 0.5
     angular_speed: float = float(np.deg2rad(5))
     push_ramp_s: float = 0.0
+    push_ramp_from_motion: bool = False
     lead_angle: float = float(np.deg2rad(0.3))
     compression_m: float = 0.003
     normal_admittance_m_n_s: float = 0.0005
     support_force_source: str = "qualification_window"
+    support_gap_antiwindup: bool = False
     force_limit_n: float = 80.0
     soft_force_n: float = 50.0
     contact_load_guard_n: float = 0.10
@@ -117,6 +119,10 @@ class ProbeSetup:
             or self.intermediate_preroll_s <= self.sustain_s + self.contact_force_window_s
         ):
             raise ValueError("Require ordinary tail >=2s and fresh loaded pre-roll support")
+        if not isinstance(self.push_ramp_from_motion, bool) or not isinstance(
+            self.support_gap_antiwindup, bool
+        ):
+            raise ValueError("Teacher motion ramp and gap antiwindup options must be boolean")
         if self.support_force_source not in ("qualification_window", "native_interval_mean"):
             raise ValueError("Unknown teacher support force source")
         if not np.isfinite(self.push_ramp_s) or self.push_ramp_s < 0:
@@ -260,6 +266,27 @@ def push_reference(reference, angle, setup, dt, mechanical_stop, *, speed_scale=
     )
 
 
+def push_speed_scale(elapsed_s, setup, initial_speed=0.0):
+    """Blend from the measured handoff velocity once; never chase later coasting."""
+    if not np.isfinite(initial_speed):
+        raise ValueError("Invalid teacher handoff speed")
+    if not setup.push_ramp_s:
+        return 1.0
+    alpha = min(1.0, elapsed_s / setup.push_ramp_s)
+    start = (
+        np.clip(initial_speed / setup.angular_speed, 0.0, 1.0)
+        if setup.push_ramp_from_motion
+        else 0.0
+    )
+    return float(start + (1.0 - start) * alpha)
+
+
+def distal_pending_advance(vertices, current_p, current_r, target_p, target_r, normal):
+    """Minimum already-commanded normal advance over all calibrated distal vertices."""
+    displacement = vertices @ (target_r - current_r).T + target_p - current_p
+    return float(np.min(displacement @ normal))
+
+
 def pre_release_contact_continuity(traces, setup, *, phase_family=None, intermediate_start=False):
     """Full-task qualification, separate from the teacher's bounded recontact control.
 
@@ -353,8 +380,12 @@ def conditioning_margin_exhausted(samples, setup, *, extra_contact_s=0.0):
     )
 
 
-def normal_contact_support(compression, force, setup, dt, *, target_force=None, gap_m=None):
+def normal_contact_support(
+    compression, force, setup, dt, *, target_force=None, gap_m=None, pending_normal_m=0.0
+):
     """Bidirectional bounded force admittance, including removal of excess preload."""
+    if not np.isfinite(pending_normal_m):
+        raise ValueError("Invalid pending normal advance")
     target_force = setup.contact_load_guard_n if target_force is None else target_force
     rate = setup.normal_admittance_m_n_s * (target_force - force)
     if gap_m is not None:
@@ -366,7 +397,7 @@ def normal_contact_support(compression, force, setup, dt, *, target_force=None, 
             # normal rate/extent bounds and force-unloading priority.
             # Gap catch-up restores geometry; it must not replace the positive
             # force-error admittance that establishes load beyond first touch.
-            rate += gap_m / dt
+            rate += max(0.0, gap_m - max(0.0, pending_normal_m)) / dt
     rate_limit = setup.compression_m / setup.sustain_s
     increment = np.clip(rate, -rate_limit, rate_limit) * dt
     return float(
@@ -709,7 +740,27 @@ def run_probe(
             if phase == "hold" and not maintain_acquisition_load
             else setup.contact_load_guard_n
         )
-        normal_feedback = dict(force_n=force, source=source, target_force_n=target_force)
+        pending = 0.0
+        if setup.support_gap_antiwindup and phase in ("push", "hold"):
+            target, _ = chain.forward(tensor(env.targets)[:, env.arm_ids], with_jacobian=False)
+            target = target[0].cpu().numpy()
+            current_p, current_q = [v[0].cpu().numpy() for v in env.tool_pose()]
+            angle = float(tensor(env.door.data.joint_pos)[0, 0])
+            normal = door.contact_pose(angle, setup.contact_fraction, setup.contact_height)[1][:, 0]
+            pending = distal_pending_advance(
+                distal,
+                current_p,
+                Rotation.from_quat(current_q).as_matrix(),
+                root_p + root_r @ target[:3, 3],
+                root_r @ target[:3, :3],
+                normal,
+            )
+        normal_feedback = dict(
+            force_n=force,
+            source=source,
+            target_force_n=target_force,
+            pending_distal_normal_advance_m=pending,
+        )
         if correction is not None and correction.position_return_active(phase):
             # The measured-origin transition already corrects position error.
             # Do not stack a second gap catch-up; keep force unloading active.
@@ -721,6 +772,7 @@ def run_probe(
             dt,
             target_force=target_force,
             gap_m=gap,
+            pending_normal_m=pending,
         )
 
     def command(goal_p, goal_r, phase, *, injected_pose=None):
@@ -953,6 +1005,7 @@ def run_probe(
             reason = "short_acquisition_endpoint"
         if not failure and family != "A":
             reference = state[0]
+            initial_push_speed = float(tensor(env.door.data.joint_vel)[0, 0])
             reference_step = 0.0
             compression = setup.compression_m if compression is None else compression
             for tick in range(round(setup.horizon_s / dt)):
@@ -964,9 +1017,7 @@ def run_probe(
                     setup,
                     dt,
                     door.mechanical_stop,
-                    speed_scale=(
-                        min(1.0, (tick + 1) * dt / setup.push_ramp_s) if setup.push_ramp_s else 1.0
-                    ),
+                    speed_scale=push_speed_scale((tick + 1) * dt, setup, initial_push_speed),
                 )
                 reference_step = reference - previous_reference
                 compression = support_normal(compression, "push")

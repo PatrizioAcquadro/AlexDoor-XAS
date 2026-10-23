@@ -913,3 +913,36 @@ losses and12.982N native peak. It fails the newly active full-continuity gate an
 is also incompatible with10N operating support. No CUDA data check, observed
 reference or training is launched for this source. The predeclared left source
 runs once; further work returns to diagnosis, not automatic training.
+
+
+## Pending-motion and push-velocity handoff diagnosis
+
+Both fixed native-feedback sources fail continuity and10N compatibility: right
+four losses/12.982N, left seven losses/10.948N. All stops remain healthy and task
+physical violations remain zero. Neither source receives a data check, reference
+or training. The failure is retained as a negative result for this explicit
+teacher option; the deployed runtime/default teacher is unchanged.
+
+A read-only reconstruction uses saved joint targets, double-precision URDF FK,
+USD leaf normals and all18 calibrated distal vertices. FK agrees with actual tool
+positions within0.959micrometers. In the right oscillation interval, all58
+force-free separating samples already have TCP advance covering the measured gap;
+41 also have that coverage at every distal vertex. Nevertheless the controller
+repeatedly adds the complete measured gap to its normal reference while the
+previous target is still pending. This stacks catch-up and produces contact
+impulses. The corrected optional teacher catch-up subtracts only already-requested
+positive normal advance, using the minimum over all distal vertices so rotation
+cannot hide a lagging finger. Pressure-error admittance, unloading priority and
+existing rate/extent limits remain.
+
+The initial1s zero-speed ramp introduces a separate velocity discontinuity.
+Actual handoff speed is0.159deg/s right/0.188deg/s left, while the first ramp step
+is0.0167deg/s. The left reference falls0.0167deg behind actual motion at its early
+load loss. An explicit teacher option blends once from the measured initial
+opening velocity to the unchanged1deg/s maximum; it never chases later coasting
+and retains the reference/lead/mechanical limits. These two measured defects
+motivate one fixed corrected pair, not a parameter grid. Defaults and acquisition
+stay unchanged. Numerical checks cover distal rotation, partial/complete pending
+motion, unloading, speed bounds, old arithmetic and scope. Native qualification
+remains pending; no new-data optimizer update is authorized before both entire
+observed reference paths succeed.

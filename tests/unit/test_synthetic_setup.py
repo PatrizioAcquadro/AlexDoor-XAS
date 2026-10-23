@@ -528,3 +528,59 @@ def test_teacher_native_support_feedback_does_not_change_qualification_or_acquis
     )
     with pytest.raises(ValueError, match="support force source"):
         ProbeSetup(support_force_source="current_truth")
+
+
+def test_pending_distal_motion_is_not_counted_again_as_gap_catchup():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_contact_support
+
+    setup = ProbeSetup()
+    dt = 1 / 60
+    pressure = setup.normal_admittance_m_n_s * setup.contact_load_guard_n * dt
+    assert normal_contact_support(
+        0.0, 0.0, setup, dt, gap_m=40e-6, pending_normal_m=80e-6
+    ) == pytest.approx(pressure)
+    assert normal_contact_support(
+        0.0, 0.0, setup, dt, gap_m=40e-6, pending_normal_m=30e-6
+    ) == pytest.approx(pressure + 10e-6)
+    legacy = normal_contact_support(0.0, 0.0, setup, dt, gap_m=40e-6)
+    assert (
+        normal_contact_support(0.0, 0.0, setup, dt, gap_m=40e-6, pending_normal_m=-30e-6) == legacy
+    )
+    assert normal_contact_support(0.0, 1.0, setup, dt, gap_m=40e-6, pending_normal_m=80e-6) < 0
+    with pytest.raises(ValueError, match="pending normal"):
+        normal_contact_support(0, 0, setup, dt, pending_normal_m=np.nan)
+
+
+def test_pending_advance_includes_rotating_distal_points_not_only_tool_center():
+    from alexdoor_xas.qualification.synthetic_probe import distal_pending_advance
+
+    vertices = np.array([[0, -0.02, 0], [0, 0.02, 0]])
+    origin = np.zeros(3)
+    target = np.array([0.001, 0.0, 0.0])
+    rotation = Rotation.from_euler("z", 0.1).as_matrix()
+    assert distal_pending_advance(
+        vertices, origin, np.eye(3), target, np.eye(3), np.array([1, 0, 0])
+    ) == pytest.approx(0.001)
+    assert (
+        distal_pending_advance(vertices, origin, np.eye(3), target, rotation, np.array([1, 0, 0]))
+        < 0
+    )
+
+
+def test_push_ramp_can_match_initial_motion_without_chasing_future_coasting():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, push_speed_scale
+
+    old = ProbeSetup(push_ramp_s=1)
+    setup = ProbeSetup(push_ramp_s=1, push_ramp_from_motion=True)
+    initial = 0.2 * setup.angular_speed
+    assert push_speed_scale(0, setup, initial) == pytest.approx(0.2)
+    assert push_speed_scale(0.5, setup, initial) == pytest.approx(0.6)
+    assert push_speed_scale(1.5, setup, initial) == 1.0
+    assert push_speed_scale(0, setup, -initial) == 0.0
+    assert push_speed_scale(0.1, setup, 3 * initial / 0.2) == 1.0
+    assert push_speed_scale(1 / 60, old, initial) == 1 / 60
+    assert push_speed_scale(1 / 60, ProbeSetup(), initial) == 1.0
+    with pytest.raises(ValueError, match="handoff speed"):
+        push_speed_scale(0, setup, np.nan)
+    with pytest.raises(ValueError, match="must be boolean"):
+        ProbeSetup(support_gap_antiwindup="true")
