@@ -1023,3 +1023,38 @@ acceptance0.02N, pressure gains,10N operational support,80N physical limit and
 all original task criteria remain unchanged. The guarded filtered feedback and
 motion-continuous ramp remain. The new right source and reference are pending;
 the positive original left source and full reference are reused without retry.
+
+
+The one damping-matched right teacher now passes the complete source gates:
+50.220deg controlled opening,6.862N peak, no prerelease contact loss, valid hold,
+release, ordinary stabilization and healthy independent stops. Its4,108 temporal
+windows cover every required transition, retain exact applied-minus-measured A1
+labels and offline/online agreement, and pass finite CUDA backward with unchanged
+weights and zero updates. The full observed right reference is prepared with all
+4,108 commands, but not launched: its conservative wall reservation exceeds the
+remaining13.5GPUh collection allowance. The pending human question is unresolved;
+extra launch slots alone do not alter that allowance. The original left reference
+and all failed attempts remain unchanged. Training is still blocked on the right
+complete operational proof.
+
+## Genuine observed-prefix phase evaluation
+
+`pilot_physics.py rollout --temporal-act` can explicitly stage a phase with
+`--reference-prefix-recording` and `--reference-prefix-commands`. This mode uses
+the normal initial state/inspection, live RGB-D and proprioceptive ingress,
+temporal readiness, admission and safety for every staging row. A fixed multiple
+of six source commands preserves ACT replanning boundaries. The stored command
+suffix is discarded; at the declared live clock, control passes permanently to
+the saved ACT policy. Future teacher commands, simulator truth and source images
+never enter policy observations. The first ACT input retains the actual4s history
+and acknowledged previous applied targets produced in this execution.
+
+This is a separate phase diagnostic, always ineligible for full learned success.
+Each dispatched row is independently labeled learned or reference; evaluator
+source counts and complete recorded inputs survive a refusal. Prefix staging has
+no override of current geometry, load, readiness, admission or physical stops.
+Numerical checks cover exact prefix delivery, clock mismatch, one-way handoff,
+no early ACT inference, reset isolation and stale-input refusal during staging.
+The first native phase attempt remains pending. Its GPU charge belongs to policy
+evaluation under the global48h allowance; it neither collects a new teacher nor
+qualifies or replaces the still-unattempted right full reference.

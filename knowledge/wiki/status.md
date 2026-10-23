@@ -36,8 +36,9 @@ native torque/velocity and actual4Nms/rad hinge damping show that the previous
 below the1deg/s reference. A separate optional teacher push-force request permits
 one fixed0.3N right candidate, supported by the fitted0.298N steady demand.
 Acquisition0.1N, hold0.05N, loaded acceptance0.02N, gains and all physical/runtime
-gates stay unchanged. Right qualification and its complete observed reference
-remain pending. Only both fully qualified sources with both complete operational
+gates stay unchanged. The right source now qualifies at50.220deg,6.862N peak with no prerelease loss,
+valid hold/release/stabilization and healthy stops. Its4,108-window CUDA check
+also passes with zero updates. Its complete observed reference remains pending. Only both fully qualified sources with both complete operational
 paths may join the original112 for a bounded2,048-update continuation; the
 original112-only normalization stays frozen.
 
@@ -53,6 +54,11 @@ normalization, checkpoints, outcomes and resource charges remain.
 Authorized limits are48local GPUh,32aggregate remote GPUh,200,000 cumulative
 updates and1TiB retained. The collection ceilings are281 launches,13.5GPUh and
 432GiB. The maximum continuation window ends2026-10-23at14:55UTC/10:55Indiana.
+The collection GPU subcap currently prevents reserving the full right reference;
+only an explicit answer to the pending subcap question can extend it. A separate
+observed-prefix ACT phase diagnostic is implemented: real normal inspection and
+measured history, fixed six-row staging, permanent handoff, unchanged per-row
+safety and no full learned-success eligibility. Native verification is pending.
 All historical charges/outcomes remain in the cumulative ledger; the shared4090
 mutex is released between stages and coordinated with the other authorized chat.
 See [[experiments/act-a1-first-completion]].

@@ -301,3 +301,69 @@ def test_physical_safety_failure_has_priority_over_external_completion(replay_ru
     result = runner.run(max_ticks=13)
     assert result.reason == "forced_safety" and result.control_steps == 1
     assert seen == [] and not result.predicted_complete and runner.stopped
+
+
+def test_diagnostic_prefix_hands_off_once_with_live_ingress_and_never_calls_act_early(
+    replay_runner,
+):
+    from alexdoor_xas.policies.act.execution import DiagnosticA1Prefix
+
+    runner, io, policy, execution, _, _ = replay_runner
+    actions = np.arange(30 * 7).reshape(30, 7) / 1000000
+    execution.diagnostic_prefix = DiagnosticA1Prefix(0.7 + np.arange(30) / 60, actions, 6, io.dt)
+    execute, sources, queries = io.execute, [], []
+    predict = policy.predict
+
+    def record_predict(snapshot, **options):
+        queries.append(snapshot["decision_time_s"])
+        return predict(snapshot, **options)
+
+    policy.predict = record_predict
+
+    def record(command):
+        sources.append(execution.reference_command)
+        execute(command)
+
+    io.execute = record
+    result = runner.run(max_ticks=13)
+    assert result.reason == "time_budget" and result.control_steps == 13
+    assert sources == [True] * 6 + [False] * 7
+    np.testing.assert_array_equal([c.value for c in io.commands[:6]], actions[:6])
+    np.testing.assert_allclose(queries, [0.8, 0.9], atol=1e-9)
+    assert not any(execution.observations.rows.values())
+    sources.clear()
+    queries.clear()
+    assert runner.run(max_ticks=7).control_steps == 7
+    assert sources == [True] * 6 + [False]
+    np.testing.assert_allclose(queries, [0.8], atol=1e-9)
+
+
+def test_diagnostic_prefix_stale_live_input_stops_before_act_and_keeps_safety(replay_runner):
+    from alexdoor_xas.policies.act.execution import DiagnosticA1Prefix
+
+    runner, io, policy, execution, _, drop_after = replay_runner
+    execution.diagnostic_prefix = DiagnosticA1Prefix(
+        0.7 + np.arange(30) / 60, np.zeros((30, 7)), 6, io.dt
+    )
+    drop_after[0] = 42
+    result = runner.run(max_ticks=13)
+    assert result.reason.startswith("invalid_execution:") and "stale" in result.reason
+    assert result.control_steps == 3 and not policy.calls and io.stops == 1
+
+
+def test_diagnostic_prefix_rejects_bad_clock_and_discards_future_teacher_commands():
+    from alexdoor_xas.policies.act.execution import DiagnosticA1Prefix
+
+    times, actions = 25.2 + np.arange(30) / 60, np.ones((30, 7))
+    for count in (0, 5, 30):
+        with pytest.raises(ValueError, match="six-row"):
+            DiagnosticA1Prefix(times, actions, count, 1 / 60)
+    prefix = DiagnosticA1Prefix(times, actions, 6, 1 / 60)
+    assert prefix.actions.shape == (6, 7) and len(prefix.times) == 7
+    with pytest.raises(ValueError, match="clock"):
+        prefix.chunk(25.21)
+    np.testing.assert_array_equal(prefix.chunk(25.2), actions[:6])
+    with pytest.raises(ValueError, match="clock"):
+        prefix.chunk(25.31)
+    assert prefix.chunk(25.3) is None
+    assert prefix.chunk(100.0) is None and prefix.handed_off

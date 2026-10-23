@@ -12,8 +12,64 @@ from alexdoor_xas.policies.act.temporal import TemporalActPolicy
 from alexdoor_xas.policies.temporal import IncrementalObservationBuilder
 
 
+class DiagnosticA1Prefix:
+    """Fixed observed-runtime staging only; never a learned policy input or completion.
+
+    Six-row boundaries preserve ACT replanning. Every staging row still uses the
+    current observer, temporal readiness, admission and actual controller. After
+    the declared handoff, this source permanently yields to ACT for that run.
+    """
+
+    def __init__(self, times, actions, command_count, control_dt):
+        times, actions = np.asarray(times, float), np.asarray(actions, float)
+        if (
+            times.ndim != 1
+            or actions.shape != (len(times), 7)
+            or not np.isfinite(times).all()
+            or not np.isfinite(actions).all()
+            or not isinstance(command_count, int)
+            or not 0 < command_count < len(times)
+            or command_count % 6
+            or not np.isfinite(control_dt)
+            or control_dt <= 0
+            or not np.allclose(np.diff(times), control_dt, atol=1e-7, rtol=0)
+        ):
+            raise ValueError(
+                "Diagnostic prefix requires complete finite A1 rows and six-row timing"
+            )
+        self.times = times[: command_count + 1].copy()
+        self.actions = actions[:command_count].copy()
+        self.command_count, self.dt = command_count, control_dt
+        self.reset()
+
+    def reset(self):
+        self.index, self.handed_off = 0, False
+
+    def chunk(self, now_s):
+        if self.handed_off:
+            return None
+        if not np.isclose(now_s, self.times[self.index], atol=1e-7, rtol=0):
+            raise ValueError("Diagnostic prefix differs from the actual observation clock")
+        if self.index == self.command_count:
+            self.handed_off = True
+            return None
+        begin = self.index
+        self.index += 6
+        return self.actions[begin : self.index].copy()
+
+
 class TemporalA1Execution:
-    def __init__(self, policy, binding, robot_asset, observations, *, reuse=False, startup=None):
+    def __init__(
+        self,
+        policy,
+        binding,
+        robot_asset,
+        observations,
+        *,
+        reuse=False,
+        startup=None,
+        diagnostic_prefix=None,
+    ):
         cfg = observations.config
         if (
             policy.config.model_contract() != cfg.model_contract()
@@ -35,6 +91,14 @@ class TemporalA1Execution:
             raise ValueError(
                 "Temporal execution requires the explicit 4s/12/6 A1 inspection recipe"
             )
+        if diagnostic_prefix is not None and (
+            not isinstance(diagnostic_prefix, DiagnosticA1Prefix)
+            or startup is not None
+            or not np.isclose(diagnostic_prefix.dt, cfg.control_dt_s, atol=1e-9, rtol=0)
+        ):
+            raise ValueError("Observed reference prefix requires the normal temporal startup")
+        self.diagnostic_prefix = diagnostic_prefix
+        self.reference_command = False
         self.policy, self.binding, self.robot_asset = policy, binding, robot_asset
         self.observations, self.reuse = observations, bool(reuse)
         self.action_space, self.chunk_size = A1_JOINT_DELTA, 12
@@ -42,6 +106,9 @@ class TemporalA1Execution:
         self.snapshot = None
 
     def reset(self, seed=0):
+        self.reference_command = False
+        if self.diagnostic_prefix is not None:
+            self.diagnostic_prefix.reset()
         self.snapshot = None
         self.policy.reset(self.observations.episode_id, self.observations.generation)
 
@@ -62,6 +129,12 @@ class TemporalA1Execution:
         def source(observation):
             if self.snapshot is None or self.snapshot["decision_time_s"] != observation.time_s:
                 raise ValueError("Validate current temporal observations before replanning")
+            if self.diagnostic_prefix is not None:
+                prefix = self.diagnostic_prefix.chunk(observation.time_s)
+                if prefix is not None:
+                    self.reference_command = True
+                    return prefix
+            self.reference_command = False
             snapshot = self.observations.build(observation.time_s)
             chunk = np.asarray(
                 self.policy.predict(snapshot, now_s=observation.time_s, reuse=self.reuse)
@@ -116,6 +189,7 @@ def temporal_a1_runner(
     device="cuda:0",
     admission_source=None,
     startup=None,
+    diagnostic_prefix=None,
 ):
     """Load a compatible checkpoint and explicitly opt into temporal A1 execution.
 
@@ -126,6 +200,10 @@ def temporal_a1_runner(
     acquire a fresh reference and perform guarded pre-roll after IO reset. A
     nonempty reason stops through normal IO. No closed-door neck/park sequence
     is run for this mode; current readiness and per-row admission still apply.
+    An explicit diagnostic_prefix stages a normal-start phase through the same
+    live checks and event ingress, then permanently hands control to ACT. It
+    cannot be combined with reconstructed startup. The caller must label every
+    staging command and exclude the entire mixed run from learned completion.
     This entry point never launches a simulator.
     """
     from alexdoor_xas.policies.rollout import B1Runner
@@ -139,7 +217,13 @@ def temporal_a1_runner(
         config, episode_id=episode_id, feedback_contract=feedback_contract
     )
     execution = TemporalA1Execution(
-        policy, observer.binding, io.robot_asset, observations, reuse=reuse, startup=startup
+        policy,
+        observer.binding,
+        io.robot_asset,
+        observations,
+        reuse=reuse,
+        startup=startup,
+        diagnostic_prefix=diagnostic_prefix,
     )
     return B1Runner(
         execution,

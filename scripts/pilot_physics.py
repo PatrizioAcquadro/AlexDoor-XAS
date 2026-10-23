@@ -161,6 +161,16 @@ def main(argv=None):
         help="Diagnostic A1 command replay through the same operational checks; no learned success",
     )
     parser.add_argument(
+        "--reference-prefix-recording",
+        type=Path,
+        help="Diagnostic observed prefix followed by temporal ACT; never full learned success",
+    )
+    parser.add_argument(
+        "--reference-prefix-commands",
+        type=int,
+        help="Positive multiple of six staging commands, followed permanently by ACT",
+    )
+    parser.add_argument(
         "--rollout-compression",
         choices=("none", "lzf", "gzip"),
         default="none",
@@ -193,6 +203,17 @@ def main(argv=None):
         args.mode != "rollout" or args.family != "act" or args.reference_recording
     ):
         parser.error("Temporal ACT requires learned ACT rollout without reference replay")
+    if (args.reference_prefix_recording is None) != (args.reference_prefix_commands is None):
+        parser.error("Reference prefix requires both recording and command count")
+    if args.reference_prefix_recording is not None and (
+        not args.temporal_act
+        or args.expert_reference is None
+        or args.reference_recording
+        or args.intermediate_state
+        or args.reference_prefix_commands <= 0
+        or args.reference_prefix_commands % 6
+    ):
+        parser.error("Reference prefix requires normal temporal ACT and six-row boundaries")
     if args.rollout_compression != "none" and args.mode != "rollout":
         parser.error("Rollout compression is only available for rollout evidence")
     if args.collection_compression != "none" and args.mode != "collect":
@@ -816,6 +837,29 @@ def rollout(env, args, protocol, robot, setup, inspection):
         )
         binding = observer.binding
         events = NativeTemporalEvents(env, config)
+        diagnostic_prefix = None
+        if args.reference_prefix_recording is not None:
+            import h5py
+
+            from alexdoor_xas.policies.act.execution import DiagnosticA1Prefix
+
+            with h5py.File(args.reference_prefix_recording, "r") as source:
+                metadata = json.loads(source["metadata"].attrs["episode"])
+                if (
+                    not bool(source.attrs.get("complete", False))
+                    or bool(source.attrs.get("full_task_eligible", True))
+                    or metadata["asset_id"] != args.asset_id
+                    or metadata.get("sim_dt") != env.cfg.sim.dt
+                ):
+                    raise ValueError("Prefix requires a complete matched diagnostic source")
+                times = source["commands/time_s"][:]
+                targets = source["commands/joint_target"][:]
+                measured = source["observations/joint_position"][: len(times), :7]
+                diagnostic_prefix = DiagnosticA1Prefix(
+                    times, targets - measured, args.reference_prefix_commands, io.dt
+                )
+            if protocol["rollout_max_ticks"] <= args.reference_prefix_commands:
+                raise ValueError("Phase budget must include actual ACT commands after the prefix")
         runner = temporal_a1_runner(
             args.checkpoint,
             observer,
@@ -826,6 +870,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
             feedback_contract=simulated_feedback_contract(env),
             admission_source=motion,
             startup=startup,
+            diagnostic_prefix=diagnostic_prefix,
         )
         observer, policy = runner.observer, runner.policy
     else:
@@ -841,6 +886,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
             env, binding, robot, setup, args.operational_recipe, args.output, policy.action_space
         )
     reference_mode = args.reference_recording is not None
+    prefix_mode = args.reference_prefix_recording is not None
     if reference_mode:
         import h5py
 
@@ -877,12 +923,18 @@ def rollout(env, args, protocol, robot, setup, inspection):
         dict(
             purpose="operational_reference_diagnostic"
             if reference_mode
+            else "observed_prefix_phase_diagnostic"
+            if prefix_mode
             else "intermediate_phase_diagnostic"
             if args.intermediate_state
             else "learned_rollout_evaluation",
             intermediate_state=str(args.intermediate_state) if args.intermediate_state else None,
-            full_task_eligible=not bool(args.intermediate_state or reference_mode),
+            full_task_eligible=not bool(args.intermediate_state or reference_mode or prefix_mode),
             reference_recording=str(args.reference_recording) if reference_mode else None,
+            reference_prefix_recording=str(args.reference_prefix_recording)
+            if prefix_mode
+            else None,
+            reference_prefix_commands=args.reference_prefix_commands if prefix_mode else None,
             family=args.family,
             checkpoint=str(args.checkpoint),
             action_space=policy.action_space,
@@ -948,7 +1000,12 @@ def rollout(env, args, protocol, robot, setup, inspection):
             learned=np.bool_(
                 command is not None
                 and not reference_mode
+                and not getattr(policy, "reference_command", False)
                 and not getattr(io, "initializing_phase", False)
+            ),
+            reference=np.bool_(
+                command is not None
+                and (reference_mode or getattr(policy, "reference_command", False))
             ),
             submitted_tool_position=np.full(3, np.nan) if goal is None else goal.origin.copy(),
             submitted_tool_rotation=np.full((3, 3), np.nan) if goal is None else goal.rot.copy(),
@@ -988,12 +1045,12 @@ def rollout(env, args, protocol, robot, setup, inspection):
                 float(sensor["time_s"]),
                 applied_evaluation_goal,
                 learned_command=bool(pending["learned"]),
-                reference_command=bool(reference_mode and pending["request_width"] > 0),
+                reference_command=bool(pending["reference"]),
             )
             independent.update(evaluation.update(physical) if evaluation is not None else physical)
         evaluator_states.write(json.dumps(json_safe(independent), allow_nan=False) + "\n")
         if pending is not None:
-            recording.command(pending)
+            recording.command({k: v for k, v in pending.items() if k != "reference"})
             robot_rows, evaluator_rows = [], []
             for sample, contact in zip(env.load_samples, env.contact_history, strict=True):
                 fb = sample.feedback
@@ -1177,14 +1234,27 @@ def rollout(env, args, protocol, robot, setup, inspection):
         if args.temporal_act:
             episode_passed &= result.reason == "evaluated_task_complete"
         phase_passed = bool(episode_passed and args.intermediate_state)
+        episode_passed &= not prefix_mode
         episode_passed &= not bool(args.intermediate_state)
         outcome = dict(
             passed=episode_passed,
             intermediate_phase_success=phase_passed,
-            full_task_eligible=not bool(args.intermediate_state or reference_mode),
+            full_task_eligible=not bool(args.intermediate_state or reference_mode or prefix_mode),
             termination=result.reason,
-            learned_commands=0 if reference_mode else result.control_steps,
-            reference_commands=result.control_steps if reference_mode else 0,
+            learned_commands=(
+                physical_result["learned_commands"]
+                if physical_result is not None
+                else 0
+                if reference_mode
+                else result.control_steps
+            ),
+            reference_commands=(
+                physical_result["reference_commands"]
+                if physical_result is not None
+                else result.control_steps
+                if reference_mode
+                else 0
+            ),
             physical_evaluation=(
                 "unavailable_frozen_reference" if physical_result is None else physical_result
             ),
@@ -1242,7 +1312,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         passed=episode_passed,
         recording_complete=recording_complete,
         intermediate_phase_success=phase_passed,
-        full_task_eligible=not bool(args.intermediate_state or reference_mode),
+        full_task_eligible=not bool(args.intermediate_state or reference_mode or prefix_mode),
         intermediate_state=str(args.intermediate_state) if args.intermediate_state else None,
         physical_evaluation=physical_result,
         runner=asdict(result),
@@ -1252,17 +1322,33 @@ def rollout(env, args, protocol, robot, setup, inspection):
         scope=(
             "operational_reference_diagnostic"
             if reference_mode
+            else "observed_prefix_phase_diagnostic"
+            if prefix_mode
             else "intermediate_phase_diagnostic"
             if args.intermediate_state
             else "operational_rollout_attempt_no_admission_bypass"
         ),
         reference_recording=str(args.reference_recording) if reference_mode else None,
-        reference_commands=result.control_steps if reference_mode else 0,
+        reference_commands=(
+            physical_result["reference_commands"]
+            if physical_result is not None
+            else result.control_steps
+            if reference_mode
+            else 0
+        ),
+        reference_prefix_recording=str(args.reference_prefix_recording) if prefix_mode else None,
+        reference_prefix_commands=args.reference_prefix_commands if prefix_mode else None,
         reference_cycle_success=(
             False if physical_result is None else physical_result["reference_cycle_success"]
         ),
         inspection_ticks=len(rows),
-        policy_commands=0 if reference_mode else result.control_steps,
+        policy_commands=(
+            physical_result["learned_commands"]
+            if physical_result is not None
+            else 0
+            if reference_mode
+            else result.control_steps
+        ),
         retained_inputs="rollout.hdf5",
         rollout_image_compression=args.rollout_compression,
         first_policy_input="first-policy-input.npz" if prediction_ms else None,
