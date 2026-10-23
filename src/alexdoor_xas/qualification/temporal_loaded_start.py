@@ -116,7 +116,9 @@ def loaded_phase_startup(env, setup, state_path, *, asset_id, output):
     def startup(observer, io):
         from alexdoor_xas.qualification.synthetic_probe import ContactLoad, prepare_probe
 
-        if metadata["episode_id"] not in observer.execution.policy.stats.train_episode_ids:
+        policy = observer.execution.policy
+        selected = getattr(policy, "training_episode_ids", policy.stats.train_episode_ids)
+        if metadata["episode_id"] not in selected:
             raise ValueError("Loaded source is outside selected training data")
         if len(state["stiffness"]) != len(env._motion_impedance) or any(
             not np.array_equal(saved_k, array(stiffness))

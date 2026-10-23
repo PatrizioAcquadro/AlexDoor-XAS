@@ -110,7 +110,26 @@ def temporal_contract(config, n_action_steps):
     )
 
 
-def save_temporal_policy(path, model, stats, robot_asset, *, n_action_steps=6):
+def validate_training_sources(stats, selected=None):
+    """Keep selected training sources distinct from the train-only normalization fit."""
+    fitted = tuple(stats.train_episode_ids)
+    selected = fitted if selected is None else selected
+    if isinstance(selected, str):
+        raise ValueError("Selected training sources require unique episode identities")
+    selected = tuple(selected)
+    if any(
+        not ids or any(not isinstance(x, str) or not x for x in ids) or len(set(ids)) != len(ids)
+        for ids in (fitted, selected)
+    ) or not set(fitted) <= set(selected):
+        raise ValueError(
+            "Normalization sources must be a nonempty subset of selected training data"
+        )
+    return selected
+
+
+def save_temporal_policy(
+    path, model, stats, robot_asset, *, n_action_steps=6, training_episode_ids=None
+):
     config = TemporalConfig(**(model.cfg.temporal_config or {}))
     if (
         model.cfg.visual_recipe != TEMPORAL_RECIPE
@@ -136,7 +155,10 @@ def save_temporal_policy(path, model, stats, robot_asset, *, n_action_steps=6):
             )
         ),
         stats,
-        dict(temporal_contract=temporal_contract(config, n_action_steps)),
+        dict(
+            temporal_contract=temporal_contract(config, n_action_steps),
+            training_episode_ids=list(validate_training_sources(stats, training_episode_ids)),
+        ),
         robot_asset,
     )
 
@@ -156,7 +178,9 @@ def temporal_inference_tensors(obs, device, *, reuse):
 
 
 class TemporalActPolicy:
-    def __init__(self, model, stats, *, n_action_steps=6, device="cuda:0"):
+    def __init__(
+        self, model, stats, *, n_action_steps=6, device="cuda:0", training_episode_ids=None
+    ):
         if (
             model.cfg.temporal_config is None
             or model.cfg.visual_recipe != TEMPORAL_RECIPE
@@ -169,6 +193,7 @@ class TemporalActPolicy:
             )
         ):
             raise ValueError("Explicit temporal A1 model/stats/execution contract required")
+        self.training_episode_ids = validate_training_sources(stats, training_episode_ids)
         self.config = TemporalConfig(**model.cfg.temporal_config)
         self.model, self.stats = model.to(device).eval(), stats
         self.device = torch.device(device)
@@ -244,4 +269,10 @@ class TemporalActPolicy:
         assert_checkpoint_runtime_compatible(loaded.robot_asset, runtime_asset)
         model = ACTModel(loaded.obs_dim, loaded.action_dim, cfg).to(device)
         model.load_state_dict(loaded.state_dict)
-        return cls(model, loaded.stats, n_action_steps=steps, device=device)
+        return cls(
+            model,
+            loaded.stats,
+            n_action_steps=steps,
+            device=device,
+            training_episode_ids=loaded.meta.get("training_episode_ids"),
+        )

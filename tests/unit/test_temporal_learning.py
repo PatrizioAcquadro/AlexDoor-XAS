@@ -161,3 +161,24 @@ def test_half_batch_focus_retains_broad_data_and_admitted_sequence_starts(
     manifest.write_text(json.dumps(dict(records=records)))
     with pytest.raises(ValueError, match="Full-cycle focus"):
         temporal_training.TemporalTrainingSet(manifest, focus_episode_ids=["episode0"])
+
+
+@pytest.mark.parametrize("selected", [("fit",), ("fit", "new")])
+def test_selected_train_sources_can_extend_frozen_train_only_normalization(selected):
+    from types import SimpleNamespace
+
+    from alexdoor_xas.policies.act.temporal import validate_training_sources
+
+    stats = SimpleNamespace(train_episode_ids=("fit",))
+    assert validate_training_sources(stats, selected) == selected
+    assert validate_training_sources(stats) == ("fit",)  # Legacy checkpoint scope.
+
+
+@pytest.mark.parametrize("selected", [(), ("new",), ("fit", "fit"), ("fit", ""), "fit"])
+def test_selected_train_sources_reject_missing_fit_and_invalid_identities(selected):
+    from types import SimpleNamespace
+
+    from alexdoor_xas.policies.act.temporal import validate_training_sources
+
+    with pytest.raises(ValueError):
+        validate_training_sources(SimpleNamespace(train_episode_ids=("fit",)), selected)

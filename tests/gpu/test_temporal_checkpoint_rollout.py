@@ -32,7 +32,13 @@ def test_checkpoint_runner_order_replanning_compatibility_and_reset(tmp_path, re
         return NormStats(np.zeros(width), np.ones(width), np.zeros(width), np.ones(width), 1)
 
     stats = DatasetNormStats(identity(7), identity(32), OBS_KEYS, ("fixture",), "A1_joint_delta")
-    checkpoint = save_temporal_policy(tmp_path / "temporal.pt", model, stats, TEST_ROBOT_REF)
+    checkpoint = save_temporal_policy(
+        tmp_path / "temporal.pt",
+        model,
+        stats,
+        TEST_ROBOT_REF,
+        training_episode_ids=("fixture", "new-train"),
+    )
     kwargs = dict(
         config=cfg,
         episode_id="saved-events",
@@ -40,6 +46,8 @@ def test_checkpoint_runner_order_replanning_compatibility_and_reset(tmp_path, re
         admission_source=runner.admission_source,
     )
     maintained = temporal_a1_runner(checkpoint, runner.observer.observer, io, **kwargs)
+    assert maintained.policy.policy.training_episode_ids == ("fixture", "new-train")
+    assert maintained.policy.policy.stats.train_episode_ids == ("fixture",)
     predictions = []
     predict = maintained.policy.policy.predict
 

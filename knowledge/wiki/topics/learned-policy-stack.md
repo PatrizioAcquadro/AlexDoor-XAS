@@ -34,7 +34,9 @@ and inference are separate from the legacy flat recipe; both remain maintained.
 The v2 temporal checkpoint removes static-reference elapsed time. Its explicit
 `temporal_a1_runner` bridge executes six of twelve rows through the existing
 per-row admission/controller/stop path and validates freshness inside a chunk.
-See [[act-a1-observations-and-time|the causal contract, API, measured costs and collection boundary]]. No new policy has been trained or physically qualified.
+See [[act-a1-observations-and-time|the causal contract, API, measured costs and collection boundary]].
+Current temporal ACT training and preserved native failures are reported in
+[[experiments/act-a1-first-completion]]; learned full-task completion is not established.
 
 ## Maintained Components
 
@@ -56,6 +58,16 @@ B1 data loading checks frozen identity membership, train-only normalization and
 ordered observation keys. Checkpoints contain weights, model configuration,
 normalization, robot identity and the perception/action contract. Invalid shapes,
 non-finite weights and incompatible identities are rejected; saving is atomic.
+
+Temporal ACT checkpoints additionally retain selected `training_episode_ids`,
+separate from normalization's fitted `train_episode_ids`. An explicit frozen
+normalization may fit a nonempty subset of the selected training sources; fitting
+sources outside the selected training split are rejected. This permits qualified
+training additions without changing existing model scaling. Resumes preserve
+optimizer/RNG state and cannot discard earlier selected sources. Older checkpoints
+fall back to their normalization-fit identities. Loaded-phase diagnostics admit
+only selected training sources, including qualified additions outside the fit
+subset; no identity metadata enters observations or actions.
 
 The standalone numerical data pipeline and `v3` checkpoint constructors are
 retired. Historical source remains at `097d578`. Models, tensor trainers,

@@ -598,3 +598,14 @@ retire only that derived Gilbreth data cache. All code, checkpoints, resumes,
 logs, failed evaluations and transfer proofs remain. Cumulative retained storage
 falls to968.517GiB; local31.48178/40h, aggregate remote4.97778/32h, optimizer upper
 129,709/200,000 before the next allocation. No cost or prior outcome is refunded.
+
+
+The training interface now distinguishes selected training source IDs from the
+normalization-fit subset. This prepares the two qualified additions to keep the
+original112-source train-only normalization, model scaling and optimizer/RNG
+continuation. New checkpoints/resumes retain both scopes; legacy artifacts infer
+selected scope from their fit IDs. Development and final-test sources remain
+excluded. Loaded diagnostics use the selected scope. CPU source-isolation tests
+pass, and an actual CUDA checkpoint-to-runner check preserves the expanded selected
+IDs and original normalization fit through real six-step execution/replanning.
+No optimizer update or data-membership change has run through this interface yet.

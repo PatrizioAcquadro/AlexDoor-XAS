@@ -17,6 +17,7 @@ from alexdoor_xas.policies.act.temporal import (
     fit_temporal_stats,
     save_temporal_policy,
     temporal_model,
+    validate_training_sources,
 )
 from alexdoor_xas.policies.act.temporal_training import TemporalTrainingSet, build_training_index
 from alexdoor_xas.policies.act.train import _to_device, evaluate_l1
@@ -66,8 +67,7 @@ def main():
         if args.normalization
         else fit_temporal_stats(train.episodes)
     )
-    if set(stats.train_episode_ids) != {e.builder.episode_id for e in train.episodes}:
-        raise ValueError("Normalization must fit exactly selected training sources")
+    selected_ids = validate_training_sources(stats, [e.builder.episode_id for e in train.episodes])
     (args.output / "normalization.json").write_text(json.dumps(stats.to_dict(), indent=2))
     torch.manual_seed(args.seed)
     model = temporal_model(train.episodes[0].config, seed=args.seed).cuda()
@@ -79,6 +79,9 @@ def main():
         previous = torch.load(args.resume, map_location="cpu", weights_only=False)
         if previous["seed"] != args.seed or previous["stats"] != stats.to_dict():
             raise ValueError("Resume seed/normalization mismatch")
+        previous_ids = validate_training_sources(stats, previous.get("training_episode_ids"))
+        if not set(previous_ids) <= set(selected_ids):
+            raise ValueError("Resume cannot discard previously selected training sources")
         model.load_state_dict(previous["model"])
         optimizer.load_state_dict(previous["optimizer"])
         restore_rng_states(previous["rng"])
@@ -95,6 +98,8 @@ def main():
         recipe=train.recipe,
         focus_episode_ids=list(train.focus_episode_ids),
         batch_size=args.batch_size,
+        training_episode_ids=list(selected_ids),
+        normalization_fit_episode_ids=list(stats.train_episode_ids),
         final_test_opened=False,
         learned_success=False,
     )
@@ -102,7 +107,7 @@ def main():
 
     def save():
         checkpoint = args.output / f"checkpoint-{step:06d}.pt"
-        save_temporal_policy(checkpoint, model, stats, robot)
+        save_temporal_policy(checkpoint, model, stats, robot, training_episode_ids=selected_ids)
         policy = TemporalActPolicy.from_checkpoint(
             checkpoint, config=train.episodes[0].config, runtime_asset=robot
         )
@@ -124,6 +129,7 @@ def main():
                 step=step,
                 seed=args.seed,
                 stats=stats.to_dict(),
+                training_episode_ids=list(selected_ids),
             ),
         )
         return str(checkpoint)

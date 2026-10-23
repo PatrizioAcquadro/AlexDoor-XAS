@@ -99,7 +99,10 @@ def test_loaded_start_qualifies_after_reset_and_acquires_fresh_history(
 
     observer = SimpleNamespace(
         execution=SimpleNamespace(
-            policy=SimpleNamespace(stats=SimpleNamespace(train_episode_ids=("source",)))
+            policy=SimpleNamespace(
+                stats=SimpleNamespace(train_episode_ids=("fit-only",)),
+                training_episode_ids=("fit-only", "source"),
+            )
         ),
         reset=reset,
         update=update,
