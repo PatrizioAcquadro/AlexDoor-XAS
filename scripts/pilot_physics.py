@@ -1033,9 +1033,10 @@ def rollout(env, args, protocol, robot, setup, inspection):
     hold = io.hold_step
     update = observer.update
     last_completed = None
+    last_perception = last_perception_clock = None
 
     def measured_update(sensor):
-        nonlocal last_completed
+        nonlocal last_completed, last_perception, last_perception_clock
         begin = perf_counter()
         try:
             result = update(sensor)
@@ -1053,6 +1054,16 @@ def rollout(env, args, protocol, robot, setup, inspection):
             )
             raise
         observer_end = perf_counter()
+        publication = geometry.last_publication
+        if publication is not None:
+            clock = (observer.generation, int(publication[1]["frame"]))
+            if clock != last_perception_clock:
+                from copy import deepcopy
+
+                # The runner invalidates/reset geometry when it stops. Keep the
+                # last published diagnostic, without touching policy observations.
+                last_perception = deepcopy(geometry.diagnostics)
+                last_perception_clock = clock
         record_observation(sensor, result)
         end = perf_counter()
         encoding_ms.append((observer_end - begin) * 1000)
@@ -1184,7 +1195,8 @@ def rollout(env, args, protocol, robot, setup, inspection):
             from alexdoor_xas.perception.evaluation import write_json as write_perception_json
 
             write_perception_json(
-                args.output / "operational-perception-terminal.json", geometry.diagnostics
+                args.output / "operational-perception-terminal.json",
+                geometry.diagnostics if last_perception is None else last_perception,
             )
         except (TypeError, ValueError) as error:
             write_json(

@@ -512,3 +512,19 @@ policy input or changing perception. This addresses the concrete loss of cause
 information behind prior generic material-identity refusals. Two loaded warmup
 validation cells use the unchanged4096 weights/source states. All three checks
 serialize on the shared GPU lease, with fresh cumulative budget checks.
+
+
+The two revision5 cells complete their fresh physical pre-roll with sustained
+contact and no violations, but still execute zero ACT commands: right remains
+`ambiguous_leaf_ownership`, left lacks explicit material selection. Both independent
+stops pass. Thus the warmup fix works as an initialization contract, but restored
+physical states still do not provide valid observed phase starts. No policy phase
+performance is inferred. The full matched reference has started from normal
+inspection instead, using its predeclared70a1d03 code.
+
+The first terminal perception snapshots reveal another instrumentation limit:
+the runner resets perception on stop, so a snapshot taken afterward says only
+`searching` with zero semantic calls. Preserve these original empty snapshots.
+Subsequent allocations retain a copy of the last real publication before reset;
+the current full reference is left untouched. This changes diagnostics only,
+not observations, actions, tracking, admission or timing on the simulation clock.
