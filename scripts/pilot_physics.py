@@ -161,6 +161,12 @@ def main(argv=None):
         help="Diagnostic A1 command replay through the same operational checks; no learned success",
     )
     parser.add_argument(
+        "--rollout-compression",
+        choices=("none", "lzf"),
+        default="none",
+        help="Optional lossless RGB-D compression for retained rollout evidence",
+    )
+    parser.add_argument(
         "--operational-recipe",
         type=Path,
         help="Measured observed perception/load/motion recipe for real rollout",
@@ -181,6 +187,8 @@ def main(argv=None):
         args.mode != "rollout" or args.family != "act" or args.reference_recording
     ):
         parser.error("Temporal ACT requires learned ACT rollout without reference replay")
+    if args.rollout_compression != "none" and args.mode != "rollout":
+        parser.error("Rollout compression is only available for rollout evidence")
     if args.screen_initial_state and (args.mode != "collect" or args.intermediate_state):
         parser.error("Initial screening requires closed-door collection")
     if args.reference_recording is not None and (args.mode != "rollout" or args.family != "act"):
@@ -874,6 +882,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         io.calibration,
         control_dt=io.dt,
         image_period_s=binding.config["encoding"]["period_s"],
+        image_compression=None if args.rollout_compression == "none" else args.rollout_compression,
     )
     native_contacts = (args.output / "evaluator-native-contacts.jsonl").open("x")
     evaluator_states = (args.output / "evaluator-control-state.jsonl").open("x")
@@ -1244,6 +1253,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         inspection_ticks=len(rows),
         policy_commands=0 if reference_mode else result.control_steps,
         retained_inputs="rollout.hdf5",
+        rollout_image_compression=args.rollout_compression,
         first_policy_input="first-policy-input.npz" if prediction_ms else None,
         first_policy_prediction="first-policy-prediction.npy" if prediction_ms else None,
         policy_backend="policy-backend.json" if prediction_ms else None,

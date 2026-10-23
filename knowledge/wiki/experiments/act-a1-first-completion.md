@@ -528,3 +528,38 @@ the runner resets perception on stop, so a snapshot taken afterward says only
 Subsequent allocations retain a copy of the last real publication before reset;
 the current full reference is left untouched. This changes diagnostics only,
 not observations, actions, tracking, admission or timing on the simulation clock.
+
+
+## Targeted nominal240Hz addition and retained capacity
+
+The full pose-low reference stops after488 commands at
+`outside_verified_load_envelope`: `RIGHT_GRIPPER_Y` acceleration13.004733rad/s²
+exceeds its empirical13rad/s² domain with zero tolerance. Up to that refusal,
+requests, joints and tool positions exactly reproduce the qualified240Hz source;
+contact is physically valid, peak native force is11.548N, independent stops pass
+and no physical violation is recorded. The calibration's retained native samples
+use120Hz. This identifies unsupported empirical coverage; it does not justify a
+per-failure epsilon or prove the nominal conditions infeasible. No bound changes.
+
+Predeclare exactly one full unchanged nominal teacher attempt per frozen training
+direction at240Hz. This supplies the missing matched normal25s inspection/history
+and separates the nominal paths from the2cm pose-low variation. Keep original
+controller settings, gains, task/hold/release/stabilization requirements and80%
+reference thresholds. Preserve each outcome; perform separate zero-update CUDA
+data checks only for physically qualified sources. Review operational coverage
+before using any addition for training. These teacher outcomes are excluded from
+learned evaluation counts and cannot satisfy completion. Original collection
+counters remain194 attempts,9.41013 charged hours and349.967GiB; the conservative
+addition including both data checks is at most198 slots,10.68236h and388.968GiB
+under its unchanged220/12h/400GiB limits. Global40h/32h/200000/1TiB checks and12GiB
+retained headroom remain active before every stage. The original112-cell campaign
+and all original sources stay closed and preserved.
+
+Future rollout evidence can opt into single-frame LZF without changing numeric
+streams, clocks, joins, physical execution or model inputs. This addresses the
+concrete1TiB capacity limit as complete attempts accumulate; old recordings and
+the uncompressed default remain intact. Nineteen focused regressions pass,
+including bitwise RGB/depth/NaN/validity retention in both modes. On eight retained
+native frames, LZF uses20,925,647 versus36,876,912 bytes (56.74%); write/flush/close
+takes0.116 versus0.023s. These are storage-only measurements, not a whole-runtime
+performance claim. Details are in `rollout-compression-size-check.json`.

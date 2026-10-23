@@ -40,19 +40,21 @@ def observation(tick, recent_tick, *, generation=0, support=True):
     )
 
 
-def writer(path):
+def writer(path, image_compression=None):
     return RolloutWriter(
         path,
         dict(purpose="learned_evaluation"),
         dict(pixel_center_offset_xy=[0.5, 0.5]),
         control_dt=1 / 60,
         image_period_s=0.1,
+        image_compression=image_compression,
     )
 
 
-def test_lossless_input_joins_and_complete_failure(tmp_path):
+@pytest.mark.parametrize("image_compression", [None, "lzf"])
+def test_lossless_input_joins_and_complete_failure(tmp_path, image_compression):
     path = tmp_path / "failure.hdf5"
-    log = writer(path)
+    log = writer(path, image_compression)
     for tick in range(9):
         # Tick 7 represents an extra frame actually consumed by a producer.
         recent = 7 if tick >= 7 else (6 if tick >= 6 else 0)
@@ -87,7 +89,8 @@ def test_lossless_input_joins_and_complete_failure(tmp_path):
                     h5[f"captures/{key}"][row].view(np.uint8), sensor(tick)[key].view(np.uint8)
                 )
         assert "force_n" not in h5["captures"] and "force_n" not in h5["control"]
-        assert h5["captures/depth_m"].compression is None
+        assert h5.attrs["image_compression"] == (image_compression or "none")
+        assert h5["captures/depth_m"].compression == image_compression
         assert h5["captures/depth_m"].chunks == (1, 4, 6, 1)
     with pytest.raises(FileExistsError):
         writer(path)

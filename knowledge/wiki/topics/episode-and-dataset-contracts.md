@@ -127,10 +127,15 @@ qualification follows from these infrastructure changes.
 `recording.rollout.RolloutWriter` and `pilot_physics.py rollout` retain evaluation
 artifacts separately from imitation data. `b1.policy_rollout.v1` stores the raw
 images actually consumed at 10 Hz, all 60 Hz proprioception/full robot/tool
-states, submitted commands and applied targets, and the native 120 Hz robot
-feedback. Local rollout images are lossless, uncompressed single-frame chunks;
-retained captures are stored once and per-control static/three-history indices
-join them to acquisition/availability clocks. Invalid feature support and sampled
+states, submitted commands and applied targets, and native120/240Hz robot
+feedback. The default remains uncompressed single-frame RGB-D chunks.
+`--rollout-compression lzf` opts into built-in lossless compression of those same
+frames when retained-evidence capacity matters; it costs additional CPU write time.
+The file records the mode. Raw RGB/depth/validity bytes, including NaN payloads,
+remain exact and existing readers require no conversion. Retained captures are
+stored once; per-control legacy visual-support indices join them to acquisition
+and availability clocks, while temporal history is reconstructed from the raw
+independent streams. Invalid feature support and sampled
 failed inputs remain explicit. RGB/depth/mask bytes, NaN payloads and raw SDK
 intrinsics are preserved. Numeric streams use bounded batches of at most 128 rows,
 drained before the unchanged 60-control-tick flush and on finish/close. Pending

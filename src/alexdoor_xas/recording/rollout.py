@@ -26,15 +26,22 @@ class RolloutWriter:
     valid evidence; completion is never a physical success certificate.
     """
 
-    def __init__(self, path, metadata, calibration, *, control_dt, image_period_s):
+    def __init__(
+        self, path, metadata, calibration, *, control_dt, image_period_s, image_compression=None
+    ):
         if not np.isfinite([control_dt, image_period_s]).all() or not (
             0 < control_dt <= image_period_s
         ):
             raise ValueError("invalid_rollout_recording_cadence")
+        if image_compression not in (None, "lzf"):
+            raise ValueError("invalid_rollout_image_compression")
+        self.image_compression = image_compression
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.file = h5py.File(self.path, "x")
-        self.file.attrs.update(schema=SCHEMA, complete=False)
+        self.file.attrs.update(
+            schema=SCHEMA, complete=False, image_compression=image_compression or "none"
+        )
         self.file.create_group("metadata").attrs.update(
             episode=json.dumps(metadata),
             calibration=json.dumps(calibration),
@@ -80,7 +87,7 @@ class RolloutWriter:
                     maxshape=(None, *arr.shape),
                     dtype=arr.dtype,
                     chunks=chunks,
-                    compression=None if image else "lzf",
+                    compression=self.image_compression if image else "lzf",
                 )
         if group in self._pending:
             self._pending[group].append(
