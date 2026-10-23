@@ -123,7 +123,11 @@ class ProbeSetup:
             self.support_gap_antiwindup, bool
         ):
             raise ValueError("Teacher motion ramp and gap antiwindup options must be boolean")
-        if self.support_force_source not in ("qualification_window", "native_interval_mean"):
+        if self.support_force_source not in (
+            "qualification_window",
+            "native_interval_mean",
+            "guarded_qualification_window",
+        ):
             raise ValueError("Unknown teacher support force source")
         if not np.isfinite(self.push_ramp_s) or self.push_ramp_s < 0:
             raise ValueError("Invalid teacher push ramp duration")
@@ -296,29 +300,49 @@ def pre_release_contact_continuity(traces, setup, *, phase_family=None, intermed
     """
     if phase_family is not None or intermediate_start:
         return None
-    window = SustainedAngle(setup.sustain_s)
-    was_loaded = False
-    established_s = None
-    losses = []
+    monitor = ContactContinuity(setup.sustain_s)
     for row in traces:
+        monitor.update(row)
+    return monitor.result()
+
+
+class ContactContinuity:
+    """Same full-task continuity gate online and in retained-trace qualification."""
+
+    def __init__(self, duration):
+        self.window = SustainedAngle(duration)
+        self.was_loaded = False
+        self.established_s = None
+        self.losses = []
+        self.released = False
+
+    def update(self, row):
         if row["phase"] == "release":
-            break
-        window.update(row["time"], row["angle"], row["valid"])
-        if established_s is None and window.maximum is not None:
-            established_s = row["time"]
-        if was_loaded and not row["loaded"] and window.maximum is not None:
-            losses.append(row["time"])
-        was_loaded = row["loaded"]
-    return dict(
-        passed=established_s is not None and not losses,
-        established_s=established_s,
-        contact_loss_times_s=losses,
-        clock_domain="probe_relative_after_common_inspection",
-        scope="Unchanged full-task loaded-contact continuity before intentional release",
-    )
+            self.released = True
+        if self.released:
+            return False
+        self.window.update(row["time"], row["angle"], row["valid"])
+        if self.established_s is None and self.window.maximum is not None:
+            self.established_s = row["time"]
+        lost = self.was_loaded and not row["loaded"] and self.window.maximum is not None
+        if lost:
+            self.losses.append(row["time"])
+        self.was_loaded = row["loaded"]
+        return lost
+
+    def result(self):
+        return dict(
+            passed=self.established_s is not None and not self.losses,
+            established_s=self.established_s,
+            contact_loss_times_s=list(self.losses),
+            clock_domain="probe_relative_after_common_inspection",
+            scope="Unchanged full-task loaded-contact continuity before intentional release",
+        )
 
 
-def support_force_feedback(filtered_force, previous_trace, setup, phase, *, native_handoff=False):
+def support_force_feedback(
+    filtered_force, previous_trace, setup, phase, *, native_handoff=False, target_force=None
+):
     """Teacher pressure feedback can use the completed native interval, not a stale gate.
 
     Qualification retains its independent fixed .1s window. Acquisition keeps the
@@ -328,6 +352,12 @@ def support_force_feedback(filtered_force, previous_trace, setup, phase, *, nati
         setup.support_force_source == "native_interval_mean" and phase in ("push", "hold")
     ):
         return previous_trace["native_mean_normal_force_n"], "preceding_native_interval_mean"
+    if setup.support_force_source == "guarded_qualification_window" and phase in ("push", "hold"):
+        target = setup.contact_load_guard_n if target_force is None else target_force
+        native = previous_trace["native_mean_normal_force_n"]
+        if native < target < filtered_force:
+            return target, "qualification_window_stale_unloading_held"
+        return filtered_force, "guarded_contact_qualification_window"
     return filtered_force, "contact_qualification_window"
 
 
@@ -381,7 +411,15 @@ def conditioning_margin_exhausted(samples, setup, *, extra_contact_s=0.0):
 
 
 def normal_contact_support(
-    compression, force, setup, dt, *, target_force=None, gap_m=None, pending_normal_m=0.0
+    compression,
+    force,
+    setup,
+    dt,
+    *,
+    target_force=None,
+    gap_m=None,
+    pending_normal_m=0.0,
+    gap_catchup=None,
 ):
     """Bidirectional bounded force admittance, including removal of excess preload."""
     if not np.isfinite(pending_normal_m):
@@ -391,7 +429,7 @@ def normal_contact_support(
     if gap_m is not None:
         if not np.isfinite(gap_m):
             raise ValueError("Invalid measured contact gap")
-        if force < target_force and gap_m > 0:
+        if (force < target_force if gap_catchup is None else gap_catchup) and gap_m > 0:
             # Correct the measured separating displacement at the next control
             # boundary. The low-level servo still evolves physically; retain
             # normal rate/extent bounds and force-unloading priority.
@@ -718,27 +756,32 @@ def run_probe(
     start_p, start_q = [v[0].cpu().numpy() for v in env.tool_pose()]
     compensation = np.zeros(3)
     normal_feedback = None
+    gap_recovery_active = False
+    continuity_monitor = (
+        ContactContinuity(setup.sustain_s) if family is None and intermediate is None else None
+    )
     pace_exit_active = False
 
     def support_normal(compression, phase):
-        nonlocal normal_feedback
+        nonlocal normal_feedback, gap_recovery_active
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
+        target_force = (
+            setup.hold_force_n
+            if phase == "hold" and not maintain_acquisition_load
+            else setup.contact_load_guard_n
+        )
         force, source = support_force_feedback(
             force,
             traces[-1],
             setup,
             phase,
+            target_force=target_force,
             native_handoff=(
                 correction is not None
                 and correction.supported_hold_handoffs
                 and (phase == "hold" or pace_exit_active)
             ),
-        )
-        target_force = (
-            setup.hold_force_n
-            if phase == "hold" and not maintain_acquisition_load
-            else setup.contact_load_guard_n
         )
         pending = 0.0
         if setup.support_gap_antiwindup and phase in ("push", "hold"):
@@ -755,11 +798,24 @@ def run_probe(
                 root_r @ target[:3, :3],
                 normal,
             )
+        gap_catchup = None
+        if setup.support_force_source == "guarded_qualification_window" and phase in (
+            "push",
+            "hold",
+        ):
+            native_force = traces[-1]["native_mean_normal_force_n"]
+            if native_force > 0:
+                gap_recovery_active = False
+            separated = native_force == 0 and gap is not None and gap > 0
+            gap_catchup = separated and not gap_recovery_active
+            if gap_catchup:
+                gap_recovery_active = True
         normal_feedback = dict(
             force_n=force,
             source=source,
             target_force_n=target_force,
             pending_distal_normal_advance_m=pending,
+            gap_catchup=gap_catchup,
         )
         if correction is not None and correction.position_return_active(phase):
             # The measured-origin transition already corrects position error.
@@ -773,6 +829,7 @@ def run_probe(
             target_force=target_force,
             gap_m=gap,
             pending_normal_m=pending,
+            gap_catchup=gap_catchup,
         )
 
     def command(goal_p, goal_r, phase, *, injected_pose=None):
@@ -939,6 +996,8 @@ def run_probe(
                 visibility=visibility,
             )
         )
+        if continuity_monitor is not None and continuity_monitor.update(traces[-1]):
+            failure = failure or "pre_release_contact_loss"
         if any(sample["contacts"] for sample in contacts):
             raw.append(dict(time=time, samples=contacts))
         if correction_active:

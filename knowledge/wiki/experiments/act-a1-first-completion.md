@@ -946,3 +946,37 @@ stay unchanged. Numerical checks cover distal rotation, partial/complete pending
 motion, unloading, speed bounds, old arithmetic and scope. Native qualification
 remains pending; no new-data optimizer update is authorized before both entire
 observed reference paths succeed.
+
+
+The fixed pending-motion/motion-ramp right attempt also fails:30.633deg controlled
+opening, `lost_contact`, seven earlier continuity losses and13.465N peak. Its
+ordinary release/stabilization and independent stops remain healthy, with no task
+physical violation. It is not a qualified full source; the predeclared left runs
+once. The instantaneous-feedback variants therefore remain negative results,
+not adopted runtime or default teacher behavior.
+
+The next single controller correction returns to the original100ms filtered
+pressure feedback. An explicit `guarded_qualification_window` option freezes only
+stale unloading when the completed native interval is below the unchanged force
+target while the filtered value remains above it. Geometric catch-up is applied
+once per force-free separation episode, preventing repeated integration of the
+same gap; recontact resets that episode. Native force is teacher feedback only.
+The motion-continuous1s ramp remains, with the same velocity, force, admittance,
+position, contact and safety requirements. No parameter grid or threshold change.
+
+Future ordinary full teacher episodes now stop their opening attempt at the first
+already-disqualifying prerelease contact loss, followed by the existing safe
+release/stabilization and independent stop tail. Online and retained-trace checks
+share the same continuity implementation; scoped/intermediate recovery episodes
+retain their original behavior. This saves failed-attempt GPU time without
+changing success criteria, labels or preserving fewer attempted outcomes.
+
+The29 authorized failed rollout archives have additionally been reencoded at
+higher gzip compression, with every original HDF5 byte reverified;1.197GiB more
+is recovered. Eight closed, never-trained, unselected generated preparation
+derivatives are separately archived reversibly, recovering12.051GiB. Original
+teacher recordings, the selected112 inputs, normalization, checkpoints, reports,
+all source scopes and every cost/outcome remain. These are storage-only changes,
+not GPU/data additions or a resource-limit increase. Sidecars contain original
+SHA-256/byte counts and exact restoration commands; ignored payloads are never
+represented as recoverable through Git. All other storage ceilings remain.

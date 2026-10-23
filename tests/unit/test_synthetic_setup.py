@@ -584,3 +584,58 @@ def test_push_ramp_can_match_initial_motion_without_chasing_future_coasting():
         push_speed_scale(0, setup, np.nan)
     with pytest.raises(ValueError, match="must be boolean"):
         ProbeSetup(support_gap_antiwindup="true")
+
+
+def test_guarded_qualification_feedback_holds_only_contradicted_unloading():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, support_force_feedback
+
+    setup = ProbeSetup(support_force_source="guarded_qualification_window")
+    previous = dict(native_mean_normal_force_n=0.0)
+    force, reason = support_force_feedback(0.2, previous, setup, "push")
+    assert (
+        force == setup.contact_load_guard_n
+        and reason == "qualification_window_stale_unloading_held"
+    )
+    assert support_force_feedback(0.05, previous, setup, "push")[0] == 0.05
+    previous["native_mean_normal_force_n"] = 0.3
+    assert support_force_feedback(0.2, previous, setup, "push")[0] == 0.2
+    previous["native_mean_normal_force_n"] = 0
+    assert (
+        support_force_feedback(0.2, previous, setup, "hold", target_force=setup.hold_force_n)[0]
+        == setup.hold_force_n
+    )
+    assert support_force_feedback(0.2, previous, setup, "contact")[0] == 0.2
+
+
+def test_gap_recovery_can_be_one_pulse_without_changing_pressure_gain_or_limits():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_contact_support
+
+    setup = ProbeSetup()
+    dt = 1 / 60
+    frozen = setup.contact_load_guard_n
+    pulse = normal_contact_support(0, frozen, setup, dt, gap_m=20e-6, gap_catchup=True)
+    assert pulse == pytest.approx(20e-6)
+    assert normal_contact_support(pulse, frozen, setup, dt, gap_m=20e-6, gap_catchup=False) == pulse
+    assert normal_contact_support(0, frozen, setup, dt, gap_m=1, gap_catchup=True) == pytest.approx(
+        setup.compression_m / setup.sustain_s * dt
+    )
+
+
+def test_online_continuity_refusal_matches_posthoc_first_loss_and_keeps_release_scope():
+    from alexdoor_xas.qualification.synthetic_probe import (
+        ContactContinuity,
+        ProbeSetup,
+        pre_release_contact_continuity,
+    )
+
+    rows = [
+        dict(time=i / 60, angle=0.01, phase="contact", loaded=True, valid=True) for i in range(40)
+    ]
+    rows += [
+        dict(time=40 / 60, angle=0.01, phase="push", loaded=False, valid=False),
+        dict(time=41 / 60, angle=0.01, phase="release", loaded=False, valid=False),
+    ]
+    monitor = ContactContinuity(ProbeSetup().sustain_s)
+    refusals = [r["time"] for r in rows if monitor.update(r)]
+    assert refusals == [40 / 60]
+    assert monitor.result() == pre_release_contact_continuity(rows, ProbeSetup())
