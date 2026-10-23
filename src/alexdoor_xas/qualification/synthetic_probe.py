@@ -49,6 +49,7 @@ class ProbeSetup:
     lead_angle: float = float(np.deg2rad(0.3))
     compression_m: float = 0.003
     normal_admittance_m_n_s: float = 0.0005
+    support_force_source: str = "qualification_window"
     force_limit_n: float = 80.0
     soft_force_n: float = 50.0
     contact_load_guard_n: float = 0.10
@@ -116,6 +117,8 @@ class ProbeSetup:
             or self.intermediate_preroll_s <= self.sustain_s + self.contact_force_window_s
         ):
             raise ValueError("Require ordinary tail >=2s and fresh loaded pre-roll support")
+        if self.support_force_source not in ("qualification_window", "native_interval_mean"):
+            raise ValueError("Unknown teacher support force source")
         if not np.isfinite(self.push_ramp_s) or self.push_ramp_s < 0:
             raise ValueError("Invalid teacher push ramp duration")
         if self.contact_ramp_profile not in ("linear", "ease_out", "slow_tail"):
@@ -257,13 +260,15 @@ def push_reference(reference, angle, setup, dt, mechanical_stop, *, speed_scale=
     )
 
 
-def pre_release_contact_continuity(traces, setup):
+def pre_release_contact_continuity(traces, setup, *, phase_family=None, intermediate_start=False):
     """Full-task qualification, separate from the teacher's bounded recontact control.
 
     Match the independent evaluator's pre-release rule: after a valid sustained contact window,
     any unloaded interval before intentional release fails full-cycle continuity.
     Historical recovery controls and their admitted valid windows keep their scope.
     """
+    if phase_family is not None or intermediate_start:
+        return None
     window = SustainedAngle(setup.sustain_s)
     was_loaded = False
     established_s = None
@@ -284,6 +289,19 @@ def pre_release_contact_continuity(traces, setup):
         clock_domain="probe_relative_after_common_inspection",
         scope="Unchanged full-task loaded-contact continuity before intentional release",
     )
+
+
+def support_force_feedback(filtered_force, previous_trace, setup, phase, *, native_handoff=False):
+    """Teacher pressure feedback can use the completed native interval, not a stale gate.
+
+    Qualification retains its independent fixed .1s window. Acquisition keeps the
+    historical feedback; the explicit option applies only to push/hold support.
+    """
+    if native_handoff or (
+        setup.support_force_source == "native_interval_mean" and phase in ("push", "hold")
+    ):
+        return previous_trace["native_mean_normal_force_n"], "preceding_native_interval_mean"
+    return filtered_force, "contact_qualification_window"
 
 
 def tracking_reserve(samples, horizon):
@@ -675,18 +693,17 @@ def run_probe(
         nonlocal normal_feedback
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
-        source = "contact_qualification_window"
-        if (
-            correction is not None
-            and correction.supported_hold_handoffs
-            and (phase == "hold" or pace_exit_active)
-        ):
-            # After the position-to-force handoff, stale impact load must not
-            # suppress catch-up after actual contact disappears. Keep the .1s
-            # load window for qualification; control uses the preceding native
-            # interval's measured average, with the same admittance and bounds.
-            force = traces[-1]["native_mean_normal_force_n"]
-            source = "preceding_native_interval_mean"
+        force, source = support_force_feedback(
+            force,
+            traces[-1],
+            setup,
+            phase,
+            native_handoff=(
+                correction is not None
+                and correction.supported_hold_handoffs
+                and (phase == "hold" or pace_exit_active)
+            ),
+        )
         target_force = (
             setup.hold_force_n
             if phase == "hold" and not maintain_acquisition_load
@@ -1529,7 +1546,9 @@ def run_probe(
                 break
         if not stabilized:
             failure = failure or "stabilization_budget_exhausted"
-    continuity = pre_release_contact_continuity(traces, setup) if task_hold is not None else None
+    continuity = pre_release_contact_continuity(
+        traces, setup, phase_family=family, intermediate_start=intermediate is not None
+    )
     if continuity is not None and not continuity["passed"]:
         failure = failure or "pre_release_contact_loss"
     measured = window.maximum

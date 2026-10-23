@@ -476,3 +476,55 @@ def test_teacher_push_ramp_preserves_speed_lead_and_mechanical_limits():
             ProbeSetup(push_ramp_s=value)
     with pytest.raises(ValueError, match="speed scale"):
         push_reference(0.2, 0.3, setup, dt, 1, speed_scale=2)
+
+
+def test_ordinary_continuity_gate_is_independent_of_extended_hold_timing():
+    from alexdoor_xas.qualification.synthetic_probe import (
+        ProbeSetup,
+        pre_release_contact_continuity,
+    )
+
+    rows = [dict(time=i / 60, angle=0.01, phase="push", loaded=True, valid=True) for i in range(40)]
+    rows.append(dict(time=40 / 60, angle=0.01, phase="push", loaded=False, valid=False))
+    assert not pre_release_contact_continuity(rows, ProbeSetup())["passed"]
+    for family in ("A", "B", "C", "D"):
+        assert pre_release_contact_continuity(rows, ProbeSetup(), phase_family=family) is None
+    assert pre_release_contact_continuity(rows, ProbeSetup(), intermediate_start=True) is None
+
+
+def test_teacher_native_support_feedback_does_not_change_qualification_or_acquisition():
+    from alexdoor_xas.qualification.synthetic_probe import (
+        ProbeSetup,
+        normal_contact_support,
+        support_force_feedback,
+    )
+
+    previous = dict(native_mean_normal_force_n=0.0)
+    old = ProbeSetup()
+    setup = ProbeSetup(support_force_source="native_interval_mean")
+    for phase in ("contact", "push", "hold"):
+        assert support_force_feedback(0.2, previous, old, phase) == (
+            0.2,
+            "contact_qualification_window",
+        )
+    assert support_force_feedback(0.2, previous, setup, "contact") == (
+        0.2,
+        "contact_qualification_window",
+    )
+    for phase in ("push", "hold"):
+        force, source = support_force_feedback(0.2, previous, setup, phase)
+        assert (force, source) == (0.0, "preceding_native_interval_mean")
+        # Stale above-target feedback withdraws despite a completed zero-load
+        # interval. Causal native feedback instead requests bounded catch-up.
+        assert normal_contact_support(-0.001, force, setup, 1 / 60) > -0.001
+        assert normal_contact_support(-0.001, 0.2, setup, 1 / 60) < -0.001
+    assert setup.contact_force_window_s == old.contact_force_window_s
+    assert setup.loaded_force_n == old.loaded_force_n
+    assert setup.normal_admittance_m_n_s == old.normal_admittance_m_n_s
+    assert setup.compression_m == old.compression_m
+    assert support_force_feedback(0.2, previous, old, "hold", native_handoff=True) == (
+        0.0,
+        "preceding_native_interval_mean",
+    )
+    with pytest.raises(ValueError, match="support force source"):
+        ProbeSetup(support_force_source="current_truth")

@@ -840,3 +840,36 @@ ceiling to281, and sets a maximum eight-hour continuation window ending
 same deadline, including shutdown allowance. Every prior allocation and outcome
 is preserved. The shared4090 mutex is released between stages and scheduling
 requests are coordinated with the other authorized chat.
+
+
+## Ordinary continuity activation and pressure-feedback diagnosis
+
+The fixed1s push ramp moves the right teacher's first continuous-contact failure
+past the original push handoff, but does not qualify the full cycle. Retained
+native-contact replay through unchanged PilotEvaluation finds losses at49.900s
+and62.783s, despite51.181deg held opening, completed release/stabilization,6.862N
+peak and healthy independent stops. The original report remains unchanged. Its
+continuity field is null because the new gate was mistakenly conditioned on
+extended hold timing. Full ordinary cycles now activate the same continuity gate
+regardless of hold timing; scoped/intermediate recovery qualifications retain
+their declared meanings. A separate retained-trace review prevents the already
+running pair from reaching reference checks under the incomplete original gate.
+
+Both right losses follow six consecutive force-free control intervals. For83.3ms
+before qualification declares loss, pressure feedback still reports0.156–0.278N,
+above the unchanged0.1N target, and keeps withdrawing the normal reference. The
+actual gap grows to40–49micrometers. The100ms qualification window is being used
+as delayed control feedback, suppressing ordinary gap catch-up until it expires.
+Exact native/global clock alignment and commands remain in
+`push-handoff240-right-feedback-diagnosis.json`.
+
+The smallest next teacher intervention reuses the causal completed-native-interval
+feedback already supported by the recovery handoff. Explicit
+`support_force_source="native_interval_mean"` affects push/hold support only;
+defaults and contact acquisition stay unchanged. The native mean comes from the
+preceding completed four physics samples, with no future information. The100ms
+qualification window,20mN loaded threshold, force targets, admittance, compression
+budget and runtime gains/stop criteria remain unchanged. This is teacher-only;
+no native contact truth enters ACT observations or execution. Numerical checks
+cover legacy/default behavior, unloaded-interval catch-up, bounded control and
+recovery scope. Native benefit remains unmeasured before the next fixed pair.
