@@ -1,7 +1,8 @@
 # ACT A1 first learned completion
 
-Status: substantial base training authorized on 2026-10-23; no learned
-completion established. The current principal seed9101 endpoint is6,144 updates.
+Status: substantial base training is running on the RTX4090 on 2026-10-23;
+no learned completion is established. Principal seed9101 resumes its6,144-update
+checkpoint toward16,000 on the complete admitted union.
 The new authorization covers the time needed for training and subsequent
 evaluations within unchanged cumulative48local/32aggregate remote GPUh,
 200,000updates and1TiB retained. The earlier expired work window and its
@@ -18,12 +19,24 @@ acquire/sustain contact and reach80% required opening, with at least one valid
 hold and no physical violations. Those are curriculum criteria, not relaxed
 physical acceptance or task success.
 
-Before training, complete the same4,108-command qualified right observed reference
-with adequate wall time and reuse the fully verified8,126-command left path.
-The new right attempt retains the earlier deadline interruption. Both paths must
-pass unchanged physical/operational gates with zero learned commands. Neither can
-count as a learned success. The shared AV mutex queues local work; Blackwell
-remains available to the separately coordinated VLA-LEGO work.
+The two-direction operational prerequisite now passes. The fresh right reference
+dispatches all4,108 qualified commands with50.236deg controlled opening, valid
+hold/release/stabilization, zero contact losses and no physical violations. The
+complete8,126-command left reference is reused with52.564deg controlled opening
+and the same successful phase/stop gates. Requests, joint states and tool positions
+match each qualified source exactly; both independent2+4s stops pass. These are
+zero-learned-command references, never learned successes. The right allocation
+finishes normally in907.757s; its earlier deadline-limited attempt remains. All59
+native attempts are inventoried. See local `base-reference-review.json`.
+
+The AV agent has released the shared mutex after completing its panels; it plans
+no further GPU work. The4090 is available and its measured training path is faster
+than the existing A100 path. Blackwell remains coordinated for VLA-LEGO; the H100
+queue was occupied at inspection. The local guarded job has actually resumed on
+CUDA with all114 sources, frozen normalization and no nominal focus. It saves
+every1,000 updates; no physical evaluation interrupts the6,144-to16,000 block.
+A verified122-file/38.110GiB Gilbreth replica is ready for later remote placement;
+Gautschi shares those depot files rather than retaining a second replica.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,
@@ -79,10 +92,15 @@ directions entirely through its own actions, followed by all four frozen
 development cases with every outcome reported. Intermediate/reference starts
 cannot satisfy that gate. The final test remains sealed.
 
-The42 focused numerical regressions pass for balanced sampling, source/normalization
-separation, temporal observations, batches and execution. The new substantial
-training and right operational reference remain pending; these checks do not
-establish learned task success.
+The user requests unattended job monitoring and same-chat continuation when a
+block finishes or stops. A five-minute heartbeat checks the guarded job compactly
+and stays quiet while progress is normal. It resumes checkpoint/resource review
+and the spaced native evaluation after completion/interruption; after each new
+verified substantial launch the chat turn ends again. Numerical/resource guards
+run in the job independently of chat sampling. `training_status.py` and each run
+`progress.jsonl` provide read-only terminal monitoring; the explicit stop-file
+requests a saved stop at an optimizer boundary. No new learned full start or
+development case has yet run; the learned denominator remains0/20.
 
 ## Retained-storage reconciliation and authorized cleanup
 

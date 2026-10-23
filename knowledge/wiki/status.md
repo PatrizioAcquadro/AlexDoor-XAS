@@ -1,19 +1,20 @@
 # Project Status
 
-## ACT A1 first learned completion — substantial base training authorized
+## ACT A1 first learned completion — substantial base training running
 
 The human authorizes the time needed for substantial training and subsequent
 evaluations within unchanged48local/32aggregate remote GPUh,200,000cumulative
-updates and1TiB retained. The principal seed9101 model remains at6,144updates;
-all20 earlier learned normal-start attempts remain failures. No learned full-task
+updates and1TiB retained. Principal seed9101 has resumed from6,144updates on the
+RTX4090 toward16,000 with automatic monitoring; all20 earlier learned normal-start
+attempts remain failures. No learned full-task
 completion or native development evaluation is established; final test is sealed.
 
-The next operational gate is one complete right reference with adequate wall time,
-retaining the previous deadline-limited attempt. The8,126-command left path already
-passes acquisition/opening/hold/release/stabilization and independent stops, with
-exact source parity and zero learned actions. Both references must pass before
-base training; neither counts as learned success. Shared-mutex coordination
-preserves ongoing AV and VLA-LEGO workloads.
+Both complete observed references now pass with exact source parity:4,108 right
+commands/50.236deg controlled opening and8,126 left commands/52.564deg, with valid
+hold/release/stabilization, no contact losses or physical violations and healthy
+independent2+4s stops. They contain zero learned actions. The prior interrupted
+right reference is retained; all59 native attempts remain. The AV task has released
+the shared mutex and local GPU; Blackwell remains coordinated for VLA-LEGO.
 
 The admitted compatible union is114 train sources/168,178windows, including valid
 corrections and two new complete cycles, plus eight development sources/23,705
@@ -32,8 +33,12 @@ the earlier conservative path sum. The1TiB cap and every prior outcome remain.
 Verified cleanup reclaims58.63GiB remote and3.38GiB local
 from redundant historical replicas/caches; every original and outcome remains.
 The previously omitted legacy remote payloads are now included in accounting.
-One bounded lossless Gilbreth input replica is being prepared; no new broad
-collection, RL, architecture comparison or threshold change is authorized.
+One verified122-file/38.110GiB lossless Gilbreth input replica is ready; Gautschi
+shares it without a second copy. No new broad collection, RL, architecture
+comparison or threshold change is authorized. A same-chat heartbeat resumes work
+when the guarded training ends/stops, staying quiet during normal progress. The
+first block has no intermediate physical evaluation; terminal monitoring and a
+safe stop-file are available in the local evidence directory.
 After the same checkpoint completes both fresh normal starts, evaluate all four
 frozen development cases. See [[experiments/act-a1-first-completion]].
 
