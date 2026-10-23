@@ -32,6 +32,8 @@ class ProbeSetup:
     approach_s: float = 6.0
     precontact_m: float = 0.03
     contact_s: float = 3.0
+    contact_ramp_profile: str = "linear"
+    contact_ramp_compression_m: float | None = None
     release_s: float = 3.0
     preroll_s: float = 0.4
     stabilization_min_s: float = 2.0
@@ -113,6 +115,13 @@ class ProbeSetup:
             or self.intermediate_preroll_s <= self.sustain_s + self.contact_force_window_s
         ):
             raise ValueError("Require ordinary tail >=2s and fresh loaded pre-roll support")
+        if self.contact_ramp_profile not in ("linear", "ease_out"):
+            raise ValueError("Unknown teacher contact ramp profile")
+        if self.contact_ramp_compression_m is not None and (
+            not np.isfinite(self.contact_ramp_compression_m)
+            or not 0 < self.contact_ramp_compression_m <= self.compression_m
+        ):
+            raise ValueError("Contact ramp endpoint must fit the existing compression budget")
         if self.hold_settle_s <= self.sustain_s:
             raise ValueError("Hold budget must include a complete sustain window")
         if self.material_drift_guard_m >= self.position_tolerance:
@@ -126,6 +135,21 @@ class ProbeSetup:
 
     def to_dict(self):
         return asdict(self)
+
+
+def contact_ramp_offset(elapsed_s, setup):
+    """Teacher-only normal reference; native force and all task gates still decide qualification."""
+    if not np.isfinite(elapsed_s) or elapsed_s < 0:
+        raise ValueError("Invalid teacher contact ramp time")
+    fraction = min(1.0, elapsed_s / (setup.contact_s * 0.7))
+    if setup.contact_ramp_profile == "ease_out":
+        fraction *= 2 - fraction
+    compression = (
+        setup.compression_m
+        if setup.contact_ramp_compression_m is None
+        else setup.contact_ramp_compression_m
+    )
+    return -setup.precontact_m + (setup.precontact_m + compression) * fraction
 
 
 class SustainedAngle:
@@ -840,9 +864,7 @@ def run_probe(
         compression = None
         if not failure:
             for tick in range(round(setup.contact_s / dt)):
-                offset = -setup.precontact_m + (setup.precontact_m + setup.compression_m) * min(
-                    1.0, (tick + 1) * dt / (setup.contact_s * 0.7)
-                )
+                offset = contact_ramp_offset((tick + 1) * dt, setup)
                 if compression is not None:
                     offset = support_normal(compression, "contact")
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])

@@ -645,3 +645,38 @@ full nominal-right reference has6,510 exact source deltas and the unchanged full
 physical/stabilization/stop requirements. It remains ineligible for learned
 success. ACT has not trained on the two new sources yet; full normal outcomes
 remain0/18 and the predefined development panel remains unopened.
+
+
+## Isolated first-contact load mismatch and minimal data addition
+
+The qualified10N recipe removes the acceleration-domain refusal. Fresh right full
+and left prefix references both reproduce488 commands/joints/tool positions
+exactly, then stop at13.067/15.248N upper estimates. Actual native peaks are12.769/
+14.835N; each complete teacher has exactly one native sample above10N, at first
+contact. Both actual2+4s stops pass with no task physical violation. These are
+operational reference failures, not learned successes or unfavorable replacements.
+The original18 learned failures remain unchanged.
+
+One fixed16N proposal uses the same gains. Its seventh robot-only case fails both
+unchanged hard limits:11.255mm travel and0.580rad/s. It stops immediately after
+that measured primary failure; its missing continuation is not a pass. The16N
+proposal is not adopted, no further gain search follows, and the separately
+qualified10N recipe stays active. Interface force support also remains10N.
+
+The smallest useful learning addition is a gentler acquisition on each frozen
+nominal training condition. Record the full continuations as qualification of the
+changed handoff, including opening, required hold, release and stabilization.
+Keep the same geometry/initial state, physics, normal gains, force targets,
+admittance rate/extent and all task/stop gates. Only the explicit teacher contact
+reference changes: `contact_ramp_profile="ease_out"` with1mm ramp endpoint inside
+the existing3mm compression budget. The planned geometric speed at first contact
+is about5.3mm/s instead of15.7mm/s; this predicts a smaller impact but grants no
+physical qualification. Defaults remain exactly the old linear reference.
+Teacher recipe fields remain metadata, never policy observations/actions at run
+time. Native qualification and observed execution must pass before training.
+
+The optional ramp and budget validation pass71 focused CPU regressions, including
+exact default-reference equality and monotone/end-point/invalid-configuration
+cases. No GPU training, new teacher attempt or force-limit change occurs in that
+implementation milestone. Every allocated data/qualification attempt and its
+whole cost will remain in the existing cumulative accounting; no broad campaign.

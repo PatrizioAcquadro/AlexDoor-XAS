@@ -337,3 +337,53 @@ def test_contact_pause_reserves_its_physical_duration_without_changing_nominal_g
     assert conditioning_margin_exhausted(samples, setup, extra_contact_s=extra)
     with pytest.raises(ValueError, match="contact reserve"):
         conditioning_margin_exhausted(samples, setup, extra_contact_s=-1)
+
+
+def test_default_teacher_contact_ramp_preserves_exact_existing_reference():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, contact_ramp_offset
+
+    setup = ProbeSetup()
+    for tick in range(round(setup.contact_s * 60)):
+        elapsed = (tick + 1) / 60
+        previous = -setup.precontact_m + (setup.precontact_m + setup.compression_m) * min(
+            1.0, elapsed / (setup.contact_s * 0.7)
+        )
+        assert contact_ramp_offset(elapsed, setup) == previous
+
+
+def test_eased_teacher_contact_ramp_reduces_reference_speed_at_first_contact():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, contact_ramp_offset
+
+    setup = ProbeSetup(contact_ramp_profile="ease_out", contact_ramp_compression_m=0.001)
+    offsets = [contact_ramp_offset(t / 60, setup) for t in range(181)]
+    assert offsets[0] == -setup.precontact_m
+    assert offsets[-1] == pytest.approx(0.001)
+    assert all(b >= a for a, b in zip(offsets[:-1], offsets[1:], strict=True))
+    duration = setup.contact_s * 0.7
+    geometric_contact_time = duration * (1 - np.sqrt(0.001 / (setup.precontact_m + 0.001)))
+    h = 1e-5
+    contact_speed = (
+        contact_ramp_offset(geometric_contact_time + h, setup)
+        - contact_ramp_offset(geometric_contact_time - h, setup)
+    ) / (2 * h)
+    old_speed = (setup.precontact_m + setup.compression_m) / duration
+    assert contact_speed < 0.35 * old_speed
+    assert setup.compression_m == 0.003  # Existing admittance rate/extent stays fixed.
+    assert contact_ramp_offset(geometric_contact_time, setup) == pytest.approx(0, abs=1e-12)
+
+
+@pytest.mark.parametrize("endpoint", [0, -0.001, 0.004, float("nan")])
+def test_teacher_contact_ramp_rejects_endpoint_outside_existing_budget(endpoint):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
+
+    with pytest.raises(ValueError, match="compression budget"):
+        ProbeSetup(contact_ramp_compression_m=endpoint)
+
+
+def test_teacher_contact_ramp_rejects_unknown_profile_and_bad_clock():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, contact_ramp_offset
+
+    with pytest.raises(ValueError, match="ramp profile"):
+        ProbeSetup(contact_ramp_profile="unknown")
+    with pytest.raises(ValueError, match="ramp time"):
+        contact_ramp_offset(-1, ProbeSetup())

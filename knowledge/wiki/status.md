@@ -36,10 +36,15 @@ coefficients and the weak scalar also remain unchanged. The new stop-only gains
 and empirical domains have measured support; minimum independent directional
 volume margin is0.248mm. Failed proposals, including two unstable stop cases,
 remain preserved. This is finite component qualification, not learned success.
-The next check is one complete nominal-right reference through observed admission,
-then a bounded ACT continuation using the prepared114-source union with the
-original112-source normalization. Original inputs/results remain; only verified
-remote transfer replicas were retired.
+Matched nominal right/left references then reproduce488 commands exactly and
+stop at13.067/15.248N upper estimates against the10N stop domain. Each teacher has
+only one native sample above10N, at first contact. A fixed16N qualification fails
+11.255mm stop travel and0.580rad/s speed, so its limit is not adopted. The next
+minimal addition is one gentler acquisition per direction; full continuations
+will qualify that changed handoff. An explicit teacher-only eased ramp preserves
+all defaults, normal control, physical/task gates and policy inputs. Training has
+not resumed; normalization stays fitted only on the original selected train data.
+Original inputs/results remain; only verified remote transfer replicas were retired.
 
 The same saved file must still complete fresh right and left normal starts, then
 undergo all four predefined development conditions. All original outcomes, raw
