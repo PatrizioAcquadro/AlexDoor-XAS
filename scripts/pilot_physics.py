@@ -893,7 +893,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
             reference["theta_expert_d"],
             io.dt,
             native_samples=env.cfg.decimation,
-            require_stabilization=args.temporal_act,
+            require_stabilization=args.temporal_act or reference_mode,
         )
 
     recording.file["commands"].attrs["kind_codes"] = json.dumps(
@@ -1180,7 +1180,19 @@ def rollout(env, args, protocol, robot, setup, inspection):
         motion.close()
         load_log.close()
         contact_log.close()
-        geometry.close()
+        try:
+            from alexdoor_xas.perception.evaluation import write_json as write_perception_json
+
+            write_perception_json(
+                args.output / "operational-perception-terminal.json", geometry.diagnostics
+            )
+        except (TypeError, ValueError) as error:
+            write_json(
+                args.output / "operational-perception-terminal.json",
+                dict(available=False, reason=repr(error)),
+            )
+        finally:
+            geometry.close()
     stop_time = env._time_s
     assert io.env._pending_pose is None and io.env._pending_joints is None
     np.testing.assert_array_equal(array(env.robot.data.joint_pos), array(env.targets))
@@ -1236,6 +1248,7 @@ def rollout(env, args, protocol, robot, setup, inspection):
         operational_recipe=str(args.operational_recipe),
         operational_admission="operational-admission.jsonl",
         operational_load="operational-load.jsonl",
+        operational_perception_terminal="operational-perception-terminal.json",
         frozen_target_stop=True,
         stop_sim_time_s=stop_time,
         progress_max_deg=float(np.rad2deg(np.max(np.abs(np.asarray(rows)[:, 1])))) if rows else 0.0,

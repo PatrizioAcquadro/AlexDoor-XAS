@@ -4,11 +4,11 @@
 
 The user authorized training from the completed qualified temporal corpus and
 fresh closed-loop simulation. Three initial seeds reach1,024 updates with0/6
-full nominal completions. The seed9101 continuation reaches4,096 and remains0/2:
-right acquisition improves but times out before contact; left stops outside the
-empirical load domain. Across the pilot/512/1,024/4,096 complete normal-start
-attempts plus the2,048 pair, the retained count is0/14, with healthy stops and no recorded physical
-violations. No complete learned task success is established.
+full nominal completions. The seed9101 continuation/curriculum reaches6,144;
+all18 complete normal-start attempts remain failures, with healthy stops and no
+recorded physical violations. New5120/6144 pairs stop before contact at acquisition,
+orientation or motion/stop-support checks. No complete learned task success is
+established.
 
 Seed9103 reaches2,048 on Gilbreth; its fresh right attempt stops before contact
 after626 commands; left stops after601 outside the calibrated load domain, also
@@ -21,10 +21,11 @@ model and physical gates are fixed.
 The qualified local simulator is waiting for an unrelated GPU workload; Blackwell
 also remains occupied. Loaded-state diagnostic integration retains its original
 failed/unavailable starts and revised cells; it cannot count as full completion.
-The separate120-to240Hz reference check has exact numerical command delivery but
-physical drift and an observed-identity refusal. It cannot establish an admission
-defect or learned success. A single existing240Hz reference prefix is predeclared
-only if all saved candidate pairs fail; see the experiment for the source audit.
+The120-to240Hz reference has physical drift; a matched240Hz360-command prefix
+reproduces joints, targets and tool position exactly. One full matched reference
+is now predeclared to assess observed admission through the remaining task before
+more training/data. Reference replay is never learned success. Two changed-warmup
+loaded diagnostic cells remain queued, without assuming policy phase performance.
 
 The same saved file must still complete fresh right and left normal starts, then
 undergo all four predefined development conditions. All original outcomes, raw

@@ -479,3 +479,36 @@ No normal-start policy path, tracking requirement, physical threshold or time
 budget changes. Focused regressions cover transient recovery and persistent
 unavailability as well as the original physical startup checks. Native benefit
 remains unverified; no new phase outcome is inferred from these CPU tests.
+
+
+## Saved curriculum outcomes and matched feasibility
+
+The fixed5120 pair fails at416/206 learned commands: right acquisition budget,
+left motion/stop-support refusal. The6144 pair fails at365/663: right observed
+orientation, left motion/stop support. All four have zero contact/controlled
+opening, healthy independent stops and no physical violations. The6144 terminal
+native gaps are28.743/43.578mm; right orientation error is3.707deg before its
+uncertainty-aware refusal. Across all normal-start attempts the count is0/18.
+No development case has been run and no checkpoint satisfies the paired gate.
+
+The single240Hz prefix executes all360 reference commands and stops normally.
+Requests, delivered deltas, joints and tool positions match its qualified240Hz
+source exactly; the quaternion/trace orientation comparison differs by at most
+4.22e-8rad. This establishes the unloaded A1 execution contract on that source,
+not contact or learned success. By contrast the earlier120-to240Hz reference had
+17.882mm unloaded drift. A selected-train setup audit also finds no exact nominal
+240Hz source with the normal25s inspection/history on either primary condition;
+exact-setup short controls and perturbed complete cycles retain their real scopes.
+These differences alone do not require discarding historical labels.
+
+Before further training or collection, run exactly one complete matched240Hz
+pose-low reference through current observed admission. Its6937 deltas equal the
+qualified prepared source labels; its initial state and prefix parity are already
+verified. Diagnostic references now require ordinary stabilization as temporal
+ACT does; independent stops and all other gates remain active. They remain
+ineligible for learned success. Save the terminal existing perception diagnostics
+to distinguish native tracking/registration/identity failures without adding a
+policy input or changing perception. This addresses the concrete loss of cause
+information behind prior generic material-identity refusals. Two loaded warmup
+validation cells use the unchanged4096 weights/source states. All three checks
+serialize on the shared GPU lease, with fresh cumulative budget checks.
