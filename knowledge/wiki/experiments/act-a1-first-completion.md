@@ -38,6 +38,12 @@ CUDA with all114 sources, frozen normalization and no nominal focus. It saves
 every1,000 updates; no physical evaluation interrupts the6,144-to16,000 block.
 A verified122-file/38.110GiB Gilbreth replica is ready for later remote placement;
 Gautschi shares those depot files rather than retaining a second replica.
+The user's subsequent explicit placement request selects the Gilbreth A100 for
+next eligible training allocations. The current4090 block finishes normally;
+weights, optimizer, RNG and frozen normalization continue unchanged. The A100
+partition is up with mixed nodes and no owned queued jobs at the latest read-only
+check, but a slot is not reserved. Check Slurm and all cumulative budgets again
+before submission, and report an A100 constraint before choosing another host.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,

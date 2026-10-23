@@ -15,6 +15,9 @@ hold/release/stabilization, no contact losses or physical violations and healthy
 independent2+4s stops. They contain zero learned actions. The prior interrupted
 right reference is retained; all59 native attempts remain. The AV task has released
 the shared mutex and local GPU; Blackwell remains coordinated for VLA-LEGO.
+The user now selects Gilbreth A100 for the next eligible training allocations;
+finish the current4090 block without preemption, then preserve the full resume
+state and recheck Slurm/cumulative budgets before submission.
 
 The admitted compatible union is114 train sources/168,178windows, including valid
 corrections and two new complete cycles, plus eight development sources/23,705
