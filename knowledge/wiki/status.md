@@ -20,12 +20,16 @@ The admitted compatible union is114 train sources/168,178windows, including vali
 corrections and two new complete cycles, plus eight development sources/23,705
 windows. Sampling balances four doors, phases/transitions/recoveries and sources;
 genuine temporal sequences and frozen112-source train-only normalization remain.
-The same model resumes toward16k/30k, then15k milestones up to75k if useful learning
-and cumulative resources allow. Save/diagnose every1k; physical pairs are spaced
-at16k/30k/45k/60k/75k. A plateau needs15kupdates without meaningful offline AND task
-progress, never zero completion alone or a short fluctuation. Divergence, sustained
-overfitting and proven execution/data defects require diagnosis. Only satisfactory
-base behavior permits short focused refinement.
+The same model resumes toward16k/30k, then15k allocation boundaries up to75k if
+offline learning and cumulative resources allow. Save/diagnose every1k. The user's
+latest instruction forbids complete simulation trials during training at any
+intermediate boundary. Only final offline stagnation or the75k main-model ceiling
+opens the two-direction native evaluation. Stagnation requires15kupdates without
+meaningful improvement in fixed train error, fixed development error AND actual
+rolling training loss, with three-checkpoint medians and no stop before30k.
+No task trial is required to confirm this stop. Divergence, persistent overfitting
+and proven execution/data defects require diagnosis without automatically opening
+a simulation panel. The panel checks an explicit final-training gate.
 
 Read-only storage audit identifies48.649GiB of duplicate hardlink paths; resource
 guards now count distinct stored inodes plus every remote copy/output, preserving
@@ -37,8 +41,8 @@ One verified122-file/38.110GiB lossless Gilbreth input replica is ready; Gautsch
 shares it without a second copy. No new broad collection, RL, architecture
 comparison or threshold change is authorized. A same-chat heartbeat resumes work
 when the guarded training ends/stops, staying quiet during normal progress. The
-first block has no intermediate physical evaluation; terminal monitoring and a
-safe stop-file are available in the local evidence directory.
+entire training campaign has no intermediate physical evaluation. Terminal
+monitoring and a safe stop-file are available in the local evidence directory.
 After the same checkpoint completes both fresh normal starts, evaluate all four
 frozen development cases. See [[experiments/act-a1-first-completion]].
 

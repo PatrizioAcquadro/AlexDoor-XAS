@@ -11,13 +11,14 @@ deadline-limited right reference remain historical outcomes.
 ## Current substantial base-training protocol
 
 Continue the same model/optimizer/RNG from6,144 toward16,000 and30,000, then
-45,000/60,000/75,000 only while useful learning and cumulative resources permit.
-30,000 is an intermediate review, not an endpoint;75,000 is the principal model's
-maximum total. No further seed or architecture comparison is planned. Short
-2,000–4,000 focused blocks are reserved for a satisfactory base: both directions
-acquire/sustain contact and reach80% required opening, with at least one valid
-hold and no physical violations. Those are curriculum criteria, not relaxed
-physical acceptance or task success.
+45,000/60,000/75,000 only while offline learning and cumulative resources permit.
+These are compute-allocation boundaries and offline reviews only. The user's
+2026-10-23 correction forbids complete native simulation trials during training,
+including at16k/30k/45k/60k. Native evaluation is allowed only after final training
+termination for declared offline stagnation or the75,000-update main-model ceiling.
+Finishing a compute block is not finishing training. No new seed or architecture
+comparison is planned. Behavior-guided refinement cannot use interim simulation;
+its assessment is deferred until after the final training/evaluation sequence.
 
 The two-direction operational prerequisite now passes. The fresh right reference
 dispatches all4,108 qualified commands with50.236deg controlled opening, valid
@@ -56,26 +57,29 @@ is unchanged.
 
 Save every1,000 updates and evaluate fixed balanced training/development draws
 with the same seeds. Diagnostics preserve training RNG and do not update weights.
-Physical normal-start pairs occur at16k,30k and then15k intervals; zero completion
-alone never interrupts base training. For plateau review, require at least15,000
-updates without a2% relative improvement in either fixed offline diagnostic
-(three-checkpoint medians), no meaningful task improvement over the same window,
-and a current model step of at least30,000. A newly completed phase, first valid
-contact, five percentage points more controlled opening,20% longer sustained
-contact, or valid hold/release/stabilization resets the useful-learning window.
-Offline absence of progress requires the scheduled behavioral review before a
-plateau can stop training. A single fluctuation or brief plateau cannot stop it.
+There are no native task trials during training. Stagnation requires at least
+15,000updates without a2% cumulative improvement in any of three offline measures:
+fixed train error, fixed development error and actual rolling training loss,
+using three-checkpoint medians. The current model must have at least30,000updates.
+Improvement in any measure resets patience. Aggregate comparable history across
+compute blocks; repeated resume-boundary diagnostics are not extra checkpoints.
+A task/behavioral review is neither required nor allowed before this stop.
+A single fluctuation, brief plateau or zero task completions cannot stop training.
 
-Nonfinite loss/gradients stop immediately. Three consecutive diagnostics at least
-three times the rolling training loss trigger diagnosis. This uses the mean of
-the most recent256 actual optimizer losses at each checkpoint; fixed prior-action
-errors remain separate diagnostics and cannot alone establish numerical divergence. Persistent overfitting
-requires at least10,000 updates with10% better fixed train error,20% worse
-development error and no task improvement. Proven data/runtime defects also stop
-affected work. The trainer can save and stop at an update boundary when its
-explicit monitor stop-file appears. Every job retains a finite internal deadline,
-process-group shutdown and cumulative-resource guards; the renewed open-ended
-human task authorization does not remove those safeguards.
+Nonfinite loss/gradients stop immediately. Three consecutive actual rolling-loss
+checkpoints at least three times the earlier median trigger diagnosis. Fixed
+prior-action errors cannot alone establish numerical divergence. Persistent
+overfitting requires at least10,000updates with10% better train error and20% worse
+development error. These defects and resource interruptions require diagnosis;
+they do not authorize a complete simulation trial. Every job retains finite
+internal deadlines, safe saved stopping and cumulative-resource guards.
+
+Before the final simulation panel, record `base-training-finalization.json` with
+verified final termination reason (`long_offline_plateau` or
+`maximum_main_updates`), final main step, finished training allocation and selected
+checkpoint. The panel rejects execution without this gate. The updated plan and
+`base-training-evaluation-policy.json` override legacy state labels cached by the
+already-running first-block supervisor. Its active training is not restarted.
 
 Storage audit verifies48.649GiB of repeated hardlink paths: the current cap counts
 distinct stored local inodes plus all remote replicas and outputs, while preserving
@@ -95,9 +99,10 @@ cannot satisfy that gate. The final test remains sealed.
 The user requests unattended job monitoring and same-chat continuation when a
 block finishes or stops. A five-minute heartbeat checks the guarded job compactly
 and stays quiet while progress is normal. It resumes checkpoint/resource review
-and the spaced native evaluation after completion/interruption; after each new
-verified substantial launch the chat turn ends again. Numerical/resource guards
-run in the job independently of chat sampling. `training_status.py` and each run
+and offline continuation after each compute-block completion/interruption. After
+each new verified substantial launch the chat turn ends again. Only verified final
+stagnation or the75k ceiling opens the native panel. Numerical/resource guards run
+in the job independently of chat sampling. `training_status.py` and each run
 `progress.jsonl` provide read-only terminal monitoring; the explicit stop-file
 requests a saved stop at an optimizer boundary. No new learned full start or
 development case has yet run; the learned denominator remains0/20.
