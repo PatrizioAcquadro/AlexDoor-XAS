@@ -162,7 +162,7 @@ def main(argv=None):
     )
     parser.add_argument(
         "--rollout-compression",
-        choices=("none", "lzf"),
+        choices=("none", "lzf", "gzip"),
         default="none",
         help="Optional lossless RGB-D compression for retained rollout evidence",
     )

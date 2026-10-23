@@ -33,7 +33,7 @@ class RolloutWriter:
             0 < control_dt <= image_period_s
         ):
             raise ValueError("invalid_rollout_recording_cadence")
-        if image_compression not in (None, "lzf"):
+        if image_compression not in (None, "lzf", "gzip"):
             raise ValueError("invalid_rollout_image_compression")
         self.image_compression = image_compression
         self.path = Path(path)
@@ -88,6 +88,11 @@ class RolloutWriter:
                     dtype=arr.dtype,
                     chunks=chunks,
                     compression=self.image_compression if image else "lzf",
+                    **(
+                        {"compression_opts": 1}
+                        if image and self.image_compression == "gzip"
+                        else {}
+                    ),
                 )
         if group in self._pending:
             self._pending[group].append(

@@ -129,7 +129,8 @@ artifacts separately from imitation data. `b1.policy_rollout.v1` stores the raw
 images actually consumed at 10 Hz, all 60 Hz proprioception/full robot/tool
 states, submitted commands and applied targets, and native120/240Hz robot
 feedback. The default remains uncompressed single-frame RGB-D chunks.
-`--rollout-compression lzf` opts into built-in lossless compression of those same
+`--rollout-compression lzf` or `--rollout-compression gzip` opts into built-in
+lossless compression of those same
 frames when retained-evidence capacity matters; it costs additional CPU write time.
 The file records the mode. Raw RGB/depth/validity bytes, including NaN payloads,
 remain exact and existing readers require no conversion. Retained captures are
@@ -163,3 +164,11 @@ Isaac recording and full retained-input audit await the GPU extension.
 
 The [[../experiments/b1-data-pipeline|bounded pipeline study]] reports comparable
 saved-data preparation, loading, ACT input cost, writer tradeoffs and scaling.
+
+
+The gzip option uses level1 and retains one frame per chunk, preserving bounded
+selective reads. Its RGB/depth/validity bytes, including NaN payloads, match the
+original input exactly. Numeric streams, clocks and joins are unchanged. The
+uncompressed default and existing recordings remain intact; compression choices
+control storage only. Current measured space/write tradeoffs are recorded in
+[[../experiments/act-a1-first-completion]].

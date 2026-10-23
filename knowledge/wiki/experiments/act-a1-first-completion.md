@@ -680,3 +680,13 @@ exact default-reference equality and monotone/end-point/invalid-configuration
 cases. No GPU training, new teacher attempt or force-limit change occurs in that
 implementation milestone. Every allocated data/qualification attempt and its
 whole cost will remain in the existing cumulative accounting; no broad campaign.
+
+
+Optional gzip level1 rollout storage preserves remaining evaluation capacity
+without removing raw evidence. Twenty recording regressions pass, including
+bitwise RGB/depth/NaN/validity retention and joins. On the same eight retained
+native frames, gzip uses16,668,333 bytes versus20,925,647 with LZF and36,876,912
+uncompressed; write/flush/close takes0.331/0.117/0.020s respectively. Gzip uses79.66%
+of LZF space. These are storage-only measurements; whole-runtime cost is still
+to be measured. No simulator, optimizer update or original recording is changed
+by the benchmark. Future full evaluations may explicitly select gzip.

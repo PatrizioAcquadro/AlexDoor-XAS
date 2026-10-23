@@ -51,7 +51,7 @@ def writer(path, image_compression=None):
     )
 
 
-@pytest.mark.parametrize("image_compression", [None, "lzf"])
+@pytest.mark.parametrize("image_compression", [None, "lzf", "gzip"])
 def test_lossless_input_joins_and_complete_failure(tmp_path, image_compression):
     path = tmp_path / "failure.hdf5"
     log = writer(path, image_compression)
@@ -91,6 +91,8 @@ def test_lossless_input_joins_and_complete_failure(tmp_path, image_compression):
         assert "force_n" not in h5["captures"] and "force_n" not in h5["control"]
         assert h5.attrs["image_compression"] == (image_compression or "none")
         assert h5["captures/depth_m"].compression == image_compression
+        if image_compression == "gzip":
+            assert h5["captures/depth_m"].compression_opts == 1
         assert h5["captures/depth_m"].chunks == (1, 4, 6, 1)
     with pytest.raises(FileExistsError):
         writer(path)
