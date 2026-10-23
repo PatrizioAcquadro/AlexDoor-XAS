@@ -18,14 +18,21 @@ complete nominal sources' critical transitions, half retains all112 training
 sources and valid recovery scopes. All2,048 new updates complete; whole allocation
 charge5,792s, final checkpoint and matching optimizer/RNG retrieved. Normalization,
 model and physical gates are fixed.
-The qualified local simulator is waiting for an unrelated GPU workload; Blackwell
-also remains occupied. Loaded-state diagnostic integration retains its original
-failed/unavailable starts and revised cells; it cannot count as full completion.
-The120-to240Hz reference has physical drift; a matched240Hz360-command prefix
-reproduces joints, targets and tool position exactly. One full matched reference
-is now predeclared to assess observed admission through the remaining task before
-more training/data. Reference replay is never learned success. Two changed-warmup
-loaded diagnostic cells remain queued, without assuming policy phase performance.
+Loaded-state diagnostics still execute zero ACT commands: fresh physical pre-rolls
+pass, but observed ownership/selection is unavailable. A matched240Hz nominal
+reference reproduces all488 executed commands, joints and tool positions exactly,
+then refuses a strong-load acceleration transient outside the empirical domain.
+Both independent stops pass; no physical violation is recorded. Reference replay
+is diagnostic only. Its last real perception publication is now retained.
+
+Exactly two new unchanged nominal240Hz teacher cycles, one per direction, pass
+opening/hold/release/stabilization and temporal CUDA data checks. They add6,464 and
+6,568 qualified windows; neither has entered training. Their native audit exposes
+larger acceleration excursions and a right wrist-position support gap, so numerical
+padding is unjustified. The next bounded check is independent robot-only current240
+load/stop qualification with fixed residual and physical bounds. All original
+sources/failures remain preserved. Completed remote jobs permit retirement of only
+their120 derived input replicas, freeing38,684,943,269 bytes without deleting results.
 
 The same saved file must still complete fresh right and left normal starts, then
 undergo all four predefined development conditions. All original outcomes, raw

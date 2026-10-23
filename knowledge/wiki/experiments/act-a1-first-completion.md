@@ -563,3 +563,38 @@ including bitwise RGB/depth/NaN/validity retention in both modes. On eight retai
 native frames, LZF uses20,925,647 versus36,876,912 bytes (56.74%); write/flush/close
 takes0.116 versus0.023s. These are storage-only measurements, not a whole-runtime
 performance claim. Details are in `rollout-compression-size-check.json`.
+
+
+## Matched nominal240 data and operational coverage
+
+Both predeclared teacher attempts pass the unchanged full physical and data gates:
+right51.245degrees,6,464 windows; left52.207degrees,6,568 windows. These are two
+teacher cycles, zero learned successes and zero optimizer updates. Their model
+observation contract exactly matches the original temporal corpus. The original
+112-source handoff stays closed and all failed attempts remain preserved.
+
+A single1000-command nominal-right reference prefix stops after488 commands.
+Requests, delivered deltas, joints and tool positions match its new source exactly;
+independent2+4s stops pass. At33.325s, wrist-Z acceleration exceeds the original
+strong-load domain by1.078rad/s²; the unchanged residual estimate gives6.449N upper,
+above the1N weak-only extension. The last actual perception snapshot is retained
+before reset and confirms real tracking publications. No teacher/replay result
+counts as learned completion. Full learned attempts remain0/18.
+
+The source-native audit also finds real later gaps: right3 acceleration samples
+outside the existing weak domain and546 wrist-Z positions up to8.436mrad beyond
+its lower halo; left one shoulder-Z acceleration sample exceeds the weak domain
+by2.547rad/s². There is no numerical-rounding justification for padding. Force and
+full operational admissibility cannot be inferred from source kinematics alone.
+Before further training, test bounded robot-only240Hz critical states under known
+loads against the existing residual model and unchanged stop/sweep bounds; any
+proposal needs separate frozen perturbation verification. No runtime bound is
+changed by this plan. Exact records are `nominal-load-domain-audit-v2.json` and
+`nominal240-reference-prefix-parity.json` in the experiment evidence directory.
+
+All owned remote trainings have ended. After verifying120 original inputs remain
+and the remote directory contains exactly the120 previously verified replicas,
+retire only that derived Gilbreth data cache. All code, checkpoints, resumes,
+logs, failed evaluations and transfer proofs remain. Cumulative retained storage
+falls to968.517GiB; local31.48178/40h, aggregate remote4.97778/32h, optimizer upper
+129,709/200,000 before the next allocation. No cost or prior outcome is refunded.
