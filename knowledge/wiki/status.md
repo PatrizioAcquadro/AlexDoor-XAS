@@ -3,8 +3,11 @@
 ## ACT A1 first learned completion — substantial base training running
 
 The human authorizes the time needed for substantial training and subsequent
-evaluations within unchanged48local/32aggregate remote GPUh,200,000cumulative
-updates and1TiB retained. Principal seed9101 completes6,144→16,000updates on the
+evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
+The user raises aggregate retained space to1.1TiB(1126.4GiB), counting local data,
+all remote replicas and outputs. Other limits, the75k main-model maximum and the
+ban on native evaluation during training remain unchanged. Principal seed9101
+completes6,144→16,000updates on the
 RTX4090; the16,000→30,000block is running on an actual Gilbreth A100 as
 Slurm12011121. All20 earlier learned normal-start attempts remain failures. No learned full-task
 completion or native development evaluation is established; final test is sealed.
@@ -40,7 +43,9 @@ a simulation panel. The panel checks an explicit final-training gate.
 
 Read-only storage audit identifies48.649GiB of duplicate hardlink paths; resource
 guards now count distinct stored inodes plus every remote copy/output, preserving
-the earlier conservative path sum. The1TiB cap and every prior outcome remain.
+the earlier conservative path sum. The central ledger and preflight guards now
+use the authorized1.1TiB aggregate cap; old1TiB authorizations and every prior
+outcome remain historical. A100job12011121 continues without restart or duplicate.
 Verified cleanup reclaims58.63GiB remote and3.38GiB local
 from redundant historical replicas/caches; every original and outcome remains.
 The previously omitted legacy remote payloads are now included in accounting.

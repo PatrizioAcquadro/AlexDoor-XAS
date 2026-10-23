@@ -5,8 +5,11 @@ substantial block completes normally; no learned completion is established.
 The user-selected A100 continuation16,000→30,000 is running as Slurm12011121.
 This is a compute boundary, not final training completion.
 The new authorization covers the time needed for training and subsequent
-evaluations within unchanged cumulative48local/32aggregate remote GPUh,
-200,000updates and1TiB retained. The earlier expired work window and its
+evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
+The later explicit storage authorization raises aggregate retained space from1TiB
+to1.1TiB(1126.4GiB), including local data, all remote replicas and every output;
+those other limits and the75,000-update principal-model ceiling remain unchanged.
+The earlier expired work window and its
 deadline-limited right reference remain historical outcomes.
 
 ## Current substantial base-training protocol
@@ -119,8 +122,17 @@ already-running first-block supervisor. Its active training is not restarted.
 
 Storage audit verifies48.649GiB of repeated hardlink paths: the current cap counts
 distinct stored local inodes plus all remote replicas and outputs, while preserving
-the historical conservative path sum alongside it. The1TiB cap is unchanged;
-no evidence or attempt is deleted to obtain this correction. Reserve one40GiB
+the historical conservative path sum alongside it. This counting basis is
+unchanged. The current aggregate cap is1.1TiB(1126.4GiB), explicitly authorized
+while A100job12011121 remains active. The central limit is stored as
+1,209,462,790,553whole bytes, flooring the exact conversion by less than one byte.
+`base-storage-limit-1p1tib-20261023.json` preserves the old1TiB ceiling and the
+request; earlier authorizations, baseline consumption, failures and attempts are
+retained. Active accounting reloads the central limit and launch/evaluation guards
+read it rather than embedding1024GiB. The running job is neither restarted nor
+duplicated; its existing per-job output budget remains inside the aggregate cap.
+No data is deleted for this change. The historical possible1TiB exceedance below
+remains an outcome under the then-current ceiling. Reserve one40GiB
 lossless Gilbreth input copy,5local GPUh and31GiB for the complete final
 evaluation panel. Copies are
 verified before retiring newly created transfer staging files. No second remote
