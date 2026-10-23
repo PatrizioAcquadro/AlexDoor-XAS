@@ -368,6 +368,14 @@ no visual corpus or expanded sliding-window dataset is materialized. Incremental
 ingress has declared rate/capacity bounds, static retention and target carry-in;
 overflow fails visibly. Raw source paths and all historical evidence remain.
 
+`prepare_temporal(..., image_compression="gzip")` optionally stores new float32
+image frames with gzip level1 and byte shuffle; `lzf` is also supported. Defaults
+remain uncompressed, and all values, clocks, eligibility and action semantics are
+unchanged. `verify_temporal_collection.py --prepared-image-compression gzip`
+selects the same option for new qualification derivatives. Existing stores are
+never rewritten. Actual CUDA preprocessing tests verify binary equality of frame,
+action, eligibility and decision arrays and unchanged sampling/padding.
+
 ## Reviewed baseline measurements (historical)
 
 Evidence: [complete local measurements and attempts](../../../outputs/evidence/act-a1-temporal-implementation-20261019/summary.json),

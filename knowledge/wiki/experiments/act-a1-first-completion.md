@@ -873,3 +873,21 @@ budget and runtime gains/stop criteria remain unchanged. This is teacher-only;
 no native contact truth enters ACT observations or execution. Numerical checks
 cover legacy/default behavior, unloaded-interval catch-up, bounded control and
 recovery scope. Native benefit remains unmeasured before the next fixed pair.
+
+
+Both1s-ramp sources fail common full-cycle continuity: right49.900/62.783s and
+left34.5667s. All original reports,6.862/5.095N peaks, independent healthy stops,
+7053/6902 admitted temporal windows and valid recovery scopes remain. The added
+retained-trace review stops the worker before either observed reference; no
+optimizer update uses the pair. The next preregistered native-support pair keeps
+the same1s ramp and all thresholds, changing only push/hold pressure feedback as
+explained above. Its maximum six stages fit the authorized281/13.5h/432GiB limits;
+the actual launch guard reconciles every previous stage before each allocation.
+
+New prepared temporal stores now offer explicit lossless image compression. On
+six bounded existing240x384 float32 frames, uncompressed/LZF/gzip1-shuffle use
+11,064,256/5,706,491/5,150,396 bytes; all float32 bits match. Gzip read/write takes
+0.0285/0.0857s for those six frames. Two actual CUDA preprocessing/sampling tests
+pass with zero optimizer updates, charged under `prepared-compression-gpu`.
+The option affects only new derivatives; original source/prepared/checkpoint files
+remain untouched. Whole training performance is still an unmeasured limit.

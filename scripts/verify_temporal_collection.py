@@ -12,7 +12,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 
-def verify(source, output):
+def verify(source, output, *, image_compression=None):
     import h5py
     import numpy as np
     import torch
@@ -59,7 +59,15 @@ def verify(source, output):
         if not diagnostic:
             assert metadata["split"] == "train", "This check fits statistics on training data only"
     prepared = output / (source.parent.name + "-240x384.hdf5")
-    prepare_temporal(source, prepared, cfg, eligible=eligible, device="cuda:0")
+    prepare_temporal(
+        source,
+        prepared,
+        cfg,
+        eligible=eligible,
+        device="cuda:0",
+        image_compression=image_compression,
+    )
+    report["prepared_image_compression"] = image_compression or "none"
     if diagnostic:
         with TemporalEpisode(prepared, cfg) as episode:
             rows = episode.training_rows()
@@ -245,6 +253,9 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("recordings", type=Path, nargs="+")
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--prepared-image-compression", choices=("none", "lzf", "gzip"), default="none"
+    )
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=False)
     import torch
@@ -255,7 +266,15 @@ def main():
     try:
         for source in args.recordings:
             print(f"Verifying {source}", flush=True)
-            reports[source.parent.name] = verify(source, args.output)
+            reports[source.parent.name] = verify(
+                source,
+                args.output,
+                image_compression=(
+                    None
+                    if args.prepared_image_compression == "none"
+                    else args.prepared_image_compression
+                ),
+            )
             (args.output / "report.json").write_text(
                 json.dumps(reports, indent=2, allow_nan=False) + "\n"
             )

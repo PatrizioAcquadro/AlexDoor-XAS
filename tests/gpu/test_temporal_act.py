@@ -255,3 +255,41 @@ def test_normalization_uses_same_finite_torque_support_as_observations(tmp_path)
         assert not snapshot["obs"]["robot_valid"][-1, 2]
         stats = fit_temporal_stats([episode])
         assert np.isfinite(stats.obs.mean).all() and np.isfinite(stats.obs.std).all()
+
+
+@pytest.mark.parametrize("compression", ["lzf", "gzip"])
+def test_prepared_lossless_image_compression_keeps_actual_cuda_values_and_samples(
+    tmp_path, compression
+):
+    assert torch.cuda.is_available(), "GPU required, do not fall back to CPU"
+    cfg, original = prepare_fixture(tmp_path)
+    compressed_path = tmp_path / "compressed.hdf5"
+    with original.file as plain:
+        eligible = plain["actions/eligible"][:]
+        prepare_temporal(
+            tmp_path / "raw.hdf5",
+            compressed_path,
+            cfg,
+            eligible=eligible,
+            image_compression=compression,
+        )
+        with h5py.File(compressed_path) as compressed:
+            assert compressed["images/values"].compression == compression
+            assert compressed["images/values"].shuffle
+            for name in (
+                "images/values",
+                "actions/delta",
+                "actions/eligible",
+                "decision_time",
+                "decision_generation",
+            ):
+                a, b = plain[name][:], compressed[name][:]
+                np.testing.assert_array_equal(a.view("u1"), b.view("u1"))
+    with TemporalEpisode(compressed_path, cfg) as compressed:
+        assert compressed.sample(25)["supervision_eligible"]
+        assert compressed.sample(29)["is_pad"].sum() == 11
+    with pytest.raises(ValueError, match="prepared image compression"):
+        prepare_temporal(
+            tmp_path / "raw.hdf5", tmp_path / "invalid.hdf5", cfg, image_compression="lossy"
+        )
+    assert not (tmp_path / "invalid.hdf5").exists()

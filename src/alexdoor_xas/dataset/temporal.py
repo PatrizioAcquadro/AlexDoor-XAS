@@ -252,17 +252,30 @@ def prepare_temporal(
     legacy_synchronous=False,
     eligible=None,
     episode_id=None,
+    image_compression=None,
 ):
     """Stream one frame at a time to an exclusive new store; never expand windows.
 
     eligible is an explicit command-row mask, default diagnostic-only. A chunk
     intersecting an ineligible real command is excluded as a whole, not padded.
     """
+    if image_compression not in (None, "lzf", "gzip"):
+        raise ValueError("Unsupported prepared image compression")
+    image_storage = (
+        {}
+        if image_compression is None
+        else dict(
+            compression=image_compression,
+            shuffle=True,
+            **(dict(compression_opts=1) if image_compression == "gzip" else {}),
+        )
+    )
     with h5py.File(source, "r", rdcc_nbytes=1024**2) as raw, h5py.File(destination, "x") as out:
         out.attrs.update(
             layout=LAYOUT,
             complete=False,
             source=str(Path(source).resolve()),
+            image_compression=image_compression or "none",
             preprocessing=json.dumps(
                 dict(
                     image_size=config.image_size,
@@ -303,6 +316,7 @@ def prepare_temporal(
                         shape=(len(stream["acquired"]), *frame_shape),
                         dtype="f4",
                         chunks=(1, *frame_shape),
+                        **image_storage,
                     )
                     for i in range(len(column)):
                         column[i] = values[[i]][0]

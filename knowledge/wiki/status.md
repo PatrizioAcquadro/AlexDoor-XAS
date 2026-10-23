@@ -2,81 +2,51 @@
 
 ## ACT A1 first learned completion — active
 
-The user authorized training from the completed qualified temporal corpus and
-fresh closed-loop simulation. Three initial seeds reach1,024 updates with0/6
-full nominal completions. The seed9101 continuation/curriculum reaches6,144;
-all20 complete normal-start attempts remain failures, with healthy stops and no
-recorded physical violations. New5120/6144 pairs stop before contact at acquisition,
-orientation or motion/stop-support checks. No complete learned task success is
-established.
+Three initial seeds reach1,024 updates; the selected seed9101 continuation reaches
+6,144. All20 complete learned normal-start attempts remain failures, with healthy
+independent stops and no recorded physical violations. No new source has entered
+training. Normalization remains frozen on the original112 training sources; the
+final test and native development panel remain unopened. The same saved file must
+still complete the declared right/left normal starts and then receive all four
+predefined development evaluations.
 
-Seed9103 reaches2,048 on Gilbreth; its fresh right attempt stops before contact
-after626 commands; left stops after601 outside the calibrated load domain, also
-without contact or controlled opening. One bounded
-seed9101 curriculum completes6,144 on A100: half the batch focuses on the two
-complete nominal sources' critical transitions, half retains all112 training
-sources and valid recovery scopes. All2,048 new updates complete; whole allocation
-charge5,792s, final checkpoint and matching optimizer/RNG retrieved. Normalization,
-model and physical gates are fixed.
-Loaded-state diagnostics still execute zero ACT commands: fresh physical pre-rolls
-pass, but observed ownership/selection is unavailable. A matched240Hz nominal
-reference reproduces all488 executed commands, joints and tool positions exactly,
-then refuses a strong-load acceleration transient outside the empirical domain.
-Both independent stops pass; no physical violation is recorded. Reference replay
-is diagnostic only. Its last real perception publication is now retained.
+The separately qualified current240Hz10N load/stop recipe passes14 fitting and21
+independent component cases with unchanged normal gains, residual coefficients
+and physical/task thresholds. Earlier failed proposals remain, including the
+rejected16N extension. Exact nominal references expose single first-contact peaks
+above10N. Gentle teachers reduce impact but exhaust the unchanged30mm seek budget
+before physical force. Independent clock/travel/geometry diagnosis rules out a
+duplicate travel charge. Slow-tail teachers resolve acquisition, but their exact
+observed references stop during early push at contact-load loss. These diagnostic
+replays never count as learned completion.
 
-Exactly two new unchanged nominal240Hz teacher cycles, one per direction, pass
-opening/hold/release/stabilization and temporal CUDA data checks. They add6,464 and
-6,568 qualified windows; neither has entered training. Their native audit exposes
-larger acceleration excursions and a right wrist-position support gap, so numerical
-padding is unjustified. A separate240Hz load/stop recipe now passes14 fitting and21 independent robot-only
-cases, including the original loaded-stop controls and actual ready/stabilized
-poses. Normal gains, physics and physical requirements are unchanged; residual
-coefficients and the weak scalar also remain unchanged. The new stop-only gains
-and empirical domains have measured support; minimum independent directional
-volume margin is0.248mm. Failed proposals, including two unstable stop cases,
-remain preserved. This is finite component qualification, not learned success.
-Matched nominal right/left references then reproduce488 commands exactly and
-stop at13.067/15.248N upper estimates against the10N stop domain. Each teacher has
-only one native sample above10N, at first contact. A fixed16N qualification fails
-11.255mm stop travel,0.580rad/s primary speed and0.5154rad/s removal speed, so
-its limit is not adopted. Exactly one gentler full teacher cycle per direction
-now passes all physical/data gates at6.604/5.141N native peaks, adding13,290 valid
-windows. The teacher-only eased ramp preserves defaults, normal control,
-physical/task gates and policy inputs. The prepared union has116 train sources;
-normalization remains frozen on the original112. A full right/left-prefix observed
-execution check precedes the bounded6,144-to8,192 continuation. Training has not
-resumed and teacher/reference outcomes cannot satisfy learned completion.
-Original inputs/results remain; only verified remote transfer replicas were retired.
+A1s teacher push ramp delays the right source's contact loss but leaves two later
+losses; the left source retains one early loss. Both original teacher/end-state
+reports and valid-window scopes remain; unchanged common-evaluator replay rejects
+full-cycle qualification. Their observed references and training are blocked.
+A gate-activation defect is corrected: every ordinary full cycle now requires
+continuous prerelease loading regardless of extended-hold timing. Scoped recovery
+examples keep their declared scope. The next fixed pair uses explicit teacher-only
+completed-native-interval pressure feedback during push/hold, replacing the stale
+100ms qualification-filter feedback. The independent qualification window, force
+targets, admittance/compression budgets, acquisition and runtime remain unchanged.
+Native benefit remains pending. Only two fully qualified new sources with both
+complete observed reference paths may join the original112 for a bounded2,048
+update continuation; original112-only normalization stays frozen.
 
-Both gentle observed references now stop before physical contact at the unchanged
-30mm seek budget, after1.467/1.633s rather than the3s deadline. Native parity is
-exact and independent stops pass. A read-only audit rules out duplicate travel;
-geometry uncertainty and actual curved motion exhaust the budget before first
-force at33.125/33.133s. A teacher-only slow-tail reference now preserves the old
-linear prefix and slows only within5mm of contact; native qualification is pending.
-No new training starts before both complete observed paths pass. The user raises
-the local global ceiling to48GPUh; remote32h,200,000updates and1TiB stay fixed.
-The separate collection increment remains219/220slots,11.201/12h,393.910/400GiB;
-the user authorizes225slots/13h/420GiB for exactly the six-stage paired correction.
-The extra fixed6144 pair with the qualified runtime fails at377/581 commands
-(orientation/contact-free stop support), with zero contact/controlled opening,
-healthy independent stops and no physical violations. All20 learned attempts
-remain; no new data has entered training.
+All29 authorized inactive failed native rollouts are preserved in reversible gzip
+archives with complete decompressed SHA-256 equality;19.40GiB is recovered, with
+no cost or failure removed. New prepared temporal image stores can also select
+lossless gzip1/byte shuffle; CUDA tests retain every value bit and sampling rules.
+On six existing frames this uses46.55% of uncompressed space; actual whole-run
+performance remains to be measured. Existing stores are unchanged.
 
-The slow-tail teachers pass the earlier teacher/end-state and data gates at
-50.864/52.216deg and6.862/5.095N. A CPU common-evaluator replay nevertheless
-identifies early push load losses in both sources. The teacher's0.25s recontact
-allowance differs from the full task's continuous loaded-contact rule. Future
-task-goal teacher qualification now rejects such losses; all existing reports
-and usable valid-window scopes remain. A default-off angular push ramp is
-implemented and tested as the next handoff correction; native benefit is unverified.
-The two registered full observed references are still diagnostic. No new training.
-
-The same saved file must still complete fresh right and left normal starts, then
-undergo all four predefined development conditions. All original outcomes, raw
-evidence and cumulative allocation charges remain. See
-[[experiments/act-a1-first-completion]].
+Authorized limits are48local GPUh,32aggregate remote GPUh,200,000 cumulative
+updates and1TiB retained. The collection ceilings are281 launches,13.5GPUh and
+432GiB. The maximum continuation window ends2026-10-23at14:55UTC/10:55Indiana.
+All historical charges/outcomes remain in the cumulative ledger; the shared4090
+mutex is released between stages and coordinated with the other authorized chat.
+See [[experiments/act-a1-first-completion]].
 
 Current as of 2026-10-23. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
