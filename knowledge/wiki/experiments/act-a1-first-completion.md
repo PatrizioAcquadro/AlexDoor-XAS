@@ -1058,3 +1058,33 @@ no early ACT inference, reset isolation and stale-input refusal during staging.
 The first native phase attempt remains pending. Its GPU charge belongs to policy
 evaluation under the global48h allowance; it neither collects a new teacher nor
 qualifies or replaces the still-unattempted right full reference.
+
+
+The first fixed native phase case uses the unchanged6,144-update seed9101 file
+and the positive left source. Normal inspection and648 reference commands reach
+36s with loaded valid contact. The first ACT observation reconstructs exactly from
+this rollout:241 numeric history rows and dynamic image clocks from32 to36s,
+all current q/dq and torque support valid, previous actual targets, and retained
+local captures. No source image/state enters the model. All648 staging requests
+and joint states are exact; there is no physical retry.
+
+ACT performs66 actual commands/11 queries, adding1.128deg at valid loaded rows
+(0.619deg additional sustained controlled opening), then stops for
+`contact_load_lost_or_uncertain` after1.1s. The last positive native force is at
+37.0s; the next native sample at37.00417s is force-free, and refusal occurs at
+37.1s after the unchanged100ms force window. Material-relative applied normal
+withdrawal drifts from-0.073mm to+0.375mm; final measured separation is0.426mm.
+Every ACT target equals current measured q plus its requested delta in float32,
+and the first executed six rows equal the saved prediction. Physical violations
+remain zero; both independent stops pass. This isolates a learned contact-support
+failure from an invalid start or action-delivery defect. The mixed diagnostic
+cannot count as either a full learned or full reference completion.
+
+An initial CPU history audit substitutes post-step time minus dt for actual
+command-request clocks, selecting the preceding target at16 floating-point
+boundaries. That failed reconstruction is retained. Using the actual pre-dispatch
+control clock reproduces every numeric input, mask and timing bit exactly. The
+rollout writer now directly records `command_event.request_s`, matching native
+setter acknowledgments; physical execution, policy inputs, strict causal rules
+and old recordings remain unchanged. This is a recording/audit clock correction,
+not a favorable physical retry or a relaxed comparison tolerance.

@@ -58,7 +58,11 @@ The collection GPU subcap currently prevents reserving the full right reference;
 only an explicit answer to the pending subcap question can extend it. A separate
 observed-prefix ACT phase diagnostic is implemented: real normal inspection and
 measured history, fixed six-row staging, permanent handoff, unchanged per-row
-safety and no full learned-success eligibility. Native verification is pending.
+safety and no full learned-success eligibility. The first native left early-push phase start is valid:4s real history and648
+exact staging commands, then66 ACT commands. ACT adds1.128deg with valid loaded
+contact before losing it after1.1s; delivery is exact and2+4s stops are healthy.
+This is a retained policy phase failure, never a full completion. A passive clock
+recording correction retains actual command-request timestamps for exact joins.
 All historical charges/outcomes remain in the cumulative ledger; the shared4090
 mutex is released between stages and coordinated with the other authorized chat.
 See [[experiments/act-a1-first-completion]].

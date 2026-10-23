@@ -993,7 +993,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
         applied_joints[:7] = array(env.targets)[0, env.arm_ids]
         applied_evaluation_goal = io.tool_fk(applied_joints, io.calibration)
         pending = dict(
-            time_s=np.float64(env.capture.sample.time_s - io.dt),
+            # Retain the setter's actual pre-dispatch clock. Subtracting dt
+            # from the post-step clock can change strict previous-target joins.
+            time_s=np.float64(env.command_event["request_s"]),
             kind=np.int8(kind),
             request=request,
             request_width=np.int8(width),
