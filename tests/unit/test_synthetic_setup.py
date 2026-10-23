@@ -417,3 +417,62 @@ def test_slow_tail_requires_separated_initial_ramp():
 
     with pytest.raises(ValueError, match="5mm slowdown"):
         ProbeSetup(contact_ramp_profile="slow_tail", precontact_m=0.004)
+
+
+def test_full_contact_continuity_rejects_short_early_loss_but_allows_release():
+    from alexdoor_xas.qualification.synthetic_probe import (
+        ProbeSetup,
+        pre_release_contact_continuity,
+    )
+
+    setup = ProbeSetup()
+    rows = [
+        dict(time=i / 60, angle=0.01, phase="contact", loaded=True, valid=True) for i in range(40)
+    ]
+    released = rows + [dict(time=40 / 60, angle=0.01, phase="release", loaded=False, valid=False)]
+    assert pre_release_contact_continuity(released, setup)["passed"]
+    lost = rows + [dict(time=40 / 60, angle=0.01, phase="push", loaded=False, valid=False)]
+    result = pre_release_contact_continuity(lost, setup)
+    assert not result["passed"]
+    assert result["contact_loss_times_s"] == [40 / 60]
+    # The old teacher tolerated this short loss for controller recovery. It
+    # cannot qualify a continuous full task merely by reacquiring afterward.
+    recovered = lost + [
+        dict(time=i / 60, angle=0.02, phase="push", loaded=True, valid=True) for i in range(41, 90)
+    ]
+    assert not pre_release_contact_continuity(recovered, setup)["passed"]
+
+
+def test_unresolved_acquisition_does_not_become_established_contact_loss():
+    from alexdoor_xas.qualification.synthetic_probe import (
+        ProbeSetup,
+        pre_release_contact_continuity,
+    )
+
+    rows = [
+        dict(time=0, angle=0, phase="contact", loaded=True, valid=True),
+        dict(time=1 / 60, angle=0, phase="contact", loaded=False, valid=False),
+    ]
+    rows += [
+        dict(time=i / 60, angle=0.01, phase="push", loaded=True, valid=True) for i in range(2, 40)
+    ]
+    result = pre_release_contact_continuity(rows, ProbeSetup())
+    assert result["passed"] and not result["contact_loss_times_s"]
+
+
+def test_teacher_push_ramp_preserves_speed_lead_and_mechanical_limits():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, push_reference
+
+    setup = ProbeSetup(push_ramp_s=1)
+    dt = 1 / 60
+    original = min(0.2 + setup.angular_speed * dt, 0.3 + setup.lead_angle, 1)
+    assert push_reference(0.2, 0.3, setup, dt, 1) == original
+    first = push_reference(0.2, 0.3, setup, dt, 1, speed_scale=dt / setup.push_ramp_s)
+    assert first - 0.2 == pytest.approx((original - 0.2) / 60)
+    assert push_reference(0.4, 0.3, setup, dt, 1, speed_scale=0.5) == 0.3 + setup.lead_angle
+    assert push_reference(0.999, 0.999, setup, dt, 1, speed_scale=1) == 1
+    for value in [-1, float("nan")]:
+        with pytest.raises(ValueError, match="push ramp"):
+            ProbeSetup(push_ramp_s=value)
+    with pytest.raises(ValueError, match="speed scale"):
+        push_reference(0.2, 0.3, setup, dt, 1, speed_scale=2)

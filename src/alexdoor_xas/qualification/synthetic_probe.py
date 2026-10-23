@@ -45,6 +45,7 @@ class ProbeSetup:
     hold_settle_s: float = 3.0
     hold_blend_s: float = 0.5
     angular_speed: float = float(np.deg2rad(5))
+    push_ramp_s: float = 0.0
     lead_angle: float = float(np.deg2rad(0.3))
     compression_m: float = 0.003
     normal_admittance_m_n_s: float = 0.0005
@@ -115,6 +116,8 @@ class ProbeSetup:
             or self.intermediate_preroll_s <= self.sustain_s + self.contact_force_window_s
         ):
             raise ValueError("Require ordinary tail >=2s and fresh loaded pre-roll support")
+        if not np.isfinite(self.push_ramp_s) or self.push_ramp_s < 0:
+            raise ValueError("Invalid teacher push ramp duration")
         if self.contact_ramp_profile not in ("linear", "ease_out", "slow_tail"):
             raise ValueError("Unknown teacher contact ramp profile")
         if self.contact_ramp_profile == "slow_tail" and self.precontact_m <= 0.005:
@@ -243,9 +246,44 @@ def achieved_contact_hold_state(door, setup, row):
     return angle, float(local[0]), tangent
 
 
-def push_reference(reference, angle, setup, dt, mechanical_stop):
+def push_reference(reference, angle, setup, dt, mechanical_stop, *, speed_scale=1.0):
     """Advance on the reference clock; a coasting panel cannot advance the command."""
-    return min(reference + setup.angular_speed * dt, angle + setup.lead_angle, mechanical_stop)
+    if not np.isfinite(speed_scale) or not 0 <= speed_scale <= 1:
+        raise ValueError("Invalid teacher push speed scale")
+    return min(
+        reference + setup.angular_speed * dt * speed_scale,
+        angle + setup.lead_angle,
+        mechanical_stop,
+    )
+
+
+def pre_release_contact_continuity(traces, setup):
+    """Full-task qualification, separate from the teacher's bounded recontact control.
+
+    Match the independent evaluator's pre-release rule: after a valid sustained contact window,
+    any unloaded interval before intentional release fails full-cycle continuity.
+    Historical recovery controls and their admitted valid windows keep their scope.
+    """
+    window = SustainedAngle(setup.sustain_s)
+    was_loaded = False
+    established_s = None
+    losses = []
+    for row in traces:
+        if row["phase"] == "release":
+            break
+        window.update(row["time"], row["angle"], row["valid"])
+        if established_s is None and window.maximum is not None:
+            established_s = row["time"]
+        if was_loaded and not row["loaded"] and window.maximum is not None:
+            losses.append(row["time"])
+        was_loaded = row["loaded"]
+    return dict(
+        passed=established_s is not None and not losses,
+        established_s=established_s,
+        contact_loss_times_s=losses,
+        clock_domain="probe_relative_after_common_inspection",
+        scope="Unchanged full-task loaded-contact continuity before intentional release",
+    )
 
 
 def tracking_reserve(samples, horizon):
@@ -909,6 +947,9 @@ def run_probe(
                     setup,
                     dt,
                     door.mechanical_stop,
+                    speed_scale=(
+                        min(1.0, (tick + 1) * dt / setup.push_ramp_s) if setup.push_ramp_s else 1.0
+                    ),
                 )
                 reference_step = reference - previous_reference
                 compression = support_normal(compression, "push")
@@ -1488,6 +1529,9 @@ def run_probe(
                 break
         if not stabilized:
             failure = failure or "stabilization_budget_exhausted"
+    continuity = pre_release_contact_continuity(traces, setup) if task_hold is not None else None
+    if continuity is not None and not continuity["passed"]:
+        failure = failure or "pre_release_contact_loss"
     measured = window.maximum
     result = dict(
         case=door.name,
@@ -1518,6 +1562,7 @@ def run_probe(
             np.deg2rad(setup.tie_deg) / setup.stabilization_window_s
         ),
         intermediate_start=intermediate is not None,
+        full_contact_continuity=continuity,
         scope="controlled_door_probe",
         force_components="normal_only",
         visibility=None

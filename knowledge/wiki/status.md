@@ -64,6 +64,15 @@ The extra fixed6144 pair with the qualified runtime fails at377/581 commands
 healthy independent stops and no physical violations. All20 learned attempts
 remain; no new data has entered training.
 
+The slow-tail teachers pass the earlier teacher/end-state and data gates at
+50.864/52.216deg and6.862/5.095N. A CPU common-evaluator replay nevertheless
+identifies early push load losses in both sources. The teacher's0.25s recontact
+allowance differs from the full task's continuous loaded-contact rule. Future
+task-goal teacher qualification now rejects such losses; all existing reports
+and usable valid-window scopes remain. A default-off angular push ramp is
+implemented and tested as the next handoff correction; native benefit is unverified.
+The two registered full observed references are still diagnostic. No new training.
+
 The same saved file must still complete fresh right and left normal starts, then
 undergo all four predefined development conditions. All original outcomes, raw
 evidence and cumulative allocation charges remain. See

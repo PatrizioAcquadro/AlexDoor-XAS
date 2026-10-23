@@ -775,3 +775,37 @@ original6144 failures remain. The complete normal-start denominator is now0/20;
 no development native case has run. Updated runtime qualification alone has not
 resolved learned acquisition. No optimizer update has used the new nominal or
 gentle sources.
+
+
+## Full teacher qualification versus continuous task contact
+
+Both fixed slow-tail teachers complete their original teacher/end-state gates
+and zero-update CUDA data checks: right50.864deg/6.862N/6,644 windows;
+left52.216deg/5.095N/6,892 windows. All independent stops pass and neither has
+a physical violation. Native observed reference checks remain separate and
+pending. No new-data optimizer update has run.
+
+A CPU replay of retained native contacts through the unchanged PilotEvaluation
+identifies a second incompatibility. After valid sustained contact, the right
+source loses required loading at35.650s (filtered0.016900N); left loses it at
+35.1167s (0.017335N) and35.4333s (0N). The required20mN task threshold remains.
+The teacher permits up to0.25s of unloaded recovery during push, while the full
+common evaluator preserves any pre-release loss after established support.
+Thus the teacher's end-state pass does not establish common full-cycle success.
+The original reports and qualified valid-window scopes remain unchanged; they
+are not relabeled as learned results or discarded. Exact native samples and
+CPU/teacher comparison are in `slow-tail240-*-source-continuity-audit.json`.
+
+Future ordinary task-goal teacher episodes now additionally require the common
+pre-release loaded-contact continuity rule. This qualification failure is distinct
+from a physical safety violation. Historical narrower recovery controls retain
+their declared scope and bounded recontact controller; thresholds and raw results
+are untouched. The new numerical gate matches both observed source failures.
+
+An optional teacher-only `push_ramp_s` defaults to zero and can ramp angular
+reference speed up to the unchanged maximum. The1s candidate reduces the first
+push advance by60times while retaining the same lead/mechanical limits, pressure
+controller and target. It addresses the abrupt first-push motion rather than
+relaxing the contact rule. CPU regressions pass; no native source with this push
+ramp has been collected and no benefit is claimed. Native checks of the already
+registered slow-tail sources remain diagnostic and ineligible for learned success.
