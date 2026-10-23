@@ -28,7 +28,7 @@ undergo all four predefined development conditions. All original outcomes, raw
 evidence and cumulative allocation charges remain. See
 [[experiments/act-a1-first-completion]].
 
-Current as of 2026-10-21. Static 6.0B and the complete B1 software core are
+Current as of 2026-10-22. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
 6.1 and final matched-data production remain open. The sealed test stays closed.
 

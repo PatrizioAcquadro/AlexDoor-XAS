@@ -401,3 +401,15 @@ identity checks pass. This is neither new acquisition nor a learned execution,
 and remains ineligible for full-task success regardless of its physical outcome.
 The two loaded cells, reference and three new candidate pairs remain queued behind
 unrelated workstation GPU work; no new physical result is assumed.
+
+
+Native attempts now queue on the existing local GPU mutex through a read-only
+exclusive lease, acquired before any GPU allocation or billing starts. The current
+owner is never interrupted. Each allocation guardian inherits the descriptor,
+so its lease survives an outer queue exit and releases after that attempt exits.
+The lease is released between cases; no other project file is changed. A CPU OS
+contract check verifies read-only acquisition, inherited ownership and release.
+This replaces availability polling as the serialization mechanism while retaining
+the final empty-GPU check and all existing resource guards. Mutex waiting consumes
+no GPU allocation and is not an attempted evaluation. Details remain in
+`gpu-mutex-scheduling.json`; no cross-chat scheduling message is needed.
