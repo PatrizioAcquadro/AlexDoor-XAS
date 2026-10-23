@@ -1121,3 +1121,33 @@ phase definition can diagnose remaining contact failure without counting its
 staging as learned control. Further blocks require measured task progress;
 remaining recovery evaluation keeps the original demonstrated recovery scope.
 No additional broad collection is justified by the present phase failure.
+
+
+## Authorized global margin and fixed deadline closeout
+
+The human subsequently authorizes using remaining global local GPU margin beyond
+the13.5h collection subcap, explicitly retaining the10:55Indiana deadline. The
+answer is received at14:41UTC. The original authorization and prior resource
+refusal remain; active guards enforce48local/32aggregate remote GPUh,200,000
+updates,1TiB,281launches and432GiB. No deadline is moved.
+
+One fresh right complete-sequence reference starts at14:43UTC with all4,108
+commands/gates unchanged, a630s body watchdog and shutdown reserve. Recorded
+controlled progress is34.403deg, with
+0recorded contact losses and physical violations
+`[]`. Allocation timeout isTrue;
+the complete observed-path gate isFalse.
+The final record is `authorized-window-final-result.json`; exact recorded-prefix
+parity and any unavailable final report are preserved separately. Interrupted
+progress is never a full task certificate or learned success. The interrupted
+stop availability/pass is `True` (duration `2.0`s); the4s diagnostic availability is
+False.
+
+No2,048-update block fits the remaining fixed wall window, and none is started.
+The learned full denominator remains0/20, with no new development or final-test
+access. Current own costs are35.196local and
+4.978remote GPUh; updates remain129,709 and retained
+accounting is1003.07GiB. All
+58allocated native attempts remain. The GPU lease is released
+for the coordinated AV task. Later ACT work requires a new authorized time window;
+no architecture/data expansion or physical-threshold relaxation is justified.

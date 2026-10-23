@@ -1,6 +1,6 @@
 # Project Status
 
-## ACT A1 first learned completion — incomplete; collection GPU reservation blocked
+## ACT A1 first learned completion — incomplete; authorized wall window ended
 
 Three initial seeds reach1,024 updates; the selected seed9101 continuation reaches
 6,144. All20 complete learned normal-start attempts remain failures, with healthy
@@ -39,7 +39,8 @@ Acquisition0.1N, hold0.05N, loaded acceptance0.02N, gains and all physical/runti
 gates stay unchanged. The right source qualifies at50.220deg,6.862N peak with no
 prerelease loss,
 valid hold/release/stabilization and healthy stops. Its4,108-window CUDA check
-also passes with zero updates. Its complete observed reference remains pending.
+also passes with zero updates. Its observed reference was attempted after the GPU subcap authorization; the
+retained result is deadline-limited and does not establish a complete right path.
 Only both fully qualified sources with both complete operational
 paths may join the original112 for a bounded2,048-update continuation; the
 original112-only normalization stays frozen.
@@ -54,25 +55,22 @@ Eight inactive, never-trained preparation derivatives are separately preserved
 in exact reversible archives. Original teacher recordings, selected inputs,
 normalization, checkpoints, outcomes and resource charges remain.
 
-Authorized limits are48local GPUh,32aggregate remote GPUh,200,000 cumulative
-updates and1TiB retained. The collection ceilings are281 launches,13.5GPUh and
-432GiB. The maximum continuation window ends2026-10-23at14:55UTC/10:55Indiana.
-The collection GPU subcap currently prevents reserving the full right reference;
-only an explicit answer to the pending subcap question can extend it. A separate
-observed-prefix ACT phase diagnostic is implemented: real normal inspection and
-measured history, fixed six-row staging, permanent handoff, unchanged per-row
-safety and no full learned-success eligibility. The first native left early-push
-phase start is valid:4s real history and648
-exact staging commands, then66 ACT commands. ACT adds1.128deg with valid loaded
-contact before losing it after1.1s; delivery is exact and2+4s stops are healthy.
-This is a retained policy phase failure, never a full completion. A passive clock
-recording correction retains actual command-request timestamps for exact joins.
-The closed allocations account for35.017local and4.978remote GPUh, with129,709
-cumulative update upper bound. Collection uses239/281launches and13.346/13.5GPUh;
-its remaining556s cannot reserve the1,865s complete right reference. The pending
-subcap question blocks that stage and subsequent training. No owned GPU work
-remains active. All historical charges/outcomes remain in the ledger; the shared4090
-mutex is released between stages and coordinated with the other authorized chat.
+The human removed the13.5GPUh collection subcap by authorizing use of the
+remaining global local GPU allowance. Global48local/32aggregate remote GPUh,
+200,000updates/1TiB,281collection launches and432GiB remain. The original work
+window ends2026-10-23at14:55UTC/10:55Indiana; it is not shifted by the late answer.
+One full4,108-command right reference was launched with a630s body watchdog and
+shutdown reserve. Retained progress reaches34.403deg;
+its complete-path result isFalse and timeout isTrue.
+No optimizer updates or native development cases ran in the remaining window.
+Current upper accounting is35.196local and
+4.978remote GPUh,129,709updates and
+1003.07GiB retained. Every attempted outcome remains.
+The earlier valid observed-prefix ACT phase remains a separate66-command contact
+failure, never full completion. No owned GPU work remains; the shared lease is
+released for the coordinated AV evaluations. The next work requires a new time
+window, complete right path proof if still incomplete, then the bounded2,048
+update continuation with unchanged normalization and task gates.
 See [[experiments/act-a1-first-completion]].
 
 Current as of 2026-10-23. Static 6.0B and the complete B1 software core are
