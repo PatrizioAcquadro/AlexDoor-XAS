@@ -6,23 +6,26 @@ The human authorizes the time needed for substantial training and subsequent
 evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The user raises aggregate retained space to1.1TiB(1126.4GiB), counting local data,
 all remote replicas and outputs. Other limits, the75k main-model maximum and the
-ban on native evaluation during training remain unchanged. Principal seed9101
-reaches30,000updates:6,144→16,000 on RTX4090, then16,000→30,000 on an actual
-Gilbreth A100. Slurm12011121 finishes normally with all14,000 new updates and
-42,325charged GPU seconds including its allocation tail. One subsequent A100
-block30,000→45,000 is running as12012897 with a14h ceiling. The same model,
-optimizer, RNG,114sources and frozen normalization continue. No native evaluation
-occurs at this boundary; all59 prior native attempts remain, learned normal-start
-results remain0/20 and the final test stays sealed.
+ban on native evaluation during training remain unchanged. Principal seed 9101
+reaches 45,000 updates after the 4090 block and two Gilbreth A100 blocks. Slurm
+12012897 completes all 15,000 new updates normally, charging 40,780 GPU seconds
+including its allocation tail and margin. One continuation from 45k toward 50k
+is submitted as 12014810, initially pending for A100 resources, with a 3h50m
+ceiling. It preserves model, optimizer, RNG, all 114 sources and normalization;
+a saved partial block at the time boundary is allowed. All 59 prior native
+attempts remain, learned normal-start results stay 0/20 and the final test is sealed.
 
-The30k offline review supports continuation. Relative to14k–16k, the28k–30k
-medians improve17.1% on fixed train error,4.1% on fixed development error and
-16.6% on actual rolling loss. The latest meaningful improvement is28k, so the
-15k stagnation window has not elapsed. All saved checkpoint bytes and finite
-tensors are verified; the30k resume retains128optimizer states and all RNG states.
-Cumulative costs before the new block are37.395local/16.735remote GPUh,
-153,565updates and992.50GiB retained. Its full reservation reaches30.736remote
-GPUh and168,565updates, preserving5local GPUh and31GiB for the final panel.
+The 45k offline review supports continuation. Relative to 28k–30k, the 43k–45k
+medians improve 17.4% on fixed train error, 9.5% on fixed development error and
+16.3% on actual rolling loss. Latest meaningful train/rolling improvement is 45k;
+development improves at 40k. No qualifying stagnation is confirmed. All 15 saved
+checkpoint copies and finite tensors are verified; the 45k resume retains all
+128 optimizer states and RNG states. Cumulative costs before the new block are
+37.395 local/28.0625 remote GPUh, 168,565 updates and 992.61 GiB retained. Another
+15k A100 block cannot fit the remaining 3.9375 remote hours. This smaller allocation
+keeps the full reservation below 31.898 remote GPUh and at 173,565 updates,
+preserving 5 local GPUh and 31 GiB for the final panel plus checkpoint retrieval.
+The unrelated VLA Slurm job continues; duplicate ACT allocations remain blocked.
 
 Both complete observed references pass with exact source parity:4,108 right
 commands/50.236deg controlled opening and8,126 left commands/52.564deg, with valid
@@ -36,7 +39,7 @@ The admitted compatible union is114 train sources/168,178windows, including vali
 corrections and two new complete cycles, plus eight development sources/23,705
 windows. Sampling balances four doors, phases/transitions/recoveries and sources;
 genuine temporal sequences and frozen112-source train-only normalization remain.
-The same model resumes from30k toward45k, then later allocation boundaries up to75k if
+The same model resumes from45k toward50k, then later allocation boundaries up to75k if
 offline learning and cumulative resources allow. Save/diagnose every1k. The user's
 latest instruction forbids complete simulation trials during training at any
 intermediate boundary. Only final offline stagnation or the75k main-model ceiling
@@ -51,8 +54,8 @@ Read-only storage audit identifies48.649GiB of duplicate hardlink paths; resourc
 guards now count distinct stored inodes plus every remote copy/output, preserving
 the earlier conservative path sum. The central ledger and preflight guards now
 use the authorized1.1TiB aggregate cap; old1TiB authorizations and every prior
-outcome remain historical. A100job12011121 finishes normally before the single
-subsequent allocation; no active training is interrupted or duplicated.
+outcome remain historical. Each A100 block ends before the next ACT allocation;
+no active training is interrupted or duplicated.
 Verified cleanup reclaims58.63GiB remote and3.38GiB local
 from redundant historical replicas/caches; every original and outcome remains.
 The previously omitted legacy remote payloads are now included in accounting.

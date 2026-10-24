@@ -1,10 +1,11 @@
 # ACT A1 first learned completion
 
-Status: principal seed9101 reaches30,000 updates on 2026-10-24. The Gilbreth
-A100 block16,000→30,000 finishes normally as Slurm12011121, with14,000 new
-updates and no timeout. The next A100 block30,000→45,000 is running as
-Slurm12012897, preserving the complete model/optimizer/RNG state. This is an
-offline compute boundary, not final training completion or learned task success.
+Status: principal seed 9101 reaches 45,000 updates on October 24, 2026. The
+Gilbreth A100 block 30,000→45,000 finishes normally as Slurm 12012897, with
+15,000 new updates and no timeout. One continuation from 45,000 toward 50,000
+is submitted as Slurm 12014810 with a 3h50m allocation ceiling. It may save a
+partial block at its time boundary. The complete model/optimizer/RNG state
+continues; this boundary does not complete training or establish learned success.
 The new authorization covers the time needed for training and subsequent
 evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The later explicit storage authorization raises aggregate retained space from1TiB
@@ -35,10 +36,10 @@ zero-learned-command references, never learned successes. The right allocation
 finishes normally in907.757s; its earlier deadline-limited attempt remains. All59
 native attempts are inventoried. See local `base-reference-review.json`.
 
-The AV agent has released the shared mutex after completing its panels; it plans
-no further GPU work. The4090 is available and its measured training path is faster
-than the existing A100 path. Blackwell remains coordinated for VLA-LEGO; the H100
-queue was occupied at inspection. The local guarded block completes
+Before the local 16k block, the AV agent released the shared mutex after its
+panels. The measured 4090 training path was faster than the A100 path; current
+local availability must be checked before any later use. Blackwell was coordinated
+for VLA-LEGO and the H100 queue was occupied at that inspection. The local block completes
 all9,856 new CUDA updates with114 sources, frozen normalization and no nominal
 focus. Checkpoints are saved every1,000 updates; no native evaluation occurs.
 A verified122-file/38.110GiB Gilbreth replica is ready for later remote placement;
@@ -48,8 +49,11 @@ eligible training allocations. The4090 block finishes normally and releases its
 GPU lease. A byte-identical19.84MB resume preserves model weights,128optimizer
 states and Python/NumPy/CPU/CUDA RNG, with unchanged112-source normalization.
 Slurm12011121 completes on an actual A10080GB for16k→30k within its12h ceiling.
-The next30k→45k allocation, Slurm12012897, has a14h ceiling and a finite36h
-internal authorization that includes queueing. No second dataset copy is made. A monitor inside
+The 30k→45k allocation, Slurm 12012897, finishes within its 14h ceiling. The
+45k→50k continuation, Slurm 12014810, reserves 13,805 GPU seconds including a
+five-second tail. Its trainer saves before a 13,500s wall, the process guard is
+13,620s and Slurm is capped at 13,800s. A finite 24h internal authorization includes
+queueing. No second dataset copy is made. A monitor inside
 the allocation aggregates the full earlier diagnostic history, requests a saved
 stop for the declared offline criteria, and diagnoses ten minutes without optimizer
 progress. Local mirroring/accounting continues independently of chat sampling.
@@ -98,6 +102,40 @@ to30.736h and the cumulative update reservation to168,565. The5local GPUh and
 31GiB final-panel reserves remain, plus0.25GiB for checkpoint retrieval. No new
 native trial, development case or final-test access occurred. See local
 `base-30000-offline-review.json` and `base-a100-45000-preflight.json`.
+
+At 45k, compare the 28k–30k window with 43k–45k:
+
+| Median metric | 28k–30k | 43k–45k | Reduction |
+|---|---:|---:|---:|
+| Fixed training L1 | 0.080985 | 0.066930 | 17.4% |
+| Fixed development L1 | 0.324661 | 0.293940 | 9.5% |
+| Actual rolling optimizer loss | 0.106017 | 0.088772 | 16.3% |
+
+The complete-history monitor finds useful improvement at 45k, including development
+improvement at 40k. No long plateau or other declared stop is confirmed. All 15
+checkpoints match remote originals and contain finite tensors; the 45k resume
+matches the final saved weights, preserves all 128 optimizer states at step 45k,
+all RNG states, the exact 114-source list and frozen normalization. All 15 rolling
+loss values match their preceding 256 actual optimizer losses. The single final
+train/development errors are 0.066930/0.294448, with rolling loss 0.087395.
+
+The completed allocation charges 40,780 GPU seconds including the Slurm extern
+tail and five-second accounting margin. At this boundary cumulative costs are
+37.395 local/28.0625 remote GPUh, 168,565 updates and 992.61 GiB retained. Only
+3.9375 remote GPUh remain; another 15k A100 allocation would exceed the cap.
+The bounded continuation toward 50k keeps the full remote reservation at
+31.8973/32 GPUh and cumulative update reservation at 173,565. Five local GPUh,
+31 GiB for the final panel and 0.25 GiB for checkpoint retrieval remain reserved.
+A wall-limited save is another offline allocation boundary, not permission for
+native evaluation. Any later placement must first report the remaining A100
+budget constraint and check the local workload and complete reserves.
+
+Slurm 12014810 is admitted once on the requested A100 partition; its initial
+submission is pending for resources. The unrelated VLA job 12014717 continues.
+Admission rejects another ACT job by name or replica working directory while
+allowing Slurm to isolate unrelated workloads. Native outcomes remain 0/20;
+no native development case or final-test access occurs. See local
+`base-45000-offline-review.json` and `base-a100-50000-preflight.json`.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,
