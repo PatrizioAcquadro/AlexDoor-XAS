@@ -7,30 +7,36 @@ evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The user raises aggregate retained space to1.1TiB(1126.4GiB), counting local data,
 all remote replicas and outputs. Other limits, the75k main-model maximum and the
 ban on native evaluation during training remain unchanged. Principal seed9101
-completes6,144→16,000updates on the
-RTX4090; the16,000→30,000block is running on an actual Gilbreth A100 as
-Slurm12011121. All20 earlier learned normal-start attempts remain failures. No learned full-task
-completion or native development evaluation is established; final test is sealed.
+reaches30,000updates:6,144→16,000 on RTX4090, then16,000→30,000 on an actual
+Gilbreth A100. Slurm12011121 finishes normally with all14,000 new updates and
+42,325charged GPU seconds including its allocation tail. One subsequent A100
+block30,000→45,000 is running as12012897 with a14h ceiling. The same model,
+optimizer, RNG,114sources and frozen normalization continue. No native evaluation
+occurs at this boundary; all59 prior native attempts remain, learned normal-start
+results remain0/20 and the final test stays sealed.
 
-Both complete observed references now pass with exact source parity:4,108 right
+The30k offline review supports continuation. Relative to14k–16k, the28k–30k
+medians improve17.1% on fixed train error,4.1% on fixed development error and
+16.6% on actual rolling loss. The latest meaningful improvement is28k, so the
+15k stagnation window has not elapsed. All saved checkpoint bytes and finite
+tensors are verified; the30k resume retains128optimizer states and all RNG states.
+Cumulative costs before the new block are37.395local/16.735remote GPUh,
+153,565updates and992.50GiB retained. Its full reservation reaches30.736remote
+GPUh and168,565updates, preserving5local GPUh and31GiB for the final panel.
+
+Both complete observed references pass with exact source parity:4,108 right
 commands/50.236deg controlled opening and8,126 left commands/52.564deg, with valid
 hold/release/stabilization, no contact losses or physical violations and healthy
 independent2+4s stops. They contain zero learned actions. The prior interrupted
-right reference is retained; all59 native attempts remain. The AV task has released
-the shared mutex and local GPU; Blackwell remains coordinated for VLA-LEGO.
-The4090 lease is released. The user-selected A100 continuation preserves the
-complete optimizer/RNG state, frozen normalization and all114 train sources. The
-first substantial block improves smoothed fixed train/development error by16.4%
-and10.4%, and actual rolling loss by20.9%; offline evidence supports continuation.
-The A100 job has an independent offline monitor, finite12h allocation and complete
-final-evaluation time/storage reserves. Current costs before that allocation are
-37.395local/4.978remote GPUh and139,565updates; retained accounting is992.39GiB.
+right reference is retained. The4090 lease is released; Blackwell remains
+coordinated for VLA-LEGO. The A100 has independent offline stopping, finite
+deadlines and automatic local accounting/mirroring.
 
 The admitted compatible union is114 train sources/168,178windows, including valid
 corrections and two new complete cycles, plus eight development sources/23,705
 windows. Sampling balances four doors, phases/transitions/recoveries and sources;
 genuine temporal sequences and frozen112-source train-only normalization remain.
-The same model resumes toward16k/30k, then15k allocation boundaries up to75k if
+The same model resumes from30k toward45k, then later allocation boundaries up to75k if
 offline learning and cumulative resources allow. Save/diagnose every1k. The user's
 latest instruction forbids complete simulation trials during training at any
 intermediate boundary. Only final offline stagnation or the75k main-model ceiling
@@ -45,7 +51,8 @@ Read-only storage audit identifies48.649GiB of duplicate hardlink paths; resourc
 guards now count distinct stored inodes plus every remote copy/output, preserving
 the earlier conservative path sum. The central ledger and preflight guards now
 use the authorized1.1TiB aggregate cap; old1TiB authorizations and every prior
-outcome remain historical. A100job12011121 continues without restart or duplicate.
+outcome remain historical. A100job12011121 finishes normally before the single
+subsequent allocation; no active training is interrupted or duplicated.
 Verified cleanup reclaims58.63GiB remote and3.38GiB local
 from redundant historical replicas/caches; every original and outcome remains.
 The previously omitted legacy remote payloads are now included in accounting.

@@ -1,9 +1,10 @@
 # ACT A1 first learned completion
 
-Status: principal seed9101 has reached16,000 updates on 2026-10-23. The first
-substantial block completes normally; no learned completion is established.
-The user-selected A100 continuation16,000→30,000 is running as Slurm12011121.
-This is a compute boundary, not final training completion.
+Status: principal seed9101 reaches30,000 updates on 2026-10-24. The Gilbreth
+A100 block16,000→30,000 finishes normally as Slurm12011121, with14,000 new
+updates and no timeout. The next A100 block30,000→45,000 is running as
+Slurm12012897, preserving the complete model/optimizer/RNG state. This is an
+offline compute boundary, not final training completion or learned task success.
 The new authorization covers the time needed for training and subsequent
 evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The later explicit storage authorization raises aggregate retained space from1TiB
@@ -46,8 +47,9 @@ The user's subsequent explicit placement request selects Gilbreth A100 for next
 eligible training allocations. The4090 block finishes normally and releases its
 GPU lease. A byte-identical19.84MB resume preserves model weights,128optimizer
 states and Python/NumPy/CPU/CUDA RNG, with unchanged112-source normalization.
-Slurm12011121 runs on an actual A10080GB for16k→30k, with a12h allocation ceiling and
-finite internal authorization. No second dataset copy is made. A monitor inside
+Slurm12011121 completes on an actual A10080GB for16k→30k within its12h ceiling.
+The next30k→45k allocation, Slurm12012897, has a14h ceiling and a finite36h
+internal authorization that includes queueing. No second dataset copy is made. A monitor inside
 the allocation aggregates the full earlier diagnostic history, requests a saved
 stop for the declared offline criteria, and diagnoses ten minutes without optimizer
 progress. Local mirroring/accounting continues independently of chat sampling.
@@ -72,6 +74,30 @@ upper reservation to16.979h and updates to153,565. Five local GPUh,31GiB for the
 complete final native panel, and0.25GiB for subsequent checkpoint download are
 reserved before submission. Native learned outcomes remain0/20; all59 earlier
 native attempts remain, with no new native/development case or final-test access.
+
+At30k, compare the14k–16k window with28k–30k:
+
+| Median metric | 14k–16k | 28k–30k | Reduction |
+|---|---:|---:|---:|
+| Fixed training L1 | 0.097681 | 0.080985 | 17.1% |
+| Fixed development L1 | 0.338470 | 0.324661 | 4.1% |
+| Actual rolling optimizer loss | 0.127048 | 0.106017 | 16.6% |
+
+The latest meaningful improvement is at28k across all three metrics; the declared
+15k patience window therefore remains open. The single30k diagnostic is
+0.087954train/0.324661development, with0.100094actual rolling loss. All14 saved
+checkpoints match the remote originals, retain finite tensors and pass the
+trainer's CUDA prediction roundtrip. The30k resume preserves128optimizer states,
+all RNG states,114sources and exactly the frozen normalization. Continuation uses
+the latest resume state; final checkpoint selection remains deferred.
+
+The full A100 allocation including its Slurm tail charges42,325GPU seconds.
+At30k, cumulative costs are37.395local/16.735remote GPUh,153,565updates and
+992.50GiB retained. The next14h full reservation raises the remote upper bound
+to30.736h and the cumulative update reservation to168,565. The5local GPUh and
+31GiB final-panel reserves remain, plus0.25GiB for checkpoint retrieval. No new
+native trial, development case or final-test access occurred. See local
+`base-30000-offline-review.json` and `base-a100-45000-preflight.json`.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,
@@ -146,7 +172,7 @@ development cases with every outcome reported. Intermediate/reference starts
 cannot satisfy that gate. The final test remains sealed.
 
 The user requests unattended job monitoring and same-chat continuation when a
-block finishes or stops. A five-minute heartbeat checks the guarded job compactly
+block finishes or stops. A fifteen-minute heartbeat checks the guarded job compactly
 and stays quiet while progress is normal. It resumes checkpoint/resource review
 and offline continuation after each compute-block completion/interruption. After
 each new verified substantial launch the chat turn ends again. Only verified final
