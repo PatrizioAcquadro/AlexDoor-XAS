@@ -1,12 +1,11 @@
 # ACT A1 first learned completion
 
-Status: principal seed 9101 reaches 50,000 updates on October 24, 2026. Slurm
-12014810 completes all 5,000 new A100 updates normally, preserving the full resume
-state. Only 637 remote GPU seconds remain under the 32h cap, insufficient for
-another 1,000-update diagnostic interval. After reporting this constraint, one
-50k→60k continuation starts on the available local RTX 4090 under the shared GPU
-mutex, preserving all 114 sources, optimizer, RNG and frozen normalization.
-Training remains active; no learned task completion is established.
+Status: the local 50k→60k allocation ends with a native Python segmentation
+fault after 52,207 logged updates on October 24, 2026. The latest complete resume
+is 52k; its model, optimizer, RNG and normalization pass inspection. One traced
+52k→60k continuation is verified on RTX 4090 under the shared mutex. The native
+cause remains unknown; the failed attempt and its full costs are preserved.
+This is an execution diagnosis, not stagnation or permission for native evaluation.
 The new authorization covers the time needed for training and subsequent
 evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The later explicit storage authorization raises aggregate retained space from1TiB
@@ -173,6 +172,36 @@ while holding the shared lease. Checkpoint/diagnostic saves remain every 1k;
 60k is another offline allocation boundary. No native evaluation or final-test
 access occurs. See `base-50000-offline-review.json` and
 `base-local-60000-preflight.json`.
+
+The first local continuation fails after 2,207 contiguous logged optimizer
+updates, with no Python result file and no guard timeout. The launcher returns 1
+and charges 1,601.456 GPU seconds; the actual Python process reports a segmentation
+fault. No accessible core or kernel log identifies its native cause. Recorded
+losses and both saved 51k/52k checkpoints remain finite. The latest 52k resume
+matches the checkpoint, all 128 optimizer states, RNG and frozen normalization.
+The last completed and next selected data batches load correctly in a CPU-only
+read check; this does not identify or exclude a GPU/runtime cause.
+
+Failure accounting retains 2,208 updates: all 2,207 logged updates plus one possible
+unlogged optimizer update. The audited loop writes a line-buffered progress row
+before its next iteration. Progress and trainer-snapshot hashes protect this
+bounded reconciliation; no successful `result.json` is fabricated. Resuming from
+52k may repeat up to 208 discarded updates, all retained in cumulative expenditure.
+The cumulative update upper bound is 175,773 before recovery and at most 198,773
+if the principal model eventually reaches 75k. The original full 10k reservation
+and failed launch evidence remain in the saved pre-reconciliation records.
+
+One controlled recovery resumes the latest state rather than selecting a favorable
+checkpoint. It changes no seed, architecture, source admission, numeric recipe,
+threshold or native-evaluation policy. Actual RTX 4090 progress beyond 52k and
+identical source lists/statistics pass; initial fixed diagnostics agree within
+0.0001. Python fatal and C++ exception tracing are enabled in the actual process.
+The trainer has a 6,000s wall, a 6,120s process guard and a finite 12h internal
+window; it does not retry itself on another error. Five local GPUh and the complete
+final-panel storage reserve remain. The root cause is unresolved despite resumed
+progress. See `base-local-60000-crash-review.json`,
+`failed-training-update-reconciliations.json` and
+`base-local-60000-recovery-1-preflight.json`. No simulation attempt is added.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,
