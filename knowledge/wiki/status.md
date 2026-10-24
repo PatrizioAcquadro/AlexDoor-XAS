@@ -7,39 +7,43 @@ evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The user raises aggregate retained space to1.1TiB(1126.4GiB), counting local data,
 all remote replicas and outputs. Other limits, the75k main-model maximum and the
 ban on native evaluation during training remain unchanged. Principal seed 9101
-reaches 45,000 updates after the 4090 block and two Gilbreth A100 blocks. Slurm
-12012897 completes all 15,000 new updates normally, charging 40,780 GPU seconds
-including its allocation tail and margin. One continuation from 45k toward 50k
-is submitted as 12014810, initially pending for A100 resources, with a 3h50m
-ceiling. It preserves model, optimizer, RNG, all 114 sources and normalization;
-a saved partial block at the time boundary is allowed. All 59 prior native
-attempts remain, learned normal-start results stay 0/20 and the final test is sealed.
+reaches 50,000 updates. A100 Slurm 12014810 completes all 5,000 new updates
+normally, charging 13,544 GPU seconds including allocation tail and margin.
+Only 637 remote GPU seconds remain, insufficient for another useful checkpoint
+interval. After reporting the constraint, one 50k→60k continuation is verified on
+the free local RTX 4090 under the shared mutex. The same model, optimizer, RNG,
+all 114 sources and frozen normalization continue. All 59 native attempts remain;
+learned normal-start results stay 0/20 and the final test remains sealed.
 
-The 45k offline review supports continuation. Relative to 28k–30k, the 43k–45k
-medians improve 17.4% on fixed train error, 9.5% on fixed development error and
-16.3% on actual rolling loss. Latest meaningful train/rolling improvement is 45k;
-development improves at 40k. No qualifying stagnation is confirmed. All 15 saved
-checkpoint copies and finite tensors are verified; the 45k resume retains all
-128 optimizer states and RNG states. Cumulative costs before the new block are
-37.395 local/28.0625 remote GPUh, 168,565 updates and 992.61 GiB retained. Another
-15k A100 block cannot fit the remaining 3.9375 remote hours. This smaller allocation
-keeps the full reservation below 31.898 remote GPUh and at 173,565 updates,
-preserving 5 local GPUh and 31 GiB for the final panel plus checkpoint retrieval.
-The unrelated VLA Slurm job continues; duplicate ACT allocations remain blocked.
+The 50k offline review supports continuation: compared with 43k–45k, median train
+error falls 5.7%, development error rises 0.4% and rolling loss falls 0.6%.
+Meaningful train improvement at 49k prevents a qualifying plateau; the small
+development fluctuation does not meet persistent-overfit criteria. Five new
+checkpoint copies, finite tensors and the complete optimizer/RNG state pass.
+The initial local diagnostics match the A100 boundary within 0.0001 absolute
+error. Complete comparable history continues across all blocks.
+
+Before local resumption, cumulative costs are 37.395 local/31.8231 remote GPUh,
+173,565 updates and 992.66 GiB retained. The full local block and final five-hour
+GPU reserve fit within 44.614/48 local GPUh, with updates reserved at 183,565.
+The 31 GiB final-panel and 0.25 GiB checkpoint reserves remain. The local trainer
+saves before 7,800s, its process guard is 7,920s and internal authorization is
+finite. Admission includes the final reserve under the mutex; bootstrap accounting
+counts only the declared 10k new updates before metadata appears.
 
 Both complete observed references pass with exact source parity:4,108 right
 commands/50.236deg controlled opening and8,126 left commands/52.564deg, with valid
 hold/release/stabilization, no contact losses or physical violations and healthy
 independent2+4s stops. They contain zero learned actions. The prior interrupted
-right reference is retained. The4090 lease is released; Blackwell remains
-coordinated for VLA-LEGO. The A100 has independent offline stopping, finite
-deadlines and automatic local accounting/mirroring.
+right reference is retained. The4090 lease is now held by the single continuation;
+unrelated workloads are preserved. Local stopping, cumulative accounting and finite
+deadlines remain independent of chat sampling.
 
 The admitted compatible union is114 train sources/168,178windows, including valid
 corrections and two new complete cycles, plus eight development sources/23,705
 windows. Sampling balances four doors, phases/transitions/recoveries and sources;
 genuine temporal sequences and frozen112-source train-only normalization remain.
-The same model resumes from45k toward50k, then later allocation boundaries up to75k if
+The same model resumes from50k toward60k, then toward75k if
 offline learning and cumulative resources allow. Save/diagnose every1k. The user's
 latest instruction forbids complete simulation trials during training at any
 intermediate boundary. Only final offline stagnation or the75k main-model ceiling

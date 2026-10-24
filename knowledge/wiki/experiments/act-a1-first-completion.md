@@ -1,11 +1,12 @@
 # ACT A1 first learned completion
 
-Status: principal seed 9101 reaches 45,000 updates on October 24, 2026. The
-Gilbreth A100 block 30,000→45,000 finishes normally as Slurm 12012897, with
-15,000 new updates and no timeout. One continuation from 45,000 toward 50,000
-is submitted as Slurm 12014810 with a 3h50m allocation ceiling. It may save a
-partial block at its time boundary. The complete model/optimizer/RNG state
-continues; this boundary does not complete training or establish learned success.
+Status: principal seed 9101 reaches 50,000 updates on October 24, 2026. Slurm
+12014810 completes all 5,000 new A100 updates normally, preserving the full resume
+state. Only 637 remote GPU seconds remain under the 32h cap, insufficient for
+another 1,000-update diagnostic interval. After reporting this constraint, one
+50k→60k continuation starts on the available local RTX 4090 under the shared GPU
+mutex, preserving all 114 sources, optimizer, RNG and frozen normalization.
+Training remains active; no learned task completion is established.
 The new authorization covers the time needed for training and subsequent
 evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The later explicit storage authorization raises aggregate retained space from1TiB
@@ -130,12 +131,48 @@ A wall-limited save is another offline allocation boundary, not permission for
 native evaluation. Any later placement must first report the remaining A100
 budget constraint and check the local workload and complete reserves.
 
-Slurm 12014810 is admitted once on the requested A100 partition; its initial
-submission is pending for resources. The unrelated VLA job 12014717 continues.
+Slurm 12014810 was admitted once on the requested A100 partition, initially
+pending for resources. The unrelated VLA job 12014717 was preserved throughout.
 Admission rejects another ACT job by name or replica working directory while
 allowing Slurm to isolate unrelated workloads. Native outcomes remain 0/20;
 no native development case or final-test access occurs. See local
 `base-45000-offline-review.json` and `base-a100-50000-preflight.json`.
+
+At 50k, compare 43k–45k with 48k–50k:
+
+| Median metric | 43k–45k | 48k–50k | Change |
+|---|---:|---:|---:|
+| Fixed training L1 | 0.066930 | 0.063088 | 5.7% lower |
+| Fixed development L1 | 0.293940 | 0.295107 | 0.4% higher |
+| Actual rolling optimizer loss | 0.088772 | 0.088236 | 0.6% lower |
+
+Meaningful training improvement at 49k keeps the declared patience window open;
+the small development fluctuation does not meet the persistent-overfit criterion.
+All five new checkpoints and the resume match remote originals, contain finite
+tensors and preserve all 128 optimizer states at 50k, RNG states, normalization
+and source identities. The complete 5,000-update log and every 256-update rolling
+diagnostic reconcile. Slurm charges 13,544 GPU seconds including its extern tail
+and margin; cumulative costs are 37.395 local/31.8231 remote GPUh, 173,565 updates
+and 992.66 GiB retained before the next block.
+
+The 637s A100 headroom cannot support another useful checkpoint interval. This
+constraint was reported before choosing the free local 4090; no remote allocation
+or unrelated workload is interrupted. The shared mutex is acquired and actual
+CUDA execution resumes at step 50k with the identical source lists and statistics.
+The initial fixed diagnostics agree with the A100 boundary within 0.0001 absolute
+error despite the PyTorch/CUDA version change. All earlier comparable history
+continues in the offline monitor. The local trainer has a 7,800s wall, a 7,920s
+process guard and finite 12h internal authorization including lease wait.
+
+The full local block plus shutdown margin and five final-evaluation GPUh reserve
+fit within 44.614/48 local GPUh; cumulative updates reserve at most 183,565. The
+31 GiB final-panel and 0.25 GiB checkpoint reserves remain. Bootstrap accounting
+uses the declared initial step until run metadata appears, so the reservation
+counts only 10k additional updates. The launcher rechecks the five-hour reserve
+while holding the shared lease. Checkpoint/diagnostic saves remain every 1k;
+60k is another offline allocation boundary. No native evaluation or final-test
+access occurs. See `base-50000-offline-review.json` and
+`base-local-60000-preflight.json`.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,
