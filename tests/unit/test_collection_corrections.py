@@ -389,3 +389,24 @@ def test_approach_disturbance_cannot_consume_corrective_return_reserve():
             1 / 60,
             approach_disturbance=dict(kind="pause", start_s=5, end_s=6),
         )
+
+
+def test_approach_return_can_reserve_the_measured_pause_backlog():
+    case = CollectionCorrection(
+        "A",
+        "correction-1",
+        ProbeSetup(approach_s=7.5),
+        1 / 60,
+        corrective_transition_s=1.5,
+        approach_disturbance=dict(kind="pause", start_s=1.5, end_s=2.5),
+    )
+    assert case.corrective_transition_s == 1.5
+    with pytest.raises(ValueError, match="complete measured return"):
+        CollectionCorrection(
+            "A",
+            "correction-1",
+            ProbeSetup(),
+            1 / 60,
+            corrective_transition_s=1.5,
+            approach_disturbance=dict(kind="pause", start_s=4.5, end_s=5.0),
+        )

@@ -1056,7 +1056,13 @@ def run_probe(
             failure = "approach_tracking"
         compression = None
         if not failure:
-            for tick in range(round(setup.contact_s / dt)):
+            # A short acquisition must have room to demonstrate the same
+            # sustained physical endpoint after actual load begins. The ramp
+            # keeps its original timing; this finite reserve only holds contact.
+            contact_budget_s = setup.contact_s
+            if family == "A":
+                contact_budget_s += setup.sustain_s + setup.contact_force_window_s
+            for tick in range(round(contact_budget_s / dt)):
                 offset = contact_ramp_offset((tick + 1) * dt, setup)
                 if compression is not None:
                     offset = support_normal(compression, "contact")
@@ -1071,6 +1077,12 @@ def run_probe(
                     compression = offset
                 traces[-1]["contact_compression_m"] = offset
                 if failure:
+                    break
+                if (
+                    family == "A"
+                    and (tick + 1) * dt >= setup.contact_s
+                    and evaluate_phase_endpoint(traces, family, setup)["passed"]
+                ):
                     break
             if not failure and not state[5]:
                 failure = "no_loaded_contact"

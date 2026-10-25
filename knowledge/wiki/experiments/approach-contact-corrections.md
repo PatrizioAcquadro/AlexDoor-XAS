@@ -41,3 +41,35 @@ remote allocations remain zero. The 48/32 GPUh and 1126.4 GiB caps remain.
 Evidence: `outputs/evidence/act-a1-first-completion-20261022/approach-contact-20261025/`.
 `scope.json`, `coverage.json` and `native-plan.json` hold exact cases and reserves.
 Refinement readiness is pending physical and temporal qualification.
+
+## Demonstrated expert timing defects and intervention
+
+The original shifted-posture pair fails the unchanged sustained contact endpoint.
+Right has 29 valid ticks (0.467 s span), below the required 0.5 s; the fixed 3 s
+contact phase ends before the required proof. Both physical tails/stops pass.
+The original early right pause fails the 0.51 rad/s physical speed guard: the
+nominal path advances during the pause, leaving a measured 61.2 mm backlog for
+a fixed 0.5 s return; native speed reaches 0.524655 rad/s. All three original
+attempts remain negative and excluded from supervision.
+
+The separately declared timing intervention reserves 1.5 s for approach pause
+recovery. A short A contact keeps its ramp unchanged and can hold for at most
+`sustain_s + contact_force_window_s` beyond its nominal interval, until the
+original physical sustained endpoint is demonstrated. This changes demonstrated
+expert behavior and phase budgeting, not acceptance thresholds or prior outcomes.
+The first new right early-pause case passes with 4.734 N peak, 0.466 rad/s maximum
+native joint speed and independent 2+4 s stop. Remaining cases are pending.
+
+`native-plan-v2.json` preserves the predecessor and exact intervention cases.
+The revised complete reservation covers 11 collection attempts plus three guard
+slots: 14 × 1,265 GPU seconds (4.919 h), still inside the original 48 h local cap
+from the unchanged baseline; storage reserve remains 48 GiB. The three original
+failures are included, never overwritten or selected away.
+
+A candidate pause-aware seeking clock is implemented but not yet operationally
+qualified. It suspends time only when both submitted distal motion and measured
+distal motion lie within the independently verified FK resolution, while contact
+load is not confirmed. It retains cumulative travel, sample/identity checks,
+force/contact confirmation and the independent motion/stop guard. The wider
+material uncertainty is not used as a standstill tolerance. Existing recipes keep
+the prior clock unless explicitly enabled after native verification.

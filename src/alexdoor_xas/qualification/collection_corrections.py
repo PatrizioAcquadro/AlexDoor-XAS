@@ -40,12 +40,11 @@ class CollectionCorrection:
         if corrective_transition_s is not None:
             value = float(corrective_transition_s)
             if (
-                family != "C"
-                or variation != "correction-2"
-                or not np.isfinite(value)
-                or not 0 < value <= 1.0
+                not np.isfinite(value)
+                or not 0 < value <= (setup.approach_s if family == "A" else 1.0)
+                or not (family == "A" or family == "C" and variation == "correction-2")
             ):
-                raise ValueError("C2 return must fit its existing one-second recontact envelope")
+                raise ValueError("Return must fit its approach or one-second recontact envelope")
             self.corrective_transition_s = value
         self.corrective_start_error = None
         self.corrective_latest_error = None
