@@ -1,11 +1,11 @@
 # ACT A1 first learned completion
 
-Status: the local 50k→60k allocation ends with a native Python segmentation
-fault after 52,207 logged updates on October 24, 2026. The latest complete resume
-is 52k; its model, optimizer, RNG and normalization pass inspection. One traced
-52k→60k continuation is verified on RTX 4090 under the shared mutex. The native
-cause remains unknown; the failed attempt and its full costs are preserved.
-This is an execution diagnosis, not stagnation or permission for native evaluation.
+Status: principal seed 9101 reaches 60,000 saved updates on October 25, 2026
+(UTC). The traced 52k→60k recovery completes all 8,000 updates normally. One
+60k→75k continuation is verified on the local RTX 4090 under the shared mutex,
+with complete model/optimizer/RNG state and all offline history. The prior native
+Python crash and its costs remain preserved; its cause is still unresolved.
+No intermediate native simulation trial is authorized at this 60k boundary.
 The new authorization covers the time needed for training and subsequent
 evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The later explicit storage authorization raises aggregate retained space from1TiB
@@ -202,6 +202,42 @@ final-panel storage reserve remain. The root cause is unresolved despite resumed
 progress. See `base-local-60000-crash-review.json`,
 `failed-training-update-reconciliations.json` and
 `base-local-60000-recovery-1-preflight.json`. No simulation attempt is added.
+
+At 60k, the traced recovery completes all 8,000 updates in 5,674.171s process
+wall, charging 5,680.907 GPU seconds including the whole-allocation tail and margin.
+It returns 0 without timeout or another crash. All eight new checkpoints and the
+60k resume pass finite-tensor, matching-weight, optimizer/RNG and source/statistics
+checks. Every 256-update rolling diagnostic reconciles with the actual contiguous
+optimizer log. Successful recovery does not resolve the first crash's native cause.
+
+Compare the three-checkpoint windows 48k–50k and 58k–60k:
+
+| Median metric | 48k–50k | 58k–60k | Change |
+|---|---:|---:|---:|
+| Fixed training L1 | 0.063088 | 0.063728 | 1.0% higher |
+| Fixed development L1 | 0.295107 | 0.277977 | 5.8% lower |
+| Actual rolling optimizer loss | 0.088236 | 0.083115 | 5.8% lower |
+
+All three metrics have meaningful best-median improvement at 58k across complete
+history, so no long plateau or other declared stop is confirmed. The single 60k
+checkpoint is retained alongside all earlier candidates; final checkpoint selection
+remains deferred. No native behavior guides continuation.
+
+Cumulative costs before the final planned block are 39.4179 local/31.8231 remote
+GPUh, 183,773 optimizer updates including the full failed-run upper bound, and
+992.76 GiB retained. The 637s remote headroom still cannot support a useful A100
+checkpoint interval; no remote job is active and the local GPU is free before its
+shared lease is reacquired. The 60k→75k block reserves 15k updates, at most 198,773
+cumulative. Its 12,120s trainer wall, 12,240s process guard and shutdown allowance,
+plus five final-evaluation GPUh, fit within 47.836/48 local GPUh. The 31 GiB final
+panel and 0.25 GiB checkpoint reserves remain; internal authorization is finite.
+
+Actual 4090 progress beyond 60k, identical source lists/frozen statistics and
+matching initial fixed diagnostics pass. Fatal tracing remains enabled. Saves and
+offline stopping remain every 1k, with no self-retry on failure. Only declared final
+offline stagnation or the 75k main ceiling, after every training allocation ends,
+can open the explicit finalization gate and final native panel. See
+`base-60000-offline-review.json` and `base-local-75000-preflight.json`.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,

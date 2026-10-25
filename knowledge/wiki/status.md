@@ -7,33 +7,31 @@ evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The user raises aggregate retained space to1.1TiB(1126.4GiB), counting local data,
 all remote replicas and outputs. Other limits, the75k main-model maximum and the
 ban on native evaluation during training remain unchanged. Principal seed 9101
-has a complete saved state at 52k. The first local continuation ends with a native
-Python segmentation fault after 52,207 logged updates, without a result file or
-guard timeout. Its cause remains unknown; no accessible core/kernel log identifies
-it. Losses, both checkpoints and the latest optimizer/RNG state are finite and
-consistent; the two data batches around the crash load successfully on CPU.
+reaches 60,000 saved updates. The traced 52k→60k recovery completes all 8,000
+updates with return 0, no timeout and no repeated crash, charging 5,680.907 GPU
+seconds. Eight new checkpoints and the full 60k optimizer/RNG/normalization state
+pass verification. One 60k→75k continuation is verified on the actual RTX 4090
+under the shared mutex, preserving all 114 sources and complete offline history.
+The earlier native crash and its costs remain preserved; its cause is unresolved.
 
-One traced 52k→60k continuation is verified on RTX 4090 under the shared mutex.
-It preserves the seed, all 114 sources, normalization, optimizer and RNG, with
-matching initial diagnostics. Actual-process Python fatal/C++ exception tracing
-is enabled. Its trainer wall is 6,000s, process guard 6,120s and internal window
-12h; a new failure ends the allocation for diagnosis without a self-retry. Resumed
-progress does not establish that the native cause is resolved.
+Compared with 48k–50k, the 58k–60k median train error rises 1.0%, development
+error falls 5.8% and rolling loss falls 5.8%. Complete-history meaningful
+improvement reaches 58k in all three metrics, so the declared patience window
+remains open. Native task behavior is not consulted and 60k is an offline boundary.
 
-The failed allocation charges 1,601.456 GPU seconds, bringing local expenditure
-to 37.840h before recovery. Remote cost remains 31.8231/32h, leaving only 637s;
-this A100 constraint was reported before local placement. Failure accounting
-retains 2,208 updates, including one possibly unlogged update, without fabricating
-success or a result file. The cumulative upper bound is 175,773 before recovery,
-183,773 with its full 8k reservation and at most 198,773 if the main model reaches
-75k. All failed evidence is preserved. Final reserves remain five local GPUh,
-31 GiB for the panel and 0.25 GiB checkpoint headroom.
+Before this block cumulative costs are 39.4179 local/31.8231 remote GPUh,
+183,773 updates including the failed-run upper bound, and 992.76 GiB retained.
+Only 637 remote GPU seconds remain, insufficient for another useful A100 interval;
+this constraint was reported before local placement. The full 15k update
+reservation reaches 198,773/200,000. The trainer has a 12,120s wall and 12,240s
+process guard; complete shutdown allowance plus the five-hour final GPU reserve
+fit within 47.836/48 local GPUh. Final storage reserves remain 31 GiB for the panel
+and 0.25 GiB checkpoint headroom. Fatal tracing and finite deadlines remain.
 
-No declared numerical stop or final training completion is confirmed. Both fixed
-train and development improve meaningfully at 51k/52k; complete comparable history
-continues. All 59 native attempts remain; learned full normal-start outcomes stay
-0/20 and the final test remains sealed. This runtime failure does not open a native
-simulation panel.
+Only final offline stagnation or 75k, after all training allocations finish and the
+explicit finalization gate passes, authorizes the fresh right/left native pair.
+All 59 earlier native attempts remain; learned normal-start results stay 0/20,
+no native development case is run and the final test stays sealed.
 
 Both complete observed references pass with exact source parity:4,108 right
 commands/50.236deg controlled opening and8,126 left commands/52.564deg, with valid
@@ -47,7 +45,7 @@ The admitted compatible union is114 train sources/168,178windows, including vali
 corrections and two new complete cycles, plus eight development sources/23,705
 windows. Sampling balances four doors, phases/transitions/recoveries and sources;
 genuine temporal sequences and frozen112-source train-only normalization remain.
-The same model resumes from52k toward60k, then toward75k if
+The same model resumes from60k toward75k while
 offline learning and cumulative resources allow. Save/diagnose every1k. The user's
 latest instruction forbids complete simulation trials during training at any
 intermediate boundary. Only final offline stagnation or the75k main-model ceiling
