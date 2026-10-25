@@ -1,6 +1,6 @@
 # Project Status
 
-## ACT A1 first learned completion — final pair fails, campaign closed
+## ACT A1 — causal diagnosis complete; full completion remains unmet
 
 Principal seed 9101 finishes at the 75,000-update ceiling on October 25, 2026
 (UTC). All final checkpoints and full optimizer/RNG/source/normalization state
@@ -24,20 +24,37 @@ fails. Final test remains sealed. Operational reference successes remain only
 compatibility evidence. The prior training segmentation fault and its costs stay
 preserved, with cause unresolved despite the successful traced continuation.
 
-Final accounting is **42.5080 local/31.8231 remote GPUh**, **198,773 optimizer
-updates** including failed-run uncertainty, and **994.27 GiB retained**. The caps
-remain 48 local/32 aggregate remote GPUh, 200k cumulative updates and 1.1 TiB
-(1126.4 GiB) across local data, replicas and outputs. The GPU lease is released;
-unrelated workloads are untouched. Data remain 114 qualified train sources with
-frozen 112-source train-only normalization, separate development and closed test.
+The subsequent bounded [[experiments/act-a1-failure-diagnosis|causal diagnosis]]
+reproduces every saved 61k query exactly and compares 61k/75k on identical scoped
+offline cases. Early learned drift precedes both refusals. Right robust contact
+plausibility starts its timer during a learned pause; left lacks 0.770 mrad of
+prospective shoulder-Z support at the required 10 N load, without a measured
+collision. The guards and physical limits remain unchanged.
 
-The authorized training/final-evaluation sequence is closed with its learned
-completion goal unmet. The heartbeat is **paused**. No further training beyond
-75k, alternate-checkpoint task retry, teacher correction, threshold relaxation,
-collection, RL, new seed or architecture comparison is launched. Any next
-experiment requires a new human decision. See
-[[experiments/act-a1-first-completion]] for the selection, gate, full negative
-outcomes, recording checks and resource evidence.
+Exactly two new native phase diagnostics use live reconstructed history and fixed
+reference staging. Right issues 107 learned commands, reaches one valid physical
+contact interval and stops at 14.199 N estimated force upper (13.763 N native
+impact), beyond the verified 10 N stop-load domain. Left issues 600 learned commands,
+retains valid contact for 10 s and adds 10.471 deg before the declared horizon.
+Both recordings and independent 2+4 s stops pass, without physical violations.
+These are phase results; neither qualifies as a full learned completion. The
+conditional third case is not needed and is not allocated.
+
+Current accounting is **42.7336 local/31.8231 remote GPUh**, **198,773 optimizer
+updates** including failed-run uncertainty, and **996.10 GiB retained**. There
+are now **63 native attempts**, including both new diagnostics; the original
+full learned result remains **0/22**, final pair **0/2**, and historical unavailable
+reports remain explicit. Caps stay 48/32 GPUh, 200k updates and 1126.4 GiB. All
+allocations end and the shared GPU lease is released. Data and frozen normalization
+remain unchanged; the development panel and final test stay unopened.
+
+The diagnostic objective is complete. The smallest proposed corrective task is
+bounded qualification of observation-grounded approach→contact corrections for
+left posture drift and right contact entry, reusing current sources first. No new
+data, training, architecture, threshold change or checkpoint retry is launched.
+The training heartbeat stays **paused**. See
+[[experiments/act-a1-failure-diagnosis]] for confirmed causes, remaining hypotheses,
+the exact support deficit, paired offline errors and diagnostic limits.
 
 Current as of 2026-10-23. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,

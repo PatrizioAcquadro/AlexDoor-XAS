@@ -16,6 +16,14 @@ those other limits and the75,000-update principal-model ceiling remain unchanged
 The earlier expired work window and its
 deadline-limited right reference remain historical outcomes.
 
+The subsequent authorized [[act-a1-failure-diagnosis|causal diagnosis]] is complete:
+saved histories/actions reproduce exactly, and two staged native diagnostics
+separate right acquisition/impact limitations from left approach support. The left
+post-contact start maintains learned contact for 10 s and adds 10.471 deg; this is
+phase evidence only. No training, threshold change, new normal-start pair,
+development case or final-test access occurs. Current cumulative accounting and
+the proposed corrective qualification are recorded in that diagnosis.
+
 ## Current substantial base-training protocol
 
 Continue the same model/optimizer/RNG from6,144 toward16,000 and30,000, then
