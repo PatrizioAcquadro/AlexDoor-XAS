@@ -350,3 +350,42 @@ def test_pace_exit_needs_executed_pulse_and_real_contiguous_loaded_support():
     assert not case.supported_pace_exit([*rows[:-1], dict(rows[-1], physical_safe=False)])
     case.accept_supported_hold_handoff()
     assert not case.supported_pace_exit(rows)  # only one carried-state transition
+
+
+@pytest.mark.parametrize("kind", ["pause", "pose"])
+def test_approach_neighborhood_preserves_error_history_and_measured_return(kind):
+    d = dict(
+        kind=kind,
+        start_s=1.0,
+        end_s=2.0,
+        translation_m=[0.004, -0.006, 0],
+        rotation_rad=[0, 0, 0.03],
+    )
+    case = CollectionCorrection("A", "correction-1", ProbeSetup(), 1 / 60, approach_disturbance=d)
+    measured = np.array([0.1, 0.2, 0.3])
+    for tick in range(120):
+        p, r = case.target(
+            np.array([tick / 1000, 0.2, 0.3]), np.eye(3), "approach", measured, np.eye(3)
+        )
+        measured = p
+    assert case.role == INJECTED
+    if kind == "pause":
+        np.testing.assert_allclose(measured, case.pause_pose[0])
+    before = measured.copy()
+    p, r = case.target(np.array([0.12, 0.2, 0.3]), np.eye(3), "approach", measured)
+    assert case.role == CORRECTIVE
+    assert np.linalg.norm(p - before) < 0.001
+    for _ in range(31):
+        p, r = case.target(np.array([0.12, 0.2, 0.3]), np.eye(3), "approach", p, r)
+    np.testing.assert_allclose(p, [0.12, 0.2, 0.3])
+
+
+def test_approach_disturbance_cannot_consume_corrective_return_reserve():
+    with pytest.raises(ValueError, match="complete measured return"):
+        CollectionCorrection(
+            "A",
+            "correction-1",
+            ProbeSetup(),
+            1 / 60,
+            approach_disturbance=dict(kind="pause", start_s=5, end_s=6),
+        )

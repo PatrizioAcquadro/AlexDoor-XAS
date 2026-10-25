@@ -9,7 +9,16 @@ NORMAL_RETREAT_M = {"A2": 0.015, "B1": 0.003, "B2": 0.0015, "C1": 0.001}
 
 
 class CollectionCorrection:
-    def __init__(self, family, variation, setup, dt, *, corrective_transition_s=None):
+    def __init__(
+        self,
+        family,
+        variation,
+        setup,
+        dt,
+        *,
+        corrective_transition_s=None,
+        approach_disturbance=None,
+    ):
         if family not in ("A", "B", "C", "D"):
             raise ValueError("Unknown phase family")
         self.family, self.variation, self.setup, self.dt = family, variation, setup, dt
@@ -42,6 +51,32 @@ class CollectionCorrection:
         self.corrective_latest_error = None
         self.pre_action_reference = None
         self.reference_advance_rad = 0.0
+        self.approach_disturbance = approach_disturbance
+        self.pause_pose = None
+        if approach_disturbance is not None:
+            d = approach_disturbance
+            if family != "A" or d["kind"] not in ("pause", "pose"):
+                raise ValueError("Approach disturbances require an A pause or pose case")
+            values = np.asarray(
+                [
+                    d["start_s"],
+                    d["end_s"],
+                    *d.get("translation_m", [0, 0, 0]),
+                    *d.get("rotation_rad", [0, 0, 0]),
+                ],
+                dtype=float,
+            )
+            if (
+                not np.isfinite(values).all()
+                or not 0 <= d["start_s"] < d["end_s"]
+                or d["end_s"] + self.corrective_transition_s >= setup.approach_s
+            ):
+                raise ValueError("Approach disturbance must reserve its complete measured return")
+            if (
+                len(d.get("translation_m", [0, 0, 0])) != 3
+                or len(d.get("rotation_rad", [0, 0, 0])) != 3
+            ):
+                raise ValueError("Approach disturbance needs three-axis pose offsets")
         self.had_contact = False
         self.unloaded_s = 0.0
         self.supported_hold_handoffs = 0
@@ -52,6 +87,14 @@ class CollectionCorrection:
     def pulse(self, phase):
         if not self.variation.startswith("correction-"):
             return 0.0
+        if self.approach_disturbance is not None:
+            d = self.approach_disturbance
+            t = self.elapsed(phase)
+            if phase != "approach" or not d["start_s"] <= t < d["end_s"]:
+                return 0.0
+            if d["kind"] == "pause":
+                return 1.0
+            return float(np.clip((t - d["start_s"]) / 0.25, 0, 1))
         key = self.family + self.variation[-1]
         stage, start, end = {
             "A1": ("approach", 4.0, 6.0),
@@ -165,7 +208,22 @@ class CollectionCorrection:
         if amount > 0:
             self.pending = True
             key = self.family + self.variation[-1]
-            if key == "A1":
+            if self.approach_disturbance is not None:
+                d = self.approach_disturbance
+                if d["kind"] == "pause":
+                    if self.pause_pose is None:
+                        self.pause_pose = (
+                            np.array(measured_position, copy=True),
+                            np.array(measured_rotation, copy=True),
+                        )
+                    position, rotation = (v.copy() for v in self.pause_pose)
+                else:
+                    position += rotation @ (amount * np.asarray(d["translation_m"]))
+                    rotation = (
+                        rotation
+                        @ Rotation.from_rotvec(amount * np.asarray(d["rotation_rad"])).as_matrix()
+                    )
+            elif key == "A1":
                 position += rotation[:, 1] * (0.02 * amount)
                 rotation = (
                     rotation @ Rotation.from_rotvec([0, 0, np.deg2rad(5) * amount]).as_matrix()
@@ -281,6 +339,7 @@ class CollectionCorrection:
             corrective_commands=self.corrective_commands,
             pending_correction=self.pending,
             full_task_contact_loss=self.contact_loss_detected,
+            approach_disturbance=self.approach_disturbance,
             corrective_start_error=self.corrective_start_error,
             corrective_latest_error=self.corrective_latest_error,
             injected_reference_advance_rad=self.reference_advance_rad,

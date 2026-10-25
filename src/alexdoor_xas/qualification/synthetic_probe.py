@@ -719,6 +719,7 @@ def run_probe(
             setup,
             env.step_dt,
             corrective_transition_s=campaign.get("corrective_transition_s"),
+            approach_disturbance=campaign.get("approach_disturbance"),
         )
     if family is not None:
         from alexdoor_xas.qualification.collection_phase import evaluate_phase_endpoint

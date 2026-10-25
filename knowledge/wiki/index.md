@@ -57,6 +57,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/approach-contact-corrections|Approach-to-Contact Corrections and Guards]] — Train-only expert corrections and independent operational guard qualification; no training.
+
 - [[experiments/act-a1-first-completion|ACT A1 First Learned Completion]] — Authorized temporal training, guarded execution and fixed two-direction completion experiment.
 - [[experiments/act-a1-failure-diagnosis|ACT A1 Failure Diagnosis]] — Saved-trajectory semantics, phase-specific 61k/75k errors and two genuine-history native diagnostics; no training or threshold changes.
 
