@@ -1,78 +1,44 @@
 # Project Status
 
-## ACT A1 first learned completion — substantial base training running
+## ACT A1 first learned completion — training complete, final panel running
 
-The human authorizes the time needed for substantial training and subsequent
-evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
-The user raises aggregate retained space to1.1TiB(1126.4GiB), counting local data,
-all remote replicas and outputs. Other limits, the75k main-model maximum and the
-ban on native evaluation during training remain unchanged. Principal seed 9101
-reaches 60,000 saved updates. The traced 52k→60k recovery completes all 8,000
-updates with return 0, no timeout and no repeated crash, charging 5,680.907 GPU
-seconds. Eight new checkpoints and the full 60k optimizer/RNG/normalization state
-pass verification. One 60k→75k continuation is verified on the actual RTX 4090
-under the shared mutex, preserving all 114 sources and complete offline history.
-The earlier native crash and its costs remain preserved; its cause is unresolved.
+Principal seed 9101 finishes at the 75,000-update ceiling on October 25, 2026
+(UTC). The final 15k block completes normally; all 15 saved checkpoints, full
+optimizer/RNG state, frozen 112-source normalization and all 114 training sources
+pass verification. The complete 69-checkpoint offline history confirms the ceiling
+stop. Compared with 58k–60k, the 73k–75k medians improve by 9.6% train, 2.1%
+development and 8.1% actual rolling loss. No native evaluation occurs during
+training. The prior segmentation fault remains preserved and its cause unresolved.
 
-Compared with 48k–50k, the 58k–60k median train error rises 1.0%, development
-error falls 5.8% and rolling loss falls 5.8%. Complete-history meaningful
-improvement reaches 58k in all three metrics, so the declared patience window
-remains open. Native task behavior is not consulted and 60k is an offline boundary.
+All 16 training allocations are finished, Slurm is empty and no training update
+reservation remains. The explicit finalization gate passes at main step 75k.
+Offline selection fixes checkpoint 61k, the center of the best three-checkpoint
+development-median window 60k/61k/62k, with train and rolling medians resolving
+exact ties. Its immutable hash is recorded before any final task behavior.
 
-Before this block cumulative costs are 39.4179 local/31.8231 remote GPUh,
-183,773 updates including the failed-run upper bound, and 992.76 GiB retained.
-Only 637 remote GPU seconds remain, insufficient for another useful A100 interval;
-this constraint was reported before local placement. The full 15k update
-reservation reaches 198,773/200,000. The trainer has a 12,120s wall and 12,240s
-process guard; complete shutdown allowance plus the five-hour final GPU reserve
-fit within 47.836/48 local GPUh. Final storage reserves remain 31 GiB for the panel
-and 0.25 GiB checkpoint headroom. Fatal tracing and finite deadlines remain.
+One fresh right/left final panel starts on the actual RTX 4090 under the shared
+mutex with finite per-case guards. Both directions use only that checkpoint's
+actions from normal initial conditions. All four frozen development cases run
+only if both nominal directions complete. No new final outcome is available at
+launch; the 59 prior native attempts and 0/20 learned results remain preserved.
+Operational right/left references are compatibility evidence, not learned success.
+The final test remains sealed; no teacher correction, favorable task retry,
+threshold change, collection, RL, new seed or architecture comparison is allowed.
 
-Only final offline stagnation or 75k, after all training allocations finish and the
-explicit finalization gate passes, authorizes the fresh right/left native pair.
-All 59 earlier native attempts remain; learned normal-start results stay 0/20,
-no native development case is run and the final test stays sealed.
+Before this panel, cumulative costs are 42.3643 local/31.8231 remote GPUh,
+198,773 optimizer updates including failed-run uncertainty, and 992.88 GiB
+retained. The caps remain 48 local/32 aggregate remote GPUh, 200k cumulative
+updates and 1.1 TiB (1126.4 GiB) including all replicas and outputs. More than
+five local GPUh and 31 GiB remain for the complete conditional panel. The useful
+A100 budget was exhausted and reported before local placement; unrelated workloads
+remain untouched. No further training may exceed the 75k principal ceiling.
 
-Both complete observed references pass with exact source parity:4,108 right
-commands/50.236deg controlled opening and8,126 left commands/52.564deg, with valid
-hold/release/stabilization, no contact losses or physical violations and healthy
-independent2+4s stops. They contain zero learned actions. The prior interrupted
-right reference is retained. The4090 lease is now held by the single continuation;
-unrelated workloads are preserved. Local stopping, cumulative accounting and finite
-deadlines remain independent of chat sampling.
-
-The admitted compatible union is114 train sources/168,178windows, including valid
-corrections and two new complete cycles, plus eight development sources/23,705
-windows. Sampling balances four doors, phases/transitions/recoveries and sources;
-genuine temporal sequences and frozen112-source train-only normalization remain.
-The same model resumes from60k toward75k while
-offline learning and cumulative resources allow. Save/diagnose every1k. The user's
-latest instruction forbids complete simulation trials during training at any
-intermediate boundary. Only final offline stagnation or the75k main-model ceiling
-opens the two-direction native evaluation. Stagnation requires15kupdates without
-meaningful improvement in fixed train error, fixed development error AND actual
-rolling training loss, with three-checkpoint medians and no stop before30k.
-No task trial is required to confirm this stop. Divergence, persistent overfitting
-and proven execution/data defects require diagnosis without automatically opening
-a simulation panel. The panel checks an explicit final-training gate.
-
-Read-only storage audit identifies48.649GiB of duplicate hardlink paths; resource
-guards now count distinct stored inodes plus every remote copy/output, preserving
-the earlier conservative path sum. The central ledger and preflight guards now
-use the authorized1.1TiB aggregate cap; old1TiB authorizations and every prior
-outcome remain historical. Each A100 block ends before the next ACT allocation;
-no active training is interrupted or duplicated.
-Verified cleanup reclaims58.63GiB remote and3.38GiB local
-from redundant historical replicas/caches; every original and outcome remains.
-The previously omitted legacy remote payloads are now included in accounting.
-One verified122-file/38.110GiB lossless Gilbreth input replica is ready; Gautschi
-shares it without a second copy. No new broad collection, RL, architecture
-comparison or threshold change is authorized. A same-chat heartbeat resumes work
-when the guarded training ends/stops, staying quiet during normal progress. The
-entire training campaign has no intermediate physical evaluation. Terminal
-monitoring and a safe stop-file are available in the local evidence directory.
-After the same checkpoint completes both fresh normal starts, evaluate all four
-frozen development cases. See [[experiments/act-a1-first-completion]].
+The admitted temporal union remains 114 train sources/168,178 windows and eight
+development sources/23,705 windows, with balanced door/phase/source sampling and
+train-only frozen normalization. Every historical attempt, correction scope and
+failed-run cost remains. The same-chat heartbeat follows the final panel and stays
+quiet while it advances. See [[experiments/act-a1-first-completion]] for the
+complete offline review, checkpoint-selection rule, gate and final outcomes.
 
 Current as of 2026-10-23. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,

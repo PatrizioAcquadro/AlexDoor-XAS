@@ -1,11 +1,12 @@
 # ACT A1 first learned completion
 
-Status: principal seed 9101 reaches 60,000 saved updates on October 25, 2026
-(UTC). The traced 52k→60k recovery completes all 8,000 updates normally. One
-60k→75k continuation is verified on the local RTX 4090 under the shared mutex,
-with complete model/optimizer/RNG state and all offline history. The prior native
-Python crash and its costs remain preserved; its cause is still unresolved.
-No intermediate native simulation trial is authorized at this 60k boundary.
+Status: principal seed 9101 finishes training at the 75,000-update ceiling on
+October 25, 2026 (UTC). All training allocations have ended. The complete offline
+review and finalization gate pass, and checkpoint 61k is fixed before native
+outcomes. The fresh right/left final panel starts once on the actual RTX 4090
+under the shared mutex; all four frozen development cases remain conditional on
+both nominal directions completing. No final native outcome is available yet.
+The earlier native Python crash and its costs remain; its cause is unresolved.
 The new authorization covers the time needed for training and subsequent
 evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The later explicit storage authorization raises aggregate retained space from1TiB
@@ -238,6 +239,45 @@ offline stopping remain every 1k, with no self-retry on failure. Only declared f
 offline stagnation or the 75k main ceiling, after every training allocation ends,
 can open the explicit finalization gate and final native panel. See
 `base-60000-offline-review.json` and `base-local-75000-preflight.json`.
+
+At 75k, the final block completes 15,000 contiguous updates with return 0 and
+no timeout. All 15 checkpoints have finite tensors, identical source lists and
+frozen normalization. The final weights equal the 75k resume, which preserves all
+128 optimizer states and Python/NumPy/CPU/CUDA RNG. Every checkpoint's rolling
+loss matches its preceding 256 actual optimizer losses. The full 69-checkpoint
+history from 7k through 75k confirms `maximum_main_updates`; useful rolling-loss
+improvement at 73k means this is a ceiling stop, not a stagnation claim.
+
+| Median metric | 58k–60k | 73k–75k | Change |
+|---|---:|---:|---:|
+| Fixed training L1 | 0.063728 | 0.057593 | 9.6% lower |
+| Fixed development L1 | 0.277977 | 0.272103 | 2.1% lower |
+| Actual rolling optimizer loss | 0.083115 | 0.076369 | 8.1% lower |
+
+Selection is made solely from offline evidence before the final native panel:
+rank complete three-checkpoint windows by fixed development median, then fixed
+train median and actual rolling-loss median for exact ties, and choose the center
+checkpoint. The best window is 60k/61k/62k, with medians 0.059429 train,
+0.271096 development and 0.081865 rolling loss. Its center checkpoint 61k is
+immutable for both nominal and conditional development cases. The full ranking,
+selection rule and hash are retained in `base-75000-offline-review.json`.
+
+All 16 historical training allocations are finished, Slurm has no active job and
+no training process or update reservation remains. The explicit
+`base-training-finalization.json` gate passes with final main step 75k, reason
+`maximum_main_updates`, the selected 61k checkpoint and all seven diagnostic
+histories. Before evaluation, cumulative costs are 42.3643 local/31.8231 remote
+GPUh, 198,773 optimizer updates including failed-run uncertainty, and 992.88 GiB
+retained. More than five local GPUh and the 31 GiB complete-panel reserve remain.
+No further training is authorized beyond the 75k ceiling.
+
+The final panel starts once with fresh normal right and left conditions and only
+the selected policy's actions. Each case has a 2,400s guard and the common GPU
+mutex. Reference actions and intermediate starts are prohibited. Only completion
+of both nominal directions opens all four frozen development cases; the final
+test stays sealed. At launch there are no new completed learned outcomes, and all
+59 historical native attempts and 0/20 learned results remain preserved. See
+`base-seed-9101-step-61000-panel.json` for live final outcomes.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,
