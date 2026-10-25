@@ -117,3 +117,29 @@ uses the independently verified command-response envelope. Total measured travel
 and elapsed time remain logged. This operational interpretation changes only the
 explicit candidate recipe; all force, physical, observed-space and stop gates
 remain, and final native qualification is still required.
+
+
+The final active-budget reference pair passes its declared guard criteria: right
+888 commands, 4 s hold, 2.067 s continuous native contact, 6.833 N native /
+7.020 N force upper; left 708 commands, 1 s hold, 2.067 s contact, 5.093/5.289 N.
+Both independent stops pass. Raw full-task reports remain false because these
+finite reference prefixes intentionally omit full opening/hold/release.
+
+The first ten added sources provide 3,636 admitted windows and 2,934 positive
+corrective commands. Their early return originally ends before the strict
+four-second target admission. Two new early-pause demonstrations therefore execute
+the existing common inspection before collection; all 90 commands of each actual
+1.5 s return at 27.9 s are now admitted with genuine four-second history.
+Both new demonstrations and temporal preparation pass, giving 12 additions,
+4,852 windows and 3,998 positive corrective commands. The broad manifest retains
+114 original train sources and eight development records; normalization remains
+frozen to 112 sources. No development payload, final test or optimizer is opened.
+
+An additional API check prevents declaring data readiness prematurely. The left
+near-contact correction has 97 near-state rows outside the old wrist-X load-model
+position support; other left corrections require prospective wrist support at
+10 N. Physical qualification does not establish operational compatibility.
+`wrist-support-plan.json` predeclares independent maintained-load motion and stop
+checks with fixed residual bounds, including both calibrated distal-finger load
+application points. Until those pass, no empirical position support is changed
+and the full correction package is not refinement-ready.

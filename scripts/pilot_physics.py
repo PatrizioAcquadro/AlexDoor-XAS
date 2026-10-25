@@ -268,6 +268,12 @@ def main(argv=None):
         args.mode != "collect" or campaign.get("family") not in ("A", "B", "C", "D")
     ):
         parser.error("A short campaign cell requires collect and family A/B/C/D")
+    if (
+        campaign is not None
+        and campaign.get("record_inspection_history", False)
+        and (campaign["family"] != "A" or args.intermediate_state is not None)
+    ):
+        parser.error("Common inspection history requires a normal-start A collection")
     lighting_scale = float(selected[0].get("lighting_scale", 1.0))
     if not math.isfinite(lighting_scale) or lighting_scale <= 0:
         parser.error("Declared simulated lighting scale must be finite and positive")
@@ -460,7 +466,11 @@ def main(argv=None):
                         supervised_phases=collection_supervised_phases(campaign["family"]),
                     ),
                     collection_case=campaign,
-                    static_reference_time_s=0.0,
+                    static_reference_time_s=(
+                        float(inspection["waypoints"][-1][0])
+                        if campaign.get("record_inspection_history", False)
+                        else 0.0
+                    ),
                     action_roles={"expert": 0, "injected_excluded": 1, "corrective": 2},
                 )
                 if campaign["family"] in ("C", "D") and args.intermediate_state is None:
@@ -552,7 +562,11 @@ def main(argv=None):
                     args.output / "teacher",
                     recorder=recorder,
                     capture_evidence=False,
-                    inspection=None if campaign is not None else inspection,
+                    inspection=(
+                        inspection
+                        if campaign is None or campaign.get("record_inspection_history", False)
+                        else None
+                    ),
                     intermediate=intermediate,
                     campaign=campaign,
                     task_hold=task_hold,
