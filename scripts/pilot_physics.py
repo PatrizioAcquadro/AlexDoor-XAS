@@ -254,7 +254,10 @@ def main(argv=None):
     if args.mode == "replay" and (args.recording is None or args.space is None):
         parser.error("Replay needs a recording and action space")
     if args.mode == "rollout" and (
-        args.checkpoint is None or args.family is None or args.operational_recipe is None
+        args.checkpoint is None
+        and args.reference_recording is None
+        or args.family is None
+        or args.operational_recipe is None
     ):
         parser.error(
             "Rollout requires a declared train/development condition, checkpoint family "
@@ -874,14 +877,19 @@ def rollout(env, args, protocol, robot, setup, inspection):
         )
         observer, policy = runner.observer, runner.policy
     else:
-        policy = B1Policy.from_checkpoint(
-            args.checkpoint,
-            args.family,
-            binding=binding,
-            runtime_asset=robot,
-            device="cuda:0",
-            num_inference_steps=protocol["ddim_steps"],
-        )
+        if args.reference_recording is not None:
+            from alexdoor_xas.action.spaces import A1_JOINT_DELTA
+
+            policy = SimpleNamespace(action_space=A1_JOINT_DELTA)
+        else:
+            policy = B1Policy.from_checkpoint(
+                args.checkpoint,
+                args.family,
+                binding=binding,
+                runtime_asset=robot,
+                device="cuda:0",
+                num_inference_steps=protocol["ddim_steps"],
+            )
         observer, io, geometry, motion, load_log, contact_log = observed_pilot_runtime(
             env, binding, robot, setup, args.operational_recipe, args.output, policy.action_space
         )
@@ -909,15 +917,19 @@ def rollout(env, args, protocol, robot, setup, inspection):
             targets = commands["joint_target"][:][use]
             if targets.shape != (int(use.sum()), 7):
                 raise ValueError("Reference commands require seven ordered arm targets")
-            measured = source["observations/joint_position"][: len(times)][use, :7]
-            record = SimpleNamespace(times=times[use], actions=targets - measured)
+            absolute_targets = source.attrs.get("action_semantics") == "absolute_joint_targets"
+            actions = targets
+            if not absolute_targets:
+                measured = source["observations/joint_position"][: len(times)][use, :7]
+                actions = targets - measured
+            record = SimpleNamespace(times=times[use], actions=actions)
         dataset = SimpleNamespace(
             by_id=lambda _: record,
             binding=binding,
             robot_asset=robot,
             action_space=A1_JOINT_DELTA,
         )
-        policy = MatchedReplay(dataset, "reference")
+        policy = MatchedReplay(dataset, "reference", absolute_joint_targets=absolute_targets)
     recording = RolloutWriter(
         args.output / "rollout.hdf5",
         dict(

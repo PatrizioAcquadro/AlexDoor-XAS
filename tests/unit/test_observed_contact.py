@@ -586,3 +586,90 @@ def test_directional_reserve_contains_normal_cone_offsets_without_spending_norma
                 decision["additional_tangent_uncertainty_m"] + 1e-15
             )
     assert result.uncertainty_m >= radius
+
+
+def test_supported_pause_suspends_only_seek_time_and_resumption_spends_it():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    for t in np.arange(1, 2.1, 1 / 60):
+        result = m.update(*inputs(float(t), force=0, step_m=0))
+    assert result.status == "seeking"
+    assert result.acquisition_active_s == 0
+    assert result.decision["supported_seek_pause"]
+    result = m.update(*inputs(2.1, force=0, step_m=0.001))
+    assert result.status == "seeking"
+    assert result.acquisition_active_s < 0.04
+    for i, t in enumerate(np.arange(2.1 + 1 / 60, 2.7, 1 / 60)):
+        result = m.update(*inputs(float(t), force=0, step_m=0.0001, x=0.003 + i * 0.0001))
+    assert result.status == "lost"
+    assert result.reason == "contact_acquisition_budget"
+    assert result.acquisition_active_s > m.config.max_seek_s
+
+
+def test_measured_motion_is_not_a_pause_even_with_zero_submitted_motion():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    for i, t in enumerate(np.arange(1, 1.7, 1 / 60)):
+        result = m.update(*inputs(float(t), force=0, step_m=0, x=0.003 + i * 0.00004))
+    assert result.status == "lost"
+    assert result.acquisition_active_s > m.config.max_seek_s
+
+
+def test_pause_aware_seeking_requires_independent_robot_resolution():
+    with pytest.raises(ValueError, match="independent robot FK"):
+        replace(monitor().config, pause_aware_seek=True)
+
+
+def test_slow_creep_cannot_renew_a_standstill_resolution_allowance_each_tick():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    for i, t in enumerate(np.arange(1, 1.7, 1 / 60)):
+        result = m.update(*inputs(float(t), force=0, step_m=1e-6, x=0.003 + i * 1e-5))
+    assert result.status == "lost"
+    assert result.acquisition_active_s > m.config.max_seek_s
+
+
+def test_arriving_load_confirms_contact_without_charging_a_prior_supported_pause():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    for t in np.arange(1, 2.0, 1 / 60):
+        result = m.update(*inputs(float(t), force=0, step_m=0))
+    for t in np.arange(2.0, 2.25, 1 / 60):
+        result = m.update(*inputs(float(t), force=4, step_m=0))
+    assert result.status == "contact"
+
+
+def test_fixed_target_allows_tracking_variation_inside_qualified_response_bound():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    for i, t in enumerate(np.arange(1, 2.2, 1 / 60)):
+        deviation = 0.0001 * np.sin(i)
+        result = m.update(*inputs(float(t), force=0, x=0.003 + deviation, step_m=-deviation))
+    assert result.status == "seeking"
+    assert result.acquisition_active_s == 0
+    assert result.acquisition_travel_m > 0  # Physical travel never disappears.

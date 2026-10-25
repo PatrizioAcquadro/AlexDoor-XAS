@@ -26,7 +26,11 @@ from alexdoor_xas.perception.contracts import (
     validate_reference,
 )
 from alexdoor_xas.policies.common.b1_contract import PilotBinding
-from alexdoor_xas.policies.observations import require_estimate, require_features
+from alexdoor_xas.policies.observations import (
+    observation_columns,
+    require_estimate,
+    require_features,
+)
 
 
 @dataclass(frozen=True)
@@ -219,7 +223,10 @@ class MatchedReplay:
     not supplied to the adapter. The caller labels results as replay diagnostics.
     """
 
-    def __init__(self, dataset, episode_id):
+    def __init__(self, dataset, episode_id, *, absolute_joint_targets=False):
+        if absolute_joint_targets and dataset.action_space != A1_JOINT_DELTA:
+            raise ValueError("Absolute joint references require A1")
+        self.absolute_joint_targets = absolute_joint_targets
         self.record = dataset.by_id(episode_id)
         self.binding, self.robot_asset = dataset.binding, dataset.robot_asset
         self.action_space = dataset.action_space
@@ -247,6 +254,12 @@ class MatchedReplay:
             if not np.isclose(observation.time_s - self.start_time, expected, atol=1e-7, rtol=0):
                 raise ValueError("Matched replay action timing differs from the recording")
             row = self.record.actions[self.index].copy()
+            if self.absolute_joint_targets:
+                # Holding a fixed target requires current measured feedback.
+                # A zero delta instead recenters the servo every tick and can
+                # remove the restoring effort needed to arrest drift.
+                measured = observation_columns(observation.features, self.binding)["joint_position"]
+                row = row - measured[:7]
             self.index += 1
             return row[None]
 

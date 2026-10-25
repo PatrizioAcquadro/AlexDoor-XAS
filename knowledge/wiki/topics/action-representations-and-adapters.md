@@ -60,7 +60,15 @@ This controls major task-distribution confounds but does not prove that represen
 
 `action/b1.py` defines separate B1 numerical contracts. A1 labels are the applied
 seven-joint target minus the **current observed joint position**, matching
-`step_a1`; differences between consecutive targets are not equivalent. A2 labels
+`step_a1`; differences between consecutive targets are not equivalent. A zero A1
+delta recenters the target on each measured position; it does not latch a fixed
+servo target. A fixed-target reference must request `held_target - current_q`
+from fresh observed feedback. `MatchedReplay(..., absolute_joint_targets=True)`
+provides this diagnostic path through ordinary A1 admission. Its reference file
+declares `action_semantics=absolute_joint_targets`; historical relative replay
+keeps its original meaning. Reference diagnostics load no policy checkpoint and
+never count as learned execution. See [[../experiments/approach-contact-corrections]].
+A2 labels
 include world translation and left-multiplied axis-angle rotation from the
 observed tool pose to the commanded goal. A3 rotates both components into the
 causally estimated hinge frame. Tool poses include the calibrated distal offset.

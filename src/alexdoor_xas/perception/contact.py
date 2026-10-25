@@ -32,8 +32,13 @@ class ContactMonitorConfig:
     force_window_s: float
     robot_fk_position_bound_m: float | None = None
     robot_fk_rotation_bound_rad: float | None = None
+    pause_aware_seek: bool = False
 
     def __post_init__(self):
+        if not isinstance(self.pause_aware_seek, bool) or (
+            self.pause_aware_seek and self.robot_fk_position_bound_m is None
+        ):
+            raise ValueError("Pause-aware seeking requires independent robot FK bounds")
         values = [v for v in vars(self).values() if v is not None]
         if (self.robot_fk_position_bound_m is None) != (self.robot_fk_rotation_bound_rad is None):
             raise ValueError("partial_robot_fk_contact_bound")
@@ -60,6 +65,7 @@ class ContactEvidence:
     directly_observed: bool = False
     acquisition_started_s: float | None = None
     acquisition_travel_m: float = 0.0
+    acquisition_active_s: float = 0.0
     decision: dict | None = None
 
 
@@ -87,6 +93,9 @@ class ObservedContactMonitor:
         self.identity = self.last = self.result = None
         self.seek_started = self.seek_anchor = self.confirm_started = None
         self.seek_travel_m = 0.0
+        self.seek_active_s = 0.0
+        self.seek_last_s = None
+        self.seek_pause_anchor = None
         self.established = self.releasing = False
         self.latched_reason = None
         self.force_samples = deque()
@@ -140,6 +149,7 @@ class ObservedContactMonitor:
                 now,
                 acquisition_started_s=self.seek_started,
                 acquisition_travel_m=self.seek_travel_m,
+                acquisition_active_s=self.seek_active_s,
             )
             return self.result
         decision = {}
@@ -393,19 +403,94 @@ class ObservedContactMonitor:
                 # history or a latched failure. This transition is reported.
                 self.seek_started = self.seek_anchor = None
                 self.seek_travel_m = 0.0
+                self.seek_active_s = 0.0
+                self.seek_last_s = None
+                self.seek_pause_anchor = None
             if admission.proposal.loaded and not self.releasing and status == "seeking":
                 if self.seek_started is None:
                     self.seek_started, self.seek_anchor = now, tool.origin.copy()
                 else:
                     self.seek_travel_m += float(np.linalg.norm(tool.origin - self.seek_anchor))
                     self.seek_anchor = tool.origin.copy()
+                paused = False
+                resolved_request = True
+                if self.config.pause_aware_seek:
+                    radius = max(np.linalg.norm(face, axis=1).max() for face in self.faces)
+                    # FK resolution classifies whether the commanded TARGET
+                    # changes. Actual tracking/settling has its separate,
+                    # independently verified response envelope, not FK precision.
+                    resolution = 2 * (robot_position + rotational_travel(radius, robot_rotation))
+                    if self.seek_pause_anchor is None:
+                        self.seek_pause_anchor = (
+                            (now, end.origin.copy(), end.rot.copy())
+                            if self.seek_last_s is None or self.last is None
+                            else (self.seek_last_s, self.last[4], self.last[5])
+                        )
+                    _, anchor_p, anchor_r = self.seek_pause_anchor
+                    target_travel = np.concatenate(
+                        [
+                            face @ (end.rot - anchor_r).T + end.origin - anchor_p
+                            for face in self.faces
+                        ]
+                    )
+                    response = np.concatenate(
+                        [
+                            face @ (tool.rot - end.rot).T + tool.origin - end.origin
+                            for face in self.faces
+                        ]
+                    )
+                    response_bound = limits.robot_position_bound_m + rotational_travel(
+                        radius, limits.robot_rotation_bound_rad
+                    )
+                    if self.last is not None:
+                        step = np.concatenate(
+                            [
+                                face @ (end.rot - self.last[5]).T + end.origin - self.last[4]
+                                for face in self.faces
+                            ]
+                        )
+                        resolved_request = bool(np.linalg.norm(step, axis=1).max() > resolution)
+                    paused = bool(
+                        (self.last is None or not resolved_request)
+                        and np.linalg.norm(target_travel, axis=1).max() <= resolution
+                        and np.linalg.norm(response, axis=1).max() <= response_bound
+                        and load.normal_lower_n < self.config.force_on_n
+                        and (force is None or force < self.config.force_on_n)
+                    )
+                if not paused:
+                    # Resuming a resolved command preserves the completed hold.
+                    # Cumulative sub-resolution target creep spends its entire
+                    # interval, so a tiny new allowance cannot renew each tick.
+                    since = self.seek_last_s
+                    if (
+                        self.seek_pause_anchor is not None
+                        and not resolved_request
+                        and load.normal_lower_n < self.config.force_on_n
+                        and (force is None or force < self.config.force_on_n)
+                    ):
+                        since = self.seek_pause_anchor[0]
+                    if since is not None:
+                        self.seek_active_s += max(0.0, now - since)
+                    self.seek_pause_anchor = None
+                self.seek_last_s = now
+                decision["supported_seek_pause"] = paused
+                elapsed = (
+                    self.seek_active_s if self.config.pause_aware_seek else now - self.seek_started
+                )
                 if (
-                    now - self.seek_started > self.config.max_seek_s
+                    elapsed > self.config.max_seek_s
                     or self.seek_travel_m > self.config.max_seek_travel_m
                 ):
                     self.latched_reason = "contact_acquisition_budget"
                     status, reason = "lost", self.latched_reason
-            self.last = now, relative.copy(), motion_uncertainty, tool.origin.copy()
+            self.last = (
+                now,
+                relative.copy(),
+                motion_uncertainty,
+                tool.origin.copy(),
+                end.origin.copy(),
+                end.rot.copy(),
+            )
             self.result = ContactEvidence(
                 status,
                 reason,
@@ -415,6 +500,7 @@ class ObservedContactMonitor:
                 uncertainty + max(abs(x) for x in depth_range),
                 acquisition_started_s=self.seek_started,
                 acquisition_travel_m=self.seek_travel_m,
+                acquisition_active_s=self.seek_active_s,
                 decision=decision,
             )
             return self.result

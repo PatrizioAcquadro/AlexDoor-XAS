@@ -437,3 +437,24 @@ def test_robot_stop_precedes_failing_perception_cleanup():
         runner.stop("fault", 1)
     assert events == ["stop", "adapter", "observer"]
     assert runner.stopped and not runner.pending and runner.source is None
+
+
+def test_absolute_joint_reference_holds_target_against_current_measured_drift():
+    binding = SimpleNamespace(obs_dim=23, config=dict(visual_dims=[2, 3]))
+    target = np.arange(7, dtype=float) / 10
+    record = SimpleNamespace(actions=np.tile(target, (2, 1)), times=np.array([0, 1 / 60]))
+    dataset = SimpleNamespace(
+        by_id=lambda _: record,
+        binding=binding,
+        robot_asset=TEST_ROBOT_REF,
+        action_space=A1_JOINT_DELTA,
+    )
+    replay = MatchedReplay(dataset, "reference", absolute_joint_targets=True)
+    source = replay.chunk_source(None)
+    for t, drift in [(0, 0.01), (1 / 60, -0.02)]:
+        q = np.r_[target + drift, 0, 0]
+        obs = SimpleNamespace(time_s=t, features=np.r_[np.zeros(5), q, np.zeros(9)])
+        np.testing.assert_allclose(q[:7] + source(obs)[0], target)
+    dataset.action_space = A2_EE_DELTA
+    with pytest.raises(ValueError, match="require A1"):
+        MatchedReplay(dataset, "reference", absolute_joint_targets=True)

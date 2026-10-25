@@ -73,3 +73,31 @@ load is not confirmed. It retains cumulative travel, sample/identity checks,
 force/contact confirmation and the independent motion/stop guard. The wider
 material uncertainty is not used as a standstill tolerance. Existing recipes keep
 the prior clock unless explicitly enabled after native verification.
+
+## Fixed-target pause qualification boundary
+
+Eight revised demonstrations pass, with 3.590–6.675 N peak native forces and
+successful independent stops. A coverage check places their pause handoffs at
+42 mm and 130–138 mm. Two additional declared near-contact returns address the
+22–26 mm ACT neighborhood using a held 10 mm/4 degree pose error near 21 mm and
+a 1 s measured-origin return. Both pass (4.666 N right / 3.537 N left).
+
+Three guard trials remain negative: the first clock mistakenly charges the prior
+pause at resumption; the corrected clock with zero A1 deltas permits servo drift;
+and a fixed target still fails when measured settling is compared to FK precision.
+All have zero learned commands, no physical violations and passing 2+4 s stops.
+They are qualification failures, not favorable retries or model evaluations.
+
+The maintained rule now compares target change with FK resolution and bounds
+settling with the independently qualified 13 mm/0.04 rad response envelope.
+It retains the 3 s active-seek and 30 mm travel budgets. Fixed-target diagnostic
+replay derives requests from current observed joints without loading a policy.
+Native qualification of this final rule remains pending; prior left control
+allocations started before this revision and retain their own implementation.
+
+Four independent robot-only stop cases pass, including three maintained 10 N
+loads and neighboring shoulder postures/load directions. The existing joint
+stopping bounds cover every measured stop/continuation/removal sample; the frozen
+residual model has zero exceedances on the motion samples. This supports the
+matched stopping conditions, not a broader combined posture/acceleration or
+contact-impact domain. Operational calibration remains unchanged.

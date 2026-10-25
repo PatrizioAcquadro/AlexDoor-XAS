@@ -93,6 +93,16 @@ and direct current contact-depth compatibility are separate. Self-occlusion,
 unmeasured motion growth or missing original coverage returns unavailable;
 current support cannot fabricate future zero-motion certainty.
 
+An optional `pause_aware_seek` clock distinguishes an unchanged submitted target
+from active searching. Target change uses independently verified robot FK
+resolution; actual settling must stay inside the existing command-response
+position/rotation envelope. These serve different purposes. Neither substitutes
+material uncertainty for robot support. Cumulative target creep cannot renew a
+small movement allowance, and measured seek travel, force/confirmation, identity,
+sample continuity and independent action/stop checks remain unchanged. Existing
+recipes retain the prior clock. The new clock's native qualification is tracked
+in [[../experiments/approach-contact-corrections]], separately from learned behavior.
+
 `PurdueLoadSource` retains both 120 Hz native substeps, measured torque, calibration
 domain and full-wrench peaks. Independently supported normal bounds can refine
 the normal interval; full pose bounds remain necessary for material/sweep checks.
