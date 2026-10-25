@@ -101,3 +101,19 @@ stopping bounds cover every measured stop/continuation/removal sample; the froze
 residual model has zero exceedances on the motion samples. This supports the
 matched stopping conditions, not a broader combined posture/acceleration or
 contact-impact domain. Operational calibration remains unchanged.
+
+
+The next native right fixed-target trial exposes a repeated-clock integration
+defect: its after-check erases the submitted interval's active intent. It reaches
+the unchanged total-travel cap (30.003 mm) with zero contact and a safe stop;
+this is preserved as another failed qualification. The corrected implementation
+charges each completed interval using its previously submitted intent. New tests
+cover actual before/after callback order, tiny resumption after long holds,
+continuous target creep and independent active time/travel rejection.
+
+The optional mode now applies one rule to both 3 s/30 mm acquisition budgets:
+charge active commanded search, while bounded settling of an unchanged target
+uses the independently verified command-response envelope. Total measured travel
+and elapsed time remain logged. This operational interpretation changes only the
+explicit candidate recipe; all force, physical, observed-space and stop gates
+remain, and final native qualification is still required.

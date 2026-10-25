@@ -98,8 +98,12 @@ from active searching. Target change uses independently verified robot FK
 resolution; actual settling must stay inside the existing command-response
 position/rotation envelope. These serve different purposes. Neither substitutes
 material uncertainty for robot support. Cumulative target creep cannot renew a
-small movement allowance, and measured seek travel, force/confirmation, identity,
-sample continuity and independent action/stop checks remain unchanged. Existing
+small movement allowance. Before/after checks at one clock cannot erase the
+submitted interval's search intent. The existing 3 s/30 mm budgets apply to active
+search in this optional mode; supported held-target settling uses the already
+qualified response envelope. Total elapsed time and measured travel remain
+reported, and force/confirmation, identity, sample continuity and independent
+action/stop checks remain unchanged. Existing
 recipes retain the prior clock. The new clock's native qualification is tracked
 in [[../experiments/approach-contact-corrections]], separately from learned behavior.
 

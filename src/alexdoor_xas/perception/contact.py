@@ -7,7 +7,7 @@ import numpy as np
 
 from alexdoor_xas.action.b1 import checked_pose
 from alexdoor_xas.perception.admission import require_current_admission, rotational_travel
-from alexdoor_xas.perception.contracts import validate_local_contact
+from alexdoor_xas.perception.contracts import POSE_ROUNDOFF, validate_local_contact
 
 
 @dataclass(frozen=True)
@@ -66,6 +66,7 @@ class ContactEvidence:
     acquisition_started_s: float | None = None
     acquisition_travel_m: float = 0.0
     acquisition_active_s: float = 0.0
+    acquisition_active_travel_m: float = 0.0
     decision: dict | None = None
 
 
@@ -96,6 +97,9 @@ class ObservedContactMonitor:
         self.seek_active_s = 0.0
         self.seek_last_s = None
         self.seek_pause_anchor = None
+        self.seek_interval_active = False
+        self.seek_pause_credit_s = 0.0
+        self.seek_active_travel_m = self.seek_pause_credit_travel_m = 0.0
         self.established = self.releasing = False
         self.latched_reason = None
         self.force_samples = deque()
@@ -150,6 +154,7 @@ class ObservedContactMonitor:
                 acquisition_started_s=self.seek_started,
                 acquisition_travel_m=self.seek_travel_m,
                 acquisition_active_s=self.seek_active_s,
+                acquisition_active_travel_m=self.seek_active_travel_m,
             )
             return self.result
         decision = {}
@@ -406,12 +411,31 @@ class ObservedContactMonitor:
                 self.seek_active_s = 0.0
                 self.seek_last_s = None
                 self.seek_pause_anchor = None
+                self.seek_interval_active = False
+                self.seek_pause_credit_s = 0.0
+                self.seek_active_travel_m = self.seek_pause_credit_travel_m = 0.0
             if admission.proposal.loaded and not self.releasing and status == "seeking":
+                travel = 0.0
                 if self.seek_started is None:
                     self.seek_started, self.seek_anchor = now, tool.origin.copy()
                 else:
-                    self.seek_travel_m += float(np.linalg.norm(tool.origin - self.seek_anchor))
+                    travel = float(np.linalg.norm(tool.origin - self.seek_anchor))
+                    self.seek_travel_m += travel
                     self.seek_anchor = tool.origin.copy()
+                # The monitor checks before and after dispatch at the SAME
+                # clock. Charge a completed interval using its submitted intent;
+                # a repeated after-check cannot turn that motion into a pause.
+                if self.seek_last_s is not None and now > self.seek_last_s:
+                    dt = now - self.seek_last_s
+                    if self.seek_interval_active:
+                        self.seek_active_s += dt
+                        self.seek_active_travel_m += travel
+                        self.seek_pause_credit_s = 0.0
+                        self.seek_pause_credit_travel_m = 0.0
+                    else:
+                        self.seek_pause_credit_s += dt
+                        self.seek_pause_credit_travel_m += travel
+                    self.seek_interval_active = False
                 paused = False
                 resolved_request = True
                 if self.config.pause_aware_seek:
@@ -457,29 +481,42 @@ class ObservedContactMonitor:
                         and load.normal_lower_n < self.config.force_on_n
                         and (force is None or force < self.config.force_on_n)
                     )
+                if paused and np.linalg.norm(target_travel, axis=1).max() <= POSE_ROUNDOFF:
+                    # Numerically unchanged targets complete the prior pause.
+                    # Later tiny resumed motion cannot charge that completed hold.
+                    self.seek_pause_credit_s = 0.0
+                    self.seek_pause_credit_travel_m = 0.0
                 if not paused:
-                    # Resuming a resolved command preserves the completed hold.
-                    # Cumulative sub-resolution target creep spends its entire
-                    # interval, so a tiny new allowance cannot renew each tick.
-                    since = self.seek_last_s
                     if (
                         self.seek_pause_anchor is not None
                         and not resolved_request
                         and load.normal_lower_n < self.config.force_on_n
                         and (force is None or force < self.config.force_on_n)
                     ):
-                        since = self.seek_pause_anchor[0]
-                    if since is not None:
-                        self.seek_active_s += max(0.0, now - since)
+                        # Target creep resolves the whole provisional interval;
+                        # a genuine resumed command preserves the prior pause.
+                        self.seek_active_s += self.seek_pause_credit_s
+                        self.seek_active_travel_m += self.seek_pause_credit_travel_m
+                    self.seek_pause_credit_s = 0.0
+                    self.seek_pause_credit_travel_m = 0.0
                     self.seek_pause_anchor = None
+                    self.seek_interval_active = True
+                # Same-clock checks can mark an interval active, never erase it.
                 self.seek_last_s = now
                 decision["supported_seek_pause"] = paused
                 elapsed = (
                     self.seek_active_s if self.config.pause_aware_seek else now - self.seek_started
                 )
+                search_travel = (
+                    self.seek_active_travel_m
+                    if self.config.pause_aware_seek
+                    else self.seek_travel_m
+                )
+                decision["seek_budget_travel_m"] = search_travel
+                decision["seek_total_elapsed_s"] = now - self.seek_started
                 if (
                     elapsed > self.config.max_seek_s
-                    or self.seek_travel_m > self.config.max_seek_travel_m
+                    or search_travel > self.config.max_seek_travel_m
                 ):
                     self.latched_reason = "contact_acquisition_budget"
                     status, reason = "lost", self.latched_reason
@@ -501,6 +538,7 @@ class ObservedContactMonitor:
                 acquisition_started_s=self.seek_started,
                 acquisition_travel_m=self.seek_travel_m,
                 acquisition_active_s=self.seek_active_s,
+                acquisition_active_travel_m=self.seek_active_travel_m,
                 decision=decision,
             )
             return self.result

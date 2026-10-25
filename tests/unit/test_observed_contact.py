@@ -673,3 +673,76 @@ def test_fixed_target_allows_tracking_variation_inside_qualified_response_bound(
     assert result.status == "seeking"
     assert result.acquisition_active_s == 0
     assert result.acquisition_travel_m > 0  # Physical travel never disappears.
+
+
+def test_before_after_same_clock_checks_preserve_the_submitted_motion_interval():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    for i, t in enumerate(np.arange(1, 1.7, 1 / 60)):
+        # Post-step observation of the previous target, followed at the same
+        # timestamp by the next target. Physical progress is100um per interval.
+        x = 0.003 + i * 0.0001
+        m.update(*inputs(float(t), force=0, x=x, step_m=0.0001))
+        result = m.update(*inputs(float(t), force=0, x=x, step_m=0.0002))
+    assert result.status == "lost"
+    assert result.reason == "contact_acquisition_budget"
+    assert result.acquisition_active_s > m.config.max_seek_s
+    assert result.acquisition_travel_m < m.config.max_seek_travel_m
+
+
+def test_small_resumption_after_long_hold_does_not_recharge_the_completed_hold():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    for t in np.arange(1, 2.1, 1 / 60):
+        result = m.update(*inputs(float(t), force=0, step_m=0))
+    for i, t in enumerate(np.arange(2.1, 2.4, 1 / 60)):
+        result = m.update(*inputs(float(t), force=0, x=0.003 + i * 1e-5, step_m=1e-5))
+    assert result.status == "seeking"
+    assert result.acquisition_active_s < 0.35
+    for i, t in enumerate(np.arange(2.4, 2.8, 1 / 60)):
+        result = m.update(*inputs(float(t), force=0, x=0.00318 + i * 1e-5, step_m=1e-5))
+    assert result.status == "lost"
+
+
+def test_held_response_travel_is_logged_without_becoming_new_search():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    for i, t in enumerate(np.arange(1, 2.2, 1 / 60)):
+        deviation = 0.0001 * np.sin(i)
+        result = m.update(*inputs(float(t), force=0, x=0.003 + deviation, step_m=-deviation))
+    assert result.status == "seeking"
+    assert result.acquisition_travel_m > 0.001
+    assert result.acquisition_active_travel_m == 0
+
+
+def test_active_search_travel_still_stops_before_the_time_budget():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        max_seek_s=2.0,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    for i, t in enumerate(np.arange(1, 1.7, 1 / 60)):
+        result = m.update(*inputs(float(t), force=0, x=-0.015 + i * 0.001, step_m=0.001))
+        if result.status == "lost":
+            break
+    assert result.reason == "contact_acquisition_budget"
+    assert result.acquisition_active_travel_m > m.config.max_seek_travel_m
+    assert result.acquisition_active_s < m.config.max_seek_s
