@@ -593,6 +593,10 @@ Pilot contact intervals may use separately supported current plane-normal positi
 and direction errors plus actual-tool FK calibration; complete material-pose error
 continues to erode finite action support. Command-tracking error is a different
 quantity. Missing normal evidence retains the full-pose fallback. Contact seeking
-uses cumulative measured tool travel with the existing time/travel ceilings; all
-identity/load/sweep/stop requirements remain unchanged. Physical qualification is
-still open; see [[../experiments/b1-end-to-end-pilot-resume]].
+uses cumulative measured tool travel with the existing time/travel ceilings by
+default. An explicit optional recipe charges active search while preserving raw
+time/travel and bounded held-target response; its scoped train-pair qualification
+and the remaining corrective-activation blocker are recorded in
+[[../experiments/approach-contact-corrections]]. Identity/load/sweep/stop requirements
+remain unchanged. Full physical qualification is still open; see
+[[../experiments/b1-end-to-end-pilot-resume]].

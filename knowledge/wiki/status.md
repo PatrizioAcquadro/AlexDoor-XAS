@@ -1,6 +1,6 @@
 # Project Status
 
-## ACT A1 — causal diagnosis complete; full completion remains unmet
+## ACT A1 — corrective data qualified; combined recovery still blocked
 
 Principal seed 9101 finishes at the 75,000-update ceiling on October 25, 2026
 (UTC). All final checkpoints and full optimizer/RNG/source/normalization state
@@ -40,24 +40,47 @@ Both recordings and independent 2+4 s stops pass, without physical violations.
 These are phase results; neither qualifies as a full learned completion. The
 conditional third case is not needed and is not allocated.
 
-Current accounting is **42.7336 local/31.8231 remote GPUh**, **198,773 optimizer
-updates** including failed-run uncertainty, and **996.10 GiB retained**. There
-are now **63 native attempts**, including both new diagnostics; the original
-full learned result remains **0/22**, final pair **0/2**, and historical unavailable
-reports remain explicit. Caps stay 48/32 GPUh, 200k updates and 1126.4 GiB. All
-allocations end and the shared GPU lease is released. Data and frozen normalization
-remain unchanged; the development panel and final test stay unopened.
+The subsequent [[experiments/approach-contact-corrections|approach/contact correction task]]
+closes **partially**. Fifteen native collection attempts yield **12 physically and
+temporally qualified expert sources**, with all three negatives preserved. They add
+4,852 windows and 3,998 positive corrective commands; broad data now retain **126 train
+plus eight development records**, with original 112-source normalization unchanged.
+No injected-error command enters positive supervision. Early corrective coverage
+improves; later left posture/velocity mismatch remains.
 
-The diagnostic objective is complete. The smallest proposed corrective task is
-bounded qualification of observation-grounded approach→contact corrections for
-left posture drift and right contact entry, reusing current sources first. No new
-data, training, architecture, threshold change or checkpoint retry is launched.
-The training heartbeat stays **paused**. See
-[[experiments/act-a1-failure-diagnosis]] for confirmed causes, remaining hypotheses,
-the exact support deficit, paired offline errors and diagnostic limits.
+The optional pause-aware active-search clock passes the two declared train-door
+reference checks with sustained native contact, force below the unchanged 10 N
+stopping domain, zero physical violations and passing independent stops. Fourteen
+independent robot-only load/stop cases support a separate upper shoulder-Z/wrist-X
+empirical extension with frozen residual and stopping bounds. The original 13.763 N
+right impact stays outside the verified domain; lower-force expert entry is reference
+evidence, not learned improvement.
 
-Current as of 2026-10-23. Static 6.0B and the complete B1 software core are
-maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
+The **combined operational package is not refinement-ready**. With expanded position
+support, the widest left reference is refused during its excluded orientation-error
+prefix. A positive-return-only activation with fresh real inspection is refused
+before command one because the positive UMI finger's sweep/stop volume lacks observed
+support. Both stop safely without physical violations. No guard is relaxed to admit
+unknown/occupied geometry. Exact scope and failed activation context are in the
+experiment's `closeout-decision.json`.
+
+Current accounting is **44.2550 local/31.8231 remote GPUh**, **198,773 optimizer
+updates** including failed-run uncertainty, and **1015.89 GiB retained**. This task
+adds zero updates and zero learned evaluations. Its ledger preserves 15 collection
+allocations, 13 reference allocations (11 reports/two unavailable startups), four
+independent panels with 14 cases and two CUDA preparation allocations. The earlier
+63 native attempts, full learned **0/22** and final **0/2** remain separate historical
+counts. All allocations end; the shared GPU lease is released. Caps stay 48/32 GPUh,
+200k updates and 1126.4 GiB. The development panel and final test stay unopened.
+
+Next: bounded observation/sweep/stop qualification at activation of the widest left
+positive return, preserving genuine history and existing force/orientation/space
+gates. Promote the combined recipe only after an admitted positive recovery.
+Refinement needs a separately authorized plan and budget; the training heartbeat
+stays **paused**. No training or learned-policy evaluation is active.
+
+The earlier component review (2026-10-23) is unchanged: static 6.0B and the
+complete B1 software core are maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,
 6.1 and final matched-data production remain open. The sealed test stays closed.
 
 | Area | Maintained capability and limit |

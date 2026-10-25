@@ -65,7 +65,9 @@ reading/inference; they are not defaults for new production. See
 
 ## Timing and control
 
-Physics remains 120 Hz and control 60 Hz. Primitive chunks contain 12 actions;
+The original pilot uses 120 Hz physics and 60 Hz control; the current scoped
+ACT acquisition/stop qualification uses 240 Hz physics with four native substeps
+per 60 Hz control interval. Primitive chunks contain 12 actions;
 execute six ticks, then replan. Both families support `n_action_steps=6`; ACT
 ensembling is disabled in the pilot. A4 replans only at segment boundaries.
 Encoder inference, policy inference and geometry publication are separate events:
@@ -104,10 +106,13 @@ search in this optional mode; supported held-target settling uses the already
 qualified response envelope. Total elapsed time and measured travel remain
 reported, and force/confirmation, identity, sample continuity and independent
 action/stop checks remain unchanged. Existing
-recipes retain the prior clock. The new clock's native qualification is tracked
-in [[../experiments/approach-contact-corrections]], separately from learned behavior.
+recipes retain the prior clock. The new clock passes the declared two-door
+reference contact/stop checks; the widest left corrective activation remains
+blocked by observed sweep/stop support. See [[../experiments/approach-contact-corrections]]
+for that separate operational boundary and the independently qualified position
+support. Neither establishes learned behavior.
 
-`PurdueLoadSource` retains both 120 Hz native substeps, measured torque, calibration
+`PurdueLoadSource` retains every configured native substep, measured torque, calibration
 domain and full-wrench peaks. Independently supported normal bounds can refine
 the normal interval; full pose bounds remain necessary for material/sweep checks.
 Weak-load acceleration/position extensions require their verified domains and
