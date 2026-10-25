@@ -1,44 +1,43 @@
 # Project Status
 
-## ACT A1 first learned completion — training complete, final panel running
+## ACT A1 first learned completion — final pair fails, campaign closed
 
 Principal seed 9101 finishes at the 75,000-update ceiling on October 25, 2026
-(UTC). The final 15k block completes normally; all 15 saved checkpoints, full
-optimizer/RNG state, frozen 112-source normalization and all 114 training sources
-pass verification. The complete 69-checkpoint offline history confirms the ceiling
-stop. Compared with 58k–60k, the 73k–75k medians improve by 9.6% train, 2.1%
-development and 8.1% actual rolling loss. No native evaluation occurs during
-training. The prior segmentation fault remains preserved and its cause unresolved.
+(UTC). All final checkpoints and full optimizer/RNG/source/normalization state
+validate. The complete 69-checkpoint offline history confirms the ceiling stop,
+with no intermediate native evaluation. Checkpoint 61k is selected offline from
+the best three-checkpoint development-median window before any final task outcome.
+All training allocations end and the explicit finalization gate passes.
 
-All 16 training allocations are finished, Slurm is empty and no training update
-reservation remains. The explicit finalization gate passes at main step 75k.
-Offline selection fixes checkpoint 61k, the center of the best three-checkpoint
-development-median window 60k/61k/62k, with train and rolling medians resolving
-exact ties. Its immutable hash is recorded before any final task behavior.
+The final fresh right/left pair achieves **0/2 task completions**, using only that
+immutable checkpoint. Right issues 428 learned commands and exhausts its contact
+acquisition budget; left issues 239 and stops at the existing weak-position
+motion/stop-support refusal. Neither acquires valid contact or controlled opening.
+Both recordings, causal sensor clocks and independent 2+4s stops pass. There are
+zero teacher commands and no physical violations. Lower offline error has not
+established task completion; no architecture or threshold defect is inferred.
 
-One fresh right/left final panel starts on the actual RTX 4090 under the shared
-mutex with finite per-case guards. Both directions use only that checkpoint's
-actions from normal initial conditions. All four frozen development cases run
-only if both nominal directions complete. No new final outcome is available at
-launch; the 59 prior native attempts and 0/20 learned results remain preserved.
-Operational right/left references are compatibility evidence, not learned success.
-The final test remains sealed; no teacher correction, favorable task retry,
-threshold change, collection, RL, new seed or architecture comparison is allowed.
+Cumulative full learned outcomes are **0/22**, with all **61 native attempts**
+preserved, including prior failures and explicit unavailable reports. The four
+frozen development cases remain unrun because the two-direction prerequisite
+fails. Final test remains sealed. Operational reference successes remain only
+compatibility evidence. The prior training segmentation fault and its costs stay
+preserved, with cause unresolved despite the successful traced continuation.
 
-Before this panel, cumulative costs are 42.3643 local/31.8231 remote GPUh,
-198,773 optimizer updates including failed-run uncertainty, and 992.88 GiB
-retained. The caps remain 48 local/32 aggregate remote GPUh, 200k cumulative
-updates and 1.1 TiB (1126.4 GiB) including all replicas and outputs. More than
-five local GPUh and 31 GiB remain for the complete conditional panel. The useful
-A100 budget was exhausted and reported before local placement; unrelated workloads
-remain untouched. No further training may exceed the 75k principal ceiling.
+Final accounting is **42.5080 local/31.8231 remote GPUh**, **198,773 optimizer
+updates** including failed-run uncertainty, and **994.27 GiB retained**. The caps
+remain 48 local/32 aggregate remote GPUh, 200k cumulative updates and 1.1 TiB
+(1126.4 GiB) across local data, replicas and outputs. The GPU lease is released;
+unrelated workloads are untouched. Data remain 114 qualified train sources with
+frozen 112-source train-only normalization, separate development and closed test.
 
-The admitted temporal union remains 114 train sources/168,178 windows and eight
-development sources/23,705 windows, with balanced door/phase/source sampling and
-train-only frozen normalization. Every historical attempt, correction scope and
-failed-run cost remains. The same-chat heartbeat follows the final panel and stays
-quiet while it advances. See [[experiments/act-a1-first-completion]] for the
-complete offline review, checkpoint-selection rule, gate and final outcomes.
+The authorized training/final-evaluation sequence is closed with its learned
+completion goal unmet. The heartbeat is **paused**. No further training beyond
+75k, alternate-checkpoint task retry, teacher correction, threshold relaxation,
+collection, RL, new seed or architecture comparison is launched. Any next
+experiment requires a new human decision. See
+[[experiments/act-a1-first-completion]] for the selection, gate, full negative
+outcomes, recording checks and resource evidence.
 
 Current as of 2026-10-23. Static 6.0B and the complete B1 software core are
 maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,

@@ -1,12 +1,13 @@
 # ACT A1 first learned completion
 
-Status: principal seed 9101 finishes training at the 75,000-update ceiling on
-October 25, 2026 (UTC). All training allocations have ended. The complete offline
-review and finalization gate pass, and checkpoint 61k is fixed before native
-outcomes. The fresh right/left final panel starts once on the actual RTX 4090
-under the shared mutex; all four frozen development cases remain conditional on
-both nominal directions completing. No final native outcome is available yet.
-The earlier native Python crash and its costs remain; its cause is unresolved.
+Status: training ends at the 75,000-update ceiling on October 25, 2026 (UTC).
+The final offline-selected checkpoint 61k completes both fresh nominal attempts
+with 0/2 task successes and no valid learned contact. Both recordings and
+independent stops pass; there are no physical violations or teacher commands.
+The cumulative learned result is 0/22 across 61 native attempts. Development is
+not opened because the two-direction prerequisite fails; final test stays sealed.
+The authorized campaign is closed with its goal unmet and heartbeat paused. A new
+experiment requires a human decision. The earlier native crash remains unresolved.
 The new authorization covers the time needed for training and subsequent
 evaluations within48local/32aggregate remote GPUh and200,000cumulative updates.
 The later explicit storage authorization raises aggregate retained space from1TiB
@@ -271,13 +272,45 @@ GPUh, 198,773 optimizer updates including failed-run uncertainty, and 992.88 GiB
 retained. More than five local GPUh and the 31 GiB complete-panel reserve remain.
 No further training is authorized beyond the 75k ceiling.
 
-The final panel starts once with fresh normal right and left conditions and only
-the selected policy's actions. Each case has a 2,400s guard and the common GPU
-mutex. Reference actions and intermediate starts are prohibited. Only completion
-of both nominal directions opens all four frozen development cases; the final
-test stays sealed. At launch there are no new completed learned outcomes, and all
-59 historical native attempts and 0/20 learned results remain preserved. See
-`base-seed-9101-step-61000-panel.json` for live final outcomes.
+The final panel runs each fresh nominal direction once on the actual RTX 4090,
+with the same immutable 61k checkpoint and only its actions. Neither attempt
+completes or acquires valid contact. All earlier outcomes remain in the denominator.
+
+| Final nominal case | Learned commands | Controlled opening | Terminal reason | Independent stop |
+|---|---:|---:|---|---|
+| Right | 428 | 0 deg | Contact-acquisition budget exhausted | Pass, 2+4s |
+| Left | 239 | 0 deg | Weak position support requires certified contact-free motion and stopping | Pass, 2+4s |
+
+Both complete recordings contain zero reference actions, zero peak native contact
+force and no physical violations. Hold, release and task stabilization are not
+achieved; a healthy independent stop is not task completion. The left refusal
+preserves the existing prospective motion/stop-support requirement; these results
+do not establish that the threshold or architecture is defective. Each allocation
+returns 1 for the failed task, without timeout, and releases the GPU normally.
+They charge 284.977s right and 232.351s left, including accounting margins.
+
+The saved first policy inputs contain only the declared temporal image,
+proprioception, validity and relative-timing fields. The first predictions are
+finite 12×7 chunks. Both recordings pass exact learned-command counts, 60 Hz
+control timing and causal acquisition/availability checks. First/middle/final
+RGB-D probes are rendered and have valid finite depth; both terminal images are
+visually inspected. These checks support an observed failure to acquire contact,
+not a broken recording or a learned-success claim. See `base-final-pair-review.json`
+and `base-seed-9101-step-61000-panel.json`.
+
+The final pair is 0/2 and cumulative full learned outcomes are 0/22. All 61 native
+attempts, including 14 teacher collections and 25 diagnostic/reference attempts,
+remain inventoried; historical missing reports stay explicit. All four frozen
+development cases remain unrun because both nominal completions are required.
+Final test remains sealed. Final accounting is 42.5080 local/31.8231 remote GPUh,
+198,773 optimizer updates including the failed-run uncertainty, and 994.27 GiB
+retained, below the original compute/update and authorized 1.1 TiB storage caps.
+
+The 75k training ceiling and failed final pair close the authorized sequence.
+No additional training, alternate-checkpoint task retry, threshold change or
+collection is launched. The heartbeat is paused as requested when a new decision
+is necessary. The goal of bilateral learned completion remains unmet; any further
+experiment needs a new human decision based on the preserved negative evidence.
 
 The admitted union has114 train sources/168,178 windows and eight development
 sources/23,705 windows. It contains the original112 compatible train sources,
