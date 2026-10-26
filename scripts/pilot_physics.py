@@ -129,6 +129,9 @@ def main(argv=None):
     parser.add_argument("--protocol", type=Path, required=True)
     parser.add_argument("--asset-root", type=Path, required=True)
     parser.add_argument(
+        "--urdf-cache-dir", type=Path, help="Private robot/pedestal USD conversion cache"
+    )
+    parser.add_argument(
         "--setup", type=Path, help="Explicit prospective pilot setup; defaults to corpus setup"
     )
     parser.add_argument("--asset-id", required=True)
@@ -327,6 +330,8 @@ def main(argv=None):
         json.loads((folder / "recipe.json").read_text()),
     )
     cfg = probe_config(door, setup, "cuda:0")
+    if args.urdf_cache_dir is not None:
+        cfg.urdf_cache_dir = str(args.urdf_cache_dir.expanduser().resolve())
     cfg.seed = selected[0]["seed"]
     cfg.camera_mount_pitch_rad = inspection["mount_pitch_rad"]
     stop_diagnostic_s = 0.0

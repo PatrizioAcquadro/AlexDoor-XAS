@@ -23,6 +23,7 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     reset_camera_frames: int = 8
     action_mode: str = "A2"
     cameras: bool = True
+    urdf_cache_dir: str | None = None
     camera_mount_pitch_rad: float = 0.0
     synthetic_door: object | None = None
     prepared_door: object | None = None

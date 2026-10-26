@@ -20,6 +20,15 @@ The source is
 `~/Desktop/Alex/assets/robots/alex_purdue/urdf/baseline/alex_purdue_wsg32_umi_v1_full_convex.urdf`.
 The factory defaults to SAKE when the end effector is omitted; select WSG explicitly.
 
+`DoorPushPurdueEnvCfg.urdf_cache_dir` optionally routes robot and pedestal URDF
+conversion into separate `robot/` and `pedestal/` subdirectories of a writable
+project cache. `pilot_physics.py --urdf-cache-dir PATH` supplies it for a workload.
+The default remains the upstream converter path. This avoids a shared, unwritable
+`/tmp/IsaacLab` on Blackwell without modifying Isaac Lab or Alex, changing assets,
+or changing control/physics. `TMPDIR` alone does not redirect the hardcoded path
+in the inspected converter version. See the actual compatibility boundary in
+[[experiments/act-a1-complete-cycle-collection|the complete-cycle campaign]].
+
 ## Arm and Gripper
 
 The ordered active right-arm joints are `RIGHT_SHOULDER_Y`, `RIGHT_SHOULDER_X`,

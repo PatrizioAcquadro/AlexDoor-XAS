@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -128,6 +129,13 @@ class DoorPushPurdueEnv(DirectRLEnv):
 
         spec = load_purdue_alex003_pedestal_spec()
         pedestal = make_purdue_alex003_pedestal_cfg(PEDESTAL)
+        cache = (
+            Path(self.cfg.urdf_cache_dir).expanduser().resolve()
+            if self.cfg.urdf_cache_dir
+            else None
+        )
+        if cache is not None:
+            pedestal.spawn.usd_dir = str(cache / "pedestal")
         x, y, yaw = self.cfg.floor_pose
         floor_quat = (0.0, 0.0, float(np.sin(yaw / 2)), float(np.cos(yaw / 2)))
         pedestal.spawn.func(
@@ -137,6 +145,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
         robot_cfg = make_alex_purdue_cfg(
             fix_base=True, variant="full_convex", end_effector="wsg32_umi_v1"
         )
+        if cache is not None:
+            robot_cfg.spawn.usd_dir = str(cache / "robot")
         # Task-local impedance; keep the shared Alex package and physical limits intact.
         # At the ready pose, 4 N reflects about 1.7/0.7/0.7/0.22 N m into
         # shoulder Y/Z, elbow and terminal Y. Allocate about 0.005 rad static
