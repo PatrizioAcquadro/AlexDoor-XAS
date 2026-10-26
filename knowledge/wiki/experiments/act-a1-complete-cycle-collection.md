@@ -7,25 +7,33 @@ Teacher similarity is not the success criterion. This campaign collects and
 prepares data; training, learned evaluation, development collection and final-test
 access are excluded.
 
-## Current result: partial, with native work blocked
+## Current result: partial, with coordinated native resumption
 
 **2/36 cells are filled by qualified reuse (C15/D1-N and C14/D2-N); 34 remain
 unqualified.** There are zero new complete-cycle or complete-recovery positives.
-Three native attempts and one saved-input GPU diagnostic consumed **0.2577 local
-GPUh** and approximately **1.17 GiB** of new evidence. All three independent 2+4 s
-stops pass. Training, normalization and historical selections remain unchanged.
+Four native attempts and one saved-input GPU diagnostic consumed **0.3207 GPUh**,
+all on the local host so far. All four independent 2+4 s stops pass. Additional
+retained evidence includes isolated Blackwell staging and is charged in
+`resources.json`; replicas do not reset the allowance. Training, normalization
+and historical selections remain unchanged.
 
 Nine inactive original HDF5 payloads, **188.3648 GiB**, now reside in **159.7574 GiB**
 of restoration-verified persistent archives. Active dataset links resolve. Final
 Data Depot quota use is **80.2% of the shared 2.0 TB limit**; temporary restoration
 copies are removed. The initial physical storage shortage is resolved.
 
-Native collection is blocked by an unrelated VLA-LEGO job restarting after the
-empty-device/lease check: combined device memory exceeded the existing 20 GiB
-cap and interrupted D4 safely. D3's separate live selection refusal remains
-unresolved. The exact [resume handoff](../../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md)
-requires changed GPU coordination before another native attempt; it does not ask
-again for the already granted resource or archival approvals.
+The GPU restart conflict is resolved for the first protected window. VLA completed
+its existing batch, transferred persistent ownership to AlexDoor, and its queued
+successor honored the same lock. The distinct D4 follow-up completed inspection
+and **112 guarded approach commands**, then refused an unsupported observed finger
+sweep before contact. The independent stops passed; the entire negative source
+remains excluded from positive targets. This is missing operational support,
+not a demonstrated collision or permission to shrink uncertainty.
+
+D3's separate live selection refusal remains unresolved. It does not block work
+on unrelated qualified-door conditions. The [resume handoff](../../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md)
+and shared GPU records govern the next complete-episode boundary. Training and
+learned evaluation remain excluded.
 
 ## Agreed coverage and present evidence
 
@@ -43,7 +51,7 @@ retroactively changed.
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Planned | C07 candidate | Planned | Planned | Planned | 0.9 | Planned | Planned |
 | D2 | door-2738468b94d74c5f / left | Reuse C14 | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; selection refusal | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
-| D4 | psx-interior-wood-002-02e442c / left | Unqualified; resource interruption | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
+| D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
 
 The machine-readable [matrix](../../../outputs/evidence/act-a1-complete-cycle-20261026/matrix.json)
 records planned and actual conditions, source/reference links, attempts, outcomes,
@@ -118,13 +126,16 @@ stopping blocks dependent execution. No unchanged retry-until-success.
 
 ## Approved resources and storage
 
-The human approved **up to 12 additional local GPU wall-hours, 200 GiB additional
+The human approved **up to 12 additional aggregate GPU wall-hours, 200 GiB additional
 retained evidence and reversible archival to existing persistent project storage**.
 The native-allocation ceiling is 60, including qualification/diagnostics. A fresh
 resource baseline preserves 44.930708 local / 31.823056 remote GPUh, 198,773
 cumulative historical optimizer updates and approximately 1023.967 GiB retained.
-There are zero new optimizer updates. The campaign separately measures its
-incremental use; archival does not refund historical charges.
+There are zero new optimizer updates. The later host authorization permits the
+local RTX4090 and Blackwell, alternating with VLA-LEGO and SquadBot-AV. All hosts,
+diagnostics and preparation share the original 12 GPUh / 60 allocation ceiling;
+all retained replicas share 200 GiB. No new allowance or historical refund is
+created by moving hosts.
 
 Initial physical free space was about 3.49 GiB, distinct from the old 102.43 GiB
 logical allowance. The consumer inventory protects current train/development
@@ -149,8 +160,27 @@ promise that the approved 12 h suffices. Existing compressed anchor raw/prepared
 pairs occupy 2.49-4.82 GiB, suggesting roughly 85-164 GiB for 34 analogous sources
 before failures and diagnostics. Runtime and compression must be measured on new
 attempts. Each launcher reserves a complete attempt, safe termination and storage,
-preserves the initial disk headroom and takes both existing GPU leases. Foreign
-GPU workloads are preserved and queue waiting is not charged as GPU allocation.
+preserves the initial disk headroom and retains the legacy GPU leases. The local
+launcher additionally holds `/tmp/codex-local-gpu0.lock` for the entire allocation
+and process-group cleanup. Under that lock it requires its named owner, active or
+reserved state, exact device UUID and completed prior-owner handoff in
+`/tmp/codex-local-gpu0.reservation.json`. Queued successors and restarts consult
+the same persistent owner. An empty GPU or elapsed estimate never transfers
+ownership. Only explicit release after cleanup changes the owner. The first
+45-minute window was released early after the D4 negative completed. Foreign
+workloads are preserved, and waiting is not charged as GPU allocation.
+
+Blackwell uses its existing shared global workload lock and exclusive renderer
+slots, with a short separate reservation-update mutex. The unrelated
+`train_debug.py` process remains protected. AlexDoor has staged its source, four train-door assets, exact static
+calibration-ray subsets and private perception model/runtime copies in an
+isolated path. The external Alex package commit and robot URDF match locally. The supported
+Isaac wrapper supplies Torch 2.10/CUDA 12.8 with `sm_120`, but the separate SAM3 and
+Point2Pose workers and actual sensor/physics path are not yet qualified. A bounded
+20-minute slot-1 qualification window follows actual prior-owner completion; a
+native collection window requires subsequent agreement. The local 20 GiB total
+memory cap must not be copied blindly to the 96 GiB device. A second local 4090
+remains unavailable until its endpoint and runtime are verified.
 
 ## Prospective data handoff
 
@@ -198,13 +228,16 @@ approach interval. Contact, opening and recovery integration remain unvalidated.
 | D3-N | Recorder method-name collision before approach; repaired with regression evidence | 105.4 | None |
 | D3-N-recorder-fix | Complete actual inspection, then `missing_explicit_contact_selection` before approach command 1 | 372.1 | None |
 | D4-N | One applied guarded approach command; total-device memory reached 20,571 MiB and the existing 20 GiB resource monitor requested a safe stop | 330.7 | None |
+| D4-N-reserved-window | Protected window; 112 guarded approach commands, then unsupported observed finger sweep; both independent stops pass | 226.9 | None |
 | Saved D3 inspection diagnostic | One observed-only replay of the retained 10 Hz images selects a patch at 25 s | 119.6 | Diagnostic only; not a physical episode or qualification |
 
 The D4 monitor signals only the owned collector. The unrelated process is neither
 stopped nor edited. This is a resource interruption, not a demonstrated physical
 failure of the door or robot. The named GPU leases do not prevent a foreign task
 that does not participate in the same coordination from restarting. Repeating
-unchanged native attempts under that contention would waste the campaign.
+unchanged native attempts under that contention would waste the campaign. The
+subsequent persistent-owner protocol prevents the queued VLA successor from
+starting during the first AlexDoor allocation; it does not qualify the D4 motion.
 
 The saved D3 diagnostic uses actual images and measured robot states, unchanged
 geometry settings and the original synchronous publication convention. It reads
@@ -213,7 +246,7 @@ live observer/event path. Its available patch does not retroactively qualify the
 failed native inspection. Diagnose the event/selection discrepancy before any
 changed D3 follow-up; do not select evaluator truth or promote a favorable replay.
 
-All three new raw recordings remain incomplete, with zero admitted positive
+All four new raw recordings remain incomplete, with zero admitted positive
 windows. They remain actual causal context and negative evidence. Existing source
 views retain **12,234 eligible windows across two qualified complete sources**,
 including 22 crossing starts for each named contact/push, push/hold and hold/release

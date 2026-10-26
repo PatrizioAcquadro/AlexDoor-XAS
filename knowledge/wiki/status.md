@@ -1,33 +1,33 @@
 # Project Status
 
-## ACT A1 — partial complete-cycle campaign; native work blocked
+## ACT A1 — partial complete-cycle campaign; coordinated resumption
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
 **2/36 cells filled by qualified C14/C15 reuse** and **34 unqualified cells**.
-There are zero new full cycles or complete recoveries. Three native attempts
-retain a repaired recorder integration failure, an unresolved D3 live selection
-refusal, and a D4 resource interruption after one guarded approach command.
-All three independent 2+4 s stops pass. One saved-input GPU diagnostic selects a
-D3 patch at its own cadence; it does not qualify or erase the native refusal.
+There are zero new full cycles or complete recoveries. Four native attempts retain
+the repaired recorder failure, unresolved D3 selection, the original D4 resource
+interruption and a distinct D4 observed-sweep refusal after 112 guarded approach
+commands. All four independent 2+4 s stops pass. The saved D3 diagnostic remains
+availability evidence at its own cadence, without native qualification.
 
-The initial storage shortage is resolved: 188.3648 GiB of inactive original
-payloads are archived losslessly and restoration-verified on persistent project
-Data Depot storage. Active train/development metadata links resolve. The final
-shared depot quota snapshot is 80.2% of 2.0 TB. Every original remains recoverable
-through its `.archive.json` pointer; historical charges are not refunded.
+Persistent named GPU ownership now governs launchers, queued successors and
+restarts. The first local window followed VLA's clean batch completion, avoided
+contention, and was explicitly released after D4 cleanup. Next: diagnose D4's
+unknown finger sweep and D3's selection separately, collect an unrelated D1
+condition at the next agreed boundary, and verify the isolated Blackwell native
+runtime in its reserved qualification slot. Free memory never assigns ownership.
 
-Campaign use is **0.2577/12 local GPU wall-hours**, approximately **1.17/200 GiB**
-of additional evidence, and **four charged allocations** (three native, one saved
-observation diagnostic), counted conservatively against the 60-allocation ceiling.
-Cumulative local cost is 45.1884 GPUh; remote cost remains 31.8231 GPUh. No new
-optimizer updates, learned evaluation or development collection occurred.
-Selections and the original 112-source normalization remain unchanged.
+Nine inactive originals, 188.3648 GiB, remain restoration-verified in persistent
+Data Depot archives. Active links resolve; the final quota snapshot is 80.2% of
+2.0 TB. Exact restore pointers remain, with zero historical refund.
 
-Next: arrange a GPU window protected from the unrelated VLA-LEGO job's restarts;
-combined memory exceeded the existing 20 GiB cap despite the initial empty-device
-check and both leases. Resolve D3's live selection discrepancy, resume nominal
-anchors and then the remaining conditions using the exact campaign handoff.
-All owned allocations finish and release their leases. Stop before training.
+The first five charged allocations use **0.3207/12 aggregate GPUh**, all local so
+far. The same 60-allocation and 200 GiB additional-evidence ceilings cover both
+authorized hosts, including diagnostics, preparation and replicas. Live staged
+bytes and remaining allowance are in the campaign `resources.json`; archival and
+host changes reset nothing. No new optimizer updates, learned evaluation,
+development collection or selection/normalization change occurred. Stop before
+training; Blackwell perception/physics qualification remains pending.
 
 The offline [[experiments/act-a1-complete-demonstration-audit|complete-demonstration audit]]
 covers all **15 complete-phase recordings** in the 129-source training inventory.
@@ -94,8 +94,8 @@ evaluations; this subsequent audit adds no GPU workload. All
 allocations finish; the GPU lease is released. Those precampaign caps were 48/32 GPUh, 1126.4 GiB
 and 200k updates; remaining update allowance is 1,227.
 
-Next: execute the approved complete-cycle campaign after verified archival and
-GPU admission. Full-cycle compatibility and coverage gaps remain until measured;
+Next: continue the approved complete-cycle campaign at verified GPU handoffs.
+Full-cycle compatibility and coverage gaps remain until measured;
 the audit itself remains read-only historical evidence. Stop before training or
 learned evaluation.
 Training automation stays **paused**. Development payloads and final test remain
