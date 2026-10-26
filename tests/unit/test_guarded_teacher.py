@@ -16,8 +16,9 @@ def recorder(monkeypatch, *, admitted=True, safety=None):
     monkeypatch.setattr(observations, "require_features", lambda *args: None)
     r = GuardedTeacherRecorder.__new__(GuardedTeacherRecorder)
     r.observer = SimpleNamespace(binding=object())
-    r.observation = object()
+    r.latest_observation = object()
     r.admitted_commands, r.guard_refusal = 0, None
+    r.brake_anchor = None
     q = torch.zeros((1, 9))
     target = torch.full((1, 7), 0.001)
     r.env = SimpleNamespace(
@@ -53,3 +54,31 @@ def test_refusal_never_dispatches(monkeypatch, safety, admitted):
         r.execute(np.zeros(3), np.eye(3), "contact")
     r.io.execute.assert_not_called()
     assert r.admitted_commands == 0 and r.guard_refusal
+
+
+def test_brake_keeps_the_first_measured_joint_anchor(monkeypatch):
+    r = recorder(monkeypatch)
+    r.env.preview_targets.return_value = (torch.zeros((1, 7)), None, None)
+    r.execute(np.zeros(3), np.eye(3), "approach", joint_brake=True)
+    r.env.capture.sample.joint_position[0, :7] = 0.0001
+    r.execute(np.zeros(3), np.eye(3), "approach", joint_brake=True)
+    command = r.io.execute.call_args.args[0]
+    assert command.kind == "joints"
+    np.testing.assert_allclose(command.value, np.full(7, -0.0001))
+    np.testing.assert_allclose(r.brake_anchor, 0)
+
+
+def test_live_observation_update_preserves_native_capture_method(monkeypatch):
+    from alexdoor_xas.recording.teacher import TemporalExpertRecorder
+
+    r = recorder(monkeypatch)
+    monkeypatch.setattr(TemporalExpertRecorder, "observation", lambda self, env: "raw pixels")
+    monkeypatch.setattr(TemporalExpertRecorder, "_state", lambda self: self.observation(self.env))
+    r.phase = "approach"
+    r.io.observe = Mock(return_value="actual sensor")
+    r.observer.update = Mock(return_value="policy observation")
+    r._state()
+    r._state()
+    assert callable(r.observation)
+    assert r.latest_observation == "policy observation"
+    r.observer.update.assert_called_with("actual sensor")

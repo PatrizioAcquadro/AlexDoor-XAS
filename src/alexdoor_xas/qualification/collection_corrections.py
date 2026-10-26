@@ -256,6 +256,13 @@ class CollectionCorrection:
         self.corrective_commands += int(self.role == CORRECTIVE)
         return position, rotation
 
+    def braking(self):
+        """An explicit measured-joint anchor arrests incoming arm motion."""
+        return bool(
+            self.role == CORRECTIVE
+            and 0 < self.corrective_elapsed_s <= self.corrective_brake_s + 1e-12
+        )
+
     def supported_pace_exit(self, rows):
         """Handoff an executed pace pulse only with actual sustained loaded contact."""
         if not (

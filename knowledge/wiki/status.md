@@ -7,9 +7,12 @@ is approved for qualification, collection and preparation, with at most 12 new
 local GPU wall-hours, 200 GiB additional evidence and 60 native allocations.
 Reversible archival first addresses the initial 3.49 GiB physical free-space
 shortage. Two nominal references are reusable; the other 34 cells are pending.
-The first missing anchor is queued behind a foreign GPU workload. Guarded teacher
-collection now checks each pure controller preview with the maintained observed
-A1 runtime; focused numerical tests pass, native integration is not yet validated.
+The first missing D3 anchor failed during inspection because a cached state
+shadowed the recorder's raw-image capture method. Its original, resource charge
+and passing independent stops are preserved. A diagnosed correction and distinct
+follow-up are queued behind foreign GPU work. Guarded teacher collection checks
+each pure controller preview with the maintained observed A1 runtime; focused
+numerical tests pass, corrected native integration remains unvalidated.
 No new training, learned evaluation or development collection is authorized.
 
 

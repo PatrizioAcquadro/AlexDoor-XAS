@@ -58,7 +58,7 @@ claiming identical saved failure history on other doors.
 RP uses the documented misplaced late pause, during approach seconds 4.1-5.3,
 then a 1.5 s measured-origin return. This is the agreed pause alternative, not a
 claim of an 18 mm measured shortfall. Recovery setups reserve a 7.5 s approach,
-25 mm precontact and 4 s entry. Every prefix is actual execution through ordinary
+the nominal 30 mm precontact and 3 s entry. Every prefix is actual execution through ordinary
 operational guards. Injected commands remain causal history and are excluded from
 targets. No restoration, fabricated history, deliberately lost established
 contact, or bypassed error-prefix admission qualifies a cell.
@@ -76,7 +76,8 @@ in the native recording.
 
 The optional full-cycle correction reuses `CollectionCorrection` for an approach
 error and continues through ordinary push, hold, release and stabilization. Its
-brake freezes the measured correction origin before the existing smooth return.
+brake holds the first measured joint anchor before the existing smooth return;
+this prevents pose-IK nullspace motion from being mistaken for arm braking.
 The original short-task behavior defaults to zero braking and is preserved.
 A recovery positive requires an executed error, actual correction, resolved
 pending correction and full-cycle success. Existing role/quality masks exclude
@@ -153,3 +154,19 @@ Completion requires all 36 cells to qualify and pass the temporal consumer.
 Otherwise report the exact partial denominator, retained failures, resource use,
 remaining cells and demonstrated blocker. Reference and teacher success remain
 separate from the historical learned result of 0/22.
+
+## Native integration diagnosis
+
+The first D3-N allocation stopped during common inspection, before arm approach.
+The new cached `PolicyObservation` used the inherited recorder's `observation`
+method name, so the next raw-image capture raised `TypeError`. Its five executed
+inspection commands, incomplete original recording, report and 105.361 charged
+GPU seconds remain in `runs/D3-N` and `allocations/D3-N-allocation.json`. There
+are zero expert targets. Both independent 2 s and 4 s stops pass. This is an
+implementation failure, not a physical rejection of D3.
+
+The correction renames the cache to `latest_observation`; a regression exercises
+repeated native state updates while preserving the inherited capture method.
+The diagnosed follow-up has the distinct identity `D3-N-recorder-fix`. No
+threshold or condition is changed to convert the original outcome. Native
+validation of the corrected integration remains pending.

@@ -887,6 +887,8 @@ def run_probe(
         if controller is None:
             env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
             env.step(zero)
+        elif correction_active and correction.braking():
+            controller(goal_p, goal_r, phase, joint_brake=True)
         else:
             controller(goal_p, goal_r, phase)
         angle = float(tensor(env.door.data.joint_pos)[0, 0])

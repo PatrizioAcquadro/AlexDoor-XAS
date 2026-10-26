@@ -22,6 +22,7 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
         self.operational = None
         self.admitted_commands = 0
         self.guard_refusal = None
+        self.brake_anchor = None
 
     def start(self, env, door, setup, phase="approach"):
         from alexdoor_xas.action.spaces import A1_JOINT_DELTA
@@ -48,17 +49,17 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
         self.observer, self.io, self.geometry, self.motion, _, _ = self.operational
         self.observer.reset()
         self.io.safety.reset()
-        self.observation = self.observer.update(self.io.observe())
+        self.latest_observation = self.observer.update(self.io.observe())
 
     def _state(self):
         super()._state()
         if self.observer is not None:
-            self.observation = self.observer.update(self.io.observe())
+            self.latest_observation = self.observer.update(self.io.observe())
             if self.phase == "inspect" and (reason := self.io.safety_reason("inspect")):
                 self.guard_refusal = reason
                 raise ValueError(reason)
 
-    def execute(self, position, rotation, phase):
+    def execute(self, position, rotation, phase, *, joint_brake=False):
         import torch
         from scipy.spatial.transform import Rotation
 
@@ -72,26 +73,42 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
         try:
             if reason := self.io.safety_reason(None):
                 raise ValueError(reason)
-            observation = self.observation
+            observation = self.latest_observation
             require_features(observation, self.observer.binding)
             goal = ObjectFrame(np.asarray(position), np.asarray(rotation))
-            target, _, _ = self.env.preview_targets(
-                world_goal=(
-                    torch.as_tensor(position, device=self.env.device, dtype=torch.float32)[None],
-                    torch.as_tensor(
-                        Rotation.from_matrix(rotation).as_quat(),
-                        device=self.env.device,
-                        dtype=torch.float32,
-                    )[None],
+            q = array(self.env.capture.sample.joint_position)[0, :7]
+            if joint_brake:
+                if self.brake_anchor is None:
+                    self.brake_anchor = q.copy()
+                request = self.brake_anchor - q
+                target, _, _ = self.env.preview_targets(
+                    joint_delta=torch.as_tensor(
+                        request, device=self.env.device, dtype=torch.float32
+                    )[None]
                 )
-            )
-            actual_delta = array(target)[0] - array(self.env.capture.sample.joint_position)[0, :7]
+                command_kind, command_value = "joints", request
+            else:
+                self.brake_anchor = None
+                target, _, _ = self.env.preview_targets(
+                    world_goal=(
+                        torch.as_tensor(position, device=self.env.device, dtype=torch.float32)[
+                            None
+                        ],
+                        torch.as_tensor(
+                            Rotation.from_matrix(rotation).as_quat(),
+                            device=self.env.device,
+                            dtype=torch.float32,
+                        )[None],
+                    )
+                )
+                command_kind, command_value = "pose", goal
+            actual_delta = array(target)[0] - q
             admission = self.motion(observation, self.io.tool_pose(), actual_delta, 1)
             if not admission.admitted:
                 raise ValueError(admission.reason or "teacher_motion_not_admitted")
             # IO independently checks that the pose controller preview equals
             # the admitted A1 endpoint before the actual setter/physics step.
-            self.io.execute(Command("pose", goal, admission=admission))
+            self.io.execute(Command(command_kind, command_value, admission=admission))
             self.admitted_commands += 1
             if self.io.response_violation:
                 raise ValueError(self.io.response_violation)
