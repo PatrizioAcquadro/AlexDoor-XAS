@@ -124,10 +124,31 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
                 admitted_commands=self.admitted_commands,
                 refusal=self.guard_refusal,
                 evaluator_inputs=False,
-                source="maintained_observed_A1_runtime_and_pose_controller_preview",
+                source="maintained_observed_A1_runtime_and_bounded_controller_preview",
             )
             (self.path.parent / "operational-collection.json").write_text(
                 json.dumps(summary, indent=2) + "\n"
+            )
+            from dataclasses import asdict
+
+            from alexdoor_xas.perception.evaluation import write_json
+
+            tracking = geometry.tracking
+            write_json(
+                self.path.parent / "operational-perception-terminal.json",
+                dict(
+                    provider=geometry.diagnostics,
+                    tracking=tracking.diagnostics,
+                    selection=None if tracking.selection is None else asdict(tracking.selection),
+                    candidates=[
+                        dict(
+                            candidate_id=c.candidate_id,
+                            state=c.state,
+                            observed_pixels=int(c.surface.observations[-1].mask().sum()),
+                        )
+                        for c in tracking.candidates
+                    ],
+                ),
             )
             motion.close()
             load_log.close()

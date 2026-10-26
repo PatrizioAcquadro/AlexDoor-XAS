@@ -1,20 +1,33 @@
 # Project Status
 
-## ACT A1 — complete-cycle collection approved; learned task remains open
+## ACT A1 — partial complete-cycle campaign; native work blocked
 
-The [[experiments/act-a1-complete-cycle-collection|36-cell complete-cycle campaign]]
-is approved for qualification, collection and preparation, with at most 12 new
-local GPU wall-hours, 200 GiB additional evidence and 60 native allocations.
-Reversible archival first addresses the initial 3.49 GiB physical free-space
-shortage. Two nominal references are reusable; the other 34 cells are pending.
-The first missing D3 anchor failed during inspection because a cached state
-shadowed the recorder's raw-image capture method. Its original, resource charge
-and passing independent stops are preserved. A diagnosed correction and distinct
-follow-up are queued behind foreign GPU work. Guarded teacher collection checks
-each pure controller preview with the maintained observed A1 runtime; focused
-numerical tests pass, corrected native integration remains unvalidated.
-No new training, learned evaluation or development collection is authorized.
+The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
+**2/36 cells filled by qualified C14/C15 reuse** and **34 unqualified cells**.
+There are zero new full cycles or complete recoveries. Three native attempts
+retain a repaired recorder integration failure, an unresolved D3 live selection
+refusal, and a D4 resource interruption after one guarded approach command.
+All three independent 2+4 s stops pass. One saved-input GPU diagnostic selects a
+D3 patch at its own cadence; it does not qualify or erase the native refusal.
 
+The initial storage shortage is resolved: 188.3648 GiB of inactive original
+payloads are archived losslessly and restoration-verified on persistent project
+Data Depot storage. Active train/development metadata links resolve. The final
+shared depot quota snapshot is 80.2% of 2.0 TB. Every original remains recoverable
+through its `.archive.json` pointer; historical charges are not refunded.
+
+Campaign use is **0.2577/12 local GPU wall-hours**, approximately **1.17/200 GiB**
+of additional evidence, and **four charged allocations** (three native, one saved
+observation diagnostic), counted conservatively against the 60-allocation ceiling.
+Cumulative local cost is 45.1884 GPUh; remote cost remains 31.8231 GPUh. No new
+optimizer updates, learned evaluation or development collection occurred.
+Selections and the original 112-source normalization remain unchanged.
+
+Next: arrange a GPU window protected from the unrelated VLA-LEGO job's restarts;
+combined memory exceeded the existing 20 GiB cap despite the initial empty-device
+check and both leases. Resolve D3's live selection discrepancy, resume nominal
+anchors and then the remaining conditions using the exact campaign handoff.
+All owned allocations finish and release their leases. Stop before training.
 
 The offline [[experiments/act-a1-complete-demonstration-audit|complete-demonstration audit]]
 covers all **15 complete-phase recordings** in the 129-source training inventory.
@@ -74,11 +87,11 @@ remain preserved in [[experiments/act-a1-first-completion]] and
 learned opening/hold/release. Two new late starts share one saved failure trajectory;
 the widest case is separately controlled, with no held-out or hardware claim.
 
-Current accounting is **44.9307 local/31.8231 remote GPUh**, **1023.97 GiB retained**
+Accounting before this campaign is **44.9307 local/31.8231 remote GPUh**, **1023.97 GiB retained**
 and **198,773 cumulative updates** including historical uncertainty. The recovery
 continuation added 0.6757 local GPUh, about 8.08 GiB and zero updates or learned
 evaluations; this subsequent audit adds no GPU workload. All
-allocations finish; the GPU lease is released. Caps remain 48/32 GPUh, 1126.4 GiB
+allocations finish; the GPU lease is released. Those precampaign caps were 48/32 GPUh, 1126.4 GiB
 and 200k updates; remaining update allowance is 1,227.
 
 Next: execute the approved complete-cycle campaign after verified archival and

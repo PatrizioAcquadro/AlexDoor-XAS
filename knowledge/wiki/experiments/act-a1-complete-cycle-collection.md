@@ -7,6 +7,26 @@ Teacher similarity is not the success criterion. This campaign collects and
 prepares data; training, learned evaluation, development collection and final-test
 access are excluded.
 
+## Current result: partial, with native work blocked
+
+**2/36 cells are filled by qualified reuse (C15/D1-N and C14/D2-N); 34 remain
+unqualified.** There are zero new complete-cycle or complete-recovery positives.
+Three native attempts and one saved-input GPU diagnostic consumed **0.2577 local
+GPUh** and approximately **1.17 GiB** of new evidence. All three independent 2+4 s
+stops pass. Training, normalization and historical selections remain unchanged.
+
+Nine inactive original HDF5 payloads, **188.3648 GiB**, now reside in **159.7574 GiB**
+of restoration-verified persistent archives. Active dataset links resolve. Final
+Data Depot quota use is **80.2% of the shared 2.0 TB limit**; temporary restoration
+copies are removed. The initial physical storage shortage is resolved.
+
+Native collection is blocked by an unrelated VLA-LEGO job restarting after the
+empty-device/lease check: combined device memory exceeded the existing 20 GiB
+cap and interrupted D4 safely. D3's separate live selection refusal remains
+unresolved. The exact [resume handoff](../../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md)
+requires changed GPU coordination before another native attempt; it does not ask
+again for the already granted resource or archival approvals.
+
 ## Agreed coverage and present evidence
 
 There are **36 prospective cells: 28 ordinary complete cycles and eight complete
@@ -22,14 +42,14 @@ retroactively changed.
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Planned | C07 candidate | Planned | Planned | Planned | 0.9 | Planned | Planned |
 | D2 | door-2738468b94d74c5f / left | Reuse C14 | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
-| D3 | psx-front-005-ee7d5c6 / right | C04 candidate | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
-| D4 | psx-interior-wood-002-02e442c / left | C03 candidate | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
+| D3 | psx-front-005-ee7d5c6 / right | Unqualified; selection refusal | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
+| D4 | psx-interior-wood-002-02e442c / left | Unqualified; resource interruption | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
 
 The machine-readable [matrix](../../../outputs/evidence/act-a1-complete-cycle-20261026/matrix.json)
 records planned and actual conditions, source/reference links, attempts, outcomes,
 admitted scopes and gaps. Actual fields remain empty until measured. C14/C15 are
 reused only within their saved qualified domains; they do not prove a replay of
-the latest implementation. There are no new native results at initial preparation.
+the latest implementation. New attempt outcomes remain separate from the C03/C04 historical candidate dispositions.
 
 Exact candidate setups are in the campaign's `setups/` directory. Nominal contact
 height is 1.09 m; H+/H- use 1.11/1.07 m. P translates the fixed robot +20 mm in
@@ -168,5 +188,40 @@ implementation failure, not a physical rejection of D3.
 The correction renames the cache to `latest_observation`; a regression exercises
 repeated native state updates while preserving the inherited capture method.
 The diagnosed follow-up has the distinct identity `D3-N-recorder-fix`. No
-threshold or condition is changed to convert the original outcome. Native
-validation of the corrected integration remains pending.
+threshold or condition is changed to convert the original outcome. The corrected path subsequently completes inspection; D4 admits one real
+approach interval. Contact, opening and recovery integration remain unvalidated.
+
+## Preserved attempts and demonstrated boundary
+
+| Execution | Outcome | Charged GPU seconds | Positive scope |
+|---|---|---:|---|
+| D3-N | Recorder method-name collision before approach; repaired with regression evidence | 105.4 | None |
+| D3-N-recorder-fix | Complete actual inspection, then `missing_explicit_contact_selection` before approach command 1 | 372.1 | None |
+| D4-N | One applied guarded approach command; total-device memory reached 20,571 MiB and the existing 20 GiB resource monitor requested a safe stop | 330.7 | None |
+| Saved D3 inspection diagnostic | One observed-only replay of the retained 10 Hz images selects a patch at 25 s | 119.6 | Diagnostic only; not a physical episode or qualification |
+
+The D4 monitor signals only the owned collector. The unrelated process is neither
+stopped nor edited. This is a resource interruption, not a demonstrated physical
+failure of the door or robot. The named GPU leases do not prevent a foreign task
+that does not participate in the same coordination from restarting. Repeating
+unchanged native attempts under that contention would waste the campaign.
+
+The saved D3 diagnostic uses actual images and measured robot states, unchanged
+geometry settings and the original synchronous publication convention. It reads
+no evaluator payload or door CAD, produces no targets and is not the full 60 Hz
+live observer/event path. Its available patch does not retroactively qualify the
+failed native inspection. Diagnose the event/selection discrepancy before any
+changed D3 follow-up; do not select evaluator truth or promote a favorable replay.
+
+All three new raw recordings remain incomplete, with zero admitted positive
+windows. They remain actual causal context and negative evidence. Existing source
+views retain **12,234 eligible windows across two qualified complete sources**,
+including 22 crossing starts for each named contact/push, push/hold and hold/release
+boundary. These are two physical traversals per boundary, not independent window
+trials. Acquisition views contain 1,080 starts and stabilization views 240. No
+optimizer has drawn from the prospective selection.
+
+Use `closeout.json`, `new-source-dispositions.json`, `archive-closeout.json` and
+`resources.json` in the campaign directory for exact identities, denominators,
+restoration receipts, current accounting and remaining resource allowance. Every
+historical charge is retained; no compression or archival savings are refunded.
