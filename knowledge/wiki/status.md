@@ -1,39 +1,38 @@
 # Project Status
 
-## ACT A1 — partial complete-cycle campaign; coordinated resumption
+## ACT A1 — first new complete-cycle source; collection continuing
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
-**2/36 cells filled by qualified C14/C15 reuse** and **34 unqualified cells**.
-There are zero new full cycles or complete recoveries. Five native collection attempts retain
-the repaired recorder failure, unresolved D3 selection, the original D4 resource
-interruption and a distinct D4 observed-sweep refusal after 112 guarded approach
-commands, plus a D1-H+ weak-position refusal after 192 approach commands. All
-five independent 2+4 s collection stop pairs pass. Both saved D3 replays (float64/float32 camera matrices) select at 25 s; neither
-reproduces the full native path or supplies qualification.
+**3/36 qualified cells**: C14/C15 reuse plus the new D1-H+ full native cycle.
+D1-H+ reaches 51.86 degrees against the unchanged 41.01-degree requirement,
+holds 3 s, intentionally releases and stabilizes for 2 s. Independent native
+contact/stop reconstruction, actual 20.02 mm height variation and the temporal
+consumer pass; 4,190 windows retain the required four-second history and A1 targets.
+This is teacher data, with zero new optimizer updates and learned outcomes still 0/22.
 
-Persistent named GPU ownership now governs launchers, queued successors and
-restarts. The first local window followed VLA's clean batch completion, avoided
-contention, and was explicitly released after D4 cleanup. Next: diagnose D4's
-unknown finger sweep and D3's selection separately, run the distinctly named D1-H+ follow-up with independently qualified
-12 mrad/10 N lower shoulder-Z support, and verify the isolated Blackwell native
-runtime in its next reserved qualification slot. The first six-case candidate
-misses measured coverage; the changed six-case bundle passes all frozen residual,
-stop and coverage gates. Both remain calibration evidence, not demonstrations. Free memory never assigns ownership.
+Five earlier collection negatives remain preserved; all six new collection
+attempts pass both independent stops. D4's observed-sweep support and D3's live
+selection event path remain open. The qualified lower shoulder-Z recipe supports
+the changed D1-H+ without relaxing physical, residual or stop bounds. D2-V is
+queued for the next episode-safe local handoff. Training, learned evaluation,
+development collection and final-test access remain excluded.
 
-Nine inactive originals, 188.3648 GiB, remain restoration-verified in persistent
-Data Depot archives. Active links resolve; the final quota snapshot is 80.2% of
-2.0 TB. Exact restore pointers remain, with zero historical refund.
+Actual campaign cost is **0.8933/12 aggregate GPUh** across 14 charged allocations,
+plus one reserved Blackwell probe (upper estimate 1.2128 GPUh). The existing
+200 GiB retention and 60-allocation caps include replicas, failures, diagnostics
+and preparation. Nine persistent restoration-verified archives resolve the initial
+storage shortage; no historical costs are refunded.
 
-The first ten charged allocations use **0.4895/12 aggregate GPUh**
-(0.4862 local / 0.00336 Blackwell). The first Blackwell allocation fails before
-robot creation on a shared converter directory; an optional private-cache route
-is implemented and a distinct probe is queued. No Blackwell loaded-domain claim
-is made. The same 60-allocation and 200 GiB additional-evidence ceilings cover both
-authorized hosts, including diagnostics, preparation and replicas. Live staged
-bytes and remaining allowance are in the campaign `resources.json`; archival and
-host changes reset nothing. No new optimizer updates, learned evaluation,
-development collection or selection/normalization change occurred. Stop before
-training; Blackwell perception/physics qualification remains pending.
+The private URDF cache works on Blackwell, where the second native probe verifies
+robot/head initialization and both stops, then fails its first Point2Pose request
+for missing `nvcc`. A private CUDA 12.8 compiler compiles the actual kernel for
+`sm_120` on CPU. One new native probe waits for the agreed VLA188 cleanup and
+slot-1 handoff; usable perception kernels, loaded-domain transfer and full-cycle
+compatibility remain unqualified. Local and remote persistent ownership preserves
+other projects and the unrelated Blackwell process. Exact next actions and live
+records are in the [resume handoff](../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md).
+
+## Retained ACT A1 baseline and core
 
 The offline [[experiments/act-a1-complete-demonstration-audit|complete-demonstration audit]]
 covers all **15 complete-phase recordings** in the 129-source training inventory.

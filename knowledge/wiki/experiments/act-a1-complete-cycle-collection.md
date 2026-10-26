@@ -7,39 +7,58 @@ Teacher similarity is not the success criterion. This campaign collects and
 prepares data; training, learned evaluation, development collection and final-test
 access are excluded.
 
-## Current result: partial, with coordinated native resumption
+## Current result: first new full-cycle source qualified
 
-**2/36 cells are filled by qualified reuse (C15/D1-N and C14/D2-N); 34 remain
-unqualified.** There are zero new complete-cycle or complete-recovery positives.
-Five native collection attempts, two saved-input GPU diagnostics, two robot-only
-qualification bundles and one failed Blackwell initialization consumed **0.4895
-aggregate GPUh** at this milestone. All five collection 2+4 s stop pairs pass. Additional
-retained evidence includes isolated Blackwell staging and is charged in
-`resources.json`; replicas do not reset the allowance. Training, normalization
-and historical selections remain unchanged.
+**3/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
+new D1-H+.** The new source acquires continuous valid native contact, reaches
+51.86 degrees against the unchanged 41.01-degree requirement, holds for 3 s,
+intentionally releases and stabilizes for 2 s. Independent saved native-force,
+gap and stop-stream reconstruction reproduces the passing continuity and 2+4 s
+stops. Native peak normal force is 7.63 N; the separate observed operational upper
+estimate peaks at 7.94 N within its 10 N domain. These are distinct from the
+80 N physical hard limit.
+
+The measured hold-tool height changes by 20.02 mm from C15. The same robot,
+240/60 Hz clocks, active mass/inertia/damping, placement and lighting are verified.
+The temporal consumer admits **4,190 windows**, including all six manipulation
+phases, with actual applied-minus-measured A1 targets, four-second history,
+23 x 5 x 240 x 384 images, 241 x 32 robot state and chunk 12 / execute 6.
+One independent recording supplies these overlapping views. No recovery or
+learned success is thereby established; the historical learned result stays 0/22.
+
+Six new collection attempts retain five negatives and one qualified full cycle.
+Both independent stops pass on every collection attempt. Two saved-input GPU
+diagnostics, two robot-only qualification bundles, two Blackwell runtime probes
+and two preparation attempts bring actual cost to **0.8933 aggregate GPUh**
+(0.7491 local / 0.1443 Blackwell), across 14 charged allocations. One additional
+Blackwell qualification is reserved separately; its conservative full reservation
+brings the aggregate upper estimate to 1.2128 GPUh. Current exact accounting is in
+`resources.json`; waiting consumes no GPU charge. All costs and source outcomes
+remain preserved. Training, normalization and historical selections are unchanged.
+
+The first preparation launcher rejects invalid CLI arguments. The corrected GPU
+preprocessing completes, but its reader rejects zero eligible rows because the
+launcher omitted the explicit supervision mask. The diagnostic store remains
+unchanged. After independent physical review, a separate copy receives only the
+maintained `teacher_eligibility` mask and passes the temporal reader. Images were
+prepared on CUDA; metadata-only CPU review adds no model inference or optimizer
+work. Later positive sources will be prepared in batches to preserve the common
+60-allocation ceiling.
 
 Nine inactive original HDF5 payloads, **188.3648 GiB**, now reside in **159.7574 GiB**
 of restoration-verified persistent archives. Active dataset links resolve. Final
 Data Depot quota use is **80.2% of the shared 2.0 TB limit**; temporary restoration
 copies are removed. The initial physical storage shortage is resolved.
 
-The GPU restart conflict is resolved for the first protected window. VLA completed
-its existing batch, transferred persistent ownership to AlexDoor, and its queued
-successor honored the same lock. The distinct D4 follow-up completed inspection
-and **112 guarded approach commands**, then refused an unsupported observed finger
-sweep before contact. The independent stops passed; the entire negative source
-remains excluded from positive targets. This is missing operational support,
-not a demonstrated collision or permission to shrink uncertainty.
-
-D1-H+ separately reaches 192 guarded approach commands, then refuses the weak
-position-support exception. Independent robot-only qualification now supports a
-lower shoulder-Z neighborhood at 10 N, with unchanged residual and stop bounds;
-a distinct full-cycle follow-up is queued. No complete source is thereby qualified.
-
-D3's separate live selection refusal remains unresolved. It does not block work
-on unrelated qualified-door conditions. The [resume handoff](../../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md)
-and shared GPU records govern the next complete-episode boundary. Training and
-learned evaluation remain excluded.
+Persistent GPU ownership and complete-episode handoffs govern local collection.
+The protected D4 follow-up retains its unsupported observed finger-sweep refusal
+after 112 guarded approach commands. D1-H+'s original 192-command weak-position
+refusal remains negative; its changed follow-up uses the independently qualified
+lower shoulder-Z recipe, with frozen physical, residual and stop bounds. D3's
+live selection refusal remains unresolved; changing saved replay precision alone
+does not reproduce it. These diagnoses do not prevent unrelated cells. D2-V is
+queued for the next agreed local window. See the
+[resume handoff](../../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md).
 
 ## Agreed coverage and present evidence
 
@@ -54,7 +73,7 @@ retroactively changed.
 
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| D1 | animated-door-1-88abf40 / right | Reuse C15 | Planned | C07 candidate | Planned | Planned | Planned | 0.9 | Planned | Planned |
+| D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | C07 candidate | Planned | Planned | Planned | 0.9 | Planned | Planned |
 | D2 | door-2738468b94d74c5f / left | Reuse C14 | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; selection refusal | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
@@ -181,19 +200,25 @@ slots, with a short separate reservation-update mutex. The unrelated
 `train_debug.py` process remains protected. AlexDoor has staged its source, four train-door assets, exact static
 calibration-ray subsets and private perception model/runtime copies in an
 isolated path. The external Alex package commit and robot URDF match locally. The supported
-Isaac wrapper supplies Torch 2.10/CUDA 12.8 with `sm_120`, but the separate SAM3 and
-Point2Pose workers and actual sensor/physics path are not yet qualified. The first
-12.096-second allocation fails before robot creation because its converter uses
-an unwritable shared `/tmp/IsaacLab`. This is unavailable native stop evidence,
-not a physical stop failure. The optional `pilot_physics.py --urdf-cache-dir`
-now routes both robot and pedestal conversions to project-owned directories;
-`TMPDIR` alone cannot redirect that inspected hardcoded converter path. The
-changed probe is queued for a new explicit handoff. The explicit private-cache
-branch, perception kernels and loaded stop/load transfer remain unqualified on
-Blackwell; a passing unloaded probe alone cannot certify the 10 N loaded domain. A bounded
-20-minute slot-1 qualification window follows actual prior-owner completion; a
-native collection window requires subsequent agreement. The local 20 GiB total
-memory cap must not be copied blindly to the 96 GiB device. A second local 4090
+Isaac wrapper supplies Torch 2.10/CUDA 12.8 with `sm_120`. The first
+12.096-second allocation fails before robot creation because the converter uses
+an unwritable shared `/tmp/IsaacLab`; native stop evidence is unavailable there.
+The optional `pilot_physics.py --urdf-cache-dir` routes robot and pedestal
+conversion to private directories. Its distinct 507.275-second follow-up verifies
+this route, the actual robot/head sensor, 240/60 Hz clocks, GPU model initialization
+and both independent stops. The first Point2Pose geometry request then fails
+because `nvcc` is absent. Model initialization does not establish usable kernels
+or host qualification; no guarded approach command or positive source is admitted.
+
+A private NVIDIA CUDA 12.8 compiler/header subset now compiles the actual
+Point2Pose integration kernel for `sm_120` on CPU. Only the isolated child's
+`CUDA_HOME` changes; shared runtimes, drivers, models and gates remain unchanged.
+One newly named compiler-fixed native probe waits for the agreed actual VLA188
+completion and slot-1 handoff. It must verify GPU execution and ordinary guarded
+admission. Loaded stop/load transfer still needs native qualification; an unloaded
+prefix alone cannot certify the 10 N domain. Native matrix collection also needs
+a subsequent agreed window. Blackwell resource guards account for owned GPU
+processes and shared-device headroom, preserving other workloads. A second local 4090
 remains unavailable until its endpoint and runtime are verified.
 
 ## Prospective data handoff
