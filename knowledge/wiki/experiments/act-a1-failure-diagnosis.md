@@ -253,6 +253,15 @@ no production source, trained weights or dataset is modified. The two offline
 bootstrap errors (identity type and optional Jacobian schema) and their charges
 are preserved separately; neither launches a simulator or optimizer.
 
+## Subsequent data audit
+
+The October 26 [[act-a1-complete-demonstration-audit|complete-demonstration audit]]
+checks the actual full-phase sources, native continuity, current execution proof
+and sampler exposure. It finds coverage/compatibility gaps but does not identify
+them as the cause of these failures. It also compares saved earlier 52.295°
+opening/hold evidence with these nominal failures without a new historical
+evaluation. All results, checkpoint selection and denominators here are preserved.
+
 ## Confirmed diagnosis and smallest corrective task
 
 The first consequential failure is learned approach drift under valid causal

@@ -327,6 +327,11 @@ Older nominal/gentle/slow-tail/handoff candidates retain their original teacher
 reports but lack the required native operational or continuity qualification;
 they are not silently admitted as compatible full cycles. Existing admitted
 narrower scopes remain in the original union. Every original attempt is retained.
+The later [[act-a1-complete-demonstration-audit|offline complete-source audit]]
+distinguishes these historical admissions from present full-cycle proof: of the
+15 complete-phase sources, seven are natively continuous, eight have masked
+pre-release losses, and only the two new sources have complete matched current
+observed references. No original outcome, active manifest or checkpoint changes.
 Sampling gives equal mass to each of four training doors, then available
 phase/transition/recovery strata, then source and real eligible start. No
 half-batch nominal focus is used for substantial base training. Four-second

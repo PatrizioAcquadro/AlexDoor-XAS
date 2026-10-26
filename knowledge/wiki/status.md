@@ -1,6 +1,24 @@
 # Project Status
 
-## ACT A1 — recovery qualified; learned task remains open
+## ACT A1 — complete-data audit finished; learned task remains open
+
+The offline [[experiments/act-a1-complete-demonstration-audit|complete-demonstration audit]]
+covers all **15 complete-phase recordings** in the 129-source training inventory.
+Replaying saved native forces/gaps finds **seven continuous sources and eight with
+pre-release load losses**. Existing masks exclude every loss command and crossing
+chunk. Proposed future dispositions are **two full executable references, five
+full candidates needing current qualification, and eight useful segment sources**;
+missing evidence is not treated as a defect. All originals and active selections
+remain unchanged. Complete sources provide only nominal lighting, one base pose
+and limited posture/height variety; none of the four high cycles is continuous.
+
+The principal 114-source base sampler gives complete recordings **30.923% expected
+mass**, including **3.712%** for the two recent fully qualified sources. These are
+probabilities, not measured exposure. The 61k lineage also includes an earlier
+2,048-update nominal-focus stage. The audit distinguishes the old **52.295° opening
+and valid hold without release** from the current failed nominal pair; observation,
+lighting, physics, checkpoint and guard changes remain causally unresolved. No
+simulation, inference, training or collection runs in this audit.
 
 The bounded [[experiments/approach-contact-corrections|recovery and guard continuation]]
 qualifies **three additional expert recoveries**, including the widest left case,
@@ -43,14 +61,17 @@ learned opening/hold/release. Two new late starts share one saved failure trajec
 the widest case is separately controlled, with no held-out or hardware claim.
 
 Current accounting is **44.9307 local/31.8231 remote GPUh**, **1023.97 GiB retained**
-and **198,773 cumulative updates** including historical uncertainty. This task adds
-0.6757 local GPUh, about 8.08 GiB and zero updates or learned evaluations. All
+and **198,773 cumulative updates** including historical uncertainty. The recovery
+continuation added 0.6757 local GPUh, about 8.08 GiB and zero updates or learned
+evaluations; this subsequent audit adds no GPU workload. All
 allocations finish; the GPU lease is released. Caps remain 48/32 GPUh, 1126.4 GiB
 and 200k updates; remaining update allowance is 1,227.
 
-Next: decide a separately authorized bounded **targeted refinement and matched
-learned verification** plan using the new manifest and qualified operational recipe.
-The scoped expert/data prerequisite is now met; further learning is not automatic.
+Next: discuss the audit's prioritized missing situations and prospective
+source-selection/sampling rules before agreeing on a collection matrix or further
+learning. The contact-recovery prerequisite is qualified within its declared scope;
+full-cycle compatibility and coverage gaps remain. No quotas, broader collection,
+training or new evaluation are authorized by this audit.
 Training automation stays **paused**. Development payloads and final test remain
 unopened, and no training or learned-policy evaluation is active.
 

@@ -239,3 +239,15 @@ budget, not broader collection or a claim of solved learned manipulation.
 
 Implementation commits: `e6bde1d`, `cd884ae`; earlier tranche: `d92fd16`, `f56d3a3`,
 `9448ede`, `7c09c05`, `d222df7`.
+
+## Subsequent offline complete-data audit
+
+The October 26 [[act-a1-complete-demonstration-audit|complete-demonstration audit]]
+reviews all fifteen complete-phase sources in this 129-source inventory. Native
+force/gap replay finds seven continuous sources and eight with pre-release losses;
+the latter retain useful masked segments. Two have complete matched current
+observed references; five continuous candidates need further qualification.
+The fifteen corrections above remain untrained and do not themselves add complete
+opening/hold/release cycles. The next discussion concerns missing situations and
+prospective data selection/sampling; no final collection matrix, quotas, training
+or new evaluation is executed. Original evidence and learned 0/22 remain unchanged.

@@ -9,6 +9,13 @@ No policy training, optimizer update, RL, architecture comparison, learned evalu
 or final-test access occurred. This is simulation-data qualification, not global
 stability, hardware validation or learned task success.
 
+The later [[../experiments/act-a1-complete-demonstration-audit|complete-source audit]]
+distinguishes original declared-scope qualification from uninterrupted full-task
+continuity and current observed execution. Seven of this campaign's eight complete
+training sources have native pre-release loading losses; existing masks exclude
+their invalid commands and crossing chunks. Their valid local supervision and
+original outcomes remain. No active selection or collection result is rewritten.
+
 ## Frozen matrix and conditions
 
 Original baseline `a3c7550`, resumed at `6ae4c59`, branch

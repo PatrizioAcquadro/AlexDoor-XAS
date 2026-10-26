@@ -57,6 +57,7 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/act-a1-complete-demonstration-audit|ACT A1 Complete-Demonstration Audit]] — Per-recording native continuity, current operational compatibility, effective variety, sampler exposure and historical partial-capability comparison; offline only.
 - [[experiments/approach-contact-corrections|Approach-to-Contact Corrections and Guards]] — Train-only expert corrections and independent operational guard qualification; no training.
 
 - [[experiments/act-a1-first-completion|ACT A1 First Learned Completion]] — Authorized temporal training, guarded execution and fixed two-direction completion experiment.
