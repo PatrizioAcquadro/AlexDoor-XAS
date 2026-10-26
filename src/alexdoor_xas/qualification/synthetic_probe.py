@@ -692,6 +692,8 @@ def run_probe(
     intermediate=None,
     campaign=None,
     task_hold=None,
+    controller=None,
+    full_cycle_correction=None,
 ):
     import torch
     from scipy.spatial.transform import Rotation, Slerp
@@ -720,6 +722,14 @@ def run_probe(
             env.step_dt,
             corrective_transition_s=campaign.get("corrective_transition_s"),
             approach_disturbance=campaign.get("approach_disturbance"),
+        )
+    if full_cycle_correction is not None:
+        from alexdoor_xas.qualification.collection_corrections import CollectionCorrection
+
+        if campaign is not None or intermediate is not None or controller is None:
+            raise ValueError("Full-cycle recovery requires guarded ordinary continuous collection")
+        correction = CollectionCorrection(
+            "A", "correction-1", setup, env.step_dt, **full_cycle_correction
         )
     if family is not None:
         from alexdoor_xas.qualification.collection_phase import evaluate_phase_endpoint
@@ -874,8 +884,11 @@ def run_probe(
             )
         if recorder is not None:
             recorder.phase = phase
-        env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
-        env.step(zero)
+        if controller is None:
+            env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
+            env.step(zero)
+        else:
+            controller(goal_p, goal_r, phase)
         angle = float(tensor(env.door.data.joint_pos)[0, 0])
         speed = float(tensor(env.door.data.joint_vel)[0, 0])
         p, q = [v[0].cpu().numpy() for v in env.tool_pose()]
@@ -1737,5 +1750,14 @@ def run_probe(
                 traces, family, setup, result, None if correction is None else correction.summary()
             )
         )
+    if full_cycle_correction is not None:
+        result["full_cycle_correction"] = correction.summary()
+        recovered = (
+            correction.injected_commands > 0
+            and correction.corrective_commands > 0
+            and not correction.pending
+        )
+        result["recovery_completed"] = bool(recovered and result["passed"])
+        result["passed"] = bool(result["passed"] and recovered)
     write_probe_artifacts(output, result, traces, raw, images)
     return result

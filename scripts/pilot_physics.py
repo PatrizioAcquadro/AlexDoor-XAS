@@ -149,6 +149,11 @@ def main(argv=None):
         type=int,
         help="Controlled collection interruption after a real dispatch, before post-state",
     )
+    parser.add_argument(
+        "--guarded-teacher",
+        action="store_true",
+        help="Admit each complete teacher command through the observed A1 runtime",
+    )
     parser.add_argument("--recording", type=Path)
     parser.add_argument("--space", choices=("A1_joint_delta", "A2_ee_delta"))
     parser.add_argument("--checkpoint", type=Path)
@@ -199,6 +204,10 @@ def main(argv=None):
         help="Historical recipe identity; must agree with the protocol and checkpoint",
     )
     args = parser.parse_args(argv)
+    if args.guarded_teacher and (
+        args.mode != "collect" or args.operational_recipe is None or args.intermediate_state
+    ):
+        parser.error("Guarded teacher requires normal-start collection and an operational recipe")
     if args.temporal_act and (
         args.mode != "rollout" or args.family != "act" or args.reference_recording
     ):
@@ -447,6 +456,7 @@ def main(argv=None):
                 seed=cfg.seed,
                 setup=setup.to_dict(),
                 teacher="frozen_arm_expert_with_inspection",
+                full_cycle_correction=selected[0].get("full_cycle_correction"),
                 inspection=inspection,
                 robot_asset=robot.to_dict(),
             )
@@ -544,9 +554,18 @@ def main(argv=None):
                     maximum_s=float(selected[0]["completion_hold_max_s"]),
                 )
                 metadata["task_hold_completion"] = task_hold
-            recorder = TemporalExpertRecorder(
+            recorder_type, recorder_options = TemporalExpertRecorder, {}
+            if args.guarded_teacher:
+                from alexdoor_xas.recording.guarded_teacher import GuardedTeacherRecorder
+
+                recorder_type = GuardedTeacherRecorder
+                recorder_options = dict(
+                    operational_recipe=args.operational_recipe, robot_asset=robot
+                )
+            recorder = recorder_type(
                 args.output / "episode.hdf5",
                 metadata,
+                **recorder_options,
                 interrupt_after_commands=args.interrupt_after_commands,
                 image_compression=(
                     None if args.collection_compression == "none" else args.collection_compression
@@ -570,6 +589,8 @@ def main(argv=None):
                     intermediate=intermediate,
                     campaign=campaign,
                     task_hold=task_hold,
+                    controller=recorder.execute if args.guarded_teacher else None,
+                    full_cycle_correction=selected[0].get("full_cycle_correction"),
                 )
                 required = (
                     None

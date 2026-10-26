@@ -1,6 +1,17 @@
 # Project Status
 
-## ACT A1 — complete-data audit finished; learned task remains open
+## ACT A1 — complete-cycle collection approved; learned task remains open
+
+The [[experiments/act-a1-complete-cycle-collection|36-cell complete-cycle campaign]]
+is approved for qualification, collection and preparation, with at most 12 new
+local GPU wall-hours, 200 GiB additional evidence and 60 native allocations.
+Reversible archival first addresses the initial 3.49 GiB physical free-space
+shortage. Two nominal references are reusable; the other 34 cells are pending.
+The first missing anchor is queued behind a foreign GPU workload. Guarded teacher
+collection now checks each pure controller preview with the maintained observed
+A1 runtime; focused numerical tests pass, native integration is not yet validated.
+No new training, learned evaluation or development collection is authorized.
+
 
 The offline [[experiments/act-a1-complete-demonstration-audit|complete-demonstration audit]]
 covers all **15 complete-phase recordings** in the 129-source training inventory.
@@ -67,11 +78,10 @@ evaluations; this subsequent audit adds no GPU workload. All
 allocations finish; the GPU lease is released. Caps remain 48/32 GPUh, 1126.4 GiB
 and 200k updates; remaining update allowance is 1,227.
 
-Next: discuss the audit's prioritized missing situations and prospective
-source-selection/sampling rules before agreeing on a collection matrix or further
-learning. The contact-recovery prerequisite is qualified within its declared scope;
-full-cycle compatibility and coverage gaps remain. No quotas, broader collection,
-training or new evaluation are authorized by this audit.
+Next: execute the approved complete-cycle campaign after verified archival and
+GPU admission. Full-cycle compatibility and coverage gaps remain until measured;
+the audit itself remains read-only historical evidence. Stop before training or
+learned evaluation.
 Training automation stays **paused**. Development payloads and final test remain
 unopened, and no training or learned-policy evaluation is active.
 

@@ -18,6 +18,7 @@ class CollectionCorrection:
         *,
         corrective_transition_s=None,
         approach_disturbance=None,
+        corrective_brake_s=0.0,
     ):
         if family not in ("A", "B", "C", "D"):
             raise ValueError("Unknown phase family")
@@ -46,6 +47,13 @@ class CollectionCorrection:
             ):
                 raise ValueError("Return must fit its approach or one-second recontact envelope")
             self.corrective_transition_s = value
+        self.corrective_brake_s = float(corrective_brake_s)
+        if (
+            not np.isfinite(self.corrective_brake_s)
+            or self.corrective_brake_s < 0
+            or (self.corrective_brake_s and family != "A")
+        ):
+            raise ValueError("A finite nonnegative brake is supported for approach corrections")
         self.corrective_start_error = None
         self.corrective_latest_error = None
         self.pre_action_reference = None
@@ -68,7 +76,8 @@ class CollectionCorrection:
             if (
                 not np.isfinite(values).all()
                 or not 0 <= d["start_s"] < d["end_s"]
-                or d["end_s"] + self.corrective_transition_s >= setup.approach_s
+                or d["end_s"] + self.corrective_brake_s + self.corrective_transition_s
+                >= setup.approach_s
             ):
                 raise ValueError("Approach disturbance must reserve its complete measured return")
             if (
@@ -196,8 +205,9 @@ class CollectionCorrection:
             self.corrective_latest_error = error
             if self.corrective_origin is not None:
                 self.corrective_elapsed_s += self.dt
+                moving_s = max(self.corrective_elapsed_s - self.corrective_brake_s, 0.0)
                 blend = 0.5 - 0.5 * np.cos(
-                    np.pi * min(self.corrective_elapsed_s / self.corrective_transition_s, 1.0)
+                    np.pi * min(moving_s / self.corrective_transition_s, 1.0)
                 )
                 self.corrective_transition_complete = blend >= 1.0
                 origin_p, origin_r = self.corrective_origin
@@ -343,6 +353,7 @@ class CollectionCorrection:
             corrective_latest_error=self.corrective_latest_error,
             injected_reference_advance_rad=self.reference_advance_rad,
             corrective_transition_s=self.corrective_transition_s,
+            corrective_brake_s=self.corrective_brake_s,
             supported_hold_handoffs=self.supported_hold_handoffs,
             transfer="full disturbance until handoff; measured-origin cosine correction",
             action_roles={

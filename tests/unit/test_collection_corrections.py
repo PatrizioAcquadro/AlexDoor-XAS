@@ -410,3 +410,29 @@ def test_approach_return_can_reserve_the_measured_pause_backlog():
             corrective_transition_s=1.5,
             approach_disturbance=dict(kind="pause", start_s=4.5, end_s=5.0),
         )
+
+
+def test_measured_approach_brake_precedes_complete_realignment():
+    case = CollectionCorrection(
+        "A",
+        "correction-1",
+        ProbeSetup(approach_s=7.5),
+        1 / 60,
+        approach_disturbance=dict(
+            kind="pose", start_s=1, end_s=2, translation_m=[0, 0.015, 0], rotation_rad=[0, 0, 0.04]
+        ),
+        corrective_transition_s=1.5,
+        corrective_brake_s=0.4,
+    )
+    measured = np.array([0, 0.015, 0])
+    case.counts["approach"] = 120
+    case.role, case.pending = INJECTED, True
+    for _ in range(24):
+        p, _ = case.target(np.zeros(3), np.eye(3), "approach", measured, np.eye(3))
+        np.testing.assert_allclose(p, measured, atol=1e-14)
+    p, _ = case.target(np.zeros(3), np.eye(3), "approach", measured, np.eye(3))
+    assert 0 < p[1] < measured[1] and case.role == CORRECTIVE
+    for _ in range(90):
+        p, _ = case.target(np.zeros(3), np.eye(3), "approach", measured, np.eye(3))
+    np.testing.assert_allclose(p, 0, atol=1e-14)
+    assert case.summary()["corrective_brake_s"] == 0.4

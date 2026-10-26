@@ -57,6 +57,8 @@ Current architectural and scientific contracts:
 
 ## Experiments
 
+- [[experiments/act-a1-complete-cycle-collection|ACT A1 Complete-Cycle Collection]] — Approved 36-cell campaign, guarded teacher integration, reversible storage and prospective data views; execution results remain separate.
+
 - [[experiments/act-a1-complete-demonstration-audit|ACT A1 Complete-Demonstration Audit]] — Per-recording native continuity, current operational compatibility, effective variety, sampler exposure and historical partial-capability comparison; offline only.
 - [[experiments/approach-contact-corrections|Approach-to-Contact Corrections and Guards]] — Train-only expert corrections and independent operational guard qualification; no training.
 
