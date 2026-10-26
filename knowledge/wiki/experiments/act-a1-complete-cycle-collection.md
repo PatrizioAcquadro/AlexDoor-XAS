@@ -11,8 +11,9 @@ access are excluded.
 
 **2/36 cells are filled by qualified reuse (C15/D1-N and C14/D2-N); 34 remain
 unqualified.** There are zero new complete-cycle or complete-recovery positives.
-Four native attempts and one saved-input GPU diagnostic consumed **0.3207 GPUh**,
-all on the local host so far. All four independent 2+4 s stops pass. Additional
+Five native collection attempts, two saved-input GPU diagnostics, two robot-only
+qualification bundles and one failed Blackwell initialization consumed **0.4895
+aggregate GPUh** at this milestone. All five collection 2+4 s stop pairs pass. Additional
 retained evidence includes isolated Blackwell staging and is charged in
 `resources.json`; replicas do not reset the allowance. Training, normalization
 and historical selections remain unchanged.
@@ -29,6 +30,11 @@ and **112 guarded approach commands**, then refused an unsupported observed fing
 sweep before contact. The independent stops passed; the entire negative source
 remains excluded from positive targets. This is missing operational support,
 not a demonstrated collision or permission to shrink uncertainty.
+
+D1-H+ separately reaches 192 guarded approach commands, then refuses the weak
+position-support exception. Independent robot-only qualification now supports a
+lower shoulder-Z neighborhood at 10 N, with unchanged residual and stop bounds;
+a distinct full-cycle follow-up is queued. No complete source is thereby qualified.
 
 D3's separate live selection refusal remains unresolved. It does not block work
 on unrelated qualified-door conditions. The [resume handoff](../../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md)
@@ -176,7 +182,15 @@ slots, with a short separate reservation-update mutex. The unrelated
 calibration-ray subsets and private perception model/runtime copies in an
 isolated path. The external Alex package commit and robot URDF match locally. The supported
 Isaac wrapper supplies Torch 2.10/CUDA 12.8 with `sm_120`, but the separate SAM3 and
-Point2Pose workers and actual sensor/physics path are not yet qualified. A bounded
+Point2Pose workers and actual sensor/physics path are not yet qualified. The first
+12.096-second allocation fails before robot creation because its converter uses
+an unwritable shared `/tmp/IsaacLab`. This is unavailable native stop evidence,
+not a physical stop failure. The optional `pilot_physics.py --urdf-cache-dir`
+now routes both robot and pedestal conversions to project-owned directories;
+`TMPDIR` alone cannot redirect that inspected hardcoded converter path. The
+changed probe is queued for a new explicit handoff. The explicit private-cache
+branch, perception kernels and loaded stop/load transfer remain unqualified on
+Blackwell; a passing unloaded probe alone cannot certify the 10 N loaded domain. A bounded
 20-minute slot-1 qualification window follows actual prior-owner completion; a
 native collection window requires subsequent agreement. The local 20 GiB total
 memory cap must not be copied blindly to the 96 GiB device. A second local 4090
@@ -221,6 +235,39 @@ The diagnosed follow-up has the distinct identity `D3-N-recorder-fix`. No
 threshold or condition is changed to convert the original outcome. The corrected path subsequently completes inspection; D4 admits one real
 approach interval. Contact, opening and recovery integration remain unvalidated.
 
+## Independently measured position support
+
+The first six robot-only cases test the existing 4.25 mrad lower shoulder-Z halo
+at 10 N. All 18 specified stops and frozen residual checks pass, but measured
+loaded positions reach only 1.97 mrad beyond the original core; the declared
+coverage gate fails. This remains an unqualified candidate, not a physical failure.
+A numeric screen of the complete historical H+ path predicts about 7.23 mrad of
+lower-Z extension under the current generic stop envelope. That 120 Hz source
+screen is planning evidence, not current native qualification.
+
+One distinctly named six-case bundle therefore declares a 12 mrad lower-Z
+candidate at 10 N and compensates the measured fixture servo displacement in its
+commanded starts. All nominal, boundary, neighboring and oblique-force cases
+complete. Every moving and stopped native sample satisfies the frozen residual
+model; all 18 existing stop checks, joint-travel, speed/acceleration and feedback
+gates pass. Measured loaded shoulder-Z reaches 0.066143 rad, covering the declared
+lower endpoint 0.066863 rad. No target is clipped or relabeled to achieve coverage.
+
+The separate `operational-recipe-shoulder-qualified.json` changes only this
+empirical lower-Z width (4.25 to 12 mrad) and its qualified force cap (1 to 10 N).
+Core q bounds, residual coefficients, physics, force/speed limits and stop bounds
+are unchanged. The original recipe and first coverage failure remain intact.
+This is a local empirical position-support extension, not arbitrary-pose/hardware
+qualification or a new demonstration. Both qualification bundles stay out of
+imitation targets, matrix cells and recovery counts. Exact plans, complete native
+samples and independent reviews remain in the campaign directory.
+
+The D3 dtype-only replay also selects at 25 s, so float32 alone does not reproduce
+the original native refusal in that replay. The full native calibration/event
+path remains unresolved. A prepared controlled native diagnostic records the
+actual permitted calibration, every observer clock/state and exact model-packet
+digests without changing inputs or control. It is not yet executed or qualified.
+
 ## Preserved attempts and demonstrated boundary
 
 | Execution | Outcome | Charged GPU seconds | Positive scope |
@@ -229,6 +276,8 @@ approach interval. Contact, opening and recovery integration remain unvalidated.
 | D3-N-recorder-fix | Complete actual inspection, then `missing_explicit_contact_selection` before approach command 1 | 372.1 | None |
 | D4-N | One applied guarded approach command; total-device memory reached 20,571 MiB and the existing 20 GiB resource monitor requested a safe stop | 330.7 | None |
 | D4-N-reserved-window | Protected window; 112 guarded approach commands, then unsupported observed finger sweep; both independent stops pass | 226.9 | None |
+| D1-H+ | 192 guarded approach commands, then weak-position future-stop refusal; both independent stops pass | 240.4 | None |
+| Saved D3 float32 diagnostic | Changes only camera matrix dtype from the prior saved replay; still selects a patch at 25 s | 100.4 | Diagnostic only |
 | Saved D3 inspection diagnostic | One observed-only replay of the retained 10 Hz images selects a patch at 25 s | 119.6 | Diagnostic only; not a physical episode or qualification |
 
 The D4 monitor signals only the owned collector. The unrelated process is neither
@@ -246,7 +295,7 @@ live observer/event path. Its available patch does not retroactively qualify the
 failed native inspection. Diagnose the event/selection discrepancy before any
 changed D3 follow-up; do not select evaluator truth or promote a favorable replay.
 
-All four new raw recordings remain incomplete, with zero admitted positive
+All five new raw recordings remain incomplete, with zero admitted positive
 windows. They remain actual causal context and negative evidence. Existing source
 views retain **12,234 eligible windows across two qualified complete sources**,
 including 22 crossing starts for each named contact/push, push/hold and hold/release

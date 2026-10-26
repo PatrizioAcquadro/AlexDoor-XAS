@@ -4,25 +4,31 @@
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
 **2/36 cells filled by qualified C14/C15 reuse** and **34 unqualified cells**.
-There are zero new full cycles or complete recoveries. Four native attempts retain
+There are zero new full cycles or complete recoveries. Five native collection attempts retain
 the repaired recorder failure, unresolved D3 selection, the original D4 resource
 interruption and a distinct D4 observed-sweep refusal after 112 guarded approach
-commands. All four independent 2+4 s stops pass. The saved D3 diagnostic remains
-availability evidence at its own cadence, without native qualification.
+commands, plus a D1-H+ weak-position refusal after 192 approach commands. All
+five independent 2+4 s collection stop pairs pass. Both saved D3 replays (float64/float32 camera matrices) select at 25 s; neither
+reproduces the full native path or supplies qualification.
 
 Persistent named GPU ownership now governs launchers, queued successors and
 restarts. The first local window followed VLA's clean batch completion, avoided
 contention, and was explicitly released after D4 cleanup. Next: diagnose D4's
-unknown finger sweep and D3's selection separately, collect an unrelated D1
-condition at the next agreed boundary, and verify the isolated Blackwell native
-runtime in its reserved qualification slot. Free memory never assigns ownership.
+unknown finger sweep and D3's selection separately, run the distinctly named D1-H+ follow-up with independently qualified
+12 mrad/10 N lower shoulder-Z support, and verify the isolated Blackwell native
+runtime in its next reserved qualification slot. The first six-case candidate
+misses measured coverage; the changed six-case bundle passes all frozen residual,
+stop and coverage gates. Both remain calibration evidence, not demonstrations. Free memory never assigns ownership.
 
 Nine inactive originals, 188.3648 GiB, remain restoration-verified in persistent
 Data Depot archives. Active links resolve; the final quota snapshot is 80.2% of
 2.0 TB. Exact restore pointers remain, with zero historical refund.
 
-The first five charged allocations use **0.3207/12 aggregate GPUh**, all local so
-far. The same 60-allocation and 200 GiB additional-evidence ceilings cover both
+The first ten charged allocations use **0.4895/12 aggregate GPUh**
+(0.4862 local / 0.00336 Blackwell). The first Blackwell allocation fails before
+robot creation on a shared converter directory; an optional private-cache route
+is implemented and a distinct probe is queued. No Blackwell loaded-domain claim
+is made. The same 60-allocation and 200 GiB additional-evidence ceilings cover both
 authorized hosts, including diagnostics, preparation and replicas. Live staged
 bytes and remaining allowance are in the campaign `resources.json`; archival and
 host changes reset nothing. No new optimizer updates, learned evaluation,
