@@ -101,7 +101,10 @@ resolution; actual settling must stay inside the existing command-response
 position/rotation envelope. These serve different purposes. Neither substitutes
 material uncertainty for robot support. Cumulative target creep cannot renew a
 small movement allowance. Before/after checks at one clock cannot erase the
-submitted interval's search intent. The existing 3 s/30 mm budgets apply to active
+submitted interval's search intent. Pause diagnostics report that effective
+interval too: a same-clock after-check cannot label an already submitted active
+command as a supported pause. Provisional unresolved target motion is reported
+separately until it resolves into bounded settling or chargeable creep. The existing 3 s/30 mm budgets apply to active
 search in this optional mode; supported held-target settling uses the already
 qualified response envelope. Total elapsed time and measured travel remain
 reported, and force/confirmation, identity, sample continuity and independent

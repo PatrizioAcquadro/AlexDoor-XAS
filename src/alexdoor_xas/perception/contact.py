@@ -503,7 +503,12 @@ class ObservedContactMonitor:
                     self.seek_interval_active = True
                 # Same-clock checks can mark an interval active, never erase it.
                 self.seek_last_s = now
-                decision["supported_seek_pause"] = paused
+                # Report the same effective interval that accounting preserves.
+                # An after-check may observe a stationary target at this clock,
+                # but cannot relabel an already submitted active command as pause.
+                decision["supported_seek_pause"] = paused and not self.seek_interval_active
+                decision["seek_interval_active"] = self.seek_interval_active
+                decision["provisional_pause_credit_s"] = self.seek_pause_credit_s
                 elapsed = (
                     self.seek_active_s if self.config.pause_aware_seek else now - self.seek_started
                 )

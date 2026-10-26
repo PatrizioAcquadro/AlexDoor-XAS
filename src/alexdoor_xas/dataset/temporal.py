@@ -201,7 +201,9 @@ def raw_streams(file, config, *, device="cuda:0", image_rows=None, legacy_synchr
         and (
             (
                 (native or synchronous_rollout)
-                and verified_feedback(json.loads(file["metadata"].attrs["feedback_contract"]))
+                and verified_feedback(
+                    json.loads(file["metadata"].attrs.get("feedback_contract", "{}"))
+                )
             )
             or (
                 not native

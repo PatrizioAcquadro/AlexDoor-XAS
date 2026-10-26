@@ -746,3 +746,23 @@ def test_active_search_travel_still_stops_before_the_time_budget():
     assert result.reason == "contact_acquisition_budget"
     assert result.acquisition_active_travel_m > m.config.max_seek_travel_m
     assert result.acquisition_active_s < m.config.max_seek_s
+
+
+def test_repeated_callback_cannot_report_an_active_interval_as_a_supported_pause():
+    m = monitor()
+    m.config = replace(
+        m.config,
+        pause_aware_seek=True,
+        robot_fk_position_bound_m=1.3e-5,
+        robot_fk_rotation_bound_rad=2.7e-5,
+    )
+    m.update(*inputs(1, force=0, step_m=0))
+    values = inputs(1 + 1 / 60, force=0, step_m=0.0001)
+    m.update(*values)
+    repeated = m.update(*values)
+    assert repeated.decision["seek_interval_active"]
+    assert not repeated.decision["supported_seek_pause"]
+    # Only the completed preceding pause has elapsed; current motion is pending.
+    assert repeated.acquisition_active_s == 0
+    next_tick = m.update(*inputs(1 + 2 / 60, force=0, step_m=0.0001))
+    assert next_tick.acquisition_active_s == pytest.approx(1 / 60)

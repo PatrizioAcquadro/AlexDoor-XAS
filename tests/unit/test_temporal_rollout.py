@@ -56,6 +56,9 @@ def test_synchronous_rollout_keeps_capture_feedback_and_delivered_target_clocks(
         np.testing.assert_array_equal(streams["target"]["acquired"], [0, 1 / 60])
         np.testing.assert_array_equal(streams["target"]["values"][0], np.arange(7, 0, -1))
         np.testing.assert_array_equal(generation, [2, 2, 2])
+        del f["metadata"].attrs["feedback_contract"]
+        missing, _, _, _ = raw_streams(f, TemporalConfig())
+        assert len(missing["tau"]["acquired"]) == 0
         meta.pop("clock_semantics")
         f["metadata"].attrs["episode"] = json.dumps(meta)
         with pytest.raises(ValueError, match="explicit synchronous"):
