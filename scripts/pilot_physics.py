@@ -950,7 +950,9 @@ def rollout(env, args, protocol, robot, setup, inspection):
             episode_id=args.output.name,
             asset_id=args.asset_id,
             split=next(
-                e["split"] for e in protocol["evaluation_panel"] if e["asset_id"] == args.asset_id
+                e["split"]
+                for e in protocol.get("evaluation_panel", protocol["episodes"])
+                if e["asset_id"] == args.asset_id
             ),
             joint_names=list(env.robot.joint_names),
             clock_semantics="native_synchronous_simulation",

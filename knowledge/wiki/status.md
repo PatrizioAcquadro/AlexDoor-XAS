@@ -1,83 +1,58 @@
 # Project Status
 
-## ACT A1 — corrective data qualified; combined recovery still blocked
+## ACT A1 — recovery qualified; learned task remains open
 
-Principal seed 9101 finishes at the 75,000-update ceiling on October 25, 2026
-(UTC). All final checkpoints and full optimizer/RNG/source/normalization state
-validate. The complete 69-checkpoint offline history confirms the ceiling stop,
-with no intermediate native evaluation. Checkpoint 61k is selected offline from
-the best three-checkpoint development-median window before any final task outcome.
-All training allocations end and the explicit finalization gate passes.
+The bounded [[experiments/approach-contact-corrections|recovery and guard continuation]]
+qualifies **three additional expert recoveries**, including the widest left case,
+with genuine preceding sensor/controller history. Each retains 77 valid contact
+ticks (1.267 s first-to-last), peak native force at most 5.254 N, observed force
+upper at most 5.448 N, zero physical violations and passing independent 2+4 s stops.
+The operational 10 N domain and all physical, calibration, speed and sweep/stop
+requirements are unchanged.
 
-The final fresh right/left pair achieves **0/2 task completions**, using only that
-immutable checkpoint. Right issues 428 learned commands and exhausts its contact
-acquisition budget; left issues 239 and stops at the existing weak-position
-motion/stop-support refusal. Neither acquires valid contact or controlled opening.
-Both recordings, causal sensor clocks and independent 2+4s stops pass. There are
-zero teacher commands and no physical violations. Lower offline error has not
-established task completion; no architecture or threshold defect is inferred.
+Two starts reproduce the saved ACT late-left q/dq history exactly, then brake,
+realign and enter contact. Their responses cover the formerly missing late posture
+and velocity combinations. The widest case separates its controlled error prefix
+from positive recovery: real history admits the formerly unsupported finger sweep;
+prompt alignment, retreat and reapproach then qualify. Only observed certain
+separation resets acquisition. Its experimental error prefix remains excluded
+from supervision and has no operational-admission claim.
 
-Cumulative full learned outcomes are **0/22**, with all **61 native attempts**
-preserved, including prior failures and explicit unavailable reports. The four
-frozen development cases remain unrun because the two-direction prerequisite
-fails. Final test remains sealed. Operational reference successes remain only
-compatibility evidence. The prior training segmentation fault and its costs stay
-preserved, with cause unresolved despite the successful traced continuation.
+The prior **12/15** qualified corrective sources and independent 14-case load/stop
+support remain intact. This continuation retains **3/8 qualified recovery attempts**,
+five negatives, one native guard diagnostic and one CUDA preparation allocation.
+All nine native attempts stop safely. The new data add **1,287 positive commands
+and overlapping windows**, yielding **129 train plus eight unchanged development
+records** with the original 112-source normalization. Every error/nonexpert prefix
+remains actual context and is excluded from targets; the CUDA temporal consumer
+checks genuine four-second history and actually applied targets.
 
-The subsequent bounded [[experiments/act-a1-failure-diagnosis|causal diagnosis]]
-reproduces every saved 61k query exactly and compares 61k/75k on identical scoped
-offline cases. Early learned drift precedes both refusals. Right robust contact
-plausibility starts its timer during a learned pause; left lacks 0.770 mrad of
-prospective shoulder-Z support at the required 10 N load, without a measured
-collision. The guards and physical limits remain unchanged.
+The guard replays all **428 saved right ACT requests exactly** and stops continued
+unresolved search at **3.000 s active / 3.367 s raw**, with no contact or violation.
+Bounded changing-target pauses, settling, creep and travel/response boundaries
+also pass proportionate numerical checks. A same-clock diagnostic label is fixed;
+the underlying search clock and 3 s/30 mm budgets remain unchanged.
 
-Exactly two new native phase diagnostics use live reconstructed history and fixed
-reference staging. Right issues 107 learned commands, reaches one valid physical
-contact interval and stops at 14.199 N estimated force upper (13.763 N native
-impact), beyond the verified 10 N stop-load domain. Left issues 600 learned commands,
-retains valid contact for 10 s and adds 10.471 deg before the declared horizon.
-Both recordings and independent 2+4 s stops pass, without physical violations.
-These are phase results; neither qualifies as a full learned completion. The
-conditional third case is not needed and is not allocated.
+**No learned improvement is demonstrated.** The original final fresh pair remains
+**0/2**, cumulative learned completion **0/22**, and checkpoint 61k stays selected
+from the completed principal seed's 75k ceiling. Earlier causal diagnosis, native
+phase results, negative impacts, failed allocations and all original denominators
+remain preserved in [[experiments/act-a1-first-completion]] and
+[[experiments/act-a1-failure-diagnosis]]. Reference contact subtasks are not complete
+learned opening/hold/release. Two new late starts share one saved failure trajectory;
+the widest case is separately controlled, with no held-out or hardware claim.
 
-The subsequent [[experiments/approach-contact-corrections|approach/contact correction task]]
-closes **partially**. Fifteen native collection attempts yield **12 physically and
-temporally qualified expert sources**, with all three negatives preserved. They add
-4,852 windows and 3,998 positive corrective commands; broad data now retain **126 train
-plus eight development records**, with original 112-source normalization unchanged.
-No injected-error command enters positive supervision. Early corrective coverage
-improves; later left posture/velocity mismatch remains.
+Current accounting is **44.9307 local/31.8231 remote GPUh**, **1023.97 GiB retained**
+and **198,773 cumulative updates** including historical uncertainty. This task adds
+0.6757 local GPUh, about 8.08 GiB and zero updates or learned evaluations. All
+allocations finish; the GPU lease is released. Caps remain 48/32 GPUh, 1126.4 GiB
+and 200k updates; remaining update allowance is 1,227.
 
-The optional pause-aware active-search clock passes the two declared train-door
-reference checks with sustained native contact, force below the unchanged 10 N
-stopping domain, zero physical violations and passing independent stops. Fourteen
-independent robot-only load/stop cases support a separate upper shoulder-Z/wrist-X
-empirical extension with frozen residual and stopping bounds. The original 13.763 N
-right impact stays outside the verified domain; lower-force expert entry is reference
-evidence, not learned improvement.
-
-The **combined operational package is not refinement-ready**. With expanded position
-support, the widest left reference is refused during its excluded orientation-error
-prefix. A positive-return-only activation with fresh real inspection is refused
-before command one because the positive UMI finger's sweep/stop volume lacks observed
-support. Both stop safely without physical violations. No guard is relaxed to admit
-unknown/occupied geometry. Exact scope and failed activation context are in the
-experiment's `closeout-decision.json`.
-
-Current accounting is **44.2550 local/31.8231 remote GPUh**, **198,773 optimizer
-updates** including failed-run uncertainty, and **1015.89 GiB retained**. This task
-adds zero updates and zero learned evaluations. Its ledger preserves 15 collection
-allocations, 13 reference allocations (11 reports/two unavailable startups), four
-independent panels with 14 cases and two CUDA preparation allocations. The earlier
-63 native attempts, full learned **0/22** and final **0/2** remain separate historical
-counts. All allocations end; the shared GPU lease is released. Caps stay 48/32 GPUh,
-200k updates and 1126.4 GiB. The development panel and final test stay unopened.
-
-Next: bounded observation/sweep/stop qualification at activation of the widest left
-positive return, preserving genuine history and existing force/orientation/space
-gates. Promote the combined recipe only after an admitted positive recovery.
-Refinement needs a separately authorized plan and budget; the training heartbeat
-stays **paused**. No training or learned-policy evaluation is active.
+Next: decide a separately authorized bounded **targeted refinement and matched
+learned verification** plan using the new manifest and qualified operational recipe.
+The scoped expert/data prerequisite is now met; further learning is not automatic.
+Training automation stays **paused**. Development payloads and final test remain
+unopened, and no training or learned-policy evaluation is active.
 
 The earlier component review (2026-10-23) is unchanged: static 6.0B and the
 complete B1 software core are maintained. CAD-free Point2Pose remains implemented but unqualified; Phases 6.0,

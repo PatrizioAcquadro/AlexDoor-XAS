@@ -110,8 +110,9 @@ qualified response envelope. Total elapsed time and measured travel remain
 reported, and force/confirmation, identity, sample continuity and independent
 action/stop checks remain unchanged. Existing
 recipes retain the prior clock. The new clock passes the declared two-door
-reference contact/stop checks; the widest left corrective activation remains
-blocked by observed sweep/stop support. See [[../experiments/approach-contact-corrections]]
+reference contact/stop checks. Saved changing ACT requests also retain bounded
+active search, and genuine-history late-left braking/realignment and the widest
+alignment/retreat/reapproach pass scoped contact/stop qualification. See [[../experiments/approach-contact-corrections]]
 for that separate operational boundary and the independently qualified position
 support. Neither establishes learned behavior.
 

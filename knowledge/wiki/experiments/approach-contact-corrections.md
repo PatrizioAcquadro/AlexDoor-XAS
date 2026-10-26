@@ -1,181 +1,241 @@
 # Approach-to-contact corrections and guards
 
-Status: **partial**. Corrective data and independent position support are qualified;
-the widest left recovery lacks passing combined operational admission. Baseline `d798998`, branch
-`PatrizioAcquadro/b1-policy-pilot`. The main checkout is outside this work.
-See [[act-a1-failure-diagnosis]] for the preceding causal diagnosis.
+Status: **bounded recovery and guard qualification complete**, October 26, 2026.
+Three additional expert recoveries qualify, including the widest left case. No
+learned improvement is demonstrated. Work stays on `PatrizioAcquadro/b1-policy-pilot`
+in the existing worktree, starting this continuation at `5b517ca`; the preceding
+tranche started at `d798998`. The main checkout remains outside this work.
+See [[act-a1-failure-diagnosis]] for the causal diagnosis.
 
-## Question and scope
+## Question and fixed boundaries
 
-Can observation-grounded expert recoveries cover the current ACT approach/contact
-neighborhood, and can proportionate guards admit those recoveries while retaining
-physical, load, geometry and stopping requirements?
+Can observation-grounded expert recovery cover the recorded ACT approach/contact
+neighborhood while the operational system retains physical, load, geometry and
+stopping requirements?
 
-Only the two existing training doors, expert collection and independent guard
-qualification are used. There is no optimizer update, policy inference, checkpoint
-comparison, new door, development payload read or final test. The prior full learned
-result remains **0/22**, final pair **0/2**. Reference subtask contact is separate
-from learned opening, hold and release.
+Only the two existing training doors, saved requests, expert corrections and
+independent guard diagnostics are used. There is no policy inference, optimizer
+update, checkpoint comparison, new door, development payload read or final test.
+Full learned completion remains **0/22**, with the original final pair **0/2**.
+These finite contact subtasks omit complete opening, hold and release; their raw
+full-task reports correctly remain false.
 
-## Corrective data
+The operational 10 N stopping domain, physical 80 N limit, orientation criterion,
+position calibration, speed/acceleration and sweep/stop bounds are unchanged.
+The October 25 independent shoulder/wrist extension is reused without adjustment.
+All native work uses the workstation RTX 4090, 240 Hz physics, 60 Hz control and
+actual head RGB-D. Simulator/evaluator channels never supply policy observations
+or replace observed operational safety evidence.
 
-The initial train-only audit finds 114 sources, 64 with admitted approach/contact
-rows and 2,703 positive corrective commands in 13 sources. Frozen normalization
-remains fitted to the original 112 sources. Posture and velocity distances to
-saved ACT states are descriptive coverage measures, never admission tolerances.
+## Preserved preceding work
 
-The qualified additions comprise 12 native demonstrations: both directions have
-shifted initial posture, early pause, late pause, combined pose return, a near-contact
-return, and an early pause preceded by real common inspection. Near-contact errors
-include 4 mm normal/10 mm tangent displacement and 4 degrees orientation around
-the observed 21 mm separation neighborhood. Returns start at measured tool state;
-the expert slows before contact. Head RGB-D, measured joints/velocities, requested
-and applied targets, native feedback and separate evaluator channels are retained.
-Injected erroneous commands stay in causal history and are excluded from targets.
+The previous tranche retains **12 qualified sources from 15 collection attempts**.
+Both directions include shifted posture, early/late pauses, measured pose return,
+near-contact return and early pause after genuine common inspection. Near-contact
+errors include 4 mm normal/10 mm tangent translation and 4 degrees orientation.
+Injected commands remain causal context and are excluded from targets.
 
-All 12 pass physical and temporal recording qualification, sustained native contact,
-withdrawal/stabilization, and independent 2 s stop plus 4 s continuation. Peak native
-forces are 3.537–6.675 N, inside the unchanged 10 N stop-load domain. The package
-adds **4,852 training windows and 3,998 positive corrective commands**. The final
-manifest retains all original sources: **126 train plus eight development records**.
-It contains 76 sources with admitted approach/contact rows and 6,701 corrective
-commands in 23 sources; no injected-error command is admitted.
+All 12 sources pass physical/temporal recording qualification, sustained contact,
+withdrawal/stabilization and independent 2 s stop plus 4 s continuation. Native
+peak forces are 3.537–6.675 N. They add 4,852 windows and 3,998 positive corrective
+commands, yielding the preserved **126 train plus eight development records**;
+normalization remains fitted to the original 112 sources. The maintained
+prospective position-support API covers these sources with the independently
+qualified calibration.
 
-At the nearest corrective posture, joint-vector distance improves markedly for
-early ACT drift and only modestly for later left drift. The full vector is compared
-at one source state; independent joint extrema are never combined into a fictional
-neighborhood. Residual late-left posture/velocity mismatch remains explicit.
+The three original negatives remain: both initial posture cases miss sustained
+contact, and the original early right pause reaches 0.524655 rad/s during an
+insufficiently timed return. A 29-tick right contact spans only 0.467 s and does
+not satisfy the unchanged 0.5 s endpoint. Their replacement interventions reserve
+1.5 s for recovery and bounded contact endpoint verification, without changing
+acceptance criteria. Short early sources do not invent missing history; two
+common-inspection additions make their actual early corrections usable.
 
-| ACT query | Corrective posture L2 before → after (rad) | Velocity max difference before → after (rad/s) |
-|---|---|---|
-| Right 27.450 s | 0.6050 → 0.0240 | 0.2801 → 0.1531 |
-| Right 29.317 s | 0.0301 → 0.0294 | 0.1228 → 0.0184 |
-| Right 31.600 s | 0.0286 → 0.0271 | 0.1775 → 0.0790 |
-| Left 26.833 s | 0.6541 → 0.0397 | 0.2201 → 0.0468 |
-| Left 28.850 s | 0.0683 → 0.0552 | 0.2735 → 0.0925 |
-| Left 29.183 s | 0.0482 → 0.0476 | 0.1290 → 0.1300 |
+The prior pause-aware fixed-target reference pair qualifies physical contact and
+stopping. Four earlier right clock/stimulus failures remain negative. Fourteen
+independent robot-only cases qualify the upper shoulder-Z/wrist-X position support
+at 10 N, including distal loads, neighboring postures, oblique loads and moving
+stops. Residual/error-model coefficients and original stop bounds are retained.
+The earlier right 13.763 N impact remains outside the verified stopping domain.
 
-These distances do not establish sufficient learned coverage or improvement.
+## Genuine-history late-left recovery
 
-The maintained temporal consumer was exercised on CUDA without constructing a
-policy or optimizer. Targets require four actual seconds of history plus prior
-delivered-command support. The first short early-pause sources do not admit their
-early return; two additional recordings use the existing common inspection so all
-90 commands of each actual 1.5 s return have sufficient history. Missing history
-is never synthesized. Native head-camera contact images were inspected. Development
-records are retained without reading their payloads, and normalization is not refitted.
+The two targeted starts replay the actual saved ACT A1 requests from common
+inspection to **28.850 s** and **29.183 s**. Every preceding measured q/dq matches
+the saved failure trajectory exactly. Camera, feedback, previous delivered targets,
+servo targets and dynamic state belong to the new continuous native execution;
+there is no posture restoration or inspection at handoff. No checkpoint is loaded.
+All replayed ACT commands are context only, never expert targets.
 
-## Demonstrated failures and expert changes
+The qualified correction brakes on the measured target for 0.4 s, realigns over
+1.5 s, settles for 0.5 s and executes the existing qualified slow contact entry.
+Controller bounding remains active. Supervision uses the targets actually applied,
+including a first wrist target that still lies ahead of measured q because the
+previous servo target cannot change instantaneously; requested zero error is not
+substituted for the delivered command.
 
-There are **15 collection attempts: 12 qualified, three negative**. Both original
-shifted-posture attempts miss the unchanged sustained-contact endpoint. The right
-has only 29 valid ticks spanning 0.467 s, below the required 0.5 s. The original
-early right pause leaves a 61.2 mm backlog for a fixed 0.5 s recovery and reaches
-0.524655 rad/s, beyond the 0.51 rad/s physical criterion. All three negative
-attempts, tails and independent stops remain; none supplies positive supervision.
+| Recovery | Positive commands | Consecutive valid contact | Native peak / observed force upper |
+|---|---:|---|---:|
+| Left 28.850 s | 384 | 77 ticks, 1.267 s clock span | 5.071 / 5.264 N |
+| Left 29.183 s | 384 | 77 ticks, 1.267 s clock span | 5.093 / 5.289 N |
+| Widest left after controlled error | 519 | 77 ticks, 1.267 s clock span | 5.254 / 5.448 N |
 
-The separately declared intervention reserves 1.5 s for pause recovery. A short A
-contact retains its force ramp and may hold at most `sustain_s + contact_force_window_s`
-beyond its nominal phase until the existing endpoint is demonstrated. This repairs
-expert timing and changes no acceptance threshold. Later cases use distinct plans
-and outputs, with complete-run reservations made before native execution.
+Each also has 1.283 s valid control-interval coverage. Qualification uses the
+stricter first-to-last timestamp span, not tick count alone. All three execute
+through ordinary operational guards, have zero physical violations and pass the
+existing independent 2+4 s continuing-physics stop checks.
 
-## Acquisition and load qualification
+The responses address motion as well as posture. Maximum incoming joint speed
+falls from **0.2009→0.0140 rad/s** at the 28.850 s start and
+**0.1334→0.00635 rad/s** at 29.183 s after the 0.4 s brake. In both, shoulder-Z
+velocity reverses toward the supported neighborhood and wrist-X velocity becomes
+small before realignment. Sustained physical contact, force and stopping establish
+an appropriate response; teacher proximity alone does not.
 
-The opt-in active-search clock distinguishes target movement using independent FK
-resolution from bounded target settling using the verified command-response envelope.
-It charges completed control intervals once despite same-clock before/after checks.
-The existing 3 s/30 mm budgets apply to active search; raw time and travel remain
-reported. Default recipes retain the legacy clock. A fixed A1 reference requests
-`held_target - current_q`: repeated zero deltas recenter on measured state and can
-drift. Reference mode loads no policy checkpoint.
+## Widest-left support and recovery disposition
 
-The declared reference pair passes guard criteria at `7c09c05`: right has a 4 s hold,
-888 commands, 2.067 s native contact and 6.833 N native/7.020 N force upper; left has
-a 1 s hold, 708 commands, 2.067 s contact and 5.093/5.289 N. Both independent stops
-pass with zero physical violations and zero learned commands. Raw full-task reports
-remain false because these finite prefixes omit complete opening/hold/release.
+The previous fresh-inspection activation refuses the positive finger's enclosing
+swept/stopping volume with both occupied and unknown support. Its 18.23 mm query
+radius is a conservative envelope, not a measured penetration. A current posture
+plus fresh inspection does not reproduce the original causal observation context.
+The camera views contain substantial finger/material occlusion; no hidden depth
+measurement is fabricated.
 
-Four preceding right clock/stimulus trials fail qualification: charging the prior
-pause at resumption, drift under zero deltas, confusing settling with FK precision,
-and erasing submitted intent at a repeated callback. Their original outcomes and
-safe stops remain. Earlier left controls belong to their own implementation versions.
+The continuation therefore executes the original 384-command error prefix after
+actual common inspection, retaining all intervening images, state, load feedback
+and servo history. This is a **separately declared experimental prefix**: native
+physical checks, observed force upper ≤10 N and the existing speed domain remain
+active, but it has no claim of operational admission and contributes zero expert
+targets. Every positive recovery command then uses the ordinary operational runner.
+There is no state, controller or monitor reset at activation.
 
-A maintained-API audit exposes another boundary: the left near-contact correction
-has 97 near-state rows outside the original wrist-X position support; other left
-returns need prospective 10 N wrist support. A native reference with the original
-calibration refuses at command 331 and stops safely. Physical teacher success alone
-does not establish operational compatibility.
+At the 31.600 s activation, arm q/dq match the original 6.400 s error state exactly.
+Over the actual four-second history, arm q matches exactly and maximum dq difference
+is 7.45e-8 rad/s. Earlier startup and tiny neck differences remain explicit; images
+are actual captures, not imported or claimed pixel-identical. With this genuine
+history, observed sweep support passes, initially with about 0.94 mm margin.
+The fresh-inspection refusal therefore does not establish missing geometry support
+for every recovery from that posture.
 
-Independent robot-only tests therefore apply maintained 10 N loads at the tool center
-and both calibrated distal finger faces, including neighboring postures, oblique loads,
-wrist motion, upper-domain boundaries and stops initialized at wrist velocity ±0.5 rad/s.
-Four shoulder cases and ten wrist cases pass their 2 s stop, 4 s loaded continuation
-and 2 s removed-load checks. Frozen residual bounds have zero exceedances on motion
-and stopped native samples; original joint stop bounds and native feedback checks pass.
+Motion remains a separate issue. A slow return loses robust orientation support;
+a prompt direct return then exhausts the unchanged 30 mm search allowance before
+contact. The qualified expert instead uses **0.25 s linear realignment**, a **1 s
+retreat**, **0.6 s settling**, then the existing nominal slow reapproach. Nominal
+peak joint-target speed is 0.3214 rad/s, inside the unchanged qualified motion domain.
+The retreat reaches observed certain separation at 32.000 s. Only this ordinary
+separation transition ends acquisition; no code directly clears its budget.
+The reapproach reaches sustained valid contact at 38.983 s and completes its
+declared prefix with passing force, physical and independent stop checks.
 
-A separate empirical calibration increases only upper shoulder-Z support from 8.5 to
-12 mrad and upper wrist-X support from 4.25 to 100 mrad, the latter now qualified at
-10 N. Error-model coefficients, main domains, speed/acceleration, stopping bounds,
-physical 80 N limit and operational 10 N domain remain unchanged. Beyond-support and
-above-10 N cases remain refused. The maintained prospective API covers all 12 saved
-corrective sources near the door with this calibration. This is scoped empirical
-support, not arbitrary-state or hardware qualification. The combined operational package remains unqualified for the widest correction.
+This qualifies the named recovery from the retained experimental context. The
+injected error prefix itself remains inadmissible as an operational demonstration.
+It does not qualify arbitrary states, unknown scenes, all observation uncertainty
+or an automatic learned recovery mechanism.
 
-The original right 13.763 N impact remains outside the verified 10 N stopping domain.
-Slow expert entry supplies lower-load examples; it does not grant permission for
-that impact or establish learned deceleration.
+## Targeted data and temporal admission
 
-## Combined operational blocker
+The continuation adds exactly **three train sources, 1,287 positive corrective
+commands and 1,287 overlapping windows**. The union is **129 train plus eight
+unchanged development records**, with all original sources and 112-source
+normalization retained. No failed attempt or nonexpert/injected prefix is admitted.
+The two late starts share one ACT failure trajectory; they are not independent
+learned trials. The widest case is a separate controlled-error experiment.
 
-With the expanded calibration, the whole left reference passes the former position
-refusal but stops at command 353 on `observed_contact_orientation`, during the
-excluded 4-degree injected error, before the positive return. It has no native
-contact or physical violation and passes its independent stop. This protects
-against the deliberately erroneous prefix; it is not itself a recovery test.
+| Saved ACT query | Closest corrective posture L2, before → after | Velocity max difference at that same source state |
+|---|---:|---:|
+| Left 28.850 s | 0.05523 → 0 rad | 0.09251 → 0 rad/s |
+| Left 29.183 s | 0.04756 → 0 rad | 0.12997 → 0 rad/s |
 
-A separate declared activation check starts at the measured 6.4 s error posture,
-performs genuine common inspection and submits only the positive return. Its first
-command is refused by `unsupported_actual_robot_sweep_and_stop`: the positive UMI
-finger's swept/stopping cell has both occupied and unknown support. Zero reference
-or learned commands execute, zero force/physical violations occur, and the independent
-stop passes. This fresh-start observation context differs from the original full
-causal history; the result does not prove every recovery from that posture impossible.
+These are descriptive whole-vector comparisons. Their meaning comes from the
+actual incoming motion, preceding observations, braking response and independently
+qualified contact outcome, not independent joint extrema or window counts.
 
-Two startup failures also remain explicit: an undeclared CLI condition and an
-initializer at the wrist-Z numerical joint boundary. Their original allocations,
-logs and unavailable reports remain. The declared initializer repair moves only
-10 microradians inside the unchanged URDF limit; subsequent targets and acceptance
-criteria do not change. Neither startup is counted as a successful native episode.
+The maintained temporal consumer runs on CUDA without a policy or optimizer.
+Each first positive decision has four actual seconds of history, strictly prior
+delivered-target support and valid sampled image/robot masks. Batches retain
+23 five-channel 240×384 images and 241×32 measured robot values. The first target
+is checked against the actual bounded applied delta. Raw originals stay unchanged;
+small linked source views add review metadata and evaluator-only phase/role labels.
+These annotations never enter observations. Explicit native synchronous simulation
+clocks and healthy/present feedback masks are maintained by the reader; missing
+optional torque remains masked. Native head-camera frames were visually inspected.
 
-Do not promote the combined candidate recipe or declare refinement readiness.
-The next bounded task must establish observed sweep/stop support at activation of
-the widest left positive return, retaining causal history and existing force,
-orientation and space gates. No force increase, unsupported geometry substitution,
-threshold relaxation or automatic training is justified.
+## Changing-request guard qualification
 
-## Evidence, resources and next boundary
+The native right control replays **all 428 saved ACT requests exactly**, including
+exact preceding measured q/dq, before a separately declared continuation repeating
+the final saved requests. No model runs. After three continuation commands, the
+guard stops unresolved search at **3.000 s active / 3.367 s raw**, with
+15.765 mm active / 16.244 mm total travel. Native force is zero, observed upper
+force is 0.509 N, there are no physical violations and independent stopping passes.
+This is successful guard bounding, not successful contact or learned behavior.
 
-All ignored evidence is under
+Ten numerical cases reuse saved motion and isolate clock semantics. Five-second
+bounded changing-target pauses and settling remain supported; cumulative 0.1 mm/s
+creep is charged and stopped, active search reaches its time bound, and a faster
+path reaches the 30 mm bound first. Response-envelope cases just inside/outside
+support retain the distinction. These are deterministic clock tests with controlled
+geometry/load fixtures, not additional native physical successes. The earlier
+fixed-target native pair supplies the physical positive control, complemented by
+the newly executed changing-request and corrective native trajectories.
+
+One demonstrated diagnostic defect is corrected generally: a repeated same-clock
+after-check could display “pause” for an interval already counted as active.
+It now reports the effective interval and provisional pause credit. The underlying
+elapsed/travel accounting, 3 s/30 mm budgets, FK resolution, response envelope,
+force confirmation and all geometry/stop requirements are unchanged.
+
+## Preserved negatives and limits
+
+There are **eight new recovery attempts: three qualified and five negative**, plus
+one native right guard diagnostic and one CUDA preparation allocation. All nine
+native reports and safe stops remain, without physical violations or unavailable
+startups. The five recovery negatives are:
+
+- Velocity-preserving late-left interpolation continues shoulder drift and fails
+  prospective position support after four positive commands.
+- The widest 1.5 s cosine return fails robust orientation after four commands.
+- A 0.4 s cosine return still fails orientation after five commands.
+- A 0.4 s linear direct return fixes orientation but reaches 30.059 mm active
+  travel at 1.7 mm physical separation, before contact, after 174 commands.
+- Reusing that initial 0.4 s alignment before retreat fails after five commands
+  under different actual image uncertainty. It is not accepted as robust support.
+
+Each changed intervention has its own preceding plan and output. The final prompt
+alignment/retreat strategy changes motion, not a threshold. All older failures,
+startup unavailability, original recordings and calibration evidence remain.
+No result establishes learned improvement, hardware qualification or held-out
+generalization; the original right impact limitation remains.
+
+## Evidence, resources and next decision
+
+Earlier evidence remains under
 `outputs/evidence/act-a1-first-completion-20261022/approach-contact-20261025/`.
-Exact plans and reservations precede each intervention; original plans and outcomes
-remain. `broad-plus-corrections-sources-v2.json` is the final data manifest;
-`pipeline-review.json`, `pipeline-review-history.json` and `coverage-final.json`
-establish temporal admission and coverage. `position-support-qualification.json`
-and its four linked independent reviews establish the position-support decision.
-`guard-review.json` records the active-search pair and its finite-prefix scope.
+The continuation is under the sibling **`recovery-guard-20261026/`** directory.
+Its executable handoff consists of:
 
-Local/remote caps remain 48/32 GPUh and retained evidence 1126.4 GiB. The baseline is
-42.733604 local/31.823056 remote GPUh, 996.104 GiB and 198,773 cumulative optimizer
-updates including failed-run uncertainty. Final accounting is **44.2550 local/31.8231 remote GPUh**, **1015.89 GiB retained**
-and **198,773 cumulative updates**. This task uses 1.5214 local GPUh, zero new
-optimizer updates and zero remote allocations. All allocations finish and the
-shared GPU lease is released. The new ledger contains 15 collection allocations,
-13 reference-guard allocations (11 reports plus two unavailable startups), four
-independent panels containing 14 load/stop cases, and two CUDA preparation allocations.
-No original negative result or unavailable outcome is removed. The baseline 63 native
-attempts and full learned 0/22 denominator stay historical and distinct.
-`attempt-ledger.json` and `closeout-decision.json` preserve the final partial decision.
-The training heartbeat stays paused; refinement needs separate authorization.
+- `broad-plus-targeted-recovery-sources.json` and the three prepared sources.
+- `qualified-operational-recipe.json`, retaining every numerical operational setting
+  of the independently supported calibration/search recipe, with current reviews.
+- The three qualified recovery `*-plan.json` records and their command references.
+- `recovery-review.json`, `widest-review.json`, `coverage-response-review.json`,
+  `pipeline-review.json` and `guard-qualification.json`.
+- `attempt-ledger.json` and `closeout-decision.json`, including every negative and
+  the distinction between false full-task reports and qualified contact subtasks.
 
-Implementation commits: `d92fd16`, `f56d3a3`, `9448ede`, `7c09c05`, `d222df7`.
+The October 25 baseline was 44.2550 local/31.8231 remote GPUh and 1015.89 GiB retained.
+This continuation uses **0.6757 local GPUh**, zero remote allocations, zero optimizer
+updates and about **8.08 GiB** additional retained evidence. Cumulative accounting
+is **44.9307 local/31.8231 remote GPUh**, **1023.97 GiB retained** and **198,773 updates**
+including historical failed-run uncertainty. Caps remain 48/32 GPUh, 1126.4 GiB and
+200,000 updates. All allocations finish and the shared GPU lease is released.
+
+The scoped data and operational qualification now justify considering **targeted
+refinement**, requiring a separate authorized plan. Current caps leave 3.0693 local
+GPUh, 0.1769 remote GPUh and 1,227 updates. No training or learned evaluation starts;
+the training heartbeat remains paused, development payloads unread and final test
+sealed. The next decision is a bounded refinement and matched learned verification
+budget, not broader collection or a claim of solved learned manipulation.
+
+Implementation commits: `e6bde1d`, `cd884ae`; earlier tranche: `d92fd16`, `f56d3a3`,
+`9448ede`, `7c09c05`, `d222df7`.
