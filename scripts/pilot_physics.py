@@ -947,6 +947,14 @@ def rollout(env, args, protocol, robot, setup, inspection):
     recording = RolloutWriter(
         args.output / "rollout.hdf5",
         dict(
+            episode_id=args.output.name,
+            asset_id=args.asset_id,
+            split=next(
+                e["split"] for e in protocol["evaluation_panel"] if e["asset_id"] == args.asset_id
+            ),
+            joint_names=list(env.robot.joint_names),
+            clock_semantics="native_synchronous_simulation",
+            sim_dt=env.cfg.sim.dt,
             purpose="operational_reference_diagnostic"
             if reference_mode
             else "observed_prefix_phase_diagnostic"
@@ -972,6 +980,11 @@ def rollout(env, args, protocol, robot, setup, inspection):
         control_dt=io.dt,
         image_period_s=binding.config["encoding"]["period_s"],
         image_compression=None if args.rollout_compression == "none" else args.rollout_compression,
+    )
+    from alexdoor_xas.recording.teacher import simulated_feedback_contract
+
+    recording.file["metadata"].attrs["feedback_contract"] = json.dumps(
+        simulated_feedback_contract(env)
     )
     native_contacts = (args.output / "evaluator-native-contacts.jsonl").open("x")
     evaluator_states = (args.output / "evaluator-control-state.jsonl").open("x")

@@ -214,6 +214,13 @@ validity interval with the 5 m normalization/saturation scale. For a legacy
 simulation file, the explicit `legacy_synchronous=True` declaration acknowledges
 that hardware arrival clocks were never recorded.
 
+Guarded expert reference rollouts can also feed this consumer when their metadata
+explicitly declares `native_synchronous_simulation`. Their actual control and
+capture clocks, measured feedback availability, healthy/present masks and named
+delivered joint targets are preserved. This declaration describes simulator events,
+not hardware timing. An independently reviewed target mask is still required;
+a failed rollout or an executed error prefix is never automatically supervision.
+
 ```python
 cfg = TemporalConfig(depth_interval_m=recorded_depth_interval)
 prepare_temporal(source, prepared, cfg, eligible=reviewed_command_mask,

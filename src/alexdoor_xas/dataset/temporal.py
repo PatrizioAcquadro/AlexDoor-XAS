@@ -130,6 +130,10 @@ def raw_streams(file, config, *, device="cuda:0", image_rows=None, legacy_synchr
     if metadata.get("split") not in ("train", "development"):
         raise ValueError("Only train/development recordings may be prepared")
     native = file.attrs.get("schema") == "b1.temporal-recording.v1"
+    synchronous_rollout = (
+        file.attrs.get("schema") == "b1.policy_rollout.v1"
+        and metadata.get("clock_semantics") == "native_synchronous_simulation"
+    )
     if native:
         image, state = file["captures"], file["control"]
         times, gen = state["acquired"][:], state["generation"][:]
@@ -138,9 +142,13 @@ def raw_streams(file, config, *, device="cuda:0", image_rows=None, legacy_synchr
             image[key][:] for key in ("acquired", "generation", "available")
         )
     else:
-        if not legacy_synchronous or file.attrs.get("schema") not in (
-            "b1.rgbd.v1",
-            "b1.policy_rollout.v1",
+        if not synchronous_rollout and (
+            not legacy_synchronous
+            or file.attrs.get("schema")
+            not in (
+                "b1.rgbd.v1",
+                "b1.policy_rollout.v1",
+            )
         ):
             raise ValueError(
                 "Legacy data require explicit synchronous-simulation clock declaration"
@@ -157,7 +165,7 @@ def raw_streams(file, config, *, device="cuda:0", image_rows=None, legacy_synchr
             else gen[np.searchsorted(times, image_times)]
         )
         image_available = image_times.copy()
-    if image_rows is None and native:
+    if image_rows is None and (native or synchronous_rollout):
         image_rows = np.arange(len(image_times), dtype="i8")
     if image_rows is None:
         # Native captures are already their declared independent cadence. Legacy
@@ -191,7 +199,10 @@ def raw_streams(file, config, *, device="cuda:0", image_rows=None, legacy_synchr
         torque is not None
         and "torque_nm" in torque
         and (
-            (native and verified_feedback(json.loads(file["metadata"].attrs["feedback_contract"])))
+            (
+                (native or synchronous_rollout)
+                and verified_feedback(json.loads(file["metadata"].attrs["feedback_contract"]))
+            )
             or (
                 not native
                 and torque.attrs.get("semantics") == "joint_output"
@@ -214,7 +225,13 @@ def raw_streams(file, config, *, device="cuda:0", image_rows=None, legacy_synchr
             torque["torque_nm"],
             available=torque["available"][:] if native else torque["available_s"][:],
             generation=tau_g,
-            valid=torque["healthy"][:] if native else np.ones(len(tau_t), bool),
+            valid=(
+                torque["healthy"][:] & torque["present"][:]
+                if synchronous_rollout
+                else torque["healthy"][:]
+                if native
+                else np.ones(len(tau_t), bool)
+            ),
         )
     else:
         streams["tau"] = _stream([], np.empty((0, 7)), valid=np.empty(0, bool))
