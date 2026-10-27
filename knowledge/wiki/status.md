@@ -55,8 +55,8 @@ from another directory. No evaluator/reference fields enter policy observations;
 original selections and normalization stay unchanged. Eight new recordings now
 supply 45,556 overlapping windows, not independent demonstrations. Zero new updates.
 
-Twenty-six completed matrix attempts retain eighteen negatives and eight
-qualified sources. Twenty-four have passing terminal 2+4 s stop pairs. D2-P has
+Twenty-seven completed matrix attempts retain nineteen negatives and eight
+qualified sources. Twenty-five have passing terminal 2+4 s stop pairs. Original D2-P has
 only a passing 2 s stop; D1-RV has passing initial stops but unavailable terminal stops/report. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
@@ -95,11 +95,18 @@ and arm perturbations remain. Actual measured joint deltas are -0.05/+0.04 rad
 and the initial tool differs by 47.63 mm from C14's observed reset. The real
 initial image was inspected. This parked proof produces zero corpus labels.
 The first parked camera-initialization failure and its 12.087 GPU seconds remain.
-One distinctly named full follow-up is ready under a case-specific admission
-requiring the exact new setup, independent proof and unchanged global recipe.
-It cannot admit the original setup, another condition, a second retry or absent/
-failed stops. The original missing 4 s stop remains unavailable. Full loaded
-contact, complete cycle, terminal stops, visual and temporal review are still required.
+The distinct full follow-up is now a retained negative: 50.335 degrees recorded
+opening, 154/180 hold intervals (2.567/3 s), no release or stabilization. Raw
+integrity, native feedback and both terminal 2+4 s stops independently pass;
+zero positive labels. The future upper-gripper interval exceeds the main
+empirical position domain by 0.0858 mrad, inside the existing 4.25 mrad halo
+qualified only to 1 N against the required 10 N. The observed contact-free
+stopping margin is negative; this is not evidence of an actual collision.
+A frozen six-case native component bundle will test the actual P hold
+neighborhood and distinct placement before any support adoption or changed
+full retry. D2-DR's qualification and measured servo compensation do not transfer.
+All residual, physical, position, stop and complete-cycle gates remain unchanged.
+The original missing 4 s stop stays unavailable.
 
 D1-RV times out during parked inspection, before approach or any recovery error.
 The perception capture remains at 14.1 s for about 38 minutes, with memory within
@@ -193,8 +200,8 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **7.3104 aggregate GPUh** across 48 completed allocations.
-Retention is 68.95 GiB, with 452.3 GiB physically free. Remaining 20 ordinary and
+Closed cost is **7.7171 aggregate GPUh** across 49 completed allocations.
+Retention is 73.60 GiB, with 447.8 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106–137 GiB additional, or 192 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode

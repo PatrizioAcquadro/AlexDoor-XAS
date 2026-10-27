@@ -130,8 +130,8 @@ from another directory. No evaluator/reference fields enter policy observations;
 original selections and normalization stay unchanged. Eight new recordings now
 supply 45,556 overlapping windows, not independent demonstrations. Zero new updates.
 
-Twenty-six completed matrix attempts retain eighteen negatives and eight
-qualified full-cycle sources. Twenty-four pass both terminal stops. D2-P has only a passing 2 s stop;
+Twenty-seven completed matrix attempts retain nineteen negatives and eight
+qualified full-cycle sources. Twenty-five pass both terminal stops. Original D2-P has only a passing 2 s stop;
 D1-RV has passing initial 2+4 s stops but no terminal stops or final report. D1-H- terminates
 for contact loss or uncertainty after 1,791 guarded commands, with zero positive
 targets. D2-DR preserves continuous native contact and exceeds the minimum opening,
@@ -358,6 +358,36 @@ cycle, terminal-stop, visual and temporal gate before corpus admission. Original
 negative and initialization-failure costs remain; the successful parked probe
 adds 32.314 GPU seconds.
 
+The distinctly named full follow-up now fails during late hold. It records
+50.335 degrees opening and 154 hold intervals (2.567 s of the required 3 s),
+with no release or stabilization. Independent raw/native-feedback and both
+saved terminal 2+4 s stop reviews pass. All 8,741 recorded commands retain
+negative masks and zero eligible/positive windows. The complete exception
+teacher trace is unavailable, so no full native contact reconstruction is
+claimed. The recorded evaluator marks the partial hold loaded/contact-valid;
+that does not establish complete-cycle success or replace missing phases.
+
+The refused future motion interval exceeds the upper-gripper main position
+bound by 0.085833 mrad, inside its existing 4.25 mrad halo. That halo currently
+supports 1 N, below the unchanged 10 N future-stop requirement. Its observed
+contact-free stopping margin is -0.253541 m; this is a conservative refusal,
+not a measured collision. `D2-P-upper-gripper-hold-diagnosis.json` preserves
+the exact packet and the necessary independent intervention. The original
+geometry negative, missing 4 s stop and both parked attempts remain intact.
+
+A separate P-specific six-case native component plan uses the actual first,
+middle and final hold postures and the exact corrected pedestal placement.
+It includes nominal unloaded/10 N controls, interior/full existing halo and
+early/late oblique 10 N cases. Every moving/stopped residual, feedback, speed,
+acceleration, joint-travel and physical gate remains frozen; all eighteen
+2 s loaded/4 s held/2 s force-removed continuations and actual loaded boundary
+coverage must pass before adoption. Twelve adverse adoption-gate cases refuse.
+D2-DR support and its measured servo compensation are not assumed at the new
+P postures. The unchanged 900 s component watchdog is sized against prior
+127 s six-case bundles for the same 75 s simulation schedule, with 155 s
+cleanup. No global recipe or calibration changes before independent review;
+no unchanged full-source retry or positive prefix.
+
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
 Every case selects one tracked candidate yet reproduces unavailable local material
@@ -408,11 +438,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **7.3104 aggregate GPUh** across 48 completed allocations.
-Current retention is 68.95 GiB, entirely local with zero
+Closed cost is **7.7171 aggregate GPUh** across 49 completed allocations.
+Current retention is 73.60 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is ready after independent parked qualification; N08 full RV is admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its P-specific component qualification is next. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -583,7 +613,7 @@ that reviewed timing difference and continues to reject physical/controller or
 success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
-cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 68.95 GiB, with 452.29 GiB physically free.
+cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 73.60 GiB, with 447.80 GiB physically free.
 Remaining 20 ordinary and 6 recovery conditions project 106–137 GiB additional,
 or 192 GiB at their physics budgets. The existing 24 GiB episode reserve and
 3.49 GiB protected headroom fit. All current failures and diagnostics are included;
