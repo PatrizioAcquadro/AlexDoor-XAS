@@ -104,16 +104,23 @@ observed contact-free stopping bound is negative. No contact, complete error,
 brake or return occurs. Both terminal 2+4 s stops and raw/native-feedback integrity
 pass; zero labels. This refusal does not establish an actual collision.
 
-Before any changed RV follow-up, a frozen six-case robot-only component bundle
-will test the existing lower-elbow halo at 10 N in the saved approach neighborhood.
-It includes unloaded/loaded nominal, interior, boundary and early/late oblique
-boundary cases. Adoption requires actual loaded coverage of the full existing
-halo and all moving/stopped feedback, frozen residuals, velocity/acceleration,
-physical and 18 stop continuations to pass independently. The candidate changes
-only the local force-domain support from 1 to 10 N if qualified; q ranges,
-position tolerances, residuals, stops, controller and success gates stay frozen.
-Active calibration is unchanged; no full retry is queued. The prior late-pause
-hold refusal and all original failures remain distinct negative evidence.
+The first six-case lower-elbow component bundle completes, and every frozen
+physical, residual, feedback, speed/acceleration and all 18 stop continuations
+passes. Its candidate nevertheless remains rejected: the early oblique case
+reaches only -2.306840 rad under 10 N, short of the -2.309761 rad boundary.
+The other boundary cases cover the existing 4.25 mrad halo. A commanded target
+alone does not establish actual loaded coverage; active calibration stays unchanged.
+
+The deficient case has a measured -3.234 mrad target-minus-position offset under
+steady load. A corrected frozen bundle compensates only that case's elbow command
+by this measured offset and repeats the other five cases as declared controls.
+The required boundary, force, durations, motion, frozen model and physical/stop
+thresholds remain identical. Every case and charge from the first rejection stays
+in the denominator. No full RV retry or support adoption occurs before all native
+coverage and safety gates independently pass. Any qualified force-domain change
+would remain limited to the saved RV approach neighborhood, with no broader
+posture, door or hardware claim. The partial RP hold and original RV negatives
+remain excluded from complete demonstrations.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -141,7 +148,7 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **6.7688 aggregate GPUh** across 43 completed allocations.
+Closed cost is **6.8030 aggregate GPUh** across 44 completed allocations.
 Retention is 63.77 GiB, with 457.5 GiB physically free. Remaining 20 ordinary and
 7 recovery conditions project 101–141 GiB additional, or 197 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
