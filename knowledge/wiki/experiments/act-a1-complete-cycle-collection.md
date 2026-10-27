@@ -64,8 +64,8 @@ Six actual phase images and4,879 temporal windows pass, reusing the already CUDA
 frames through CPU metadata preparation. Its native allocation costs1,058.234 s;
 no additional GPU preparation is needed. Five new recordings now supply **25,413 windows**.
 
-Eleven completed new matrix collection attempts retain six negatives and five
-qualified full cycles; all eleven pass both independent stops. D1-H- terminates for
+Thirteen completed new matrix collection attempts retain eight negatives and five
+qualified full cycles; all thirteen pass both independent stops. D1-H- terminates for
 contact loss or uncertainty after 1,791 guarded commands, with zero positive targets.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
@@ -85,11 +85,22 @@ fails, retaining conditioning, identity, ambiguity and missing-support gates.
 Regression scenarios cover nominal geometry, relief on either side and absent
 material. The correction is installed and committed as `8aadab9` only after D1-DR terminates
 and returns its GPU. Production geometry/session regressions pass. One distinctly
-named full `D3-N-material-query` is queued behind a separate VLA interval; native
-qualification remains pending. No physical threshold or uncertainty bound is relaxed.
+named full `D3-N-material-query` exercises four actual expansions and recovers
+available selected-material support with native pose unchanged. Its unchanged
+whole-robot sweep/stop guard then refuses the first manipulation action; the full
+source remains negative with both independent stops passing and zero eligible
+commands. D3 and D4 background-only CPU queries are free at their refused spheres,
+but exclude current foreground and do not establish full action admission. No
+physical threshold or uncertainty bound is relaxed.
 
-Completed cost is **3.0899 aggregate GPUh** (2.1564 local / 0.9335 Blackwell)
-across 25 allocations. Retention is31.32 GiB including replicas. Exact accounting
+The independent D1-P placement/posture attempt admits 137 approach commands,
+then refuses insufficient local action margin before contact. Its retained raw
+stream has complete native feedback and passes integrity review; both independent
+stops pass. It supplies zero positive windows. The next original-recipe D2-H+
+source is owner-gated behind a fresh VLA interval and healthy episode cleanup.
+
+Completed cost is **3.2255 aggregate GPUh** (2.2920 local / 0.9335 Blackwell)
+across 27 allocations. Retention is32.87 GiB including replicas. Exact accounting
 is in `resources.json`; waiting is uncharged. All failed allocations and original
 source outcomes remain preserved. Training, normalization and historical selections
 are unchanged.

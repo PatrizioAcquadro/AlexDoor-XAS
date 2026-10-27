@@ -15,24 +15,27 @@ gates. These five
 recordings supply **25,413 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Eleven completed new matrix collection attempts retain six negatives and five
-qualified cycles. All eleven pass both independent stops. D1-H- stops for contact loss or
-uncertainty. D4's observed-sweep support remains unresolved. The new D3 ingress
-diagnostic finds a local-surface material inconsistency before approach; exact
-calibration/depth disagreement is not reproduced. No favorable retry is queued.
-The fixed six-case D3 replay reproduces local-surface material inconsistency
-for both RGB streams and all tested reset/cadence variants. Native pose retains
-63–64 depth-supported reference points; the local correction retains zero.
-CPU review still finds 3,996–3,998 of the original 4,000 material points visible.
-The local query currently exposes only the dominant plane; relief can hide the
-selected material from that query. The expanded-query correction is installed and locally committed after D1-DR
-finishes, with geometry/session regressions and absent-support refusals passing.
-One distinctly named full D3 follow-up is queued for its next agreed window;
-native repair qualification remains pending.
+Thirteen completed new matrix collection attempts retain eight negatives and five
+qualified cycles; all thirteen pass both independent stop continuations. D1-H-
+stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
+insufficient local action margin, before contact. Both retain zero positive labels.
+D3 and D4 remain unqualified because current observed robot sweep/stop support is
+unavailable. Their background-only CPU queries are free; those diagnoses exclude
+foreground and cannot establish full action admission.
+
+The fixed six-case D3 replay reproduces local material inconsistency across the
+tested RGB/reset/cadence variants. The measured-query correction `8aadab9` then
+exercises four actual query expansions in one distinctly named native follow-up,
+restoring available selected-material support while preserving native pose.
+The unchanged whole-robot guard refuses its initial manipulation sweep. This
+verifies the repaired perception path, with full-task qualification still failed.
+Original failures, physical thresholds and uncertainty bounds remain unchanged.
+The next independent original-recipe D2-H+ source waits for the agreed VLA turn
+and complete episode cleanup; exact ownership remains in the resume handoff.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Completed cost is **3.0899/12 aggregate GPUh** across 25 allocations. Retention is
-31.32/200 GiB including replicas; the common 60-allocation cap includes failures,
+Completed cost is **3.2255/12 aggregate GPUh** across 27 allocations. Retention is
+32.87/200 GiB including replicas; the common 60-allocation cap includes failures,
 diagnostics and preparation. Nine persistent restoration-verified archives resolve
 the initial storage shortage; historical costs are never refunded.
 
