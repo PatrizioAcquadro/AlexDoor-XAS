@@ -247,16 +247,45 @@ stopping blocks dependent execution. No unchanged retry-until-success.
 
 ## Approved resources and storage
 
-The human approved **up to 12 additional aggregate GPU wall-hours, 200 GiB additional
-retained evidence and reversible archival to existing persistent project storage**.
-The native-allocation ceiling is 60, including qualification/diagnostics. A fresh
-resource baseline preserves 44.930708 local / 31.823056 remote GPUh, 198,773
-cumulative historical optimizer updates and approximately 1023.967 GiB retained.
-There are zero new optimizer updates. The later host authorization permits the
-local RTX4090 and Blackwell, alternating with VLA-LEGO and SquadBot-AV. All hosts,
-diagnostics and preparation share the original 12 GPUh / 60 allocation ceiling;
-all retained replicas share 200 GiB. No new allowance or historical refund is
-created by moving hosts.
+The latest direct human authorization removes the cumulative GPU-hour and
+allocation-count ceilings without replacement. Completion requires **all36
+qualified conditions:28 ordinary complete cycles and8 complete recoveries**, with
+independent review, preparation and maintained-reader verification. GPU hours,
+allocations, interruptions and failures remain fully accounted; reaching the
+former12GPUh or60launch values does not stop or gate work. Their former values
+remain historical in `authorization.json`, not active policy.
+
+AlexDoor uses exclusively this workstation's RTX4090 and local storage for new
+data. No new Blackwell job, remote corpus replica, GPU turn or return toVLA is
+allowed. The separate **200GiB retained-storage cap remains active**, alongside
+actual disk headroom, physical safety and scientific admission. The frozen
+baseline remains44.930708 local /31.823056 remote GPUh,198,773 historical optimizer
+updates and approximately1023.967GiB retained. No counter is reset or refunded.
+Training, learned evaluation, development collection and final test remain excluded.
+
+Finite episode watchdogs remain2400wall seconds and240physics seconds, with the
+existing3s physical-motion stall guard and65s termination/90s cleanup reserve.
+They are individual episode/stall bounds, not cumulative compute ceilings. Four
+qualified local cycles give a slowest measured9.53wall seconds per accounted
+physics second: the full240s physics budget projects2287s, within the current wall
+watchdog. Future changes to legitimate phase duration or measured throughput
+require evidence-based watchdog sizing before launch; the current healthy episode
+keeps its loaded settings. See `episode-watchdog-review.json`.
+
+`forecast_storage.py` reforecasts after allocation milestones using measured
+cached-frame sources, current retained bytes and actual disk free space. The
+October27,01:20EDT snapshot has39.0GiB retained and145.5GiB physically free.
+Completing the remaining21ordinary and8recovery conditions projects about
+**121–170GiB total** under observed-duration scenarios. The full legitimate
+physics-duration scenario projects **227GiB**, exceeding the retained cap by about
+27GiB and requiring about46GiB more physical free space while preserving existing
+headroom. These conditional scenarios include current negative evidence but no
+future failed attempts or diagnostics. They justify an early storage warning,
+not a guarantee or a new admission threshold. Continue independent work within the
+current cap and re-evaluate before a concrete capacity adjustment is needed;
+never wait for a full disk. Cached-frame metadata preparation avoids another image
+copy, and partial/pending source bytes are counted only once. The24GiB per-source
+reserve and physical-disk admission guard remain active.
 
 Initial physical free space was about 3.49 GiB, distinct from the old 102.43 GiB
 logical allowance. The consumer inventory protects current train/development

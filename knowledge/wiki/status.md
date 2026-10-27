@@ -42,18 +42,29 @@ independent stops pass. This source remains negative with zero positive labels.
 New human instructions assign future AlexDoor GPU work and data to the local
 RTX4090 exclusively; VLA uses Blackwell. The final healthy VLA episode has finished and permanent exclusive local ownership
 has transferred. No later alternation is required;
-original resource ceilings and historical remote evidence remain unchanged.
+the storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Completed cost is **3.3664/12 aggregate GPUh** across29 completed allocations; the independent
+Completed cost is **3.3664 aggregate GPUh** across29 completed allocations; the independent
 D2-DL attempt is the30th and running. The pre-launch retention snapshot is
-34.61/200 GiB including replicas; the common 60-allocation cap includes failures,
-diagnostics and preparation. Nine persistent restoration-verified archives resolve
+34.61/200GiB. The latest direct authorization removes cumulative GPU-hour and
+allocation ceilings without replacing them. Completion requires all28 ordinary
+cycles and8 complete recoveries, independently qualified, prepared and verified.
+Costs, failures and denominators remain accounted without resets or refunds. Nine persistent restoration-verified archives resolve
 the initial storage shortage; historical costs are never refunded. The inactive
 Blackwell checkout has also moved to fully verified local storage, with its remote
 copy removed only after verification and no active consumers. Historical GPU
 charges remain. A single15-minute heartbeat continues this chat and ends each
 turn promptly when only healthy background work remains.
+
+The storage forecast currently projects121–170GiB total from observed-duration
+scenarios, against the separate200GiB cap. The full legitimate-duration scenario
+projects227GiB and a physical-space shortfall of about46GiB at its snapshot;
+future failures/diagnostics would add storage. This warning is surfaced before a
+capacity stop; actual retained bytes, physical free space and the24GiB launch
+reserve continue to gate each attempt. Finite episode/stall watchdogs remain,
+sized against legitimate phases and measured runtime; see the campaign resource
+section and `storage-forecast.json`.
 
 Blackwell passes native perception/head-camera/240/60 Hz checks and the fixed
 six-case 10 N loaded transfer bundle, including all 18 stop continuations and
