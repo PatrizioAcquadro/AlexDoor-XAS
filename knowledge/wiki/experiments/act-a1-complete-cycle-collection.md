@@ -507,6 +507,30 @@ order, preserving adaptive cover history and dumping the finite material grid,
 actual footprint and uncertainty sources. No new teacher goal, actuation,
 threshold change, positive label or full-cycle retry is authorized by this replay.
 
+The replay completes in 105.283 charged GPU seconds and independently reproduces
+all 138 admission decisions, sweep margins and uncertainty terms exactly. Small
+self-clearance floating differences peak at 0.069 nanometers; no exact identity
+or new tolerance is claimed. Both finite finger clearances reconstruct directly
+from the 1 mm grid. The limiting lower finger is 55 mm from a zero/excluded grid
+cell at reference tangent coordinates (-0.111, 1.016) m. Actual initial RGB and
+the grid/footprint plot are inspected; this is a support limit near visible
+handle/relief, not evidence of physical collision. All 55 allocations and the
+original missing refused endpoint remain accounted/preserved.
+
+The next private diagnostic tests whether a global normal-depth interval makes
+unrelated local relief unnecessarily affect every grid cell. It adds overlapping
+depth-coherent mask certificates derived only from the already validated measured
+component. Every subset uses the unchanged plane tolerance, full projected depth
+column and raster erosion. Their independently eroded union retains the original
+certificate and global normal-depth range; no semantic/depth hole is filled.
+Six explicit CPU cases preserve nominal/relief support and semantic/depth-hole,
+separate-plane, off-plane and outside-grid refusals; all seven maintained material
+regressions pass. Local relief gains up to 6 mm in those numerical examples.
+This is one frozen observed-only comparison on the same 138 actual proposals,
+with every outcome retained, no factor search, production adoption or actuation.
+Independent review remains necessary even if its margin improves; the 36-cell
+qualification requirements and all original failures stay unchanged.
+
 A separate CPU comparison finds 10 zero-force native hold intervals in failed
 D2-RP, versus 17/12/17/16 in qualified D2-N/DL/V/RV. The field is the maximum
 of four native forces per control interval; zero therefore means all four
@@ -569,11 +593,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **8.2884 aggregate GPUh** across 54 completed allocations.
+Closed cost is **8.3177 aggregate GPUh** across 55 completed allocations.
 Current retention is 78.83 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; finite-material saved-input diagnosis is next. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed and its private depth-coherent comparison is next. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink

@@ -130,8 +130,14 @@ finite finger clearance against 78.306 mm unchanged uncertainty, a 23.720 mm
 deficit. Even an optimistic zero-age arithmetic screen retains a 12.427 mm
 deficit; acquisition cadence alone is insufficient. Original depth, q/dq and
 calibration match, but every RGB frame differs; no causal fix is inferred.
-An exact saved-input replay of these actual proposals will retain the finite
-material grid for diagnosis, with no actuation or full retry.
+The exact saved-input replay now reproduces all 138 admission decisions and
+uncertainty terms. The saved grid independently reproduces both finger margins;
+the limiting zero cell is near the visible handle/relief. No hole is filled and
+no physical collision is inferred. A private diagnostic will test additional
+depth-coherent measured-mask certificates, while retaining the original proof,
+all mask exclusions, global depth range and uncertainty bounds. Seven maintained
+material regressions and six explicit CPU cases pass. Production is unchanged;
+no favorable diagnostic result alone permits a full retry or source admission.
 
 CPU comparison also finds zero-force native intervals in D2-RP and all four
 qualified D2 references; isolated zero intervals do not explain RP's failed
@@ -235,7 +241,7 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **8.2884 aggregate GPUh** across 54 completed allocations.
+Closed cost is **8.3177 aggregate GPUh** across 55 completed allocations.
 Retention is 78.83 GiB, with 442.5 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106.5–137.2 GiB additional, or 192.2 GiB at their physics
 budgets, including estimated future diagnostic-journal overhead. Current negative/component bytes are included; future failures and
