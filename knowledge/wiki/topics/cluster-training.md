@@ -121,3 +121,33 @@ Logs, package lists, checkpoints and the exact availability outcomes are under
 `outputs/generated/nvidia-cluster-readiness-20261022/` locally and corresponding
 qualification directories on each cluster. These local outputs and `TODO.md`
 are ignored by Git. Local commits preserve the canonical documentation only.
+
+## Shared multi-GPU practice
+
+October 26, 2026. Guidance shared with SquadBot and the other robot-learning
+projects; this does not launch work or change this project's approved recipe.
+
+Use the existing PyTorch **DDP/torchrun/NCCL** stack and isolated application
+environment. Before a long run, measure the actual stage on one/two GPUs and
+consider four when batch, memory and timings justify it. Preserve effective global
+batch, episode/chunk semantics, masks, optimizer/sampler/RNG state and update
+budget; do not copy another project's batch or learning rates. Prefer a suitable
+single-node allocation and compare Gautschi H100 versus Gilbreth A100 using queue,
+staging and end-to-end throughput. Parallel independent approved runs can be
+better than extra ranks on a small-batch job. Report wall time and GPU-hours.
+
+For a separately authorized performance task, reuse PyTorch Profiler and existing
+logs; install TensorBoard only if a viewer is needed, in the project environment.
+Use Nsight Systems only for an identified unresolved bottleneck. Preserve the
+shared NVIDIA image and pinned CUDA/PyTorch stack. Do not add DeepSpeed, FSDP,
+Ray, compilation or new kernels without a measured requirement/benefit. Retain
+bounded distributed-gradient/resume validation after consequential changes.
+
+Respect workload ownership and GPU leases; do not stop other projects' jobs.
+GPU training does not qualify the native Isaac rendering path. No dependencies
+were installed, jobs submitted or trainer support claimed by this documentation
+change. The project's existing training implementation remains authoritative.
+
+References: [PyTorch DDP](https://docs.pytorch.org/docs/2.11/generated/torch.nn.parallel.DistributedDataParallel.html),
+[torchrun](https://docs.pytorch.org/docs/2.11/elastic/run.html),
+[Profiler](https://docs.pytorch.org/tutorials/recipes/recipes/profiler_recipe.html).
