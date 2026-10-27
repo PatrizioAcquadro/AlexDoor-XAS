@@ -1,9 +1,9 @@
 # Project Status
 
-## ACT A1 — five new complete-cycle sources; collection continuing
+## ACT A1 — six new complete-cycle sources; collection continuing
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
-**7/36 qualified cells**: C14/C15 reuse plus new D1-H+, D2-V, D1-DL, D1-V and D1-DR cycles.
+**8/36 qualified cells**: C14/C15 reuse plus new D1-H+, D2-V, D1-DL, D1-V, D1-DR and D2-DL cycles.
 D1-H+ reaches 51.86 degrees with a measured 20.02 mm height change; D2-V reaches
 52.54 degrees under its measured 1.1 lighting scale. Both exceed their unchanged
 opening requirements, hold 3 s, release intentionally, stabilize for 2 s and pass
@@ -11,12 +11,13 @@ independent contact/stop reconstruction and visual/temporal review. D1-DL also v
 actual 0.7 panel/handle mass and inertia, 50.28 degrees of controlled opening,
 continuous contact and the full hold/release/stabilization/stops. The first Blackwell D1-V cycle also passes every gate at 50.16 degrees with
 measured lighting scale 0.9. D1-DR verifies mass/inertia1.3, damping6, controlled50.43 degrees and all full-cycle
-gates. These five
-recordings supply **25,413 windows**, retaining four-second history and actual A1
+gates. D2-DL also verifies mass/inertia at 0.7 of nominal, damping 4, 52.54 degrees, uninterrupted
+contact and all full-cycle/native-stop/visual/temporal gates. These six
+recordings supply **33,374 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Fifteen completed new matrix collection attempts retain ten negatives and five
-qualified cycles; all fifteen pass both independent stop continuations. D1-H-
+Sixteen completed new matrix collection attempts retain ten negatives and six
+qualified cycles; all sixteen pass both independent stop continuations. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels.
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
@@ -42,29 +43,31 @@ independent stops pass. This source remains negative with zero positive labels.
 New human instructions assign future AlexDoor GPU work and data to the local
 RTX4090 exclusively; VLA uses Blackwell. The final healthy VLA episode has finished and permanent exclusive local ownership
 has transferred. No later alternation is required;
-the storage/safety gates and historical costs remain unchanged.
+physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Completed cost is **3.3664 aggregate GPUh** across29 completed allocations; the independent
-D2-DL attempt is the30th and running. The pre-launch retention snapshot is
-34.61/200GiB. The latest direct authorization removes cumulative GPU-hour and
-allocation ceilings without replacing them. Completion requires all28 ordinary
-cycles and8 complete recoveries, independently qualified, prepared and verified.
-Costs, failures and denominators remain accounted without resets or refunds. Nine persistent restoration-verified archives resolve
-the initial storage shortage; historical costs are never refunded. The inactive
-Blackwell checkout has also moved to fully verified local storage, with its remote
-copy removed only after verification and no active consumers. Historical GPU
-charges remain. A single15-minute heartbeat continues this chat and ends each
-turn promptly when only healthy background work remains.
+Closed cost is **3.8442 aggregate GPUh** across 30 completed allocations;
+D2-DR is the 31st and running on the local RTX 4090. The 05:41 UTC accounting snapshot
+includes its elapsed charge: 4.0263 GPUh and 41.73 GiB retained locally. Direct human
+authorizations remove cumulative GPU-hour, allocation-count and retained-data
+administrative ceilings without replacement. Completion requires all 28 ordinary
+cycles and 8 complete recoveries, independently qualified, prepared and verified.
+Costs, original data, masks, failures and denominators remain preserved without
+resets or refunds. The former 200 GiB value no longer gates or stops collection.
+Historical restoration-verified archives and the verified local migration remain
+protected. A single 15-minute heartbeat continues this chat and ends each turn
+promptly when only healthy background work remains.
 
-The storage forecast currently projects121–170GiB total from observed-duration
-scenarios, against the separate200GiB cap. The full legitimate-duration scenario
-projects227GiB and a physical-space shortfall of about46GiB at its snapshot;
-future failures/diagnostics would add storage. This warning is surfaced before a
-capacity stop; actual retained bytes, physical free space and the24GiB launch
-reserve continue to gate each attempt. Finite episode/stall watchdogs remain,
-sized against legitimate phases and measured runtime; see the campaign resource
-section and `storage-forecast.json`.
+Physical free space is **428.4 GiB** after the dedicated VLA transfer chat reports
+its first verified removal; its second lot is still in progress. AlexDoor does
+not duplicate those operations or delete scientific/other-project data. The
+remaining 20 ordinary+8 recovery conditions project 105–142 GiB additional under
+observed-duration scenarios, or 202 GiB using the full recorded-physics budget.
+These scenarios fit current capacity with protected headroom; future failures
+and diagnostics add actual bytes. Forecasts guide planning and never become new
+ceilings. The 24 GiB episode reserve plus physical headroom gates each launch.
+Finite episode/stall watchdogs remain sized against legitimate phases and
+measured runtime; see the campaign resource section and `storage-forecast.json`.
 
 Blackwell passes native perception/head-camera/240/60 Hz checks and the fixed
 six-case 10 N loaded transfer bundle, including all 18 stop continuations and
@@ -489,7 +492,7 @@ honest narrower scope. Native diagnostics never become privileged policy inputs.
 The canonical handoff and full report preserve194 campaign attempts,56 failed,
 refused or intentionally negative checks, and two failed CUDA allocations. Charged
 additional GPU workload is9.410130/12h, cumulative upper allocation28.071841/40h;
-additional evidence approximately349.97/400GiB, cumulative910.46/1024GiB. The 220 total
+additional evidence approximately349.97/400GiB, cumulative910.46/1024 GiB. The 220 total
 attempt ceiling is the user's explicit increase; no counter or baseline was reset.
 Collection is closed with no pending workload or blocker for the recorded scopes.
 Unsafe near-boundary recovery starts, global stability, physical hardware and

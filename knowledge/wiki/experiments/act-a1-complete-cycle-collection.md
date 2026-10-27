@@ -7,10 +7,10 @@ Teacher similarity is not the success criterion. This campaign collects and
 prepares data; training, learned evaluation, development collection and final-test
 access are excluded.
 
-## Current result: five new full-cycle sources qualified
+## Current result: six new full-cycle sources qualified
 
-**7/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
-new D1-H+, D2-V, D1-DL, D1-V and D1-DR.** The new source acquires continuous valid native contact, reaches
+**8/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
+new D1-H+, D2-V, D1-DL, D1-V, D1-DR and D2-DL.** The new source acquires continuous valid native contact, reaches
 51.86 degrees against the unchanged 41.01-degree requirement, holds for 3 s,
 intentionally releases and stabilizes for 2 s. Independent saved native-force,
 gap and stop-stream reconstruction reproduces the passing continuity and 2+4 s
@@ -64,8 +64,17 @@ Six actual phase images and4,879 temporal windows pass, reusing the already CUDA
 frames through CPU metadata preparation. Its native allocation costs1,058.234 s;
 no additional GPU preparation is needed. Five new recordings now supply **25,413 windows**.
 
-Fifteen completed new matrix collection attempts retain ten negatives and five
-qualified full cycles; all fifteen pass both independent stops. D1-H- terminates for
+D2-DL now independently qualifies with actual panel/handle mass and inertia at 0.7 of nominal,
+hinge damping 4 and 52.54 degrees against 42.03 required. Continuous native contact,
+all 180 loaded hold intervals, intentional release, stabilization and both saved
+independent stops pass. Native peak is 4.98 N. Six actual phase images and the
+maintained temporal consumer pass, adding 7,961 windows through cached-frame
+metadata preparation. This one recording costs 1,720.151 GPU seconds. Six new
+independent recordings provide **33,374 overlapping windows**; none is a complete
+recovery or learned success.
+
+Sixteen completed new matrix collection attempts retain ten negatives and six
+qualified full cycles; all sixteen pass both independent stops. D1-H- terminates for
 contact loss or uncertainty after 1,791 guarded commands, with zero positive targets.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
@@ -112,20 +121,22 @@ identity and local constraint still available. Both independent saved stops pass
 the source adds zero positive labels. Full native qualification remains failed; see [[../topics/shared-door-perception|measurement scope]].
 
 A directly verified subsequent human instruction assigns all future AlexDoor GPU
-work and newly saved evidence to the local4090, with VLA exclusively on Blackwell.
+work and newly saved evidence to the local RTX 4090, with VLA exclusively on Blackwell.
 The last healthy VLA local episode completes before the verified permanent ownership transfer.
 No later turns or remote AlexDoor allocations are planned. Historical remote data
-and charges remain preserved; all original aggregate limits still apply.
+and charges remain preserved; the newer direct authorization below removes all
+administrative cumulative resource ceilings.
 
-Completed cost is **3.3664 aggregate GPUh** (2.4329 local / 0.9335 historical Blackwell)
-across29 completed allocations. D2-DL is the30th and running independently. The
-pre-launch retention snapshot is34.61 GiB including replicas. Exact accounting
+Closed cost is **3.8442 aggregate GPUh** (2.9107 local /0.9335 historical Blackwell)
+across 30 completed allocations. D2-DR is the 31st, running independently on the
+local RTX 4090. The 05:41 UTC accounting snapshot includes its elapsed charge: 4.0263 GPUh
+and 41.73 GiB retained locally, with zero remote campaign replicas. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
 targets. Its remote copy is removed after verification with zero active consumers;
 shared VLA files remain untouched. See the local-only-migration receipts. Existing
-persistent historical archives remain protected. A single15-minute heartbeat
+persistent historical archives remain protected. A single 15-minute heartbeat
 continues this chat; healthy running work does not cause active polling. All failed allocations and original
 source outcomes remain preserved. Training, normalization and historical selections
 are unchanged.
@@ -169,9 +180,9 @@ retroactively changed.
 
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | C07 candidate | Planned | Planned | Planned | 0.9 | Planned | Planned |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
-| D3 | psx-front-005-ee7d5c6 / right | Unqualified; selection refusal | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
+| D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Planned | Planned |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Planned | Planned | Qualified new | Running | Qualified new;1.1 | Planned | Planned |
+| D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
 
 The machine-readable [matrix](../../../outputs/evidence/act-a1-complete-cycle-20261026/matrix.json)
@@ -247,45 +258,55 @@ stopping blocks dependent execution. No unchanged retry-until-success.
 
 ## Approved resources and storage
 
-The latest direct human authorization removes the cumulative GPU-hour and
-allocation-count ceilings without replacement. Completion requires **all36
-qualified conditions:28 ordinary complete cycles and8 complete recoveries**, with
+The latest direct human authorizations remove the cumulative GPU-hour,
+allocation-count and retained-data administrative ceilings without replacement. Completion requires **all 36
+qualified conditions: 28 ordinary complete cycles and 8 complete recoveries**, with
 independent review, preparation and maintained-reader verification. GPU hours,
 allocations, interruptions and failures remain fully accounted; reaching the
-former12GPUh or60launch values does not stop or gate work. Their former values
+former 12 GPUh, 60 launches or 200 GiB values does not stop or gate work. Their former values
 remain historical in `authorization.json`, not active policy.
 
 AlexDoor uses exclusively this workstation's RTX4090 and local storage for new
-data. No new Blackwell job, remote corpus replica, GPU turn or return toVLA is
-allowed. The separate **200GiB retained-storage cap remains active**, alongside
-actual disk headroom, physical safety and scientific admission. The frozen
-baseline remains44.930708 local /31.823056 remote GPUh,198,773 historical optimizer
-updates and approximately1023.967GiB retained. No counter is reset or refunded.
+data. No new Blackwell job, remote corpus replica, GPU turn or return to VLA is
+allowed. **There is no administrative retained-storage ceiling.** Actual disk
+capacity, adequate per-episode reserves, physical safety and scientific admission
+remain mandatory. Original scientific data, failures, interruptions and masks
+remain preserved; no scientific or other-project data may be deleted without
+specific human authorization. The frozen
+baseline remains 44.930708 local /31.823056 remote GPUh, 198,773 historical optimizer
+updates and approximately 1023.967 GiB retained. No counter is reset or refunded.
 Training, learned evaluation, development collection and final test remain excluded.
 
-Finite episode watchdogs remain2400wall seconds and240physics seconds, with the
-existing3s physical-motion stall guard and65s termination/90s cleanup reserve.
-They are individual episode/stall bounds, not cumulative compute ceilings. Four
-qualified local cycles give a slowest measured9.53wall seconds per accounted
-physics second: the full240s physics budget projects2287s, within the current wall
-watchdog. Future changes to legitimate phase duration or measured throughput
+Finite episode watchdogs remain 2400 wall seconds and 240 physics seconds, with the
+existing 3 s physical-motion stall guard and 65 s termination/90 s cleanup reserve.
+They are individual episode/stall bounds, not cumulative compute ceilings. Five
+qualified local cycles give a slowest measured 10.13 wall seconds per accounted
+physics second. The longest declared phase schedule, including recovery approach
+and independent stops, is 215.9 physics seconds and projects 2186 wall seconds,
+within 2400. The unused 240 s physics watchdog reserve is not the phase schedule. Future changes to legitimate phase duration or measured throughput
 require evidence-based watchdog sizing before launch; the current healthy episode
 keeps its loaded settings. See `episode-watchdog-review.json`.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
 cached-frame sources, current retained bytes and actual disk free space. The
-October27,01:20EDT snapshot has39.0GiB retained and145.5GiB physically free.
-Completing the remaining21ordinary and8recovery conditions projects about
-**121–170GiB total** under observed-duration scenarios. The full legitimate
-physics-duration scenario projects **227GiB**, exceeding the retained cap by about
-27GiB and requiring about46GiB more physical free space while preserving existing
-headroom. These conditional scenarios include current negative evidence but no
-future failed attempts or diagnostics. They justify an early storage warning,
-not a guarantee or a new admission threshold. Continue independent work within the
-current cap and re-evaluate before a concrete capacity adjustment is needed;
-never wait for a full disk. Cached-frame metadata preparation avoids another image
-copy, and partial/pending source bytes are counted only once. The24GiB per-source
-reserve and physical-disk admission guard remain active.
+October 27, 05:41 UTC snapshot has 41.73 GiB retained and 428.39 GiB physically free.
+Completing the remaining 20 ordinary and 8 recovery conditions projects **105–142 GiB
+additional** under observed-duration scenarios, or 147–184 GiB total retained.
+Using the complete 228 s recorded-physics budget projects 202 GiB additional,
+244 GiB total. All scenarios fit the measured physical free space, including the
+existing 3.49 GiB protected headroom. Future failed attempts or diagnostics are not
+predicted; their actual bytes must be added. These conditional forecasts guide
+planning and never become new admission ceilings. Per-source recorded growth
+projects about 7.29 GiB at that budget, within the existing 24 GiB episode reserve.
+Recheck actual growth and physical free capacity before every launch and warn
+with concrete additional GiB before a shortage. Never stop a healthy source for
+the former 200 GiB cap. Cached-frame metadata preparation avoids another image
+copy, and partial/pending source bytes are counted only once.
+
+The separate VLA transfer chat reports its first lot fully verified and removed,
+recovering 285.84 GiB on the filesystem. The second lot remains in progress. This
+campaign only checks those outcomes and current free space; it does not duplicate
+transfer or deletion operations and does not credit uncompleted future removals.
 
 Initial physical free space was about 3.49 GiB, distinct from the old 102.43 GiB
 logical allowance. The consumer inventory protects current train/development
