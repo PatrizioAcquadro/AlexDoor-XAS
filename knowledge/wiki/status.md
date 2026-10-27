@@ -55,8 +55,8 @@ from another directory. No evaluator/reference fields enter policy observations;
 original selections and normalization stay unchanged. Eight new recordings now
 supply 45,556 overlapping windows, not independent demonstrations. Zero new updates.
 
-Twenty-seven completed matrix attempts retain nineteen negatives and eight
-qualified sources. Twenty-five have passing terminal 2+4 s stop pairs. Original D2-P has
+Twenty-eight completed matrix attempts retain twenty negatives and eight
+qualified sources. Twenty-six have passing terminal 2+4 s stop pairs. Original D2-P has
 only a passing 2 s stop; D1-RV has passing initial stops but unavailable terminal stops/report. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
@@ -111,9 +111,18 @@ from 1 to 10 N. Position/tolerance, residual, physical, operational force, stop,
 controller and complete-cycle success bounds remain unchanged; the global
 recipe remains intact. The exact refused packet and boundary now pass, while
 outside position/force and unqualified lower-elbow/height cases still refuse.
-The launcher binds this recipe to D2-P and its qualified setup. One distinct
-full follow-up is ready; full native, visual and temporal qualification remains
-mandatory before any corpus label.
+The launcher binds this recipe to D2-P and its qualified setup. Its full
+follow-up also remains negative: 169/180 hold intervals, no release or
+stabilization. Raw/native-feedback and both terminal stops independently pass;
+zero eligible windows. The future interval reaches 0.698009 rad, exceeding the
+entire qualified position envelope at 0.697730 rad by 0.279 mrad. The qualified
+10 N force cap is not the new deficit. P is blocked pending independently
+validated support for the complete legitimate path, or a separately qualified
+feasible placement preserving its variety; no range loosening or unchanged retry.
+Independent D1-P work now replays original RGB-D/robot observations and two
+actual recorded approach endpoints under the current material implementation.
+This diagnostic has no robot actuation, new teacher source or positive labels;
+the unavailable final refused endpoint is never invented.
 The original missing 4 s stop stays unavailable.
 
 D1-RV times out during parked inspection, before approach or any recovery error.
@@ -208,8 +217,8 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **7.7870 aggregate GPUh** across 51 completed allocations.
-Retention is 73.61 GiB, with 447.8 GiB physically free. Remaining 20 ordinary and
+Closed cost is **8.1940 aggregate GPUh** across 52 completed allocations.
+Retention is 78.27 GiB, with 443.1 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106–137 GiB additional, or 192 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode

@@ -130,8 +130,8 @@ from another directory. No evaluator/reference fields enter policy observations;
 original selections and normalization stay unchanged. Eight new recordings now
 supply 45,556 overlapping windows, not independent demonstrations. Zero new updates.
 
-Twenty-seven completed matrix attempts retain nineteen negatives and eight
-qualified full-cycle sources. Twenty-five pass both terminal stops. Original D2-P has only a passing 2 s stop;
+Twenty-eight completed matrix attempts retain twenty negatives and eight
+qualified full-cycle sources. Twenty-six pass both terminal stops. Original D2-P has only a passing 2 s stop;
 D1-RV has passing initial 2+4 s stops but no terminal stops or final report. D1-H- terminates
 for contact loss or uncertainty after 1,791 guarded commands, with zero positive
 targets. D2-DR preserves continuous native contact and exceeds the minimum opening,
@@ -432,6 +432,34 @@ Independent full native contact/gap/force/phase/stops, actual variety, real
 phase-image review and maintained-reader preparation remain required before
 positive source admission. No partial-prefix or component corpus labels.
 
+The qualified-support full P follow-up also remains negative. It reaches
+169/180 hold intervals (2.817/3 s), records 50.394 degrees opening and has no
+release or stabilization. Independent raw/native-feedback and saved terminal
+2+4 s stop reviews pass. All 8,756 commands remain masked, with zero eligible
+windows; the exception teacher trace/full native contact reconstruction remain
+unavailable. The future gripper upper position is 0.698008971 rad, exceeding
+the complete qualified envelope at 0.697730074 rad by 0.278896 mrad. Its 10 N
+force cap is already qualified. This is a new position-envelope deficit, not a
+reason to enlarge a tolerance or accept the partial hold. See
+`D2-P-outside-qualified-position-diagnosis.json`. A complete legitimate-path
+demand and native loaded/model/stop support study, or an independently qualified
+distinct feasible placement preserving variety, is necessary before any changed
+P follow-up. All three P negatives, twelve component cases and costs remain.
+
+Independent D1-P diagnosis now uses the exact retained 277 RGB-D captures and
+1,662 actual 60 Hz robot states under the current material implementation.
+Two preregistered endpoints are the original bounded applied targets from the
+first/final recorded approach commands (rows 1,524 and 1,660). Native q/dq
+exactly match their observed counterparts. The current motion-evidence producer
+checks those fixed original endpoints; it does not synthesize the unavailable
+final refused command, actuate a robot or simulate an episode. No evaluator,
+door CAD, teacher trace or learned-policy checkpoint enters this diagnostic.
+Both endpoint outcomes, refusals/unavailable states and all charges are retained.
+The 900 s watchdog covers the same 277 frames as the completed 222.831 s native
+source, without physics and with only two motion checks, plus 155 s cleanup.
+This is acquisition diagnosis only: no physical success or corpus eligibility
+follows from a favorable saved-input result.
+
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
 Every case selects one tracked candidate yet reproduces unavailable local material
@@ -482,11 +510,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **7.7870 aggregate GPUh** across 51 completed allocations.
-Current retention is 73.61 GiB, entirely local with zero
+Closed cost is **8.1940 aggregate GPUh** across 52 completed allocations.
+Current retention is 78.27 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support P-specific full follow-up is ready. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; independent D1-P saved-input diagnosis is next. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -657,7 +685,7 @@ that reviewed timing difference and continues to reject physical/controller or
 success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
-cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 73.61 GiB, with 447.76 GiB physically free.
+cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 78.27 GiB, with 443.07 GiB physically free.
 Remaining 20 ordinary and 6 recovery conditions project 106–137 GiB additional,
 or 192 GiB at their physics budgets. The existing 24 GiB episode reserve and
 3.49 GiB protected headroom fit. All current failures and diagnostics are included;
