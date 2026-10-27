@@ -16,10 +16,15 @@ contact and all full-cycle/native-stop/visual/temporal gates. These six
 recordings supply **33,374 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Sixteen completed new matrix collection attempts retain ten negatives and six
-qualified cycles; all sixteen pass both independent stop continuations. D1-H-
+Seventeen completed new matrix collection attempts retain eleven negatives and six
+qualified cycles; all seventeen pass both independent stop continuations. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
-insufficient local action margin, before contact. Both retain zero positive labels.
+insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
+also remains negative: its original 150 s push budget expires during continuous
+loaded progress, leaving no hold phase. Independent raw/native contact and both
+stops pass. A justified push-budget extension requires full phase/watchdog/storage
+review before any changed follow-up; the endpoint and physical/scientific gates
+stay unchanged. The previously unexecuted D2-H- proceeds independently.
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
 foreground and cannot establish full action admission.
@@ -46,28 +51,27 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **3.8442 aggregate GPUh** across 30 completed allocations;
-D2-DR is the 31st and running on the local RTX 4090. The 05:41 UTC accounting snapshot
-includes its elapsed charge: 4.0263 GPUh and 41.73 GiB retained locally. Direct human
+Closed cost is **4.4180 aggregate GPUh** across 31 completed allocations;
+D2-H- is the 32nd and running on the local RTX 4090. At 06:19 UTC, elapsed
+accounting is 4.4375 GPUh and 45.92 GiB retained locally. Direct human
 authorizations remove cumulative GPU-hour, allocation-count and retained-data
 administrative ceilings without replacement. Completion requires all 28 ordinary
 cycles and 8 complete recoveries, independently qualified, prepared and verified.
 Costs, original data, masks, failures and denominators remain preserved without
 resets or refunds. The former 200 GiB value no longer gates or stops collection.
-Historical restoration-verified archives and the verified local migration remain
-protected. A single 15-minute heartbeat continues this chat and ends each turn
-promptly when only healthy background work remains.
+A single 15-minute heartbeat continues this chat and ends each turn promptly when
+only healthy background work remains.
 
-Physical free space is **428.4 GiB** after the dedicated VLA transfer chat reports
-its first verified removal; its second lot is still in progress. AlexDoor does
-not duplicate those operations or delete scientific/other-project data. The
-remaining 20 ordinary+8 recovery conditions project 105–142 GiB additional under
-observed-duration scenarios, or 202 GiB using the full recorded-physics budget.
-These scenarios fit current capacity with protected headroom; future failures
-and diagnostics add actual bytes. Forecasts guide planning and never become new
-ceilings. The 24 GiB episode reserve plus physical headroom gates each launch.
-Finite episode/stall watchdogs remain sized against legitimate phases and
-measured runtime; see the campaign resource section and `storage-forecast.json`.
+Physical free space is **472.1 GiB**. The dedicated VLA transfer chat confirms
+both lots verified and removed, recovering 333.79 GiB; AlexDoor performs no
+duplicate operations or scientific/other-project deletion. The remaining 20
+ordinary and 8 recovery conditions project 107–144 GiB additional under observed
+durations, or 204 GiB using the full recorded-physics budget. These scenarios
+include current negatives and fit current physical capacity; future failures and
+diagnostics add actual bytes. Forecasts guide planning and never become ceilings.
+The 24 GiB episode reserve plus physical headroom gates each launch. Finite
+watchdogs remain sized against legitimate phases and measured runtime; see the
+campaign resource section and `storage-forecast.json`.
 
 Blackwell passes native perception/head-camera/240/60 Hz checks and the fixed
 six-case 10 N loaded transfer bundle, including all 18 stop continuations and

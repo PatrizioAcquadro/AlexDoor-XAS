@@ -73,9 +73,27 @@ metadata preparation. This one recording costs 1,720.151 GPU seconds. Six new
 independent recordings provide **33,374 overlapping windows**; none is a complete
 recovery or learned success.
 
-Sixteen completed new matrix collection attempts retain ten negatives and six
-qualified full cycles; all sixteen pass both independent stops. D1-H- terminates for
-contact loss or uncertainty after 1,791 guarded commands, with zero positive targets.
+Seventeen completed new matrix collection attempts retain eleven negatives and six
+qualified full cycles; all seventeen pass both independent stops. D1-H- terminates
+for contact loss or uncertainty after 1,791 guarded commands, with zero positive
+targets. D2-DR preserves continuous native contact and exceeds the minimum opening,
+but exhausts its original 150 s push budget without any hold commands. It remains
+a full negative with zero eligible windows. Its final push angle is 48.59 degrees,
+with 0.217 degrees/s measured progress over the preceding 20 s. Release,
+stabilization, raw feedback integrity and independent 2+4 s stops pass; native
+peak is 5.13 N and there are no physical violations. The allocation costs
+2,065.835 GPU seconds and does not exhaust the wall or physics watchdog.
+
+The required intervention is a justified larger push-duration budget, reviewed
+together with the complete phase schedule, watchdogs and storage. Projecting the
+recent speed to the light-dynamics source's exit angle suggests about 18 extra
+push seconds, but does not prove the eventual DR exit or success. Keep the
+original native exit criterion and all opening/hold/release/stabilization gates;
+do not shorten the endpoint or retry unchanged. D2-DR remains blocked pending
+that concrete budget review while the unexecuted D2-H- condition proceeds with
+its original recipe. The offline native audit now represents an absent hold as
+missing and invalid; every audit field of the already qualified D2-DL reproduces
+exactly after this correction.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
@@ -127,10 +145,10 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **3.8442 aggregate GPUh** (2.9107 local /0.9335 historical Blackwell)
-across 30 completed allocations. D2-DR is the 31st, running independently on the
-local RTX 4090. The 05:41 UTC accounting snapshot includes its elapsed charge: 4.0263 GPUh
-and 41.73 GiB retained locally, with zero remote campaign replicas. Exact accounting
+Closed cost is **4.4180 aggregate GPUh** (3.4845 local /0.9335 historical Blackwell)
+across 31 completed allocations. D2-H- is the 32nd, running independently on the
+local RTX 4090. The 06:19 UTC accounting snapshot includes its elapsed charge:
+4.4375 GPUh and 45.92 GiB retained locally, with zero remote campaign replicas. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -181,7 +199,7 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Planned | Planned |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Planned | Planned | Qualified new | Running | Qualified new;1.1 | Planned | Planned |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Running | Planned | Qualified new | Unqualified; push budget, no hold | Qualified new;1.1 | Planned | Planned |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
 
@@ -289,24 +307,26 @@ keeps its loaded settings. See `episode-watchdog-review.json`.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
 cached-frame sources, current retained bytes and actual disk free space. The
-October 27, 05:41 UTC snapshot has 41.73 GiB retained and 428.39 GiB physically free.
-Completing the remaining 20 ordinary and 8 recovery conditions projects **105–142 GiB
-additional** under observed-duration scenarios, or 147–184 GiB total retained.
-Using the complete 228 s recorded-physics budget projects 202 GiB additional,
-244 GiB total. All scenarios fit the measured physical free space, including the
-existing 3.49 GiB protected headroom. Future failed attempts or diagnostics are not
-predicted; their actual bytes must be added. These conditional forecasts guide
-planning and never become new admission ceilings. Per-source recorded growth
-projects about 7.29 GiB at that budget, within the existing 24 GiB episode reserve.
-Recheck actual growth and physical free capacity before every launch and warn
-with concrete additional GiB before a shortage. Never stop a healthy source for
-the former 200 GiB cap. Cached-frame metadata preparation avoids another image
-copy, and partial/pending source bytes are counted only once.
+October 27, 06:19 UTC snapshot has 45.92 GiB retained and 472.11 GiB physically free.
+Completing the remaining 20 ordinary and 8 recovery conditions projects about
+**107–144 GiB additional** under observed-duration scenarios, or 153–190 GiB total.
+Using the complete 228 s recorded-physics budget projects 204 GiB additional,
+250 GiB total. These scenarios fit current capacity with 3.49 GiB protected
+headroom. They include the retained D2-DR negative; future failed attempts and
+diagnostics are not predicted and add actual bytes. These forecasts guide
+planning and never become admission ceilings. Current measured growth projects
+7.29 GiB per source at that budget, within the 24 GiB episode reserve. Recheck
+actual growth and free capacity before every launch and warn with concrete
+additional GiB before a shortage. A future longer legitimate recipe must update
+its watchdog and storage forecast together. Never stop a healthy source for the
+former 200 GiB cap. Cached-frame metadata preparation avoids another image copy,
+and partial/pending source bytes are counted only once.
 
-The separate VLA transfer chat reports its first lot fully verified and removed,
-recovering 285.84 GiB on the filesystem. The second lot remains in progress. This
-campaign only checks those outcomes and current free space; it does not duplicate
-transfer or deletion operations and does not credit uncompleted future removals.
+The dedicated VLA transfer chat confirms both authorized lots fully verified and
+removed: 618,924 files preserve hashes, sizes, structure and metadata, and native
+reader checks pass. It reports 333.79 GiB recovered on the filesystem. AlexDoor
+only verifies those outcomes and actual current free space; it performs no
+duplicate transfer or deletion. All other data remain protected.
 
 Initial physical free space was about 3.49 GiB, distinct from the old 102.43 GiB
 logical allowance. The consumer inventory protects current train/development
