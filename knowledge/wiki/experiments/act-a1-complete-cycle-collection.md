@@ -102,8 +102,8 @@ reader also passes from a different working directory. N07 is one independent
 complete recovery recording, never 4,110 demonstrations. Seven new recordings now
 supply 37,484 windows; zero new optimizer updates and no learned-success claim.
 
-Twenty-three completed matrix attempts retain sixteen negatives and seven
-qualified full-cycle sources. Twenty-one pass both terminal stops. D2-P has only a passing 2 s stop;
+Twenty-four completed matrix attempts retain seventeen negatives and seven
+qualified full-cycle sources. Twenty-two pass both terminal stops. D2-P has only a passing 2 s stop;
 D1-RV has passing initial 2+4 s stops but no terminal stops or final report. D1-H- terminates
 for contact loss or uncertainty after 1,791 guarded commands, with zero positive
 targets. D2-DR preserves continuous native contact and exceeds the minimum opening,
@@ -240,14 +240,30 @@ or qualify a scientific cycle. No original recording, missing stop or denominato
 is replaced. Regular per-condition watchdogs and all physical/scientific gates
 are unchanged.
 
-The original D1-RP independently qualifies as described above. The original
-unexecuted D2-RP is the next independent recovery condition. Its
-existing agreed definition is a late pause during approach seconds 4.1–5.3 and a
-1.5 s measured-origin return, within the 7.5 s approach. The older 18 mm shortfall
-proposal stays in superseded metadata; no measured shortfall is claimed. Matrix,
-active correction and launch readiness agree, while stale metadata refuses.
-Actual guarded history/error/velocity, complete native cycle/stops and subsequent
-visual/temporal qualification remain pending. D1-RV stays negative and is not
+The original D1-RP independently qualifies as described above.
+
+D2-RP is a retained negative. The guarded late-pause prefix executes, but the
+full attempt stops after 161 hold intervals (2.683 s of the required 3 s), with
+52.590 degrees recorded opening and no release or stabilization. Independently
+reconstructing the 24 native load-bound samples over the final 0.1 s gives
+-0.000431 N, reproducing the strict-positive contact-load refusal. Physical loss
+versus uncertain indirect support remains unresolved; the preceding evaluator's
+loaded/contact-valid hold does not establish completion. Both saved terminal
+2+4 s stops, raw integrity and native feedback coverage pass. The exception's
+teacher trace is unavailable; zero labels and no unchanged retry. A concrete
+support/hold-path diagnosis and independent validation are required before a
+changed follow-up, with contact and hold thresholds unchanged.
+
+The independent original D2-RV is implementation-ready under its existing agreed
+15 mm/0.04 rad approach disturbance at 3.2–3.8 s, a 0.4 s measured-origin brake
+and 1.5 s return within the 7.5 s approach. The stale relative-joint proposal is
+preserved as superseded metadata. Active matrix/protocol/launcher checks agree
+and reject that stale proposal. This is a different unexecuted condition, using
+the unchanged global recipe; actual error/velocity, full cycle, native stops,
+real images and temporal-reader qualification remain pending. RV admission
+requires its own independent measured-history review.
+
+D1-RV stays negative and is not
 retried unchanged.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
@@ -300,11 +316,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **6.2630 aggregate GPUh** across 41 completed allocations.
-Current retention is 58.04 GiB, entirely local with zero
+Closed cost is **6.6999 aggregate GPUh** across 42 completed allocations.
+Current retention is 62.82 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The next independent collection is D2-RP. Exact accounting
+teardown. The next independent original collection is D2-RV. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -355,7 +371,7 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Unqualified; inspection timeout | Qualified new complete recovery |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Unqualified; pedestal/frame intersection | Qualified new | Three negatives; acquisition-stroke block | Qualified new;1.1 | Planned | Planned |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Unqualified; pedestal/frame intersection | Qualified new | Three negatives; acquisition-stroke block | Qualified new;1.1 | Ready; native qualification pending | Unqualified; contact-load refusal during hold |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
 
@@ -475,7 +491,7 @@ that reviewed timing difference and continues to reject physical/controller or
 success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
-cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 58.04 GiB, with 463.32 GiB physically free.
+cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 62.82 GiB, with 458.51 GiB physically free.
 Remaining 20 ordinary and 7 recovery conditions project 101–141 GiB additional,
 or 197 GiB at their physics budgets. The existing 24 GiB episode reserve and
 3.49 GiB protected headroom fit. All current failures and diagnostics are included;

@@ -27,8 +27,8 @@ including 313 corrective windows: all 72 injected commands remain strictly past
 observed history and are excluded from every target chunk. This is one complete
 recovery demonstration, with zero optimizer updates or learned-success claim.
 
-Twenty-three completed matrix attempts retain sixteen negatives and seven
-qualified sources. Twenty-one have passing terminal 2+4 s stop pairs. D2-P has
+Twenty-four completed matrix attempts retain seventeen negatives and seven
+qualified sources. Twenty-two have passing terminal 2+4 s stop pairs. D2-P has
 only a passing 2 s stop; D1-RV has passing initial stops but unavailable terminal stops/report. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
@@ -82,8 +82,28 @@ now interrupts a controlled 90 s pending inference through the episode watchdog.
 Both 2+4 s stops and the negative report are durable 25.668 s before that worker
 returns; full process cleanup and raw integrity pass. This validates the failure
 handling change without qualifying a recovery or resolving the original stall.
-The original missing stops remain unavailable. The independent original D2-RP
-late-pause condition is next on this validated runtime.
+The original missing stops remain unavailable.
+
+D2-RP is a retained negative. The guarded late-pause prefix executes, but the
+full attempt stops after 161 hold intervals (2.683 s of the required 3 s), with
+52.590 degrees recorded opening and no release or stabilization. Independently
+reconstructing the 24 native load-bound samples over the final 0.1 s gives
+-0.000431 N, reproducing the strict-positive contact-load refusal. Physical loss
+versus uncertain indirect support remains unresolved; the preceding evaluator's
+loaded/contact-valid hold does not establish completion. Both saved terminal
+2+4 s stops, raw integrity and native feedback coverage pass. The exception's
+teacher trace is unavailable; zero labels and no unchanged retry. A concrete
+support/hold-path diagnosis and independent validation are required before a
+changed follow-up, with contact and hold thresholds unchanged.
+
+The independent original D2-RV is implementation-ready under its existing agreed
+15 mm/0.04 rad approach disturbance at 3.2–3.8 s, a 0.4 s measured-origin brake
+and 1.5 s return within the 7.5 s approach. The stale relative-joint proposal is
+preserved as superseded metadata. Active matrix/protocol/launcher checks agree
+and reject that stale proposal. This is a different unexecuted condition, using
+the unchanged global recipe; actual error/velocity, full cycle, native stops,
+real images and temporal-reader qualification remain pending. RV admission
+requires its own independent measured-history review.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -111,8 +131,8 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **6.2630 aggregate GPUh** across 41 completed allocations.
-Retention is 58.04 GiB, with 463.3 GiB physically free. Remaining 20 ordinary and
+Closed cost is **6.6999 aggregate GPUh** across 42 completed allocations.
+Retention is 62.82 GiB, with 458.5 GiB physically free. Remaining 20 ordinary and
 7 recovery conditions project 101–141 GiB additional, or 197 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode
