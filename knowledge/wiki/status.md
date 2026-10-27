@@ -88,15 +88,18 @@ The independently valid component support remains separate from full-task succes
 D2-P refuses its geometry prescreen because the prescribed pedestal intersects
 the door frame. No recorder or teacher action starts; the available 2 s native
 stop passes. The missing recording and 4 s continuation remain unavailable.
-A feasible placement preserving the agreed variety needs independent qualification. A CPU geometric
-diagnosis proposes mirroring only the 20 mm x offset away from the frame, preserving
-translation magnitude, 25 mm y offset, 4-degree yaw and arm changes. A separate
-parked native geometry/reset/visibility and 2+4 s-stop qualification is next;
-the original absent 4 s stop stays unavailable and full collection admission
-remains unchanged until actual prospective proof is independently reviewed. The first
-parked probe fails before native initialization because its renderer cameras were
-not enabled. The failed report, absent physics/stops and 12.087 GPU seconds are
-retained; a camera-enabled parked-only repeat is next, with all gates unchanged.
+The distinct placement now independently passes native geometry, reset,
+visibility and both saved 2+4 s stops. Only the 20 mm x offset is mirrored away
+from the frame; 32.016 mm translation magnitude, 25 mm y offset, 4-degree yaw
+and arm perturbations remain. Actual measured joint deltas are -0.05/+0.04 rad
+and the initial tool differs by 47.63 mm from C14's observed reset. The real
+initial image was inspected. This parked proof produces zero corpus labels.
+The first parked camera-initialization failure and its 12.087 GPU seconds remain.
+One distinctly named full follow-up is ready under a case-specific admission
+requiring the exact new setup, independent proof and unchanged global recipe.
+It cannot admit the original setup, another condition, a second retry or absent/
+failed stops. The original missing 4 s stop remains unavailable. Full loaded
+contact, complete cycle, terminal stops, visual and temporal review are still required.
 
 D1-RV times out during parked inspection, before approach or any recovery error.
 The perception capture remains at 14.1 s for about 38 minutes, with memory within
@@ -190,7 +193,7 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **7.3015 aggregate GPUh** across 47 completed allocations.
+Closed cost is **7.3104 aggregate GPUh** across 48 completed allocations.
 Retention is 68.95 GiB, with 452.3 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106–137 GiB additional, or 192 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and

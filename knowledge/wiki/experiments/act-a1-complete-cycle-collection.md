@@ -326,18 +326,37 @@ placement clear and predicts the distinct placement clear at the unchanged 2 mm
 positive-volume gate. Fingertip footprint/obstruction checks also pass. Converted
 native pedestal vertices differ from the URDF replay by up to 0.257 micrometers;
 the original 0.1-micrometer identity check is explicitly false, not relaxed or
-represented as exact reproduction. The CPU result is a proposal only. A separate
-native parked geometry/reset/visibility and saved 2+4 s-stop probe must pass before
-any collection admission can be considered. It records no teacher source and
-changes no existing setup, outcome or full-collection admission gate. The original
-missing 4 s continuation remains unavailable. New actual evidence must be reviewed
-without retroactively inventing a stop or bypassing a scientific/safety gate.
-The first parked probe fails during renderer initialization: cameras were declared
-in the scene without enabling them in AppLauncher. It retains 12.087 GPU seconds
-and unavailable geometry/stops; no teacher/recorder starts. Although its launcher
-returns zero, the native report is false and confers no qualification. The only
-repeat change enables the required cameras; the failed entry snapshot, report and
-all costs remain, and every native geometry/state/stop gate remains unchanged.
+represented as exact reproduction. The CPU result remains a proposal only.
+The first native parked probe fails during renderer initialization: cameras were
+declared without enabling them in AppLauncher. Its false report, absent physics/
+stops and 12.087 GPU seconds remain, despite a zero launcher exit code. Enabling
+the already required cameras is the sole initialization correction.
+
+The corrected parked probe now independently passes actual pedestal/door and
+fingertip geometry, reset limits/no forbidden contacts, visibility and both saved
+2+4 s unloaded stops (480+960 native samples). Peak joint speeds are 1.84e-5 and
+7.58e-8 rad/s, with zero contact force or forbidden samples. Actual reset deltas
+from C14's recorded t=0 state are -0.05 rad shoulder/+0.04 rad elbow and 47.63 mm
+tool displacement. C14 predates standalone initial-state files; the P reviewer
+uses its valid observed t=0 joint/tool data when that file is absent, preserving
+the same variety thresholds. The actual initial RGB was inspected. No recording,
+teacher command, optimizer update or positive window is produced. This proof
+qualifies only the exact prospective parked setup, not a complete cycle.
+
+The active D2-P plan now references `setups/D2-P-feasible-placement.json`.
+`D2-P-prospective-qualified-diagnosis.json` preserves the original cell, variation,
+protocol episode, failure and original setup path. The original absent 4 s stop
+remains unavailable; it is never relabeled as passed. A case-specific launcher
+path requires the exact changed setup/new independent stop proof, unchanged
+recipe and 2400 wall/240 physics budgets, zero original/probe teacher recordings,
+the sole original prescreen attempt and one unique follow-up label. Twenty-one
+adverse admission packets refuse, including missing/failed stops, altered limits,
+other conditions and a second retry. Other failed-cell admission still requires
+its original full independent stop proof. The prospective full collection must
+again pass its maintained initial screen and every operational, physical, full
+cycle, terminal-stop, visual and temporal gate before corpus admission. Original
+negative and initialization-failure costs remain; the successful parked probe
+adds 32.314 GPU seconds.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
@@ -389,11 +408,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **7.3015 aggregate GPUh** across 47 completed allocations.
+Closed cost is **7.3104 aggregate GPUh** across 48 completed allocations.
 Current retention is 68.95 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The next allocation is the separate prospective D2-P parked geometry/reset/stop qualification; N08 full RV is admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is ready after independent parked qualification; N08 full RV is admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -564,7 +583,7 @@ that reviewed timing difference and continues to reject physical/controller or
 success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
-cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 68.95 GiB, with 452.32 GiB physically free.
+cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 68.95 GiB, with 452.29 GiB physically free.
 Remaining 20 ordinary and 6 recovery conditions project 106–137 GiB additional,
 or 192 GiB at their physics budgets. The existing 24 GiB episode reserve and
 3.49 GiB protected headroom fit. All current failures and diagnostics are included;
