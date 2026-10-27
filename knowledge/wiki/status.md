@@ -102,10 +102,14 @@ zero positive labels. The future upper-gripper interval exceeds the main
 empirical position domain by 0.0858 mrad, inside the existing 4.25 mrad halo
 qualified only to 1 N against the required 10 N. The observed contact-free
 stopping margin is negative; this is not evidence of an actual collision.
-A frozen six-case native component bundle will test the actual P hold
-neighborhood and distinct placement before any support adoption or changed
-full retry. D2-DR's qualification and measured servo compensation do not transfer.
-All residual, physical, position, stop and complete-cycle gates remain unchanged.
+The P-specific six-case native component bundle passes every physical,
+residual, feedback, speed/acceleration and all eighteen stop checks. Adoption
+is nevertheless rejected: the early-oblique 10 N case reaches 0.694449 rad,
+short of the required 0.697730 rad boundary. Only that command target will
+compensate its own measured 3.281 mrad servo displacement; the five declared
+controls and all acceptance gates remain identical in a frozen corrected bundle.
+D2-DR's qualification or measured compensation is not transferred. No active
+recipe change or full-source retry is admitted before independent review.
 The original missing 4 s stop stays unavailable.
 
 D1-RV times out during parked inspection, before approach or any recovery error.
@@ -200,7 +204,7 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **7.7171 aggregate GPUh** across 49 completed allocations.
+Closed cost is **7.7528 aggregate GPUh** across 50 completed allocations.
 Retention is 73.60 GiB, with 447.8 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106–137 GiB additional, or 192 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and

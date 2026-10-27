@@ -388,6 +388,26 @@ P postures. The unchanged 900 s component watchdog is sized against prior
 cleanup. No global recipe or calibration changes before independent review;
 no unchanged full-source retry or positive prefix.
 
+The first P-specific bundle now completes all six declared cases. Independent
+native review passes every moving/stopped frozen residual, feedback, speed,
+acceleration, joint-travel and all eighteen physical stop continuations. It
+nevertheless rejects adoption: only the early-oblique 10 N case misses actual
+boundary coverage. Its 364 loaded native samples reach 0.694449425 rad rather
+than the required 0.697730074 rad. The direct boundary and late-oblique cases
+cover the unchanged existing halo. The first rejection and 128.266 GPU seconds
+remain preserved; no calibration or complete-source success follows.
+
+`D2-P-upper-gripper-support-coverage-corrected-plan.json` changes only that
+deficient command target from 0.697730074 to 0.701010724 rad, compensating the
+case's own measured 3.280650 mrad displacement. It does not use D2-DR's different
+servo correction. The other five declared cases, force/yaw/application settings,
+model residuals, physical limits, stop bounds and actual loaded-boundary criterion
+remain exact. Both six-case bundles stay in the denominator. The corrected
+bundle must pass independent review of every declared case before adoption;
+global calibration and recipe remain unchanged. The same 75 s simulation
+schedule retains the 900 s watchdog and 155 s cleanup, now with a measured
+123.266 s P-specific runtime basis. No unchanged full collection is queued.
+
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
 Every case selects one tracked candidate yet reproduces unavailable local material
@@ -438,11 +458,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **7.7171 aggregate GPUh** across 49 completed allocations.
+Closed cost is **7.7528 aggregate GPUh** across 50 completed allocations.
 Current retention is 73.60 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its P-specific component qualification is next. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its corrected P-specific component qualification is next. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -613,7 +633,7 @@ that reviewed timing difference and continues to reject physical/controller or
 success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
-cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 73.60 GiB, with 447.80 GiB physically free.
+cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 73.60 GiB, with 447.78 GiB physically free.
 Remaining 20 ordinary and 6 recovery conditions project 106–137 GiB additional,
 or 192 GiB at their physics budgets. The existing 24 GiB episode reserve and
 3.49 GiB protected headroom fit. All current failures and diagnostics are included;
