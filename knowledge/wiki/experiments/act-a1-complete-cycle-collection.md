@@ -7,10 +7,12 @@ Teacher similarity is not the success criterion. This campaign collects and
 prepares data; training, learned evaluation, development collection and final-test
 access are excluded.
 
-## Current result: six new full-cycle sources qualified
+## Current result: first complete recovery; nine cells qualified
 
-**8/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
-new D1-H+, D2-V, D1-DL, D1-V, D1-DR and D2-DL.** The new source acquires continuous valid native contact, reaches
+**9/36 cells are independently qualified:** eight ordinary cells (C15/D1-N and
+C14/D2-N reuse, plus D1-H+, D2-V, D1-DL, D1-V, D1-DR and D2-DL) and the first
+complete recovery, D1-RP. The first new ordinary source, D1-H+, acquires continuous
+valid native contact and reaches
 51.86 degrees against the unchanged 41.01-degree requirement, holds for 3 s,
 intentionally releases and stabilizes for 2 s. Independent saved native-force,
 gap and stop-stream reconstruction reproduces the passing continuity and 2+4 s
@@ -73,8 +75,35 @@ metadata preparation. This one recording costs 1,720.151 GPU seconds. Six new
 independent recordings provide **33,374 overlapping windows**; none is a complete
 recovery or learned success.
 
-Twenty-two completed matrix attempts retain sixteen negatives and six qualified
-full cycles. Twenty pass both terminal stops. D2-P has only a passing 2 s stop;
+D1-RP now qualifies as the first complete recovery. The real guarded approach
+contains 72 injected pause commands over 1.2 s and 313 corrective commands. Saved
+pre-action tool states independently reproduce the 27.435 mm handoff error and
+the 1.5 s measured-origin return to 0.555 mm; final corrective error is 0.177 mm.
+Thirty consecutive valid loaded intervals complete correction, followed by the
+ordinary full cycle: 50.428 degrees controlled opening against 41.008 required,
+180 loaded hold intervals, 360 release and 120 stabilization intervals. Native
+peak force is 6.643 N; continuous native contact, physical/admission checks and
+both independent 2+4 s stops pass. Actual pause drift is 2.425 mm within the
+unchanged 10 mm position tolerance; no exact-stationarity or 18 mm shortfall claim.
+
+The explicit RP reviewer checks the continuous native generation/clock, exact
+pre/post-action state joins, independently recomputed reference error, executed
+roles and sustained contact. It rejects seven adverse changes: erased error role,
+reset generation, favorable error label, injected target admission, changed pause,
+missing definition and fabricated clock. Every ordinary native full-cycle gate
+is retained; RV requires its own actual error/velocity review.
+
+Twelve actual ordinary/recovery phase images are visually inspected. Metadata-only
+preparation reuses the recorded CUDA frames. The maintained temporal reader admits
+4,110 windows, including 313 corrective windows, and verifies exact A1 deltas.
+All 72 injected commands remain in the first corrective decision's strictly past
+target history; none enters a supervised target or crossing chunk. The prepared
+reader also passes from a different working directory. N07 is one independent
+complete recovery recording, never 4,110 demonstrations. Seven new recordings now
+supply 37,484 windows; zero new optimizer updates and no learned-success claim.
+
+Twenty-three completed matrix attempts retain sixteen negatives and seven
+qualified full-cycle sources. Twenty-one pass both terminal stops. D2-P has only a passing 2 s stop;
 D1-RV has passing initial 2+4 s stops but no terminal stops or final report. D1-H- terminates
 for contact loss or uncertainty after 1,791 guarded commands, with zero positive
 targets. D2-DR preserves continuous native contact and exceeds the minimum opening,
@@ -211,7 +240,8 @@ or qualify a scientific cycle. No original recording, missing stop or denominato
 is replaced. Regular per-condition watchdogs and all physical/scientific gates
 are unchanged.
 
-The original unexecuted D1-RP is the next independent recovery condition. Its
+The original D1-RP independently qualifies as described above. The original
+unexecuted D2-RP is the next independent recovery condition. Its
 existing agreed definition is a late pause during approach seconds 4.1–5.3 and a
 1.5 s measured-origin return, within the 7.5 s approach. The older 18 mm shortfall
 proposal stays in superseded metadata; no measured shortfall is claimed. Matrix,
@@ -270,11 +300,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **6.0083 aggregate GPUh** across 40 completed allocations.
-Current retention is 55.23 GiB, entirely local with zero
+Closed cost is **6.2630 aggregate GPUh** across 41 completed allocations.
+Current retention is 58.04 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The next independent collection is D1-RP. Exact accounting
+teardown. The next independent collection is D2-RP. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -324,7 +354,7 @@ retroactively changed.
 
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Unqualified; inspection timeout | Planned |
+| D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Unqualified; inspection timeout | Qualified new complete recovery |
 | D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Unqualified; pedestal/frame intersection | Qualified new | Three negatives; acquisition-stroke block | Qualified new;1.1 | Planned | Planned |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
@@ -445,13 +475,12 @@ that reviewed timing difference and continues to reject physical/controller or
 success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
-cached-frame sources, current retained bytes and actual disk free space. The
-The current snapshot retains53.12GiB, with464.86GiB physically free.
-Remaining20ordinary+8recovery conditions project110–146GiB additional under
-conditional duration scenarios, or204GiB using each condition's physics budget.
-The existing24GiB episode reserve and3.49GiB protected headroom fit. Both D2-DR
-negatives and component evidence are included; future failures/diagnostics add
-actual bytes. Forecasts guide planning and never become new ceilings. The
+cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 58.04 GiB, with 463.32 GiB physically free.
+Remaining 20 ordinary and 7 recovery conditions project 101–141 GiB additional,
+or 197 GiB at their physics budgets. The existing 24 GiB episode reserve and
+3.49 GiB protected headroom fit. All current failures and diagnostics are included;
+future ones add actual bytes. Forecasts guide planning and never become ceilings.
+The
 corrected component bundle has900s wall watchdog, retaining the prior measured
 six-case cost of127s as its timing basis and the same155s cleanup reserve.
 No source, model residual, physical limit or complete-cycle success threshold
@@ -645,5 +674,5 @@ optimizer has drawn from the prospective selection.
 
 Use `closeout.json`, `new-source-dispositions.json`, `archive-closeout.json` and
 `resources.json` in the campaign directory for exact identities, denominators,
-restoration receipts, current accounting and remaining resource allowance. Every
+restoration receipts, actual accounting and physical storage capacity. Every
 historical charge is retained; no compression or archival savings are refunded.

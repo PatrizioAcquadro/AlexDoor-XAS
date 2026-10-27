@@ -1,9 +1,11 @@
 # Project Status
 
-## ACT A1 — six new complete-cycle sources; collection continuing
+## ACT A1 — first complete recovery qualified; collection continuing
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
-**8/36 qualified cells**: C14/C15 reuse plus new D1-H+, D2-V, D1-DL, D1-V, D1-DR and D2-DL cycles.
+**9/36 qualified cells**: eight ordinary cycles, including C14/C15 reuse and six new
+cycles, plus the first complete recovery, D1-RP. The ordinary additions are
+D1-H+, D2-V, D1-DL, D1-V, D1-DR and D2-DL.
 D1-H+ reaches 51.86 degrees with a measured 20.02 mm height change; D2-V reaches
 52.54 degrees under its measured 1.1 lighting scale. Both exceed their unchanged
 opening requirements, hold 3 s, release intentionally, stabilize for 2 s and pass
@@ -12,13 +14,22 @@ actual 0.7 panel/handle mass and inertia, 50.28 degrees of controlled opening,
 continuous contact and the full hold/release/stabilization/stops. The first Blackwell D1-V cycle also passes every gate at 50.16 degrees with
 measured lighting scale 0.9. D1-DR verifies mass/inertia1.3, damping6, controlled50.43 degrees and all full-cycle
 gates. D2-DL also verifies mass/inertia at 0.7 of nominal, damping 4, 52.54 degrees, uninterrupted
-contact and all full-cycle/native-stop/visual/temporal gates. These six
-recordings supply **33,374 windows**, retaining four-second history and actual A1
-targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
+contact and all full-cycle/native-stop/visual/temporal gates. Together with D1-RP,
+seven new recordings supply **37,484 overlapping windows**, retaining four-second
+history and actual A1 targets. Zero new optimizer updates; learned outcomes stay 0/22.
 
-Twenty-two completed matrix attempts retain sixteen negatives and six qualified
-cycles. Twenty have passing terminal 2+4 s stop pairs. D2-P has only a passing
-2 s stop; D1-RV has passing initial stops but unavailable terminal stops/report. D1-H-
+D1-RP independently verifies the real 1.2 s late pause, a 27.435 mm measured
+handoff error and a 1.5 s return to 0.555 mm, followed by sustained contact,
+50.428 degrees of controlled opening, full 3 s hold, release and stabilization.
+Native continuity and both saved stops pass. Twelve actual ordinary/recovery
+phase images are visually reviewed. The maintained reader verifies 4,110 windows,
+including 313 corrective windows: all 72 injected commands remain strictly past
+observed history and are excluded from every target chunk. This is one complete
+recovery demonstration, with zero optimizer updates or learned-success claim.
+
+Twenty-three completed matrix attempts retain sixteen negatives and seven
+qualified sources. Twenty-one have passing terminal 2+4 s stop pairs. D2-P has
+only a passing 2 s stop; D1-RV has passing initial stops but unavailable terminal stops/report. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
 also remains negative: its original 150 s push budget expires during continuous
@@ -71,8 +82,8 @@ now interrupts a controlled 90 s pending inference through the episode watchdog.
 Both 2+4 s stops and the negative report are durable 25.668 s before that worker
 returns; full process cleanup and raw integrity pass. This validates the failure
 handling change without qualifying a recovery or resolving the original stall.
-The original missing stops remain unavailable. The independent original D1-RP
-late-pause condition is ready to continue on this validated runtime.
+The original missing stops remain unavailable. The independent original D2-RP
+late-pause condition is next on this validated runtime.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -100,9 +111,9 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **6.0083 aggregate GPUh** across 40 completed allocations.
-Retention is 55.23 GiB, with 462.4 GiB physically free. Remaining 20 ordinary and
-8 recovery conditions project 110–146 GiB additional, or 204 GiB at their physics
+Closed cost is **6.2630 aggregate GPUh** across 41 completed allocations.
+Retention is 58.04 GiB, with 463.3 GiB physically free. Remaining 20 ordinary and
+7 recovery conditions project 101–141 GiB additional, or 197 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode
 reserves 24 GiB plus 3.49 GiB protected headroom. Forecasts are planning scenarios.
