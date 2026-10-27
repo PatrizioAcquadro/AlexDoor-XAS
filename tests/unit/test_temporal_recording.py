@@ -292,3 +292,50 @@ def test_teacher_native_diagnostics_never_substitute_commanded_effort_for_feedba
     np.testing.assert_array_equal(diagnostics["diagnostic_computed_effort_nm"], np.array(ids) + 100)
     assert len(observed) == 1 and observed[0][0][0] == "tau"
     np.testing.assert_array_equal(observed[0][0][1], 3)
+
+
+@pytest.mark.parametrize("snapshot_fails", [False, True])
+def test_teacher_trace_survives_later_transition_failure(tmp_path, monkeypatch, snapshot_fails):
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    import alexdoor_xas.recording.teacher as teacher
+
+    # CPU lifecycle test: no model, simulation, actuation or policy inference.
+    monkeypatch.setattr(teacher, "array", np.asarray)
+    r = teacher.TemporalExpertRecorder(tmp_path / "episode.hdf5", {})
+    r.writer = SimpleNamespace(annotate=Mock(), close=Mock())
+    r.trace_log = (tmp_path / "teacher-trace.jsonl").open("x")
+    r.env = SimpleNamespace(event_sink=object())
+    r._snapshot = Mock(side_effect=RuntimeError("snapshot unavailable") if snapshot_fails else None)
+    env = SimpleNamespace(
+        _time_s=3.0,
+        generation=2,
+        door=SimpleNamespace(
+            data=SimpleNamespace(joint_pos=np.zeros((1, 1)), joint_vel=np.zeros((1, 1)))
+        ),
+    )
+    trace = dict(
+        valid=False,
+        force=0.0,
+        native_mean_normal_force_n=0.0,
+        normal_control_feedback=dict(source="guarded_contact_qualification_window", force_n=0.1),
+        physical_safe=True,
+        material_error=np.nan,
+    )
+    if snapshot_fails:
+        with pytest.raises(RuntimeError, match="snapshot unavailable"):
+            r.transition(env, None, None, "hold", trace)
+    else:
+        r.transition(env, None, None, "hold", trace)
+    # A separate reader sees the completed diagnostic before close/finish.
+    row = json.loads((tmp_path / "teacher-trace.jsonl").read_text())
+    assert row["time_s"] == 3.0 and row["generation"] == 2
+    assert row["trace"]["native_mean_normal_force_n"] == 0.0
+    assert row["trace"]["normal_control_feedback"] == trace["normal_control_feedback"]
+    assert row["trace"]["material_error"] is None and np.isnan(trace["material_error"])
+    assert not row["trace"]["valid"] and not r.complete
+    r.close_recording()
+    r.close_recording()
+    assert r.env.event_sink is None and r.trace_log is None
+    assert json.loads((tmp_path / "teacher-trace.jsonl").read_text()) == row

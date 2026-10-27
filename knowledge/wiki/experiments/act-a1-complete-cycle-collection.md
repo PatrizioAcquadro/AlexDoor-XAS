@@ -484,6 +484,41 @@ diagnostic with zero positive eligibility. Its finite 900 s watchdog and
 155 s cleanup are sized against the original 222.831 s native prefix with
 only two additional approach commands. This is diagnosis, not a full retry.
 
+The diagnostic completes with the same refusal after 137 approach commands,
+before its preset endpoint: 234.855 charged GPU seconds, no timeout or resource
+stop. All 138 actual proposal packets join the raw observed states and clocks;
+the final refused packet is never dispatched. Independent raw/native-feedback
+and all initial/terminal 2+4 s stop streams pass. No positive windows or matrix
+attempt are added. Pose IK is recomputed by the setter: 35 admitted rows differ
+from the logged preview by at most 0.238 microrad, so exact joint identity is not
+claimed. The maintained IO uses its existing world-position/rotation bounds;
+no new tolerance is introduced.
+
+The first loaded-footprint check has 54.586 mm finite finger clearance versus
+78.306 mm unchanged uncertainty: a 23.720 mm deficit. Its independent sweep and
+self-clearance remain positive. Even optimistically removing the entire pose-age
+contribution leaves a 12.427 mm deficit; this arithmetic screen does not change
+any measured bound or justify a cadence-only retry. Native q/dq, depth and camera
+calibration match the original exactly, while all 277 RGB frames differ, up to
+75 channel levels. The original missing refused endpoint remains unavailable.
+`D1-P-actual-proposal-diagnosis.json` records the actual current packet and block.
+One fixed observed-only replay now includes all 138 actual native proposals in
+order, preserving adaptive cover history and dumping the finite material grid,
+actual footprint and uncertainty sources. No new teacher goal, actuation,
+threshold change, positive label or full-cycle retry is authorized by this replay.
+
+A separate CPU comparison finds 10 zero-force native hold intervals in failed
+D2-RP, versus 17/12/17/16 in qualified D2-N/DL/V/RV. The field is the maximum
+of four native forces per control interval; zero therefore means all four
+sampled forces are zero. Such brief intervals do not alone invalidate the fixed
+window-based loaded criterion or establish RP's cause. Its missing complete
+teacher trace prevents reconstructing the exact native/filtered pressure-feedback
+branch. Future temporal recordings now flush completed diagnostic transitions
+to `teacher-trace.jsonl`, outside policy observations, before any later snapshot
+or refusal can lose them. CPU normal/exception/nonfinite/repeated-close checks
+pass; native use and the RP controller cause remain unverified. Historical
+missing fields, every source/mask/denominator and all gates remain intact.
+
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
 Every case selects one tracked candidate yet reproduces unavailable local material
@@ -534,11 +569,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **8.2232 aggregate GPUh** across 53 completed allocations.
-Current retention is 78.27 GiB, entirely local with zero
+Closed cost is **8.2884 aggregate GPUh** across 54 completed allocations.
+Current retention is 78.83 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the saved-input D1-P review is complete and its instrumented native prefix is next. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; finite-material saved-input diagnosis is next. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink

@@ -122,11 +122,25 @@ feasible placement preserving its variety; no range loosening or unchanged retry
 The independent D1-P saved-input replay completes: both originally admitted
 approach endpoints remain admitted. The final recorded endpoint's separation
 margin changes from 0.768 to 6.151 micrometers; this does not prove the next,
-unavailable refused proposal fixed. One predetermined native diagnostic prefix
-will capture actual current proposals through at most 139 approach commands,
-with passive logging and unchanged inputs, controls, thresholds and stop gates.
-Any refusal ends it earlier; the preset interruption confers no full-cycle or
-positive data eligibility. Original missing proposals and negatives remain.
+unavailable refused proposal fixed. The predetermined native diagnostic
+reproduces refusal after 137 approach commands and captures all 138 actual
+proposals. Independent raw/state/clock and initial/terminal 2+4 s stop checks
+pass; zero positive windows. The first loaded-footprint check has 54.586 mm
+finite finger clearance against 78.306 mm unchanged uncertainty, a 23.720 mm
+deficit. Even an optimistic zero-age arithmetic screen retains a 12.427 mm
+deficit; acquisition cadence alone is insufficient. Original depth, q/dq and
+calibration match, but every RGB frame differs; no causal fix is inferred.
+An exact saved-input replay of these actual proposals will retain the finite
+material grid for diagnosis, with no actuation or full retry.
+
+CPU comparison also finds zero-force native intervals in D2-RP and all four
+qualified D2 references; isolated zero intervals do not explain RP's failed
+lower-load window. Its precise pressure-feedback branch remains unavailable.
+Future temporal teacher recordings now flush each completed diagnostic transition
+to a separate `teacher-trace.jsonl`, preserving native force mean and controller
+feedback through later exceptions. CPU lifecycle tests pass; native use remains
+unverified. This retention repair changes no control, observations, qualification
+or historical outcome and does not establish the RP cause fixed.
 The original missing 4 s stop stays unavailable.
 
 D1-RV times out during parked inspection, before approach or any recovery error.
@@ -221,10 +235,10 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **8.2232 aggregate GPUh** across 53 completed allocations.
-Retention is 78.27 GiB, with 443.1 GiB physically free. Remaining 20 ordinary and
-6 recovery conditions project 106–137 GiB additional, or 192 GiB at their physics
-budgets. Current negative/component bytes are included; future failures and
+Closed cost is **8.2884 aggregate GPUh** across 54 completed allocations.
+Retention is 78.83 GiB, with 442.5 GiB physically free. Remaining 20 ordinary and
+6 recovery conditions project 106.5–137.2 GiB additional, or 192.2 GiB at their physics
+budgets, including estimated future diagnostic-journal overhead. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode
 reserves 24 GiB plus 3.49 GiB protected headroom. Forecasts are planning scenarios.
 

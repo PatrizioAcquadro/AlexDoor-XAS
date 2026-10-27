@@ -60,6 +60,7 @@ class TemporalExpertRecorder(ExpertRecorder):
         self.online_checks = []
         self.command_count = 0
         self.complete = False
+        self.trace_log = None
 
     def start(self, env, door, setup, phase="approach"):
         self.env, self.door, self.setup, self.phase = env, door, setup, phase
@@ -115,6 +116,10 @@ class TemporalExpertRecorder(ExpertRecorder):
                 policy_observation=False,
             )
         )
+        # Privileged teacher diagnostics stay separate from raw observations.
+        # Flush each completed transition so a later refusal cannot discard the
+        # native force mean and pressure-feedback branch for the retained prefix.
+        self.trace_log = self.path.with_name("teacher-trace.jsonl").open("x")
         self._state()
         annotate_native_units(
             self.writer.file, env.robot.cfg.spawn.asset_path, env.robot.joint_names
@@ -286,6 +291,20 @@ class TemporalExpertRecorder(ExpertRecorder):
             separation_m=np.float64(trace.get("separation_m", np.nan)),
         )
         self.writer.annotate(row)
+        from alexdoor_xas.perception.evaluation import json_safe
+
+        self.trace_log.write(
+            json.dumps(
+                dict(
+                    time_s=float(env._time_s),
+                    generation=int(env.generation),
+                    trace=json_safe(trace),
+                ),
+                allow_nan=False,
+            )
+            + "\n"
+        )
+        self.trace_log.flush()
         if phase != self.last_phase:
             self._snapshot(phase)
             self.last_phase = phase
@@ -325,7 +344,12 @@ class TemporalExpertRecorder(ExpertRecorder):
         """Detach physical observation and flush data without waiting for model workers."""
         if self.env is not None:
             self.env.event_sink = None
-        super().close()
+        try:
+            super().close()
+        finally:
+            if getattr(self, "trace_log", None) is not None:
+                self.trace_log.close()
+                self.trace_log = None
 
     def close(self):
         self.close_recording()

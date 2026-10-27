@@ -34,6 +34,17 @@ including NaN payloads, unavailable feedback and failed outcomes, remain unchang
 Pilot preparation references these retained originals by default; explicit
 `--copy-raw` creates a self-contained export for transfer.
 
+Temporal teacher recordings also retain `teacher-trace.jsonl` beside the raw
+episode. Each completed transition flushes its actual clock/generation and
+separate privileged diagnostics, including native force mean and pressure-control
+feedback. A subsequent refusal or snapshot error leaves those completed records
+readable; orderly recording close flushes/closes the sidecar before model teardown.
+Nonfinite diagnostic values serialize as null while raw arrays and masks retain
+their original values. This file is outside the observation/target reader and
+confers no completion or source eligibility. Historical missing traces remain
+unavailable. CPU lifecycle checks cover normal and exceptional transitions;
+native use is still pending.
+
 ## Matched Policy Data
 
 `dataset/b1.py` provides `b1.policy-dataset.v1`: one physical episode with N+1 common
