@@ -552,6 +552,43 @@ took 100.283 wall seconds. Independent review of every proposal and geometric
 certificate is still required. No full native retry or positive admission follows
 from this preparation.
 
+The corrected comparison completes in 112.469 charged GPU seconds. Independent
+raw-state/actual-endpoint joins and all 138 decisions, uncertainty terms and
+sweep margins match the native baseline exactly: 137 formerly admitted proposals
+and the same refusal. The saved grid improves 287,476 cells by up to 25.179 mm,
+but the two limiting finger clearances remain 54.586/94.466 mm and the material
+deficit remains 23.720 mm. The independent grid comparison is visually inspected;
+the limiting excluded handle/relief neighborhood remains. Every other saved
+array, global depth range and original clearance certificate is unchanged.
+Per-band actual semantic masks are not dumped; code subset assertions and CPU
+adverse cases constrain them, but this is not native physical qualification.
+The hypothesis is rejected for production adoption and D1-P remains blocked.
+Both diagnostics, their outcomes and costs remain preserved.
+
+The next independent intervention addresses D2-H+ future-stop position support.
+Its original negative passes raw/native feedback and independent terminal 2+4 s
+stops, with 128 approach commands and no contact or later phase. Its lower elbow
+future interval extends 0.973 mrad past the main bound, within the unchanged
+4.25 mrad halo qualified only at 1 N. The required future force domain is 10 N;
+the negative contact-free stop bound is not evidence of an actual collision.
+One frozen six-case robot-only bundle covers this condition's own retained
+approach postures: unloaded/loaded nominal, interior and three full loaded
+boundaries, including both oblique distal-face applications. Its own observed
+post-step target offsets select initial boundary commands; this moving-source
+estimate does not establish static 10 N response. Every actual loaded boundary,
+frozen residual, healthy feedback, speed/acceleration and all 18 stop continuations
+must pass unchanged. No RV neighborhood qualification is transferred. The same
+75-second declared native schedule retains 900 wall seconds plus 155 cleanup,
+supported by previous 118–128 second component executions. There is no active
+calibration change or full-source retry before independent component review.
+
+D1-H- remains a separate push-support negative: 1,251 push commands end at
+20.424 degrees with zero hold/release/stabilization. The last six native-force
+interval maxima are zero, and observed load lower support becomes negative.
+The complete native teacher contact/pressure-feedback trace remains unavailable;
+the attempted release never dispatches. Its original stops pass, but neither a
+controller cause nor a correction is established. No unchanged full retry follows.
+
 A separate CPU comparison finds 10 zero-force native hold intervals in failed
 D2-RP, versus 17/12/17/16 in qualified D2-N/DL/V/RV. The field is the maximum
 of four native forces per control interval; zero therefore means all four
@@ -614,11 +651,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **8.3421 aggregate GPUh** across 56 completed allocations.
+Closed cost is **8.3734 aggregate GPUh** across 57 completed allocations.
 Current retention is 78.83 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, its first private depth-coherent comparison fails before proposal checks, and the corrected exact-parent projection is prepared. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, the corrected depth-coherent comparison leaves its actual refusal unchanged and is rejected for adoption, and the independent D2-H+ component bundle is prepared. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink

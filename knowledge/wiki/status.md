@@ -141,9 +141,20 @@ checks reproduce strict-boundary discrepancies on four arithmetic subsets and
 verify the exact-parent correction, without epsilon, interval clamping or a
 changed mask. The original failing semantic subset and excess are unavailable.
 Seven maintained material regressions and six explicit adverse/nominal cases
-also pass. One distinctly named corrected observed-only comparison is prepared;
-production and every physical bound remain unchanged. A favorable diagnostic
-alone cannot permit a full retry or source admission.
+also pass. The corrected observed-only comparison completes and independently
+reproduces all 138 decisions and uncertainty terms. Some grid clearances improve,
+but both limiting finger clearances and the 23.720 mm deficit remain exact.
+The candidate is rejected for production adoption; D1-P stays blocked. No full
+retry or source admission follows from this diagnostic.
+
+Independent D2-H+ review verifies its original precontact negative, raw feedback
+and both terminal stops. Its future lower-elbow interval exceeds the main domain
+by 0.973 mrad, inside the existing 4.25 mrad halo qualified only to 1 N, against
+10 N required. One D2-H+-specific six-case robot-only load/stop bundle is frozen.
+Its own retained post-step target response selects initial probe targets;
+actual 10 N coverage of every original boundary is still required. All position,
+residual, physical, speed, acceleration and 18-stop gates remain unchanged.
+No existing RV qualification or calibration is transferred to this height.
 
 CPU comparison also finds zero-force native intervals in D2-RP and all four
 qualified D2 references; isolated zero intervals do not explain RP's failed
@@ -247,7 +258,7 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **8.3421 aggregate GPUh** across 56 completed allocations.
+Closed cost is **8.3734 aggregate GPUh** across 57 completed allocations.
 Retention is 78.83 GiB, with 442.5 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106.5–137.2 GiB additional, or 192.2 GiB at their physics
 budgets, including estimated future diagnostic-journal overhead. Current negative/component bytes are included; future failures and
