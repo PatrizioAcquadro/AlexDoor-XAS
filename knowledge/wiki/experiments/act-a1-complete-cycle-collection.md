@@ -196,11 +196,29 @@ worker-raised timeout remains an error. Recording detaches/flushes before the
 independent physics stops, and model teardown follows durable stop/report evidence.
 Interruption signals also retain all-thread stacks. Nominal/pending/error and
 recording-detachment software regressions pass; physical thresholds, inference
-results, observations and success gates are unchanged. Before dependent collection,
-one native diagnostic will hold an inference future for 90 s at parked 14.1 s and use a
-separate 150 s diagnostic episode check/300 s outer allocation. It must preserve a
-negative report and both independently reviewed stops before teardown; it supplies
-no manipulation, recovery or corpus labels.
+results, observations and success gates are unchanged.
+
+The separate native validation holds an inference future for 90 s at parked
+14.1 s, with a 150 s diagnostic episode check and 300 s outer allocation. The main
+thread records `CollectionBudgetExceeded('collection_wall_budget')` while that
+future is pending. Independent reconstruction verifies both 2+4 s native stops,
+raw integrity and zero eligibility. Both stop streams and the negative report
+exist when model teardown begins, 25.668 s before the held worker returns. The
+complete process group exits without an outer timeout or memory stop, charged
+207.349 GPU seconds. This qualifies the interruption/stop-order change for the
+tested pending-future failure; it does not establish the original stall's cause
+or qualify a scientific cycle. No original recording, missing stop or denominator
+is replaced. Regular per-condition watchdogs and all physical/scientific gates
+are unchanged.
+
+The original unexecuted D1-RP is the next independent recovery condition. Its
+existing agreed definition is a late pause during approach seconds 4.1–5.3 and a
+1.5 s measured-origin return, within the 7.5 s approach. The older 18 mm shortfall
+proposal stays in superseded metadata; no measured shortfall is claimed. Matrix,
+active correction and launch readiness agree, while stale metadata refuses.
+Actual guarded history/error/velocity, complete native cycle/stops and subsequent
+visual/temporal qualification remain pending. D1-RV stays negative and is not
+retried unchanged.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
@@ -252,11 +270,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **5.9507 aggregate GPUh** across 39 completed allocations.
-Current retention is 54.90 GiB, entirely local with zero
+Closed cost is **6.0083 aggregate GPUh** across 40 completed allocations.
+Current retention is 55.23 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
-dependent collection awaits native forced-stall validation of interruption and
-safe cleanup. Exact accounting
+the native forced-stall test validates interruption and saved stops before
+teardown. The next independent collection is D1-RP. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink

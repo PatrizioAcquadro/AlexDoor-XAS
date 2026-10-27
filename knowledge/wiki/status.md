@@ -66,9 +66,13 @@ non-reproduction. No recovery labels are admitted.
 The shared synchronous wait now checks the existing episode watchdog/interruption
 while inference is pending. Recording detaches and flushes before physical stops;
 model teardown follows durable stop/report evidence. Existing timings, controller,
-observations and scientific gates stay unchanged. Essential software checks pass;
-one controlled native inference-stall validation is required before dependent
-collection resumes. The original missing stops remain unavailable.
+observations and scientific gates stay unchanged. Independent native validation
+now interrupts a controlled 90 s pending inference through the episode watchdog.
+Both 2+4 s stops and the negative report are durable 25.668 s before that worker
+returns; full process cleanup and raw integrity pass. This validates the failure
+handling change without qualifying a recovery or resolving the original stall.
+The original missing stops remain unavailable. The independent original D1-RP
+late-pause condition is ready to continue on this validated runtime.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -96,8 +100,8 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **5.9507 aggregate GPUh** across 39 completed allocations.
-Retention is 54.90 GiB, with 463.0 GiB physically free. Remaining 20 ordinary and
+Closed cost is **6.0083 aggregate GPUh** across 40 completed allocations.
+Retention is 55.23 GiB, with 462.4 GiB physically free. Remaining 20 ordinary and
 8 recovery conditions project 110–146 GiB additional, or 204 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode
