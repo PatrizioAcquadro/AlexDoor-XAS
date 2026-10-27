@@ -17,18 +17,19 @@ the changed D1-H+ without relaxing physical, residual or stop bounds. D2-V is
 queued for the next episode-safe local handoff. Training, learned evaluation,
 development collection and final-test access remain excluded.
 
-Actual campaign cost is **0.8933/12 aggregate GPUh** across 14 charged allocations,
-plus one reserved Blackwell probe (upper estimate 1.2128 GPUh). The existing
+Actual campaign cost is **0.9829/12 aggregate GPUh** across 15 charged allocations,
+plus one reserved loaded/stop bundle (upper estimate 1.2523 GPUh). The existing
 200 GiB retention and 60-allocation caps include replicas, failures, diagnostics
 and preparation. Nine persistent restoration-verified archives resolve the initial
 storage shortage; no historical costs are refunded.
 
-The private URDF cache works on Blackwell, where the second native probe verifies
-robot/head initialization and both stops, then fails its first Point2Pose request
-for missing `nvcc`. A private CUDA 12.8 compiler compiles the actual kernel for
-`sm_120` on CPU. One new native probe waits for the agreed VLA188 cleanup and
-slot-1 handoff; usable perception kernels, loaded-domain transfer and full-cycle
-compatibility remain unqualified. Local and remote persistent ownership preserves
+The private URDF cache works on Blackwell. After preserving its missing-compiler
+failure, the compiler-fixed native prefix verifies actual SAM3/Point2Pose kernels,
+head RGB-D, one guarded approach interval, matching 240/60 Hz clocks and both
+stops. Visual review passes; the controlled prefix is zero positive data. Its
+322.276 s allocation explicitly returns VLA ownership after cleanup. A fixed
+six-case 10 N loaded/stop transfer bundle waits for the next agreed slot-1 handoff;
+full-cycle compatibility remains unqualified. Persistent ownership preserves
 other projects and the unrelated Blackwell process. Exact next actions and live
 records are in the [resume handoff](../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md).
 

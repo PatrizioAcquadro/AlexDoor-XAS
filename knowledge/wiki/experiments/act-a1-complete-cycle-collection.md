@@ -29,10 +29,11 @@ learned success is thereby established; the historical learned result stays 0/22
 Six new collection attempts retain five negatives and one qualified full cycle.
 Both independent stops pass on every collection attempt. Two saved-input GPU
 diagnostics, two robot-only qualification bundles, two Blackwell runtime probes
-and two preparation attempts bring actual cost to **0.8933 aggregate GPUh**
-(0.7491 local / 0.1443 Blackwell), across 14 charged allocations. One additional
-Blackwell qualification is reserved separately; its conservative full reservation
-brings the aggregate upper estimate to 1.2128 GPUh. Current exact accounting is in
+and two preparation attempts, followed by the passing compiler-fixed Blackwell
+prefix, bring actual cost to **0.9829 aggregate GPUh** (0.7491 local / 0.2338
+Blackwell), across 15 charged allocations. One loaded/stop transfer bundle is
+reserved separately; its conservative full reservation brings the aggregate
+upper estimate to 1.2523 GPUh. Current exact accounting is in
 `resources.json`; waiting consumes no GPU charge. All costs and source outcomes
 remain preserved. Training, normalization and historical selections are unchanged.
 
@@ -213,11 +214,21 @@ or host qualification; no guarded approach command or positive source is admitte
 A private NVIDIA CUDA 12.8 compiler/header subset now compiles the actual
 Point2Pose integration kernel for `sm_120` on CPU. Only the isolated child's
 `CUDA_HOME` changes; shared runtimes, drivers, models and gates remain unchanged.
-One newly named compiler-fixed native probe waits for the agreed actual VLA188
-completion and slot-1 handoff. It must verify GPU execution and ordinary guarded
-admission. Loaded stop/load transfer still needs native qualification; an unloaded
-prefix alone cannot certify the 10 N domain. Native matrix collection also needs
-a subsequent agreed window. Blackwell resource guards account for owned GPU
+The newly named compiler-fixed native probe completes after the agreed actual
+VLA188 cleanup and slot-1 handoff. Actual SAM3/Point2Pose GPU kernels, one ordinary
+guarded approach interval, 240/60 Hz clocks and both independent stops pass. The
+head-camera frame also passes visual review. Its controlled interruption is
+expected: it supplies zero matrix cells or positive targets. The entire allocation
+costs 322.276 s and explicitly returns VLA ownership after process-group cleanup.
+
+Loaded stop/load transfer remains unqualified. One fixed six-case robot-only
+bundle is queued after actual VLA187 cleanup in a separate 1,200 s slot-1 window.
+It uses measured nominal, near-boundary and perturbed postures from both qualified
+door directions, 10 N loading and 18 independent stop continuations. Every moving
+and stopped sample must satisfy the unchanged local residual, position, speed,
+acceleration, feedback and stopping bounds. No calibration refit or width change
+is proposed; missing or failed cases prevent adoption. Native matrix collection
+also requires a subsequent agreed window. Blackwell resource guards account for owned GPU
 processes and shared-device headroom, preserving other workloads. A second local 4090
 remains unavailable until its endpoint and runtime are verified.
 
