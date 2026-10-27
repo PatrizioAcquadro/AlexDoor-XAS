@@ -111,16 +111,24 @@ reaches only -2.306840 rad under 10 N, short of the -2.309761 rad boundary.
 The other boundary cases cover the existing 4.25 mrad halo. A commanded target
 alone does not establish actual loaded coverage; active calibration stays unchanged.
 
-The deficient case has a measured -3.234 mrad target-minus-position offset under
-steady load. A corrected frozen bundle compensates only that case's elbow command
-by this measured offset and repeats the other five cases as declared controls.
-The required boundary, force, durations, motion, frozen model and physical/stop
-thresholds remain identical. Every case and charge from the first rejection stays
-in the denominator. No full RV retry or support adoption occurs before all native
-coverage and safety gates independently pass. Any qualified force-domain change
-would remain limited to the saved RV approach neighborhood, with no broader
-posture, door or hardware claim. The partial RP hold and original RV negatives
-remain excluded from complete demonstrations.
+The corrected six-case bundle now independently passes every native gate,
+including actual 10 N coverage in all three boundary cases, frozen moving/stopped
+residuals, feedback, speed/acceleration and all 18 stop continuations. Only the
+deficient case's command compensates its measured -3.234 mrad loaded servo offset;
+the five controls and every acceptance threshold remain identical. All twelve
+declared cases, the first rejection and both charges remain preserved.
+
+A separate D2-RV-only recipe changes the existing lower-elbow halo's force-domain
+support from 1 to 10 N. Position range/tolerance, model residuals, stop bounds,
+controller and scientific success requirements remain unchanged, as does the
+global recipe. The actual refused interval and exact qualified boundary now pass the position-support check;
+nominal behavior is unchanged, while outside position/force and unqualified
+upper-gripper/D2-H- cases still refuse. This qualifies only the saved approach
+neighborhood; no broader posture, condition, door or hardware claim follows.
+One distinctly named complete D2-RV follow-up can now test the unchanged agreed
+pose/brake/return and full hold/release/stabilization. Actual recovery history,
+native contact/stops, visual and temporal qualification remain pending. The
+original RV refusal and partial RP hold remain negative with zero labels.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -148,7 +156,7 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **6.8030 aggregate GPUh** across 44 completed allocations.
+Closed cost is **6.8372 aggregate GPUh** across 45 completed allocations.
 Retention is 63.77 GiB, with 457.5 GiB physically free. Remaining 20 ordinary and
 7 recovery conditions project 101–141 GiB additional, or 197 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and

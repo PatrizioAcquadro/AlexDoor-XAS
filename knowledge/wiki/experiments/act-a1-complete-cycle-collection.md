@@ -269,16 +269,24 @@ reaches only -2.306840 rad under 10 N, short of the -2.309761 rad boundary.
 The other boundary cases cover the existing 4.25 mrad halo. A commanded target
 alone does not establish actual loaded coverage; active calibration stays unchanged.
 
-The deficient case has a measured -3.234 mrad target-minus-position offset under
-steady load. A corrected frozen bundle compensates only that case's elbow command
-by this measured offset and repeats the other five cases as declared controls.
-The required boundary, force, durations, motion, frozen model and physical/stop
-thresholds remain identical. Every case and charge from the first rejection stays
-in the denominator. No full RV retry or support adoption occurs before all native
-coverage and safety gates independently pass. Any qualified force-domain change
-would remain limited to the saved RV approach neighborhood, with no broader
-posture, door or hardware claim. The partial RP hold and original RV negatives
-remain excluded from complete demonstrations.
+The corrected six-case bundle now independently passes every native gate,
+including actual 10 N coverage in all three boundary cases, frozen moving/stopped
+residuals, feedback, speed/acceleration and all 18 stop continuations. Only the
+deficient case's command compensates its measured -3.234 mrad loaded servo offset;
+the five controls and every acceptance threshold remain identical. All twelve
+declared cases, the first rejection and both charges remain preserved.
+
+A separate D2-RV-only recipe changes the existing lower-elbow halo's force-domain
+support from 1 to 10 N. Position range/tolerance, model residuals, stop bounds,
+controller and scientific success requirements remain unchanged, as does the
+global recipe. The actual refused interval and exact qualified boundary now pass the position-support check;
+nominal behavior is unchanged, while outside position/force and unqualified
+upper-gripper/D2-H- cases still refuse. This qualifies only the saved approach
+neighborhood; no broader posture, condition, door or hardware claim follows.
+One distinctly named complete D2-RV follow-up can now test the unchanged agreed
+pose/brake/return and full hold/release/stabilization. Actual recovery history,
+native contact/stops, visual and temporal qualification remain pending. The
+original RV refusal and partial RP hold remain negative with zero labels.
 
 D1-RV stays negative and is not
 retried unchanged.
@@ -333,11 +341,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **6.8030 aggregate GPUh** across 44 completed allocations.
+Closed cost is **6.8372 aggregate GPUh** across 45 completed allocations.
 Current retention is 63.77 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The next allocation is the corrected frozen lower-elbow coverage bundle; the first rejection remains preserved and no full RV retry proceeds before qualification. Exact accounting
+teardown. The next allocation is one distinctly named D2-RV follow-up using the independently qualified case-specific lower-elbow recipe; complete scientific qualification is pending. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -508,7 +516,7 @@ that reviewed timing difference and continues to reject physical/controller or
 success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
-cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 63.77 GiB, with 457.53 GiB physically free.
+cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 63.77 GiB, with 457.55 GiB physically free.
 Remaining 20 ordinary and 7 recovery conditions project 101–141 GiB additional,
 or 197 GiB at their physics budgets. The existing 24 GiB episode reserve and
 3.49 GiB protected headroom fit. All current failures and diagnostics are included;
