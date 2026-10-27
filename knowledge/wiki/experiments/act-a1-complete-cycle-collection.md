@@ -460,6 +460,30 @@ source, without physics and with only two motion checks, plus 155 s cleanup.
 This is acquisition diagnosis only: no physical success or corpus eligibility
 follows from a favorable saved-input result.
 
+The saved-input diagnostic completes in 105.244 charged GPU seconds. Independent
+review confirms all 277 original capture inputs, 1,662 actual robot states,
+native/observed q-dq identity, the declared provider resets/clocks and both
+fixed recorded endpoints. Both were already admitted originally and remain
+admitted now. Their last separation margin changes from 0.768 to 6.151
+micrometers. This is not evidence that the unavailable next refused proposal
+is fixed, and supplies zero physical or corpus positives.
+
+One separately frozen native prefix will now capture the actual current
+proposal and exact admission detail rather than invent the original missing
+command. It stops at any refusal or the predetermined 1,663-command endpoint
+(1,524 inspection plus at most 139 approach commands), two commands beyond
+the original accepted prefix. It is never extended after a favorable result.
+A private diagnostic recorder delegates the original motion check exactly
+once with identical arguments and logs its actual proposed A1 delta/observed
+q/tool and diagnostic-only goal before setter/physics. Tests on the actual
+wrapper class preserve both admission and refusal/exception behavior, argument
+identity and joint state. No additional preview, policy input or controller
+change occurs. The existing initial/terminal 2+4 s stop path and physical
+gates remain; all raw data and deliberate-interruption/refusal outcomes stay
+diagnostic with zero positive eligibility. Its finite 900 s watchdog and
+155 s cleanup are sized against the original 222.831 s native prefix with
+only two additional approach commands. This is diagnosis, not a full retry.
+
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
 Every case selects one tracked candidate yet reproduces unavailable local material
@@ -510,11 +534,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **8.1940 aggregate GPUh** across 52 completed allocations.
+Closed cost is **8.2232 aggregate GPUh** across 53 completed allocations.
 Current retention is 78.27 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; independent D1-P saved-input diagnosis is next. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the saved-input D1-P review is complete and its instrumented native prefix is next. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink

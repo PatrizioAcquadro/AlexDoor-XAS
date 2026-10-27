@@ -119,10 +119,14 @@ entire qualified position envelope at 0.697730 rad by 0.279 mrad. The qualified
 10 N force cap is not the new deficit. P is blocked pending independently
 validated support for the complete legitimate path, or a separately qualified
 feasible placement preserving its variety; no range loosening or unchanged retry.
-Independent D1-P work now replays original RGB-D/robot observations and two
-actual recorded approach endpoints under the current material implementation.
-This diagnostic has no robot actuation, new teacher source or positive labels;
-the unavailable final refused endpoint is never invented.
+The independent D1-P saved-input replay completes: both originally admitted
+approach endpoints remain admitted. The final recorded endpoint's separation
+margin changes from 0.768 to 6.151 micrometers; this does not prove the next,
+unavailable refused proposal fixed. One predetermined native diagnostic prefix
+will capture actual current proposals through at most 139 approach commands,
+with passive logging and unchanged inputs, controls, thresholds and stop gates.
+Any refusal ends it earlier; the preset interruption confers no full-cycle or
+positive data eligibility. Original missing proposals and negatives remain.
 The original missing 4 s stop stays unavailable.
 
 D1-RV times out during parked inspection, before approach or any recovery error.
@@ -217,7 +221,7 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **8.1940 aggregate GPUh** across 52 completed allocations.
+Closed cost is **8.2232 aggregate GPUh** across 53 completed allocations.
 Retention is 78.27 GiB, with 443.1 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106–137 GiB additional, or 192 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
