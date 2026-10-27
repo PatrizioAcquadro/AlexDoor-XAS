@@ -408,6 +408,30 @@ global calibration and recipe remain unchanged. The same 75 s simulation
 schedule retains the 900 s watchdog and 155 s cleanup, now with a measured
 123.266 s P-specific runtime basis. No unchanged full collection is queued.
 
+The corrected bundle now independently qualifies: all six corrected cases,
+all eighteen stop continuations, every frozen moving/stopped residual,
+feedback, speed/acceleration and joint-travel gate pass. Actual 10 N native
+samples cover the full existing halo in all three boundary cases. Both
+six-case bundles, the first rejection and all costs remain; the corrected
+bundle charges 123.190 GPU seconds. This is component support evidence only.
+
+The separate `D2-P-upper-gripper-qualified-operational-recipe.json` changes
+only `position_halo_force_upper_max_n[1][6]` from 1 to 10. The main position
+range, 4.25 mrad tolerance, residual model, physical 80 N limit, operational
+10 N domain, stop bounds, controller and success criteria remain unchanged.
+The global recipe and calibration are untouched. The exact original refusal
+packet and qualified boundary now pass; nominal admission is unchanged.
+Outside position/force and unqualified lower-elbow/height packets still refuse.
+A launcher check also rejects this scoped recipe for any other condition or
+setup; existing default/legacy recipe behavior remains unchanged. Diagnosis
+`D2-P-gripper-qualified-diagnosis.json` retains both full-source negatives,
+original missing 4 s stop and the first component rejection. One distinctly
+named full follow-up can now test the same feasible P setup and full ordinary
+cycle under the usual 2400 wall/240 physics seconds plus 155 s cleanup.
+Independent full native contact/gap/force/phase/stops, actual variety, real
+phase-image review and maintained-reader preparation remain required before
+positive source admission. No partial-prefix or component corpus labels.
+
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
 Every case selects one tracked candidate yet reproduces unavailable local material
@@ -458,11 +482,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **7.7528 aggregate GPUh** across 50 completed allocations.
-Current retention is 73.60 GiB, entirely local with zero
+Closed cost is **7.7870 aggregate GPUh** across 51 completed allocations.
+Current retention is 73.61 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its corrected P-specific component qualification is next. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support P-specific full follow-up is ready. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -633,7 +657,7 @@ that reviewed timing difference and continues to reject physical/controller or
 success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
-cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 73.60 GiB, with 447.78 GiB physically free.
+cached-frame sources, current retained bytes and actual disk free space. The current snapshot retains 73.61 GiB, with 447.76 GiB physically free.
 Remaining 20 ordinary and 6 recovery conditions project 106–137 GiB additional,
 or 192 GiB at their physics budgets. The existing 24 GiB episode reserve and
 3.49 GiB protected headroom fit. All current failures and diagnostics are included;
