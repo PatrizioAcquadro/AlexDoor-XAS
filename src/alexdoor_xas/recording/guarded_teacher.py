@@ -48,6 +48,7 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
         )
         self.observer, self.io, self.geometry, self.motion, _, _ = self.operational
         self.observer.reset()
+        self.geometry.engine.interruption_check = getattr(env, "collection_check", None)
         self.io.safety.reset()
         self.latest_observation = self.observer.update(self.io.observe())
 

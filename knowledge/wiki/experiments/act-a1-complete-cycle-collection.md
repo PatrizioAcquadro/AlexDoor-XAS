@@ -182,6 +182,26 @@ observed 115 s startup/prefix plus stack observation and cleanup; it is diagnost
 scope, not a new cumulative resource ceiling. No manipulation, recovery labels,
 new physics/controller thresholds or unchanged full retry is authorized by it.
 
+The parked diagnostic terminates as intended at 14.2 s after passing 14.1 s. Independent
+native review verifies both terminal stops and raw integrity, with zero eligible
+commands. Its 140 common retained depth/validity/calibration frames and 840 q/dq
+states are identical to the original; every RGB frame differs, with maximum raw
+channel difference 36. No stack timeout occurs, so the exact original blocked
+operation is still unresolved; this is not a demonstrated repair or recovery.
+
+The directly verified lifecycle defects are corrected separately: synchronous
+inference waits honor the owning episode's existing wall/resource/signal checks
+at 0.1 s intervals, without inventing a completion time or new episode limit. A
+worker-raised timeout remains an error. Recording detaches/flushes before the
+independent physics stops, and model teardown follows durable stop/report evidence.
+Interruption signals also retain all-thread stacks. Nominal/pending/error and
+recording-detachment software regressions pass; physical thresholds, inference
+results, observations and success gates are unchanged. Before dependent collection,
+one native diagnostic will hold an inference future for 90 s at parked 14.1 s and use a
+separate 150 s diagnostic episode check/300 s outer allocation. It must preserve a
+negative report and both independently reviewed stops before teardown; it supplies
+no manipulation, recovery or corpus labels.
+
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
 Every case selects one tracked candidate yet reproduces unavailable local material
@@ -232,10 +252,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **5.9133 aggregate GPUh** across 38 completed allocations.
-Current retention is 54.62 GiB, entirely local with zero
-remote replicas. The parked inspection diagnostic is allocation 39; dependent
-collection awaits fault diagnosis and safe bounded cleanup. Exact accounting
+Closed cost is **5.9507 aggregate GPUh** across 39 completed allocations.
+Current retention is 54.90 GiB, entirely local with zero
+remote replicas. The first parked diagnostic did not reproduce the stall;
+dependent collection awaits native forced-stall validation of interruption and
+safe cleanup. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink

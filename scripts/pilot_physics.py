@@ -32,6 +32,9 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
     original_step = env.step
 
     def request(signum, _frame):
+        import faulthandler
+
+        faulthandler.dump_traceback(all_threads=True)
         pending.append(signum)
 
     def check():
@@ -52,9 +55,15 @@ def install_interruption(env, *, max_wall_s=None, max_sim_s=None):
         return result
 
     env.step = step
+    env.collection_check = check
     signal.signal(signal.SIGTERM, request)
     signal.signal(signal.SIGUSR1, request)
-    return lambda: setattr(env, "step", original_step)
+
+    def restore():
+        env.step = original_step
+        env.collection_check = None
+
+    return restore
 
 
 def screen_initial_state(env, door, setup, output):
@@ -410,6 +419,7 @@ def main(argv=None):
     )
     started = perf_counter()
     stop_attempted = False
+    recorder = None
     try:
         if args.mode in ("collect", "qualify"):
             # These geometric checks supplement every-row physical contact checks.
@@ -644,7 +654,8 @@ def main(argv=None):
                 )
                 recorder.interrupt(result)
             finally:
-                recorder.close()
+                # Detach/flush the producer before stopping; model teardown can wait.
+                recorder.close_recording()
             result["online_checks"] = recorder.online_checks
         elif args.mode == "replay":
             result = replay(env, args, protocol)
@@ -733,8 +744,12 @@ def main(argv=None):
                 write_json(args.output / "interrupted-stop.json", stopping)
             except Exception as stop_error:
                 write_json(args.output / "stop-failure.json", dict(error=repr(stop_error)))
-        env.close()
-        del app
+        try:
+            if recorder is not None:
+                recorder.close()
+        finally:
+            env.close()
+            del app
     return 0 if result.get("passed") else 1
 
 

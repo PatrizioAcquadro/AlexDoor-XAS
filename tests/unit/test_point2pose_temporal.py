@@ -325,3 +325,52 @@ def test_pose_source_coordinates_are_json_numbers_with_float32_camera():
         assert patch.identity_support.reason == "ambiguous_leaf_ownership"
     finally:
         engine.close()
+
+
+def test_synchronous_wait_checks_episode_interruption_while_inference_is_pending():
+    from concurrent.futures import Future
+
+    engine = Point2PoseEngine(lambda _: Worker(), replay=False)
+    future = Future()
+    engine.pending = (None, future)
+    checks = []
+
+    def check():
+        checks.append(1)
+        if len(checks) == 2:
+            raise KeyboardInterrupt("episode_interrupted")
+
+    engine.interruption_check = check
+    try:
+        with pytest.raises(KeyboardInterrupt, match="episode_interrupted"):
+            engine.wait()
+        assert not future.done()  # No invented inference result or publication.
+        assert len(checks) == 2
+    finally:
+        future.cancel()
+        engine.close()
+
+
+@pytest.mark.parametrize("worker_timeout", [False, True])
+def test_synchronous_wait_preserves_completed_result_or_worker_timeout(worker_timeout):
+    from concurrent.futures import Future
+
+    engine = Point2PoseEngine(lambda _: Worker(), replay=False)
+    future = Future()
+    engine.pending = (None, future)
+    checked = []
+    engine.interruption_check = lambda: checked.append(1)
+    if worker_timeout:
+        future.set_exception(TimeoutError("worker_timeout"))
+    else:
+        future.set_result(dict(latency_s=0.08))
+    try:
+        if worker_timeout:
+            with pytest.raises(TimeoutError, match="worker_timeout"):
+                engine.wait()
+        else:
+            assert engine.wait() is None
+            assert future.result() == dict(latency_s=0.08)
+        assert checked == [1]
+    finally:
+        engine.close()

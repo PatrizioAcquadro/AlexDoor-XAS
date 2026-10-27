@@ -82,3 +82,16 @@ def test_live_observation_update_preserves_native_capture_method(monkeypatch):
     assert callable(r.observation)
     assert r.latest_observation == "policy observation"
     r.observer.update.assert_called_with("actual sensor")
+
+
+def test_recording_detaches_without_waiting_for_operational_models(tmp_path):
+    r = GuardedTeacherRecorder.__new__(GuardedTeacherRecorder)
+    r.env = SimpleNamespace(event_sink=object())
+    r.writer = Mock()
+    geometry = Mock()
+    r.operational = (None, None, geometry, None, None, None)
+    r.close_recording()
+    assert r.env.event_sink is None
+    r.writer.close.assert_called_once()
+    geometry.close.assert_not_called()
+    assert r.operational is not None  # Model teardown remains a later operation.

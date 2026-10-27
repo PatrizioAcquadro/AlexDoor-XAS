@@ -321,7 +321,11 @@ class TemporalExpertRecorder(ExpertRecorder):
         if self.writer is not None:
             self.writer.interrupt(outcome)
 
-    def close(self):
+    def close_recording(self):
+        """Detach physical observation and flush data without waiting for model workers."""
         if self.env is not None:
             self.env.event_sink = None
         super().close()
+
+    def close(self):
+        self.close_recording()

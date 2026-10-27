@@ -58,9 +58,17 @@ the existing bounds. The 2400 s wall watchdog closes the complete process group;
 unavailable. The initial 2+4 s stops pass but do not substitute for final stops.
 The original incomplete recording and unequal unflushed rows remain unchanged;
 zero labels. No full retry or dependent collection proceeds before shared-path
-diagnosis and safe bounded cleanup. One separate parked-prefix diagnostic records
-stage progress and thread stacks, ends before manipulation and has a 300 s wall
-watchdog. Its outcome remains pending in the resume handoff.
+diagnosis and safe bounded cleanup. The instrumented parked prefix passes 14.1 s
+and saves both terminal stops; the original blocked operation remains unknown. Depth, robot state and calibration
+match the retained prefix exactly; RGB differs, so no cause is inferred from
+non-reproduction. No recovery labels are admitted.
+
+The shared synchronous wait now checks the existing episode watchdog/interruption
+while inference is pending. Recording detaches and flushes before physical stops;
+model teardown follows durable stop/report evidence. Existing timings, controller,
+observations and scientific gates stay unchanged. Essential software checks pass;
+one controlled native inference-stall validation is required before dependent
+collection resumes. The original missing stops remain unavailable.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -88,9 +96,8 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **5.9133 aggregate GPUh** across 38 completed allocations;
-the parked diagnostic is the 39th. Retention is 54.62 GiB,
-with 463.3 GiB physically free. Remaining 20 ordinary and
+Closed cost is **5.9507 aggregate GPUh** across 39 completed allocations.
+Retention is 54.90 GiB, with 463.0 GiB physically free. Remaining 20 ordinary and
 8 recovery conditions project 110–146 GiB additional, or 204 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode

@@ -275,9 +275,23 @@ class Point2PoseEngine(CueEngine):
         return True
 
     def wait(self):
-        """Wait for actual completion without inventing a publication timestamp."""
+        """Wait for actual completion, honoring an owning episode's interruption check."""
         if self.pending is not None and not self.replay:
-            self.pending[1].result()
+            future = self.pending[1]
+            check = getattr(self, "interruption_check", None)
+            if check is None:
+                future.result()
+                return
+            from concurrent.futures import TimeoutError
+
+            while True:
+                check()
+                try:
+                    future.result(timeout=0.1)
+                    return
+                except TimeoutError:
+                    if future.done():
+                        raise  # A worker-raised timeout is an outcome, not a pending wait.
 
     def poll(self, now):
         if self.pending is not None and not self.replay:
