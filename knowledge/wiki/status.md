@@ -1,10 +1,10 @@
 # Project Status
 
-## ACT A1 — first complete recovery qualified; collection continuing
+## ACT A1 — two complete recoveries qualified; collection continuing
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
-**9/36 qualified cells**: eight ordinary cycles, including C14/C15 reuse and six new
-cycles, plus the first complete recovery, D1-RP. The ordinary additions are
+**10/36 qualified cells**: eight ordinary cycles, including C14/C15 reuse and six new
+cycles, plus complete D1-RP and D2-RV recoveries. The ordinary additions are
 D1-H+, D2-V, D1-DL, D1-V, D1-DR and D2-DL.
 D1-H+ reaches 51.86 degrees with a measured 20.02 mm height change; D2-V reaches
 52.54 degrees under its measured 1.1 lighting scale. Both exceed their unchanged
@@ -14,8 +14,8 @@ actual 0.7 panel/handle mass and inertia, 50.28 degrees of controlled opening,
 continuous contact and the full hold/release/stabilization/stops. The first Blackwell D1-V cycle also passes every gate at 50.16 degrees with
 measured lighting scale 0.9. D1-DR verifies mass/inertia1.3, damping6, controlled50.43 degrees and all full-cycle
 gates. D2-DL also verifies mass/inertia at 0.7 of nominal, damping 4, 52.54 degrees, uninterrupted
-contact and all full-cycle/native-stop/visual/temporal gates. Together with D1-RP,
-seven new recordings supply **37,484 overlapping windows**, retaining four-second
+contact and all full-cycle/native-stop/visual/temporal gates. Together with both complete recoveries,
+eight new recordings supply **45,556 overlapping windows**, retaining four-second
 history and actual A1 targets. Zero new optimizer updates; learned outcomes stay 0/22.
 
 D1-RP independently verifies the real 1.2 s late pause, a 27.435 mm measured
@@ -27,8 +27,36 @@ including 313 corrective windows: all 72 injected commands remain strictly past
 observed history and are excluded from every target chunk. This is one complete
 recovery demonstration, with zero optimizer updates or learned-success claim.
 
-Twenty-five completed matrix attempts retain eighteen negatives and seven
-qualified sources. Twenty-three have passing terminal 2+4 s stop pairs. D2-P has
+D2-RV is now independently qualified and prepared as N08, the second complete
+recovery. Native reconstruction verifies 52.539 degrees of controlled opening
+against 42.029 required, 180 loaded hold intervals, 360 release and 120 stabilization
+intervals, no native losses/forbidden contacts, peak force 5.078 N and both saved
+2+4 s stops. The original precontact refusal and both component bundles remain intact.
+
+Its actual handoff error is 14.662 mm and 0.05880 rad. The measured velocity
+residual peaks at 72.211 mm/s, versus 1.091 mm/s immediately before injection.
+All 24 brake commands request the actual measured joint anchor; the bounded setter
+reaches it and actual joint speed falls from 0.17473 to 0.01186 rad/s. This is
+measured braking, with no zero-velocity or completed-stop claim at 0.4 s. The
+1.5 s return ends within 0.511 mm/0.00596 rad, followed by 30 consecutive valid
+loaded intervals and the full ordinary cycle. Native/control q/dq, generation,
+clock, roles and pre/post-action joins agree exactly; errors are recomputed from
+raw pre-action states. Eleven adverse history changes are rejected. Every saved
+review field of existing ordinary N06 and RP N07 reproduces unchanged.
+
+Twelve real ordinary/recovery images are inspected. Recorded CUDA frames support
+metadata-only preparation and 8,072 eligible windows, including 403 corrective
+windows. All 35 nonzero disturbance commands remain strictly past delivered-target
+history at the first corrective decision (29.2 s), and are excluded from every
+supervised target/crossing chunk. The declared 0.6 s pose disturbance starts at
+zero amplitude, so its first command correctly remains expert; the 35 nonzero
+commands are the full executed disturbance. The maintained reader also passes
+from another directory. No evaluator/reference fields enter policy observations;
+original selections and normalization stay unchanged. Eight new recordings now
+supply 45,556 overlapping windows, not independent demonstrations. Zero new updates.
+
+Twenty-six completed matrix attempts retain eighteen negatives and eight
+qualified sources. Twenty-four have passing terminal 2+4 s stop pairs. D2-P has
 only a passing 2 s stop; D1-RV has passing initial stops but unavailable terminal stops/report. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
@@ -60,7 +88,12 @@ The independently valid component support remains separate from full-task succes
 D2-P refuses its geometry prescreen because the prescribed pedestal intersects
 the door frame. No recorder or teacher action starts; the available 2 s native
 stop passes. The missing recording and 4 s continuation remain unavailable.
-A feasible placement preserving the agreed variety needs independent qualification.
+A feasible placement preserving the agreed variety needs independent qualification. A CPU geometric
+diagnosis proposes mirroring only the 20 mm x offset away from the frame, preserving
+translation magnitude, 25 mm y offset, 4-degree yaw and arm changes. A separate
+parked native geometry/reset/visibility and 2+4 s-stop qualification is next;
+the original absent 4 s stop stays unavailable and full collection admission
+remains unchanged until actual prospective proof is independently reviewed.
 
 D1-RV times out during parked inspection, before approach or any recovery error.
 The perception capture remains at 14.1 s for about 38 minutes, with memory within
@@ -125,10 +158,8 @@ global recipe. The actual refused interval and exact qualified boundary now pass
 nominal behavior is unchanged, while outside position/force and unqualified
 upper-gripper/D2-H- cases still refuse. This qualifies only the saved approach
 neighborhood; no broader posture, condition, door or hardware claim follows.
-One distinctly named complete D2-RV follow-up can now test the unchanged agreed
-pose/brake/return and full hold/release/stabilization. Actual recovery history,
-native contact/stops, visual and temporal qualification remain pending. The
-original RV refusal and partial RP hold remain negative with zero labels.
+The full follow-up now qualifies as N08 above; the original RV refusal and partial
+RP hold remain negative with zero labels.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -156,9 +187,9 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **6.8372 aggregate GPUh** across 45 completed allocations.
-Retention is 63.77 GiB, with 457.5 GiB physically free. Remaining 20 ordinary and
-7 recovery conditions project 101–141 GiB additional, or 197 GiB at their physics
+Closed cost is **7.2981 aggregate GPUh** across 46 completed allocations.
+Retention is 68.95 GiB, with 452.3 GiB physically free. Remaining 20 ordinary and
+6 recovery conditions project 106–137 GiB additional, or 192 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode
 reserves 24 GiB plus 3.49 GiB protected headroom. Forecasts are planning scenarios.
