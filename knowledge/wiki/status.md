@@ -1,27 +1,30 @@
 # Project Status
 
-## ACT A1 — two new complete-cycle sources; collection continuing
+## ACT A1 — three new complete-cycle sources; collection continuing
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
-**4/36 qualified cells**: C14/C15 reuse plus new D1-H+ and D2-V native cycles.
+**5/36 qualified cells**: C14/C15 reuse plus new D1-H+, D2-V and D1-DL native cycles.
 D1-H+ reaches 51.86 degrees with a measured 20.02 mm height change; D2-V reaches
 52.54 degrees under its measured 1.1 lighting scale. Both exceed their unchanged
 opening requirements, hold 3 s, release intentionally, stabilize for 2 s and pass
-independent contact/stop reconstruction and visual/temporal review. Their two
-recordings supply **12,316 windows**, retaining four-second history and actual A1
+independent contact/stop reconstruction and visual/temporal review. D1-DL also verifies
+actual 0.7 panel/handle mass and inertia, 50.28 degrees of controlled opening,
+continuous contact and the full hold/release/stabilization/stops. Their three
+recordings supply **16,423 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Eight new matrix collection attempts retain six negatives and two qualified
-cycles. All eight pass both independent stops. D1-H- stops for contact loss or
+Nine completed new matrix collection attempts retain six negatives and three
+qualified cycles. All nine pass both independent stops. D1-H- stops for contact loss or
 uncertainty. D4's observed-sweep support remains unresolved. The new D3 ingress
 diagnostic finds a local-surface material inconsistency before approach; exact
 calibration/depth disagreement is not reproduced. No favorable retry is queued.
-The next new local D1-DL waits for the agreed episode-safe VLA handoff. Training,
+D1-DL has returned the local GPU; the next fixed six-case D3 offline diagnostic
+waits for its separately agreed VLA window and complete-episode handoff. Training,
 learned evaluation, development collection and final-test access remain excluded.
 
-Actual campaign cost is **1.7342/12 aggregate GPUh** across 20 charged allocations,
-plus one reserved Blackwell full cell (upper estimate 2.4203 GPUh). Retention is
-20.77/200 GiB including replicas; the common 60-allocation cap includes failures,
+The 02:07 UTC snapshot costs **2.2984/12 aggregate GPUh** across 22 allocations
+(including one running Blackwell full cell; upper estimate 2.6760 GPUh). Retention is
+24.57/200 GiB including replicas; the common 60-allocation cap includes failures,
 diagnostics and preparation. Nine persistent restoration-verified archives resolve
 the initial storage shortage; historical costs are never refunded.
 
@@ -29,10 +32,11 @@ Blackwell passes native perception/head-camera/240/60 Hz checks and the fixed
 six-case 10 N loaded transfer bundle, including all 18 stop continuations and
 unchanged residual/position/velocity/acceleration/feedback bounds. This qualifies
 the original operational recipe's measured transfer domain. Its first full D1-V
-remains queued after actual VLA201 completion and cleanup; full-cycle compatibility
+is running after verified VLA201 completion and cleanup; full-cycle compatibility
 is pending. Persistent ownership protects both existing lanes and unrelated work.
 Optional retention of already CUDA-preprocessed captures now supports metadata-only
-preparation; CPU checks pass and actual native cache integration remains pending.
+preparation; actual D1-DL integration passes with 937 frames and no additional
+GPU preparation allocation.
 Exact queues and remaining actions are in the
 [resume handoff](../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md).
 

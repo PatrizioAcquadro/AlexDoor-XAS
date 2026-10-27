@@ -7,10 +7,10 @@ Teacher similarity is not the success criterion. This campaign collects and
 prepares data; training, learned evaluation, development collection and final-test
 access are excluded.
 
-## Current result: two new full-cycle sources qualified
+## Current result: three new full-cycle sources qualified
 
-**4/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
-new D1-H+ and D2-V.** The new source acquires continuous valid native contact, reaches
+**5/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
+new D1-H+, D2-V and D1-DL.** The new source acquires continuous valid native contact, reaches
 51.86 degrees against the unchanged 41.01-degree requirement, holds for 3 s,
 intentionally releases and stabilizes for 2 s. Independent saved native-force,
 gap and stop-stream reconstruction reproduces the passing continuity and 2+4 s
@@ -30,26 +30,40 @@ D2-V independently passes uninterrupted native contact, 52.54 degrees against
 42.03 required, 3 s hold, release, 2 s stabilization and both stops. Actual lighting
 scale is 1.1; initial RGB changes while camera pose, physics, dynamics and controls
 retain the agreed comparison. Six real phase images pass visual review. CUDA
-preparation and the actual consumer admit 8,126 windows. Together the two new
-recordings provide 12,316 overlapping windows, without increasing the independent
-demonstration count. A completed receipt was reconciled with D2-V's stale running
+preparation and the actual consumer admit 8,126 windows from this one recording;
+overlapping windows are not independent demonstrations. A completed receipt was reconciled with D2-V's stale running
 matrix state before admission; raw evidence and original outcomes were unchanged.
 
-Eight new matrix collection attempts retain six negatives and two qualified full
-cycles. All eight pass both independent stops. D1-H- terminates for contact loss
+D1-DL independently verifies active panel/handle mass and inertia at 0.7 of the
+nominal values, hinge damping 4, continuous contact and 50.28 degrees of controlled
+opening against 41.01 required. All 180 hold intervals remain valid and loaded;
+minimum hold opening is 47.86 degrees. Intentional release, 120 stabilization
+intervals and both independent stops pass. Native peak is 6.75 N; the separate
+observed operational upper estimate is 6.95 N. Six actual phase images pass review.
+Its allocation costs 920.259 s and explicitly returns VLA ownership after cleanup.
+
+The first actual cached-frame pipeline retains 937 CUDA captures inside the raw
+file. CPU-only metadata preparation reuses those exact values through a relative
+external link and admits 4,107 windows with unchanged masks, shapes and exact A1
+deltas. The prepared numeric store is about 3.9 MB and requires its 2.67 GB raw
+source; no duplicate image payload or additional GPU allocation is created. Three
+new independent recordings now supply **16,423 windows**.
+
+Nine completed new matrix collection attempts retain six negatives and three
+qualified full cycles. All nine pass both independent stops. D1-H- terminates for contact loss
 or uncertainty after 1,791 guarded commands; it supplies zero positive targets.
 The separate D3 ingress diagnostic stops before approach for inconsistent local
 surface material. Actual camera/calibration packets match recording exactly;
-old/new depth agrees at all eight sampled inspection times while RGB differs.
+old/new depth agrees across all 255 captured frames while RGB differs.
 Calibration/precision disagreement is not reproduced; photometric or association
 fragility remains a hypothesis, not an established cause.
 
-Twenty actual allocations cost **1.7342 aggregate GPUh** (1.4306 local / 0.3036
-Blackwell). One full Blackwell cell is reserved separately, bringing the aggregate
-upper estimate to 2.4203 GPUh. Retention is 20.77 GiB including replicas. Exact
-accounting is in `resources.json`; waiting is uncharged. All failed allocations
-and source outcomes remain preserved. Training, normalization and historical
-selections are unchanged.
+At 02:07 UTC, 22 allocations cost **2.2984 aggregate GPUh** (1.6862 local / 0.6122
+Blackwell), including elapsed time on its one running full cell. The aggregate
+upper estimate is 2.6760 GPUh; retention is 24.57 GiB including replicas. Exact
+accounting is in `resources.json`; CPU queue waiting is uncharged. All failed
+allocations and source outcomes remain preserved. Training, normalization and
+historical selections are unchanged.
 
 The first preparation rejects invalid CLI arguments. The corrected CUDA image
 preparation omits eligibility, so its reader safely finds zero usable rows. Both
@@ -59,8 +73,8 @@ then permits a separate metadata-only reviewed copy with the maintained
 sources can optionally retain the exact CUDA frames already computed during
 capture and reuse them through CPU-only metadata preparation; see
 [[../topics/act-a1-observations-and-time|temporal preparation]]. The option defaults
-off and is first enabled on the new D1-DL attempt; native integration remains
-pending. It changes no controller, timing, thresholds or teacher endpoint.
+off; the completed D1-DL source verifies native integration. It changes no
+controller, timing, thresholds or teacher endpoint.
 
 Nine inactive original HDF5 payloads, **188.3648 GiB**, now reside in **159.7574 GiB**
 of restoration-verified persistent archives. Active dataset links resolve. Final
@@ -73,8 +87,13 @@ after 112 guarded approach commands. D1-H+'s original 192-command weak-position
 refusal remains negative; its changed follow-up uses the independently qualified
 lower shoulder-Z recipe, with frozen physical, residual and stop bounds. D3's
 live selection refusal remains unresolved; changing saved replay precision alone
-does not reproduce it. These diagnoses do not prevent unrelated cells. D1-DL
-waits for the next agreed local window. See the
+does not reproduce it. These diagnoses do not prevent unrelated cells. The fixed
+six-case D3 offline bundle
+waits for a separate 1,500 s local window after the actual D1-DL return,
+1,200 s of VLA ownership and healthy episode cleanup. It crosses the two actual
+RGB streams with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2; all 255 depth
+and calibration frames, plus all 1,525 robot states, match exactly. No simulator, action,
+source admission or favorable retry is part of this diagnostic. See the
 [resume handoff](../../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md).
 
 ## Agreed coverage and present evidence
@@ -244,7 +263,7 @@ the unchanged residual, position, speed, acceleration, feedback and joint-stop
 bounds. No calibration is refit or widened. Its charged allocation is 251.431 s,
 with an explicit VLA return after cleanup. This qualifies the original recipe's
 measured transfer domain; the newer local shoulder extension is not transferred
-by this bundle. The first full Blackwell D1-V is separately queued after actual
+by this bundle. The first full Blackwell D1-V starts only after verified actual
 VLA201 completion and driver exit, with the full 2,555 s reserve inside a 2,700 s
 window. Full-cycle compatibility still requires actual source review. Owned GPU
 usage and shared-device headroom preserve other workloads; no third native lane

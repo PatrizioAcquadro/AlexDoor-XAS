@@ -243,7 +243,10 @@ inference. The prepared image dataset uses a relative external link to that raw
 file: retain and move the episode folder together. Missing payloads fail clearly;
 a cache alone never grants supervision. CPU regressions cover alignment, multiple
 readers, relative relocation and missing source handling. Native producer-to-reader
-validation remains pending the first new collection using this option.
+validation passes on D1-DL: all 937 CUDA frames match the recorded capture count;
+the relative raw dependency and actual consumer supply 4,107 reviewed windows
+with exact A1 deltas. This adds no GPU preparation allocation or positive labels
+to failed sources.
 
 `reviewed_command_mask` is required to admit supervision. Its default is all
 false, including for failed/interrupted/ambiguous recordings. Chunks intersecting
