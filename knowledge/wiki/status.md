@@ -1,6 +1,18 @@
 # Project Status
 
-## ACT A1 — two complete recoveries qualified; collection continuing
+## ACT A1 — paused by the human; diagnosis only
+
+**Collection and all new GPU work are paused by direct human instruction on
+October 27, 2026.** The existing heartbeat is verified PAUSED; no collector,
+queued allocation or successor remains. The last H- component completed and its
+whole process group exited, but independent review rejects simultaneous loaded
+corner coverage by 3.252 mrad at the gripper. All six cases and 18 stops remain
+retained; no calibration adoption or cell added. Controller/calibration/thresholds
+and scientific criteria remain frozen. Resume requires a new explicit human
+go-ahead. The [[experiments/act-a1-complete-cycle-pause-diagnosis|CPU pause diagnosis]]
+compares same-door successes/failures and proposes one discriminating late-hold
+contact/load diagnostic for future consideration; nothing is queued or authorized.
+Campaign incomplete: 10/36 qualified, 20 ordinary and 6 recoveries remaining.
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
 **10/36 qualified cells**: eight ordinary cycles, including C14/C15 reuse and six new
@@ -177,7 +189,10 @@ robot-only qualification covers individual boundaries and both coupled corners;
 each corner must reach both bounds in the same loaded native sample. Every
 physical, model, dynamic and 18-stop gate remains unchanged. Historical contact
 losses and controller differences remain; this plans support and adds no source
-qualification or calibration adoption.
+qualification or calibration adoption. The actual H- bundle now completes all
+six cases and passes all frozen model/dynamic/feedback/18-stop gates, but rejects
+the face0 corner: gripper coverage misses 3.252 mrad while shoulder coverage
+passes. The human pause prevents a corrected bundle or successor.
 
 CPU comparison also finds zero-force native intervals in D2-RP and all four
 qualified D2 references; isolated zero intervals do not explain RP's failed
@@ -283,8 +298,8 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **8.5068 aggregate GPUh** across 60 completed allocations.
-Retention is 79.73 GiB, with 441.5 GiB physically free. Remaining 20 ordinary and
+Closed cost is **8.5416 aggregate GPUh** across 61 completed allocations.
+Retention is 79.74 GiB, with 441.5 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106.5–137.2 GiB additional, or 192.2 GiB at their physics
 budgets, including estimated future diagnostic-journal overhead. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode
@@ -293,8 +308,8 @@ reserves 24 GiB plus 3.49 GiB protected headroom. Forecasts are planning scenari
 All cumulative GPU-hour/allocation-count/retained-data administrative ceilings
 remain removed. Original data, masks, denominators and historical costs remain
 intact. Completion requires all 28 ordinary cycles and 8 complete recoveries,
-independently qualified/prepared. Only local RTX 4090/storage and the existing
-15-minute heartbeat are active. Finite episode watchdogs and physical admission
+independently qualified/prepared. Only local RTX 4090/storage remain the operational destination; the existing
+15-minute heartbeat is PAUSED and no GPU execution is authorized during the pause. Finite episode watchdogs and physical admission
 remain mandatory; training, learned evaluation, development collection and final
 test remain excluded. Exact current allocation state is in the resume handoff.
 

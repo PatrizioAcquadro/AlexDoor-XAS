@@ -7,6 +7,17 @@ Teacher similarity is not the success criterion. This campaign collects and
 prepares data; training, learned evaluation, development collection and final-test
 access are excluded.
 
+## Human pause: CPU diagnosis only
+
+The human explicitly paused collection and all new GPU jobs on October 27, 2026.
+The existing heartbeat is PAUSED; all 61 allocations and the complete last H-
+process group have exited. No collector, queued allocation or successor remains.
+Controller, calibrations, thresholds and scientific criteria stay frozen; a new
+explicit human go-ahead is required to resume. The campaign remains incomplete.
+See [[experiments/act-a1-complete-cycle-pause-diagnosis|the CPU pause diagnosis]]
+for the verified last outcome and minimum discriminating evidence. Earlier prospective
+launch instructions below are historical and superseded by this pause.
+
 ## Current result: two complete recoveries; ten cells qualified
 
 **10/36 cells are independently qualified:** eight ordinary cells (C15/D1-N and
@@ -658,6 +669,12 @@ sample; separate favorable samples cannot establish a corner. All frozen residua
 feedback, speed/acceleration, physical and 18-stop gates remain. The maintained
 75-second schedule retains its finite 900 wall seconds plus 155 cleanup. No active
 calibration change or full H- retry follows before independent native review.
+The actual bundle now completes in 125.269 charged GPU seconds, with all six cases,
+18 stops and frozen model/feedback/dynamic/joint-travel gates passing. Independent
+review nevertheless rejects it: face0's loaded gripper maximum is 0.711182 rad
+against 0.714433 required, missing 3.252 mrad of simultaneous corner coverage.
+Shoulder and the other declared boundary cases pass. No candidate adoption,
+corrected plan or successor follows; the human pause now governs all execution.
 
 D1-H- remains a separate push-support negative: 1,251 push commands end at
 20.424 degrees with zero hold/release/stabilization. The last six native-force
@@ -728,18 +745,18 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **8.5068 aggregate GPUh** across 60 completed allocations.
-Current retention is 79.73 GiB, entirely local with zero
+Closed cost is **8.5416 aggregate GPUh** across 61 completed allocations.
+Current retention is 79.74 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, the corrected depth-coherent comparison leaves its actual refusal unchanged and is rejected for adoption, and the first D2-H+ component rejection is preserved, the corrected bundle independently qualifies its actual loaded boundaries, the scoped full follow-up exits the complete qualified position domain and remains negative, and independent H- complete-path component qualification is prepared. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, the corrected depth-coherent comparison leaves its actual refusal unchanged and is rejected for adoption, and the first D2-H+ component rejection is preserved, the corrected bundle independently qualifies its actual loaded boundaries, the scoped full follow-up exits the complete qualified position domain and remains negative, and independent H- complete-path component qualification is rejected for missing actual corner coverage. Collection is now paused by the human. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
 targets. Its remote copy is removed after verification with zero active consumers;
 shared VLA files remain untouched. See the local-only-migration receipts. Existing
-persistent historical archives remain protected. A single 15-minute heartbeat
-continues this chat; healthy running work does not cause active polling. All failed allocations and original
+persistent historical archives remain protected. The existing 15-minute heartbeat
+is PAUSED after verified complete cleanup; no automatic continuation is authorized. All failed allocations and original
 source outcomes remain preserved. Training, normalization and historical selections
 are unchanged.
 
