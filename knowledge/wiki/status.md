@@ -1,21 +1,22 @@
 # Project Status
 
-## ACT A1 — four new complete-cycle sources; collection continuing
+## ACT A1 — five new complete-cycle sources; collection continuing
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
-**6/36 qualified cells**: C14/C15 reuse plus new D1-H+, D2-V, D1-DL and D1-V native cycles.
+**7/36 qualified cells**: C14/C15 reuse plus new D1-H+, D2-V, D1-DL, D1-V and D1-DR cycles.
 D1-H+ reaches 51.86 degrees with a measured 20.02 mm height change; D2-V reaches
 52.54 degrees under its measured 1.1 lighting scale. Both exceed their unchanged
 opening requirements, hold 3 s, release intentionally, stabilize for 2 s and pass
 independent contact/stop reconstruction and visual/temporal review. D1-DL also verifies
 actual 0.7 panel/handle mass and inertia, 50.28 degrees of controlled opening,
 continuous contact and the full hold/release/stabilization/stops. The first Blackwell D1-V cycle also passes every gate at 50.16 degrees with
-measured lighting scale 0.9. These four
-recordings supply **20,534 windows**, retaining four-second history and actual A1
+measured lighting scale 0.9. D1-DR verifies mass/inertia1.3, damping6, controlled50.43 degrees and all full-cycle
+gates. These five
+recordings supply **25,413 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Ten completed new matrix collection attempts retain six negatives and four
-qualified cycles. All ten pass both independent stops. D1-H- stops for contact loss or
+Eleven completed new matrix collection attempts retain six negatives and five
+qualified cycles. All eleven pass both independent stops. D1-H- stops for contact loss or
 uncertainty. D4's observed-sweep support remains unresolved. The new D3 ingress
 diagnostic finds a local-surface material inconsistency before approach; exact
 calibration/depth disagreement is not reproduced. No favorable retry is queued.
@@ -24,13 +25,14 @@ for both RGB streams and all tested reset/cadence variants. Native pose retains
 63–64 depth-supported reference points; the local correction retains zero.
 CPU review still finds 3,996–3,998 of the original 4,000 material points visible.
 The local query currently exposes only the dominant plane; relief can hide the
-selected material from that query. An isolated expanded-query draft passes
-geometry/session regressions, including absent-support refusals. It is not yet
-installed or natively qualified; the queued D1-DR runtime is preserved.
+selected material from that query. The expanded-query correction is installed and locally committed after D1-DR
+finishes, with geometry/session regressions and absent-support refusals passing.
+One distinctly named full D3 follow-up is queued for its next agreed window;
+native repair qualification remains pending.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Completed cost is **2.7960/12 aggregate GPUh** across 24 allocations. Retention is
-28.23/200 GiB including replicas; the common 60-allocation cap includes failures,
+Completed cost is **3.0899/12 aggregate GPUh** across 25 allocations. Retention is
+31.32/200 GiB including replicas; the common 60-allocation cap includes failures,
 diagnostics and preparation. Nine persistent restoration-verified archives resolve
 the initial storage shortage; historical costs are never refunded.
 

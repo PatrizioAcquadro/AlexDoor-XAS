@@ -7,10 +7,10 @@ Teacher similarity is not the success criterion. This campaign collects and
 prepares data; training, learned evaluation, development collection and final-test
 access are excluded.
 
-## Current result: four new full-cycle sources qualified
+## Current result: five new full-cycle sources qualified
 
-**6/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
-new D1-H+, D2-V, D1-DL and D1-V.** The new source acquires continuous valid native contact, reaches
+**7/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
+new D1-H+, D2-V, D1-DL, D1-V and D1-DR.** The new source acquires continuous valid native contact, reaches
 51.86 degrees against the unchanged 41.01-degree requirement, holds for 3 s,
 intentionally releases and stabilizes for 2 s. Independent saved native-force,
 gap and stop-stream reconstruction reproduces the passing continuity and 2+4 s
@@ -57,8 +57,15 @@ adding 4,111 windows. Its native allocation costs 2,267.593 s and explicitly
 returns VLA slot ownership; local CUDA preparation costs another 32.350 s.
 Four new independent recordings now provide **20,534 windows**.
 
-Ten completed new matrix collection attempts retain six negatives and four
-qualified full cycles; all ten pass both independent stops. D1-H- terminates for
+D1-DR independently verifies panel/handle mass and inertia1.3 of nominal, hinge
+damping6, continuous contact and50.43 degrees against41.01 required. Full hold,
+intentional release, stabilization and both stops pass. Native peak is6.92 N.
+Six actual phase images and4,879 temporal windows pass, reusing the already CUDA
+frames through CPU metadata preparation. Its native allocation costs1,058.234 s;
+no additional GPU preparation is needed. Five new recordings now supply **25,413 windows**.
+
+Eleven completed new matrix collection attempts retain six negatives and five
+qualified full cycles; all eleven pass both independent stops. D1-H- terminates for
 contact loss or uncertainty after 1,791 guarded commands, with zero positive targets.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
@@ -73,15 +80,16 @@ a remedy. RGB, reset count and tested update cadence do not explain this refusal
 The original missing-selection failure remains preserved and distinct.
 
 The production local surface query returns only the first dominant measured plane.
-On relief geometry, that plane can differ from the selected material. An isolated
-CPU draft expands to all current measured components only when the dominant query
+On relief geometry, that plane can differ from the selected material. The corrected adapter expands to all current measured components only when the dominant query
 fails, retaining conditioning, identity, ambiguity and missing-support gates.
 Regression scenarios cover nominal geometry, relief on either side and absent
-material. This draft is not installed or natively validated; the queued D1-DR
-snapshot stays unchanged. No physical threshold or uncertainty bound is relaxed.
+material. The correction is installed and committed as `8aadab9` only after D1-DR terminates
+and returns its GPU. Production geometry/session regressions pass. One distinctly
+named full `D3-N-material-query` is queued behind a separate VLA interval; native
+qualification remains pending. No physical threshold or uncertainty bound is relaxed.
 
-Completed cost is **2.7960 aggregate GPUh** (1.8624 local / 0.9335 Blackwell)
-across 24 allocations. Retention is 28.23 GiB including replicas. Exact accounting
+Completed cost is **3.0899 aggregate GPUh** (2.1564 local / 0.9335 Blackwell)
+across 25 allocations. Retention is31.32 GiB including replicas. Exact accounting
 is in `resources.json`; waiting is uncharged. All failed allocations and original
 source outcomes remain preserved. Training, normalization and historical selections
 are unchanged.
