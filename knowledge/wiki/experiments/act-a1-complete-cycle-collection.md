@@ -73,8 +73,8 @@ metadata preparation. This one recording costs 1,720.151 GPU seconds. Six new
 independent recordings provide **33,374 overlapping windows**; none is a complete
 recovery or learned success.
 
-Eighteen completed new matrix collection attempts retain twelve negatives and six
-qualified full cycles; all eighteen pass both independent stops. D1-H- terminates
+Nineteen completed new matrix collection attempts retain thirteen negatives and six
+qualified full cycles; all nineteen pass both independent stops. D1-H- terminates
 for contact loss or uncertainty after 1,791 guarded commands, with zero positive
 targets. D2-DR preserves continuous native contact and exceeds the minimum opening,
 but exhausts its original 150 s push budget without any hold commands. It remains
@@ -110,9 +110,40 @@ wall time. Cleanup remains 65 s termination plus 90 s reserve. Software checks v
 the actual launcher and independent variety-review branches: unreviewed or
 other-condition exceptions and changes to force, hold, speed or undeclared
 horizon are rejected. The original 150 s setup, allocation and full negative stay
-intact. One distinctly named `D2-DR-push-budget` now runs on the 4090; its full
-native outcome and independent/visual/temporal qualification remain pending.
+intact. The distinctly named `D2-DR-push-budget` reaches 168 s of push and 148 hold
+commands, then refuses upper-gripper position support at the 10 N future-stop
+domain. Its 2.47 s hold is shorter than the required 3 s, with no release or
+stabilization. This source remains negative with zero eligible windows and
+2,083.497 GPU seconds charged. Raw/native-feedback integrity and both saved
+independent stops pass. Teacher trace/contact JSON was not persisted on the
+exception, so full native-contact reconstruction is explicitly unavailable.
 
+The refused future-motion envelope exceeds the main upper-gripper domain by
+0.083 mrad. At that refusal, its existing 4.25 mrad extension was qualified only to 1 N, while the
+unchanged guard requires 10 N support or genuinely contact-free stopping. The
+negative observed stopping margin does not establish an actual collision.
+
+Two separately declared six-case robot-only load/stop bundles preserve all twelve
+cases. The first passes every physical, residual, speed, acceleration, feedback
+and stop gate, but misses the upper position boundary in its early oblique case;
+its candidate remains rejected. Native measurements identify 3.685 mrad loaded
+servo displacement. The corrected bundle changes only that case's command by
+the measured offset, repeating the five controls with the same candidate and
+acceptance thresholds. All six corrected cases pass independently: all 18 stop
+continuations, frozen residuals and actual loaded boundary coverage in every
+required case. Reference loads remain 10 N and the physical hard limit remains
+80 N. This qualifies only the saved D2-DR hold-neighborhood support, with no
+hardware or arbitrary-posture claim.
+
+A separate D2-DR operational recipe changes only the existing upper-gripper
+halo's force-domain cap from 1 to 10 N. All q/tolerance/residual/speed/acceleration/
+stop/controller and success bounds remain unchanged; the global recipe stays
+intact. The actual refused packet now passes this position-support check;
+nominal behavior is unchanged, outside-domain motion/load still refuses, and
+D2-H- remains unqualified. One distinctly named `D2-DR-gripper-qualified` full
+follow-up is running with the reviewed 180 s push/250 physics/2500 wall budgets.
+Its complete native, visual and temporal qualification is still pending; neither
+component bundle nor either prior teacher negative is promoted to corpus success.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
@@ -164,10 +195,9 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **4.4890 aggregate GPUh** (3.5555 local /0.9335 historical Blackwell)
-across 32 completed allocations. `D2-DR-push-budget` is the 33rd, running on the
-local RTX 4090. The 06:39 UTC snapshot includes its elapsed charge: 4.5199 GPUh
-and 47.13 GiB retained locally, with zero remote campaign replicas. Exact accounting
+Closed cost is **5.1385 aggregate GPUh** across 35 completed allocations.
+`D2-DR-gripper-qualified` is the 36th allocation, running on the local RTX 4090.
+Current retention is 53.74 GiB, entirely local with zero remote replicas. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -218,7 +248,7 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Planned | Planned |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Planned | Qualified new | Changed budget follow-up running; original negative | Qualified new;1.1 | Planned | Planned |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Planned | Qualified new | Two negatives; calibrated full follow-up running | Qualified new;1.1 | Planned | Planned |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
 
@@ -330,21 +360,16 @@ success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
 cached-frame sources, current retained bytes and actual disk free space. The
-October 27, 06:39 UTC snapshot has 47.13 GiB retained and 470.88 GiB physically free.
-Completing the remaining 20 ordinary and 8 recovery conditions projects **110–145 GiB
-additional** under observed-duration scenarios, or157–193 GiB total. The maximum
-scenario uses each condition's actual physics budget,238 recorded seconds for
-D2-DR and 228 s for the other conditions, and projects 204 GiB additional/251 GiB total.
-The conditional D2-DR duration model includes its original failed recorded
-length, measured remaining progress and unchanged hold; it does not predict
-success. All scenarios fit physical space with 3.49 GiB protected headroom. They
-include every current negative; future failed attempts/diagnostics add actual
-bytes. These forecasts guide planning and never become admission ceilings.
-Current maximum measured growth projects 7.61 GiB per source, within the existing
-24 GiB physical reserve. Recheck growth/free capacity before every launch and warn
-with concrete shortages. Never stop a healthy source for the former 200 GiB cap.
-Cached-frame metadata preparation avoids another image copy, and running/pending
-source bytes are counted once.
+The current snapshot retains53.12GiB, with464.86GiB physically free.
+Remaining20ordinary+8recovery conditions project110–146GiB additional under
+conditional duration scenarios, or204GiB using each condition's physics budget.
+The existing24GiB episode reserve and3.49GiB protected headroom fit. Both D2-DR
+negatives and component evidence are included; future failures/diagnostics add
+actual bytes. Forecasts guide planning and never become new ceilings. The
+corrected component bundle has900s wall watchdog, retaining the prior measured
+six-case cost of127s as its timing basis and the same155s cleanup reserve.
+No source, model residual, physical limit or complete-cycle success threshold
+is weakened for coverage.
 
 The dedicated VLA transfer chat confirms both authorized lots fully verified and
 removed: 618,924 files preserve hashes, sizes, structure and metadata, and native

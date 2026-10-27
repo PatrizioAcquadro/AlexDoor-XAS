@@ -16,21 +16,31 @@ contact and all full-cycle/native-stop/visual/temporal gates. These six
 recordings supply **33,374 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Eighteen completed new matrix collection attempts retain twelve negatives and six
-qualified cycles; all eighteen pass both independent stop continuations. D1-H-
+Nineteen completed new matrix collection attempts retain thirteen negatives and six
+qualified cycles; all nineteen pass both independent stop continuations. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
 also remains negative: its original 150 s push budget expires during continuous
 loaded progress, leaving no hold phase. Independent raw/native contact and both
-stops pass. The reviewed correction changes only the D2-DR push budget to 180 s, with 250 physics/
-2500 wall watchdogs sized to its 244.4 s complete phase schedule. The original 150 s
-failure and all controller/native-exit/hold/release/stabilization/success gates
-remain intact. A distinctly named follow-up is running; native qualification is
-still pending. D2-H- also refuses before contact after 243approach commands because
-weak-position motion/stopping support is unavailable. Both saved stops and raw
-integrity pass; zero positive labels. Its negative observed stop margin is not
-an observed collision. A future height follow-up requires actual position or
-contact-free approach/stop qualification, with the same guard.
+stops pass. The reviewed 180 s push correction reaches the ordinary native exit and
+148 hold commands, then refuses weak-position support at the gripper. It remains
+negative: less than 3 s hold and no release/stabilization. Independent raw/native
+feedback and both saved stops pass; zero positive labels.
+
+The predicted upper-gripper motion interval exceeds the main calibrated domain
+by 0.083 mrad. Its existing 4.25 mrad extension was qualified at 1 N, below the
+10 N future stopping domain. The first six-case component bundle passes frozen
+physical/residual/stop gates but misses one position boundary, so its candidate
+stays rejected. A second bundle compensates only that case's measured 3.685 mrad
+servo displacement and independently passes all six cases, all stop continuations
+and loaded boundary coverage. All twelve declared cases and costs are preserved.
+
+A separate D2-DR recipe now changes only that upper-gripper force-domain support
+from 1 to 10 N. Global calibration and all position/residual/physical/stop/controller
+and success limits stay unchanged. Nominal and boundary checks pass; motion/load
+outside the qualified domain and D2-H- still refuse. A distinctly named full
+D2-DR follow-up is running; complete native/visual/temporal qualification remains
+pending. Component support is not a qualified complete-cycle demonstration.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -58,24 +68,21 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **4.4890 aggregate GPUh** across 32 completed allocations;
-`D2-DR-push-budget` is the 33rd, running on the local RTX 4090. At 06:39 UTC, elapsed
-accounting is 4.5199 GPUh and 47.13 GiB retained locally. Direct human
-authorizations remove cumulative GPU-hour, allocation-count and retained-data
-administrative ceilings without replacement. Completion still requires all 28
-ordinary cycles and 8 complete recoveries, independently qualified/prepared.
-Original data, masks, failures, denominators and costs remain preserved without
-resets/refunds. A single 15-minute heartbeat continues this chat, respecting the
-reviewed per-condition budgets and preserving healthy collectors.
+Closed cost is **5.1385 aggregate GPUh** across 35 completed allocations;
+`D2-DR-gripper-qualified` is the 36th and running. Retention is 53.74 GiB;
+physical free space is 464.2 GiB. Remaining 20 ordinary and 8 recovery conditions
+project about 110–146 GiB additional under conditional duration scenarios, or
+204 GiB at their physics budgets. Existing negatives and component evidence are
+included; future failures/diagnostics add actual bytes. Forecasts guide planning
+and never become administrative ceilings.
 
-Physical free space is **470.9 GiB** after both verified VLA transfer lots complete
-in their dedicated chat; AlexDoor duplicates no transfers or deletions. Remaining
-20 ordinary and 8 recovery conditions project 110–145 GiB additional under duration
-scenarios, or 204 GiB under their actual full physics budgets. These scenarios
-include current negatives and fit available space; future failures/diagnostics
-add actual bytes. Forecasts guide planning and never become ceilings. The 24 GiB
-physical episode reserve plus headroom gates each launch. Default watchdogs stay
-2400 wall/240 physics; only the reviewed D2-DR timing intervention uses 2500/250.
+All cumulative GPU-hour/allocation-count/retained-data administrative ceilings
+remain removed. Original data, masks, denominators and historical costs remain
+intact. Completion still requires all 28 ordinary cycles and 8 complete recoveries,
+independently qualified/prepared. AlexDoor uses only local RTX 4090/storage, with
+one 15-minute heartbeat. Finite per-case watchdogs and physical disk admission
+remain mandatory; training, learned evaluation, development collection and final
+test remain excluded.
 
 Blackwell passes native perception/head-camera/240/60 Hz checks and the fixed
 six-case 10 N loaded transfer bundle, including all 18 stop continuations and
