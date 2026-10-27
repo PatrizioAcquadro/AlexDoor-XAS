@@ -582,6 +582,24 @@ must pass unchanged. No RV neighborhood qualification is transferred. The same
 supported by previous 118–128 second component executions. There is no active
 calibration change or full-source retry before independent component review.
 
+The first D2-H+ bundle completes all six cases in 124.217 charged GPU seconds.
+Independent review passes all frozen moving/stopped residuals, healthy feedback,
+speed/acceleration, joint travel and all 18 stop continuations. The straight and
+late-oblique boundary cases cover the full existing halo, but the early-oblique
+loaded minimum is -2.305589 rad versus -2.309761 rad required: a 4.173 mrad miss.
+Candidate adoption is rejected, despite passing physical stops. Its own original
+moving-source offset did not establish static loaded response.
+
+The failed case's measured steady 10 N target-minus-actual median is -6.088 mrad.
+The distinct corrected plan changes only that case's elbow target by this measured
+displacement. The other five declared cases, exact original boundary, force,
+motions, durations and every acceptance gate remain unchanged. Both six-case
+plans and the initial rejection/cost are preserved; no RV bias is borrowed,
+no tolerance/domain is enlarged, and no source eligibility is created. The same
+75-second native schedule and finite watchdog remain, now also supported by this
+condition's measured 119.217-second wall duration. Independent review of all
+declared cases remains mandatory before any scoped calibration adoption.
+
 D1-H- remains a separate push-support negative: 1,251 push commands end at
 20.424 degrees with zero hold/release/stabilization. The last six native-force
 interval maxima are zero, and observed load lower support becomes negative.
@@ -651,11 +669,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **8.3734 aggregate GPUh** across 57 completed allocations.
-Current retention is 78.83 GiB, entirely local with zero
+Closed cost is **8.4079 aggregate GPUh** across 58 completed allocations.
+Current retention is 78.84 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, the corrected depth-coherent comparison leaves its actual refusal unchanged and is rejected for adoption, and the independent D2-H+ component bundle is prepared. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, the corrected depth-coherent comparison leaves its actual refusal unchanged and is rejected for adoption, and the first D2-H+ component bundle is rejected for early-oblique loaded-boundary coverage; a measured own-case correction is frozen. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink

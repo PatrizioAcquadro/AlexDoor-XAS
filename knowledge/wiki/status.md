@@ -150,11 +150,15 @@ retry or source admission follows from this diagnostic.
 Independent D2-H+ review verifies its original precontact negative, raw feedback
 and both terminal stops. Its future lower-elbow interval exceeds the main domain
 by 0.973 mrad, inside the existing 4.25 mrad halo qualified only to 1 N, against
-10 N required. One D2-H+-specific six-case robot-only load/stop bundle is frozen.
-Its own retained post-step target response selects initial probe targets;
-actual 10 N coverage of every original boundary is still required. All position,
-residual, physical, speed, acceleration and 18-stop gates remain unchanged.
-No existing RV qualification or calibration is transferred to this height.
+10 N required. Its first six-case robot-only bundle passes all physical,
+frozen-model, feedback, dynamic and 18-stop gates, but the early-oblique case
+misses actual full loaded-boundary coverage by 4.173 mrad. Adoption is rejected.
+The own moving-source target estimate was insufficient for this loaded case;
+a corrected frozen bundle changes only that command by its measured 6.088 mrad
+steady loaded displacement. Five controls and every original boundary, force,
+duration and qualification gate remain identical. All six first cases and costs
+remain preserved; no RV qualification, calibration adoption or full retry follows
+before independent review of the distinct corrected bundle.
 
 CPU comparison also finds zero-force native intervals in D2-RP and all four
 qualified D2 references; isolated zero intervals do not explain RP's failed
@@ -258,8 +262,8 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **8.3734 aggregate GPUh** across 57 completed allocations.
-Retention is 78.83 GiB, with 442.5 GiB physically free. Remaining 20 ordinary and
+Closed cost is **8.4079 aggregate GPUh** across 58 completed allocations.
+Retention is 78.84 GiB, with 442.4 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106.5–137.2 GiB additional, or 192.2 GiB at their physics
 budgets, including estimated future diagnostic-journal overhead. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode
