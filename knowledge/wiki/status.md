@@ -27,8 +27,8 @@ including 313 corrective windows: all 72 injected commands remain strictly past
 observed history and are excluded from every target chunk. This is one complete
 recovery demonstration, with zero optimizer updates or learned-success claim.
 
-Twenty-four completed matrix attempts retain seventeen negatives and seven
-qualified sources. Twenty-two have passing terminal 2+4 s stop pairs. D2-P has
+Twenty-five completed matrix attempts retain eighteen negatives and seven
+qualified sources. Twenty-three have passing terminal 2+4 s stop pairs. D2-P has
 only a passing 2 s stop; D1-RV has passing initial stops but unavailable terminal stops/report. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
@@ -96,14 +96,24 @@ teacher trace is unavailable; zero labels and no unchanged retry. A concrete
 support/hold-path diagnosis and independent validation are required before a
 changed follow-up, with contact and hold thresholds unchanged.
 
-The independent original D2-RV is implementation-ready under its existing agreed
-15 mm/0.04 rad approach disturbance at 3.2–3.8 s, a 0.4 s measured-origin brake
-and 1.5 s return within the 7.5 s approach. The stale relative-joint proposal is
-preserved as superseded metadata. Active matrix/protocol/launcher checks agree
-and reject that stale proposal. This is a different unexecuted condition, using
-the unchanged global recipe; actual error/velocity, full cycle, native stops,
-real images and temporal-reader qualification remain pending. RV admission
-requires its own independent measured-history review.
+The original D2-RV also remains negative. After 208 approach commands, including
+15 recorded pose-disturbance commands, its future lower-elbow interval exceeds
+the main empirical position domain by 0.206 mrad. The existing 4.25 mrad lower
+halo supports only 1 N; the unchanged future-stop requirement is 10 N, and the
+observed contact-free stopping bound is negative. No contact, complete error,
+brake or return occurs. Both terminal 2+4 s stops and raw/native-feedback integrity
+pass; zero labels. This refusal does not establish an actual collision.
+
+Before any changed RV follow-up, a frozen six-case robot-only component bundle
+will test the existing lower-elbow halo at 10 N in the saved approach neighborhood.
+It includes unloaded/loaded nominal, interior, boundary and early/late oblique
+boundary cases. Adoption requires actual loaded coverage of the full existing
+halo and all moving/stopped feedback, frozen residuals, velocity/acceleration,
+physical and 18 stop continuations to pass independently. The candidate changes
+only the local force-domain support from 1 to 10 N if qualified; q ranges,
+position tolerances, residuals, stops, controller and success gates stay frozen.
+Active calibration is unchanged; no full retry is queued. The prior late-pause
+hold refusal and all original failures remain distinct negative evidence.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -131,8 +141,8 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **6.6999 aggregate GPUh** across 42 completed allocations.
-Retention is 62.82 GiB, with 458.5 GiB physically free. Remaining 20 ordinary and
+Closed cost is **6.7688 aggregate GPUh** across 43 completed allocations.
+Retention is 63.77 GiB, with 457.5 GiB physically free. Remaining 20 ordinary and
 7 recovery conditions project 101–141 GiB additional, or 197 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode
