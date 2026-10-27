@@ -1,37 +1,40 @@
 # Project Status
 
-## ACT A1 — first new complete-cycle source; collection continuing
+## ACT A1 — two new complete-cycle sources; collection continuing
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
-**3/36 qualified cells**: C14/C15 reuse plus the new D1-H+ full native cycle.
-D1-H+ reaches 51.86 degrees against the unchanged 41.01-degree requirement,
-holds 3 s, intentionally releases and stabilizes for 2 s. Independent native
-contact/stop reconstruction, actual 20.02 mm height variation and the temporal
-consumer pass; 4,190 windows retain the required four-second history and A1 targets.
-This is teacher data, with zero new optimizer updates and learned outcomes still 0/22.
+**4/36 qualified cells**: C14/C15 reuse plus new D1-H+ and D2-V native cycles.
+D1-H+ reaches 51.86 degrees with a measured 20.02 mm height change; D2-V reaches
+52.54 degrees under its measured 1.1 lighting scale. Both exceed their unchanged
+opening requirements, hold 3 s, release intentionally, stabilize for 2 s and pass
+independent contact/stop reconstruction and visual/temporal review. Their two
+recordings supply **12,316 windows**, retaining four-second history and actual A1
+targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Five earlier collection negatives remain preserved; all six new collection
-attempts pass both independent stops. D4's observed-sweep support and D3's live
-selection event path remain open. The qualified lower shoulder-Z recipe supports
-the changed D1-H+ without relaxing physical, residual or stop bounds. D2-V is
-queued for the next episode-safe local handoff. Training, learned evaluation,
-development collection and final-test access remain excluded.
+Eight new matrix collection attempts retain six negatives and two qualified
+cycles. All eight pass both independent stops. D1-H- stops for contact loss or
+uncertainty. D4's observed-sweep support remains unresolved. The new D3 ingress
+diagnostic finds a local-surface material inconsistency before approach; exact
+calibration/depth disagreement is not reproduced. No favorable retry is queued.
+The next new local D1-DL waits for the agreed episode-safe VLA handoff. Training,
+learned evaluation, development collection and final-test access remain excluded.
 
-Actual campaign cost is **0.9829/12 aggregate GPUh** across 15 charged allocations,
-plus one reserved loaded/stop bundle (upper estimate 1.2523 GPUh). The existing
-200 GiB retention and 60-allocation caps include replicas, failures, diagnostics
-and preparation. Nine persistent restoration-verified archives resolve the initial
-storage shortage; no historical costs are refunded.
+Actual campaign cost is **1.7342/12 aggregate GPUh** across 20 charged allocations,
+plus one reserved Blackwell full cell (upper estimate 2.4203 GPUh). Retention is
+20.77/200 GiB including replicas; the common 60-allocation cap includes failures,
+diagnostics and preparation. Nine persistent restoration-verified archives resolve
+the initial storage shortage; historical costs are never refunded.
 
-The private URDF cache works on Blackwell. After preserving its missing-compiler
-failure, the compiler-fixed native prefix verifies actual SAM3/Point2Pose kernels,
-head RGB-D, one guarded approach interval, matching 240/60 Hz clocks and both
-stops. Visual review passes; the controlled prefix is zero positive data. Its
-322.276 s allocation explicitly returns VLA ownership after cleanup. A fixed
-six-case 10 N loaded/stop transfer bundle waits for the next agreed slot-1 handoff;
-full-cycle compatibility remains unqualified. Persistent ownership preserves
-other projects and the unrelated Blackwell process. Exact next actions and live
-records are in the [resume handoff](../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md).
+Blackwell passes native perception/head-camera/240/60 Hz checks and the fixed
+six-case 10 N loaded transfer bundle, including all 18 stop continuations and
+unchanged residual/position/velocity/acceleration/feedback bounds. This qualifies
+the original operational recipe's measured transfer domain. Its first full D1-V
+remains queued after actual VLA201 completion and cleanup; full-cycle compatibility
+is pending. Persistent ownership protects both existing lanes and unrelated work.
+Optional retention of already CUDA-preprocessed captures now supports metadata-only
+preparation; CPU checks pass and actual native cache integration remains pending.
+Exact queues and remaining actions are in the
+[resume handoff](../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md).
 
 ## Retained ACT A1 baseline and core
 
