@@ -156,9 +156,15 @@ misses actual full loaded-boundary coverage by 4.173 mrad. Adoption is rejected.
 The own moving-source target estimate was insufficient for this loaded case;
 a corrected frozen bundle changes only that command by its measured 6.088 mrad
 steady loaded displacement. Five controls and every original boundary, force,
-duration and qualification gate remain identical. All six first cases and costs
-remain preserved; no RV qualification, calibration adoption or full retry follows
-before independent review of the distinct corrected bundle.
+duration and qualification gate remain identical. Independent review now passes
+all six corrected cases, all three actual loaded boundaries, frozen model and
+dynamic limits, healthy feedback and all 18 stop continuations. The first six-case
+rejection and all costs remain preserved. A recipe bound to D2-H+ and its exact
+setup changes only the existing lower-elbow halo force support from 1 to 10 N;
+global calibration, position bounds and every physical/scientific gate stay fixed.
+The distinctly changed full-source follow-up is next. This component proof adds
+no qualified cell; full native, variety, image and maintained-reader review remain
+required before admission.
 
 CPU comparison also finds zero-force native intervals in D2-RP and all four
 qualified D2 references; isolated zero intervals do not explain RP's failed
@@ -262,7 +268,7 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **8.4079 aggregate GPUh** across 58 completed allocations.
+Closed cost is **8.4421 aggregate GPUh** across 59 completed allocations.
 Retention is 78.84 GiB, with 442.4 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106.5–137.2 GiB additional, or 192.2 GiB at their physics
 budgets, including estimated future diagnostic-journal overhead. Current negative/component bytes are included; future failures and

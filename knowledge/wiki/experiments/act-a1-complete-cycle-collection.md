@@ -600,6 +600,28 @@ no tolerance/domain is enlarged, and no source eligibility is created. The same
 condition's measured 119.217-second wall duration. Independent review of all
 declared cases remains mandatory before any scoped calibration adoption.
 
+The corrected D2-H+ component completes in 123.238 charged GPU seconds and passes
+independent review: all six corrected cases, every frozen moving/stopped residual,
+healthy feedback, speed/acceleration and joint-travel bounds, all 18 stop
+continuations and actual full loaded coverage in all three boundary cases.
+The initial six-case rejection stays preserved, for twelve declared cases total.
+Only `position_halo_force_upper_max_n[0][3]` changes from 1 to 10 N in a separate
+D2-H+-only recipe. The exact original setup is enforced by the maintained
+launcher gate; another condition or changed setup is rejected. The actual refused
+packet, nominal and exact boundary now have support; outside position/force,
+unrelated gripper and D2-H- remain refused. Global calibration and all other
+position, residual, controller, physical, stop and success gates remain unchanged.
+
+One distinctly named full D2-H+ follow-up uses the same original setup, complete
+opening/hold/release/stabilization requirements and 2400 wall/240 physics seconds
+plus 155 cleanup. No recovery scope or result is transferred. This component
+qualification adds no complete demonstration or positive labels; the full source
+still requires independent native contact/gap/force/phase/stops, measured height
+variety, actual phase-image inspection and maintained temporal-reader verification.
+Progressive teacher diagnostics also remain subject to native readback, outside
+policy observations. The original negative, both component bundles and all costs
+remain retained.
+
 D1-H- remains a separate push-support negative: 1,251 push commands end at
 20.424 degrees with zero hold/release/stabilization. The last six native-force
 interval maxima are zero, and observed load lower support becomes negative.
@@ -669,11 +691,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **8.4079 aggregate GPUh** across 58 completed allocations.
+Closed cost is **8.4421 aggregate GPUh** across 59 completed allocations.
 Current retention is 78.84 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, the corrected depth-coherent comparison leaves its actual refusal unchanged and is rejected for adoption, and the first D2-H+ component bundle is rejected for early-oblique loaded-boundary coverage; a measured own-case correction is frozen. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, the corrected depth-coherent comparison leaves its actual refusal unchanged and is rejected for adoption, and the first D2-H+ component rejection is preserved, the corrected bundle independently qualifies its actual loaded boundaries, and an exact-setup scoped full follow-up is prepared. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
