@@ -93,7 +93,10 @@ diagnosis proposes mirroring only the 20 mm x offset away from the frame, preser
 translation magnitude, 25 mm y offset, 4-degree yaw and arm changes. A separate
 parked native geometry/reset/visibility and 2+4 s-stop qualification is next;
 the original absent 4 s stop stays unavailable and full collection admission
-remains unchanged until actual prospective proof is independently reviewed.
+remains unchanged until actual prospective proof is independently reviewed. The first
+parked probe fails before native initialization because its renderer cameras were
+not enabled. The failed report, absent physics/stops and 12.087 GPU seconds are
+retained; a camera-enabled parked-only repeat is next, with all gates unchanged.
 
 D1-RV times out during parked inspection, before approach or any recovery error.
 The perception capture remains at 14.1 s for about 38 minutes, with memory within
@@ -187,7 +190,7 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **7.2981 aggregate GPUh** across 46 completed allocations.
+Closed cost is **7.3015 aggregate GPUh** across 47 completed allocations.
 Retention is 68.95 GiB, with 452.3 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106–137 GiB additional, or 192 GiB at their physics
 budgets. Current negative/component bytes are included; future failures and

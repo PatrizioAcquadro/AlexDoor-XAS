@@ -332,6 +332,12 @@ any collection admission can be considered. It records no teacher source and
 changes no existing setup, outcome or full-collection admission gate. The original
 missing 4 s continuation remains unavailable. New actual evidence must be reviewed
 without retroactively inventing a stop or bypassing a scientific/safety gate.
+The first parked probe fails during renderer initialization: cameras were declared
+in the scene without enabling them in AppLauncher. It retains 12.087 GPU seconds
+and unavailable geometry/stops; no teacher/recorder starts. Although its launcher
+returns zero, the native report is false and confers no qualification. The only
+repeat change enables the required cameras; the failed entry snapshot, report and
+all costs remain, and every native geometry/state/stop gate remains unchanged.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
@@ -383,7 +389,7 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **7.2981 aggregate GPUh** across 46 completed allocations.
+Closed cost is **7.3015 aggregate GPUh** across 47 completed allocations.
 Current retention is 68.95 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
