@@ -16,9 +16,9 @@ contact and all full-cycle/native-stop/visual/temporal gates. These six
 recordings supply **33,374 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Twenty-one completed matrix attempts retain fifteen negatives and six qualified
-cycles. Twenty have passing independent 2+4 s stop pairs; the D2-P prescreen
-negative has only a passing 2 s stop, with the 4 s continuation unavailable. D1-H-
+Twenty-two completed matrix attempts retain sixteen negatives and six qualified
+cycles. Twenty have passing terminal 2+4 s stop pairs. D2-P has only a passing
+2 s stop; D1-RV has passing initial stops but unavailable terminal stops/report. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
 also remains negative: its original 150 s push budget expires during continuous
@@ -51,11 +51,16 @@ the door frame. No recorder or teacher action starts; the available 2 s native
 stop passes. The missing recording and 4 s continuation remain unavailable.
 A feasible placement preserving the agreed variety needs independent qualification.
 
-The original D1-RV pose recovery is implementation-ready for the next independent
-allocation. Its active matrix definition matches the implemented guarded pose
-disturbance and measured-origin brake/return. The superseded relative-joint plan
-is retained as history; stale recovery metadata now refuses admission. Focused
-software checks pass, with native recovery and data qualification still pending.
+D1-RV times out during parked inspection, before approach or any recovery error.
+The perception capture remains at 14.1 s for about 38 minutes, with memory within
+the existing bounds. The 2400 s wall watchdog closes the complete process group;
+2466.323 GPU seconds remain charged. Its final report and terminal stops are
+unavailable. The initial 2+4 s stops pass but do not substitute for final stops.
+The original incomplete recording and unequal unflushed rows remain unchanged;
+zero labels. No full retry or dependent collection proceeds before shared-path
+diagnosis and safe bounded cleanup. One separate parked-prefix diagnostic records
+stage progress and thread stacks, ends before manipulation and has a 300 s wall
+watchdog. Its outcome remains pending in the resume handoff.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -83,13 +88,13 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **5.2282 aggregate GPUh** across 37 completed allocations.
-Retention is 54.23 GiB and physical free space is 463.7 GiB. Remaining
-20 ordinary and 8 recovery conditions project 110–146 GiB additional under observed
-duration scenarios, or 204 GiB at their physics budgets. Existing failures and
-component evidence are included; future failures and diagnostics add actual bytes.
-There is no current physical shortage. Each episode still reserves 24 GiB plus
-3.49 GiB protected headroom. Forecasts guide planning and never become ceilings.
+Closed cost is **5.9133 aggregate GPUh** across 38 completed allocations;
+the parked diagnostic is the 39th. Retention is 54.62 GiB,
+with 463.3 GiB physically free. Remaining 20 ordinary and
+8 recovery conditions project 110–146 GiB additional, or 204 GiB at their physics
+budgets. Current negative/component bytes are included; future failures and
+diagnostics add actual bytes. There is no current physical shortage. Each episode
+reserves 24 GiB plus 3.49 GiB protected headroom. Forecasts are planning scenarios.
 
 All cumulative GPU-hour/allocation-count/retained-data administrative ceilings
 remain removed. Original data, masks, denominators and historical costs remain

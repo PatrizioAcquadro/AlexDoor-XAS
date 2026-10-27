@@ -73,9 +73,9 @@ metadata preparation. This one recording costs 1,720.151 GPU seconds. Six new
 independent recordings provide **33,374 overlapping windows**; none is a complete
 recovery or learned success.
 
-Twenty-one completed matrix attempts retain fifteen negatives and six qualified
-full cycles. Twenty pass both independent stops. The D2-P prescreen negative has
-only a passing 2 s stop; its 4 s continuation and recording remain unavailable. D1-H- terminates
+Twenty-two completed matrix attempts retain sixteen negatives and six qualified
+full cycles. Twenty pass both terminal stops. D2-P has only a passing 2 s stop;
+D1-RV has passing initial 2+4 s stops but no terminal stops or final report. D1-H- terminates
 for contact loss or uncertainty after 1,791 guarded commands, with zero positive
 targets. D2-DR preserves continuous native contact and exceeds the minimum opening,
 but exhausts its original 150 s push budget without any hold commands. It remains
@@ -161,6 +161,27 @@ or recording exists, so those remain unavailable. A distinct feasible placement
 must preserve the agreed posture/placement variation and pass independent geometry
 qualification before any changed retry; no collision or physical threshold changes.
 
+D1-RV stalls during parked inspection at perception capture 14.1 s; the last
+durable capture is 13.9 s. It never executes approach, the error pulse or recovery.
+The same capture persists for 2285.85 s while total GPU and native process memory
+stay within existing limits. At 2400 s the outer wall watchdog signals the group;
+the complete group is gone after cleanup, with 2466.323 GPU seconds charged.
+The final report and terminal stops are unavailable. Initial 2+4 s stops pass;
+these cannot qualify the missing terminal stops. The readable original HDF5 stays
+incomplete: 840 control rows, 839 commands, 838 inspection evaluator rows, 140
+captures and 3357 native feedback samples. Unflushed mismatches remain unchanged,
+with zero admitted labels and the negative included in the complete denominator.
+
+This reveals a shared lifecycle risk: synchronous inference waits indefinitely
+on a future, while episode checks occur only at environment steps; recorder/model
+teardown precedes terminal stop and can also wait. The exact blocked operation
+still needs localization. Dependent collection is stopped. One instrumented parked
+inspection diagnostic retains observed inputs, stage transitions and thread stacks,
+with a 14.2 s inspection endpoint and 300 s outer watchdog. The bound covers the
+observed 115 s startup/prefix plus stack observation and cleanup; it is diagnostic
+scope, not a new cumulative resource ceiling. No manipulation, recovery labels,
+new physics/controller thresholds or unchanged full retry is authorized by it.
+
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
 Every case selects one tracked candidate yet reproduces unavailable local material
@@ -211,9 +232,10 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **5.2282 aggregate GPUh** across 37 completed allocations.
-Current retention is 54.23 GiB, entirely local with zero remote replicas.
-The original D1-RV recovery is ready for the next independent allocation. Exact accounting
+Closed cost is **5.9133 aggregate GPUh** across 38 completed allocations.
+Current retention is 54.62 GiB, entirely local with zero
+remote replicas. The parked inspection diagnostic is allocation 39; dependent
+collection awaits fault diagnosis and safe bounded cleanup. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -263,7 +285,7 @@ retroactively changed.
 
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Planned | Planned |
+| D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Unqualified; inspection timeout | Planned |
 | D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Unqualified; pedestal/frame intersection | Qualified new | Three negatives; acquisition-stroke block | Qualified new;1.1 | Planned | Planned |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
