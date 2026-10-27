@@ -233,6 +233,24 @@ residual consensus. A current accepted pose supports relative angle independentl
 of displacement-selected hinge samples; neither invents a closed task protocol nor
 a loaded-contact reference.
 
+For A1/A2, the measured plane/edge constraint first uses the dominant current
+surface query. A relief face can dominate that query while the originally
+selected material remains visible on another component. If the dominant query
+cannot satisfy the existing local constraint, the adapter expands once to all
+components measured in the same current SAM3/RGB-D capture. It then reruns the
+same finite conditioning, complete native-pair residual, root-depth consistency,
+material identity and ambiguity checks. Missing support remains unavailable;
+no native pose, controller, error bound or admission threshold is rewritten.
+
+The compatible dominant-plane path retains its existing cost. Additional geometry
+work belongs to provider publication latency and does not fabricate a fresh capture.
+`local_surface_query` and the cumulative `local_surface_query_expansions` appear
+in the existing tracking diagnostics and native terminal perception record, outside
+policy observations. CPU regressions cover nominal geometry, relief on both sides
+and absent material. They establish software behavior; the changed native D3
+condition still requires its own full-cycle qualification in the
+[[../experiments/act-a1-complete-cycle-collection|collection campaign]].
+
 `point2pose_impact.transport_impact` is evaluator-only. It measures the transported
 observed zone point, its oriented +X normal and full rotation separately. For a
 saved world target `G`, conditional propagation is `Z_est * inverse(Z_expected) * G`,

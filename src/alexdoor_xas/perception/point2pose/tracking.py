@@ -16,7 +16,7 @@ from alexdoor_xas.perception.contracts import (
     LocalPatchState,
     validate_local_transition,
 )
-from alexdoor_xas.perception.geometry import contact_frame, project, similar_surface
+from alexdoor_xas.perception.geometry import contact_frame, project, similar_surface, surfaces
 from alexdoor_xas.perception.ipc import unpack_array
 from alexdoor_xas.perception.local_surface import SurfacePose, constrained_surface_pose
 from alexdoor_xas.perception.material_zone import (
@@ -526,6 +526,11 @@ class PanelTracking:
         config = self.config.get("local_surface_constraint")
         if config is None:
             return
+        self.diagnostics["local_surface_query"] = dict(
+            expanded="local_surface_expansion_reason" in result,
+            reason=result.get("local_surface_expansion_reason"),
+            surfaces=len(result.get("local_surfaces") or []),
+        )
         for candidate, raw in zip(self.candidates, result["objects"], strict=True):
             candidate.local_constraint = None
             try:
@@ -587,6 +592,22 @@ class PanelTracking:
                 candidate.local_constraint = consistent[int(np.argmax(areas))][1]
                 candidate.local_constraint_reason = ""
             except (ValueError, KeyError) as error:
+                if (
+                    candidate.state == "tracked"
+                    and not candidate.material_recovery_unverified
+                    and result.get("local_surfaces_dominant", False)
+                    and result.get("cue") is not None
+                ):
+                    # Relief may hide the selected material from the first-plane
+                    # query. Reuse every current measured component, retaining
+                    # the same conditioning, identity and ambiguity checks.
+                    self.diagnostics["local_surface_query_expansions"] = (
+                        self.diagnostics.get("local_surface_query_expansions", 0) + 1
+                    )
+                    result["local_surfaces"] = surfaces(result["cue"], captured, self.config)
+                    result["local_surfaces_dominant"] = False
+                    result["local_surface_expansion_reason"] = str(error)
+                    return self.constrain_local(captured, result)
                 candidate.local_constraint_reason = str(error)
             self.diagnostics.setdefault("local_surface_constraint", {})[candidate.candidate_id] = {
                 "available": candidate.local_constraint is not None,

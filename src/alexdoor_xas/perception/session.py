@@ -409,6 +409,7 @@ class PerceptionSession:
             sam3=meta,
             cue=cue,
             local_surfaces=local_surfaces,
+            local_surfaces_dominant=local_surfaces is not None,
             semantic_absent=not present,
             identity=dict(
                 sam3_id=self.identity,
