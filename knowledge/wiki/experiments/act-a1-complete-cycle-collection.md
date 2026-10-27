@@ -64,8 +64,8 @@ Six actual phase images and4,879 temporal windows pass, reusing the already CUDA
 frames through CPU metadata preparation. Its native allocation costs1,058.234 s;
 no additional GPU preparation is needed. Five new recordings now supply **25,413 windows**.
 
-Thirteen completed new matrix collection attempts retain eight negatives and five
-qualified full cycles; all thirteen pass both independent stops. D1-H- terminates for
+Fourteen completed new matrix collection attempts retain nine negatives and five
+qualified full cycles; all fourteen pass both independent stops. D1-H- terminates for
 contact loss or uncertainty after 1,791 guarded commands, with zero positive targets.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
@@ -96,11 +96,26 @@ physical threshold or uncertainty bound is relaxed.
 The independent D1-P placement/posture attempt admits 137 approach commands,
 then refuses insufficient local action margin before contact. Its retained raw
 stream has complete native feedback and passes integrity review; both independent
-stops pass. It supplies zero positive windows. The next original-recipe D2-H+
-source is owner-gated behind a fresh VLA interval and healthy episode cleanup.
+stops pass. It supplies zero positive windows. The original-recipe D2-H+ then refuses weak-position contact-free-motion/stop
+qualification after128 approach commands, before contact. Both saved independent
+stops and raw integrity/native-feedback checks pass; it adds zero positive labels.
 
-Completed cost is **3.2255 aggregate GPUh** (2.2920 local / 0.9335 Blackwell)
-across 27 allocations. Retention is32.87 GiB including replicas. Exact accounting
+The next concrete correction uses current depth reobservations of the original
+tracked material to retain normal-conditioning baselines across temporary image
+fragmentation. It never borrows unrelated coplanar components or initial XYZ as
+current measurements; masks, edges, all native-pair/root checks and physical
+thresholds remain unchanged. Nominal, perturbed, missing-depth, unrelated-material
+and actual-motion regressions pass. Its distinctly changed native qualification
+remains pending; see [[../topics/shared-door-perception|measurement scope]].
+
+A directly verified subsequent human instruction assigns all future AlexDoor GPU
+work and newly saved evidence to the local4090, with VLA exclusively on Blackwell.
+The last healthy VLA local episode is preserved before permanent ownership transfer.
+No later turns or remote AlexDoor allocations are planned. Historical remote data
+and charges remain preserved; all original aggregate limits still apply.
+
+Completed cost is **3.2906 aggregate GPUh** (2.3571 local / 0.9335 Blackwell)
+across 28 allocations. Retention is36.16 GiB including replicas. Exact accounting
 is in `resources.json`; waiting is uncharged. All failed allocations and original
 source outcomes remain preserved. Training, normalization and historical selections
 are unchanged.

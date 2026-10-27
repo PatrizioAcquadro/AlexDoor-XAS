@@ -15,8 +15,8 @@ gates. These five
 recordings supply **25,413 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Thirteen completed new matrix collection attempts retain eight negatives and five
-qualified cycles; all thirteen pass both independent stop continuations. D1-H-
+Fourteen completed new matrix collection attempts retain nine negatives and five
+qualified cycles; all fourteen pass both independent stop continuations. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels.
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
@@ -30,12 +30,20 @@ restoring available selected-material support while preserving native pose.
 The unchanged whole-robot guard refuses its initial manipulation sweep. This
 verifies the repaired perception path, with full-task qualification still failed.
 Original failures, physical thresholds and uncertainty bounds remain unchanged.
-The next independent original-recipe D2-H+ source waits for the agreed VLA turn
-and complete episode cleanup; exact ownership remains in the resume handoff.
+D2-H+ also refuses before contact after 128 approach commands because its weak
+position requires qualified contact-free motion and stopping. Its independent
+stops pass and it supplies zero positive labels. A current-depth normal-support
+repair now retains only reobserved points of the same tracked material; software
+regressions pass, with a distinctly changed native follow-up still pending.
+
+New human instructions assign future AlexDoor GPU work and data to the local
+RTX4090 exclusively; VLA uses Blackwell. The current healthy VLA episode finishes
+before the one permanent ownership transfer. No later alternation is required;
+original resource ceilings and historical remote evidence remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Completed cost is **3.2255/12 aggregate GPUh** across 27 allocations. Retention is
-32.87/200 GiB including replicas; the common 60-allocation cap includes failures,
+Completed cost is **3.2906/12 aggregate GPUh** across 28 allocations. Retention is
+36.16/200 GiB including replicas; the common 60-allocation cap includes failures,
 diagnostics and preparation. Nine persistent restoration-verified archives resolve
 the initial storage shortage; historical costs are never refunded.
 

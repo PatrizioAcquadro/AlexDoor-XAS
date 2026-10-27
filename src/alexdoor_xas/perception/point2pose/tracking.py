@@ -16,7 +16,13 @@ from alexdoor_xas.perception.contracts import (
     LocalPatchState,
     validate_local_transition,
 )
-from alexdoor_xas.perception.geometry import contact_frame, project, similar_surface, surfaces
+from alexdoor_xas.perception.geometry import (
+    contact_frame,
+    deproject,
+    project,
+    similar_surface,
+    surfaces,
+)
 from alexdoor_xas.perception.ipc import unpack_array
 from alexdoor_xas.perception.local_surface import SurfacePose, constrained_surface_pose
 from alexdoor_xas.perception.material_zone import (
@@ -533,9 +539,11 @@ class PanelTracking:
         )
         for candidate, raw in zip(self.candidates, result["objects"], strict=True):
             candidate.local_constraint = None
+            normal_points = None
             try:
                 if candidate.state != "tracked" or candidate.material_recovery_unverified:
                     raise ValueError("unavailable_native_material_identity")
+                normal_points = self.reobserved_material_points(candidate, captured)
                 choices = [
                     s
                     for s in (result.get("local_surfaces") or [])
@@ -569,6 +577,7 @@ class PanelTracking:
                             obj["source_points"][measured],
                             obj["current_points"][measured],
                             config["point_error_m"],
+                            current_normal_points=normal_points,
                             map_anchor=(candidate.map_from_object @ candidate.object_from_zone)[
                                 :3, 3
                             ],
@@ -613,6 +622,10 @@ class PanelTracking:
                 "available": candidate.local_constraint is not None,
                 "reason": candidate.local_constraint_reason,
                 "native_pose_unchanged": True,
+                "reobserved_normal_points": 0 if normal_points is None else len(normal_points),
+                "normal_rotation_bound_rad": None
+                if candidate.local_constraint is None
+                else candidate.local_constraint.normal_rotation_bound_rad,
             }
 
     @staticmethod
@@ -629,6 +642,30 @@ class PanelTracking:
             registration_position_m=constraint.position_bound_m,
             registration_rotation_rad=constraint.rotation_bound_rad,
             surface=candidate.local_surface or candidate.surface,
+        )
+
+    def reobserved_material_points(self, candidate, sensor):
+        """Fresh depth on the tracked seed; no other semantic component or old XYZ."""
+        motion = candidate.pose @ np.linalg.inv(candidate.initial_world)
+        predicted = candidate.surface.points @ motion[:3, :3].T + motion[:3, 3]
+        uv, z = project(predicted, sensor["intrinsics"], sensor["camera_world"])
+        good = np.isfinite(uv).all(1) & np.isfinite(z) & (z > 0)
+        uv, z = np.rint(uv[good]).astype(int), z[good]
+        h, w = sensor["rgb"].shape[:2]
+        good = (uv >= 0).all(1) & (uv[:, 0] < w) & (uv[:, 1] < h)
+        uv, z = uv[good], z[good]
+        measured = sensor["depth_m"][uv[:, 1], uv[:, 0], 0]
+        good = (
+            sensor["valid_depth"][uv[:, 1], uv[:, 0], 0]
+            & np.isfinite(measured)
+            & (abs(measured - z) <= 2 * self.config["plane_tolerance_m"])
+        )
+        pixels = np.unique(uv[good], axis=0)
+        return deproject(
+            sensor["depth_m"][pixels[:, 1], pixels[:, 0], 0],
+            pixels,
+            sensor["intrinsics"],
+            sensor["camera_world"],
         )
 
     def root_consistent(self, candidate, sensor):

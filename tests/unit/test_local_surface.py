@@ -122,6 +122,7 @@ def test_local_constraint_does_not_rewrite_native_pose_or_hide_missing_geometry(
     captured = dict(frame=0, time_s=0.0, camera_world=np.eye(4))
     result = dict(objects=[obj], local_surfaces=[current])
     monkeypatch.setattr(tracker, "root_consistent", lambda *args: True)
+    monkeypatch.setattr(tracker, "reobserved_material_points", lambda *args: current.points)
     tracker.constrain_local(captured, result)
     assert candidate.local_constraint is not None
     np.testing.assert_array_equal(candidate.pose, np.eye(4))

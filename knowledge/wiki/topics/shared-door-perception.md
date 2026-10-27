@@ -240,10 +240,22 @@ cannot satisfy the existing local constraint, the adapter expands once to all
 components measured in the same current SAM3/RGB-D capture. It then reruns the
 same finite conditioning, complete native-pair residual, root-depth consistency,
 material identity and ambiguity checks. Missing support remains unavailable;
-no native pose, controller, error bound or admission threshold is rewritten.
+no native pose, controller, metric point-error assumption or admission threshold is rewritten.
 
-The compatible dominant-plane path retains its existing cost. Additional geometry
-work belongs to provider publication latency and does not fabricate a fresh capture.
+The current normal additionally uses fresh depth measurements at reprojected
+points of the same original tracked material. The unchanged native motion predicts
+where to query; only valid current depth within the existing root-consistency
+tolerance contributes, and duplicate pixels count once. Original XYZ values and
+other coplanar components cannot substitute for current measurements. The same
+finite triangle and full point/model-error formula bounds the normal; local
+component points, edges, footprint masks and holes remain unchanged. Complete
+native-pair residuals and the independent corrected-root identity check still
+apply. Missing or poorly conditioned current material remains unavailable.
+
+The dominant geometry query retains its fast path. Material reobservation and
+additional geometry work belong to provider publication latency; neither creates
+a fresh capture. Terminal diagnostics retain the reobserved point count and
+normal bound for the actual selected constraint.
 `local_surface_query` and the cumulative `local_surface_query_expansions` appear
 in the existing tracking diagnostics and native terminal perception record, outside
 policy observations. CPU regressions cover nominal geometry, relief on both sides

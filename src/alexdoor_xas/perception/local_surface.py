@@ -21,7 +21,7 @@ def _angle(a, b):
     return float(np.arccos(np.clip(a @ b, -1, 1)))
 
 
-def observed_basis(surface, point_error_m):
+def observed_basis(surface, point_error_m, *, normal_points=None):
     """Bound a plane/edge basis using finite baselines, not fit residual alone.
 
     The caller must justify the metric point-error bound. A rigid planar surface
@@ -42,6 +42,17 @@ def observed_basis(surface, point_error_m):
         or abs(np.linalg.norm(normal) - 1) > 1e-6
     ):
         raise ValueError("invalid_observed_plane")
+    # Additional normal baselines must be current depth measurements of this
+    # same tracked material. They never extend footprint or edge coverage.
+    if normal_points is not None:
+        points = np.asarray(normal_points, float)
+        if (
+            points.ndim != 2
+            or points.shape[1:] != (3,)
+            or len(points) < 5
+            or not np.isfinite(points).all()
+        ):
+            raise ValueError("invalid_observed_normal_support")
     # Orientation uses a finite measured planar core at the declared point
     # resolution. The wider surface/relief coverage and its original tolerance
     # remain unchanged at material consumers. Never interpret all shallow relief
@@ -115,6 +126,7 @@ def constrained_surface_pose(
     point_error_m,
     *,
     map_anchor,
+    current_normal_points=None,
 ):
     """Use all supplied measured native inliers; recompute their residual envelope.
 
@@ -123,7 +135,9 @@ def constrained_surface_pose(
     model disagreement remain separate contributions at the consumer.
     """
     initial_basis, initial_error, _ = observed_basis(initial_surface, point_error_m)
-    current_basis, current_error, normal_error = observed_basis(current_surface, point_error_m)
+    current_basis, current_error, normal_error = observed_basis(
+        current_surface, point_error_m, normal_points=current_normal_points
+    )
     source, current = np.asarray(source_points, float), np.asarray(current_points, float)
     anchor = np.asarray(map_anchor, float)
     cameras = (np.asarray(initial_camera, float), np.asarray(current_camera, float))
