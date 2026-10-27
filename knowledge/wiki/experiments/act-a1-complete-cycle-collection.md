@@ -64,8 +64,8 @@ Six actual phase images and4,879 temporal windows pass, reusing the already CUDA
 frames through CPU metadata preparation. Its native allocation costs1,058.234 s;
 no additional GPU preparation is needed. Five new recordings now supply **25,413 windows**.
 
-Fourteen completed new matrix collection attempts retain nine negatives and five
-qualified full cycles; all fourteen pass both independent stops. D1-H- terminates for
+Fifteen completed new matrix collection attempts retain ten negatives and five
+qualified full cycles; all fifteen pass both independent stops. D1-H- terminates for
 contact loss or uncertainty after 1,791 guarded commands, with zero positive targets.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
@@ -105,18 +105,28 @@ tracked material to retain normal-conditioning baselines across temporary image
 fragmentation. It never borrows unrelated coplanar components or initial XYZ as
 current measurements; masks, edges, all native-pair/root checks and physical
 thresholds remain unchanged. Nominal, perturbed, missing-depth, unrelated-material
-and actual-motion regressions pass. Its distinctly changed native qualification
-remains pending; see [[../topics/shared-door-perception|measurement scope]].
+and actual-motion regressions pass. The distinctly changed native follow-up exercises3,986 current unique depth points
+at its terminal capture and admits24 approach commands. It then rejects the
+uncertainty-eroded selected-material region before contact, with tracked native
+identity and local constraint still available. Both independent saved stops pass;
+the source adds zero positive labels. Full native qualification remains failed; see [[../topics/shared-door-perception|measurement scope]].
 
 A directly verified subsequent human instruction assigns all future AlexDoor GPU
 work and newly saved evidence to the local4090, with VLA exclusively on Blackwell.
-The last healthy VLA local episode is preserved before permanent ownership transfer.
+The last healthy VLA local episode completes before the verified permanent ownership transfer.
 No later turns or remote AlexDoor allocations are planned. Historical remote data
 and charges remain preserved; all original aggregate limits still apply.
 
-Completed cost is **3.2906 aggregate GPUh** (2.3571 local / 0.9335 Blackwell)
-across 28 allocations. Retention is36.16 GiB including replicas. Exact accounting
-is in `resources.json`; waiting is uncharged. All failed allocations and original
+Completed cost is **3.3664 aggregate GPUh** (2.4329 local / 0.9335 historical Blackwell)
+across29 completed allocations. D2-DL is the30th and running independently. The
+pre-launch retention snapshot is34.61 GiB including replicas. Exact accounting
+is in `resources.json` and actual allocation receipts; waiting is uncharged. The
+inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
+10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
+targets. Its remote copy is removed after verification with zero active consumers;
+shared VLA files remain untouched. See the local-only-migration receipts. Existing
+persistent historical archives remain protected. A single15-minute heartbeat
+continues this chat; healthy running work does not cause active polling. All failed allocations and original
 source outcomes remain preserved. Training, normalization and historical selections
 are unchanged.
 

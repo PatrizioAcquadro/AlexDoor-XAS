@@ -15,8 +15,8 @@ gates. These five
 recordings supply **25,413 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Fourteen completed new matrix collection attempts retain nine negatives and five
-qualified cycles; all fourteen pass both independent stop continuations. D1-H-
+Fifteen completed new matrix collection attempts retain ten negatives and five
+qualified cycles; all fifteen pass both independent stop continuations. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels.
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
@@ -34,18 +34,26 @@ D2-H+ also refuses before contact after 128 approach commands because its weak
 position requires qualified contact-free motion and stopping. Its independent
 stops pass and it supplies zero positive labels. A current-depth normal-support
 repair now retains only reobserved points of the same tracked material; software
-regressions pass, with a distinctly changed native follow-up still pending.
+regressions pass. Its distinctly changed native D3 follow-up admits24 approach
+commands, then stops because the uncertainty-eroded selected-material region is
+unavailable. Native tracking and current-normal support remain available, and both
+independent stops pass. This source remains negative with zero positive labels.
 
 New human instructions assign future AlexDoor GPU work and data to the local
-RTX4090 exclusively; VLA uses Blackwell. The current healthy VLA episode finishes
-before the one permanent ownership transfer. No later alternation is required;
+RTX4090 exclusively; VLA uses Blackwell. The final healthy VLA episode has finished and permanent exclusive local ownership
+has transferred. No later alternation is required;
 original resource ceilings and historical remote evidence remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Completed cost is **3.2906/12 aggregate GPUh** across 28 allocations. Retention is
-36.16/200 GiB including replicas; the common 60-allocation cap includes failures,
+Completed cost is **3.3664/12 aggregate GPUh** across29 completed allocations; the independent
+D2-DL attempt is the30th and running. The pre-launch retention snapshot is
+34.61/200 GiB including replicas; the common 60-allocation cap includes failures,
 diagnostics and preparation. Nine persistent restoration-verified archives resolve
-the initial storage shortage; historical costs are never refunded.
+the initial storage shortage; historical costs are never refunded. The inactive
+Blackwell checkout has also moved to fully verified local storage, with its remote
+copy removed only after verification and no active consumers. Historical GPU
+charges remain. A single15-minute heartbeat continues this chat and ends each
+turn promptly when only healthy background work remains.
 
 Blackwell passes native perception/head-camera/240/60 Hz checks and the fixed
 six-case 10 N loaded transfer bundle, including all 18 stop continuations and
