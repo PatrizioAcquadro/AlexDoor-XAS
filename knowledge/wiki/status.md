@@ -16,8 +16,9 @@ contact and all full-cycle/native-stop/visual/temporal gates. These six
 recordings supply **33,374 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Nineteen completed new matrix collection attempts retain thirteen negatives and six
-qualified cycles; all nineteen pass both independent stop continuations. D1-H-
+Twenty-one completed matrix attempts retain fifteen negatives and six qualified
+cycles. Twenty have passing independent 2+4 s stop pairs; the D2-P prescreen
+negative has only a passing 2 s stop, with the 4 s continuation unavailable. D1-H-
 stops for contact loss or uncertainty. D1-P stops after 137 approach commands for
 insufficient local action margin, before contact. Both retain zero positive labels. D2-DR
 also remains negative: its original 150 s push budget expires during continuous
@@ -38,9 +39,23 @@ and loaded boundary coverage. All twelve declared cases and costs are preserved.
 A separate D2-DR recipe now changes only that upper-gripper force-domain support
 from 1 to 10 N. Global calibration and all position/residual/physical/stop/controller
 and success limits stay unchanged. Nominal and boundary checks pass; motion/load
-outside the qualified domain and D2-H- still refuse. A distinctly named full
-D2-DR follow-up is running; complete native/visual/temporal qualification remains
-pending. Component support is not a qualified complete-cycle demonstration.
+outside the qualified domain and D2-H- still refuse. The full follow-up instead
+refuses contact acquisition before late hold: observed search travel reaches 30.065 mm against the existing 30 mm limit, while active
+time is 2.283 s against 3 s and contact remains unconfirmed. Both saved stops and
+raw feedback/integrity pass; zero labels. No unchanged retry is allowed. Entry
+motion and contact observations need diagnosis against the qualified search stroke.
+The independently valid component support remains separate from full-task success.
+
+D2-P refuses its geometry prescreen because the prescribed pedestal intersects
+the door frame. No recorder or teacher action starts; the available 2 s native
+stop passes. The missing recording and 4 s continuation remain unavailable.
+A feasible placement preserving the agreed variety needs independent qualification.
+
+The original D1-RV pose recovery is implementation-ready for the next independent
+allocation. Its active matrix definition matches the implemented guarded pose
+disturbance and measured-origin brake/return. The superseded relative-joint plan
+is retained as history; stale recovery metadata now refuses admission. Focused
+software checks pass, with native recovery and data qualification still pending.
 
 D3 and D4 remain unqualified because current observed robot sweep/stop support is
 unavailable. Their background-only CPU queries are free; those diagnoses exclude
@@ -68,21 +83,21 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **5.1385 aggregate GPUh** across 35 completed allocations;
-`D2-DR-gripper-qualified` is the 36th and running. Retention is 53.74 GiB;
-physical free space is 464.2 GiB. Remaining 20 ordinary and 8 recovery conditions
-project about 110–146 GiB additional under conditional duration scenarios, or
-204 GiB at their physics budgets. Existing negatives and component evidence are
-included; future failures/diagnostics add actual bytes. Forecasts guide planning
-and never become administrative ceilings.
+Closed cost is **5.2282 aggregate GPUh** across 37 completed allocations.
+Retention is 54.23 GiB and physical free space is 463.7 GiB. Remaining
+20 ordinary and 8 recovery conditions project 110–146 GiB additional under observed
+duration scenarios, or 204 GiB at their physics budgets. Existing failures and
+component evidence are included; future failures and diagnostics add actual bytes.
+There is no current physical shortage. Each episode still reserves 24 GiB plus
+3.49 GiB protected headroom. Forecasts guide planning and never become ceilings.
 
 All cumulative GPU-hour/allocation-count/retained-data administrative ceilings
 remain removed. Original data, masks, denominators and historical costs remain
-intact. Completion still requires all 28 ordinary cycles and 8 complete recoveries,
-independently qualified/prepared. AlexDoor uses only local RTX 4090/storage, with
-one 15-minute heartbeat. Finite per-case watchdogs and physical disk admission
+intact. Completion requires all 28 ordinary cycles and 8 complete recoveries,
+independently qualified/prepared. Only local RTX 4090/storage and the existing
+15-minute heartbeat are active. Finite episode watchdogs and physical admission
 remain mandatory; training, learned evaluation, development collection and final
-test remain excluded.
+test remain excluded. Exact current allocation state is in the resume handoff.
 
 Blackwell passes native perception/head-camera/240/60 Hz checks and the fixed
 six-case 10 N loaded transfer bundle, including all 18 stop continuations and

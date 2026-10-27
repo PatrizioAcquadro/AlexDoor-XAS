@@ -73,8 +73,9 @@ metadata preparation. This one recording costs 1,720.151 GPU seconds. Six new
 independent recordings provide **33,374 overlapping windows**; none is a complete
 recovery or learned success.
 
-Nineteen completed new matrix collection attempts retain thirteen negatives and six
-qualified full cycles; all nineteen pass both independent stops. D1-H- terminates
+Twenty-one completed matrix attempts retain fifteen negatives and six qualified
+full cycles. Twenty pass both independent stops. The D2-P prescreen negative has
+only a passing 2 s stop; its 4 s continuation and recording remain unavailable. D1-H- terminates
 for contact loss or uncertainty after 1,791 guarded commands, with zero positive
 targets. D2-DR preserves continuous native contact and exceeds the minimum opening,
 but exhausts its original 150 s push budget without any hold commands. It remains
@@ -140,10 +141,25 @@ halo's force-domain cap from 1 to 10 N. All q/tolerance/residual/speed/accelerat
 stop/controller and success bounds remain unchanged; the global recipe stays
 intact. The actual refused packet now passes this position-support check;
 nominal behavior is unchanged, outside-domain motion/load still refuses, and
-D2-H- remains unqualified. One distinctly named `D2-DR-gripper-qualified` full
-follow-up is running with the reviewed 180 s push/250 physics/2500 wall budgets.
-Its complete native, visual and temporal qualification is still pending; neither
-component bundle nor either prior teacher negative is promoted to corpus success.
+D2-H- remains unqualified. The distinctly named `D2-DR-gripper-qualified` attempt
+then refuses contact acquisition before late hold. Observed search travel is
+30.0653 mm against the 30 mm stroke, active time is 2.283 s against 3 s, and the
+force lower bound is -0.0244 N against the 0.03 N confirmation threshold. This is
+a travel-budget refusal. Both saved 2+4 s stops and raw/native feedback integrity
+pass; no push, hold, release or stabilization occurs and zero windows are admitted.
+The independently qualified gripper component remains valid in its local domain,
+but this attempt does not verify its late-hold use. Preserve all three DR negatives
+and both component bundles. Before any changed DR retry, diagnose actual entry
+motion and observations against the contact-search qualification; independently
+justify any correction without simply increasing the budget to obtain success.
+
+The independent original D2-P attempt refuses before recorder/teacher execution:
+the prescribed pedestal intersects frame collider 5 at the unchanged 2 mm geometry
+tolerance. The contact footprint itself passes. The saved 2 s continuation passes
+independent native feedback, limits, motion and contact checks. No 4 s continuation
+or recording exists, so those remain unavailable. A distinct feasible placement
+must preserve the agreed posture/placement variation and pass independent geometry
+qualification before any changed retry; no collision or physical threshold changes.
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
@@ -195,9 +211,9 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **5.1385 aggregate GPUh** across 35 completed allocations.
-`D2-DR-gripper-qualified` is the 36th allocation, running on the local RTX 4090.
-Current retention is 53.74 GiB, entirely local with zero remote replicas. Exact accounting
+Closed cost is **5.2282 aggregate GPUh** across 37 completed allocations.
+Current retention is 54.23 GiB, entirely local with zero remote replicas.
+The original D1-RV recovery is ready for the next independent allocation. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -248,7 +264,7 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Planned | Planned |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Planned | Qualified new | Two negatives; calibrated full follow-up running | Qualified new;1.1 | Planned | Planned |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Unqualified; pedestal/frame intersection | Qualified new | Three negatives; acquisition-stroke block | Qualified new;1.1 | Planned | Planned |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
 
@@ -289,6 +305,15 @@ the nominal 30 mm precontact and 3 s entry. Every prefix is actual execution thr
 operational guards. Injected commands remain causal history and are excluded from
 targets. No restoration, fabricated history, deliberately lost established
 contact, or bypassed error-prefix admission qualifies a cell.
+
+D1-RV readiness is reconciled against the existing executable path: the active
+pose disturbance remains 15 mm/0.04 rad over approach seconds 3.2–3.8, followed by
+a 0.4 s measured-origin brake and 1.5 s return within the 7.5 s approach. The older
+relative-joint proposal is retained as superseded metadata. Launch admission now
+requires agreement between the matrix, active correction and ready recovery plan;
+stale metadata refuses. Focused correction/phase checks pass. This establishes
+software readiness only: actual error, velocity, guarded prefix, complete native
+cycle, independent stops, actual images and temporal consumer remain unqualified.
 
 ## Collection integration and qualification
 
