@@ -164,6 +164,41 @@ class TemporalRecorder:
         )
         self.frame_index += 1
 
+    def cache_preprocessed(self, values, preprocessing, *, device):
+        """Retain the existing CUDA image result once, joined to its raw capture."""
+        values = np.asarray(values)
+        if (
+            not str(device).startswith("cuda")
+            or values.dtype != np.dtype("f4")
+            or values.shape != (5, *preprocessing["image_size"])
+            or not np.isfinite(values).all()
+            or self.frame_index == 0
+        ):
+            raise ValueError("Invalid captured preprocessed frame")
+        group = self.file.require_group("preprocessed_images")
+        if "values" not in group:
+            group.attrs.update(preprocessing=json.dumps(preprocessing), device=str(device))
+            compression = self.writer.image_compression
+            group.create_dataset(
+                "values",
+                shape=(0, *values.shape),
+                maxshape=(None, *values.shape),
+                dtype="f4",
+                chunks=(1, *values.shape),
+                compression=compression,
+                shuffle=compression is not None,
+                **({"compression_opts": 1} if compression == "gzip" else {}),
+            )
+        if (
+            json.loads(group.attrs["preprocessing"]) != preprocessing
+            or group.attrs["device"] != str(device)
+            or len(group["values"]) != self.frame_index - 1
+        ):
+            raise ValueError("Preprocessed frame/capture alignment changed")
+        column = group["values"]
+        column.resize(self.frame_index, axis=0)
+        column[-1] = values
+
     def feedback(
         self,
         torque_nm,

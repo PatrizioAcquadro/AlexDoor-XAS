@@ -233,6 +233,18 @@ with TemporalEpisode(prepared, cfg) as episode:
     # batches feed the existing ACT tensor interface; no training is run here.
 ```
 
+Native teacher collection can optionally retain each already CUDA-preprocessed
+capture with `pilot_physics.py collect --cache-temporal-frames`. This defaults off
+and changes neither control nor observation timing. The optional raw-file cache
+requires one float32 frame per raw capture with identical preprocessing settings.
+`prepare_temporal(..., use_recorded_frames=True, device="cpu")` then builds only
+numeric joins and explicit masks, without repeating image preprocessing or model
+inference. The prepared image dataset uses a relative external link to that raw
+file: retain and move the episode folder together. Missing payloads fail clearly;
+a cache alone never grants supervision. CPU regressions cover alignment, multiple
+readers, relative relocation and missing source handling. Native producer-to-reader
+validation remains pending the first new collection using this option.
+
 `reviewed_command_mask` is required to admit supervision. Its default is all
 false, including for failed/interrupted/ambiguous recordings. Chunks intersecting
 an ineligible real command or an internal target hole are excluded. True tail

@@ -185,6 +185,11 @@ def main(argv=None):
         help="Optional lossless RGB-D compression for retained rollout evidence",
     )
     parser.add_argument(
+        "--cache-temporal-frames",
+        action="store_true",
+        help="Retain already CUDA-preprocessed capture frames for metadata-only preparation",
+    )
+    parser.add_argument(
         "--collection-compression",
         choices=("none", "lzf", "gzip"),
         default="none",
@@ -207,6 +212,8 @@ def main(argv=None):
         help="Historical recipe identity; must agree with the protocol and checkpoint",
     )
     args = parser.parse_args(argv)
+    if args.cache_temporal_frames and args.mode != "collect":
+        parser.error("Temporal frame caching requires teacher collection")
     if args.guarded_teacher and (
         args.mode != "collect" or args.operational_recipe is None or args.intermediate_state
     ):
@@ -572,6 +579,7 @@ def main(argv=None):
                 metadata,
                 **recorder_options,
                 interrupt_after_commands=args.interrupt_after_commands,
+                cache_temporal_frames=args.cache_temporal_frames,
                 image_compression=(
                     None if args.collection_compression == "none" else args.collection_compression
                 ),

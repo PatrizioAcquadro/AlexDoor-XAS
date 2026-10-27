@@ -37,10 +37,21 @@ class TemporalExpertRecorder(ExpertRecorder):
     retain fresh native pixels at 10 Hz. No independent hardware time is inferred.
     """
 
-    def __init__(self, path, metadata, *, interrupt_after_commands=None, image_compression=None):
+    def __init__(
+        self,
+        path,
+        metadata,
+        *,
+        interrupt_after_commands=None,
+        image_compression=None,
+        cache_temporal_frames=False,
+    ):
         super().__init__(path, metadata, purpose="b1_partial_policy_pilot")
         self.interrupt_after_commands = interrupt_after_commands
         self.image_compression = image_compression
+        if type(cache_temporal_frames) is not bool:
+            raise ValueError("Temporal frame caching requires an explicit boolean")
+        self.cache_temporal_frames = cache_temporal_frames
         self.env = None
         self.phase = None
         self.last_capture = -np.inf
@@ -164,6 +175,16 @@ class TemporalExpertRecorder(ExpertRecorder):
                 self.config,
                 device=env.device,
             )
+            if self.cache_temporal_frames:
+                self.writer.cache_preprocessed(
+                    values,
+                    dict(
+                        image_size=list(self.config.image_size),
+                        depth_scale_m=self.config.depth_scale_m,
+                        depth_interval_m=list(self.config.depth_interval_m),
+                    ),
+                    device=env.device,
+                )
             self._append("images", values, t, t, source_index=self.writer.frame_index - 1)
             self.last_capture = t
 

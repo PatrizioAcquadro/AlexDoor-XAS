@@ -6,6 +6,7 @@ failed, ambiguous and terminal samples remain readable diagnostics.
 """
 
 import json
+import os
 from collections import OrderedDict
 from pathlib import Path
 
@@ -272,11 +273,15 @@ def prepare_temporal(
     eligible=None,
     episode_id=None,
     image_compression=None,
+    use_recorded_frames=False,
 ):
     """Stream one frame at a time to an exclusive new store; never expand windows.
 
     eligible is an explicit command-row mask, default diagnostic-only. A chunk
     intersecting an ineligible real command is excluded as a whole, not padded.
+    use_recorded_frames reuses the native CUDA result without preprocessing it
+    again. The prepared store then requires its raw source beside it; eligibility
+    and all numeric joins are still constructed explicitly on the CPU.
     """
     if image_compression not in (None, "lzf", "gzip"):
         raise ValueError("Unsupported prepared image compression")
@@ -312,6 +317,22 @@ def prepare_temporal(
         streams, metadata, times, gen = raw_streams(
             raw, config, device=device, image_rows=image_rows, legacy_synchronous=legacy_synchronous
         )
+        if use_recorded_frames:
+            cached = raw.get("preprocessed_images/values")
+            expected = json.loads(out.attrs["preprocessing"])
+            if (
+                raw.attrs.get("schema") != "b1.temporal-recording.v1"
+                or cached is None
+                or cached.shape != (len(streams["images"]["acquired"]), 5, *config.image_size)
+                or cached.dtype != np.dtype("f4")
+                or not str(raw["preprocessed_images"].attrs.get("device", "")).startswith("cuda")
+                or json.loads(raw["preprocessed_images"].attrs.get("preprocessing", "{}"))
+                != expected
+                or not np.array_equal(streams["images"]["source_index"], np.arange(len(cached)))
+            ):
+                raise ValueError("Missing, mismatched or incomplete captured preprocessed frames")
+            out.attrs["image_compression"] = cached.compression or "none"
+            out.attrs["uses_recorded_frames"] = True
         metadata = dict(metadata)
         if episode_id is not None:
             if not isinstance(episode_id, str) or not episode_id.strip():
@@ -328,7 +349,12 @@ def prepare_temporal(
         for key, stream in streams.items():
             group = out.create_group(key)
             for name, values in stream.items():
-                if name == "values" and key == "images":
+                if name == "values" and key == "images" and use_recorded_frames:
+                    relative = os.path.relpath(
+                        Path(source).resolve(), Path(destination).resolve().parent
+                    )
+                    group[name] = h5py.ExternalLink(relative, "/preprocessed_images/values")
+                elif name == "values" and key == "images":
                     frame_shape = (5, *config.image_size)
                     column = group.create_dataset(
                         name,
@@ -412,6 +438,9 @@ class TemporalEpisode:
         if self.file.attrs.get("layout") != LAYOUT or not self.file.attrs.get("complete"):
             self.close()
             raise ValueError("Incomplete temporal frame store")
+        if self.file["images"].get("values") is None:
+            self.close()
+            raise ValueError("Prepared image payload is unavailable; restore its raw source")
         preprocessing = json.loads(self.file.attrs["preprocessing"])
         if preprocessing != dict(
             image_size=list(config.image_size),
@@ -553,6 +582,9 @@ class TemporalEpisode:
         self.close()
 
     def close(self):
+        if getattr(self, "frames", None) is not None:
+            self.frames.cache.clear()
+            self.frames.values = None
         if getattr(self, "file", None):
             self.file.close()
 
