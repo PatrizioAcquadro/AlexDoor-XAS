@@ -73,8 +73,8 @@ metadata preparation. This one recording costs 1,720.151 GPU seconds. Six new
 independent recordings provide **33,374 overlapping windows**; none is a complete
 recovery or learned success.
 
-Seventeen completed new matrix collection attempts retain eleven negatives and six
-qualified full cycles; all seventeen pass both independent stops. D1-H- terminates
+Eighteen completed new matrix collection attempts retain twelve negatives and six
+qualified full cycles; all eighteen pass both independent stops. D1-H- terminates
 for contact loss or uncertainty after 1,791 guarded commands, with zero positive
 targets. D2-DR preserves continuous native contact and exceeds the minimum opening,
 but exhausts its original 150 s push budget without any hold commands. It remains
@@ -89,11 +89,30 @@ together with the complete phase schedule, watchdogs and storage. Projecting the
 recent speed to the light-dynamics source's exit angle suggests about 18 extra
 push seconds, but does not prove the eventual DR exit or success. Keep the
 original native exit criterion and all opening/hold/release/stabilization gates;
-do not shorten the endpoint or retry unchanged. D2-DR remains blocked pending
-that concrete budget review while the unexecuted D2-H- condition proceeds with
-its original recipe. The offline native audit now represents an absent hold as
+do not shorten the endpoint or retry unchanged. That diagnosis motivates the reviewed budget intervention below. D2-H- subsequently refuses before contact after 243
+approach commands: its weak-position route lacks qualified contact-free motion
+and stopping, with observed stop margin -0.3059 m. Raw/native-feedback integrity
+and both saved stops pass; no positive labels. This bound does not establish an
+actual collision. A changed height attempt requires independent position support
+at the required 10 N future-stop domain or a genuinely contact-free approach/stop,
+with the guard unchanged. The offline native audit now represents an absent hold as
 missing and invalid; every audit field of the already qualified D2-DL reproduces
 exactly after this correction.
+
+The concrete D2-DR intervention changes only the push loop budget to 180 s. Its
+measured remaining-progress estimate is 18.18 s; allowing the existing 3 s physical
+stall interval and rounding upward to 10 s gives180s. Original controller rates,
+loads, native phase-exit criteria, opening requirement, hold, release and
+stabilization remain unchanged. The complete maximum phase schedule is 244.4 s,
+so this case uses 250 s physics and 2500 s wall watchdogs, rather than the default
+240 s/2400 s. At the slowest qualified-local rate the full schedule projects 2475 s
+wall time. Cleanup remains 65 s termination plus 90 s reserve. Software checks verify
+the actual launcher and independent variety-review branches: unreviewed or
+other-condition exceptions and changes to force, hold, speed or undeclared
+horizon are rejected. The original 150 s setup, allocation and full negative stay
+intact. One distinctly named `D2-DR-push-budget` now runs on the 4090; its full
+native outcome and independent/visual/temporal qualification remain pending.
+
 
 The fixed D3 bundle completes all six preregistered cases in 602.026 charged
 seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
@@ -145,10 +164,10 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **4.4180 aggregate GPUh** (3.4845 local /0.9335 historical Blackwell)
-across 31 completed allocations. D2-H- is the 32nd, running independently on the
-local RTX 4090. The 06:19 UTC accounting snapshot includes its elapsed charge:
-4.4375 GPUh and 45.92 GiB retained locally, with zero remote campaign replicas. Exact accounting
+Closed cost is **4.4890 aggregate GPUh** (3.5555 local /0.9335 historical Blackwell)
+across 32 completed allocations. `D2-DR-push-budget` is the 33rd, running on the
+local RTX 4090. The 06:39 UTC snapshot includes its elapsed charge: 4.5199 GPUh
+and 47.13 GiB retained locally, with zero remote campaign replicas. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -199,7 +218,7 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Planned | Planned |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Running | Planned | Qualified new | Unqualified; push budget, no hold | Qualified new;1.1 | Planned | Planned |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Planned | Qualified new | Changed budget follow-up running; original negative | Qualified new;1.1 | Planned | Planned |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
 
@@ -295,32 +314,37 @@ baseline remains 44.930708 local /31.823056 remote GPUh, 198,773 historical opti
 updates and approximately 1023.967 GiB retained. No counter is reset or refunded.
 Training, learned evaluation, development collection and final test remain excluded.
 
-Finite episode watchdogs remain 2400 wall seconds and 240 physics seconds, with the
-existing 3 s physical-motion stall guard and 65 s termination/90 s cleanup reserve.
-They are individual episode/stall bounds, not cumulative compute ceilings. Five
-qualified local cycles give a slowest measured 10.13 wall seconds per accounted
-physics second. The longest declared phase schedule, including recovery approach
-and independent stops, is 215.9 physics seconds and projects 2186 wall seconds,
-within 2400. The unused 240 s physics watchdog reserve is not the phase schedule. Future changes to legitimate phase duration or measured throughput
-require evidence-based watchdog sizing before launch; the current healthy episode
-keeps its loaded settings. See `episode-watchdog-review.json`.
+Default finite watchdogs remain 2400 wall/240 physics seconds, with the existing 3 s
+physical-motion stall guard and 65 s termination/90 s cleanup reserve. The unchanged
+cases' longest declared schedule is 215.9 physics seconds. The reviewed D2-DR
+180 s push budget instead gives 244.4 physics seconds for its complete schedule;
+case-specific watchdogs are 250 physics/2500 wall seconds, with the same cleanup.
+The slowest five qualified local cycles give 10.13 wall seconds per accounted
+physics second, projecting2475s for the changed complete schedule. The finite
+bounds are sized to legitimate phases, rather than cumulative compute. Future
+recipe/throughput changes require evidence-based sizing before launch; preserve
+healthy active settings. See `episode-watchdog-review.json` and the explicit
+`D2-DR-budget-intervention.json`. The independent scientific review accepts only
+that reviewed timing difference and continues to reject physical/controller or
+success-gate changes.
 
 `forecast_storage.py` reforecasts after allocation milestones using measured
 cached-frame sources, current retained bytes and actual disk free space. The
-October 27, 06:19 UTC snapshot has 45.92 GiB retained and 472.11 GiB physically free.
-Completing the remaining 20 ordinary and 8 recovery conditions projects about
-**107–144 GiB additional** under observed-duration scenarios, or 153–190 GiB total.
-Using the complete 228 s recorded-physics budget projects 204 GiB additional,
-250 GiB total. These scenarios fit current capacity with 3.49 GiB protected
-headroom. They include the retained D2-DR negative; future failed attempts and
-diagnostics are not predicted and add actual bytes. These forecasts guide
-planning and never become admission ceilings. Current measured growth projects
-7.29 GiB per source at that budget, within the 24 GiB episode reserve. Recheck
-actual growth and free capacity before every launch and warn with concrete
-additional GiB before a shortage. A future longer legitimate recipe must update
-its watchdog and storage forecast together. Never stop a healthy source for the
-former 200 GiB cap. Cached-frame metadata preparation avoids another image copy,
-and partial/pending source bytes are counted only once.
+October 27, 06:39 UTC snapshot has 47.13 GiB retained and 470.88 GiB physically free.
+Completing the remaining 20 ordinary and 8 recovery conditions projects **110–145 GiB
+additional** under observed-duration scenarios, or157–193 GiB total. The maximum
+scenario uses each condition's actual physics budget,238 recorded seconds for
+D2-DR and 228 s for the other conditions, and projects 204 GiB additional/251 GiB total.
+The conditional D2-DR duration model includes its original failed recorded
+length, measured remaining progress and unchanged hold; it does not predict
+success. All scenarios fit physical space with 3.49 GiB protected headroom. They
+include every current negative; future failed attempts/diagnostics add actual
+bytes. These forecasts guide planning and never become admission ceilings.
+Current maximum measured growth projects 7.61 GiB per source, within the existing
+24 GiB physical reserve. Recheck growth/free capacity before every launch and warn
+with concrete shortages. Never stop a healthy source for the former 200 GiB cap.
+Cached-frame metadata preparation avoids another image copy, and running/pending
+source bytes are counted once.
 
 The dedicated VLA transfer chat confirms both authorized lots fully verified and
 removed: 618,924 files preserve hashes, sizes, structure and metadata, and native
