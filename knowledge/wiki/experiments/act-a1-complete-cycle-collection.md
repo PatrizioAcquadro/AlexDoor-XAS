@@ -7,10 +7,10 @@ Teacher similarity is not the success criterion. This campaign collects and
 prepares data; training, learned evaluation, development collection and final-test
 access are excluded.
 
-## Current result: three new full-cycle sources qualified
+## Current result: four new full-cycle sources qualified
 
-**5/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
-new D1-H+, D2-V and D1-DL.** The new source acquires continuous valid native contact, reaches
+**6/36 cells are independently qualified: C15/D1-N and C14/D2-N reuse, plus
+new D1-H+, D2-V, D1-DL and D1-V.** The new source acquires continuous valid native contact, reaches
 51.86 degrees against the unchanged 41.01-degree requirement, holds for 3 s,
 intentionally releases and stabilizes for 2 s. Independent saved native-force,
 gap and stop-stream reconstruction reproduces the passing continuity and 2+4 s
@@ -46,24 +46,45 @@ The first actual cached-frame pipeline retains 937 CUDA captures inside the raw
 file. CPU-only metadata preparation reuses those exact values through a relative
 external link and admits 4,107 windows with unchanged masks, shapes and exact A1
 deltas. The prepared numeric store is about 3.9 MB and requires its 2.67 GB raw
-source; no duplicate image payload or additional GPU allocation is created. Three
-new independent recordings now supply **16,423 windows**.
+source; no duplicate image payload or additional GPU allocation is created. This source raises the then-current new-source window count to 16,423.
 
-Nine completed new matrix collection attempts retain six negatives and three
-qualified full cycles. All nine pass both independent stops. D1-H- terminates for contact loss
-or uncertainty after 1,791 guarded commands; it supplies zero positive targets.
-The separate D3 ingress diagnostic stops before approach for inconsistent local
-surface material. Actual camera/calibration packets match recording exactly;
-old/new depth agrees across all 255 captured frames while RGB differs.
-Calibration/precision disagreement is not reproduced; photometric or association
-fragility remains a hypothesis, not an established cause.
+The first Blackwell full D1-V source passes independently: 50.16 degrees against
+41.01 required, continuous contact, 3 s hold, release, 2 s stabilization and both
+stops. Actual lighting is 0.9; initial RGB mean changes by -3.95/255 while camera
+pose and active dynamics retain their agreed bounds/settings. Native peak is
+6.72 N. All six phase images and the CUDA-prepared temporal consumer pass,
+adding 4,111 windows. Its native allocation costs 2,267.593 s and explicitly
+returns VLA slot ownership; local CUDA preparation costs another 32.350 s.
+Four new independent recordings now provide **20,534 windows**.
 
-At 02:07 UTC, 22 allocations cost **2.2984 aggregate GPUh** (1.6862 local / 0.6122
-Blackwell), including elapsed time on its one running full cell. The aggregate
-upper estimate is 2.6760 GPUh; retention is 24.57 GiB including replicas. Exact
-accounting is in `resources.json`; CPU queue waiting is uncharged. All failed
-allocations and source outcomes remain preserved. Training, normalization and
-historical selections are unchanged.
+Ten completed new matrix collection attempts retain six negatives and four
+qualified full cycles; all ten pass both independent stops. D1-H- terminates for
+contact loss or uncertainty after 1,791 guarded commands, with zero positive targets.
+
+The fixed D3 bundle completes all six preregistered cases in 602.026 charged
+seconds: old/new RGB crossed with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2.
+Every case selects one tracked candidate yet reproduces unavailable local material
+support. At the terminal capture, the native pose keeps 63–64 of 65 sampled
+reference points depth-consistent; the local correction keeps zero. Retained
+first-failure packets show 3,996–3,998 of the original 4,000 material points still
+visible before correction, with median depth residual below 0.06 mm. Their full
+corrected clouds have zero supporting points, so increasing root sampling is not
+a remedy. RGB, reset count and tested update cadence do not explain this refusal.
+The original missing-selection failure remains preserved and distinct.
+
+The production local surface query returns only the first dominant measured plane.
+On relief geometry, that plane can differ from the selected material. An isolated
+CPU draft expands to all current measured components only when the dominant query
+fails, retaining conditioning, identity, ambiguity and missing-support gates.
+Regression scenarios cover nominal geometry, relief on either side and absent
+material. This draft is not installed or natively validated; the queued D1-DR
+snapshot stays unchanged. No physical threshold or uncertainty bound is relaxed.
+
+Completed cost is **2.7960 aggregate GPUh** (1.8624 local / 0.9335 Blackwell)
+across 24 allocations. Retention is 28.23 GiB including replicas. Exact accounting
+is in `resources.json`; waiting is uncharged. All failed allocations and original
+source outcomes remain preserved. Training, normalization and historical selections
+are unchanged.
 
 The first preparation rejects invalid CLI arguments. The corrected CUDA image
 preparation omits eligibility, so its reader safely finds zero usable rows. Both
@@ -85,15 +106,10 @@ Persistent GPU ownership and complete-episode handoffs govern local collection.
 The protected D4 follow-up retains its unsupported observed finger-sweep refusal
 after 112 guarded approach commands. D1-H+'s original 192-command weak-position
 refusal remains negative; its changed follow-up uses the independently qualified
-lower shoulder-Z recipe, with frozen physical, residual and stop bounds. D3's
-live selection refusal remains unresolved; changing saved replay precision alone
-does not reproduce it. These diagnoses do not prevent unrelated cells. The fixed
-six-case D3 offline bundle
-waits for a separate 1,500 s local window after the actual D1-DL return,
-1,200 s of VLA ownership and healthy episode cleanup. It crosses the two actual
-RGB streams with 10 Hz/reset-1, 10 Hz/reset-2 and 60 Hz/reset-2; all 255 depth
-and calibration frames, plus all 1,525 robot states, match exactly. No simulator, action,
-source admission or favorable retry is part of this diagnostic. See the
+lower shoulder-Z recipe, with frozen physical, residual and stop bounds. D3's original
+selection refusal remains unresolved; the fixed bundle instead reproduces a local
+material-query failure in every case. Its identical depth/calibration/robot inputs
+and all six outcomes remain preserved. These diagnoses do not prevent unrelated cells. See the
 [resume handoff](../../../outputs/evidence/act-a1-complete-cycle-20261026/RESUME.md).
 
 ## Agreed coverage and present evidence
@@ -265,7 +281,8 @@ with an explicit VLA return after cleanup. This qualifies the original recipe's
 measured transfer domain; the newer local shoulder extension is not transferred
 by this bundle. The first full Blackwell D1-V starts only after verified actual
 VLA201 completion and driver exit, with the full 2,555 s reserve inside a 2,700 s
-window. Full-cycle compatibility still requires actual source review. Owned GPU
+window. That first full source subsequently passes independent native, visual and temporal
+review. It qualifies this measured source, not arbitrary future conditions. Owned GPU
 usage and shared-device headroom preserve other workloads; no third native lane
 is authorized. A second local 4090 remains unavailable until endpoint/runtime
 verification.

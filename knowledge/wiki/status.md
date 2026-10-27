@@ -1,30 +1,36 @@
 # Project Status
 
-## ACT A1 — three new complete-cycle sources; collection continuing
+## ACT A1 — four new complete-cycle sources; collection continuing
 
 The approved [[experiments/act-a1-complete-cycle-collection|36-cell campaign]] has
-**5/36 qualified cells**: C14/C15 reuse plus new D1-H+, D2-V and D1-DL native cycles.
+**6/36 qualified cells**: C14/C15 reuse plus new D1-H+, D2-V, D1-DL and D1-V native cycles.
 D1-H+ reaches 51.86 degrees with a measured 20.02 mm height change; D2-V reaches
 52.54 degrees under its measured 1.1 lighting scale. Both exceed their unchanged
 opening requirements, hold 3 s, release intentionally, stabilize for 2 s and pass
 independent contact/stop reconstruction and visual/temporal review. D1-DL also verifies
 actual 0.7 panel/handle mass and inertia, 50.28 degrees of controlled opening,
-continuous contact and the full hold/release/stabilization/stops. Their three
-recordings supply **16,423 windows**, retaining four-second history and actual A1
+continuous contact and the full hold/release/stabilization/stops. The first Blackwell D1-V cycle also passes every gate at 50.16 degrees with
+measured lighting scale 0.9. These four
+recordings supply **20,534 windows**, retaining four-second history and actual A1
 targets. This is teacher data: zero new optimizer updates; learned outcomes stay 0/22.
 
-Nine completed new matrix collection attempts retain six negatives and three
-qualified cycles. All nine pass both independent stops. D1-H- stops for contact loss or
+Ten completed new matrix collection attempts retain six negatives and four
+qualified cycles. All ten pass both independent stops. D1-H- stops for contact loss or
 uncertainty. D4's observed-sweep support remains unresolved. The new D3 ingress
 diagnostic finds a local-surface material inconsistency before approach; exact
 calibration/depth disagreement is not reproduced. No favorable retry is queued.
-D1-DL has returned the local GPU; the next fixed six-case D3 offline diagnostic
-waits for its separately agreed VLA window and complete-episode handoff. Training,
-learned evaluation, development collection and final-test access remain excluded.
+The fixed six-case D3 replay reproduces local-surface material inconsistency
+for both RGB streams and all tested reset/cadence variants. Native pose retains
+63–64 depth-supported reference points; the local correction retains zero.
+CPU review still finds 3,996–3,998 of the original 4,000 material points visible.
+The local query currently exposes only the dominant plane; relief can hide the
+selected material from that query. An isolated expanded-query draft passes
+geometry/session regressions, including absent-support refusals. It is not yet
+installed or natively qualified; the queued D1-DR runtime is preserved.
+Training, learned evaluation, development collection and final-test access remain excluded.
 
-The 02:07 UTC snapshot costs **2.2984/12 aggregate GPUh** across 22 allocations
-(including one running Blackwell full cell; upper estimate 2.6760 GPUh). Retention is
-24.57/200 GiB including replicas; the common 60-allocation cap includes failures,
+Completed cost is **2.7960/12 aggregate GPUh** across 24 allocations. Retention is
+28.23/200 GiB including replicas; the common 60-allocation cap includes failures,
 diagnostics and preparation. Nine persistent restoration-verified archives resolve
 the initial storage shortage; historical costs are never refunded.
 
@@ -32,8 +38,9 @@ Blackwell passes native perception/head-camera/240/60 Hz checks and the fixed
 six-case 10 N loaded transfer bundle, including all 18 stop continuations and
 unchanged residual/position/velocity/acceleration/feedback bounds. This qualifies
 the original operational recipe's measured transfer domain. Its first full D1-V
-is running after verified VLA201 completion and cleanup; full-cycle compatibility
-is pending. Persistent ownership protects both existing lanes and unrelated work.
+also passes native physics, independent review, actual head images and the temporal
+consumer after verified VLA201 cleanup. This establishes one full teacher source
+on that host, not universal robot/task compatibility. Persistent ownership protects both existing lanes and unrelated work.
 Optional retention of already CUDA-preprocessed captures now supports metadata-only
 preparation; actual D1-DL integration passes with 937 frames and no additional
 GPU preparation allocation.
