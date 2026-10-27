@@ -531,6 +531,27 @@ with every outcome retained, no factor search, production adoption or actuation.
 Independent review remains necessary even if its margin improves; the 36-cell
 qualification requirements and all original failures stay unchanged.
 
+The first private comparison stops on its strict normal-range subset assertion
+after 250 captures/1,500 control updates and before any actual proposal check.
+It costs 88.007 charged GPU seconds without timeout or resource stop; no physics,
+actuation, labels or production adoption occur. The original helper and failed
+output remain preserved. Selected-point projection against the raw normal used
+a different floating arithmetic form from the parent's full-frame projection
+against its normalized basis. Seven actual-capture arithmetic checks reproduce
+strict-boundary differences on four numerical subsets; the exact original failed
+semantic subset and excess remain unavailable. These are arithmetic checks,
+not replacement semantic masks or physical qualification.
+
+The distinctly named corrected diagnostic uses the parent's exact full-frame
+operation order. Strict inequalities remain unchanged, with no epsilon, interval
+clamping, changed measurement or physical tolerance. All seven capture checks,
+seven maintained material regressions and six explicit nominal/adverse cases
+pass. The same 277 frames/1,662 states/138 actual proposals and finite 900-second
+wall watchdog plus 155-second cleanup remain frozen; the completed baseline
+took 100.283 wall seconds. Independent review of every proposal and geometric
+certificate is still required. No full native retry or positive admission follows
+from this preparation.
+
 A separate CPU comparison finds 10 zero-force native hold intervals in failed
 D2-RP, versus 17/12/17/16 in qualified D2-N/DL/V/RV. The field is the maximum
 of four native forces per control interval; zero therefore means all four
@@ -593,11 +614,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **8.3177 aggregate GPUh** across 55 completed allocations.
+Closed cost is **8.3421 aggregate GPUh** across 56 completed allocations.
 Current retention is 78.83 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed and its private depth-coherent comparison is next. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, its first private depth-coherent comparison fails before proposal checks, and the corrected exact-parent projection is prepared. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
