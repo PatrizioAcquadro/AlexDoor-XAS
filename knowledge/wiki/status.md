@@ -162,18 +162,33 @@ dynamic limits, healthy feedback and all 18 stop continuations. The first six-ca
 rejection and all costs remain preserved. A recipe bound to D2-H+ and its exact
 setup changes only the existing lower-elbow halo force support from 1 to 10 N;
 global calibration, position bounds and every physical/scientific gate stay fixed.
-The distinctly changed full-source follow-up is next. This component proof adds
-no qualified cell; full native, variety, image and maintained-reader review remain
-required before admission.
+The distinctly changed full source remains negative after 131 approach commands:
+its future lower-elbow interval exits even the full qualified halo by 1.161 mrad.
+Both terminal stops and raw/native feedback pass, with no contact or positive
+eligibility. A whole retained H+ path screen requires several further empirical
+domains and extends conservative future intervals beyond physical joint ranges;
+this does not establish actual limit violations. H+ stays blocked pending a
+complete legitimate path/stop intervention, with no arbitrary halo enlargement.
+
+The independent retained H- path needs two upper empirical domains, within
+physical ranges: 14.842 mrad shoulder-Z and 20.953 mrad gripper-Y beyond the core.
+These source-derived candidate widths have no extra padding. One frozen six-case
+robot-only qualification covers individual boundaries and both coupled corners;
+each corner must reach both bounds in the same loaded native sample. Every
+physical, model, dynamic and 18-stop gate remains unchanged. Historical contact
+losses and controller differences remain; this plans support and adds no source
+qualification or calibration adoption.
 
 CPU comparison also finds zero-force native intervals in D2-RP and all four
 qualified D2 references; isolated zero intervals do not explain RP's failed
 lower-load window. Its precise pressure-feedback branch remains unavailable.
 Future temporal teacher recordings now flush each completed diagnostic transition
 to a separate `teacher-trace.jsonl`, preserving native force mean and controller
-feedback through later exceptions. CPU lifecycle tests pass; native use remains
-unverified. This retention repair changes no control, observations, qualification
-or historical outcome and does not establish the RP cause fixed.
+feedback through later exceptions. The new native H+ negative verifies all 1,655
+completed transition journals, including 131 actual approach-state joins, survive
+the exception. Loaded contact/pressure-feedback use remains unvalidated. This
+retention repair changes no control, observations, qualification or historical
+outcome and does not establish the RP cause fixed.
 The original missing 4 s stop stays unavailable.
 
 D1-RV times out during parked inspection, before approach or any recovery error.
@@ -268,8 +283,8 @@ has transferred. No later alternation is required;
 physical storage/safety gates and historical costs remain unchanged.
 Training, learned evaluation, development collection and final-test access remain excluded.
 
-Closed cost is **8.4421 aggregate GPUh** across 59 completed allocations.
-Retention is 78.84 GiB, with 442.4 GiB physically free. Remaining 20 ordinary and
+Closed cost is **8.5068 aggregate GPUh** across 60 completed allocations.
+Retention is 79.73 GiB, with 441.5 GiB physically free. Remaining 20 ordinary and
 6 recovery conditions project 106.5–137.2 GiB additional, or 192.2 GiB at their physics
 budgets, including estimated future diagnostic-journal overhead. Current negative/component bytes are included; future failures and
 diagnostics add actual bytes. There is no current physical shortage. Each episode

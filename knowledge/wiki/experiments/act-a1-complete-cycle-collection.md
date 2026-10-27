@@ -622,6 +622,43 @@ Progressive teacher diagnostics also remain subject to native readback, outside
 policy observations. The original negative, both component bundles and all costs
 remain retained.
 
+The scoped full H+ follow-up remains negative after 131 guarded approach commands,
+with no contact or later phase. It costs 232.898 charged GPU seconds; raw/native
+feedback and both terminal 2+4 s stops independently pass. The future lower elbow
+is -2.310922 rad against the full qualified edge -2.309761 rad, a 1.161 mrad exit.
+The 10 N force support is already qualified; it is not the new deficit. Zero
+positive windows remain. The full matrix denominator becomes 29 attempts: eight
+positive sources and twenty-one negatives; component/replay allocations remain
+separate. Original negatives and every cost/mask stay retained.
+
+The progressive journal now natively preserves all 1,655 completed transitions
+through the exception: 1,524 inspection stubs and 131 actual approach traces.
+Clocks, generations, actual joints/tool states and zero precontact forces join
+the raw file exactly. The separate diagnostic sidecar stays outside policy inputs;
+loaded contact and pressure-feedback branches remain unvalidated. This establishes
+durability for the observed path, not a repair of either contact-loss cause.
+
+Complete retained TRAIN C08/H+ and C09/H- paths are screened with the unchanged
+current one-control motion/stop formula. C08 needs several lower/upper empirical
+extensions, with conservative intervals 1.771 mrad below the physical elbow range
+and 11.420 mrad above wrist-Z. This is a planning bound, not an observed physical
+violation or a current trajectory identity. H+ requires a complete feasible
+path/stop intervention; merely enlarging its elbow halo to pass the next packet
+is not justified. Its historical contact loss and gap-step controller difference
+remain preserved and cannot confer positive eligibility.
+
+C09/H- instead needs only two upper extensions, within physical ranges: shoulder-Z
+14.842 mrad and gripper-Y 20.953 mrad. The candidates equal the measured complete
+retained path's current future envelope, without arbitrary padding. The historical
+source still loses contact and differs from the current feedback recipe; it is
+planning evidence only. One frozen six-case robot-only bundle covers unloaded/
+loaded nominal, individual boundaries and two oblique distal-face coupled corners.
+Both joints must cover their exact corner bounds in the same actual 10 N native
+sample; separate favorable samples cannot establish a corner. All frozen residual,
+feedback, speed/acceleration, physical and 18-stop gates remain. The maintained
+75-second schedule retains its finite 900 wall seconds plus 155 cleanup. No active
+calibration change or full H- retry follows before independent native review.
+
 D1-H- remains a separate push-support negative: 1,251 push commands end at
 20.424 degrees with zero hold/release/stabilization. The last six native-force
 interval maxima are zero, and observed load lower support becomes negative.
@@ -691,11 +728,11 @@ No later turns or remote AlexDoor allocations are planned. Historical remote dat
 and charges remain preserved; the newer direct authorization below removes all
 administrative cumulative resource ceilings.
 
-Closed cost is **8.4421 aggregate GPUh** across 59 completed allocations.
-Current retention is 78.84 GiB, entirely local with zero
+Closed cost is **8.5068 aggregate GPUh** across 60 completed allocations.
+Current retention is 79.73 GiB, entirely local with zero
 remote replicas. The first parked diagnostic did not reproduce the stall;
 the native forced-stall test validates interruption and saved stops before
-teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, the corrected depth-coherent comparison leaves its actual refusal unchanged and is rejected for adoption, and the first D2-H+ component rejection is preserved, the corrected bundle independently qualifies its actual loaded boundaries, and an exact-setup scoped full follow-up is prepared. N08 full RV remains admitted. Exact accounting
+teardown. The distinct D2-P full follow-up is negative; its qualified-support full follow-up is also negative; the D1-P instrumented prefix retains its actual refusal; the exact finite-material replay is reviewed, the corrected depth-coherent comparison leaves its actual refusal unchanged and is rejected for adoption, and the first D2-H+ component rejection is preserved, the corrected bundle independently qualifies its actual loaded boundaries, the scoped full follow-up exits the complete qualified position domain and remains negative, and independent H- complete-path component qualification is prepared. N08 full RV remains admitted. Exact accounting
 is in `resources.json` and actual allocation receipts; waiting is uncharged. The
 inactive Blackwell staging checkout moves to verified local storage:40,248 entries,
 10,495,191,579 regular-file bytes, identical hashes/modes/ns timestamps and symlink
@@ -746,7 +783,7 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Unqualified; inspection timeout | Qualified new complete recovery |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; weak-position stop | Unqualified; weak-position stop | Unqualified; pedestal/frame intersection | Qualified new | Three negatives; acquisition-stroke block | Qualified new;1.1 | Qualified new complete recovery | Unqualified; contact-load refusal during hold |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Unqualified; complete-path support planned | Unqualified; outside full gripper support | Qualified new | Three negatives; acquisition-stroke block | Qualified new;1.1 | Qualified new complete recovery | Unqualified; contact-load refusal during hold |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Planned | Planned | Planned | Planned | Planned | 1.1 | Planned | Planned |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Planned | Planned | Planned | Planned | Planned | 0.9 | Planned | Planned |
 
