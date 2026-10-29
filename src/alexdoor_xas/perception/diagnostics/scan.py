@@ -337,7 +337,6 @@ def run_scan_diagnostics(paths, recipe, output, models):
                     flush=True,
                 )
         finally:
-            engine.close()
             provider.close()
         summary = dict(
             complete=True,

@@ -23,7 +23,6 @@ from alexdoor_xas.perception.geometry import (
     plane_fit,
     project,
 )
-from alexdoor_xas.perception.provider import CueEngine, GeometryProvider
 from alexdoor_xas.policies.common.b1_contract import PerceptionBinding
 from alexdoor_xas.policies.observations import require_estimate
 from alexdoor_xas.recording.b1 import OBS_KEYS
@@ -89,12 +88,12 @@ def test_clipped_extent_is_not_a_measured_dimension():
     np.testing.assert_allclose(contact_frame(normal)[:, 0], normal / np.linalg.norm(normal))
 
 
-def test_reset_discards_public_estimate_and_unsafe_contact_never_reaches_io():
+def test_reset_discards_public_estimate_and_unsafe_contact_never_reaches_io(static_provider):
     from types import SimpleNamespace
 
     from alexdoor_xas.policies.purdue import PurdueIO
 
-    provider = GeometryProvider(recipe(), CueEngine(EmptyWorker(), replay=True))
+    provider = static_provider
     provider.last_estimate = complete_state()
     provider.reset()
     assert provider.last_estimate is None and provider.encoding is None
@@ -149,64 +148,8 @@ def test_missing_and_rejected_states_stay_in_gate_denominator():
     assert set(report["errors_accepted"]) >= set(LIMITS)
 
 
-def test_completion_order_reset_and_no_backdating():
-    engine = CueEngine(EmptyWorker(), replay=True)
-    assert engine.submit(sensor(), 0)
-    assert not engine.submit(sensor(4.01, 249), 0)
-    assert engine.poll(4.049) is None
-    event = engine.poll(4.05)
-    assert int(event[0]["frame"]) == 248 and float(event[0]["time_s"]) == 4
-    assert engine.submit(sensor(7, 428), 1)
-    engine.reset()
-    assert engine.poll(7.01) is None and engine.pending is None
-
-
-@pytest.mark.parametrize("delay", [0.05, 0.1, 0.25])
-def test_real_async_and_replay_release_identical_supplied_completion_events(delay):
-    class Worker(EmptyWorker):
-        def infer(self, rgb):
-            return dict(super().infer(rgb), latency_s=delay)
-
-    replay, live = CueEngine(Worker(), replay=True), CueEngine(Worker(), replay=False)
-    try:
-        for engine in (replay, live):
-            assert engine.submit(sensor(), 0)
-        live.pending[1].result(timeout=1)
-        for now in (4, 4 + delay - 0.001):
-            assert replay.poll(now) is live.poll(now) is None
-        a, b = replay.poll(4 + delay), live.poll(4 + delay)
-        assert a[1:] == b[1:] and a[3] == 4 + delay
-        replay.submit(sensor(7, 428), 1)
-        live.submit(sensor(7, 428), 1)
-        live.pending[1].result(timeout=1)
-        replay.reset()
-        live.reset()
-        assert replay.poll(7 + delay) is live.poll(7 + delay) is None
-    finally:
-        replay.close()
-        live.close()
-
-
-def test_replay_live_event_equivalence_and_privileged_input_isolation():
-    class RecordedEvents:
-        def __init__(self):
-            self.inputs = []
-            self.generation = 0
-
-        def reset(self):
-            self.generation += 1
-
-        def poll(self, now):
-            return None
-
-        def submit(self, sample, view):
-            self.inputs.append(sample)
-            return True
-
-    first, second = (
-        GeometryProvider(recipe(), RecordedEvents()),
-        GeometryProvider(recipe(), RecordedEvents()),
-    )
+def test_session_isolates_privileged_inputs_and_invalid_observations(static_provider):
+    provider = static_provider
     for t, frame in ((4, 248), (4.016, 249), (7, 428)):
         clean = sensor(t, frame)
         poisoned = dict(
@@ -217,14 +160,17 @@ def test_replay_live_event_equivalence_and_privileged_input_isolation():
             phase=2,
             commands={"target": 999},
         )
-        a, b = first.update(clean), second.update(poisoned)
-        assert (a.valid, a.reason) == (b.valid, b.reason)
-    assert all(set(v) == set(OBS_KEYS) for v in second.engine.inputs)
-    assert not second.update(sensor(6, 429)).valid
+        estimate = provider.update(poisoned)
+        assert not estimate.valid and estimate.reason == "static_scan_only"
+        snapshot = provider.engine.pending[0][1]
+        assert set(snapshot) == set(OBS_KEYS)
+        for key in OBS_KEYS:
+            np.testing.assert_array_equal(snapshot[key], clean[key])
+    assert provider.update(sensor(6, 429)).reason == "nonmonotonic_observation"
     lost = sensor(8, 488)
     lost["valid_depth"][:] = False
-    assert second.update(lost).reason == "missing_rgbd"
-    assert second.encoding is None
+    assert provider.update(lost).reason == "missing_rgbd"
+    assert provider.encoding is None
     with pytest.raises(ValueError, match="qualified and frozen"):
         PerceptionBinding.from_dict(recipe().to_dict())
 
@@ -318,20 +264,6 @@ def test_dense_edges_preserve_leaf_bottom_without_absorbing_fixed_frame(bottom_f
     assert "height_0" not in extent_edges(points, np.array([1.0, 0, 0]), mask, sample, 0.004)
 
 
-def test_scan_semantics_starts_at_first_observation_and_covers_between_hold_views():
-    engine = CueEngine(EmptyWorker(), replay=True)
-    provider = GeometryProvider(recipe(), engine)
-    provider.update(sensor(0, 8))
-    assert engine.pending[0][1]["time_s"] == 0
-    provider.update(sensor(0.1, 14))
-    assert engine.pending is None
-    provider.update(sensor(0.2, 20))
-    assert engine.pending[0][1]["time_s"] == 0.2
-    provider.update(sensor(25.1, 1514))
-    assert engine.pending is None
-    assert not provider.last_estimate.valid
-
-
 def test_production_surface_extraction_keeps_dense_extents_and_rejects_parallel_frame_fusion():
     from alexdoor_xas.perception.geometry import similar_surface, surfaces
 
@@ -360,14 +292,14 @@ def test_scoring_retains_finite_rejected_errors_and_maximum():
     assert quantiles(np.array([np.nan, 0.05, 0.1]))["maximum"] == 0.1
 
 
-def test_static_provider_never_publishes_policy_state_or_requests_cues_after_scan():
-    engine = CueEngine(EmptyWorker(), replay=True)
-    provider = GeometryProvider(recipe(), engine)
+def test_static_session_never_publishes_policy_state_and_freezes_scan(static_provider):
+    provider = static_provider
     estimate = provider.update(sensor(25, 1508))
     assert not estimate.valid and estimate.reason == "static_scan_only"
-    provider.consume_results(25.05)
-    calls = provider.diagnostics["semantic_calls"]
-    estimate = provider.update(sensor(25.1, 1514))
-    assert engine.pending is None and provider.encoding is None
-    assert provider.diagnostics["semantic_calls"] == calls
+    provider.consume_results(provider.engine.pending[1]["available_s"])
+    points = provider.scan_memory.scene.copy()
+    provider.update(sensor(26, 1568))
+    provider.consume_results(provider.engine.pending[1]["available_s"])
+    np.testing.assert_array_equal(provider.scan_memory.scene, points)
+    assert provider.encoding is None
     assert estimate.operational is estimate.local is estimate.frame is None

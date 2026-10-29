@@ -13,7 +13,7 @@ from alexdoor_xas.perception.diagnostics.smoke import sensor_at
 from alexdoor_xas.perception.evaluation import quantiles, write_json
 from alexdoor_xas.perception.geometry import project
 from alexdoor_xas.perception.material_zone import pose_matrix
-from alexdoor_xas.perception.point2pose.runtime import tracking_provider
+from alexdoor_xas.perception.session import session_provider
 
 
 def truth_panel(h5, row):
@@ -93,7 +93,7 @@ def replay_episode(
     )
     with h5py.File(path, "r") as h5:
         calibration = json.loads(h5["metadata"].attrs["calibration"])
-        provider = tracking_provider(
+        provider = session_provider(
             recipe,
             models,
             calibration,

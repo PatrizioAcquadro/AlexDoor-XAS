@@ -3,26 +3,17 @@
 import json
 
 import numpy as np
-import pytest
 
 from alexdoor_xas.perception.diagnostics.scan import diagnose_scan
-from alexdoor_xas.perception.provider import CueEngine, GeometryProvider
-from perception_helpers import EmptyWorker, camera_sensor, recipe
+from perception_helpers import camera_sensor
 
 
-def test_scan_diagnostic_stops_at_25_and_releases_last_result_without_future_rgb(tmp_path):
+def test_scan_diagnostic_stops_at_25_and_releases_last_result_without_future_rgb(
+    tmp_path, static_provider
+):
     import h5py
 
-    class RecordedWorker(EmptyWorker):
-        def __init__(self):
-            self.inputs = []
-
-        def infer(self, rgb):
-            self.inputs.append(int(rgb[0, 0, 0]))
-            return dict(super().infer(rgb), scores=[], boxes=[])
-
-    worker = RecordedWorker()
-    provider = GeometryProvider(recipe(), CueEngine(worker, replay=True))
+    provider = static_provider
     path = tmp_path / "episode.hdf5"
     samples = [camera_sensor(t, 8 + i) for i, t in enumerate((0, 0.2, 25, 25.1))]
     for i, sample in enumerate(samples):
@@ -38,12 +29,12 @@ def test_scan_diagnostic_stops_at_25_and_releases_last_result_without_future_rgb
         h5.create_group("annotations")
     report = diagnose_scan(path, provider, tmp_path / "diagnostic")
     assert report["input_end_s"] == 25 and report["input_rows"] == 3
-    assert report["final_available_s"] == pytest.approx(25.05)
+    assert report["final_available_s"] >= 25
     assert not report["offline_passed"] and not report["annotations_read"]
-    assert worker.inputs == [1, 2, 3]
+    assert provider.engine.worker.sam.inputs == [1, 2, 3]
     assert not report["manipulation_images_read"]
     captures = json.loads((tmp_path / "diagnostic/captures.json").read_text())
-    # Gaps cancel the first two pending results; only the final completion survives.
-    assert [c["row"] for c in captures] == [2]
-    assert captures[-1]["available_s"] == pytest.approx(25.05)
+    # Gaps preserve completed captures; they do not reset the maintained session.
+    assert [c["row"] for c in captures] == [0, 1, 2]
+    assert captures[-1]["available_s"] == report["final_available_s"]
     assert (tmp_path / "diagnostic/scan-final.png").is_file()

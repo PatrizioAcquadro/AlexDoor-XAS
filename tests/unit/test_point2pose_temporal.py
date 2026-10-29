@@ -285,3 +285,31 @@ def test_sampled_support_keeps_losses_and_empty_availability_explicit():
     assert support["longest_sampled_span_s"] == pytest.approx(0.1)
     assert [i["samples"] for i in support["intervals"]] == [2, 1]
     assert support_timeline([dict(time_s=0.0, available=False)])["intervals"] == []
+
+
+def test_async_worker_failure_latches_unavailable_without_replacement():
+    class FailedWorker(Worker):
+        def infer(self, captured, masks=None):
+            raise RuntimeError("native failed")
+
+    workers = []
+
+    def factory(_):
+        worker = FailedWorker()
+        workers.append(worker)
+        return worker
+
+    engine = Point2PoseEngine(factory, replay=False, capture_session=True)
+    try:
+        engine.submit(sensor())
+        future = engine.pending[1]
+        assert isinstance(future.exception(timeout=1), RuntimeError)
+        with pytest.raises(RuntimeError, match="native failed"):
+            engine.poll(1)
+        assert engine.failed and engine.pending is engine.latest is None
+        assert not engine.submit(sensor(1, 1))
+        assert len(workers) == 1
+        engine.reset()
+        assert workers[0].closed and not engine.failed
+    finally:
+        engine.close()

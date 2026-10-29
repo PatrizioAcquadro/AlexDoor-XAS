@@ -384,7 +384,7 @@ def test_replay_failure_keeps_scheduled_denominator_and_closes_provider(
 
     monkeypatch.setattr(
         replay,
-        "tracking_provider",
+        "session_provider",
         lambda *a, **kw: SimpleNamespace(update=fail, close=lambda: closed.append(True)),
     )
     output = tmp_path / "replay"

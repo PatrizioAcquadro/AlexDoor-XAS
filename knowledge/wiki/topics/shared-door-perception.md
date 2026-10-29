@@ -82,8 +82,8 @@ observation guard does not relax dynamic freshness or qualification error budget
 CUDA runtimes. `SessionProvider` supplies the maintained `update(sensor)`,
 `scan_state`, `static`, `last_cue`, `reset()` and local tracking interface. It
 returns invalid `DoorEstimate` objects and no policy encoding; this integration
-admits no motion. The numerical `GeometryProvider`/`CueEngine` remain useful
-geometry/event harnesses with injected cues, without an operative image-model path.
+admits no motion. Static regressions use this same session with an injected image
+worker; pure geometry regressions exercise `ScanMemory` directly.
 
 The coordinator snapshots exactly the observed sensor keys: RGB, full metric
 depth/validity, intrinsics, camera pose from the same joints/FK, frame and acquisition
@@ -180,7 +180,7 @@ Endpoint IK and a small free-space ball do not certify a continuous path or cont
 
 ## Panel tracking prototype — 6.0C
 
-`point2pose.runtime.tracking_provider` creates the shared session provider.
+`session.session_provider` creates the shared session provider.
 The original SAM3 worker stays alive when P2P initializes and throughout native
 tracking; no periodic text prompt or second segmenter is introduced. An absent
 selected ID supplies an empty mask and explicit semantic loss, even if a finite

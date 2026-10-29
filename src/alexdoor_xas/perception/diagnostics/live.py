@@ -121,12 +121,12 @@ def observer_case(
     )
     from alexdoor_xas.perception.evaluation import quantiles, write_json
     from alexdoor_xas.perception.material_zone import pose_matrix
-    from alexdoor_xas.perception.point2pose.runtime import tracking_provider
+    from alexdoor_xas.perception.session import session_provider
     from alexdoor_xas.recording.b1_runtime import array
 
     if case not in ("stationary", "camera", "panel", "combined", "visibility"):
         raise ValueError("unknown_observer_case")
-    provider = tracking_provider(
+    provider = session_provider(
         recipe, models, calibration, output, replay=False, selection=selection
     )
     clock_start = start_clock()
