@@ -9,8 +9,8 @@ from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
 from alexdoor_xas.dataset.sampling import collate_torch
 from alexdoor_xas.policies.act.config import ActModelCfg
 from alexdoor_xas.policies.act.model import ACTModel
-from alexdoor_xas.policies.act.train import _to_device
 from alexdoor_xas.policies.common.checkpoint import load_checkpoint_payload, save_checkpoint_payload
+from alexdoor_xas.policies.common.data import to_device as _to_device
 from alexdoor_xas.policies.temporal import TEMPORAL_RECIPE, TemporalConfig, select_support
 
 FORMAT = "b1.act.temporal.v2"

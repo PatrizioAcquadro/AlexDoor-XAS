@@ -26,7 +26,7 @@ def verify(source, output, *, image_compression=None):
         normalize_temporal_batch,
         temporal_model,
     )
-    from alexdoor_xas.policies.act.train import _to_device
+    from alexdoor_xas.policies.common.data import to_device as _to_device
     from alexdoor_xas.policies.temporal import CausalObservationBuilder, TemporalConfig
     from alexdoor_xas.recording.quality import review_native_collection, teacher_eligibility
 

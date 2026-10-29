@@ -21,7 +21,8 @@ from alexdoor_xas.policies.act.temporal import (
     validate_training_sources,
 )
 from alexdoor_xas.policies.act.temporal_training import TemporalTrainingSet, build_training_index
-from alexdoor_xas.policies.act.train import _to_device, evaluate_l1
+from alexdoor_xas.policies.common.data import evaluate_l1
+from alexdoor_xas.policies.common.data import to_device as _to_device
 from alexdoor_xas.policies.common.training import (
     capture_rng_states,
     restore_rng_states,

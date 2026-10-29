@@ -48,6 +48,20 @@ def normalize_batch(batch: dict[str, Any], stats: DatasetNormStats) -> dict[str,
     return normalized
 
 
+def to_device(batch: dict, device) -> dict:
+    """Transfer tensor leaves in flat or structured batches; preserve other metadata."""
+    import torch
+
+    return {
+        key: to_device(value, device)
+        if isinstance(value, dict)
+        else value.to(device)
+        if isinstance(value, torch.Tensor)
+        else value
+        for key, value in batch.items()
+    }
+
+
 def prefetch_batches(batches):
     """Overlap one next CPU batch with GPU work, without copying a dataset.
 

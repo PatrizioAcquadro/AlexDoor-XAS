@@ -26,7 +26,7 @@ from alexdoor_xas.dataset.temporal import (
 )
 from alexdoor_xas.policies.act.model import act_loss
 from alexdoor_xas.policies.act.temporal import temporal_inference_tensors, temporal_model
-from alexdoor_xas.policies.act.train import _to_device
+from alexdoor_xas.policies.common.data import to_device as _to_device
 from alexdoor_xas.policies.temporal import (
     IncrementalObservationBuilder,
     TemporalConfig,

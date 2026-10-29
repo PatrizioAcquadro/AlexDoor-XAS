@@ -143,3 +143,10 @@ normalization. V1 retains its original behavior. See
 
 The active B1 path uses the family tensor trainers directly; the unused
 `train_model` dispatch wrapper is retired. Training and checkpoint contracts are unchanged.
+
+
+Batch tensor transfer is shared across ACT, Diffusion and temporal inputs. The
+historical ACT training import used by saved scientific readers resolves to the
+same implementation. Model seeding belongs to callers; test-only seeded model
+factories are retired. USD dynamics authoring checks run with the local
+integration suite; portable unit CI requires no USD or Isaac installation.

@@ -11,7 +11,7 @@ import torch
 
 from alexdoor_xas.policies.act.config import ActModelCfg, ActTrainCfg
 from alexdoor_xas.policies.act.model import ACTModel
-from alexdoor_xas.policies.act.train import make_seeded_model, train_act
+from alexdoor_xas.policies.act.train import train_act
 
 pytestmark = pytest.mark.usefixtures("gpu_models")
 
@@ -32,6 +32,7 @@ ACTION_DIM = 6
 
 def _tiny_model(seed: int = 0) -> ACTModel:
     torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
     return ACTModel(obs_dim=OBS_DIM, action_dim=ACTION_DIM, cfg=TINY_MODEL_CFG)
 
 
@@ -106,10 +107,10 @@ def test_train_act_resume_matches_uninterrupted_state() -> None:
         val_every=1,
         device="cuda",
     )
-    full_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=17)
+    full_model = _tiny_model(seed=17)
     full_history = train_act(full_model, lambda epoch: [batch], cfg)
 
-    interrupted_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=17)
+    interrupted_model = _tiny_model(seed=17)
     captured: dict = {}
 
     class StopAfterEpoch(RuntimeError):
@@ -131,7 +132,7 @@ def test_train_act_resume_matches_uninterrupted_state() -> None:
             on_checkpoint=interrupt_after_two_epochs,
         )
 
-    resumed_model = make_seeded_model(OBS_DIM, ACTION_DIM, TINY_MODEL_CFG, seed=17)
+    resumed_model = _tiny_model(seed=17)
     resumed_model.load_state_dict(captured["model_state"])
     resumed_history = train_act(
         resumed_model,
