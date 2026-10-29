@@ -154,3 +154,29 @@ invocation. Retired campaigns and rejected temporal-renewal software use `24a2aa
 for historical reproduction. Generic readers, source-installation checks and
 scientific acceptance gates remain maintained. Maintenance preserves all local
 payloads and does not restart the separate paused policy pilot.
+
+
+## Maintained diagnostic boundaries
+
+The repository commands cover environment/corpus checks, door preparation and
+qualification, perception collection/diagnostics, policy preparation/training/
+evaluation, guarded collection/replay/rollout, workspace surveys, and native
+runtime/dynamics/load/stop verification. Their canonical invocation guides are
+[[implementation_phases/phase-5-door-corpus-and-qualification]],
+[[topics/perception-model-setup]], [[topics/b1-policy-pilot]] and
+[[topics/act-a1-observations-and-time]]. Historical experiment commands use their
+recorded Git revision; they are not current launch instructions.
+
+The selected perception path uses `SessionProvider` and `ScanMemory`; the old
+parallel geometry provider is retired. `CueEngine` remains part of the Point2Pose
+event lifecycle. ACT/Diffusion share batch tensor transfer, retaining the import
+used by saved scientific readers. Temporal performance checks use one benchmark
+that selects eligible recorded rows and reports unavailable workloads. The old
+fixed-row cost harness and pre-latch control smoke are retired. Native dynamics,
+loaded-stop analysis, workspace acquisition and the complete B1 numerical/action
+contracts remain maintained.
+
+Portable unit CI uses ordinary dependencies and CPU tensors; USD-dependent
+checks run in the local integration suite. Wheel/sdist checks keep external
+Isaac/Alex/model dependencies outside package metadata. Cleanup neither changes
+scientific criteria nor qualifies perception, task behavior or physical hardware.

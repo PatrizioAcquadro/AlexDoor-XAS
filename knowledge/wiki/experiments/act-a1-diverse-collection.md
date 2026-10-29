@@ -16,6 +16,9 @@ training sources have native pre-release loading losses; existing masks exclude
 their invalid commands and crossing chunks. Their valid local supervision and
 original outcomes remain. No active selection or collection result is rewritten.
 
+This is a closed historical campaign. Its declarations and budgets below describe
+that experiment; [[status]] owns current authority and the project-wide pause.
+
 ## Frozen matrix and conditions
 
 Original baseline `a3c7550`, resumed at `6ae4c59`, branch
@@ -26,11 +29,11 @@ The original campaign inventory, recordings, failures and resource baselines con
 
 | Split / door | A acquisition | B initial opening | C push to hold | D release to settle | Complete |
 |---|---:|---:|---:|---:|---:|
-| Train animated-door-1-88abf 40 |6|6|6|6|2|
+| Train animated-door-1-88abf40 |6|6|6|6|2|
 | Train door-2738468b94d74c5f |6|6|6|6|2|
-| Train psx-front-005-ee 7d5c6 |6|6|6|6|2|
+| Train psx-front-005-ee7d5c6 |6|6|6|6|2|
 | Train psx-interior-wood-002-02e442c |6|6|6|6|2|
-| Development modern-door-2fb 8d024 |—|1|—|1|2|
+| Development modern-door-2fb8d024 |—|1|—|1|2|
 | Development psx-industrial-001-4f5561b |—|1|—|1|2|
 
 Each training family has two pose, two dynamics and two correction conditions:

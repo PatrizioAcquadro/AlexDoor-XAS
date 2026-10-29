@@ -4,21 +4,15 @@ AlexDoor-XAS studies how action representation affects contact-rich humanoid
 manipulation: **A1–A4 × ACT/Diffusion** on held-out push doors, using fixed-base
 Purdue Alex003, WSG32/UMI v1 and head ZED RGB-D.
 
-## Current scope
+## Maintained scope
 
-- **Runtime and corpus:** Purdue control/sensing and Phase 5 are complete. The
-  frozen corpus contains 32 qualified doors: 19 train, six development, seven test.
-- **Perception:** one persistent SAM3 frontend shared by static inspection and an
-  experimental CAD-free Point2Pose tracker, using the common selected recipe;
-  material identity, 150 ms freshness and loaded contact remain unqualified.
-- **Learning:** B1 observed-input datasets, ACT/Diffusion models, normalization and
-  A1–A4 execution adapters are maintained. Qualified perception integration and
-  physical rollout validation remain pending. The separate A1/A2 pilot executes real learned commands but has no full task
-  success; it remains paused and incomplete. No final matched B1 dataset or
-  qualified policy result is delivered; the sealed test remains closed.
-
-The [project status](knowledge/wiki/status.md) owns current results, limits and
-next work. No repository command controls physical hardware.
+The B1 stack maintains robot/control/sensing, prepared-door qualification,
+SAM3/Point2Pose perception, observed-input datasets, ACT/Diffusion, A1–A4 adapters
+and temporal ACT A1. Software integration, teacher evidence, learned task behavior
+and physical qualification have different limits. The
+[project status](knowledge/wiki/status.md) owns current results, the human pause
+and open work; the [wiki index](knowledge/wiki/index.md) locates canonical contracts
+and experiments. No repository command controls physical hardware.
 
 ## Installation
 
@@ -51,7 +45,8 @@ ruff format --check src scripts tests
 3.11/3.12, wheel/sdist builds and an installed-wheel import check. Unit tests use
 CPU tensors without Isaac, model downloads or local payloads. CUDA model/storage
 regressions and integration with external Isaac/Alex/native sources run locally;
-GPU tests explicitly skip when CUDA is unavailable. A green public CI does not
+USD authoring checks belong to the integration suite. GPU tests explicitly skip
+when CUDA is unavailable. A green public CI does not
 establish simulator, perception or physical qualification.
 
 The complete Purdue runtime gate uses synthetic fixtures:
@@ -101,7 +96,9 @@ action ordering are unchanged. New perception imports are documented in
 
 Pilot offline and physical commands require an explicit `--protocol`. The declared
 encoder must match data/checkpoints; new production uses `rgbd-conv-v1`. Historical
-grid-checkpoint readers remain available. The pilot remains paused.
+grid-checkpoint readers remain available. Temporal ACT uses explicit checkpoint-bound
+contracts and the consolidated `benchmark_temporal_pipeline.py` diagnostic.
+Scientific launches require authorization; see the current status before running GPU work.
 
 Start at the [wiki index](knowledge/wiki/index.md),
 [architecture](knowledge/wiki/topics/system-architecture.md),

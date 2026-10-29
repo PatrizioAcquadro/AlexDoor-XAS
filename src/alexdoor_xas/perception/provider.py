@@ -1,4 +1,4 @@
-"""Frozen image cues and causal static RGB-D scan fusion."""
+"""Perception recipes and bounded capture/completion events."""
 
 import json
 from concurrent.futures import ThreadPoolExecutor

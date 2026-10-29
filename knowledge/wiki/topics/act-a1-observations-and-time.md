@@ -1,41 +1,18 @@
-# ACT A1 observations and time
+# ACT A1 Observations and Time
 
-The finite-history data-to-ACT path, opt-in guarded A1 execution bridge and
-native teacher collection are implemented. The initial tranche and first four-door
-expansion qualify four complete nominal train motions and physically reconstructed
-right/left hold/release continuations. The single existing-left initial-posture
-pilot also qualifies one teacher recording, adding early approach variation while
-acquisition geometry converges; see [[act-a1-four-door-expansion]]. Recovery of the
-intentionally interrupted prefix remains diagnostic.
-Qualification checks used actual prepared data, unchanged weights and zero
-optimizer updates. The separately authorized [[act-a1-first-completion|learning and execution experiment]] now uses the maintained temporal training and native
-rollout entry points. No learned full-task completion has been established.
-Historical recordings, checkpoints, physical/admission/stop requirements and the
-sealed final test remain preserved.
-
-The subsequent [[act-a1-diverse-collection|112-episode diverse campaign]] is complete:
-96 short training, eight complete training and eight development episodes pass
-individual physical, measured-diversity and temporal/pipeline gates. Matched native
-state diagnostics repair the explicit-PD integration instability with 240 Hz physics,
-retaining 60 Hz control,10Hz RGB-D and the same model/action configuration. Original
-and resumed failures remain in the cumulative ledger. C masks supervise push/hold
-only; release and ordinary stabilization remain fully recorded diagnostic cleanup.
-All counted data pass bounded CUDA forward/backward checks with unchanged initialized
-weights, frozen train-only normalization and zero optimizer updates. The linked
-campaign owns exact scope, recovery magnitudes, compatibility limits and resource
-costs. Collection remains closed. Policy learning and guarded evaluation are
-separately authorized by [[act-a1-first-completion]]; final test remains sealed.
-
-The objective remains physical contact acquisition, required opening, hold,
-release and normal stabilization. Offline agreement and teacher imitation do
-not establish any of these outcomes. The original design is retained in Git at
-`da04d38`; its saved analysis and prior negative results remain unchanged.
+This page owns causal temporal observations, checkpoint compatibility, execution
+and collection interfaces. The current pause/results belong to [[status]];
+[[../experiments/act-a1-first-completion|the learning experiment]] and
+[[../experiments/act-a1-complete-cycle-collection|complete-cycle collection]] own
+scientific outcomes. Numerical or teacher checks do not establish learned task
+completion or hardware qualification. Historical pipeline/resolution measurements
+are canonical in [[../experiments/b1-data-pipeline]].
 
 ## Configuration
 
-Prefer **4 s, 240×384 RGB-D, the existing shared CNN architecture, chunk 12 and
-execution horizon 6** for the next integration. Retain explicit `image_size=(120,
-192)` as the cheaper alternative. The revised resource measurements below support
+The maintained integration uses **4 s, 240×384 RGB-D, the existing shared CNN
+architecture, chunk 12 and execution horizon 6**. Retain explicit `image_size=(120,
+192)` as the cheaper alternative. The [[../experiments/b1-data-pipeline|historical resource measurements]] support
 the higher-resolution default; neither resolution has evidence of better learning.
 Use full visual recomputation by default; inference reuse remains opt-in.
 
@@ -131,7 +108,7 @@ ensembling or another execution horizon. The geometry observer remains active.
 runner = temporal_a1_runner(
     checkpoint, observer, io, config=cfg, episode_id=episode_id,
     events=drain_native_events, feedback_contract=verified_feedback_contract,
-    admission_source=existing_motion_admission, reuse=False, device="cuda: 0",
+    admission_source=existing_motion_admission, reuse=False, device="cuda:0",
 )
 result = runner.run(max_ticks=declared_budget)
 ```
@@ -143,7 +120,8 @@ index and validity. Images use the shared `preprocess_rgbd`. Applied-target
 history requires actual delivered/acknowledged targets; the bridge never turns a
 prediction or request into an application. Producers own their reset and clock
 conversion. The native teacher adapter now feeds the same measured events to recording and
-incremental observation ingress; measured simulation coverage is described below.
+incremental observation ingress; measured simulation coverage belongs to
+[[../experiments/act-a1-four-door-expansion]].
 
 Per-action readiness now selects only static/current image support and current
 q/dq through the same causal selection/validity function as the model-input
@@ -226,7 +204,7 @@ a failed rollout or an executed error prefix is never automatically supervision.
 ```python
 cfg = TemporalConfig(depth_interval_m=recorded_depth_interval)
 prepare_temporal(source, prepared, cfg, eligible=reviewed_command_mask,
-                 legacy_synchronous=True, device="cuda: 0")
+                 legacy_synchronous=True, device="cuda:0")
 with TemporalEpisode(prepared, cfg) as episode:
     rows = episode.training_rows(horizon=12)  # numeric support; no image reads
     stats = fit_temporal_stats([episode])    # unique training episodes only
@@ -324,7 +302,7 @@ views; its bounded consumption reuses the unchanged initialized checkpoint and
 normalization fitted only to the previous six admitted train sources. No
 optimizer update or new fit is performed. See
 [posture audit](../../../outputs/evidence/act-a1-posture-20261019/verification.json)
-and [[act-a1-four-door-expansion|physical/observed coverage and limits]]. Actual prepared
+and [[../experiments/act-a1-four-door-expansion|physical/observed coverage and limits]]. Actual prepared
 references and per-phase denominators are in the prior six-source
 [four-door audit](../../../outputs/evidence/act-a1-four-door-20261019/verification.json);
 the [original consumption audit](../../../outputs/evidence/act-a1-consumption-20261019/sampling-quality.json)
@@ -400,182 +378,6 @@ selects the same option for new qualification derivatives. Existing stores are
 never rewritten. Actual CUDA preprocessing tests verify binary equality of frame,
 action, eligibility and decision arrays and unchanged sampling/padding.
 
-## Reviewed baseline measurements (historical)
-
-Evidence: [complete local measurements and attempts](../../../outputs/evidence/act-a1-temporal-implementation-20261019/summary.json),
-[matched native detail](../../../outputs/evidence/act-a1-temporal-implementation-20261019/matched-native-detail.png).
-One saved **training** episode, 183 identical selected frame indices, nine startup/
-nominal/transition/terminal snapshots, four-second history and identical seeded
-CNN weights at every resolution. No trained policy was selected. Model weights
-were initialized for cost/gradient checks; these are not learning comparisons.
-
-Declared budget: one RTX 4090, 18 GiB VRAM, 8 GiB process RSS, 15 minutes of GPU
-measurements. All runs stayed within it. Each resolution has a measured batch-1
-memory probe before batch 32, three forward/backward passes with no optimizer,
-and 12 contiguous inference queries per full/reuse path. Prior failed harness
-attempts and intermediate graph/cache measurements remain, including the wrong
-initial depth interval, missing import/contract wiring and the ineffective first
-cache implementation. Only affected measurements were repeated after code fixes.
-
-| Resolution | Prepare 183 frames | Batch-32 load / transfer | Batch-32 fwd+bwd median (min–max), ms | Peak allocated / reserved VRAM, GiB | Peak process RSS, GiB |
-|---|---:|---:|---:|---:|---:|
-| 60×96 | 1.92 s | 118 / 5 ms | 9.9 (9.7–40.3) | 0.56 / 0.94 | 1.66 |
-| 120×192 | 1.93 s | 269 / 19 ms | 24.1 (23.7–44.9) | 1.88 / 2.52 | 2.15 |
-| 240×384 | 2.01 s | 865 / 73 ms | 94.8 (92.2–96.5) | 7.42 / 9.60 | 4.22 |
-
-Preparation includes disk read/decode, GPU transfer/pooling, return transfer and
-frame-store writing. Loader costs include joins and bounded frame maintenance;
-model measurements use float32, the intended batch 32, and the final current-state
-readout. Action/torque statistic fitting is checked separately, not fitted to the
-real benchmark's unreviewed labels. First convolution/backward calls remain in
-the reported variability; three samples are insufficient for robust tail estimates.
-
-| Resolution | Complete batch-1 full path p50 / p95, ms | Reuse p50 / p95, ms | First model forward | Native history fill |
-|---|---:|---:|---:|---:|
-| 60×96 | 11.70 / 13.79 | 13.06 / 14.96 | 134 ms | 247 ms |
-| 120×192 | 16.75 / 17.42 | 16.21 / 18.89 | 133 ms | 244 ms |
-| 240×384 | 31.16 / 32.76 | 29.85 / 34.31 | 141 ms | 248 ms |
-
-The complete saved-input path includes native image read/decode, CUDA pooling and
-return transfer, history join/load, required transfer to ACT, visual computation/
-feature-cache maintenance, temporal context and action return transfer. New-frame
-preprocessing is about 8.5–9 ms on this fixture; model construction is about 12 ms.
-History fill and first forward are separate startup costs. This is saved-stream
-wall time, not measured sensor-to-actuator hardware latency or physics throughput.
-
-### Historical inference reuse decision (12 queries)
-
-The bounded cache stores only deterministic visual features (64 entries), never
-training latents. `reuse=True` keeps host snapshots and transfers/encodes misses
-only; temporal context is always recomputed. It invalidates on reset, encoder
-weight version/storage changes, device/dtype or preprocessing changes. Training
-and grad-enabled calls recompute with correct gradients.
-
-Full/reuse outputs agree within maximum absolute **6.2e-7** in model output on the
-final measured graph. The first two queries fill the interleaved visual history;
-all 12 samples are reported above. Across the following ten queries, 240×384
-median falls from 31.16 to 29.50 ms, while p95 changes from 32.00 to 32.34 ms.
-At 120×192 median gains are small and tail latency regresses; 60×96 is slower with
-reuse. Keep reuse **off by default**. It is a measured median-cost option for the
-240×384 fixture, not a proven deadline improvement.
-
-### Resolution decision and limits
-
-60×96 visibly merges finger/panel edges. 120×192 retains more contour detail and
-is feasible at batch 32 with substantial VRAM margin; 240×384 retains more fine
-geometry but costs about four times the backward time and allocated VRAM.
-These observations justified the original 120×192 compromise, not learning
-superiority; the representative delivery measurements below supersede that default. Even native hold/release images show arm self-occlusion; resolution
-cannot recover hidden contact. No resolution is certified for millimetric contact.
-
-The proposed 16.7 ms deadline applies only if future hardware uses a synchronous
-60 Hz dispatch schedule. It is not a universal gate for this offline pipeline.
-The 120×192 saved path already has p95 above that budget before live admission/
-IO costs; startup also exceeds it. Hardware real-time readiness is **unvalidated**.
-No control rate, asynchronous execution or dispatch compensation was introduced.
-
-## Representative input delivery
-
-New evidence is preserved separately in
-[`act-a1-temporal-integration-20261019`](../../../outputs/evidence/act-a1-temporal-integration-20261019/).
-The reviewed measurements above repeat five distinct decisions. The new matched
-before/after profiles use three fixed batch-32 workloads: 32 distinct decisions
-spread across the saved training trajectory; 32 consecutive, overlapping
-decisions; and eight spread decisions plus 20 consecutive decisions and explicit
-duplicates. Every workload retains all 23 RGB-D images, 241 robot tokens and 12
-targets. Diagnostic labels remain ineligible for training.
-
-Profiles precede optimization and are kept with five raw timing repetitions per
-pattern/resolution. They identify repeated visual gathers/stacks/copies as the
-main cost, followed by small numeric HDF5 reads. The target fixed before changing
-the loader was a 50% reduction in matched median construction time, with the same
-64-frame cache, one delivered plus one prefetched batch, 8 GiB RSS and 18 GiB
-allocated VRAM budget. OS page cache was not flushed; application frame-cache
-cold costs must not be called cold-disk measurements.
-
-The builder now exposes numeric support without materializing images. Each batch
-joins each distinct decision once and writes distinct frames directly into final
-batch storage, restoring every duplicate and original sample order. The 64-frame
-LRU never grows with a batch. At most 8 MiB of numeric values are retained per
-open episode; larger numeric datasets remain lazy. Targets, internal holes,
-eligibility, true tail padding, masks, preprocessing and normalization retain
-single-sample semantics. The existing one-next-batch prefetch helper is reused;
-there is no expanded window dataset or GPU feature cache during backward work.
-
-| Resolution | Distinct windows, before → after | Overlapping windows, before → after | Mixed with duplicates, before → after |
-|---|---:|---:|---:|
-| 120×192 | 207 → 104 ms | 158 → 65 ms | 173 → 76 ms |
-| 240×384 | 860 → 308 ms | 721 → 185 ms | 770 → 223 ms |
-
-The original 50% target is met in **5/6** cases. Distinct 120×192 reaches 49.8%
-and remains just below it; the target was not relaxed. The first copy-only
-optimization and its weaker 120×192 results remain in the evidence. Numeric
-retention addresses the measured residual reads; joins themselves were not
-replaced by a second causal implementation. Cold frame reads for the mixed batch
-fall from 243 to 237; direct final-buffer materialization supplies most of the
-benefit. Distinct batches still read 646 frames, overlapping batches 47. A cold
-646-read batch evicts 582 entries from the fixed 64-frame LRU.
-
-[`benchmark_temporal_pipeline.py`](../../../scripts/benchmark_temporal_pipeline.py)
-measures **eight complete batches per workload**, with one bounded CPU prefetch
-thread, normalization, collation, H2D, synchronized float32 forward/backward and
-cleanup. Untimed per-sample comparisons establish exact order, duplicates,
-actions, masks and normalization before timing. The source labels stay diagnostic;
-seeded initial model weights and backward passes are not policy training.
-
-| Resolution | Complete wall / 8 batches: distinct / overlap / mixed, ms per batch | Median H2D | Median GPU forward/backward | Peak allocated / reserved VRAM | Peak RSS |
-|---|---:|---:|---:|---:|---:|
-| 120×192 | 129 / 77 / 91 | 20 ms | 24–25 ms | 1.88 / 2.51 GiB | 2.18 GiB |
-| 240×384 | 355 / 223 / 274 | 85–88 ms | 94 ms | 7.39 / 9.34 GiB | 4.24 GiB |
-
-These wall averages include first delivery and pending-reader cleanup; they are
-not sums of overlapped stage medians. Loading remains the throughput bottleneck.
-One-time first model backward calls and every per-batch duration remain in the
-JSON. The approximately fourfold image/compute cost of 240×384 remains explicit;
-its measured memory and delivery cost are practical within the declared bounded
-workstation budget, supporting the information-preserving default. 120×192
-remains supported as the cheaper alternative. Neither has learning evidence.
-
-AdamW's two FP32 moments were actually allocated without `optimizer.step` and
-remained resident during the batch measurements: **12.50 MiB**, with 6.25 MiB of
-parameters and corresponding gradients. A prospective foreach temporary of about
-one parameter-sized buffer is an **estimate**; optimizer-step latency and its
-transient peak were not measured. No optimizer update occurred.
-
-### Incremental reuse: fill, steady operation and numerical result
-
-The actual `IncrementalObservationBuilder` → `TemporalActPolicy.predict` path
-replays the same native saved events at 151 decisions, six control ticks apart.
-Each query includes new native RGB-D reads/decode, CUDA preprocessing/return,
-numeric event ingress, causal construction, normalization, required transfers,
-ACT and action return. Three trials per mode alternate order. The first history
-and prediction cost is separate (120×192: 366–378 ms; 240×384: 405–415 ms). The
-next **40 queries / one whole 4 s history cycle** are retained as cache fill;
-**110 steady queries per trial, 330 per mode** remain. Serial queries are correlated;
-empirical p95 values do not establish a deadline guarantee.
-
-| Resolution | Full recomputation steady p50 / p95 | Reuse steady p50 / p95 | Untimed strict numerical comparison |
-|---|---:|---:|---|
-| 120×192 | 16.38 / 16.97 ms | 16.40 / 16.88 ms | Fails in 86/150 queries, 109/12,600 components |
-| 240×384 | 41.10 / 41.88 ms | 39.31 / 40.47 ms | Passes in 150/150 queries, 12,600 components |
-
-The table reports the median of the three trial p50/p95 statistics; complete
-trial ranges and all fill/steady samples remain in
-[`summary.json`](../../../outputs/evidence/act-a1-temporal-integration-20261019/summary.json).
-Equivalence comparisons are separate, untimed passes with the existing
-`atol=1e-6, rtol=1e-5` criterion. Maximum absolute output differences are 2.27e-6
-at 120×192 and 1.40e-6 at 240×384 with identity diagnostic action scaling. The
-first strict 120×192 assertion failure and the complete census are both kept;
-no tolerance was changed to pass it. Small absolute differences alone do not
-establish equivalence under the declared criterion or a physical safety result.
-
-**Keep reuse off by default at both resolutions.** At 120×192 it provides no
-meaningful latency gain and fails the strict numerical criterion. At 240×384 it
-passes this saved-trace check and reduces median/tail time by about 4%; it remains
-an explicit measured option, not a qualified default for a future learned
-checkpoint or hardware producer. Use the preferred 240×384 path with full
-recomputation for collection consumption and later ACT work. No asynchronous execution,
-control-rate change or physical threshold adjustment was introduced.
 
 ## Native teacher collection and phase quality
 
@@ -587,7 +389,7 @@ Actual controller, native feedback and measured state/capture events feed both
 validity, calibration, timestamps and native frame IDs remain lossless at 10 Hz;
 control/full robot state is 60 Hz. Legacy native arm7 feedback is 120 Hz; the
 opt-in diverse-collection runtime records every 240 Hz physics substep while keeping
-control and RGB-D rates unchanged (see [[act-a1-diverse-collection]]).
+control and RGB-D rates unchanged (see [[../experiments/act-a1-diverse-collection]]).
 No raw frames or ordinary-control rows are fabricated.
 
 Nominal collection uses the unchanged 25 s inspection reference followed by an
@@ -661,143 +463,15 @@ before release; exact solver-cache or bitwise state reproduction is not assumed.
 The per-record static endpoint is 0 s for this reset; learned fields and 4 s /
 240×384 / 12 / 6 recipe remain the same, with unavailable history masked.
 
-The original right reset changes source generation 1 to generation 2. Reconstruction
-errors are 0.566 mrad q, 38.655 mrad/s dq, 0.643 mrad door angle, .259 mm tool
-position and .482 mrad tool rotation, within declared state bounds and existing
-hard safety limits. Fresh pre-roll has 58/60 valid contact samples. Its first
-snapshot has only 2/241 q/dq/tau slots, one previous target and 2/23 images;
-first eligible decisions occur at .2 s, without waiting four seconds.
-
-## Initial bounded physical/data tranche and handoff
-
-[Declaration](../../../outputs/evidence/act-a1-teacher-temporal-20261019/declaration.md),
-[all attempts and commands](../../../outputs/evidence/act-a1-teacher-temporal-20261019/report.md),
-[actual-data verification](../../../outputs/evidence/act-a1-teacher-temporal-20261019/verification-final/report.json)
-and [ready inputs](../../../outputs/evidence/act-a1-teacher-temporal-20261019/handoff.json).
-The fixed train identities are right `animated-door-1-88abf40` and left
-`door-2738468b94d74c5f`, nominal seed 6200. Required opening retains 80% of the
-frozen matched references (51.260252/52.536029 deg), never a refit on these results.
-
-| Retained attempt | Physical outcome | States/commands | Healthy native tau | Data outcome |
-|---|---|---:|---:|---|
-| First right | 51.11 deg, release + 2 s ordinary tail; stop passes | 8,850/8,849 | 17,699 | Incomplete inspect→approach coverage; 7,337 partial candidates, separate admission required |
-| Corrected right | 51.75 deg, release + 2 s ordinary tail; stop passes | 9,101/9,100 | 18,201 | Qualified; 7,537 training windows |
-| Left | 52.55 deg, release + 2 s ordinary tail; stop passes | 9,509/9,508 | 19,017 | Qualified; 7,996 training windows |
-| Physical reset C | Fresh loaded hold, release + 2 s ordinary tail; stop passes | 541/540 | 1,081 | Qualified continuation; 528 training windows |
-| Controlled interruption D | Delivered command 60, interrupted before post-state; stop passes | 60/60 | 119 | One missing terminal state; recovered, zero expert windows |
-
-The first right exposed a real readiness seam: approach began at 25 s while
-inputs first became ready at 25.2 s. One affected repeat followed the explicit
-.4 s ordinary pre-roll correction. The original outcome/report remain; its early
-demonstration flag predates the completed window gate and does not qualify it
-for handoff. No unchanged favorable retry occurred. All present transitions in
-the three admitted files retain 11 crossing windows. These overlapping windows
-and one reset derivative are not independent demonstrations or a success-rate
-estimate. Source/family train grouping remains frozen; C stays with its source.
-
-All 56,117 native torque vectors across five attempts are finite/healthy under
-the simulator API contract; none is missing, and none of the seven channels
-reaches >=99% of configured effort limits. No saturation flag is exposed: this
-comparison is diagnostic, not sensor saturation certification.
-[Native event-centered traces](../../../outputs/evidence/act-a1-teacher-temporal-20261019/torque-event-traces.json)
-and figures retain all seven channels around contact, hold and real release.
-Actual prepared batches pass finite CUDA forward/backward with image, temporal,
-measured-state and torque gradients, exact unchanged weights and zero optimizer
-updates. Live/offline representative snapshots include true terminal/tail states;
-A1 labels and causal previous-target support agree exactly. Valid N m changes
-reach ACT tensors; invalid/missing tau is masked. D reopens through ACT preparation
-with the real prefix and zero eligible windows. Focused numerical tests pass.
-
-Five whole launches consume 1,229.03 s (20.48 min); final CUDA verification takes
-17.75 s, plus a 5.51 s exact CUDA-tensor reach check. Peak simulation process-tree RSS is 7.73 GiB and total GPU memory is
-6.87 GiB including desktop graphics. Final validation uses 1.96 GiB process RSS
-and peaks at 1.65/3.67 GiB CUDA allocated/reserved. About 28.8 GiB of tranche data
-is retained, within the declared 80 GiB; all per-case/cumulative budgets hold.
-No remote allocation, optimizer update, final-test access or learned evaluation
-is added. This closes the collection tranche, not ACT physical task success.
-
-The concrete [[act-a1-four-door-expansion|four-door expansion proposal]] uses
-actual train geometry, measured margins/costs and targeted-start qualification
-boundaries. Next expansion starts from the three admitted records in `handoff.json`, with
-explicit masks and per-record observation configurations. Add data only through
-a declared train protocol and the same release/tail, native-feedback, transition
-and interruption gates; retain every attempt and source-group derivative.
-Statistics fit only on admitted training data. Later learned success must be
-physical opening/hold/release/normal stabilization from the policy's observations;
-teacher trajectory similarity is not the primary criterion.
-
-### Source decisions and remaining limits
-
-[StageACT](https://arxiv.org/html/2509.13200v2) supports proprioceptive/torque review
-of contact transitions and identifies observational phase ambiguity; its
-privileged stage input/architecture is not adopted.
-[DoorBot](https://arxiv.org/html/2504.09358v1) supports closed-loop haptic
-verification and explicit failures; its sensors/planner are not imported.
-[MimicGen](https://mimicgen.github.io/docs/tutorials/datagen_custom.html) supports
-task-specific subtask end conditions and diagnostic annotations; its framework
-and randomized offsets are not adopted. These sources do not qualify this reset
-or Alex hardware feedback. The
-[existing hardware audit](../../../outputs/evidence/act-a1-observation-design-20261019/analysis.md)
-continues to leave source/scale/sign/noise/filtering, clocks/latency and installed
-F-T/tactile availability unverified. Historical
-[[../experiments/b1-data-pipeline|data infrastructure]],
-[[../experiments/b1-act-a1-two-door-diagnostic|learned failures]] and
-[[../experiments/b1-act-a1-calibration-stopping|calibration/stopping]] remain unchanged.
-
-## First four-door expansion
-
-The [[act-a1-four-door-expansion|bounded four-door expansion]] now adds physically
-qualified complete nominal recordings for right `psx-front-005-ee7d5c6` and left
-`psx-interior-wood-002-02e442c`, plus a qualified hold/release continuation from the
-existing left source. Current-setup applicability of fixed opening requirements
-is verified separately before scored collection; no maximum reference or physical
-gate is refitted. Original records and this page's initial-tranche outcomes remain.
-
-The six-record train union reuses the same observation/checkpoint contract,
-shared train-only normalization, complete eligible windows and phase-focused
-views. It passes actual CUDA consumption without updates. Fresh left reconstruction
-has its own generation/reference and genuine pre-roll, with unavailable earlier
-history masked. Full nominal task success and continuation success remain separate.
-The linked expansion page owns current counts, costs, evidence and the proposed
-initial-posture tranche. No learned task success or policy training is added.
-
-Native teacher recordings additionally retain diagnostic arm q/dq, delivered
-position/velocity targets, computed PD plus feedforward effort, clipped commanded effort and gravity
-feedforward at every existing physics-feedback acquisition. These fields preserve
-oscillations and saturation for failure diagnosis; they are excluded from the
-observation allowlist. Projected solver joint output remains the distinct measured
-simulated torque input, with hardware verification false. Computed/applied effort
-refers to the preceding native interval, not a force measurement. No native rate,
-control/visual rate, model feature, label or older recording changes.
-
-A full recording includes the actual head-inspection prefix, while teacher/trace.json
-uses a probe-relative clock beginning after inspection. Native motion/target audits
-cover every recording row; trace-specific speed peaks join after the explicitly
-recorded inspect prefix and verify the remaining evaluator phases exactly. The
-inspection prefix is retained and reported separately, never truncated to hide
-motion. Short phase recordings have no inspection prefix.
-
-C short episodes physically retain push, hold, release and stabilization, but only
-push/hold supplies expert labels. The shared scope rule also constrains older
-recordings whose metadata listed cleanup as supervision. Required recorded-phase
-coverage remains distinct from required supervised transitions; absent physical
-cleanup still fails. Original broad-mask prepared files remain preserved while
-fresh task-only stores receive separately charged compatibility validation.
+A fresh reset may become ready before four seconds of history exist; missing
+past slots stay masked. The original right-reset measurements and their
+qualified scope are retained in [[../experiments/act-a1-four-door-expansion]].
 
 
-Loaded ACT diagnostic initialization retains source targets/pressure and acquires
-fresh native history while the maintained source controller follows the material.
-Initialization commands are recorded separately and stop before policy dispatch;
-source truth never becomes a policy feature. Start support uses the same causal
-physical force window and gap criterion as task qualification. Empty initial
-observations remain unavailable, not synthesized. Current validation and preserved
-harness failures are in [[../experiments/act-a1-first-completion]].
+## Historical acquisition and performance
 
-
-An optional primary-nominal curriculum reserves half the training batch for
-explicit admitted complete source IDs and critical initiation/contact/transition/
-release strata. The remaining half preserves the full door/phase/recovery sampler;
-all actual histories, target chunks, eligibility masks and train-only statistics
-remain. This changes sampling only and leaves the original default intact.
-The bounded hypothesis and task-based acceptance are in
-[[../experiments/act-a1-first-completion]].
+[[../experiments/act-a1-four-door-expansion]] owns the first native tranche,
+readiness-seam failure, interruptions, posture comparison and measured costs.
+[[../experiments/act-a1-diverse-collection]] owns the 112 declared scopes and the
+240 Hz integration diagnosis. Their original reports and outcomes remain distinct
+from current full-cycle continuity requirements.

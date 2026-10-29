@@ -1,8 +1,8 @@
 # B1 Policy Pilot
 
 The maintained pilot uses ACT/Diffusion × A1/A2 with `rgbd-conv-v1`, observed RGB-D
-and proprioception. The full panels remain deferred and incomplete; the user has
-authorized a bounded ACT A1 operational-check diagnostic. No final matched A1–A4 dataset,
+and proprioception. The full panels remain deferred and incomplete. Current
+execution authority belongs in [[../status|Project status]]. No final matched A1–A4 dataset,
 perception release or full learned opening/hold/release result is delivered.
 [[../status|Project status]] owns current panels and resource accounting;
 [[../experiments/b1-end-to-end-pilot-resume|the end-to-end experiment]] preserves all
@@ -278,7 +278,7 @@ After handoff, the unchanged temporal ACT runner owns manipulation; observed
 admission and physical stops remain active. Initialized opening cannot establish
 full task completion: this mode always sets full-task `passed` false, and reports
 only a separate intermediate-phase outcome. See [[act-a1-first-completion]] for
-current tests, native applicability and the fixed normal-start completion panel.
+retained tests, native applicability and the fixed normal-start completion panel.
 
 
 Loaded diagnostic pre-roll reproduces the maintained source controller before ACT

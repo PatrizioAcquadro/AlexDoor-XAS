@@ -113,3 +113,188 @@ The [migration report](../../../outputs/evidence/data-pipeline-migration-2026101
 and [exact validation](../../../outputs/evidence/data-pipeline-migration-20261019/migration.json)
 record the scope and reclaimed blocks. Moving the prepared files requires their raw
 sources or a self-contained `--copy-raw` export.
+
+
+## Temporal pipeline and resolution study
+
+The following saved-input measurements are historical. Their recorded source
+revisions and evidence remain valid; the maintained benchmark now derives its
+workloads from eligible rows rather than historical fixed indices. This maintenance
+does not rerun GPU timings or establish performance equivalence.
+
+## Reviewed baseline measurements (historical)
+
+Evidence: [complete local measurements and attempts](../../../outputs/evidence/act-a1-temporal-implementation-20261019/summary.json),
+[matched native detail](../../../outputs/evidence/act-a1-temporal-implementation-20261019/matched-native-detail.png).
+One saved **training** episode, 183 identical selected frame indices, nine startup/
+nominal/transition/terminal snapshots, four-second history and identical seeded
+CNN weights at every resolution. No trained policy was selected. Model weights
+were initialized for cost/gradient checks; these are not learning comparisons.
+
+Declared budget: one RTX 4090, 18 GiB VRAM, 8 GiB process RSS, 15 minutes of GPU
+measurements. All runs stayed within it. Each resolution has a measured batch-1
+memory probe before batch 32, three forward/backward passes with no optimizer,
+and 12 contiguous inference queries per full/reuse path. Prior failed harness
+attempts and intermediate graph/cache measurements remain, including the wrong
+initial depth interval, missing import/contract wiring and the ineffective first
+cache implementation. Only affected measurements were repeated after code fixes.
+
+| Resolution | Prepare 183 frames | Batch-32 load / transfer | Batch-32 fwd+bwd median (min–max), ms | Peak allocated / reserved VRAM, GiB | Peak process RSS, GiB |
+|---|---:|---:|---:|---:|---:|
+| 60×96 | 1.92 s | 118 / 5 ms | 9.9 (9.7–40.3) | 0.56 / 0.94 | 1.66 |
+| 120×192 | 1.93 s | 269 / 19 ms | 24.1 (23.7–44.9) | 1.88 / 2.52 | 2.15 |
+| 240×384 | 2.01 s | 865 / 73 ms | 94.8 (92.2–96.5) | 7.42 / 9.60 | 4.22 |
+
+Preparation includes disk read/decode, GPU transfer/pooling, return transfer and
+frame-store writing. Loader costs include joins and bounded frame maintenance;
+model measurements use float32, the intended batch 32, and the final current-state
+readout. Action/torque statistic fitting is checked separately, not fitted to the
+real benchmark's unreviewed labels. First convolution/backward calls remain in
+the reported variability; three samples are insufficient for robust tail estimates.
+
+| Resolution | Complete batch-1 full path p50 / p95, ms | Reuse p50 / p95, ms | First model forward | Native history fill |
+|---|---:|---:|---:|---:|
+| 60×96 | 11.70 / 13.79 | 13.06 / 14.96 | 134 ms | 247 ms |
+| 120×192 | 16.75 / 17.42 | 16.21 / 18.89 | 133 ms | 244 ms |
+| 240×384 | 31.16 / 32.76 | 29.85 / 34.31 | 141 ms | 248 ms |
+
+The complete saved-input path includes native image read/decode, CUDA pooling and
+return transfer, history join/load, required transfer to ACT, visual computation/
+feature-cache maintenance, temporal context and action return transfer. New-frame
+preprocessing is about 8.5–9 ms on this fixture; model construction is about 12 ms.
+History fill and first forward are separate startup costs. This is saved-stream
+wall time, not measured sensor-to-actuator hardware latency or physics throughput.
+
+### Historical inference reuse decision (12 queries)
+
+The bounded cache stores only deterministic visual features (64 entries), never
+training latents. `reuse=True` keeps host snapshots and transfers/encodes misses
+only; temporal context is always recomputed. It invalidates on reset, encoder
+weight version/storage changes, device/dtype or preprocessing changes. Training
+and grad-enabled calls recompute with correct gradients.
+
+Full/reuse outputs agree within maximum absolute **6.2e-7** in model output on the
+final measured graph. The first two queries fill the interleaved visual history;
+all 12 samples are reported above. Across the following ten queries, 240×384
+median falls from 31.16 to 29.50 ms, while p95 changes from 32.00 to 32.34 ms.
+At 120×192 median gains are small and tail latency regresses; 60×96 is slower with
+reuse. Keep reuse **off by default**. It is a measured median-cost option for the
+240×384 fixture, not a proven deadline improvement.
+
+### Resolution decision and limits
+
+60×96 visibly merges finger/panel edges. 120×192 retains more contour detail and
+is feasible at batch 32 with substantial VRAM margin; 240×384 retains more fine
+geometry but costs about four times the backward time and allocated VRAM.
+These observations justified the original 120×192 compromise, not learning
+superiority; the representative delivery measurements below supersede that default. Even native hold/release images show arm self-occlusion; resolution
+cannot recover hidden contact. No resolution is certified for millimetric contact.
+
+The proposed 16.7 ms deadline applies only if future hardware uses a synchronous
+60 Hz dispatch schedule. It is not a universal gate for this offline pipeline.
+The 120×192 saved path already has p95 above that budget before live admission/
+IO costs; startup also exceeds it. Hardware real-time readiness is **unvalidated**.
+No control rate, asynchronous execution or dispatch compensation was introduced.
+
+## Representative input delivery
+
+New evidence is preserved separately in
+[`act-a1-temporal-integration-20261019`](../../../outputs/evidence/act-a1-temporal-integration-20261019/).
+The reviewed measurements above repeat five distinct decisions. The new matched
+before/after profiles use three fixed batch-32 workloads: 32 distinct decisions
+spread across the saved training trajectory; 32 consecutive, overlapping
+decisions; and eight spread decisions plus 20 consecutive decisions and explicit
+duplicates. Every workload retains all 23 RGB-D images, 241 robot tokens and 12
+targets. Diagnostic labels remain ineligible for training.
+
+Profiles precede optimization and are kept with five raw timing repetitions per
+pattern/resolution. They identify repeated visual gathers/stacks/copies as the
+main cost, followed by small numeric HDF5 reads. The target fixed before changing
+the loader was a 50% reduction in matched median construction time, with the same
+64-frame cache, one delivered plus one prefetched batch, 8 GiB RSS and 18 GiB
+allocated VRAM budget. OS page cache was not flushed; application frame-cache
+cold costs must not be called cold-disk measurements.
+
+The builder now exposes numeric support without materializing images. Each batch
+joins each distinct decision once and writes distinct frames directly into final
+batch storage, restoring every duplicate and original sample order. The 64-frame
+LRU never grows with a batch. At most 8 MiB of numeric values are retained per
+open episode; larger numeric datasets remain lazy. Targets, internal holes,
+eligibility, true tail padding, masks, preprocessing and normalization retain
+single-sample semantics. The existing one-next-batch prefetch helper is reused;
+there is no expanded window dataset or GPU feature cache during backward work.
+
+| Resolution | Distinct windows, before → after | Overlapping windows, before → after | Mixed with duplicates, before → after |
+|---|---:|---:|---:|
+| 120×192 | 207 → 104 ms | 158 → 65 ms | 173 → 76 ms |
+| 240×384 | 860 → 308 ms | 721 → 185 ms | 770 → 223 ms |
+
+The original 50% target is met in **5/6** cases. Distinct 120×192 reaches 49.8%
+and remains just below it; the target was not relaxed. The first copy-only
+optimization and its weaker 120×192 results remain in the evidence. Numeric
+retention addresses the measured residual reads; joins themselves were not
+replaced by a second causal implementation. Cold frame reads for the mixed batch
+fall from 243 to 237; direct final-buffer materialization supplies most of the
+benefit. Distinct batches still read 646 frames, overlapping batches 47. A cold
+646-read batch evicts 582 entries from the fixed 64-frame LRU.
+
+[`benchmark_temporal_pipeline.py`](../../../scripts/benchmark_temporal_pipeline.py)
+measures **eight complete batches per workload**, with one bounded CPU prefetch
+thread, normalization, collation, H2D, synchronized float32 forward/backward and
+cleanup. Untimed per-sample comparisons establish exact order, duplicates,
+actions, masks and normalization before timing. The source labels stay diagnostic;
+seeded initial model weights and backward passes are not policy training.
+
+| Resolution | Complete wall / 8 batches: distinct / overlap / mixed, ms per batch | Median H2D | Median GPU forward/backward | Peak allocated / reserved VRAM | Peak RSS |
+|---|---:|---:|---:|---:|---:|
+| 120×192 | 129 / 77 / 91 | 20 ms | 24–25 ms | 1.88 / 2.51 GiB | 2.18 GiB |
+| 240×384 | 355 / 223 / 274 | 85–88 ms | 94 ms | 7.39 / 9.34 GiB | 4.24 GiB |
+
+These wall averages include first delivery and pending-reader cleanup; they are
+not sums of overlapped stage medians. Loading remains the throughput bottleneck.
+One-time first model backward calls and every per-batch duration remain in the
+JSON. The approximately fourfold image/compute cost of 240×384 remains explicit;
+its measured memory and delivery cost are practical within the declared bounded
+workstation budget, supporting the information-preserving default. 120×192
+remains supported as the cheaper alternative. Neither has learning evidence.
+
+AdamW's two FP32 moments were actually allocated without `optimizer.step` and
+remained resident during the batch measurements: **12.50 MiB**, with 6.25 MiB of
+parameters and corresponding gradients. A prospective foreach temporary of about
+one parameter-sized buffer is an **estimate**; optimizer-step latency and its
+transient peak were not measured. No optimizer update occurred.
+
+### Incremental reuse: fill, steady operation and numerical result
+
+The actual `IncrementalObservationBuilder` → `TemporalActPolicy.predict` path
+replays the same native saved events at 151 decisions, six control ticks apart.
+Each query includes new native RGB-D reads/decode, CUDA preprocessing/return,
+numeric event ingress, causal construction, normalization, required transfers,
+ACT and action return. Three trials per mode alternate order. The first history
+and prediction cost is separate (120×192: 366–378 ms; 240×384: 405–415 ms). The
+next **40 queries / one whole 4 s history cycle** are retained as cache fill;
+**110 steady queries per trial, 330 per mode** remain. Serial queries are correlated;
+empirical p95 values do not establish a deadline guarantee.
+
+| Resolution | Full recomputation steady p50 / p95 | Reuse steady p50 / p95 | Untimed strict numerical comparison |
+|---|---:|---:|---|
+| 120×192 | 16.38 / 16.97 ms | 16.40 / 16.88 ms | Fails in 86/150 queries, 109/12,600 components |
+| 240×384 | 41.10 / 41.88 ms | 39.31 / 40.47 ms | Passes in 150/150 queries, 12,600 components |
+
+The table reports the median of the three trial p50/p95 statistics; complete
+trial ranges and all fill/steady samples remain in
+[`summary.json`](../../../outputs/evidence/act-a1-temporal-integration-20261019/summary.json).
+Equivalence comparisons are separate, untimed passes with the existing
+`atol=1e-6, rtol=1e-5` criterion. Maximum absolute output differences are 2.27e-6
+at 120×192 and 1.40e-6 at 240×384 with identity diagnostic action scaling. The
+first strict 120×192 assertion failure and the complete census are both kept;
+no tolerance was changed to pass it. Small absolute differences alone do not
+establish equivalence under the declared criterion or a physical safety result.
+
+**Keep reuse off by default at both resolutions.** At 120×192 it provides no
+meaningful latency gain and fails the strict numerical criterion. At 240×384 it
+passes this saved-trace check and reduces median/tail time by about 4%; it remains
+an explicit measured option, not a qualified default for a future learned
+checkpoint or hardware producer. Use the preferred 240×384 path with full
+recomputation for collection consumption and later ACT work. No asynchronous execution,
+control-rate change or physical threshold adjustment was introduced.

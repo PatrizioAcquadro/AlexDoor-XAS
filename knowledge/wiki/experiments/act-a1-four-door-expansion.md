@@ -1,19 +1,18 @@
-# ACT A1 four-door expansion
+# ACT A1 Four-Door Expansion
 
-The later [[act-a1-diverse-collection|diverse 112-episode campaign]] is halted with
-three usable new episodes and unresolved loaded-stop qualification. Its partial
-inventory and costs supersede the next-task proposals below; all original outcomes
-on this page remain historical evidence.
+## Question and outcome
 
-The first bounded collection is complete on 19 October 2026: two new nominal
-recordings and one qualified left hold/release continuation. A later single
-initial-posture pilot on the existing left door also passes; its observed
-convergence and limits are reported below. Training and learned evaluation remain
-outside these tasks. Measured results are below. Retain current
-physical outcomes, all raw attempts and frozen source groups. The usable software/data interfaces
-are in [[act-a1-observations-and-time]]. This replaces the earlier proposed
-36/44-trajectory sweep with coverage-driven stages and current measured costs.
-It does not predict improved learning or learned task success.
+The October 19, 2026 staged study tested teacher/data coverage beyond the original
+two doors and one initial posture. Two new nominal recordings, a qualified left
+hold/release continuation and one separately qualified initial-posture variation
+pass their declared scopes. These are simulation teacher results, not learned
+completion, a continuous posture/placement range or held-out generalization.
+
+The later [[act-a1-diverse-collection|112-cell campaign]] completes its original
+scopes; its later continuity limitations are reviewed by
+[[act-a1-complete-demonstration-audit]]. The current complete-cycle campaign and
+human pause belong to [[act-a1-complete-cycle-collection]] and [[status]]. Historical
+screening proposals and estimates do not authorize further acquisition.
 
 ## Geometry and first complete episodes
 
@@ -56,131 +55,6 @@ commands, causal labels/masks, all required phases/transitions and genuine tail
 support. Partial candidates have a separate explicit admission, not a relaxed
 full-demonstration gate.
 
-## Bounded variation candidates
-
-These are **screening ranges for later qualification**, not measured safe
-operating ranges. Use one factor at a time first; do not form their Cartesian
-product or schedule equal phase proportions.
-
-| Factor | Concrete candidate range | Evidence, parameterization and limit |
-|---|---|---|
-| P: initial right arm | `RIGHT_SHOULDER_Y` nominal ±.05 rad; all other initial joints unchanged | Actual URDF CUDA FK gives ±21.8 mm tool displacement and about 2.86° rotation, with .216 rad minimum URDF joint margin at these initial points. This changes observable initial approach geometry. Runtime ready/approach margins are different: right minimum .06295 rad; left approaches a limit within numerical tolerance. Recheck runtime soft limits, self/door clearance, approach, visibility and stop before collecting either endpoint. Do not offset loaded trajectories by these angles. |
-| R: robot–door relationship | Separate candidate translations ΔY ∈ [−.010,+.010] m, or retreat ΔX ∈ [−.010,0] m; yaw and Z fixed | Translate robot and pedestal together via `floor_pose`. New nominal contact Ys remain inside the current [−.1806,+.1952] m endpoints. A 10 mm lateral move keeps coarse initial lateral travel below .198 m versus the old .290 m setup. This is only a geometric screen. Left has no spare joint-boundary margin and recorded AABB clearance lower bound is zero; there is **no qualified nonzero translation range** yet. Start with nominal and retain only candidates passing the same whole-path checks. |
-| O: observations | Declared dome-light scale .9–1.1, with nominal 1.0; camera mount/calibration and neck recipe fixed | Already implemented and used by the pilot. Pair bright right with dim left to break the older direction/light association; these do not count as independent geometry. No invented sensor noise, timestamp delay, depth replacement or occlusion duration is added. Actual missing observations retain existing masks/freshness refusal. |
-
-The saved right/left nominal traces reach minimum Jacobian singular values about
-.037/.037 near hold/release; right/left peak actual speeds are .320/.284 rad/s.
-The left approach clips a position boundary; right learned evaluation reached
-hold but refused before release, and the prior left learned attempt refused
-before contact. Earlier tiny positive self/sweep margins do not establish
-millimeter-scale pose slack. These findings prioritize approach/contact and
-hold/release coverage and forbid presenting a nominal pass as a validated
-placement neighborhood. A changed setup's failure remains in the denominator;
-no unchanged favorable retry or empirical threshold adjustment follows.
-
-## Targeted starts alongside complete episodes
-
-The existing two complete nominal episodes and right C are retained. Both new
-nominal geometries and the existing-left hold continuation now pass the physical
-and usability gates. Inspect this combined coverage before selecting another cell. Targeted starts
-supplement full episodes;
-they do not replace the complete-task validation or count as new independent
-source motions. The existing right C and new **left H hold→release→stabilize**
-are physically qualified in their measured nominal source states. Other starts
-below are proposed interfaces for their dedicated
-qualification/collection tasks, not implemented reset variants.
-
-| Start / priority | Physical state and reconstruction checks | Genuine history and intended observable endpoint | Added coverage / status |
-|---|---|---|---|
-| Qualified hold starts: right C and left H | Same-group qualified hold source; restore full q/dq, door q/dq, delivered targets, impedance, lead/compression/compensation. Reuse existing state tolerances, conditioning, contact/footprint/material checks and independent stop proof. New door/side needs its own qualification. | Existing method uses six real conditioning ticks, fresh local t=0 reference and 1 s real guarded pre-roll, including sustained .5 s qualified hold; then real release and ordinary tail. Masks describe unavailable earlier history. Endpoint: measured unloaded withdrawal >=10 mm and existing final .5 s arm/door/tool stability checks. | Directly adds left or new-geometry release/stabilization without another ~100 s push. Right C and left H are usable; other source geometries remain unqualified. |
-| Unloaded precontact, dedicated future task | Closed unlatched door, known 30 mm precontact tool separation, zero acquired contact, supported q/dq/targets and collision-free arm. Capture/reconstruction and unloaded-to-contact stopping must be qualified; do not use a post-refusal state as an expert start. | Acquire a fresh local reference and actual measured pre-roll; .2 s model readiness is not contact qualification. Record approach→acquisition and first push actions with their true preceding history. Endpoint: independently verified contact/load/footprint/material support through the existing acquisition window and a safe first admitted push interval. RGB-D and measured q/dq/tau/targets must show the approach/response; torque alone is not contact force certification. | Intended to diversify contact approach under P/R on each geometry. Success predicate and reset still physically unqualified; a proposed `subtask_success` cannot admit data until `subtask_qualified` is established. |
-| Established-contact before push, dedicated future task | Restore a genuinely qualified source contact, full robot/door velocities and controller state, preserving force/material support during conditioning. No assumption that a hold snapshot reproduces early contact. | Fresh images and actual guarded measured history; begin eligible labels only when the existing readiness and contact conditions hold. Continue through contact→push; endpoint is sustained qualified contact plus real opening response under the unchanged monitor, not a teacher phase flag. | Separates successful acquisition from transition into opening; do this only if full-source/event views leave a coverage gap. No generic early-contact reset or new success threshold is implemented. |
-
-Each new loaded start needs independent contact/stop qualification before any
-policy execution. Producers use the existing explicit `startup(observer, io)`
-interface with fresh generation and local reference, never nominal closed-door
-parking, fabricated times or borrowed source history. Additional late-push,
-recovery and post-release start curricula remain separate tasks. Their likely
-needs are real pre-deviation/history support, trustworthy correction labels and
-independent stopping/recontact checks; this task adds no recovery infrastructure.
-
-## Available supervision and sampling
-
-Rows below are **reviewed command rows / usable 12-step window starts**. Phase
-labels remain diagnostic/sampling annotations outside ACT. Original right's 14
-ambiguous commands stay excluded; crossing chunks account for its 37 fewer
-starts. Left H retains 18 diagnostic commands and four reviewed early commands
-without an admissible chunk across the internal invalid interval. No hole is
-replaced with artificial tail padding.
-
-| Phase | Original right | Original left | Right C | Added right | Added left | Left H |
-|---|---:|---:|---:|---:|---:|---:|
-| Inspect ready pre-roll | 12 / 12 | 12 / 12 | 0 / 0 | 12 / 12 | 12 / 12 | 0 / 0 |
-| Approach | 360 / 360 | 360 / 360 | 0 / 0 | 360 / 360 | 360 / 360 | 0 / 0 |
-| Contact | 180 / 180 | 180 / 180 | 0 / 0 | 180 / 180 | 180 / 180 | 0 / 0 |
-| Push | 6362 / 6325 | 6784 / 6784 | 0 / 0 | 6679 / 6679 | 8305 / 8305 | 0 / 0 |
-| Hold | 180 / 180 | 180 / 180 | 48 / 48 | 180 / 180 | 180 / 180 | 42 / 38 |
-| Release | 360 / 360 | 360 / 360 | 360 / 360 | 360 / 360 | 360 / 360 | 360 / 360 |
-| Stabilize | 120 / 120 | 120 / 120 | 120 / 120 | 120 / 120 | 120 / 120 | 120 / 120 |
-| Total | 7574 / 7537 | 7996 / 7996 | 528 / 528 | 7891 / 7891 | 9517 / 9517 | 522 / 518 |
-
-Push is **28,130/34,028 = 82.67%** of reviewed commands. There are four nominal
-source motions across three families and two hold derivatives. Acquisition and
-push-entry each have four nominal sources; release/stabilization have all six
-records but still four nominal ancestries. Every present phase transition retains
-11 valid crossing starts. `phase_focused_rows` selects 25 views per nominal and
-13 per continuation: 126 overlapping source-window views, not demonstrations.
-The shared initialized checkpoint consumes all 126 without updates.
-
-[Current source, phase, transition and CUDA audit](../../../outputs/evidence/act-a1-four-door-20261019/verification.json).
-The [original three-source audit](../../../outputs/evidence/act-a1-consumption-20261019/sampling-quality.json)
-remains the pre-expansion baseline. Original right A1 retains 7,337 **partial
-candidates** only after separate explicit admission/unique derivative identity;
-it remains excluded from the combined handoff, with its original outcome and
-missing inspect→approach coverage unchanged.
-
-Use `episode.batches`/`mixed_temporal_batch` for an explicit event pass alongside
-the complete background source windows. Preserve crossing labels, actual history
-and true-tail masks. Report available/selected rows, source ancestry and background
-exposure. Long push runs must not set transition exposure merely by uniform row
-count. No equal-phase quota or learned sampling benefit is selected; later
-scheduling must respond to missing independent events and development diagnostics.
-
-## Evaluation, costs and remaining decisions
-
-Keep every render, crop, reset and reviewed partial derivative in its source's
-frozen split. The added PSX sources remain **train** together. Existing
-`psx-industrial-001-4f5561b` is **left development**; its dim/bright variants are
-one motion, not two independent development episodes. Plan independently reset
-motion/condition evaluation on that left development identity and frozen right
-development `modern-door-2fb8d024`, subject to their own setup qualification.
-Their data never fit normalization or weights. Do not turn a trajectory on one
-of the four train doors into frozen development, and do not move groups or open
-the final test. Later report per-door/handedness/phase and physical task outcomes,
-with all failures and uncertainty at source/group level.
-
-The original complete nominal payloads are 6.52/6.81 GiB raw plus 2.61/2.73 GiB
-prepared. Whole launches took 374.6/438.6 s; case reports exclude some wrapper
-startup/exit and must not replace those totals. The prospective estimate was **18–20 GiB
-and 12–16 min for the two essential new nominal attempts**, before qualification,
-failed attempts, traces and development collection; measured new costs are below. At the current uncompressed
-rates each additional recorded second costs about .043 GiB raw + .017 GiB prepared;
-a C-length 9 s continuation is about .55 GiB. Source-row phase views add no image
-storage. New precontact/contact subtasks should be priced from their eventual
-qualified real duration; a speculative duration is not a launch allocation.
-
-Before any later launch, declare concrete cases and reconcile remaining attempt,
-GPU and storage ledgers including failures. Existing per-case ceilings (1200 s
-wall / 210 s simulated / 12 GiB RSS / 20 GiB total GPU) provide a conservative
-starting envelope, not new authorization. Stop the current case on physical or
-resource violation; retain its outcome and diagnose before a changed attempt.
-Do not fill an arbitrary demonstration target.
-
-Remaining choices are physical initial-posture/placement coverage, independent
-development motions, and dedicated precontact/contact-to-push reconstruction
-interfaces. Four nominal source motions and two hold derivatives do not establish
-those variations or ACT task completion. The smallest next tranche is specified
-below; broad recovery, RL, training and learned evaluation remain separate work.
 
 ## First bounded execution: fixed requirement applicability
 
@@ -261,18 +135,10 @@ The prior three-source handoff and every historical failed/interrupted outcome
 remain intact. No ACT learned task result is added; the eventual criterion is
 physical completion from its own observations, not teacher trajectory similarity.
 
-## Posture candidate selected after the first expansion
-
-The first expansion selected one initial `RIGHT_SHOULDER_Y` −.05 rad variation
-on existing wide left `door-2738468b94d74c5f`, keeping placement/light and loaded
-targets unchanged. At that point all four nominal motions shared one initial
-posture and the two hold derivatives added no acquisition event. The candidate
-was subsequently executed under its own prospective criteria and budgets below;
-no continuous posture range or additional variation was approved.
 
 ## Single initial-posture pilot — completed
 
-The single candidate on existing left train `door-2738468b 94d 74c 5f` passes as a
+The single candidate on existing left train `door-2738468b94d74c5f` passes as a
 teacher demonstration: initial right-arm `RIGHT_SHOULDER_Y` −.05 rad, seed 6200,
 all other actual setup fields/light/robot/controller unchanged. Sustained opening
 52.615259° exceeds the fixed 42.0288232010161° requirement; valid hold, actual
@@ -350,23 +216,94 @@ prior payloads remain preserved. Exact costs/paths are in
 [resource summary](../../../outputs/evidence/act-a1-posture-20261019/resource-summary.json)
 and [handoff](../../../outputs/evidence/act-a1-posture-20261019/handoff.json).
 
-The smallest next task is to qualify a short precontact→acquisition producer:
-closed unlatched same door, measured 30 mm precontact state, full q/dq/targets and
-controller reconstruction, unloaded-to-contact stopping, actual prior approach
-history and a prospectively qualified observable contact/first-opening endpoint.
-Select only a justified one-factor posture/relationship that survives to contact;
-no safe nonzero range or generic reset is assumed. A 16 s recording comprising 4 s
-real approach/history, 3 s acquisition, about 1 s first push, 6 s withdrawal and 2 s tail
-would cost roughly .96 GiB and 1–2 min whole launch **after** physical producer
-qualification; qualification/failures are additional. This is a planning estimate,
-not an allocated tranche or invented demonstration count.
 
-Contact→push continuation is conditional on qualified early-contact reconstruction
-and missing push-entry support (~13–15 s/.8–.9 GiB after qualification). Another full
-posture/placement cycle (~6–8 min/9–10 GiB) should wait for evidence that variation
-will survive acquisition. Representative corrections need a concrete deviation,
-trusted correction and actual pre-deviation history/recontact-stop proof; no
-recovery curriculum is justified now. Full per-proposal starts, observable
-criteria, history and costs are in the report. None is launched; continuous
-posture/placement ranges, hardware transfer and learned ACT task success remain
-unqualified.
+## Initial bounded physical/data tranche and handoff
+
+[Declaration](../../../outputs/evidence/act-a1-teacher-temporal-20261019/declaration.md),
+[all attempts and commands](../../../outputs/evidence/act-a1-teacher-temporal-20261019/report.md),
+[actual-data verification](../../../outputs/evidence/act-a1-teacher-temporal-20261019/verification-final/report.json)
+and [ready inputs](../../../outputs/evidence/act-a1-teacher-temporal-20261019/handoff.json).
+The fixed train identities are right `animated-door-1-88abf40` and left
+`door-2738468b94d74c5f`, nominal seed 6200. Required opening retains 80% of the
+frozen matched references (51.260252/52.536029 deg), never a refit on these results.
+
+| Retained attempt | Physical outcome | States/commands | Healthy native tau | Data outcome |
+|---|---|---:|---:|---|
+| First right | 51.11 deg, release + 2 s ordinary tail; stop passes | 8,850/8,849 | 17,699 | Incomplete inspect→approach coverage; 7,337 partial candidates, separate admission required |
+| Corrected right | 51.75 deg, release + 2 s ordinary tail; stop passes | 9,101/9,100 | 18,201 | Qualified; 7,537 training windows |
+| Left | 52.55 deg, release + 2 s ordinary tail; stop passes | 9,509/9,508 | 19,017 | Qualified; 7,996 training windows |
+| Physical reset C | Fresh loaded hold, release + 2 s ordinary tail; stop passes | 541/540 | 1,081 | Qualified continuation; 528 training windows |
+| Controlled interruption D | Delivered command 60, interrupted before post-state; stop passes | 60/60 | 119 | One missing terminal state; recovered, zero expert windows |
+
+The first right exposed a real readiness seam: approach began at 25 s while
+inputs first became ready at 25.2 s. One affected repeat followed the explicit
+.4 s ordinary pre-roll correction. The original outcome/report remain; its early
+demonstration flag predates the completed window gate and does not qualify it
+for handoff. No unchanged favorable retry occurred. All present transitions in
+the three admitted files retain 11 crossing windows. These overlapping windows
+and one reset derivative are not independent demonstrations or a success-rate
+estimate. Source/family train grouping remains frozen; C stays with its source.
+
+All 56,117 native torque vectors across five attempts are finite/healthy under
+the simulator API contract; none is missing, and none of the seven channels
+reaches >=99% of configured effort limits. No saturation flag is exposed: this
+comparison is diagnostic, not sensor saturation certification.
+[Native event-centered traces](../../../outputs/evidence/act-a1-teacher-temporal-20261019/torque-event-traces.json)
+and figures retain all seven channels around contact, hold and real release.
+Actual prepared batches pass finite CUDA forward/backward with image, temporal,
+measured-state and torque gradients, exact unchanged weights and zero optimizer
+updates. Live/offline representative snapshots include true terminal/tail states;
+A1 labels and causal previous-target support agree exactly. Valid N m changes
+reach ACT tensors; invalid/missing tau is masked. D reopens through ACT preparation
+with the real prefix and zero eligible windows. Focused numerical tests pass.
+
+Five whole launches consume 1,229.03 s (20.48 min); final CUDA verification takes
+17.75 s, plus a 5.51 s exact CUDA-tensor reach check. Peak simulation process-tree RSS is 7.73 GiB and total GPU memory is
+6.87 GiB including desktop graphics. Final validation uses 1.96 GiB process RSS
+and peaks at 1.65/3.67 GiB CUDA allocated/reserved. About 28.8 GiB of tranche data
+is retained, within the declared 80 GiB; all per-case/cumulative budgets hold.
+No remote allocation, optimizer update, final-test access or learned evaluation
+is added. This closes the collection tranche, not ACT physical task success.
+
+
+
+## Evidence and limits
+
+The original declarations, measured geometry, source ancestry, failures and costs
+remain under `outputs/evidence/act-a1-four-door-20261019/`,
+`act-a1-posture-20261019/` and `act-a1-teacher-temporal-20261019/`.
+Source-row views duplicate no training images; overlapping windows and reset
+continuations do not add independent demonstrations. Initial posture differences
+largely converge before contact, so their early visual diversity does not prove
+new acquisition geometry. All prospective screening ranges and ordinary narrative
+remain in Git at `4d21837`; none is a currently qualified operating envelope.
+
+
+## Historical loaded-reset measurement
+
+The original right reset changes generation 1 to generation 2. Reconstruction
+errors are 0.566 mrad q, 38.655 mrad/s dq, 0.643 mrad door angle, 0.259 mm tool
+position and 0.482 mrad tool rotation, within its declared state bounds and hard
+limits. Fresh pre-roll has 58/60 valid contact samples. Its first snapshot has
+2/241 q/dq/tau slots, one previous target and 2/23 images; first eligible decisions
+occur at 0.2 s. This demonstrates that measured reset's scope, not a generic
+loaded-state producer or hardware reset.
+
+
+### Source decisions and remaining limits
+
+[StageACT](https://arxiv.org/html/2509.13200v2) supports proprioceptive/torque review
+of contact transitions and identifies observational phase ambiguity; its
+privileged stage input/architecture is not adopted.
+[DoorBot](https://arxiv.org/html/2504.09358v1) supports closed-loop haptic
+verification and explicit failures; its sensors/planner are not imported.
+[MimicGen](https://mimicgen.github.io/docs/tutorials/datagen_custom.html) supports
+task-specific subtask end conditions and diagnostic annotations; its framework
+and randomized offsets are not adopted. These sources do not qualify this reset
+or Alex hardware feedback. The
+[existing hardware audit](../../../outputs/evidence/act-a1-observation-design-20261019/analysis.md)
+continues to leave source/scale/sign/noise/filtering, clocks/latency and installed
+F-T/tactile availability unverified. Historical
+[[../experiments/b1-data-pipeline|data infrastructure]],
+[[../experiments/b1-act-a1-two-door-diagnostic|learned failures]] and
+[[../experiments/b1-act-a1-calibration-stopping|calibration/stopping]] remain unchanged.
