@@ -15,7 +15,7 @@ sys.path.insert(0, str(REPO / "src"))
 def main(argv=None):
     from alexdoor_xas.perception.diagnostics.scan import PILOTS
 
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     commands = parser.add_subparsers(dest="command", required=True)
     recorded = (
         "smoke",
@@ -26,7 +26,7 @@ def main(argv=None):
         "point2pose-operational",
     )
     for command in (*recorded, "point2pose-live"):
-        sub = commands.add_parser(command)
+        sub = commands.add_parser(command, allow_abbrev=False)
         sub.add_argument("--output", required=True, type=Path)
         sub.add_argument("--config", type=Path, default=REPO / "configs/perception_geometry.json")
         sub.add_argument("--models", type=Path, default=REPO / "models/perception")

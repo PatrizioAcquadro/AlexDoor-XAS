@@ -63,8 +63,8 @@ boundaries and rejects ensembling. Both families predict segment chunks;
 
 CPU checks cover data, scaling, serialization envelopes and contract rejection.
 CUDA forward/loss/gradient and prediction round-trip checks cover the eight B1
-paths and retained families. No optimizer update was performed during cleanup;
-training regressions remain maintained but were excluded. These checks do not
+paths and retained families. Training and resume regressions remain maintained.
+These software checks do not
 qualify perception or establish physical policy performance.
 
 ## Observed Execution and Replay

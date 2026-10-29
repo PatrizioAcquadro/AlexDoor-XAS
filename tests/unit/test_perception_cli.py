@@ -152,18 +152,26 @@ def test_single_episode_cannot_bypass_recording_admission(tmp_path, monkeypatch)
 
 
 @pytest.mark.parametrize(
-    "argv",
+    "command,extra",
     [
-        ["smoke", "--data", "unused"],
-        ["smoke", "--seed", "unused"],
-        ["diagnose-scan", "--selection", "unused"],
-        ["point2pose-replay", "--mode", "replay"],
-        ["point2pose-live", "--episode", "unused"],
+        ("smoke", ["--data", "unused"]),
+        ("smoke", ["--seed", "unused"]),
+        ("diagnose-scan", ["--selection", "unused"]),
+        ("point2pose-replay", ["--mode", "replay"]),
+        ("point2pose-live", ["--episode", "unused"]),
     ],
 )
-def test_options_are_scoped_to_their_subcommand(tmp_path, argv):
+def test_options_are_scoped_to_their_subcommand(tmp_path, command, extra):
+    episode = tmp_path / PILOT / "nominal/episode.hdf5"
+    episode.parent.mkdir(parents=True)
+    episode.touch()
+    required = (
+        ["--asset", PILOT, "--case", "camera"]
+        if command == "point2pose-live"
+        else ["--episode", str(episode)]
+    )
     with pytest.raises(SystemExit) as stopped:
-        cli_module().main([*argv, "--output", str(tmp_path / "run")])
+        cli_module().main([command, *required, *extra, "--output", str(tmp_path / "run")])
     assert stopped.value.code == 2
     assert not (tmp_path / "run").exists()
 

@@ -1,6 +1,6 @@
 # Phase 6.0 — Operational Perception and Observed Contact
 
-> Current boundary, October 2, 2026: 6.0A contracts and 6.0B static scans are
+> Maintained boundary: 6.0A contracts and 6.0B static scans are
 > maintained. The custom dynamic/material trackers, full-state replay command and
 > SAM3 video comparison are retired. The CAD-free Point2Pose 6.0C prototype is
 > implemented but unqualified; 6.0D-H remain planned. Historical failures remain failures.
@@ -16,8 +16,9 @@ See [[../topics/shared-door-perception|maintained interfaces]] and
 
 The maintained `SessionProvider` exposes static candidates through `scan_state` and
 returns invalid `DoorEstimate` values without policy encoding; the optional
-Point2Pose adapter supplies independently supported local diagnostic zones. Persistent SAM3,
-native SAM3 stay frozen for 6.0B. Unused DINOv3 extraction is retired. No qualified release exists; the legacy
+Point2Pose adapter supplies independently supported local diagnostic zones.
+The selected SAM3 model remains frozen for 6.0B. Unused DINOv3 extraction is
+retired. No qualified release exists; the legacy
 6.1 release interfaces are retained without an early schema migration.
 
 Future work starts with the two train pilots: left `door-2738468b94d74c5f` and right
