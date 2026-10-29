@@ -70,12 +70,13 @@ Run bounded frozen perception inference with a fresh output directory:
 
 ```bash
 /home/pacquadr/IsaacLab/isaaclab.sh -p scripts/perception.py smoke \
+  --episode /absolute/path/to/pilot/nominal/episode.hdf5 \
   --output outputs/generated/b1/perception/NEW_SMOKE
 ```
 
 The [model setup guide](knowledge/wiki/topics/perception-model-setup.md) documents
 scan, Point2Pose smoke, single-episode replay/offline and explicit live cases.
-Offline/replay require `--episode`; live requires `--asset` and `--case`.
+Every recorded diagnostic requires one `--episode`; live requires `--asset` and `--case`.
 Historical automatic campaigns are retired. Live diagnostics do not need
 recordings. Successful execution and scientific quality are separate outcomes;
 smokes do not admit motion or qualify a policy provider.

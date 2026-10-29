@@ -70,6 +70,7 @@ def run_point2pose_smoke(
                 write_json(output / "frames.json", records)
             latency = np.asarray([r["latency_s"] for r in records[1:]])
             report = dict(
+                complete=True,
                 frames=len(records),
                 latency_s=quantiles(latency),
                 timely_tracking_fraction=float(
@@ -95,3 +96,50 @@ def run_point2pose_smoke(
             raise
         finally:
             session.close()
+
+
+def run_sam3_smoke(path, recipe, output, models):
+    """Two synchronized acquisitions through one frozen SAM3 worker."""
+    from alexdoor_xas.perception.sam3.runtime import Sam3Worker
+
+    output = Path(output)
+    with h5py.File(path, "r") as h5:
+        if len(h5["observations/time_s"]) <= 243:
+            raise ValueError("SAM3 smoke requires source rows 240 and 243")
+        output.mkdir(parents=True, exist_ok=False)
+        write_json(
+            output / "protocol.json",
+            dict(
+                mode="smoke",
+                episode=str(path),
+                source_rows=[240, 243],
+                recipe=recipe.to_dict(),
+                qualified=False,
+            ),
+        )
+        with (output / "models.log").open("w") as log:
+            worker = Sam3Worker(
+                models, recipe.config["point2pose_selected"]["sam3_frontend"], log=log
+            )
+            try:
+                write_json(output / "runtime.json", worker.runtime)
+                results = []
+                for row in (240, 243):
+                    observed = sensor_at(h5, row)
+                    results.append(
+                        worker.infer(observed["rgb"], observed["frame"], observed["time_s"])
+                    )
+                first, result = results
+                report = dict(
+                    complete=True,
+                    **worker.runtime,
+                    masks=len(result["masks"]),
+                    shape=result["shape"],
+                    cold_latency_s=first["latency_s"],
+                    warm_latency_s=result["latency_s"],
+                    qualified=False,
+                )
+                write_json(output / "smoke.json", report)
+                return report
+            finally:
+                worker.close()

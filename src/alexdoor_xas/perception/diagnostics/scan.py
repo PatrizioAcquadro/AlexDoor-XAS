@@ -271,15 +271,12 @@ def diagnose_scan(path, provider, output, distal_faces=None):
     return report
 
 
-def run_scan_diagnostics(paths, recipe, output, models):
+def run_scan_diagnostic(path, recipe, output, models):
     from ihmc_alex_isaaclab._paths import REPOSITORY_ROOT as alex_root
 
     from alexdoor_xas.assets.purdue import DISTAL_CONTACT_TOLERANCE_M, derive_push_geometry
     from alexdoor_xas.perception.session import session_provider
 
-    expected = {(p, c) for p in PILOTS for c in ("nominal", "light")}
-    if len(paths) != 4 or {(p.parent.parent.name, p.parent.name) for p in paths} != expected:
-        raise ValueError("All four authorized pilot recordings are required")
     output = Path(output).resolve()
     output.mkdir(parents=True, exist_ok=False)
     root = Path(__file__).resolve().parents[4]
@@ -294,7 +291,7 @@ def run_scan_diagnostics(paths, recipe, output, models):
         dict(
             mode="scan_diagnostics",
             recipe=recipe.to_dict(),
-            selected_episodes=[str(p) for p in paths],
+            selected_episode=str(path),
             source_commit=subprocess.check_output(
                 ["git", "rev-parse", "HEAD"], cwd=root, text=True
             ).strip(),
@@ -317,48 +314,20 @@ def run_scan_diagnostics(paths, recipe, output, models):
             truth_boundary="metadata selects authorized recordings only; annotations never read",
         ),
     )
-    reports = []
     try:
         provider = session_provider(recipe, models, {}, output, replay=True, tracking=False)
-        engine = provider.engine
         try:
-            write_json(output / "runtime.json", engine.worker.runtime)
-            for path in paths:
-                destination = output / path.parent.parent.name / path.parent.name
-                reports.append(diagnose_scan(path, provider, destination, contact_covers))
-                print(
-                    json.dumps(
-                        dict(
-                            completed_scans=len(reports),
-                            scans=4,
-                            reason=reports[-1]["scan"]["reason"],
-                        )
-                    ),
-                    flush=True,
-                )
+            write_json(output / "runtime.json", provider.engine.worker.runtime)
+            report = diagnose_scan(path, provider, output / "scan", contact_covers)
         finally:
             provider.close()
-        summary = dict(
-            complete=True,
-            completed_scans=len(reports),
-            expected_scans=4,
-            object_reasons=[r["scan"]["reason"] for r in reports],
-            offline_passed=False,
-            dynamic_passed=False,
-            training_started=False,
-            collection_started=False,
-            sealed_test_evaluated=False,
-            provider_replaced=False,
-        )
-        write_json(output / "summary.json", summary)
-        print(json.dumps(summary), flush=True)
-        return 0
+        print(json.dumps(report), flush=True)
+        return report
     except (Exception, KeyboardInterrupt) as error:
         write_json(
             output / "failure.json",
             dict(
                 complete=False,
-                completed_scans=len(reports),
                 error=f"{type(error).__name__}: {error}",
                 offline_passed=False,
                 dynamic_passed=False,

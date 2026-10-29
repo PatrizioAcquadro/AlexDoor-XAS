@@ -311,7 +311,8 @@ serially for every original 60 Hz row, including the final observation. There is
 no replaceable queue or latency-based input selection. SAM3 starts at the first
 scheduled capture; normal initialization follows the 25 s inspection. The API
 accepts an explicit `capture_window_s`: a window starting after inspection can
-reproduce the historical 31 s seed without earlier SAM history. The CLI requires one explicit `--episode` and starts exactly one attempt.
+reproduce the historical 31 s seed without earlier SAM history. Every recorded diagnostic requires one explicit `--episode` and starts exactly one attempt;
+smoke and static scan do not enumerate a complete dataset.
 Single inputs retain recording validity, frozen-corpus identity, non-test split
 and asset/condition checks before worker startup. No other episode is enumerated.
 The old four-recording/twelve-attempt campaign, live matrix and concurrent smoke
