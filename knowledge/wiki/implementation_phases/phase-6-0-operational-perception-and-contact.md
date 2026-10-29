@@ -17,7 +17,7 @@ whole-object ownership, original-material identity and motion admission are dist
 See [[../topics/shared-door-perception|maintained interfaces]] and
 [[../experiments/b1-perception-findings|results and retirement decisions]].
 
-The current `GeometryProvider` exposes static candidates through `scan_state` and
+The maintained `SessionProvider` exposes static candidates through `scan_state` and
 returns invalid `DoorEstimate` values without policy encoding; the optional
 Point2Pose adapter supplies independently supported local diagnostic zones. Persistent SAM3,
 native SAM3 stay frozen for 6.0B. Unused DINOv3 extraction is retired. No qualified release exists; the legacy

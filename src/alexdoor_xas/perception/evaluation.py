@@ -1,14 +1,13 @@
-"""Reusable scientific error metrics and evaluator-only contact correspondence."""
+"""Reusable scientific error metrics and serialization."""
 
 import json
 from collections import Counter
-from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-from alexdoor_xas.action.frames import ObjectFrame, rot_z
+from alexdoor_xas.action.frames import rot_z
 
 LIMITS = dict(
     hinge_origin_m=0.01,
@@ -22,20 +21,6 @@ LIMITS = dict(
     signed_angle_deg=5.0,
 )
 COMPONENTS = (*LIMITS, "width_m", "height_m", "thickness_m")
-
-
-@dataclass(frozen=True)
-class MaterialContactReference:
-    """Evaluator-only association at selection; independent surface query remains 6.0E work."""
-
-    selection_id: str
-    selected_s: float
-    leaf_local_pose: ObjectFrame
-    footprint_leaf: tuple[np.ndarray, np.ndarray]
-
-    def require_selection(self, selection):
-        if (selection.selection_id, selection.selected_s) != (self.selection_id, self.selected_s):
-            raise ValueError("contact_correspondence_requires_new_surface_query")
 
 
 def rotation_error(a, b):

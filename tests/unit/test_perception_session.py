@@ -697,3 +697,48 @@ def test_retired_recipe_controls_fail_before_workers_start(tmp_path, monkeypatch
         with pytest.raises(ValueError, match="retired_point2pose_variant"):
             PerceptionSession("unused", recipe(), {}, tmp_path / control, selected=selected)
         assert not (tmp_path / control).exists()
+
+
+@pytest.mark.parametrize(
+    "invalid", ["nonmonotonic_observation", "missing_rgbd", "invalid_proprioception"]
+)
+def test_observed_only_ingress_and_invalid_input_reset(tmp_path, monkeypatch, invalid):
+    workers = []
+
+    def sam_factory(*args):
+        worker = Sam([[]] * 4)
+        workers.append(worker)
+        return worker
+
+    monkeypatch.setattr("alexdoor_xas.perception.sam3.runtime.Sam3Worker", sam_factory)
+    provider = module.session_provider(
+        recipe(), "unused", {}, tmp_path, replay=True, tracking=False
+    )
+    try:
+        observed = sensor(4, 0)
+        poisoned = dict(
+            observed, annotations={"hinge_origin": [999] * 3}, phase=2, commands={"target": 999}
+        )
+        result = provider.update(poisoned)
+        assert not result.valid and result.reason == "static_scan_only"
+        captured = provider.engine.pending[0][1]
+        assert set(captured) == set(OBS_KEYS)
+        for key in OBS_KEYS:
+            np.testing.assert_array_equal(captured[key], observed[key])
+        assert provider.consume_results(provider.engine.pending[1]["available_s"])
+        assert provider.last_estimate.operational is provider.last_estimate.local is None
+        generation = provider.generation
+        bad = sensor(4.1, 1)
+        if invalid == "nonmonotonic_observation":
+            bad["time_s"] = np.asarray(4.0)
+        elif invalid == "missing_rgbd":
+            bad["valid_depth"][:] = False
+        else:
+            bad["joint_position"][0] = np.nan
+        assert provider.update(bad).reason == invalid
+        assert provider.generation == generation + 1
+        assert provider.last_estimate is provider.last_cue is None
+        assert not provider.static and provider.engine.pending is None
+        assert workers[0].closed
+    finally:
+        provider.close()

@@ -82,8 +82,9 @@ observation guard does not relax dynamic freshness or qualification error budget
 CUDA runtimes. `SessionProvider` supplies the maintained `update(sensor)`,
 `scan_state`, `static`, `last_cue`, `reset()` and local tracking interface. It
 returns invalid `DoorEstimate` objects and no policy encoding; this integration
-admits no motion. The numerical `GeometryProvider`/`CueEngine` remain useful
-geometry/event harnesses with injected cues, without an operative image-model path.
+admits no motion. `CueEngine` supplies the event boundary inherited by Point2Pose;
+the superseded numerical `GeometryProvider` path is retired. Scan and provider
+regressions exercise `ScanMemory` and `SessionProvider` directly.
 
 The coordinator snapshots exactly the observed sensor keys: RGB, full metric
 depth/validity, intrinsics, camera pose from the same joints/FK, frame and acquisition
@@ -263,13 +264,6 @@ and absent material. They establish software behavior; the changed native D3
 condition still requires its own full-cycle qualification in the
 [[../experiments/act-a1-complete-cycle-collection|collection campaign]].
 
-`point2pose_impact.transport_impact` is evaluator-only. It measures the transported
-observed zone point, its oriented +X normal and full rotation separately. For a
-saved world target `G`, conditional propagation is `Z_est * inverse(Z_expected) * G`,
-with `Z_expected` obtained by transporting the observed seed with evaluator truth.
-This removes seed alignment bias and assumes the target's intended local coordinates;
-it does not evaluate actual A4 predictions, contact admission or missing A3 geometry.
-Finite lost poses retain their rejection state; missing poses/targets stay missing.
 The geometry adapter now freezes an explicit observed reference and separates
 current-image angle support from displacement-selected hinge evidence. Vertical-model
 residuals require uncertainty-aware sample consensus; origin envelopes propagate

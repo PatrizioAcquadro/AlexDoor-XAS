@@ -23,10 +23,8 @@ from alexdoor_xas.perception.geometry import (
     plane_fit,
     project,
 )
-from alexdoor_xas.perception.provider import CueEngine, GeometryProvider
-from alexdoor_xas.policies.common.b1_contract import PerceptionBinding
+from alexdoor_xas.perception.provider import CueEngine
 from alexdoor_xas.policies.observations import require_estimate
-from alexdoor_xas.recording.b1 import OBS_KEYS
 from perception_helpers import EmptyWorker, recipe, sensor
 
 
@@ -89,15 +87,11 @@ def test_clipped_extent_is_not_a_measured_dimension():
     np.testing.assert_allclose(contact_frame(normal)[:, 0], normal / np.linalg.norm(normal))
 
 
-def test_reset_discards_public_estimate_and_unsafe_contact_never_reaches_io():
+def test_unsafe_contact_never_reaches_io():
     from types import SimpleNamespace
 
     from alexdoor_xas.policies.purdue import PurdueIO
 
-    provider = GeometryProvider(recipe(), CueEngine(EmptyWorker(), replay=True))
-    provider.last_estimate = complete_state()
-    provider.reset()
-    assert provider.last_estimate is None and provider.encoding is None
     io = PurdueIO.__new__(PurdueIO)
     io.safety = SimpleNamespace(before_command=lambda stage: "force_feedback_unavailable")
     io.env = SimpleNamespace(motion_stopped=False)
@@ -186,48 +180,6 @@ def test_real_async_and_replay_release_identical_supplied_completion_events(dela
     finally:
         replay.close()
         live.close()
-
-
-def test_replay_live_event_equivalence_and_privileged_input_isolation():
-    class RecordedEvents:
-        def __init__(self):
-            self.inputs = []
-            self.generation = 0
-
-        def reset(self):
-            self.generation += 1
-
-        def poll(self, now):
-            return None
-
-        def submit(self, sample, view):
-            self.inputs.append(sample)
-            return True
-
-    first, second = (
-        GeometryProvider(recipe(), RecordedEvents()),
-        GeometryProvider(recipe(), RecordedEvents()),
-    )
-    for t, frame in ((4, 248), (4.016, 249), (7, 428)):
-        clean = sensor(t, frame)
-        poisoned = dict(
-            clean,
-            annotations={"hinge_origin": [999] * 3},
-            handedness="oracle",
-            asset_id="secret",
-            phase=2,
-            commands={"target": 999},
-        )
-        a, b = first.update(clean), second.update(poisoned)
-        assert (a.valid, a.reason) == (b.valid, b.reason)
-    assert all(set(v) == set(OBS_KEYS) for v in second.engine.inputs)
-    assert not second.update(sensor(6, 429)).valid
-    lost = sensor(8, 488)
-    lost["valid_depth"][:] = False
-    assert second.update(lost).reason == "missing_rgbd"
-    assert second.encoding is None
-    with pytest.raises(ValueError, match="qualified and frozen"):
-        PerceptionBinding.from_dict(recipe().to_dict())
 
 
 def test_observed_control_stops_on_loss_and_cannot_claim_force_feedback():
@@ -319,20 +271,6 @@ def test_dense_edges_preserve_leaf_bottom_without_absorbing_fixed_frame(bottom_f
     assert "height_0" not in extent_edges(points, np.array([1.0, 0, 0]), mask, sample, 0.004)
 
 
-def test_scan_semantics_starts_at_first_observation_and_covers_between_hold_views():
-    engine = CueEngine(EmptyWorker(), replay=True)
-    provider = GeometryProvider(recipe(), engine)
-    provider.update(sensor(0, 8))
-    assert engine.pending[0][1]["time_s"] == 0
-    provider.update(sensor(0.1, 14))
-    assert engine.pending is None
-    provider.update(sensor(0.2, 20))
-    assert engine.pending[0][1]["time_s"] == 0.2
-    provider.update(sensor(25.1, 1514))
-    assert engine.pending is None
-    assert not provider.last_estimate.valid
-
-
 def test_production_surface_extraction_keeps_dense_extents_and_rejects_parallel_frame_fusion():
     from alexdoor_xas.perception.geometry import similar_surface, surfaces
 
@@ -359,16 +297,3 @@ def test_scoring_retains_finite_rejected_errors_and_maximum():
     assert result["errors_accepted"]["hinge_origin_m"]["maximum"] == 0
     assert result["valid_coverage"] == 0.75 and not result["offline_passed"]
     assert quantiles(np.array([np.nan, 0.05, 0.1]))["maximum"] == 0.1
-
-
-def test_static_provider_never_publishes_policy_state_or_requests_cues_after_scan():
-    engine = CueEngine(EmptyWorker(), replay=True)
-    provider = GeometryProvider(recipe(), engine)
-    estimate = provider.update(sensor(25, 1508))
-    assert not estimate.valid and estimate.reason == "static_scan_only"
-    provider.consume_results(25.05)
-    calls = provider.diagnostics["semantic_calls"]
-    estimate = provider.update(sensor(25.1, 1514))
-    assert engine.pending is None and provider.encoding is None
-    assert provider.diagnostics["semantic_calls"] == calls
-    assert estimate.operational is estimate.local is estimate.frame is None

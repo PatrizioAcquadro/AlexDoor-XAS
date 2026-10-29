@@ -7,7 +7,6 @@ import pytest
 
 from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.geometry import Surface, SurfaceObservation, fuse_surface, surfaces
-from alexdoor_xas.perception.provider import CueEngine, GeometryProvider
 from alexdoor_xas.perception.scan import (
     ObservedSpace,
     ScanMemory,
@@ -400,18 +399,13 @@ def test_free_space_margin_accounts_for_lateral_obstacles_and_unknown_boundaries
 
 
 def test_scan_fusion_does_not_pick_area_winner_or_erase_material_references():
-    provider = GeometryProvider(recipe(), CueEngine(EmptyWorker(), replay=True))
+    memory = ScanMemory(recipe().config, generation=0)
     surface, sample, cue = measured_surface()
-    provider._fuse(sample, 8, cue)
+    memory.add([surface], sample, 8, available_s=0.05)
     second = dict(sample, frame=20, time_s=0.2)
-    provider._fuse(second, 20, cue)
-    assert provider.scan_state.objects
-    assert provider.last_estimate is None  # fusion is not a qualified runtime estimate
-    reference = provider.static[0]
-    assert {o.frame for o in reference.observations} == {8, 20}
-    previous = provider.scan_state.generation
-    provider.reset()
-    assert provider.scan_state.generation == previous + 1 and not provider.scan_state.objects
+    memory.add(surfaces(cue, second, recipe().config), second, 20, available_s=0.25)
+    assert memory.state.objects
+    assert {o.frame for o in memory.surfaces[0].observations} == {8, 20}
 
 
 def test_material_reference_uses_two_finite_fingers_and_preserves_holes():

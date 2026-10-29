@@ -232,9 +232,7 @@ def test_diagnostic_contact_order_does_not_depend_on_unknown_total_width():
         select_contact([replace(a, reachable=False)], hinge_resolved=False)
 
 
-def test_contact_transition_and_evaluator_reference_are_explicit_and_separate():
-    from alexdoor_xas.perception.evaluation import MaterialContactReference
-
+def test_contact_transition_requires_explicit_predecessor():
     contact = operational_estimate().operational.contact
     validate_contact_transition(None, contact)
     validate_contact_transition(contact, contact)
@@ -242,12 +240,6 @@ def test_contact_transition_and_evaluator_reference_are_explicit_and_separate():
     with pytest.raises(ValueError, match="transition"):
         validate_contact_transition(contact, changed)
     validate_contact_transition(contact, replace(changed, predecessor_id=contact.selection_id))
-    reference = MaterialContactReference(
-        contact.selection_id, contact.selected_s, contact.local_pose, (np.zeros((3, 3)),) * 2
-    )
-    reference.require_selection(contact)
-    with pytest.raises(ValueError, match="correspondence"):
-        reference.require_selection(changed)
     assert "leaf_local_pose" not in vars(contact)
 
 
