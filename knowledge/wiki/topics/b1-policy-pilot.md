@@ -184,7 +184,8 @@ argument cannot override a conflicting protocol. No command resumes work by itse
 The initial numerical protocol, `pilot_diagnosis`, `compare_pilot_preprocessing`
 and unused `PilotRecorder` remain recoverable at `8bbeefe`. Their evidence and
 historical checkpoints are preserved. Reusable benchmarks, workspace surveys and
-load/control/dynamics/stop verification remain maintained.
+load/dynamics/stop verification remain maintained. The old pre-latch control
+smoke is retired; current runtime and stop checks cover maintained execution.
 
 Training states are atomic and retain raw model, optimizer, RNG, EMA/scheduler,
 history and protocol. Resume preserves completed cells and refuses changed

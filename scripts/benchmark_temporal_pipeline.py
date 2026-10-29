@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Bounded temporal input delivery and incremental inference; no optimizer updates.
 
-Consume a prepared diagnostic fixture covering the declared rows. Read only
-train/development sources. Keep equivalence checks outside latency trials.
+Select eligible workloads from a prepared train/development episode. Report
+unavailable workloads explicitly. Keep equivalence checks outside latency trials.
 """
 
 import argparse
 import json
 import resource
+import sys
 import time
 from pathlib import Path
 
@@ -15,20 +16,26 @@ import h5py
 import numpy as np
 import torch
 
-from alexdoor_xas.assets.purdue import ARM_JOINTS
-from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats
-from alexdoor_xas.dataset.sampling import collate_torch
-from alexdoor_xas.dataset.temporal import TemporalEpisode, raw_streams
-from alexdoor_xas.policies.act.model import act_loss
-from alexdoor_xas.policies.act.temporal import (
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "src"))
+
+from alexdoor_xas.assets.purdue import ARM_JOINTS  # noqa: E402
+from alexdoor_xas.dataset.normalize import DatasetNormStats, NormStats  # noqa: E402
+from alexdoor_xas.dataset.sampling import collate_torch  # noqa: E402
+from alexdoor_xas.dataset.temporal import TemporalEpisode, raw_streams  # noqa: E402
+from alexdoor_xas.policies.act.model import act_loss  # noqa: E402
+from alexdoor_xas.policies.act.temporal import (  # noqa: E402
     OBS_KEYS,
     TemporalActPolicy,
     normalize_temporal_batch,
     temporal_model,
 )
-from alexdoor_xas.policies.common.data import prefetch_batches
-from alexdoor_xas.policies.common.data import to_device as _to_device
-from alexdoor_xas.policies.temporal import IncrementalObservationBuilder, TemporalConfig
+from alexdoor_xas.policies.common.data import prefetch_batches  # noqa: E402
+from alexdoor_xas.policies.common.data import to_device as _to_device  # noqa: E402
+from alexdoor_xas.policies.temporal import (  # noqa: E402
+    IncrementalObservationBuilder,
+    TemporalConfig,
+)
 
 
 def summary(values):
@@ -48,6 +55,60 @@ def timed(call):
     value = call()
     torch.cuda.synchronize()
     return value, (time.perf_counter() - start) * 1000
+
+
+def select_workloads(episode):
+    """Select real eligible rows without decoding images or crossing a reset/gap."""
+    batch_size, trace_queries, replan_ticks = 32, 151, 6
+    rows = episode.training_rows()
+    patterns, unavailable = {}, {}
+    if len(rows) >= batch_size:
+        patterns["distinct"] = rows[np.linspace(0, len(rows) - 1, batch_size, dtype=int)].tolist()
+    else:
+        unavailable["distinct"] = f"Need {batch_size} distinct eligible rows; found {len(rows)}"
+    cuts = (
+        np.flatnonzero(
+            (np.diff(rows) != 1)
+            | (np.diff(episode.generations[rows]) != 0)
+            | ~np.isclose(
+                np.diff(episode.times[rows]), episode.config.control_dt_s, atol=1e-8, rtol=0
+            )
+        )
+        + 1
+    )
+    run = max(np.split(rows, cuts), key=len)
+    if len(run) >= batch_size:
+        start = (len(run) - batch_size) // 2
+        patterns["overlapping"] = run[start : start + batch_size].tolist()
+    else:
+        unavailable["overlapping"] = (
+            f"Need {batch_size} consecutive eligible rows; found {len(run)}"
+        )
+    if "distinct" in patterns and "overlapping" in patterns:
+        patterns["mixed"] = (
+            patterns["distinct"][:8]
+            + patterns["overlapping"][:20]
+            + [patterns["overlapping"][0]] * 2
+            + [patterns["distinct"][-1]] * 2
+        )
+    else:
+        unavailable["mixed"] = "Distinct and overlapping workloads are required"
+    trace_rows = run[::replan_ticks][:trace_queries]
+    fill_queries = int(
+        np.ceil(episode.config.history_s / (replan_ticks * episode.config.control_dt_s))
+    )
+    trace = None
+    if len(trace_rows) > fill_queries + 1:
+        trace = dict(
+            rows=trace_rows.tolist(),
+            times=episode.times[trace_rows].tolist(),
+            generation=int(episode.generations[trace_rows[0]]),
+        )
+    else:
+        unavailable["incremental"] = (
+            "Insufficient consecutive history for cache fill and steady queries"
+        )
+    return patterns, trace, unavailable
 
 
 def diagnostic_stats():
@@ -97,7 +158,7 @@ def measure_batches(episode, patterns, model, stats, repeats):
         act_loss(predicted, batch["actions"], batch["is_pad"], mu, logvar, 1)["loss"].backward()
 
     # Same workload, first call separate. No optimizer update or checkpoint change.
-    host = normalize_temporal_batch(episode.batch(patterns["mixed"], diagnostics=True), stats)
+    host = normalize_temporal_batch(episode.batch(next(iter(patterns.values()))), stats)
     batch = _to_device(collate_torch(host), "cuda")
     _, first = timed(lambda batch=batch: backward(batch))
     del host, batch
@@ -105,7 +166,7 @@ def measure_batches(episode, patterns, model, stats, repeats):
     torch.cuda.reset_peak_memory_stats()
     for name, rows in patterns.items():
         # Equivalence, including normalization, is deliberately untimed.
-        batch = normalize_temporal_batch(episode.batch(rows, diagnostics=True), stats)
+        batch = normalize_temporal_batch(episode.batch(rows), stats)
         for i, row in enumerate(rows):
             sample = episode.sample(row)
             reference = normalize_temporal_batch(
@@ -124,7 +185,7 @@ def measure_batches(episode, patterns, model, stats, repeats):
 
         def batches(rows=rows):
             for _ in range(repeats):
-                yield normalize_temporal_batch(episode.batch(rows, diagnostics=True), stats)
+                yield normalize_temporal_batch(episode.batch(rows), stats)
 
         delivery, transfer, gpu, cycle = [], [], [], []
         start = time.perf_counter()
@@ -165,12 +226,13 @@ def measure_batches(episode, patterns, model, stats, repeats):
     return output
 
 
-def measure_incremental(source, config, model, stats, repeats):
+def measure_incremental(source, config, model, stats, repeats, trace, *, legacy_synchronous):
     model.eval()
     policy = TemporalActPolicy(model, stats)
-    fill_queries = int(round(config.history_s / (6 * config.control_dt_s)))
-    trace = np.arange(4500, 5401, 6) / 60  # six control rows between replans, 151 queries
-    output = dict(trace_times_s=trace.tolist(), runs=[], equivalence=[])
+    fill_queries = int(np.ceil(config.history_s / (6 * config.control_dt_s)))
+    generation = trace["generation"]
+    trace = np.asarray(trace["times"])
+    output = dict(trace_times_s=trace.tolist(), generation=generation, runs=[], equivalence=[])
     contract = dict(
         verified=True,
         joint_names=ARM_JOINTS,
@@ -180,15 +242,29 @@ def measure_incremental(source, config, model, stats, repeats):
         semantics="joint_output",
     )
     with h5py.File(source, "r", rdcc_nbytes=1024**2) as file:
-        streams, _, _, _ = raw_streams(file, config, legacy_synchronous=True)
+        streams, _, _, _ = raw_streams(file, config, legacy_synchronous=legacy_synchronous)
         events = []
         for field, stream in streams.items():
             a = stream["acquired"]
-            keep = (a >= trace[0] - config.history_s - config.image_gap_s) & (a <= trace[-1])
+            same_generation = stream["generation"] == generation
+            keep = (
+                same_generation
+                & (a >= trace[0] - config.history_s - config.image_gap_s)
+                & (a <= trace[-1])
+            )
             if field == "images":
-                keep |= a == a[a <= config.static_time_s][-1]
+                static = np.flatnonzero(
+                    same_generation
+                    & (a <= config.static_time_s)
+                    & (stream["available"] <= trace[0])
+                )
+                if not len(static):
+                    raise ValueError("Raw source lacks the selected generation's static image")
+                keep[static[-1]] = True
             if field == "target":
-                carry = np.flatnonzero(a < trace[0] - config.history_s - config.image_gap_s)
+                carry = np.flatnonzero(
+                    same_generation & (a < trace[0] - config.history_s - config.image_gap_s)
+                )
                 if len(carry):
                     keep[carry[-1]] = True
             events.extend(
@@ -198,9 +274,9 @@ def measure_incremental(source, config, model, stats, repeats):
 
         def replay(reuse, *, compare=False):
             online = IncrementalObservationBuilder(
-                config, episode_id="saved-trace", feedback_contract=contract
+                config, episode_id="saved-trace", generation=generation, feedback_contract=contract
             )
-            policy.reset("saved-trace", 0)
+            policy.reset("saved-trace", generation)
             position, durations, errors, counts, failures = 0, [], [], [], []
             hits_before, misses_before = model.obs_proj.cache_hits, model.obs_proj.cache_misses
 
@@ -218,7 +294,7 @@ def measure_incremental(source, config, model, stats, repeats):
                         field,
                         acquired=stream["acquired"][index],
                         available=stream["available"][index],
-                        generation=0,
+                        generation=int(stream["generation"][index]),
                         source_index=int(stream["source_index"][index])
                         if field == "images"
                         else -1,
@@ -312,45 +388,55 @@ def main():
     )
     start = time.perf_counter()
     try:
-        assert torch.cuda.is_available(), "Actual CUDA required"
         if not 3 <= args.repeats <= 12:
             raise ValueError("Bounded repeats must be between 3 and 12")
-        torch.set_num_threads(4)
-        torch.backends.cudnn.benchmark = False
         with h5py.File(args.prepared, "r") as file:
             preprocessing = json.loads(file.attrs["preprocessing"])
-        config = TemporalConfig(**preprocessing)
+            metadata = json.loads(file.attrs["episode"])
+            legacy_synchronous = bool(file.attrs.get("legacy_synchronous", False))
+            recorded_source = file.attrs.get("source")
+        if recorded_source is not None and Path(recorded_source).resolve() != args.source.resolve():
+            raise ValueError("Raw source differs from the prepared episode")
+        config = TemporalConfig(**metadata.get("observation_config", preprocessing))
         result["config"] = config.to_dict()
-        patterns = dict(
-            distinct=np.linspace(1800, 8600, 32, dtype=int).tolist(),
-            overlapping=list(range(4500, 4532)),
-            mixed=np.r_[
-                np.linspace(1800, 8600, 8, dtype=int),
-                np.arange(4500, 4520),
-                [4500, 4500, 8369, 8369],
-            ]
-            .astype(int)
-            .tolist(),
-        )
-        result["patterns"] = patterns
-        model = temporal_model(config).cuda()
-        stats = diagnostic_stats()
-        if not (args.inference_only or args.equivalence_only):
-            with TemporalEpisode(args.prepared, config) as episode:
+        with TemporalEpisode(args.prepared, config) as episode:
+            patterns, trace, unavailable = select_workloads(episode)
+            result.update(patterns=patterns, trace=trace, unavailable=unavailable)
+            batches_requested = not (args.inference_only or args.equivalence_only)
+            inference_requested = not args.batches_only
+            if not ((batches_requested and patterns) or (inference_requested and trace)):
+                result["outcome"] = "unavailable"
+                return
+            if not torch.cuda.is_available():
+                raise RuntimeError("Actual CUDA required")
+            torch.set_num_threads(4)
+            torch.backends.cudnn.benchmark = False
+            model, stats = temporal_model(config).cuda(), diagnostic_stats()
+            if batches_requested and patterns:
                 result["batch"] = measure_batches(episode, patterns, model, stats, args.repeats)
-        if not args.batches_only:
+        if inference_requested and trace:
             result["incremental"] = measure_incremental(
-                args.source, config, model, stats, 0 if args.equivalence_only else 3
+                args.source,
+                config,
+                model,
+                stats,
+                0 if args.equivalence_only else 3,
+                trace,
+                legacy_synchronous=legacy_synchronous,
             )
-        result["outcome"] = "completed"
+        result["outcome"] = "completed_with_unavailable_workloads" if unavailable else "completed"
     except BaseException as error:
         result.update(outcome="failed", error=repr(error))
         raise
     finally:
         result["wall_s"] = time.perf_counter() - start
         result["peak_rss_mib"] = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
-        result["peak_allocated_mib"] = torch.cuda.max_memory_allocated() / 1024**2
-        result["peak_reserved_mib"] = torch.cuda.max_memory_reserved() / 1024**2
+        result["peak_allocated_mib"] = (
+            torch.cuda.max_memory_allocated() / 1024**2 if torch.cuda.is_initialized() else None
+        )
+        result["peak_reserved_mib"] = (
+            torch.cuda.max_memory_reserved() / 1024**2 if torch.cuda.is_initialized() else None
+        )
         (args.output / "measurements.json").write_text(json.dumps(result, indent=2) + "\n")
 
 

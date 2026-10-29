@@ -3,27 +3,34 @@
 
 import argparse
 import json
+import sys
 import time
 from collections import deque
 from pathlib import Path
 
 import torch
 
-from alexdoor_xas.assets.identity import RobotAssetRef
-from alexdoor_xas.dataset.normalize import DatasetNormStats
-from alexdoor_xas.dataset.sampling import collate_torch
-from alexdoor_xas.policies.act.model import act_loss
-from alexdoor_xas.policies.act.temporal import (
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "src"))
+
+from alexdoor_xas.assets.identity import RobotAssetRef  # noqa: E402
+from alexdoor_xas.dataset.normalize import DatasetNormStats  # noqa: E402
+from alexdoor_xas.dataset.sampling import collate_torch  # noqa: E402
+from alexdoor_xas.policies.act.model import act_loss  # noqa: E402
+from alexdoor_xas.policies.act.temporal import (  # noqa: E402
     TemporalActPolicy,
     fit_temporal_stats,
     save_temporal_policy,
     temporal_model,
     validate_training_sources,
 )
-from alexdoor_xas.policies.act.temporal_training import TemporalTrainingSet, build_training_index
-from alexdoor_xas.policies.common.data import evaluate_l1
-from alexdoor_xas.policies.common.data import to_device as _to_device
-from alexdoor_xas.policies.common.training import (
+from alexdoor_xas.policies.act.temporal_training import (  # noqa: E402
+    TemporalTrainingSet,
+    build_training_index,
+)
+from alexdoor_xas.policies.act.train import evaluate_l1  # noqa: E402
+from alexdoor_xas.policies.common.data import to_device as _to_device  # noqa: E402
+from alexdoor_xas.policies.common.training import (  # noqa: E402
     capture_rng_states,
     restore_rng_states,
     torch_save_atomic,

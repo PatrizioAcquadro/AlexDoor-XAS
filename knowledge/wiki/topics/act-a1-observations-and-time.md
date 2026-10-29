@@ -86,8 +86,10 @@ flowchart LR
   per-row admission, ordinary control and independent stopping remain active.
 - [Native recorder](../../../src/alexdoor_xas/recording/temporal.py):
   `TemporalRecorder.state/capture/feedback/command/annotate/finish/close`.
-- [Cost harness](../../../scripts/benchmark_temporal_act.py): saved-input
-  preparation, loading, native preprocessing, inference and backward-only checks.
+- [Pipeline benchmark](../../../scripts/benchmark_temporal_pipeline.py): saved-input
+  loading, native preprocessing, incremental inference and backward-only checks.
+  Workloads use eligible recorded rows within one continuous generation; short
+  or masked sources report unavailable workloads. Fixed-row cost harnesses are retired.
 
 Temporal native evaluation ends after the independent scorer establishes opening,
 required loaded hold, release and ordinary stabilization. The external completion
