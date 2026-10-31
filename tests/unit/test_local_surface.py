@@ -146,6 +146,20 @@ def test_local_constraint_does_not_rewrite_native_pose_or_hide_missing_geometry(
     assert candidate.local_constraint is not None
     recovered = tracker._constrained_candidate(candidate, candidate.local_constraint)
     np.testing.assert_allclose(recovered.pose[:3, 3], expected, atol=1e-14)
+    # A larger but tilted component has a weaker finite-contact certificate.
+    # Both pass the same material-identity check; rank their measured bounds.
+    coarse_rotation = Rotation.from_euler("z", 0.2025).as_matrix()
+    coarse = surface(coarse_rotation, np.array([1, 0, 0]) @ coarse_rotation.T)
+    coarse.observations = [
+        SimpleNamespace(semantic_id=3, frame=0, acquired_s=0.0, mask=lambda: np.ones((8, 8), bool))
+    ]
+    monkeypatch.setattr(tracker, "root_consistent", lambda *args: True)
+    for choices in ([coarse, current], [current, coarse]):
+        result["local_surfaces"] = choices
+        tracker.constrain_local(captured, result)
+        assert candidate.local_constraint is not None
+        recovered = tracker._constrained_candidate(candidate, candidate.local_constraint)
+        np.testing.assert_allclose(recovered.pose[:3, :3], rotation, atol=1e-14)
     # Equal compatible support is still ambiguous; no favorable first choice.
     result["local_surfaces"] = [current, current]
     tracker.constrain_local(captured, result)

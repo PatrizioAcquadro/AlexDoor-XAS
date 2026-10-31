@@ -480,3 +480,13 @@ unchanged physical limits, positive-load requirements and search budgets. Its
 consequences for D2-DR acquisition and complete cycles still require measured
 validation. Broader pose/material uncertainty and D3/D4 full-path support remain
 separate open requirements.
+
+
+Current local-plane selection evaluates all freshly measured components that
+retain the original material identity, synchronized support, complete native-pair
+residuals and conditioned plane/edge bounds. It ranks their position/angular error
+at the same fixed finite contact zone; the largest visible area is not a precision
+certificate. Equal best bounds remain ambiguous. A retained D3 comparison found
+largest-area error bounds of0.41–0.52m where independently consistent alternatives
+provided0.088–0.107m at the same zone. These are error bounds, not actual physical
+errors or full-path admission. Changed native complete-cycle validation is pending.

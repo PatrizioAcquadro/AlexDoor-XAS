@@ -8,6 +8,7 @@ from dataclasses import dataclass, replace
 import numpy as np
 
 from alexdoor_xas.action.frames import ObjectFrame
+from alexdoor_xas.perception.admission import rotational_travel
 from alexdoor_xas.perception.contracts import (
     MAX_DYNAMIC_AGE_S,
     FieldSupport,
@@ -557,9 +558,9 @@ class PanelTracking:
                 }
                 measured = obj["measured_correspondences"] & obj["inliers"]
                 consistent, failures = [], []
-                # A newly larger visible panel face need not be the original
-                # material plane. Apply the existing depth/rigidity consistency
-                # check before ranking current observed support by area.
+                # Every candidate must independently retain the original material.
+                # Visible area alone does not measure normal/edge conditioning or
+                # uncertainty at the fixed finite contact zone.
                 for current in sorted(
                     choices, key=lambda s: int(s.observations[0].mask().sum()), reverse=True
                 ):
@@ -590,15 +591,32 @@ class PanelTracking:
                             replace(local, surface=candidate.surface), captured
                         ):
                             raise ValueError("local_surface_material_inconsistent")
-                        consistent.append((int(observation.mask().sum()), constraint))
+                        radius = (
+                            0.0
+                            if self.distal_faces is None
+                            else max(
+                                np.linalg.norm(face, axis=1).max() for face in self.distal_faces
+                            )
+                        )
+                        lever = (
+                            np.linalg.norm(
+                                (candidate.map_from_object @ candidate.object_from_zone)[:3, 3]
+                                - constraint.registration_origin_map
+                            )
+                            + radius
+                        )
+                        error = constraint.position_bound_m + rotational_travel(
+                            lever, constraint.rotation_bound_rad
+                        )
+                        consistent.append((error, constraint))
                     except (ValueError, KeyError) as error:
                         failures.append(str(error))
                 if not consistent:
                     raise ValueError(failures[0])
-                areas = [area for area, _ in consistent]
-                if areas.count(max(areas)) != 1:
+                errors = [error for error, _ in consistent]
+                if errors.count(min(errors)) != 1:
                     raise ValueError("missing_or_ambiguous_current_surface")
-                candidate.local_constraint = consistent[int(np.argmax(areas))][1]
+                candidate.local_constraint = consistent[int(np.argmin(errors))][1]
                 candidate.local_constraint_reason = ""
             except (ValueError, KeyError) as error:
                 if (

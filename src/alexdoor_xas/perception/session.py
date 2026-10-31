@@ -399,7 +399,7 @@ class PerceptionSession:
             state = "tracking" if present else "selected_identity_absent"
         local_surfaces = None
         if self.config.get("local_surface_constraint") is not None and native_result is not None:
-            local_surfaces = surfaces(cue, sensor, self.config, dominant_only=True)
+            local_surfaces = surfaces(cue, sensor, self.config)
         result = dict(native_result or dict(objects=[]))
         native_s = 0 if native_result is None else native_result["latency_s"]
         result.update(
@@ -409,7 +409,7 @@ class PerceptionSession:
             sam3=meta,
             cue=cue,
             local_surfaces=local_surfaces,
-            local_surfaces_dominant=local_surfaces is not None,
+            local_surfaces_dominant=False,
             semantic_absent=not present,
             identity=dict(
                 sam3_id=self.identity,
