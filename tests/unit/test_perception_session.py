@@ -742,3 +742,37 @@ def test_observed_only_ingress_and_invalid_input_reset(tmp_path, monkeypatch, in
         assert workers[0].closed
     finally:
         provider.close()
+
+
+def test_automatic_identity_is_chosen_after_inspection_then_never_substituted(tmp_path, geometry):
+    sam, native = Sam([[4], [9], [4]]), Native()
+    session = PerceptionSession("unused", recipe(), {}, tmp_path, sam_worker=sam, p2p_worker=native)
+    try:
+        inspection = session.infer(sensor(4, 0))
+        assert inspection["identity"]["sam3_id"] is None
+        assert not native.calls
+        selected = session.infer(sensor(25, 1))
+        assert selected["identity"]["sam3_id"] == 9
+        assert selected["initialization"]["p2p_started"]
+        assert selected["binding"][0]["sam3_id"] == 9
+        missing = session.infer(sensor(25.1, 2))
+        assert missing["identity"]["sam3_id"] == 9
+        assert missing["semantic_absent"]
+        assert not missing["identity"]["material_recovery_verified"]
+    finally:
+        session.close()
+
+
+def test_explicit_identity_is_preserved_during_and_after_inspection(tmp_path, geometry):
+    native = Native()
+    session = PerceptionSession(
+        "unused", recipe(), {}, tmp_path, sam_worker=Sam([[4], [9]]), p2p_worker=native
+    )
+    try:
+        session.select(4)
+        assert session.infer(sensor(4, 0))["identity"]["sam3_id"] == 4
+        missing = session.infer(sensor(25, 1))
+        assert missing["identity"]["sam3_id"] == 4 and missing["semantic_absent"]
+        assert not native.calls
+    finally:
+        session.close()

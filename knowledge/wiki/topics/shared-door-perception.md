@@ -462,6 +462,15 @@ relevant collision-space/response support remains a refusal. The global
 operational-v1 and historical complete-state qualification metrics are unchanged.
 
 
+## Automatic identity after inspection
+
+Automatic semantic identity is latched when the declared inspection permits
+reference initialization. Earlier single masks remain geometric previews, so a
+transient inspection ID cannot block the final supported reference. Explicit
+identity requests still latch immediately. Once selected, an absent identity is
+never replaced by another mask; material ownership, finite reference selection,
+static witnesses and loaded-contact admission remain independently required.
+
 ## Contact normal error origins
 
 The local plane constraint preserves the current measured plane centroid and its

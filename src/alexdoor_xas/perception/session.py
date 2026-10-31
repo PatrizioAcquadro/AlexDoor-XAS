@@ -241,7 +241,10 @@ class PerceptionSession:
             if self.identity is None:
                 if self.requested_identity is not None:
                     self.identity = self.requested_identity
-                elif len(ids) == 1:
+                elif len(ids) == 1 and (self.native is None or t >= self.initialize_after):
+                    # Automatic material selection belongs to the completed
+                    # inspection. A transient earlier mask is not a selected
+                    # identity; explicit requests still latch immediately.
                     self.identity = ids[0]
         present = self.identity is not None and self.identity in ids
         state = (
@@ -292,9 +295,19 @@ class PerceptionSession:
                     self.scan_memory.add(candidates, sensor, frame)
                     scan_snapshot = deepcopy(self.scan_memory)
                 self.next_geometry = t + self.config["semantic_period_s"]
-                if self.native is not None and present:
+                # Geometry can be inspected for an unambiguous current mask
+                # before its automatic identity is latched. A selected/requested
+                # identity that disappears may never use another mask instead.
+                reference_identity = (
+                    self.identity
+                    if present
+                    else ids[0]
+                    if self.identity is None and len(ids) == 1
+                    else None
+                )
+                if self.native is not None and reference_identity is not None:
                     selected_surfaces = [
-                        s for s in candidates if s.observations[0].semantic_id == self.identity
+                        s for s in candidates if s.observations[0].semantic_id == reference_identity
                     ]
                     with self.lock:
                         requested_surface = self.requested_surface
@@ -312,23 +325,23 @@ class PerceptionSession:
                         selected_surfaces = (
                             []
                             if reference is None
-                            or reference.observations[-1].semantic_id != self.identity
+                            or reference.observations[-1].semantic_id != reference_identity
                             else [
                                 s
                                 for s in selected_surfaces
                                 if registered_support(reference, s.observations[0])
                             ]
                         )
-                    mask = self.sam.all_masks[ids.index(self.identity)]
+                    mask = self.sam.all_masks[ids.index(reference_identity)]
                     options, _ = self.tracker.eligible_surfaces(selected_surfaces, sensor, mask)
                     geometric_choices = [
                         dict(
                             surface_id=s.surface_id,
-                            sam3_id=self.identity,
+                            sam3_id=reference_identity,
                             static_surface_ids=[
                                 old.surface_id
                                 for old in self.scan_memory.surfaces
-                                if old.observations[-1].semantic_id == self.identity
+                                if old.observations[-1].semantic_id == reference_identity
                                 and registered_support(old, s.observations[0])
                             ],
                             frame=frame,
