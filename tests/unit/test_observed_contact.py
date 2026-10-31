@@ -766,3 +766,62 @@ def test_repeated_callback_cannot_report_an_active_interval_as_a_supported_pause
     assert repeated.acquisition_active_s == 0
     next_tick = m.update(*inputs(1 + 2 / 60, force=0, step_m=0.0001))
     assert next_tick.acquisition_active_s == pytest.approx(1 / 60)
+
+
+@pytest.mark.parametrize("reference_y", [-0.02, -0.05])
+def test_direct_normal_pivot_covers_rotations_independently_of_selected_anchor(reference_y):
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.perception.admission import rotational_travel
+
+    now, estimate, tool, load, receipt = plane_inputs(1.0, force=0, reference_y=reference_y)
+    patch = estimate.local.patches[0]
+    pivot = tool.origin.copy()
+    angle, position = 0.03, 0.001
+    patch = replace(
+        patch,
+        normal_position_bound_m=position
+        + rotational_travel(np.linalg.norm(patch.world_pose.origin - pivot), angle),
+        normal_rotation_bound_rad=angle,
+    )
+
+    def measured(changed):
+        state = replace(estimate, local=replace(estimate.local, patches=(changed,)))
+        admitted = admit_local_action(
+            state, receipt.proposal, receipt.local_evidence, receipt.limits, now, generation=0
+        )
+        assert admitted.admitted
+        return plane_monitor().update(now, state, tool, load, admitted)
+
+    legacy = measured(patch)
+    sources = (("measured_plane", position, angle, tuple(pivot)),)
+    direct = measured(replace(patch, normal_uncertainty_sources=sources))
+    assert direct.status != "unavailable"
+    term = direct.decision["normal_primitive_terms_m"]["measured_plane"]
+    points = np.concatenate([face @ tool.rot.T + tool.origin for face in plane_monitor().faces])
+    for axis in np.eye(3):
+        for rotation in np.linspace(-angle, angle, 9):
+            changed = (points - pivot) @ Rotation.from_rotvec(axis * rotation).as_matrix().T + pivot
+            # Adversarial normal translation can reinforce rotational error.
+            assert np.max(np.linalg.norm(changed - points, axis=1)) + position <= term + 1e-14
+    assert direct.uncertainty_m < legacy.uncertainty_m
+    assert sum(
+        direct.decision["normal_uncertainty_terms_m"][name]
+        for name in (
+            "model",
+            "material_position",
+            "material_rotation",
+            "robot_position",
+            "robot_rotation",
+        )
+    ) == pytest.approx(direct.decision["normal_uncertainty_terms_m"]["total"])
+    # An omitted primitive cannot claim a tighter bound than its own producer.
+    incomplete = replace(
+        patch, normal_uncertainty_sources=(("measured_plane", 0.0, angle, tuple(pivot)),)
+    )
+    state = replace(estimate, local=replace(estimate.local, patches=(incomplete,)))
+    refused = admit_local_action(
+        state, receipt.proposal, receipt.local_evidence, receipt.limits, now, generation=0
+    )
+    assert not refused.admitted
+    assert refused.reason == "incomplete_normal_error_sources"

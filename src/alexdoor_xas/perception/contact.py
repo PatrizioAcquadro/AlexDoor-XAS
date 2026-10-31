@@ -251,6 +251,22 @@ class ObservedContactMonitor:
                 )
             else:
                 uncertainty = motion_uncertainty
+            normal_source_terms = {}
+            if patch.normal_uncertainty_sources:
+                # The same plane-angle error used to travel centroid -> anchor
+                # and then anchor -> fingers. Use its actual pivot once, rather
+                # than charging the sum of two correlated lever lengths.
+                for name, position, angle, origin in patch.normal_uncertainty_sources:
+                    lever = max(np.linalg.norm(face - origin, axis=1).max() for face in points)
+                    normal_source_terms[name] = position + rotational_travel(lever, angle)
+                uncertainty = (
+                    self.config.normal_model_bound_m
+                    + sum(normal_source_terms.values())
+                    + robot_position
+                    + rotational_travel(
+                        max(np.linalg.norm(f, axis=1).max() for f in self.faces), robot_rotation
+                    )
+                )
             margins = [
                 float(value) for name, value in admission.margins_m if name == patch.patch_id
             ]
@@ -285,15 +301,21 @@ class ObservedContactMonitor:
                 whole_robot_free=whole_robot_free,
                 admission_decision=admission.decision,
                 material_normal_range_m=admission.local_evidence.material_normal_range_m,
+                normal_primitive_terms_m=normal_source_terms,
                 normal_uncertainty_terms_m=dict(
                     model=self.config.normal_model_bound_m,
                     material_position=(
-                        patch.normal_position_bound_m
+                        sum(source[1] for source in patch.normal_uncertainty_sources)
+                        if normal_source_terms
+                        else patch.normal_position_bound_m
                         if normal_bounds
                         else patch.geometry_support.position_bound_m + support.position_bound_m
                     ),
                     material_rotation=(
-                        rotational_travel(radius, patch.normal_rotation_bound_rad)
+                        sum(normal_source_terms.values())
+                        - sum(source[1] for source in patch.normal_uncertainty_sources)
+                        if normal_source_terms
+                        else rotational_travel(radius, patch.normal_rotation_bound_rad)
                         if normal_bounds
                         else rotational_travel(radius, patch.geometry_support.rotation_bound_rad)
                         + rotational_travel(radius, support.rotation_bound_rad)

@@ -15,6 +15,8 @@ class SurfacePose:
     normal_position_bound_m: float
     normal_anchor_lever_m: float
     pairs: int
+    normal_origin_world: np.ndarray
+    normal_point_bound_m: float
 
 
 def _angle(a, b):
@@ -171,12 +173,13 @@ def constrained_surface_pose(
     correction = current_surface.offset - current_surface.normal @ world_anchor
     translation += cameras[1][:3, :3].T @ current_surface.normal * correction
     world_anchor += current_surface.normal * correction
-    normal_lever = float(np.linalg.norm(world_anchor - current_surface.points.mean(0)))
-    normal_position = (
+    normal_origin = current_surface.points.mean(0)
+    normal_lever = float(np.linalg.norm(world_anchor - normal_origin))
+    normal_point_bound = float(
         point_error_m
         + np.max(np.abs(current_surface.points @ current_surface.normal - current_surface.offset))
-        + 2 * normal_lever * np.sin(min(normal_error, np.pi) / 2)
     )
+    normal_position = normal_point_bound + 2 * normal_lever * np.sin(min(normal_error, np.pi) / 2)
     residual = np.linalg.norm(source @ rotation.T + translation - current, axis=1)
     pose = np.eye(4)
     pose[:3, :3], pose[:3, 3] = rotation, translation
@@ -189,4 +192,6 @@ def constrained_surface_pose(
         float(normal_position),
         normal_lever,
         len(source),
+        normal_origin,
+        normal_point_bound,
     )

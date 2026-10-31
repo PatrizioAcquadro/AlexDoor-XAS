@@ -951,6 +951,34 @@ class PanelTracking:
                     + 2 * camera_lever * np.sin(min(calibration_angle, np.pi) / 2)
                     + linear_growth
                 )
+            normal_sources = ()
+            if normal_position_bound is not None:
+                normal_sources = (
+                    (
+                        "measured_plane",
+                        constraint.normal_point_bound_m,
+                        constraint.normal_rotation_bound_rad,
+                        tuple(constraint.normal_origin_world.tolist()),
+                    ),
+                    (
+                        "normal_model",
+                        0.0,
+                        self.config["local_surface_constraint"]["normal_model_bound_rad"],
+                        tuple(constraint.normal_origin_world.tolist()),
+                    ),
+                    (
+                        "calibration_fk",
+                        calibration_position,
+                        calibration_angle,
+                        tuple(candidate.camera_world[:3, 3].tolist()),
+                    ),
+                    (
+                        "temporal_growth",
+                        linear_growth,
+                        angular_growth,
+                        tuple(candidate.pose[:3, 3]),
+                    ),
+                )
             pose_sources = ()
             if (
                 fresh
@@ -994,6 +1022,7 @@ class PanelTracking:
                     ownership=candidate.ownership,
                     normal_rotation_bound_rad=normal_rotation_bound,
                     normal_position_bound_m=normal_position_bound,
+                    normal_uncertainty_sources=normal_sources,
                     pose_temporal_position_m=next(
                         (s.position_m for s in frame_budget.sources if s.name == "temporal_growth"),
                         None,

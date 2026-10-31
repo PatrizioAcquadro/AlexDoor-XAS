@@ -129,6 +129,12 @@ class LocalPatchState:
     uncertainty_sources: tuple[tuple[str, float | None, float | None, float | None], ...] = ()
     normal_rotation_bound_rad: float | None = None
     normal_position_bound_m: float | None = None
+    # name, translation, angle, actual world rotation origin. Contact queries
+    # transport each primitive directly to the fingers, retaining its correlation
+    # across the plane centroid and selected material anchor.
+    normal_uncertainty_sources: tuple[
+        tuple[str, float, float, tuple[float, float, float]], ...
+    ] = ()
     # Same linear aging is included in pose_support and the normal-position bound
     # when present. Clocks remain acquisition clocks; this is one shared primitive.
     pose_temporal_position_m: float | None = None
@@ -194,6 +200,38 @@ def validate_local_contact(state, now, *, generation=None):
     patch.geometry_support.require_bounds(position=True, rotation=True)
     patch.pose_support.require_bounds(position=True, rotation=True)
     checked_pose(patch.world_pose)
+    if patch.normal_uncertainty_sources:
+        from alexdoor_xas.perception.admission import rotational_travel
+
+        position = angle = 0.0
+        names = set()
+        for name, translation, rotation, origin in patch.normal_uncertainty_sources:
+            origin = np.asarray(origin, float)
+            if (
+                not name
+                or name in names
+                or origin.shape != (3,)
+                or not np.isfinite(origin).all()
+                or not np.isfinite([translation, rotation]).all()
+                or min(translation, rotation) < 0
+            ):
+                raise ValueError("invalid_normal_error_source")
+            names.add(name)
+            position += translation + rotational_travel(
+                np.linalg.norm(patch.world_pose.origin - origin), rotation
+            )
+            angle += rotation
+        if (
+            patch.normal_position_bound_m is None
+            or patch.normal_rotation_bound_rad is None
+            or not np.allclose(
+                [position, angle],
+                [patch.normal_position_bound_m, patch.normal_rotation_bound_rad],
+                rtol=32 * np.finfo(float).eps,
+                atol=32 * np.finfo(float).eps,
+            )
+        ):
+            raise ValueError("incomplete_normal_error_sources")
     if any(c is None or not np.isfinite(c) or c <= 0 for c in patch.finger_clearance_m):
         raise ValueError("insufficient_observed_footprint")
     return patch

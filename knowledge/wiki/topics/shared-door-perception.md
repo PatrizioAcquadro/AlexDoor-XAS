@@ -460,3 +460,23 @@ view witnesses, separated frame/contact uncertainty and common observer/IO
 recipe checks are described in [[b1-policy-pilot|the pilot contract]]. Missing
 relevant collision-space/response support remains a refusal. The global
 operational-v1 and historical complete-state qualification metrics are unchanged.
+
+
+## Contact normal error origins
+
+The local plane constraint preserves the current measured plane centroid and its
+point-error term, alongside the existing bound at the selected material anchor.
+Published normal-error primitives retain measured-plane, model, camera-calibration
+and temporal pivots. Contact queries transport each primitive directly to the
+actual finite fingers once. Previously, the same normal-angle uncertainty travelled
+from plane centroid to anchor and again from anchor to fingers; their summed lever
+lengths made acquisition onset depend unnecessarily on the selected anchor.
+The producer's original scalar position/angular bounds are checked against the
+complete primitive list; incomplete or inconsistent lists remain unavailable.
+Legacy records without primitives retain their original conservative calculation.
+
+Numerical rigid-rotation and anchor-change checks cover the correction, with
+unchanged physical limits, positive-load requirements and search budgets. Its
+consequences for D2-DR acquisition and complete cycles still require measured
+validation. Broader pose/material uncertainty and D3/D4 full-path support remain
+separate open requirements.
