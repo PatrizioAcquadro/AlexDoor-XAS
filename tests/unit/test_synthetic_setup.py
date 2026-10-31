@@ -586,25 +586,28 @@ def test_push_ramp_can_match_initial_motion_without_chasing_future_coasting():
         ProbeSetup(support_gap_antiwindup="true")
 
 
-def test_guarded_qualification_feedback_holds_only_contradicted_unloading():
+def test_guarded_qualification_feedback_corrects_contradicted_unloading():
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, support_force_feedback
 
     setup = ProbeSetup(support_force_source="guarded_qualification_window")
     previous = dict(native_mean_normal_force_n=0.0)
     force, reason = support_force_feedback(0.2, previous, setup, "push")
-    assert (
-        force == setup.contact_load_guard_n
-        and reason == "qualification_window_stale_unloading_held"
-    )
+    assert force == 0.0 and reason == "qualification_window_contradicted_use_native"
     assert support_force_feedback(0.05, previous, setup, "push")[0] == 0.05
     previous["native_mean_normal_force_n"] = 0.3
     assert support_force_feedback(0.2, previous, setup, "push")[0] == 0.2
     previous["native_mean_normal_force_n"] = 0
     assert (
         support_force_feedback(0.2, previous, setup, "hold", target_force=setup.hold_force_n)[0]
-        == setup.hold_force_n
+        == 0.0
     )
     assert support_force_feedback(0.2, previous, setup, "contact")[0] == 0.2
+    from alexdoor_xas.qualification.synthetic_probe import normal_contact_support
+
+    # A stale above-target qualification window may not freeze pressure when
+    # the completed native interval has no force. Keep the same bounded gain.
+    assert normal_contact_support(0.0, force, setup, 1 / 60) > 0.0
+    assert normal_contact_support(0.0, setup.contact_load_guard_n, setup, 1 / 60) == 0.0
 
 
 def test_gap_recovery_can_be_one_pulse_without_changing_pressure_gain_or_limits():

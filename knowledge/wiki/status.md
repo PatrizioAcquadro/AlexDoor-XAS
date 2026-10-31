@@ -13,8 +13,9 @@ verification. A transfer-specific human approval covers code, TRAIN door/robot
 assets, configurations/calibration and perception runtimes; the retained D3
 diagnostic episode is transferred only to Blackwell. Scientific criteria and
 historical failures/charges remain unchanged. The old heartbeat remains PAUSED;
-manual finite jobs are accounted individually. A synchronized D2-RP diagnostic is
-running locally; no new condition is qualified yet.
+manual finite jobs are accounted individually. The synchronized D2-RP diagnostic reproduced its152.0s refusal with durable
+force/feedback evidence and passing independent stops. No new condition is
+qualified yet; shared perception/pressure corrections await complete-cycle checks.
 
 | Study | Retained result | Interpretation and canonical record |
 |---|---|---|

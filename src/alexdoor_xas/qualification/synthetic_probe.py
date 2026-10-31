@@ -371,7 +371,7 @@ def support_force_feedback(
         target = setup.contact_load_guard_n if target_force is None else target_force
         native = previous_trace["native_mean_normal_force_n"]
         if native < target < filtered_force:
-            return target, "qualification_window_stale_unloading_held"
+            return native, "qualification_window_contradicted_use_native"
         return filtered_force, "guarded_contact_qualification_window"
     return filtered_force, "contact_qualification_window"
 

@@ -383,3 +383,19 @@ three native-peak fault stops. Its initial moving speeds reach only 0.0353 rad/s
 actual approach/task-speed coverage remains under independent verification.
 The user subsequently removes the prerequisite case-count ceiling; resource
 budgets stay fixed.
+
+
+## Pressure feedback during qualified teacher collection
+
+The guarded pressure mode uses the completed native interval when its below-target
+force contradicts an above-target qualification window. Previously this branch
+returned the target itself and froze force-error correction, even for a zero-load
+interval. It now retains the bounded positive admittance response; gain, rate,
+extent, physical force limits and qualification windows stay unchanged. Other
+intervals use the qualification-window feedback, avoiding pressure withdrawal in
+response to a single impact above a still-low supported mean. Historical explicit
+native-interval recipes remain readable and retain their original behavior.
+The October31 D2-RP diagnostic reproduced the refusal at152.0s and retained
+intermittent zero native means with a0.03396N final physical window. The separate
+observed lower bound crossed zero. This resolves the missing-feedback question;
+it does not establish complete recovery under the corrected feedback mode.
