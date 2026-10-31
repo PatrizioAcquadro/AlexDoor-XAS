@@ -947,6 +947,7 @@ class PanelTracking:
                 if age is None or linear_speed is None
                 else age * linear_speed
             )
+            normal_sources = ()
             if (
                 normal_rotation_bound is not None
                 and calibration_position is not None
@@ -954,23 +955,6 @@ class PanelTracking:
                 and np.isfinite([calibration_position, linear_growth]).all()
                 and min(calibration_position, linear_growth) >= 0
             ):
-                camera_lever = np.linalg.norm(candidate.pose[:3, 3] - candidate.camera_world[:3, 3])
-                normal_position_bound = (
-                    constraint.normal_position_bound_m
-                    + 2
-                    * constraint.normal_anchor_lever_m
-                    * np.sin(
-                        min(
-                            self.config["local_surface_constraint"]["normal_model_bound_rad"], np.pi
-                        )
-                        / 2
-                    )
-                    + calibration_position
-                    + 2 * camera_lever * np.sin(min(calibration_angle, np.pi) / 2)
-                    + linear_growth
-                )
-            normal_sources = ()
-            if normal_position_bound is not None:
                 normal_sources = (
                     (
                         "measured_plane",
@@ -996,6 +980,14 @@ class PanelTracking:
                         angular_growth,
                         tuple(candidate.pose[:3, 3]),
                     ),
+                )
+                # Derive the aggregate at the actual published anchor. Repeating
+                # its camera/map transport separately can differ under native
+                # float32 calibration, even for the same measured primitive.
+                normal_position_bound = sum(
+                    translation
+                    + rotational_travel(np.linalg.norm(candidate.pose[:3, 3] - origin), angle)
+                    for _, translation, angle, origin in normal_sources
                 )
             pose_sources = ()
             if (

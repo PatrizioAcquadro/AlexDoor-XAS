@@ -120,3 +120,53 @@ def test_reobserved_support_uses_fresh_depth_after_native_material_motion():
     assert len(measured) > 5
     np.testing.assert_allclose(measured[:, 0], 1.03, atol=1e-12)
     assert np.all(candidate.surface.points[:, 0] == 1.0)
+
+
+@pytest.mark.parametrize("native_camera", [False, True])
+def test_published_normal_primitives_retain_contact_contract_after_camera_transport(native_camera):
+    from dataclasses import replace
+
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.perception.contracts import (
+        FieldSupport,
+        LocalContactSelection,
+        validate_local_contact,
+    )
+
+    tracker, candidate, sample, result = scene(perturbation=0.00015)
+    # Native registration misses a small measured normal translation; the plane
+    # constraint corrects it using the fresh depth rather than the native pose.
+    current = result["local_surfaces"][0]
+    current.points[:, 0] += 0.003
+    current.offset = float(current.normal @ current.points.mean(0))
+    sample["depth_m"][sample["depth_m"] < 1.5] += 0.003
+    if native_camera:
+        # The camera is a runtime float32 transform, rather than an exact
+        # orthogonal identity. Transport the actual observations consistently.
+        transform = np.eye(4)
+        transform[:3, :3] = Rotation.from_euler("zyx", [0.37, -0.19, 0.13]).as_matrix()
+        transform[:3, 3] = [0.27, -0.42, 0.31]
+        transform = transform.astype(np.float32).astype(float)
+        sample["camera_world"] = transform @ sample["camera_world"]
+        for surface in [candidate.surface, result["local_surfaces"][0]]:
+            surface.points[:] = surface.points @ transform[:3, :3].T + transform[:3, 3]
+            surface.normal[:] = transform[:3, :3] @ surface.normal
+            surface.offset = float(surface.normal @ surface.points.mean(0))
+        candidate.pose = transform @ candidate.pose
+        candidate.initial_world = transform @ candidate.initial_world
+        candidate.camera_world = sample["camera_world"].copy()
+    candidate.ownership = "observed_rigid_material"
+    candidate.support = FieldSupport(0.0, 0.0, 0.0, 0, 0.001, 0.001)
+    tracker.calibration_bound = (1.2e-5, 2.7e-5)
+    tracker.relative_speed_bound = (0.1, 0.15)
+    tracker.constrain_local(sample, result)
+    assert candidate.local_constraint is not None
+    state = tracker.local_state(0.0)
+    patch = replace(state.patches[0], finger_clearance_m=(0.1, 0.1))
+    state = replace(
+        state,
+        patches=(patch,),
+        selection=LocalContactSelection("zone", candidate.candidate_id, 0.0, "policy"),
+    )
+    assert validate_local_contact(state, 0.0) is patch

@@ -471,8 +471,10 @@ and temporal pivots. Contact queries transport each primitive directly to the
 actual finite fingers once. Previously, the same normal-angle uncertainty travelled
 from plane centroid to anchor and again from anchor to fingers; their summed lever
 lengths made acquisition onset depend unnecessarily on the selected anchor.
-The producer's original scalar position/angular bounds are checked against the
-complete primitive list; incomplete or inconsistent lists remain unavailable.
+The producer derives the scalar normal bound from those same primitives at the
+actual published anchor. This avoids a spurious mismatch when a fresh plane
+correction passes through a native float32 camera transform. The consumer still
+checks the complete list; omitted or inconsistent contributions remain unavailable.
 Legacy records without primitives retain their original conservative calculation.
 
 Numerical rigid-rotation and anchor-change checks cover the correction, with
