@@ -13,7 +13,7 @@ verification. A transfer-specific human approval covers code, TRAIN door/robot
 assets, configurations/calibration and perception runtimes; the retained D3
 diagnostic episode is transferred only to Blackwell. Scientific criteria and
 historical failures/charges remain unchanged. The old heartbeat remains PAUSED;
-manual finite jobs are accounted individually. The synchronized D2-RP diagnostic reproduced its152.0s refusal with durable
+manual finite jobs are accounted individually. The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. No new condition is
 qualified yet; shared perception/pressure corrections await complete-cycle checks.
 
@@ -56,15 +56,16 @@ Runtime/asset ownership and supported workflows are in
   cadence alone cannot repair it. D1-RV retains an unresolved inspection stall.
 - D2 height/placement cases expose full-path empirical support gaps after local
   component passes. D2-DR additionally retains progress/acquisition failures.
-  D2-RP late-hold physical load loss versus conservative observed support remains
-  unresolved; interval maxima cannot reconstruct missing native means.
+  D2-RP now has synchronized native means: intermittent physical support and
+  instantaneous feedback disagree during late hold; the complete-cycle effect
+  of the shared pressure correction remains unvalidated.
 - D3/D4 have no qualified same-door full control. Material/sweep support refusals
   establish neither collision nor physical infeasibility.
-- The first proposed measurement is one unchanged-recipe D2-RP diagnostic with
-  genuine prior history and synchronized native force/contact/feedback records.
-  It was explicitly authorized on October31 and is running with synchronized
-  diagnostics; its result is not yet available. The historical proposal belongs
-  to [[experiments/act-a1-complete-cycle-pause-diagnosis|the pause diagnosis]].
+- D3 matched saved-input replay and distinct elab runtime checks test the shared
+  perception correction. Full D3/D4 CAD path design includes the original height
+  and placement/posture variation; native load/stop and complete cycles remain
+  necessary. The historical discriminator proposal belongs to
+  [[experiments/act-a1-complete-cycle-pause-diagnosis|the pause diagnosis]].
 
 Final qualification still requires the unchanged geometric criteria, observed
 ownership and continuous motion/stop support, measured load/contact and independent

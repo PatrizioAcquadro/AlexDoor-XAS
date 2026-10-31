@@ -4,18 +4,20 @@
 
 Can four existing train doors supply 36 independently qualified full-cycle and
 real-history recovery conditions under the maintained controller, observed
-admission and fixed scientific criteria? **The campaign is incomplete and paused
-by the human on October 27, 2026: 10/36 qualified conditions, comprising eight
-ordinary cycles and two complete recoveries.** There are 29 full attempts: eight
+admission and fixed scientific criteria? **The campaign resumed by explicit human
+authorization on October 31, 2026, and remains incomplete: 10/36 qualified
+conditions, comprising eight ordinary cycles and two complete recoveries.** There are 29 full attempts: eight
 positive and 21 negative. Two qualified reused references plus eight new recordings
 fill the ten conditions. The new sources yield 45,556 overlapping windows, not
 45,556 independent demonstrations. Zero new optimizer updates; learned outcomes
 remain 0/22. Development collection, training and final test are excluded.
 
-The [[act-a1-complete-cycle-pause-diagnosis|pause diagnosis]] owns the current
-same-door comparisons, negative mechanisms and sole proposed discriminator.
-No collector, successor or allocation remained at closeout; the heartbeat is
-PAUSED. No new cycle, component test, retry or GPU job is authorized.
+The [[act-a1-complete-cycle-pause-diagnosis|pause diagnosis]] preserves the
+October 27 same-door comparisons and unavailable measurements. The unchanged
+D2-RP discriminator has now reproduced the same refusal at raw episode 152.0 s,
+with synchronized force/feedback evidence and both independent stops passing.
+It adds no qualified cell. Manual finite jobs now use local, Blackwell and
+elab2–5 under serialized device leases; the historical heartbeat remains PAUSED.
 
 The retained negative full attempts comprise eight position/load-support refusals,
 five perception/material/sweep refusals, two contact-load failures and one each of
@@ -110,18 +112,40 @@ domain and 80 N physical limit are unchanged. Native force peaks, filtered loads
 and operational upper estimates remain separate. An unloaded terminal stop does
 not qualify earlier loaded motion.
 
-These qualification rules describe the retained experiment; they do not authorize
-resumption. Shared instability or failed independent stopping blocks dependent
-execution. No unchanged retry-until-success is permitted.
+The October 31 resumption authorizes diagnosis, necessary corrections, qualification
+and completion of the agreed conditions. Shared instability or failed independent
+stopping blocks dependent execution. No unchanged retry-until-success is permitted.
 
 
+
+## Resumed shared mechanisms and validation
+
+Measured normal errors now propagate directly from their observed plane/model/FK
+pivots to the finite fingers, without applying the same angular error through two
+anchor legs. Current material-plane selection considers every root-consistent,
+valid synchronized component and minimizes propagated contact uncertainty rather
+than maximizing mask area. Equal best constraints remain ambiguous; identity,
+pair residual and finite-geometry gates are unchanged.
+
+The guarded pressure recipe now restores bounded positive correction when current
+native force is below target while the qualification window still contains old
+load. Legacy explicit recipes remain readable. No physical load, gain, rate,
+contact-search, hold, opening or safety limit changed. These mechanisms are
+implemented through `d538fb8` and await complete-cycle validation. Host deployment
+failures and the negative D2-RP diagnostic remain preserved with full costs.
+
+A GPU CAD planning screen compares complete D3/D4 approach/opening/withdrawal paths
+and the original height/placement/posture variations. This is planning evidence,
+not observed admission, collision clearance, load/stop qualification or a new
+positive source. Any selected placement still requires native whole-path support.
 
 ## Resources, archival and closeout
 
 The latest historical authorization removes cumulative GPU-hour, allocation-count
 and retained-data administrative ceilings. It does not remove physical safety,
 scientific admission, actual disk-capacity checks or finite per-job watchdogs.
-The subsequent human pause supersedes execution authority. Earlier 12 GPUh,
+The historical pause is preserved; October 31 authorization restores execution
+within the same scientific scope. Earlier 12 GPUh,
 60-launch and 200 GiB values remain historical, not reinstated active caps.
 
 The recorded precampaign baseline is 44.930708 local/31.823056 remote GPUh,
@@ -134,9 +158,11 @@ These dated scenarios are neither guarantees nor restart permission.
 
 Original ownership rules retain the shared local lease, named owner, exact device
 UUID and complete process-group cleanup. Idle hardware or elapsed estimates do
-not transfer ownership. Final authority restricts new acquisition to the local
-RTX 4090/storage; earlier Blackwell compatibility attempts remain historical.
-No current remote job or replica is authorized. Default watchdogs are 2400 wall/
+not transfer ownership. Current authority includes the local
+RTX 4090, Blackwell and elab2–5, with explicit transfer approval for source, four
+TRAIN doors, robot assets, configurations/calibration and perception runtimes.
+Remote deployment is not scientific equivalence. Fresh host/runtime checks,
+matched observed-input diagnostics and full-cycle attempts retain separate counts. Default watchdogs are 2400 wall/
 240 physics seconds; the reviewed D2-DR 180 s push instead has 2500 wall/250 physics
 seconds. Existing stall/termination/cleanup reserves and physical criteria remain.
 These are retained case declarations, not permission to run them.
