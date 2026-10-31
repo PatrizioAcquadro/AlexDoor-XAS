@@ -4,13 +4,17 @@ The maintained project is the Purdue B1 simulation and learning stack for the
 A1–A4 × ACT/Diffusion door benchmark. Software capability, teacher evidence,
 learned behavior and physical qualification are separate claims.
 
-## Current pause and measured outcomes
+## Current execution and measured outcomes
 
-**Collection and all new GPU work remain paused by direct human instruction on
-October 27, 2026.** The recorded closeout has no active collector, queued successor
-or open allocation; the existing heartbeat is PAUSED. Cleanup does not authorize
-resumption, a retry, training or simulation. Controller, calibration, physical
-limits and scientific criteria remain unchanged.
+**Collection resumed by explicit human authorization on October 31, 2026**, in
+worktree `23f1` on `PatrizioAcquadro/b1-policy-pilot`. The same scope now permits
+local, Blackwell and elab2–5 jobs after access, resource ownership and runtime
+verification. A transfer-specific human approval covers code, TRAIN door/robot
+assets, configurations/calibration and perception runtimes; the retained D3
+diagnostic episode is transferred only to Blackwell. Scientific criteria and
+historical failures/charges remain unchanged. The old heartbeat remains PAUSED;
+manual finite jobs are accounted individually. A synchronized D2-RP diagnostic is
+running locally; no new condition is qualified yet.
 
 | Study | Retained result | Interpretation and canonical record |
 |---|---|---|
@@ -20,7 +24,7 @@ limits and scientific criteria remain unchanged.
 | Diverse teacher campaign | 112/112 originally declared scopes qualified; 96 short train, 8 complete train, 8 development | Later full-source audit finds native pre-release losses in 7 of its 8 complete train sources. Original masks/scopes and outcomes remain. [[experiments/act-a1-diverse-collection|Collection]] |
 | Complete-source audit | 15 complete-phase sources: 7 continuous, 8 with masked losses; 2 executable references, 5 current qualification candidates, 8 useful segment sources | Original selections and normalization unchanged. Missing current qualification is not a proven defect. [[experiments/act-a1-complete-demonstration-audit|Audit]] |
 
-The collection pause snapshot retains 8.5416 aggregate GPUh across 61 closed
+The preserved collection pause snapshot retains 8.5416 aggregate GPUh across 61 closed
 allocations. Earlier training/pilot accounting belongs to each experiment and
 must not be added again or reset. Storage figures are dated observations;
 [[experiments/act-a1-complete-cycle-pause-diagnosis|the pause diagnosis]] owns
@@ -45,7 +49,7 @@ Runtime/asset ownership and supported workflows are in
 [[topics/learned-policy-stack|policies]] and
 [[topics/act-a1-observations-and-time|temporal ACT]].
 
-## Open questions and next decision
+## Open questions and current work
 
 - D1-H- ends without native normal load. D1-P lacks observed material margin;
   cadence alone cannot repair it. D1-RV retains an unresolved inspection stall.
@@ -57,8 +61,9 @@ Runtime/asset ownership and supported workflows are in
   establish neither collision nor physical infeasibility.
 - The first proposed measurement is one unchanged-recipe D2-RP diagnostic with
   genuine prior history and synchronized native force/contact/feedback records.
-  It is unexecuted and unauthorized; its exact question and stopping rule belong
-  to [[experiments/act-a1-complete-cycle-pause-diagnosis|the diagnosis]].
+  It was explicitly authorized on October31 and is running with synchronized
+  diagnostics; its result is not yet available. The historical proposal belongs
+  to [[experiments/act-a1-complete-cycle-pause-diagnosis|the pause diagnosis]].
 
 Final qualification still requires the unchanged geometric criteria, observed
 ownership and continuous motion/stop support, measured load/contact and independent

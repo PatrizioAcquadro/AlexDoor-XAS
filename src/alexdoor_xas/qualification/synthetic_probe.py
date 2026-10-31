@@ -1005,6 +1005,8 @@ def run_probe(
                 closed_gripper_error_m=closed_error,
                 force=force,
                 native_mean_normal_force_n=float(np.mean(sample_forces)),
+                native_normal_forces_n=sample_forces,
+                native_contact_separations_m=gaps,
                 filtered_force_n=contact_load.force,
                 normal_control_feedback=normal_feedback
                 if phase in ("contact", "push", "hold")

@@ -36,14 +36,15 @@ Pilot preparation references these retained originals by default; explicit
 
 Temporal teacher recordings also retain `teacher-trace.jsonl` beside the raw
 episode. Each completed transition flushes its actual clock/generation and
-separate privileged diagnostics, including native force mean and pressure-control
-feedback. A subsequent refusal or snapshot error leaves those completed records
+separate privileged diagnostics, including native force mean, each physics-substep normal force and contact
+separation, and pressure-control feedback. A subsequent refusal or snapshot error leaves those completed records
 readable; orderly recording close flushes/closes the sidecar before model teardown.
 Nonfinite diagnostic values serialize as null while raw arrays and masks retain
 their original values. This file is outside the observation/target reader and
 confers no completion or source eligibility. Historical missing traces remain
 unavailable. CPU lifecycle checks cover normal and exceptional transitions;
-native use is still pending.
+the resumed D2-RP diagnostic exercises the mean/feedback journal; the newly
+added per-substep force/separation fields still require native validation.
 
 ## Matched Policy Data
 
