@@ -170,3 +170,33 @@ def test_published_normal_primitives_retain_contact_contract_after_camera_transp
         selection=LocalContactSelection("zone", candidate.candidate_id, 0.0, "policy"),
     )
     assert validate_local_contact(state, 0.0) is patch
+
+
+@pytest.mark.parametrize("radius_m", [0.0, 0.02])
+def test_normal_primitives_cover_complete_robot_spheres_without_anchor_detour(radius_m):
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.perception.admission import rotational_travel
+    from alexdoor_xas.perception.material_zone import normal_uncertainty_terms
+
+    centers = np.array([[0.03, -0.02, 1.1], [0.02, 0.01, 1.08]])
+    origin = np.array([0.01, -0.03, 1.09])
+    translation, angle = 0.001, 0.04
+    source = (("plane", translation, angle, tuple(origin)),)
+    bound = normal_uncertainty_terms(source, centers, radius_m)["plane"]
+    directions = np.concatenate([np.eye(3), -np.eye(3)])
+    points = np.concatenate([c + radius_m * directions for c in centers])
+    for axis in directions:
+        for value in np.linspace(-angle, angle, 11):
+            changed = (points - origin) @ Rotation.from_rotvec(axis * value).as_matrix().T + origin
+            assert np.linalg.norm(changed - points, axis=1).max() + translation <= bound + 1e-14
+    # Both distant selected anchors describe the same physical primitive. Their
+    # two-leg bounds must not replace the direct finite-volume bound.
+    for anchor in [np.array([0.01, 0.5, 1.09]), np.array([0.01, -0.5, 1.09])]:
+        old = translation + rotational_travel(np.linalg.norm(anchor - origin), angle)
+        old += rotational_travel(np.linalg.norm(centers - anchor, axis=1).max() + radius_m, angle)
+        assert old > bound
+    shifted = normal_uncertainty_terms(
+        (("plane", translation, angle, tuple(origin + 2)),), centers + 2, radius_m
+    )
+    assert shifted["plane"] == pytest.approx(bound)

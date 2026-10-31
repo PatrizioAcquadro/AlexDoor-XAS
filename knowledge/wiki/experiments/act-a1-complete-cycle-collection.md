@@ -6,8 +6,8 @@ Can four existing train doors supply 36 independently qualified full-cycle and
 real-history recovery conditions under the maintained controller, observed
 admission and fixed scientific criteria? **The campaign resumed by explicit human
 authorization on October 31, 2026, and remains incomplete: 10/36 qualified
-conditions, comprising eight ordinary cycles and two complete recoveries.** There are 29 full attempts: eight
-positive and 21 negative. Two qualified reused references plus eight new recordings
+conditions, comprising eight ordinary cycles and two complete recoveries.** The
+retained pause baseline has 29 full attempts: eight positive and 21 negative. Two qualified reused references plus eight new recordings
 fill the ten conditions. The new sources yield 45,556 overlapping windows, not
 45,556 independent demonstrations. Zero new optimizer updates; learned outcomes
 remain 0/22. Development collection, training and final test are excluded.
@@ -132,7 +132,25 @@ native force is below target while the qualification window still contains old
 load. Legacy explicit recipes remain readable. No physical load, gain, rate,
 contact-search, hold, opening or safety limit changed. These mechanisms are
 implemented through `d538fb8` and await complete-cycle validation. Host deployment
-failures and the negative D2-RP diagnostic remain preserved with full costs.
+failures and every resumed negative remain preserved with full costs. Resumed
+complete candidates and nominal regressions are listed separately in
+`outputs/evidence/act-a1-complete-cycle-20261026/resumed-full-attempts-20261031.json`.
+They add no positive source before independent raw/stop and temporal review.
+
+The first corrected D2-RP candidate still refuses observed load after 2.883 s
+of the required 3 s hold. The prospective pressure-v2 recipe keeps the existing
+0.1 N acquisition request through hold, instead of reducing it to 0.05 N before
+intentional release. A saved-state GPU check also finds already-commanded normal
+motion greater than the gap during D1 chatter; enabling the existing pending-motion
+compensation avoids counting that correction twice. Neither change reduces a
+load/admission threshold, required duration or physical stopping domain. Full
+nominal and recovery validation is still pending.
+
+A D3 matched observed-prefix replay restores initialization/tracking by choosing
+automatic semantic identity after inspection. Explicit and already-selected IDs
+remain pinned. D4's refused finger sphere has support from both static background
+groups; foreground separation remains a separate proof, including finite relief,
+pose and complete stop uncertainty.
 
 A GPU CAD planning screen compares complete D3/D4 approach/opening/withdrawal paths
 and the original height/placement/posture variations. This is planning evidence,

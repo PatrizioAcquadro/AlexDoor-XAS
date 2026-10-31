@@ -18,7 +18,11 @@ from alexdoor_xas.perception.contact_geometry import distal_body_order, observed
 from alexdoor_xas.perception.contracts import FieldSupport, validate_local_contact
 from alexdoor_xas.perception.evaluation import json_safe
 from alexdoor_xas.perception.local_admission import LocalActionSupport, admit_local_action
-from alexdoor_xas.perception.material_zone import object_frame, pose_matrix
+from alexdoor_xas.perception.material_zone import (
+    normal_uncertainty_terms,
+    object_frame,
+    pose_matrix,
+)
 from alexdoor_xas.perception.scan import ObservedSpace, footprint_support
 from alexdoor_xas.perception.workspace import (
     CommonWorkspace,
@@ -300,9 +304,17 @@ class PilotMotionEvidence:
                 )
                 raise ValueError("robot_cover_query_budget_exhausted")
             local_lever = float(np.linalg.norm(center - patch.world_pose.origin) + radius)
+            normal_error = (
+                sum(
+                    normal_uncertainty_terms(
+                        patch.normal_uncertainty_sources, center[None], radius
+                    ).values()
+                )
+                if patch.normal_uncertainty_sources
+                else patch.normal_position_bound_m + local_lever * patch.normal_rotation_bound_rad
+            )
             error = (
-                patch.normal_position_bound_m
-                + local_lever * patch.normal_rotation_bound_rad
+                normal_error
                 + self.config["normal_model_bound_m"]
                 + temporal_p
                 + local_lever * temporal_a

@@ -25,6 +25,25 @@ def transported_zone(camera_world, camera_from_map, map_from_object, object_from
     return camera_world @ camera_from_map @ map_from_object @ object_from_zone
 
 
+def normal_uncertainty_terms(sources, points, radius_m=0.0):
+    """Transport validated normal-error primitives to points or complete spheres."""
+    points = np.asarray(points, float)
+    if (
+        points.ndim != 2
+        or points.shape[1:] != (3,)
+        or not len(points)
+        or not np.isfinite(points).all()
+        or not np.isfinite(radius_m)
+        or radius_m < 0
+    ):
+        raise ValueError("invalid_normal_query_geometry")
+    return {
+        name: position
+        + rotational_travel(np.linalg.norm(points - origin, axis=1).max() + radius_m, angle)
+        for name, position, angle, origin in sources
+    }
+
+
 @dataclass(frozen=True)
 class BoundSource:
     name: str

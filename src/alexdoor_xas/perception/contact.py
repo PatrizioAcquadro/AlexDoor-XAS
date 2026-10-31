@@ -8,6 +8,7 @@ import numpy as np
 from alexdoor_xas.action.b1 import checked_pose
 from alexdoor_xas.perception.admission import require_current_admission, rotational_travel
 from alexdoor_xas.perception.contracts import POSE_ROUNDOFF, validate_local_contact
+from alexdoor_xas.perception.material_zone import normal_uncertainty_terms
 
 
 @dataclass(frozen=True)
@@ -256,9 +257,9 @@ class ObservedContactMonitor:
                 # The same plane-angle error used to travel centroid -> anchor
                 # and then anchor -> fingers. Use its actual pivot once, rather
                 # than charging the sum of two correlated lever lengths.
-                for name, position, angle, origin in patch.normal_uncertainty_sources:
-                    lever = max(np.linalg.norm(face - origin, axis=1).max() for face in points)
-                    normal_source_terms[name] = position + rotational_travel(lever, angle)
+                normal_source_terms = normal_uncertainty_terms(
+                    patch.normal_uncertainty_sources, np.concatenate(points)
+                )
                 uncertainty = (
                     self.config.normal_model_bound_m
                     + sum(normal_source_terms.values())

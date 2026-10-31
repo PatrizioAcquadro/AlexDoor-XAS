@@ -477,7 +477,10 @@ The local plane constraint preserves the current measured plane centroid and its
 point-error term, alongside the existing bound at the selected material anchor.
 Published normal-error primitives retain measured-plane, model, camera-calibration
 and temporal pivots. Contact queries transport each primitive directly to the
-actual finite fingers once. Previously, the same normal-angle uncertainty travelled
+actual finite fingers and complete robot sweep spheres once. The foreground
+separation proof uses the same primitive propagation; finite relief/tangent
+envelopes, background rays, future growth and complete stopping bounds remain
+independent requirements. Previously, the same normal-angle uncertainty travelled
 from plane centroid to anchor and again from anchor to fingers; their summed lever
 lengths made acquisition onset depend unnecessarily on the selected anchor.
 The producer derives the scalar normal bound from those same primitives at the
