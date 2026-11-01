@@ -63,14 +63,27 @@ The first full lower D3-N source then refuses ambiguous observed leaf ownership
 before any approach command: the late selected semantic ID has only one real
 finite-material witness. Independent stops pass; no source or labels are admitted.
 Its original P placement still fails pedestal CAD and is excluded; passing the
-robot component adds no matrix cell.
+robot component adds no matrix cell. A separate GPU replay of saved10Hz inputs
+also yields only one independent material witness. It is a sensitivity study,
+not an exact reproduction of native30Hz semantic history. Its first four views
+have no mask, the21s view lacks finite two-finger support, and the useful18/25s
+camera origins are too close for independent support. One prospective stationary
+inspection component retains all seven views and adds three bounded head
+orientations; it stops before any arm proposal. Calibration, identity and the
+three-view criterion remain unchanged.
 
 D4 fresh geometry at30Hz passes the prior raw27.683s sweep refusal, then stops
 at27.833s when computed0.422mm growth exceeds the remaining0.194mm separation
 margin. Raw integrity, feedback and2+4s stops pass; the source remains negative.
-A controlled28.2s diagnostic records the exact live receipt and updated estimate;
-it cannot qualify a full cycle. Recorded policy RGB-D remains10Hz, so a saved
-10Hz replay must not be called an exact reproduction of the30Hz geometry history.
+The controlled diagnostic instead admits153approach commands and refuses an
+unsupported finger sweep at27.95s. It never encounters the earlier response
+refusal, so the exact old receipt is not captured and no aging-credit defect is
+established. Its raw feedback and2+4s stops independently pass; it adds no matrix
+attempt, source or labels. The intended28.2s protocol-level cap was shadowed by
+the selected episode's240s cap; the outer watchdog remained finite and the actual
+refusal preceded28.2s. Subsequent diagnostic plans set the effective per-episode
+budget and an explicit pre-proposal stop. Recorded RGB-D remains10Hz, so saved
+input replay cannot establish exact30Hz history.
 
 ## Agreed coverage and present evidence
 
