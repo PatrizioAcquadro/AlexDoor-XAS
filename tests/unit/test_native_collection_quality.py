@@ -336,3 +336,47 @@ def test_C_cleanup_stays_physical_but_never_crosses_supervised_chunks(collection
     with h5py.File(path, "r+") as file:
         file["evaluator/phase"][120:144] = metadata["phase_names"].index("hold")
     assert not review_native_collection(path)["required_scope_coverage"]
+
+
+@pytest.mark.parametrize("initial_state", [False, True])
+def test_initialization_failure_preserves_original_outcome_without_command_streams(
+    tmp_path, initial_state
+):
+    path = tmp_path / "initialization-failure.hdf5"
+    log = temporal_recorder(path)
+    log.file["metadata"].attrs["arm_effort_limits_nm"] = json.dumps([100] * 7)
+    log.reset(0)
+    if initial_state:
+        log.feedback(np.ones(7), acquired=0, available=0, healthy=True, generation=0)
+        log.state(np.zeros(9), np.zeros(9), acquired=0, available=0, generation=0)
+    outcome = dict(passed=False, termination="collection_exception", error="missing_runtime_input")
+    log.interrupt(outcome)
+    log.close()
+    report = review_native_collection(path)
+    assert report["integrity_passed"] and not report["complete"]
+    assert report["states"] == int(initial_state)
+    assert report["native_torque_samples"] == int(initial_state)
+    assert report["expected_native_torque_samples"] == int(initial_state)
+    assert report["duration_s"] == (0 if initial_state else None)
+    assert report["outcome"] == outcome
+    assert report["commands"] == report["eligible_commands"] == report["training_windows"] == 0
+    assert not report["data_usable"] and not report["full_task_success"]
+    assert not report["required_scope_coverage"] and not report["full_demonstration_coverage"]
+    with h5py.File(path) as file:
+        assert not list(file["commands"]) and not list(file["evaluator"])
+        assert json.loads(file["metadata"].attrs["outcome"]) == outcome
+
+
+def test_empty_claimed_completion_cannot_qualify_a_demonstration(tmp_path):
+    path = tmp_path / "empty-claimed-completion.hdf5"
+    log = temporal_recorder(path)
+    log.file["metadata"].attrs["arm_effort_limits_nm"] = json.dumps([100] * 7)
+    log.reset(0)
+    log.feedback(np.ones(7), acquired=0, available=0, healthy=True, generation=0)
+    log.state(np.zeros(9), np.zeros(9), acquired=0, available=0, generation=0)
+    log.finish(dict(passed=True, released=True, stabilized=True, termination="incorrect_claim"))
+    log.close()
+    report = review_native_collection(path)
+    assert "empty_complete_recording" in report["errors"]
+    assert not report["integrity_passed"] and not report["full_task_success"]
+    assert not report["data_usable"] and report["training_windows"] == 0

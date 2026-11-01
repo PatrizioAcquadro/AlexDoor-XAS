@@ -20,6 +20,8 @@ def teacher_eligibility(file):
     commands, evaluator = file["commands"], file["evaluator"]
     n = len(commands.get("accepted", ()))
     result = np.zeros(n, bool)
+    if not n:
+        return result
     outcome = json.loads(file["metadata"].attrs.get("outcome", "{}"))
     metadata = json.loads(file["metadata"].attrs["episode"])
     subtask = metadata.get("subtask")
@@ -110,6 +112,7 @@ def validate_native_recording(path):
             for gen in np.unique(g):
                 require(bool(np.all(np.diff(a[g == gen]) > 0)), "regressed_acquisition")
         complete = bool(file.attrs["complete"])
+        require(not complete or n > 0, "empty_complete_recording")
         require(count == n + 1 if complete else count in (n, n + 1), "state_command_alignment")
         if n:
             times = command["state_acquired_s"][:]
@@ -181,9 +184,10 @@ def validate_native_recording(path):
         substeps = control_dt / sim_dt
         if not np.isfinite(substeps) or substeps < 1 or not np.isclose(substeps, round(substeps)):
             raise ValueError("Nonintegral recorded physics cadence")
-        expected_feedback = 1 + round(substeps) * (count - 1)
-        tau = feedback["torque_nm"][:]
-        healthy = feedback["healthy"][:] & np.isfinite(tau).all(axis=1)
+        expected_feedback = max(0, 1 + round(substeps) * (count - 1))
+        tau = np.asarray(feedback.get("torque_nm", np.empty((0, 7))))
+        healthy = np.asarray(feedback.get("healthy", np.zeros(len(tau), bool)))
+        healthy &= np.isfinite(tau).all(axis=1)
         limits = np.asarray(json.loads(file["metadata"].attrs["arm_effort_limits_nm"]))
         eligible = teacher_eligibility(file)
         return dict(
@@ -213,11 +217,11 @@ def validate_native_recording(path):
             ),
             eligible_commands=int(eligible.sum()),
             diagnostic_commands=int(n - eligible.sum()),
-            duration_s=float(state["acquired"][-1]),
+            duration_s=float(state["acquired"][-1]) if count else None,
             native_feedback_coverage_complete=len(tau) == expected_feedback,
             source_group=metadata.get("family", metadata.get("asset_id")),
-            physical_safe_commands=int(file["evaluator/physical_safe"][:].sum()),
-            unsafe_commands=int((~file["evaluator/physical_safe"][:]).sum()),
+            physical_safe_commands=int(file["evaluator/physical_safe"][:].sum()) if n else 0,
+            unsafe_commands=int((~file["evaluator/physical_safe"][:]).sum()) if n else 0,
             terminal_support=bool(file["metadata"].attrs.get("terminal_support", complete)),
             outcome=json.loads(file["metadata"].attrs.get("outcome", "{}")),
         )
@@ -249,6 +253,22 @@ def review_native_collection(path):
     )
 
     report = validate_native_recording(path)
+    if not report["commands"]:
+        # Initialization can retain a real initial observation before failing.
+        # No command/evaluator streams or causal action windows exist yet.
+        return dict(
+            report,
+            data_usable=False,
+            required_scope_coverage=False,
+            full_demonstration_coverage=False,
+            full_task_success=False,
+            training_windows=0,
+            usable_window_ranges=[],
+            reviewed_command_ranges=[],
+            phase_coverage=[],
+            transitions=[],
+            reason="no_recorded_commands",
+        )
     with h5py.File(path, "r") as file:
         eligible = teacher_eligibility(file)
         metadata = json.loads(file["metadata"].attrs["episode"])

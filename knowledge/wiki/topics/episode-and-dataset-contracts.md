@@ -31,6 +31,12 @@ small numeric/text columns by at most 128 rows. It drains before each unchanged
 checks. Orderly interruption drains buffered values while retaining complete=False;
 a write failure cannot retry a partial drain or publish completion. Raw values,
 including NaN payloads, unavailable feedback and failed outcomes, remain unchanged.
+Native teacher quality review also retains initialization failures with zero
+commands and zero or one actual initial state. Missing command/evaluator streams
+then yield zero eligible labels/windows, unavailable duration when no state exists,
+and the unchanged original outcome. This diagnostic result never qualifies a
+source; an empty claimed completion fails integrity. Review must not overwrite
+the initial failure with a missing-command-field exception.
 Pilot preparation references these retained originals by default; explicit
 `--copy-raw` creates a self-contained export for transfer.
 

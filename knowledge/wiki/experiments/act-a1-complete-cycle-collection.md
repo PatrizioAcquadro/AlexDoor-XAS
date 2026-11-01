@@ -1013,6 +1013,19 @@ seconds. This qualifies parked placement only. The
 [independent actual-scene review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab5/D1-common-lateral-P-parked-geometry-elab5-20261101/independent-review.json)
 adds no material identity, full observed motion/contact, source or model adoption.
 
+The first four stationary acquisition components remain separate initialization
+outcomes. Three stop before any command because the prepared robot-only recipe
+still names local runtime files absent on the remote hosts. The dependent P
+component is suspended with SIGINT under its owned lease. A subsequent quality
+review also dereferenced missing zero-command evaluator fields, masking the
+original cause in its outer report. Original HDF5 outcomes recover that cause;
+all partial files, interruptions and costs remain. The shared quality reader now
+preserves zero-command initialization outcomes without fabricating phase support
+or usable windows. Remote successors require all consumed geometry, load,
+interface, model and workspace paths to pass host preflight; no physical or
+observation criterion changes and no unchanged scientific retry follows.
+
+
 
 ## Resources, archival and closeout
 
