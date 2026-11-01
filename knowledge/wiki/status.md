@@ -100,7 +100,12 @@ Runtime/asset ownership and supported workflows are in
   refuses an uncertified positive-finger sweep/stop volume. The observed whole
   foreground model leaves a negative0.313mm calculated margin; no threshold is
   relaxed. All raw/native feedback and2+4s stops pass. Neither full source qualifies;
-  improve complete foreground/background support before dependent D4 attempts.
+  improve complete foreground/background support before dependent D4 attempts. A new
+  saved-pose coupled convex-motion discriminator preserves all original errors
+  and proves14foreground volumes plus11matching background root volumes, including
+  both fingers; three shoulder boxes remain unknown. No actor changes or full
+  motion/contact qualification follow. Validate complete background and associate
+  receipt growth with the same convex proof before native adoption.
   Exact reconstruction from seven actual inspection samples reproduces every
   original front-model count and bound; a spatial union retaining the same
   reserve also fails to exclude the refused sphere. No new model is adopted.

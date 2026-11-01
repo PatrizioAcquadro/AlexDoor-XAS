@@ -398,6 +398,21 @@ no physical collision or admissible current-ray fallback is inferred. Actual
 RGB at the terminal prefix was inspected. No complete contact/source, labels or
 windows qualify, and dependent unchanged D4 motion stays suspended.
 
+A separate saved-pose mathematical discriminator replaces only the loose
+spherical support calculation with a coupled Jacobian enclosure and an analytical
+suffix-length Taylor remainder. It keeps the same acceleration box, full stop
+box/frame rotation, robot/jaw errors and every original normal/model/temporal/front
+bound. All14complete foreground shape volumes pass at the original refusal.
+A matching convex-background query retains all16,384generated vertices per shape
+and passes eleven shapes, including both fingers with minimum6.235mm margin;
+three shoulder-root boxes remain unknown. The first CPU verifier's NumPy-boolean
+serialization failure is preserved; the corrected version keeps all vertices
+without numerical hull reduction. These saved-state results change no actor,
+original outcome, mask or denominator. General chain-depth/perturbation, complete
+background, correctly associated receipt-growth, full guarded-motion/contact and
+related-condition qualification remain necessary before adopting this candidate.
+A convex proof never establishes free space for its larger enclosing sphere.
+
 The separate D4 robot-only component independently passes all69,744native samples
 of N/H+/H-/P through the frozen50.146446degree task opening, original3s hold and6s
 achieved-pose staged release under constant0.3N diagnostic loading. It preserves
