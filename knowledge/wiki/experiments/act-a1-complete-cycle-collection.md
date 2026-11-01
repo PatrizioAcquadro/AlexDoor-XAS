@@ -1002,6 +1002,18 @@ contact, production region/target adoption or an observed source. The
 and [maintained hold-contract audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab3/D1-common-lateral-calibrated-target-native-family-elab3-20261101/independent-hold-contract-review.json)
 retain both the extra proxy refusal and these qualification boundaries.
 
+A distinct actual P scene probe on elab5 independently passes native converted-
+pedestal/contact-footprint geometry, reset/visibility, actual RGB and the original
+single-latch 6 s/14-shape unloaded stops. Measured floor variation is
+(+20.0005,+25.0002) mm and +3.99992 degrees relative to the common N root;
+shoulder/elbow deltas remain -0.05/+0.04 rad. All feedback, radial/directional/
+rotation/joint/tool/speed/acceleration/force and frozen residual gates pass.
+Whole transfer and cleanup pass; native/reviewer costs are 97.155/9.055 GPU
+seconds. This qualifies parked placement only. The
+[independent actual-scene review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab5/D1-common-lateral-P-parked-geometry-elab5-20261101/independent-review.json)
+adds no material identity, full observed motion/contact, source or model adoption.
+
+
 ## Resources, archival and closeout
 
 The latest historical authorization removes cumulative GPU-hour, allocation-count

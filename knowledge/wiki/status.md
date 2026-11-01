@@ -74,9 +74,11 @@ Runtime/asset ownership and supported workflows are in
   position support needs no extension. An inherited extra whole-hold drift proxy
   refuses H-; its failure remains, while the maintained final 0.5 s stability
   checks pass at the same 2.5 mm threshold. This 0.3 N fixture qualifies neither
-  actual observed material/contact nor the P scene/floor/camera variation;
-  production contact-region/target adoption and complete observed support remain
-  pending. D1-RV
+  actual observed material/contact or full P scene motion. A separate actual P
+  placement probe now qualifies converted geometry, reset/visibility and original
+  continuous 6 s/14-shape unloaded stops, preserving +20/+25 mm, +4 degrees and
+  the original posture deltas. Production contact-region/target adoption and
+  complete observed support remain pending. D1-RV
   independently qualifies actual disturbance, joint braking, return and the complete
   cycle; its earlier inspection and shoulder-support failures remain preserved.
 - All nine D2 conditions are qualified. The distinct observed H+ source on
