@@ -376,6 +376,17 @@ def support_force_feedback(
     return filtered_force, "contact_qualification_window"
 
 
+
+def support_gap_recovery(native_force, gap_m, active, setup):
+    """Separate geometric gap recovery from force regulation inside contact tolerance."""
+    if native_force > 0:
+        active = False
+    separated = (
+        native_force == 0 and gap_m is not None and gap_m > setup.contact_gap_tolerance_m
+    )
+    catchup = separated and not active
+    return catchup, active or catchup
+
 def tracking_reserve(samples, horizon):
     """Reserve hold time for a growing tracking error; ignore declining trends."""
     times, errors = np.asarray(samples, dtype=float).T
@@ -828,12 +839,9 @@ def run_probe(
             "hold",
         ):
             native_force = traces[-1]["native_mean_normal_force_n"]
-            if native_force > 0:
-                gap_recovery_active = False
-            separated = native_force == 0 and gap is not None and gap > 0
-            gap_catchup = separated and not gap_recovery_active
-            if gap_catchup:
-                gap_recovery_active = True
+            gap_catchup, gap_recovery_active = support_gap_recovery(
+                native_force, gap, gap_recovery_active, setup
+            )
         normal_feedback = dict(
             force_n=force,
             source=source,

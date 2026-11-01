@@ -472,11 +472,23 @@ stop limits unchanged. Source8e9cc9b passes exact GPU native-method parity on
 all7,264saved control states in default and reserved modes. The first cold-JIT
 verifier discrepancy remains preserved; matching initialization makes pose-error
 inputs and every output bit exact without changing tolerance. A distinct full
-D2-H+ TRAIN source is running on elab2 with the original posture/20mm variation,
-previously qualified common pressure-v2 settings, original task goal, full hold,
-staged release and independent stopping. Its observed contact and complete-source
-qualification remain pending; no new demonstration, window or learned result is
-admitted from the component evidence.
+D2-H+ TRAIN source on elab2 preserves the original posture/20mm variation,
+previously qualified common pressure-v2 settings and original task goal. It
+completes360approach,180contact and398push commands, then refuses at41.033333s
+and6.187degrees when an actual10.726N native impulse gives a12.847N estimated
+upper load, beyond the unchanged10N stop-model domain. All9,849native feedback
+samples are healthy; physical80N/joint limits and1,440sample/all14shape6s stops
+pass. Hold, release and stabilization remain unexecuted. No source/windows qualify.
+
+Saved related D2-RP/DR/H-/P positives retain135one-shot gap recoveries; every one
+occurs within the existing100micrometer contact tolerance. The new H+ negative
+also has ten such recoveries, with a4.89micrometer preceding gap at the impulse.
+This is a control hypothesis, not causal proof. A prospective shared controller
+reserves geometric recovery for gaps beyond that same tolerance while retaining
+ordinary positive force-error admittance. Numerical boundary and perturbation
+checks are separate from full paired native contact/motion and transfer
+qualification, which must precede another observed source. All original results,
+force domains and physical criteria remain preserved.
 
 ## Agreed coverage and present evidence
 

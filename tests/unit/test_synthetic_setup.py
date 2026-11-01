@@ -624,6 +624,37 @@ def test_gap_recovery_can_be_one_pulse_without_changing_pressure_gain_or_limits(
     )
 
 
+
+@pytest.mark.parametrize("gap", [None, -1e-6, 0.0, 4.887580871582031e-6, 99e-6, 100e-6])
+def test_guarded_gap_recovery_keeps_force_admittance_inside_contact_tolerance(gap):
+    from alexdoor_xas.qualification.synthetic_probe import (
+        ProbeSetup,
+        normal_contact_support,
+        support_gap_recovery,
+    )
+
+    setup = ProbeSetup()
+    catchup, active = support_gap_recovery(0.0, gap, False, setup)
+    assert not catchup and not active
+    # A zero native force still advances by the original force-error gain.
+    dt = 1 / 60
+    assert normal_contact_support(0.0, 0.0, setup, dt, gap_m=gap, gap_catchup=catchup) == (
+        setup.normal_admittance_m_n_s * setup.contact_load_guard_n * dt
+    )
+
+
+@pytest.mark.parametrize("tolerance", [50e-6, 100e-6, 200e-6])
+def test_guarded_geometric_gap_recovery_uses_existing_boundary_and_rearms(tolerance):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, support_gap_recovery
+
+    setup = ProbeSetup(contact_gap_tolerance_m=tolerance)
+    assert support_gap_recovery(0.0, tolerance, False, setup) == (False, False)
+    gap = np.nextafter(tolerance, np.inf)
+    assert support_gap_recovery(0.0, gap, False, setup) == (True, True)
+    assert support_gap_recovery(0.0, gap, True, setup) == (False, True)
+    assert support_gap_recovery(0.1, gap, True, setup) == (False, False)
+    assert support_gap_recovery(0.0, gap, False, setup) == (True, True)
+
 def test_online_continuity_refusal_matches_posthoc_first_loss_and_keeps_release_scope():
     from alexdoor_xas.qualification.synthetic_probe import (
         ContactContinuity,

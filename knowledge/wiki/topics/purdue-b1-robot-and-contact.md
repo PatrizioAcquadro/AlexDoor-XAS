@@ -417,6 +417,19 @@ pressure-v2 D2-RP and D1-H- sources independently pass their complete native,
 variation/recovery, stop, visual and temporal reviews. Transfer beyond those
 conditions remains a separate requirement.
 
+The prospective guarded controller reserves one-shot geometric gap recovery for
+zero native force with separation beyond the setup's existing contact-gap
+tolerance. Inside that tolerance, ordinary force-error admittance remains active;
+target force, gain, rate/extent bounds and all qualification thresholds are
+unchanged. This avoids treating a sub-tolerance gap as a geometric loss solely
+because one native interval has zero force. The D2-H+ negative contains a10.726N
+native impulse after such a recovery and correctly refuses its12.847N estimated
+upper bound against the unchanged10N stopping model. Related qualified D2 sources
+also contain sub-tolerance recoveries, so saved correlation does not establish
+causality or controller transfer. Complete paired native motion/contact and
+related-condition qualification remain mandatory before a new observed source.
+
+
 
 A complete-collection protocol may explicitly enable `completion_opening_handoff`
 with its bounded task-goal hold. The teacher then starts holding after the current

@@ -66,9 +66,14 @@ Runtime/asset ownership and supported workflows are in
   lower-elbow/lower-RIGHT_GRIPPER_Y10N sides now independently qualify against
   the canonical model, including24original-latch stop segments. Exact GPU parity
   covers7,264saved states in default and reserved modes. A distinct complete
-  D2-H+ source is running on elab2 with only these scoped model additions and the
-  optional target reserve; original posture,20mm variation and all task/safety
-  gates remain. No new demonstration is admitted yet. D2-P independently qualifies its
+  D2-H+ source ran on elab2 with only these scoped model additions and the
+  optional target reserve. It completes approach/contact, then refuses a native
+  force impulse during push:10.726N actual/12.847N estimated exceeds the unchanged
+  10N stopping-model domain. Healthy raw/native feedback and all14shape6s stops
+  pass; no new demonstration is admitted. A shared gap-recovery candidate uses
+  the existing contact-gap tolerance while keeping force regulation active;
+  complete native and related-condition qualification remain pending.
+  D2-P independently qualifies its
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.
   D2-RP and D1-H- also qualify pressure-v2; every earlier failure is preserved.
