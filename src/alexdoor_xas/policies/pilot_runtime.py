@@ -816,7 +816,7 @@ def observed_pilot_runtime(
         replay=False,
         clock=lambda: float(env.capture.sample.time_s),
         synchronous_simulation=True,
-        inference_period_s=0.1,
+        inference_period_s=config.get("geometry_inference_period_s", 0.1),
         inspection_samples_only=True,
         preload=False,
         # Single-run CLI: clear state without loading an unused next episode.

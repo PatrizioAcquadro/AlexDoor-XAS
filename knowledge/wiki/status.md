@@ -12,8 +12,9 @@ local, Blackwell and elab2–5 jobs after access, resource ownership and runtime
 verification. A transfer-specific human approval covers code, TRAIN door/robot
 assets, configurations/calibration and perception runtimes; the retained D3
 diagnostic episode is transferred only to Blackwell. Scientific criteria and
-historical failures/charges remain unchanged. The old heartbeat remains PAUSED;
-manual finite jobs are accounted individually. The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
+historical failures/charges remain unchanged. The existing collection heartbeat
+is ACTIVE and continues this chat; finite jobs are accounted individually.
+The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
 recipe then qualifies D2-RP: continuous native contact, the full three-second
 hold, actual recovery, release/stabilization, independent 2+4 s stops and GPU

@@ -74,6 +74,13 @@ Encoder inference, policy inference and geometry publication are separate events
 none refreshes another channel's support. Synchronous simulation completion uses
 its simulation clock; wall-time cost does not establish 60 Hz hardware execution.
 
+The observed runtime accepts `geometry_inference_period_s` in its operational
+recipe, retaining the 0.1 s default. The shared session validates the period
+against its existing maximum gap. A shorter period processes actual new RGB-D
+captures with the same clocks, robot filter, ownership and uncertainty rules;
+it never refreshes support by relabeling an old result. Synchronous inference
+can increase wall-time cost and does not qualify real-time hardware throughput.
+
 An operational `admission_source(observation, tool, action, remaining_ticks)` must
 support exactly the predicted command. The adapter checks source, action, initial
 tool pose, schedule, current support and remaining margin. A1/A2 local admission
