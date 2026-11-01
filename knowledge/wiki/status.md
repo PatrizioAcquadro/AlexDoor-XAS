@@ -106,6 +106,10 @@ Runtime/asset ownership and supported workflows are in
   through goal+3degrees. Its new P placement also passes independent native
   parked geometry/visibility and2+4s stops, preserving measured placement/posture
   variation. Full native robot/load/stop and observed scene motion remain unqualified.
+  A corrected-controller fixture reports a tracking refusal but loses its raw
+  stream to a diagnostic save error; log/cost remain incomplete evidence. A
+  single nominal discriminator now persists phase references and native data;
+  no refusal magnitude, passing stop or calibrated domain is invented.
   Every negative remains preserved, with zero source labels/windows.
   A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.

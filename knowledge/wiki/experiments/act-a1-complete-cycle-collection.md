@@ -167,6 +167,15 @@ or contact qualification. A corrected native robot-only whole-path10N component
 uses actual measured pose-controller feedback and staged release toward an
 actually achieved prior pose; independently qualify complete movement/load/stop
 and observed scene support before any dependent full source.
+That first corrected-controller fixture reports a phase-end tracking refusal,
+but a scalar blend variable overwrites its argument namespace and prevents raw
+samples/stops from being saved. Its log and139.12GPU s are retained as incomplete
+evidence; no tracking magnitude, stop success or calibrated domain is inferred.
+The next diagnostic isolates one nominal case with the same references, force
+and criteria. Its argument binding and actual failure-save function are checked
+before launch, and phase checkpoints persist requested poses/reference angles
+with actual native measurements. Dependent variants remain suspended until the
+measured tracking mechanism is established.
 
 A separate D2 matched N/H+ planning discriminator uses the maintained6s approach:
 360actual controller-formula steps, smoothstep/slerp reaching the fixed target
