@@ -101,6 +101,38 @@ old receipts retain the global rule. No physical/calibration threshold or comple
 error term changes. Saved-state algebra is not a full demonstration; guarded
 native qualification of this shared correction is still required.
 
+The following source62cd07d trials are also negative. D3 ends at34.4s before
+any approach command with no explicit contact selection or P2P initialization.
+The actual single semantic mask covers a partial wooden strip; all five measured
+candidate widths are below the unchanged0.2m root criterion. This does not test
+paired-margin renewal. RGB/mask/depth inspection and independent raw/native
+feedback/2+4s-stop review pass. A distinct stationary component moves the actual
+root50mm farther back and rotates yaw0.15rad, preserving posture, contact request,
+neck trajectory, calibration and identity/finite-support criteria. It stops before
+any arm proposal and cannot adopt a complete D3 path or source.
+
+D4 executes154approach commands and stops at27.9667s for unsupported movement/
+stop support of the positive finger. Its last actual paired receipt independently
+revalidates. At the refused complete sphere, eroded plane separation34.400mm is
+below the observed whole-target front extent34.713mm. The nominal mapped center
+already lies inside the conservative protrusion rectangle, before52.128mm of
+full-pose budget and the complete radius/time expansion. Reducing pose error
+alone cannot exclude that center from the current rectangle. Unknown/occupied
+free-space support is a certificate state, not a native physical collision claim.
+The earlier prefix refused the opposite finger in the same support family. All
+raw/native feedback and2+4s stops pass; zero labels/windows remain admitted.
+Suspend dependent unchanged full attempts while improving complete spatial
+foreground/background support and independently qualifying any revised model.
+No plane/model/physical/stop bound is reduced to close the0.313mm calculated gap.
+
+A separate D2 matched N/H+ planning discriminator uses the maintained6s approach:
+360actual controller-formula steps, smoothstep/slerp reaching the fixed target
+at70percent of the interval. All four15/20/25/30mm pairs meet endpoint tracking,
+but none clears its predicted wrist future-stop box, even with predicted rather
+than full-speed interval growth. Perfect target tracking remains an approximation;
+contact, opening, hold, release, actual servo motion and stops are unqualified.
+No posture/setup/calibration/source is adopted and no global infeasibility follows.
+
 D4 fresh geometry at30Hz passes the prior raw27.683s sweep refusal, then stops
 at27.833s when computed0.422mm growth exceeds the remaining0.194mm separation
 margin. Raw integrity, feedback and2+4s stops pass; the source remains negative.

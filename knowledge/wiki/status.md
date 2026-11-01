@@ -81,8 +81,16 @@ Runtime/asset ownership and supported workflows are in
   stops. Exact receipts now isolate spatial mixing: the largest normal-error
   growth at a distant body volume is compared with another volume's minimum
   separation. Per-volume renewal preserves each original eroded margin and all
-  uncertainty and physical gates; guarded native qualification remains required.
-  D4's earlier controlled diagnostic instead reaches an unsupported finger sweep.
+  uncertainty and physical gates. The follow-up D3 source cannot initialize an
+  observed reference: its actual semantic mask covers a wooden strip and all
+  current candidate widths fail the unchanged root criterion. A distinct farther
+  camera-placement component stops before any arm proposal; full D3 attempts
+  remain suspended on that acquisition. D4 executes154approach commands with
+  paired margins and its last actual receipt independently revalidates, then
+  refuses an uncertified positive-finger sweep/stop volume. The observed whole
+  foreground model leaves a negative0.313mm calculated margin; no threshold is
+  relaxed. All raw/native feedback and2+4s stops pass. Neither full source qualifies;
+  improve complete foreground/background support before dependent D4 attempts.
   Every negative remains preserved, with zero source labels/windows.
   A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.

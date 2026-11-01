@@ -298,8 +298,10 @@ unrelated distant-body growth. Missing per-sphere margins retain the older,
 more conservative global-minimum rule. Incomplete, nonpositive or inconsistent
 margin vectors refuse. No point/model error, sphere radius, temporal erosion,
 collision proof, physical limit or stopping criterion is reduced. Exact saved
-D3/D4 receipts expose the spatial mixing; this numeric correction still requires
-guarded native full-cycle qualification.
+D3/D4 receipts expose the spatial mixing. A later native D4 prefix carries paired
+margins and its final actual receipt independently revalidates, but the next full
+sweep proposal refuses foreground/background support. Full-cycle qualification
+remains incomplete; neither a passing receipt nor a safe stop admits a source.
 
 
 ## Temporal loaded-phase diagnostics
