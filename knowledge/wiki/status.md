@@ -23,7 +23,7 @@ this result does not qualify transfer to D1, D3 or D4.
 
 | Study | Retained result | Interpretation and canonical record |
 |---|---|---|
-| ACT A1 complete-cycle collection | 11/36 conditions: 8 ordinary and 3 complete recoveries; pause baseline: 29 full attempts, 8 positive and 21 negative | Includes 2 reused references and 9 new recordings. Their 53,597 overlapping windows are not independent demonstrations. [[experiments/act-a1-complete-cycle-collection|Campaign]] |
+| ACT A1 complete-cycle collection | 12/36 conditions: 9 ordinary and 3 complete recoveries; pause baseline: 29 full attempts, 8 positive and 21 negative | Includes 2 reused references and 10 new recordings. Their57,608 overlapping windows are not independent demonstrations. [[experiments/act-a1-complete-cycle-collection|Campaign]] |
 | Temporal ACT A1 base training | Principal seed ends at 75k; offline selection fixes checkpoint 61k; final fresh nominal pair 0/2, cumulative learned completion 0/22 | Both final recordings and independent stops pass, with no valid learned contact or physical violation. Four conditional development cases remain unrun; final test sealed. [[experiments/act-a1-first-completion|Training and final pair]] |
 | Historical flat ACT/Diffusion × A1/A2 pilot | Selected-v10: 24/24 failed outcomes. Latest-v11: 2 completed failures, 1 interruption, 21 unallocated slots | Separate frozen cohorts; missing outcomes remain unavailable. [[experiments/b1-end-to-end-pilot-resume|Pilot]] |
 | Diverse teacher campaign | 112/112 originally declared scopes qualified; 96 short train, 8 complete train, 8 development | Later full-source audit finds native pre-release losses in 7 of its 8 complete train sources. Original masks/scopes and outcomes remain. [[experiments/act-a1-diverse-collection|Collection]] |
@@ -56,7 +56,8 @@ Runtime/asset ownership and supported workflows are in
 
 ## Open questions and current work
 
-- D1-H- ends without native normal load. D1-P lacks observed material margin;
+- D1-H- now independently qualifies under pressure-v2; its earlier physical
+  contact-loss outcome remains preserved. D1-P lacks observed whole-robot support;
   cadence alone cannot repair it. D1-RV retains an unresolved inspection stall.
 - D2 height/placement cases expose full-path empirical support gaps after local
   component passes. D2-DR additionally retains progress/acquisition failures.
