@@ -66,9 +66,10 @@ def observed_front_extent(surface, views, config):
     """Observed conservative front envelope for the fixed pilot rigid target.
 
     All non-robot RGB-D returns in the root's finite tangent extent contribute,
-    including handles/relief omitted by a planar semantic mask. This is a bounded
-    geometric model requiring independent coverage validation on the pilot
-    domain; it does not certify arbitrary hidden attachments or new objects.
+    including handles/relief omitted by a planar semantic mask. A visible gap
+    does not prove that a foreground component is mechanically detached.
+    This bounded geometric model requires independent coverage validation on
+    the pilot domain; it does not certify arbitrary hidden attachments or new objects.
     """
     from scipy.sparse import coo_matrix
     from scipy.sparse.csgraph import connected_components
@@ -95,8 +96,9 @@ def observed_front_extent(surface, views, config):
     if not clouds:
         raise ValueError("missing_observed_target_front_extent")
     cloud = np.concatenate(clouds)
-    # Keep each voxel's foremost measured return; unrelated static foreground
-    # cannot join the rigid root merely because its image overlaps the leaf.
+    # Keep each voxel's foremost measured return. All foreground in the finite
+    # root extent remains potentially attached until independently excluded;
+    # a handle's connection may be hidden even when its front is observed.
     order = np.argsort(cloud @ surface.normal)
     _, ids = np.unique(
         np.floor(cloud[order] / config["voxel_m"]).astype(np.int64), axis=0, return_index=True
@@ -112,9 +114,9 @@ def observed_front_extent(surface, views, config):
     if seeds.sum() < config["min_points"]:
         raise ValueError("missing_observed_front_extent_root")
     connected = np.isin(labels, np.unique(labels[seeds]))
-    measured = max(0.0, float(surface.offset - coordinate[connected].min()))
+    measured = max(0.0, float(surface.offset - coordinate.min()))
     bound = 1.25 * measured + 0.01 + config["plane_tolerance_m"]
-    protruding = connected & (surface.offset - coordinate > 2 * config["plane_tolerance_m"])
+    protruding = surface.offset - coordinate > 2 * config["plane_tolerance_m"]
     tangent_lower = tangent_upper = None
     if protruding.any():
         tangent = (points[protruding] @ basis)[:, 1:]

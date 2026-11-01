@@ -252,6 +252,19 @@ retained; no unchanged dependent full source is launched. Required opening,3s
 hold, actual contact, release/stabilization, observations and independent stops
 remain mandatory.
 
+A GPU audit reconstructs all ten actual D3 inspection RGB-D samples and exactly
+reproduces the original42,212voxels,41,999connected voxels and front bounds.
+The213disconnected returns include a59.101mm front feature; offline TRAIN CAD
+intersection independently places the handle there at59.097mm relative to the
+observed plane. These observations were present but discarded by the root's
+connectivity filter. The rejected sphere's finite query instead contains1,488
+connected returns behind that plane; neither count proves complete coverage.
+The shared correction retains every nonrobot foreground return in the same finite
+root extent as potentially attached, preserving all original padding, thresholds,
+uncertainties and unavailable states. Numerical regression passes; saved-view
+comparison and native guarded motion remain required before another full source.
+No CAD geometry becomes an actor input or a runtime exclusion certificate.
+
 D4's additional80finite GPU paths cover four contact heights and six initial
 posture seeds, each with all N/H+/H-/P differences and maintained/physical-future-
 interior targets. All72higher-contact paths fail original approach/contact

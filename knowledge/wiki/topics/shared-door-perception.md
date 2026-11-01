@@ -471,6 +471,18 @@ identity requests still latch immediately. Once selected, an absent identity is
 never replaced by another mask; material ownership, finite reference selection,
 static witnesses and loaded-contact admission remain independently required.
 
+## Observed target foreground
+
+The front envelope retains every nonrobot RGB-D return within the root's finite
+inset tangent extent. Spatial connectivity to planar root returns is diagnostic;
+a hidden attachment must not be classified as unrelated static foreground solely
+because its visible points are disconnected. The same voxel covering, front
+padding, protrusion threshold and tangent reserve apply to all retained returns.
+A finite protrusion envelope can support a spatial exclusion only after paying
+the complete query's pose/motion/stop errors. Missing protrusion bounds remain
+unavailable and do not certify an empty region. Target-model coverage and actual
+full-motion admission require independent qualification.
+
 ## Contact normal error origins
 
 The local plane constraint preserves the current measured plane centroid and its

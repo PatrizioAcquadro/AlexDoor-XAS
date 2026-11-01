@@ -128,7 +128,11 @@ Runtime/asset ownership and supported workflows are in
   with healthy feedback; physical contact/limits do not fail. The original
   whole-target front extent remains required because observed protrusion tangent
   bounds are unavailable. This negative admits zero labels/windows; dependent
-  unchanged full attempts remain suspended. D4 higher-contact designs still fail
+  unchanged full attempts remain suspended. A saved-view GPU audit exactly
+  reconstructs213observed handle voxels discarded by root connectivity. The
+  shared correction retains disconnected foreground as potentially attached;
+  original bounds remain unchanged and native qualification is still pending.
+  D4 higher-contact designs still fail
   full and reversed paths;
   uncentered static IK from three existing seeds also finds no higher endpoint.
   These finite local results establish no global infeasibility.
