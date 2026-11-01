@@ -64,11 +64,11 @@ Runtime/asset ownership and supported workflows are in
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.
   D2-RP and D1-H- also qualify pressure-v2; every earlier failure is preserved.
-- D3/D4 have no independently qualified full cycle. The D3 conditioned seed
-  supplies the previously missing observed edge and retains three real identity
-  witnesses, but the current material margin remains insufficient. A lower
-  nominal path is under robot load/stop qualification; its original P placement
-  still fails pedestal CAD. D4's balanced path avoids the prior elbow-domain
+- D3/D4 have no independently qualified full cycle. On the earlier flat D3
+  setup, conditioned seed selection restores an observed edge and three identity
+  witnesses while the material margin remains insufficient. The lower nominal
+  path now passes a scoped nine-case/27-stop load-support qualification and its
+  full native cycle is underway; original P placement still fails pedestal CAD. D4's balanced path avoids the prior elbow-domain
   problem but retains an observed sweep refusal; a fresh-cadence native trial
   processes actual new geometry at 30 Hz with unchanged support criteria.
   A closer D3 placement's actual

@@ -52,6 +52,16 @@ reaches late hold but exits the empirical elbow domain; its independently
 qualified successor holds at the unchanged required opening instead of seeking
 maximum reach. Every preceding negative remains unchanged.
 
+D3's lower opaque-material nominal path now passes nine robot-only cases and
+27 independent stops, with zero frozen residual exceedances and all declared
+moving/loaded-stop boundaries covered. The two earlier fixture negatives remain
+retained: rapid integral windup and a stationary-position/reported-velocity bias.
+Position-difference damping fixes the fixture without rewriting native velocity
+or model/stop criteria. Only four empirical support sides are adopted at10N for
+this path; no full Cartesian-box, other-condition or hardware claim follows.
+A distinct full native D3-N cycle is underway. Its original P placement still
+fails pedestal CAD and is excluded; passing this component adds no matrix cell.
+
 ## Agreed coverage and present evidence
 
 There are **36 prospective cells: 28 ordinary complete cycles and eight complete
