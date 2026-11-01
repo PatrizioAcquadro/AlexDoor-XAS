@@ -470,6 +470,31 @@ A common complete foreground/contact-region or acquisition/path design must
 support the full motion and related conditions before another dependent native
 attempt. Saved-pose enclosure improvements alone do not qualify contact.
 
+The subsequent D3 guarded component on source `549ae0c` is also negative. It
+reaches 36.583 s and 131 approach commands, with no contact or later phase.
+All 8,781 native samples are healthy; delivered-command/admission/load clocks
+match exactly. There are 131 admitted/delivered proposals, one terminal refusal
+and 263 observed load packets, all inside the original 10 N model. The original
+continuous 6 s stop passes for all 14 shapes, and actual RGB, whole-result transfer
+and owned GPU/process/lease cleanup are verified. Its 619.400 GPU seconds and
+unexecuted phases remain retained; no component, full source or window qualifies.
+
+The exact negative-finger leaf reaches the original minimum resolution after
+262 queries, below the unchanged 60,000-query ceiling. Its complete coupled
+fallback has 32.875 mm raw normal distance, 2.239 mm motion/model radius,
+20.623 mm target error and the original 83.633 mm whole-front extent: a
+-73.620 mm foreground margin before any background query. This audits that
+fallback, not every alternative geometric model, physical collision or global
+infeasibility. Saved D3 snapshot admission and full nominal D2 compatibility do
+not qualify native D3 transfer. Complete observed foreground/acquisition/path
+support across the full motion and related conditions remains required; suspend
+unchanged dependent attempts. The
+[negative component review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D3-coupled-convex-guarded-approach-contact-blackwell-20261101/component-independent-review.json)
+and [complete-domain audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-coupled-terminal-full-domain-audit-20261101.json)
+retain the exact refusal. Two local review preparation errors (a removed lease key
+and a copied remote frontend path) were corrected without native reruns, GPU work,
+payload changes or scientific criterion changes; original readers/errors remain.
+
 The separate D4 robot-only component independently passes all69,744native samples
 of N/H+/H-/P through the frozen50.146446degree task opening, original3s hold and6s
 achieved-pose staged release under constant0.3N diagnostic loading. It preserves

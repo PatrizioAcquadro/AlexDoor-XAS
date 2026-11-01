@@ -147,6 +147,13 @@ Runtime/asset ownership and supported workflows are in
   still fail foreground exclusion. Common observed foreground/contact-region or
   acquisition/path support across complete motion and related conditions is
   required before further dependent D4 motion; no component/source is qualified.
+  The new D3 coupled-cover component also stops before contact after 131 approach
+  commands. All 8,781 native samples, original continuous 6 s/14-shape stops,
+  actual RGB and whole-transfer/owned-cleanup checks pass. The exact negative-
+  finger coupled fallback lacks whole-front separation at the original resolution,
+  without exhausting the query budget. No component/source qualifies; dependent
+  unchanged D3 attempts remain suspended while common complete observed support
+  is investigated. D2-N compatibility does not establish D3 transfer.
   A saved contact-region screen yields only three conditional upper points;
   no new complete path follows. Even un-padded observed protrusions remain
   inside the original expanded projected query. The
