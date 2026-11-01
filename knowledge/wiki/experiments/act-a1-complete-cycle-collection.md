@@ -443,11 +443,25 @@ and staged release. A distinct native test uses the original posture control.
 Both cases independently pass30,976native samples at constant0.3N, full3s holds
 with1.577/1.518mm drift, original6s achieved-pose release and six continuous
 loaded/held/removed stop segments in the original8s latch, including all14shape
-radial/directional and frozen-model checks. Nominal needs no position extension;
-H+ needs only the measured lower-elbow side43.183mrad beyond prior10N support.
-That scoped10N qualification remains separate. The shared optional pose-command
-reserve keeps physical, A1 and admission/load/stop limits unchanged; no active
-recipe, observed source, new demonstration or learned result is adopted.
+radial/directional and frozen-model checks. Nominal needs no position extension.
+Against the canonical model, H+ needs measured lower-elbow43.183mrad and lower
+RIGHT_GRIPPER_Y19.719mrad sides. The broader view used for the first motion review
+already contained unrelated position halos; they do not establish transfer to
+these postures. Each side now passes four independent cases/12segments against
+the canonical model, with actual loaded moving and stopped boundary coverage,
+all14shape checks and original8s latches. The scoped source recipe retains that
+model and only these two measured position/load support additions.
+
+The shared optional pose-command reserve keeps physical, A1 and admission/load/
+stop limits unchanged. Source8e9cc9b passes exact GPU native-method parity on
+all7,264saved control states in default and reserved modes. The first cold-JIT
+verifier discrepancy remains preserved; matching initialization makes pose-error
+inputs and every output bit exact without changing tolerance. A distinct full
+D2-H+ TRAIN source is running on elab2 with the original posture/20mm variation,
+previously qualified common pressure-v2 settings, original task goal, full hold,
+staged release and independent stopping. Its observed contact and complete-source
+qualification remain pending; no new demonstration, window or learned result is
+admitted from the component evidence.
 
 ## Agreed coverage and present evidence
 
@@ -463,7 +477,7 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Qualified new; pressure-v2 | Unqualified; observed robot sweep | Qualified new | Qualified new | Qualified new;0.9 | Qualified new complete recovery; task-goal hold | Qualified new complete recovery |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Qualified new; task-goal hold | Qualified new; task-goal hold | Qualified new | Qualified new; task-goal hold | Qualified new;1.1 | Qualified new complete recovery | Qualified new complete recovery; pressure-v2 |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; full observed source pending | Qualified new; task-goal hold | Qualified new; task-goal hold | Qualified new | Qualified new; task-goal hold | Qualified new;1.1 | Qualified new complete recovery | Qualified new complete recovery; pressure-v2 |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; updated response separation | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 1.1 | Unexecuted | Unexecuted |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep/response | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 0.9 | Unexecuted | Unexecuted |
 

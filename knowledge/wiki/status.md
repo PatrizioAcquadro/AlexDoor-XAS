@@ -60,12 +60,15 @@ Runtime/asset ownership and supported workflows are in
 - D1-P still refuses observed whole-robot support. D1-RV now independently
   qualifies actual disturbance, joint braking, return and the complete cycle;
   its earlier inspection and shoulder-support failures remain preserved.
-- D2-H+ retains observed-source and required10N support gaps. The original-posture
-  N/H+ robot-only paths now pass full native0.3N motion/hold/release/stop review
-  with prospective pose targets reserved inside unchanged physical limits.
-  An optional shared target-reserve setting is implemented; active recipes and
-  full-source admission are unchanged. The measured lower-elbow10N side remains
-  under independent qualification. D2-P now independently qualifies its
+- D2-H+ remains unqualified as an observed complete source. The original-posture
+  N/H+ robot-only paths pass full native0.3N motion/hold/release/stop review with
+  pose targets reserved inside unchanged physical limits. Both required measured
+  lower-elbow/lower-RIGHT_GRIPPER_Y10N sides now independently qualify against
+  the canonical model, including24original-latch stop segments. Exact GPU parity
+  covers7,264saved states in default and reserved modes. A distinct complete
+  D2-H+ source is running on elab2 with only these scoped model additions and the
+  optional target reserve; original posture,20mm variation and all task/safety
+  gates remain. No new demonstration is admitted yet. D2-P independently qualifies its
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.
   D2-RP and D1-H- also qualify pressure-v2; every earlier failure is preserved.
