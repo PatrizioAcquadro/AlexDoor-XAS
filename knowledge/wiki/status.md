@@ -67,10 +67,12 @@ Runtime/asset ownership and supported workflows are in
 - D3/D4 have no independently qualified full cycle. On the earlier flat D3
   setup, conditioned seed selection restores an observed edge and three identity
   witnesses while the material margin remains insufficient. The lower nominal
-  path now passes a scoped nine-case/27-stop load-support qualification and its
-  full native cycle is underway; original P placement still fails pedestal CAD. D4's balanced path avoids the prior elbow-domain
-  problem but retains an observed sweep refusal; a fresh-cadence native trial
-  processes actual new geometry at 30 Hz with unchanged support criteria.
+  path passes a scoped nine-case/27-stop load-support qualification, but its
+  first full-source attempt refuses ambiguous observed leaf ownership before
+  any approach command; original P placement still fails pedestal CAD. D4's balanced path avoids the prior elbow-domain
+  problem. Its fresh 30 Hz geometry passes the prior sweep refusal, then exhausts
+  the admitted response separation margin; independent stops pass and the source
+  remains negative. A bounded exact-receipt diagnostic is active.
   A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.
 - Full D3/D4 CAD path designs retain the declared variations, but CAD and passing

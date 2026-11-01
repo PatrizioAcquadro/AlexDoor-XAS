@@ -59,8 +59,18 @@ retained: rapid integral windup and a stationary-position/reported-velocity bias
 Position-difference damping fixes the fixture without rewriting native velocity
 or model/stop criteria. Only four empirical support sides are adopted at10N for
 this path; no full Cartesian-box, other-condition or hardware claim follows.
-A distinct full native D3-N cycle is underway. Its original P placement still
-fails pedestal CAD and is excluded; passing this component adds no matrix cell.
+The first full lower D3-N source then refuses ambiguous observed leaf ownership
+before any approach command: the late selected semantic ID has only one real
+finite-material witness. Independent stops pass; no source or labels are admitted.
+Its original P placement still fails pedestal CAD and is excluded; passing the
+robot component adds no matrix cell.
+
+D4 fresh geometry at30Hz passes the prior raw27.683s sweep refusal, then stops
+at27.833s when computed0.422mm growth exceeds the remaining0.194mm separation
+margin. Raw integrity, feedback and2+4s stops pass; the source remains negative.
+A controlled28.2s diagnostic records the exact live receipt and updated estimate;
+it cannot qualify a full cycle. Recorded policy RGB-D remains10Hz, so a saved
+10Hz replay must not be called an exact reproduction of the30Hz geometry history.
 
 ## Agreed coverage and present evidence
 
