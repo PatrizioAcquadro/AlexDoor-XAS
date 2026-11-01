@@ -241,6 +241,7 @@ class PilotMotionEvidence:
             )
             self.rigid_identity = observation.generation, patch.patch_id
         pending, covered = list(self.cells), []
+        normal_spheres = []
         free_margin, separation, lever = np.inf, np.inf, 0.0
         contact_free_stop_margin = np.inf
         checked = directional = 0
@@ -517,7 +518,9 @@ class PilotMotionEvidence:
                         diagnostics.get("complete_box_proofs", 0) + 1
                     )
             if support.collision_clearance_m is not None:
-                proofs = [(support.collision_clearance_m, gap, local_lever)]
+                proofs = [
+                    (support.collision_clearance_m, gap, local_lever, (*center.tolist(), radius))
+                ]
             elif np.max(cell.upper - cell.lower) > self.config["minimum_cell_m"]:
                 pending.extend(self.model.subdivide(cell))
                 continue
@@ -556,7 +559,14 @@ class PilotMotionEvidence:
                     directional += 1
                     if support.collision_clearance_m is None:
                         return False
-                    proofs.append((support.collision_clearance_m, gap, local_lever))
+                    proofs.append(
+                        (
+                            support.collision_clearance_m,
+                            gap,
+                            local_lever,
+                            (*center.tolist(), radius),
+                        )
+                    )
                     return True
 
                 lower, upper = self.stop_boxes
@@ -585,7 +595,8 @@ class PilotMotionEvidence:
                     directional_stop_queries=directional,
                 )
                 raise ValueError("unsupported_actual_robot_sweep_and_stop")
-            for margin, gap, local_lever in proofs:
+            for margin, gap, local_lever, sphere in proofs:
+                normal_spheres.append(sphere)
                 free_margin = min(free_margin, margin)
                 separation = min(separation, gap)
                 # Robot stopping travel is already inside each proved volume.
@@ -692,6 +703,9 @@ class PilotMotionEvidence:
             unloaded_separation_margin_m=None if loaded else float(separation),
             unloaded_normal_lever_m=None if loaded else lever,
             unloaded_temporal_bound_m_rad=None if loaded else (temporal_p, temporal_a),
+            unloaded_normal_spheres=tuple(normal_spheres)
+            if not loaded and patch.normal_uncertainty_sources
+            else (),
             material_normal_range_m=normal_range,
         )
         return admit_local_action(

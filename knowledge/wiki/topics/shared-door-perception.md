@@ -488,6 +488,11 @@ actual published anchor. This avoids a spurious mismatch when a fresh plane
 correction passes through a native float32 camera transform. The consumer still
 checks the complete list; omitted or inconsistent contributions remain unavailable.
 Legacy records without primitives retain their original conservative calculation.
+Unloaded receipts also retain the complete proved sphere domains and revalidate
+normal-bound growth directly at those same balls. Transport through the distant
+anchor is not charged again after the producer used direct pivots. Finite radii,
+prepaid interval growth and the remaining separation margin are still checked;
+missing primitives or exhausted margins refuse execution.
 
 Numerical rigid-rotation and anchor-change checks cover the correction, with
 unchanged physical limits, positive-load requirements and search budgets. Its

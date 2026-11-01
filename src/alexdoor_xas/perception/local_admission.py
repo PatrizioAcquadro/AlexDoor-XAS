@@ -55,6 +55,9 @@ class LocalActionSupport:
     # Full-interval position/angular growth ALREADY eroded by the producer,
     # including relative material motion. Only excess growth spends the residual.
     unloaded_temporal_bound_m_rad: tuple[float, float] | None = None
+    # Complete world-space balls used by the producer, for pointwise normal
+    # error growth at the same physical volumes during receipt revalidation.
+    unloaded_normal_spheres: tuple[tuple[float, float, float, float], ...] = ()
 
 
 def _local_error_terms(patch, evidence, limits, now, duration):
@@ -230,6 +233,17 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             nonnegative(evidence.unloaded_normal_lever_m, "missing_unloaded_normal_lever")
             nonnegative(patch.normal_position_bound_m, "missing_unloaded_normal_bound")
             nonnegative(patch.normal_rotation_bound_rad, "missing_unloaded_normal_bound")
+            if evidence.unloaded_normal_spheres:
+                spheres = np.asarray(evidence.unloaded_normal_spheres)
+                if (
+                    spheres.ndim != 2
+                    or spheres.shape[1] != 4
+                    or not np.isfinite(spheres).all()
+                    or np.any(spheres[:, 3] < 0)
+                ):
+                    raise ValueError("invalid_unloaded_normal_spheres")
+                if not patch.normal_uncertainty_sources:
+                    raise ValueError("missing_unloaded_normal_error_sources")
             if evidence.unloaded_temporal_bound_m_rad is not None:
                 temporal = np.asarray(evidence.unloaded_temporal_bound_m_rad)
                 if (
@@ -385,6 +399,32 @@ def require_current_local_admission(admission, estimate, now):
         ) + evidence.unloaded_normal_lever_m * max(
             0.0, patch.normal_rotation_bound_rad - before.normal_rotation_bound_rad - prepaid_a
         )
+        if evidence.unloaded_normal_spheres:
+            from alexdoor_xas.perception.material_zone import normal_uncertainty_terms
+
+            if not (before.normal_uncertainty_sources and patch.normal_uncertainty_sources):
+                raise ValueError("missing_unloaded_normal_error_sources")
+            point_growth = []
+            for sphere in evidence.unloaded_normal_spheres:
+                center, radius = np.asarray(sphere[:3]), sphere[3]
+                old_error, new_error = (
+                    sum(
+                        normal_uncertainty_terms(
+                            state.normal_uncertainty_sources, center[None], radius
+                        ).values()
+                    )
+                    for state in (before, patch)
+                )
+                lever = np.linalg.norm(center - before.world_pose.origin) + radius
+                point_growth.append(
+                    new_error
+                    - old_error
+                    + admission.limits.relative_speed_bound_m_s * elapsed
+                    - linear_aging_credit
+                    - prepaid_p
+                    - lever * prepaid_a
+                )
+            growth = max(0.0, max(point_growth))
         if growth >= evidence.unloaded_separation_margin_m:
             error = ValueError("admitted_unloaded_separation_exhausted")
             error.decision = dict(
@@ -395,6 +435,9 @@ def require_current_local_admission(admission, estimate, now):
                 prepaid_interval_position_m=float(prepaid_p),
                 prepaid_interval_rotation_rad=float(prepaid_a),
                 excess_growth_m=float(growth),
+                normal_error_domain="complete_proved_spheres"
+                if evidence.unloaded_normal_spheres
+                else "aggregate_anchor_and_lever",
                 remaining_separation_margin_m=evidence.unloaded_separation_margin_m,
             )
             raise error

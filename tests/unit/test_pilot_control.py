@@ -1196,3 +1196,74 @@ def test_unloaded_tracker_aging_spends_the_prepaid_interval_once():
     )
     with pytest.raises(ValueError, match="separation_exhausted"):
         check(current, unreserved)
+
+
+@pytest.mark.parametrize("offset", [np.zeros(3), np.array([3.0, -7.0, 2.0])])
+def test_unloaded_receipt_revalidates_normal_growth_at_its_complete_spheres(offset):
+    from alexdoor_xas.perception.admission import rotational_travel
+
+    estimate, proposal, evidence, limits = local_inputs()
+    anchor = offset + np.array([0.0, 10.0, 0.0])
+    original = estimate.local.patches[0]
+
+    def patch(angle):
+        return replace(
+            original,
+            world_pose=replace(original.world_pose, origin=anchor),
+            normal_position_bound_m=rotational_travel(10.0, angle),
+            normal_rotation_bound_rad=angle,
+            normal_uncertainty_sources=(("measured_plane", 0.0, angle, tuple(offset)),),
+        )
+
+    before = patch(0.01)
+    estimate = replace(estimate, local=replace(estimate.local, patches=(before,)))
+    proposal = replace(proposal, loaded=False)
+    center = offset + np.array([0.1, 0.0, 0.0])
+    evidence = replace(
+        evidence,
+        finger_clearance_m=(None, None),
+        collision_clearance_m=None,
+        swept_collision_margin_m=0.02,
+        unloaded_separation_margin_m=0.005,
+        unloaded_normal_lever_m=np.linalg.norm(center - anchor) + 0.1,
+        unloaded_temporal_bound_m_rad=(limits.relative_speed_bound_m_s / 60, 0.0),
+        unloaded_normal_spheres=((*center, 0.1),),
+    )
+    receipt = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert receipt.admitted
+
+    def check(current, admission=receipt):
+        require_current_admission(
+            admission,
+            replace(estimate, local=replace(estimate.local, patches=(current,))),
+            1 + 1 / 60,
+        )
+
+    check(before)
+    # At this complete 100mm-radius ball, the bound grows by about4mm,
+    # while transport via the distant anchor falsely grows by about400mm.
+    check(patch(0.03))
+    with pytest.raises(ValueError, match="separation_exhausted"):
+        check(patch(0.04))
+    # Keeping only the ball center would miss growth at its outer extent.
+    wide = replace(evidence, unloaded_normal_spheres=((*center, 0.3),))
+    wide_receipt = admit_local_action(estimate, proposal, wide, limits, 1, generation=0)
+    assert wide_receipt.admitted
+    with pytest.raises(ValueError, match="separation_exhausted"):
+        check(patch(0.03), wide_receipt)
+    with pytest.raises(ValueError, match="missing_unloaded_normal_error_sources"):
+        check(replace(patch(0.03), normal_uncertainty_sources=()))
+    legacy = admit_local_action(
+        estimate, proposal, replace(evidence, unloaded_normal_spheres=()), limits, 1, generation=0
+    )
+    with pytest.raises(ValueError, match="separation_exhausted"):
+        check(patch(0.03), legacy)
+    for invalid in [((0, 0, 0, -1),), ((0, 0, np.nan, 0.1),), ((0, 0, 0),)]:
+        assert not admit_local_action(
+            estimate,
+            proposal,
+            replace(evidence, unloaded_normal_spheres=invalid),
+            limits,
+            1,
+            generation=0,
+        ).admitted
