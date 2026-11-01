@@ -1,7 +1,5 @@
 """Native teacher collection through the maintained observed A1 motion checks."""
 
-import json
-
 import numpy as np
 
 from alexdoor_xas.recording.teacher import TemporalExpertRecorder
@@ -121,18 +119,17 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
         super().close()
         if self.operational is not None:
             _, _, geometry, motion, load_log, contact_log = self.operational
+            from alexdoor_xas.perception.evaluation import write_json
+
             summary = dict(
                 admitted_commands=self.admitted_commands,
                 refusal=self.guard_refusal,
+                refusal_detail=self.io.safety.checks.last_failure,
                 evaluator_inputs=False,
                 source="maintained_observed_A1_runtime_and_bounded_controller_preview",
             )
-            (self.path.parent / "operational-collection.json").write_text(
-                json.dumps(summary, indent=2) + "\n"
-            )
+            write_json(self.path.parent / "operational-collection.json", summary)
             from dataclasses import asdict
-
-            from alexdoor_xas.perception.evaluation import write_json
 
             tracking = geometry.tracking
             write_json(
