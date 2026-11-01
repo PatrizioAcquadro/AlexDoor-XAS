@@ -81,6 +81,15 @@ captures with the same clocks, robot filter, ownership and uncertainty rules;
 it never refreshes support by relabeling an old result. Synchronous inference
 can increase wall-time cost and does not qualify real-time hardware throughput.
 
+An optional `inspection_acquisition` in the operational recipe declares actual
+view waypoints and sample times for both native collection and the observed
+provider. It must retain mounting, neck limits and every other inspection field;
+the normal trajectory validator still applies. The observer/IO binding uses this
+same schedule, while independent workspace recordings retain their original
+recipe and timestamps. Loaded-start pre-roll schedules remain explicit. Extra
+views establish support only after actual native acquisition and independent
+review; they do not qualify a full cycle or relax identity/material gates.
+
 An operational `admission_source(observation, tool, action, remaining_ticks)` must
 support exactly the predicted command. The adapter checks source, action, initial
 tool pose, schedule, current support and remaining margin. A1/A2 local admission

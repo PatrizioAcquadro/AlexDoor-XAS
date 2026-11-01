@@ -85,3 +85,28 @@ def test_teacher_and_io_scan_hold_the_same_joint_anchor(initial_angle):
     io.env, io.parked_joints = env, q0.copy()
     io.hold_step()
     np.testing.assert_allclose(targets, np.broadcast_to(q0, (4, 7)), atol=1e-15)
+
+
+@pytest.mark.parametrize("field,value", [("mount_pitch_rad", 0), ("max_neck_speed_rad_s", 0.5)])
+def test_observation_schedule_cannot_recalibrate_mount_or_speed(field, value):
+    from alexdoor_xas.perception.inspection import acquisition_inspection
+
+    original = load_inspection(
+        Path(__file__).resolve().parents[2] / "configs/perception_inspection.json"
+    )
+    changed = copy.deepcopy(original)
+    changed[field] = value
+    with pytest.raises(ValueError, match="cannot change inspection calibration"):
+        acquisition_inspection(original, changed)
+
+
+def test_observation_schedule_retains_physical_neck_limits():
+    from alexdoor_xas.perception.inspection import acquisition_inspection
+
+    original = load_inspection(
+        Path(__file__).resolve().parents[2] / "configs/perception_inspection.json"
+    )
+    changed = copy.deepcopy(original)
+    changed["waypoints"][-1][1] = 2.0
+    with pytest.raises(ValueError, match="neck"):
+        acquisition_inspection(original, changed)

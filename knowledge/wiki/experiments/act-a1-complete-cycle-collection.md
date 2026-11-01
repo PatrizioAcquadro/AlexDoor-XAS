@@ -67,10 +67,15 @@ robot component adds no matrix cell. A separate GPU replay of saved10Hz inputs
 also yields only one independent material witness. It is a sensitivity study,
 not an exact reproduction of native30Hz semantic history. Its first four views
 have no mask, the21s view lacks finite two-finger support, and the useful18/25s
-camera origins are too close for independent support. One prospective stationary
-inspection component retains all seven views and adds three bounded head
-orientations; it stops before any arm proposal. Calibration, identity and the
-three-view criterion remain unchanged.
+camera origins are too close for independent support. The subsequent native
+stationary component retains those seven samples and adds three bounded head
+orientations. Independent raw-joint/camera/mask review qualifies three same-ID
+finite witnesses at18/28/31s and actual rigid-material ownership. Parked inspection,
+healthy native feedback and2+4s stops pass. It ends at34.4s before any arm proposal;
+zero source labels/windows are admitted. Calibration, identity and the three-view
+criterion remain unchanged. The shared optional acquisition recipe now keeps
+collection, provider and observer/IO timing aligned while preserving independent
+workspace clocks; this component alone does not qualify full-path support.
 
 D4 fresh geometry at30Hz passes the prior raw27.683s sweep refusal, then stops
 at27.833s when computed0.422mm growth exceeds the remaining0.194mm separation

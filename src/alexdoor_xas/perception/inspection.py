@@ -1,6 +1,7 @@
 """Common observed inspection motion; door truth is used only in the offline audit."""
 
 import json
+from copy import deepcopy
 
 import numpy as np
 
@@ -31,6 +32,19 @@ def load_inspection(path):
     config = json.loads(path.read_text())
     validate_inspection(config)
     return config
+
+
+def acquisition_inspection(original, acquisition=None):
+    """Change only actual view timing/targets; retain calibrated mounting and limits."""
+    if acquisition is None:
+        return original
+    keys = {"waypoints", "sample_times_s"}
+    if {k: v for k, v in original.items() if k not in keys} != {
+        k: v for k, v in acquisition.items() if k not in keys
+    }:
+        raise ValueError("Observation acquisition cannot change inspection calibration")
+    validate_inspection(acquisition)
+    return deepcopy(acquisition)
 
 
 def validate_inspection(config):

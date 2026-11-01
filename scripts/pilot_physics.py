@@ -327,7 +327,7 @@ def main(argv=None):
 
     from alexdoor_xas.assets.identity import RobotAssetRef
     from alexdoor_xas.envs.door_task.door_push_purdue_env import DoorPushPurdueEnv
-    from alexdoor_xas.perception.inspection import load_inspection
+    from alexdoor_xas.perception.inspection import acquisition_inspection, load_inspection
     from alexdoor_xas.qualification.door_geometry import PreparedDoor
     from alexdoor_xas.qualification.expert import configure_physics_substeps, probe_config
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, run_probe
@@ -337,6 +337,11 @@ def main(argv=None):
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA required")
     inspection = load_inspection(REPO / "configs/perception_inspection.json")
+    if args.operational_recipe is not None:
+        inspection = acquisition_inspection(
+            inspection,
+            json.loads(args.operational_recipe.read_text()).get("inspection_acquisition"),
+        )
     setup_path = args.setup or REPO / corpus["setup"]["path"]
     setup = ProbeSetup(**json.loads(setup_path.read_text()))
     setup.neck = tuple(inspection["waypoints"][-1][1:])

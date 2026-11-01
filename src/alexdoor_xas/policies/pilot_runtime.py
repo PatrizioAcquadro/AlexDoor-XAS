@@ -713,20 +713,23 @@ class PilotMotionEvidence:
         )
 
 
-def loaded_observation_recipe(recipe, preroll_s):
-    """Schedule genuine loaded-start captures; leave workspace calibration alone."""
+def loaded_observation_recipe(recipe, preroll_s, *, acquisition=None):
+    """Schedule actual views/pre-roll while retaining the independent workspace recipe."""
+    from alexdoor_xas.perception.inspection import acquisition_inspection
     from alexdoor_xas.perception.provider import PrototypeRecipe
 
-    if preroll_s is None:
+    if preroll_s is None and acquisition is None:
         return recipe
     config = recipe.config
-    count = len(config["inspection"]["sample_times_s"])
-    first, last = 0.1, float(preroll_s) - 0.2
-    if count < 2 or not np.isfinite(last) or last - first < (count - 1) * 0.1 - 1e-9:
-        raise ValueError("Loaded pre-roll needs all inspection captures plus fresh tracking")
-    neck = config["inspection"]["waypoints"][-1][1:]
-    config["inspection"]["waypoints"] = [[0.0, *neck], [float(preroll_s), *neck]]
-    config["inspection"]["sample_times_s"] = np.linspace(first, last, count).tolist()
+    config["inspection"] = acquisition_inspection(config["inspection"], acquisition)
+    if preroll_s is not None:
+        count = len(config["inspection"]["sample_times_s"])
+        first, last = 0.1, float(preroll_s) - 0.2
+        if count < 2 or not np.isfinite(last) or last - first < (count - 1) * 0.1 - 1e-9:
+            raise ValueError("Loaded pre-roll needs all inspection captures plus fresh tracking")
+        neck = config["inspection"]["waypoints"][-1][1:]
+        config["inspection"]["waypoints"] = [[0.0, *neck], [float(preroll_s), *neck]]
+        config["inspection"]["sample_times_s"] = np.linspace(first, last, count).tolist()
     return PrototypeRecipe(json.dumps(config, sort_keys=True, allow_nan=False))
 
 
@@ -739,12 +742,9 @@ def live_observation_binding(binding, recipe):
         return binding
     if not isinstance(binding, PilotBinding):
         raise ValueError("Changed acquisition requires an explicit pilot binding")
-    original = binding.config["inspection"]
-    acquisition_keys = {"waypoints", "sample_times_s"}
-    if {k: v for k, v in original.items() if k not in acquisition_keys} != {
-        k: v for k, v in inspection.items() if k not in acquisition_keys
-    }:
-        raise ValueError("Loaded acquisition cannot change inspection calibration")
+    from alexdoor_xas.perception.inspection import acquisition_inspection
+
+    acquisition_inspection(binding.config["inspection"], inspection)
     payload = binding.to_dict()
     payload["config"]["inspection"] = inspection
     return PilotBinding.from_dict(payload)
@@ -790,10 +790,10 @@ def observed_pilot_runtime(
             config["camera_bound"],
         )
 
-    live_recipe = loaded_observation_recipe(recipe, initialization_s)
-    live_binding = (
-        binding if initialization_s is None else live_observation_binding(binding, live_recipe)
+    live_recipe = loaded_observation_recipe(
+        recipe, initialization_s, acquisition=config.get("inspection_acquisition")
     )
+    live_binding = live_observation_binding(binding, live_recipe)
     if initialization_s is not None:
         (Path(output) / "observed-initialization.json").write_text(
             json.dumps(

@@ -70,8 +70,10 @@ Runtime/asset ownership and supported workflows are in
   path passes a scoped nine-case/27-stop load-support qualification, but its
   first full-source attempt refuses ambiguous observed leaf ownership before
   any approach command; original P placement still fails pedestal CAD. A saved-input
-  sensitivity audit also finds only one independent finite-material witness; an
-  extended stationary inspection component is active before any arm proposal.
+  sensitivity audit also finds only one independent finite-material witness.
+  Extended native stationary inspection now independently qualifies three
+  same-ID finite witnesses and stops before any arm proposal; full-cycle support
+  remains unqualified.
   D4's balanced path avoids the prior elbow-domain problem. Fresh 30 Hz geometry
   passes the prior sweep refusal, then exhausts the response separation margin.
   Its controlled diagnostic instead reaches a later unsupported finger sweep;

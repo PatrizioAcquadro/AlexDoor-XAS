@@ -235,3 +235,36 @@ def test_loaded_acquisition_uses_a_real_matching_observer_and_io_contract(b1_bin
     provider.binding = PrototypeRecipe(json.dumps(changed))
     with pytest.raises(ValueError, match="inspection or freshness mismatch"):
         B1Observer(provider, live, encoder=RGBDEncoder(live, device="cpu"))
+
+
+def test_normal_acquisition_schedule_matches_teacher_provider_and_keeps_workspace(b1_binding):
+    from copy import deepcopy
+
+    from alexdoor_xas.perception.inspection import acquisition_inspection
+    from alexdoor_xas.perception.provider import PrototypeRecipe
+    from alexdoor_xas.policies.encoding import RGBDEncoder, pilot_binding
+    from alexdoor_xas.policies.observations import B1Observer
+    from alexdoor_xas.policies.pilot_runtime import (
+        live_observation_binding,
+        loaded_observation_recipe,
+    )
+
+    original = b1_binding.config["inspection"]
+    acquisition = deepcopy(original)
+    end, yaw, pitch = acquisition["waypoints"][-1]
+    acquisition["waypoints"] += [[end + 2, yaw - 0.2, pitch], [end + 3, yaw - 0.2, pitch]]
+    acquisition["sample_times_s"].append(end + 3)
+    recipe = PrototypeRecipe(
+        json.dumps(dict(scan_fusion="object-v1", inspection=original, max_gap_s=0.15))
+    )
+    live = loaded_observation_recipe(recipe, None, acquisition=acquisition)
+    teacher = pilot_binding(acquisition_inspection(original, acquisition))
+    binding = live_observation_binding(pilot_binding(original), live)
+    assert teacher == binding
+    provider = SimpleNamespace(binding=live, generation=0)
+    provider.reset = lambda: setattr(provider, "generation", provider.generation + 1)
+    B1Observer(provider, binding, encoder=RGBDEncoder(binding, device="cpu"))
+    assert recipe.config["inspection"] == original
+    assert live.config["inspection"] == acquisition
+    acquisition["sample_times_s"][-1] += 1
+    assert live.config["inspection"]["sample_times_s"][-1] == end + 3
