@@ -84,13 +84,28 @@ Runtime/asset ownership and supported workflows are in
   uncertainty and physical gates. The follow-up D3 source cannot initialize an
   observed reference: its actual semantic mask covers a wooden strip and all
   current candidate widths fail the unchanged root criterion. A distinct farther
-  camera-placement component stops before any arm proposal; full D3 attempts
-  remain suspended on that acquisition. D4 executes154approach commands with
+  camera-placement component now independently passes stationary acquisition:
+  three finite same-ID witnesses, actual root/camera checks, visual review and
+  independent stops, with zero arm proposals. Full D3 motion remains unqualified.
+  D4 executes154approach commands with
   paired margins and its last actual receipt independently revalidates, then
   refuses an uncertified positive-finger sweep/stop volume. The observed whole
   foreground model leaves a negative0.313mm calculated margin; no threshold is
   relaxed. All raw/native feedback and2+4s stops pass. Neither full source qualifies;
   improve complete foreground/background support before dependent D4 attempts.
+  Exact reconstruction from seven actual inspection samples reproduces every
+  original front-model count and bound; a spatial union retaining the same
+  reserve also fails to exclude the refused sphere. No new model is adopted.
+  A four-door GPU design comparison retains all16N/H+/H-/P conditions under
+  three target-bound choices. Interior physical targets remove predicted
+  future-limit deficits; restricting targets to the main load rectangle loses
+  endpoint tracking in10of16conditions. The corrected design calls the actual
+  staged release and preceding achieved-pose helpers; an earlier linear-release
+  harness and its native speed-limit failure remain preserved and are not a
+  production-release defect. D3's prospective paths meet original endpoint ranges
+  through goal+3degrees. Its new P placement also passes independent native
+  parked geometry/visibility and2+4s stops, preserving measured placement/posture
+  variation. Full native robot/load/stop and observed scene motion remain unqualified.
   Every negative remains preserved, with zero source labels/windows.
   A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.

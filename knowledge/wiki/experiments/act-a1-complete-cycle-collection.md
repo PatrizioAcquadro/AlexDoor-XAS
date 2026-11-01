@@ -108,8 +108,12 @@ candidate widths are below the unchanged0.2m root criterion. This does not test
 paired-margin renewal. RGB/mask/depth inspection and independent raw/native
 feedback/2+4s-stop review pass. A distinct stationary component moves the actual
 root50mm farther back and rotates yaw0.15rad, preserving posture, contact request,
-neck trajectory, calibration and identity/finite-support criteria. It stops before
-any arm proposal and cannot adopt a complete D3 path or source.
+neck trajectory, calibration and identity/finite-support criteria. Its actual
+34.4s acquisition independently passes: three finite same-ID0 witnesses at18/28/31s,
+actual native root/camera kinematics, parked-arm feedback, unchanged workspace,
+visual review and2+4s stops. There are zero arm proposals, source labels or windows.
+This qualifies acquisition only; complete path/load/contact support and the
+related condition family remain unqualified.
 
 D4 executes154approach commands and stops at27.9667s for unsupported movement/
 stop support of the positive finger. Its last actual paired receipt independently
@@ -124,6 +128,45 @@ raw/native feedback and2+4s stops pass; zero labels/windows remain admitted.
 Suspend dependent unchanged full attempts while improving complete spatial
 foreground/background support and independently qualifying any revised model.
 No plane/model/physical/stop bound is reduced to close the0.313mm calculated gap.
+A separate observed-only reconstruction uses the seven actual4/7/10/15/18/21/25s
+inspection samples and original GPU robot filter. All voxel counts and every
+original front-model bound reproduce exactly. A spatial union with the same
+original global tangent reserve plus full voxel covering also contains the
+refused nominal center. That representation does not solve the refusal; no new
+spatial model or actor change is adopted.
+
+A finite GPU discriminator compares48ideal paths: all four TRAIN doors and their
+N/H+/H-/P setups, using maintained physical targets, targets inset by the unchanged
+future physical travel, or targets inset within the main load rectangle. All4,299
+controller-formula ticks per case are retained, including maintained6s approach,
+ideal contact/opening through frozen goal+3degrees, hold and6s staged release.
+An initial harness incorrectly used a direct linear return to closed precontact.
+Its robot-only10N pilot completes one hold case, then exceeds the unchanged native
+0.51rad/s limit at0.52215rad/s during release in case2; six dependent cases do not
+execute. All33,448moving native samples and six stops are retained, with zero
+frozen residual exceedances and independently passing stop travel/physical gates.
+Allocation returncode0 does not override the negative report. That harness never
+reproduced production release and qualifies no controller defect or calibration.
+The corrected discriminator calls maintained `release_reference` and
+`preceding_retreat_row`; all pre-release predicted q remain exactly unchanged.
+First-half release goals move only normally with unchanged orientation, then
+return to the latest achieved predicted pose at least5degrees earlier. The D2
+approach crosscheck differs by less than0.72microradian from the prior maintained
+integration. Physical-future targets remove predicted future-limit deficits;
+main-load-interior targets lose original endpoint tracking in10of16conditions.
+Neither result is a universal adopted fix. D3's new farther-root maintained paths
+meet original endpoint ranges and predicted physical future boxes for all four
+conditions; its220sampled pedestal/door CAD checks also pass the unchanged SAT
+criterion. These are finite ideal geometry, with no real contact/force servo or
+continuous collision proof. The new P placement independently passes native
+converted-pedestal geometry, reset/visibility, actual root/joint kinematics,
+visual inspection and2+4s unloaded stops. Measured relative floor delta remains
+(+20,-25)mm/-4degrees and initial shoulder/elbow deltas remain-0.05/-0.04rad;
+actual tool displacement is32.96mm. This adds no material identity, full motion
+or contact qualification. A corrected native robot-only whole-path10N component
+uses actual measured pose-controller feedback and staged release toward an
+actually achieved prior pose; independently qualify complete movement/load/stop
+and observed scene support before any dependent full source.
 
 A separate D2 matched N/H+ planning discriminator uses the maintained6s approach:
 360actual controller-formula steps, smoothstep/slerp reaching the fixed target
