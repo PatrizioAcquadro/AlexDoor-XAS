@@ -89,8 +89,14 @@ Runtime/asset ownership and supported workflows are in
   optimization now avoids normal-only subdivision after an accepted volume
   already fixes the finite-material contact branch, while retaining complete
   current scene/stop proofs and unloaded renewal. Numerical boundary, unknown-
-  volume and load-support refusals pass; native transfer and a measured benefit
-  on observed collection remain pending. The active H+ source stays immutable.
+  volume and load-support refusals pass. Source `549ae0c` now passes a complete
+  guarded observed D2-N compatibility regression: original opening/hold/release/
+  stabilization, all 14 shapes over the original 6 s stops, actual RGB and cleanup
+  reviews pass. Its 5,974 delivered commands and 11,948 observed load packets retain
+  the original 10 N domain. This existing nominal cell adds no demonstration or
+  windows. Paired GPU checks preserve admission/receipts at seven saved states
+  and reduce complete query counts; this does not establish full-collection
+  speedup or D3/D4 transfer. The active H+ source stays immutable.
   D2-P independently qualifies its
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.

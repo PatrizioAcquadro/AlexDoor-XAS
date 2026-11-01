@@ -590,6 +590,44 @@ effective budget. The prior source is fully reviewed and released before this
 single new allocation. Complete native observed outcome, causal preparation and
 transfer beyond the native N/H+ pair remain unqualified.
 
+## Observed nominal compatibility and producer cost
+
+Source `549ae0c` completes one full guarded observed D2-N compatibility regression
+with the canonical nominal load model and original physical, material, task and
+stopping criteria. Independent raw reconstruction confirms 42.938 degrees against
+42.029 required, continuous loaded contact and the full 3 s hold, 6 s staged
+release, and ordinary 2 s stabilization. All 29,993 native feedback samples are
+healthy; 5,974 delivered guarded commands match every admission clock and 11,948
+observed load packets. Peak actual force is 4.891 N and the observed upper estimate
+is 5.080 N within the original 10 N model. Independent continuous 6 s stops pass
+all 14 shapes, including radial, directional, joint, tool, rotation, speed,
+acceleration and force bounds. Eight actual phase RGB samples support qualitative
+consistency; raw data establish continuity. All 59 remote result files (4.486 GB),
+plus logs and accounting streams, are retained with actual GPU, process-group and
+canonical lease cleanup verified. The first startup-unavailable result and a
+corrected memory-stream transfer filename remain preserved.
+
+[Independent native review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab3/D2-N-normal-refinement-complete-regression-v2-elab3-20261101/independent-review.json)
+and [actual producer costs](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab3/D2-N-normal-refinement-complete-regression-v2-elab3-20261101/actual-producer-cost-review.json)
+keep this regression of the already qualified nominal cell separate from the
+36-condition collection. It adds zero sources/windows and does not qualify D3/D4
+or the active H+ source. Actual proposal time totals 2,375.824 s; median push cost
+is 0.378 s and 370 complete cover queries per command on elab3. Earlier H+ costs
+use another condition/host; they cannot establish a matched collection speedup.
+A separate paired RTX 4090 replay holds actual state and recorded cell cache fixed
+at seven phase/branch snapshots. Both versions admit every snapshot and pass
+receipt renewal at the next native tick. Complete query counts change from 2,004
+to 370 at contact and 11,044 to 370 at the first push/hold/release states;
+separated approach stays at 32. Original initial-front values, counts and clocks
+reproduce exactly. Fresh workspace caches and one timed call per source/state
+limit interpretation; these are no matched full-run throughput or stable timing
+estimates. The first replay stopped on tuple/list JSON clock representation
+before producer comparisons; its error and cost remain preserved. The corrected
+reader keeps exact numerical equality. The
+[combined review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D2-normal-refinement-complete-observed-qualification-20261101.json)
+records both results and limits. No training, normalizer refit or learned success
+follows.
+
 ## Agreed coverage and present evidence
 
 There are **36 prospective cells: 28 ordinary complete cycles and eight complete
