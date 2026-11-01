@@ -291,7 +291,8 @@ with passing raw/native, inspection limits and2+4s stops, but selected material
 ownership remains ambiguous. Both eligible roots in its exact last publication
 have zero finite static witnesses and zero positive dense-material clearance.
 This profile is not qualified and no dependent movement follows. The original
-negative, masks and394.473GPU s are retained. D4's acquisition remains under review.
+negative, masks and394.473GPU s are retained. D4's acquisition now independently
+qualifies three actual same-ID finite witnesses and the original stops.
 No CAD geometry becomes an actor input or a runtime exclusion certificate.
 
 A separate finite D4 GPU design compares six nominal base positions and four
@@ -346,6 +347,39 @@ the selected episode's240s cap; the outer watchdog remained finite and the actua
 refusal preceded28.2s. Subsequent diagnostic plans set the effective per-episode
 budget and an explicit pre-proposal stop. Recorded RGB-D remains10Hz, so saved
 input replay cannot establish exact30Hz history.
+
+The D4 stationary review initially required tangential exclusion of the old
+rejected volume. That was an incomplete reviewer criterion: the maintained
+admission also permits separation from the whole observed front. A saved-operand
+supplement evaluates both alternatives with every original normal/point/model,
+interval, stop and material reserve retained. Whole-front separation is positive
+10.493mm and complete material margin123.134mm, while tangential exclusion and
+the offline spatial union still fail. The original reviewer and its negative
+conclusion remain preserved with an explicit addendum; no production gate,
+foreground model, calibration or bound changes. This necessary one-volume check
+and qualified stationary acquisition justify one distinct guarded D4 approach/
+contact component on elab4, stopped before the first opening action. Every actual
+proposal still requires ordinary complete-volume admission; no source or full
+motion is qualified. D3 ownership remains unsupported and dependent motion stays
+suspended.
+
+A separate D4 design retains384complete predicted task/stress paths across six
+base positions, four nominal heights, four original variations and two existing
+target-bound choices. Independent CUDA FK recomputes1,616,256samples and checks
+original endpoints,3s hold drift, physical/future boxes and speed. Only31paths
+pass; only the original1.09m/base interior-target family passes all four variations
+in both studies. Its required load-domain extension remains unqualified.
+The first reviewer failed on a SciPy vector-angle API shape before acceptance;
+explicit scalar-axis input repairs the reviewer without changing any trajectory
+or criterion, and both allocations/logs remain. A distinct96case reverse design
+starts from every actual achieved held posture; all72higher cases fail, including
+253.43mm best final precontact error. These finite negative designs establish no
+global infeasibility. A broader243family static endpoint necessity screen varies
+base position/yaw, contact fraction and height with four original perturbations
+and17fixed numerical seeds. All33,048solutions are retained;749of1,944endpoints
+meet original ranges, but no family passes all eight necessary endpoints. These
+local solves confer no global infeasibility, whole-path, observed support, native
+or source qualification.
 
 ## Agreed coverage and present evidence
 

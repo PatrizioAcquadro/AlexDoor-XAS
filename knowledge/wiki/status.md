@@ -139,12 +139,22 @@ Runtime/asset ownership and supported workflows are in
   the retained handle is excluded and no physical violation is observed.
   New intermediate-pitch D3 inspection passes raw/native and stops but still
   fails material ownership; both observed eligible roots have zero finite
-  witnesses and zero positive dense cover. D4's stationary acquisition continues.
-  A separate D4 whole-path planning study compares base positions and contact
-  heights with original variations and separate task/stress references. Material
-  coverage and full native motion remain unqualified. D4 higher-contact designs still fail full and reversed paths;
-  uncentered static IK from three existing seeds also finds no higher endpoint.
-  These finite local results establish no global infeasibility.
+  witnesses and zero positive dense cover. D4's new stationary acquisition passes
+  three finite same-ID witnesses and independent stops. Its first review wrongly
+  required tangential protrusion exclusion: the unchanged alternative whole-front
+  separation actually passes by10.49mm, with positive complete material cover.
+  The original review remains preserved with a corrected addendum; no actor gate
+  changes. A distinct guarded D4 approach/contact component now runs on elab4 and
+  stops before the first opening action. Complete native motion is unqualified.
+  Independent CUDA review of384D4 complete predicted paths finds31passing paths;
+  only the original-height/base family passes all four variations for task and
+  separate stress goals, with required load-domain extension still unqualified.
+  All72higher cases also fail a96case achieved-pose reverse discriminator. A
+  broader243family static endpoint grid varies base/yaw, contact region and height
+  with all original perturbations and17fixed solver seeds. No family passes all
+  eight endpoint necessities. These finite local results establish no global
+  infeasibility or new setup; complete collision/load/stop and observed motion
+  support remain required.
   Every negative remains preserved, with zero source labels/windows.
   A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.
