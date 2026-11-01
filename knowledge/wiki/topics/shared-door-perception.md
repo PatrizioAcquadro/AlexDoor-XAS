@@ -511,3 +511,9 @@ fixed-zone pose-error comparison. Equal best bounds remain ambiguous. A retained
 largest-area error bounds of0.41–0.52m where independently consistent alternatives
 provided0.088–0.107m at the same zone. These are error bounds, not actual physical
 errors or full-path admission. Changed native complete-cycle validation is pending.
+
+
+A geometry recipe may supply `point2pose_selected_path` to a separate frontend
+configuration. The default remains `configs/point2pose_selected.json`. This lets a
+prospective door-specific semantic prompt keep its own explicit recipe; identity,
+finite support, tracking and admission checks retain the same implementation.
