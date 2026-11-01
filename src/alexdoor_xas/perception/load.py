@@ -116,7 +116,17 @@ class LoadCalibration:
             raise ValueError("invalid_future_stop_force_domain")
         # Pay only independently qualified position support at this force.
         loaded_tolerance = np.where(caps >= required_force, tolerance, 0.0)
-        lower_exit = np.any(extended & (lower < main - loaded_tolerance[0]))
+        # Forecasts combine native float32 q/dq with double-precision stop
+        # bounds. Compare a qualified halo at the native joint resolution;
+        # this is one outward representable boundary step, not extra travel.
+        # A halo unqualified at the required force gets no numerical credit.
+        lower_boundary = main - loaded_tolerance[0]
+        lower_boundary = np.where(
+            loaded_tolerance[0] > 0,
+            np.nextafter(lower_boundary.astype(np.float32), np.float32(-np.inf)),
+            lower_boundary,
+        )
+        lower_exit = np.any(extended & (lower < lower_boundary))
         upper_exit = False
         if np.any(tolerance[1] > 0):
             if motion_q_upper is None:
@@ -124,9 +134,13 @@ class LoadCalibration:
             upper = finite_vector(motion_q_upper, 7)
             if np.any(lower > upper):
                 raise ValueError("invalid_position_motion_interval")
-            upper_exit = bool(
-                np.any((tolerance[1] > 0) & (upper > np.asarray(self.q_max) + loaded_tolerance[1]))
+            upper_boundary = np.asarray(self.q_max) + loaded_tolerance[1]
+            upper_boundary = np.where(
+                loaded_tolerance[1] > 0,
+                np.nextafter(upper_boundary.astype(np.float32), np.float32(np.inf)),
+                upper_boundary,
             )
+            upper_exit = bool(np.any((tolerance[1] > 0) & (upper > upper_boundary)))
         if not (lower_exit or upper_exit):
             return
         if (

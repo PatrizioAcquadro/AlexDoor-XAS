@@ -1267,3 +1267,48 @@ def test_unloaded_receipt_revalidates_normal_growth_at_its_complete_spheres(offs
             1,
             generation=0,
         ).admitted
+
+
+@pytest.mark.parametrize("side", [0, 1])
+def test_qualified_position_forecast_uses_native_boundary_resolution(side):
+    model, _, _ = load_inputs()
+    tolerance = np.zeros((2, 7))
+    tolerance[side, 2] = 0.014842030560106245
+    caps = np.ones((2, 7))
+    caps[side, 2] = 10.0
+    qmin, qmax = np.full(7, -1.0), np.full(7, 1.0)
+    qmin[2], qmax[2] = -0.7854710817337036, 0.7854710817337036
+    calibration = replace(
+        model.calibration,
+        q_min=qmin,
+        q_max=qmax,
+        position_tolerance_rad=tolerance,
+        position_halo_force_upper_max_n=caps,
+    )
+    direction = -1 if side == 0 else 1
+    boundary = direction * 0.8003131122938099
+    lower, upper = np.zeros(7), np.zeros(7)
+    interval = lower if side == 0 else upper
+    # A retained native forecast differed from its qualified boundary by
+    # 1.6e-12rad, far below a single native float32 joint-position step.
+    interval[2] = boundary + direction * 1.6e-12
+
+    def check():
+        calibration.require_position_motion_support(
+            lower, motion_q_upper=upper, contact_free_stop_margin_m=-0.2, force_upper_n=10.0
+        )
+
+    check()
+    rounded = np.float32(boundary)
+    outward = np.nextafter(rounded, np.float32(direction * np.inf))
+    interval[2] = outward
+    check()
+    # No promotion of a weaker force-qualified halo, clipping, or added
+    # physical/empirical travel beyond that representable boundary step.
+    with pytest.raises(ValueError, match="requires_contact_free_motion_and_stop"):
+        calibration.require_position_motion_support(
+            lower, motion_q_upper=upper, contact_free_stop_margin_m=-0.2, force_upper_n=10.0001
+        )
+    interval[2] = np.nextafter(outward, np.float32(direction * np.inf))
+    with pytest.raises(ValueError, match="requires_contact_free_motion_and_stop"):
+        check()

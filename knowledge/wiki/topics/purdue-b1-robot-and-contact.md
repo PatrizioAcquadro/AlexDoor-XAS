@@ -234,6 +234,12 @@ not current weak force. A side qualified at that force may spend its supported
 position range; weaker/exhausted coverage still requires independently observed
 contact-free motion and stopping. Actual feedback is never clipped. Unsupported
 position, speed, acceleration, load and combined domains remain refusals.
+For a position side already qualified at the required stop force, forecast
+comparison permits one outward representable float32 boundary step. Forecasts
+combine native float32 joints with double-precision stopping arithmetic; a
+retained D2-H- refusal differed by only 1.6e-12 rad. This numerical comparison
+does not enlarge physical travel, change force caps or clip actual feedback.
+An unqualified side receives no credit; a further representable exit still refuses.
 
 The separate local recipe in
 `outputs/evidence/act-a1-calibration-stop-20261019/runtime-recipe.json` supports
