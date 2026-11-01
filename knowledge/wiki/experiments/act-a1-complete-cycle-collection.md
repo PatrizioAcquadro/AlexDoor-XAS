@@ -210,16 +210,47 @@ original full stress negative remains negative and no prefix is promoted.
 
 These are robot-only constant0.3N paths with ideal geometric door references,
 without observed scene contact, actual task force/admittance or full-source
-qualification. The complete new family requires a common10N wrist-X upper bound
-of1.228614rad,109.684mrad beyond the prior scoped1.118930rad support. Other joint
-sides remain inside their prior10N supports. No bound is extended from these
-low-force data. A prospective13case/39stop calibration fixture tests one unloaded
-control and all four measured extremal postures under10N at tool center and both
-distal faces with yaw±0.2rad. Existing position-difference damping conditions all
-seven actual coordinates to prevent compliance shifting the intended posture;
-production control remains unchanged. Actual mass/impedance stability, frozen
-residuals, physical/dynamic limits and loaded moving/stop boundary coverage remain
-required before scoped adoption. No new source or calibration is yet admitted.
+qualification. A saved-geometry audit also verifies their complete8s stop tails
+against each original latch, preserving all12segment reports and every original
+bound. The full family requires a common10N wrist-X upper bound of1.228614rad,
+109.684mrad beyond prior scoped support; other joint sides remain supported.
+
+A13case/39segment robot-only calibration now independently qualifies that side:
+one unloaded control and all four measured extremal postures under10N at tool
+center and both distal faces/yaw±0.2rad. Existing position-difference damping
+conditions all seven actual coordinates; production control is unchanged.
+Native mass/impedance stability, frozen moving/stopped residuals, physical,
+speed/acceleration, effort and all12loaded moving/loaded-stop boundary witnesses
+pass. Radial/directional covers for all14moving shapes, joint/tool travel and
+rotation also pass over each complete8s latched stop, including load removal.
+Maximum tool travel from stop onset is5.84mm within the original10mm range.
+
+The first shape review refused five removed-load continuations because it used
+their fresh per-file measurement anchors. The actual stop target remains latched
+once; the calibrated volume's axes belong to that original onset. All39stored
+target arrays are verified identical to their case's first latch, and the full
+tail is rechecked in that frame without a bound change or native rerun. The
+original negative review and its charge remain. See the reusable
+[[topics/purdue-b1-robot-and-contact|stop/continuation contract]].
+Only the upper wrist-X empirical position support is adopted for these D3
+original-task N/H+/H-/P paths and measured neighborhoods. Excess position/force
+still refuses; all other calibration fields, physical/force/residual/dynamic/stop
+bounds and the global recipe remain unchanged. This is no arbitrary joint-box,
+other-family, hardware or demonstration qualification.
+
+The distinct guarded D3-N full source uses this scoped support and the exact
+qualified farther-root acquisition setup. Four finite same-ID witnesses at
+15/18/28/31s and79approach commands retain observed ownership, but the complete
+stopped negative-finger volume refuses at35.717s, about1.3s into approach. The
+original eroded plane gap is19.558544mm against a19.558634mm whole-target front
+extent. Observed protrusion tangent bounds are unavailable, so they cannot
+certify an empty region or justify the smaller panel bound. Original measured
+normal/pose/motion errors remain included. Healthy native feedback, raw integrity
+and independent2+4s stops pass with no forbidden contact or physical violation;
+zero labels/windows qualify. The complete negative and exact operands remain
+retained; no unchanged dependent full source is launched. Required opening,3s
+hold, actual contact, release/stabilization, observations and independent stops
+remain mandatory.
 
 D4's additional80finite GPU paths cover four contact heights and six initial
 posture seeds, each with all N/H+/H-/P differences and maintained/physical-future-
@@ -239,6 +270,11 @@ during the final second. The JSON summary fails on a NumPy boolean after all3,75
 steps are saved; the report is recovered from those arrays without a GPU rerun.
 Original nonzero status, log and27.37GPU s remain charged. No native failure,
 feasible production trajectory or global unreachability is inferred.
+A48case static comparison then uses the maintained uncentered local IK solver
+for the same16closed-precontact targets from three existing initial/achieved
+postures. All12baseline solves converge; none of36higher solves meets original
+endpoint ranges. This does not isolate centering as the cause or establish
+unreachability; no higher-contact native attempt or controller change follows.
 
 A separate D2 matched N/H+ planning discriminator uses the maintained6s approach:
 360actual controller-formula steps, smoothstep/slerp reaching the fixed target

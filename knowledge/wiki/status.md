@@ -117,13 +117,21 @@ Runtime/asset ownership and supported workflows are in
   handoff now independently passes all four N/H+/H-/P robot paths:67,472native
   samples, no frozen residual exceedances, full3s holds, staged releases and
   12stops with all14CAD shape covers. Hold drift remains within the original
-  2.5mm range; no source or10N calibration is admitted. A13case/39stop independent
-  load fixture is measuring the common required wrist-X support at10N before
-  any extension can be adopted. D4's higher-contact predictions still fail the
-  approach. Reversing32saved ideal paths also fails all24higher-contact endpoints,
-  while8baseline controls converge. The tested CAD footprints are flat and
-  unobstructed. Reversing this local branch does not repair the approach; no
-  higher-contact setup/model or global infeasibility claim is adopted.
+  2.5mm range. Independent13case/39segment10N qualification now passes the
+  required upper wrist-X support in all four measured postures. Only that scoped
+  empirical position side is adopted; force, residual, physical and stop bounds
+  remain unchanged. The continuous stop review verifies the same original latch
+  through loaded/held/load-removed segments; an earlier review's five refusals
+  used fresh per-file anchors and remain preserved. The distinct observed D3-N
+  full source retains four finite same-ID witnesses and79approach commands, then
+  refuses a complete stopped-finger volume at35.717s. Independent2+4s stops pass
+  with healthy feedback; physical contact/limits do not fail. The original
+  whole-target front extent remains required because observed protrusion tangent
+  bounds are unavailable. This negative admits zero labels/windows; dependent
+  unchanged full attempts remain suspended. D4 higher-contact designs still fail
+  full and reversed paths;
+  uncentered static IK from three existing seeds also finds no higher endpoint.
+  These finite local results establish no global infeasibility.
   Every negative remains preserved, with zero source labels/windows.
   A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.

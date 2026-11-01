@@ -100,6 +100,14 @@ only an environment reset re-enables motion. This removes inherited pushing effo
 without disabling support. Free-space load removal does not prove unloading in
 frictional door contact; physical contact stopping remains unqualified.
 
+`verify_stop_continuation` records a fresh measured `anchor_joint_position`
+for each diagnostic segment, while `stopped_targets` retain the one original
+stop latch until reset. Calibrated radial/directional stop covers use the original
+stop-onset position and link axes throughout loaded, held and load-removed
+continuations. Verify identical targets and the concatenated tail against that
+latch; recentering the calibrated cover at a later loaded pose changes the
+question. Per-segment travel diagnostics and their original limits still apply.
+
 The [[../experiments/b1-approach-controller-compatibility|unchanged-controller approach comparison]]
 adds unloaded trajectory evidence: right tracking passes, left transient tracking
 fails despite static IK support, and actual speed reaches 0.527 rad/s under the
