@@ -363,6 +363,16 @@ proposal still requires ordinary complete-volume admission; no source or full
 motion is qualified. D3 ownership remains unsupported and dependent motion stays
 suspended.
 
+The separate D4 robot-only native component tests N/H+/H-/P through the frozen
+50.146446degree task opening, original3s hold and6s achieved-pose staged release
+under constant0.3N diagnostic loading. It preserves measured placement/arm deltas
+and the newly qualified stationary head pose. Its loaded2s, held4s and removed2s
+stop segments require one original latch and all14moving-shape bounds, native
+feedback, frozen residuals and physical/dynamic limits. The independent reviewer
+is prepared but not dispatched while native simulation owns the device. This is
+pending robot support evidence; it cannot adopt the required10N model domain,
+observed contact or a complete demonstration.
+
 A separate D4 design retains384complete predicted task/stress paths across six
 base positions, four nominal heights, four original variations and two existing
 target-bound choices. Independent CUDA FK recomputes1,616,256samples and checks

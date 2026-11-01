@@ -145,7 +145,11 @@ Runtime/asset ownership and supported workflows are in
   separation actually passes by10.49mm, with positive complete material cover.
   The original review remains preserved with a corrected addendum; no actor gate
   changes. A distinct guarded D4 approach/contact component now runs on elab4 and
-  stops before the first opening action. Complete native motion is unqualified.
+  stops before the first opening action. A parallel robot-only D4 N/H+/H-/P
+  component on Blackwell tests the complete original task-goal paths at constant
+  0.3N, full hold, achieved-pose staged release and loaded/held/removed stops.
+  Actual observed contact and required10N model support remain separate; complete
+  native motion is unqualified pending independent review.
   Independent CUDA review of384D4 complete predicted paths finds31passing paths;
   only the original-height/base family passes all four variations for task and
   separate stress goals, with required load-domain extension still unqualified.
