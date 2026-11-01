@@ -31,7 +31,11 @@ from pxr import Usd, UsdGeom, UsdPhysics
 from alexdoor_xas.action.frames import frame_delta_to_world, validate_object_frame
 from alexdoor_xas.assets.purdue import ARM_JOINTS, NECK_JOINTS, derive_push_geometry
 from alexdoor_xas.kinematics.point_jacobian import link_jacobian_to_point
-from alexdoor_xas.kinematics.pose_control import bounded_joint_step, bounded_pose_step
+from alexdoor_xas.kinematics.pose_control import (
+    bounded_joint_step,
+    bounded_pose_step,
+    pose_target_limits,
+)
 from alexdoor_xas.recording.rgbd import RGBDCapture
 
 from .purdue_contacts import ContactObserver
@@ -96,6 +100,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if len(self._motion_impedance) != len(ARM_JOINTS):
             raise RuntimeError("stop impedance joints do not resolve uniquely")
         self.limits = tensor(self.robot.data.joint_pos_limits)[:, self.arm_ids].clone()
+        self.pose_limits = pose_target_limits(self.limits, cfg.pose_target_margin_rad)
         self.velocities = tensor(self.robot.data.joint_vel_limits)[:, self.arm_ids].clone()
         # Target-rate clipping alone permits tracking overshoot: the pilot
         # measured 0.5183 rad/s under a 0.5 rad/s reference. Retain 10% reference
@@ -364,7 +369,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 self.tool_jacobian(),
                 error,
                 q,
-                self.limits,
+                self.pose_limits,
                 self.velocities,
                 self.step_dt,
                 previous_targets=self.targets[:, self.arm_ids],

@@ -97,6 +97,17 @@ only a complete independently valid bound can be selected. Collinear or otherwis
 unconditioned support remains unavailable. This does not shrink metric error,
 correspondence residuals, material coverage, motion bounds or stopping criteria.
 
+An optional `pose_target_margin_rad` in the collection recipe reserves seven
+joint intervals for pose IK targets. The physical joint limits, A1 joint-delta
+bounds and independent admission/load/stop domains remain separate. Without this
+field, pose targets retain their original behavior. The reserve must be finite,
+nonnegative and leave every command interval nonempty; the runtime records the
+actual target limits. Its campaign candidate derives from the unchanged measured
+stop bound plus the existing full-speed and acceleration allowance for one control
+interval. Native robot-only qualification is distinct from observed-contact,
+required load-domain and complete-source qualification; enabling the option does
+not establish any of those results.
+
 An operational `admission_source(observation, tool, action, remaining_ticks)` must
 support exactly the predicted command. The adapter checks source, action, initial
 tool pose, schedule, current support and remaining margin. A1/A2 local admission

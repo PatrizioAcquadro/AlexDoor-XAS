@@ -3,6 +3,30 @@
 import torch
 
 
+def pose_target_limits(limits, margin=None):
+    """Reserve a separate pose-command interval without changing physical limits."""
+    if (
+        limits.shape[-2:] != (7, 2)
+        or not bool(torch.isfinite(limits).all())
+        or not bool((limits[..., 0] < limits[..., 1]).all())
+    ):
+        raise ValueError("invalid_pose_target_joint_domain")
+    result = limits.clone()
+    if margin is not None:
+        reserve = torch.as_tensor(margin, device=limits.device, dtype=limits.dtype)
+        if (
+            reserve.shape != (7,)
+            or not bool(torch.isfinite(reserve).all())
+            or bool((reserve < 0).any())
+        ):
+            raise ValueError("invalid_pose_target_joint_margin")
+        result[..., 0] += reserve
+        result[..., 1] -= reserve
+        if not bool((result[..., 0] < result[..., 1]).all()):
+            raise ValueError("empty_pose_target_joint_domain")
+    return result
+
+
 def bounded_pose_step(
     jacobian,
     error,

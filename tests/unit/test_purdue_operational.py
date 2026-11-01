@@ -5,7 +5,11 @@ import pytest
 import torch
 
 from alexdoor_xas.envs.door_task.purdue_contacts import has_forbidden_contact
-from alexdoor_xas.kinematics.pose_control import bounded_joint_step, bounded_pose_step
+from alexdoor_xas.kinematics.pose_control import (
+    bounded_joint_step,
+    bounded_pose_step,
+    pose_target_limits,
+)
 from alexdoor_xas.recording.rgbd import RGBDCapture
 
 
@@ -186,3 +190,43 @@ def test_pose_request_is_captured_before_position_and_rate_limits():
     torch.testing.assert_close(clipped, ordinary[1], rtol=0, atol=0)
     assert requested[0, :6].min() > 0.9
     assert target.max() <= 0.010001
+
+
+@pytest.mark.parametrize("sign", [-1, 1])
+@pytest.mark.parametrize("coupling", [0.7, 0.73])
+def test_pose_command_reserve_preserves_physical_bounds_and_target_rate(sign, coupling):
+    jac = torch.zeros(1, 6, 7)
+    jac[0, :, :6] = torch.eye(6)
+    jac[0, 4, 6] = coupling
+    limits = torch.tensor([[[-1.0, 1.0]] * 7])
+    original = limits.clone()
+    reserved = pose_target_limits(limits, [0, 0, 0, 0, 0.12, 0, 0.02])
+    q = torch.zeros(1, 7)
+    q[0, 4], q[0, 6] = sign * 0.88, sign * 0.4
+    error = torch.zeros(1, 6)
+    error[0, 4] = sign * 10
+    speed = torch.ones_like(q) * 0.5
+    target, _ = bounded_pose_step(jac, error, q, reserved, speed, 0.05, centering_gain=0)
+    ordinary, _ = bounded_pose_step(jac, error, q, limits, speed, 0.05, centering_gain=0)
+    assert bool((target >= reserved[..., 0]).all() and (target <= reserved[..., 1]).all())
+    assert bool(((target - q).abs() <= speed * 0.05 + 1e-7).all())
+    assert sign * ordinary[0, 4] > sign * target[0, 4]
+    torch.testing.assert_close(limits, original, rtol=0, atol=0)
+    # A1 commands keep their own original physical/rate contract.
+    joint, _ = bounded_joint_step(sign * torch.ones_like(q), q, limits, speed, 0.05)
+    assert sign * joint[0, 4] > sign * target[0, 4]
+    default = bounded_pose_step(jac, error, q, pose_target_limits(limits), speed, 0.05)
+    previous = bounded_pose_step(jac, error, q, limits, speed, 0.05)
+    for actual, expected in zip(default, previous, strict=True):
+        torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+
+
+@pytest.mark.parametrize(
+    "margin", [[0] * 6, [-0.01] * 7, [float("nan")] * 7, [float("inf")] * 7, [1] * 7]
+)
+def test_pose_command_reserve_refuses_unmeasured_or_empty_domains(margin):
+    limits = torch.tensor([[[-1.0, 1.0]] * 7])
+    original = limits.clone()
+    with pytest.raises(ValueError, match="pose_target_joint"):
+        pose_target_limits(limits, margin)
+    torch.testing.assert_close(limits, original, rtol=0, atol=0)

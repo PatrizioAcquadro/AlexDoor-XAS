@@ -434,6 +434,21 @@ meet original ranges, but no family passes all eight necessary endpoints. These
 local solves confer no global infeasibility, whole-path, observed support, native
 or source qualification.
 
+The independent D2 design compares five common initial wrist-Z seeds for the
+original nominal/H+ height pair, both physical-target and reserved-target modes,
+and the exact42.028823degree task handoff. CUDA FK reviews all72,640predicted
+states. All ten physical-target cases exceed the original future physical domain;
+all ten reserved-target cases pass the necessary planned endpoints, hold, speed
+and staged release. A distinct native test uses the original posture control.
+Both cases independently pass30,976native samples at constant0.3N, full3s holds
+with1.577/1.518mm drift, original6s achieved-pose release and six continuous
+loaded/held/removed stop segments in the original8s latch, including all14shape
+radial/directional and frozen-model checks. Nominal needs no position extension;
+H+ needs only the measured lower-elbow side43.183mrad beyond prior10N support.
+That scoped10N qualification remains separate. The shared optional pose-command
+reserve keeps physical, A1 and admission/load/stop limits unchanged; no active
+recipe, observed source, new demonstration or learned result is adopted.
+
 ## Agreed coverage and present evidence
 
 There are **36 prospective cells: 28 ordinary complete cycles and eight complete

@@ -331,7 +331,7 @@ def main(argv=None):
     from alexdoor_xas.qualification.door_geometry import PreparedDoor
     from alexdoor_xas.qualification.expert import configure_physics_substeps, probe_config
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, run_probe
-    from alexdoor_xas.recording.b1_runtime import camera_calibration
+    from alexdoor_xas.recording.b1_runtime import array, camera_calibration
     from alexdoor_xas.recording.teacher import TemporalExpertRecorder
 
     if not torch.cuda.is_available():
@@ -359,6 +359,8 @@ def main(argv=None):
     if args.operational_recipe is not None:
         recipe = json.loads(args.operational_recipe.read_text())
         cfg.stop_stiffness = tuple(recipe.get("stop_stiffness", cfg.stop_stiffness))
+        margin = recipe.get("pose_target_margin_rad")
+        cfg.pose_target_margin_rad = None if margin is None else tuple(margin)
         configure_physics_substeps(cfg, recipe.get("physics_substeps", cfg.decimation))
         stop_diagnostic_s = float(recipe.get("stop_diagnostic_continuation_s", 0.0))
         if not math.isfinite(stop_diagnostic_s) or stop_diagnostic_s < 0:
@@ -401,6 +403,8 @@ def main(argv=None):
             setup_path=str(setup_path.resolve()),
             condition=condition,
             stop_stiffness=list(cfg.stop_stiffness),
+            pose_target_margin_rad=cfg.pose_target_margin_rad,
+            pose_target_limits_rad=array(env.pose_limits)[0].tolist(),
             physics_dt=cfg.sim.dt,
             control_dt=env.step_dt,
             physics_substeps=cfg.decimation,
