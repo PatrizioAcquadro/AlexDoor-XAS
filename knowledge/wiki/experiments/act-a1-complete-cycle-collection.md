@@ -200,11 +200,26 @@ and all GPU charges remain recorded.
 
 The extra3degrees are an ideal planning stress, while the committed collector
 already hands off at the frozen task opening. A distinct four-condition native
-component now reproduces that original task handoff, retaining the full3s hold,
-maintained6s staged release/actual achieved retreat and independent stops. It
-must qualify its own complete data; no passing prefix or truncated stress record
-is promoted. Original opening, physical, residual, stop and10N future-support
-requirements remain unchanged. No controller, calibration or source is adopted.
+component using that original handoff independently passes all67,472native
+samples, original endpoints, full3s holds, maintained6s staged releases toward
+actual achieved prior poses and12loaded/held/removed stops. All frozen residuals,
+physical/speed/acceleration limits, future physical boxes and all14moving CAD
+shape radial/directional stop bounds pass. Hold drift ranges1.568–1.937mm within
+the unchanged2.5mm range. H-'s minimum Jacobian singular value is0.06011; its
+original full stress negative remains negative and no prefix is promoted.
+
+These are robot-only constant0.3N paths with ideal geometric door references,
+without observed scene contact, actual task force/admittance or full-source
+qualification. The complete new family requires a common10N wrist-X upper bound
+of1.228614rad,109.684mrad beyond the prior scoped1.118930rad support. Other joint
+sides remain inside their prior10N supports. No bound is extended from these
+low-force data. A prospective13case/39stop calibration fixture tests one unloaded
+control and all four measured extremal postures under10N at tool center and both
+distal faces with yaw±0.2rad. Existing position-difference damping conditions all
+seven actual coordinates to prevent compliance shifting the intended posture;
+production control remains unchanged. Actual mass/impedance stability, frozen
+residuals, physical/dynamic limits and loaded moving/stop boundary coverage remain
+required before scoped adoption. No new source or calibration is yet admitted.
 
 D4's additional80finite GPU paths cover four contact heights and six initial
 posture seeds, each with all N/H+/H-/P differences and maintained/physical-future-
@@ -215,6 +230,15 @@ seeds at1.35m do not repair the approach. Exact finite TRAIN CAD checks find the
 sloped/beveled normals do not explain these failures. Saved target-bound
 clamping is retained per joint. These finite predictions prove neither native
 feasibility nor global infeasibility; no setup, controller or model is adopted.
+An additional paired32case reverse-path discriminator starts at retained achieved
+ideal opening postures, traverses the saved geometric opening/contact goals
+backward, then holds the original closed precontact target6s. All24higher-contact
+endpoints still fail; all8baseline controls converge. Reversing this local branch
+does not repair the approach; the higher position errors remain nearly unchanged
+during the final second. The JSON summary fails on a NumPy boolean after all3,759prediction
+steps are saved; the report is recovered from those arrays without a GPU rerun.
+Original nonzero status, log and27.37GPU s remain charged. No native failure,
+feasible production trajectory or global unreachability is inferred.
 
 A separate D2 matched N/H+ planning discriminator uses the maintained6s approach:
 360actual controller-formula steps, smoothstep/slerp reaching the fixed target

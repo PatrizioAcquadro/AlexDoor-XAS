@@ -113,12 +113,17 @@ Runtime/asset ownership and supported workflows are in
   and failure stops pass. This distinguishes task-pressure tracking from upper
   load-model stress. Related H+/P robot paths at0.3N pass, while H- has four frozen
   residual exceedances near a late kinematic singularity in the extra3degree
-  planning stress. None is a full source or a new10N calibration. The next
-  four-condition component uses the original frozen task-goal handoff and must
-  independently complete its own hold/release/stops; the stress negative remains.
-  D4's80finite higher-contact/initial-posture predictions do not repair the shared
-  approach. The tested higher CAD footprints are flat and unobstructed, so bevel
-  geometry does not explain those tracking failures. No setup or model is adopted.
+  planning stress. A distinct component using the original frozen task-goal
+  handoff now independently passes all four N/H+/H-/P robot paths:67,472native
+  samples, no frozen residual exceedances, full3s holds, staged releases and
+  12stops with all14CAD shape covers. Hold drift remains within the original
+  2.5mm range; no source or10N calibration is admitted. A13case/39stop independent
+  load fixture is measuring the common required wrist-X support at10N before
+  any extension can be adopted. D4's higher-contact predictions still fail the
+  approach. Reversing32saved ideal paths also fails all24higher-contact endpoints,
+  while8baseline controls converge. The tested CAD footprints are flat and
+  unobstructed. Reversing this local branch does not repair the approach; no
+  higher-contact setup/model or global infeasibility claim is adopted.
   Every negative remains preserved, with zero source labels/windows.
   A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.
