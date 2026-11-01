@@ -14,15 +14,16 @@ assets, configurations/calibration and perception runtimes; the retained D3
 diagnostic episode is transferred only to Blackwell. Scientific criteria and
 historical failures/charges remain unchanged. The old heartbeat remains PAUSED;
 manual finite jobs are accounted individually. The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
-force/feedback evidence and passing independent stops. No new condition is
-qualified yet. Native initial-command/runtime checks pass on elab2–4; full-source
-regressions retain separate load, foreground-sweep and identity failures. The
-current pressure recipe maintains acquisition support through hold and subtracts
-already-commanded gap recovery; complete-cycle validation remains open.
+force/feedback evidence and passing independent stops. The prospective pressure
+recipe then qualifies D2-RP: continuous native contact, the full three-second
+hold, actual recovery, release/stabilization, independent 2+4 s stops and GPU
+causal preparation all pass. Its 8,041 overlapping windows count as one new
+teacher demonstration. Other conditions remain under guarded qualification;
+this result does not qualify transfer to D1, D3 or D4.
 
 | Study | Retained result | Interpretation and canonical record |
 |---|---|---|
-| ACT A1 complete-cycle collection | 10/36 conditions: 8 ordinary and 2 complete recoveries; pause baseline: 29 full attempts, 8 positive and 21 negative | Includes 2 reused references and 8 new recordings. Their 45,556 overlapping windows are not independent demonstrations. [[experiments/act-a1-complete-cycle-collection|Campaign]] |
+| ACT A1 complete-cycle collection | 11/36 conditions: 8 ordinary and 3 complete recoveries; pause baseline: 29 full attempts, 8 positive and 21 negative | Includes 2 reused references and 9 new recordings. Their 53,597 overlapping windows are not independent demonstrations. [[experiments/act-a1-complete-cycle-collection|Campaign]] |
 | Temporal ACT A1 base training | Principal seed ends at 75k; offline selection fixes checkpoint 61k; final fresh nominal pair 0/2, cumulative learned completion 0/22 | Both final recordings and independent stops pass, with no valid learned contact or physical violation. Four conditional development cases remain unrun; final test sealed. [[experiments/act-a1-first-completion|Training and final pair]] |
 | Historical flat ACT/Diffusion × A1/A2 pilot | Selected-v10: 24/24 failed outcomes. Latest-v11: 2 completed failures, 1 interruption, 21 unallocated slots | Separate frozen cohorts; missing outcomes remain unavailable. [[experiments/b1-end-to-end-pilot-resume|Pilot]] |
 | Diverse teacher campaign | 112/112 originally declared scopes qualified; 96 short train, 8 complete train, 8 development | Later full-source audit finds native pre-release losses in 7 of its 8 complete train sources. Original masks/scopes and outcomes remain. [[experiments/act-a1-diverse-collection|Collection]] |

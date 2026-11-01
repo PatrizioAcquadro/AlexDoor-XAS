@@ -5,21 +5,27 @@
 Can four existing train doors supply 36 independently qualified full-cycle and
 real-history recovery conditions under the maintained controller, observed
 admission and fixed scientific criteria? **The campaign resumed by explicit human
-authorization on October 31, 2026, and remains incomplete: 10/36 qualified
-conditions, comprising eight ordinary cycles and two complete recoveries.** The
-retained pause baseline has 29 full attempts: eight positive and 21 negative. Two qualified reused references plus eight new recordings
-fill the ten conditions. The new sources yield 45,556 overlapping windows, not
-45,556 independent demonstrations. Zero new optimizer updates; learned outcomes
-remain 0/22. Development collection, training and final test are excluded.
+authorization on October 31, 2026, and remains incomplete: 11/36 qualified
+conditions, comprising eight ordinary cycles and three complete recoveries.**
+The retained pause baseline has 29 full attempts: eight positive and 21 negative.
+D2-RP adds one independently reviewed full recovery after the common pressure
+correction: continuous contact, 3 s hold, intentional release, stabilization,
+independent 2+4 s stops, actual-image review and GPU temporal preparation pass.
+The misplaced pause comprises 72 excluded injected commands and 313 measured
+corrective commands; the 27.96 mm handoff error returns within the original
+bounds. Two reused references plus nine new recordings now fill eleven cells.
+Their 53,597 overlapping windows are not independent demonstrations. Zero new
+optimizer updates; learned outcomes remain 0/22. Development collection,
+training and final test remain excluded.
 
 The [[act-a1-complete-cycle-pause-diagnosis|pause diagnosis]] preserves the
 October 27 same-door comparisons and unavailable measurements. The unchanged
 D2-RP discriminator has now reproduced the same refusal at raw episode 152.0 s,
 with synchronized force/feedback evidence and both independent stops passing.
-It adds no qualified cell. Manual finite jobs now use local, Blackwell and
+That diagnostic adds no cell; the distinct pressure-v2 D2-RP candidate above is qualified. Manual finite jobs now use local, Blackwell and
 elab2–5 under serialized device leases; the historical heartbeat remains PAUSED.
 
-The retained negative full attempts comprise eight position/load-support refusals,
+The retained pause-baseline negative full attempts comprise eight position/load-support refusals,
 five perception/material/sweep refusals, two contact-load failures and one each of
 prescribed geometric intersection, opening-progress exhaustion, contact-search
 exhaustion, unresolved runtime stall, historical GPU contention and repaired
@@ -42,7 +48,7 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Unqualified; contact loss | Unqualified; local margin | Qualified new | Qualified new | Qualified new;0.9 | Unqualified; inspection timeout | Qualified new complete recovery |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Unqualified; latest component coverage rejected | Unqualified; outside full gripper support | Qualified new | Three negatives; acquisition-stroke block | Qualified new;1.1 | Qualified new complete recovery | Unqualified; contact-load refusal during hold |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Unqualified; latest component coverage rejected | Unqualified; outside full gripper support | Qualified new | Three negatives; acquisition-stroke block | Qualified new;1.1 | Qualified new complete recovery | Qualified new complete recovery; pressure-v2 |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 1.1 | Unexecuted | Unexecuted |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep refusal | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 0.9 | Unexecuted | Unexecuted |
 
