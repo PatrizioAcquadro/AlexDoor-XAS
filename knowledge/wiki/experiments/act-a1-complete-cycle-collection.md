@@ -1045,9 +1045,46 @@ exposes the same main calibrated position range used by the independently
 reviewed robot-only candidate, while retaining original physical limits, default
 construction, A1 joint-delta behavior, model/observation and stop criteria.
 Invalid/empty or next-step-rate-unreachable target domains refuse. Numerical
-boundary/default/invalid-domain checks pass; actual GPU saved-state parity and
-new guarded related-condition motion remain required before production-region
-adoption or any full P source.
+boundary/default/invalid-domain checks pass. Actual CUDA parity on source
+`ab5b944` covers 62,896 post-command native contexts across all four related
+conditions: targets exactly match the earlier robot-only candidate, default
+construction remains bit-identical, and no physical limit or rate bound changes.
+This saved-state comparison does not replay native previews or physics.
+
+The distinct guarded components on that source execute the original 360 approach
+and 180 contact commands for N/H+/H-. All 540 delivered commands match admissions
+and 1,080 load packets per run; peak model force bounds are 6.818/6.886/7.164 N
+within the original 10 N domain. Raw feedback, measured phase endpoints, actual
+RGB, original continuous 6 s/14-shape stops, whole transfers and owned cleanup
+pass. Each intentional pre-push cutoff contains only 29 loaded valid samples,
+spanning 0.467 s. The original 0.5 s sustained-contact gate is not yet established;
+these are controlled partial executions, not qualified contact subtasks or full
+sources. The maintained sustained-contact and pre-release-continuity predicates
+remain false in their saved reviews. This cutoff is not a physical task failure.
+
+P instead refuses at 27.983 s after 155 delivered approach commands, with one
+refused undelivered proposal and no contact. An
+[exact current-pose cover audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D1-common-lateral-P-calibrated-target-guarded-contact-blackwell-20261101/exact-current-material-cover-audit.json)
+reproduces both finger clearances, 67.550/113.690 mm, and the original 94.735 mm
+uncertainty budget: the limiting material margin is -27.185 mm. Robot sweep and
+self margins remain positive at this refusal. Changing only the next target
+cannot repair missing support at the already measured current pose. Raw rays
+can see the limiting plane cell in several views; a separate saved stationary
+P source audit shows why a visible center does not establish the full finite
+normal-depth column and surrounding region. This is not proof of collision or
+global path infeasibility, and does not justify reducing mask, geometry or error
+reserves. All four component outcomes, original stops and 3,378.460 GPU seconds
+remain in the
+[family review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-calibrated-domain-guarded-contact-family-20261101.json).
+
+One full guarded nominal regression of the prospective common region is now
+running on elab2 with the same physical setup, target domain, model and original
+41.008-degree goal, sustained contact/continuity, loaded hold, complete release,
+stabilization and independent stops. This extends the diagnostic cutoff through
+the required full cycle; it adds no matrix attempt, source or windows and does
+not retry P. The original nominal source remains selected. P and remaining
+related motion require improved general observed support and independent
+qualification before any common-region production adoption or full P source.
 
 ## Resources, archival and closeout
 

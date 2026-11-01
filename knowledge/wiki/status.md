@@ -83,7 +83,16 @@ Runtime/asset ownership and supported workflows are in
   actual camera origins/RGB, parked-arm feedback and original stops, ending before
   any arm proposal. They add no full motion, source or matrix cell. An optional
   pose-target domain now exposes the same main-range intersection used by the
-  robot-only fixture; GPU parity and guarded full-motion transfer remain pending.
+  robot-only fixture. Actual GPU parity passes on all 62,896 saved native contexts,
+  with unchanged default targets and physical limits. New N/H+/H- components
+  execute all 540 prescribed approach/contact commands with verified loads and
+  original stops, but their pre-opening cutoff retains only 29 loaded samples
+  spanning 0.467 s: original 0.5 s sustained contact remains unqualified. P refuses
+  during approach after 155 commands: 67.55 mm observed finger clearance is below
+  the original 94.73 mm uncertainty budget. An exact saved-geometry audit reproduces
+  this deficit; positive robot sweep/self margins do not supply missing material
+  support. A full nominal regression of the common region is running separately;
+  no new source, window or matrix cell follows from these components.
   D1-RV
   independently qualifies actual disturbance, joint braking, return and the complete
   cycle; its earlier inspection and shoulder-support failures remain preserved.
