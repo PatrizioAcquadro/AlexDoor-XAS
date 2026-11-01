@@ -1077,6 +1077,22 @@ reserves. All four component outcomes, original stops and 3,378.460 GPU seconds
 remain in the
 [family review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-calibrated-domain-guarded-contact-family-20261101.json).
 
+A further [complete-path coverage discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-observed-full-path-material-coverage-audit-20261101/review.json)
+queries all 3,931 saved robot-only control poses in all six phases for each of
+N/H+/H-/P against that case's original stationary observed material union. It
+restores each native fixture path to its original root and uses the known ideal
+TRAIN hinge motion only to compare footprints in the closed reference frame.
+P phase minima remain 47.596–51.671 mm, versus 246.586–250.463 mm across the other
+three variants. Every query is available and exceeds the 36.004 mm sum of the
+original fixed robot tracking, rotation, material-response and stopping terms.
+Thus the material union is finite and nonempty; current pose/geometry uncertainty
+must still fit its remaining margin. The 94.735 mm retained P budget is a design
+stress comparison, not an assumed future bound. All six phases are retained,
+including release/stabilization queries that do not replace the separate actual
+unloaded-sweep proof. This supports investigation of general acquisition and
+tracking conditioning across the full family; it proves neither future admission
+nor physical infeasibility and changes no observation or acceptance criterion.
+
 The full guarded nominal regression of the prospective common region is running
 on elab2 with the same physical setup, target domain, model and original
 41.008-degree goal, sustained contact/continuity, loaded hold, complete release,
