@@ -557,6 +557,10 @@ class PanelTracking:
                     for k, v in raw.items()
                 }
                 measured = obj["measured_correspondences"] & obj["inliers"]
+                contact_points = None
+                if self.tool_fk is not None and self.distal_faces is not None:
+                    tool = self.tool_fk(captured["joint_position"], self.calibration)
+                    contact_points = np.concatenate(self.distal_faces) @ tool.rot.T + tool.origin
                 consistent, failures = [], []
                 # Every candidate must independently retain the original material.
                 # Visible area alone does not measure normal/edge conditioning or
@@ -608,6 +612,16 @@ class PanelTracking:
                         error = constraint.position_bound_m + rotational_travel(
                             lever, constraint.rotation_bound_rad
                         )
+                        if contact_points is not None:
+                            # The fresh plane normal supports the actual finite
+                            # fingers. Full-pose and tangent bounds remain intact
+                            # in the selected constraint and every consumer.
+                            error = constraint.normal_point_bound_m + rotational_travel(
+                                np.linalg.norm(
+                                    contact_points - constraint.normal_origin_world, axis=1
+                                ).max(),
+                                constraint.normal_rotation_bound_rad,
+                            )
                         consistent.append((error, constraint))
                     except (ValueError, KeyError) as error:
                         failures.append(str(error))

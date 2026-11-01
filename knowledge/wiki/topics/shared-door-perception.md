@@ -503,9 +503,11 @@ separate open requirements.
 
 Current local-plane selection evaluates all freshly measured components that
 retain the original material identity, synchronized support, complete native-pair
-residuals and conditioned plane/edge bounds. It ranks their position/angular error
-at the same fixed finite contact zone; the largest visible area is not a precision
-certificate. Equal best bounds remain ambiguous. A retained D3 comparison found
+residuals and conditioned plane/edge bounds. With calibrated tool FK and finite
+finger geometry, it ranks the direct measured normal-error bound at the actual
+finger points. Full-pose and tangent bounds remain unchanged in the selected
+constraint and downstream checks. Without that robot domain, it retains the
+fixed-zone pose-error comparison. Equal best bounds remain ambiguous. A retained D3 comparison found
 largest-area error bounds of0.41–0.52m where independently consistent alternatives
 provided0.088–0.107m at the same zone. These are error bounds, not actual physical
 errors or full-path admission. Changed native complete-cycle validation is pending.

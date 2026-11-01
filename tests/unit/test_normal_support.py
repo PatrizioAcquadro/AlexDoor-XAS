@@ -200,3 +200,55 @@ def test_normal_primitives_cover_complete_robot_spheres_without_anchor_detour(ra
         (("plane", translation, angle, tuple(origin + 2)),), centers + 2, radius_m
     )
     assert shifted["plane"] == pytest.approx(bound)
+
+
+@pytest.mark.parametrize("reject_near", [False, True])
+def test_plane_choice_minimizes_normal_error_at_actual_fingers(monkeypatch, reject_near):
+    from dataclasses import replace
+
+    from alexdoor_xas.action.frames import ObjectFrame
+    from alexdoor_xas.perception.point2pose import tracking as module
+
+    tracker, candidate, sample, result = scene()
+    tracker.constrain_local(sample, result)
+    measured = candidate.local_constraint
+    assert measured is not None
+    current = result["local_surfaces"][0]
+    near = replace(current, points=current.points.copy())
+    # Global pose precision and normal precision at the tool disagree. Keep
+    # both complete measured constraints, including their tangent uncertainty.
+    distant_constraint = replace(
+        measured,
+        position_bound_m=0.001,
+        normal_point_bound_m=0.005,
+        normal_origin_world=np.array([1.0, 0.0, 0.0]),
+        normal_rotation_bound_rad=0.05,
+    )
+    near_constraint = replace(
+        measured,
+        position_bound_m=0.1,
+        normal_point_bound_m=0.005,
+        normal_origin_world=np.array([1.0, 0.8, 0.0]),
+        normal_rotation_bound_rad=0.05,
+    )
+    tracker.tool_fk = lambda *_: ObjectFrame(np.array([1.0, 0.8, 0.0]), np.eye(3))
+    tracker.distal_faces = (np.array([[0, -0.01, 0], [0, 0.01, 0]]),)
+    sample["joint_position"] = np.zeros(7)
+    monkeypatch.setattr(
+        module,
+        "constrained_surface_pose",
+        lambda initial, surface, *a, **kw: (
+            near_constraint if surface is near else distant_constraint
+        ),
+    )
+    monkeypatch.setattr(
+        tracker,
+        "root_consistent",
+        lambda local, *_: not reject_near or local.registration_position_m != 0.1,
+    )
+    for options in ([current, near], [near, current]):
+        result["local_surfaces"] = options
+        tracker.constrain_local(sample, result)
+        expected = distant_constraint if reject_near else near_constraint
+        assert candidate.local_constraint is expected
+        assert candidate.local_constraint.position_bound_m == (0.001 if reject_near else 0.1)
