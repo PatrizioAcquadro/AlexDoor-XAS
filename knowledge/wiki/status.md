@@ -72,17 +72,16 @@ Runtime/asset ownership and supported workflows are in
   10N stopping-model domain. Healthy raw/native feedback and all14shape6s stops
   pass; no new demonstration is admitted. A shared gap-recovery candidate uses
   the existing contact-gap tolerance while keeping force regulation active.
-  Source `2cd8697` independently passes a complete privileged native D2-N
-  contact/hold/release/stabilization cycle: all 23,896 task substeps stay inside
-  the original 10 N load model (5.080 N estimated upper peak), and the original
-  six-second stops pass for all 14 shapes. The paired H+ fixture on elab5
-  exhausted its original wall budget at 77.6 simulated seconds (28.365 degrees).
-  Its 12,528 task-native load estimates, prefix contact and original stops pass;
-  hold/release/stabilization
-  remain unexecuted. The interruption and charges are retained separately from
-  conclusive physical negatives. An identical finite H+ component now runs on
-  verified-owned elab2 capacity, with unchanged physical, model and wall limits.
-  Observed-source transfer and related-condition qualification remain pending.
+  Source `2cd8697` now independently passes the complete native D2-N/H+ pair:
+  all 48,584 task substeps stay inside the original 10 N load model, with peak
+  estimated upper bounds of 5.080/5.222 N. Both full cycles and original
+  six-second stops pass for all 14 shapes; measured hold-height variation is
+  19.981 mm against 20 mm requested. The earlier elab5 wall interruption,
+  unexecuted phases and charges remain preserved; the identical H+ component
+  completes on verified elab2 capacity with unchanged limits. One distinct
+  guarded observed H+ source now runs on elab2. Native fixture door normals
+  do not qualify observed identity, material or source admission; transfer
+  beyond the native N/H+ pair remains unqualified.
   D2-P independently qualifies its
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.

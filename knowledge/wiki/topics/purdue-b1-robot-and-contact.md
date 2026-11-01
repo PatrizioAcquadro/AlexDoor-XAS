@@ -426,12 +426,14 @@ because one native interval has zero force. The D2-H+ negative contains a10.726N
 native impulse after such a recovery and correctly refuses its12.847N estimated
 upper bound against the unchanged10N stopping model. Related qualified D2 sources
 also contain sub-tolerance recoveries, so saved correlation does not establish
-causality or controller transfer. Source2cd8697 passes complete native nominal
-motion/contact/hold/release/stabilization and original14shape6s stops, with all
-23,896task-native load estimates inside the original10N domain. The paired H+
-result remains pending. Complete paired native motion/contact and related-condition
-qualification remain mandatory before a new observed source; a privileged native
-door normal does not qualify observed geometry or source admission.
+causality or controller transfer. Source `2cd8697` now passes the complete native
+D2 nominal/H+ pair: motion, contact, hold, release, stabilization and original
+six-second stops for all 14 shapes, with all 48,584 task-native load estimates
+inside the original 10 N domain. The measured hold-height difference is 19.981 mm
+against the original 20 mm variation. A distinct guarded observed H+ source is
+running after this paired component qualification. Privileged native door
+normals do not qualify observed geometry, identity, material or source admission;
+transfer beyond this native pair remains a separate requirement.
 
 
 

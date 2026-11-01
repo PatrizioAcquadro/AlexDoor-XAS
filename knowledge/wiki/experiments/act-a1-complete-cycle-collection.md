@@ -490,31 +490,36 @@ checks are separate from full paired native contact/motion and transfer
 qualification, which must precede another observed source. All original results,
 force domains and physical criteria remain preserved.
 
-Source2cd8697 independently passes the nominal member of a paired privileged
-native pressure qualification. D2-N reaches42.938degrees against42.029required,
-retains native contact through the full3s hold, then completes6s release and2s
-stabilization. All23,896task-native samples independently reproduce the frozen
-load estimate, with5.080N upper peak and4.891N actual normal peak. Original raw
-integrity, physical limits and all14shape6s original-latch stops pass; actual
-push/hold/release/terminal RGB was inspected. The full payload and616.718GPU s
-are retained and owned GPU/PGID/lease cleanup is verified.
+Source `2cd8697` independently passes the complete native nominal/H+ pressure
+pair. D2-N/H+ reach 42.938/42.979 degrees against 42.029 required; both retain
+native contact through the full three-second hold, then finish six-second
+release, stabilization and original six-second stops for all 14 shapes. All
+48,584 task-native samples independently reproduce the frozen load estimates,
+with upper peaks of 5.080/5.222 N and actual peaks of 4.891/5.020 N. Measured
+hold-height variation is 19.981 mm against the requested 20 mm. Raw integrity,
+physical limits and actual phase RGB review pass. Whole outputs and
+616.718/635.825 GPU seconds are retained, with owned GPU/PGID/lease cleanup
+verified.
 
-The paired H+ fixture on elab5 terminates at its original wall-budget boundary,
-77.6 simulated seconds (28.365 degrees), before hold/release/stabilization. All
-12,528 recorded task-native estimates stay inside the original 10 N domain
-(5.222 N upper and 5.020 N actual peaks); the saved prefix reproduces uninterrupted
-contact, and the original six-second stops pass for all 14 shapes. Whole raw
-output, interrupted outcome and 1,702.598 GPU seconds are retained; GPU/PGID/lease
-cleanup is verified. This is an interruption, not a conclusive physical negative
-or full qualification. Observed elab5 CPU frequencies near 800 MHz under native
-work remain an unexplained capacity anomaly; no global host policy is changed.
-The same H+ component migrates once to verified available elab2, whose nominal
-runtime already qualified. Source, fixture code, setup, load/geometry, seeds,
-physical/scientific criteria and 1600/1800-second guards stay the same; only host
-and job paths change. Privileged native door normals qualify pressure components
-only: no observed source, scientific matrix attempt, demonstration or temporal
-window is added. Complete paired success and subsequent observed-source transfer
-remain required.
+The earlier H+ fixture on elab5 remains an interrupted outcome: the original
+wall boundary stops it at 77.6 simulated seconds (28.365 degrees), before
+hold/release/stabilization. Its 12,528 recorded task-native estimates, prefix
+contact and original stops pass; whole output and 1,702.598 GPU seconds remain
+preserved. Actual CPU frequencies near 800 MHz under native work are an
+unexplained capacity anomaly, with no global host-policy changes. The once-only
+migration to verified elab2 keeps source, fixture code, setup, load/geometry,
+seeds, every physical/scientific criterion and the 1600/1800-second guards.
+This correction of an inconclusive resource interruption does not erase it or
+retry a conclusive physical negative unchanged.
+
+One distinct guarded observed H+ source now runs on elab2 using source
+`2cd8697`, the original 20 mm variation/posture, the exact two qualified canonical
+10 N support sides and the same full-cycle protocol. Native pressure fixtures
+use privileged door normals and add no scientific matrix attempt, source,
+demonstration or temporal window. The new observed source must independently
+pass identity/material/uncertainty/admission, full native cycle, actual stops,
+visual review and causal temporal preparation before corpus admission. Its
+result and transfer beyond the native N/H+ pair remain unqualified.
 
 ## Agreed coverage and present evidence
 
