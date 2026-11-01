@@ -78,10 +78,13 @@ Runtime/asset ownership and supported workflows are in
   placement probe now qualifies converted geometry, reset/visibility and original
   continuous 6 s/14-shape unloaded stops, preserving +20/+25 mm, +4 degrees and
   the original posture deltas. Production contact-region/target adoption and
-  complete observed support remain pending. Stationary N acquisition in this
-  region now independently qualifies four same-ID finite material witnesses,
+  complete observed support remain pending. All four stationary N/H+/H-/P
+  acquisitions now independently qualify 4/3/3/4 same-ID finite material witnesses,
   actual camera origins/RGB, parked-arm feedback and original stops, ending before
-  any arm proposal. It adds no full motion, source or matrix cell. D1-RV
+  any arm proposal. They add no full motion, source or matrix cell. An optional
+  pose-target domain now exposes the same main-range intersection used by the
+  robot-only fixture; GPU parity and guarded full-motion transfer remain pending.
+  D1-RV
   independently qualifies actual disturbance, joint braking, return and the complete
   cycle; its earlier inspection and shoulder-support failures remain preserved.
 - All nine D2 conditions are qualified. The distinct observed H+ source on

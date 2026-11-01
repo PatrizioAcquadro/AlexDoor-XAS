@@ -3,8 +3,8 @@
 import torch
 
 
-def pose_target_limits(limits, margin=None):
-    """Reserve a separate pose-command interval without changing physical limits."""
+def pose_target_limits(limits, margin=None, *, domain=None):
+    """Intersect a pose-command domain, then reserve targets within physical limits."""
     if (
         limits.shape[-2:] != (7, 2)
         or not bool(torch.isfinite(limits).all())
@@ -12,6 +12,16 @@ def pose_target_limits(limits, margin=None):
     ):
         raise ValueError("invalid_pose_target_joint_domain")
     result = limits.clone()
+    if domain is not None:
+        bounds = torch.as_tensor(domain, device=limits.device, dtype=limits.dtype)
+        if (
+            bounds.shape != (7, 2)
+            or not bool(torch.isfinite(bounds).all())
+            or not bool((bounds[:, 0] < bounds[:, 1]).all())
+        ):
+            raise ValueError("invalid_pose_target_joint_domain")
+        result[..., 0] = torch.maximum(result[..., 0], bounds[:, 0])
+        result[..., 1] = torch.minimum(result[..., 1], bounds[:, 1])
     if margin is not None:
         reserve = torch.as_tensor(margin, device=limits.device, dtype=limits.dtype)
         if (
@@ -22,8 +32,8 @@ def pose_target_limits(limits, margin=None):
             raise ValueError("invalid_pose_target_joint_margin")
         result[..., 0] += reserve
         result[..., 1] -= reserve
-        if not bool((result[..., 0] < result[..., 1]).all()):
-            raise ValueError("empty_pose_target_joint_domain")
+    if not bool((result[..., 0] < result[..., 1]).all()):
+        raise ValueError("empty_pose_target_joint_domain")
     return result
 
 
@@ -63,6 +73,8 @@ def bounded_pose_step(
     # Independent velocity clipping leaks nullspace motion into the hand pose.
     # Scale the whole target step to preserve its direction within the bounds.
     reference = positions if previous_targets is None else previous_targets
+    if bool(((lo > reference + velocities * dt) | (hi < reference - velocities * dt)).any()):
+        raise ValueError("pose_target_domain_outside_rate_limits")
     step = torch.clamp(positions + delta, lo, hi) - reference
     scale = (step.abs() / (velocities * dt)).amax(dim=-1, keepdim=True).clamp(min=1.0)
     targets, _ = bounded_joint_step(

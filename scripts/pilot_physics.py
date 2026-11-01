@@ -361,6 +361,8 @@ def main(argv=None):
         cfg.stop_stiffness = tuple(recipe.get("stop_stiffness", cfg.stop_stiffness))
         margin = recipe.get("pose_target_margin_rad")
         cfg.pose_target_margin_rad = None if margin is None else tuple(margin)
+        domain = recipe.get("pose_target_domain_rad")
+        cfg.pose_target_domain_rad = None if domain is None else tuple(map(tuple, domain))
         configure_physics_substeps(cfg, recipe.get("physics_substeps", cfg.decimation))
         stop_diagnostic_s = float(recipe.get("stop_diagnostic_continuation_s", 0.0))
         if not math.isfinite(stop_diagnostic_s) or stop_diagnostic_s < 0:
@@ -404,6 +406,8 @@ def main(argv=None):
             condition=condition,
             stop_stiffness=list(cfg.stop_stiffness),
             pose_target_margin_rad=cfg.pose_target_margin_rad,
+            pose_target_domain_rad=cfg.pose_target_domain_rad,
+            physical_joint_limits_rad=array(env.limits)[0].tolist(),
             pose_target_limits_rad=array(env.pose_limits)[0].tolist(),
             physics_dt=cfg.sim.dt,
             control_dt=env.step_dt,

@@ -230,3 +230,56 @@ def test_pose_command_reserve_refuses_unmeasured_or_empty_domains(margin):
     with pytest.raises(ValueError, match="pose_target_joint"):
         pose_target_limits(limits, margin)
     torch.testing.assert_close(limits, original, rtol=0, atol=0)
+
+
+@pytest.mark.parametrize("margin", [None, [0.1] * 7])
+def test_pose_target_domain_intersects_physics_before_reserving_targets(margin):
+    limits = torch.tensor([[[-1.0, 1.0]] * 7, [[-0.8, 0.8]] * 7])
+    original = limits.clone()
+    domain = torch.tensor([[-0.9, 0.7]] * 7)
+    saved_domain = domain.clone()
+    actual = pose_target_limits(limits, margin, domain=domain)
+    expected = torch.tensor([[[-0.9, 0.7]] * 7, [[-0.8, 0.7]] * 7])
+    if margin is not None:
+        expected[..., 0] += 0.1
+        expected[..., 1] -= 0.1
+    torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+    torch.testing.assert_close(limits, original, rtol=0, atol=0)
+    torch.testing.assert_close(domain, saved_domain, rtol=0, atol=0)
+    enclosing = pose_target_limits(limits, domain=[[-2.0, 2.0]] * 7)
+    torch.testing.assert_close(enclosing, limits, rtol=0, atol=0)
+
+
+@pytest.mark.parametrize(
+    "domain, margin",
+    [
+        ([[-0.5, 0.5]] * 6, None),
+        ([[float("nan"), 0.5]] * 7, None),
+        ([[-0.5, float("inf")]] * 7, None),
+        ([[0.5, -0.5]] * 7, None),
+        ([[1.0, 2.0]] * 7, None),
+        ([[-0.05, 0.05]] * 7, [0.05] * 7),
+    ],
+)
+def test_pose_target_domain_rejects_invalid_or_empty_intersections(domain, margin):
+    limits = torch.tensor([[[-1.0, 1.0]] * 7])
+    original = limits.clone()
+    with pytest.raises(ValueError, match="pose_target_joint_domain"):
+        pose_target_limits(limits, margin, domain=domain)
+    torch.testing.assert_close(limits, original, rtol=0, atol=0)
+
+
+def test_pose_domain_cannot_override_the_original_target_rate():
+    jac = torch.zeros(1, 6, 7)
+    jac[0, :, :6] = torch.eye(6)
+    physical = torch.tensor([[[-1.0, 1.0]] * 7])
+    domain = pose_target_limits(physical, domain=[[-0.5, 0.5]] * 7)
+    q = torch.full((1, 7), 0.9)
+    speed = torch.full_like(q, 0.5)
+    with pytest.raises(ValueError, match="pose_target_domain_outside_rate_limits"):
+        bounded_pose_step(jac, torch.zeros(1, 6), q, domain, speed, 0.05)
+    # A nearby boundary can be entered without exceeding the original rate.
+    q.fill_(0.51)
+    target, _ = bounded_pose_step(jac, torch.zeros(1, 6), q, domain, speed, 0.05)
+    assert bool(((target - q).abs() <= speed * 0.05).all())
+    assert bool((target <= domain[..., 1]).all())

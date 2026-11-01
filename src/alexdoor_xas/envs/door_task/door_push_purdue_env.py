@@ -100,7 +100,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if len(self._motion_impedance) != len(ARM_JOINTS):
             raise RuntimeError("stop impedance joints do not resolve uniquely")
         self.limits = tensor(self.robot.data.joint_pos_limits)[:, self.arm_ids].clone()
-        self.pose_limits = pose_target_limits(self.limits, cfg.pose_target_margin_rad)
+        self.pose_limits = pose_target_limits(
+            self.limits, cfg.pose_target_margin_rad, domain=cfg.pose_target_domain_rad
+        )
         self.velocities = tensor(self.robot.data.joint_vel_limits)[:, self.arm_ids].clone()
         # Target-rate clipping alone permits tracking overshoot: the pilot
         # measured 0.5183 rad/s under a 0.5 rad/s reference. Retain 10% reference

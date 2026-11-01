@@ -1026,21 +1026,28 @@ interface, model and workspace paths to pass host preflight; no physical or
 observation criterion changes and no unchanged scientific retry follows.
 
 After correcting recursive runtime paths and verifying the actual historical
-background/workspace constructors, source `49cd6ca` independently qualifies the
-new region's stationary N acquisition. The original 25.4 s inspection ends
-before any arm proposal. Four same-ID finite witnesses at 15/18/21/25 s reproduce
-against actual raw camera origins and surface observations, with independent
-view baselines and unchanged material/calibration limits. All 6,097 native
-samples, parked-arm continuity, seven actual RGB views, original continuous
-6 s/14-shape stops, whole 33-file transfer and owned cleanup pass. Cost is
-196.528 GPU seconds. The
-[acquisition review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D1-common-lateral-N-stationary-acquisition-runtime-ready-elab2-20261101/acquisition-independent-review.json)
+background/workspace constructors, source `49cd6ca` independently qualifies all
+four stationary N/H+/H-/P acquisitions. Each original 25.4 s inspection ends
+before any arm proposal. The selected references retain 4/3/3/4 same-ID finite
+witnesses, independently reproduced against actual raw camera origins, baselines
+and surface observations with unchanged material/calibration limits. All 6,097
+native samples per condition, parked-arm continuity, seven actual RGB views per
+condition, original continuous 6 s/14-shape stops, whole transfers and owned
+cleanup pass. Native costs are 196.528/326.700/322.863/826.061 GPU seconds. The
+[complete acquisition-family review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-common-lateral-runtime-ready-acquisition-family-20261101.json)
 qualifies stationary observed support only: zero arm proposals, source labels,
-windows or new matrix cells. Complete observed contact/motion and production
-target-domain adoption remain separate qualification steps.
+windows or new matrix cells. These inspections do not realize the requested hold
+heights or qualify complete observed contact/motion.
 
-
-
+The shared controller now optionally intersects its pose-target interval with an
+explicit seven-joint domain, before applying the existing future reserve. This
+exposes the same main calibrated position range used by the independently
+reviewed robot-only candidate, while retaining original physical limits, default
+construction, A1 joint-delta behavior, model/observation and stop criteria.
+Invalid/empty or next-step-rate-unreachable target domains refuse. Numerical
+boundary/default/invalid-domain checks pass; actual GPU saved-state parity and
+new guarded related-condition motion remain required before production-region
+adoption or any full P source.
 
 ## Resources, archival and closeout
 

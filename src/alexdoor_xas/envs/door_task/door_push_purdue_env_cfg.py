@@ -33,6 +33,7 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     max_joint_speed: float = 0.5
     # Optional pose-command reserve; hard position/admission limits stay separate.
     pose_target_margin_rad: tuple | None = None
+    pose_target_domain_rad: tuple | None = None
     # Legacy stop response; a separately validated recipe can supply new gains.
     # Canonical right-arm order, same damping ratios and physical effort limits.
     stop_stiffness: tuple = (320.0, 320.0, 160.0, 160.0, 20.0, 10.0, 50.0)

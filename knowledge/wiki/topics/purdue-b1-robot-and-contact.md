@@ -64,6 +64,17 @@ to A1 joint targets and the pose controller used by A2–A4. The independent fac
 copy is changed only inside this project; left arm, neck, fingers and the external
 Alex package retain their settings.
 
+An optional `pose_target_domain_rad` supplies seven explicit joint-position
+intervals for pose-command generation. The controller intersects them with the
+original physical limits before applying `pose_target_margin_rad`; neither input
+changes physical bounds, A1 joint-delta limits, load calibration or stopping.
+Invalid/empty intersections refuse. A domain outside the next rate-limited target
+step also refuses instead of forcing a target jump. Without the optional domain,
+existing target construction remains unchanged. This configuration constrains
+proposals and does not certify their actual movement/contact; observed admission,
+model applicability and full stop proofs remain independently required.
+
+
 | Right joint, canonical order | Previous Kp | Current Kp, N m/rad | Current Kd, N m s/rad |
 |---|---:|---:|---:|
 | SHOULDER_Y | 26.78 | 320 | 8 |
