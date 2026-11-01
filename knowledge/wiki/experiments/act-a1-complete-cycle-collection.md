@@ -5,8 +5,8 @@
 Can four existing train doors supply 36 independently qualified full-cycle and
 real-history recovery conditions under the maintained controller, observed
 admission and fixed scientific criteria? **The campaign resumed by explicit human
-authorization on October 31, 2026, and remains incomplete: 12/36 qualified
-conditions, comprising nine ordinary cycles and three complete recoveries.**
+authorization on October 31, 2026, and remains incomplete: 14/36 qualified
+conditions, comprising eleven ordinary cycles and three complete recoveries.**
 The retained pause baseline has 29 full attempts: eight positive and 21 negative.
 D2-RP adds one independently reviewed full recovery after the common pressure
 correction: continuous contact, 3 s hold, intentional release, stabilization,
@@ -16,7 +16,11 @@ corrective commands; the 27.96 mm handoff error returns within the original
 bounds. The distinct D1-H- pressure-v2 cycle also passes all native, variation,
 stop, sparse-image and GPU temporal checks: the measured hold height is20.02mm
 below nominal, versus the requested20mm. Two reused references plus ten new
-recordings now fill twelve cells. Their57,608 overlapping windows are not independent demonstrations. Zero new
+recordings filled twelve cells. D2-H- and D2-DR then independently pass the
+explicit task-goal handoff, full3s hold, release/stabilization, native/stop,
+variation, visual and GPU temporal checks. D2-H- measures19.97mm below nominal;
+D2-DR confirms1.3x panel/handle mass and inertia with hinge damping6. Two reused
+references plus twelve new recordings now fill fourteen cells. Their72,057 overlapping windows are not independent demonstrations. Zero new
 optimizer updates; learned outcomes remain 0/22. Development collection,
 training and final test remain excluded.
 
@@ -35,10 +39,10 @@ recorder failure. These are outcome mechanisms, not independent causal counts.
 Passing components and stops never add a full cell. The first D2-H- coupled
 bundle misses simultaneous gripper coverage and remains rejected. Subsequent
 qualification covers the declared extrema and the actual new hold posture, with
-all12cases/36stops and frozen residual/dynamic/feedback gates passing. The new
-full source remains pending. D2-DR's longer-budget attempt reaches late hold but
-exits the empirical elbow domain; its complete-task successor explicitly plans
-holding at the unchanged required opening instead of seeking maximum reach.
+all12cases/36stops and frozen residual/dynamic/feedback gates passing. The subsequent full source is now qualified. D2-DR's longer-budget attempt
+reaches late hold but exits the empirical elbow domain; its independently
+qualified successor holds at the unchanged required opening instead of seeking
+maximum reach. Every preceding negative remains unchanged.
 
 ## Agreed coverage and present evidence
 
@@ -54,7 +58,7 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Qualified new; pressure-v2 | Unqualified; observed robot sweep | Qualified new | Qualified new | Qualified new;0.9 | Unqualified; lower-shoulder motion support | Qualified new complete recovery |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Unqualified; new full source pending | Unqualified; outside full gripper support | Qualified new | Unqualified; latest empirical elbow exit | Qualified new;1.1 | Qualified new complete recovery | Qualified new complete recovery; pressure-v2 |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Qualified new; task-goal hold | Unqualified; outside full gripper support | Qualified new | Qualified new; task-goal hold | Qualified new;1.1 | Qualified new complete recovery | Qualified new complete recovery; pressure-v2 |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 1.1 | Unexecuted | Unexecuted |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; perception passed old refusal, joint support pending | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 0.9 | Unexecuted | Unexecuted |
 

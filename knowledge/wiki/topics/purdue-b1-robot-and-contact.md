@@ -418,3 +418,8 @@ probe beyond an already achieved task goal. It does not admit that window as a
 complete demonstration: the full original hold minimum, release, stabilization,
 continuity, force, joint, perception and independent stop checks still apply.
 Protocols without the option retain their original maximum-reach behavior.
+
+The distinct D2-H- and D2-DR task-goal sources independently pass their full
+native cycles, unchanged3s holding, original measured variations,2+4s stops,
+real-image review and GPU temporal preparation. This qualifies those two
+recordings; it does not change earlier maximum-reach outcomes or qualify D3/D4.
