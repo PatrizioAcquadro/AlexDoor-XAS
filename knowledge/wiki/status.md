@@ -72,8 +72,10 @@ Runtime/asset ownership and supported workflows are in
   any approach command; original P placement still fails pedestal CAD. A saved-input
   sensitivity audit also finds only one independent finite-material witness.
   Extended native stationary inspection now independently qualifies three
-  same-ID finite witnesses and stops before any arm proposal; full-cycle support
-  remains unqualified.
+  same-ID finite witnesses and stops before any arm proposal. The full follow-up
+  retains ownership and admits24approach commands, then a new plane estimate
+  exhausts the admitted separation margin. Stops pass; no full source is admitted.
+  D3/D4 dependent collection awaits exact current-bound diagnosis.
   D4's balanced path avoids the prior elbow-domain problem. Fresh 30 Hz geometry
   passes the prior sweep refusal, then exhausts the response separation margin.
   Its controlled diagnostic instead reaches a later unsupported finger sweep;

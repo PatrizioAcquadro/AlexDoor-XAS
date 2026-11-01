@@ -76,6 +76,13 @@ zero source labels/windows are admitted. Calibration, identity and the three-vie
 criterion remain unchanged. The shared optional acquisition recipe now keeps
 collection, provider and observer/IO timing aligned while preserving independent
 workspace clocks; this component alone does not qualify full-path support.
+The full follow-up retains three observed same-ID witnesses and admits24approach
+commands. At34.8s it refuses the updated separation bound: normal-position growth
+26.330mm and worst proved-sphere excess29.834mm exceed12.940mm remaining margin.
+Independent raw/native-feedback and2+4s-stop review passes; zero labels/windows
+are admitted. This joins D4's response-update mechanism without establishing a
+shared algebra bug. Dependent full attempts are suspended while a single bounded
+prefix captures exact live old/new operands; no unchanged full retry is used.
 
 D4 fresh geometry at30Hz passes the prior raw27.683s sweep refusal, then stops
 at27.833s when computed0.422mm growth exceeds the remaining0.194mm separation
@@ -105,8 +112,8 @@ retroactively changed.
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Qualified new; pressure-v2 | Unqualified; observed robot sweep | Qualified new | Qualified new | Qualified new;0.9 | Qualified new complete recovery; task-goal hold | Qualified new complete recovery |
 | D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Qualified new; task-goal hold | Qualified new; task-goal hold | Qualified new | Qualified new; task-goal hold | Qualified new;1.1 | Qualified new complete recovery | Qualified new complete recovery; pressure-v2 |
-| D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 1.1 | Unexecuted | Unexecuted |
-| D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep, fresh-cadence trial | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 0.9 | Unexecuted | Unexecuted |
+| D3 | psx-front-005-ee7d5c6 / right | Unqualified; updated response separation | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 1.1 | Unexecuted | Unexecuted |
+| D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep/response | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 0.9 | Unexecuted | Unexecuted |
 
 The machine-readable [matrix](../../../outputs/evidence/act-a1-complete-cycle-20261026/matrix.json)
 records planned and actual conditions, source/reference links, attempts, outcomes,
