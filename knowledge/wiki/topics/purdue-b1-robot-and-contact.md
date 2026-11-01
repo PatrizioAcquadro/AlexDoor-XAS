@@ -404,7 +404,10 @@ native-interval recipes remain readable and retain their original behavior.
 The October31 D2-RP diagnostic reproduced the refusal at152.0s and retained
 intermittent zero native means with a0.03396N final physical window. The separate
 observed lower bound crossed zero. This resolves the missing-feedback question;
-it does not establish complete recovery under the corrected feedback mode.
+that unchanged diagnostic alone does not qualify a full source. Subsequent distinct
+pressure-v2 D2-RP and D1-H- sources independently pass their complete native,
+variation/recovery, stop, visual and temporal reviews. Transfer beyond those
+conditions remains a separate requirement.
 
 
 A complete-collection protocol may explicitly enable `completion_opening_handoff`

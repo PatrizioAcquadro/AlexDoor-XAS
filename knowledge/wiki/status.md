@@ -56,20 +56,20 @@ Runtime/asset ownership and supported workflows are in
 
 ## Open questions and current work
 
-- D1-H- now independently qualifies under pressure-v2; its earlier physical
-  contact-loss outcome remains preserved. D1-P lacks observed whole-robot support;
-  cadence alone cannot repair it. D1-RV retains an unresolved inspection stall.
-- D2 height/placement cases expose full-path empirical support gaps after local
-  component passes. D2-DR additionally retains progress/acquisition failures.
-  D2-RP now has synchronized native means: intermittent physical support and
-  instantaneous feedback disagree during late hold; the complete-cycle effect
-  of the shared pressure correction remains unvalidated.
-- D3/D4 have no qualified same-door full control. Material/sweep support refusals
-  establish neither collision nor physical infeasibility.
-- D3 matched saved-input replay and distinct elab runtime checks test the shared
-  perception correction. Full D3/D4 CAD path design includes the original height
-  and placement/posture variation; native load/stop and complete cycles remain
-  necessary. The historical discriminator proposal belongs to
+- D1-P still refuses observed whole-robot support. D1-RV reaches push but its
+  future shoulder interval exits the qualified domain; the earlier inspection
+  stall is historical, not the current blocker.
+- D2 height/placement cases retain full-path empirical support gaps. A distinct
+  D2-DR source tests task-goal holding after its late-hold elbow-domain refusal.
+  D2-RP and D1-H- now qualify under pressure-v2; this does not qualify other cells.
+- D3/D4 have no independently qualified full cycle. The D3 whole-door prompt
+  supplies three real same-identity material witnesses on saved inputs; native
+  transfer remains under test. D4 passes its previous normal-uncertainty refusal
+  and now needs complete-path joint/load/stop support. A closer D3 placement was
+  independently rejected for actual pedestal/leaf intersections and forbidden
+  stop contact; that failure remains preserved.
+- Full D3/D4 CAD path designs retain the declared variations, but CAD and passing
+  components add no source. The historical discriminator remains documented in
   [[experiments/act-a1-complete-cycle-pause-diagnosis|the pause diagnosis]].
 
 Final qualification still requires the unchanged geometric criteria, observed
