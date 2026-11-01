@@ -24,7 +24,7 @@ this result does not qualify transfer to D1, D3 or D4.
 
 | Study | Retained result | Interpretation and canonical record |
 |---|---|---|
-| ACT A1 complete-cycle collection | 15/36 conditions: 11 ordinary and 4 complete recoveries; pause baseline: 29 full attempts, 8 positive and 21 negative | Includes 2 reused references and 13 new recordings. Their75,832 overlapping windows are not independent demonstrations. [[experiments/act-a1-complete-cycle-collection|Campaign]] |
+| ACT A1 complete-cycle collection | 16/36 conditions: 12 ordinary and 4 complete recoveries; pause baseline: 29 full attempts, 8 positive and 21 negative | Includes 2 reused references and 14 new recordings. Their 81,877 overlapping windows are not independent demonstrations. [[experiments/act-a1-complete-cycle-collection|Campaign]] |
 | Temporal ACT A1 base training | Principal seed ends at 75k; offline selection fixes checkpoint 61k; final fresh nominal pair 0/2, cumulative learned completion 0/22 | Both final recordings and independent stops pass, with no valid learned contact or physical violation. Four conditional development cases remain unrun; final test sealed. [[experiments/act-a1-first-completion|Training and final pair]] |
 | Historical flat ACT/Diffusion × A1/A2 pilot | Selected-v10: 24/24 failed outcomes. Latest-v11: 2 completed failures, 1 interruption, 21 unallocated slots | Separate frozen cohorts; missing outcomes remain unavailable. [[experiments/b1-end-to-end-pilot-resume|Pilot]] |
 | Diverse teacher campaign | 112/112 originally declared scopes qualified; 96 short train, 8 complete train, 8 development | Later full-source audit finds native pre-release losses in 7 of its 8 complete train sources. Original masks/scopes and outcomes remain. [[experiments/act-a1-diverse-collection|Collection]] |
@@ -60,15 +60,18 @@ Runtime/asset ownership and supported workflows are in
 - D1-P still refuses observed whole-robot support. D1-RV now independently
   qualifies actual disturbance, joint braking, return and the complete cycle;
   its earlier inspection and shoulder-support failures remain preserved.
-- D2-H+ and D2-P retain full-path empirical support gaps. Distinct D2-H- and
-  D2-DR sources now independently qualify task-goal holding and complete cycles.
+- D2-H+ retains full-path support gaps. D2-P now independently qualifies its
+  measured placement/posture variation and full task-goal cycle; D2-H- and
+  D2-DR also qualify task-goal holding and complete cycles.
   D2-RP and D1-H- also qualify pressure-v2; every earlier failure is preserved.
 - D3/D4 have no independently qualified full cycle. The D3 conditioned seed
   supplies the previously missing observed edge and retains three real identity
   witnesses, but the current material margin remains insufficient. A lower
   nominal path is under robot load/stop qualification; its original P placement
   still fails pedestal CAD. D4's balanced path avoids the prior elbow-domain
-  problem but retains an observed sweep refusal. A closer D3 placement's actual
+  problem but retains an observed sweep refusal; a fresh-cadence native trial
+  processes actual new geometry at 30 Hz with unchanged support criteria.
+  A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.
 - Full D3/D4 CAD path designs retain the declared variations, but CAD and passing
   components add no source. The historical discriminator remains documented in

@@ -5,8 +5,8 @@
 Can four existing train doors supply 36 independently qualified full-cycle and
 real-history recovery conditions under the maintained controller, observed
 admission and fixed scientific criteria? **The campaign resumed by explicit human
-authorization on October31,2026 and remains incomplete:15/36 conditions,
-comprising eleven ordinary cycles and four complete recoveries.** The retained
+authorization on October31,2026 and remains incomplete:16/36 conditions,
+comprising twelve ordinary cycles and four complete recoveries.** The retained
 pause baseline remains29full attempts:eight positive and21negative.
 
 D2-RP independently qualifies the real72-command pause/313-command recovery.
@@ -19,10 +19,15 @@ D1-RV now independently qualifies its actual35nonzero injected commands and
 403corrective commands. The measured14.47mm/0.03026rad handoff returns within
 0.858mm/0.002824rad. Its24joint-brake intervals reduce peak joint speed from
 0.22255 to0.01182rad/s; this is braking, not a zero-velocity or independent-stop
-claim at0.4s. All four resumed positives pass their complete native continuity,
+claim at0.4s. These qualified sources pass their complete native continuity,
 2+4s independent stops, actual-image and GPU temporal reviews. Injected targets
-remain excluded. Two reused references and thirteen new recordings fill fifteen
-cells; their75,832overlapping windows are not independent demonstrations.
+remain excluded. Two reused references and fourteen new recordings fill sixteen
+cells; their81,877overlapping windows are not independent demonstrations.
+D2-P also passes full native continuity, the unchanged3s hold, release,
+stabilization,2+4s stops, actual RGB and GPU temporal preparation. Measured
+base displacement is(-20,+25)mm with4deg yaw; initial shoulder/elbow deltas are
+-0.05/+0.04rad and tool displacement47.63mm. Its6,045overlapping windows are
+one new recording. Earlier placement failures remain negative.
 Zero new optimizer updates; learned outcomes remain0/22. Development collection,
 training and final test remain excluded.
 
@@ -31,7 +36,8 @@ October 27 same-door comparisons and unavailable measurements. The unchanged
 D2-RP discriminator has now reproduced the same refusal at raw episode 152.0 s,
 with synchronized force/feedback evidence and both independent stops passing.
 That diagnostic adds no cell; the distinct pressure-v2 D2-RP candidate above is qualified. Manual finite jobs now use local, Blackwell and
-elab2–5 under serialized device leases; the historical heartbeat remains PAUSED.
+elab2–5 under serialized device leases; the existing collection heartbeat is
+ACTIVE and continues this same chat.
 
 The retained pause-baseline negative full attempts comprise eight position/load-support refusals,
 five perception/material/sweep refusals, two contact-load failures and one each of
@@ -60,9 +66,9 @@ retroactively changed.
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
 | D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Qualified new; pressure-v2 | Unqualified; observed robot sweep | Qualified new | Qualified new | Qualified new;0.9 | Qualified new complete recovery; task-goal hold | Qualified new complete recovery |
-| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Qualified new; task-goal hold | Unqualified; outside full gripper support | Qualified new | Qualified new; task-goal hold | Qualified new;1.1 | Qualified new complete recovery | Qualified new complete recovery; pressure-v2 |
+| D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Qualified new; task-goal hold | Qualified new; task-goal hold | Qualified new | Qualified new; task-goal hold | Qualified new;1.1 | Qualified new complete recovery | Qualified new complete recovery; pressure-v2 |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 1.1 | Unexecuted | Unexecuted |
-| D4 | psx-interior-wood-002-02e442c / left | Unqualified; perception passed old refusal, joint support pending | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 0.9 | Unexecuted | Unexecuted |
+| D4 | psx-interior-wood-002-02e442c / left | Unqualified; observed sweep, fresh-cadence trial | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 0.9 | Unexecuted | Unexecuted |
 
 The machine-readable [matrix](../../../outputs/evidence/act-a1-complete-cycle-20261026/matrix.json)
 records planned and actual conditions, source/reference links, attempts, outcomes,
@@ -72,7 +78,8 @@ the latest implementation. New attempt outcomes remain separate from the C03/C04
 
 Exact candidate setups are in the campaign's `setups/` directory. Nominal contact
 height is 1.09 m; H+/H- use 1.11/1.07 m. P translates the fixed robot +20 mm in
-world X and +25 mm in Y with +4 degrees yaw on D1/D2; D3/D4 use -25 mm in Y and
+world X on D1 and -20 mm on the feasible D2 placement, with +25 mm in Y
+and +4 degrees yaw; D3/D4 use -25 mm in Y and
 -4 degrees yaw. Translation magnitude is 32.0 mm. Shoulder-Y changes by -0.05 rad
 and elbow-Y by +0.04/-0.04 rad respectively. These are proposed physical
 variations, not measured reachability or new safety thresholds. Screen reset,
