@@ -403,15 +403,28 @@ spherical support calculation with a coupled Jacobian enclosure and an analytica
 suffix-length Taylor remainder. It keeps the same acceleration box, full stop
 box/frame rotation, robot/jaw errors and every original normal/model/temporal/front
 bound. All14complete foreground shape volumes pass at the original refusal.
-A matching convex-background query retains all16,384generated vertices per shape
-and passes eleven shapes, including both fingers with minimum6.235mm margin;
-three shoulder-root boxes remain unknown. The first CPU verifier's NumPy-boolean
-serialization failure is preserved; the corrected version keeps all vertices
-without numerical hull reduction. These saved-state results change no actor,
-original outcome, mask or denominator. General chain-depth/perturbation, complete
-background, correctly associated receipt-growth, full guarded-motion/contact and
-related-condition qualification remain necessary before adopting this candidate.
-A convex proof never establishes free space for its larger enclosing sphere.
+A matching convex-background query retains all 16,384 generated vertices per
+shape. It directly proves eleven shapes, including both fingers with a minimum
+6.235 mm margin. The three shoulder roots also pass when each complete convex
+volume is enclosed by a ball whose own foreground and historical-background
+proofs independently pass. The maintained constructive background reader pays
+all original calibration errors; shoulder background margins are 3.626, 2.390
+and 1.193 mm. No convex margin is credited as free space for its larger sphere;
+the finger outer spheres still fail their own foreground test and receive no
+such fallback credit.
+
+Independent nonlinear URDF arithmetic supplements the analytical Taylor bound:
+five poses, six velocity patterns, three interval scales and acceleration-box
+corners exercise all seven chain depths, every vertex of all 14 shapes and 12
+projection directions. All 1,411,200 vertex checks pass across 12,600 constructed
+FK states. The 1e-12 m arithmetic comparison tolerance is solely a roundoff check,
+with no physical admission credit. The first convex reader's NumPy-boolean
+serialization failure and all earlier unknown/negative diagnostics remain
+preserved. These saved-state mathematical results change no controller, original
+outcome, calibration, mask or denominator. Shared implementation, complete-motion
+and related-condition validation, correctly associated receipt growth and native
+guarded-motion/contact qualification remain necessary before adopting the
+candidate. A convex proof never establishes free space for its larger sphere.
 
 The separate D4 robot-only component independently passes all69,744native samples
 of N/H+/H-/P through the frozen50.146446degree task opening, original3s hold and6s
