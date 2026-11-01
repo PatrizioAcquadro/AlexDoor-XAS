@@ -151,7 +151,12 @@ Runtime/asset ownership and supported workflows are in
   reconstruct; complete finer CAD cells improve those normal margins without
   reducing any stop/model/error bound. The shared producer now refines loose
   positive cells and rechecks every child through the original complete scene
-  queries. Unit geometry/admission checks pass; native qualification is pending.
+  queries. Unit geometry/admission checks pass. The distinct native component
+  then stops after149approach commands, before contact, for unsupported complete
+  finger sweep/stop volume. All8,853native samples, raw integrity and original
+  six-second latched14shape stop bounds pass. Current RGB-D rays also leave that
+  volume unknown; they do not justify a bypass. Dependent observed D4 motion stays
+  suspended while full geometry/observation support remains unresolved.
   Separately, all four D4 N/H+/H-/P original-task robot paths at constant0.3N pass
   independent full hold, achieved-pose staged release, native/model/physical and
   12continuing-stop reviews. Eight additional cases/24segments qualify only the

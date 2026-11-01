@@ -381,8 +381,22 @@ refines a positive cell when its box-to-ball plane-projection overreach exceeds
 its proved margin, stopping at the existing minimum cell size. Every child takes
 all original foreground/background/material/self/load/stop queries with the same
 query ceiling. No acceptance tolerance or uncertainty decreases. Numerical
-nominal, resolution-boundary and rigid-rotation checks pass; a distinct guarded
-native qualification remains required before full-source admission.
+nominal, resolution-boundary and rigid-rotation checks pass.
+
+The distinct refined-cover component stops at36.8833s after149approach commands,
+before contact, with `unsupported_actual_robot_sweep_and_stop`. It retains
+8,853healthy native samples, raw integrity, no observed force/forbidden-contact
+violation and passing2+4s stops. Independent1,440sample review also verifies every
+14shape radial/directional, joint, tool and rotation bound in the original6s
+latch frame. At the unsupported negative-finger cell, the exact terminal ball
+still loses1.61mm of whole-front separation after all original errors. Finite
+material projection is positive, but the enlarged volume overlaps the conservative
+relief envelope, so planar body order alone cannot prove exclusion. Saved current
+RGB-D queries also remain unknown for both original radial and directional
+volumes after all original normal/model/motion errors. Unknown is preserved;
+no physical collision or admissible current-ray fallback is inferred. Actual
+RGB at the terminal prefix was inspected. No complete contact/source, labels or
+windows qualify, and dependent unchanged D4 motion stays suspended.
 
 The separate D4 robot-only component independently passes all69,744native samples
 of N/H+/H-/P through the frozen50.146446degree task opening, original3s hold and6s
