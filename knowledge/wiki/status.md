@@ -57,9 +57,12 @@ Runtime/asset ownership and supported workflows are in
 
 ## Open questions and current work
 
-- D1-P still refuses observed whole-robot support. D1-RV now independently
-  qualifies actual disturbance, joint braking, return and the complete cycle;
-  its earlier inspection and shoulder-support failures remain preserved.
+- D1-P still refuses observed support. A complete saved material-grid translation
+  audit rejects pure vertical contact changes over the examined +/-100 mm range;
+  lateral regions merit complete-motion design with every original bound retained.
+  These geometric proxies qualify no new pose, variation or source. D1-RV
+  independently qualifies actual disturbance, joint braking, return and the complete
+  cycle; its earlier inspection and shoulder-support failures remain preserved.
 - D2-H+ remains unqualified as an observed complete source. The original-posture
   N/H+ robot-only paths pass full native0.3N motion/hold/release/stop review with
   pose targets reserved inside unchanged physical limits. Both required measured

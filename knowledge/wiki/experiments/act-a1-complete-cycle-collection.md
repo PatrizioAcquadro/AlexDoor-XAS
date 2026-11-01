@@ -779,6 +779,28 @@ retains every bound and all outcomes. No changed contact setup or new dependent
 native attempt follows from this screen; complete observed foreground/acquisition
 and related full-motion support remain required.
 
+## D1-P saved material-region discriminator
+
+A CPU-only audit translates all four original conservative finger-query
+rectangles over the complete saved observed-material grid, keeping the original
+78.306 mm uncertainty and every excluded cell. It exactly reproduces the actual
+-23.720 mm refusal. Of 40,401 lattice translations within +/-100 mm in each tangent
+axis, 8,810 have positive saved material margin. All 201 pure vertical translations
+remain negative; the best still lacks 8.720 mm. Raising contact alone therefore
+does not repair this saved geometric query within the examined range. A separate
+full-grid minimum-filter calculation exactly checks all 161,604 rectangle queries.
+
+Regions farther sideways from the retained handle/relief merit complete-motion
+design. The nearest positive lattice point moves 12 mm sideways and 23 mm upward,
+but has only 0.042 mm saved margin and is not adopted. Translating the same
+rectangles another +/-20 mm vertically leaves 5,170 positive proxy centers; these
+are not actual varied conditions. This screen certifies no new reachable pose,
+observation, changed uncertainty, robot/scene clearance, load support, continuous
+path or native stop. No new native attempt, source or window follows. The
+[complete outcomes and independent check](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-P-saved-material-translation-discriminator-20261101/review.json)
+retain all nonpositive and unavailable states; the executable baseline is
+`549ae0c` (documentation baseline `5215f34`).
+
 ## Resources, archival and closeout
 
 The latest historical authorization removes cumulative GPU-hour, allocation-count
