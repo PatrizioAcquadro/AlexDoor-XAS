@@ -155,9 +155,11 @@ Runtime/asset ownership and supported workflows are in
   unchanged D3 attempts remain suspended while common complete observed support
   is investigated. A shared candidate reuses complete localized relief exclusion
   for coupled volumes and renews full spatial bounds at dispatch for loaded and
-  unloaded receipts. Targeted numerical checks pass and D4 remains refused;
-  complete GPU producer replay and native/related-condition qualification are
-  pending. D2-N compatibility does not establish D3 transfer.
+  unloaded receipts. Targeted numerical checks and the full saved-state GPU
+  producer/receipt comparison pass for D3; D4 remains refused. All seven nominal
+  phase/branch saved states and their receipts also pass. Native whole-motion and
+  related-condition qualification remain pending.
+  Earlier D2-N compatibility does not establish D3 transfer.
   A saved contact-region screen yields only three conditional upper points;
   no new complete path follows. Even un-padded observed protrusions remain
   inside the original expanded projected query. The

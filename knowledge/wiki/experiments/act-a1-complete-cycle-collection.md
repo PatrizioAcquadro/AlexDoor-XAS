@@ -512,9 +512,20 @@ for loaded and unloaded actions. Tangential pose changes or growth of geometry/
 pose bounds can refuse even when normal bounds are unchanged. Existing physical,
 material, identity, load, stopping and same-volume normal gates remain mandatory.
 The 217 targeted numerical checks and the saved D3/D4 domain/uncertainty-overspend
-checks pass. This is software qualification only: full GPU producer/receipt replay,
-nominal compatibility, native whole motion and related conditions remain pending.
-H+ remains on its immutable source; no new source or window is admitted.
+checks pass. Actual GPU full-producer comparison against `549ae0c` now retains
+its D3 refusal and admits all 14 complete volumes with candidate `68a5bcb`, leaving
+5.816 mm whole-robot margin. Its 12 spatial domains revalidate at the next native
+time with the same estimate, while full-point uncertainty overspend refuses.
+Both D4 producers retain the unsupported-sweep refusal. This finite replay charges
+20.297 GPU seconds and has verified owned process/GPU/lease cleanup. Fresh cells
+and query caches plus an unavailable current rigid-target workspace are explicit;
+no native tracking history or missing physical response is fabricated. A second
+actual GPU comparison passes all seven original nominal phase/branch snapshots
+and both receipts per state, with identical recorded cells and exact reconstruction
+of every original initial-front value, count and clock. Its 65.905 GPU seconds
+and owned cleanup are retained. These saved-state checks do not qualify native
+whole motion or related conditions. H+ stays immutable; no new source or window
+is admitted.
 
 The [complete geometric discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/review.json)
 and [shared-certificate check](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/shared-certificate-saved-state-check.json)
