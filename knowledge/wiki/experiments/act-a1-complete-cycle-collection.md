@@ -527,6 +527,26 @@ and owned cleanup are retained. These saved-state checks do not qualify native
 whole motion or related conditions. H+ stays immutable; no new source or window
 is admitted.
 
+The distinct native `68a5bcb` approach/contact component stops after four approach
+commands and no contact. Its actual response at 34.466667 s changes the complete
+spatial-relief minimum from +0.556 to -17.448 mm; 24 of 36 saved exclusion domains
+fail. The mean observed pose shifts 9.949 mm and 0.037797 rad while published pose
+bounds grow. All 45 same-volume normal margins remain positive. This reproduces
+`target_relief_exclusion_exhausted` from the actual admission and response, rather
+than the older global-front-only terminal fallback. It establishes neither a
+physical collision nor global infeasibility. Preserve current spatial renewal;
+compare complete geometric domains and acquisition uncertainty before another
+dependent native attempt, without threshold relaxation or point-specific rules.
+
+All 8,273 native feedback samples are healthy. Four admitted proposals match four
+delivered commands, with no undelivered admission; nine observed load packets
+retain the original 10 N model. Original continuous 6 s/14-shape stops, actual six
+RGB samples, whole 38-file transfer and owned process/GPU/lease cleanup pass.
+The negative component costs 407.613 GPU seconds and adds zero source, cell or
+window. Its [independent review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D3-localized-relief-guarded-approach-contact-blackwell-20261101/component-independent-review.json)
+and [exact spatial-response audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D3-localized-relief-guarded-approach-contact-blackwell-20261101/exact-spatial-response-audit.json)
+retain every domain, uncertainty primitive and original failure.
+
 The [complete geometric discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/review.json)
 and [shared-certificate check](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/shared-certificate-saved-state-check.json)
 retain every domain and original failure. An initial independent reader wrongly
@@ -865,6 +885,26 @@ path or native stop. No new native attempt, source or window follows. The
 [complete outcomes and independent check](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-P-saved-material-translation-discriminator-20261101/review.json)
 retain all nonpositive and unavailable states; the executable baseline is
 `549ae0c` (documentation baseline `5215f34`).
+
+An actual GPU whole-path discriminator then screens 20 common lateral/height
+regions, preserving all original N/H+/H-/P floor, posture and +/-20 mm variations.
+Both the frozen 41.008202-degree goal and a separate +3-degree stress are retained
+under original and interior physical targets: 320 ideal paths, each with 4,110
+intermediate ticks through approach, ideal contact/opening/hold, maintained staged
+achieved-pose retreat/release and full 6 s stabilization. Every predicted physical
+future interval, speed and pose-tracking range passes. Eleven common regions also
+have positive saved material margins at all three translated height proxies.
+
+No family fits the main empirical load-position rectangle throughout every path;
+that is a support-qualification requirement, distinct from physical joint safety
+or a proof that existing qualified halo/scoped/contact-free support is unavailable.
+Perfect target tracking and translated old finger rectangles certify no observed
+contact, pressure regulation, actual varied geometry, full native movement/load or
+stops. No region/controller/calibration is adopted and no new source follows.
+The [complete finite outcomes and independent review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-lateral-contact-complete-family-design-local-20261101/independent-review.json)
+retain all alternatives and the ideal opening discretization. The allocation
+costs 40.397 GPU seconds; owned process/GPU/lease cleanup passes. Preparation and
+CPU reader errors remain preserved without extra native or GPU attempts.
 
 ## Resources, archival and closeout
 

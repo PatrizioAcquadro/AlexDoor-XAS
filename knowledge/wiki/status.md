@@ -60,7 +60,12 @@ Runtime/asset ownership and supported workflows are in
 - D1-P still refuses observed support. A complete saved material-grid translation
   audit rejects pure vertical contact changes over the examined +/-100 mm range;
   lateral regions merit complete-motion design with every original bound retained.
-  These geometric proxies qualify no new pose, variation or source. D1-RV
+  A subsequent actual GPU screen retains 20 common regions across original
+  N/H+/H-/P variations, frozen and extra-angle goals and two target modes. All
+  320 ideal complete paths meet predicted physical and tracking limits; 11 regions
+  also pass the saved three-height material proxy. Actual observation, complete
+  calibrated load support, native motion and stops remain unqualified. These
+  predictions qualify no new pose, variation or source. D1-RV
   independently qualifies actual disturbance, joint braking, return and the complete
   cycle; its earlier inspection and shoulder-support failures remain preserved.
 - D2-H+ remains unqualified as an observed complete source. The original-posture
@@ -157,8 +162,13 @@ Runtime/asset ownership and supported workflows are in
   for coupled volumes and renews full spatial bounds at dispatch for loaded and
   unloaded receipts. Targeted numerical checks and the full saved-state GPU
   producer/receipt comparison pass for D3; D4 remains refused. All seven nominal
-  phase/branch saved states and their receipts also pass. Native whole-motion and
-  related-condition qualification remain pending.
+  phase/branch saved states and their receipts also pass. The native candidate
+  nevertheless stops after four approach commands when an actual observed pose/
+  uncertainty update exhausts the current spatial exclusion. All normal margins,
+  healthy raw feedback and original continuous 6 s/14-shape stops pass; no contact
+  or component/source qualifies. Diagnose this actual spatial-response branch
+  before further dependent motion. Native whole-motion and related-condition
+  qualification remain pending.
   Earlier D2-N compatibility does not establish D3 transfer.
   A saved contact-region screen yields only three conditional upper points;
   no new complete path follows. Even un-padded observed protrusions remain
