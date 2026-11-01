@@ -1077,14 +1077,29 @@ reserves. All four component outcomes, original stops and 3,378.460 GPU seconds
 remain in the
 [family review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-calibrated-domain-guarded-contact-family-20261101.json).
 
-One full guarded nominal regression of the prospective common region is now
-running on elab2 with the same physical setup, target domain, model and original
+The full guarded nominal regression of the prospective common region is running
+on elab2 with the same physical setup, target domain, model and original
 41.008-degree goal, sustained contact/continuity, loaded hold, complete release,
-stabilization and independent stops. This extends the diagnostic cutoff through
-the required full cycle; it adds no matrix attempt, source or windows and does
-not retry P. The original nominal source remains selected. P and remaining
-related motion require improved general observed support and independent
-qualification before any common-region production adoption or full P source.
+stabilization and independent stops. A saved durable completed-row
+[prefix review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-deployments/D1-common-lateral-N-complete-observed-regression-elab2-20261101/durable-prefix-readiness-review.json)
+now establishes the original sustained contact window at probe-relative 9.017 s
+and reaches 7.177 degrees without pre-release loss. This prefix is not a finished
+raw-integrity or full-cycle qualification. It supports distinct full H+/H-
+regressions on elab3/4 after their independently reviewed prescribed phase
+endpoints and complete robot-only path support. Their shared setup differs only
+by the original +/-20 mm height variation; actual loaded-hold heights must later
+be compared with the completed matched nominal. All per-command observed,
+physical, model, identity, uncertainty and independent stopping gates remain.
+
+These full cycles extend the diagnostic cutoff on already-qualified cells and
+add no remaining-cell attempt, source or windows. Existing nominal regressions
+and the two related height regressions have separate ledger cohorts; original
+selected sources remain unchanged. The
+[related regression assignments](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-common-lateral-related-full-regressions-current-20261101.json)
+retain unique hosts, launch receipts and current ownership snapshots. P is not
+retried. Complete related-motion qualification and improved general observed
+support remain required before common-region production adoption or any full P
+source.
 
 ## Resources, archival and closeout
 

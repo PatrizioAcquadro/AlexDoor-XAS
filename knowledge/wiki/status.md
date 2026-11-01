@@ -91,8 +91,11 @@ Runtime/asset ownership and supported workflows are in
   during approach after 155 commands: 67.55 mm observed finger clearance is below
   the original 94.73 mm uncertainty budget. An exact saved-geometry audit reproduces
   this deficit; positive robot sweep/self margins do not supply missing material
-  support. A full nominal regression of the common region is running separately;
-  no new source, window or matrix cell follows from these components.
+  support. A subsequent full nominal prefix establishes the original sustained
+  contact window and reaches 7.177 degrees without pre-release loss; the complete
+  cycle remains unqualified. Full N/H+/H- regressions of the common region now
+  run on elab2/3/4, preserving the original +/-20 mm height deltas and all limits.
+  They add no new source, window or matrix cell.
   D1-RV
   independently qualifies actual disturbance, joint braking, return and the complete
   cycle; its earlier inspection and shoulder-support failures remain preserved.
