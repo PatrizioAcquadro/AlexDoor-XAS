@@ -516,6 +516,21 @@ ball is an alternative only if that larger ball independently passes its own
 foreground and background proofs. All actual queries spend the existing budget;
 unknown support and exhausted margins retain the original refusal behavior.
 
+The coupled proof can use the calibrated panel front only when its entire
+motion/stop enclosure is independently outside the original padded relief
+rectangle. This uses the same finite target model and full point-error primitives
+as the spherical path. The enclosure remains an uncertainty domain, not a claim
+that its larger ball is collision-free. Otherwise the original whole-front bound
+remains mandatory.
+
+Localized proofs now carry `TargetReliefExclusion` in local action evidence.
+Both loaded and unloaded receipts re-prove that spatial exclusion at dispatch
+from the current material pose, geometry, calibration and dynamic-error origins;
+normal-only growth checks do not substitute for it. Only the remaining interval's
+material motion is added. The measured mapping operator norm covers slight native
+camera non-isometry, and zero/negative or unavailable margins refuse. These
+software checks do not qualify complete native motion or a new source.
+
 Receipts retain an enclosing domain for normal-error growth at each proved
 volume, paired with that volume's eroded margin. Such an enclosure bounds
 uncertainty growth; a convex collision proof does not certify free space for its

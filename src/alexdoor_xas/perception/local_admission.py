@@ -19,6 +19,125 @@ from alexdoor_xas.perception.contracts import (
 )
 
 
+def _material_point_terms(patch, world_poses, radius):
+    """Transport all published material primitives to the same finite domain."""
+    material_lever = radius + max(
+        np.linalg.norm(pose.origin - patch.world_pose.origin) for pose in world_poses
+    )
+    geometry_lever = material_lever
+    pose_position = patch.pose_support.position_bound_m
+    pose_rotation = rotational_travel(material_lever, patch.pose_support.rotation_bound_rad)
+    sources = getattr(patch, "pose_uncertainty_sources", ())
+    if sources:
+        pose_position = pose_rotation = 0.0
+        names = set()
+        frame_position = frame_rotation = 0.0
+        for name, position, angle, frame_lever, origin in sources:
+            origin = np.asarray(origin, dtype=float)
+            if name in names or origin.shape != (3,) or not np.isfinite(origin).all():
+                raise ValueError("invalid_pose_error_source")
+            names.add(name)
+            lever = radius + max(np.linalg.norm(pose.origin - origin) for pose in world_poses)
+            position = nonnegative(position, "invalid_pose_error_source")
+            angle = nonnegative(angle, "invalid_pose_error_source")
+            frame_lever = nonnegative(frame_lever, "invalid_pose_error_source")
+            frame_position += position + rotational_travel(frame_lever, angle)
+            frame_rotation += angle
+            pose_position += position
+            pose_rotation += rotational_travel(lever, angle)
+            if name != "calibration_fk":
+                geometry_lever = max(geometry_lever, lever)
+        # Consistency of the same published primitives, not a physical tolerance.
+        roundoff = 32 * np.finfo(float).eps
+        if not np.allclose(
+            [frame_position, frame_rotation],
+            [patch.pose_support.position_bound_m, patch.pose_support.rotation_bound_rad],
+            rtol=roundoff,
+            atol=roundoff,
+        ):
+            raise ValueError("incomplete_pose_error_sources")
+    return dict(
+        geometry_position_m=nonnegative(
+            patch.geometry_support.position_bound_m, "missing_geometry_position_bound"
+        ),
+        pose_position_m=pose_position,
+        geometry_rotation_m=rotational_travel(
+            geometry_lever, patch.geometry_support.rotation_bound_rad
+        ),
+        pose_rotation_m=pose_rotation,
+    )
+
+
+@dataclass(frozen=True)
+class TargetReliefExclusion:
+    """Complete sphere enclosures kept outside the original padded target relief.
+
+    This is a target exclusion, never a free-space proof for the enclosing balls.
+    Renew it from the current observed pose and ALL full-point error primitives.
+    """
+
+    reference_pose: ObjectFrame
+    tangent_basis: tuple[tuple[float, float], ...]
+    lower_m: tuple[float, float]
+    upper_m: tuple[float, float]
+    spheres: tuple[tuple[float, float, float, float], ...]
+    interval_motion_m_rad: tuple[float, float]
+
+    def margin(self, patch, *, remaining_fraction=1.0):
+        checked_pose(self.reference_pose)
+        checked_pose(patch.world_pose)
+        basis = np.asarray(self.tangent_basis, dtype=float)
+        lower, upper = np.asarray(self.lower_m), np.asarray(self.upper_m)
+        spheres = np.asarray(self.spheres, dtype=float)
+        motion = np.asarray(self.interval_motion_m_rad, dtype=float)
+        if (
+            basis.shape != (3, 2)
+            or not np.isfinite(basis).all()
+            or not np.allclose(basis.T @ basis, np.eye(2), atol=32 * np.finfo(float).eps, rtol=0)
+            or lower.shape != (2,)
+            or upper.shape != (2,)
+            or not np.isfinite(np.r_[lower, upper]).all()
+            or np.any(lower > upper)
+            or spheres.ndim != 2
+            or spheres.shape[1:] != (4,)
+            or not len(spheres)
+            or not np.isfinite(spheres).all()
+            or np.any(spheres[:, 3] < 0)
+            or motion.shape != (2,)
+            or not np.isfinite(motion).all()
+            or np.any(motion < 0)
+            or not np.isfinite(remaining_fraction)
+            or not 0 <= remaining_fraction <= 1
+        ):
+            raise ValueError("invalid_target_relief_exclusion")
+        from alexdoor_xas.perception.material_zone import pose_matrix
+
+        mapping = pose_matrix(self.reference_pose) @ np.linalg.inv(pose_matrix(patch.world_pose))
+        # Native float32 camera transports can be slightly non-isometric. Cover
+        # that measured operator norm rather than assuming an exactly rigid map.
+        scale = max(1.0, float(np.linalg.norm(mapping[:3, :3], ord=2)))
+        margins = []
+        for sphere in spheres:
+            center, radius = sphere[:3], sphere[3]
+            point = ObjectFrame(center, np.eye(3))
+            error = sum(_material_point_terms(patch, (point,), radius).values())
+            lever = np.linalg.norm(center - patch.world_pose.origin) + radius
+            future = remaining_fraction * (motion[0] + lever * motion[1])
+            mapped = mapping[:3, :3] @ center + mapping[:3, 3]
+            tangent = mapped @ basis
+            distance = np.linalg.norm(np.maximum(lower - tangent, np.maximum(tangent - upper, 0)))
+            margins.append(float(distance - scale * (radius + error + future)))
+        return min(margins)
+
+    def require(self, patch, *, remaining_fraction=1.0):
+        margin = self.margin(patch, remaining_fraction=remaining_fraction)
+        if margin <= 0:
+            error = ValueError("target_relief_exclusion_exhausted")
+            error.decision = dict(target_relief_margin_m=margin)
+            raise error
+        return margin
+
+
 @dataclass(frozen=True)
 class LocalActionSupport:
     """Producer-owned minima over the actual sweep, two fingers and stop envelope.
@@ -61,6 +180,9 @@ class LocalActionSupport:
     # Original producer-eroded separation at EACH corresponding proved volume.
     # Empty preserves the conservative global-minimum rule for older receipts.
     unloaded_normal_margins_m: tuple[float, ...] = ()
+    # Re-prove spatial target exclusion for localized panel certificates,
+    # independently of normal-only separation and finite contact receipts.
+    target_relief_exclusion: TargetReliefExclusion | None = None
 
 
 def _local_error_terms(patch, evidence, limits, now, duration):
@@ -92,55 +214,17 @@ def _local_error_terms(patch, evidence, limits, now, duration):
         and (evidence.swept_collision_margin_m is None or evidence.swept_collision_margin_m <= 0)
     ):
         raise ValueError("invalid_prepaid_geometry_error")
-    # Frame uncertainty rotates the entire offset footprint about the material
-    # anchor, while robot tracking rotation acts about the tool origin.
     material_lever = radius + max(
         np.linalg.norm(pose.origin - patch.world_pose.origin) for pose in evidence.world_poses
     )
-    pose_position = patch.pose_support.position_bound_m
-    pose_rotation = rotational_travel(material_lever, patch.pose_support.rotation_bound_rad)
-    geometry_lever = material_lever
-    sources = getattr(patch, "pose_uncertainty_sources", ())
-    if sources:
-        pose_position = pose_rotation = 0.0
-        names = set()
-        frame_position = frame_rotation = 0.0
-        for name, position, angle, frame_lever, origin in sources:
-            origin = np.asarray(origin, dtype=float)
-            if name in names or origin.shape != (3,) or not np.isfinite(origin).all():
-                raise ValueError("invalid_pose_error_source")
-            names.add(name)
-            lever = radius + max(
-                np.linalg.norm(pose.origin - origin) for pose in evidence.world_poses
-            )
-            position = nonnegative(position, "invalid_pose_error_source")
-            angle = nonnegative(angle, "invalid_pose_error_source")
-            frame_lever = nonnegative(frame_lever, "invalid_pose_error_source")
-            frame_position += position + rotational_travel(frame_lever, angle)
-            frame_rotation += angle
-            pose_position += position
-            pose_rotation += rotational_travel(lever, angle)
-            if name != "calibration_fk":
-                geometry_lever = max(geometry_lever, lever)
-        # This is a floating-point consistency check on the SAME primitives,
-        # not a physical acceptance tolerance or permission to omit a source.
-        roundoff = 32 * np.finfo(float).eps
-        if not np.allclose(
-            [frame_position, frame_rotation],
-            [patch.pose_support.position_bound_m, patch.pose_support.rotation_bound_rad],
-            rtol=roundoff,
-            atol=roundoff,
-        ):
-            raise ValueError("incomplete_pose_error_sources")
+    point = _material_point_terms(patch, evidence.world_poses, radius)
     return dict(
-        geometry_position_m=patch.geometry_support.position_bound_m - prepaid,
-        pose_position_m=pose_position,
+        geometry_position_m=point["geometry_position_m"] - prepaid,
+        pose_position_m=point["pose_position_m"],
         sweep_position_m=evidence.support.position_bound_m,
         robot_position_m=limits.robot_position_bound_m,
-        geometry_rotation_m=rotational_travel(
-            geometry_lever, patch.geometry_support.rotation_bound_rad
-        ),
-        pose_rotation_m=pose_rotation,
+        geometry_rotation_m=point["geometry_rotation_m"],
+        pose_rotation_m=point["pose_rotation_m"],
         sweep_rotation_m=rotational_travel(radius, evidence.support.rotation_bound_rad),
         robot_rotation_m=rotational_travel(radius, limits.robot_rotation_bound_rad),
         response_rotation_m=rotational_travel(material_lever, response_rotation),
@@ -227,6 +311,8 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
                 or interval[0] > interval[1]
             ):
                 raise ValueError("invalid_material_normal_range")
+        if evidence.target_relief_exclusion is not None:
+            evidence.target_relief_exclusion.require(patch)
         sweep_margin = evidence.swept_collision_margin_m
         free_margin = evidence.unloaded_separation_margin_m
         if free_margin is not None:
@@ -361,6 +447,10 @@ def require_current_local_admission(admission, estimate, now):
         raise ValueError("missing_local_sweep_evidence")
     evidence = admission.local_evidence
     elapsed = now - admission.proposal.times_s[0]
+    if evidence.target_relief_exclusion is not None:
+        start, end = admission.proposal.times_s
+        fraction = min(1.0, max(0.0, (end - now) / (end - start)))
+        evidence.target_relief_exclusion.require(patch, remaining_fraction=fraction)
     displacement = np.linalg.norm(patch.world_pose.origin - before.world_pose.origin)
     rotation = Rotation.from_matrix(patch.world_pose.rot @ before.world_pose.rot.T).magnitude()
     if (

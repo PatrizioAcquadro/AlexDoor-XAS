@@ -495,6 +495,35 @@ retain the exact refusal. Two local review preparation errors (a removed lease k
 and a copied remote frontend path) were corrected without native reruns, GPU work,
 payload changes or scientific criterion changes; original readers/errors remain.
 
+A complete saved-domain discriminator separates this D3 failure from D4. D3's
+original uncertainty-enclosing sphere already excludes its original padded relief
+by 95.359 mm. Its coupled fallback nevertheless used the global 83.633 mm front
+everywhere. Reusing the independently justified 0.5 mm panel front leaves a
+9.513 mm normal margin at this saved volume, with every original motion/model/
+normal/stop error retained. The corresponding D4 sphere still overlaps the
+original relief and retains its -1.285 mm whole-front result. All 14 root domains
+and each terminal leaf are retained; complete convex tangent projection adds
+no necessary new representation for D3.
+
+The shared candidate therefore localizes the coupled front only after a complete
+relief exclusion. It also retains that proof for both ordinary spherical and
+coupled certificates and renews it from current full spatial error at dispatch,
+for loaded and unloaded actions. Tangential pose changes or growth of geometry/
+pose bounds can refuse even when normal bounds are unchanged. Existing physical,
+material, identity, load, stopping and same-volume normal gates remain mandatory.
+The 217 targeted numerical checks and the saved D3/D4 domain/uncertainty-overspend
+checks pass. This is software qualification only: full GPU producer/receipt replay,
+nominal compatibility, native whole motion and related conditions remain pending.
+H+ remains on its immutable source; no new source or window is admitted.
+
+The [complete geometric discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/review.json)
+and [shared-certificate check](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/shared-certificate-saved-state-check.json)
+retain every domain and original failure. An initial independent reader wrongly
+required bitwise-equivalent budgets across two reference-lever transports; its
+1.552/4.410 nm differences and failure remain preserved. The corrected audit
+exactly recomputes the original producer's primitive arithmetic and independently
+explains the published-lever difference, without modifying scientific criteria.
+
 The separate D4 robot-only component independently passes all69,744native samples
 of N/H+/H-/P through the frozen50.146446degree task opening, original3s hold and6s
 achieved-pose staged release under constant0.3N diagnostic loading. It preserves

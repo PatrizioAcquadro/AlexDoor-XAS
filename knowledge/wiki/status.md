@@ -153,7 +153,11 @@ Runtime/asset ownership and supported workflows are in
   finger coupled fallback lacks whole-front separation at the original resolution,
   without exhausting the query budget. No component/source qualifies; dependent
   unchanged D3 attempts remain suspended while common complete observed support
-  is investigated. D2-N compatibility does not establish D3 transfer.
+  is investigated. A shared candidate reuses complete localized relief exclusion
+  for coupled volumes and renews full spatial bounds at dispatch for loaded and
+  unloaded receipts. Targeted numerical checks pass and D4 remains refused;
+  complete GPU producer replay and native/related-condition qualification are
+  pending. D2-N compatibility does not establish D3 transfer.
   A saved contact-region screen yields only three conditional upper points;
   no new complete path follows. Even un-padded observed protrusions remain
   inside the original expanded projected query. The

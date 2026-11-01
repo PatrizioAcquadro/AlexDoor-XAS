@@ -17,7 +17,11 @@ from alexdoor_xas.perception.admission import ActionAdmission, ActionLimits, Act
 from alexdoor_xas.perception.contact_geometry import distal_body_order, observed_front_extent
 from alexdoor_xas.perception.contracts import FieldSupport, validate_local_contact
 from alexdoor_xas.perception.evaluation import json_safe
-from alexdoor_xas.perception.local_admission import LocalActionSupport, admit_local_action
+from alexdoor_xas.perception.local_admission import (
+    LocalActionSupport,
+    TargetReliefExclusion,
+    admit_local_action,
+)
 from alexdoor_xas.perception.material_zone import (
     normal_uncertainty_terms,
     object_frame,
@@ -242,6 +246,7 @@ class PilotMotionEvidence:
             self.rigid_identity = observation.generation, patch.patch_id
         pending, covered = list(self.cells), []
         normal_spheres, normal_margins = [], []
+        relief_spheres = []
         free_margin, separation, lever = np.inf, np.inf, 0.0
         nonseparated_cell = None
         contact_free_stop_margin = np.inf
@@ -293,6 +298,23 @@ class PilotMotionEvidence:
         foreground_by_key = {}
         surface_basis = None
         convex_motion = None
+        relief_by_sphere = set()
+
+        def relief_certificate(spheres):
+            model = self.target_front_model
+            if (
+                model["protrusion_tangent_lower_m"] is None
+                or model["protrusion_tangent_upper_m"] is None
+            ):
+                return None
+            return TargetReliefExclusion(
+                object_frame(candidate.initial_world),
+                tuple(map(tuple, candidate.surface.basis[:, 1:])),
+                tuple(model["protrusion_tangent_lower_m"]),
+                tuple(model["protrusion_tangent_upper_m"]),
+                tuple(spheres),
+                (temporal_p, temporal_a),
+            )
 
         def count_query(center, radius, key):
             nonlocal checked
@@ -378,6 +400,11 @@ class PilotMotionEvidence:
                     - front_extent
                 )
                 foreground = front_gap if front_gap > 0 else None
+                relief_used = (
+                    foreground is not None
+                    and protrusion_margin is not None
+                    and protrusion_margin > 0
+                )
                 if foreground is not None:
                     gap = front_gap
                 current = StaticWorkspaceSupport(None, True, False, ())
@@ -402,6 +429,7 @@ class PilotMotionEvidence:
                         and finite_protrusion_margin > 0
                     ):
                         foreground = min(finite, order[key[0]], finite_protrusion_margin)
+                        relief_used = True
                         gap = max(0.0, gap)
                 if foreground is None:
                     # Each fixed initial train target is included in this
@@ -422,6 +450,8 @@ class PilotMotionEvidence:
                     foreground = current.collision_clearance_m
                     gap = 0.0 if foreground is None else float(foreground)
                 foreground_by_key[key] = foreground
+                if relief_used:
+                    relief_by_sphere.add((*center.tolist(), radius))
                 if foreground is not None and foreground > 0:
                     # Prefer the already measured world-space proof. Only a
                     # volume hidden by an old moving foreground needs the
@@ -515,6 +545,11 @@ class PilotMotionEvidence:
                 + (local_lever * temporal_a)
             )
             front = self.target_front_model["front_extent_m"]
+            sphere = (*center.tolist(), domain_radius)
+            relief = relief_certificate((sphere,))
+            localized = relief is not None and relief.margin(patch) > 0
+            if localized:
+                front = self.interface_model["panel_front_bound_m"]
             gap = float(
                 patch.world_pose.origin @ normal
                 - (vertices @ normal).max()
@@ -550,9 +585,12 @@ class PilotMotionEvidence:
                 diagnostics["coupled_outer_ball_proofs"] = (
                     diagnostics.get("coupled_outer_ball_proofs", 0) + 1
                 )
-            return [
-                (support.collision_clearance_m, gap, local_lever, (*center.tolist(), domain_radius))
-            ]
+            if localized:
+                relief_by_sphere.add(sphere)
+                diagnostics["localized_coupled_front_proofs"] = (
+                    diagnostics.get("localized_coupled_front_proofs", 0) + 1
+                )
+            return [(support.collision_clearance_m, gap, local_lever, sphere)]
 
         while pending:
             cell = pending.pop()
@@ -705,6 +743,8 @@ class PilotMotionEvidence:
                 )
                 raise ValueError("unsupported_actual_robot_sweep_and_stop")
             for margin, gap, local_lever, sphere in proofs:
+                if sphere in relief_by_sphere:
+                    relief_spheres.append(sphere)
                 normal_spheres.append(sphere)
                 normal_margins.append(float(gap))
                 free_margin = min(free_margin, margin)
@@ -828,6 +868,7 @@ class PilotMotionEvidence:
             if not loaded and patch.normal_uncertainty_sources
             else (),
             material_normal_range_m=normal_range,
+            target_relief_exclusion=relief_certificate(relief_spheres) if relief_spheres else None,
         )
         return admit_local_action(
             observation.estimate, proposal, evidence, limits, now, generation=observation.generation
