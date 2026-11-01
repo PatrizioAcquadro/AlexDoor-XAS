@@ -5,23 +5,25 @@
 Can four existing train doors supply 36 independently qualified full-cycle and
 real-history recovery conditions under the maintained controller, observed
 admission and fixed scientific criteria? **The campaign resumed by explicit human
-authorization on October 31, 2026, and remains incomplete: 14/36 qualified
-conditions, comprising eleven ordinary cycles and three complete recoveries.**
-The retained pause baseline has 29 full attempts: eight positive and 21 negative.
-D2-RP adds one independently reviewed full recovery after the common pressure
-correction: continuous contact, 3 s hold, intentional release, stabilization,
-independent 2+4 s stops, actual-image review and GPU temporal preparation pass.
-The misplaced pause comprises 72 excluded injected commands and 313 measured
-corrective commands; the 27.96 mm handoff error returns within the original
-bounds. The distinct D1-H- pressure-v2 cycle also passes all native, variation,
-stop, sparse-image and GPU temporal checks: the measured hold height is20.02mm
-below nominal, versus the requested20mm. Two reused references plus ten new
-recordings filled twelve cells. D2-H- and D2-DR then independently pass the
-explicit task-goal handoff, full3s hold, release/stabilization, native/stop,
-variation, visual and GPU temporal checks. D2-H- measures19.97mm below nominal;
-D2-DR confirms1.3x panel/handle mass and inertia with hinge damping6. Two reused
-references plus twelve new recordings now fill fourteen cells. Their72,057 overlapping windows are not independent demonstrations. Zero new
-optimizer updates; learned outcomes remain 0/22. Development collection,
+authorization on October31,2026 and remains incomplete:15/36 conditions,
+comprising eleven ordinary cycles and four complete recoveries.** The retained
+pause baseline remains29full attempts:eight positive and21negative.
+
+D2-RP independently qualifies the real72-command pause/313-command recovery.
+D1-H- and D2-H- measure20.02mm and19.97mm lower hold heights respectively.
+D2-DR confirms1.3x panel/handle mass and inertia with hinge damping6. The distinct
+D2-H-/DR sources complete task-goal holding, preserving the original3s minimum,
+opening requirements, release and stabilization.
+
+D1-RV now independently qualifies its actual35nonzero injected commands and
+403corrective commands. The measured14.47mm/0.03026rad handoff returns within
+0.858mm/0.002824rad. Its24joint-brake intervals reduce peak joint speed from
+0.22255 to0.01182rad/s; this is braking, not a zero-velocity or independent-stop
+claim at0.4s. All four resumed positives pass their complete native continuity,
+2+4s independent stops, actual-image and GPU temporal reviews. Injected targets
+remain excluded. Two reused references and thirteen new recordings fill fifteen
+cells; their75,832overlapping windows are not independent demonstrations.
+Zero new optimizer updates; learned outcomes remain0/22. Development collection,
 training and final test remain excluded.
 
 The [[act-a1-complete-cycle-pause-diagnosis|pause diagnosis]] preserves the
@@ -57,7 +59,7 @@ retroactively changed.
 
 | Door | Identity / opening direction | N | H+ | H- | P | DL | DR | V | RV | RP |
 |---|---|---|---|---|---|---|---|---|---|---|
-| D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Qualified new; pressure-v2 | Unqualified; observed robot sweep | Qualified new | Qualified new | Qualified new;0.9 | Unqualified; lower-shoulder motion support | Qualified new complete recovery |
+| D1 | animated-door-1-88abf40 / right | Reuse C15 | Qualified new | Qualified new; pressure-v2 | Unqualified; observed robot sweep | Qualified new | Qualified new | Qualified new;0.9 | Qualified new complete recovery; task-goal hold | Qualified new complete recovery |
 | D2 | door-2738468b94d74c5f / left | Reuse C14 | Unqualified; outside full elbow support | Qualified new; task-goal hold | Unqualified; outside full gripper support | Qualified new | Qualified new; task-goal hold | Qualified new;1.1 | Qualified new complete recovery | Qualified new complete recovery; pressure-v2 |
 | D3 | psx-front-005-ee7d5c6 / right | Unqualified; material uncertainty/sweep | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 1.1 | Unexecuted | Unexecuted |
 | D4 | psx-interior-wood-002-02e442c / left | Unqualified; perception passed old refusal, joint support pending | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted | Unexecuted; planned light 0.9 | Unexecuted | Unexecuted |
