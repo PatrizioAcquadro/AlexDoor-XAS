@@ -799,15 +799,23 @@ class PilotMotionEvidence:
                 )
                 lever = max(lever, local_lever)
             covered.append(cell)
-        # Try the last nonseparated cell first on the next command. Requery its
-        # entire new sweep/stop volume; the old gap is never reused as evidence.
-        if nonseparated_cell is not None:
-            covered = [cell for cell in covered if cell is not nonseparated_cell] + [
-                nonseparated_cell
-            ]
         self.cells = tuple(covered)
+        if nonseparated_cell is not None:
+            # Retain this fine cell as a traversal hint, but forget unrelated
+            # old normal-only subdivisions. Roots plus the siblings along its
+            # path still cover every physical shape without overlapping cells.
+            # Every new volume needs fresh scene, motion and stop proofs; if
+            # separation returns, the ordinary normal refinement runs again.
+            pending_cells = list(self.model.cells())
+            parent = pending_cells.pop(nonseparated_cell.shape)
+            for octant in nonseparated_cell.path:
+                children = self.model.subdivide(parent)
+                parent = next(child for child in children if child.path[-1] == octant)
+                pending_cells.extend(child for child in children if child is not parent)
+            self.cells = (*pending_cells, nonseparated_cell)
         diagnostics.update(
             robot_cells=len(covered),
+            retained_robot_cells=len(self.cells),
             robot_cover_queries=checked,
             directional_stop_queries=directional,
             sweep_margin_m=float(free_margin),

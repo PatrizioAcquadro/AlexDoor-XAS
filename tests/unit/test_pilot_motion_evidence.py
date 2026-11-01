@@ -201,3 +201,70 @@ def test_repeated_contact_proofs_do_not_expand_unneeded_normal_cells():
     result = evidence.produce(observation, tool, row, 1, {})
     assert result.admitted and not result.proposal.loaded
     assert len([cell for cell in evidence.cells if cell.shape == 0]) > 1
+
+
+def test_old_fine_partition_can_coarsen_without_losing_physical_volume():
+    evidence, observation, tool, row, queried, _ = producer(contact=True)
+    cells = evidence.model.cells()
+    for _ in range(2):
+        cells = tuple(child for cell in cells for child in evidence.model.subdivide(cell))
+    evidence.cells = cells
+    counts = []
+    for _ in range(2):
+        start = len(queried)
+        result = evidence.produce(observation, tool, row, 1, {})
+        assert result.admitted and result.proposal.loaded
+        require_current_admission(result, observation.estimate, observation.time_s + 1 / 240)
+        counts.append(len(queried) - start)
+        # Independent axis-aligned fixture: disjoint interiors and exactly the
+        # same complete root volume, rather than merely the old leaf centers.
+        for index, shape in enumerate(evidence.model.shapes):
+            parts = [cell for cell in evidence.cells if cell.shape == index]
+            lower = np.stack([cell.lower for cell in parts])
+            upper = np.stack([cell.upper for cell in parts])
+            assert np.all(lower >= shape["lower"]) and np.all(upper <= shape["upper"])
+            assert np.isclose(
+                np.prod(upper - lower, axis=1).sum(),
+                np.prod(shape["upper"] - shape["lower"]),
+                rtol=2e-14,
+                atol=1e-18,
+            )
+            for i in range(len(parts)):
+                overlap = np.minimum(upper[i], upper[i + 1 :]) - np.maximum(
+                    lower[i], lower[i + 1 :]
+                )
+                assert not np.any(np.all(overlap > 1e-15, axis=1))
+    assert counts[1] < counts[0]
+
+
+@pytest.mark.parametrize("missing", ["scene", "material", "load"])
+def test_coarsened_next_traversal_requires_fresh_complete_evidence(missing):
+    evidence, observation, tool, row, _, _ = producer(contact=True)
+    cells = evidence.model.cells()
+    for _ in range(2):
+        cells = tuple(child for cell in cells for child in evidence.model.subdivide(cell))
+    evidence.cells = cells
+    assert evidence.produce(observation, tool, row, 1, {}).admitted
+    if missing == "scene":
+        previous = evidence.workspace.query_static
+
+        def unknown(centers, radii, **kwargs):
+            if centers[0, 1] < 0.05:
+                return StaticWorkspaceSupport(None, True, False, ())
+            return previous(centers, radii, **kwargs)
+
+        evidence.workspace.query_static = unknown
+        with pytest.raises(ValueError, match="unsupported_actual_robot_sweep_and_stop"):
+            evidence.produce(observation, tool, row, 1, {})
+    elif missing == "material":
+        cover = evidence.provider.tracking.candidates[0].material_cover
+        cover.query = lambda *_: SimpleNamespace(finger_clearance_m=(None, None))
+        result = evidence.produce(observation, tool, row, 1, {})
+        assert not result.admitted and result.reason == "missing_relevant_clearance"
+    else:
+        def unsupported(*_args, **_kwargs):
+            raise ValueError("outside_fixture_load_position_support")
+
+        evidence.load_calibration.require_position_motion_support = unsupported
+        with pytest.raises(ValueError, match="outside_fixture_load_position_support"):
+            evidence.produce(observation, tool, row, 1, {})

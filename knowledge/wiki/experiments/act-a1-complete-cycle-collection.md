@@ -1117,6 +1117,45 @@ retried. Complete related-motion qualification and improved general observed
 support remain required before common-region production adoption or any full P
 source.
 
+## Shared task configuration and geometric admission cost
+
+Eighteen of the nineteen missing conditions belong to D3/D4. Their next
+intervention must jointly address contact region, robot placement/posture,
+camera coverage, complete movement and changing observed uncertainty across
+meaningful variations. The latest D3 response changes spatial relief margin from
++6.004 to -0.700 mm while normal margins remain positive; D4's current expanded
+finger query still includes retained observed protrusions. These are failures of
+observed support, not demonstrations of collision or global task infeasibility.
+Further isolated saved-state fallback successes do not justify another unchanged
+native attempt. Healthy D1 full regressions continue; additional D1 view design
+remains prepared and unlaunched while the shared D3/D4 problem takes priority.
+
+Actual native D1 logs also identify persistent fine geometric partitions as a
+repeated cost. The recent nominal and H+ calls retain 859 cells and check about
+863 volumes; their medians are 1.068 and 2.001 s on different hosts and phases.
+H- retains 286 cells at a 0.754 s median. This is a bottleneck observation, not a
+controlled host benchmark. The shared traversal now coarsens only the next
+partition after proving a finite nonseparated cell. It retains that fine witness,
+all its octree siblings and the other complete shape roots. Every volume receives
+fresh original foreground/background, physical motion, stopping and load proofs;
+separation returning restores ordinary normal refinement. No clearance,
+uncertainty, observation-validity or recording criterion changes.
+
+The [isolated contracts](../../../outputs/evidence/act-a1-complete-cycle-20261026/partition-candidate-isolated-contract-review.json)
+check disjoint complete box coverage, strict separation boundaries, return to
+free motion and refusals for missing scene/material/load support. The first
+fixture exceeded its own query budget and remains preserved separately; the
+corrected nominal fixture is required to admit. A separate
+[actual CUDA replay](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-partition-isolated-GPU-review-local-20261101/review.json)
+compares 42 calls on seven finished native states covering all six task phases,
+with original current-response receipts. All decisions and loaded branches pass.
+Repeated same-state contact calls reduce 368 queries to 51, with about
+0.38–0.50 s versus 0.10–0.24 s in these calls. The unchanged first calls still
+reconstruct fresh workspaces. The 77.253 GPU seconds and owned cleanup are
+recorded. This saved-state result is neither native transfer nor measured
+whole-collection speed; a finite matched native cost comparison is still
+required. No source, matrix cell or training window is added.
+
 ## Resources, archival and closeout
 
 The latest historical authorization removes cumulative GPU-hour, allocation-count

@@ -123,6 +123,16 @@ Runtime/asset ownership and supported workflows are in
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.
   D2-RP and D1-H- also qualify pressure-v2; every earlier failure is preserved.
+- Repeated geometric admission retains stale normal partitions: recent native
+  D1 calls check about 860 volumes in 1.07–2.00 s, with different hosts/phases.
+  The new traversal retains one freshly checked fine contact witness and the
+  complete roots/siblings around it; every next volume still receives the original
+  scene, motion, stop, load and current-observation proofs. Numerical boundary and
+  missing-evidence checks and all seven saved native phase states/receipts pass
+  on CUDA. Same-state contact replays reduce 368 queries to 51, but actual
+  collection-time improvement and native transfer remain unqualified. Prioritize
+  complete observed D3/D4 support and this directly related cost correction;
+  let healthy D1 full regressions finish without expanding qualified-cell work.
 - D3/D4 have no independently qualified full cycle. On the earlier flat D3
   setup, conditioned seed selection restores an observed edge and three identity
   witnesses while the material margin remains insufficient. The lower nominal
