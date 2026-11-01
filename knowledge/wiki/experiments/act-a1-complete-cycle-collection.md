@@ -490,6 +490,19 @@ checks are separate from full paired native contact/motion and transfer
 qualification, which must precede another observed source. All original results,
 force domains and physical criteria remain preserved.
 
+Source2cd8697 independently passes the nominal member of a paired privileged
+native pressure qualification. D2-N reaches42.938degrees against42.029required,
+retains native contact through the full3s hold, then completes6s release and2s
+stabilization. All23,896task-native samples independently reproduce the frozen
+load estimate, with5.080N upper peak and4.891N actual normal peak. Original raw
+integrity, physical limits and all14shape6s original-latch stops pass; actual
+push/hold/release/terminal RGB was inspected. The full payload and616.718GPU s
+are retained and owned GPU/PGID/lease cleanup is verified. The paired H+ fixture
+continues on elab5 under its finite original limits. Both fixtures use privileged
+door normals solely for pressure qualification: no observed source, matrix
+attempt, demonstration or temporal window is added. Complete paired success
+and subsequent observed-source transfer remain required.
+
 ## Agreed coverage and present evidence
 
 There are **36 prospective cells: 28 ordinary complete cycles and eight complete

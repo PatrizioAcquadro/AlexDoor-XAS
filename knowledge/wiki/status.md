@@ -71,8 +71,12 @@ Runtime/asset ownership and supported workflows are in
   force impulse during push:10.726N actual/12.847N estimated exceeds the unchanged
   10N stopping-model domain. Healthy raw/native feedback and all14shape6s stops
   pass; no new demonstration is admitted. A shared gap-recovery candidate uses
-  the existing contact-gap tolerance while keeping force regulation active;
-  complete native and related-condition qualification remain pending.
+  the existing contact-gap tolerance while keeping force regulation active.
+  Source2cd8697 now independently passes a complete privileged native D2-N
+  contact/hold/release/stabilization cycle: all23,896task substeps remain inside
+  the original10N load model (5.080N estimated upper peak), and all14shape6s
+  stops pass. The paired H+ fixture remains running on elab5; observed-source
+  transfer and related-condition qualification remain pending.
   D2-P independently qualifies its
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.
