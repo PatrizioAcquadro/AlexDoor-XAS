@@ -268,10 +268,25 @@ same full pose/motion errors establish154.547mm protrusion exclusion. This is a
 single-volume diagnostic, not complete native admission. D4 retains175additional
 foreground voxels and a79.791mm envelope; the same sphere still refuses with
 -45.391mm foreground margin. Both original models reproduce exactly first.
-A distinct D3 native component now tests the original guarded approach and actual
-contact, stopping before the first opening command. Independent physical/stop
-review remains required; it adds no matrix attempt/source/windows. No CAD geometry
-becomes an actor input or a runtime exclusion certificate.
+The distinct D3 guarded approach/contact component then refuses at36.583s after
+131approach commands, before contact. Raw/native integrity and independent2+4s
+stops pass; physical violations and eligible labels/windows remain zero. Its
+retained protrusion envelope now excludes the rejected ball by137.234mm, but
+finite material support is-93.159mm after the unchanged pose/motion/stop errors
+and5.3mm reserve. The eroded normal gap is0.322mm against the original0.5mm panel
+bound. The current reference's positive material atlas covers mainly a lower
+region; both other eligible roots in the exact saved publication still fail at
+this query. This is unavailable observed support, not proof of physical collision.
+The complete negative remains separate from full matrix attempts.
+
+New stationary D3/D4 acquisition components test three additional intermediate-
+pitch views before any arm proposal. Only actual neck targets/view times change;
+mount, speed, scene, arm, load, mask/identity/metric and stopping criteria remain
+fixed. Calibrated frustum planning includes the complete observed tool region in
+all proposed views, with51–83pixel margins, without proving visibility or material
+coverage. Actual RGB-D, finite same-ID witnesses, native physical/stop review and
+material support near the fingers remain required before dependent motion.
+No CAD geometry becomes an actor input or a runtime exclusion certificate.
 
 D4's additional80finite GPU paths cover four contact heights and six initial
 posture seeds, each with all N/H+/H-/P differences and maintained/physical-future-

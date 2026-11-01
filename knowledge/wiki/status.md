@@ -133,9 +133,13 @@ Runtime/asset ownership and supported workflows are in
   shared correction retains disconnected foreground as potentially attached.
   Same-input GPU replay preserves all original padding/errors and recovers a
   positive margin for that D3 volume; D4 remains refused with a larger retained
-  foreground. A distinct D3 guarded approach/contact component is active and
-  stops before opening; native qualification remains pending. D4 higher-contact
-  designs still fail full and reversed paths;
+  foreground. The distinct D3 guarded component then refuses after131approach
+  commands, before contact, with passing raw/native and independent2+4s stops.
+  Its finite material atlas cannot cover the complete stopped-finger envelope;
+  the retained handle is excluded and no physical violation is observed.
+  Stationary D3/D4 components now evaluate three additional intermediate-pitch
+  views before any arm proposal. Material coverage and full native motion remain
+  unqualified. D4 higher-contact designs still fail full and reversed paths;
   uncentered static IK from three existing seeds also finds no higher endpoint.
   These finite local results establish no global infeasibility.
   Every negative remains preserved, with zero source labels/windows.
