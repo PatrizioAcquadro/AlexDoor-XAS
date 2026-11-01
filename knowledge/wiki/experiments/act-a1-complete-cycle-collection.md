@@ -497,11 +497,24 @@ stabilization. All23,896task-native samples independently reproduce the frozen
 load estimate, with5.080N upper peak and4.891N actual normal peak. Original raw
 integrity, physical limits and all14shape6s original-latch stops pass; actual
 push/hold/release/terminal RGB was inspected. The full payload and616.718GPU s
-are retained and owned GPU/PGID/lease cleanup is verified. The paired H+ fixture
-continues on elab5 under its finite original limits. Both fixtures use privileged
-door normals solely for pressure qualification: no observed source, matrix
-attempt, demonstration or temporal window is added. Complete paired success
-and subsequent observed-source transfer remain required.
+are retained and owned GPU/PGID/lease cleanup is verified.
+
+The paired H+ fixture on elab5 terminates at its original wall-budget boundary,
+77.6 simulated seconds (28.365 degrees), before hold/release/stabilization. All
+12,528 recorded task-native estimates stay inside the original 10 N domain
+(5.222 N upper and 5.020 N actual peaks); the saved prefix reproduces uninterrupted
+contact, and the original six-second stops pass for all 14 shapes. Whole raw
+output, interrupted outcome and 1,702.598 GPU seconds are retained; GPU/PGID/lease
+cleanup is verified. This is an interruption, not a conclusive physical negative
+or full qualification. Observed elab5 CPU frequencies near 800 MHz under native
+work remain an unexplained capacity anomaly; no global host policy is changed.
+The same H+ component migrates once to verified available elab2, whose nominal
+runtime already qualified. Source, fixture code, setup, load/geometry, seeds,
+physical/scientific criteria and 1600/1800-second guards stay the same; only host
+and job paths change. Privileged native door normals qualify pressure components
+only: no observed source, scientific matrix attempt, demonstration or temporal
+window is added. Complete paired success and subsequent observed-source transfer
+remain required.
 
 ## Agreed coverage and present evidence
 

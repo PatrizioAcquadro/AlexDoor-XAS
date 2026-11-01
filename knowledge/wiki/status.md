@@ -72,11 +72,17 @@ Runtime/asset ownership and supported workflows are in
   10N stopping-model domain. Healthy raw/native feedback and all14shape6s stops
   pass; no new demonstration is admitted. A shared gap-recovery candidate uses
   the existing contact-gap tolerance while keeping force regulation active.
-  Source2cd8697 now independently passes a complete privileged native D2-N
-  contact/hold/release/stabilization cycle: all23,896task substeps remain inside
-  the original10N load model (5.080N estimated upper peak), and all14shape6s
-  stops pass. The paired H+ fixture remains running on elab5; observed-source
-  transfer and related-condition qualification remain pending.
+  Source `2cd8697` independently passes a complete privileged native D2-N
+  contact/hold/release/stabilization cycle: all 23,896 task substeps stay inside
+  the original 10 N load model (5.080 N estimated upper peak), and the original
+  six-second stops pass for all 14 shapes. The paired H+ fixture on elab5
+  exhausted its original wall budget at 77.6 simulated seconds (28.365 degrees).
+  Its 12,528 task-native load estimates, prefix contact and original stops pass;
+  hold/release/stabilization
+  remain unexecuted. The interruption and charges are retained separately from
+  conclusive physical negatives. An identical finite H+ component now runs on
+  verified-owned elab2 capacity, with unchanged physical, model and wall limits.
+  Observed-source transfer and related-condition qualification remain pending.
   D2-P independently qualifies its
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.
