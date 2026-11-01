@@ -518,6 +518,15 @@ class PilotMotionEvidence:
                         diagnostics.get("complete_box_proofs", 0) + 1
                     )
             if support.collision_clearance_m is not None:
+                # A barely clear enclosing ball needlessly spends the receipt's
+                # normal margin on empty corners. Refine the complete CAD cell;
+                # every child re-enters all original scene and stop queries.
+                children = self.model.refine_normal_cover(
+                    cell, matrices, normal, gap, self.config["minimum_cell_m"]
+                )
+                if children:
+                    pending.extend(children)
+                    continue
                 proofs = [
                     (support.collision_clearance_m, gap, local_lever, (*center.tolist(), radius))
                 ]

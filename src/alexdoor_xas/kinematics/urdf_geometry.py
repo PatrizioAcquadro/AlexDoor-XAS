@@ -335,6 +335,21 @@ class RobotGeometry:
                 cells.append(CollisionCell(cell.shape, lo, hi, cell.path + (index,)))
         return tuple(cells)
 
+    def refine_normal_cover(self, cell, matrices, normal, margin_m, minimum_cell_m):
+        """Tighten a loose half-space cover; children require fresh full proofs.
+
+        A cell's enclosing ball can extend farther toward a plane than its box.
+        Spend extra spatial work when that geometric overreach exceeds the proved
+        margin. This is a refinement rule, never a new separation criterion.
+        """
+        if np.max(cell.upper - cell.lower) <= minimum_cell_m:
+            return ()
+        half = (cell.upper - cell.lower) / 2
+        rotation = matrices[self.shapes[cell.shape]["link"]][:3, :3]
+        projection = np.abs(rotation.T @ normal) @ half
+        overreach = max(0.0, float(np.linalg.norm(half) - projection))
+        return self.subdivide(cell) if margin_m <= overreach else ()
+
     def velocity_sweep(self, positions, root_world, velocity, acceleration, duration_s):
         """Prepare whole-volume balls for coupled velocity and bounded acceleration.
 

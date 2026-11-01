@@ -144,12 +144,20 @@ Runtime/asset ownership and supported workflows are in
   required tangential protrusion exclusion: the unchanged alternative whole-front
   separation actually passes by10.49mm, with positive complete material cover.
   The original review remains preserved with a corrected addendum; no actor gate
-  changes. A distinct guarded D4 approach/contact component now runs on elab4 and
-  stops before the first opening action. A parallel robot-only D4 N/H+/H-/P
-  component on Blackwell tests the complete original task-goal paths at constant
-  0.3N, full hold, achieved-pose staged release and loaded/held/removed stops.
-  Actual observed contact and required10N model support remain separate; complete
-  native motion is unqualified pending independent review.
+  changes. The distinct D4 guarded component then stops after134approach commands,
+  before contact. Raw/native and independent2+4s stops pass. A fresh normal estimate
+  exhausts six original same-sphere response margins; all four independently
+  valid current-surface alternatives also refuse. The original91spheres exactly
+  reconstruct; complete finer CAD cells improve those normal margins without
+  reducing any stop/model/error bound. The shared producer now refines loose
+  positive cells and rechecks every child through the original complete scene
+  queries. Unit geometry/admission checks pass; native qualification is pending.
+  Separately, all four D4 N/H+/H-/P original-task robot paths at constant0.3N pass
+  independent full hold, achieved-pose staged release, native/model/physical and
+  12continuing-stop reviews. Eight additional cases/24segments qualify only the
+  required10N H+lower-elbow and H-upper-gripper posture sides; no global domain
+  or active calibration adoption follows. Actual observed contact and complete
+  sources remain unqualified.
   Independent CUDA review of384D4 complete predicted paths finds31passing paths;
   only the original-height/base family passes all four variations for task and
   separate stress goals, with required load-domain extension still unqualified.

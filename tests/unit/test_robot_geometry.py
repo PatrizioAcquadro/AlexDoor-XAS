@@ -271,3 +271,38 @@ def test_cuda_robot_mask_matches_cpu_for_boundaries_domains_and_changed_state(mo
         model.occluded_pixels(gpu, {}, np.eye(4), (0, 0))
     np.testing.assert_array_equal(sensor["depth_m"], depths)
     np.testing.assert_array_equal(gpu["depth_m"].cpu().numpy(), depths)
+
+
+@pytest.mark.parametrize("angle", [0.0, 0.37, -0.37])
+def test_loose_positive_normal_cover_refines_complete_geometry(model, angle):
+    root = np.eye(4)
+    root[:3, :3] = Rotation.from_euler("y", angle).as_matrix()
+    matrices = model.transforms({"q": 0.0}, root)
+    normal = root[:3, :3] @ np.array([1.0, 0.0, 0.0])
+    cell = model.cells()[0]
+    children = model.refine_normal_cover(cell, matrices, normal, 0.02, 0.005)
+    assert len(children) == 8
+    # The same joint-travel domain covers every real point after refinement;
+    # child balls are not assumed to inherit the parent ball's scene proof.
+    balls = [model.world_ball(c, matrices, {"q": 0.1}) for c in children]
+    points = np.array(list(product(np.linspace(-0.1, 0.1, 5), repeat=3)))
+    for q in np.linspace(-0.1, 0.1, 7):
+        pose = model.transforms({"q": q}, root)["tool"]
+        world = points @ pose[:3, :3].T + pose[:3, 3]
+        assert np.any(
+            np.stack([np.linalg.norm(world - c, axis=1) <= r + 1e-12 for c, r in balls]),
+            axis=0,
+        ).all()
+
+
+def test_normal_cover_refinement_respects_margin_geometry_and_resolution(model):
+    matrices = model.transforms({"q": 0.0}, np.eye(4))
+    cell = model.cells()[0]
+    assert not model.refine_normal_cover(cell, matrices, np.array([1.0, 0, 0]), 0.1, 0.005)
+    # Along the cube diagonal its enclosing ball has no projection overreach.
+    normal = np.ones(3) / np.sqrt(3)
+    assert not model.refine_normal_cover(cell, matrices, normal, 1e-6, 0.005)
+    # Resolution exhaustion returns no refinement, never an admission decision.
+    width = float(np.max(cell.upper - cell.lower))
+    assert not model.refine_normal_cover(cell, matrices, np.array([1.0, 0, 0]), -0.01, width)
+    assert model.refine_normal_cover(cell, matrices, np.array([1.0, 0, 0]), -0.01, width / 2)

@@ -483,6 +483,18 @@ the complete query's pose/motion/stop errors. Missing protrusion bounds remain
 unavailable and do not certify an empty region. Target-model coverage and actual
 full-motion admission require independent qualification.
 
+## Resolution of whole-robot separation proofs
+
+A positive enclosing-ball margin can be dominated by the ball's excess over the
+finite CAD cell along the observed plane normal. The shared producer refines that
+cell when this geometric overreach exceeds its margin, using complete convex
+children and the existing minimum resolution/query budget. This is extra proof
+work, not a separation tolerance. Child spheres may extend outside their parent
+sphere, so every child re-enters all original foreground/background/material,
+load, motion and stop checks. Response validation retains each same-volume margin
+and every original uncertainty term. Numerical geometry coverage is distinct
+from native full-motion and source qualification.
+
 ## Contact normal error origins
 
 The local plane constraint preserves the current measured plane centroid and its

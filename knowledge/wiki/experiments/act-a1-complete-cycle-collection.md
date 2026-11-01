@@ -363,15 +363,44 @@ proposal still requires ordinary complete-volume admission; no source or full
 motion is qualified. D3 ownership remains unsupported and dependent motion stays
 suspended.
 
-The separate D4 robot-only native component tests N/H+/H-/P through the frozen
-50.146446degree task opening, original3s hold and6s achieved-pose staged release
-under constant0.3N diagnostic loading. It preserves measured placement/arm deltas
-and the newly qualified stationary head pose. Its loaded2s, held4s and removed2s
-stop segments require one original latch and all14moving-shape bounds, native
-feedback, frozen residuals and physical/dynamic limits. The independent reviewer
-is prepared but not dispatched while native simulation owns the device. This is
-pending robot support evidence; it cannot adopt the required10N model domain,
-observed contact or a complete demonstration.
+The distinct D4 observed component stops after134approach commands at36.6333s,
+before contact. Raw integrity, all8,793native samples and independent2+4s stops
+pass; no eligible source labels/windows. Its saved response reproduces six lost
+margins among91original spheres. The worst original17.78micrometer margin cannot
+pay759.41micrometers of fresh same-volume normal-error growth. This is not the
+previous cross-volume aggregation defect. All30current surfaces are retained;
+four independently valid constraints reproduce the selected minimum-finger-error
+constraint, and none passes the same complete response gate.
+
+Saved NumPy CAD/sweep reconstruction reproduces every original center/radius.
+The six failing balls cover positive/negative finger cells; subdividing each
+complete convex cell improves all child normal margins with the same interval,
+physical, model and stop reserves. Child spheres do not all lie within the old
+sphere, so its background certificate cannot simply be reused. The producer now
+refines a positive cell when its box-to-ball plane-projection overreach exceeds
+its proved margin, stopping at the existing minimum cell size. Every child takes
+all original foreground/background/material/self/load/stop queries with the same
+query ceiling. No acceptance tolerance or uncertainty decreases. Numerical
+nominal, resolution-boundary and rigid-rotation checks pass; a distinct guarded
+native qualification remains required before full-source admission.
+
+The separate D4 robot-only component independently passes all69,744native samples
+of N/H+/H-/P through the frozen50.146446degree task opening, original3s hold and6s
+achieved-pose staged release under constant0.3N diagnostic loading. It preserves
+measured placement/arm deltas and the new stationary head pose. Hold drift is
+1.578–1.984mm within the original2.5mm range. All12loaded2s/held4s/removed2s segments
+use the original latch and pass every14shape/native/frozen-residual/physical/
+dynamic/effort bound. Required10N support adds two posture sides:29.221mrad lower
+elbow for H+ and78.969mrad upper gripper for H-. N/P need no position extension.
+
+Eight additional independent native cases, including two unloaded controls and
+center/two finite-face10N application at each required posture, now pass all
+24continuous stop segments and actual moving/loaded-stop boundary witnesses.
+Only those two empirical sides at those measured neighborhoods qualify; no global
+Cartesian/joint domain, other posture, active calibration or source is adopted.
+Two GPU review failures retain a cross-host calibration-path error and an unused
+corrected recipe copy. The successful reviewer consumes the verified relocated
+copy with identical calibration values; no native rerun or bound change occurs.
 
 A separate D4 design retains384complete predicted task/stress paths across six
 base positions, four nominal heights, four original variations and two existing
