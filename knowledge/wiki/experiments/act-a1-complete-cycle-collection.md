@@ -420,11 +420,30 @@ projection directions. All 1,411,200 vertex checks pass across 12,600 constructe
 FK states. The 1e-12 m arithmetic comparison tolerance is solely a roundoff check,
 with no physical admission credit. The first convex reader's NumPy-boolean
 serialization failure and all earlier unknown/negative diagnostics remain
-preserved. These saved-state mathematical results change no controller, original
-outcome, calibration, mask or denominator. Shared implementation, complete-motion
-and related-condition validation, correctly associated receipt growth and native
-guarded-motion/contact qualification remain necessary before adopting the
-candidate. A convex proof never establishes free space for its larger sphere.
+preserved. These saved-state mathematical results preserve every original outcome,
+calibration, mask and denominator.
+
+The shared producer now implements this complete coupled-motion fallback. The
+independent chain comparison also passes against the production kinematics
+method. A saved D4 proposal replay uses actual GPU `PurdueFK`, the real
+`PurdueIO.preview` and unchanged bounded A1 target selection with the captured
+joint state, prior target and physical limits. All14root volumes pass at the
+original36.8833s refusal: five use the coupled hull, three of those require
+independently certified outer balls. The local separation summary is6.454mm and
+the independent robot-sweep margin1.369mm. No physics step or command is delivered.
+The same-estimate receipt revalidates. A separate causal reconstruction of the
+older36.6167s producer and actual36.6333s response preserves the original receipt
+failure, then passes with the new complete same-domain geometric margins; a
+consistent increase in normal-source uncertainty still refuses. The old minimum
+margin17.781micrometers becomes18.993mm for this earlier saved pose. Later observed
+candidate surfaces are excluded from that reconstruction.
+
+These software and saved-state checks establish a qualification candidate.
+Complete native guarded approach/contact, full motion and related-condition
+qualification remain required before any full D4 source. Existing physical,
+observed-contact, uncertainty, material, identity, load and independent stop gates
+remain unchanged. A convex proof never establishes free space for its larger
+sphere; every former negative remains negative and no source/windows are added.
 
 The separate D4 robot-only component independently passes all69,744native samples
 of N/H+/H-/P through the frozen50.146446degree task opening, original3s hold and6s

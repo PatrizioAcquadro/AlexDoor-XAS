@@ -416,6 +416,80 @@ class RobotGeometry:
 
         return ball
 
+    def convex_velocity_sweep(self, positions, root_world, velocity, acceleration, duration_s):
+        """Enclose complete cells by a linear-motion hull and Taylor radius.
+
+        All local vertices, time endpoints and acceleration-box corners are kept.
+        For a revolute chain every mixed point derivative is bounded by a full
+        downstream lever L; the norm remainder is L * sum(axis_angle_reach)**2 / 2.
+        This motion enclosure excludes stopping and model/scene error; callers
+        must add those bounds and independently prove the resulting full volume.
+        """
+        velocity, acceleration = np.asarray(velocity, float), np.asarray(acceleration, float)
+        n = len(self.moving_joints)
+        if (
+            velocity.shape != (n,)
+            or acceleration.shape != (n,)
+            or not np.isfinite(np.r_[velocity, acceleration, duration_s]).all()
+            or (acceleration < 0).any()
+            or duration_s <= 0
+        ):
+            raise ValueError("Unmeasured robot velocity/acceleration envelope")
+        joints = {j.get("name"): (link, j) for link, j in self.parents.items()}
+        if any(
+            joints[name][1].get("type") not in ("revolute", "continuous")
+            for name in self.moving_joints
+        ):
+            raise ValueError("Velocity sweep requires a revolute moving chain")
+        matrices = self.transforms(positions, root_world)
+        axes, origins = [], []
+        for name in self.moving_joints:
+            link, joint = joints[name]
+            frame = matrices[joint.find("parent").get("link")] @ self.joint_origins[link]
+            axes.append(frame[:3, :3] @ np.fromstring(joint.find("axis").get("xyz"), sep=" "))
+            origins.append(frame[:3, 3])
+        axes, origins = np.asarray(axes), np.asarray(origins)
+        axis_lengths = np.linalg.norm(axes, axis=1)
+        error = 0.5 * acceleration * duration_s**2
+        reach = np.abs(velocity) * duration_s + error
+        acceleration_corners = np.array(list(product((-1, 1), repeat=n))) * error
+        corners = np.array(list(product((False, True), repeat=3)))
+        levers = []
+        for shape in self.shapes:
+            offsets, ancestors, suffix = np.zeros(n), np.zeros(n, bool), 0.0
+            link = shape["link"]
+            while link in self.parents:
+                joint = self.parents[link]
+                name = joint.get("name")
+                if name in self.moving_joints:
+                    index = self.moving_joints.index(name)
+                    offsets[index], ancestors[index] = suffix, True
+                suffix += np.linalg.norm(self.joint_origins[link][:3, 3])
+                if joint.get("type") == "prismatic":
+                    suffix += abs(positions[name])
+                link = joint.find("parent").get("link")
+            levers.append((offsets, ancestors))
+
+        def convex(cell):
+            local = np.where(corners, cell.upper, cell.lower)
+            transform = matrices[self.shapes[cell.shape]["link"]]
+            world = local @ transform[:3, :3].T + transform[:3, 3]
+            offsets, ancestors = levers[cell.shape]
+            jacobian = np.cross(axes[None], world[:, None] - origins[None])
+            jacobian[:, ~ancestors] = 0
+            nominal = np.einsum("vjk,j->vk", jacobian, velocity) * duration_s
+            uncertain = np.einsum("sj,vjk->vsk", acceleration_corners, jacobian)
+            vertices = (
+                world[:, None, None, :]
+                + np.array([0.0, 1.0])[None, :, None, None] * nominal[:, None, None, :]
+                + uncertain[:, None, :, :]
+            ).reshape(-1, 3)
+            lever = np.max((offsets + np.linalg.norm(local, axis=1).max()) * ancestors)
+            remainder = 0.5 * lever * (reach[ancestors] * axis_lengths[ancestors]).sum() ** 2
+            return vertices, float(remainder)
+
+        return convex
+
     def world_ball(self, cell, matrices, joint_travel):
         values = np.array([joint_travel.get(name, np.nan) for name in self.moving_joints])
         if not np.isfinite(values).all() or (values < 0).any():

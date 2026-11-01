@@ -291,9 +291,10 @@ class PilotMotionEvidence:
         temporal_a = self.config["material_angular_speed_rad_s"] * io.dt
         foreground_by_key = {}
         surface_basis = None
+        convex_motion = None
 
-        def query(center, radius, key, *, constructive=True):
-            nonlocal checked, surface_basis
+        def count_query(center, radius, key):
+            nonlocal checked
             checked += 1
             if checked > self.config["maximum_cover_queries"]:
                 diagnostics.update(
@@ -304,6 +305,10 @@ class PilotMotionEvidence:
                     exhausted_link=self.model.shapes[key[0]]["link"],
                 )
                 raise ValueError("robot_cover_query_budget_exhausted")
+
+        def query(center, radius, key, *, constructive=True):
+            nonlocal surface_basis
+            count_query(center, radius, key)
             local_lever = float(np.linalg.norm(center - patch.world_pose.origin) + radius)
             normal_error = (
                 sum(
@@ -470,6 +475,84 @@ class PilotMotionEvidence:
                 )
             return support, gap, local_lever
 
+        def coupled_proof(cell, extra):
+            nonlocal convex_motion
+            if convex_motion is None:
+                convex_motion = self.model.convex_velocity_sweep(
+                    positions, io.calibration["root_world"], dq, self.acceleration, io.dt
+                )
+            vertices, motion_error = convex_motion(cell)
+            transform = matrices[self.model.shapes[cell.shape]["link"]]
+            corners = np.array(list(product((False, True), repeat=3)))
+            lower, upper = self.stop_boxes
+            stop = np.where(corners, upper[cell.shape], lower[cell.shape])
+            stop = stop @ transform[:3, :3].T
+            vertices = (vertices[:, None, :] + stop[None, :, :]).reshape(-1, 3)
+            radius = (
+                motion_error
+                + extra
+                + (2 * self.shape_stop[cell.shape] * np.sin(min(control_angle, np.pi) / 2))
+            )
+            # This sphere bounds uncertainty growth at the SAME proved convex
+            # volume. It is not a free-space certificate for the larger sphere.
+            center = vertices.mean(0)
+            domain_radius = float(np.linalg.norm(vertices - center, axis=1).max() + radius)
+            local_lever = float(np.linalg.norm(center - patch.world_pose.origin) + domain_radius)
+            normal_error = (
+                sum(
+                    normal_uncertainty_terms(
+                        patch.normal_uncertainty_sources, center[None], domain_radius
+                    ).values()
+                )
+                if patch.normal_uncertainty_sources
+                else patch.normal_position_bound_m + local_lever * patch.normal_rotation_bound_rad
+            )
+            error = (
+                normal_error
+                + self.config["normal_model_bound_m"]
+                + temporal_p
+                + (local_lever * temporal_a)
+            )
+            front = self.target_front_model["front_extent_m"]
+            gap = float(
+                patch.world_pose.origin @ normal
+                - (vertices @ normal).max()
+                - radius
+                - error
+                - front
+            )
+            if gap <= 0:
+                return None
+            count_query(center, domain_radius, (cell.shape, cell.path, "coupled_convex"))
+            support = self.workspace.query_convex_background(
+                vertices, radius, current_foreground_margin_m=gap
+            )
+            if support.collision_clearance_m is None:
+                # A larger ball may use the existing constructive background
+                # reader ONLY after its own complete foreground proof passes.
+                ball_gap = float(
+                    (patch.world_pose.origin - center) @ normal - domain_radius - error - front
+                )
+                if ball_gap <= 0:
+                    return None
+                count_query(center, domain_radius, (cell.shape, cell.path, "coupled_outer_ball"))
+                support = self.workspace.query_background(
+                    center[None],
+                    np.array([domain_radius]),
+                    current_foreground_margin_m=ball_gap,
+                    cover_ids=[(cell.shape, cell.path, "coupled_outer_ball")],
+                    constructive=True,
+                )
+                gap = ball_gap
+                if support.collision_clearance_m is None:
+                    return None
+                diagnostics["coupled_outer_ball_proofs"] = (
+                    diagnostics.get("coupled_outer_ball_proofs", 0) + 1
+                )
+            return [
+                (support.collision_clearance_m, gap, local_lever, (*center.tolist(), domain_radius))
+            ]
+
         while pending:
             cell = pending.pop()
             base_center, base_radius = ball(cell)
@@ -517,7 +600,17 @@ class PilotMotionEvidence:
                     diagnostics["complete_box_proofs"] = (
                         diagnostics.get("complete_box_proofs", 0) + 1
                     )
-            if support.collision_clearance_m is not None:
+            if (
+                support.collision_clearance_m is None
+                and self.background_mode
+                and self.stop_boxes is not None
+            ):
+                proofs = coupled_proof(cell, extra)
+            if proofs is not None:
+                diagnostics["coupled_convex_proofs"] = (
+                    diagnostics.get("coupled_convex_proofs", 0) + 1
+                )
+            elif support.collision_clearance_m is not None:
                 # A barely clear enclosing ball needlessly spends the receipt's
                 # normal margin on empty corners. Refine the complete CAD cell;
                 # every child re-enters all original scene and stop queries.

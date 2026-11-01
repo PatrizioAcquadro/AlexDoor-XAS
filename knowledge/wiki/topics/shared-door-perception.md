@@ -492,8 +492,23 @@ children and the existing minimum resolution/query budget. This is extra proof
 work, not a separation tolerance. Child spheres may extend outside their parent
 sphere, so every child re-enters all original foreground/background/material,
 load, motion and stop checks. Response validation retains each same-volume margin
-and every original uncertainty term. Numerical geometry coverage is distinct
-from native full-motion and source qualification.
+and every original uncertainty term.
+
+When those complete spherical proofs remain unavailable, the shared producer can
+use a coupled revolute-chain velocity/acceleration hull plus a suffix-length
+Taylor remainder. Every cell vertex, time endpoint and acceleration-box corner
+is retained, then the original full stop box, stop-frame rotation and robot/jaw
+errors are added. The resulting complete volume must pass both current whole-
+foreground separation and the maintained historical-background query. An enclosing
+ball is an alternative only if that larger ball independently passes its own
+foreground and background proofs. All actual queries spend the existing budget;
+unknown support and exhausted margins retain the original refusal behavior.
+
+Receipts retain an enclosing domain for normal-error growth at each proved
+volume, paired with that volume's eroded margin. Such an enclosure bounds
+uncertainty growth; a convex collision proof does not certify free space for its
+larger ball. Numerical and saved-response checks are distinct from native full-
+motion, related-condition and source qualification.
 
 ## Contact normal error origins
 
@@ -512,8 +527,8 @@ actual published anchor. This avoids a spurious mismatch when a fresh plane
 correction passes through a native float32 camera transform. The consumer still
 checks the complete list; omitted or inconsistent contributions remain unavailable.
 Legacy records without primitives retain their original conservative calculation.
-Unloaded receipts also retain the complete proved sphere domains and revalidate
-normal-bound growth directly at those same balls. Transport through the distant
+Unloaded receipts retain the same-volume normal-growth domains and revalidate
+normal-bound growth directly over those enclosures. Transport through the distant
 anchor is not charged again after the producer used direct pivots. Finite radii,
 prepaid interval growth and the remaining separation margin are still checked;
 missing primitives or exhausted margins refuse execution.

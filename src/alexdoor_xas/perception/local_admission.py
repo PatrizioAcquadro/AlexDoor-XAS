@@ -55,10 +55,10 @@ class LocalActionSupport:
     # Full-interval position/angular growth ALREADY eroded by the producer,
     # including relative material motion. Only excess growth spends the residual.
     unloaded_temporal_bound_m_rad: tuple[float, float] | None = None
-    # Complete world-space balls used by the producer, for pointwise normal
-    # error growth at the same physical volumes during receipt revalidation.
+    # World-space enclosures for normal-error growth at each SAME proved volume.
+    # A convex scene proof does not assert free space for its enclosing ball.
     unloaded_normal_spheres: tuple[tuple[float, float, float, float], ...] = ()
-    # Original producer-eroded separation at EACH corresponding complete ball.
+    # Original producer-eroded separation at EACH corresponding proved volume.
     # Empty preserves the conservative global-minimum rule for older receipts.
     unloaded_normal_margins_m: tuple[float, ...] = ()
 
@@ -436,7 +436,7 @@ def require_current_local_admission(admission, estimate, now):
                     - prepaid_p
                     - lever * prepaid_a
                 )
-            # Spend growth against the SAME ball's original margin. Mixing the
+            # Spend growth against the SAME volume's original margin. Mixing the
             # largest distant-body growth with the smallest fingertip margin
             # loses the spatial association of otherwise complete proofs.
             margins = evidence.unloaded_normal_margins_m or (

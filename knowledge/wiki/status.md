@@ -120,9 +120,10 @@ Runtime/asset ownership and supported workflows are in
   Each shoulder uses a wholly enclosing ball with its own positive foreground
   proof and maintained constructive background proof; finger coverage remains
   convex. Nonlinear URDF checks cover all seven chain depths, boundary/coupled
-  motion and perturbed states. These are saved-state mathematical checks, with
-  full motion/contact, related conditions and correctly associated receipt
-  growth still required before controller adoption.
+  motion and perturbed states. The shared fallback is now implemented; saved GPU
+  producer and actual-response replays pass with paired same-domain growth margins, while an uncertainty
+  overspend still refuses. Full native motion/contact and related-condition
+  qualification remain required before a full D4 source.
   Exact reconstruction from seven actual inspection samples reproduces every
   original front-model count and bound; a spatial union retaining the same
   reserve also fails to exclude the refused sphere. No new model is adopted.

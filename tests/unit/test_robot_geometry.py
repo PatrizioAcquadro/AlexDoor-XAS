@@ -306,3 +306,90 @@ def test_normal_cover_refinement_respects_margin_geometry_and_resolution(model):
     width = float(np.max(cell.upper - cell.lower))
     assert not model.refine_normal_cover(cell, matrices, np.array([1.0, 0, 0]), -0.01, width)
     assert model.refine_normal_cover(cell, matrices, np.array([1.0, 0, 0]), -0.01, width / 2)
+
+
+def test_convex_velocity_cover_contains_nonlinear_rotating_cells(model):
+    robot = model
+    positions = {"q": 0.7}
+    corners = np.array(
+        list(product(*zip(robot.cells()[0].lower, robot.cells()[0].upper, strict=True)))
+    )
+    directions = np.r_[np.eye(3), -np.eye(3), [[1.0, 2.0, -3.0]]]
+    directions /= np.linalg.norm(directions, axis=1)[:, None]
+    for velocity, acceleration, dt in [(0.0, 0.0, 0.02), (0.4, 0.0, 0.02), (-0.4, 3.0, 0.05)]:
+        cover = robot.convex_velocity_sweep(positions, np.eye(4), [velocity], [acceleration], dt)
+        for cell in [robot.cells()[0], *robot.subdivide(robot.cells()[0])]:
+            vertices, radius = cover(cell)
+            assert vertices.shape == (32, 3) and np.isfinite(vertices).all() and radius >= 0
+            upper = (vertices @ directions.T).max(0) + radius
+            local = np.array(list(product(*zip(cell.lower, cell.upper, strict=True))))
+            for fraction, sign in product(np.linspace(0, 1, 11), (-1, 0, 1)):
+                t = dt * fraction
+                q = positions["q"] + velocity * t + 0.5 * acceleration * sign * t**2
+                transform = robot.transforms({"q": q}, np.eye(4))["tool"]
+                actual = local @ transform[:3, :3].T + transform[:3, 3]
+                assert np.all((actual @ directions.T).max(0) <= upper + 1e-12)
+        # A stationary zero-error enclosure is the actual complete cell, not
+        # just its center or selected front face.
+        if velocity == acceleration == 0:
+            vertices, radius = cover(robot.cells()[0])
+            assert radius == 0
+            transform = robot.transforms(positions, np.eye(4))["tool"]
+            actual = corners @ transform[:3, :3].T + transform[:3, 3]
+            np.testing.assert_array_equal(np.unique(vertices, axis=0), np.unique(actual, axis=0))
+    for velocity, acceleration, dt in [([1, 2], [1], 0.1), ([1], [-1], 0.1), ([1], [1], 0)]:
+        with pytest.raises(ValueError, match="velocity/acceleration"):
+            robot.convex_velocity_sweep(positions, np.eye(4), velocity, acceleration, dt)
+
+
+@pytest.mark.parametrize("axis_scale", [1.0, 1.000001, 1.7])
+def test_convex_velocity_cover_preserves_coupled_ancestor_motion(model, axis_scale):
+    path = model.urdf
+    path.write_text("""<robot name="coupled"><link name="base"/><link name="elbow"/>
+<link name="tool"><collision><origin xyz="0.3 0 0"/>
+<geometry><mesh filename="cube.stl"/></geometry></collision></link>
+<joint name="shoulder" type="revolute"><parent link="base"/><child link="elbow"/>
+<origin xyz="0 0 1"/><axis xyz="0 0 1"/></joint>
+<joint name="q" type="revolute"><parent link="elbow"/><child link="tool"/>
+<origin xyz="0.5 0 0"/><axis xyz="0 1 0"/></joint></robot>""")
+    # Keep the existing calibrated-axis validation. Accepted axis roundoff is
+    # included in the angle remainder; an uncalibrated axis remains unavailable.
+    path.write_text(path.read_text().replace('axis xyz="0 1 0"', f'axis xyz="0 {axis_scale} 0"'))
+    robot = RobotGeometry(path, ("shoulder", "q"))
+    positions = dict(shoulder=0.8, q=-0.5)
+    dt = 0.05
+    velocity, acceleration = np.array([0.4, -0.3]), np.array([3.0, 5.0])
+    root = np.eye(4)
+    root[:3, :3] = Rotation.from_euler("xyz", [0.3, -0.4, 0.2]).as_matrix()
+    root[:3, 3] = [0.2, 0.1, -0.3]
+    cell = robot.cells()[0]
+    if axis_scale == 1.7:
+        with pytest.raises(ValueError, match="calibrated robot joint state"):
+            robot.convex_velocity_sweep(positions, root, velocity, acceleration, dt)
+        return
+    vertices, radius = robot.convex_velocity_sweep(positions, root, velocity, acceleration, dt)(
+        cell
+    )
+    assert vertices.shape == (64, 3)
+    directions = np.array(list(product((-1.0, 1.0), repeat=3))) / np.sqrt(3)
+    upper = (vertices @ directions.T).max(0) + radius
+    local = np.array(list(product(*zip(cell.lower, cell.upper, strict=True))))
+    for fraction in np.linspace(0, 1, 13):
+        for signs in product((-1.0, 0.0, 1.0), repeat=2):
+            t = fraction * dt
+            q = (
+                np.array(list(positions.values()))
+                + velocity * t
+                + 0.5 * acceleration * signs * t**2
+            )
+            transform = robot.transforms(dict(zip(robot.moving_joints, q, strict=True)), root)[
+                "tool"
+            ]
+            actual = local @ transform[:3, :3].T + transform[:3, 3]
+            assert np.all((actual @ directions.T).max(0) <= upper + 1e-12)
+    path.write_text(
+        path.read_text().replace('name="q" type="revolute"', 'name="q" type="prismatic"')
+    )
+    prismatic = RobotGeometry(path, ("shoulder", "q"))
+    with pytest.raises(ValueError, match="revolute moving chain"):
+        prismatic.convex_velocity_sweep(positions, root, velocity, acceleration, dt)
