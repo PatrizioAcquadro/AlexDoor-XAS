@@ -445,6 +445,31 @@ observed-contact, uncertainty, material, identity, load and independent stop gat
 remain unchanged. A convex proof never establishes free space for its larger
 sphere; every former negative remains negative and no source/windows are added.
 
+The subsequent guarded native D4 component still stops before contact after
+166approach commands at37.1667s. All8,921native feedback samples are healthy,
+raw integrity and physical command safety pass, and independent review verifies
+the original continuous6s stop across all14shapes and every original bound.
+Actual inspection/terminal RGB was reviewed. Complete transfer, owned process/
+GPU/lease cleanup and all costs are retained. No component, source or window is
+qualified; the earlier negatives remain unchanged.
+
+At its terminal complete positive-finger leaf, the production coupled hull fails
+whole-front separation by1.285mm before a background query can begin. The original
+normal/model/temporal error is16.805mm and observed front extent35.677mm. Finite
+material coverage and relative body order remain positive, while the separately
+required relief exclusion remains unsupported. The original resolution is reached
+without exhausting the query budget. More proof queries do not resolve this
+foreground limitation.
+
+A GPU reconstruction of all ten causal inspection views exactly reproduces every
+original front-model count and bound. A spatial union retaining the same global
+relief reserve plus voxel coverage also contains the query's convex mean center;
+its projected exclusion still fails with all original point/motion/stop errors.
+This model overlap establishes no physical collision or global infeasibility.
+A common complete foreground/contact-region or acquisition/path design must
+support the full motion and related conditions before another dependent native
+attempt. Saved-pose enclosure improvements alone do not qualify contact.
+
 The separate D4 robot-only component independently passes all69,744native samples
 of N/H+/H-/P through the frozen50.146446degree task opening, original3s hold and6s
 achieved-pose staged release under constant0.3N diagnostic loading. It preserves

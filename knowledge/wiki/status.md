@@ -121,12 +121,14 @@ Runtime/asset ownership and supported workflows are in
   proof and maintained constructive background proof; finger coverage remains
   convex. Nonlinear URDF checks cover all seven chain depths, boundary/coupled
   motion and perturbed states. The shared fallback is now implemented; saved GPU
-  producer and actual-response replays pass with paired same-domain growth margins, while an uncertainty
-  overspend still refuses. Full native motion/contact and related-condition
-  qualification remain required before a full D4 source.
-  Exact reconstruction from seven actual inspection samples reproduces every
-  original front-model count and bound; a spatial union retaining the same
-  reserve also fails to exclude the refused sphere. No new model is adopted.
+  producer and actual-response replays pass with paired same-domain growth
+  margins, while an uncertainty overspend still refuses. The distinct native component stops after166approach
+  commands before contact: its complete finger hull lacks1.285mm of whole-front
+  separation. All8,921native samples and the original continuous6s/14shape stops
+  pass. Exact ten-view reconstruction and a same-reserve spatial relief union
+  still fail foreground exclusion. Common observed foreground/contact-region or
+  acquisition/path support across complete motion and related conditions is
+  required before further dependent D4 motion; no component/source is qualified.
   A four-door GPU design comparison retains all16N/H+/H-/P conditions under
   three target-bound choices. Interior physical targets remove predicted
   future-limit deficits; restricting targets to the main load rectangle loses
