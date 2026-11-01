@@ -252,3 +252,31 @@ def test_plane_choice_minimizes_normal_error_at_actual_fingers(monkeypatch, reje
         expected = distant_constraint if reject_near else near_constraint
         assert candidate.local_constraint is expected
         assert candidate.local_constraint.position_bound_m == (0.001 if reject_near else 0.1)
+
+
+def test_conditioned_seed_selection_skips_missing_edges_before_duplicate_pruning():
+    from copy import deepcopy
+
+    sample = camera_sensor()
+    mask = np.zeros((240, 240), bool)
+    mask[25:216, 25:216] = True
+    sample["depth_m"][:] = 2
+    sample["depth_m"][mask] = 1
+    config = dict(
+        recipe().config,
+        local_surface_constraint=dict(point_error_m=0.001, normal_model_bound_rad=0.001),
+    )
+    cue = dict(shape=mask.shape, masks=[np.packbits(mask).tobytes()], ids=[3], latency_s=0.0)
+    good = surfaces(cue, sample, config)[0]
+    observed_basis(good, 0.001)
+    bad = deepcopy(good)
+    bad.edge_points = {}
+    tracker = PanelTracking(SimpleNamespace(reset=lambda: None), config)
+    # Existing selection remains readable and unchanged for other consumers.
+    assert tracker.eligible_surfaces([bad, good], sample)[0] == [bad]
+    tracker.config = dict(config, reference_selection="largest_conditioned_surface")
+    assert tracker.eligible_surfaces([bad, good], sample)[0] == [good]
+    assert tracker.eligible_surfaces([bad], sample)[0] == []
+    assert tracker.diagnostics["initialization_rejections"][0]["reason"] == (
+        "missing_conditioned_observed_edge"
+    )

@@ -25,7 +25,11 @@ from alexdoor_xas.perception.geometry import (
     surfaces,
 )
 from alexdoor_xas.perception.ipc import unpack_array
-from alexdoor_xas.perception.local_surface import SurfacePose, constrained_surface_pose
+from alexdoor_xas.perception.local_surface import (
+    SurfacePose,
+    constrained_surface_pose,
+    observed_basis,
+)
 from alexdoor_xas.perception.material_zone import (
     BoundSource,
     ContactBudget,
@@ -135,6 +139,11 @@ class PanelTracking:
             or constraint["normal_model_bound_rad"] < 0
         ):
             raise ValueError("invalid_local_surface_constraint_recipe")
+        if (
+            config.get("reference_selection") == "largest_conditioned_surface"
+            and constraint is None
+        ):
+            raise ValueError("conditioned_reference_requires_local_surface_recipe")
         self.calibration, self.tool_fk, self.distal_faces = calibration, tool_fk, distal_faces
         self.calibration_bound = calibration_bound
         self.relative_speed_bound = relative_speed_bound
@@ -183,6 +192,10 @@ class PanelTracking:
                 )
                 if whole_leaf_mask is not None:
                     verify_candidate(observation.mask(), whole_leaf_mask, references)
+                if self.config.get("reference_selection") == "largest_conditioned_surface":
+                    observed_basis(
+                        surface, self.config["local_surface_constraint"]["point_error_m"]
+                    )
             except ValueError as error:
                 self.diagnostics.setdefault("initialization_rejections", []).append(
                     dict(

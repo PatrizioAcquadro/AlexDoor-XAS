@@ -517,3 +517,12 @@ A geometry recipe may supply `point2pose_selected_path` to a separate frontend
 configuration. The default remains `configs/point2pose_selected.json`. This lets a
 prospective door-specific semantic prompt keep its own explicit recipe; identity,
 finite support, tracking and admission checks retain the same implementation.
+
+
+The explicit `largest_conditioned_surface` reference selector applies the existing
+measured plane/edge conditioning test before duplicate/root pruning and automatic
+reference selection. It avoids freezing a local-pose seed whose missing edge
+would make every later A1/A2 pose query unavailable, while preserving the same
+semantic identity, native mask, finite support, tie/overlap and ownership checks.
+The original `largest_visible_surface` selector is unchanged. A low-residual
+TAPIR correspondence fit is not an alternative metric tracking-error calibration.

@@ -111,7 +111,11 @@ class PerceptionSession:
         from alexdoor_xas.perception.sam3.runtime import Sam3Worker
 
         self.config = recipe.config
-        if self.config.get("reference_selection") not in (None, "largest_visible_surface"):
+        if self.config.get("reference_selection") not in (
+            None,
+            "largest_visible_surface",
+            "largest_conditioned_surface",
+        ):
             raise ValueError("unknown_observed_reference_selection")
         self.selected = selected or self.config.get("point2pose_selected") or selected_recipe()
         controls = dict(self.selected["point2pose_controls"])
@@ -357,7 +361,8 @@ class PerceptionSession:
                         requested_surface is None
                         and requested_pixel is None
                         and t >= self.initialize_after
-                        and self.config.get("reference_selection") == "largest_visible_surface"
+                        and self.config.get("reference_selection")
+                        in ("largest_visible_surface", "largest_conditioned_surface")
                     ):
                         requested_pixel = observed_reference_pixel(options)
                         if requested_pixel is not None:
