@@ -405,3 +405,13 @@ The October31 D2-RP diagnostic reproduced the refusal at152.0s and retained
 intermittent zero native means with a0.03396N final physical window. The separate
 observed lower bound crossed zero. This resolves the missing-feedback question;
 it does not establish complete recovery under the corrected feedback mode.
+
+
+A complete-collection protocol may explicitly enable `completion_opening_handoff`
+with its bounded task-goal hold. The teacher then starts holding after the current
+continuous supported window reaches the unchanged required opening and any
+injected recovery has finished. This avoids continuing the maximum-reach expert
+probe beyond an already achieved task goal. It does not admit that window as a
+complete demonstration: the full original hold minimum, release, stabilization,
+continuity, force, joint, perception and independent stop checks still apply.
+Protocols without the option retain their original maximum-reach behavior.

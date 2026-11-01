@@ -1192,6 +1192,17 @@ def run_probe(
                 missing_time = 0.0 if loaded else missing_time + dt
                 if failure:
                     break
+                if task_hold is not None and task_hold.get("handoff_at_required_opening", False):
+                    from alexdoor_xas.qualification.collection_phase import task_opening_handoff
+
+                    if task_opening_handoff(
+                        window,
+                        np.deg2rad(task_hold["required_opening_deg"]),
+                        recovery_complete=correction is None
+                        or bool(correction.injected_commands and not correction.pending),
+                    ):
+                        reason = "task_opening_hold"
+                        break
                 if margin < 0.002 and loaded:
                     from alexdoor_xas.qualification.limits import constrained_step_evidence
 

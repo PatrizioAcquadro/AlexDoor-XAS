@@ -574,6 +574,9 @@ def main(argv=None):
                     required_opening_deg=protocol["collection_required_opening_deg"][args.asset_id],
                     minimum_s=setup.hold_settle_s,
                     maximum_s=float(selected[0]["completion_hold_max_s"]),
+                    handoff_at_required_opening=bool(
+                        selected[0].get("completion_opening_handoff", False)
+                    ),
                 )
                 metadata["task_hold_completion"] = task_hold
             recorder_type, recorder_options = TemporalExpertRecorder, {}

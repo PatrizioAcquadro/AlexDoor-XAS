@@ -230,3 +230,25 @@ def test_diagnostic_hold_keeps_real_minimum_and_excludes_collection_use():
     ]:
         with pytest.raises(ValueError):
             diagnostic_hold_minimum(setup, changed, 6)
+
+
+def test_task_handoff_uses_current_contact_window_after_recovery():
+    from alexdoor_xas.qualification.collection_phase import task_opening_handoff
+    from alexdoor_xas.qualification.synthetic_probe import SustainedAngle
+
+    window = SustainedAngle(0.5)
+    goal = np.deg2rad(42)
+    for i in range(31):
+        window.update(i / 60, goal + 0.01, True)
+    assert task_opening_handoff(window, goal, recovery_complete=True)
+    assert not task_opening_handoff(window, goal, recovery_complete=False)
+    # A past opening maximum cannot replace a broken current contact window.
+    window.update(31 / 60, goal + 0.02, False)
+    assert window.maximum > goal
+    assert not task_opening_handoff(window, goal, recovery_complete=True)
+    for i in range(32, 63):
+        window.update(i / 60, goal - 0.001, True)
+    assert not task_opening_handoff(window, goal, recovery_complete=True)
+    for i in range(63, 94):
+        window.update(i / 60, goal, True)
+    assert task_opening_handoff(window, goal, recovery_complete=True)

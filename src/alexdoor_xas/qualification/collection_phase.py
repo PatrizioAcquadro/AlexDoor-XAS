@@ -216,6 +216,17 @@ def release_preparation_ready(rows, setup, *, opening_goal_rad, required_history
     )
 
 
+def task_opening_handoff(window, required_angle, *, recovery_complete):
+    """Stop seeking maximum reach after the current supported task goal.
+
+    This only starts holding. The complete ordinary hold, release and all
+    physical/scientific acceptance checks still have to run independently.
+    """
+    return bool(
+        recovery_complete and window.current is not None and window.current >= required_angle
+    )
+
+
 def opening_hold_complete(current_angle, duration_s, minimum_s, required_angle):
     """Require the real current supported window and the original hold minimum."""
     return bool(
