@@ -286,7 +286,21 @@ fixed. Calibrated frustum planning includes the complete observed tool region in
 all proposed views, with51–83pixel margins, without proving visibility or material
 coverage. Actual RGB-D, finite same-ID witnesses, native physical/stop review and
 material support near the fingers remain required before dependent motion.
+The D3 intermediate-pitch component completes the controlled no-arm inspection
+with passing raw/native, inspection limits and2+4s stops, but selected material
+ownership remains ambiguous. Both eligible roots in its exact last publication
+have zero finite static witnesses and zero positive dense-material clearance.
+This profile is not qualified and no dependent movement follows. The original
+negative, masks and394.473GPU s are retained. D4's acquisition remains under review.
 No CAD geometry becomes an actor input or a runtime exclusion certificate.
+
+A separate finite D4 GPU design compares six nominal base positions and four
+heights, preserving N/H+/H-/P deltas and the measured fixed robot root height.
+Original task-goal and+3degree stress trajectories run separately to avoid extra
+held time caused by mixing goals in one batch. Maintained and physical-future-
+interior controller targets give384predicted paths. CAD/pedestal, observed material,
+actual force/contact, stabilization and native stop checks remain mandatory before
+any candidate adoption; no physical/admission bound or task criterion changes.
 
 D4's additional80finite GPU paths cover four contact heights and six initial
 posture seeds, each with all N/H+/H-/P differences and maintained/physical-future-

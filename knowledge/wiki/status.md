@@ -137,9 +137,12 @@ Runtime/asset ownership and supported workflows are in
   commands, before contact, with passing raw/native and independent2+4s stops.
   Its finite material atlas cannot cover the complete stopped-finger envelope;
   the retained handle is excluded and no physical violation is observed.
-  Stationary D3/D4 components now evaluate three additional intermediate-pitch
-  views before any arm proposal. Material coverage and full native motion remain
-  unqualified. D4 higher-contact designs still fail full and reversed paths;
+  New intermediate-pitch D3 inspection passes raw/native and stops but still
+  fails material ownership; both observed eligible roots have zero finite
+  witnesses and zero positive dense cover. D4's stationary acquisition continues.
+  A separate D4 whole-path planning study compares base positions and contact
+  heights with original variations and separate task/stress references. Material
+  coverage and full native motion remain unqualified. D4 higher-contact designs still fail full and reversed paths;
   uncentered static IK from three existing seeds also finds no higher endpoint.
   These finite local results establish no global infeasibility.
   Every negative remains preserved, with zero source labels/windows.
