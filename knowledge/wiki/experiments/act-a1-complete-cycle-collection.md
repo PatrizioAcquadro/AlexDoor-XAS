@@ -5,8 +5,9 @@
 Can four existing train doors supply 36 independently qualified full-cycle and
 real-history recovery conditions under the maintained controller, observed
 admission and fixed scientific criteria? **The campaign resumed by explicit human
-authorization on October31,2026 and remains incomplete:16/36 conditions,
-comprising twelve ordinary cycles and four complete recoveries.** The retained
+authorization on October31,2026 and remains incomplete:17/36 conditions,
+comprising thirteen ordinary cycles and four complete recoveries. All nine D2
+conditions are qualified.** The retained
 pause baseline remains29full attempts:eight positive and21negative.
 
 D2-RP independently qualifies the real72-command pause/313-command recovery.
@@ -21,8 +22,12 @@ D1-RV now independently qualifies its actual35nonzero injected commands and
 0.22255 to0.01182rad/s; this is braking, not a zero-velocity or independent-stop
 claim at0.4s. These qualified sources pass their complete native continuity,
 2+4s independent stops, actual-image and GPU temporal reviews. Injected targets
-remain excluded. Two reused references and fourteen new recordings fill sixteen
-cells; their81,877overlapping windows are not independent demonstrations.
+remain excluded. Two reused references and fifteen new recordings fill seventeen
+cells. The exact matrix cohort has 100,295 overlapping windows: 88,061 from new
+recordings and 12,234 from reused references. The earlier 81,877 count covered
+only the preceding fourteen new recordings. Broader selection/phase manifests
+also retain historical sources and must be filtered to these seventeen IDs;
+neither historical manifest totals nor overlapping windows count demonstrations.
 D2-P also passes full native continuity, the unchanged3s hold, release,
 stabilization,2+4s stops, actual RGB and GPU temporal preparation. Measured
 base displacement is(-20,+25)mm with4deg yaw; initial shoulder/elbow deltas are
@@ -561,11 +566,29 @@ CPU read verifies enclosure and every complete parent/child partition. The actua
 saved response then passes all original receipt gates with 3.708 mm spatial
 margin; uncertainty growth and a separately scoped tangential perturbation still
 refuse. All 128 relevant numerical producer/contact/geometry checks pass. Actual
-GPU full-producer, nominal-phase and native qualification remain pending; the
-original `68a5bcb` component stays negative. The
+GPU full-producer and nominal-phase checks subsequently pass, while native
+transfer remains negative; the original `68a5bcb` component stays negative. The
 [complete compact-box discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-spatial-response-oriented-box-discriminator-20261101/review.json)
 and [actual-response candidate review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-spatial-response-oriented-box-discriminator-20261101/candidate-actual-receipt-review-v2.json)
 preserve the scope, original primitives and failed simpler representations.
+
+Source `b322127` passes paired actual GPU full-producer/next-native-receipt checks
+on the original D3 snapshot and all seven nominal full-phase states, while D4
+retains its original unsupported-sweep refusal. These two diagnostics cost
+89.439 GPU seconds and add no source. The distinct native D3 component then
+refuses before contact after 90 approach commands: the actual 35.8833–35.9 s
+spatial response changes its margin from +6.004 mm to -0.700 mm. All normal
+margins remain positive. Its 8,617 native samples are healthy; all 90 admissions
+were delivered, 181 load packets remain within the original model, and the full
+6 s/14-shape stops, actual RGB, whole transfer and owned cleanup pass. The
+492.303 GPU seconds and zero eligible labels/windows remain recorded. A further
+complete-box support-axis projection, with all original errors and the same
+5 mm resolution, still leaves unsupported domains after 544 queries. This
+negative discriminator motivates no projection fallback or tolerance change.
+The [native component review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D3-refined-spatial-guarded-approach-contact-blackwell-20261101/component-independent-review.json)
+and [exact response discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D3-refined-spatial-guarded-approach-contact-blackwell-20261101/exact-terminal-spatial-projection-audit.json)
+retain the unsupported state. Unchanged dependent D3/D4 attempts remain suspended
+pending common complete observed uncertainty/acquisition/path support.
 
 The [complete geometric discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/review.json)
 and [shared-certificate check](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/shared-certificate-saved-state-check.json)
@@ -692,8 +715,25 @@ phases. Only the effective episode wall allowance becomes28,000s, with29,000s
 wrapper protection, based on the original maximum whole-task phases and25%
 compute headroom. The unchanged global defaults are distinct from this episode's
 effective budget. The prior source is fully reviewed and released before this
-single new allocation. Complete native observed outcome, causal preparation and
-transfer beyond the native N/H+ pair remain unqualified.
+single new allocation. It finishes positively in 14,255.723 GPU seconds, reaching
+42.979 degrees against 42.029 required. Independent reconstruction verifies the
+full 3 s loaded hold, 6 s staged release, stabilization, all 30,785 healthy native
+samples, 6,172 guarded admissions/deliveries and 12,344 observed load packets.
+Peak actual/estimated load is 5.020/5.222 N within the original 10 N model;
+measured hold-height delta is 20.009 mm against 20 mm requested. Continuous
+6 s stops pass every original radial/directional/joint/tool/rotation/speed/
+acceleration/force gate over all 14 shapes. Actual phase RGB, the whole 45-file
+payload plus sidecars and owned cleanup also pass.
+
+Actual GPU temporal preparation costs another 44.443 seconds. The maintained
+causal consumer, all six phases/boundaries, strictly past delivered-target
+history, future action chunks, real tail masks and unchanged frozen normalizer
+pass independent review. Source N15 contributes 6,184 H12/execute6 overlapping
+windows as one new demonstration. This closes D2-H+ and all nine D2 conditions;
+no learned-policy or other-door transfer follows. The
+[independent full-source review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D2-Hplus-gap-tolerance-complete-capacity-elab2-20261101/independent-review.json)
+and [qualified cohort admission](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D2-Hplus-gap-tolerance-complete-capacity-elab2-20261101/qualified-cohort-admission-review.json)
+retain the preceding failure/interruption, every source ID and exact window scope.
 
 ## Observed nominal compatibility and producer cost
 
@@ -938,6 +978,29 @@ native motion, residual/load/stop support and observed material qualification;
 no controller, region, calibration or source is adopted. The
 [independent calibrated-target review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-lateral-contact-calibrated-target-family-design-local-20261101/independent-review.json)
 retains all 160 outcomes and the perfect-tracking limitations.
+
+A finite native component on elab3 then completes this common +100 mm lateral
+region at the original frozen goal across all four robot-relative variations.
+Independent GPU FK/load/geometry reconstruction verifies all 66,736 moving
+native samples, original six-phase endpoints, physical and main calibrated
+future-position ranges, zero torque-residual exceedances, achieved-pose retreat,
+full 6 s stabilization and the original continuous 6 s/14-shape stops plus 2 s
+removed-load stops. Native cost is 837.913 GPU seconds. Main position support
+requires no extension. Whole transfer and owned cleanup pass.
+
+The inherited reader also checks a whole-3 s tool bounding-box drift proxy:
+H- measures 2.657 mm against 2.5 mm, and this refusal remains preserved. A
+separate source-contract audit distinguishes it from the maintained final
+0.5 s stability check, which passes for every condition at the unchanged 2.5 mm
+threshold, with every original 3 s hold sample retained. Both reader charges
+(12.089 s failed, 17.141 s complete) remain accounted. This corrects contract
+attribution and qualifies no actual observed door hold. The constant 0.3 N
+robot-only fixture changes no physical limits or load calibration; its common
+native root does not qualify the P scene/floor/camera variation, actual material
+contact, production region/target adoption or an observed source. The
+[independent motion review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab3/D1-common-lateral-calibrated-target-native-family-elab3-20261101/independent-motion-review.json)
+and [maintained hold-contract audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab3/D1-common-lateral-calibrated-target-native-family-elab3-20261101/independent-hold-contract-review.json)
+retain both the extra proxy refusal and these qualification boundaries.
 
 ## Resources, archival and closeout
 

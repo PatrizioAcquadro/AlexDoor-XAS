@@ -541,7 +541,12 @@ smallest geometric distance with a different point's largest uncertainty lever.
 Background and same-volume normal proofs remain mandatory. A larger fallback
 ball retains the whole-front bound unless that entire ball independently excludes
 relief; a physical box never certifies the ball's empty corners. The actual saved
-D3 response passes this software candidate, while native transfer remains pending.
+D3 response and paired GPU producer/nominal-phase receipts pass this software
+candidate. A subsequent native D3 response still exhausts spatial support before
+contact; complete-box support-axis projection at unchanged resolution also stays
+unsupported. This qualifies neither full native motion nor a source; the
+[[../experiments/act-a1-complete-cycle-collection|collection experiment]] owns the
+actual outcomes and remaining qualification boundary.
 
 Receipts retain an enclosing domain for normal-error growth at each proved
 volume, paired with that volume's eroded margin. Such an enclosure bounds

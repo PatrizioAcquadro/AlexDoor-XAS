@@ -24,7 +24,7 @@ this result does not qualify transfer to D1, D3 or D4.
 
 | Study | Retained result | Interpretation and canonical record |
 |---|---|---|
-| ACT A1 complete-cycle collection | 16/36 conditions: 12 ordinary and 4 complete recoveries; pause baseline: 29 full attempts, 8 positive and 21 negative | Includes 2 reused references and 14 new recordings. Their 81,877 overlapping windows are not independent demonstrations. [[experiments/act-a1-complete-cycle-collection|Campaign]] |
+| ACT A1 complete-cycle collection | 17/36 conditions: 13 ordinary and 4 complete recoveries; all 9 D2 conditions qualified; pause baseline: 29 full attempts, 8 positive and 21 negative | Includes 2 reused references and 15 new recordings. The exact 17-source cohort has 100,295 overlapping windows: 88,061 new and 12,234 reused. Windows are not independent demonstrations. [[experiments/act-a1-complete-cycle-collection|Campaign]] |
 | Temporal ACT A1 base training | Principal seed ends at 75k; offline selection fixes checkpoint 61k; final fresh nominal pair 0/2, cumulative learned completion 0/22 | Both final recordings and independent stops pass, with no valid learned contact or physical violation. Four conditional development cases remain unrun; final test sealed. [[experiments/act-a1-first-completion|Training and final pair]] |
 | Historical flat ACT/Diffusion × A1/A2 pilot | Selected-v10: 24/24 failed outcomes. Latest-v11: 2 completed failures, 1 interruption, 21 unallocated slots | Separate frozen cohorts; missing outcomes remain unavailable. [[experiments/b1-end-to-end-pilot-resume|Pilot]] |
 | Diverse teacher campaign | 112/112 originally declared scopes qualified; 96 short train, 8 complete train, 8 development | Later full-source audit finds native pre-release losses in 7 of its 8 complete train sources. Original masks/scopes and outcomes remain. [[experiments/act-a1-diverse-collection|Collection]] |
@@ -68,47 +68,34 @@ Runtime/asset ownership and supported workflows are in
   predictions qualify no new pose, variation or source. A further 160-path
   calibrated-target screen preserves future position support and identifies one
   common lateral region with tracking and saved material-proxy support across
-  all four variations. Native movement/load/stops and observed support remain
+  all four variations. The native robot-only component now independently passes
+  all 66,736 moving samples, original endpoint/load/future-position gates and
+  continuous 6 s plus removed-load stops for all 14 shapes. Main calibrated
+  position support needs no extension. An inherited extra whole-hold drift proxy
+  refuses H-; its failure remains, while the maintained final 0.5 s stability
+  checks pass at the same 2.5 mm threshold. This 0.3 N fixture qualifies neither
+  actual observed material/contact nor the P scene/floor/camera variation;
+  production contact-region/target adoption and complete observed support remain
   pending. D1-RV
   independently qualifies actual disturbance, joint braking, return and the complete
   cycle; its earlier inspection and shoulder-support failures remain preserved.
-- D2-H+ remains unqualified as an observed complete source. The original-posture
-  N/H+ robot-only paths pass full native0.3N motion/hold/release/stop review with
-  pose targets reserved inside unchanged physical limits. Both required measured
-  lower-elbow/lower-RIGHT_GRIPPER_Y10N sides now independently qualify against
-  the canonical model, including24original-latch stop segments. Exact GPU parity
-  covers7,264saved states in default and reserved modes. A distinct complete
-  D2-H+ source ran on elab2 with only these scoped model additions and the
-  optional target reserve. It completes approach/contact, then refuses a native
-  force impulse during push:10.726N actual/12.847N estimated exceeds the unchanged
-  10N stopping-model domain. Healthy raw/native feedback and all14shape6s stops
-  pass; no new demonstration is admitted. A shared gap-recovery candidate uses
-  the existing contact-gap tolerance while keeping force regulation active.
-  Source `2cd8697` now independently passes the complete native D2-N/H+ pair:
-  all 48,584 task substeps stay inside the original 10 N load model, with peak
-  estimated upper bounds of 5.080/5.222 N. Both full cycles and original
-  six-second stops pass for all 14 shapes; measured hold-height variation is
-  19.981 mm against 20 mm requested. The earlier elab5 wall interruption,
-  unexecuted phases and charges remain preserved; the identical H+ component
-  completes on verified elab2 capacity with unchanged limits. One distinct
-  guarded observed H+ source reaches28.692degrees before its6,000s computational
-  wall guard interrupts it. All18,825native samples, original10N load bounds and
-  continuous6s/14shape stops pass; hold/release/stabilization remain unavailable.
-  A single successor uses the same source/scientific criteria with a measured
-  full-task computational allowance of28,000s. Native fixture door normals
-  do not qualify observed identity, material or source admission; transfer
-  beyond the native N/H+ pair remains unqualified. A shared computational
-  optimization now avoids normal-only subdivision after an accepted volume
-  already fixes the finite-material contact branch, while retaining complete
-  current scene/stop proofs and unloaded renewal. Numerical boundary, unknown-
-  volume and load-support refusals pass. Source `549ae0c` now passes a complete
-  guarded observed D2-N compatibility regression: original opening/hold/release/
-  stabilization, all 14 shapes over the original 6 s stops, actual RGB and cleanup
-  reviews pass. Its 5,974 delivered commands and 11,948 observed load packets retain
-  the original 10 N domain. This existing nominal cell adds no demonstration or
-  windows. Paired GPU checks preserve admission/receipts at seven saved states
-  and reduce complete query counts; this does not establish full-collection
-  speedup or D3/D4 transfer. The active H+ source stays immutable.
+- All nine D2 conditions are qualified. The distinct observed H+ source on
+  `2cd8697` completes 42.979 degrees against 42.029 required, the original 3 s
+  continuous loaded hold, full 6 s release and stabilization. All 30,785 native
+  samples, 6,172 guarded admissions/deliveries, 12,344 observed load packets,
+  original continuous 6 s/14-shape stops, actual phase RGB and owned cleanup
+  pass. Its 20.009 mm measured height variation preserves the requested 20 mm;
+  peak estimated load is 5.222 N within the unchanged 10 N model. Actual GPU
+  temporal preparation and causal consumer/history/mask/frozen-normalizer review
+  admit N15 with 6,184 windows as one demonstration. The preceding force-domain
+  failure and 6,000 s computational interruption remain preserved. The successful
+  capacity successor changes only its finite computational allowance. The
+  canonical scoped lower-elbow/gripper support and pressure recipe retain their
+  independent native N/H+ qualification; transfer to other doors remains separate.
+  The existing D2-N observed compatibility regression on `549ae0c` also passes
+  the full cycle and original stops, adding zero cells or windows. Its seven
+  saved phase states and paired receipts remain compatible with the subsequent
+  spatial-proof refinement; replay does not establish collection speedup.
   D2-P independently qualifies its
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.
@@ -174,8 +161,15 @@ Runtime/asset ownership and supported workflows are in
   before further dependent motion. Complete-domain analysis now isolates loose
   distance/uncertainty association. A shared oriented-box refinement candidate
   passes the actual saved response and numerical boundary/perturbation checks
-  without changing original bounds. GPU full-producer and native whole-motion/
-  related-condition qualification remain pending.
+  without changing original bounds. Paired actual GPU full-producer checks pass
+  D3 and all seven nominal phase states/receipts while preserving D4's refusal.
+  The new native D3 component still refuses before contact after 90 approach
+  commands, on a fresh spatial response at 35.9 s. All 8,617 healthy native
+  samples, 181 original-model load packets, full stops, actual RGB and cleanup
+  pass. A continuous support-axis projection at the unchanged 5 mm resolution
+  also leaves unsupported complete domains. Suspend unchanged dependent D3/D4
+  motion and resolve common observed uncertainty/acquisition/path support; no
+  collision, global infeasibility or new source is inferred.
   Earlier D2-N compatibility does not establish D3 transfer.
   A saved contact-region screen yields only three conditional upper points;
   no new complete path follows. Even un-padded observed protrusions remain
