@@ -138,6 +138,11 @@ Runtime/asset ownership and supported workflows are in
   still fail foreground exclusion. Common observed foreground/contact-region or
   acquisition/path support across complete motion and related conditions is
   required before further dependent D4 motion; no component/source is qualified.
+  A saved contact-region screen yields only three conditional upper points;
+  no new complete path follows. Even un-padded observed protrusions remain
+  inside the original expanded projected query. The
+  [[experiments/act-a1-complete-cycle-collection#D4 contact-region and error-budget discriminator|bounded discriminator]]
+  preserves every uncertainty term and does not infer collision or infeasibility.
   A four-door GPU design comparison retains all16N/H+/H-/P conditions under
   three target-bound choices. Interior physical targets remove predicted
   future-limit deficits; restricting targets to the main load rectangle loses

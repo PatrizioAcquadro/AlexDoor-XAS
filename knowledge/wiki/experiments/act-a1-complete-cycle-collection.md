@@ -720,6 +720,27 @@ and the original height/placement/posture variations. This is planning evidence,
 not observed admission, collision clearance, load/stop qualification or a new
 positive source. Any selected placement still requires native whole-path support.
 
+## D4 contact-region and error-budget discriminator
+
+An unchanged-bound saved-state screen asks whether moving the contact region
+could avoid the retained relief. Only three of 672 sampled nominal points have
+positive conditional finite-material and projected-relief margins for N/H+/H−;
+they lie near 1.37 m. The translated failed-domain template does not certify a
+new posture, whole hand or complete motion. Earlier upper-contact studies already
+retain approach failures, and the separate 243-family endpoint screen has no
+complete N/H+/H−/P family. Those are finite studies, not global infeasibility.
+
+At the original refused volume, the 65.994 mm point budget contains 19.464 mm
+local-geometry and 46.504 mm dynamic-pose terms, plus 0.026 mm calibration error.
+The nearest retained observed protrusion is only 45.970 mm away in projection,
+inside the original 97.076 mm expanded query. Replacing the rectangle with
+un-padded observed points therefore still fails this same projected exclusion.
+It does not establish a physical collision or rule out a complete 3D model.
+The [saved discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-projected-exclusion-and-contact-region-discriminator-20261101.json)
+retains every bound and all outcomes. No changed contact setup or new dependent
+native attempt follows from this screen; complete observed foreground/acquisition
+and related full-motion support remain required.
+
 ## Resources, archival and closeout
 
 The latest historical authorization removes cumulative GPU-hour, allocation-count
