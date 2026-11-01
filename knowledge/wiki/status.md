@@ -85,7 +85,12 @@ Runtime/asset ownership and supported workflows are in
   A single successor uses the same source/scientific criteria with a measured
   full-task computational allowance of28,000s. Native fixture door normals
   do not qualify observed identity, material or source admission; transfer
-  beyond the native N/H+ pair remains unqualified.
+  beyond the native N/H+ pair remains unqualified. A shared computational
+  optimization now avoids normal-only subdivision after an accepted volume
+  already fixes the finite-material contact branch, while retaining complete
+  current scene/stop proofs and unloaded renewal. Numerical boundary, unknown-
+  volume and load-support refusals pass; native transfer and a measured benefit
+  on observed collection remain pending. The active H+ source stays immutable.
   D2-P independently qualifies its
   measured placement/posture variation and full task-goal cycle; D2-H- and
   D2-DR also qualify task-goal holding and complete cycles.

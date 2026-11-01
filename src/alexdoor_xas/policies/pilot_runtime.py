@@ -243,6 +243,7 @@ class PilotMotionEvidence:
         pending, covered = list(self.cells), []
         normal_spheres, normal_margins = [], []
         free_margin, separation, lever = np.inf, np.inf, 0.0
+        nonseparated_cell = None
         contact_free_stop_margin = np.inf
         checked = directional = 0
         control_angle = float(abs(dq).sum() * io.dt + 0.5 * self.acceleration.sum() * io.dt**2)
@@ -611,11 +612,17 @@ class PilotMotionEvidence:
                     diagnostics.get("coupled_convex_proofs", 0) + 1
                 )
             elif support.collision_clearance_m is not None:
-                # A barely clear enclosing ball needlessly spends the receipt's
-                # normal margin on empty corners. Refine the complete CAD cell;
-                # every child re-enters all original scene and stop queries.
-                children = self.model.refine_normal_cover(
-                    cell, matrices, normal, gap, self.config["minimum_cell_m"]
+                # Tighten empty ball corners while an unloaded proof is still
+                # possible. A previously accepted nonpositive gap already fixes
+                # this proposal to the finite-material contact branch. Further
+                # normal-only refinement cannot restore whole-robot separation;
+                # each remaining parent still needs its complete scene/stop proof.
+                children = (
+                    self.model.refine_normal_cover(
+                        cell, matrices, normal, gap, self.config["minimum_cell_m"]
+                    )
+                    if separation > 0
+                    else ()
                 )
                 if children:
                     pending.extend(children)
@@ -702,6 +709,8 @@ class PilotMotionEvidence:
                 normal_margins.append(float(gap))
                 free_margin = min(free_margin, margin)
                 separation = min(separation, gap)
+                if gap <= 0 and nonseparated_cell is None:
+                    nonseparated_cell = cell
                 # Robot stopping travel is already inside each proved volume.
                 # Also pay target translation/normal growth through the entire
                 # stop, beyond the control-interval growth paid in query().
@@ -716,6 +725,12 @@ class PilotMotionEvidence:
                 )
                 lever = max(lever, local_lever)
             covered.append(cell)
+        # Try the last nonseparated cell first on the next command. Requery its
+        # entire new sweep/stop volume; the old gap is never reused as evidence.
+        if nonseparated_cell is not None:
+            covered = [cell for cell in covered if cell is not nonseparated_cell] + [
+                nonseparated_cell
+            ]
         self.cells = tuple(covered)
         diagnostics.update(
             robot_cells=len(covered),

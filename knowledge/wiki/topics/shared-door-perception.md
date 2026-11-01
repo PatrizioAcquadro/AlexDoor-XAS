@@ -494,6 +494,18 @@ sphere, so every child re-enters all original foreground/background/material,
 load, motion and stop checks. Response validation retains each same-volume margin
 and every original uncertainty term.
 
+Once an accepted complete volume has nonpositive separation, this proposal
+already requires the finite-material contact branch. Further subdivision solely
+to improve another positive volume's normal separation cannot restore a whole-
+robot unloaded proof. The producer then retains each independently certified
+complete parent; unknown scene volumes still require subdivision or refusal,
+and material, load, motion and stop gates remain mandatory. The previous
+nonseparated cell is queried first on the next command using its entire new
+motion/stop volume. This changes query order, never reuses the old gap or
+asserts actual loaded contact. A newly positive separation restores the full
+unloaded refinement and receipt checks. Native transfer remains separate from
+these numerical proof invariants.
+
 When those complete spherical proofs remain unavailable, the shared producer can
 use a coupled revolute-chain velocity/acceleration hull plus a suffix-length
 Taylor remainder. Every cell vertex, time endpoint and acceleration-box corner
