@@ -106,10 +106,19 @@ Runtime/asset ownership and supported workflows are in
   through goal+3degrees. Its new P placement also passes independent native
   parked geometry/visibility and2+4s stops, preserving measured placement/posture
   variation. Full native robot/load/stop and observed scene motion remain unqualified.
-  A corrected-controller fixture reports a tracking refusal but loses its raw
-  stream to a diagnostic save error; log/cost remain incomplete evidence. A
-  single nominal discriminator now persists phase references and native data;
-  no refusal magnitude, passing stop or calibrated domain is invented.
+  The nominal robot-only path at constant0.3N independently passes original pose
+  endpoints, the full3s hold, maintained staged release and all14moving-shape
+  stop bounds. Constant10N instead produces129.68mm endpoint error with measured
+  elastic deflection and wrist-target saturation; its original model residuals
+  and failure stops pass. This distinguishes task-pressure tracking from upper
+  load-model stress. Related H+/P robot paths at0.3N pass, while H- has four frozen
+  residual exceedances near a late kinematic singularity in the extra3degree
+  planning stress. None is a full source or a new10N calibration. The next
+  four-condition component uses the original frozen task-goal handoff and must
+  independently complete its own hold/release/stops; the stress negative remains.
+  D4's80finite higher-contact/initial-posture predictions do not repair the shared
+  approach. The tested higher CAD footprints are flat and unobstructed, so bevel
+  geometry does not explain those tracking failures. No setup or model is adopted.
   Every negative remains preserved, with zero source labels/windows.
   A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.

@@ -163,19 +163,58 @@ converted-pedestal geometry, reset/visibility, actual root/joint kinematics,
 visual inspection and2+4s unloaded stops. Measured relative floor delta remains
 (+20,-25)mm/-4degrees and initial shoulder/elbow deltas remain-0.05/-0.04rad;
 actual tool displacement is32.96mm. This adds no material identity, full motion
-or contact qualification. A corrected native robot-only whole-path10N component
-uses actual measured pose-controller feedback and staged release toward an
-actually achieved prior pose; independently qualify complete movement/load/stop
-and observed scene support before any dependent full source.
-That first corrected-controller fixture reports a phase-end tracking refusal,
-but a scalar blend variable overwrites its argument namespace and prevents raw
-samples/stops from being saved. Its log and139.12GPU s are retained as incomplete
-evidence; no tracking magnitude, stop success or calibrated domain is inferred.
-The next diagnostic isolates one nominal case with the same references, force
-and criteria. Its argument binding and actual failure-save function are checked
-before launch, and phase checkpoints persist requested poses/reference angles
-with actual native measurements. Dependent variants remain suspended until the
-measured tracking mechanism is established.
+or contact qualification.
+
+The first corrected native pose-controller fixture fails endpoint tracking and
+loses its raw stream to a diagnostic argument-shadowing error. Its log and139.12
+GPU s remain incomplete evidence. A subsequent single-case10N diagnostic saves
+all15,996native samples and failure stops: opening-end error is129.68mm, already
+115.21mm at the unchanged frozen47.77064degree task goal. Final commanded IK
+error is9.89mm while actual-to-target displacement is125.61mm. Shoulder-X's
+159.57mrad deflection times its original26.78Nm/rad stiffness matches the measured
+4.2734Nm external torque; the wrist-Z command reaches its physical upper bound.
+No actual hard-limit violation or production-release defect is inferred. All
+frozen moving residuals and original2+4+removed2s failure stops pass. Constant10N
+is the upper load/stop-model stress, distinct from the existing0.3N push target.
+
+At constant0.3N, the same nominal actual pose controller independently passes the
+complete robot-only path through frozen goal+3degrees, original endpoint ranges,
+3s hold, actual staged achieved-pose release and all14moving CAD shape radial and
+directional stop bounds. All18,156native samples respect the frozen residuals;
+hold drift is35.93micrometers. Its actual future box still requires26.72mrad of
+new10N wrist-X upper support beyond the prior scoped qualification. No such
+extension is adopted. Actual contact, observation and variable force/admittance
+remain absent, so this qualifies no complete source or10N model.
+
+Related0.3N H+/H-/P paths retain all54,468native samples and nine loaded/held/removed
+stops. Original endpoint, hold-drift, physical/speed/acceleration, stop-travel and
+all14shape stop gates pass. H+/P have no frozen residual exceedances; their
+required10N wrist-X extensions remain unqualified. H- has four shoulder-X
+residual exceedances, maximum8.76mNm, at modeled50.7667degrees and the following
+release. Its minimum native Jacobian singular value falls to0.00163; at the
+frozen task-goal crossing it is0.06026 and the preceding opening has no residual
+exceedances. The full stress test remains negative. Finite goal fields persisting
+across case resets are treated as unavailable outside pose-command phases;
+original raw data are preserved. The initial strict review's assertion refusal
+and all GPU charges remain recorded.
+
+The extra3degrees are an ideal planning stress, while the committed collector
+already hands off at the frozen task opening. A distinct four-condition native
+component now reproduces that original task handoff, retaining the full3s hold,
+maintained6s staged release/actual achieved retreat and independent stops. It
+must qualify its own complete data; no passing prefix or truncated stress record
+is promoted. Original opening, physical, residual, stop and10N future-support
+requirements remain unchanged. No controller, calibration or source is adopted.
+
+D4's additional80finite GPU paths cover four contact heights and six initial
+posture seeds, each with all N/H+/H-/P differences and maintained/physical-future-
+interior targets. All72higher-contact paths fail original approach/contact
+endpoint ranges, although later ideal opening may converge. Six tested posture
+seeds at1.35m do not repair the approach. Exact finite TRAIN CAD checks find the
+16tested height/variation footprints flat, inside material and unobstructed;
+sloped/beveled normals do not explain these failures. Saved target-bound
+clamping is retained per joint. These finite predictions prove neither native
+feasibility nor global infeasibility; no setup, controller or model is adopted.
 
 A separate D2 matched N/H+ planning discriminator uses the maintained6s approach:
 360actual controller-formula steps, smoothstep/slerp reaching the fixed target
