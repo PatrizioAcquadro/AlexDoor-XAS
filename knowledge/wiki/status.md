@@ -130,10 +130,12 @@ Runtime/asset ownership and supported workflows are in
   bounds are unavailable. This negative admits zero labels/windows; dependent
   unchanged full attempts remain suspended. A saved-view GPU audit exactly
   reconstructs213observed handle voxels discarded by root connectivity. The
-  shared correction retains disconnected foreground as potentially attached;
-  original bounds remain unchanged and native qualification is still pending.
-  D4 higher-contact designs still fail
-  full and reversed paths;
+  shared correction retains disconnected foreground as potentially attached.
+  Same-input GPU replay preserves all original padding/errors and recovers a
+  positive margin for that D3 volume; D4 remains refused with a larger retained
+  foreground. A distinct D3 guarded approach/contact component is active and
+  stops before opening; native qualification remains pending. D4 higher-contact
+  designs still fail full and reversed paths;
   uncentered static IK from three existing seeds also finds no higher endpoint.
   These finite local results establish no global infeasibility.
   Every negative remains preserved, with zero source labels/windows.

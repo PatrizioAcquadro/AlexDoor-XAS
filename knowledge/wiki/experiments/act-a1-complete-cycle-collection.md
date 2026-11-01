@@ -261,9 +261,17 @@ connectivity filter. The rejected sphere's finite query instead contains1,488
 connected returns behind that plane; neither count proves complete coverage.
 The shared correction retains every nonrobot foreground return in the same finite
 root extent as potentially attached, preserving all original padding, thresholds,
-uncertainties and unavailable states. Numerical regression passes; saved-view
-comparison and native guarded motion remain required before another full source.
-No CAD geometry becomes an actor input or a runtime exclusion certificate.
+uncertainties and unavailable states. Numerical regression and same-input GPU
+comparison pass. D3 now retains all213handle voxels and an87.877mm front envelope;
+the original rejected sphere has19.059mm positive foreground margin after the
+same full pose/motion errors establish154.547mm protrusion exclusion. This is a
+single-volume diagnostic, not complete native admission. D4 retains175additional
+foreground voxels and a79.791mm envelope; the same sphere still refuses with
+-45.391mm foreground margin. Both original models reproduce exactly first.
+A distinct D3 native component now tests the original guarded approach and actual
+contact, stopping before the first opening command. Independent physical/stop
+review remains required; it adds no matrix attempt/source/windows. No CAD geometry
+becomes an actor input or a runtime exclusion certificate.
 
 D4's additional80finite GPU paths cover four contact heights and six initial
 posture seeds, each with all N/H+/H-/P differences and maintained/physical-future-
