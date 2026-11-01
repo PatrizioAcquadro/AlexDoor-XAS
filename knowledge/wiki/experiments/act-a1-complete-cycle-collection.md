@@ -81,8 +81,14 @@ commands. At34.8s it refuses the updated separation bound: normal-position growt
 26.330mm and worst proved-sphere excess29.834mm exceed12.940mm remaining margin.
 Independent raw/native-feedback and2+4s-stop review passes; zero labels/windows
 are admitted. This joins D4's response-update mechanism without establishing a
-shared algebra bug. Dependent full attempts are suspended while a single bounded
-prefix captures exact live old/new operands; no unchanged full retry is used.
+shared algebra bug. The bounded diagnostic instead reaches its35.2s explicit
+cutoff with a valid receipt; the earlier refusal is not reproduced. Its actual
+admitted context and native stops are retained; no unchanged prefix retry is
+used. A current-frame numeric study motivates stronger finite-triangle normal
+certificates. Every geometric alternative keeps the entire observed core's
+maximum point/model error; bounded-noise, clipped-support and collinear-refusal
+checks pass. Shared actor criteria remain unchanged; guarded native qualification
+of the modified estimator is still required.
 
 D4 fresh geometry at30Hz passes the prior raw27.683s sweep refusal, then stops
 at27.833s when computed0.422mm growth exceeds the remaining0.194mm separation

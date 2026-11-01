@@ -258,3 +258,37 @@ def test_planar_core_conditions_orientation_without_rewriting_relief_geometry():
     original.points[:, 0] += 0.01
     with pytest.raises(ValueError, match="missing_measured_planar_core"):
         observed_basis(original, 0.001)
+
+
+def test_normal_certificate_covers_known_plane_under_bounded_points_and_clipping():
+    rng = np.random.default_rng(71)
+    error = 0.001
+    for width, angle in [(0.12, -0.5), (0.4, 0.0), (1.0, 0.6)]:
+        true_rotation = Rotation.from_euler("zy", [angle, 0.03]).as_matrix()
+        y, z = np.meshgrid(np.linspace(-width / 2, width / 2, 23), np.linspace(-0.4, 0.4, 31))
+        ideal = np.c_[np.zeros(y.size), y.ravel(), z.ravel()]
+        # A clipped irregular region; retain bounded metric noise at every point.
+        ideal = ideal[(ideal[:, 1] + 0.2 * ideal[:, 2]) < width * 0.4]
+        world = ideal @ true_rotation.T + [1, 0, 0]
+        noise = rng.normal(size=world.shape)
+        noise *= (error / np.linalg.norm(noise, axis=1))[:, None]
+        measured = world + noise
+        for tilt in [-0.005, 0.0, 0.005]:
+            normal = Rotation.from_rotvec([0, tilt, 0]).apply(true_rotation[:, 0])
+            observed = SimpleNamespace(
+                points=measured,
+                normal=normal,
+                offset=float(normal @ np.array([1, 0, 0])),
+                edge_points={"width_0": world[np.argsort(ideal[:, 1])[:31]]},
+            )
+            expected = np.arccos(np.clip(normal @ true_rotation[:, 0], -1, 1))
+            for order in [np.arange(len(measured)), rng.permutation(len(measured))]:
+                observed.points = measured[order]
+                _, _, bound = observed_basis(observed, error)
+                assert expected <= bound
+    # Insufficient transverse support remains unavailable at the same error.
+    observed.points = np.c_[np.ones(21), np.zeros(21), np.linspace(-0.4, 0.4, 21)]
+    observed.normal = np.array([1.0, 0.0, 0.0])
+    observed.offset = 1.0
+    with pytest.raises(ValueError, match="unconditioned_observed_plane"):
+        observed_basis(observed, error)

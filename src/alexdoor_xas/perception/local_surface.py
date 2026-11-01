@@ -62,23 +62,33 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
     points = points[abs(points @ normal - surface.offset) <= point_error_m]
     if len(points) < 5:
         raise ValueError("missing_measured_planar_core")
-    # Select a wide triangle using observed geometry only. Every selected vertex
-    # retains the complete point/model error; a tiny fitting residual is not it.
-    a = points[np.linalg.norm(points - points[0], axis=1).argmax()]
-    b = points[np.linalg.norm(points - a, axis=1).argmax()]
-    baseline = b - a
-    c = points[np.linalg.norm(np.cross(points - a, baseline), axis=1).argmax()]
-    v, w = b - a, c - a
-    cross = np.cross(v, w)
-    area = np.linalg.norm(cross)
+    # Each triangle independently bounds the same plane using the COMPLETE
+    # core's point/model error. Choose the strongest certificate, never a
+    # favorable residual subset. Axis extrema add bounded geometric alternatives
+    # to the original seed; no metric error or acceptance threshold is reduced.
     error = point_error_m + float(np.max(np.abs(points @ normal - surface.offset)))
-    perturbation = 2 * error * (np.linalg.norm(v) + np.linalg.norm(w)) + 4 * error**2
-    if area <= perturbation:
+    seeds = {0}
+    for axis in range(3):
+        seeds.update((int(points[:, axis].argmin()), int(points[:, axis].argmax())))
+    normal_bounds = []
+    for seed in sorted(seeds):
+        a = points[np.linalg.norm(points - points[seed], axis=1).argmax()]
+        b = points[np.linalg.norm(points - a, axis=1).argmax()]
+        baseline = b - a
+        c = points[np.linalg.norm(np.cross(points - a, baseline), axis=1).argmax()]
+        v, w = b - a, c - a
+        cross = np.cross(v, w)
+        area = np.linalg.norm(cross)
+        perturbation = 2 * error * (np.linalg.norm(v) + np.linalg.norm(w)) + 4 * error**2
+        if area <= perturbation:
+            continue
+        triangle_normal = cross / area
+        if triangle_normal @ normal < 0:
+            triangle_normal = -triangle_normal
+        normal_bounds.append(_angle(normal, triangle_normal) + np.arcsin(perturbation / area))
+    if not normal_bounds:
         raise ValueError("unconditioned_observed_plane")
-    triangle_normal = cross / area
-    if triangle_normal @ normal < 0:
-        triangle_normal = -triangle_normal
-    normal_bound = _angle(normal, triangle_normal) + np.arcsin(perturbation / area)
+    normal_bound = min(normal_bounds)
     alternatives = []
     for key, values in surface.edge_points.items():
         if not key.startswith("width_"):

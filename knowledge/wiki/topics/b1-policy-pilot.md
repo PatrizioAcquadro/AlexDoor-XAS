@@ -90,6 +90,13 @@ recipe and timestamps. Loaded-start pre-roll schedules remain explicit. Extra
 views establish support only after actual native acquisition and independent
 review; they do not qualify a full cycle or relax identity/material gates.
 
+Local normal conditioning checks the original finite triangle plus geometric
+alternatives seeded at the observed coordinate extrema. Every certificate pays
+the same maximum point/model residual over the entire measured planar core;
+only a complete independently valid bound can be selected. Collinear or otherwise
+unconditioned support remains unavailable. This does not shrink metric error,
+correspondence residuals, material coverage, motion bounds or stopping criteria.
+
 An operational `admission_source(observation, tool, action, remaining_ticks)` must
 support exactly the predicted command. The adapter checks source, action, initial
 tool pose, schedule, current support and remaining margin. A1/A2 local admission

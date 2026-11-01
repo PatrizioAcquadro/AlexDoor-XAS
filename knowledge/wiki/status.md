@@ -75,7 +75,9 @@ Runtime/asset ownership and supported workflows are in
   same-ID finite witnesses and stops before any arm proposal. The full follow-up
   retains ownership and admits24approach commands, then a new plane estimate
   exhausts the admitted separation margin. Stops pass; no full source is admitted.
-  D3/D4 dependent collection awaits exact current-bound diagnosis.
+  A controlled prefix did not reproduce that refusal. Conservative finite-triangle
+  normal-conditioning alternatives now pass numerical checks; their native
+  qualification remains pending, with no shared algebra defect established.
   D4's balanced path avoids the prior elbow-domain problem. Fresh 30 Hz geometry
   passes the prior sweep refusal, then exhausts the response separation margin.
   Its controlled diagnostic instead reaches a later unsupported finger sweep;
