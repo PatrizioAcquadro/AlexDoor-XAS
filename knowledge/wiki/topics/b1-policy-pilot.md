@@ -290,6 +290,17 @@ missing prepaid erosion, missing support or true margin exhaustion still refuses
 This changes accounting, not physical limits. The finite native prefix validation
 and preserved pilot refusals are in [[act-a1-first-completion]].
 
+The producer also retains each complete swept sphere's own eroded separation
+margin. Renewal spends that sphere's measured normal-error growth against its
+corresponding margin, with strict positive residual required for every sphere.
+The global minimum remains the admission summary; it cannot be combined with
+unrelated distant-body growth. Missing per-sphere margins retain the older,
+more conservative global-minimum rule. Incomplete, nonpositive or inconsistent
+margin vectors refuse. No point/model error, sphere radius, temporal erosion,
+collision proof, physical limit or stopping criterion is reduced. Exact saved
+D3/D4 receipts expose the spatial mixing; this numeric correction still requires
+guarded native full-cycle qualification.
+
 
 ## Temporal loaded-phase diagnostics
 

@@ -58,6 +58,9 @@ class LocalActionSupport:
     # Complete world-space balls used by the producer, for pointwise normal
     # error growth at the same physical volumes during receipt revalidation.
     unloaded_normal_spheres: tuple[tuple[float, float, float, float], ...] = ()
+    # Original producer-eroded separation at EACH corresponding complete ball.
+    # Empty preserves the conservative global-minimum rule for older receipts.
+    unloaded_normal_margins_m: tuple[float, ...] = ()
 
 
 def _local_error_terms(patch, evidence, limits, now, duration):
@@ -244,6 +247,15 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
                     raise ValueError("invalid_unloaded_normal_spheres")
                 if not patch.normal_uncertainty_sources:
                     raise ValueError("missing_unloaded_normal_error_sources")
+            if evidence.unloaded_normal_margins_m:
+                margins = np.asarray(evidence.unloaded_normal_margins_m)
+                if (
+                    margins.shape != (len(evidence.unloaded_normal_spheres),)
+                    or not np.isfinite(margins).all()
+                    or (margins <= 0).any()
+                    or margins.min() != clearance
+                ):
+                    raise ValueError("invalid_unloaded_normal_margins")
             if evidence.unloaded_temporal_bound_m_rad is not None:
                 temporal = np.asarray(evidence.unloaded_temporal_bound_m_rad)
                 if (
@@ -424,8 +436,18 @@ def require_current_local_admission(admission, estimate, now):
                     - prepaid_p
                     - lever * prepaid_a
                 )
-            growth = max(0.0, max(point_growth))
-        if growth >= evidence.unloaded_separation_margin_m:
+            # Spend growth against the SAME ball's original margin. Mixing the
+            # largest distant-body growth with the smallest fingertip margin
+            # loses the spatial association of otherwise complete proofs.
+            margins = evidence.unloaded_normal_margins_m or (
+                (evidence.unloaded_separation_margin_m,) * len(point_growth)
+            )
+            index = int(np.argmax(np.maximum(0.0, point_growth) - margins))
+            growth = max(0.0, point_growth[index])
+            remaining_margin = margins[index]
+        else:
+            remaining_margin = evidence.unloaded_separation_margin_m
+        if growth >= remaining_margin:
             error = ValueError("admitted_unloaded_separation_exhausted")
             error.decision = dict(
                 normal_position_growth_m=patch.normal_position_bound_m
@@ -438,7 +460,8 @@ def require_current_local_admission(admission, estimate, now):
                 normal_error_domain="complete_proved_spheres"
                 if evidence.unloaded_normal_spheres
                 else "aggregate_anchor_and_lever",
-                remaining_separation_margin_m=evidence.unloaded_separation_margin_m,
+                remaining_separation_margin_m=remaining_margin,
+                normal_sphere_index=index if evidence.unloaded_normal_spheres else None,
             )
             raise error
         return

@@ -87,8 +87,19 @@ admitted context and native stops are retained; no unchanged prefix retry is
 used. A current-frame numeric study motivates stronger finite-triangle normal
 certificates. Every geometric alternative keeps the entire observed core's
 maximum point/model error; bounded-noise, clipped-support and collinear-refusal
-checks pass. Shared actor criteria remain unchanged; guarded native qualification
-of the modified estimator is still required.
+checks pass. Both full follow-ups still refuse during approach: D3 at35.633s
+and D4 at26.367s. Their raw/native feedback and2+4s stops independently pass;
+zero labels/windows are admitted. Exact saved receipts reproduce normal-error
+growth14.633mm against13.319mm on D3 and0.837mm against0.232mm on D4.
+The largest growth belongs to distant body spheres with conservative remaining
+whole-foreground clearance258.052mm and276.935mm, respectively. Across ALL saved
+complete spheres, the same observed foreground bound and unchanged uncertainty
+leave minimum residuals11.255mm and0.232mm. The global minimum and maximum growth
+refer to different physical volumes. The producer now binds each sphere to its
+original eroded separation margin and renewal checks every pair independently;
+old receipts retain the global rule. No physical/calibration threshold or complete
+error term changes. Saved-state algebra is not a full demonstration; guarded
+native qualification of this shared correction is still required.
 
 D4 fresh geometry at30Hz passes the prior raw27.683s sweep refusal, then stops
 at27.833s when computed0.422mm growth exceeds the remaining0.194mm separation

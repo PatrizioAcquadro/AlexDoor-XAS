@@ -1312,3 +1312,121 @@ def test_qualified_position_forecast_uses_native_boundary_resolution(side):
     interval[2] = np.nextafter(outward, np.float32(direction * np.inf))
     with pytest.raises(ValueError, match="requires_contact_free_motion_and_stop"):
         check()
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+@pytest.mark.parametrize("offset", [np.zeros(3), np.array([3.0, -7.0, 2.0])])
+def test_unloaded_growth_spends_each_complete_spheres_own_margin(reverse, offset):
+    from alexdoor_xas.perception.admission import rotational_travel
+
+    estimate, proposal, evidence, limits = local_inputs()
+    original = estimate.local.patches[0]
+    anchor = offset + np.array([0.0, 10.0, 0.0])
+
+    def patch(angle):
+        return replace(
+            original,
+            world_pose=replace(original.world_pose, origin=anchor),
+            normal_position_bound_m=rotational_travel(10.0, angle),
+            normal_rotation_bound_rad=angle,
+            normal_uncertainty_sources=(("measured_plane", 0.0, angle, tuple(offset)),),
+        )
+
+    before, current = patch(0.0), patch(0.02)
+    estimate = replace(estimate, local=replace(estimate.local, patches=(before,)))
+    proposal = replace(proposal, loaded=False)
+    limits = replace(limits, relative_speed_bound_m_s=0.0)
+    spheres = [(*offset, 0.1), (*(offset + [1, 0, 0]), 0.1)]
+    margins = [0.003, 0.03]
+    if reverse:
+        spheres.reverse()
+        margins.reverse()
+    evidence = replace(
+        evidence,
+        finger_clearance_m=(None, None),
+        collision_clearance_m=None,
+        swept_collision_margin_m=0.02,
+        unloaded_separation_margin_m=min(margins),
+        unloaded_normal_lever_m=12.0,
+        unloaded_temporal_bound_m_rad=(0.0, 0.0),
+        unloaded_normal_spheres=tuple(spheres),
+        unloaded_normal_margins_m=tuple(margins),
+    )
+
+    def admit(support):
+        receipt = admit_local_action(estimate, proposal, support, limits, 1, generation=0)
+        assert receipt.admitted
+        return receipt
+
+    def check(receipt, value=current):
+        require_current_admission(
+            receipt,
+            replace(estimate, local=replace(estimate.local, patches=(value,))),
+            proposal.times_s[-1],
+        )
+
+    # About2mm near the tightly cleared volume and22mm at the distant volume
+    # each fit their original3mm/30mm bounds. All sphere radii remain charged.
+    check(admit(evidence))
+    # Old receipts retain their global minimum rule; swapping the association
+    # also refuses. Neither missing evidence nor a different ball lends margin.
+    with pytest.raises(ValueError, match="separation_exhausted"):
+        check(admit(replace(evidence, unloaded_normal_margins_m=())))
+    with pytest.raises(ValueError, match="separation_exhausted"):
+        check(admit(replace(evidence, unloaded_normal_margins_m=tuple(margins[::-1]))))
+    # Exact exhaustion, and growth beyond it, still refuse strictly.
+    boundary = rotational_travel(0.1, 0.02)
+    tight = [boundary if value == 0.003 else value for value in margins]
+    with pytest.raises(ValueError, match="separation_exhausted") as caught:
+        check(
+            admit(
+                replace(
+                    evidence,
+                    unloaded_separation_margin_m=boundary,
+                    unloaded_normal_margins_m=tuple(tight),
+                )
+            )
+        )
+    assert caught.value.decision["normal_sphere_index"] == (1 if reverse else 0)
+    with pytest.raises(ValueError, match="separation_exhausted"):
+        check(admit(evidence), patch(0.05))
+
+
+@pytest.mark.parametrize(
+    "margins,spheres",
+    [
+        ((0.005,), ()),
+        ((0.005, 0.01), ((0, 0, 0, 0.1),)),
+        ((0.0,), ((0, 0, 0, 0.1),)),
+        ((-0.005,), ((0, 0, 0, 0.1),)),
+        ((np.nan,), ((0, 0, 0, 0.1),)),
+        ((np.inf,), ((0, 0, 0, 0.1),)),
+        ((0.006,), ((0, 0, 0, 0.1),)),
+    ],
+)
+def test_unloaded_sphere_margins_require_complete_matching_original_proof(margins, spheres):
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = replace(
+        estimate.local.patches[0],
+        normal_position_bound_m=0.0,
+        normal_rotation_bound_rad=0.0,
+        normal_uncertainty_sources=(("measured_plane", 0.0, 0.0, (0.0, 0.0, 0.0)),),
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    receipt = admit_local_action(
+        estimate,
+        replace(proposal, loaded=False),
+        replace(
+            evidence,
+            swept_collision_margin_m=0.02,
+            unloaded_separation_margin_m=0.005,
+            unloaded_normal_lever_m=1.0,
+            unloaded_normal_spheres=spheres,
+            unloaded_normal_margins_m=margins,
+        ),
+        limits,
+        1,
+        generation=0,
+    )
+    assert not receipt.admitted
+    assert receipt.reason == "invalid_unloaded_normal_margins"

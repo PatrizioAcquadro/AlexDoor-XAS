@@ -76,13 +76,14 @@ Runtime/asset ownership and supported workflows are in
   retains ownership and admits24approach commands, then a new plane estimate
   exhausts the admitted separation margin. Stops pass; no full source is admitted.
   A controlled prefix did not reproduce that refusal. Conservative finite-triangle
-  normal-conditioning alternatives now pass numerical checks; their native
-  qualification remains pending, with no shared algebra defect established.
-  D4's balanced path avoids the prior elbow-domain problem. Fresh 30 Hz geometry
-  passes the prior sweep refusal, then exhausts the response separation margin.
-  Its controlled diagnostic instead reaches a later unsupported finger sweep;
-  both outcomes and passing independent stops remain negative. The earlier
-  response algebra is still unisolated.
+  alternatives pass numeric checks, but both subsequent D3/D4 full attempts still
+  stop during approach with healthy native feedback and independently passing
+  stops. Exact receipts now isolate spatial mixing: the largest normal-error
+  growth at a distant body volume is compared with another volume's minimum
+  separation. Per-volume renewal preserves each original eroded margin and all
+  uncertainty and physical gates; guarded native qualification remains required.
+  D4's earlier controlled diagnostic instead reaches an unsupported finger sweep.
+  Every negative remains preserved, with zero source labels/windows.
   A closer D3 placement's actual
   pedestal/leaf intersections and forbidden stop contact remain preserved.
 - Full D3/D4 CAD path designs retain the declared variations, but CAD and passing

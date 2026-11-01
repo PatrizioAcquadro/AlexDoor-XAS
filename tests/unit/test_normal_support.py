@@ -83,7 +83,9 @@ def test_same_material_reobservation_retains_baselines_without_changing_native_o
     local_bound = observed_basis(current, 0.001)[2]
     tracker.constrain_local(sample, result)
     assert candidate.local_constraint is not None
-    assert candidate.local_constraint.normal_rotation_bound_rad < 0.02 < local_bound
+    # Independent triangle alternatives can also improve the narrow current
+    # patch below20mrad. Fresh seed depth must still strictly improve its bound.
+    assert candidate.local_constraint.normal_rotation_bound_rad < min(0.02, local_bound)
     np.testing.assert_array_equal(candidate.pose, native)
     np.testing.assert_array_equal(current.points, points)
     np.testing.assert_array_equal(current.observations[0].mask(), mask)
