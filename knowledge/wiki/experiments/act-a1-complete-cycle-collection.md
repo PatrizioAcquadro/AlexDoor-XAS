@@ -569,14 +569,26 @@ seeds, every physical/scientific criterion and the 1600/1800-second guards.
 This correction of an inconclusive resource interruption does not erase it or
 retry a conclusive physical negative unchanged.
 
-One distinct guarded observed H+ source now runs on elab2 using source
-`2cd8697`, the original 20 mm variation/posture, the exact two qualified canonical
-10 N support sides and the same full-cycle protocol. Native pressure fixtures
-use privileged door normals and add no scientific matrix attempt, source,
-demonstration or temporal window. The new observed source must independently
-pass identity/material/uncertainty/admission, full native cycle, actual stops,
-visual review and causal temporal preparation before corpus admission. Its
-result and transfer beyond the native N/H+ pair remain unqualified.
+The first guarded observed H+ source on `2cd8697` is interrupted by its6,000s
+case wall limit at78.4333native s and28.692degrees, before holding/release/
+stabilization. All18,825native feedback samples are healthy; every delivered
+command remains physically safe and all available observed load bounds stay
+inside the unchanged10N model, peaking at5.222N. The retained3,183admitted
+proposals include one undelivered proposal after3,182actual guarded commands.
+Independent continuous6s/14shape stops, actual RGB, whole transfer and owned
+cleanup pass. This is an inconclusive resource interruption with zero eligible
+labels/windows; it does not erase the earlier physical source failure.
+
+Measured observed execution costs123–124wall seconds per native simulation
+second. A distinct capacity successor preserves source `2cd8697`, the original
+posture/20mm height variation, exactly two scoped canonical10N support sides,
+controller gains, physical and observed gates,300sim guard and complete task
+phases. Only the effective episode wall allowance becomes28,000s, with29,000s
+wrapper protection, based on the original maximum whole-task phases and25%
+compute headroom. The unchanged global defaults are distinct from this episode's
+effective budget. The prior source is fully reviewed and released before this
+single new allocation. Complete native observed outcome, causal preparation and
+transfer beyond the native N/H+ pair remain unqualified.
 
 ## Agreed coverage and present evidence
 

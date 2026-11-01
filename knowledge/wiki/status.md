@@ -79,7 +79,11 @@ Runtime/asset ownership and supported workflows are in
   19.981 mm against 20 mm requested. The earlier elab5 wall interruption,
   unexecuted phases and charges remain preserved; the identical H+ component
   completes on verified elab2 capacity with unchanged limits. One distinct
-  guarded observed H+ source now runs on elab2. Native fixture door normals
+  guarded observed H+ source reaches28.692degrees before its6,000s computational
+  wall guard interrupts it. All18,825native samples, original10N load bounds and
+  continuous6s/14shape stops pass; hold/release/stabilization remain unavailable.
+  A single successor uses the same source/scientific criteria with a measured
+  full-task computational allowance of28,000s. Native fixture door normals
   do not qualify observed identity, material or source admission; transfer
   beyond the native N/H+ pair remains unqualified.
   D2-P independently qualifies its
