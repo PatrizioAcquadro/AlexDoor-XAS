@@ -1025,6 +1025,21 @@ or usable windows. Remote successors require all consumed geometry, load,
 interface, model and workspace paths to pass host preflight; no physical or
 observation criterion changes and no unchanged scientific retry follows.
 
+After correcting recursive runtime paths and verifying the actual historical
+background/workspace constructors, source `49cd6ca` independently qualifies the
+new region's stationary N acquisition. The original 25.4 s inspection ends
+before any arm proposal. Four same-ID finite witnesses at 15/18/21/25 s reproduce
+against actual raw camera origins and surface observations, with independent
+view baselines and unchanged material/calibration limits. All 6,097 native
+samples, parked-arm continuity, seven actual RGB views, original continuous
+6 s/14-shape stops, whole 33-file transfer and owned cleanup pass. Cost is
+196.528 GPU seconds. The
+[acquisition review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D1-common-lateral-N-stationary-acquisition-runtime-ready-elab2-20261101/acquisition-independent-review.json)
+qualifies stationary observed support only: zero arm proposals, source labels,
+windows or new matrix cells. Complete observed contact/motion and production
+target-domain adoption remain separate qualification steps.
+
+
 
 
 ## Resources, archival and closeout
