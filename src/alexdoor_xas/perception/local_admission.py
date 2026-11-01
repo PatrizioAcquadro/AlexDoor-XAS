@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import dataclass
+from itertools import product
 
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -69,11 +70,37 @@ def _material_point_terms(patch, world_poses, radius):
 
 
 @dataclass(frozen=True)
-class TargetReliefExclusion:
-    """Complete sphere enclosures kept outside the original padded target relief.
+class TargetReliefBox:
+    """Compact enclosure of the same complete physical motion and stop volume."""
 
-    This is a target exclusion, never a free-space proof for the enclosing balls.
-    Renew it from the current observed pose and ALL full-point error primitives.
+    axes_world: tuple[tuple[float, float, float], ...]
+    lower_m: tuple[float, float, float]
+    upper_m: tuple[float, float, float]
+    radius_m: float
+
+    def parameters(self):
+        axes = np.asarray(self.axes_world, dtype=float)
+        lower, upper = np.asarray(self.lower_m, float), np.asarray(self.upper_m, float)
+        if (
+            axes.shape != (3, 3)
+            or lower.shape != (3,)
+            or upper.shape != (3,)
+            or not np.isfinite(np.r_[axes.ravel(), lower, upper, self.radius_m]).all()
+            or np.linalg.det(axes) == 0
+            or np.any(lower > upper)
+            or self.radius_m < 0
+        ):
+            raise ValueError("invalid_target_relief_box")
+        return axes, lower, upper, self.radius_m
+
+
+@dataclass(frozen=True)
+class TargetReliefExclusion:
+    """Complete physical enclosures outside the original padded target relief.
+
+    Each optional box independently encloses the SAME physical volume as its
+    sphere; background and normal proofs remain separate. Refine only spatial
+    association of distance and point uncertainty, retaining every primitive.
     """
 
     reference_pose: ObjectFrame
@@ -82,6 +109,9 @@ class TargetReliefExclusion:
     upper_m: tuple[float, float]
     spheres: tuple[tuple[float, float, float, float], ...]
     interval_motion_m_rad: tuple[float, float]
+    boxes: tuple[TargetReliefBox, ...] = ()
+    minimum_cell_m: float | None = None
+    maximum_queries: int | None = None
 
     def margin(self, patch, *, remaining_fraction=1.0):
         checked_pose(self.reference_pose)
@@ -112,12 +142,25 @@ class TargetReliefExclusion:
             raise ValueError("invalid_target_relief_exclusion")
         from alexdoor_xas.perception.material_zone import pose_matrix
 
+        boxes = getattr(self, "boxes", ())
+        if boxes and (
+            len(boxes) != len(spheres)
+            or self.minimum_cell_m is None
+            or not np.isfinite(self.minimum_cell_m)
+            or self.minimum_cell_m <= 0
+            or type(self.maximum_queries) is not int
+            or self.maximum_queries < 1
+        ):
+            raise ValueError("invalid_target_relief_box_limits")
+        parameters = [box.parameters() for box in boxes]
+        queries = 0
+
         mapping = pose_matrix(self.reference_pose) @ np.linalg.inv(pose_matrix(patch.world_pose))
         # Native float32 camera transports can be slightly non-isometric. Cover
         # that measured operator norm rather than assuming an exactly rigid map.
         scale = max(1.0, float(np.linalg.norm(mapping[:3, :3], ord=2)))
         margins = []
-        for sphere in spheres:
+        for index, sphere in enumerate(spheres):
             center, radius = sphere[:3], sphere[3]
             point = ObjectFrame(center, np.eye(3))
             error = sum(_material_point_terms(patch, (point,), radius).values())
@@ -126,7 +169,44 @@ class TargetReliefExclusion:
             mapped = mapping[:3, :3] @ center + mapping[:3, 3]
             tangent = mapped @ basis
             distance = np.linalg.norm(np.maximum(lower - tangent, np.maximum(tangent - upper, 0)))
-            margins.append(float(distance - scale * (radius + error + future)))
+            margin = float(distance - scale * (radius + error + future))
+            if margin <= 0 and boxes:
+                axes, lo, hi, reserve = parameters[index]
+                project = basis.T @ mapping[:3, :3] @ axes
+                offset = mapping[:3, 3] @ basis
+                axes_scale = float(np.linalg.norm(axes, ord=2))
+                pending, refined_margin = [(lo, hi)], np.inf
+                while pending:
+                    if queries >= self.maximum_queries:
+                        raise ValueError("target_relief_query_budget_exhausted")
+                    queries += 1
+                    lo, hi = pending.pop()
+                    midpoint, half = (lo + hi) / 2, (hi - lo) / 2
+                    center = axes @ midpoint
+                    radius = axes_scale * np.linalg.norm(half) + reserve
+                    point = ObjectFrame(center, np.eye(3))
+                    error = sum(_material_point_terms(patch, (point,), radius).values())
+                    lever = np.linalg.norm(center - patch.world_pose.origin) + radius
+                    future = remaining_fraction * (motion[0] + lever * motion[1])
+                    tangent, span = project @ midpoint + offset, np.abs(project) @ half
+                    distance = np.linalg.norm(
+                        np.maximum(lower - tangent - span, np.maximum(tangent - span - upper, 0))
+                    )
+                    cell_margin = float(distance - scale * (reserve + error + future))
+                    if not np.isfinite(cell_margin):
+                        raise ValueError("invalid_target_relief_box")
+                    if cell_margin > 0:
+                        refined_margin = min(refined_margin, cell_margin)
+                    elif axes_scale * np.max(hi - lo) <= self.minimum_cell_m:
+                        refined_margin = cell_margin
+                        break
+                    else:
+                        pending.extend(
+                            (np.where(bits, midpoint, lo), np.where(bits, hi, midpoint))
+                            for bits in product((False, True), repeat=3)
+                        )
+                margin = max(margin, refined_margin)
+            margins.append(margin)
         return min(margins)
 
     def require(self, patch, *, remaining_fraction=1.0):

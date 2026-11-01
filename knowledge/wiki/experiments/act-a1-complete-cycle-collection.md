@@ -547,6 +547,26 @@ window. Its [independent review](../../../outputs/evidence/act-a1-complete-cycle
 and [exact spatial-response audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D3-localized-relief-guarded-approach-contact-blackwell-20261101/exact-spatial-response-audit.json)
 retain every domain, uncertainty primitive and original failure.
 
+A subsequent complete-domain discriminator recovers every original proof cell
+and all 589,824 motion/stop vertices. Full convex projection resolves 35 of the
+36 domains; the elbow volume still lacks 7.729 mm when one whole-volume lever
+budget is paired with its closest point. Its eight complete children instead
+retain positive original-bound margins. Axis-aligned world boxes remain negative
+and are preserved. Compact boxes aligned to the original physical link certify
+all 36 complete domains with 52 spatial queries and no bound reduction.
+
+The shared candidate retains these complete physical boxes alongside the original
+sphere proofs and refines only when current sphere exclusion fails. An independent
+CPU read verifies enclosure and every complete parent/child partition. The actual
+saved response then passes all original receipt gates with 3.708 mm spatial
+margin; uncertainty growth and a separately scoped tangential perturbation still
+refuse. All 128 relevant numerical producer/contact/geometry checks pass. Actual
+GPU full-producer, nominal-phase and native qualification remain pending; the
+original `68a5bcb` component stays negative. The
+[complete compact-box discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-spatial-response-oriented-box-discriminator-20261101/review.json)
+and [actual-response candidate review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-spatial-response-oriented-box-discriminator-20261101/candidate-actual-receipt-review-v2.json)
+preserve the scope, original primitives and failed simpler representations.
+
 The [complete geometric discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/review.json)
 and [shared-certificate check](../../../outputs/evidence/act-a1-complete-cycle-20261026/coupled-local-relief-complete-domain-discriminator-20261101/shared-certificate-saved-state-check.json)
 retain every domain and original failure. An initial independent reader wrongly
@@ -905,6 +925,19 @@ The [complete finite outcomes and independent review](../../../outputs/evidence/
 retain all alternatives and the ideal opening discretization. The allocation
 costs 40.397 GPU seconds; owned process/GPU/lease cleanup passes. Preparation and
 CPU reader errors remain preserved without extra native or GPU attempts.
+
+A separate 160-path GPU screen restricts controller targets to the intersection
+of the original physical and main calibrated position ranges, with the same
+future reserve. It preserves all 20 regions, original four variations and both
+frozen/extra-angle goals. All predicted future intervals fit both original
+ranges; four common regions retain complete pose tracking, and only the common
++100 mm lateral/zero-height-shift family also passes every saved three-height
+material proxy. Every failed tracking alternative remains. Its 29.266 GPU seconds
+and owned cleanup are retained. This target choice still needs actual full
+native motion, residual/load/stop support and observed material qualification;
+no controller, region, calibration or source is adopted. The
+[independent calibrated-target review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D1-lateral-contact-calibrated-target-family-design-local-20261101/independent-review.json)
+retains all 160 outcomes and the perfect-tracking limitations.
 
 ## Resources, archival and closeout
 

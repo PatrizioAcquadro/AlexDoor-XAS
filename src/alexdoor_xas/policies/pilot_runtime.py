@@ -19,6 +19,7 @@ from alexdoor_xas.perception.contracts import FieldSupport, validate_local_conta
 from alexdoor_xas.perception.evaluation import json_safe
 from alexdoor_xas.perception.local_admission import (
     LocalActionSupport,
+    TargetReliefBox,
     TargetReliefExclusion,
     admit_local_action,
 )
@@ -246,7 +247,7 @@ class PilotMotionEvidence:
             self.rigid_identity = observation.generation, patch.patch_id
         pending, covered = list(self.cells), []
         normal_spheres, normal_margins = [], []
-        relief_spheres = []
+        relief_spheres, relief_boxes = [], []
         free_margin, separation, lever = np.inf, np.inf, 0.0
         nonseparated_cell = None
         contact_free_stop_margin = np.inf
@@ -299,8 +300,9 @@ class PilotMotionEvidence:
         surface_basis = None
         convex_motion = None
         relief_by_sphere = set()
+        spatial_boxes = {}
 
-        def relief_certificate(spheres):
+        def relief_certificate(spheres, boxes=()):
             model = self.target_front_model
             if (
                 model["protrusion_tangent_lower_m"] is None
@@ -314,6 +316,9 @@ class PilotMotionEvidence:
                 tuple(model["protrusion_tangent_upper_m"]),
                 tuple(spheres),
                 (temporal_p, temporal_a),
+                tuple(boxes),
+                self.config["minimum_cell_m"],
+                self.config["maximum_cover_queries"],
             )
 
         def count_query(center, radius, key):
@@ -506,7 +511,7 @@ class PilotMotionEvidence:
                 )
             return support, gap, local_lever
 
-        def coupled_proof(cell, extra):
+        def complete_domain(cell, extra):
             nonlocal convex_motion
             if convex_motion is None:
                 convex_motion = self.model.convex_velocity_sweep(
@@ -524,6 +529,25 @@ class PilotMotionEvidence:
                 + extra
                 + (2 * self.shape_stop[cell.shape] * np.sin(min(control_angle, np.pi) / 2))
             )
+            return vertices, float(radius), transform
+
+        def spatial_box(cell, extra, domain=None):
+            key = cell.shape, cell.path
+            if key not in spatial_boxes:
+                vertices, radius, transform = domain or complete_domain(cell, extra)
+                axes = transform[:3, :3]
+                local = vertices @ np.linalg.inv(axes).T
+                spatial_boxes[key] = TargetReliefBox(
+                    tuple(map(tuple, axes)),
+                    tuple(local.min(0)),
+                    tuple(local.max(0)),
+                    radius,
+                )
+            return spatial_boxes[key]
+
+        def coupled_proof(cell, extra):
+            domain = complete_domain(cell, extra)
+            vertices, radius, _ = domain
             # This sphere bounds uncertainty growth at the SAME proved convex
             # volume. It is not a free-space certificate for the larger sphere.
             center = vertices.mean(0)
@@ -547,7 +571,9 @@ class PilotMotionEvidence:
             front = self.target_front_model["front_extent_m"]
             sphere = (*center.tolist(), domain_radius)
             relief = relief_certificate((sphere,))
-            localized = relief is not None and relief.margin(patch) > 0
+            sphere_localized = relief is not None and relief.margin(patch) > 0
+            refined = relief_certificate((sphere,), (spatial_box(cell, extra, domain),))
+            localized = sphere_localized or refined is not None and refined.margin(patch) > 0
             if localized:
                 front = self.interface_model["panel_front_bound_m"]
             gap = float(
@@ -566,8 +592,14 @@ class PilotMotionEvidence:
             if support.collision_clearance_m is None:
                 # A larger ball may use the existing constructive background
                 # reader ONLY after its own complete foreground proof passes.
+                # A physical box does not certify empty corners of this larger
+                # ball. Its separate foreground proof keeps the whole-front
+                # bound unless the complete ball itself excludes relief.
+                ball_front = (
+                    front if sphere_localized else self.target_front_model["front_extent_m"]
+                )
                 ball_gap = float(
-                    (patch.world_pose.origin - center) @ normal - domain_radius - error - front
+                    (patch.world_pose.origin - center) @ normal - domain_radius - error - ball_front
                 )
                 if ball_gap <= 0:
                     return None
@@ -580,6 +612,7 @@ class PilotMotionEvidence:
                     constructive=True,
                 )
                 gap = ball_gap
+                localized = sphere_localized
                 if support.collision_clearance_m is None:
                     return None
                 diagnostics["coupled_outer_ball_proofs"] = (
@@ -745,6 +778,7 @@ class PilotMotionEvidence:
             for margin, gap, local_lever, sphere in proofs:
                 if sphere in relief_by_sphere:
                     relief_spheres.append(sphere)
+                    relief_boxes.append(spatial_box(cell, extra))
                 normal_spheres.append(sphere)
                 normal_margins.append(float(gap))
                 free_margin = min(free_margin, margin)
@@ -868,7 +902,9 @@ class PilotMotionEvidence:
             if not loaded and patch.normal_uncertainty_sources
             else (),
             material_normal_range_m=normal_range,
-            target_relief_exclusion=relief_certificate(relief_spheres) if relief_spheres else None,
+            target_relief_exclusion=relief_certificate(relief_spheres, relief_boxes)
+            if relief_spheres
+            else None,
         )
         return admit_local_action(
             observation.estimate, proposal, evidence, limits, now, generation=observation.generation

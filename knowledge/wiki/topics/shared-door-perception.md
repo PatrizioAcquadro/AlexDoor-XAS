@@ -531,6 +531,18 @@ material motion is added. The measured mapping operator norm covers slight nativ
 camera non-isometry, and zero/negative or unavailable margins refuse. These
 software checks do not qualify complete native motion or a new source.
 
+A compact oriented box can independently enclose the same physical cell's full
+Taylor-motion hull, directional stop corners, stop-axis rotation and robot/jaw
+reserve. When its enclosing sphere loses spatial exclusion, complete box octants
+recompute geometric distance and all point-error primitives on each subvolume.
+The original minimum resolution, query ceiling and strict positive margin remain;
+unsupported leaves or budget exhaustion refuse. This avoids pairing one point's
+smallest geometric distance with a different point's largest uncertainty lever.
+Background and same-volume normal proofs remain mandatory. A larger fallback
+ball retains the whole-front bound unless that entire ball independently excludes
+relief; a physical box never certifies the ball's empty corners. The actual saved
+D3 response passes this software candidate, while native transfer remains pending.
+
 Receipts retain an enclosing domain for normal-error growth at each proved
 volume, paired with that volume's eroded margin. Such an enclosure bounds
 uncertainty growth; a convex collision proof does not certify free space for its

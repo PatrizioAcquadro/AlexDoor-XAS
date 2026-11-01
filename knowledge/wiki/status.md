@@ -65,7 +65,11 @@ Runtime/asset ownership and supported workflows are in
   320 ideal complete paths meet predicted physical and tracking limits; 11 regions
   also pass the saved three-height material proxy. Actual observation, complete
   calibrated load support, native motion and stops remain unqualified. These
-  predictions qualify no new pose, variation or source. D1-RV
+  predictions qualify no new pose, variation or source. A further 160-path
+  calibrated-target screen preserves future position support and identifies one
+  common lateral region with tracking and saved material-proxy support across
+  all four variations. Native movement/load/stops and observed support remain
+  pending. D1-RV
   independently qualifies actual disturbance, joint braking, return and the complete
   cycle; its earlier inspection and shoulder-support failures remain preserved.
 - D2-H+ remains unqualified as an observed complete source. The original-posture
@@ -167,8 +171,11 @@ Runtime/asset ownership and supported workflows are in
   uncertainty update exhausts the current spatial exclusion. All normal margins,
   healthy raw feedback and original continuous 6 s/14-shape stops pass; no contact
   or component/source qualifies. Diagnose this actual spatial-response branch
-  before further dependent motion. Native whole-motion and related-condition
-  qualification remain pending.
+  before further dependent motion. Complete-domain analysis now isolates loose
+  distance/uncertainty association. A shared oriented-box refinement candidate
+  passes the actual saved response and numerical boundary/perturbation checks
+  without changing original bounds. GPU full-producer and native whole-motion/
+  related-condition qualification remain pending.
   Earlier D2-N compatibility does not establish D3 transfer.
   A saved contact-region screen yields only three conditional upper points;
   no new complete path follows. Even un-padded observed protrusions remain
