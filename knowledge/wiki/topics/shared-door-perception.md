@@ -586,14 +586,25 @@ separate open requirements.
 
 Current local-plane selection evaluates all freshly measured components that
 retain the original material identity, synchronized support, complete native-pair
-residuals and conditioned plane/edge bounds. With calibrated tool FK and finite
-finger geometry, it ranks the direct measured normal-error bound at the actual
-finger points. Full-pose and tangent bounds remain unchanged in the selected
-constraint and downstream checks. Without that robot domain, it retains the
-fixed-zone pose-error comparison. Equal best bounds remain ambiguous. A retained D3 comparison found
-largest-area error bounds of0.41–0.52m where independently consistent alternatives
-provided0.088–0.107m at the same zone. These are error bounds, not actual physical
-errors or full-path admission. Changed native complete-cycle validation is pending.
+residuals and conditioned plane/edge bounds. It ranks each existing pose fit by
+its translation bound plus rotational point displacement over the entire initial
+observed root: the radius is the farthest measured reference point from the
+registration centroid, expressed in the initial map frame. This quality metric
+uses the same unchanged pose primitives and is independent of the current tool
+location. Equal best bounds remain ambiguous. Actual normal, full-pose, finite
+material, scene, age and stopping checks still consume their original bounds.
+The ranking envelope supplies no new material coverage and fills no mask hole.
+
+The previous fingertip-normal ranking could select a fit with much weaker full
+pose support. On the retained D3/D4 current publications, independently consistent
+alternatives keep all 22/20 measured pairs while reducing the full current finger
+point-error budgets from 143.63 to 74.96 mm and 65.15 to 43.55 mm. Their normal
+metrics are different, so original normal and spatial gates remain mandatory.
+Saved-publication and numerical nominal, boundary, perturbation, missing-support
+and ambiguity checks qualify this software change. Complete observed movement,
+related conditions and source qualification remain pending; the
+[[../experiments/act-a1-complete-cycle-collection|collection experiment]] owns
+these measured limits and the joint configuration work.
 
 
 A geometry recipe may supply `point2pose_selected_path` to a separate frontend

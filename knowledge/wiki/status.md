@@ -133,6 +133,12 @@ Runtime/asset ownership and supported workflows are in
   collection-time improvement and native transfer remain unqualified. Prioritize
   complete observed D3/D4 support and this directly related cost correction;
   let healthy D1 full regressions finish without expanding qualified-cell work.
+- Current plane/edge selection now ranks full pose error over the complete
+  observed root, retaining every pair and all downstream normal/material/scene/
+  stopping gates. Both original D3/D4 publications reproduce and admit stronger
+  existing fits in the numerical selection audit; this supplies no safe-action or
+  full-source claim. Complete observed region/path/variation qualification remains
+  required before another dependent attempt.
 - D3/D4 have no independently qualified full cycle. On the earlier flat D3
   setup, conditioned seed selection restores an observed edge and three identity
   witnesses while the material margin remains insufficient. The lower nominal

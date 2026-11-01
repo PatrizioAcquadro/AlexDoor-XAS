@@ -292,3 +292,94 @@ def test_normal_certificate_covers_known_plane_under_bounded_points_and_clipping
     observed.offset = 1.0
     with pytest.raises(ValueError, match="unconditioned_observed_plane"):
         observed_basis(observed, error)
+
+
+@pytest.mark.parametrize("point_error", [0.001, 0.004])
+@pytest.mark.parametrize("tool_y", [-2.0, 2.0])
+def test_surface_selection_uses_complete_observed_root_conditioning(
+    monkeypatch, point_error, tool_y
+):
+    from copy import deepcopy
+
+    from alexdoor_xas.action.frames import ObjectFrame
+    from alexdoor_xas.perception.contracts import FieldSupport
+    from alexdoor_xas.perception.point2pose.tracking import PanelCandidate, PanelTracking
+
+    initial = surface(np.eye(3), np.array([1, 0, 0]))
+    rotation = Rotation.from_euler("z", 0.2).as_matrix()
+    good = surface(rotation, np.array([1, 0, 0]) @ rotation.T)
+    good.observations = [
+        SimpleNamespace(semantic_id=3, frame=0, acquired_s=0.0, mask=lambda: np.ones((4, 4), bool))
+    ]
+    weak = deepcopy(good)
+    weak.edge_points = {"width_0": good.edge_points["width_0"][:5].copy()}
+    anchor = np.eye(4)
+    anchor[:3, 3] = [1, 0, 0]
+    candidate = PanelCandidate(
+        "material",
+        initial,
+        anchor,
+        anchor.copy(),
+        np.eye(4),
+        FieldSupport(0, 0, 0, 0, 0.004, 0.01),
+        pose=np.eye(4),
+        state="tracked",
+        camera_world=np.eye(4),
+        sam3_id=3,
+    )
+    tracker = PanelTracking(
+        SimpleNamespace(reset=lambda: None),
+        {
+            "local_surface_constraint": {
+                "point_error_m": point_error,
+                "normal_model_bound_rad": 0.001,
+            }
+        },
+        calibration={},
+        tool_fk=lambda *_: ObjectFrame(np.array([1.0, tool_y, 0.0]), np.eye(3)),
+        distal_faces=(np.zeros((4, 3)), np.zeros((4, 3))),
+    )
+    tracker.candidates = [candidate]
+    source = initial.points[::20]
+    obj = dict(
+        source_points=source,
+        current_points=source @ rotation.T,
+        measured_correspondences=np.ones(len(source), bool),
+        inliers=np.ones(len(source), bool),
+    )
+    captured = dict(frame=0, time_s=0.0, camera_world=np.eye(4), joint_position=np.zeros(9))
+    monkeypatch.setattr(tracker, "root_consistent", lambda *args: True)
+    monkeypatch.setattr(tracker, "reobserved_material_points", lambda *args: good.points)
+    expected = constrained_surface_pose(
+        initial,
+        good,
+        np.eye(4),
+        np.eye(4),
+        source,
+        obj["current_points"],
+        point_error,
+        map_anchor=np.array([1, 0, 0]),
+        current_normal_points=good.points,
+    )
+    worse = constrained_surface_pose(
+        initial,
+        weak,
+        np.eye(4),
+        np.eye(4),
+        source,
+        obj["current_points"],
+        point_error,
+        map_anchor=np.array([1, 0, 0]),
+        current_normal_points=good.points,
+    )
+    assert expected.normal_rotation_bound_rad == worse.normal_rotation_bound_rad
+    assert expected.normal_point_bound_m == worse.normal_point_bound_m
+    assert expected.rotation_bound_rad < worse.rotation_bound_rad
+    for choices in ([weak, good], [good, weak]):
+        tracker.constrain_local(captured, dict(objects=[obj], local_surfaces=choices))
+        selected = candidate.local_constraint
+        assert selected is not None and selected.pairs == len(source)
+        assert selected.rotation_bound_rad == expected.rotation_bound_rad
+        assert selected.position_bound_m == expected.position_bound_m
+        assert selected.normal_rotation_bound_rad == expected.normal_rotation_bound_rad
+        np.testing.assert_array_equal(candidate.pose, np.eye(4))

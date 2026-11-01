@@ -1156,6 +1156,27 @@ recorded. This saved-state result is neither native transfer nor measured
 whole-collection speed; a finite matched native cost comparison is still
 required. No source, matrix cell or training window is added.
 
+The [exact current-publication audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-exact-current-constraint-conditioning-local-20261101/review.json)
+reconstructs both native selected plane/edge constraints within 1.8e-13 from the
+actual stored RGB-D and Point2Pose packets. It evaluates every same-semantic
+component with the original pairs, metric error and root-consistency checks.
+The fingertip-normal minimum selects full finger point budgets of 143.63/65.15 mm
+for D3/D4; other independently consistent fits give 74.96/43.55 mm and improve
+the complete observed-root box bounds from 297.62/137.55 to 163.68/106.16 mm.
+These alternatives retain all 22/20 measured pairs. Their different normal
+metrics remain subject to original independent gates, and no old refusal is
+relabelled positive.
+
+The shared selector now ranks complete pose displacement over the entire initial
+observed root, using the unchanged fit translation/rotation bounds and all
+measured reference points. The current tool no longer defines the selection
+objective. Finite material, full point/normal uncertainty, identity, source clocks,
+scene, physical and stop criteria remain unchanged. The isolated saved-publication
+selection and numerical nominal/boundary/perturbation/missing/ambiguity checks pass.
+This is software qualification only. The complete-path material and placement
+work remains necessary before another dependent D3/D4 attempt; a better saved
+point budget does not establish complete observed execution or a qualified source.
+
 ## Resources, archival and closeout
 
 The latest historical authorization removes cumulative GPU-hour, allocation-count
