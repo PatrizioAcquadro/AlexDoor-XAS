@@ -22,6 +22,14 @@ causal preparation all pass. Its 8,041 overlapping windows count as one new
 teacher demonstration. Other conditions remain under guarded qualification;
 this result does not qualify transfer to D1, D3 or D4.
 
+The complete D1 N/H+/H- common-region regressions independently pass; D1-P remains
+unsupported. D3's full-path diagnosis separates unavailable reference extent in P
+from finite zero-clearance cells in N/H+/H-. The eight measured P inspection alternatives
+remain rejected or material-empty. D3/D4 dependent attempts stay suspended while
+shared reference, camera, material region and complete posture are redesigned;
+[[experiments/act-a1-complete-cycle-collection|the campaign]] retains the evidence
+and qualification boundaries.
+
 | Study | Retained result | Interpretation and canonical record |
 |---|---|---|
 | ACT A1 complete-cycle collection | 17/36 conditions: 13 ordinary and 4 complete recoveries; all 9 D2 conditions qualified; pause baseline: 29 full attempts, 8 positive and 21 negative | Includes 2 reused references and 15 new recordings. The exact 17-source cohort has 100,295 overlapping windows: 88,061 new and 12,234 reused. Windows are not independent demonstrations. [[experiments/act-a1-complete-cycle-collection|Campaign]] |

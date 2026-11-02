@@ -1340,6 +1340,44 @@ launched. The next intervention must jointly address actual measured material,
 camera/reference conditioning, contact region and feasible full placement/posture,
 with original physical, uncertainty, observation and stopping criteria intact.
 
+The [exact finite-finger failure decomposition](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-complete-material-failure-diagnosis-local-20261102/independent-array-readback-review.json)
+reproduces all eight complete-path arrays. P is outside its selected reference's
+finite lattice throughout every phase; its original normal-plane check passes.
+N/H+/H- remain finite but cross zero-clearance cells. Missing P support therefore
+cannot be described as occupied space or a failed plane test. A deliberately
+permissive outer-extent calculation, discarding holes, uncertainty, kinematic and
+load constraints, still finds no common translation of the unchanged loaded
+paths across original N/H+/H-/P. Its 19.050 mm minimum necessary per-constraint
+extent deficit is diagnostic, not an allowed tolerance increase. This only
+rules out translating these frozen-reference paths; it does not establish
+physical impossibility of a new measured configuration. The separately retained
+extra-three-degree stress also fails. The complete-error scalar lower floor
+alone does **not** exclude every other atlas point.
+
+The [twenty-view conditioning readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-actual-ten-view-reference-conditioning-local-20261102/independent-geometric-readback-review.json)
+retains every original mask, depth and capture/availability clock. P's initial
+reference contributes 0.157267 rad versus N's 0.050973 rad, before the current
+plane/edge term. P's selected identity is absent at 4 and 7 s. Static registered
+world geometry can compare the measured camera views, but native Point2Pose
+correspondences and early current-pose publications are unavailable; later root
+geometry never refreshes an earlier support clock. The actual P seed is acquired
+at 34.066667 s, distinct from the 34 s inspection capture.
+
+All eight saved P roots meeting the original size minima are preserved in the
+[causal-prefix reference diagnostic](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-P-measured-reference-prefix-design-local-20261102/independent-prefix-readback-review.json).
+Five fail the original edge-conditioning check and one lacks the original
+interior reference core. The other two, both acquired at 21 s, reconstruct zero
+positive material cells using only their six actual available prefix views.
+Their original and extra-stress complete paths remain negative or unavailable.
+Better angle conditioning at an earlier camera pose therefore supplies no
+qualified replacement seed. Native initialization, ownership, current error,
+changed-path kinematics and full observed movement remain unqualified. These
+saved-data studies add no source, window or matrix attempt; the one actual CUDA
+FK diagnostic charges 7.034 GPU seconds with owned cleanup verified. The next
+intervention must obtain a common measured reference/material region while
+co-designing camera, contact region and feasible full posture, with every original
+safety and observation criterion retained.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop
