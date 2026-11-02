@@ -148,6 +148,16 @@ only valid measured inliers on a seeded plane; missing/off-plane depth and the o
 silhouette are not filled. Partial-view borders cannot contract earlier measured
 material. Contradictory perimeter claims are removed without erasing observations.
 
+`MaterialCover.from_depth` keeps every disconnected RGB-D graph component that
+independently has the original minimum coplanar seed in the same captured leaf
+identity and root bounds. Each component projects its own complete measured
+normal-depth columns, with the original ray, mask, raster and metric reserves.
+The pointwise maximum of these independent clearance lower bounds forms a
+conservative union; a distant component cannot enlarge another component's depth
+slab or erase its valid cells. Unseeded background, semantic/depth gaps and holes
+remain unknown. This supplies finite material support only; current pose/error,
+identity clocks, loaded contact, whole-body motion and stops remain separate.
+
 `ScanMemory` consolidates registered overlapping support while retaining competing
 associations and original references. Relief attachment requires an observed internal
 seam; proximity, parallelism, color and shared masks do not establish ownership.

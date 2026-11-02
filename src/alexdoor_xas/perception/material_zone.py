@@ -221,15 +221,17 @@ class MaterialCover:
     ):
         """Observed interior RGB-D mesh, retaining relief and unresolved holes.
 
-        Only a measured component connected to the reference plane is retained.
+        Each retained component independently meets the measured coplanar seed minimum.
         The existing metric tolerance bounds local mesh interpolation. The finite
         root perimeter excludes adjacent frame material. Registration geometry
         stays independent: this mesh enlarges material coverage only.
         """
+        from dataclasses import replace
+
         from scipy.ndimage import binary_fill_holes, label
 
         from alexdoor_xas.perception.contracts import FieldSupport
-        from alexdoor_xas.perception.geometry import contact_frame, deproject
+        from alexdoor_xas.perception.geometry import SurfaceObservation, contact_frame, deproject
 
         if not np.isfinite([sensor["time_s"], available_s]).all() or available_s < float(
             sensor["time_s"]
@@ -304,68 +306,90 @@ class MaterialCover:
                 )
             ):
                 raise ValueError("unmeasured_static_material_reference")
+        seed = seed & (abs(local[..., 0] - surface.offset) <= tolerance)
         counts = np.bincount(labels[seed & allowed].ravel())
         if not len(counts):
             raise ValueError("missing_measured_material_seed")
         counts[0] = 0
-        winners = np.flatnonzero(counts == counts.max())
-        if len(winners) != 1 or counts[winners[0]] < config["min_points"]:
+        supported = np.flatnonzero(counts >= config["min_points"])
+        if not len(supported):
             raise ValueError("ambiguous_measured_material_component")
-        region = allowed & (labels == winners[0])
-        # A bounded shallow relief projects to a finite silhouette on the
-        # reference plane. Keep the measured connected mask (including holes)
-        # and charge its complete ray/plane parallax. This is a bounded relief
-        # model, not a claim that the hidden interface is a measured flat plane.
-        from dataclasses import replace
-
-        from alexdoor_xas.perception.geometry import SurfaceObservation
-
-        rays = cloud[region] - sensor["camera_world"][:3, 3]
-        denominator = abs(rays @ surface.normal)
-        if not len(rays) or (denominator <= tolerance).any():
-            raise ValueError("unconditioned_material_view")
-        points = local[region]
-        parallax = float(
-            np.max(
-                (abs(points[:, 0] - surface.offset) + tolerance)
-                * np.linalg.norm((rays @ basis)[:, 1:], axis=1)
-                / denominator
+        covers = []
+        for component in supported:
+            region = allowed & (labels == component)
+            # A bounded shallow relief projects to a finite silhouette on the
+            # reference plane. Keep the measured connected mask (including holes)
+            # and charge its complete ray/plane parallax. This is a bounded relief
+            # model, not a claim that the hidden interface is a measured flat plane.
+            rays = cloud[region] - sensor["camera_world"][:3, 3]
+            denominator = abs(rays @ surface.normal)
+            if not len(rays) or (denominator <= tolerance).any():
+                raise ValueError("unconditioned_material_view")
+            points = local[region]
+            parallax = float(
+                np.max(
+                    (abs(points[:, 0] - surface.offset) + tolerance)
+                    * np.linalg.norm((rays @ basis)[:, 1:], axis=1)
+                    / denominator
+                )
             )
-        )
-        observation = SurfaceObservation(
-            int(sensor["frame"]),
-            float(sensor["time_s"]),
-            float(available_s),
-            index,
-            depth.shape,
-            np.packbits(region).tobytes(),
-            np.array(sensor["intrinsics"], copy=True),
-            np.array(sensor["camera_world"], copy=True),
-            np.empty((0, 3)),
-            {},
-            semantic_id,
-        )
+            observation = SurfaceObservation(
+                int(sensor["frame"]),
+                float(sensor["time_s"]),
+                float(available_s),
+                index,
+                depth.shape,
+                np.packbits(region).tobytes(),
+                np.array(sensor["intrinsics"], copy=True),
+                np.array(sensor["camera_world"], copy=True),
+                np.empty((0, 3)),
+                {},
+                semantic_id,
+            )
+            normal_range = (
+                float(points[:, 0].min() - surface.offset - tolerance),
+                float(points[:, 0].max() - surface.offset + tolerance),
+            )
+            # Project every corner of each complete normal-depth column. Local
+            # parallax is paid by the same measured-mask coverage test, without
+            # charging a distant grazing-view point to every cell of the surface.
+            cover = cls(
+                replace(surface, observations=(observation,)),
+                config,
+                cell_m=config.get("material_depth_cover", {}).get("cell_m", 0.002),
+                normal_range_m=normal_range,
+            )
+            cover.normal_range_m = normal_range
+            timestamp = float(sensor["time_s"])
+            cover.support = FieldSupport(
+                timestamp, available_s, timestamp, generation, tolerance, None
+            )
+            cover.diagnostics = dict(
+                measured_pixels=int(region.sum()),
+                reference_pixels=int((seed & region).sum()),
+                silhouette_parallax_bound_m=parallax,
+                normal_range_m=cover.normal_range_m,
+            )
+            covers.append(cover)
+        cover = covers[0]
+        # Each cell keeps a complete independent measured-column certificate.
+        # The maximum is a conservative union bound and preserves every
+        # previously certified cell without bridging unobserved graph gaps.
+        cover.clearance = np.maximum.reduce([part.clearance for part in covers])
+        cover.clearance.setflags(write=False)
         normal_range = (
-            float(points[:, 0].min() - surface.offset - tolerance),
-            float(points[:, 0].max() - surface.offset + tolerance),
-        )
-        # Project every corner of each complete normal-depth column. Local
-        # parallax is paid by the same measured-mask coverage test, without
-        # charging a distant grazing-view point to every cell of the surface.
-        cover = cls(
-            replace(surface, observations=(observation,)),
-            config,
-            cell_m=config.get("material_depth_cover", {}).get("cell_m", 0.002),
-            normal_range_m=normal_range,
+            min(part.normal_range_m[0] for part in covers),
+            max(part.normal_range_m[1] for part in covers),
         )
         cover.normal_range_m = normal_range
-        timestamp = float(sensor["time_s"])
-        cover.support = FieldSupport(timestamp, available_s, timestamp, generation, tolerance, None)
         cover.diagnostics = dict(
-            measured_pixels=int(region.sum()),
-            reference_pixels=int((seed & region).sum()),
-            silhouette_parallax_bound_m=parallax,
-            normal_range_m=cover.normal_range_m,
+            measured_pixels=sum(part.diagnostics["measured_pixels"] for part in covers),
+            reference_pixels=sum(part.diagnostics["reference_pixels"] for part in covers),
+            silhouette_parallax_bound_m=max(
+                part.diagnostics["silhouette_parallax_bound_m"] for part in covers
+            ),
+            normal_range_m=normal_range,
+            independently_seeded_components=len(covers),
         )
         return cover
 

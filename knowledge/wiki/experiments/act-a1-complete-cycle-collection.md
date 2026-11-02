@@ -1241,16 +1241,48 @@ any production change. The retained D3 stationary operand package already holds
 13 actual views; its final neck differs from the later 10-view component, so
 inspect those recorded inputs and their clocks before collecting more data.
 
+The production replacement projects each independently seeded component with its
+own complete normal-depth column, then takes the maximum of independently
+certified cell-clearance lower bounds. The
+[positive native-input controls](../../../outputs/evidence/act-a1-complete-cycle-20261026/material-componentwise-positive-native-controls-production-readback-20261102/review.json)
+preserve every original D3 current-cell bound while increasing positive cells
+from 19,219 to 80,650. All 348,727 cells of the varied D4-P ten-view atlas and all
+support clocks remain unchanged. Production exactly reproduces the isolated
+component-wise candidate. The separate original D3 thirteen-view reconstruction
+still has zero positive cells before and after: this is a retained negative,
+not material qualification or an improvement. Its different final neck/root
+cannot inherit the later positive current capture. This shared software change
+qualifies no native complete movement or source.
+
 The [D4 stationary family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-whole-root-stationary-family-20261102.json)
-now measures actual whole-root conditioning in two physically distinct scenes:
-N on elab4 and the original P placement/posture on elab2. Immutable `e1b7653`,
-all ten original inspection views, original model/calibration/observation limits
-and the complete independent stop remain required. Both actual CUDA collectors
-are running after native-entry configuration preflight. They stop before any
-arm proposal and add no full-source attempt, matrix cell or windows. Stationary
-H+/H- would duplicate the nominal physical state; their target-height variation
-still requires actual guarded movement. D1 H+ and the elab5 cost baseline remain
-running under their original immutable source.
+independently qualifies actual N on elab4 and original P placement/posture on
+elab2, using immutable `e1b7653`. All ten original views and 34.4 s are retained;
+six/five same-identity finite witnesses, camera/FK, parked feedback, original
+continuous 6 s/14-shape stops, actual RGB and whole transfer/owned cleanup pass.
+Both end before any arm proposal and add no full-source attempt, matrix cell or
+windows. Stationary H+/H- would duplicate the nominal physical state; target-height
+variation still requires actual guarded movement.
+
+A [full producer replay](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-whole-root-full-producer-paired-saved-replay-local-20261102/review.json)
+on D4's exact old refusal packet now passes the complete unloaded producer with
+whole-root selection, including original scene, preview, load and stop checks.
+It uses an ordinary per-volume normal-separation receipt, renewed at the next
+native tick; exhausting its own remaining normal-error capacity still refuses.
+The original fit remains negative. Two reader mistakes are preserved separately:
+perturbing an unrelated geometry error and omitting the original prepaid interval
+motion reserve. The corrected independent receipt review resolves neither future
+observations nor native motion.
+
+The [main-domain complete-path design](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-main-domain-task-family-design-local-20261102/independent-kinematic-readback-review.json)
+restricts controller targets to unchanged main calibrated and physical joint
+limits, reserving original braking, acceleration and command travel. It retains
+all 36 families, 288 paths and six phases. No family meets the original pose/speed
+criteria across all N/H+/H-/P variants: D3 remains negative; D4's unchanged-region
+N/H-/P paths pass, while H+ reaches about 17 mm against the original 10 mm pose
+tolerance. This identifies a remaining configuration/load-domain tradeoff;
+neither pose tolerances nor measured calibration support are enlarged. Actual
+N full movement may be qualified separately; the negative H+ prediction supplies
+no permission to repeat that dependent condition unchanged.
 
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including

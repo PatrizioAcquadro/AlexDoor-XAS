@@ -149,14 +149,21 @@ Runtime/asset ownership and supported workflows are in
 - The complete-path whole-root control preserves every original finite-finger
   clearance array. D4's unchanged region retains a 65.58 mm frozen-current-error
   stress margin across N/H+/H-/P; actual varied acquisition and movement remain
-  unqualified. Two stationary measurements now run on elab4 (N) and elab2 (P),
-  retaining all ten original views and stopping before any arm proposal. H+/H-
-  require real height-varied movement, rather than repeated nominal parked scenes.
+  unqualified. Actual stationary N/P measurements on elab4/elab2 now independently pass
+  all ten views, six/five finite witnesses, camera/FK, original unloaded stops,
+  RGB and whole transfer/cleanup. They end before any arm proposal. Height
+  variation and complete observed movement remain unqualified. The exact old D4
+  producer packet now admits under whole-root selection; its ordinary receipt
+  still refuses exhausted normal uncertainty. A separate main-calibration target
+  design retains all complete paths: D4 N/H-/P predictions pass, but H+ reaches
+  17 mm against the unchanged 10 mm pose tolerance; D3 stays negative.
 - D3 material coverage also discards independently seeded measured components.
-  The corrected isolated union keeps hole/background and current-depth seed
-  checks, but a global normal-depth slab removes previously valid cells and the
-  complete-path screen stays negative. It remains unadopted; use the retained
-  13-view D3 operands to resolve component projection before another source attempt.
+  Independent component depth-column projection now preserves every previous
+  D3 current-cell clearance while growing measured positive cells from 19,219 to
+  80,650; the varied D4-P ten-view atlas remains identical. Original seed, graph,
+  gap, identity and clock criteria remain. The earlier global-slab candidate and
+  its cell loss are preserved. The original thirteen-view D3 atlas still has zero
+  positive cells; it cannot inherit the later capture or qualify complete motion.
 - D3/D4 have no independently qualified full cycle. On the earlier flat D3
   setup, conditioned seed selection restores an observed edge and three identity
   witnesses while the material margin remains insufficient. The lower nominal
