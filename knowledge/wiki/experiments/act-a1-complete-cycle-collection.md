@@ -1535,6 +1535,20 @@ semantic masks and causal publication cutoffs; no reference or support clock
 is retrospectively adopted. Complete tracking, observed material and loaded
 native motion remain open together.
 
+The [alternative measured-reference readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-actual-N-P-alternative-measured-reference-audit-local-20261102/independent-reference-geometry-readback-review.json)
+then checks all 31 retained parallel, sufficiently large N/P surfaces. Original
+seed eligibility admits 14/15 N and 10/16 P candidates; every rejection remains.
+Seven N references retain positive complete finger footprints at all three
+original heights, and five P references, including its selected control, retain
+positive nominal footprints. All 52 available queries are independently checked;
+both original control grids and every native cell match exactly. Original
+perimeters, graph gaps, masks, seed minimum, depth errors and each surface's
+causal capture/publication prefix remain unchanged. The CPU-only audit closes
+with owned cleanup and zero GPU charge. These geometric alternatives require
+prospective common reference selection and fresh tracking, full-root pose/current
+uncertainty, independent witnesses and native motion/load/stops. No later
+positive result reinitializes an earlier reference or qualifies a source.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop

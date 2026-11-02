@@ -36,8 +36,10 @@ the planned contact. Six common upper measured regions then fail complete
 tracking at the same base; another 108 coupled base families remain negative.
 Physical wrist bounds stay unchanged. Forty-eight converged common arm branches
 also fail complete tracking. Actual-view readback instead directs the next
-diagnosis to reference/perimeter conditioning across the panel relief;
-stationary and mathematical evidence add no source.
+diagnosis to reference/perimeter conditioning across the panel relief. An
+unchanged-criteria audit finds seven N and five P geometrically positive
+reference alternatives; prospective tracking/current-error qualification remains
+open. Stationary and mathematical evidence add no source.
 Dependent D3/D4 full-source attempts stay suspended while
 shared reference, camera, material region and complete posture are redesigned;
 [[experiments/act-a1-complete-cycle-collection|the campaign]] retains the evidence
