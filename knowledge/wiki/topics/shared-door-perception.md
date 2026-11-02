@@ -282,6 +282,21 @@ component points, edges, footprint masks and holes remain unchanged. Complete
 native-pair residuals and the independent corrected-root identity check still
 apply. Missing or poorly conditioned current material remains unavailable.
 
+The full plane/edge basis now combines the two measured axis certificates using
+an orthogonal-axis rotation bound. Let alpha bound the unit normal and beta the
+measured straight edge. The projected basis z axis differs from that edge by
+delta = asin(abs(normal dot edge)); its error is bounded by beta + delta. The
+full rotation is bounded by twice asin of the capped square root of
+sin(alpha/2)^2 + sin((beta+delta)/2)^2. For a rotation axis u and angle t,
+sin(a_i/2)^2 = sin(t/2)^2 (1-u_i^2); summing two orthogonal axes proves the
+bound without an independence assumption. The existing rigid-plane/straight-edge
+model supplies orthogonality. Original point/triangle/edge residuals, finite
+conditioning, ambiguity and hemisphere refusals remain. Normal and plane offset
+are normalized together so metric distances retain their units. Initial/current
+pose composition, full native-pair residuals, calibration and temporal errors
+still contribute separately. This geometric correction has numerical and recorded
+D3/D4-state coverage; GPU producer and native full-motion transfer remain pending.
+
 The dominant geometry query retains its fast path. Material reobservation and
 additional geometry work belong to provider publication latency; neither creates
 a fresh capture. Terminal diagnostics retain the reobserved point count and

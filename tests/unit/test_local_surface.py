@@ -383,3 +383,52 @@ def test_surface_selection_uses_complete_observed_root_conditioning(
         assert selected.position_bound_m == expected.position_bound_m
         assert selected.normal_rotation_bound_rad == expected.normal_rotation_bound_rad
         np.testing.assert_array_equal(candidate.pose, np.eye(4))
+
+
+@pytest.mark.parametrize("axis", [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 1], [1, 2, 3]])
+@pytest.mark.parametrize("angle", [0.0, 0.02, 0.4, np.pi / 2, np.pi])
+def test_two_orthogonal_axis_certificate_covers_full_rotation(axis, angle):
+    from alexdoor_xas.perception.local_surface import _orthogonal_rotation_bound
+
+    axis = np.asarray(axis, float)
+    rotation = Rotation.from_rotvec(axis / np.linalg.norm(axis) * angle).as_matrix()
+    first = np.arccos(np.clip(rotation[0, 0], -1, 1))
+    second = np.arccos(np.clip(rotation[2, 2], -1, 1))
+    bound = _orthogonal_rotation_bound(first, second)
+    if angle == np.pi:
+        # The live basis rejects bounds >= pi/2; inversion is singular at pi.
+        assert bound >= np.pi / 2
+        return
+    assert angle <= bound + 32 * np.finfo(float).eps
+    # With the rotation axis in the x/z plane, the two constraints are tight.
+    if axis[1] == 0:
+        assert bound == pytest.approx(angle, abs=32 * np.finfo(float).eps)
+
+
+@pytest.mark.parametrize("angle", [-0.5, 0.0, 0.6])
+@pytest.mark.parametrize("point_error", [0.001, 0.004, 0.012])
+def test_basis_certificate_covers_joint_normal_and_edge_measurement_errors(angle, point_error):
+    truth = Rotation.from_euler("zyx", [angle, -0.08, 0.13]).as_matrix()
+    measured = surface(truth, np.array([1.0, -0.2, 0.3]))
+    rng = np.random.default_rng(37)
+    noise = rng.normal(size=measured.points.shape)
+    noise *= point_error / np.linalg.norm(noise, axis=1).max()
+    measured.points += noise
+    measured.edge_points = {"width_0": measured.points.reshape(23, 17, 3)[:, 0]}
+    center = measured.points.mean(0)
+    _, _, vt = np.linalg.svd(measured.points - center, full_matrices=False)
+    normal = vt[-1]
+    if normal @ truth[:, 0] < 0:
+        normal = -normal
+    measured.normal, measured.offset = normal, float(center @ normal)
+    basis, bound, normal_bound = observed_basis(measured, point_error)
+    assert 0 < normal_bound <= bound < np.pi / 2
+    assert Rotation.from_matrix(basis @ truth.T).magnitude() <= bound
+    # A native float32-scale normal changes no physical plane or metric error.
+    scaled = SimpleNamespace(**vars(measured))
+    scaled.normal = measured.normal * (1 + np.finfo(np.float32).eps)
+    scaled.offset = measured.offset * (1 + np.finfo(np.float32).eps)
+    other, other_bound, other_normal = observed_basis(scaled, point_error)
+    np.testing.assert_allclose(other, basis, atol=1e-12, rtol=0)
+    assert 0 < other_normal <= other_bound < np.pi / 2
+    assert Rotation.from_matrix(other @ truth.T).magnitude() <= other_bound

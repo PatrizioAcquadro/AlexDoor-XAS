@@ -1758,6 +1758,28 @@ is running on Blackwell with exact condition/setup enforcement and the same fini
 780-command protocol. Its outcome is pending; P is not relaunched. These components
 add no matrix attempt, source, windows or full-task claim.
 
+The shared orientation correction uses the original measured normal and straight
+edge as two orthogonal-axis certificates under the existing rigid-surface model;
+[[../topics/shared-door-perception#Observed geometry and timing|the perception topic]]
+gives the derivation. It preserves their original metric point, finite-triangle,
+line-residual and conditioning bounds, full correspondence residuals, calibration,
+time, root identity and ambiguity checks. It does not promote native registration
+residuals to a physical-match certificate. Numerical nominal, perturbed and
+boundary controls pass. The [paired eight-state readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/two-axis-actual-D3-D4-state-review-v3-20261102/review.json)
+retains every native pair and tracking pose across D3/D4 N/P stationary and actual
+refusal states. Whole-root ranking may choose a different independently measured
+current component. The original test that expected fingertip-only selection also
+fails with the baseline implementation; its corrected contract checks whole-root
+selection after identity filtering. Initial numeric and reader assumptions are
+preserved in the local evidence.
+
+On P's actual response the same complete 19-enclosure relief proof changes from
+-2.295 mm to +0.353 mm. The corrected full local-admission renewal passes and added
+pose uncertainty still refuses. This is saved-state geometric evidence; full GPU
+producer, full-phase controls and native transfer remain pending. The running N
+component stays on its frozen earlier source. No new source or matrix credit is
+assigned and no unchanged P attempt is launched.
+
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
 at 21 s. Both eligible P roots retain zero material cells under the original union

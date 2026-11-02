@@ -204,8 +204,8 @@ def test_normal_primitives_cover_complete_robot_spheres_without_anchor_detour(ra
     assert shifted["plane"] == pytest.approx(bound)
 
 
-@pytest.mark.parametrize("reject_near", [False, True])
-def test_plane_choice_minimizes_normal_error_at_actual_fingers(monkeypatch, reject_near):
+@pytest.mark.parametrize("reject_best", [False, True])
+def test_plane_choice_minimizes_whole_root_pose_error_after_identity_filter(monkeypatch, reject_best):
     from dataclasses import replace
 
     from alexdoor_xas.action.frames import ObjectFrame
@@ -246,14 +246,14 @@ def test_plane_choice_minimizes_normal_error_at_actual_fingers(monkeypatch, reje
     monkeypatch.setattr(
         tracker,
         "root_consistent",
-        lambda local, *_: not reject_near or local.registration_position_m != 0.1,
+        lambda local, *_: not reject_best or local.registration_position_m != 0.001,
     )
     for options in ([current, near], [near, current]):
         result["local_surfaces"] = options
         tracker.constrain_local(sample, result)
-        expected = distant_constraint if reject_near else near_constraint
+        expected = near_constraint if reject_best else distant_constraint
         assert candidate.local_constraint is expected
-        assert candidate.local_constraint.position_bound_m == (0.001 if reject_near else 0.1)
+        assert candidate.local_constraint.position_bound_m == (0.1 if reject_best else 0.001)
 
 
 def test_conditioned_seed_selection_skips_missing_edges_before_duplicate_pruning():

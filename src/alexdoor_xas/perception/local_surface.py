@@ -23,6 +23,17 @@ def _angle(a, b):
     return float(np.arccos(np.clip(a @ b, -1, 1)))
 
 
+def _orthogonal_rotation_bound(first, second):
+    """Bound one rotation from angle bounds on two orthogonal unit axes.
+
+    For rotation axis u and angle t, sin(a_i/2)^2 = sin(t/2)^2(1-u_i^2).
+    Two orthogonal axes therefore bound sin(t/2)^2 by their sum, without
+    assuming their measurement errors are independent.
+    """
+    sine = np.hypot(np.sin(first / 2), np.sin(second / 2))
+    return float(2 * np.arcsin(min(1.0, sine)))
+
+
 def observed_basis(surface, point_error_m, *, normal_points=None):
     """Bound a plane/edge basis using finite baselines, not fit residual alone.
 
@@ -44,6 +55,9 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
         or abs(np.linalg.norm(normal) - 1) > 1e-6
     ):
         raise ValueError("invalid_observed_plane")
+    normal_norm = np.linalg.norm(normal)
+    normal = normal / normal_norm
+    offset = surface.offset / normal_norm
     # Additional normal baselines must be current depth measurements of this
     # same tracked material. They never extend footprint or edge coverage.
     if normal_points is not None:
@@ -59,14 +73,14 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
     # resolution. The wider surface/relief coverage and its original tolerance
     # remain unchanged at material consumers. Never interpret all shallow relief
     # as either orientation noise or a smaller complete geometry bound.
-    points = points[abs(points @ normal - surface.offset) <= point_error_m]
+    points = points[abs(points @ normal - offset) <= point_error_m]
     if len(points) < 5:
         raise ValueError("missing_measured_planar_core")
     # Each triangle independently bounds the same plane using the COMPLETE
     # core's point/model error. Choose the strongest certificate, never a
     # favorable residual subset. Axis extrema add bounded geometric alternatives
     # to the original seed; no metric error or acceptance threshold is reduced.
-    error = point_error_m + float(np.max(np.abs(points @ normal - surface.offset)))
+    error = point_error_m + float(np.max(np.abs(points @ normal - offset)))
     seeds = {0}
     for axis in range(3):
         seeds.update((int(points[:, axis].argmin()), int(points[:, axis].argmax())))
@@ -116,7 +130,12 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
         combined = normal_bound + edge_bound
         if cosine + np.sin(min(combined, np.pi / 2)) >= 1:
             continue
-        bound = 2 * combined / np.sqrt(1 - cosine**2)
+        old_bound = 2 * combined / np.sqrt(1 - cosine**2)
+        # The fitted edge differs from its projected unit z axis by asin(cosine).
+        # Keep both original axis errors; orthogonality is the existing rigid
+        # plane/straight-edge model, not an additional precision assumption.
+        edge_from_z = edge_bound + np.arcsin(min(cosine, 1.0))
+        bound = min(old_bound, _orthogonal_rotation_bound(normal_bound, edge_from_z))
         z = direction - normal * (normal @ direction)
         z /= np.linalg.norm(z)
         alternatives.append((bound, np.column_stack((normal, np.cross(z, normal), z))))
