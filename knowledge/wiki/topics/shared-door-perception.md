@@ -158,6 +158,17 @@ slab or erase its valid cells. Unseeded background, semantic/depth gaps and hole
 remain unknown. This supplies finite material support only; current pose/error,
 identity clocks, loaded contact, whole-body motion and stops remain separate.
 
+Within a seeded component, overlapping measured normal-depth bands provide
+additional complete-column certificates. Each band keeps a subset of the original
+connected measured mask and its full observed depth range, padded by the original
+metric tolerance at both ends. The original component certificate remains in the
+pointwise maximum. Thus distant relief need not enlarge every local column;
+mask/depth holes, graph gaps and original component seed minima remain unchanged.
+The bands introduce no new contact, geometry-error or stopping tolerance. Their
+spacing derives from the existing metric tolerance; constant-depth components
+keep their original single proof. Initial registration geometry, full pose/error
+primitives and publication clocks are independent of this coverage refinement.
+
 `ScanMemory` consolidates registered overlapping support while retaining competing
 associations and original references. Relief attachment requires an observed internal
 seam; proximity, parallelism, color and shared masks do not establish ownership.

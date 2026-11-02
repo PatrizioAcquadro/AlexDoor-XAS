@@ -370,6 +370,38 @@ class MaterialCover:
                 silhouette_parallax_bound_m=parallax,
                 normal_range_m=cover.normal_range_m,
             )
+            # Keep the parent proof and add overlapping measured depth bands.
+            # Each mask stays inside this independently seeded component; every
+            # band pays its complete depth range plus the original error at both
+            # ends. A distant relief no longer pads every local column.
+            patches = []
+            stride = 2 * tolerance
+            heights = points[:, 0] - surface.offset
+            if np.ptp(heights) > stride:
+                for band in range(
+                    int(np.floor(heights.min() / stride)), int(np.ceil(heights.max() / stride)) + 1
+                ):
+                    part = region & (abs(local[..., 0] - surface.offset - band * stride) <= stride)
+                    if not part.any():
+                        continue
+                    values = local[part, 0] - surface.offset
+                    bounds = (float(values.min() - tolerance), float(values.max() + tolerance))
+                    patch_observation = replace(
+                        observation, support_mask=np.packbits(part).tobytes()
+                    )
+                    patch = cls(
+                        replace(surface, observations=(patch_observation,)),
+                        config,
+                        cell_m=cover.cell_m,
+                        normal_range_m=bounds,
+                    )
+                    patches.append(patch)
+            if patches:
+                cover.clearance = np.maximum.reduce(
+                    [cover.clearance, *[p.clearance for p in patches]]
+                )
+                cover.clearance.setflags(write=False)
+            cover.diagnostics["local_normal_column_patches"] = len(patches)
             covers.append(cover)
         cover = covers[0]
         # Each cell keeps a complete independent measured-column certificate.
@@ -390,6 +422,9 @@ class MaterialCover:
             ),
             normal_range_m=normal_range,
             independently_seeded_components=len(covers),
+            local_normal_column_patches=sum(
+                part.diagnostics["local_normal_column_patches"] for part in covers
+            ),
         )
         return cover
 

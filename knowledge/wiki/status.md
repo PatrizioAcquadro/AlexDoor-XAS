@@ -24,8 +24,9 @@ this result does not qualify transfer to D1, D3 or D4.
 
 The complete D1 N/H+/H- common-region regressions independently pass; D1-P remains
 unsupported. D3's full-path diagnosis separates unavailable reference extent in P
-from finite zero-clearance cells in N/H+/H-. The eight measured P inspection alternatives
-remain rejected or material-empty. D3/D4 dependent attempts stay suspended while
+from finite zero-clearance cells in N/H+/H-. The maintained local depth-column correction
+improves measured coverage while preserving all earlier certificates; the eight
+P inspection alternatives still lack qualified finite contact support. D3/D4 dependent attempts stay suspended while
 shared reference, camera, material region and complete posture are redesigned;
 [[experiments/act-a1-complete-cycle-collection|the campaign]] retains the evidence
 and qualification boundaries.

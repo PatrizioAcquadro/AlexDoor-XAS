@@ -1378,6 +1378,33 @@ intervention must obtain a common measured reference/material region while
 co-designing camera, contact region and feasible full posture, with every original
 safety and observation criterion retained.
 
+The [local normal-depth-column correction](../../../outputs/evidence/act-a1-complete-cycle-20261026/local-column-material-production-readback-20261102/review.json)
+then preserves every native and same-version cell bound across seven actual
+D3/D4 contexts. Complete measured depth bands within each independently seeded
+component add coverage while retaining the original parent certificate, all
+unknown gaps, full error primitives and original support clocks. D3 N/P coverage
+becomes 143,088/66,036 positive cells; D4 N/P becomes 335,252/360,259. The old
+thirteen-view D3 and both earlier P-prefix atlases remain empty. Two diagnostic
+reader failures are retained: comparing a pure geometric producer with its later
+native publication clock, and comparing old `e1b7653` metadata directly with the
+current `a18bcd3` producer. Correct same-stage/version controls pass without
+changing original native values or criteria.
+
+The [complete-path CUDA readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-local-columns-complete-path-material-local-20261102/independent-full-path-readback-review.json)
+keeps all eight paths and 48 phase outcomes, with bitwise unchanged FK, finite
+query domains and original error arrays. N/H+/H- still cross zero-clearance
+cells at the planned contact region, and P remains outside its selected reference
+extent. No phase gains a positively supported full-error query; P's unknowns remain
+unavailable. Thus
+this software coverage improvement does not qualify the planned physical task,
+a new source or a matrix cell; unchanged dependent attempts remain suspended.
+A separate unadopted complete-column-midpoint projection probe recovers only 194
+cells on one earlier P reference, with maximum clearance 1.586 mm, below even the
+original fixed response-plus-stop floor after the maximum existing scene credit.
+It is retained as a limited geometric result, without native or finite-contact
+qualification. Actual shared reference/camera/region/posture co-design remains
+required.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop
