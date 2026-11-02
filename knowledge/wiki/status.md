@@ -64,10 +64,19 @@ positive fixed-current-error model margins from contact through stabilization;
 approach projection deficits remain. Nineteen newly required measured joint-side
 postures define 76 distinct 10 N cases. All now pass independent native moving,
 loaded-boundary, frozen-model and original 228 continuous stop-segment checks.
-Exact-condition/setup N/P recipes use only the qualified empirical position sides;
-force, position and scope boundary checks pass, with global calibration unchanged.
-Two observed N/P prefixes are running through approach, contact and four seconds
-of push. Future uncertainty and full observed movement remain unqualified. D3-P's exact final inspection sample
+Exact-condition/setup N/P prefixes both finish negative before contact: P after
+two approach commands from increased current pose uncertainty, and N after 315
+from a 12.154 microradian excursion beyond the adopted nominal empirical boundary.
+Their raw/load/clock/RGB and original six-second/fourteen-shape stop reviews pass;
+whole outputs and owned cleanup are verified. The adoption used only nominal
+boundaries, discarding preregistered loaded pulse coverage already independently
+qualified. A common correction uses the conservative moving/stop frontier shared
+by all three load sites on every one of the 19 sides across four D4 conditions.
+Force, outside-position and exact-setup checks remain strict; physical, residual,
+stop and observation criteria and global calibration remain unchanged. One distinct
+corrected N observed prefix is running on Blackwell. P remains suspended pending
+shared perception/acquisition correction. Full observed movement and evolving
+uncertainty remain unqualified. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

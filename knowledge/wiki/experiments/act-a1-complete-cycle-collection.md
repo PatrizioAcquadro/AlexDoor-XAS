@@ -1724,9 +1724,39 @@ and original continuous six-second/fourteen-shape stops. The original required
 opening remains 50.146 degrees; four seconds of push cannot qualify that goal or
 a complete source. The 5,000 s case allowance follows the retained 780-command
 native cost protocol; the 75 s simulation allowance and scientific criteria stay
-fixed. N runs on Blackwell and P on elab2 under independently verified ownership.
-Both actual observed-motion outcomes remain pending. These components add no
-matrix attempt, source, windows, evolving uncertainty or full-task claim.
+fixed. The [independent negative-outcome review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-observed-prefix-pair-negative-qualification-20261102.json)
+closes both: N delivers 315 approach commands and P two; neither reaches contact
+or push. All raw feedback, load packet clocks/models, actual RGB and original
+continuous six-second/fourteen-shape stops pass. Both whole 38-file outputs and
+three sidecars return locally with owned cleanup. The failures retain 1,146.9996
+and 357.7641 native GPU seconds. No controlled prefix or full source is qualified.
+
+P refuses renewed target-relief exclusion at 34.4333 s. The [exact saved-response
+attribution](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D4-measured-load-aware-P-observed-780prefix-elab2-20261102/exact-target-relief-response-diagnosis.json)
+reconstructs the original +2.066 mm margin and current -2.295 mm margin with the
+same original complete enclosure. The nominal pose shifts 2.156 mm while current
+pose error grows; geometry support is unchanged. Current surfaces already include
+the complete query, and a dense same-seed diagnostic does not qualify a remedy.
+A tighter native correspondence-bound counterfactual remains diagnostic: it does
+not establish a physical-match certificate and is not adopted as a safety bound.
+P stays suspended pending a shared perception/acquisition correction, retaining
+all original uncertainty and exclusion requirements.
+
+N refuses future position support at 39.65 s: wrist-X upper prediction 1.147537048
+rad exceeds the adopted nominal 1.147524894 rad boundary by 12.154 microradians.
+This is empirical support, separate from the unchanged physical limit. The
+[all-posture pulse audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-qualified-shared-loaded-pulse-frontier-audit-20261102.json)
+finds that adoption discarded already-qualified preregistered pulse coverage. For
+every one of the 19 sides, the corrected frontier is restricted by measured loaded
+motion, original loaded stop onset and the preregistered pulse target at each of
+all three load sites, then intersected across sites. This uses no failure-specific
+epsilon or additional empirical allowance. The [four-condition adoption review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-qualified-common-loaded-pulse-support-20261102/qualification.json)
+retains original complete-path support, unchanged nominal calibration and refusals
+outside each measured side or above 10 N. All physical, model, stop and observation
+bounds remain unchanged. A [single distinct corrected N prefix](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-common-pulse-supported-N-observed-prefix-manifest-20261102.json)
+is running on Blackwell with exact condition/setup enforcement and the same finite
+780-command protocol. Its outcome is pending; P is not relaunched. These components
+add no matrix attempt, source, windows or full-task claim.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
