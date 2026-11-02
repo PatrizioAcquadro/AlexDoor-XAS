@@ -18,6 +18,7 @@ from alexdoor_xas.perception.geometry import (
     pixel_center_offset,
     surfaces,
 )
+from alexdoor_xas.perception.local_surface import observed_basis
 from alexdoor_xas.perception.point2pose.tracking import PanelTracking
 from alexdoor_xas.perception.scan import (
     ObservedSpace,
@@ -36,11 +37,12 @@ def selected_recipe(path=None):
     return json.loads(path.read_text())
 
 
-def observed_reference_pixel(surfaces):
+def observed_reference_pixel(surfaces, *, point_error_m=None):
     """Select a visible seed, never a material-identity or contact certificate.
 
-    The largest observed plane must have a unique area maximum and an exclusive
-    pixel. A padded distance transform keeps the pixel inside measured support.
+    Select the unique largest area, or the unique smallest complete measured
+    basis bound when a metric point error is supplied. Both require an exclusive
+    pixel; the padded distance transform stays inside measured support.
     """
     from scipy.ndimage import distance_transform_edt
 
@@ -49,8 +51,11 @@ def observed_reference_pixel(surfaces):
         return None
     if any(mask.shape != masks[0].shape for mask in masks):
         raise ValueError("inconsistent_reference_masks")
-    areas = np.array([np.count_nonzero(mask) for mask in masks])
-    winners = np.flatnonzero(areas == areas.max())
+    if point_error_m is None:
+        scores = np.array([-np.count_nonzero(mask) for mask in masks])
+    else:
+        scores = np.array([observed_basis(s, point_error_m)[1] for s in surfaces])
+    winners = np.flatnonzero(scores == scores.min())
     if len(winners) != 1:
         return None
     winner = int(winners[0])
@@ -115,6 +120,7 @@ class PerceptionSession:
             None,
             "largest_visible_surface",
             "largest_conditioned_surface",
+            "best_conditioned_surface",
         ):
             raise ValueError("unknown_observed_reference_selection")
         self.selected = selected or self.config.get("point2pose_selected") or selected_recipe()
@@ -362,15 +368,31 @@ class PerceptionSession:
                         and requested_pixel is None
                         and t >= self.initialize_after
                         and self.config.get("reference_selection")
-                        in ("largest_visible_surface", "largest_conditioned_surface")
+                        in (
+                            "largest_visible_surface",
+                            "largest_conditioned_surface",
+                            "best_conditioned_surface",
+                        )
                     ):
-                        requested_pixel = observed_reference_pixel(options)
+                        conditioned = (
+                            self.config["reference_selection"] == "best_conditioned_surface"
+                        )
+                        requested_pixel = observed_reference_pixel(
+                            options,
+                            point_error_m=self.config["local_surface_constraint"]["point_error_m"]
+                            if conditioned
+                            else None,
+                        )
                         if requested_pixel is not None:
                             self.select(
                                 self.identity,
                                 reference_pixel=requested_pixel,
                                 after_s=t,
-                                criterion="largest observed surface with exclusive interior pixel",
+                                criterion=(
+                                    "smallest measured basis bound with exclusive interior pixel"
+                                    if conditioned
+                                    else "largest observed surface with exclusive interior pixel"
+                                ),
                             )
                     if requested_pixel is not None:
                         u, v = requested_pixel

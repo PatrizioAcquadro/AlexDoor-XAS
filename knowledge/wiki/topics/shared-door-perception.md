@@ -116,7 +116,15 @@ the applied frame/time and all alternatives are recorded, and replay cadence can
 change that capture. This is explicit reference selection, not leaf/contact
 qualification. Static IDs are local to one scan and must not be blindly reused
 across different acquisition schedules. Unique eligibility may initialize without
-a request; no first-root, area or semantic-score winner resolves ambiguity.
+a request. Automatic selection must be explicit in the recipe: `largest_visible_surface`
+requires a unique visible-area maximum; `largest_conditioned_surface` additionally
+requires a measured plane/edge basis. `best_conditioned_surface` instead minimizes
+the existing complete measured basis angular bound at the declared metric point
+error. It preserves the same eligible current roots, rejects equal bounds and
+requires a pixel exclusive to the winner. A padded interior-distance query respects
+all original mask holes. These are seed choices; native whole-leaf input, finite
+root perimeters, material ownership, current pose/error and contact gates remain
+independent. No first-root or semantic-score fallback resolves ambiguity.
 
 `initialization` reports `inspection_complete`, `reference_state`, and `p2p_started`
 independently. Alternatives are available during inspection without native startup.

@@ -1549,6 +1549,29 @@ prospective common reference selection and fresh tracking, full-root pose/curren
 uncertainty, independent witnesses and native motion/load/stops. No later
 positive result reinitializes an earlier reference or qualifies a source.
 
+
+The [current-seed discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/conditioned-reference-selection-actual-D3-D4-discriminator-20261102.json)
+finds an area-ranking sensitivity between D4 N and P. The explicit optional
+`best_conditioned_surface` recipe chooses the unique smallest existing complete
+measured basis bound among the same eligible current roots, with the same exclusive
+interior-pixel rule. It does not change either existing area-selection mode. The
+original packet replay controls reproduce every checked pose, witness, geometry
+and error field exactly. Reusing the same saved whole-leaf native map only as a
+counterfactual, N and P retain eight and six independent witnesses and current
+root consistency. The original finite-perimeter covers contain 581,288 N and
+547,505 P positive cells; every original P clearance cell remains identical.
+The [complete-path readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-current-conditioned-root-fullpath-diagnostic-local-20261102/independent-array-readback-review.json)
+checks all eight 4,659-knot paths and six phases with original uncertainty.
+Contact through stabilization has positive finite-material stress margins for
+N/H+/H-/P; approach remains negative, and the original extra-angle physical failures
+and unadopted force domains remain. The allocation charges 8.043 GPU seconds with
+owned cleanup. D3-P has no eligible end-of-inspection current root, so this option
+alone does not resolve D3. A separate coplanar-atlas consumer experiment preserves
+old bounds only by independently retaining both perimeter certificates and still
+has insufficient lower-height margin; it remains unadopted. Reader reconstruction,
+scalar-serialization and test-fixture failures are retained. Fresh native selection,
+future current errors, scene/load/stop behavior and full sources remain unqualified.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop

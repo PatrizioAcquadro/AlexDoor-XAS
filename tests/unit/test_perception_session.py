@@ -434,6 +434,63 @@ def test_observed_reference_selection_preserves_ties_overlap_and_mask_holes():
     assert module.observed_reference_pixel([surface(large), surface(left), surface(right)]) is None
 
 
+@pytest.mark.parametrize("noise_m", [0.0, 0.001])
+def test_conditioned_reference_uses_full_measured_basis_and_preserves_ambiguity(noise_m):
+    from types import SimpleNamespace
+
+    def surface(scale, mask):
+        y, z = np.meshgrid(np.linspace(-0.4, 0.4, 17), np.linspace(-0.6, 0.6, 23))
+        points = np.c_[np.ones(y.size), scale * y.ravel(), scale * z.ravel()]
+        points[:, 0] += noise_m * np.sin(np.arange(len(points)))
+        return SimpleNamespace(
+            points=points,
+            normal=np.array([1.0, 0, 0]),
+            offset=1.0,
+            edge_points={"width_0": points.reshape(23, 17, 3)[:, 0]},
+            observations=[SimpleNamespace(mask=lambda: mask)],
+        )
+
+    large = np.zeros((30, 40), bool)
+    large[2:28, 2:22] = True
+    small = np.zeros_like(large)
+    small[4:26, 24:38] = True
+    small[10:18, 28:34] = False
+    weak, strong = surface(1, large), surface(2, small)
+    u, v = module.observed_reference_pixel([weak, strong])
+    assert large[v, u]
+    u, v = module.observed_reference_pixel([weak, strong], point_error_m=0.004)
+    assert small[v, u] and not large[v, u]  # original holes/exclusive membership
+    # Area cannot break equal measured conditioning, nor invent exclusive support.
+    assert module.observed_reference_pixel([weak, surface(1, small)], point_error_m=0.004) is None
+    assert module.observed_reference_pixel([weak, surface(2, large)], point_error_m=0.004) is None
+    assert module.observed_reference_pixel([strong], point_error_m=0.004) is None
+
+
+@pytest.mark.parametrize("mode", ["largest_conditioned_surface", "best_conditioned_surface"])
+def test_conditioned_reference_modes_require_metric_recipe_and_keep_missing_geometry(mode):
+    from types import SimpleNamespace
+
+    from alexdoor_xas.perception.point2pose.tracking import PanelTracking
+
+    engine = SimpleNamespace(reset=lambda: None)
+    config = dict(recipe().config, reference_selection=mode)
+    config.pop("local_surface_constraint", None)
+    with pytest.raises(ValueError, match="conditioned_reference_requires_local_surface_recipe"):
+        PanelTracking(engine, config)
+    config["local_surface_constraint"] = dict(point_error_m=0.004, normal_model_bound_rad=0.001)
+    tracker = PanelTracking(engine, config)
+    observed = sensor()
+    measured = make_surface(observed)
+    roots, _ = tracker.eligible_surfaces([measured], observed, np.ones((80, 80), bool))
+    assert not roots
+    assert tracker.diagnostics["initialization_rejections"][0]["reason"] == (
+        "missing_conditioned_observed_edge"
+    )
+    measured.edge_points["width_0"] = measured.points.reshape(50, 50, 3)[:, 0]
+    roots, _ = tracker.eligible_surfaces([measured], observed, np.ones((80, 80), bool))
+    assert roots == [measured] and not tracker.diagnostics["initialization_rejections"]
+
+
 def test_provider_converts_source_pixel_centers_once_before_all_geometry(tmp_path, geometry):
     import json
 

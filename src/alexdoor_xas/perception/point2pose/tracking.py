@@ -140,7 +140,8 @@ class PanelTracking:
         ):
             raise ValueError("invalid_local_surface_constraint_recipe")
         if (
-            config.get("reference_selection") == "largest_conditioned_surface"
+            config.get("reference_selection")
+            in ("largest_conditioned_surface", "best_conditioned_surface")
             and constraint is None
         ):
             raise ValueError("conditioned_reference_requires_local_surface_recipe")
@@ -192,7 +193,10 @@ class PanelTracking:
                 )
                 if whole_leaf_mask is not None:
                     verify_candidate(observation.mask(), whole_leaf_mask, references)
-                if self.config.get("reference_selection") == "largest_conditioned_surface":
+                if self.config.get("reference_selection") in (
+                    "largest_conditioned_surface",
+                    "best_conditioned_surface",
+                ):
                     observed_basis(
                         surface, self.config["local_surface_constraint"]["point_error_m"]
                     )
