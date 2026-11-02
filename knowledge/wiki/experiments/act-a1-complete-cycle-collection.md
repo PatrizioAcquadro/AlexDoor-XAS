@@ -1441,6 +1441,43 @@ coupled design must consider independent lateral placement, arm branch and
 camera/reference conditioning across the whole task before any physical or
 collection adoption; the same failed D3/D4 sources are not retried.
 
+The [independent lateral full-phase readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-regions-independent-lateral-full-design-local-20261102/independent-physical-kinematic-readback-review.json)
+adds 108 genuinely new common-base families, retaining the old zero-offset
+negatives without rerunning them. No family passes all four original complete
+paths. Exact saved-array decomposition identifies a folded lower-elbow bound
+in H+/P approach/contact and a lower-wrist bound on some releases; this is a
+local mechanism diagnosis, not permission to extend physical limits.
+
+The [rearward whole-task readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-regions-rearward-whole-task-design-local-20261102/independent-physical-kinematic-readback-review.json)
+then retains another 108 common families. Two satisfy original N/H+/H-/P goals
+across all six modeled phases, using common -100/-140 mm base-X shifts, the
+original named perturbations and shared arm posture. Separate extra-three-degree
+stress remains negative. Sixteen further lower measured-region families remain
+negative, with a reader's inherited-parent-metadata failure preserved and its
+new outcomes recomputed from unchanged arrays. All empirical 10 N position
+exceedances stay unadopted. These three factors retain 1,856 complete model paths,
+4,659 knots each, without new native task attempts or source/window admission.
+
+The [calibrated camera readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-rearward-common-camera-whole-task-design-local-20261102/independent-calibrated-camera-readback-review.json)
+retains both original and stress paths and 30 fixed neck poses. CUDA FK/projection
+and an independent full-array projection show that the original (-0.7, 0.25) rad
+head pose keeps both complete physical fingers in view across all four original
+paths. The entire old multi-view root bounding box never fits one frame; that
+stricter geometric probe is retained, and is not an original native admission
+gate. No unseen mask, occlusion, correspondence, uncertainty bound or support
+clock is created by projection. The model/camera allocations charge 207.055 GPU
+seconds with owned cleanup verified.
+
+One [new actual N/P stationary pair](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-rearward-design-stationary-family-20261102.json)
+now runs on elab4/elab2 using source `9df3784` and the selected -140 mm family.
+The same head pose, all ten original views, calibration, scientific gates and
+P perturbations are preserved; actual new root/posture/contact setup and its
+masks, identity, current errors, native feedback and original stops must be
+reviewed. Each component ends before any arm proposal. Parked N/H physical
+states coincide, so H captures are not duplicated; actual height-motion
+variation remains unqualified. Extra-angle stress and the new 10 N position
+scope remain unadopted. No complete-source attempt follows from these predictions.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop

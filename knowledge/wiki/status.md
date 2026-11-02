@@ -27,9 +27,11 @@ unsupported. D3's full-path diagnosis separates unavailable reference extent in 
 from finite zero-clearance cells in N/H+/H-. The maintained local depth-column correction
 improves measured coverage while preserving all earlier certificates; the eight
 P inspection alternatives still lack qualified finite contact support. A paired measured-region
-screen finds no common D3 footprint on its declared lattice; new D4 region,
-placement and posture models still supply no common complete-motion candidate.
-D3/D4 dependent attempts stay suspended while
+screen finds no common D3 footprint on its declared lattice. Two further D4
+rearward placements satisfy the original full-goal model across all four
+variations; extra-angle stress, new force-domain and actual movement support
+remain unqualified. Their first N/P stationary measurements now run on elab4/elab2.
+Dependent D3/D4 full-source attempts stay suspended while
 shared reference, camera, material region and complete posture are redesigned;
 [[experiments/act-a1-complete-cycle-collection|the campaign]] retains the evidence
 and qualification boundaries.
@@ -194,9 +196,17 @@ Runtime/asset ownership and supported workflows are in
   all four complete predicted paths under the main load targets, separate physical
   targets, or a common initial posture preserving every original variation.
   These are finite model negatives, with all empirical-domain exceedances
-  unadopted. Independent lateral placement, arm branch and camera/reference design
-  remain open. Further dependent D4 attempts stay suspended; saved-packet success
-  is insufficient.
+  unadopted. A further 108 independent-lateral families remain negative. Full-phase
+  readback identifies the folded lower-elbow bound during H+/P approach/contact
+  and lower-wrist bounds on some releases. Moving the base farther back yields
+  two of 108 common families satisfying the original full-goal model across all
+  four variations; separate extra-three-degree stress still fails. Sixteen lower
+  measured-region families also remain negative. The selected rearward family
+  retains the original head pose and all ten views, with complete physical-finger
+  FOV across every modeled phase/variation. Actual N/P stationary measurements
+  now run on elab4/elab2, stopping before any arm proposal. Fresh masks, current
+  uncertainty, identity, reset and stops need review; no larger empirical 10 N
+  domain or complete native movement/source is adopted.
 - D3 material coverage also discards independently seeded measured components.
   Independent component depth-column projection now preserves every previous
   D3 current-cell clearance while growing measured positive cells from 19,219 to
