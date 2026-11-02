@@ -1512,6 +1512,29 @@ rerun, and moving the base does not transfer the previous camera masks or
 current support clocks. A different common arm branch/posture still needs
 complete design and fresh observed/native qualification before any source.
 
+A [common-arm branch audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-actual-upper-regions-common-IK-branches-local-20261102/independent-common-IK-readback-review.json)
+retains 288 structured IK seeds across all six measured regions and two common
+placements per region, ranked by the worst complete pose violation across the
+four original conditions. Forty-eight nominal precontact solutions converge;
+240 failures remain. The original P offsets fit the shared physical future-target
+intersection. Mathematical solver iterations do not extend a task phase.
+All [384 subsequent complete paths](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-actual-upper-regions-common-branch-fullpaths-local-20261102/independent-physical-kinematic-readback-review.json)
+retain those offsets and the original criteria, yet no common family passes.
+Both allocations charge 55.505 GPU seconds with owned cleanup. A reader's mixed
+precision rotation comparison is preserved; corrected cosine arithmetic changes
+no original convergence flag or physical gate.
+
+The [calibrated actual-view diagnosis](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-actual-original-contact-visibility-diagnosis-local-20261102/independent-calibrated-visibility-readback-review.json)
+checks all twenty camera transforms against raw joints and the fixed calibration.
+The original contact center is in view with valid same-ID depth in seven views
+of each placement. Their selected reference planes differ by 12.631 mm at that
+point. A visible center establishes neither the complete finger footprint nor
+coverage across the neighboring relief and finite reference perimeter. The next
+reference audit preserves those original perimeters, graph gaps, seed minimum,
+semantic masks and causal publication cutoffs; no reference or support clock
+is retrospectively adopted. Complete tracking, observed material and loaded
+native motion remain open together.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop
