@@ -1667,18 +1667,42 @@ outputs are preserved separately; only the independently checked distinct-input
 measured-load proposal supports the new design claim. No load calibration,
 normal gains, force or acceptance criterion changes.
 
-The [prospective five-job qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-native-and-stationary-manifest-20261102.json)
-partitions the four original native robot-only paths once across three hosts and
-acquires fresh stationary N/P observations on two others. The new initial arm
+The [complete new native/stationary qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-native-and-stationary-qualification-20261102.json)
+independently passes all four original complete robot-only paths and both fresh
+N/P acquisitions. Native paths retain 0.3 N diagnostic pressure, all six phases,
+achieved-pose release, held-target stabilization and the original eight-second
+stops. Minimum original future physical margins are 43.190, 27.848, 56.260 and
+28.327 mrad for N/H+/H-/P. Target parity and frozen residuals pass. Fresh N/P
+references retain four/seven finite witnesses and 581,986/368,481 material cells;
+selected roots, exact masks/coordinates, original ten views, actual RGB, reset,
+camera and original six-second stops independently pass. The new initial arm
 posture invalidates reuse of the older stationary references for this proposal.
-Native paths retain 0.3 N diagnostic pressure, all original phases, achieved-pose
-release, held-target stabilization and the original eight-second stops. The
-family remains unqualified pending complete independent review. Its
-[independent P native review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-native-review-blackwell-local-20261102/independent-motion-review.json)
-already passes all six phases, target parity, future physical boxes, frozen
-residuals and original eight-second stops. Whole transfer and owned native/review
-cleanup pass. Numerical, stationary or robot-only results alone add no source,
-future uncertainty or 10 N support.
+All five whole payloads and three sidecars per host return locally with owned
+cleanup. Native jobs charge 2,237.492 GPU seconds; the three independent native
+review allocations charge 30.200 seconds.
+
+The [fresh measured material-path readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-actual-fullpath-material-local-20261102/independent-array-readback-review.json)
+checks all eight original/stress paths, 4,659 knots and six phases each. Fixed
+current-error margins from contact through stabilization are positive and fully
+available, including 71.015/70.277/71.475/67.841 mm minima for the four original
+conditions. Negative approach projections and the separate extra-angle physical
+failures remain. This diagnostic charges 7.032 GPU seconds with owned cleanup;
+it supplies no evolving observation, normal, swept scene, contact or source
+certificate.
+
+Nineteen newly required joint-side extrema from those actual complete native
+paths, each with one original future allowance, define 76 fresh independent
+unloaded/center-load/distal-face-yaw cases and 228 original continuous stop
+segments. The [necessary static target preflight](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-10N-static-target-preflight-local-20261102/review.json)
+passes all 76 cases at unchanged normal impedance, force and physical pulse
+reserve. It charges 7.038 GPU seconds and guarantees no native convergence or
+dynamic outcome. The [new finite native study](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-actual-scoped-10N-support-manifest-20261102.json)
+assigns every case and posture once across five hosts, splitting H- into disjoint
+subsets. All five owned GPU startups are verified; complete outcomes remain
+pending. This changes the shared planning/posture mechanism, while preserving
+the previous 80-case negative study and all fixture, physical, model and stop
+criteria. No global calibration domain, full observed motion, future uncertainty
+or complete source is adopted from these components.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
