@@ -156,7 +156,10 @@ Runtime/asset ownership and supported workflows are in
   producer packet now admits under whole-root selection; its ordinary receipt
   still refuses exhausted normal uncertainty. A separate main-calibration target
   design retains all complete paths: D4 N/H-/P predictions pass, but H+ reaches
-  17 mm against the unchanged 10 mm pose tolerance; D3 stays negative.
+  17 mm against the unchanged 10 mm pose tolerance; D3 stays negative. One
+  complete nominal D4 candidate now runs on elab4 with original task phases/gates
+  and main-calibration target reservation. Its full and temporal result remains
+  pending; the matrix stays 17/36. The negative height variant remains suspended.
 - D3 material coverage also discards independently seeded measured components.
   Independent component depth-column projection now preserves every previous
   D3 current-cell clearance while growing measured positive cells from 19,219 to

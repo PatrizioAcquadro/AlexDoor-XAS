@@ -1284,6 +1284,23 @@ neither pose tolerances nor measured calibration support are enlarged. Actual
 N full movement may be qualified separately; the negative H+ prediction supplies
 no permission to repeat that dependent condition unchanged.
 
+The [reserved-target finite-material readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-main-domain-whole-root-original-atlas-full-path-local-20261102/independent-array-readback-review.json)
+checks all 64 related paths, including the retained negative tracking variants.
+D4 N's 4,659 projected finite-finger queries retain positive frozen-current-error
+stress throughout all six phases; minimum 10.19 mm. This does not predict future
+semantic masks, forces, contact dynamics or tracker uncertainty. One
+[complete D4 N candidate](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-main-domain-complete-N-20261102.json)
+now runs on owned elab4 using immutable `e1b7653`, the unchanged original setup
+and ten views, and the already supported main-calibration target reservation.
+The full collector retains the 50.146-degree task goal, contact continuity,
+loaded hold, release/stabilization, all current observed admission/load gates and
+original continuous 6 s/14-shape stops. Its 14,000/15,000 s case/wrapper allowance
+is computational capacity only. This is resumed remaining-cell launch 41,
+pending actual full and temporal review; the qualified matrix remains 17/36.
+The new material-component software is deliberately absent from this D4 control;
+its D4 positive-control atlas was unchanged. D3 and H+ negative designs stay
+suspended, and no full-cycle or added-source claim follows from readiness.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop
