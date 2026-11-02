@@ -1110,9 +1110,14 @@ continuous stop, actual RGB and whole-transfer/cleanup checks: 43.731 degrees,
 3,684 deliveries, 7,368 load packets and 5,428.857 GPU seconds. Its loaded-hold
 height differs from completed N by -20.006 mm, retaining the original -20 mm
 condition and all other setup/dynamics fields. Both native peaks and original
-10 N model estimates remain within their original domains. H+ remains healthy
-on elab3 and still requires complete independent review and matched height
-comparison. All physical, observation, identity, error and stop gates remain.
+10 N model estimates remain within their original domains. The subsequent
+[H+ full regression](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab3/D1-common-lateral-Hplus-complete-observed-regression-elab3-20261101/complete-mechanism-qualification-review.json)
+also independently passes: 43.817-degree loaded holding, +19.987 mm actual height
+relative to matched N, 3,693 deliveries/7,386 original load packets, original
+continuous 6 s/14-shape stops, actual six-phase RGB and whole transfer/owned
+cleanup. Its 11,202.895 GPU seconds are retained. All three complete height
+regressions qualify this common-region mechanism; P remains unsupported. All
+physical, observation, identity, error and stop gates remain.
 
 These full cycles extend the diagnostic cutoff on already-qualified cells and
 add no remaining-cell attempt, source or windows. Existing nominal regressions
@@ -1134,7 +1139,7 @@ meaningful variations. The latest D3 response changes spatial relief margin from
 finger query still includes retained observed protrusions. These are failures of
 observed support, not demonstrations of collision or global task infeasibility.
 Further isolated saved-state fallback successes do not justify another unchanged
-native attempt. Healthy D1 full regressions continue; additional D1 view design
+native attempt. All three D1 full height regressions are now closed; additional D1 view design
 remains prepared and unlaunched while the shared D3/D4 problem takes priority.
 
 Actual native D1 logs also identify persistent fine geometric partitions as a
@@ -1290,16 +1295,50 @@ D4 N's 4,659 projected finite-finger queries retain positive frozen-current-erro
 stress throughout all six phases; minimum 10.19 mm. This does not predict future
 semantic masks, forces, contact dynamics or tracker uncertainty. One
 [complete D4 N candidate](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-main-domain-complete-N-20261102.json)
-now runs on owned elab4 using immutable `e1b7653`, the unchanged original setup
-and ten views, and the already supported main-calibration target reservation.
-The full collector retains the 50.146-degree task goal, contact continuity,
-loaded hold, release/stabilization, all current observed admission/load gates and
-original continuous 6 s/14-shape stops. Its 14,000/15,000 s case/wrapper allowance
-is computational capacity only. This is resumed remaining-cell launch 41,
-pending actual full and temporal review; the qualified matrix remains 17/36.
-The new material-component software is deliberately absent from this D4 control;
-its D4 positive-control atlas was unchanged. D3 and H+ negative designs stay
-suspended, and no full-cycle or added-source claim follows from readiness.
+uses immutable `e1b7653`, the unchanged original setup and ten views, and the
+already supported main-calibration target reservation. It retains the original
+50.146-degree goal and all full-cycle/observed/load/stop requirements, but
+[the actual full attempt](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab4/D4-N-whole-root-main-domain-complete-elab4-20261102/complete-negative-review.json)
+refuses at 36.05 s after 99 approach deliveries and one refused proposal. The
+negative-finger shape 11 contains an unknown sweep/stop cell, with a 0.387445-rad
+interface-normal cone and 0.8315 mm non-distal ordering margin. Native feedback,
+raw clocks, 199 original load packets, original continuous 6 s/14-shape stops,
+actual RGB and whole transfer/owned cleanup pass. This is conclusive negative
+remaining-cell launch 41, charged 908.737 GPU seconds, with no eligible windows.
+The whole 100-proposal timeline and exact final operands are retained. The
+previous saved packet's success does not resolve evolving actual support;
+further dependent D4 attempts are suspended rather than retried unchanged.
+
+The [existing-support D3 model discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-existing-10N-support-complete-family-design-local-20261102/independent-kinematic-readback-review.json)
+retains all 18 families/144 full paths and 4,516 knots per path. Using the already
+adopted, scoped 10 N position sides rather than the main rectangle alone, the
+unchanged-region family retains original N/H+/H-/P pose, speed and predicted
+physical/future-envelope limits. Separate extra-3-degree stress still fails.
+This numeric envelope does not enlarge the original measured posture/path
+qualification or establish native contact/load/stops. The original main-domain
+negative and a producer legacy source-label/reader arithmetic-order error remain
+preserved; actual executable `a18bcd3` is verified independently.
+
+Two [matched refined-view D3 acquisitions](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-componentwise-stationary-family-20261102.json)
+now independently qualify actual N on Blackwell and original P on elab2, using
+`a18bcd3`, all ten original views and no arm proposal. Three/five finite independent
+witnesses, camera/FK, original continuous 6 s/14-shape stops, actual RGB and whole
+transfer/owned cleanup pass. N has 74,329 positive material cells from ten views;
+P has 64,389 from eight contributing views, preserving its two missing semantic
+views and all ten actual captures. These different native captures are not an
+exact causal cell-count comparison with the old atlas. The old thirteen-view
+negative remains unchanged.
+
+The [actual-reference full-path audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-componentwise-actual-N-P-complete-path-material-local-20261102/independent-array-readback-review.json)
+then retains all eight original/separate-stress paths of that family. Original
+N/H+/H- projected finite-finger queries cross zero-clearance measured cells;
+P's exact finger query remains unavailable under its selected observed reference.
+The complete current-error stress remains negative. Thus larger stationary
+atlases, independent witnesses and predicted kinematic feasibility still do not
+qualify this contact region or future movement. No new dependent D3 source is
+launched. The next intervention must jointly address actual measured material,
+camera/reference conditioning, contact region and feasible full placement/posture,
+with original physical, uncertainty, observation and stopping criteria intact.
 
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
@@ -1315,12 +1354,19 @@ confirm persistent repeated work, without establishing an actual speedup.
 
 The proportional observed whole-prefix forecast is 4,084.722 s. A single
 capacity successor declares 5,000 s case/5,200 s wrapper allowance for both
-comparison sources, preserving the same fixed prefix, physical horizon and all
-scientific gates. The original interruption remains an interruption. Only the
-baseline successor is active; the optimized comparison stays at source
-`8139034` and awaits a completed/reviewed baseline. The newer pose-selector
-change is excluded from that contrast. Complete observed collection-time
-improvement and D3/D4 full-motion transfer remain unqualified.
+members of the same fixed comparison. It also interrupts during push after
+737/780 deliveries, retaining one admitted-but-undelivered proposal and 1,476
+load packets. The [second interruption review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab5/D2-N-admission-cost-baseline-capacity-guarded-prefix-elab5-20261101/complete-interruption-review.json)
+independently passes raw/native/model/clocks, original continuous 6 s/14-shape
+stops, actual RGB and whole transfer/cleanup, preserving 5,105.248 GPU seconds.
+Its 738 geometry calls cost 3,036.970 s; the last 180 median is 4.997 s and 589
+checked volumes. The measured 5,397.820 s whole-prefix projection supersedes the
+older low forecast without erasing it. One further baseline now runs on the same
+elab5/source `ab5b944` with 8,000/8,500 s capacity; its setup, seed, 780-command/
+240-push cutoff and every scientific/physical gate remain unchanged. The
+prepared optimized source stays `8139034`, with matching computational capacity,
+unlaunched until baseline completion/review. Both interruptions remain separate
+from scientific matrix attempts and neither establishes native speedup.
 
 ## Resources, archival and closeout
 

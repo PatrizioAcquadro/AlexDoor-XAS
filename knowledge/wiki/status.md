@@ -99,7 +99,10 @@ Runtime/asset ownership and supported workflows are in
   release/stabilization, raw/admission/load clocks, original continuous 6 s/14-shape
   stops, actual phase RGB and whole-transfer/owned-cleanup checks. H- measures
   -20.006 mm relative to matched N, with the remaining setup and dynamics
-  unchanged. H+ remains healthy on elab3. These are existing-cell regressions;
+  unchanged. H+ now also independently passes the full cycle: 43.817-degree
+  loaded holding, +19.987 mm measured height, 3,693 deliveries, original stops,
+  actual six-phase RGB and whole transfer/cleanup. All three height regressions
+  are complete. These are existing-cell regressions;
   selected sources and the 17/36 count remain unchanged. General P material
   support and the full shared D3/D4 intervention still require qualification.
   D1-RV
@@ -136,10 +139,14 @@ Runtime/asset ownership and supported workflows are in
   collection-time improvement and native transfer remain unqualified. The first
   matched elab5 baseline interrupts at its 2,000 s compute allowance after
   400 healthy commands; raw, original stops, RGB and cleanup pass. Its retained
-  cost supports one capacity successor with the same fixed prefix and 5,000 s
-  allowance. The optimized source remains unlaunched pending baseline review.
+  cost supported a 5,000 s capacity successor, which also interrupts after
+  737/780 commands, including 197/240 push commands. Its raw, original stops,
+  RGB and cleanup independently pass; all 5,105.248 GPU seconds are retained.
+  One further baseline now runs with 8,000/8,500 s case/wrapper capacity and
+  the same fixed prefix/criteria. The optimized source stays unlaunched until
+  the completed baseline is independently reviewed.
   Prioritize complete observed D3/D4 support and this directly related cost correction;
-  let healthy D1 full regressions finish without expanding qualified-cell work.
+  the three completed D1 height regressions add no source or matrix cell.
 - Current plane/edge selection now ranks full pose error over the complete
   observed root, retaining every pair and all downstream normal/material/scene/
   stopping gates. Both original D3/D4 publications reproduce and admit stronger
@@ -156,17 +163,31 @@ Runtime/asset ownership and supported workflows are in
   producer packet now admits under whole-root selection; its ordinary receipt
   still refuses exhausted normal uncertainty. A separate main-calibration target
   design retains all complete paths: D4 N/H-/P predictions pass, but H+ reaches
-  17 mm against the unchanged 10 mm pose tolerance; D3 stays negative. One
-  complete nominal D4 candidate now runs on elab4 with original task phases/gates
-  and main-calibration target reservation. Its full and temporal result remains
-  pending; the matrix stays 17/36. The negative height variant remains suspended.
+  17 mm against the unchanged 10 mm pose tolerance; D3 main-domain predictions
+  stay negative. One
+  complete nominal D4 candidate with main-calibration target reservation instead
+  refuses after 99 approach commands: a negative-finger sweep/stop cell remains
+  unknown under the evolving observed normal cone. Native/raw/model/clock checks,
+  original 6 s/14-shape stops, actual RGB and whole transfer/cleanup pass. It is
+  retained as a negative full attempt, with zero windows. Further dependent D4
+  attempts remain suspended; saved-packet success is insufficient.
 - D3 material coverage also discards independently seeded measured components.
   Independent component depth-column projection now preserves every previous
   D3 current-cell clearance while growing measured positive cells from 19,219 to
   80,650; the varied D4-P ten-view atlas remains identical. Original seed, graph,
   gap, identity and clock criteria remain. The earlier global-slab candidate and
   its cell loss are preserved. The original thirteen-view D3 atlas still has zero
-  positive cells; it cannot inherit the later capture or qualify complete motion.
+  positive cells; it cannot inherit the later capture or qualify complete motion. New matched
+  refined-view N/P stationary acquisitions independently qualify three/five
+  witnesses and original stops/RGB/cleanup. N retains all ten contributing
+  material views; P retains all ten captures with two missing semantic views.
+  Existing scoped 10 N position sides allow one complete N/H+/H-/P model family
+  within original pose/speed/physical limits; this is not a global load-domain
+  qualification. Its eight original/separate-stress full paths still cross
+  unsupported measured N/H cells, while P's exact finger query remains unavailable
+  under its observed reference. No new D3 source attempt follows. Jointly resolve
+  measured contact region, camera/reference conditioning and complete feasible
+  placement/posture without weakening uncertainty or selecting favorable retries.
 - D3/D4 have no independently qualified full cycle. On the earlier flat D3
   setup, conditioned seed selection restores an observed edge and three identity
   witnesses while the material margin remains insufficient. The lower nominal
