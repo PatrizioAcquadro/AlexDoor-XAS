@@ -1426,12 +1426,26 @@ independently passes raw/native/model/clocks, original continuous 6 s/14-shape
 stops, actual RGB and whole transfer/cleanup, preserving 5,105.248 GPU seconds.
 Its 738 geometry calls cost 3,036.970 s; the last 180 median is 4.997 s and 589
 checked volumes. The measured 5,397.820 s whole-prefix projection supersedes the
-older low forecast without erasing it. One further baseline now runs on the same
-elab5/source `ab5b944` with 8,000/8,500 s capacity; its setup, seed, 780-command/
-240-push cutoff and every scientific/physical gate remain unchanged. The
-prepared optimized source stays `8139034`, with matching computational capacity,
-unlaunched until baseline completion/review. Both interruptions remain separate
-from scientific matrix attempts and neither establishes native speedup.
+older low forecast without erasing it. The 8,000/8,500 s capacity successor now
+[qualifies the complete declared prefix](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab5/D2-N-admission-cost-baseline-capacity-v2-guarded-prefix-elab5-20261102/complete-prefix-qualification-review.json):
+360 approach, 180 contact and 240 push deliveries, exactly 780 proposals and 1,560
+original 10 N load packets, with no undelivered proposal. Native feedback,
+original continuous 6 s/14-shape stops, actual RGB, all 47 original files plus
+three sidecars and owned cleanup independently pass. Whole allocation wall is
+3,968.382 s and charged GPU time is 3,973.382 s; 780 admission calls total
+2,184.937 s. These are measured values of this finite run, with both earlier
+interruptions and their costs retained, rather than a speedup claim.
+
+The single prepared optimized `8139034` member is freshly staged and dispatched
+on the same elab5 after baseline closure. All five active numeric input files
+match after label/documentary-scope normalization; the original setup, seed,
+780-command/240-push cutoff, observation pipeline, 10 N support and stopping criteria are
+unchanged, with matching 8,000/8,500 s capacity. Source-archive verification and
+actual-runtime constructor preflight pass. The current material-column change
+is not substituted into either frozen comparison source. Actual optimized
+prefix completion, raw/load/stop/visual/cleanup review and native speed comparison
+remain pending. Neither this component nor either interruption adds a scientific
+matrix attempt, selected source or training window.
 
 ## Resources, archival and closeout
 
