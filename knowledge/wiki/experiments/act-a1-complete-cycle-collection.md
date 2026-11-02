@@ -1405,6 +1405,42 @@ It is retained as a limited geometric result, without native or finite-contact
 qualification. Actual shared reference/camera/region/posture co-design remains
 required.
 
+The [paired measured-region readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-measured-common-contact-regions-v2-local-20261102/independent-region-readback-review.json)
+examines the finite prepared TRAIN panels on a declared 20 mm world-y/z lattice,
+using both full finger footprints and the original N/H+20mm/H-20mm/P captures.
+D3 has no common available footprint among its 3,705 positions. D4 has 850 common
+available positions, 643 with positive geometric clearance and 237 retaining
+positive complete frozen-current-error stress among 3,132 positions. Projection
+to each measured reference is an explicit design approximation, with original
+normal displacement retained; this supplies neither future observation nor
+normal/scene admission. Original gaps, unavailable states and support clocks
+remain unchanged. Independent manual corner/grid-slice controls and actual RGB
+inspection support this finite diagnosis; it is not a global impossibility proof.
+
+The [complete region/placement/posture design](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-contact-placement-posture-design-summary-20261102.json)
+uses six separated D4 measured regions, three base-X offsets and three yaw offsets,
+with a coupled lateral shift. All 54 families preserve original N/H+/H-/P and
+separate extra-three-degree stress. Three factors retain 1,296 complete predicted
+paths, each with 4,659 knots and all six phases: main calibrated target interiors,
+physical target interiors with every empirical-domain exceedance retained, and
+a common initial arm posture within the intersection of all original named
+variation domains. None supplies a family satisfying all four original complete
+pose/speed/physical requirements. New physical targets do not adopt any larger
+force-qualified domain. The model uses ideal target tracking and the maintained
+controller/release schedule; actual reset, stand-off, whole-body motion, evolving
+observations, forces and independent stops remain unqualified.
+
+The first unprojected common-posture batch correctly refuses before its first
+predicted command because the original P perturbation leaves the unchanged
+physical target interior. The corrected common posture keeps every original P
+delta and height variation rather than clipping conditions independently. That
+failed allocation and all three completed factors charge 162.574 GPU seconds,
+with owned cleanup verified. Setup and reader-tail errors remain in their
+records. No native attempt, source, window or matrix cell is added. The next
+coupled design must consider independent lateral placement, arm branch and
+camera/reference conditioning across the whole task before any physical or
+collection adoption; the same failed D3/D4 sources are not retried.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop

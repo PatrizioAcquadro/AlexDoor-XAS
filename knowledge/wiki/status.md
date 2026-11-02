@@ -26,7 +26,10 @@ The complete D1 N/H+/H- common-region regressions independently pass; D1-P remai
 unsupported. D3's full-path diagnosis separates unavailable reference extent in P
 from finite zero-clearance cells in N/H+/H-. The maintained local depth-column correction
 improves measured coverage while preserving all earlier certificates; the eight
-P inspection alternatives still lack qualified finite contact support. D3/D4 dependent attempts stay suspended while
+P inspection alternatives still lack qualified finite contact support. A paired measured-region
+screen finds no common D3 footprint on its declared lattice; new D4 region,
+placement and posture models still supply no common complete-motion candidate.
+D3/D4 dependent attempts stay suspended while
 shared reference, camera, material region and complete posture are redesigned;
 [[experiments/act-a1-complete-cycle-collection|the campaign]] retains the evidence
 and qualification boundaries.
@@ -151,9 +154,12 @@ Runtime/asset ownership and supported workflows are in
   cost supported a 5,000 s capacity successor, which also interrupts after
   737/780 commands, including 197/240 push commands. Its raw, original stops,
   RGB and cleanup independently pass; all 5,105.248 GPU seconds are retained.
-  One further baseline now runs with 8,000/8,500 s case/wrapper capacity and
-  the same fixed prefix/criteria. The optimized source stays unlaunched until
-  the completed baseline is independently reviewed.
+  The 8,000/8,500 s baseline now independently qualifies the complete fixed
+  prefix: 780 deliveries, 1,560 original load packets, raw/native feedback,
+  original stops, actual RGB and whole transfer/cleanup pass. It charges
+  3,973.382 GPU seconds. The single optimized `8139034` member now runs on the
+  same elab5 with matching numeric inputs and capacity, following baseline closure.
+  Actual speedup remains unqualified until its own complete result is reviewed.
   Prioritize complete observed D3/D4 support and this directly related cost correction;
   the three completed D1 height regressions add no source or matrix cell.
 - Current plane/edge selection now ranks full pose error over the complete
@@ -178,8 +184,15 @@ Runtime/asset ownership and supported workflows are in
   refuses after 99 approach commands: a negative-finger sweep/stop cell remains
   unknown under the evolving observed normal cone. Native/raw/model/clock checks,
   original 6 s/14-shape stops, actual RGB and whole transfer/cleanup pass. It is
-  retained as a negative full attempt, with zero windows. Further dependent D4
-  attempts remain suspended; saved-packet success is insufficient.
+  retained as a negative full attempt, with zero windows. A new measured-region
+  screen finds 237 common N/H+/H-/P points with positive frozen current-error
+  stress. Six separated regions then define 54 base-X/yaw families. None supports
+  all four complete predicted paths under the main load targets, separate physical
+  targets, or a common initial posture preserving every original variation.
+  These are finite model negatives, with all empirical-domain exceedances
+  unadopted. Independent lateral placement, arm branch and camera/reference design
+  remain open. Further dependent D4 attempts stay suspended; saved-packet success
+  is insufficient.
 - D3 material coverage also discards independently seeded measured components.
   Independent component depth-column projection now preserves every previous
   D3 current-cell clearance while growing measured positive cells from 19,219 to

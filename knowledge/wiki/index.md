@@ -6,7 +6,7 @@ implemented boundaries from future requirements. Git retains ordinary edit histo
 
 ## Start here
 
-- [[status|Project Status]] — Current pause, capabilities, measured outcomes and open questions.
+- [[status|Project Status]] — Current execution, capabilities, measured outcomes and open questions.
 - [[topics/system-architecture|System Architecture]] — Runtime ownership, maintained workflows and repository boundaries.
 - [[log|Project Milestones]] — Concise durable changes.
 
