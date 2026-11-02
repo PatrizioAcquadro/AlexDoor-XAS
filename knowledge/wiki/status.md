@@ -157,9 +157,13 @@ Runtime/asset ownership and supported workflows are in
   The 8,000/8,500 s baseline now independently qualifies the complete fixed
   prefix: 780 deliveries, 1,560 original load packets, raw/native feedback,
   original stops, actual RGB and whole transfer/cleanup pass. It charges
-  3,973.382 GPU seconds. The single optimized `8139034` member now runs on the
-  same elab5 with matching numeric inputs and capacity, following baseline closure.
-  Actual speedup remains unqualified until its own complete result is reviewed.
+  3,973.382 GPU seconds. The optimized `8139034` member independently passes
+  the same prefix, raw/load/stop/RGB/whole-transfer/cleanup gates. In this one
+  same-host/configuration pair, whole wall falls from 3,968.382 to 2,473.502 s
+  (37.67%); geometry-call wall falls from 2,184.937 to 1,051.936 s. Depth,
+  native/control/command data and all stop operands match; RGB and some current
+  perception estimates differ. This measures the declared prefix pair, with
+  no repeated-run variance, full hold/release throughput or full-cycle claim.
   Prioritize complete observed D3/D4 support and this directly related cost correction;
   the three completed D1 height regressions add no source or matrix cell.
 - Current plane/edge selection now ranks full pose error over the complete

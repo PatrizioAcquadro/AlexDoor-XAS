@@ -1478,10 +1478,32 @@ match after label/documentary-scope normalization; the original setup, seed,
 780-command/240-push cutoff, observation pipeline, 10 N support and stopping criteria are
 unchanged, with matching 8,000/8,500 s capacity. Source-archive verification and
 actual-runtime constructor preflight pass. The current material-column change
-is not substituted into either frozen comparison source. Actual optimized
-prefix completion, raw/load/stop/visual/cleanup review and native speed comparison
-remain pending. Neither this component nor either interruption adds a scientific
-matrix attempt, selected source or training window.
+is not substituted into either frozen comparison source. The optimized member
+now [independently qualifies its full declared prefix](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab5/D2-N-admission-cost-optimized-guarded-prefix-elab5-20261101/complete-prefix-qualification-review.json):
+780 deliveries, 1,560 original load packets, zero undelivered proposals, original
+continuous 6 s/14-shape stops, actual RGB and whole 47-file/three-sidecar transfer
+and owned cleanup pass. The controlled endpoint is the same 38.4 s/3.558794-degree
+partial opening; it is not the complete task.
+
+The [completed cost-pair readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-complete-review-20261102.json)
+measures whole allocation wall of 3,968.382 versus 2,473.502 s, a 37.67% reduction
+or 1.604 ratio in this one same-host/configuration pair. The 780 geometry calls
+total 2,184.937 versus 1,051.936 s; recent-180 median call wall is 3.192 versus
+1.232 s and median checked volumes fall from 335 to 53. Both original physical
+and scientific contracts still pass. Actual charge is 2,478.502 GPU seconds for
+the optimized member, with all earlier interruption charges preserved.
+
+A bounded streaming comparison retains all 67 raw HDF5 datasets and both
+original stop files. Sixty-five datasets, including depth, native feedback,
+control, evaluator and commands, and every stop operand are identical. The RGB
+and its derived three preprocessed color channels differ; mean absolute RGB
+channel difference is 0.780/255, with 95th percentile 3/255. Current perception
+normal-cone and load-normal estimates also differ, while original force upper
+bounds and all 10 N verification fields match. The rendering cause is not
+independently established. Thus this is a measured single-prefix cost result,
+not a pixel-identical perception-input causal experiment, repeated-run variance
+estimate, universal multi-host speedup or full hold/release qualification. Neither
+member nor either interruption adds a matrix attempt, selected source or window.
 
 ## Resources, archival and closeout
 
