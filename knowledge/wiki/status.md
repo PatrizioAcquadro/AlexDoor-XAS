@@ -30,7 +30,12 @@ P inspection alternatives still lack qualified finite contact support. A paired 
 screen finds no common D3 footprint on its declared lattice. Two further D4
 rearward placements satisfy the original full-goal model across all four
 variations; extra-angle stress, new force-domain and actual movement support
-remain unqualified. Their first N/P stationary measurements now run on elab4/elab2.
+remain unqualified. Their N/P stationary measurements independently pass reset,
+identity, camera and original stops, but the new N material map does not support
+the planned contact. Six common upper measured regions then fail complete
+tracking at the same base; another 108 coupled base families remain negative.
+Physical wrist bounds stay unchanged. A different shared arm branch/posture
+still needs complete design; stationary evidence adds no source.
 Dependent D3/D4 full-source attempts stay suspended while
 shared reference, camera, material region and complete posture are redesigned;
 [[experiments/act-a1-complete-cycle-collection|the campaign]] retains the evidence

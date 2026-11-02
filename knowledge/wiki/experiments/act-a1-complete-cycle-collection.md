@@ -1468,15 +1468,49 @@ gate. No unseen mask, occlusion, correspondence, uncertainty bound or support
 clock is created by projection. The model/camera allocations charge 207.055 GPU
 seconds with owned cleanup verified.
 
-One [new actual N/P stationary pair](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-rearward-design-stationary-family-20261102.json)
-now runs on elab4/elab2 using source `9df3784` and the selected -140 mm family.
-The same head pose, all ten original views, calibration, scientific gates and
-P perturbations are preserved; actual new root/posture/contact setup and its
-masks, identity, current errors, native feedback and original stops must be
-reviewed. Each component ends before any arm proposal. Parked N/H physical
-states coincide, so H captures are not duplicated; actual height-motion
-variation remains unqualified. Extra-angle stress and the new 10 N position
-scope remain unadopted. No complete-source attempt follows from these predictions.
+The [new actual N/P stationary pair](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-rearward-design-stationary-family-20261102.json)
+completes on elab4/elab2 using source `9df3784` and the selected -140 mm family.
+Both original 34.4 s inspections end before any arm proposal. Independent reset,
+parked feedback, raw camera origins, same-ID finite witnesses (eight N, six P),
+all ten actual RGB-D views, original continuous 6 s/14-shape stops and whole
+33-file plus three-sidecar transfer/owned cleanup pass. The same head, view
+schedule, calibration and P perturbations remain. Parked N/H states coincide;
+height-motion qualification is still separate. These are stationary measurements,
+with zero complete-source attempts, matrix cells or eligible windows.
+
+The [actual-reference full-path readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-rearward-actual-N-P-complete-path-material-local-20261102/independent-array-readback-review.json)
+checks all eight original/stress paths, 4,659 knots and 48 phase reports against
+the newly measured covers. N's former 1.155 m target crosses finite zero-clearance
+cells; some approach and H- queries are unavailable. P's projected contact,
+opening, hold and release retain positive fixed-current-error margins. Its
+approach diagnostic is partly negative; projecting a distant approach onto the
+panel is not itself a native material-admission rule. Frozen geometry/current
+packets establish no future scene, mask or force support. Extra-angle kinematic
+failures and every unadopted 10 N position exceedance remain.
+
+A [new complete measured-region lattice](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-rearward-actual-measured-common-contact-regions-local-20261102/independent-region-readback-review.json)
+uses these actual N/P covers and preserves the original height variations.
+Of 3,132 finite panel candidates, 504 have four available footprints, 378 have
+positive geometric margins and 103 also pass the fixed-current-error probe.
+The independent corner/grid reader retains holes, unavailable values, measured
+support clocks and every original error operand. Six spatially separated upper
+regions are tested together with the same physical initial base/posture/head.
+Their [48 complete paths](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-rearward-actual-upper-regions-full-design-local-20261102/independent-physical-kinematic-readback-review.json)
+all fail the original complete pose criteria. Full-phase bound decomposition
+finds late-opening lower-wrist-X and upper-wrist-Z limits; physical limits are
+preserved. The saved material/model allocations charge 31.250 GPU seconds with
+owned cleanup. This remains a coupled placement/contact/posture problem, not
+permission to retry the failed full source or extend force domains.
+
+The [coupled upper-region placement readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-actual-upper-regions-coupled-placement-full-design-local-20261102/independent-physical-kinematic-readback-review.json)
+then tests 108 new common-base families: all six measured regions, base-Y following
+the contact shift plus independent offsets, both rearward X positions and three
+yaws. All 864 complete paths retain the original variation, phase, physical,
+pose and speed criteria. No original four-condition family passes; this factor
+charges 83.852 GPU seconds with owned cleanup. The old failed points are not
+rerun, and moving the base does not transfer the previous camera masks or
+current support clocks. A different common arm branch/posture still needs
+complete design and fresh observed/native qualification before any source.
 
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
