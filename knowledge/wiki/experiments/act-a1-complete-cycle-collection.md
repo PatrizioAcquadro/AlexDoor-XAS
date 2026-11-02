@@ -1209,6 +1209,49 @@ observed support and complete-pose conditioning must be considered together.
 The 41.405/8.045/8.043 GPU seconds and original coarse-ball discriminator are
 retained without source or window additions.
 
+The [paired whole-root control](../../../outputs/evidence/act-a1-complete-cycle-20261026/shared-material-and-conditioning-independent-review-20261102.json)
+checks the same 64 complete paths under `e1b7653`, retaining all original finite-
+finger clearance arrays exactly. With the unchanged ten-view atlas and one
+saved nominal current-error publication, D4's unchanged region retains a 65.58 mm
+minimum stress margin across original N/H+/H-/P contact/opening/hold paths. The
++100 mm lateral family remains negative. D3 still has zero-clearance footprints.
+These frozen-publication sensitivities do not qualify varied observations,
+future tracker errors, whole-robot foreground/load/stops or native movement.
+Both finite CUDA allocations close cleanly and retain 16.089 GPU seconds.
+
+A [measured component audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-material-component-mechanism-review-local-20261102/review.json)
+isolates an additional D3 material bottleneck. Its original ten-view atlas has
+only 21,589 positive cells and 24.59 mm maximum clearance. In the exact current
+RGB-D capture, the material rule selects a 42,911-pixel side component by its
+38,936 coplanar seed pixels, discarding a larger 53,857-pixel component with
+10,240 independently measured coplanar seed pixels. D4 instead retains its main
+163,682-pixel component. This identifies discarded measured support; it does not
+make unobserved holes, glass/depth discontinuities or adjacent material known.
+
+An [isolated component-union candidate](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-current-material-seed-union-isolated-review-local-20261102/review.json)
+requires the original minimum coplanar seed independently for each component,
+with the same semantic identity, depth graph, root bounds and missing cells.
+An initial stale-depth seed acceptance is retained as a failed candidate; direct
+same-capture coplanarity fixes that defect. The corrected copy preserves the
+numerical hole/background/identity/boundary contracts, but its enlarged global
+normal-depth slab loses 13,127 previously positive D3 cells and its complete-path
+sensitivity remains negative. It is **not adopted**. Independent component
+projection must preserve valid original cells and all actual depth gaps before
+any production change. The retained D3 stationary operand package already holds
+13 actual views; its final neck differs from the later 10-view component, so
+inspect those recorded inputs and their clocks before collecting more data.
+
+The [D4 stationary family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-whole-root-stationary-family-20261102.json)
+now measures actual whole-root conditioning in two physically distinct scenes:
+N on elab4 and the original P placement/posture on elab2. Immutable `e1b7653`,
+all ten original inspection views, original model/calibration/observation limits
+and the complete independent stop remain required. Both actual CUDA collectors
+are running after native-entry configuration preflight. They stop before any
+arm proposal and add no full-source attempt, matrix cell or windows. Stationary
+H+/H- would duplicate the nominal physical state; their target-height variation
+still requires actual guarded movement. D1 H+ and the elab5 cost baseline remain
+running under their original immutable source.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop
