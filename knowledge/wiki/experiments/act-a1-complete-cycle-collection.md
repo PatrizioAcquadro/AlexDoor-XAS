@@ -1593,6 +1593,33 @@ The next qualification needs actual robot movement and measured load support;
 stationary acquisition does not establish future uncertainty or full observed
 contact/source success.
 
+The [first complete native family105 review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-family105-unreserved-native-complete-diagnosis-20261102.json)
+retains all four original N/H+/H-/P robot-only paths at 0.3 N diagnostic pressure.
+Each has 19,596 native moving samples and 1,920 stopped samples. All six phase
+endpoints, original three-second hold, achieved-pose staged release, six-second
+held-target stabilization, frozen residuals and continuous original eight-second
+joint/tool/fourteen-shape stops pass. The future physical gate remains negative
+for P: 265 approach samples exceed the lower elbow limit after the one original
+stop/acceleration/measured-velocity allowance, by at most 0.003701 rad. N/H+/H-
+retain positive future boxes. Whole stable payloads and three sidecars per host
+return locally with owned cleanup; native jobs charge 1,709.797 GPU seconds.
+Independent reviews charge 31.212 seconds, including the retained first reader
+assertion at the negative physical gate. No remaining-cell attempt or source is
+added.
+
+The positive numerical design used physical-future interior targets throughout,
+but the native fixture inherited raw physical target defaults and its stationary
+recipe omitted the existing target-margin field. The corrected fixture wires the
+same `pose_target_margin_rad` and `pose_target_domain_rad` options as the maintained
+pilot. Its reserve is the original stop travel plus acceleration travel and one
+maximum-speed control interval, exactly the declared design rule. Actual native
+target limits must match the recipe and design before motion. Requalification
+covers every original condition, all seven joints and all six phases. This fixes
+a configuration mismatch; every physical, pose, rate, residual and stop criterion
+is retained. Dependent 10 N calibration remains suspended until the corrected
+complete native paths pass independent review; observed movement and future
+uncertainty still require separate qualification.
+
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
 at 21 s. Both eligible P roots retain zero material cells under the original union

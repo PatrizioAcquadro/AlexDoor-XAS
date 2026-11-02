@@ -45,8 +45,12 @@ stress margins from contact through stabilization across all four original
 conditions, while approach deficits remain. Fresh native N/P acquisition now independently qualifies the selected references,
 identity, ten original views, current errors and original stops. Its own material
 maps retain positive contact-to-stabilization model margins across the four
-original conditions. Complete native movement, future uncertainty and the new
-10 N position support remain unqualified. D3-P's exact final inspection sample
+original conditions. All four complete robot-only native paths then pass pose,
+frozen residual and original continuing-stop checks, but P's approach violates
+the future physical elbow bound. The fixture omitted the interior target reserve
+used by the design. A shared recipe-wiring correction is being requalified across
+all conditions and phases; future uncertainty, 10 N support and full observed
+movement remain unqualified. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
