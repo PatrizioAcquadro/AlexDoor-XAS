@@ -1616,9 +1616,28 @@ maximum-speed control interval, exactly the declared design rule. Actual native
 target limits must match the recipe and design before motion. Requalification
 covers every original condition, all seven joints and all six phases. This fixes
 a configuration mismatch; every physical, pose, rate, residual and stop criterion
-is retained. Dependent 10 N calibration remains suspended until the corrected
-complete native paths pass independent review; observed movement and future
-uncertainty still require separate qualification.
+is retained. Dependent 10 N calibration was withheld pending independent review
+of the corrected complete native paths. Observed movement and future uncertainty
+still require separate qualification.
+
+The [corrected native family105 qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-family105-reserved-native-complete-qualification-20261102.json)
+independently passes all four original complete paths with the existing shared
+interior target reserve. Actual target limits match the recipe and design;
+every original phase endpoint, rate, acceleration, frozen residual, held-target
+stabilization and continuous same-latch stop criterion passes. Every native future
+physical box is clear. The minimum joint margins are 33.280, 7.904, 32.147 and
+8.064 mrad for N/H+/H-/P, respectively. Each whole stable nineteen-file payload
+and three sidecars returns locally with owned cleanup. Native jobs charge
+845.469 GPU seconds and independent reviews 36.218 seconds. The earlier P negative
+remains; no new source or 10 N domain follows from these 0.3 N components.
+
+The next [finite 10 N study](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-family105-reserved-actual-scoped-10N-support-manifest-20261102.json)
+uses twenty required joint-side extremal postures from those actual paths, with
+one original future allowance. Each posture has independent unloaded, center-load
+and two distal-face/yaw cases with the original fixture, model and continuing
+stop criteria. The eighty cases are assigned once across five hosts; H- has two
+disjoint posture subsets. Results remain pending. This study alone cannot adopt
+an arbitrary joint box, other postures, calibration or a full observed source.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
