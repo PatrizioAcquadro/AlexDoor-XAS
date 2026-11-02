@@ -1672,9 +1672,13 @@ partitions the four original native robot-only paths once across three hosts and
 acquires fresh stationary N/P observations on two others. The new initial arm
 posture invalidates reuse of the older stationary references for this proposal.
 Native paths retain 0.3 N diagnostic pressure, all original phases, achieved-pose
-release, held-target stabilization and the original eight-second stops. These
-jobs remain unqualified pending complete independent review; numerical or
-stationary results alone add no source, future uncertainty or 10 N support.
+release, held-target stabilization and the original eight-second stops. The
+family remains unqualified pending complete independent review. Its
+[independent P native review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-native-review-blackwell-local-20261102/independent-motion-review.json)
+already passes all six phases, target parity, future physical boxes, frozen
+residuals and original eight-second stops. Whole transfer and owned native/review
+cleanup pass. Numerical, stationary or robot-only results alone add no source,
+future uncertainty or 10 N support.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
