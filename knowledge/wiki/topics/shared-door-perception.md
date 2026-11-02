@@ -295,7 +295,10 @@ conditioning, ambiguity and hemisphere refusals remain. Normal and plane offset
 are normalized together so metric distances retain their units. Initial/current
 pose composition, full native-pair residuals, calibration and temporal errors
 still contribute separately. This geometric correction has numerical and recorded
-D3/D4-state coverage; GPU producer and native full-motion transfer remain pending.
+D3/D4-state coverage. Actual CUDA complete-path and full-producer diagnostics also
+pass, retaining the independent N normal-growth refusal. Native full-motion
+transfer remains unqualified; [[../experiments/act-a1-complete-cycle-collection|the campaign]]
+owns the prospective P component and exact evidence.
 
 The dominant geometry query retains its fast path. Material reobservation and
 additional geometry work belong to provider publication latency; neither creates

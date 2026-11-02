@@ -74,11 +74,15 @@ qualified. A common correction uses the conservative moving/stop frontier shared
 by all three load sites on every one of the 19 sides across four D4 conditions.
 Force, outside-position and exact-setup checks remain strict; physical, residual,
 stop and observation criteria and global calibration remain unchanged. One distinct
-corrected N observed prefix is running on Blackwell. A shared two-axis geometric
-rotation bound now passes numerical and recorded D3/D4-state controls and
-revalidates P's exact saved response while retaining excessive-uncertainty refusal.
-P remains suspended pending GPU producer and native qualification of that change.
-Full observed movement and evolving uncertainty remain unqualified. D3-P's exact final inspection sample
+corrected N prefix finishes negative after 164 approach commands: current normal
+uncertainty exhausts an original same-sphere separation margin by 0.962 mm. Raw,
+load, actual RGB and original stops pass; whole transfer and cleanup are verified.
+A shared two-axis geometric rotation bound passes numerical, recorded D3/D4,
+CUDA full-path and full-producer controls. It revalidates P's exact saved response
+while preserving excessive-uncertainty refusal and the independent new N failure.
+One distinct P prefix now runs on elab2; further N attempts stay suspended pending
+normal-bound/acquisition correction. Full observed movement and evolving
+uncertainty remain unqualified. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

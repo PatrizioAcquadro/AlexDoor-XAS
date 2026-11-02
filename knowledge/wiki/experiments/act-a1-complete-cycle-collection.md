@@ -1775,10 +1775,38 @@ preserved in the local evidence.
 
 On P's actual response the same complete 19-enclosure relief proof changes from
 -2.295 mm to +0.353 mm. The corrected full local-admission renewal passes and added
-pose uncertainty still refuses. This is saved-state geometric evidence; full GPU
-producer, full-phase controls and native transfer remain pending. The running N
-component stays on its frozen earlier source. No new source or matrix credit is
-assigned and no unchanged P attempt is launched.
+pose uncertainty still refuses. The [actual CUDA complete-path readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-two-axis-actual-fullpath-material-local-20261102/independent-array-readback-review.json)
+retains all eight 4,659-tick/six-phase paths, original material availability,
+complete finger queries and geometric camera coverage. Fixed-current-error
+contact-through-stabilization minima remain positive; approach projections and
+extra-angle physical negatives remain. The [full producer and receipt review](../../../outputs/evidence/act-a1-complete-cycle-20261026/two-axis-D4-full-producer-saved-and-current-probes-local-v2-20261102/independent-receipt-review.json)
+preserves the old N empirical-bound negative. Four current-state N/P probe
+receipts renew and refuse excessive uncertainty in their consumed normal or pose
+primitive. Those probes explicitly repeat a prior action hypothetically; no
+undelivered native command or evolved observation is reconstructed. Fresh scene
+and query caches remain a limitation. GPU charges are 7.033 seconds for full paths,
+7.033 for an initial incomplete-recipe setup failure and 39.531 for the corrected
+producer replay, all with verified owned cleanup.
+
+The [corrected-pulse N component](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D4-common-pulse-supported-N-observed-780prefix-blackwell-20261102/complete-negative-qualification-review.json)
+finishes negative on its frozen earlier source after 164 approach commands,
+8,913 healthy native feedback samples and 329 load packets; no contact or push
+is delivered. At 37.1333 s, the same protected sphere has 4.208 mm of normal-error
+growth against its original 3.245 mm margin, leaving -0.962 mm. The selected plane
+origin and normal bound change; the two-axis full-pose correction preserves this
+independent normal refusal. Actual RGB, raw/clock/load and original continuous
+six-second/fourteen-shape stops pass. All 38 original files and three sidecars
+return locally with owned cleanup; 456.998 native GPU seconds remain charged.
+Further N attempts stay suspended while this common acquisition/normal mechanism
+is diagnosed.
+
+A [single distinct P observed prefix](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-two-axis-P-observed-prefix-manifest-20261102.json)
+now runs on elab2 with source `da61c0d`, the proven geometric certificate and only
+the previously qualified three-site 10 N pulse support. It retains exact setup,
+ten original inspection views, 360 approach/180 contact/240 push commands, original
+stops, fixed goal and finite budget. This is prospective component qualification;
+full evolving uncertainty/contact/material/scene and actual native outcome remain
+pending. No full source, matrix attempt or windows are added.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
