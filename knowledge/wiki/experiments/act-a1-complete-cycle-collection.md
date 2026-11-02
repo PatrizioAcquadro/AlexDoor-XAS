@@ -1093,19 +1093,26 @@ unloaded-sweep proof. This supports investigation of general acquisition and
 tracking conditioning across the full family; it proves neither future admission
 nor physical infeasibility and changes no observation or acceptance criterion.
 
-The full guarded nominal regression of the prospective common region is running
-on elab2 with the same physical setup, target domain, model and original
-41.008-degree goal, sustained contact/continuity, loaded hold, complete release,
-stabilization and independent stops. A saved durable completed-row
-[prefix review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-deployments/D1-common-lateral-N-complete-observed-regression-elab2-20261101/durable-prefix-readiness-review.json)
-now establishes the original sustained contact window at probe-relative 9.017 s
-and reaches 7.177 degrees without pre-release loss. This prefix is not a finished
-raw-integrity or full-cycle qualification. It supports distinct full H+/H-
-regressions on elab3/4 after their independently reviewed prescribed phase
-endpoints and complete robot-only path support. Their shared setup differs only
-by the original +/-20 mm height variation; actual loaded-hold heights must later
-be compared with the completed matched nominal. All per-command observed,
-physical, model, identity, uncertainty and independent stopping gates remain.
+The full guarded common-region
+[nominal regression](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D1-common-lateral-N-complete-observed-regression-elab2-20261101/complete-mechanism-qualification-review.json)
+now independently qualifies the original complete observed cycle: 43.889 degrees
+against 41.008 required, 3 s loaded hold, full 6 s release, 2 s stabilization,
+3,694 guarded deliveries and 7,388 original-model load packets. The original
+sustained contact begins at probe-relative 9.017 s, with no pre-release loss.
+The complete original continuous 6 s/14-shape stop, actual six-phase RGB,
+45-file whole transfer plus sidecars and owned cleanup pass. Its allocation
+charges 5,926.536 GPU seconds. The earlier prefix remains a prefix; the selected
+nominal source is unchanged.
+
+The matched [H- regression](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab4/D1-common-lateral-Hminus-complete-observed-regression-elab4-20261101/complete-mechanism-qualification-review.json)
+also independently passes the full original cycle, raw/admission/load clocks,
+continuous stop, actual RGB and whole-transfer/cleanup checks: 43.731 degrees,
+3,684 deliveries, 7,368 load packets and 5,428.857 GPU seconds. Its loaded-hold
+height differs from completed N by -20.006 mm, retaining the original -20 mm
+condition and all other setup/dynamics fields. Both native peaks and original
+10 N model estimates remain within their original domains. H+ remains healthy
+on elab3 and still requires complete independent review and matched height
+comparison. All physical, observation, identity, error and stop gates remain.
 
 These full cycles extend the diagnostic cutoff on already-qualified cells and
 add no remaining-cell attempt, source or windows. Existing nominal regressions
@@ -1176,6 +1183,52 @@ selection and numerical nominal/boundary/perturbation/missing/ambiguity checks p
 This is software qualification only. The complete-path material and placement
 work remains necessary before another dependent D3/D4 attempt; a better saved
 point budget does not establish complete observed execution or a qualified source.
+
+A finite [joint task design](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-joint-task-configuration-full-family-design-local-20261101/independent-kinematic-readback-review.json)
+retains 36 coupled contact-region/lateral-placement/wrist-posture families and all
+288 original-goal/separate-stress N/H+/H-/P paths. Independent readback checks
+all 4,659 knots and six phases per path. Eight families retain original-goal
+kinematic tracking, speed and future physical limits for all four variations;
+the higher-contact candidates in this screen lose tracking. Extra 3-degree
+stress remains separate and does not redefine the original task. These are
+perfect-target TRAIN design results, not observed movement or load/stop support.
+
+The [full-path material and camera sensitivity](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-full-family-exact-finger-design-sensitivity-local-20261101/review.json)
+then checks all 64 paths of those eight families, using the original exact
+finite-finger rectangle queries and retained holes. Some D3 rectangles meet
+zero-clearance cells in the frozen nominal atlas. D4's unchanged-region contact/
+opening/hold minimum is 147.59 mm, with a 42.50 mm margin under its retained
+current-error stress; the tested +100 mm lateral change instead loses that stress
+margin. Three final-neck models keep the complete physical finger cube inside
+the sensor field of view throughout these ideal paths, while arm occlusion,
+actual masks and future tracking remain unmeasured. The old measured nominal
+atlas and one saved current-error publication do not establish actual varied
+acquisition or future admission. Thus neither a generic lateral shift nor field
+of view alone resolves the shared blocker. Region/placement/posture, finite
+observed support and complete-pose conditioning must be considered together.
+The 41.405/8.045/8.043 GPU seconds and original coarse-ball discriminator are
+retained without source or window additions.
+
+A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
+uses one original D2 nominal setup on elab5, the same 780-command prefix including
+240 prescribed push commands, and unchanged recording/physical/observation/stop
+requirements. Its first baseline reaches 360 approach and 40 contact commands,
+then hits the 2,000 s compute allowance. The
+[independent interruption review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab5/D2-N-admission-cost-baseline-guarded-prefix-elab5-20261101/complete-interruption-review.json)
+retains 400 deliveries, one admitted-but-undelivered proposal, 802 load packets,
+zero labels/windows, original continuous 6 s/14-shape stops, actual RGB and whole
+transfer/cleanup. It charges 2,099.729 GPU seconds. Its 401 geometry calls cost
+899.404 s; the recent median is 2.834 s for 284 checked volumes. These counts
+confirm persistent repeated work, without establishing an actual speedup.
+
+The proportional observed whole-prefix forecast is 4,084.722 s. A single
+capacity successor declares 5,000 s case/5,200 s wrapper allowance for both
+comparison sources, preserving the same fixed prefix, physical horizon and all
+scientific gates. The original interruption remains an interruption. Only the
+baseline successor is active; the optimized comparison stays at source
+`8139034` and awaits a completed/reviewed baseline. The newer pose-selector
+change is excluded from that contrast. Complete observed collection-time
+improvement and D3/D4 full-motion transfer remain unqualified.
 
 ## Resources, archival and closeout
 

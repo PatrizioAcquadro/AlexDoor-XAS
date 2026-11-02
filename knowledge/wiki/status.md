@@ -93,12 +93,15 @@ Runtime/asset ownership and supported workflows are in
   this deficit; positive robot sweep/self margins do not supply missing material
   support. A saved complete robot-only path audit also finds the narrower P cover
   across all six phases, supporting general acquisition/tracking investigation
-  while leaving future observed admission unqualified. A subsequent full nominal
-  prefix establishes the original sustained
-  contact window and reaches 7.177 degrees without pre-release loss; the complete
-  cycle remains unqualified. Full N/H+/H- regressions of the common region now
-  run on elab2/3/4, preserving the original +/-20 mm height deltas and all limits.
-  They add no new source, window or matrix cell.
+  while leaving future observed admission unqualified. The subsequent full N and
+  H- regressions on the same common region now independently pass original contact continuity,
+  43.889/43.731-degree loaded holding against the 41.008-degree goal, complete
+  release/stabilization, raw/admission/load clocks, original continuous 6 s/14-shape
+  stops, actual phase RGB and whole-transfer/owned-cleanup checks. H- measures
+  -20.006 mm relative to matched N, with the remaining setup and dynamics
+  unchanged. H+ remains healthy on elab3. These are existing-cell regressions;
+  selected sources and the 17/36 count remain unchanged. General P material
+  support and the full shared D3/D4 intervention still require qualification.
   D1-RV
   independently qualifies actual disturbance, joint braking, return and the complete
   cycle; its earlier inspection and shoulder-support failures remain preserved.
@@ -130,8 +133,12 @@ Runtime/asset ownership and supported workflows are in
   scene, motion, stop, load and current-observation proofs. Numerical boundary and
   missing-evidence checks and all seven saved native phase states/receipts pass
   on CUDA. Same-state contact replays reduce 368 queries to 51, but actual
-  collection-time improvement and native transfer remain unqualified. Prioritize
-  complete observed D3/D4 support and this directly related cost correction;
+  collection-time improvement and native transfer remain unqualified. The first
+  matched elab5 baseline interrupts at its 2,000 s compute allowance after
+  400 healthy commands; raw, original stops, RGB and cleanup pass. Its retained
+  cost supports one capacity successor with the same fixed prefix and 5,000 s
+  allowance. The optimized source remains unlaunched pending baseline review.
+  Prioritize complete observed D3/D4 support and this directly related cost correction;
   let healthy D1 full regressions finish without expanding qualified-cell work.
 - Current plane/edge selection now ranks full pose error over the complete
   observed root, retaining every pair and all downstream normal/material/scene/
