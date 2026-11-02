@@ -42,10 +42,15 @@ reference alternatives. The new optional measured-conditioning selector chooses
 a current seed by its complete plane/edge bound instead of pixel area. Exact
 saved native-packet controls pass; the D4 alternative has positive finite-material
 stress margins from contact through stabilization across all four original
-conditions, while approach deficits remain. D3-P still lacks an eligible current
-end-of-inspection seed. Fresh native initialization, future pose/error, load and
-complete movement qualification remain open. Stationary and mathematical evidence
-add no source.
+conditions, while approach deficits remain. Fresh native N/P acquisition now independently qualifies the selected references,
+identity, ten original views, current errors and original stops. Its own material
+maps retain positive contact-to-stabilization model margins across the four
+original conditions. Complete native movement, future uncertainty and the new
+10 N position support remain unqualified. D3-P's exact final inspection sample
+lacks an eligible seed; its older runtime initializes one capture later. Returning
+to the only common earlier N/P selected view still leaves both eligible P
+references with zero material cells under the original operator. These component
+and mathematical results add no source.
 Dependent D3/D4 full-source attempts stay suspended while
 shared reference, camera, material region and complete posture are redesigned;
 [[experiments/act-a1-complete-cycle-collection|the campaign]] retains the evidence

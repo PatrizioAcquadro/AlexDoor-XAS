@@ -1572,6 +1572,39 @@ has insufficient lower-height margin; it remains unadopted. Reader reconstructio
 scalar-serialization and test-fixture failures are retained. Fresh native selection,
 future current errors, scene/load/stop behavior and full sources remain unqualified.
 
+
+The [fresh conditioned-reference N/P pair](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-conditioned-reference-stationary-family-20261102.json)
+then independently qualifies actual initialization on source `d0281c4`, original
+ten-view RGB-D, reset, parked feedback, calibrated camera, identity, finite
+witnesses and continuous original six-second, fourteen-shape stops. Both seeds
+are acquired at 34 s and evaluated at 34.4 s. The selected pixels and unique
+minimum measured basis bounds are independently reconstructed; root masks and
+point coordinates match exactly. N retains four witnesses and 581,258 material
+cells; P retains five and 422,185. Its measured reference differs from the saved
+counterfactual, so that earlier map is not substituted. Whole stable payloads and
+three sidecars per host return locally; owned process groups and GPU contexts
+are absent and leases released. The pair charges 954.847 GPU seconds.
+The [actual-packet full-path readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-conditioned-reference-actual-fullpath-material-local-20261102/independent-array-readback-review.json)
+checks all eight 4,659-knot, six-phase paths under their original fixed current
+errors. Contact through stabilization remains positive for N/H+/H-/P; approach
+projection deficits, extra-angle physical negatives and unadopted 10 N positions
+remain. This numerical allocation charges 8.044 GPU seconds with owned cleanup.
+The next qualification needs actual robot movement and measured load support;
+stationary acquisition does not establish future uncertainty or full observed
+contact/source success.
+
+The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
+checks the only original recorded view with available common N/P selector choices,
+at 21 s. Both eligible P roots retain zero material cells under the original union
+operator, even when independent static-world depth proofs are queried after all
+ten views become available at 34 s. Exact causal-prefix control arrays match.
+The 21 s references and every view keep their own clocks; this is no earlier
+native initialization or later-data transplant. The separate maximum-of-individual-
+certificates probe is not the maintained union and supplies no new task support.
+D3-P actually initialized at 34.067 s in the earlier run, after the unsupported
+34 s sample. A terminal-view change alone therefore has no qualified full-task
+solution from these measured alternatives, and no new D3 native retry follows.
+
 A [finite matched native cost comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/admission-cost-matched-native-pair-20261101.json)
 uses one original D2 nominal setup on elab5, the same 780-command prefix including
 240 prescribed push commands, and unchanged recording/physical/observation/stop
