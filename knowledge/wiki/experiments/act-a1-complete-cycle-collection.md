@@ -1698,11 +1698,35 @@ passes all 76 cases at unchanged normal impedance, force and physical pulse
 reserve. It charges 7.038 GPU seconds and guarantees no native convergence or
 dynamic outcome. The [new finite native study](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-actual-scoped-10N-support-manifest-20261102.json)
 assigns every case and posture once across five hosts, splitting H- into disjoint
-subsets. All five owned GPU startups are verified; complete outcomes remain
-pending. This changes the shared planning/posture mechanism, while preserving
-the previous 80-case negative study and all fixture, physical, model and stop
-criteria. No global calibration domain, full observed motion, future uncertainty
-or complete source is adopted from these components.
+subsets. Its [independent complete qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-actual-scoped-10N-qualification-20261102.json)
+passes all 76 cases, 19 postures and 228 original continuous stop segments.
+Actual moving and loaded-stop boundaries, frozen residuals, physical/rate/
+acceleration/effort/feedback/clocks and same-latch joint/tool/fourteen-shape
+radial/directional/rotation gates all pass. All five whole payloads and three
+sidecars per host return locally with owned cleanup. Native jobs charge
+5,244.124 GPU seconds and independent GPU reviews 188.807 seconds. The prior
+80-case negative study, missing cases and charges remain unchanged. This is
+qualification of the declared coupled measured postures and task family, with
+no arbitrary Cartesian-box, global/default calibration or hardware claim.
+
+The [observed N/P prefix pair](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-observed-prefix-pair-manifest-20261102.json)
+uses two local recipes restricted to their exact qualified condition and setup.
+Only the verified empirical position-side widths and their 10 N force caps
+change; a larger pre-existing weak-force halo is never upgraded beyond its
+measured frontier. Original nominal support is unchanged, original unsupported
+future intervals become supported at 10 N, and excessive force, each outside
+position side, wrong condition and altered setup refuse. Global calibration,
+physical/residual/dynamic/stop/observation and success criteria remain unchanged.
+
+Each prospective native component retains the original inspection, 360 approach,
+180 contact and 240 actual push commands before an explicit controlled cutoff
+and original continuous six-second/fourteen-shape stops. The original required
+opening remains 50.146 degrees; four seconds of push cannot qualify that goal or
+a complete source. The 5,000 s case allowance follows the retained 780-command
+native cost protocol; the 75 s simulation allowance and scientific criteria stay
+fixed. N runs on Blackwell and P on elab2 under independently verified ownership.
+Both actual observed-motion outcomes remain pending. These components add no
+matrix attempt, source, windows, evolving uncertainty or full-task claim.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,

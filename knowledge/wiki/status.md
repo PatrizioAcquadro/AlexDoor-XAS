@@ -62,9 +62,12 @@ now independently qualify the changed starting posture, target parity, original
 future physical boxes and continuing stops. Their fresh material maps retain
 positive fixed-current-error model margins from contact through stabilization;
 approach projection deficits remain. Nineteen newly required measured joint-side
-postures define 76 distinct 10 N cases. All pass necessary static target
-feasibility; five native groups are running. Future uncertainty and full observed
-movement remain unqualified. D3-P's exact final inspection sample
+postures define 76 distinct 10 N cases. All now pass independent native moving,
+loaded-boundary, frozen-model and original 228 continuous stop-segment checks.
+Exact-condition/setup N/P recipes use only the qualified empirical position sides;
+force, position and scope boundary checks pass, with global calibration unchanged.
+Two observed N/P prefixes are running through approach, contact and four seconds
+of push. Future uncertainty and full observed movement remain unqualified. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
