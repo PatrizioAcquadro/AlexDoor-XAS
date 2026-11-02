@@ -1636,8 +1636,45 @@ uses twenty required joint-side extremal postures from those actual paths, with
 one original future allowance. Each posture has independent unloaded, center-load
 and two distal-face/yaw cases with the original fixture, model and continuing
 stop criteria. The eighty cases are assigned once across five hosts; H- has two
-disjoint posture subsets. Results remain pending. This study alone cannot adopt
-an arbitrary joint box, other postures, calibration or a full observed source.
+disjoint posture subsets. The [independent mixed-outcome review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-family105-scoped-10N-mixed-outcomes-20261102.json)
+retains 74 completed cases, one failed case and five unattempted cases. Four full
+groups independently qualify 64 cases; the incomplete H- group retains ten
+completed cases. All 225 recorded continuous stop segments, including the failed
+case, pass the original joint/tool/fourteen-shape criteria. Whole payloads and
+three sidecars per host return locally with owned cleanup. Native jobs charge
+5,105.654 GPU seconds. The incomplete study does not adopt a calibration domain,
+an arbitrary joint box or a full source.
+
+The failed H- lower wrist-X face-load case exhausts the fixture's reserved target
+interval. Independent static equilibrium over all eighty declared cases finds
+that fixed 10 Nm/rad wrist impedance needs target -0.969621 rad to balance the
+0.413376 Nm external torque, below the available -0.959431 rad lower target.
+The 10.190 mrad deficit cannot be corrected by longer convergence at unchanged
+targets. Actual feedback, frozen residuals and the original same-latch 2+4+2 s
+stops still pass. No unchanged case retry, force reduction, gain increase or
+physical-bound relaxation follows.
+
+A common corrective design reserves the signed static load-induced actuator
+travel across all four complete paths and declared load cases, then applies the
+original future physical reserve. It shifts the common initial elbow by
++20.322 mrad while retaining the original signed P perturbation. The
+[independent whole-path numerical review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-whole-task-design-local-v2-20261102/independent-wholepath-readback-review.json)
+passes all four original 4,659-knot, six-phase paths, including original pose,
+rate and future physical gates. Three extra-angle stress cases remain negative.
+An alternative orientation-independent lever-bound proposal also remains
+negative. A duplicated-input preparation error and its executed mathematical
+outputs are preserved separately; only the independently checked distinct-input
+measured-load proposal supports the new design claim. No load calibration,
+normal gains, force or acceptance criterion changes.
+
+The [prospective five-job qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-load-aware-native-and-stationary-manifest-20261102.json)
+partitions the four original native robot-only paths once across three hosts and
+acquires fresh stationary N/P observations on two others. The new initial arm
+posture invalidates reuse of the older stationary references for this proposal.
+Native paths retain 0.3 N diagnostic pressure, all original phases, achieved-pose
+release, held-target stabilization and the original eight-second stops. These
+jobs remain unqualified pending complete independent review; numerical or
+stationary results alone add no source, future uncertainty or 10 N support.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,

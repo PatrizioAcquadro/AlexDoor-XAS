@@ -50,8 +50,16 @@ frozen residual and original continuing-stop checks, but P's approach violates
 the future physical elbow bound. The fixture omitted the interior target reserve
 used by the design. The shared recipe-wiring correction now independently passes
 all four complete robot-only paths, including the original future physical boxes
-and continuing stops. Measured-posture verification at 10 N is underway; future
-uncertainty and full observed movement remain unqualified. D3-P's exact final inspection sample
+and continuing stops. The subsequent 80-case measured-posture study at 10 N
+retains 74 completed cases, one target-bound failure and five unattempted cases;
+all 225 recorded stop segments independently pass. It does not qualify the full
+study or a larger calibration domain. Fixed normal impedance needs a wrist target
+10.190 mrad below the available lower target to balance the failed load. A common
+load-aware target domain and 20.322 mrad common initial elbow shift pass the four
+original complete numerical paths with unchanged physical, force, pose and stop
+criteria. Fresh N/P observations and all four native paths are being qualified
+across five hosts; earlier observations cannot qualify the changed starting
+posture. Future uncertainty and full observed movement remain unqualified. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
