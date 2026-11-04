@@ -2203,18 +2203,54 @@ The [distinct causal-reference N/P observed transfer](../../../outputs/evidence/
 is dispatched once on Blackwell and elab2 after those prerequisites. It retains
 the original TRAIN assets, signed setups, ten inspection views, 360 approach,
 180 contact and 240 push commands, finite budgets and original 2+4 s/fourteen-shape
-stops. The actual runtime verifies 0.5 s feedback and causal-reference mode;
-all GPU contexts belong to the assigned process groups and canonical owner
-leases at the initial healthy check. Later native progress is unpolled. The
-unchanged finite-height perception implementation retains its prior producer
-qualification. A CPU metadata-reader field mismatch and full RGB-D preflight
-entry error are preserved in the run records; the existing Isaac entry resolves
-the runtime libraries before the only native launches. No dependency is installed.
-Finished-result readers are prepared and require whole transfer, actual owned
-cleanup, outcome routing, original load/clock/physical/stop review and actual RGB
-inspection. A controlled prefix cannot admit a source or training window. No raw
-recording or native sample payload goes outward. Contact, changing load and
-observed complete motion remain pending; the matrix stays 17/36.
+stops. Actual runtime verifies 0.5 s feedback and causal-reference mode. The
+metadata-reader and RGB-D entry errors remain preserved; the existing Isaac entry
+resolves the libraries before the only native launches. No raw recording or
+native sample payload goes outward. A controlled prefix cannot admit a source
+or training window.
+
+The [P negative qualification and shared diagnosis](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-P-negative-qualification-20261104.json)
+closes the actual refusal after 211 approach commands: 212 admission records
+include one undelivered rejection, 423 load packets retain the terminal check,
+and all 9,101 native feedback samples are healthy. Contact and all later phases
+are unattempted. Original raw/clocks/load masks, actual RGB, continuous
+six-second/fourteen-shape stops, all 38 original files plus three sidecars and
+actual owned cleanup independently pass. Native cost is 770.931 GPU seconds;
+the negative adds no matrix attempt, source or window.
+
+The exact saved shape-11 convex sweep/stop has a −1.080 mm whole-front margin
+at the original uncertainties. Its current CAD plane gap of 47.204 mm does not
+certify the uncertain future volume or establish a physical collision. The
+retained certificate is 83.333 ms old; the available 16.667 ms-old alternative
+has larger whole-root and witness-normal uncertainty, so forcing freshness is
+not a demonstrated correction. The original whole-root selection is reproduced.
+
+Original CUDA robot-occlusion masks and all ten native views reproduce the
+seed front models exactly across four D3/D4 observations. The new P seed has
+15,333 voxels and no protrusion layers; its already measured coplanar atlas has
+56,000 voxels and 9,466 protruding returns. Merely broadening that domain does
+not solve the complete proof: its best unchanged height-layer certificate still
+has negative spatial and normal margins. No broader domain is adopted. Current
+depth reobservation of atlas normal baselines leaves both P controls unchanged
+and improves the old N witness-normal bound by only 0.034 mm. Historical D3
+normal-selection reconstruction differs from its saved pose by 3.565 mm; that
+baseline stays unavailable rather than being treated as a successful control.
+The D3 front-model reconstruction is a separate, exact comparison.
+
+All diagnostic preparation failures and partial results remain retained. The
+first front-comparison allocation completes three D4 cases before an embedded
+remote D3 config path fails; only the unprocessed D3 case runs in the successor.
+Both owned GPU leases are cleaned; their total 28.287 GPU seconds remains
+charged. Saved-reader import/interface/serialization and historical readback
+failures are preserved separately. No collector is retried, and no source,
+recipe, calibration or physical/observation threshold changes follow.
+
+N remains pending after its last actual healthy, owned contact-phase check.
+The unchanged finite-height implementation retains its earlier component
+qualification. The next dependent attempt requires a demonstrated shared
+complete-motion observation/support correction; neither an individual failed
+point nor the diagnostic atlas comparison authorizes one. Actual contact,
+changing load and complete observed motion remain pending; the matrix is 17/36.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

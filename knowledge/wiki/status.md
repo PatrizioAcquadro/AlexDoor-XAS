@@ -185,11 +185,21 @@ common three-site measured pulse/stop frontiers update only the nine required
 condition/joint sides, preserving the prior 17-side support and every unrelated
 field. All eight complete histories, including every original future interval,
 pass at required 10 N across 156,768 scalar checks; 11 N and outside-frontier
-controls still refuse. Two distinct TRAIN N/P observed qualification prefixes
-are running once on Blackwell and elab2 with the actual 0.5 s feedback and causal
-reference flags verified. Original views, conditions, physical/model/force limits,
-finite budgets and independent stops remain. Actual contact, changing
-loads and complete-source qualification remain pending. D3-P's exact final inspection sample
+controls still refuse. The distinct causal-reference P observed prefix closes
+negative after 211 approach commands, before contact: the original complete
+finger sweep/stop cannot be certified. Raw/load clocks, actual RGB, original
+six-second/fourteen-shape stop, whole transfer and owned cleanup pass. The exact
+complete convex front margin is −1.080 mm; this does not establish a physical
+collision. Fresh-only certificate selection has larger whole-root uncertainty.
+The same ten views contain a much wider measured atlas, but extending the
+front-model domain alone still fails the original spatial/normal proof. Current
+atlas normal-baseline controls leave both P packets unchanged; a historical D3
+normal-control baseline mismatch remains unqualified. No source, recipe, bound
+or domain changes follow. N is healthy and owned at the last check, advancing
+through contact; its outcome remains pending without repeated polling. Original
+views, conditions, physical/model/force limits, finite budgets and independent
+stops remain. Actual contact, changing loads and complete-source qualification
+remain pending. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
