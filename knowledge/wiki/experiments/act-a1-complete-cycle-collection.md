@@ -1998,9 +1998,13 @@ fails as required. At the saved P query, the 16 mm layer gives a 43.221 mm front
 bound and +101.040 mm spatial exclusion, with every original error reserve
 retained. The original plane tolerance is 4 mm; an earlier unadopted interactive
 1 mm estimate is superseded, not used to qualify the model. These are fixed-domain
-geometric checks. Producer and remaining-receipt finite-domain revalidation,
-related complete motion and native qualification remain unimplemented or pending;
-no model or calibration is adopted. Four local allocations charge 38.288 GPU
+geometric checks. Optional producer and remaining-receipt finite-domain
+revalidation now retain every higher return and original global reserve. The
+new certificate rechecks complete normal separation as well as spatial root and
+higher-return exclusion, including loaded receipts; convex and outer-ball proofs
+remain distinct. Numerical boundary/perturbed/missing-normal controls and affected
+admission/session regressions pass. Actual saved full-producer, related complete
+motion and native qualification remain pending; no model or calibration is adopted. Four local allocations charge 38.288 GPU
 seconds, including both retained reader-preparation failures, with owned cleanup.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)

@@ -19,6 +19,7 @@ from alexdoor_xas.perception.contracts import FieldSupport, validate_local_conta
 from alexdoor_xas.perception.evaluation import json_safe
 from alexdoor_xas.perception.local_admission import (
     LocalActionSupport,
+    TargetFrontHeightExclusion,
     TargetReliefBox,
     TargetReliefExclusion,
     admit_local_action,
@@ -248,6 +249,7 @@ class PilotMotionEvidence:
         pending, covered = list(self.cells), []
         normal_spheres, normal_margins = [], []
         relief_spheres, relief_boxes = [], []
+        height_by_sphere, height_certificates = {}, []
         free_margin, separation, lever = np.inf, np.inf, 0.0
         nonseparated_cell = None
         contact_free_stop_margin = np.inf
@@ -320,6 +322,32 @@ class PilotMotionEvidence:
                 self.config["minimum_cell_m"],
                 self.config["maximum_cover_queries"],
             )
+
+        def height_certificate(sphere, box=None, *, vertices=(), reserve=0.0):
+            model = self.target_front_model
+            for layer in model.get("height_layers", ()):
+                spatial = TargetReliefExclusion(
+                    object_frame(candidate.initial_world),
+                    tuple(map(tuple, candidate.surface.basis[:, 1:])),
+                    tuple(layer["lower_m"]),
+                    tuple(layer["upper_m"]),
+                    (sphere,),
+                    (temporal_p, temporal_a),
+                    () if box is None else (box,),
+                    self.config["minimum_cell_m"],
+                    self.config["maximum_cover_queries"],
+                    tuple(map(tuple, model["height_layer_tangent_domain_m"])),
+                )
+                certificate = TargetFrontHeightExclusion(
+                    spatial,
+                    layer["front_extent_m"],
+                    self.config["normal_model_bound_m"],
+                    tuple(map(tuple, vertices)),
+                    reserve,
+                )
+                if certificate.margin(patch) > 0:
+                    return certificate
+            return None
 
         def count_query(center, radius, key):
             nonlocal checked
@@ -412,6 +440,14 @@ class PilotMotionEvidence:
                 )
                 if foreground is not None:
                     gap = front_gap
+                if foreground is None and model.get("height_layers"):
+                    sphere = (*center.tolist(), radius)
+                    height = height_certificate(sphere)
+                    if height is not None:
+                        # The SAME complete sphere, root and original point/
+                        # normal/motion reserves are proved here and on receipt.
+                        foreground = gap = height.margin(patch)
+                        height_by_sphere[sphere] = height
                 current = StaticWorkspaceSupport(None, True, False, ())
                 if (
                     foreground is None
@@ -583,6 +619,13 @@ class PilotMotionEvidence:
                 - error
                 - front
             )
+            height = None
+            if gap <= 0 and self.target_front_model.get("height_layers"):
+                height = height_certificate(
+                    sphere, spatial_box(cell, extra, domain), vertices=vertices, reserve=radius
+                )
+                if height is not None:
+                    gap = height.margin(patch)
             if gap <= 0:
                 return None
             count_query(center, domain_radius, (cell.shape, cell.path, "coupled_convex"))
@@ -601,6 +644,13 @@ class PilotMotionEvidence:
                 ball_gap = float(
                     (patch.world_pose.origin - center) @ normal - domain_radius - error - ball_front
                 )
+                # A complete convex height proof does not authorize the larger
+                # outer ball. Its foreground, finite root and height are fresh.
+                height = None
+                if ball_gap <= 0 and self.target_front_model.get("height_layers"):
+                    height = height_certificate(sphere)
+                    if height is not None:
+                        ball_gap = height.margin(patch)
                 if ball_gap <= 0:
                     return None
                 count_query(center, domain_radius, (cell.shape, cell.path, "coupled_outer_ball"))
@@ -617,6 +667,11 @@ class PilotMotionEvidence:
                     return None
                 diagnostics["coupled_outer_ball_proofs"] = (
                     diagnostics.get("coupled_outer_ball_proofs", 0) + 1
+                )
+            if height is not None:
+                height_by_sphere[sphere] = height
+                diagnostics["finite_height_front_proofs"] = (
+                    diagnostics.get("finite_height_front_proofs", 0) + 1
                 )
             if localized:
                 relief_by_sphere.add(sphere)
@@ -779,6 +834,8 @@ class PilotMotionEvidence:
                 if sphere in relief_by_sphere:
                     relief_spheres.append(sphere)
                     relief_boxes.append(spatial_box(cell, extra))
+                if sphere in height_by_sphere:
+                    height_certificates.append(height_by_sphere[sphere])
                 normal_spheres.append(sphere)
                 normal_margins.append(float(gap))
                 free_margin = min(free_margin, margin)
@@ -913,6 +970,7 @@ class PilotMotionEvidence:
             target_relief_exclusion=relief_certificate(relief_spheres, relief_boxes)
             if relief_spheres
             else None,
+            target_height_exclusions=tuple(height_certificates),
         )
         return admit_local_action(
             observation.estimate, proposal, evidence, limits, now, generation=observation.generation

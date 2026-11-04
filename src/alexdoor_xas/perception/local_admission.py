@@ -112,6 +112,8 @@ class TargetReliefExclusion:
     boxes: tuple[TargetReliefBox, ...] = ()
     minimum_cell_m: float | None = None
     maximum_queries: int | None = None
+    # An optional height layer is qualified only inside this entire observed root.
+    tangent_domain_m: tuple[tuple[float, float], tuple[float, float]] | None = None
 
     def margin(self, patch, *, remaining_fraction=1.0):
         checked_pose(self.reference_pose)
@@ -140,6 +142,15 @@ class TargetReliefExclusion:
             or not 0 <= remaining_fraction <= 1
         ):
             raise ValueError("invalid_target_relief_exclusion")
+        domain = getattr(self, "tangent_domain_m", None)
+        if domain is not None:
+            domain = np.asarray(domain, dtype=float)
+            if (
+                domain.shape != (2, 2)
+                or not np.isfinite(domain).all()
+                or np.any(domain[0] >= domain[1])
+            ):
+                raise ValueError("invalid_target_relief_domain")
         from alexdoor_xas.perception.material_zone import pose_matrix
 
         boxes = getattr(self, "boxes", ())
@@ -170,6 +181,9 @@ class TargetReliefExclusion:
             tangent = mapped @ basis
             distance = np.linalg.norm(np.maximum(lower - tangent, np.maximum(tangent - upper, 0)))
             margin = float(distance - scale * (radius + error + future))
+            if domain is not None:
+                inside = np.min(np.minimum(tangent - domain[0], domain[1] - tangent))
+                margin = min(margin, float(inside - scale * (radius + error + future)))
             if margin <= 0 and boxes:
                 axes, lo, hi, reserve = parameters[index]
                 project = basis.T @ mapping[:3, :3] @ axes
@@ -193,6 +207,13 @@ class TargetReliefExclusion:
                         np.maximum(lower - tangent - span, np.maximum(tangent - span - upper, 0))
                     )
                     cell_margin = float(distance - scale * (reserve + error + future))
+                    if domain is not None:
+                        inside = np.min(
+                            np.minimum(tangent - span - domain[0], domain[1] - tangent - span)
+                        )
+                        cell_margin = min(
+                            cell_margin, float(inside - scale * (reserve + error + future))
+                        )
                     if not np.isfinite(cell_margin):
                         raise ValueError("invalid_target_relief_box")
                     if cell_margin > 0:
@@ -214,6 +235,78 @@ class TargetReliefExclusion:
         if margin <= 0:
             error = ValueError("target_relief_exclusion_exhausted")
             error.decision = dict(target_relief_margin_m=margin)
+            raise error
+        return margin
+
+
+@dataclass(frozen=True)
+class TargetFrontHeightExclusion:
+    """One fixed observed height layer over the same complete physical volume.
+
+    Recheck both finite spatial eligibility and normal separation, including on
+    loaded receipts. A convex proof never establishes free space for its ball.
+    """
+
+    spatial: TargetReliefExclusion
+    front_extent_m: float
+    normal_model_bound_m: float
+    vertices_world: tuple[tuple[float, float, float], ...] = ()
+    radius_m: float = 0.0
+
+    def margin(self, patch, *, remaining_fraction=1.0):
+        spatial = self.spatial.margin(patch, remaining_fraction=remaining_fraction)
+        front = nonnegative(self.front_extent_m, "invalid_target_front_height")
+        model = nonnegative(self.normal_model_bound_m, "invalid_target_front_height")
+        reserve = nonnegative(self.radius_m, "invalid_target_front_height")
+        spheres = np.asarray(self.spatial.spheres, float)
+        vertices = np.asarray(self.vertices_world, float)
+        if self.spatial.tangent_domain_m is None or len(spheres) != 1:
+            raise ValueError("missing_target_front_height_domain")
+        center, radius = spheres[0, :3], spheres[0, 3]
+        normal = patch.world_pose.rot[:, 0]
+        if vertices.size:
+            if (
+                vertices.ndim != 2
+                or vertices.shape[1:] != (3,)
+                or not np.isfinite(vertices).all()
+                or np.max(np.linalg.norm(vertices - center, axis=1)) + reserve
+                > np.nextafter(radius, np.inf)
+            ):
+                raise ValueError("invalid_target_front_height_volume")
+            foremost = float((vertices @ normal).max() + reserve)
+        else:
+            if reserve != 0 or vertices.shape != (0,):
+                raise ValueError("invalid_target_front_height_volume")
+            foremost = float(center @ normal + radius)
+        lever = np.linalg.norm(center - patch.world_pose.origin) + radius
+        if patch.normal_uncertainty_sources:
+            from alexdoor_xas.perception.material_zone import normal_uncertainty_terms
+
+            error = sum(
+                normal_uncertainty_terms(
+                    patch.normal_uncertainty_sources, center[None], radius
+                ).values()
+            )
+        else:
+            error = nonnegative(
+                patch.normal_position_bound_m, "invalid_target_front_height_uncertainty"
+            ) + lever * nonnegative(
+                patch.normal_rotation_bound_rad, "invalid_target_front_height_uncertainty"
+            )
+        if not np.isfinite(error) or error < 0:
+            raise ValueError("invalid_target_front_height_uncertainty")
+        motion = self.spatial.interval_motion_m_rad
+        future = remaining_fraction * (motion[0] + lever * motion[1])
+        normal_margin = float(
+            patch.world_pose.origin @ normal - foremost - error - model - front - future
+        )
+        return min(spatial, normal_margin)
+
+    def require(self, patch, *, remaining_fraction=1.0):
+        margin = self.margin(patch, remaining_fraction=remaining_fraction)
+        if margin <= 0:
+            error = ValueError("target_front_height_exhausted")
+            error.decision = dict(target_front_height_margin_m=margin)
             raise error
         return margin
 
@@ -263,6 +356,7 @@ class LocalActionSupport:
     # Re-prove spatial target exclusion for localized panel certificates,
     # independently of normal-only separation and finite contact receipts.
     target_relief_exclusion: TargetReliefExclusion | None = None
+    target_height_exclusions: tuple[TargetFrontHeightExclusion, ...] = ()
 
 
 def _local_error_terms(patch, evidence, limits, now, duration):
@@ -393,6 +487,8 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
                 raise ValueError("invalid_material_normal_range")
         if evidence.target_relief_exclusion is not None:
             evidence.target_relief_exclusion.require(patch)
+        for certificate in getattr(evidence, "target_height_exclusions", ()):
+            certificate.require(patch)
         sweep_margin = evidence.swept_collision_margin_m
         free_margin = evidence.unloaded_separation_margin_m
         if free_margin is not None:
@@ -527,10 +623,12 @@ def require_current_local_admission(admission, estimate, now):
         raise ValueError("missing_local_sweep_evidence")
     evidence = admission.local_evidence
     elapsed = now - admission.proposal.times_s[0]
+    start, end = admission.proposal.times_s
+    fraction = min(1.0, max(0.0, (end - now) / (end - start)))
     if evidence.target_relief_exclusion is not None:
-        start, end = admission.proposal.times_s
-        fraction = min(1.0, max(0.0, (end - now) / (end - start)))
         evidence.target_relief_exclusion.require(patch, remaining_fraction=fraction)
+    for certificate in getattr(evidence, "target_height_exclusions", ()):
+        certificate.require(patch, remaining_fraction=fraction)
     displacement = np.linalg.norm(patch.world_pose.origin - before.world_pose.origin)
     rotation = Rotation.from_matrix(patch.world_pose.rot @ before.world_pose.rot.T).magnitude()
     if (

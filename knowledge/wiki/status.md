@@ -111,7 +111,9 @@ whole transfer and owned cleanup pass. All measured foreground remains retained.
 An unadopted spatial height envelope keeps the original global height reserve
 and tangent padding; complete fixed TRAIN collider checks pass on the D4-P,
 D4-N and D3-N observations with independent surface and solid-polytope methods.
-Complete finite-domain producer/receipt revalidation and related full motion
+Optional finite-domain producer/receipt software now rechecks complete spatial
+and normal support with the original reserves, including loaded receipts.
+Numerical controls pass; actual saved-producer and related native qualification
 remain required before use. The distinct N whole-motion probe at the original
 required 10 N load then fails the opening endpoint: actual position error is
 87.570 mm against the original 10 mm limit. Target FK error is 5.574 mm, while

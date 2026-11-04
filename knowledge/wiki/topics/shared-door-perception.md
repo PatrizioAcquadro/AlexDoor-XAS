@@ -530,6 +530,25 @@ the complete query's pose/motion/stop errors. Missing protrusion bounds remain
 unavailable and do not certify an empty region. Target-model coverage and actual
 full-motion admission require independent qualification.
 
+The optional geometry-recipe flag `front_height_layers` defaults to false. When
+true, the observed front model also publishes nested voxel-height layers within
+the original finite root tangent domain. Every layer retains all higher returns,
+including disconnected foreground, the original global tangent padding and the
+original additive global height reserve. It does not infer empty unseen regions
+or qualify hidden attachments outside the independently validated pilot domain.
+With the flag absent, the original front-model fields and behavior are unchanged.
+
+The producer can use a layer only after `TargetFrontHeightExclusion` proves the
+same complete sphere or convex motion/stop enclosure inside that finite root,
+outside the padded higher-return rectangle and behind its normal front bound.
+Full point and normal uncertainty, material motion, robot and stop reserves remain.
+The certificate rechecks both normal separation and spatial eligibility at initial
+admission and for the remaining interval of loaded or unloaded receipts. A convex
+certificate does not authorize its larger enclosing ball; that ball requires its
+own complete proof. Original global proofs remain available when no layer applies.
+Numerical boundary, uncertainty, missing-measurement and interface regressions
+pass; actual saved-producer and native transfer qualification remain separate.
+
 ## Resolution of whole-robot separation proofs
 
 A positive enclosing-ball margin can be dominated by the ball's excess over the

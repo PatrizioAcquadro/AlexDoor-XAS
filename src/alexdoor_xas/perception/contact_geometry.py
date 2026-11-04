@@ -128,7 +128,7 @@ def observed_front_extent(surface, views, config):
         )
         tangent_lower = (tangent.min(0) - reserve).tolist()
         tangent_upper = (tangent.max(0) + reserve).tolist()
-    return dict(
+    model = dict(
         protrusion_tangent_lower_m=tangent_lower,
         protrusion_tangent_upper_m=tangent_upper,
         observed_protrusion_voxels=int(protruding.sum()),
@@ -138,3 +138,29 @@ def observed_front_extent(surface, views, config):
         observed_voxels=len(points),
         rigid_connected_voxels=int(connected.sum()),
     )
+
+    enabled = config.get("front_height_layers", False)
+    if type(enabled) is not bool:
+        raise ValueError("invalid_front_height_layers_option")
+    if enabled:
+        # Every level keeps the ORIGINAL global height reserve and tangent pad.
+        # All higher returns, including disconnected foreground, remain present.
+        layers = []
+        if protruding.any():
+            heights = surface.offset - coordinate
+            tangent = (points @ basis)[:, 1:]
+            height_reserve = bound - measured
+            for level in np.arange(config["voxel_m"], measured, config["voxel_m"]):
+                higher = heights > level
+                layers.append(
+                    dict(
+                        observed_height_level_m=float(level),
+                        front_extent_m=float(level + height_reserve),
+                        higher_return_voxels=int(higher.sum()),
+                        lower_m=(tangent[higher].min(0) - reserve).tolist(),
+                        upper_m=(tangent[higher].max(0) + reserve).tolist(),
+                    )
+                )
+        model["height_layers"] = layers
+        model["height_layer_tangent_domain_m"] = [lower[1:].tolist(), upper[1:].tolist()]
+    return model
