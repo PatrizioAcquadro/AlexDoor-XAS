@@ -241,9 +241,13 @@ compression. Moving/stopped model residuals, physical future bounds and the
 original eight-second/fourteen-shape stops pass, while empirical position support
 also fails. The complete saved-history compliance audit predicts 5.272 mm at
 that witness, consistent with finite stiffness losing constant-load rejection;
-it is not a dynamic stability proof. Four other declared qualifications remain
-running at their last check. Native door and observed-source successors stay
-suspended pending a shared correction and complete native requalification.
+it is not a dynamic stability proof. N/H+/P zero-load complete paths and original stops now independently pass their
+component scope. All three paired 10 N cases fail the original 1 mm ramp gate
+and empirical position support, with normal errors 5.22–5.75 mm; their physical,
+frozen-residual and original stop checks pass. Only the declared H- pair remains
+pending at its last owned healthy check. Native door and observed-source
+successors stay suspended pending a shared correction and complete native
+requalification.
 P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning

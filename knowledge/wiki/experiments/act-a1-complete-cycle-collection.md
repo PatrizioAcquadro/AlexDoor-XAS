@@ -2391,8 +2391,8 @@ three-sidecar transfer and actual owned cleanup are verified. Original frozen
 moving/stopped model residuals, current/future physical boxes and all three
 one-latch 2+4+2 s/fourteen-shape stops pass. Empirical current and original future
 position support fail in 1,815 and 2,095 samples respectively; no failed-point
-extension follows. Four other declared full-path qualifications remain running
-at their last check and are left undisturbed.
+extension follows. The other declared full-path qualifications were left running at that check;
+the subsequent six-case reconciliation below preserves their actual outcomes.
 
 The [shared complete-history compliance audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-finite-normal-complete-original-compliance-diagnostic-20261104.json)
 uses all eight original complete native histories and their recorded stiffness.
@@ -2404,6 +2404,17 @@ stability nor selects a new gain. A shared causal compliance/load correction and
 complete related-condition qualification are required. No native door attempt,
 observed source, calibration or criterion change follows from the candidate.
 The family remains unadopted while its other declared outcomes are pending.
+
+The [reconciled six-case readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-compliance-six-reviewed-two-pending-20261104.json)
+independently closes the N/H+/P complete zero-load paths and all original stops
+positive in their component scope. H+/P's paired 10 N ramps also fail, at normal
+errors 5.219 and 5.750 mm, with negative original 1 mm margins and empirical
+position-support exits. Their original frozen moving/stopped residuals, physical
+current/future boxes and one-latch eight-second/fourteen-shape stops pass. The
+complete mixed recordings remain unchanged; zero-load results do not promote
+the failed loaded cases. Six declared cases are reviewed; only H-'s original
+zero/ten pair remains pending at its last owned healthy check. No native source,
+calibration or controller adoption follows.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture
