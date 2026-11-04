@@ -1938,15 +1938,20 @@ its complete successful result before a post-write self-copy error; independent
 readback retains that error and verifies the saved report. Charges are
 7.035 + 55.824 GPU seconds with owned cleanup. Neither control actuates a command.
 
-One [distinct P native component qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-bounded-certificate-P-observed-prefix-manifest-20261104.json)
-is dispatched from source `f63b65b` on elab2 after fresh archive, exact UUID/owner,
-capacity and actual-runtime constructor checks. It retains the original ten-view
-inspection, 360 approach/180 contact/240 actual push endpoint, original limits,
-measured 10 N scope and independent 2+4 s stops. No old frame is transplanted.
-Only the shared bounded-certificate mechanism changes. N is not relaunched while
-its separate future-wrist support failure remains unresolved. Full motion,
-related-condition and complete-source qualification remain pending; counts stay
-17/36 with no added source or windows.
+The [distinct bounded-certificate P component](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-bounded-certificate-P-negative-qualification-20261104.json)
+finishes negative from source `f63b65b` on elab2 after nine approach deliveries,
+ten admission records including one undelivered refusal, nineteen load packets
+and 8,293 healthy feedback samples. No contact or push is reached. Original
+raw/load/clocks, actual RGB, six-second/fourteen-shape stops, whole 38-file plus
+three-sidecar transfer and owned cleanup pass; 422.278 GPU seconds are retained.
+The final certificate is current and only 16.667 ms old, with no earlier
+certificate retained at this packet. The complete positive-finger query has
++36.744 mm finite planar coverage, but -9.830 mm whole-front separation and
+-58.295 mm relief exclusion. Unknown space stays unknown. Baseline/current
+reconstraint on this same publication agree exactly; a two-ULP diagnostic
+angular recomputation discrepancy changes no physical or calibration bound.
+Full motion, related-condition and complete-source qualification remain pending;
+counts stay 17/36 with no added source or windows.
 
 An [independent saved-native position-domain audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-whole-motion-position-domain-audit-20261104/independent-readback-review.json)
 checks all 78,384 recorded samples from the four complete N/H+/H-/P 0.3 N
@@ -1966,8 +1971,71 @@ Clipping targets merely to that measured box would therefore neither change the
 four saved paths nor prevent this refusal. Any prospective control correction
 must jointly preserve full-path tracking, force-compliance target offsets and
 complete future/stop support across the original conditions. No new speed
-invariant, empirical extension, target recipe or N retry is adopted. The ongoing
-P qualification remains independent of this saved-array audit.
+invariant, empirical extension, target recipe or unchanged observed N retry is
+adopted. The independently closed P negative above remains separate from this
+saved-array audit.
+
+The [fresh-negative whole-path readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-bounded-certificate-fresh-N-P-wholepath-stress-local-20261104/independent-array-readback-review.json)
+retains all eight 4,659-tick/six-phase ideal paths with the actual latest N/P
+observed covers. Full-finger approach deficits remain about 15.480 mm in N/H
+and 24.888 mm in P, while fixed-current-error contact-to-stabilization margins
+remain positive. Original extra-angle physical negatives also remain. Frozen
+observations and legacy diagnostic limits do not establish future moving scene,
+normal, contact, load, stopping or source qualification.
+
+The [original P front reconstruction](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-bounded-certificate-P-front-coverage-local-20261104/audit.json)
+exactly reproduces all ten views and 34,669 observed voxels. All 3,058 protrusion
+voxels and disconnected foreground remain. Even a union of individually padded
+returns fails the original complete relief exclusion. A different, unadopted
+height-layer model retains the same global tangent padding and additive height
+reserve, and localizes only the higher returns for each measured height level.
+Its use must be restricted to a completely supported finite observed root.
+The [whole-root surface audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-height-layers-whole-root-collider-audit-20261104/review.json)
+and [independent solid-polytope optimization](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-D4-height-layers-whole-root-collider-audit-20261104/independent-solid-polytope-readback.json)
+pass all 35 candidate layers across the actual D4-P, D4-N and D3-N scenes against
+their complete fixed TRAIN collision surfaces. An unseen high-attachment control
+fails as required. At the saved P query, the 16 mm layer gives a 43.221 mm front
+bound and +101.040 mm spatial exclusion, with every original error reserve
+retained. The original plane tolerance is 4 mm; an earlier unadopted interactive
+1 mm estimate is superseded, not used to qualify the model. These are fixed-domain
+geometric checks. Producer and remaining-receipt finite-domain revalidation,
+related complete motion and native qualification remain unimplemented or pending;
+no model or calibration is adopted. Four local allocations charge 38.288 GPU
+seconds, including both retained reader-preparation failures, with owned cleanup.
+
+The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
+finishes negative on elab4. It uses the qualified frozen physical fixture
+`d0281c4`, the same common initial posture, target reservation and gains, and
+requests all 4,659 original six-phase commands with achieved staged release,
+held stabilization and original continuing stops. This differs from the
+completed 0.3 N paths and short joint-side pulses; the N empirical boundary is
+not extended by its earlier 26-microradian deficit.
+
+The [independent negative review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab4/D4-complete-moving-10N-N-elab4-20261104/complete-negative-qualification-review.json)
+retains 15,996 healthy native samples through the complete approach, ramp and
+opening. Approach/ramp endpoints pass. At the frozen original opening endpoint,
+actual position error is 87.570 mm and orientation error 0.130285 rad, exceeding
+the unchanged 10 mm/5 degree limits. Hold, release and stabilization remain
+unavailable. All moving/stop frozen residuals, actual current/future physical
+limits, feedback, speed and acceleration checks pass, with no effort saturation.
+The original continuous 2+4+2 s/fourteen-shape stops independently pass against one
+original latch; their 1,920 native samples are retained. Whole 19-file plus
+three-sidecar transfer and actual owned cleanup pass. The native allocation
+charges 209.582 GPU seconds and its independent CUDA review 9.050 seconds.
+
+The [whole-motion mechanism readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab4/D4-complete-moving-10N-N-elab4-20261104/whole-motion-mechanism-diagnosis.json)
+separates a 5.574 mm target-FK endpoint error from 87.982 mm actual-to-target
+motion. Shoulder-X target/position difference reaches 127.943 mrad at that
+endpoint; the gripper command occupies its upper target bound for 5,416 native
+samples. These observations identify loaded tracking and limited command freedom
+without proving a particular controller repair. The next shared correction must
+jointly address measured load/compliance, target reserves and all original
+N/H+/H-/P complete paths, preserving physical/model/future/pose/stop criteria.
+The composed center-site load is a robot-only intervention, with no observed
+door contact or full-source success. All dependent unchanged native attempts
+remain suspended. The first preflight used the workstation runtime path; that
+zero-launch setup failure is retained, and the actual elab4 runtime passed before
+the sole launch. No calibration domain, source, window or matrix cell is added.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,

@@ -104,10 +104,25 @@ and twelve exact single-publication controls. Two reconstructed prior P
 publication controls pass their saved response without renewing acquisition;
 unknown original model-pair counts remain unavailable. Actual CUDA full-producer and eight complete fixed-current-error path controls
 pass, preserving prior physical/approach negatives and excessive-error refusals.
-One distinct P native qualification is dispatched with the original ten views,
-780-command endpoint and independent stops. N remains suspended on unresolved
-future wrist support. Full native movement and related-condition qualification
-are still required; full-source attempts remain suspended. D3-P's exact final inspection sample
+The distinct P native component finishes negative after nine approach commands:
+a fresh current certificate leaves a complete finger sweep unsupported, despite
+positive finite planar coverage. Raw/load/clocks, actual RGB, original stops,
+whole transfer and owned cleanup pass. All measured foreground remains retained.
+An unadopted spatial height envelope keeps the original global height reserve
+and tangent padding; complete fixed TRAIN collider checks pass on the D4-P,
+D4-N and D3-N observations with independent surface and solid-polytope methods.
+Complete finite-domain producer/receipt revalidation and related full motion
+remain required before use. The distinct N whole-motion probe at the original
+required 10 N load then fails the opening endpoint: actual position error is
+87.570 mm against the original 10 mm limit. Target FK error is 5.574 mm, while
+actual-to-target displacement is 87.982 mm and the gripper command reaches its
+upper target bound. Physical/future limits, frozen model residuals and original
+eight-second/fourteen-shape stops pass; hold, release and stabilization remain
+unavailable. Whole transfer and owned cleanup pass. This separates loaded plant
+tracking from geometric target feasibility; the next correction must preserve
+complete motion and the original related conditions. N's observed future-wrist
+failure also remains unresolved. No new source, calibration domain or matrix
+cell is admitted; dependent full-source attempts remain suspended. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
