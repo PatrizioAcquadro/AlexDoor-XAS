@@ -34,6 +34,34 @@ def _orthogonal_rotation_bound(first, second):
     return float(2 * np.arcsin(min(1.0, sine)))
 
 
+def _normal_span_bound(points, normal, first, error):
+    """Bound normal tilt from two measured chords spanning the planar core.
+
+    For the true unit normal m and either chord d, |m.d| <= 2*error.
+    Writing m = tangent*p + c*normal gives |B*p| <= 2*error + |d.normal|.
+    The largest norm over that two-dimensional box bounds sin(tilt), without
+    independent errors. The caller must establish the original hemisphere.
+    """
+    first = first - normal * (first @ normal)
+    length = np.linalg.norm(first)
+    if length == 0:
+        return np.pi / 2
+    first /= length
+    tangent = np.column_stack((first, np.cross(normal, first)))
+    chords = []
+    for direction in tangent.T:
+        coordinate = points @ direction
+        chords.append(points[coordinate.argmax()] - points[coordinate.argmin()])
+    chords = np.asarray(chords)
+    matrix = chords @ tangent
+    if np.linalg.det(matrix) == 0:
+        return np.pi / 2
+    allowance = 2 * error + np.abs(chords @ normal)
+    corners = np.asarray([[-1, -1], [-1, 1], [1, -1], [1, 1]]) * allowance
+    sine = np.linalg.norm(np.linalg.solve(matrix, corners.T).T, axis=1).max()
+    return float(np.arcsin(min(1.0, sine)))
+
+
 def observed_basis(surface, point_error_m, *, normal_points=None):
     """Bound a plane/edge basis using finite baselines, not fit residual alone.
 
@@ -99,7 +127,12 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
         triangle_normal = cross / area
         if triangle_normal @ normal < 0:
             triangle_normal = -triangle_normal
-        normal_bounds.append(_angle(normal, triangle_normal) + np.arcsin(perturbation / area))
+        bound = _angle(normal, triangle_normal) + np.arcsin(perturbation / area)
+        if bound < np.pi / 2:
+            # Retain the complete core's error and original triangle conditioning.
+            # Independent measured spans can tighten its conservative cross bound.
+            bound = min(bound, _normal_span_bound(points, normal, v, error))
+        normal_bounds.append(bound)
     if not normal_bounds:
         raise ValueError("unconditioned_observed_plane")
     normal_bound = min(normal_bounds)

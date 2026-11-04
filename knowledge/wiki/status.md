@@ -80,9 +80,15 @@ load, actual RGB and original stops pass; whole transfer and cleanup are verifie
 A shared two-axis geometric rotation bound passes numerical, recorded D3/D4,
 CUDA full-path and full-producer controls. It revalidates P's exact saved response
 while preserving excessive-uncertainty refusal and the independent new N failure.
-One distinct P prefix now runs on elab2; further N attempts stay suspended pending
-normal-bound/acquisition correction. Full observed movement and evolving
-uncertainty remain unqualified. D3-P's exact final inspection sample
+The distinct P prefix also finishes negative after 98 approach commands: current
+pose uncertainty exhausts the target-relief exclusion by 0.707 mm. Raw/load/clock,
+actual RGB, original six-second/fourteen-shape stops, whole transfer and cleanup
+pass. A shared measured-plane span certificate keeps the complete core's metric
+error and original triangle conditioning/hemisphere checks. Numerical and ten
+recorded D3/D4 state controls pass, including exact N/P response renewal and
+excessive-error refusal; actual CUDA and prospective native qualification remain
+pending. Dependent N/P attempts stay suspended. Full observed movement and
+evolving uncertainty remain unqualified. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

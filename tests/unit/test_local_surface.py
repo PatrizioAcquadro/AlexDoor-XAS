@@ -432,3 +432,43 @@ def test_basis_certificate_covers_joint_normal_and_edge_measurement_errors(angle
     np.testing.assert_allclose(other, basis, atol=1e-12, rtol=0)
     assert 0 < other_normal <= other_bound < np.pi / 2
     assert Rotation.from_matrix(other @ truth.T).magnitude() <= other_bound
+
+
+@pytest.mark.parametrize("width", [0.12, 0.4, 1.0])
+@pytest.mark.parametrize("error", [0.001, 0.004])
+def test_normal_spans_cover_adversarial_metric_errors_without_statistical_credit(width, error):
+    truth = Rotation.from_euler("zyx", [0.3, -0.1, 0.07]).as_matrix()
+    y, z = np.meshgrid(np.linspace(-width / 2, width / 2, 23), np.linspace(-0.4, 0.4, 31))
+    ideal = np.c_[np.zeros(y.size), y.ravel(), z.ravel()]
+    # Every error may be correlated and at the metric limit. More points do not
+    # supply a sqrt(N) reduction, and the measured fitted normal need not be true.
+    noise = error * np.sign(ideal[:, 1] + 0.4 * ideal[:, 2])
+    measured = (ideal + noise[:, None] * [1, 0, 0]) @ truth.T + [1, 0, 0]
+    center = measured.mean(0)
+    _, _, vt = np.linalg.svd(measured - center, full_matrices=False)
+    normal = vt[-1]
+    normal *= 1 if normal @ truth[:, 0] > 0 else -1
+    observed = SimpleNamespace(
+        points=measured,
+        normal=normal,
+        offset=float(center @ normal),
+        edge_points={"width_0": measured.reshape(31, 23, 3)[:, 0]},
+    )
+    _, _, bound = observed_basis(observed, error)
+    expected = np.arccos(np.clip(normal @ truth[:, 0], -1, 1))
+    assert expected <= bound
+    original = observed.points.copy()
+    # A conservative span certificate also covers repeated, fully correlated
+    # points; neither density nor order constitutes independent evidence.
+    observed.points = np.repeat(original[::-1], 3, axis=0)
+    _, _, repeated = observed_basis(observed, error)
+    assert expected <= repeated
+    assert repeated == pytest.approx(bound)
+
+
+def test_normal_spans_tighten_conditioned_plane_without_erasing_point_error():
+    observed = surface(np.eye(3), np.array([1, 0, 0]))
+    _, _, bound = observed_basis(observed, 0.001)
+    assert 0.001 < bound < 0.003
+    _, _, larger = observed_basis(observed, 0.004)
+    assert larger > bound

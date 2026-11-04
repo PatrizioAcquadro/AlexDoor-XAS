@@ -601,6 +601,25 @@ uncertainty growth; a convex collision proof does not certify free space for its
 larger ball. Numerical and saved-response checks are distinct from native full-
 motion, related-condition and source qualification.
 
+## Measured plane normal spans
+
+The current planar core can supply two independent spanning-chord constraints on
+the same normal. With true unit normal m and metric point error e, each measured
+chord d obeys |m.d| <= 2e. Write m = T p + c n using the measured unit normal n
+and orthonormal tangent basis T. Then |B p| <= 2e + |d.n| for the two chords,
+because |c| <= 1. The largest norm of B inverse applied to the four box corners
+bounds sin(tilt). The original triangle certificate must first establish the
+hemisphere; singular projected spans retain its earlier conservative bound.
+
+The extents use only the same measured planar core and its complete original
+metric/model error. This is a deterministic bound with fully correlated errors;
+point density supplies no statistical reduction. Original conditioning, edge,
+identity, ambiguity, complete native-pair residuals, model/calibration/temporal
+sources and normal/full-pose consumers remain. Alternative certificates can
+improve the shared bound without selecting a smaller residual subset or changing
+physical tolerances. Numerical and recorded-state controls are separate from
+prospective native motion and full-source qualification.
+
 ## Contact normal error origins
 
 The local plane constraint preserves the current measured plane centroid and its

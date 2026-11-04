@@ -1801,12 +1801,37 @@ Further N attempts stay suspended while this common acquisition/normal mechanism
 is diagnosed.
 
 A [single distinct P observed prefix](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-two-axis-P-observed-prefix-manifest-20261102.json)
-now runs on elab2 with source `da61c0d`, the proven geometric certificate and only
-the previously qualified three-site 10 N pulse support. It retains exact setup,
-ten original inspection views, 360 approach/180 contact/240 push commands, original
-stops, fixed goal and finite budget. This is prospective component qualification;
-full evolving uncertainty/contact/material/scene and actual native outcome remain
-pending. No full source, matrix attempt or windows are added.
+finishes negative on elab2 with source `da61c0d` after 98 approach commands,
+197 load packets and 8,649 healthy native feedback samples, before contact or
+push. The original complete target-relief exclusion has +9.266 mm at admission,
++13.123 mm for the same old remaining interval, and -0.707 mm after the new pose
+update. Current position/rotation bounds grow from 18.764 mm/0.036067 rad to
+35.432 mm/0.049323 rad. The [exact saved-response attribution](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D4-two-axis-P-observed-780prefix-elab2-20261102/exact-target-relief-response-diagnosis.json)
+preserves every enclosure, error source and refusal. Raw/clock/load, actual RGB
+and original continuous six-second/fourteen-shape stops pass. All 38 original
+files and three sidecars return with actual owned process/GPU absence and lease
+release; 420.414 GPU seconds remain charged. Two adapted readers fail only on an
+unnecessary self-copy after saving their complete results; original scripts and
+outputs are retained, the self-copy is removed and the saved results independently
+read back. No simulation or scientific gate changes.
+
+A shared measured-plane normal certificate uses two measured spanning chords of
+the same planar core. If true normal m has bounded metric point error e, each
+chord d satisfies |m.d| <= 2e. Decomposing m into the measured normal and its two
+tangent coordinates gives a two-dimensional box whose four corners bound normal
+tilt. This requires no independent errors or small-angle approximation. The
+complete core's original error, original triangle conditioning/hemisphere,
+straight-edge, all native pairs, physical/model/calibration/time and downstream
+normal/pose gates remain. A first triangle-only construction still leaves the
+retained N response negative by 0.053 mm; that negative design is preserved.
+Independent normal/tangent extents provide a stronger general certificate.
+[Ten original D3/D4 publication controls](../../../outputs/evidence/act-a1-complete-cycle-20261026/normal-span-actual-D3-D4-state-controls-20261104/review.json)
+retain native poses/pairs and improve whole-root point-error certificates. Both P
+responses and the corrected N exact saved response renew, while excessive
+consumed uncertainty refuses. Correlated metric-limit numerical perturbations
+also pass. These are static software/geometry controls; actual CUDA producer,
+complete-path controls and future observed native motion remain pending. No
+unchanged N/P retry, source, matrix attempt or windows are added.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
