@@ -456,6 +456,26 @@ pressure-v2 D2-RP and D1-H- sources independently pass their complete native,
 variation/recovery, stop, visual and temporal reviews. Transfer beyond those
 conditions remains a separate requirement.
 
+An optional teacher-only `normal_force_lead_s` now forms a pressure-control
+signal from the current completed native interval and its preceding sample:
+`F_control = F + T * (F - F_previous) / elapsed`. The first sample uses its
+measured force unchanged, acquisition clears the history, and episode/stop
+lifetime prevents cross-episode reuse. Positive lead requires explicit
+`native_interval_mean` feedback; zero preserves the prior controller. The
+signal is recorded separately from measured force and never enters load or
+contact qualification. Existing rate/extent limits still bound its command.
+
+For an ideal first-order pose servo with time constant tau, contact stiffness k
+and integral pressure gain g, choosing T=tau factors the nominal characteristic
+as `(tau*s + 1)*(s + g*k)`. This supplies a shared candidate without fitting a
+failed contact point or changing force targets/gain. Scalar perturbed-compliance
+controls and exact saved-command feedback readback pass; nonlinear native
+N/H+/H-/P complete motion, residuals, physical contact and original stops remain
+required. The observed causal-reference N negative establishes real contact,
+then loses it after 93 push deliveries; its correct independent contact latch
+and all prior outcomes remain preserved. No observed source is qualified by
+this numerical controller result.
+
 The prospective guarded controller reserves one-shot geometric gap recovery for
 zero native force with separation beyond the setup's existing contact-gap
 tolerance. Inside that tolerance, ordinary force-error admittance remains active;

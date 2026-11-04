@@ -695,3 +695,47 @@ def test_push_pressure_target_is_separate_from_acquisition_hold_and_acceptance_l
     for value in (0.01, 50.0, float("nan")):
         with pytest.raises(ValueError, match="Push force target"):
             ProbeSetup(push_force_n=value)
+
+
+def test_causal_pressure_lead_is_disabled_by_default_and_requires_native_feedback():
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, support_force_lead
+
+    assert ProbeSetup().normal_force_lead_s == 0
+    for force in (0.0, 0.1, 10.0):
+        assert support_force_lead(force, 100.0, 1 / 60, 0) == force
+        assert support_force_lead(force, None, 1 / 60, 0.5) == force
+    for value in (-1.0, np.nan, np.inf):
+        with pytest.raises(ValueError, match="Force lead"):
+            ProbeSetup(normal_force_lead_s=value, support_force_source="native_interval_mean")
+    with pytest.raises(ValueError, match="native-interval"):
+        ProbeSetup(normal_force_lead_s=0.5)
+    ProbeSetup(normal_force_lead_s=0.5, support_force_source="native_interval_mean")
+
+
+def test_pressure_lead_anticipates_both_slopes_without_changing_force_or_motion_gates():
+    from alexdoor_xas.qualification.synthetic_probe import (
+        ProbeSetup,
+        normal_contact_support,
+        support_force_lead,
+    )
+
+    setup = ProbeSetup(support_force_source="native_interval_mean", normal_force_lead_s=0.5)
+    dt = 1 / 60
+    assert support_force_lead(0.1, 0.1, dt, 0.5) == 0.1
+    rising = support_force_lead(0.1, 0.09, dt, 0.5)
+    falling = support_force_lead(0.1, 0.11, dt, 0.5)
+    assert rising > 0.1 > falling
+    assert normal_contact_support(0.0, rising, setup, dt) < 0
+    assert normal_contact_support(0.0, falling, setup, dt) > 0
+    limit = setup.compression_m / setup.sustain_s * dt
+    for previous in (0.0, 1000.0):
+        control = support_force_lead(0.1, previous, dt, 0.5)
+        assert abs(normal_contact_support(0.0, control, setup, dt)) <= limit
+    assert setup.loaded_force_n == ProbeSetup().loaded_force_n
+    assert setup.contact_force_window_s == ProbeSetup().contact_force_window_s
+    assert setup.normal_admittance_m_n_s == ProbeSetup().normal_admittance_m_n_s
+    for elapsed in (0.0, -dt, np.nan):
+        with pytest.raises(ValueError, match="causal force"):
+            support_force_lead(0.1, 0.09, elapsed, 0.5)
+    with pytest.raises(ValueError, match="previous force"):
+        support_force_lead(0.1, np.nan, dt, 0.5)

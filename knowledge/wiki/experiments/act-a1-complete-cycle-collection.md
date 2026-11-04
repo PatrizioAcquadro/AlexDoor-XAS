@@ -2245,12 +2245,33 @@ charged. Saved-reader import/interface/serialization and historical readback
 failures are preserved separately. No collector is retried, and no source,
 recipe, calibration or physical/observation threshold changes follow.
 
-N remains pending after its last actual healthy, owned contact-phase check.
-The unchanged finite-height implementation retains its earlier component
-qualification. The next dependent attempt requires a demonstrated shared
-complete-motion observation/support correction; neither an individual failed
-point nor the diagnostic atlas comparison authorizes one. Actual contact,
-changing load and complete observed motion remain pending; the matrix is 17/36.
+The [N contact/push diagnosis](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D4-causal-reference-N-observed-780prefix-blackwell-20261104/whole-contact-push-pressure-diagnosis.json)
+closes the other actual negative after 360 approach, 180 contact and 93 push
+deliveries. All 633 admissions/deliveries, 1,267 load packets and 10,789 healthy
+native samples remain; hold, release and stabilization are unattempted. Contact
+is independently established at native time 43.0167 s, then the load lower
+window crosses zero at 44.95 s. Actual native force is zero with a 3.047-micrometer
+positive gap, despite the teacher's lagging 0.0356 N qualification window.
+Material and complete sweep margins remain positive. This is physical loss,
+not an unsupported-geometry refusal. Actual RGB, raw/load clocks, original
+six-second/fourteen-shape stop, whole 38-file/three-sidecar transfer and owned
+cleanup pass; all 2,836.819 native GPU seconds remain charged. The
+[pair closure](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-observed-pair-negative-qualification-20261104.json)
+adds no matrix attempt, source or window.
+
+The pressure loop integrates through the known 0.5 s pose servo and delayed
+force feedback. An optional causal pressure lead uses consecutive completed
+native intervals, with lead equal to that existing servo time constant. The
+original 0.1 N target, gain, rates, extents, physical/model/contact/stop criteria
+remain. The control extrapolation is distinct from measured force; cold start,
+causal clocks, disabled parity, boundaries and original contact regressions pass.
+The [numerical mechanism audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-pressure-lead-numerical-controls-20261104/review.json)
+reproduces all 93 original push feedback signals and verifies the nominal
+stiffness-independent factorization plus 30 paired perturbed scalar compliance
+comparisons. These calculations do not establish a counterfactual plant outcome.
+Complete native N/H+/H-/P motion and original force/model/stops must qualify the
+candidate before any dependent observed successor. P's separate complete
+observation/support failure remains unresolved. The matrix stays 17/36.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

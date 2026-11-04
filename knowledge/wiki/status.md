@@ -195,11 +195,16 @@ The same ten views contain a much wider measured atlas, but extending the
 front-model domain alone still fails the original spatial/normal proof. Current
 atlas normal-baseline controls leave both P packets unchanged; a historical D3
 normal-control baseline mismatch remains unqualified. No source, recipe, bound
-or domain changes follow. N is healthy and owned at the last check, advancing
-through contact; its outcome remains pending without repeated polling. Original
-views, conditions, physical/model/force limits, finite budgets and independent
-stops remain. Actual contact, changing loads and complete-source qualification
-remain pending. D3-P's exact final inspection sample
+or domain changes follow. N now closes negative after acquiring contact and
+93 push deliveries: actual native force falls to zero and the original observed
+load window correctly latches loss. Raw/load clocks, actual RGB, original
+six-second/fourteen-shape stop, whole transfer and owned cleanup pass. The shared
+integral pressure loop acts through the known 0.5 s pose servo and delayed force
+feedback. An optional causal lead now passes numerical/causal/default controls;
+complete native related-condition qualification remains required before any
+observed successor. Original force targets/gain, rate/extent, physical/model,
+contact and stop criteria remain. P's separate observed geometry deficit and
+all complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

@@ -51,6 +51,7 @@ class ProbeSetup:
     compression_m: float = 0.003
     normal_admittance_m_n_s: float = 0.0005
     support_force_source: str = "qualification_window"
+    normal_force_lead_s: float = 0.0
     support_gap_antiwindup: bool = False
     force_limit_n: float = 80.0
     soft_force_n: float = 50.0
@@ -135,6 +136,13 @@ class ProbeSetup:
             "guarded_qualification_window",
         ):
             raise ValueError("Unknown teacher support force source")
+        if (
+            not np.isfinite(self.normal_force_lead_s)
+            or self.normal_force_lead_s < 0
+            or self.normal_force_lead_s > 0
+            and self.support_force_source != "native_interval_mean"
+        ):
+            raise ValueError("Force lead requires finite native-interval feedback")
         if not np.isfinite(self.push_ramp_s) or self.push_ramp_s < 0:
             raise ValueError("Invalid teacher push ramp duration")
         if self.contact_ramp_profile not in ("linear", "ease_out", "slow_tail"):
@@ -375,6 +383,21 @@ def support_force_feedback(
         return filtered_force, "guarded_contact_qualification_window"
     return filtered_force, "contact_qualification_window"
 
+
+def support_force_lead(force, previous_force, elapsed_s, lead_s):
+    """Causal pressure-control lead; never a measured load or qualification bound.
+
+    For a first-order pose servo, lead equal to its time constant compensates
+    that nominal lag in an integral pressure loop without fitting contact stiffness.
+    The original downstream displacement rate and extent limits still apply.
+    """
+    if not np.isfinite([force, elapsed_s, lead_s]).all() or elapsed_s <= 0 or lead_s < 0:
+        raise ValueError("Invalid causal force lead")
+    if lead_s == 0 or previous_force is None:
+        return force
+    if not np.isfinite(previous_force):
+        raise ValueError("Invalid previous force sample")
+    return float(force + lead_s * (force - previous_force) / elapsed_s)
 
 
 def support_gap_recovery(native_force, gap_m, active, setup):
@@ -793,6 +816,7 @@ def run_probe(
     start_p, start_q = [v[0].cpu().numpy() for v in env.tool_pose()]
     compensation = np.zeros(3)
     normal_feedback = None
+    force_history = None
     gap_recovery_active = False
     continuity_monitor = (
         ContactContinuity(setup.sustain_s) if family is None and intermediate is None else None
@@ -800,7 +824,7 @@ def run_probe(
     pace_exit_active = False
 
     def support_normal(compression, phase):
-        nonlocal normal_feedback, gap_recovery_active
+        nonlocal normal_feedback, gap_recovery_active, force_history
         gap = traces[-1]["contact_gap_m"] if traces else None
         force = contact_load.force
         target_force = normal_force_target(
@@ -834,10 +858,10 @@ def run_probe(
                 normal,
             )
         gap_catchup = None
-        if setup.support_force_source == "guarded_qualification_window" and phase in (
-            "push",
-            "hold",
-        ):
+        if (
+            setup.support_force_source == "guarded_qualification_window"
+            or setup.normal_force_lead_s > 0
+        ) and phase in ("push", "hold"):
             native_force = traces[-1]["native_mean_normal_force_n"]
             gap_catchup, gap_recovery_active = support_gap_recovery(
                 native_force, gap, gap_recovery_active, setup
@@ -849,13 +873,29 @@ def run_probe(
             pending_distal_normal_advance_m=pending,
             gap_catchup=gap_catchup,
         )
+        control_force = force
+        if setup.normal_force_lead_s > 0 and phase in ("push", "hold"):
+            sample_s = traces[-1]["time"]
+            previous = None if force_history is None else force_history[1]
+            elapsed = dt if force_history is None else sample_s - force_history[0]
+            control_force = support_force_lead(
+                force, previous, elapsed, setup.normal_force_lead_s
+            )
+            force_history = sample_s, force
+            normal_feedback.update(
+                force_control_n=control_force,
+                force_lead_s=setup.normal_force_lead_s,
+                force_sample_s=sample_s,
+            )
+        else:
+            force_history = None
         if correction is not None and correction.position_return_active(phase):
             # The measured-origin transition already corrects position error.
             # Do not stack a second gap catch-up; keep force unloading active.
             gap = None
         return normal_contact_support(
             compression,
-            force,
+            control_force,
             setup,
             dt,
             target_force=target_force,
