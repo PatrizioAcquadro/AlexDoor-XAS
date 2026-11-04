@@ -154,10 +154,15 @@ whole transfer and owned cleanup independently pass. This remains a negative
 partial qualifier, with no source or matrix credit. All four complete reference
 paths had constant center-site 10 N pressure, whereas this P prefix had no contact;
 maximum-load motion alone does not establish unloaded or changing-load extrema.
-Four distinct complete unloaded counterparts are running on separate owned elab
-GPUs with the original controller, phases and stopping criteria. They must be
-reviewed before any new required-load support or dependent observed retry. The
-independent N observed qualifier remains running on Blackwell. D3-P's exact final inspection sample
+Three distinct complete unloaded counterparts, N/H+/P, now independently pass
+all original phases, frozen moving/stopped residuals, physical/future limits and
+eight-second/fourteen-shape stops. Whole transfers and owned cleanup pass. The
+six complete 0 N/10 N histories confirm that P's unloaded future interval exceeds
+two scoped position sides while actual positions remain supported; N/H+ retain
+future support. No empirical bound is changed. H− was healthy and running at the
+latest inspection; finish its independent review and required-load support
+qualification before any dependent observed retry. The independent observed N
+qualifier remains running on Blackwell. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

@@ -2046,8 +2046,9 @@ assigns one distinct full 0 N N/H+/H-/P robot-only trajectory to each of four
 compatible owned elab hosts. It preserves the original 4,659 commands, fixed
 0.5 s feedback, signed variations, all six phases, three-second hold, achieved
 staged release, six-second stabilization, physical/future limits, frozen residuals
-and original one-latch 2+4+2 s/fourteen-shape stops. These cases are running;
-constant 10 N cases are retained without repetition. A copied N preflight's old
+and original one-latch 2+4+2 s/fourteen-shape stops. The independently closed N/H+/P
+components below pass; H− remains pending after a healthy running inspection.
+Constant 10 N cases are retained without repetition. A copied N preflight's old
 10 N-only scope assertion failed before launch; its corrected unloaded scope and
 all original checks passed before the sole dispatch. Prepared independent GPU
 readers may run only after actual completion, whole transfer and owned cleanup;
@@ -2055,6 +2056,32 @@ negative or interrupted outcomes require their actual witnesses. Even a passing
 0 N component cannot qualify 10 N support, intermediate-load motion, observation,
 contact or a complete source. The independent observed N prefix remains running
 on Blackwell and is left undisturbed. The matrix remains 17/36.
+
+The [first three unloaded component qualifications](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-unloaded-first-three-qualified-components-20261104.json)
+independently pass all original six-phase endpoint, hold, achieved release and
+stabilization criteria, frozen moving/stopped residuals, physical/future limits
+and original one-latch 8 s/fourteen-shape stops. Their 58,788 moving and 5,760
+stopped native samples, nine stop segments and whole 19-file/three-sidecar
+payloads per condition are retained. Actual owned cleanup passes for all three
+native jobs and CUDA reviews. The completed native allocations charge 645.693
+GPU seconds and the independent reviews 27.148 seconds. Only the declared force
+and case name differ from each corresponding constant 10 N case; controller,
+setup, original physical/rate/target/stop limits and all phases remain unchanged.
+H− is explicitly unavailable to this partial qualification.
+
+The [saved-array full-history comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-zero-ten-first-three-position-support-audit-20261104.json)
+checks all 117,576 native samples from these six complete 0 N/10 N histories.
+All measured positions remain supported. N/H+ retain the required future-position
+domain at both loads. P instead has 37 unloaded native samples whose original
+future 10 N position/stop boxes exceed current support: upper shoulder-Z by at
+most 26.482 microradians and upper wrist-X by 41.278 microradians. Original scalar
+refusals agree at the full-history extrema. Thus the loaded trajectory does not
+bound the unloaded trajectory, even though both satisfy physical and stopping
+criteria. No calibration, numerical allowance or criterion is changed. Finish H−
+and qualify the necessary measured support at the original required load and
+load sites before adoption; intermediate/changing-load and observed complete
+motion remain separate requirements. This partial study adds no matrix cell,
+source or training window.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture
