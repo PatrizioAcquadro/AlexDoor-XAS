@@ -2132,43 +2132,58 @@ native trajectories. The allocation charges 8.040 GPU seconds with owned cleanup
 An initial linter call used a runtime without Ruff; the installed local Ruff
 passes and no dependency is installed.
 
-The [distinct full zero/ten native study](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-zero-ten-native-manifest-20261104.json)
-assigns every original condition/load pair once across five owned compatible
-hosts. The same fixed 0.5 s feedback and causal-reference mode retains the
-original 4,659 commands, all six phases, force, physical/target/rate/model limits,
-three-second hold, achieved staged release, six-second stabilization and one-latch
-8 s/fourteen-shape stops. Normal ramp tracking must additionally fit the original
-1 mm compression, as a necessary contact requirement derived from the retained
-failure. Actual normalized pose dispatch must equal repeated pure previews;
-joint stabilization, reset and stop clear reference history. All five actual
-GPU contexts belong to the assigned allocation groups and owner leases at the
-initial health inspection. The N-0 N/N-10 N/H+-0 N/P-0 N ramp normal errors are
--0.728, 11.849, -11.207 and 4.688 micrometers, respectively, with positive
-0.988–1.011 mm necessary margins. H− has completed approach. The [first four independent component closures](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-4-qualified-components-20261104.json)
-now qualify complete N/P at both 0 N and 10 N: all six original phases,
-physical/future limits, frozen moving/stopped residuals, reference history,
-exact preview/dispatch, three-second hold, achieved release, held stabilization
-and twelve original one-latch stop segments pass. All 78,384 trajectory and
-7,680 stopped native samples remain; whole transfers and owned cleanup pass.
-The three native allocations charge 805.584 GPU seconds; independent CUDA readers
-charge 29.166 seconds. N/P normal ramp errors range from −0.728 to 17.497
-micrometers. H+ and H− were healthy and owned at the initial inspection; later
-outcomes are unpolled and no duplicate case is launched.
+The [complete zero/ten native qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-8-qualified-components-20261104.json)
+now closes all eight original N/H+/H−/P cases at 0 N and constant center-site
+10 N for source `5317e9c`. One fixed causal-reference controller retains all
+4,659 original commands, six phases, physical/future and reserved-target limits,
+frozen moving/stopped residuals, rates and effort, three-second hold, achieved
+staged release, six-second stabilization and original one-latch 8 s/fourteen-shape
+stops. Normalized pose dispatch equals repeated pure previews, and joint commands,
+reset and stop clear reference history. All 156,768 trajectory samples, 15,360
+stopped native samples and 24 stop segments pass independent review. Whole
+transfers and actual owned cleanup pass. Native charges are 2,697.612 GPU seconds;
+readers charge 51.303 seconds. Normal ramp error ranges from −11.207 to 20.911
+micrometers, retaining positive margin against unchanged 1 mm compression.
+H−'s largest phase endpoint error is 7.681 mm, within the original 10 mm range.
+This necessary tracking result does not establish physical door contact.
 
-The [all-coordinate empirical position audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-first-four-all-coordinate-position-requirements-20261104.json)
-finds nine newly required condition/joint sides across the complete N/P 0 N/10 N
-histories, beyond prior required-10 N position support. Physical limits and
-measured residuals still pass. The
-[production future-gate comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-first-four-position-support-audit-20261104.json)
-reproduces the original scalar decision at every one of the 78,384 samples; that
-gate selects five extended sides and does not enumerate the complete seven-joint
-empirical model domain. The initial array reader's absent optional error-key
-failure is retained and corrected without native repetition. Finish all eight
-components, derive all required sides from both complete load histories and the
-single original future allowance, then qualify original required-load/site/yaw
-postures and continuing stops before any scoped adoption. This grants no physical
-contact, changed-load/off-center support, calibration, observed source, training
-window or matrix cell.
+The [calibration-baseline reconciliation](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-calibration-baseline-reconciliation-20261104.json)
+corrects the prior four-case support interpretation: those readers compared the
+actual frozen component recipe, which predates the separately qualified
+condition-scoped 17-side/68-case support. Their nine N/P requirements remain
+fixture-relative; they do not enumerate new needs beyond the latest support.
+The load-model, recording and stop implementations remain unchanged between
+measurement source `7bd2ea5` and `5317e9c`, and the calibration records differ only
+in independently measured position tolerance and force caps. The original
+reader error and all original records remain.
+
+The [complete latest-support audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-complete-eight-latest-qualified-all-coordinate-position-requirements-20261104.json)
+compares every coordinate of both complete load histories against that existing
+support. All actual measured positions are supported. The single original
+stop/acceleration/measured-velocity future allowance leaves nine uncovered
+condition/joint sides: two each for N/H+/H− and three for P. The
+[scalar-gate audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-complete-eight-latest-qualified-position-support-audit-20261104.json)
+reproduces every original decision across 156,768 samples, retaining 2,647 future
+refusals and all current-position positives. No bound is extended or failure
+reclassified; deriving complete support still requires all seven coordinates.
+
+The [new required-load study](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-required-load-support-manifest-20261104.json)
+derives the exact uncovered extrema from all eight complete histories plus that
+single allowance. Every posture retains the other six measured coordinates.
+Each has the original unloaded, center-10 N, face-0/+0.2-rad and face-1/−0.2-rad
+cases, with unchanged all-seven-coordinate finite boundary servo, pulse,
+convergence, physical/model and continuing 8 s/fourteen-shape stop criteria.
+All 36 new case payloads differ from the previous 68; no already-qualified case
+is repeated because of the stale comparison. The
+[necessary static CUDA target check](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-support-static-preflight-local-20261104/review.json)
+passes original physical/pulse reserves for every case, charging 7.028 GPU seconds
+with owned cleanup. This does not establish dynamic convergence or native support.
+The 36 cases and 108 original stop segments are assigned once across five hosts;
+actual UUID/owner/lease/context and fresh runtime/capacity checks pass at startup.
+Native outcomes and independent qualification remain pending. No raw recording or
+native sample payload goes outward. No calibration, arbitrary Cartesian box,
+changing-load/off-center motion, observed source, training window or matrix cell
+is adopted by this study.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

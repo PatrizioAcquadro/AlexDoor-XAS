@@ -168,17 +168,20 @@ although their original 10 mm endpoint criterion passes. An optional causal
 previous-goal reference correction is implemented with the original gain, limits
 and stops. Actual CUDA controls preserve both disabled modes bitwise across
 34,392 original control boundaries and pass dispatched-goal history checks.
-Four of the eight distinct 0 N/10 N cases now independently pass: complete N
-and P at both loads, all original phases, physical/future limits, frozen
+All eight distinct complete 0 N/10 N N/H+/H−/P components now independently
+pass the original phases, physical/future limits, frozen moving/stopped
 residuals and one-latch eight-second/fourteen-shape stops. Whole transfer and
-owned cleanup pass; H+ and H− remain pending after healthy owned checks.
-N/P normal ramp errors range from −0.728 to 17.497 micrometers, retaining positive
-margin against original 1 mm compression. This necessary tracking result does
-not establish door contact. Their complete histories require nine condition/joint
-sides beyond the prior required-10 N empirical position domain, across all seven
-coordinates; the narrower production future-position gate selects five of these.
-No bound is extended. Finish all eight components, then qualify complete-path
-required-load support before any observed source attempt. D3-P's exact final inspection sample
+owned cleanup pass. Normal ramp errors range from −11.207 to 20.911 micrometers,
+with positive margin against original 1 mm compression; door contact remains
+unqualified. Reconciliation against the latest condition-scoped measured support
+finds every actual position supported and nine new future-position sides across
+all four conditions. The earlier N/P comparison used the less extensive frozen
+fixture calibration; its result remains explicitly fixture-relative. All 156,768
+original scalar future decisions are reproduced without changing a bound.
+Thirty-six distinct original load/site/yaw cases on the nine newly required
+postures are now running once across five owned hosts, after a passing necessary
+static CUDA target check. Their native and independent stop qualification is
+pending; no empirical support or observed source is adopted. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
