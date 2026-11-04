@@ -2486,17 +2486,49 @@ owned cleanup; no native motion is repeated. Original four-condition 0 N/10 N
 full native paths, mode transitions, 1 mm ramps and all stops remain required.
 No native door or observed-source successor is admitted by software results.
 
-The [distinct geometric-transport eight-case family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-transport-zero-ten-native-manifest-20261104.json)
-from committed source `f3a1905` is dispatched once on four compatible owned hosts
-after exact source/runtime/UUID/lease/capacity checks. Derived goals, original
-setups, force levels, phase counts, physical/model/empirical criteria and stops
-match the preceding family. Actual startup verifies enabled transport and pure
-preview/dispatch/covector history; all first zero-load ramps have positive
-original necessary margin. Later progress remains unpolled. Every actual finish
-requires whole-original transfer and owned cleanup before outcome-routed review;
-all eight outcomes are needed before adopting a controller. The preceding closed
-negative family retains 142,368 native samples, 15,360 stop samples, 97,116,593
-whole original bytes and 1,677.031 native GPU seconds. No source is added.
+The [geometric-transport eight-case family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-transport-zero-ten-native-manifest-20261104.json)
+from `f3a1905` now has complete
+[outcome reconciliation](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-transport-original-eight-closed-outcomes-20261104.json).
+Seven original complete robot-only path/stop cases pass. H+ at zero load fails
+one original native shoulder-acceleration sample at release entry: 7.929262
+against 7.876929 rad/s². The
+[all-eight native limit diagnosis](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-transport-all8-native-limit-diagnosis-20261104.json)
+retains the witness and unchanged bounds. The outcome-routed H+ reader verifies
+both complete pose paths, frozen moving/stopped residuals, physical current/
+future boxes and all original continuing eight-second/fourteen-shape stops,
+while preserving the zero-load acceleration negative and separate loaded
+component positive. Whole original 101,277,473 bytes, 156,768 native and 15,360
+stop samples, 1,901.827 native GPU seconds and owned cleanup are retained.
+No controller or source is adopted.
+
+The [all-seven-coordinate empirical readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-transport-all-eight-latest-qualified-all-coordinate-position-requirements-20261104.json)
+retains three uncovered condition/joint sides from complete available motion.
+N's loaded release has 12 original future refusals with maximum deficit 0.077 mrad;
+H− also exits current/future measured support. H+/P are covered. The original
+scalar gate and full coordinate comparison remain separate, and the native
+acceleration negative remains explicit. No support frontier is extended.
+
+The [all-eight mode-exit diagnosis](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-transport-all8-release-reference-handoff-diagnosis-20261104.json)
+finds that release correctly rebases to achieved pose, but causal feedforward
+still subtracts the previous ideal force goal. Every first release command asks
+for only 5.639 micrometers of translation and zero rotation; stale reference
+steps instead pay 0.041–9.605 mm of prior tracking/compliance error. H+ at zero
+load receives 2.337 mm of artificial reference step at its acceleration witness.
+This is a shared mode-history defect, not a reason to change acceleration bounds.
+
+At baseline `25b5b09`, with no pre-existing tracked changes, the optional transport
+mode now uses measured tool pose as reference origin on its first ordinary-pose
+command. Its delivered target, original feedback/centering/gains, commanded path,
+limits and stops remain. Later dispatches resume ordinary goal history. The
+[actual CUDA handoff review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-release-handoff-controls-local-20261104/review.json)
+reproduces all eight old native target commands exactly, verifies corrected
+measured-origin increments, invariance to stale-goal position/orientation,
+pure previews and exactly one recorded dispatch handoff. Default/finite/old-mode
+math remains bitwise identical across 34,392 original command boundaries;
+165 focused CPU regressions and documentation checks pass their software scope.
+These one-command controls do not qualify changed dynamics. All eight original
+0 N/10 N paths, phases, empirical decisions and stops remain required before any
+dependent stress, door-contact, observation or source successor.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

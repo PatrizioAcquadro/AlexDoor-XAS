@@ -268,12 +268,25 @@ controls pass, including bitwise parity with the previous mode. Full native
 four-condition 0 N/10 N paths and mode transitions remain required before any
 door-contact or observed-source successor. This saved-history diagnosis is not
 a native counterfactual result, external wrench observation or stability proof.
-Four distinct owned native allocations now run the eight original transport
-qualification cases on Blackwell/elab4/elab3/elab2 from `f3a1905`. Actual runtime
-option/source, GPU process ownership, leases and preview/dispatch are verified.
-Each first zero-load ramp passes the original necessary 1 mm margin; later
-progress is unpolled. Loaded opening, all six phases and independent original
-stops remain pending. Healthy jobs are left running.
+All eight transport cases from `f3a1905` now have independent outcome review,
+whole transfer and owned cleanup. Seven complete robot-only path/stop cases pass.
+H+ at zero load fails the original shoulder acceleration bound at the first
+release sample: 7.929262 against 7.876929 rad/s². Its pose phases, physical
+position/future boxes, frozen residuals and original stops pass; the acceleration
+negative remains. This candidate is unadopted. The original empirical comparison
+also retains three uncovered condition/joint sides in N/H−; P and H+ are covered.
+No measured-domain extension follows from these trajectories.
+
+The shared mode-exit diagnosis finds stale force-goal feedforward across an
+achieved-pose release rebase. The optional transport mode now uses the current
+measured tool pose as the first ordinary-pose reference origin, preserving its
+delivered target and paying only the requested release increment. Later history
+still commits only on dispatch. All original gains, path timing, limits, criteria
+and stops remain. Actual CUDA controls reproduce the old delivered targets
+exactly on all eight saved release boundaries and verify the corrected pure
+preview/dispatch transition, stale-goal invariance and default parity. These
+software controls do not qualify new native acceleration or contact. All eight
+original native paths and stops must be requalified before a dependent successor.
 P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning

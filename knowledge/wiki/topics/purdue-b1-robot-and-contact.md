@@ -148,6 +148,16 @@ bound the combined request. The option defaults off, preserves the prior mode
 bitwise and requires causal pose feedback. It does not establish changing-load,
 off-center contact, passivity, empirical coverage or source qualification.
 
+When this mode returns to ordinary pose control, its first reference increment
+uses the current measured tool pose as origin. The maintained intentional
+release rebases its curve to that achieved pose; subtracting the previous ideal
+force goal would instead command the old tracking/compliance error again.
+Delivered targets remain the integration state. Pure previews and rejected
+commands cannot commit the transition; the first dispatch reports
+`normal_reference_handoff`, clears the covector and commits the new pose goal.
+Later ordinary commands use the normal dispatched-goal history. The option stays
+off by default, and this handoff adds no evaluator or learned observation.
+
 | Right joint, canonical order | Previous Kp | Current Kp, N m/rad | Current Kd, N m s/rad |
 |---|---:|---:|---:|
 | SHOULDER_Y | 26.78 | 320 | 8 |

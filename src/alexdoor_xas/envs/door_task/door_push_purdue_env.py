@@ -415,7 +415,16 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 if self.cfg.pose_feedback_time_constant_s is None:
                     raise ValueError("pose_reference_requires_feedback")
                 previous = self._last_world_goal
-                if previous is not None:
+                if (
+                    getattr(self.cfg, "pose_normal_transport", False)
+                    and not normal_reference_only
+                    and self._last_normal_jacobian is not None
+                ):
+                    # The new ordinary trajectory starts at the achieved pose.
+                    # Pay its requested motion, not the old force-goal tracking
+                    # error. Keep delivered elastic support through the handoff.
+                    reference_delta = error.clone()
+                elif previous is not None:
                     dp, dr = compute_pose_error(*previous, *world_goal, rot_error_type="axis_angle")
                     reference_delta = torch.cat((dp, dr), dim=-1)
             jacobian = self.tool_jacobian()
@@ -532,6 +541,11 @@ class DoorPushPurdueEnv(DirectRLEnv):
             goal is not None and self._pending_pose is not None
             and getattr(self, "_pending_normal_reference_only", False)
         )
+        delivered_normal_reference_handoff = bool(
+            goal is not None and not delivered_normal_reference_only
+            and getattr(self.cfg, "pose_normal_transport", False)
+            and self._last_normal_jacobian is not None
+        )
         dispatched_normal_jacobian = None
         if delivered_normal_reference_only and getattr(self.cfg, "pose_normal_transport", False):
             dispatched_normal_jacobian = (
@@ -542,6 +556,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._pending_normal_reference_only = False
         self.command_event = dict(
             normal_reference_only=delivered_normal_reference_only,
+            normal_reference_handoff=delivered_normal_reference_handoff,
             request_kind=request_kind,
             request=request.clone(),
             requested_target=requested.clone(),
