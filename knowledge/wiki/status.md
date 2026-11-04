@@ -198,18 +198,26 @@ normal-control baseline mismatch remains unqualified. No source, recipe, bound
 or domain changes follow. N now closes negative after acquiring contact and
 93 push deliveries: actual native force falls to zero and the original observed
 load window correctly latches loss. Raw/load clocks, actual RGB, original
-six-second/fourteen-shape stop, whole transfer and owned cleanup pass. The shared
-integral pressure loop acts through the known 0.5 s pose servo and delayed force
-feedback. An optional causal lead now passes numerical/causal/default controls;
-complete native related-condition qualification remains required before any
-observed successor. Original force targets/gain, rate/extent, physical/model,
-contact and stop criteria remain. Four initial native fixtures fail during
-inspection because their task-only recorder consumed a missing force field;
-all raw/RGB/original stops/owned cleanup and costs are retained. The common
-recorder is corrected. Four distinct complete N/H+/H-/P native qualifications
-are now healthy, owned and in inspection at the actual startup check, with
-signed setups and runtime control flags verified. Later progress is unpolled;
-no pressure result is inferred. P's separate observed geometry deficit and all
+six-second/fourteen-shape stop, whole transfer and owned cleanup pass. The
+derivative-lead pressure candidate now closes negative in all four complete
+N/H+/H-/P qualifiers: actual contact is lost after 95–100 push commands, at
+1.23–1.32 degrees against the required 50.15 degrees. No hold or stabilization
+is reached. Failure withdrawal later exits empirical wrist-X support in N/H+/H-
+and shoulder-Z support in P; physical joint limits remain satisfied. All 14,188
+task-native samples, raw clocks, causal signals, actual RGB, original
+six-second/fourteen-shape stops, whole transfers and owned cleanup are reviewed.
+All 1,146.468 native GPU seconds remain charged. The earlier first-order lag
+model omits whole-reference feedforward and does not justify a second pressure
+lead; the failed candidate is unadopted.
+
+A shared existing recipe now uses completed native mean force, continuous
+measured-gap correction with pending-motion compensation, and zero derivative
+lead. Numerical readback/boundary controls pass; force targets/gain, rate/extent,
+physical/model/contact/stop criteria and all signed setups remain unchanged.
+Four distinct complete qualifiers are dispatched once on Blackwell/elab4/elab3/
+elab2. Actual startup GPU contexts/leases and runtime flags are verified; later
+progress is unpolled. No native result is inferred from numerical controls.
+P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P

@@ -2259,19 +2259,14 @@ cleanup pass; all 2,836.819 native GPU seconds remain charged. The
 [pair closure](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-observed-pair-negative-qualification-20261104.json)
 adds no matrix attempt, source or window.
 
-The pressure loop integrates through the known 0.5 s pose servo and delayed
-force feedback. An optional causal pressure lead uses consecutive completed
-native intervals, with lead equal to that existing servo time constant. The
-original 0.1 N target, gain, rates, extents, physical/model/contact/stop criteria
-remain. The control extrapolation is distinct from measured force; cold start,
-causal clocks, disabled parity, boundaries and original contact regressions pass.
-The [numerical mechanism audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-pressure-lead-numerical-controls-20261104/review.json)
-reproduces all 93 original push feedback signals and verifies the nominal
-stiffness-independent factorization plus 30 paired perturbed scalar compliance
-comparisons. These calculations do not establish a counterfactual plant outcome.
-Complete native N/H+/H-/P motion and original force/model/stops must qualify the
-candidate before any dependent observed successor. P's separate complete
-observation/support failure remains unresolved.
+The optional causal pressure lead uses consecutive completed native intervals.
+Its [numerical audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-pressure-lead-numerical-controls-20261104/review.json)
+reproduces all 93 original push feedback signals and verifies
+an ideal first-order lag factorization plus 30 paired scalar comparisons. The
+actual controller already anticipates the whole reference, including pressure
+corrections. That omitted path invalidates the first-order model as a transfer
+argument; those numerical controls establish no native task success. The
+original 0.1 N target, gain, rates, extents and independent criteria remain.
 
 The first four pressure fixtures stop after one inspection command because the
 additional task-load recorder consumed a manipulation-only force field during
@@ -2285,20 +2280,42 @@ manipulation. Synthetic contract checks retain four native task samples and the
 original 10 N rejection of an 11 N upper bound.
 
 The [corrected complete pressure family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-pressure-taskphase-complete-family-manifest-20261104.json)
-assigns N/H+/H-/P once each on Blackwell/elab4/elab3/elab2. Setup reconciliation
-uses the original signed whole-motion design rather than generic worker reset
-metadata: H+ and H- retain their actual +20/-20 mm goals, P its declared floor
-placement, and all use the original matched seed. The initial setup/preflight
-preparation errors, including a missing copied calibration before any corrected
-launch, remain preserved. Fresh source/runtime/UUID/ownership/capacity checks
-pass before the corrected launches. Actual GPU contexts and canonical leases
-are owned at the healthy startup check; runtime verifies native-interval pressure
-feedback, 0.5 s pressure lead, 0.5 s pose feedback and causal reference. All four
-are still in inspection at that check. Later progress is unpolled. Finished
-review requires whole transfer and owned cleanup, actual outcomes and RGB,
-original full task/load/continuity/physical/stops, recorded causal control signals,
-and every coordinate of the original measured current/future support. Privileged
-component positives cannot admit observed sources. The matrix stays 17/36.
+assigns N/H+/H-/P once each on Blackwell/elab4/elab3/elab2, preserving original
+signed setups and matched seed. All four now close
+[negative after independent review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-pressure-taskphase-negative-qualification-20261104.json).
+Contact is lost after 95–100 push commands, at 1.23–1.32 degrees against the
+50.146-degree goal. Original 0.1 s normal-load lower windows become negative;
+hold and stabilization are unattempted. Later failure withdrawal exits empirical
+wrist-X support in N/H+/H- and shoulder-Z support in P. This is distinct from a
+physical joint-limit failure. All current/future physical boxes, raw clocks,
+14,188 task-native samples, recorded causal controls, actual RGB, original
+six-second/fourteen-shape stops, whole 25-file/three-sidecar transfers and owned
+cleanup are independently reviewed. Original load-domain and future-domain
+failures remain negative. All 1,146.468 native GPU seconds and 6,516,295,452
+original transferred bytes are retained. No calibration boundary or criterion
+is changed to admit these results.
+
+The [shared mechanism/readback audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-existing-native-continuous-gap-recipe-audit-20261104.json)
+checks all 393 saved push controls plus 141 gap/pending-motion/rate/extent cases.
+In the ideal whole-reference-feedforward model, a second pressure derivative
+can introduce an unstable alternating mode; the earlier lag-only factorization
+therefore supplies no stability guarantee for this runtime. This calculation is
+not a fitted native plant or a counterfactual success claim.
+
+The [distinct native-gap family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-native-gap-pressure-complete-family-manifest-20261104.json)
+uses an existing recipe: completed native interval mean, continuous measured-gap
+correction minus already-commanded normal advance, and zero derivative lead.
+Disabling the lead selects this existing branch; executable code is unchanged.
+The original force targets/gain, rate/extent, all phases, physical/model/load/
+contact/stop criteria and four signed setups remain. Each condition is dispatched
+once after fresh source/runtime/UUID/ownership/capacity checks. Actual startup
+GPU contexts/leases and exact runtime setup are verified; later progress is
+unpolled. Every actual outcome requires whole transfer/owned cleanup, RGB,
+complete task/continuity/load, all seven current and original future measured
+position domains, physical bounds and original stops before any scoped adoption.
+The prepared reader remains unrun on these new recordings. Privileged native
+components cannot admit observed sources; P's separate geometry deficit remains.
+The matrix stays 17/36.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

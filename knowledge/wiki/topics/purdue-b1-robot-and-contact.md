@@ -465,16 +465,23 @@ lifetime prevents cross-episode reuse. Positive lead requires explicit
 signal is recorded separately from measured force and never enters load or
 contact qualification. Existing rate/extent limits still bound its command.
 
-For an ideal first-order pose servo with time constant tau, contact stiffness k
-and integral pressure gain g, choosing T=tau factors the nominal characteristic
-as `(tau*s + 1)*(s + g*k)`. This supplies a shared candidate without fitting a
-failed contact point or changing force targets/gain. Scalar perturbed-compliance
-controls and exact saved-command feedback readback pass; nonlinear native
-N/H+/H-/P complete motion, residuals, physical contact and original stops remain
-required. The observed causal-reference N negative establishes real contact,
-then loses it after 93 push deliveries; its correct independent contact latch
-and all prior outcomes remain preserved. No observed source is qualified by
-this numerical controller result.
+For an ideal first-order pose servo, choosing the force lead equal to its time
+constant factors a nominal scalar characteristic. That model omits the actual
+whole-reference feedforward, which also anticipates pressure corrections. It
+cannot establish stability or transfer for the combined runtime. All four D4
+N/H+/H-/P native lead qualifiers now fail early push contact continuity; the lead
+is unadopted. Original recordings, independent lower-force failures, later
+empirical withdrawal-domain exits and passing physical stops remain preserved.
+
+A distinct prospective recipe uses the existing `native_interval_mean` feedback
+with zero lead and pending-motion compensation. This selects the existing
+continuous gap-error term when native force is below target, subtracting normal
+advance already commanded. It avoids both an extra pressure derivative and
+waiting for a gap to exceed the qualification tolerance before correcting it.
+Force targets, gain, rate/extent limits and all independent contact/load/physical/
+stop criteria remain unchanged. Saved-data and boundary controls pass; complete
+native related-condition qualification remains pending. Numerical control
+changes and privileged native normal feedback never qualify an observed source.
 
 The prospective guarded controller reserves one-shot geometric gap recovery for
 zero native force with separation beyond the setup's existing contact-gap
