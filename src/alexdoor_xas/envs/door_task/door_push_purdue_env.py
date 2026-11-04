@@ -499,7 +499,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 normal_reference_only=getattr(self, "_pending_normal_reference_only", False),
             )
         delivered_normal_reference_only = bool(
-            self._pending_pose is not None
+            goal is not None and self._pending_pose is not None
             and getattr(self, "_pending_normal_reference_only", False)
         )
         self._pending_pose = self._pending_joints = None
