@@ -165,9 +165,14 @@ release, then the original acquisition budget latches after 91 release commands.
 Raw/load/RGB, original stops, whole transfer and owned cleanup pass; this is a
 negative source. The same ramp lag occurs in all eight robot-only histories,
 although their original 10 mm endpoint criterion passes. An optional causal
-previous-goal reference correction is implemented and numerically tested with
-the original controller gain, limits and stops; actual CUDA, complete native
-0 N/10 N and contact qualification remain required before adoption. D3-P's exact final inspection sample
+previous-goal reference correction is implemented with the original gain, limits
+and stops. Actual CUDA controls preserve both disabled modes bitwise across
+34,392 original control boundaries and pass dispatched-goal history checks.
+Eight distinct complete 0 N/10 N cases are running once across five owned hosts.
+The initial four completed ramps have normal error within 12 micrometers and
+positive margin against original 1 mm compression. This is a necessary robot-only
+tracking result; complete motion, stops, required-load support and observed
+contact qualification remain pending. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

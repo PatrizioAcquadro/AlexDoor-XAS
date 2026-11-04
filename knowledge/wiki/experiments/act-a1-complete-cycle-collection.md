@@ -2118,6 +2118,37 @@ pass. Actual CUDA saved-input controls, all original complete 0 N/10 N motions,
 independent stopping and observed contact remain required; no old positive or
 negative is reclassified, and no calibration, source or matrix cell is admitted.
 
+The [actual CUDA original-history controls](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-reference-original-history-controls-local-20261104/review.json)
+for source `5317e9c` pass all 34,392 original pose-command boundaries across the
+eight complete 0 N/10 N histories. Both disabled absolute/default and prior
+feedback modes remain bitwise equal to `1d6995d`. New proposals preserve pure
+preview and original target/rate bounds. Actual environment preview/dispatch/
+reset/stop methods, exercised with official Lab pose math and a fake plant,
+verify cold start, commit-only-on-dispatch, copied goals, rejected-preview
+immutability and history clearing for joint commands, reset and independent
+idempotent stop. These are software/history controls, not changed-controller
+native trajectories. The allocation charges 8.040 GPU seconds with owned cleanup;
+66 focused numerical/dispatch/stop checks and the documentation contract pass.
+An initial linter call used a runtime without Ruff; the installed local Ruff
+passes and no dependency is installed.
+
+The [distinct full zero/ten native study](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-zero-ten-native-manifest-20261104.json)
+assigns every original condition/load pair once across five owned compatible
+hosts. The same fixed 0.5 s feedback and causal-reference mode retains the
+original 4,659 commands, all six phases, force, physical/target/rate/model limits,
+three-second hold, achieved staged release, six-second stabilization and one-latch
+8 s/fourteen-shape stops. Normal ramp tracking must additionally fit the original
+1 mm compression, as a necessary contact requirement derived from the retained
+failure. Actual normalized pose dispatch must equal repeated pure previews;
+joint stabilization, reset and stop clear reference history. All five actual
+GPU contexts belong to the assigned allocation groups and owner leases at the
+initial health inspection. The N-0 N/N-10 N/H+-0 N/P-0 N ramp normal errors are
+-0.728, 11.849, -11.207 and 4.688 micrometers, respectively, with positive
+0.988–1.011 mm necessary margins. H− has completed approach. All eight complete
+motion and independent stop outcomes remain pending; the jobs are left running.
+This grants no physical contact, changed-load/off-center support, calibration,
+observed source, training window or matrix cell.
+
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture
 `d0281c4`, the same common initial posture, target reservation and gains, and
