@@ -2178,12 +2178,43 @@ is repeated because of the stale comparison. The
 [necessary static CUDA target check](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-support-static-preflight-local-20261104/review.json)
 passes original physical/pulse reserves for every case, charging 7.028 GPU seconds
 with owned cleanup. This does not establish dynamic convergence or native support.
-The 36 cases and 108 original stop segments are assigned once across five hosts;
-actual UUID/owner/lease/context and fresh runtime/capacity checks pass at startup.
-Native outcomes and independent qualification remain pending. No raw recording or
-native sample payload goes outward. No calibration, arbitrary Cartesian box,
-changing-load/off-center motion, observed source, training window or matrix cell
-is adopted by this study.
+The [completed required-load qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-required-load-support-qualification-20261104.json)
+independently passes all 36 cases and 108 original stop segments. All-seven-joint
+finite servo/pulse convergence, loaded moving and stop boundary coverage, frozen
+residuals, physical/rate/effort limits, clocks and fourteen-shape original latch
+bounds pass. It retains 167,420 trajectory feedback samples and 69,120 stopped
+samples. Whole original payloads and three sidecars per job transfer completely;
+actual owned process/context absence and canonical lease release pass. Native
+charges are 2,358.284 GPU seconds; independent CUDA readers charge 107.847 seconds.
+
+The [merged condition-scoped support](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-qualified-common-loaded-support-20261104/qualification.json)
+uses the conservative common frontier across center and both face/yaw sites,
+requiring actual moving and original stop-onset coverage capped by the original
+preregistered pulse. It updates those nine sides within the existing 17-side
+condition records and preserves all unaffected prior 68-case coverage, fields
+and the original main domain. Every coordinate of all eight complete 0 N/10 N
+histories and the single original future interval passes; all 156,768 original
+scalar decisions are checked. Outside each new frontier and 11 N still refuse.
+Physical/force/stop/model and observation limits remain unchanged. This supports
+only the declared conditions, exact setup and measured complete-motion scope;
+it does not qualify arbitrary Cartesian boxes or changing/off-center-load motion.
+
+The [distinct causal-reference N/P observed transfer](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-observed-prefix-pair-manifest-20261104.json)
+is dispatched once on Blackwell and elab2 after those prerequisites. It retains
+the original TRAIN assets, signed setups, ten inspection views, 360 approach,
+180 contact and 240 push commands, finite budgets and original 2+4 s/fourteen-shape
+stops. The actual runtime verifies 0.5 s feedback and causal-reference mode;
+all GPU contexts belong to the assigned process groups and canonical owner
+leases at the initial healthy check. Later native progress is unpolled. The
+unchanged finite-height perception implementation retains its prior producer
+qualification. A CPU metadata-reader field mismatch and full RGB-D preflight
+entry error are preserved in the run records; the existing Isaac entry resolves
+the runtime libraries before the only native launches. No dependency is installed.
+Finished-result readers are prepared and require whole transfer, actual owned
+cleanup, outcome routing, original load/clock/physical/stop review and actual RGB
+inspection. A controlled prefix cannot admit a source or training window. No raw
+recording or native sample payload goes outward. Contact, changing load and
+observed complete motion remain pending; the matrix stays 17/36.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

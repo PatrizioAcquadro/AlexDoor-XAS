@@ -176,12 +176,20 @@ with positive margin against original 1 mm compression; door contact remains
 unqualified. Reconciliation against the latest condition-scoped measured support
 finds every actual position supported and nine new future-position sides across
 all four conditions. The earlier N/P comparison used the less extensive frozen
-fixture calibration; its result remains explicitly fixture-relative. All 156,768
-original scalar future decisions are reproduced without changing a bound.
-Thirty-six distinct original load/site/yaw cases on the nine newly required
-postures are now running once across five owned hosts, after a passing necessary
-static CUDA target check. Their native and independent stop qualification is
-pending; no empirical support or observed source is adopted. D3-P's exact final inspection sample
+fixture calibration; its result remains explicitly fixture-relative. The latest-support
+comparison reproduces all 156,768 original scalar decisions, retaining 2,647
+future refusals before the new measurements.
+All 36 distinct original load/site/yaw cases and 108 original continuing stop
+segments now independently pass, with whole transfer and owned cleanup. Their
+common three-site measured pulse/stop frontiers update only the nine required
+condition/joint sides, preserving the prior 17-side support and every unrelated
+field. All eight complete histories, including every original future interval,
+pass at required 10 N across 156,768 scalar checks; 11 N and outside-frontier
+controls still refuse. Two distinct TRAIN N/P observed qualification prefixes
+are running once on Blackwell and elab2 with the actual 0.5 s feedback and causal
+reference flags verified. Original views, conditions, physical/model/force limits,
+finite budgets and independent stops remain. Actual contact, changing
+loads and complete-source qualification remain pending. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
