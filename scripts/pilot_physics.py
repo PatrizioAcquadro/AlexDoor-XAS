@@ -366,6 +366,7 @@ def main(argv=None):
         cfg.pose_feedback_time_constant_s = recipe.get("pose_feedback_time_constant_s")
         cfg.pose_reference_feedforward = recipe.get("pose_reference_feedforward", False)
         cfg.pose_normal_compliance = recipe.get("pose_normal_compliance", False)
+        cfg.pose_normal_transport = recipe.get("pose_normal_transport", False)
         configure_physics_substeps(cfg, recipe.get("physics_substeps", cfg.decimation))
         stop_diagnostic_s = float(recipe.get("stop_diagnostic_continuation_s", 0.0))
         if not math.isfinite(stop_diagnostic_s) or stop_diagnostic_s < 0:
@@ -413,6 +414,7 @@ def main(argv=None):
             pose_feedback_time_constant_s=cfg.pose_feedback_time_constant_s,
             pose_reference_feedforward=cfg.pose_reference_feedforward,
             pose_normal_compliance=cfg.pose_normal_compliance,
+            pose_normal_transport=cfg.pose_normal_transport,
             physical_joint_limits_rad=array(env.limits)[0].tolist(),
             pose_target_limits_rad=array(env.pose_limits)[0].tolist(),
             physics_dt=cfg.sim.dt,

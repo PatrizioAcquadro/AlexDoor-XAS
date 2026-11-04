@@ -2448,22 +2448,43 @@ it does not prove native stability. Full original 0 N/10 N paths with explicit
 mode entry/exit and original 1 mm ramp/hold/release/stabilization/stops are still
 required before any door-contact successor. No matrix cell or source is added.
 
-The [distinct original eight-case transition family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-incremental-normal-zero-ten-native-manifest-20261104.json)
-is dispatched once across four available hosts after final-source/runtime/UUID/
-ownership/capacity checks and complete prior-family closure. A prelaunch queued
-joint-override attribution check leads to source `a11f4f1`; its new CUDA audit
-also preserves all 34,392 original command results and mode/history checks.
-The earlier staged source is retained and was never launched. Native startup
-verifies all four owned GPU contexts/leases, explicit `force_phases_only` mode
-and exact preview/dispatch. Each zero-load case reaches the original ramp with
-positive necessary normal margin and 180 mode commands. Later progress remains
-unpolled; this is neither full-path nor 10 N nor contact qualification. All
-original 4,659 commands/six phases, 1 mm ramp, three-second hold, achieved release,
-held stabilization and one-latch eight-second/fourteen-shape stops remain required.
-Each completed native case must also show exactly 3,579 mode commands and the
-unchanged raw native phase mask. Whole transfer/owned cleanup and actual outcome
-routing precede every independent review. No positive native component can admit
-an observed source or resolve P's separate geometry proof.
+The [original eight-case transition family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-incremental-normal-zero-ten-native-manifest-20261104.json)
+from `a11f4f1` is fully closed in the
+[independent outcome reconciliation](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-incremental-normal-eight-closed-qualification-20261104.json).
+All four zero-load complete six-phase paths and original stops pass their
+robot-only component scope. All required 10 N ramps pass their original 1 mm
+margin, but opening errors are 21.360 mm (N), 20.548 mm (H+), 21.688 mm (H−)
+and 21.137 mm (P), failing the original 10 mm range. Hold/release/stabilization
+are unavailable for those loaded cases. Original physical current/future boxes,
+frozen moving/stopped residuals and one-latch eight-second/fourteen-shape stops
+pass; empirical current/future positions do not. Whole transfer, actual owned
+process absence and lease release are verified. No component promotes a failed
+loaded assignment, contact, calibration or scientific source.
+
+The [shared whole-motion covector diagnosis](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-incremental-normal-all4-elastic-covector-diagnosis-20261104.json)
+uses measured native Jacobians, delivered joint targets and original motion
+stiffness across all four completed available motions. Transporting only the
+change of the normal joint-load covector predicts the opening drift with
+linearized residuals of 0.038, 0.009, −0.820 and 0.274 mm for N/H+/H−/P.
+These are saved-trajectory diagnostics, not results of a changed closed loop.
+Full compliance-change compensation counts both Jacobian factors and roughly
+doubles the missing term. Neither that compensation nor exact force cancellation
+is adopted. The original reader's unavailable cold-entry goal error is retained
+and corrected by zero transport when dispatched geometry history is absent.
+
+Optional `pose_normal_transport` implements that common geometric increment
+with no fitted coefficient, force truth, changed gain, domain or threshold.
+History is committed only on actual dispatch and cleared on mode exit, joint,
+reset and stop. Fixed geometry produces zero transport for any elastic offset.
+Baseline `45ebf24` has no pre-existing tracked changes. Essential numerical,
+coupled-axis, clipping, teacher IO and setup controls pass. The
+[actual CUDA saved-history review](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-transport-history-closure-local-20261104/review.json)
+verifies all 34,392 original commands, bitwise default/finite/prior-mode parity,
+new target/rate bounds, pure previews and actual environment history semantics.
+Its initial audit-generation syntax failure is retained with accounting and
+owned cleanup; no native motion is repeated. Original four-condition 0 N/10 N
+full native paths, mode transitions, 1 mm ramps and all stops remain required.
+No native door or observed-source successor is admitted by software results.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

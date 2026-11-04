@@ -35,6 +35,7 @@ from alexdoor_xas.kinematics.point_jacobian import link_jacobian_to_point
 from alexdoor_xas.kinematics.pose_control import (
     bounded_joint_step,
     bounded_pose_step,
+    normal_reference_transport,
     pose_target_limits,
 )
 from alexdoor_xas.recording.rgbd import RGBDCapture
@@ -72,6 +73,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._pending_normal_reference_only = False
         self._pending_joints = None
         self._last_world_goal = None
+        self._last_normal_jacobian = None
         self.motion_stopped = False
         stop_stiffness = np.asarray(cfg.stop_stiffness, dtype=float)
         if (
@@ -86,6 +88,12 @@ class DoorPushPurdueEnv(DirectRLEnv):
             raise ValueError("invalid_pose_normal_compliance")
         if cfg.pose_normal_compliance and cfg.pose_feedback_time_constant_s is None:
             raise ValueError("compliant_normal_requires_pose_feedback")
+        if type(cfg.pose_normal_transport) is not bool:
+            raise ValueError("invalid_pose_normal_transport")
+        if cfg.pose_normal_transport and (
+            cfg.pose_feedback_time_constant_s is None or not cfg.pose_reference_feedforward
+        ):
+            raise ValueError("normal_transport_requires_causal_pose_feedback")
         self._motion_impedance = []
         super().__init__(cfg, **kwargs)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
@@ -108,6 +116,13 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 )
         if len(self._motion_impedance) != len(ARM_JOINTS):
             raise RuntimeError("stop impedance joints do not resolve uniquely")
+        motion_stiffness = {
+            actuator.joint_names[column]: stiffness
+            for actuator, column, stiffness, _ in self._motion_impedance
+        }
+        self._normal_transport_stiffness = torch.stack(
+            [motion_stiffness[name] for name in ARM_JOINTS], dim=-1
+        )
         self.limits = tensor(self.robot.data.joint_pos_limits)[:, self.arm_ids].clone()
         self.pose_limits = pose_target_limits(
             self.limits, cfg.pose_target_margin_rad, domain=cfg.pose_target_domain_rad
@@ -403,8 +418,20 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 if previous is not None:
                     dp, dr = compute_pose_error(*previous, *world_goal, rot_error_type="axis_angle")
                     reference_delta = torch.cat((dp, dr), dim=-1)
+            jacobian = self.tool_jacobian()
+            normal_transport = None
+            if normal_reference_only and getattr(self.cfg, "pose_normal_transport", False):
+                normal_jacobian = (
+                    matrix_from_quat(world_goal[1])[..., :, 0].unsqueeze(-2) @ jacobian[..., :3, :]
+                ).squeeze(-2)
+                normal_transport = normal_reference_transport(
+                    normal_jacobian,
+                    self._normal_transport_stiffness,
+                    self.targets[:, self.arm_ids] - q,
+                    self._last_normal_jacobian,
+                )
             result = bounded_pose_step(
-                self.tool_jacobian(),
+                jacobian,
                 error,
                 q,
                 self.pose_limits,
@@ -421,6 +448,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
                     else None
                 ),
                 normal_reference_only=normal_reference_only,
+                normal_transport_m=normal_transport,
                 return_request=with_request,
             )
             target, excess = result[:2]
@@ -439,6 +467,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._pending_pose = self._pending_joints = None
         self._pending_normal_reference_only = False
         self._last_world_goal = None
+        self._last_normal_jacobian = None
         if self.motion_stopped:
             return
         self.motion_stopped = True
@@ -470,6 +499,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
             self._pending_pose = self._pending_joints = None
             self._pending_normal_reference_only = False
             self._last_world_goal = None
+            self._last_normal_jacobian = None
             if bool((actions != 0).any()):
                 raise RuntimeError("motion_stopped")
             self.contact_history = []
@@ -502,6 +532,12 @@ class DoorPushPurdueEnv(DirectRLEnv):
             goal is not None and self._pending_pose is not None
             and getattr(self, "_pending_normal_reference_only", False)
         )
+        dispatched_normal_jacobian = None
+        if delivered_normal_reference_only and getattr(self.cfg, "pose_normal_transport", False):
+            dispatched_normal_jacobian = (
+                matrix_from_quat(goal[1])[..., :, 0].unsqueeze(-2)
+                @ self.tool_jacobian()[..., :3, :]
+            ).squeeze(-2).clone()
         self._pending_pose = self._pending_joints = None
         self._pending_normal_reference_only = False
         self.command_event = dict(
@@ -517,6 +553,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         # Commit only a dispatched pose goal; previews and rejected commands
         # cannot advance reference history. Joint commands end that history.
         self._last_world_goal = None if goal is None else tuple(value.clone() for value in goal)
+        self._last_normal_jacobian = dispatched_normal_jacobian
         self.contact_history = []
         self.load_samples = []
         self._physics_actions = 0
@@ -619,6 +656,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.robot.set_joint_position_target_index(target=q)
         self.targets = q.clone()
         self._last_world_goal = None
+        self._last_normal_jacobian = None
         self._pending_pose = None
         self._pending_normal_reference_only = False
         self._pending_joints = None

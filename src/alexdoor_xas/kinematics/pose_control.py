@@ -39,6 +39,45 @@ def pose_target_limits(limits, margin=None, *, domain=None):
     return result
 
 
+
+def normal_reference_transport(normal_jacobian, stiffness, delivered_offset, previous=None):
+    """Transport existing elastic support when its normal joint covector changes.
+
+    This is a geometric increment from delivered targets and measured joints,
+    not external-force estimation or cancellation. Fixed geometry gives exactly
+    zero for any elastic offset. A fresh mode entry has no transport history.
+    """
+    values = (normal_jacobian, stiffness, delivered_offset)
+    if previous is not None:
+        values += (previous,)
+    if (
+        not isinstance(normal_jacobian, torch.Tensor)
+        or normal_jacobian.shape[-1:] != (7,)
+        or not all(
+            isinstance(value, torch.Tensor)
+            and value.shape == normal_jacobian.shape
+            and value.device == normal_jacobian.device
+            and value.dtype == normal_jacobian.dtype
+            and bool(torch.isfinite(value).all())
+            for value in values
+        )
+        or not bool((stiffness > 0).all())
+    ):
+        raise ValueError("invalid_normal_transport_state")
+    compliance = (normal_jacobian.square() / stiffness).sum(dim=-1, keepdim=True)
+    if not bool(torch.isfinite(compliance).all() and (compliance > 0).all()):
+        raise ValueError("unreachable_normal_transport")
+    if previous is None:
+        return torch.zeros_like(compliance)
+    elastic_support = (normal_jacobian * delivered_offset).sum(dim=-1, keepdim=True) / compliance
+    increment = elastic_support * (
+        normal_jacobian * (normal_jacobian - previous) / stiffness
+    ).sum(dim=-1, keepdim=True)
+    if not bool(torch.isfinite(increment).all()):
+        raise ValueError("invalid_normal_transport_increment")
+    return increment
+
+
 def bounded_pose_step(
     jacobian,
     error,
@@ -55,6 +94,7 @@ def bounded_pose_step(
     reference_delta=None,
     compliant_normal=None,
     normal_reference_only=False,
+    normal_transport_m=None,
 ):
     """Bounded pose solve with optional measured-error integration on prior targets.
 
@@ -68,7 +108,8 @@ def bounded_pose_step(
     while retaining integral/reference tracking on the other five pose axes.
     Reference-only normal mode instead retains elastic support and pays only
     the causal normal goal increment supplied by a force admittance.
-    Preview calls remain pure.
+    Optional geometric transport updates that existing elastic support as the
+    normal joint covector changes. Preview calls remain pure.
     """
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
         raise ValueError("Purdue pose control requires a 6x7 Jacobian and six pose errors")
@@ -97,6 +138,17 @@ def bounded_pose_step(
         raise ValueError("invalid_normal_reference_mode")
     if normal_reference_only and compliant_normal is None:
         raise ValueError("normal_reference_requires_axis")
+    if normal_transport_m is not None:
+        if not normal_reference_only:
+            raise ValueError("normal_transport_requires_reference_mode")
+        if (
+            not isinstance(normal_transport_m, torch.Tensor)
+            or normal_transport_m.shape != error.shape[:-1] + (1,)
+            or normal_transport_m.device != error.device
+            or normal_transport_m.dtype != error.dtype
+            or not bool(torch.isfinite(normal_transport_m).all())
+        ):
+            raise ValueError("invalid_normal_transport_increment")
     if compliant_normal is not None:
         if not feedback:
             raise ValueError("compliant_normal_requires_pose_feedback")
@@ -163,6 +215,8 @@ def bounded_pose_step(
                     if reference_delta is None
                     else (normal * reference_delta).sum(dim=-1, keepdim=True)
                 )
+                if normal_transport_m is not None:
+                    increment = increment + normal_transport_m
                 primary = primary + (normal_direction * increment).unsqueeze(-1)
             else:
                 primary = primary + (absolute_normal - elastic_normal).unsqueeze(-1)

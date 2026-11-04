@@ -38,6 +38,8 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     pose_feedback_time_constant_s: float | None = None
     pose_reference_feedforward: bool = False
     pose_normal_compliance: bool = False
+    # Optional geometric transport during explicit normal-reference commands.
+    pose_normal_transport: bool = False
     # Legacy stop response; a separately validated recipe can supply new gains.
     # Canonical right-arm order, same damping ratios and physical effort limits.
     stop_stiffness: tuple = (320.0, 320.0, 160.0, 160.0, 20.0, 10.0, 50.0)

@@ -8,6 +8,7 @@ from alexdoor_xas.envs.door_task.purdue_contacts import has_forbidden_contact
 from alexdoor_xas.kinematics.pose_control import (
     bounded_joint_step,
     bounded_pose_step,
+    normal_reference_transport,
     pose_target_limits,
 )
 from alexdoor_xas.recording.rgbd import RGBDCapture
@@ -659,3 +660,92 @@ def test_normal_reference_only_requires_explicit_valid_mode_and_axis(defect):
     with pytest.raises(ValueError, match=reason):
         bounded_pose_step(torch.eye(6, 7)[None], torch.zeros(1, 6), q,
                           torch.tensor([[[-1., 1.]]*7]), torch.ones_like(q), .02, **kw)
+
+
+@pytest.mark.parametrize("load", [-10., 0., .1, 10.])
+def test_normal_transport_cold_entry_and_fixed_geometry_do_not_cancel_force(load):
+    axis = torch.tensor([[.2, -.1, .4, .3, 0., .1, -.2]], dtype=torch.float64)
+    stiffness = torch.tensor([[320., 26.78, 160., 160., 20., 10., 50.]])
+    stiffness = stiffness.to(axis)
+    offset = load * axis / stiffness
+    assert torch.equal(normal_reference_transport(axis, stiffness, offset), torch.zeros(1, 1))
+    assert torch.equal(normal_reference_transport(axis, stiffness, offset, axis), torch.zeros(1, 1))
+
+
+def test_normal_transport_changes_only_the_joint_force_covector_factor():
+    previous = torch.tensor([[.2, -.1, .4, .3, 0., .1, -.2]], dtype=torch.float64)
+    axis = previous * 1.1
+    stiffness = torch.ones_like(axis) * 20
+    offset = 10 * axis / stiffness
+    result = normal_reference_transport(axis, stiffness, offset, previous)
+    expected = 10 * (axis * (axis - previous) / stiffness).sum(-1, keepdim=True)
+    torch.testing.assert_close(result, expected)
+    # Reversing the normal convention changes its signed displacement only.
+    torch.testing.assert_close(
+        normal_reference_transport(-axis, stiffness, offset, -previous), -result,
+    )
+    assert not torch.equal(axis, previous)
+
+
+@pytest.mark.parametrize("defect", ["shape", "previous", "stiffness", "nan", "zero_axis"])
+def test_normal_transport_rejects_unavailable_or_invalid_state(defect):
+    axis = torch.ones(1, 7)
+    stiffness = torch.ones_like(axis)
+    offset = axis.clone()
+    previous = axis.clone()
+    if defect == "shape":
+        offset = offset[:, :6]
+    elif defect == "previous":
+        previous = previous[0]
+    elif defect == "stiffness":
+        stiffness[0, 2] = 0
+    elif defect == "nan":
+        offset[0, 3] = float("nan")
+    else:
+        axis.zero_()
+    with pytest.raises(ValueError):
+        normal_reference_transport(axis, stiffness, offset, previous)
+
+
+@pytest.mark.parametrize("sign", [-1., 1.])
+def test_normal_transport_keeps_other_five_axes_and_original_target_rate_limits(sign):
+    jacobian = torch.eye(6, 7, dtype=torch.float64)[None]
+    jacobian[0, 0, 1] = .2
+    positions = torch.zeros(1, 7, dtype=torch.float64)
+    prior = positions + .01
+    limits = torch.tensor([[[-1., 1.]] * 7], dtype=torch.float64)
+    speed = torch.ones_like(positions)
+    error = torch.tensor([[.01, -.02, .03, .04, -.01, .02]], dtype=torch.float64)
+    options = dict(previous_targets=prior, feedback_time_constant_s=.5,
+                   reference_delta=error * .1, compliant_normal=torch.tensor([[1., 0., 0.]],
+                   dtype=torch.float64), normal_reference_only=True, return_request=True)
+    old = bounded_pose_step(jacobian, error, positions, limits, speed, .02, **options)
+    increment = torch.tensor([[sign * .001]], dtype=torch.float64)
+    new = bounded_pose_step(jacobian, error, positions, limits, speed, .02,
+                            normal_transport_m=increment, **options)
+    displacement = (jacobian @ (new[2] - old[2]).unsqueeze(-1)).squeeze(-1)
+    torch.testing.assert_close(displacement, torch.cat((increment, torch.zeros(1, 5)), -1))
+    clipped = bounded_pose_step(jacobian, error, positions, limits, speed, .02,
+                               normal_transport_m=increment * 1000, **options)
+    assert (clipped[0] >= limits[..., 0]).all() and (clipped[0] <= limits[..., 1]).all()
+    assert ((clipped[0] - prior).abs() <= speed * .02 + 1e-14).all()
+    repeated = bounded_pose_step(jacobian, error, positions, limits, speed, .02,
+                                normal_transport_m=increment * 1000, **options)
+    assert all(torch.equal(a, b) for a, b in zip(clipped, repeated, strict=True))
+
+
+@pytest.mark.parametrize("defect", ["mode", "shape", "nan"])
+def test_normal_transport_requires_explicit_valid_reference_increment(defect):
+    q = torch.zeros(1, 7)
+    options = dict(previous_targets=q, feedback_time_constant_s=.5,
+                   compliant_normal=torch.tensor([[1., 0., 0.]]), normal_reference_only=True,
+                   normal_transport_m=torch.zeros(1, 1))
+    if defect == "mode":
+        options["normal_reference_only"] = False
+    elif defect == "shape":
+        options["normal_transport_m"] = torch.zeros(1)
+    else:
+        options["normal_transport_m"].fill_(float("nan"))
+    with pytest.raises(ValueError):
+        bounded_pose_step(torch.eye(6, 7)[None], torch.zeros(1, 6), q,
+                          torch.tensor([[[-1., 1.]] * 7]), torch.ones_like(q), .02, **options)

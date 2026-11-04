@@ -132,6 +132,22 @@ learned-policy feature. Reset, joint commands and the independent stop clear
 queued mode/history. Native mode transitions and contact remain separately
 required; neither saved commands nor a quasistatic contact model qualifies them.
 
+Optional `pose_normal_transport` accounts for changing arm geometry during that
+explicit mode. With normal joint covector `A = n.T Jp`, original motion stiffness
+`K`, delivered elastic offset `b = target - q`, and previous dispatched covector
+`A_prev`, it adds `((A b) / sum(A²/K)) * sum(A (A-A_prev)/K)` to the causal normal
+reference increment. The first factor is proprioceptive elastic support,
+including dynamic effects, not certified external force. The covector difference
+transports only the joint-load mapping; using the full compliance difference
+would count the changing position mapping again. No fitted coefficient is used.
+At fixed geometry this term is exactly zero for any change in elastic support,
+avoiding force-change cancellation. Mode entry seeds zero transport; previews
+remain pure, and only dispatch commits the covector. Ordinary pose, joint,
+reset and independent stop clear it. Existing target reserves/rate bounds still
+bound the combined request. The option defaults off, preserves the prior mode
+bitwise and requires causal pose feedback. It does not establish changing-load,
+off-center contact, passivity, empirical coverage or source qualification.
+
 | Right joint, canonical order | Previous Kp | Current Kp, N m/rad | Current Kd, N m s/rad |
 |---|---:|---:|---:|
 | SHOULDER_Y | 26.78 | 320 | 8 |

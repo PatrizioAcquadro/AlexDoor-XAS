@@ -250,12 +250,24 @@ Software controls pass; changed-controller native transitions, complete original
 four-condition 0 N/10 N paths and stops remain unqualified. No real-door or
 observed-source successor precedes that qualification. Existing force requests,
 gains, physical limits, observation boundaries and acceptance criteria remain.
-Four distinct native allocations now exercise the eight declared mode-transition
-cases on Blackwell/elab4/elab3/elab2, using source `a11f4f1`. Actual GPU ownership,
-mode flags and exact dispatch checks are verified. All four zero-load ramp
-prefixes pass their original necessary margin at that check; full paths, loaded
-cases and independent outcomes remain pending. Healthy allocations are left
-running without repeated polling.
+The eight original switched-mode cases from `a11f4f1` are now fully reviewed and
+unadopted. Four zero-load complete paths/stops pass their component scope. All
+four required 10 N ramps pass, but opening position errors of 20.55–21.69 mm
+exceed the original 10 mm range; empirical current/future support also fails.
+Physical current/future boxes, frozen residuals and original eight-second/
+fourteen-shape stops pass. Whole results and owned cleanup are preserved.
+
+A shared whole-motion diagnosis identifies the missing geometric change of the
+normal joint-force covector. Optional `pose_normal_transport` now updates only
+existing elastic support from measured joints, delivered targets, original
+motion stiffness and the last dispatched covector. It is exactly zero at fixed
+geometry for any elastic offset; it does not cancel force changes. Other axes,
+default behavior, all original limits/gains/criteria and observation boundaries
+remain. Essential numerical/IO checks and actual CUDA history/bounds/history
+controls pass, including bitwise parity with the previous mode. Full native
+four-condition 0 N/10 N paths and mode transitions remain required before any
+door-contact or observed-source successor. This saved-history diagnosis is not
+a native counterfactual result, external wrench observation or stability proof.
 P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
