@@ -2051,6 +2051,15 @@ native parameter selection or trajectory equivalence is inferred from saved
 single-packet proposals. Original clipping and missing later phases remain
 explicit. Distinct complete native required-load and related-condition results
 are still needed; no controller is adopted for collection by these checks.
+The [four-condition native manifest](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-complete-required-load-manifest-20261104.json)
+assigns each original condition exactly once across elab4/elab3/elab5/Blackwell,
+using frozen source `7bd2ea5`. Actual runtime wiring, required 10 N force and
+GPU UUID/context/PGID/canonical ownership are verified on all four. Approach
+and ramp endpoints pass with the same 0.5 s controller; the remaining motion
+and original continuing stops await actual completion and independent review.
+No matrix/source credit follows from these healthy prefixes. Elab5's initial
+zero-launch Torch preflight failure remains retained; its existing native-job
+Python passed before the sole launch, without installing dependencies.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,

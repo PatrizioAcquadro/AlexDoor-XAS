@@ -122,7 +122,14 @@ unavailable. Whole transfer and owned cleanup pass. This separates loaded plant
 tracking from geometric target feasibility; the next correction must preserve
 complete motion and the original related conditions. N's observed future-wrist
 failure also remains unresolved. No new source, calibration domain or matrix
-cell is admitted; dependent full-source attempts remain suspended. D3-P's exact final inspection sample
+cell is admitted; dependent full-source attempts remain suspended. The shared
+optional measured pose-feedback implementation now preserves a balancing target
+offset under elastic load, with the original default, inner gains, limits and
+stops unchanged. Numerical and actual CUDA saved-path controls pass. Four
+separate complete N/H+/H-/P native qualifications at the original required 10 N
+load are running on distinct compatible hosts, using the same declared 0.5 s
+feedback time constant. Owned startup and approach/ramp endpoints pass; full
+motion and independent review remain pending. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
