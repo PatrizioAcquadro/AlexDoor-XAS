@@ -210,13 +210,24 @@ All 1,146.468 native GPU seconds remain charged. The earlier first-order lag
 model omits whole-reference feedforward and does not justify a second pressure
 lead; the failed candidate is unadopted.
 
-A shared existing recipe now uses completed native mean force, continuous
-measured-gap correction with pending-motion compensation, and zero derivative
-lead. Numerical readback/boundary controls pass; force targets/gain, rate/extent,
-physical/model/contact/stop criteria and all signed setups remain unchanged.
-Four distinct complete qualifiers are dispatched once on Blackwell/elab4/elab3/
-elab2. Actual startup GPU contexts/leases and runtime flags are verified; later
-progress is unpolled. No native result is inferred from numerical controls.
+The existing native-mean/continuous-gap recipe without derivative lead also
+closes negative in all four conditions: contact is lost after 90–97 push commands,
+at 1.15–1.26 degrees. All 14,100 task-native samples, 371 causal signals, raw
+clocks/RGB, original stops, whole transfers and owned cleanup are reviewed.
+Later failure withdrawal again exits empirical position support. All 1,145.422
+native GPU seconds remain charged; no source or controller is adopted.
+
+A saved-parameter audit identifies a conflict in the intended normal-force
+model: the original 4 N m s/rad hinge damping and 0.19714 m contact lever require
+about 0.354 N at the separately requested 1 degree/s, versus the 0.1 N pressure
+request. Saved unloaded coast decays near the inertia-based prediction. This
+normal-only balance does not reconstruct startup acceleration, distributed
+friction or the combined nonlinear servo. A distinct four-condition complete
+qualification uses the derived push control request, retaining 0.1 N acquisition/
+hold, original gain/rate/extent, physical dynamics and all independent force,
+contact, model, full-task and stop criteria. Actual startup runtime flags, exact
+signed setups and GPU contexts/leases are verified; all four are in inspection and later progress is unpolled. No source
+change or native success follows from the parameter calculation.
 P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning

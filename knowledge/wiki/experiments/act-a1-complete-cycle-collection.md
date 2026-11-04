@@ -2303,19 +2303,55 @@ therefore supplies no stability guarantee for this runtime. This calculation is
 not a fitted native plant or a counterfactual success claim.
 
 The [distinct native-gap family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-native-gap-pressure-complete-family-manifest-20261104.json)
-uses an existing recipe: completed native interval mean, continuous measured-gap
-correction minus already-commanded normal advance, and zero derivative lead.
-Disabling the lead selects this existing branch; executable code is unchanged.
-The original force targets/gain, rate/extent, all phases, physical/model/load/
-contact/stop criteria and four signed setups remain. Each condition is dispatched
-once after fresh source/runtime/UUID/ownership/capacity checks. Actual startup
-GPU contexts/leases and exact runtime setup are verified; later progress is
-unpolled. Every actual outcome requires whole transfer/owned cleanup, RGB,
-complete task/continuity/load, all seven current and original future measured
-position domains, physical bounds and original stops before any scoped adoption.
-The prepared reader remains unrun on these new recordings. Privileged native
-components cannot admit observed sources; P's separate geometry deficit remains.
-The matrix stays 17/36.
+uses completed native mean force, continuous measured-gap correction minus
+already-commanded normal advance, and zero derivative lead. All four now close
+[negative](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-native-gap-pressure-complete-negative-qualification-20261104.json):
+contact is lost after 90–97 push commands at 1.15–1.26 degrees, before hold or
+stabilization. Later failure withdrawal exits empirical wrist-X support in
+N/H+/H- and shoulder-Z support in P. All 14,100 task-native samples, 371 causal
+controls, raw clocks/RGB, physical boxes, original six-second/fourteen-shape
+stops, whole 25-file/three-sidecar transfers and owned cleanup are reviewed.
+All 1,145.422 native GPU seconds and 6,503,172,642 original transferred bytes
+remain. No physical violation is inferred from an empirical-domain refusal;
+all lower-load and future-support failures remain negative. The family is
+unadopted; no unchanged retry is assigned.
+
+The [whole-motion pressure/hinge audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-whole-motion-hinge-pressure-balance-audit-20261104.json)
+uses the four original signed contact geometries and six completed native
+histories. Across the original 50.146-degree motion, the normal torque lever is
+0.19714 m. The unchanged actual hinge damping is 4 N m s/rad, so a normal-only
+steady balance at the requested 1 degree/s requires 0.35413 N. The old 0.1 N
+request corresponds to 0.28238 degree/s in that model. Joint and implicit-actuator
+damping name the same drive and are counted once. Saved native inertia and
+parked authored COM predict unloaded decay of 0.7911/s; actual saved free-coast
+medians are about 0.8021/s. This difference is retained and supplies no fitted
+force multiplier. Authored poses are not presented as simulated moving states.
+Startup acceleration, tangential friction, distributed contact and nonlinear
+servo interaction remain outside this consistency calculation.
+
+The [prospective pressure design](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-motion-consistent-pressure-control-design-20261104.json)
+uses the existing explicit `push_force_n` field. The shared rule is
+`max(original acquisition request, damping * reference speed / normal lever)`;
+it yields 0.35413 N for all four original cases. Acquisition and hold stay at
+0.1 N. The 27 parameter-variation balance checks and 160 bounded force/gap/
+pending-motion cases pass numerically. This changes a control request, while
+load/contact acceptance thresholds, the original 10 N stopping model, 80 N
+physical limit, gains, rate/extent, dynamics, variations and full phases remain.
+The calculation establishes no counterfactual physical completion.
+
+The [new complete native family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-motion-balanced-pressure-complete-family-manifest-20261104.json)
+assigns each original condition once on Blackwell/elab4/elab3/elab2 after every
+previous family outcome is independently closed. Fresh source/runtime/UUID/
+ownership/capacity checks precede dispatch. Actual startup verifies all four
+GPU contexts/leases, exact setups and control requests; all remain in inspection
+at that check. Later progress is unpolled. Every actual result requires whole
+transfer/owned cleanup, actual RGB, complete original task/contact continuity,
+every native frozen-model estimate and positive original lower-force windows,
+all seven current and single-original-future empirical/physical position domains,
+unchanged dynamics and original stops. The prepared reader remains unrun on
+these new recordings. All four outcomes precede scoped adoption; privileged
+native components cannot admit observed sources. P's separate observed geometry
+support remains unresolved. The matrix stays 17/36.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

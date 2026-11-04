@@ -473,15 +473,23 @@ N/H+/H-/P native lead qualifiers now fail early push contact continuity; the lea
 is unadopted. Original recordings, independent lower-force failures, later
 empirical withdrawal-domain exits and passing physical stops remain preserved.
 
-A distinct prospective recipe uses the existing `native_interval_mean` feedback
-with zero lead and pending-motion compensation. This selects the existing
-continuous gap-error term when native force is below target, subtracting normal
-advance already commanded. It avoids both an extra pressure derivative and
-waiting for a gap to exceed the qualification tolerance before correcting it.
-Force targets, gain, rate/extent limits and all independent contact/load/physical/
-stop criteria remain unchanged. Saved-data and boundary controls pass; complete
-native related-condition qualification remains pending. Numerical control
-changes and privileged native normal feedback never qualify an observed source.
+A distinct recipe uses the existing `native_interval_mean` feedback with zero
+lead and pending-motion compensation. This selects continuous gap-error
+correction below the target, subtracting normal advance already commanded.
+All four D4 cases still lose early push contact; the recipe is unadopted. Its
+passing physical stops do not establish task contact or full-source success.
+
+Pressure and motion requests must also be physically compatible. In the intended
+normal-only rotational model, steady hinge resistance requires normal force
+`damping * reference angular speed / normal torque lever`. For the original D4
+geometry and unchanged dynamics, 1 degree/s requires about 0.354 N; 0.1 N instead
+balances about 0.282 degree/s. A prospective shared recipe uses the existing
+explicit `push_force_n` field for this derived request while retaining 0.1 N
+acquisition/hold. No force/load acceptance limit, gain, rate, geometry or physical
+dynamics changes. Native inertia/free-coast checks support the parameter reading;
+startup acceleration, friction and full nonlinear contact still require complete
+related-condition qualification. Privileged native normal feedback never
+qualifies an observed source.
 
 The prospective guarded controller reserves one-shot geometric gap recovery for
 zero native force with separation beyond the setup's existing contact-gap
