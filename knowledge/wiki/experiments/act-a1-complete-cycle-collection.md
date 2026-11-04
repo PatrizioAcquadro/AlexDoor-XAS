@@ -1926,6 +1926,28 @@ no native-stream equivalence is asserted. Actual CUDA producer, complete-motion
 and related-condition qualification remain required before further source
 collection. No source, matrix attempt or windows are added.
 
+The [actual CUDA complete-path readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-bounded-certificate-actual-fullpath-material-local-20261104/independent-array-readback-review.json)
+retains all eight original 4,659-knot/six-phase paths, geometric FOV, material
+availability, contact-to-stabilization fixed-current-error margins and negative
+approach/physical stress cases. It grants no future evolving-observation support.
+The [full-producer receipt review](../../../outputs/evidence/act-a1-complete-cycle-20261026/bounded-certificate-D4-full-producer-saved-and-history-probes-local-20261104/independent-receipt-review.json)
+retains the two old N empirical-bound refusals and verifies eight hypothetical
+current receipts, including the separately identified prior-published P
+certificate control. Original consumed-error overspend refuses. The reader saved
+its complete successful result before a post-write self-copy error; independent
+readback retains that error and verifies the saved report. Charges are
+7.035 + 55.824 GPU seconds with owned cleanup. Neither control actuates a command.
+
+One [distinct P native component qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-bounded-certificate-P-observed-prefix-manifest-20261104.json)
+is dispatched from source `f63b65b` on elab2 after fresh archive, exact UUID/owner,
+capacity and actual-runtime constructor checks. It retains the original ten-view
+inspection, 360 approach/180 contact/240 actual push endpoint, original limits,
+measured 10 N scope and independent 2+4 s stops. No old frame is transplanted.
+Only the shared bounded-certificate mechanism changes. N is not relaunched while
+its separate future-wrist support failure remains unresolved. Full motion,
+related-condition and complete-source qualification remain pending; counts stay
+17/36 with no added source or windows.
+
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
 at 21 s. Both eligible P roots retain zero material cells under the original union

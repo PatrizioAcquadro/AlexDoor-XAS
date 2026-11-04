@@ -102,9 +102,12 @@ reference, clocks and full temporal growth, after a valid current constraint and
 root-depth/identity recheck. The shared implementation passes numerical/session
 and twelve exact single-publication controls. Two reconstructed prior P
 publication controls pass their saved response without renewing acquisition;
-unknown original model-pair counts remain unavailable. Actual CUDA producer,
-full-motion and related-condition qualification are still required. Full-source
-attempts stay suspended. D3-P's exact final inspection sample
+unknown original model-pair counts remain unavailable. Actual CUDA full-producer and eight complete fixed-current-error path controls
+pass, preserving prior physical/approach negatives and excessive-error refusals.
+One distinct P native qualification is dispatched with the original ten views,
+780-command endpoint and independent stops. N remains suspended on unresolved
+future wrist support. Full native movement and related-condition qualification
+are still required; full-source attempts remain suspended. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

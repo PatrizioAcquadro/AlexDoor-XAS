@@ -131,3 +131,19 @@ def test_stale_prior_availability_does_not_become_a_current_capture():
     weaker_update(tracker, candidate, sample, future)
     assert candidate.local_certificate is not future
     assert candidate.local_certificate.support.supported_s == sample["time_s"]
+
+
+@pytest.mark.parametrize("missing", ["calibration_position", "linear_speed"])
+def test_missing_position_term_preserves_independently_known_angular_bound(missing):
+    tracker, _, _, _, _ = observed_certificate()
+    initial = tracker.local_state(0).patches[0]
+    if missing == "calibration_position":
+        tracker.calibration_bound = (None, 0.0001)
+    else:
+        tracker.relative_speed_bound = (None, 0.15)
+    later = tracker.local_state(0.01).patches[0]
+    assert later.normal_position_bound_m is None
+    assert later.normal_rotation_bound_rad == pytest.approx(
+        initial.normal_rotation_bound_rad + 0.01 * 0.15
+    )
+    assert later.pose_support.position_bound_m is None
