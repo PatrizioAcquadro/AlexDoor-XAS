@@ -1948,6 +1948,27 @@ its separate future-wrist support failure remains unresolved. Full motion,
 related-condition and complete-source qualification remain pending; counts stay
 17/36 with no added source or windows.
 
+An [independent saved-native position-domain audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-whole-motion-position-domain-audit-20261104/independent-readback-review.json)
+checks all 78,384 recorded samples from the four complete N/H+/H-/P 0.3 N
+robot-only paths, including preload/settle and all task phases. All measured
+positions, actual targets and hypothetical future 10 N position-box gates remain
+inside the existing certificates. Thirty-two phase-boundary controls agree with
+the original scalar gate. This does not turn the 0.3 N paths into actual 10 N
+motion, observed-geometry admission or source qualification.
+
+The exact observed N refusal instead retains 18.100 mrad of current-position
+margin and 17.798 mrad of target margin at the wrist, while its complete original
+future interval exceeds empirical support by 25.962 microradians. The original
+physical limits and independent stop results remain separate. Configured target
+limits provide physical/load-compliance headroom and are wider than the measured
+position box, but actual target membership already passes in this negative.
+Clipping targets merely to that measured box would therefore neither change the
+four saved paths nor prevent this refusal. Any prospective control correction
+must jointly preserve full-path tracking, force-compliance target offsets and
+complete future/stop support across the original conditions. No new speed
+invariant, empirical extension, target recipe or N retry is adopted. The ongoing
+P qualification remains independent of this saved-array audit.
+
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
 at 21 s. Both eligible P roots retain zero material cells under the original union
