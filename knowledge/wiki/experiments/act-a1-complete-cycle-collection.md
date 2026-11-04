@@ -2486,6 +2486,18 @@ owned cleanup; no native motion is repeated. Original four-condition 0 N/10 N
 full native paths, mode transitions, 1 mm ramps and all stops remain required.
 No native door or observed-source successor is admitted by software results.
 
+The [distinct geometric-transport eight-case family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-transport-zero-ten-native-manifest-20261104.json)
+from committed source `f3a1905` is dispatched once on four compatible owned hosts
+after exact source/runtime/UUID/lease/capacity checks. Derived goals, original
+setups, force levels, phase counts, physical/model/empirical criteria and stops
+match the preceding family. Actual startup verifies enabled transport and pure
+preview/dispatch/covector history; all first zero-load ramps have positive
+original necessary margin. Later progress remains unpolled. Every actual finish
+requires whole-original transfer and owned cleanup before outcome-routed review;
+all eight outcomes are needed before adopting a controller. The preceding closed
+negative family retains 142,368 native samples, 15,360 stop samples, 97,116,593
+whole original bytes and 1,677.031 native GPU seconds. No source is added.
+
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture
 `d0281c4`, the same common initial posture, target reservation and gains, and

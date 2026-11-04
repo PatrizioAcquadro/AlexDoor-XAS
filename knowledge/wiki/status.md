@@ -268,6 +268,12 @@ controls pass, including bitwise parity with the previous mode. Full native
 four-condition 0 N/10 N paths and mode transitions remain required before any
 door-contact or observed-source successor. This saved-history diagnosis is not
 a native counterfactual result, external wrench observation or stability proof.
+Four distinct owned native allocations now run the eight original transport
+qualification cases on Blackwell/elab4/elab3/elab2 from `f3a1905`. Actual runtime
+option/source, GPU process ownership, leases and preview/dispatch are verified.
+Each first zero-load ramp passes the original necessary 1 mm margin; later
+progress is unpolled. Loaded opening, all six phases and independent original
+stops remain pending. Healthy jobs are left running.
 P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
