@@ -2144,10 +2144,31 @@ joint stabilization, reset and stop clear reference history. All five actual
 GPU contexts belong to the assigned allocation groups and owner leases at the
 initial health inspection. The N-0 N/N-10 N/H+-0 N/P-0 N ramp normal errors are
 -0.728, 11.849, -11.207 and 4.688 micrometers, respectively, with positive
-0.988–1.011 mm necessary margins. H− has completed approach. All eight complete
-motion and independent stop outcomes remain pending; the jobs are left running.
-This grants no physical contact, changed-load/off-center support, calibration,
-observed source, training window or matrix cell.
+0.988–1.011 mm necessary margins. H− has completed approach. The [first four independent component closures](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-4-qualified-components-20261104.json)
+now qualify complete N/P at both 0 N and 10 N: all six original phases,
+physical/future limits, frozen moving/stopped residuals, reference history,
+exact preview/dispatch, three-second hold, achieved release, held stabilization
+and twelve original one-latch stop segments pass. All 78,384 trajectory and
+7,680 stopped native samples remain; whole transfers and owned cleanup pass.
+The three native allocations charge 805.584 GPU seconds; independent CUDA readers
+charge 29.166 seconds. N/P normal ramp errors range from −0.728 to 17.497
+micrometers. H+ and H− were healthy and owned at the initial inspection; later
+outcomes are unpolled and no duplicate case is launched.
+
+The [all-coordinate empirical position audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-first-four-all-coordinate-position-requirements-20261104.json)
+finds nine newly required condition/joint sides across the complete N/P 0 N/10 N
+histories, beyond prior required-10 N position support. Physical limits and
+measured residuals still pass. The
+[production future-gate comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-reference-first-four-position-support-audit-20261104.json)
+reproduces the original scalar decision at every one of the 78,384 samples; that
+gate selects five extended sides and does not enumerate the complete seven-joint
+empirical model domain. The initial array reader's absent optional error-key
+failure is retained and corrected without native repetition. Finish all eight
+components, derive all required sides from both complete load histories and the
+single original future allowance, then qualify original required-load/site/yaw
+postures and continuing stops before any scoped adoption. This grants no physical
+contact, changed-load/off-center support, calibration, observed source, training
+window or matrix cell.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

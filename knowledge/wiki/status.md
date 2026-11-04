@@ -168,11 +168,17 @@ although their original 10 mm endpoint criterion passes. An optional causal
 previous-goal reference correction is implemented with the original gain, limits
 and stops. Actual CUDA controls preserve both disabled modes bitwise across
 34,392 original control boundaries and pass dispatched-goal history checks.
-Eight distinct complete 0 N/10 N cases are running once across five owned hosts.
-The initial four completed ramps have normal error within 12 micrometers and
-positive margin against original 1 mm compression. This is a necessary robot-only
-tracking result; complete motion, stops, required-load support and observed
-contact qualification remain pending. D3-P's exact final inspection sample
+Four of the eight distinct 0 N/10 N cases now independently pass: complete N
+and P at both loads, all original phases, physical/future limits, frozen
+residuals and one-latch eight-second/fourteen-shape stops. Whole transfer and
+owned cleanup pass; H+ and H− remain pending after healthy owned checks.
+N/P normal ramp errors range from −0.728 to 17.497 micrometers, retaining positive
+margin against original 1 mm compression. This necessary tracking result does
+not establish door contact. Their complete histories require nine condition/joint
+sides beyond the prior required-10 N empirical position domain, across all seven
+coordinates; the narrower production future-position gate selects five of these.
+No bound is extended. Finish all eight components, then qualify complete-path
+required-load support before any observed source attempt. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
