@@ -58,7 +58,9 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
                 self.guard_refusal = reason
                 raise ValueError(reason)
 
-    def execute(self, position, rotation, phase, *, joint_brake=False):
+    def execute(
+        self, position, rotation, phase, *, joint_brake=False, normal_reference_only=False,
+    ):
         import torch
         from scipy.spatial.transform import Rotation
 
@@ -88,7 +90,9 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
                 command_kind, command_value = "joints", request
             else:
                 self.brake_anchor = None
+                normal_options = {"normal_reference_only": True} if normal_reference_only else {}
                 target, _, _ = self.env.preview_targets(
+                    **normal_options,
                     world_goal=(
                         torch.as_tensor(position, device=self.env.device, dtype=torch.float32)[
                             None
@@ -107,7 +111,10 @@ class GuardedTeacherRecorder(TemporalExpertRecorder):
                 raise ValueError(admission.reason or "teacher_motion_not_admitted")
             # IO independently checks that the pose controller preview equals
             # the admitted A1 endpoint before the actual setter/physics step.
-            self.io.execute(Command(command_kind, command_value, admission=admission))
+            self.io.execute(Command(
+                command_kind, command_value, admission=admission,
+                normal_reference_only=normal_reference_only and not joint_brake,
+            ))
             self.admitted_commands += 1
             if self.io.response_violation:
                 raise ValueError(self.io.response_violation)

@@ -283,6 +283,10 @@ class PurdueIO:
         from alexdoor_xas.recording.b1_runtime import array
 
         env = self.env
+        if type(command.normal_reference_only) is not bool or (
+            command.normal_reference_only and command.kind != "pose"
+        ):
+            raise ValueError("normal_reference_requires_pose_command")
         if command.kind == "joints":
             target, _, _ = env.preview_targets(
                 joint_delta=torch.as_tensor(
@@ -295,7 +299,12 @@ class PurdueIO:
                 if command.kind == "delta"
                 else command.value
             )
+            normal_options = (
+                {"normal_reference_only": True}
+                if command.normal_reference_only else {}
+            )
             target, _, _ = env.preview_targets(
+                **normal_options,
                 world_goal=(
                     torch.as_tensor(goal.origin, device=env.device, dtype=torch.float32)[None],
                     torch.as_tensor(
@@ -342,6 +351,10 @@ class PurdueIO:
                 > limits.robot_rotation_bound_rad
             ):
                 raise ValueError("Controller trajectory exceeds admitted robot error")
+        if type(command.normal_reference_only) is not bool or (
+            command.normal_reference_only and command.kind != "pose"
+        ):
+            raise ValueError("normal_reference_requires_pose_command")
         goal = None
         if command.kind == "joints":
             env.step_a1(command.value)
@@ -354,7 +367,13 @@ class PurdueIO:
                 if command.kind == "delta"
                 else command.value
             )
-            env.command_pose(goal.origin, Rotation.from_matrix(goal.rot).as_quat())
+            normal_options = (
+                {"normal_reference_only": True}
+                if command.normal_reference_only else {}
+            )
+            env.command_pose(
+                goal.origin, Rotation.from_matrix(goal.rot).as_quat(), **normal_options
+            )
             env.step(torch.zeros((1, 6), device=env.device))
         else:
             raise ValueError("Unknown execution command")

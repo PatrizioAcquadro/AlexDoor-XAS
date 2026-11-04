@@ -458,3 +458,38 @@ def test_absolute_joint_reference_holds_target_against_current_measured_drift():
     dataset.action_space = A2_EE_DELTA
     with pytest.raises(ValueError, match="require A1"):
         MatchedReplay(dataset, "reference", absolute_joint_targets=True)
+
+
+def test_teacher_normal_reference_mode_survives_io_preview_and_pose_dispatch():
+    import torch
+    from scipy.spatial.transform import Rotation
+
+    calls = []
+    io = object.__new__(PurdueIO)
+    io.safety = SimpleNamespace()
+    io.calibration = None
+    io.env = SimpleNamespace(
+        device="cpu",  # Command-routing test; no plant or model inference.
+        capture=SimpleNamespace(sample=SimpleNamespace(joint_position=torch.zeros(1, 9))),
+        preview_targets=lambda **kw: (
+            calls.append(("preview", kw["normal_reference_only"])) or torch.zeros(1, 7),
+            None, None,
+        ),
+        command_pose=lambda p, q, **kw: calls.append(("pose", kw["normal_reference_only"])),
+        step=lambda _: None,
+    )
+    goal = ObjectFrame(np.array([.1, .2, .3]), Rotation.identity().as_matrix())
+    io.tool_fk = lambda q, calibration: goal
+    command = Command("pose", goal, normal_reference_only=True)
+    assert io.preview(command) is goal
+    io.execute(command)
+    assert calls == [("preview", True), ("pose", True)]
+
+
+@pytest.mark.parametrize("kind", ["joints", "delta"])
+def test_normal_reference_mode_cannot_be_inherited_by_nonpose_commands(kind):
+    io = object.__new__(PurdueIO)
+    io.env = SimpleNamespace()
+    io.safety = SimpleNamespace()
+    with pytest.raises(ValueError, match="normal_reference_requires_pose_command"):
+        io.execute(Command(kind, None, normal_reference_only=True))

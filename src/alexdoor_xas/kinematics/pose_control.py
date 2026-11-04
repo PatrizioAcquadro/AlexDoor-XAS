@@ -54,6 +54,7 @@ def bounded_pose_step(
     feedback_time_constant_s=None,
     reference_delta=None,
     compliant_normal=None,
+    normal_reference_only=False,
 ):
     """Bounded pose solve with optional measured-error integration on prior targets.
 
@@ -65,6 +66,8 @@ def bounded_pose_step(
     supply the part of each new goal step not already paid by feedback.
     An explicit compliant normal keeps absolute position feedback on that axis
     while retaining integral/reference tracking on the other five pose axes.
+    Reference-only normal mode instead retains elastic support and pays only
+    the causal normal goal increment supplied by a force admittance.
     Preview calls remain pure.
     """
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
@@ -90,6 +93,10 @@ def bounded_pose_step(
             raise ValueError("pose_reference_requires_feedback")
         if reference_delta.shape != error.shape or not bool(torch.isfinite(reference_delta).all()):
             raise ValueError("invalid_pose_reference_delta")
+    if type(normal_reference_only) is not bool:
+        raise ValueError("invalid_normal_reference_mode")
+    if normal_reference_only and compliant_normal is None:
+        raise ValueError("normal_reference_requires_axis")
     if compliant_normal is not None:
         if not feedback:
             raise ValueError("compliant_normal_requires_pose_feedback")
@@ -147,7 +154,18 @@ def bounded_pose_step(
         gain = dt / feedback_time_constant_s
         primary = primary * gain
         if normal_direction is not None:
-            primary = primary + (absolute_normal - elastic_normal).unsqueeze(-1)
+            if normal_reference_only:
+                # A force admittance already integrates its normal correction.
+                # Pay only the causal goal increment, retaining delivered elastic
+                # load support without integrating normal pose error again.
+                increment = (
+                    torch.zeros_like(error[..., :1])
+                    if reference_delta is None
+                    else (normal * reference_delta).sum(dim=-1, keepdim=True)
+                )
+                primary = primary + (normal_direction * increment).unsqueeze(-1)
+            else:
+                primary = primary + (absolute_normal - elastic_normal).unsqueeze(-1)
         if reference_delta is not None:
             # The current pose error already includes this next-tick reference
             # increment. Add only its unpaid fraction, avoiding a one-tick lead.

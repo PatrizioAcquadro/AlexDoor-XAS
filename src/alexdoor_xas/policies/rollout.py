@@ -39,6 +39,7 @@ class Command:
     value: object
     stage: str | None = None
     admission: ActionAdmission | None = None
+    normal_reference_only: bool = False  # Explicit teacher force-admittance command.
 
 
 class ActionAdapter:

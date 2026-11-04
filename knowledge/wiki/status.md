@@ -229,25 +229,27 @@ original stops, raw clocks/RGB, whole transfers and owned cleanup are reviewed;
 are suspended. The normal-only hinge balance did not establish a stable combined
 controller.
 
-The shared controller now has optional finite position feedback along the
-current commanded tool normal, retaining integral/reference tracking on the
-other five pose axes. This removes normal elastic-target memory from the pose
-integrator. Default behavior is exactly preserved on actual CUDA history inputs;
-software checks preserve rates, target reserves, preview purity and singular-axis
-refusal. This is an implemented candidate, with no native-motion, contact,
-calibration or source qualification. Its first required 10 N native case now
-closes negative: N's ramp normal error is 5.331 mm against the original 1 mm
-compression. Moving/stopped model residuals, physical future bounds and the
-original eight-second/fourteen-shape stops pass, while empirical position support
-also fails. The complete saved-history compliance audit predicts 5.272 mm at
-that witness, consistent with finite stiffness losing constant-load rejection;
-it is not a dynamic stability proof. N/H+/P zero-load complete paths and original stops now independently pass their
-component scope. All three paired 10 N cases fail the original 1 mm ramp gate
-and empirical position support, with normal errors 5.22–5.75 mm; their physical,
-frozen-residual and original stop checks pass. Only the declared H- pair remains
-pending at its last owned healthy check. Native door and observed-source
-successors stay suspended pending a shared correction and complete native
-requalification.
+The finite-normal controller family is fully closed and unadopted. All four
+zero-load complete robot-only paths and original stops pass their component
+scope. All four required 10 N cases fail the original 1 mm ramp gate and
+empirical position support, with normal errors 5.22–5.75 mm. Their physical
+current/future boxes, frozen moving/stopped residuals and original eight-second/
+fourteen-shape stops pass. All 90,864 native and 15,360 stop samples, whole
+transfers and owned cleanup are reviewed. Removing the normal pose integrator
+also removed constant-load rejection. Exact load cancellation is not adopted:
+a saved fixed-wall boundary audit shows it reintroduces force accumulation.
+
+A new optional teacher command mode retains the delivered elastic target and
+pays only the causal normal reference increment while existing force admittance
+is active. The other five pose axes retain measured-error/reference tracking;
+ordinary pose control handles acquisition before force support and intentional
+release. The mode is explicit in preview/admission/dispatch, clears with queued
+commands, and uses the previous delivered goal history. Default behavior and
+finite-normal behavior remain bitwise identical in actual CUDA history checks.
+Software controls pass; changed-controller native transitions, complete original
+four-condition 0 N/10 N paths and stops remain unqualified. No real-door or
+observed-source successor precedes that qualification. Existing force requests,
+gains, physical limits, observation boundaries and acceptance criteria remain.
 P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning

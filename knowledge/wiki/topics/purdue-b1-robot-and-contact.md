@@ -117,6 +117,21 @@ history math does not establish a changed trajectory or a qualified force range.
 
 
 
+An explicit teacher `Command.normal_reference_only` selects a separate optional
+normal mode: the requested target keeps its delivered elastic offset and adds
+only the normal component of the current minus previous dispatched goal. Normal
+pose error is not integrated again. The other five pose axes, centering, physical/
+reserved targets and rates retain their existing rules. Cold start pays zero
+normal increment; preview is pure. The option requires causal pose feedback and
+is valid only for absolute pose commands. `force_controlled_normal_reference`
+enables it in the teacher only while existing force admittance is active during
+contact, push or hold; acquisition before force support, braking, release and
+stabilization retain their existing semantics. Admission and dispatch receive
+the same explicit mode. The flag is command metadata, not an observation or
+learned-policy feature. Reset, joint commands and the independent stop clear
+queued mode/history. Native mode transitions and contact remain separately
+required; neither saved commands nor a quasistatic contact model qualifies them.
+
 | Right joint, canonical order | Previous Kp | Current Kp, N m/rad | Current Kd, N m s/rad |
 |---|---:|---:|---:|
 | SHOULDER_Y | 26.78 | 320 | 8 |

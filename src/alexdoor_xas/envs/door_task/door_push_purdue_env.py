@@ -69,6 +69,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.contacts = None
         self._time_s = 0.0
         self._pending_pose = None
+        self._pending_normal_reference_only = False
         self._pending_joints = None
         self._last_world_goal = None
         self.motion_stopped = False
@@ -308,12 +309,19 @@ class DoorPushPurdueEnv(DirectRLEnv):
             torch.tensor(self._tool_offset, device=self.device, dtype=torch.float32)[None],
         )
 
-    def command_pose(self, position, orientation):
+    def command_pose(self, position, orientation, *, normal_reference_only=False):
         """Set an absolute operational pose for the next A2 step (world, XYZW)."""
         if self.motion_stopped:
             raise RuntimeError("motion_stopped")
         if self.cfg.action_mode != "A2":
             raise ValueError("absolute pose requires A2 mode")
+        if type(normal_reference_only) is not bool:
+            raise ValueError("invalid_normal_reference_mode")
+        if normal_reference_only and (
+            self.cfg.pose_feedback_time_constant_s is None
+            or not self.cfg.pose_reference_feedforward
+        ):
+            raise ValueError("normal_reference_requires_causal_pose_feedback")
         position = torch.as_tensor(position, dtype=torch.float32, device=self.device).reshape(1, 3)
         orientation = torch.as_tensor(orientation, dtype=torch.float32, device=self.device).reshape(
             1, 4
@@ -324,6 +332,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if bool((norm < 1e-8).any()):
             raise ValueError("zero quaternion")
         self._pending_pose = position, orientation / norm
+        self._pending_normal_reference_only = normal_reference_only
 
     def set_neck_target(self, position):
         """Set a fixed neck pose within the external model's mechanical limits."""
@@ -357,8 +366,19 @@ class DoorPushPurdueEnv(DirectRLEnv):
         world = frame_delta_to_world(delta, frame)
         return self.step(torch.tensor(world, dtype=torch.float32, device=self.device)[None])
 
-    def preview_targets(self, *, joint_delta=None, world_goal=None, with_request=False):
+    def preview_targets(
+        self, *, joint_delta=None, world_goal=None, with_request=False,
+        normal_reference_only=False,
+    ):
         """Pure controller preview, reused verbatim before dispatch and by admission."""
+        if type(normal_reference_only) is not bool:
+            raise ValueError("invalid_normal_reference_mode")
+        if normal_reference_only and (
+            joint_delta is not None
+            or self.cfg.pose_feedback_time_constant_s is None
+            or not self.cfg.pose_reference_feedforward
+        ):
+            raise ValueError("normal_reference_requires_causal_pose_feedback")
         q = tensor(self.robot.data.joint_pos)[:, self.arm_ids]
         if (joint_delta is None) == (world_goal is None):
             raise ValueError("Supply one joint or world-pose command")
@@ -397,9 +417,10 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 reference_delta=reference_delta,
                 compliant_normal=(
                     matrix_from_quat(world_goal[1])[..., :, 0]
-                    if getattr(self.cfg, "pose_normal_compliance", False)
+                    if normal_reference_only or getattr(self.cfg, "pose_normal_compliance", False)
                     else None
                 ),
+                normal_reference_only=normal_reference_only,
                 return_request=with_request,
             )
             target, excess = result[:2]
@@ -416,6 +437,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         re-enables motion. Zero Gym actions may advance physics while stopped.
         """
         self._pending_pose = self._pending_joints = None
+        self._pending_normal_reference_only = False
         self._last_world_goal = None
         if self.motion_stopped:
             return
@@ -446,6 +468,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
             raise ValueError("invalid Purdue command")
         if self.motion_stopped:
             self._pending_pose = self._pending_joints = None
+            self._pending_normal_reference_only = False
             self._last_world_goal = None
             if bool((actions != 0).any()):
                 raise RuntimeError("motion_stopped")
@@ -472,10 +495,17 @@ class DoorPushPurdueEnv(DirectRLEnv):
             delta[:, 3:].clamp_(-self.cfg.max_rot_delta_rad, self.cfg.max_rot_delta_rad)
             goal = self._pending_pose or apply_delta_pose(*self.tool_pose(), delta)
             target, excess, error, requested = self.preview_targets(
-                world_goal=goal, with_request=True
+                world_goal=goal, with_request=True,
+                normal_reference_only=getattr(self, "_pending_normal_reference_only", False),
             )
+        delivered_normal_reference_only = bool(
+            self._pending_pose is not None
+            and getattr(self, "_pending_normal_reference_only", False)
+        )
         self._pending_pose = self._pending_joints = None
+        self._pending_normal_reference_only = False
         self.command_event = dict(
+            normal_reference_only=delivered_normal_reference_only,
             request_kind=request_kind,
             request=request.clone(),
             requested_target=requested.clone(),
@@ -590,6 +620,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.targets = q.clone()
         self._last_world_goal = None
         self._pending_pose = None
+        self._pending_normal_reference_only = False
         self._pending_joints = None
         self.load_samples = []
         if self.capture is not None:

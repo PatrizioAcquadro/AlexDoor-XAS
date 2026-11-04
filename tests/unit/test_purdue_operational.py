@@ -515,7 +515,10 @@ def test_compliant_normal_keeps_finite_wall_impedance_and_other_pose_tracking(ta
 
 
 @pytest.mark.parametrize("normal_scale", [1., -1., 7.])
-def test_compliant_normal_preserves_coupled_tangent_and_rotation_requests(normal_scale):
+@pytest.mark.parametrize("normal_reference_only", [False, True])
+def test_compliant_normal_preserves_coupled_tangent_and_rotation_requests(
+    normal_scale, normal_reference_only,
+):
     dtype = torch.float64
     jac = torch.tensor([[[1, .2, 0, .1, 0, 0, .1],
                          [.1, 1, .2, 0, 0, 0, .2],
@@ -533,10 +536,17 @@ def test_compliant_normal_preserves_coupled_tangent_and_rotation_requests(normal
                    reference_delta=reference, centering_gain=.1, return_request=True)
     _, _, old = bounded_pose_step(jac, error, q, limits, torch.ones_like(q)*100, .02, **options)
     _, _, new = bounded_pose_step(jac, error, q, limits, torch.ones_like(q)*100, .02,
-                                  compliant_normal=normal*normal_scale, **options)
+                                  compliant_normal=normal*normal_scale,
+                                  normal_reference_only=normal_reference_only, **options)
     task_axis = torch.cat((normal, torch.zeros_like(normal)), dim=-1)
     normal_change = ((jac @ (new-q).unsqueeze(-1)).squeeze(-1) * task_axis).sum()
-    assert normal_change == pytest.approx(float((normal*error[:, :3]).sum()), abs=1e-14)
+    expected_normal = (normal*error[:, :3]).sum()
+    if normal_reference_only:
+        expected_normal = (
+            (task_axis*(jac @ (previous-q).unsqueeze(-1)).squeeze(-1)).sum()
+            + (task_axis*reference).sum()
+        )
+    assert normal_change == pytest.approx(float(expected_normal), abs=1e-14)
     difference = (jac @ (new-old).unsqueeze(-1)).squeeze(-1)
     tangent_difference = difference - task_axis*(difference*task_axis).sum(-1, keepdim=True)
     torch.testing.assert_close(tangent_difference, torch.zeros_like(difference), rtol=0, atol=1e-14)
@@ -592,3 +602,60 @@ def test_compliant_normal_retains_physical_target_reserve_rate_and_reversal():
         assert bool((target >= limits[..., 0]).all() and (target <= limits[..., 1]).all())
         assert bool(((target-previous).abs() <= speed*.02+1e-14).all())
         assert request[0, 0] == pytest.approx(sign, abs=1e-14)
+
+
+@pytest.mark.parametrize("tau", [.02, .5])
+def test_normal_reference_only_holds_load_offset_without_normal_pose_integration(tau):
+    q = torch.zeros(1, 7, dtype=torch.float64)
+    previous = q.clone()
+    previous[:, 0] = .005
+    jac = torch.eye(6, 7, dtype=q.dtype)[None]
+    limits = torch.tensor([[[-1., 1.]] * 7], dtype=q.dtype)
+    error = torch.tensor([[.001, .002, 0, 0, 0, .003]], dtype=q.dtype)
+    delta = torch.tensor([[.0001, .0002, 0, 0, 0, .0003]], dtype=q.dtype)
+    for _ in range(30):
+        target, _, requested = bounded_pose_step(
+            jac, error, q, limits, torch.ones_like(q)*100, .02,
+            previous_targets=previous, feedback_time_constant_s=tau,
+            reference_delta=delta, compliant_normal=torch.tensor([[1., 0, 0]], dtype=q.dtype),
+            normal_reference_only=True, return_request=True, centering_gain=0,
+        )
+        assert requested[0, 0] == pytest.approx(float(previous[0, 0]+delta[0, 0]), abs=1e-15)
+        previous = target
+    # A stationary reference against a fixed wall holds its delivered elastic
+    # offset even with a persistent penetration error; it cannot wind up force.
+    held, _, _ = bounded_pose_step(
+        jac, error*10, q, limits, torch.ones_like(q)*100, .02,
+        previous_targets=previous, feedback_time_constant_s=tau,
+        reference_delta=torch.zeros_like(delta),
+        compliant_normal=torch.tensor([[1., 0, 0]], dtype=q.dtype),
+        normal_reference_only=True, return_request=True, centering_gain=0,
+    )
+    assert held[0, 0] == previous[0, 0]
+
+
+def test_normal_reference_only_cold_start_preserves_delivered_normal_target():
+    q = torch.zeros(1, 7)
+    prior = torch.ones_like(q)*.003
+    target, _ = bounded_pose_step(
+        torch.eye(6, 7)[None], torch.ones(1, 6)*.01, q,
+        torch.tensor([[[-1., 1.]]*7]), torch.ones_like(q), .02,
+        previous_targets=prior, feedback_time_constant_s=.5,
+        compliant_normal=torch.tensor([[1., 0, 0]]), normal_reference_only=True,
+    )
+    assert target[0, 0] == prior[0, 0]
+
+
+@pytest.mark.parametrize("defect", ["axis", "mode_type"])
+def test_normal_reference_only_requires_explicit_valid_mode_and_axis(defect):
+    q = torch.zeros(1, 7)
+    kw = dict(previous_targets=q, feedback_time_constant_s=.5)
+    if defect == "axis":
+        kw.update(normal_reference_only=True)
+        reason = "normal_reference_requires_axis"
+    else:
+        kw.update(normal_reference_only=1, compliant_normal=torch.tensor([[1., 0, 0]]))
+        reason = "invalid_normal_reference_mode"
+    with pytest.raises(ValueError, match=reason):
+        bounded_pose_step(torch.eye(6, 7)[None], torch.zeros(1, 6), q,
+                          torch.tensor([[[-1., 1.]]*7]), torch.ones_like(q), .02, **kw)

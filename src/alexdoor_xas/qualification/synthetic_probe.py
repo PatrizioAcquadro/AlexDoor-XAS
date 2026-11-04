@@ -52,6 +52,7 @@ class ProbeSetup:
     normal_admittance_m_n_s: float = 0.0005
     support_force_source: str = "qualification_window"
     normal_force_lead_s: float = 0.0
+    force_controlled_normal_reference: bool = False
     support_gap_antiwindup: bool = False
     force_limit_n: float = 80.0
     soft_force_n: float = 50.0
@@ -130,6 +131,8 @@ class ProbeSetup:
             self.support_gap_antiwindup, bool
         ):
             raise ValueError("Teacher motion ramp and gap antiwindup options must be boolean")
+        if type(self.force_controlled_normal_reference) is not bool:
+            raise ValueError("Force-controlled normal reference option must be boolean")
         if self.support_force_source not in (
             "qualification_window",
             "native_interval_mean",
@@ -932,13 +935,21 @@ def run_probe(
             )
         if recorder is not None:
             recorder.phase = phase
+        normal_options = (
+            {"normal_reference_only": True}
+            if setup.force_controlled_normal_reference
+            and normal_feedback is not None
+            and phase in ("contact", "push", "hold")
+            and not (correction_active and correction.braking())
+            else {}
+        )
         if controller is None:
-            env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat())
+            env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat(), **normal_options)
             env.step(zero)
         elif correction_active and correction.braking():
             controller(goal_p, goal_r, phase, joint_brake=True)
         else:
-            controller(goal_p, goal_r, phase)
+            controller(goal_p, goal_r, phase, **normal_options)
         angle = float(tensor(env.door.data.joint_pos)[0, 0])
         speed = float(tensor(env.door.data.joint_vel)[0, 0])
         p, q = [v[0].cpu().numpy() for v in env.tool_pose()]
@@ -1059,6 +1070,7 @@ def run_probe(
                 normal_control_feedback=normal_feedback
                 if phase in ("contact", "push", "hold")
                 else None,
+                normal_reference_only=bool(normal_options),
                 contact_gap_m=gap,
                 loaded=loaded,
                 valid=valid,

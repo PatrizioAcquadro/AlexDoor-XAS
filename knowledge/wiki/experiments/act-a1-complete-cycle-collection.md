@@ -2403,7 +2403,7 @@ constant-load rejection. This static diagnostic neither proves dynamic contact
 stability nor selects a new gain. A shared causal compliance/load correction and
 complete related-condition qualification are required. No native door attempt,
 observed source, calibration or criterion change follows from the candidate.
-The family remains unadopted while its other declared outcomes are pending.
+The family was unadopted at that intermediate snapshot; complete closure follows below.
 
 The [reconciled six-case readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-compliance-six-reviewed-two-pending-20261104.json)
 independently closes the N/H+/P complete zero-load paths and all original stops
@@ -2415,6 +2415,38 @@ complete mixed recordings remain unchanged; zero-load results do not promote
 the failed loaded cases. Six declared cases are reviewed; only H-'s original
 zero/ten pair remains pending at its last owned healthy check. No native source,
 calibration or controller adoption follows.
+
+The [complete eight-case finite-normal closure](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-finite-normal-eight-closed-qualification-20261104.json)
+independently verifies H-'s final zero-load path and 10 N negative, closing all
+eight declared outcomes. H-'s ramp normal error is 5.433 mm. All four zero-load
+full-path components and stops pass; all four required 10 N ramp/empirical
+position gates fail. The 90,864 native and 15,360 original stop samples, whole
+87,367,177 original bytes and 1,702.885 native GPU seconds remain accounted.
+No allocation remains active in this family. No controller or source is adopted.
+
+A [complete-history fixed-wall boundary audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-exact-load-cancellation-contact-feedback-rejection-20261104.json)
+rejects blind exact load feedforward. For normal compliance C and positive wall
+penetration h, exact causal load cancellation gives `F_next = h/C + F_previous`;
+there is no finite contact equilibrium in this scalar boundary model. This is
+not a native passivity or dynamics result and does not select a replacement gain.
+
+The shared implementation now supports explicit `normal_reference_only` teacher
+pose commands during existing force-admittance control. It keeps delivered
+elastic support and pays only the causal normal goal increment, removing the
+second normal pose-error integration. Other pose axes, original force requests,
+gains, limits, phases and stops remain. Acquisition before force support and
+intentional release use ordinary pose feedback. Actual teacher IO propagates the
+same mode through preview, admitted proposal and dispatch; no evaluator,
+force-truth or new learned observation enters the controller. Baseline is
+`e96758e`, with no pre-existing tracked changes. The [actual CUDA history audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-incremental-normal-original-history-controls-local-20261104/review.json)
+preserves default, causal-reference and disabled finite-normal results bitwise
+across 34,392 original commands. Enabled targets, queued mode, preview/dispatch
+and reset/joint/stop histories pass their software scope. The [bounded scalar
+admittance audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-incremental-normal-bounded-admittance-scalar-controls-20261104.json)
+retains all original compliance ranges, gain, pressure requests and clipping;
+it does not prove native stability. Full original 0 N/10 N paths with explicit
+mode entry/exit and original 1 mm ramp/hold/release/stabilization/stops are still
+required before any door-contact successor. No matrix cell or source is added.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

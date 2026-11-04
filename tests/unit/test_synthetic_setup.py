@@ -739,3 +739,11 @@ def test_pressure_lead_anticipates_both_slopes_without_changing_force_or_motion_
             support_force_lead(0.1, 0.09, elapsed, 0.5)
     with pytest.raises(ValueError, match="previous force"):
         support_force_lead(0.1, np.nan, dt, 0.5)
+
+
+@pytest.mark.parametrize("invalid", [1, "true", None])
+def test_force_controlled_normal_reference_requires_explicit_boolean(invalid):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
+
+    with pytest.raises(ValueError, match="Force-controlled normal reference"):
+        ProbeSetup(force_controlled_normal_reference=invalid)
