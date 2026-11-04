@@ -86,9 +86,11 @@ actual RGB, original six-second/fourteen-shape stops, whole transfer and cleanup
 pass. A shared measured-plane span certificate keeps the complete core's metric
 error and original triangle conditioning/hemisphere checks. Numerical and ten
 recorded D3/D4 state controls pass, including exact N/P response renewal and
-excessive-error refusal; actual CUDA and prospective native qualification remain
-pending. Dependent N/P attempts stay suspended. Full observed movement and
-evolving uncertainty remain unqualified. D3-P's exact final inspection sample
+excessive-error refusal. Actual CUDA complete-path and full-producer controls
+also pass. One distinct finite N/P component pair runs on Blackwell/elab2 with
+source `15decf6`; its actual evolving uncertainty, contact, material, scene and
+stop outcomes remain pending. Full observed movement and evolving uncertainty
+remain unqualified; dependent full-source attempts stay suspended. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

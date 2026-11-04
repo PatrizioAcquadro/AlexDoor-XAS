@@ -1829,9 +1829,33 @@ Independent normal/tangent extents provide a stronger general certificate.
 retain native poses/pairs and improve whole-root point-error certificates. Both P
 responses and the corrected N exact saved response renew, while excessive
 consumed uncertainty refuses. Correlated metric-limit numerical perturbations
-also pass. These are static software/geometry controls; actual CUDA producer,
-complete-path controls and future observed native motion remain pending. No
-unchanged N/P retry, source, matrix attempt or windows are added.
+also pass. The implementation is frozen at `15decf6`.
+
+The [independent actual CUDA complete-path readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-span-actual-fullpath-material-local-20261104/independent-array-readback-review.json)
+retains all eight 4,659-tick/six-phase paths, original material availability, full
+finger queries, geometric camera coverage and negative approach/physical stress
+cases. Original four contact-through-stabilization fixed-current-error minima are
+81.884/81.785/81.891/77.845 mm. These remain diagnostic margins, with no future
+normal/scene/contact or observed-motion guarantee. The [full producer receipt readback](../../../outputs/evidence/act-a1-complete-cycle-20261026/normal-span-D4-full-producer-saved-and-current-probes-local-20261104/independent-receipt-review.json)
+retains both old empirical-bound N refusals. Six paired hypothetical current N/P
+probes renew and refuse excessive consumed normal or pose uncertainty. The
+corrected N candidate uses a complete unloaded separation proof; its baseline
+uses a loaded geometry proof. No prior action or observed contact is relabeled,
+and fresh scene/query caches remain a limitation. The two allocations charge
+7.030 and 46.555 GPU seconds, with verified owned cleanup. The full-path wrapper's
+inherited eight-view description is corrected as metadata: the worker actually
+requires all ten original views, and no observation changes.
+
+A [distinct prospective N/P observed component pair](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-span-observed-prefix-pair-manifest-20261104.json)
+is dispatched once on Blackwell/elab2 with source `15decf6`. Source archive,
+recursive config references, runtime constructors, actual UUID/ownership/empty
+contexts/capacity pass before launch; both native GPU process groups and leases
+are verified. Each retains fresh ten-view inspection and the original finite
+360 approach/180 contact/240 actual push endpoint, fixed full-task goal, physical,
+load, measured uncertainty and independent six-second stop criteria. Their native
+outcomes and evolving uncertainty remain pending. All earlier actual negatives
+and the first triangle-only design negative remain. No source, matrix attempt or
+windows are added by partial qualification.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
