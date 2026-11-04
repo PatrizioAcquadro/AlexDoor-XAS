@@ -102,6 +102,20 @@ It addresses moving-reference lag while retaining the balancing offset under
 elastic load; software tests do not qualify contact or native stopping.
 
 
+Optional `pose_normal_compliance` requires pose feedback and derives its normal
+from the first axis of the current commanded world-tool orientation. That axis
+uses absolute position feedback, removing the previous elastic target's normal
+component; measured-error integration and causal reference tracking remain on
+the other five pose axes. The pseudoinverse supplies a pure normal direction;
+a numerically unreachable normal refuses rather than coupling into another
+axis. No new sensor, evaluator input or persistent controller state is added.
+Rate scaling, physical/reserved targets, preview purity and independent stopping
+remain unchanged. The default is false. This finite normal impedance avoids
+unbounded pose integration into a fixed contact surface, but finite loaded
+tracking and contact stability require separate native qualification. Saved
+history math does not establish a changed trajectory or a qualified force range.
+
+
 
 | Right joint, canonical order | Previous Kp | Current Kp, N m/rad | Current Kd, N m s/rad |
 |---|---:|---:|---:|

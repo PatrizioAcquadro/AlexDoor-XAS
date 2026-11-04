@@ -2339,19 +2339,47 @@ load/contact acceptance thresholds, the original 10 N stopping model, 80 N
 physical limit, gains, rate/extent, dynamics, variations and full phases remain.
 The calculation establishes no counterfactual physical completion.
 
-The [new complete native family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-motion-balanced-pressure-complete-family-manifest-20261104.json)
-assigns each original condition once on Blackwell/elab4/elab3/elab2 after every
-previous family outcome is independently closed. Fresh source/runtime/UUID/
-ownership/capacity checks precede dispatch. Actual startup verifies all four
-GPU contexts/leases, exact setups and control requests; all remain in inspection
-at that check. Later progress is unpolled. Every actual result requires whole
-transfer/owned cleanup, actual RGB, complete original task/contact continuity,
-every native frozen-model estimate and positive original lower-force windows,
-all seven current and single-original-future empirical/physical position domains,
-unchanged dynamics and original stops. The prepared reader remains unrun on
-these new recordings. All four outcomes precede scoped adoption; privileged
-native components cannot admit observed sources. P's separate observed geometry
-support remains unresolved. The matrix stays 17/36.
+The [motion-consistent pressure family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-motion-balanced-pressure-complete-family-manifest-20261104.json)
+now [closes independently negative](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-motion-balanced-pressure-complete-negative-qualification-20261104.json)
+in all four original conditions. N delivers 536 push commands and reaches
+8.611 degrees, retaining positive original lower-force windows. It stops when
+the frozen moving-model upper estimate reaches 12.133 N against the original
+10 N domain. Actual native contact peaks at 9.788 N, below the separate 80 N
+physical limit. H+/H-/P lose contact after 95/92/88 push commands at
+1.276/1.234/1.163 degrees; their original lower windows become negative.
+Later withdrawal exits empirical wrist-X support for H+/H- and shoulder-Z for P.
+Physical current/future bounds and all four original six-second/fourteen-shape
+stops independently pass. No hold or stabilization qualifies. All 14,852
+task-native samples, 811 causal controls, original raw/RGB, whole payloads plus
+sidecars and actual owned cleanup are reviewed. The 1,163.771 native GPU seconds
+and 6,586,748,344 transferred original bytes remain accounted. No source or
+controller is adopted; further pressure-parameter variants are suspended.
+
+The [saved controller-state diagnostic](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-motion-pressure-selected-controller-array-diagnostic-20261104.json)
+separates measured normal pose error from the previous elastic target and the
+original arm compliance across all four available trajectories. Both pose and
+pressure loops integrate the normal goal. This supports testing a shared
+finite-normal controller, without establishing that this coupling alone caused
+every native failure. The first diagnostic reader's incorrect phase-code
+assumption is retained and corrected using the production phase table; no native
+condition was repeated because of that reader error.
+
+The optional `pose_normal_compliance` implementation preserves measured-error
+integration and causal reference tracking on the other five axes while using
+absolute position feedback along the current requested tool normal. It removes
+previous normal target memory and refuses a numerically unreachable pure normal.
+The bounded target is the only retained command state. Inner impedance, all
+physical/rate/reserved-target limits, stopping, admission and load criteria are
+unchanged. Baseline source is `b55785e`; this prospective implementation starts
+from `c13028b`. The [actual CUDA controls](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-compliance-rank-guard-original-history-controls-local-20261104/review.json)
+preserve disabled default/feedback/reference results exactly across 34,392
+commands from all eight original complete 0 N/10 N histories. Enabled command
+bounds, repeated previews and actual environment dispatch/reset/stop history
+semantics pass. These are single-command counterfactual and software checks,
+not changed-controller rollouts. Full original four-condition 0 N/10 N native
+qualification, including the original 1 mm contact ramp and independent stops,
+precedes any door-contact or observed-source successor. The separate observed
+P geometry proof remains unresolved. The matrix stays 17/36.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

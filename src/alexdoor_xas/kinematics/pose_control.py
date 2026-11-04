@@ -53,6 +53,7 @@ def bounded_pose_step(
     return_request=False,
     feedback_time_constant_s=None,
     reference_delta=None,
+    compliant_normal=None,
 ):
     """Bounded pose solve with optional measured-error integration on prior targets.
 
@@ -62,6 +63,8 @@ def bounded_pose_step(
     impedance. Only the bounded delivered target is retained, so saturation
     cannot accumulate a hidden integral. A causal reference increment can
     supply the part of each new goal step not already paid by feedback.
+    An explicit compliant normal keeps absolute position feedback on that axis
+    while retaining integral/reference tracking on the other five pose axes.
     Preview calls remain pure.
     """
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
@@ -87,6 +90,22 @@ def bounded_pose_step(
             raise ValueError("pose_reference_requires_feedback")
         if reference_delta.shape != error.shape or not bool(torch.isfinite(reference_delta).all()):
             raise ValueError("invalid_pose_reference_delta")
+    if compliant_normal is not None:
+        if not feedback:
+            raise ValueError("compliant_normal_requires_pose_feedback")
+        if (
+            not isinstance(compliant_normal, torch.Tensor)
+            or compliant_normal.shape != error.shape[:-1] + (3,)
+            or compliant_normal.device != error.device
+            or compliant_normal.dtype != error.dtype
+            or not bool(torch.isfinite(compliant_normal).all())
+        ):
+            raise ValueError("invalid_compliant_normal")
+        length = torch.linalg.vector_norm(compliant_normal, dim=-1, keepdim=True)
+        if not bool(torch.isfinite(length).all() and (length > 0).all()):
+            raise ValueError("invalid_compliant_normal")
+        normal = compliant_normal / length
+        normal = torch.cat((normal, torch.zeros_like(normal)), dim=-1)
     lo, hi = limits[..., 0], limits[..., 1]
     span = hi - lo
     if bool((span <= 0).any()) or dt <= 0 or damping <= 0:
@@ -95,23 +114,54 @@ def bounded_pose_step(
     primary = jacobian.transpose(-1, -2) @ torch.linalg.solve(
         jacobian @ jacobian.transpose(-1, -2) + damping**2 * eye, error.unsqueeze(-1)
     )
-    projector = torch.eye(7, device=jacobian.device, dtype=jacobian.dtype) - (
-        torch.linalg.pinv(jacobian, rtol=1e-4) @ jacobian
-    )
+    inverse = torch.linalg.pinv(jacobian, rtol=1e-4)
+    projector = torch.eye(7, device=jacobian.device, dtype=jacobian.dtype) - inverse @ jacobian
+    normal_direction = None
+    if compliant_normal is not None:
+        normal_jacobian = (normal.unsqueeze(-2) @ jacobian).squeeze(-2)
+        normal_direction = (inverse @ normal.unsqueeze(-1)).squeeze(-1)
+        response = (normal_jacobian * normal_direction).sum(dim=-1, keepdim=True)
+        if not bool(torch.isfinite(response).all() and (response > 0).all()):
+            raise ValueError("unreachable_compliant_normal")
+        normal_direction = normal_direction / response
+        # A rank-deficient solve may couple the requested normal into another
+        # pose axis. Refuse it at the existing pseudoinverse rank tolerance.
+        achieved = (jacobian @ normal_direction.unsqueeze(-1)).squeeze(-1)
+        if bool((torch.linalg.vector_norm(achieved - normal, dim=-1) > 1e-4).any()):
+            raise ValueError("unreachable_compliant_normal")
+
+        def normal_component(value):
+            return normal_direction.unsqueeze(-1) * (
+                normal_jacobian.unsqueeze(-2) @ value
+            )
+
+        # Remove normal elastic-target memory. Its absolute pose error supplies
+        # finite impedance, rather than another integrator into a contact surface.
+        absolute_normal = normal_direction * (normal * error).sum(dim=-1, keepdim=True)
+        elastic_normal = normal_direction * (
+            normal_jacobian * (previous_targets - positions)
+        ).sum(dim=-1, keepdim=True)
+        primary = primary - normal_component(primary)
     center = ((lo + hi) / 2 - positions) / span.square()
     if feedback:
         gain = dt / feedback_time_constant_s
         primary = primary * gain
+        if normal_direction is not None:
+            primary = primary + (absolute_normal - elastic_normal).unsqueeze(-1)
         if reference_delta is not None:
             # The current pose error already includes this next-tick reference
             # increment. Add only its unpaid fraction, avoiding a one-tick lead.
-            primary = primary + (1 - gain) * jacobian.transpose(-1, -2) @ torch.linalg.solve(
+            reference_step = (1 - gain) * jacobian.transpose(-1, -2) @ torch.linalg.solve(
                 jacobian @ jacobian.transpose(-1, -2) + damping**2 * eye,
                 reference_delta.unsqueeze(-1),
             )
-    delta = primary.squeeze(-1) + centering_gain * dt * (projector @ center.unsqueeze(-1)).squeeze(
-        -1
-    )
+            if normal_direction is not None:
+                reference_step = reference_step - normal_component(reference_step)
+            primary = primary + reference_step
+    centering = centering_gain * dt * (projector @ center.unsqueeze(-1)).squeeze(-1)
+    if normal_direction is not None:
+        centering = centering - normal_component(centering.unsqueeze(-1)).squeeze(-1)
+    delta = primary.squeeze(-1) + centering
     # Independent velocity clipping leaks nullspace motion into the hand pose.
     # Scale the whole target step to preserve its direction within the bounds.
     reference = positions if previous_targets is None else previous_targets

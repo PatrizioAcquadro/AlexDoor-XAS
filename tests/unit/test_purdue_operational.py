@@ -484,3 +484,111 @@ def test_reference_increment_requires_feedback_and_finite_pose_delta(defect):
     with pytest.raises(ValueError, match=reason):
         bounded_pose_step(jac, torch.zeros(1, 6), q, limits, torch.ones_like(q),
                           0.02, reference_delta=reference, **kw)
+
+
+@pytest.mark.parametrize("tau", [0.02, 0.5])
+def test_compliant_normal_keeps_finite_wall_impedance_and_other_pose_tracking(tau):
+    jac = torch.eye(6, 7, dtype=torch.float64)[None]
+    q = torch.zeros(1, 7, dtype=torch.float64)
+    limits = torch.tensor([[[-1., 1.]] * 7], dtype=torch.float64)
+    previous = q.clone()
+    previous[0, 0] = .02
+    previous[0, 1] = -.01
+    error = torch.tensor([[.0001, .001, 0, 0, 0, .002]], dtype=torch.float64)
+    reference = torch.tensor([[.0002, .0003, 0, 0, 0, -.0001]], dtype=torch.float64)
+    normal = torch.tensor([[1., 0, 0]], dtype=torch.float64)
+    for _ in range(30):
+        target, _, requested = bounded_pose_step(
+            jac, error, q, limits, torch.ones_like(q) * 100, .02,
+            damping=.01, centering_gain=0, previous_targets=previous,
+            feedback_time_constant_s=tau, reference_delta=reference,
+            compliant_normal=normal, return_request=True,
+        )
+        # A fixed wall cannot satisfy a positive penetration goal. Finite
+        # normal impedance must not integrate another elastic target each tick.
+        assert requested[0, 0] == pytest.approx(.0001, abs=1e-15)
+        expected_y = previous[0, 1] + (
+            .02 / tau * error[0, 1] + (1-.02/tau) * reference[0, 1]
+        ) / (1+.01**2)
+        assert requested[0, 1] == pytest.approx(float(expected_y), abs=1e-15)
+        previous = target
+
+
+@pytest.mark.parametrize("normal_scale", [1., -1., 7.])
+def test_compliant_normal_preserves_coupled_tangent_and_rotation_requests(normal_scale):
+    dtype = torch.float64
+    jac = torch.tensor([[[1, .2, 0, .1, 0, 0, .1],
+                         [.1, 1, .2, 0, 0, 0, .2],
+                         [0, .1, 1, 0, .2, 0, .1],
+                         [.1, 0, 0, 1, .1, 0, .2],
+                         [0, .1, 0, 0, 1, .1, .1],
+                         [0, 0, .1, .1, 0, 1, .1]]], dtype=dtype)
+    q = torch.zeros(1, 7, dtype=dtype)
+    previous = torch.tensor([[.03, -.02, .01, 0, -.01, .02, 0]], dtype=dtype)
+    limits = torch.tensor([[[-1., 1.]] * 7], dtype=dtype)
+    error = torch.tensor([[.001, -.002, .003, -.001, .002, .001]], dtype=dtype)
+    reference = error / 10
+    normal = torch.tensor([[.3, .4, 3**.5/2]], dtype=dtype)
+    options = dict(previous_targets=previous, feedback_time_constant_s=.5,
+                   reference_delta=reference, centering_gain=.1, return_request=True)
+    _, _, old = bounded_pose_step(jac, error, q, limits, torch.ones_like(q)*100, .02, **options)
+    _, _, new = bounded_pose_step(jac, error, q, limits, torch.ones_like(q)*100, .02,
+                                  compliant_normal=normal*normal_scale, **options)
+    task_axis = torch.cat((normal, torch.zeros_like(normal)), dim=-1)
+    normal_change = ((jac @ (new-q).unsqueeze(-1)).squeeze(-1) * task_axis).sum()
+    assert normal_change == pytest.approx(float((normal*error[:, :3]).sum()), abs=1e-14)
+    difference = (jac @ (new-old).unsqueeze(-1)).squeeze(-1)
+    tangent_difference = difference - task_axis*(difference*task_axis).sum(-1, keepdim=True)
+    torch.testing.assert_close(tangent_difference, torch.zeros_like(difference), rtol=0, atol=1e-14)
+
+
+@pytest.mark.parametrize("normal", [[0., 0, 0], [float("nan"), 0, 1], [float("inf"), 0, 1]])
+def test_compliant_normal_refuses_invalid_axes(normal):
+    q = torch.zeros(1, 7)
+    args = (torch.eye(6, 7)[None], torch.zeros(1, 6), q,
+            torch.tensor([[[-1., 1.]]*7]), torch.ones_like(q), .02)
+    with pytest.raises(ValueError, match="invalid_compliant_normal"):
+        bounded_pose_step(*args, previous_targets=q, feedback_time_constant_s=.5,
+                          compliant_normal=torch.tensor([normal]))
+
+
+def test_compliant_normal_requires_feedback_and_reachable_normal():
+    q = torch.zeros(1, 7)
+    args = (torch.zeros(1, 6, 7), torch.zeros(1, 6), q,
+            torch.tensor([[[-1., 1.]]*7]), torch.ones_like(q), .02)
+    normal = torch.tensor([[1., 0, 0]])
+    with pytest.raises(ValueError, match="compliant_normal_requires_pose_feedback"):
+        bounded_pose_step(*args, compliant_normal=normal)
+    with pytest.raises(ValueError, match="unreachable_compliant_normal"):
+        bounded_pose_step(*args, previous_targets=q, feedback_time_constant_s=.5,
+                          compliant_normal=normal)
+
+
+def test_compliant_normal_refuses_normal_coupled_by_rank_deficiency():
+    q = torch.zeros(1, 7)
+    jac = torch.eye(6, 7)[None]
+    jac[:, 1] = jac[:, 0]
+    with pytest.raises(ValueError, match="unreachable_compliant_normal"):
+        bounded_pose_step(
+            jac, torch.zeros(1, 6), q, torch.tensor([[[-1., 1.]] * 7]),
+            torch.ones_like(q), .02, previous_targets=q,
+            feedback_time_constant_s=.5, compliant_normal=torch.tensor([[1., 0, 0]]),
+        )
+
+
+def test_compliant_normal_retains_physical_target_reserve_rate_and_reversal():
+    q = torch.zeros(1, 7, dtype=torch.float64)
+    previous = q.clone()
+    previous[0, 0] = .19
+    limits = torch.tensor([[[-.2, .2]]*7], dtype=q.dtype)
+    speed = torch.ones_like(q)*.5
+    normal = torch.tensor([[1., 0, 0]], dtype=q.dtype)
+    for sign in [1., -1.]:
+        target, _, request = bounded_pose_step(
+            torch.eye(6, 7, dtype=q.dtype)[None], torch.ones(1, 6, dtype=q.dtype)*sign,
+            q, limits, speed, .02, previous_targets=previous,
+            feedback_time_constant_s=.5, compliant_normal=normal, return_request=True,
+        )
+        assert bool((target >= limits[..., 0]).all() and (target <= limits[..., 1]).all())
+        assert bool(((target-previous).abs() <= speed*.02+1e-14).all())
+        assert request[0, 0] == pytest.approx(sign, abs=1e-14)

@@ -25,6 +25,7 @@ from isaaclab.utils.math import (
     apply_delta_pose,
     combine_frame_transforms,
     compute_pose_error,
+    matrix_from_quat,
 )
 from pxr import Usd, UsdGeom, UsdPhysics
 
@@ -80,6 +81,10 @@ class DoorPushPurdueEnv(DirectRLEnv):
             raise ValueError("invalid_stop_impedance")
         if cfg.pose_reference_feedforward and cfg.pose_feedback_time_constant_s is None:
             raise ValueError("pose_reference_requires_feedback")
+        if type(cfg.pose_normal_compliance) is not bool:
+            raise ValueError("invalid_pose_normal_compliance")
+        if cfg.pose_normal_compliance and cfg.pose_feedback_time_constant_s is None:
+            raise ValueError("compliant_normal_requires_pose_feedback")
         self._motion_impedance = []
         super().__init__(cfg, **kwargs)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
@@ -390,6 +395,11 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 damping=self.cfg.ik_damping,
                 feedback_time_constant_s=getattr(self.cfg, "pose_feedback_time_constant_s", None),
                 reference_delta=reference_delta,
+                compliant_normal=(
+                    matrix_from_quat(world_goal[1])[..., :, 0]
+                    if getattr(self.cfg, "pose_normal_compliance", False)
+                    else None
+                ),
                 return_request=with_request,
             )
             target, excess = result[:2]

@@ -217,17 +217,27 @@ clocks/RGB, original stops, whole transfers and owned cleanup are reviewed.
 Later failure withdrawal again exits empirical position support. All 1,145.422
 native GPU seconds remain charged; no source or controller is adopted.
 
-A saved-parameter audit identifies a conflict in the intended normal-force
-model: the original 4 N m s/rad hinge damping and 0.19714 m contact lever require
-about 0.354 N at the separately requested 1 degree/s, versus the 0.1 N pressure
-request. Saved unloaded coast decays near the inertia-based prediction. This
-normal-only balance does not reconstruct startup acceleration, distributed
-friction or the combined nonlinear servo. A distinct four-condition complete
-qualification uses the derived push control request, retaining 0.1 N acquisition/
-hold, original gain/rate/extent, physical dynamics and all independent force,
-contact, model, full-task and stop criteria. Actual startup runtime flags, exact
-signed setups and GPU contexts/leases are verified; all four are in inspection and later progress is unpolled. No source
-change or native success follows from the parameter calculation.
+The motion-consistent pressure family also closes negative in all four original
+conditions. N reaches 8.611 degrees over 536 push commands with positive original
+lower-force windows, then exceeds the frozen moving-model upper bound:
+12.133 N against 10 N. Actual native contact peaks at 9.788 N; this is a model
+domain failure, not an 80 N physical-force violation. H+/H-/P lose contact at
+1.16–1.28 degrees and later exit empirical withdrawal support. No hold or
+stabilization qualifies. All 14,852 task-native samples, 811 causal controls,
+original stops, raw clocks/RGB, whole transfers and owned cleanup are reviewed;
+1,163.771 native GPU seconds remain charged. Further pressure-parameter variants
+are suspended. The normal-only hinge balance did not establish a stable combined
+controller.
+
+The shared controller now has optional finite position feedback along the
+current commanded tool normal, retaining integral/reference tracking on the
+other five pose axes. This removes normal elastic-target memory from the pose
+integrator. Default behavior is exactly preserved on actual CUDA history inputs;
+software checks preserve rates, target reserves, preview purity and singular-axis
+refusal. This is an implemented candidate, with no native-motion, contact,
+calibration or source qualification. The next prerequisite is the original four
+complete robot-only paths at both 0 N and 10 N, including the original 1 mm
+contact-ramp requirement and independent stops, before any door-contact successor.
 P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
