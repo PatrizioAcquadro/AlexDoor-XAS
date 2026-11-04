@@ -547,7 +547,12 @@ admission and for the remaining interval of loaded or unloaded receipts. A conve
 certificate does not authorize its larger enclosing ball; that ball requires its
 own complete proof. Original global proofs remain available when no layer applies.
 Numerical boundary, uncertainty, missing-measurement and interface regressions
-pass; actual saved-producer and native transfer qualification remain separate.
+pass. Actual CUDA controls preserve the original model and disabled producer on
+D3-N/D4-N/D4-P. The height-enabled P producer supports the exact earlier-refused
+packet; current and remaining receipts reject coherent domain exits and new
+normal uncertainty. Every implemented layer matches the independently checked
+whole fixed TRAIN collider model. Native transfer and source qualification remain
+separate.
 
 ## Resolution of whole-robot separation proofs
 

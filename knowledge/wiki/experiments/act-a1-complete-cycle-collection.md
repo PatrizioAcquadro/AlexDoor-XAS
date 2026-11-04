@@ -2004,7 +2004,18 @@ new certificate rechecks complete normal separation as well as spatial root and
 higher-return exclusion, including loaded receipts; convex and outer-ball proofs
 remain distinct. Numerical boundary/perturbed/missing-normal controls and affected
 admission/session regressions pass. Actual saved full-producer, related complete
-motion and native qualification remain pending; no model or calibration is adopted. Four local allocations charge 38.288 GPU
+motion and native qualification remain separate. The implemented layers now
+exactly match all 35 independently validated full-collider layers and finite
+domains. The [original-packet CUDA producer review](../../../outputs/evidence/act-a1-complete-cycle-20261026/finite-height-whole-root-and-original-producer-qualification-20261104.json)
+keeps the disabled model/producer unchanged in all three scenes. On P, the enabled
+producer admits the exact earlier-refused packet with two complete-volume
+certificates. Five remaining-interval receipts pass, while coherent finite-root
+and normal-primitive perturbations reach the height-proof refusal. N retains its
+independent future-position refusal. D3's default packet is already admitted and
+uses no height layer; this is no new D3 native success. The 70.801 GPU seconds
+include both retained D3 reader-preparation failures, with owned cleanup. Original
+packets, selected poses, clocks, all foreground and reserves remain unchanged;
+no source or matrix cell is added. Four local allocations charge 38.288 GPU
 seconds, including both retained reader-preparation failures, with owned cleanup.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
@@ -2080,8 +2091,17 @@ boundary servo/pulse limits and 204 continuous stop segments. A necessary
 [static CUDA torque-balance check](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-whole-motion-10N-static-preflight-local-20261104/review.json)
 passes all 68 original physical target reserves; native convergence, residual,
 loaded coverage and stop qualification remain pending. It charges 7.036 GPU
-seconds with owned cleanup. No matrix/source/window credit or calibration
-adoption follows. Elab5's initial zero-launch Torch preflight failure remains
+seconds with owned cleanup. The [complete 68-case independent qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-whole-motion-10N-qualification-20261104.json)
+now passes all 17 postures across the four conditions: 319,920 moving native
+samples, 130,560 continuing-stop samples and all 204 original stop segments.
+Loaded moving and original stop-onset coverage pass at all three sites, with the
+preregistered pulse caps retained. Whole outputs and actual owned cleanup pass.
+Native cost is 4,505.595 GPU seconds and independent reviews add 173.489 seconds.
+Only the conservative common three-site measured frontiers enter the new
+condition-scoped calibrations; outside-side and 11 N checks still refuse. The
+global default calibration, physical and residual limits remain unchanged.
+Observed native transfer, full-source qualification and matrix/window credit
+remain separate. Elab5's initial zero-launch Torch preflight failure remains
 retained; its existing native-job Python passed before the sole launch, without
 installing dependencies.
 

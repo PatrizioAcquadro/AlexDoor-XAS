@@ -113,8 +113,12 @@ and tangent padding; complete fixed TRAIN collider checks pass on the D4-P,
 D4-N and D3-N observations with independent surface and solid-polytope methods.
 Optional finite-domain producer/receipt software now rechecks complete spatial
 and normal support with the original reserves, including loaded receipts.
-Numerical controls pass; actual saved-producer and related native qualification
-remain required before use. The distinct N whole-motion probe at the original
+Numerical and actual CUDA saved-producer controls pass, with all 35 implemented
+layers matching the independent complete fixed TRAIN collider proofs. P's exact
+previously refused packet gains a complete-volume height proof; its remaining
+receipts and coherent uncertainty/domain negatives pass. N's independent position
+refusal remains, and D3's already-positive default packet uses no height layer.
+Related native qualification remains required before collection use. The distinct N whole-motion probe at the original
 required 10 N load then fails the opening endpoint: actual position error is
 87.570 mm against the original 10 mm limit. Target FK error is 5.574 mm, while
 actual-to-target displacement is 87.982 mm and the gripper command reaches its
@@ -137,7 +141,10 @@ whole transfers and actual owned cleanup pass. This qualifies the robot-only
 controller components. The changed complete histories require 17 new measured
 joint-side postures; 68 distinct original load-site/yaw cases and 204 continuous
 stop segments are prepared, with a passing necessary static CUDA target check.
-Their native qualification and observed full-source contact remain pending. D3-P's exact final inspection sample
+All 68 cases now independently pass loaded-boundary coverage, frozen residuals,
+physical limits and 204 original continuous stop segments. Complete transfer and
+owned cleanup pass. The 17 sides provide condition-scoped measured support;
+observed full-source contact remains pending. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
