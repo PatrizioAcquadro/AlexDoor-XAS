@@ -2381,6 +2381,30 @@ qualification, including the original 1 mm contact ramp and independent stops,
 precedes any door-contact or observed-source successor. The separate observed
 P geometry proof remains unresolved. The matrix stays 17/36.
 
+The [first finite-normal required-load native case](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-compliance-N10-negative-qualification-20261104.json)
+closes independently negative on Blackwell, with the actual option enabled in
+source `4619165`. After 540 pose deliveries, the original necessary 1 mm ramp
+margin fails: normal error is 5.331 mm and margin is −4.331 mm. Approach/ramp
+10 mm/5 degree endpoint ranges pass; opening, hold, release and stabilization
+remain unavailable. All 3,120 native samples, whole nineteen-file plus
+three-sidecar transfer and actual owned cleanup are verified. Original frozen
+moving/stopped model residuals, current/future physical boxes and all three
+one-latch 2+4+2 s/fourteen-shape stops pass. Empirical current and original future
+position support fail in 1,815 and 2,095 samples respectively; no failed-point
+extension follows. Four other declared full-path qualifications remain running
+at their last check and are left undisturbed.
+
+The [shared complete-history compliance audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-finite-normal-complete-original-compliance-diagnostic-20261104.json)
+uses all eight original complete native histories and their recorded stiffness.
+At the new negative witness, `n.T Jp diag(1/Kp) Jp.T n * 10 N` predicts 5.272 mm
+versus the measured 5.331 mm. Actual linearized target deflection is also
+5.331 mm. Finite normal feedback removes pose integration into contact but loses
+constant-load rejection. This static diagnostic neither proves dynamic contact
+stability nor selects a new gain. A shared causal compliance/load correction and
+complete related-condition qualification are required. No native door attempt,
+observed source, calibration or criterion change follows from the candidate.
+The family remains unadopted while its other declared outcomes are pending.
+
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture
 `d0281c4`, the same common initial posture, target reservation and gains, and

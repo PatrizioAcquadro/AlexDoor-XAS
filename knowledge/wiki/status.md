@@ -235,9 +235,15 @@ other five pose axes. This removes normal elastic-target memory from the pose
 integrator. Default behavior is exactly preserved on actual CUDA history inputs;
 software checks preserve rates, target reserves, preview purity and singular-axis
 refusal. This is an implemented candidate, with no native-motion, contact,
-calibration or source qualification. The next prerequisite is the original four
-complete robot-only paths at both 0 N and 10 N, including the original 1 mm
-contact-ramp requirement and independent stops, before any door-contact successor.
+calibration or source qualification. Its first required 10 N native case now
+closes negative: N's ramp normal error is 5.331 mm against the original 1 mm
+compression. Moving/stopped model residuals, physical future bounds and the
+original eight-second/fourteen-shape stops pass, while empirical position support
+also fails. The complete saved-history compliance audit predicts 5.272 mm at
+that witness, consistent with finite stiffness losing constant-load rejection;
+it is not a dynamic stability proof. Four other declared qualifications remain
+running at their last check. Native door and observed-source successors stay
+suspended pending a shared correction and complete native requalification.
 P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
