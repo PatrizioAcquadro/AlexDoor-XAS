@@ -2083,6 +2083,41 @@ load sites before adoption; intermediate/changing-load and observed complete
 motion remain separate requirements. This partial study adds no matrix cell,
 source or training window.
 
+The [complete unloaded qualification](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-unloaded-qualified-components-20261104.json)
+now closes H− as well: all four original 0 N components independently satisfy
+the original six-phase, physical/future, frozen moving/stopped model and one-latch
+8 s/fourteen-shape stop criteria. All 78,384 moving and 7,680 stopped samples and
+twelve stop segments remain; complete transfer and owned cleanup pass. Native
+charges are 1,238.775 GPU seconds, reviews 36.197 seconds. The
+[full eight-history position audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-zero-ten-complete-four-position-support-audit-20261104.json)
+retains H−'s additional 62.841-microradian future wrist-X deficit, alongside P's
+two deficits. No measured position is outside scoped support. No position bound
+is changed, and intermediate/changing-load trajectories remain unqualified.
+
+The [observed N negative](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D4-finite-height-feedback-N-observed-780prefix-blackwell-20261104/complete-negative-qualification-review.json)
+retains 360 approach, 180 contact and 91 incomplete release commands, all 631
+admitted proposals, 1,263 load packets and 10,781 healthy native feedback samples.
+There is no push, hold or stabilization. No command is unsafe or eligible for
+teacher supervision. The original six-second/fourteen-shape stop, actual RGB,
+whole 38-file/three-sidecar transfer and actual owned cleanup pass; 2,670.174
+native GPU seconds remain charged. All contact commands have zero native force
+and no loaded contact. The teacher begins release after that physical failure;
+the later observed safety refusal is `contact_acquisition_budget`. These causes
+remain separate, and the incomplete release stays incomplete.
+
+The [whole-motion ramp diagnosis](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D4-finite-height-feedback-N-observed-780prefix-blackwell-20261104/whole-motion-contact-ramp-lag-diagnosis.json)
+finds 1.661–1.686 mm normal endpoint lag in every original 0 N/10 N N/H+/H−/P
+ramp, against unchanged 1 mm compression. Observed N independently has 1.706 mm
+pose error and 0.671–0.716 mm native separation at the end of contact. Passing
+the original robot-only 10 mm endpoint tolerance therefore does not establish
+actual contact. Rather than changing seek time, compression or acceptance
+criteria, the optional shared controller now uses the previous dispatched goal
+to supply the part of the reference increment not already paid by feedback.
+Numerical ramp/balance/saturation/pure-preview/default and guarded-stop controls
+pass. Actual CUDA saved-input controls, all original complete 0 N/10 N motions,
+independent stopping and observed contact remain required; no old positive or
+negative is reclassified, and no calibration, source or matrix cell is admitted.
+
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture
 `d0281c4`, the same common initial posture, target reservation and gains, and

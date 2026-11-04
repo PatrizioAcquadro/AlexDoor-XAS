@@ -154,15 +154,20 @@ whole transfer and owned cleanup independently pass. This remains a negative
 partial qualifier, with no source or matrix credit. All four complete reference
 paths had constant center-site 10 N pressure, whereas this P prefix had no contact;
 maximum-load motion alone does not establish unloaded or changing-load extrema.
-Three distinct complete unloaded counterparts, N/H+/P, now independently pass
-all original phases, frozen moving/stopped residuals, physical/future limits and
-eight-second/fourteen-shape stops. Whole transfers and owned cleanup pass. The
-six complete 0 N/10 N histories confirm that P's unloaded future interval exceeds
-two scoped position sides while actual positions remain supported; N/H+ retain
-future support. No empirical bound is changed. H− was healthy and running at the
-latest inspection; finish its independent review and required-load support
-qualification before any dependent observed retry. The independent observed N
-qualifier remains running on Blackwell. D3-P's exact final inspection sample
+All four complete unloaded counterparts independently pass the original six
+phases, frozen residuals, physical/future limits and eight-second/fourteen-shape
+stops, with whole transfer and owned cleanup. Eight complete 0 N/10 N histories
+retain three missing future-position sides across P/H−; no bound is extended.
+The observed N qualifier instead fails to acquire any load during its original
+180-command contact interval: normal tracking lags about 1.7 mm against 1 mm
+compression, leaving 0.67–0.72 mm native separation. It begins an incomplete
+release, then the original acquisition budget latches after 91 release commands.
+Raw/load/RGB, original stops, whole transfer and owned cleanup pass; this is a
+negative source. The same ramp lag occurs in all eight robot-only histories,
+although their original 10 mm endpoint criterion passes. An optional causal
+previous-goal reference correction is implemented and numerically tested with
+the original controller gain, limits and stops; actual CUDA, complete native
+0 N/10 N and contact qualification remain required before adoption. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

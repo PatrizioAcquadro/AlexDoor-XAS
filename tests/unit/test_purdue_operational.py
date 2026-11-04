@@ -395,3 +395,92 @@ def test_pose_feedback_requires_finite_previous_delivery_and_allows_unit_gain():
         *arguments, previous_targets=q, feedback_time_constant_s=0.01, centering_gain=0
     )
     torch.testing.assert_close(target, q, rtol=0, atol=0)
+
+
+@pytest.mark.parametrize("tau", [0.02, 0.5])
+def test_causal_reference_tracks_moving_goal_without_one_tick_lead(tau):
+    # A linear kinematic plant with constant elastic deflection distinguishes
+    # correct next-tick tracking from paying the reference increment twice.
+    dtype = torch.float64
+    jac = torch.eye(6, 7, dtype=dtype)[None]
+    limits = torch.tensor([[[-1.0, 1.0]] * 7], dtype=dtype)
+    deflection = torch.tensor([[0.03, -0.02, 0.01, 0, 0.02, -0.01, 0]], dtype=dtype)
+    previous = deflection.clone()
+    increment = torch.tensor([[0.0002, -0.0001, 0, 0.0001, 0, -0.0001]], dtype=dtype)
+    goal = torch.zeros_like(increment)
+    for _ in range(120):
+        goal = goal + increment
+        measured = previous - deflection
+        error = goal - measured[:, :6]
+        target, _ = bounded_pose_step(
+            jac, error, measured, limits, torch.ones_like(previous), 0.02,
+            damping=1e-6, centering_gain=0, previous_targets=previous,
+            feedback_time_constant_s=tau, reference_delta=increment,
+        )
+        torch.testing.assert_close((target-deflection)[:, :6], goal, rtol=0, atol=1e-11)
+        previous = target
+    held, _ = bounded_pose_step(
+        jac, goal-(previous-deflection)[:, :6], previous-deflection,
+        limits, torch.ones_like(previous), 0.02, damping=1e-6, centering_gain=0,
+        previous_targets=previous, feedback_time_constant_s=tau,
+        reference_delta=torch.zeros_like(goal),
+    )
+    torch.testing.assert_close(held, previous, rtol=0, atol=1e-11)
+
+
+def test_zero_reference_increment_preserves_feedback_and_pure_preview():
+    jac = torch.eye(6, 7)[None]
+    q = torch.tensor([[0.1, -0.2, 0.05, 0, 0.1, -0.1, 0.2]])
+    previous = q + 0.01
+    limits = torch.tensor([[[-1.0, 1.0]] * 7])
+    error = torch.tensor([[0.01, -0.02, 0.03, 0.02, 0.01, -0.01]])
+    args = (jac, error, q, limits, torch.ones_like(q), 0.02)
+    kw = dict(previous_targets=previous, feedback_time_constant_s=0.5, return_request=True)
+    original = bounded_pose_step(*args, **kw)
+    saved = previous.clone()
+    for _ in range(2):
+        result = bounded_pose_step(*args, reference_delta=torch.zeros_like(error), **kw)
+        for actual, expected in zip(result, original, strict=True):
+            torch.testing.assert_close(actual, expected, rtol=0, atol=0)
+        torch.testing.assert_close(previous, saved, rtol=0, atol=0)
+
+
+def test_reference_step_preserves_target_reserve_rate_and_no_hidden_windup():
+    jac = torch.eye(6, 7, dtype=torch.float64)[None]
+    q = torch.zeros(1, 7, dtype=torch.float64)
+    previous = q.clone()
+    previous[0, 0] = 0.19
+    limits = torch.tensor([[[-0.2, 0.2]] * 7], dtype=torch.float64)
+    speed = torch.ones_like(q) * 0.5
+    error = torch.ones(1, 6, dtype=torch.float64) * 0.05
+    kw = dict(previous_targets=previous, feedback_time_constant_s=0.5, centering_gain=0)
+    first = bounded_pose_step(jac, error, q, limits, speed, 0.02,
+                             reference_delta=error*100, **kw)[0]
+    repeated = bounded_pose_step(jac, error, q, limits, speed, 0.02,
+                                reference_delta=error*100, **kw)[0]
+    torch.testing.assert_close(first, repeated, rtol=0, atol=0)
+    assert bool(((first-previous).abs() <= speed*0.02+1e-12).all())
+    assert bool((first >= limits[..., 0]).all() and (first <= limits[..., 1]).all())
+    reversed_target = bounded_pose_step(jac, -error, q, limits, speed, 0.02,
+                                       reference_delta=-error*100, **kw)[0]
+    assert reversed_target[0, 0] < previous[0, 0]
+
+
+@pytest.mark.parametrize("defect", ["feedback_missing", "shape", "nonfinite"])
+def test_reference_increment_requires_feedback_and_finite_pose_delta(defect):
+    jac = torch.eye(6, 7)[None]
+    q = torch.zeros(1, 7)
+    limits = torch.tensor([[[-1.0, 1.0]] * 7])
+    reference = torch.zeros(1, 6)
+    kw = dict(previous_targets=q, feedback_time_constant_s=0.5)
+    reason = "invalid_pose_reference_delta"
+    if defect == "feedback_missing":
+        kw.pop("feedback_time_constant_s")
+        reason = "pose_reference_requires_feedback"
+    elif defect == "shape":
+        reference = reference[:, :5]
+    else:
+        reference += float("nan")
+    with pytest.raises(ValueError, match=reason):
+        bounded_pose_step(jac, torch.zeros(1, 6), q, limits, torch.ones_like(q),
+                          0.02, reference_delta=reference, **kw)

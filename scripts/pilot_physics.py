@@ -364,6 +364,7 @@ def main(argv=None):
         domain = recipe.get("pose_target_domain_rad")
         cfg.pose_target_domain_rad = None if domain is None else tuple(map(tuple, domain))
         cfg.pose_feedback_time_constant_s = recipe.get("pose_feedback_time_constant_s")
+        cfg.pose_reference_feedforward = recipe.get("pose_reference_feedforward", False)
         configure_physics_substeps(cfg, recipe.get("physics_substeps", cfg.decimation))
         stop_diagnostic_s = float(recipe.get("stop_diagnostic_continuation_s", 0.0))
         if not math.isfinite(stop_diagnostic_s) or stop_diagnostic_s < 0:
@@ -409,6 +410,7 @@ def main(argv=None):
             pose_target_margin_rad=cfg.pose_target_margin_rad,
             pose_target_domain_rad=cfg.pose_target_domain_rad,
             pose_feedback_time_constant_s=cfg.pose_feedback_time_constant_s,
+            pose_reference_feedforward=cfg.pose_reference_feedforward,
             physical_joint_limits_rad=array(env.limits)[0].tolist(),
             pose_target_limits_rad=array(env.pose_limits)[0].tolist(),
             physics_dt=cfg.sim.dt,

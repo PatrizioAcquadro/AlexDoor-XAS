@@ -52,6 +52,7 @@ def bounded_pose_step(
     *,
     return_request=False,
     feedback_time_constant_s=None,
+    reference_delta=None,
 ):
     """Bounded pose solve with optional measured-error integration on prior targets.
 
@@ -59,7 +60,9 @@ def bounded_pose_step(
     the last delivered target by dt/tau times the measured pose correction;
     a constant elastic deflection can then be balanced without changing inner
     impedance. Only the bounded delivered target is retained, so saturation
-    cannot accumulate a hidden integral. Preview calls remain pure.
+    cannot accumulate a hidden integral. A causal reference increment can
+    supply the part of each new goal step not already paid by feedback.
+    Preview calls remain pure.
     """
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
         raise ValueError("Purdue pose control requires a 6x7 Jacobian and six pose errors")
@@ -79,6 +82,11 @@ def bounded_pose_step(
             torch.isfinite(previous_targets).all()
         ):
             raise ValueError("invalid_pose_feedback_previous_targets")
+    if reference_delta is not None:
+        if not feedback:
+            raise ValueError("pose_reference_requires_feedback")
+        if reference_delta.shape != error.shape or not bool(torch.isfinite(reference_delta).all()):
+            raise ValueError("invalid_pose_reference_delta")
     lo, hi = limits[..., 0], limits[..., 1]
     span = hi - lo
     if bool((span <= 0).any()) or dt <= 0 or damping <= 0:
@@ -92,7 +100,15 @@ def bounded_pose_step(
     )
     center = ((lo + hi) / 2 - positions) / span.square()
     if feedback:
-        primary = primary * (dt / feedback_time_constant_s)
+        gain = dt / feedback_time_constant_s
+        primary = primary * gain
+        if reference_delta is not None:
+            # The current pose error already includes this next-tick reference
+            # increment. Add only its unpaid fraction, avoiding a one-tick lead.
+            primary = primary + (1 - gain) * jacobian.transpose(-1, -2) @ torch.linalg.solve(
+                jacobian @ jacobian.transpose(-1, -2) + damping**2 * eye,
+                reference_delta.unsqueeze(-1),
+            )
     delta = primary.squeeze(-1) + centering_gain * dt * (projector @ center.unsqueeze(-1)).squeeze(
         -1
     )

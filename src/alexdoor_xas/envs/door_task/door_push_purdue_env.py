@@ -69,6 +69,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._time_s = 0.0
         self._pending_pose = None
         self._pending_joints = None
+        self._last_world_goal = None
         self.motion_stopped = False
         stop_stiffness = np.asarray(cfg.stop_stiffness, dtype=float)
         if (
@@ -77,6 +78,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
             or (stop_stiffness <= 0).any()
         ):
             raise ValueError("invalid_stop_impedance")
+        if cfg.pose_reference_feedforward and cfg.pose_feedback_time_constant_s is None:
+            raise ValueError("pose_reference_requires_feedback")
         self._motion_impedance = []
         super().__init__(cfg, **kwargs)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
@@ -367,6 +370,14 @@ class DoorPushPurdueEnv(DirectRLEnv):
         else:
             pe, re = compute_pose_error(*self.tool_pose(), *world_goal, rot_error_type="axis_angle")
             error = torch.cat((pe, re), dim=-1)
+            reference_delta = None
+            if getattr(self.cfg, "pose_reference_feedforward", False):
+                if self.cfg.pose_feedback_time_constant_s is None:
+                    raise ValueError("pose_reference_requires_feedback")
+                previous = self._last_world_goal
+                if previous is not None:
+                    dp, dr = compute_pose_error(*previous, *world_goal, rot_error_type="axis_angle")
+                    reference_delta = torch.cat((dp, dr), dim=-1)
             result = bounded_pose_step(
                 self.tool_jacobian(),
                 error,
@@ -378,6 +389,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 centering_gain=self.cfg.centering_gain,
                 damping=self.cfg.ik_damping,
                 feedback_time_constant_s=getattr(self.cfg, "pose_feedback_time_constant_s", None),
+                reference_delta=reference_delta,
                 return_request=with_request,
             )
             target, excess = result[:2]
@@ -394,6 +406,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         re-enables motion. Zero Gym actions may advance physics while stopped.
         """
         self._pending_pose = self._pending_joints = None
+        self._last_world_goal = None
         if self.motion_stopped:
             return
         self.motion_stopped = True
@@ -423,12 +436,14 @@ class DoorPushPurdueEnv(DirectRLEnv):
             raise ValueError("invalid Purdue command")
         if self.motion_stopped:
             self._pending_pose = self._pending_joints = None
+            self._last_world_goal = None
             if bool((actions != 0).any()):
                 raise RuntimeError("motion_stopped")
             self.contact_history = []
             self.load_samples = []
             self._physics_actions = 0
             return
+        goal = None
         if self.cfg.action_mode == "A1" or self._pending_joints is not None:
             delta = actions if self._pending_joints is None else self._pending_joints
             request_kind, request = 1, delta.clone()
@@ -459,6 +474,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
         )
         self.clamp_excess, self.pose_error = excess, error
         self.targets[:, self.arm_ids] = target
+        # Commit only a dispatched pose goal; previews and rejected commands
+        # cannot advance reference history. Joint commands end that history.
+        self._last_world_goal = None if goal is None else tuple(value.clone() for value in goal)
         self.contact_history = []
         self.load_samples = []
         self._physics_actions = 0
@@ -560,6 +578,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.robot.write_joint_velocity_to_sim_index(velocity=torch.zeros_like(q))
         self.robot.set_joint_position_target_index(target=q)
         self.targets = q.clone()
+        self._last_world_goal = None
         self._pending_pose = None
         self._pending_joints = None
         self.load_samples = []

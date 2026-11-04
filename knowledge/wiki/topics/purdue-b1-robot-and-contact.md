@@ -89,6 +89,19 @@ neither inner actuator impedance nor a physical/load/observation acceptance gate
 complete native motion, related-condition and stopping qualification remain
 required before collection adoption.
 
+With feedback enabled, optional `pose_reference_feedforward` also tracks the
+increment between the previous dispatched world-pose goal and the current goal.
+For `alpha = dt / tau`, the task-space step is `alpha * error + (1 - alpha) *
+reference_delta` before the existing damped solve, centering and bounds. The
+current error already includes the next-tick reference increment; paying only
+its remaining fraction avoids a one-tick lead. No future goal or evaluator input
+is used. Previews never commit reference history. A delivered pose command saves
+its goal; a joint command, reset or independent stop clears it. Cold start uses
+feedback alone. This option is false by default and requires feedback mode.
+It addresses moving-reference lag while retaining the balancing offset under
+elastic load; software tests do not qualify contact or native stopping.
+
+
 
 | Right joint, canonical order | Previous Kp | Current Kp, N m/rad | Current Kd, N m s/rad |
 |---|---:|---:|---:|
