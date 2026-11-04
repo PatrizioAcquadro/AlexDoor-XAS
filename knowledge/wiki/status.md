@@ -250,6 +250,12 @@ Software controls pass; changed-controller native transitions, complete original
 four-condition 0 N/10 N paths and stops remain unqualified. No real-door or
 observed-source successor precedes that qualification. Existing force requests,
 gains, physical limits, observation boundaries and acceptance criteria remain.
+Four distinct native allocations now exercise the eight declared mode-transition
+cases on Blackwell/elab4/elab3/elab2, using source `a11f4f1`. Actual GPU ownership,
+mode flags and exact dispatch checks are verified. All four zero-load ramp
+prefixes pass their original necessary margin at that check; full paths, loaded
+cases and independent outcomes remain pending. Healthy allocations are left
+running without repeated polling.
 P's separate observed geometry deficit and all
 complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning

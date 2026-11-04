@@ -2448,6 +2448,23 @@ it does not prove native stability. Full original 0 N/10 N paths with explicit
 mode entry/exit and original 1 mm ramp/hold/release/stabilization/stops are still
 required before any door-contact successor. No matrix cell or source is added.
 
+The [distinct original eight-case transition family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-incremental-normal-zero-ten-native-manifest-20261104.json)
+is dispatched once across four available hosts after final-source/runtime/UUID/
+ownership/capacity checks and complete prior-family closure. A prelaunch queued
+joint-override attribution check leads to source `a11f4f1`; its new CUDA audit
+also preserves all 34,392 original command results and mode/history checks.
+The earlier staged source is retained and was never launched. Native startup
+verifies all four owned GPU contexts/leases, explicit `force_phases_only` mode
+and exact preview/dispatch. Each zero-load case reaches the original ramp with
+positive necessary normal margin and 180 mode commands. Later progress remains
+unpolled; this is neither full-path nor 10 N nor contact qualification. All
+original 4,659 commands/six phases, 1 mm ramp, three-second hold, achieved release,
+held stabilization and one-latch eight-second/fourteen-shape stops remain required.
+Each completed native case must also show exactly 3,579 mode commands and the
+unchanged raw native phase mask. Whole transfer/owned cleanup and actual outcome
+routing precede every independent review. No positive native component can admit
+an observed source or resolve P's separate geometry proof.
+
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture
 `d0281c4`, the same common initial posture, target reservation and gains, and
