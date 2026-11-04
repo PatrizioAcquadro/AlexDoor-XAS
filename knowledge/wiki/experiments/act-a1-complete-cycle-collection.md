@@ -2037,6 +2037,21 @@ remain suspended. The first preflight used the workstation runtime path; that
 zero-launch setup failure is retained, and the actual elab4 runtime passed before
 the sole launch. No calibration domain, source, window or matrix cell is added.
 
+A shared optional [[../topics/purdue-b1-robot-and-contact#Common benchmark controller and stop|outer pose-feedback mode]]
+addresses the observed elastic bias without changing the inner actuator gains.
+It integrates measured pose correction on the previous delivered target using
+an explicit time constant, preserves the original nullspace/rate/reserved-target
+bounds and has no hidden state beyond the delivered target. The default remains
+the original absolute IK. Numerical bias-rejection, invalid-state, pure-preview
+and saturation controls pass. An [actual CUDA saved-path audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-actual-saved-path-controls-local-20261104/review.json)
+verifies exact original-default tensor parity and bounded, repeatable candidate
+proposals on all four complete 0.3 N paths and the 10 N negative prefix. The
+0.5 s candidate time constant is declared for qualification; no favorable
+native parameter selection or trajectory equivalence is inferred from saved
+single-packet proposals. Original clipping and missing later phases remain
+explicit. Distinct complete native required-load and related-condition results
+are still needed; no controller is adopted for collection by these checks.
+
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,
 at 21 s. Both eligible P roots retain zero material cells under the original union

@@ -283,3 +283,115 @@ def test_pose_domain_cannot_override_the_original_target_rate():
     target, _ = bounded_pose_step(jac, torch.zeros(1, 6), q, domain, speed, 0.05)
     assert bool(((target - q).abs() <= speed * 0.05).all())
     assert bool((target <= domain[..., 1]).all())
+
+
+@pytest.mark.parametrize("coupling", [0.0, 0.4, -0.7])
+def test_pose_feedback_balances_constant_deflection_and_keeps_preview_pure(coupling):
+    # This linear equilibrium checks controller bias rejection, not native dynamics.
+    jac = torch.zeros(1, 6, 7, dtype=torch.float64)
+    jac[0, :, :6] = torch.eye(6, dtype=torch.float64)
+    jac[0, 0, 6] = coupling
+    limits = torch.tensor([[[-1.0, 1.0]] * 7], dtype=torch.float64)
+    previous = torch.zeros(1, 7, dtype=torch.float64)
+    speed = torch.ones_like(previous) * 0.5
+    deflection = torch.tensor([[0.03, -0.02, 0.01, 0, 0.02, -0.01, 0.01]])
+    goal = torch.tensor([[0.2, -0.1, 0.1, 0.02, -0.03, 0.01]], dtype=torch.float64)
+    for _ in range(400):
+        q = previous - deflection
+        error = goal - (jac @ q.unsqueeze(-1)).squeeze(-1)
+        before = previous.clone()
+        arguments = dict(previous_targets=previous, feedback_time_constant_s=0.5, centering_gain=0)
+        target, excess = bounded_pose_step(jac, error, q, limits, speed, 0.02, **arguments)
+        repeat = bounded_pose_step(jac, error, q, limits, speed, 0.02, **arguments)
+        torch.testing.assert_close(previous, before, rtol=0, atol=0)
+        torch.testing.assert_close(target, repeat[0], rtol=0, atol=0)
+        torch.testing.assert_close(excess, repeat[1], rtol=0, atol=0)
+        assert bool(((target - previous).abs() <= speed * 0.02 + 1e-12).all())
+        previous = target
+    measured_pose = (jac @ (previous - deflection).unsqueeze(-1)).squeeze(-1)
+    torch.testing.assert_close(measured_pose, goal, rtol=0, atol=1e-6)
+    # At zero measured pose error, a nonzero balancing target offset is retained.
+    target, _ = bounded_pose_step(
+        jac,
+        torch.zeros_like(goal),
+        previous - deflection,
+        limits,
+        speed,
+        0.02,
+        previous_targets=previous,
+        feedback_time_constant_s=0.5,
+        centering_gain=0,
+    )
+    torch.testing.assert_close(target, previous, rtol=0, atol=0)
+
+
+def test_pose_feedback_saturation_does_not_accumulate_hidden_windup():
+    jac = torch.zeros(1, 6, 7, dtype=torch.float64)
+    jac[0, :, :6] = torch.eye(6, dtype=torch.float64)
+    q = torch.zeros(1, 7, dtype=torch.float64)
+    previous = q.clone()
+    previous[0, 0] = 0.2
+    limits = torch.tensor([[[-0.2, 0.2]] * 7], dtype=torch.float64)
+    speed = torch.ones_like(q)
+    for _ in range(10):
+        target, _, requested = bounded_pose_step(
+            jac,
+            torch.ones(1, 6, dtype=torch.float64),
+            q,
+            limits,
+            speed,
+            0.01,
+            previous_targets=previous,
+            feedback_time_constant_s=0.1,
+            centering_gain=0,
+            return_request=True,
+        )
+        assert target[0, 0] == previous[0, 0] and requested[0, 0] > 0.2
+    reverse, _ = bounded_pose_step(
+        jac,
+        -torch.ones(1, 6, dtype=torch.float64),
+        q,
+        limits,
+        speed,
+        0.01,
+        previous_targets=previous,
+        feedback_time_constant_s=0.1,
+        centering_gain=0,
+    )
+    assert reverse[0, 0] < previous[0, 0]
+    assert bool((reverse >= limits[..., 0]).all() and (reverse <= limits[..., 1]).all())
+    assert bool(((reverse - previous).abs() <= speed * 0.01 + 1e-12).all())
+
+
+@pytest.mark.parametrize("tau", [0, -1, 0.009, float("nan"), float("inf"), True])
+def test_pose_feedback_refuses_invalid_or_overunity_gain(tau):
+    jac = torch.eye(6, 7)[None]
+    q = torch.zeros(1, 7)
+    limits = torch.tensor([[[-1.0, 1.0]] * 7])
+    with pytest.raises(ValueError, match="invalid_pose_feedback_time_constant"):
+        bounded_pose_step(
+            jac,
+            torch.zeros(1, 6),
+            q,
+            limits,
+            torch.ones_like(q),
+            0.01,
+            previous_targets=q,
+            feedback_time_constant_s=tau,
+        )
+
+
+def test_pose_feedback_requires_finite_previous_delivery_and_allows_unit_gain():
+    jac = torch.eye(6, 7)[None]
+    q = torch.zeros(1, 7)
+    limits = torch.tensor([[[-1.0, 1.0]] * 7])
+    arguments = (jac, torch.zeros(1, 6), q, limits, torch.ones_like(q), 0.01)
+    with pytest.raises(ValueError, match="pose_feedback_requires_previous_targets"):
+        bounded_pose_step(*arguments, feedback_time_constant_s=0.01)
+    for previous in (q[:, :6], q + float("nan")):
+        with pytest.raises(ValueError, match="invalid_pose_feedback_previous_targets"):
+            bounded_pose_step(*arguments, previous_targets=previous, feedback_time_constant_s=0.01)
+    target, _ = bounded_pose_step(
+        *arguments, previous_targets=q, feedback_time_constant_s=0.01, centering_gain=0
+    )
+    torch.testing.assert_close(target, q, rtol=0, atol=0)

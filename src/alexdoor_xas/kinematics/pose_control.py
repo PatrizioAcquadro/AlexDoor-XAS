@@ -1,5 +1,7 @@
 """Seven-joint pose IK with deterministic joint centering and bounded targets."""
 
+import math
+
 import torch
 
 
@@ -49,12 +51,34 @@ def bounded_pose_step(
     previous_targets=None,
     *,
     return_request=False,
+    feedback_time_constant_s=None,
 ):
-    """Damped primary solve plus exact-SVD nullspace centering, in world axes."""
+    """Bounded pose solve with optional measured-error integration on prior targets.
+
+    The default is the original absolute IK request. Feedback mode increments
+    the last delivered target by dt/tau times the measured pose correction;
+    a constant elastic deflection can then be balanced without changing inner
+    impedance. Only the bounded delivered target is retained, so saturation
+    cannot accumulate a hidden integral. Preview calls remain pure.
+    """
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
         raise ValueError("Purdue pose control requires a 6x7 Jacobian and six pose errors")
     if not all(bool(torch.isfinite(v).all()) for v in (jacobian, error, positions, limits)):
         raise ValueError("non-finite IK input")
+    feedback = feedback_time_constant_s is not None
+    if feedback:
+        if (
+            isinstance(feedback_time_constant_s, bool)
+            or not math.isfinite(feedback_time_constant_s)
+            or feedback_time_constant_s < dt
+        ):
+            raise ValueError("invalid_pose_feedback_time_constant")
+        if previous_targets is None:
+            raise ValueError("pose_feedback_requires_previous_targets")
+        if previous_targets.shape != positions.shape or not bool(
+            torch.isfinite(previous_targets).all()
+        ):
+            raise ValueError("invalid_pose_feedback_previous_targets")
     lo, hi = limits[..., 0], limits[..., 1]
     span = hi - lo
     if bool((span <= 0).any()) or dt <= 0 or damping <= 0:
@@ -67,6 +91,8 @@ def bounded_pose_step(
         torch.linalg.pinv(jacobian, rtol=1e-4) @ jacobian
     )
     center = ((lo + hi) / 2 - positions) / span.square()
+    if feedback:
+        primary = primary * (dt / feedback_time_constant_s)
     delta = primary.squeeze(-1) + centering_gain * dt * (projector @ center.unsqueeze(-1)).squeeze(
         -1
     )
@@ -75,7 +101,8 @@ def bounded_pose_step(
     reference = positions if previous_targets is None else previous_targets
     if bool(((lo > reference + velocities * dt) | (hi < reference - velocities * dt)).any()):
         raise ValueError("pose_target_domain_outside_rate_limits")
-    step = torch.clamp(positions + delta, lo, hi) - reference
+    requested = (reference if feedback else positions) + delta
+    step = torch.clamp(requested, lo, hi) - reference
     scale = (step.abs() / (velocities * dt)).amax(dim=-1, keepdim=True).clamp(min=1.0)
     targets, _ = bounded_joint_step(
         reference + step / scale - positions,
@@ -85,8 +112,8 @@ def bounded_pose_step(
         dt,
         previous_targets,
     )
-    result = (targets, (positions + delta - targets).abs())
-    return (*result, positions + delta) if return_request else result
+    result = (targets, (requested - targets).abs())
+    return (*result, requested) if return_request else result
 
 
 def bounded_joint_step(delta, positions, limits, velocities, dt, previous_targets=None):

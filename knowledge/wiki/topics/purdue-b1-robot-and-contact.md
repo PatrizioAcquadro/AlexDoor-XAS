@@ -75,6 +75,21 @@ proposals and does not certify their actual movement/contact; observed admission
 model applicability and full stop proofs remain independently required.
 
 
+The optional `pose_feedback_time_constant_s` changes the outer pose controller
+only. At each measured state, it adds `dt / tau` times the damped pose correction
+to the previous delivered joint target, retaining nullspace centering and the
+same rate, reserved-target and physical bounds. `tau` must be finite and at least
+one control interval; the previous target must be available and finite. Only the
+bounded delivered target is retained, so clipping creates no hidden accumulated
+integral. Repeated previews are pure, and zero measured pose error can retain a
+nonzero target offset that balances elastic load. Reset and the independent
+latched stop retain their original behavior. The option is disabled by default,
+preserving the original absolute IK request. This software capability changes
+neither inner actuator impedance nor a physical/load/observation acceptance gate;
+complete native motion, related-condition and stopping qualification remain
+required before collection adoption.
+
+
 | Right joint, canonical order | Previous Kp | Current Kp, N m/rad | Current Kd, N m s/rad |
 |---|---:|---:|---:|
 | SHOULDER_Y | 26.78 | 320 | 8 |

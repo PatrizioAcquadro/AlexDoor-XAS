@@ -377,6 +377,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 previous_targets=self.targets[:, self.arm_ids],
                 centering_gain=self.cfg.centering_gain,
                 damping=self.cfg.ik_damping,
+                feedback_time_constant_s=getattr(self.cfg, "pose_feedback_time_constant_s", None),
                 return_request=with_request,
             )
             target, excess = result[:2]
