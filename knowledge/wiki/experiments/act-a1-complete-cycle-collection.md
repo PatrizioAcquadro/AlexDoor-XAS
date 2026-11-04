@@ -2271,7 +2271,34 @@ stiffness-independent factorization plus 30 paired perturbed scalar compliance
 comparisons. These calculations do not establish a counterfactual plant outcome.
 Complete native N/H+/H-/P motion and original force/model/stops must qualify the
 candidate before any dependent observed successor. P's separate complete
-observation/support failure remains unresolved. The matrix stays 17/36.
+observation/support failure remains unresolved.
+
+The first four pressure fixtures stop after one inspection command because the
+additional task-load recorder consumed a manipulation-only force field during
+inspection. The candidate pressure loop is unexercised. All four raw recordings,
+five native samples each, original six-second/fourteen-shape stops, actual RGB,
+whole 17-file/three-sidecar transfers and owned cleanup pass. Original telemetry
+recovers their actual process-group GPU identities; it is not presented as a new
+live observation. All 225.410 GPU seconds remain charged. The common recorder
+now preserves raw inspection while restricting its additional task-load audit to
+manipulation. Synthetic contract checks retain four native task samples and the
+original 10 N rejection of an 11 N upper bound.
+
+The [corrected complete pressure family](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-pressure-taskphase-complete-family-manifest-20261104.json)
+assigns N/H+/H-/P once each on Blackwell/elab4/elab3/elab2. Setup reconciliation
+uses the original signed whole-motion design rather than generic worker reset
+metadata: H+ and H- retain their actual +20/-20 mm goals, P its declared floor
+placement, and all use the original matched seed. The initial setup/preflight
+preparation errors, including a missing copied calibration before any corrected
+launch, remain preserved. Fresh source/runtime/UUID/ownership/capacity checks
+pass before the corrected launches. Actual GPU contexts and canonical leases
+are owned at the healthy startup check; runtime verifies native-interval pressure
+feedback, 0.5 s pressure lead, 0.5 s pose feedback and causal reference. All four
+are still in inspection at that check. Later progress is unpolled. Finished
+review requires whole transfer and owned cleanup, actual outcomes and RGB,
+original full task/load/continuity/physical/stops, recorded causal control signals,
+and every coordinate of the original measured current/future support. Privileged
+component positives cannot admit observed sources. The matrix stays 17/36.
 
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture

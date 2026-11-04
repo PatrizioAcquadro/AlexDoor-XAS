@@ -203,8 +203,14 @@ integral pressure loop acts through the known 0.5 s pose servo and delayed force
 feedback. An optional causal lead now passes numerical/causal/default controls;
 complete native related-condition qualification remains required before any
 observed successor. Original force targets/gain, rate/extent, physical/model,
-contact and stop criteria remain. P's separate observed geometry deficit and
-all complete-source qualification remain unresolved. D3-P's exact final inspection sample
+contact and stop criteria remain. Four initial native fixtures fail during
+inspection because their task-only recorder consumed a missing force field;
+all raw/RGB/original stops/owned cleanup and costs are retained. The common
+recorder is corrected. Four distinct complete N/H+/H-/P native qualifications
+are now healthy, owned and in inspection at the actual startup check, with
+signed setups and runtime control flags verified. Later progress is unpolled;
+no pressure result is inferred. P's separate observed geometry deficit and all
+complete-source qualification remain unresolved. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
