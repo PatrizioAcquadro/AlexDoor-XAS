@@ -144,7 +144,20 @@ stop segments are prepared, with a passing necessary static CUDA target check.
 All 68 cases now independently pass loaded-boundary coverage, frozen residuals,
 physical limits and 204 original continuous stop segments. Complete transfer and
 owned cleanup pass. The 17 sides provide condition-scoped measured support;
-observed full-source contact remains pending. D3-P's exact final inspection sample
+observed full-source contact remains pending. The optional finite observed-height
+producer now passes original saved-packet and remaining-receipt controls. Its
+new P native prefix completes all 360 approach commands, then refuses after eight
+contact commands because the unchanged future shoulder interval exceeds scoped
+position support by 3.496 microradians; actual position retains 15.933 mrad of
+support. Raw feedback, load clocks, RGB, original six-second/fourteen-shape stop,
+whole transfer and owned cleanup independently pass. This remains a negative
+partial qualifier, with no source or matrix credit. All four complete reference
+paths had constant center-site 10 N pressure, whereas this P prefix had no contact;
+maximum-load motion alone does not establish unloaded or changing-load extrema.
+Four distinct complete unloaded counterparts are running on separate owned elab
+GPUs with the original controller, phases and stopping criteria. They must be
+reviewed before any new required-load support or dependent observed retry. The
+independent N observed qualifier remains running on Blackwell. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component

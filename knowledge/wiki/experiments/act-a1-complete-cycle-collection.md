@@ -2018,6 +2018,44 @@ packets, selected poses, clocks, all foreground and reserves remain unchanged;
 no source or matrix cell is added. Four local allocations charge 38.288 GPU
 seconds, including both retained reader-preparation failures, with owned cleanup.
 
+The [finite-height/feedback P prefix negative review](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D4-finite-height-feedback-P-observed-780prefix-elab2-20261104/complete-negative-qualification-review.json)
+closes the distinct source `1d6995d` outcome after all 360 approach commands and
+eight contact commands. The next proposal is refused before delivery at
+40.533333 s. All 9,729 native feedback samples, 369 admission records, 737 load
+packets, original clocks and actual RGB are retained. Independent six-second,
+fourteen-shape continuous stopping, whole 39-file/three-sidecar transfer and
+actual owned GPU/process cleanup pass; 801.246 native GPU seconds remain charged.
+Push, hold, release and stabilization are unavailable. No source, window or matrix
+attempt is added by this component qualifier.
+
+The [whole-motion saved-array comparison](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D4-finite-height-feedback-P-observed-780prefix-elab2-20261104/whole-motion-load-history-gap-review.json)
+reproduces the original float32 future-position refusal exactly. Shoulder-Z's
+upper forecast exceeds its measured support by 3.496 microradians while current
+position retains 15.933 mrad of support. No measured control position is outside
+that support. The original contact-free alternative is unavailable. This
+establishes neither a physical-limit violation nor permission to extend the
+failed boundary. After mapping both actual root transforms, contact goals differ
+by at most 76.888 micrometers from the robot-only reference. The observed prefix
+has zero evaluated contact, while the complete reference holds 10 N throughout
+all six phases. Those loaded trajectories and separate unloaded posture probes
+do not establish whole-motion extrema at zero or changing load. The initial
+unmapped world-goal comparison is retained separately and superseded.
+
+The [complete unloaded counterpart study](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-unloaded-complete-manifest-20261104.json)
+assigns one distinct full 0 N N/H+/H-/P robot-only trajectory to each of four
+compatible owned elab hosts. It preserves the original 4,659 commands, fixed
+0.5 s feedback, signed variations, all six phases, three-second hold, achieved
+staged release, six-second stabilization, physical/future limits, frozen residuals
+and original one-latch 2+4+2 s/fourteen-shape stops. These cases are running;
+constant 10 N cases are retained without repetition. A copied N preflight's old
+10 N-only scope assertion failed before launch; its corrected unloaded scope and
+all original checks passed before the sole dispatch. Prepared independent GPU
+readers may run only after actual completion, whole transfer and owned cleanup;
+negative or interrupted outcomes require their actual witnesses. Even a passing
+0 N component cannot qualify 10 N support, intermediate-load motion, observation,
+contact or a complete source. The independent observed N prefix remains running
+on Blackwell and is left undisturbed. The matrix remains 17/36.
+
 The [distinct complete moving N probe at the original required 10 N](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-complete-moving-10N-N-manifest-20261104.json)
 finishes negative on elab4. It uses the qualified frozen physical fixture
 `d0281c4`, the same common initial posture, target reservation and gains, and
