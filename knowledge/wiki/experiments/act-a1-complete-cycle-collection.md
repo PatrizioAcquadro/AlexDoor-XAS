@@ -1852,10 +1852,52 @@ recursive config references, runtime constructors, actual UUID/ownership/empty
 contexts/capacity pass before launch; both native GPU process groups and leases
 are verified. Each retains fresh ten-view inspection and the original finite
 360 approach/180 contact/240 actual push endpoint, fixed full-task goal, physical,
-load, measured uncertainty and independent six-second stop criteria. Their native
-outcomes and evolving uncertainty remain pending. All earlier actual negatives
-and the first triangle-only design negative remain. No source, matrix attempt or
-windows are added by partial qualification.
+load, measured uncertainty and independent six-second stop criteria. Both finish
+negative before contact or push. The [independent negative closeout](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-span-pair-negative-qualification-20261104.json)
+retains N's 323 delivered approach commands, one rejected undelivered proposal,
+647 load packets and 9,549 healthy feedback samples; P retains 170 deliveries,
+341 load packets and 8,937 healthy samples. Original raw/clocks, saved verified
+load packets, actual RGB and all original continuous six-second/fourteen-shape
+radial/directional/joint/tool/rotation/speed/acceleration/force stop gates pass.
+Each whole 38-file payload and three sidecars return with actual owned process
+and GPU absence and canonical lease release. Charges remain 1,171.268 and
+478.673 native GPU seconds; zero unsafe commands are recorded.
+
+The [exact N attribution](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/blackwell/D4-normal-span-N-observed-780prefix-blackwell-20261104/exact-negative-mechanism-diagnosis.json)
+reproduces the future-load refusal at 39.7833 s. Wrist upper prediction
+1.148007724765 rad exceeds the original native-resolution loaded boundary
+1.147981762886 rad by 25.961879 microradians; current measured position remains
+inside support. The full two-second contact-free stop margin is -338.924 mm, so
+the weaker-domain fallback remains unavailable. No empirical side is extended.
+The [exact P attribution](../../../outputs/evidence/act-a1-complete-cycle-20261026/remote-results/elab2/D4-normal-span-P-observed-780prefix-elab2-20261104/exact-negative-mechanism-diagnosis.json)
+reproduces the same-sphere response refusal at 37.2333 s: normal growth 2.036 mm
+against 0.633 mm original margin leaves -1.403 mm. The plane pivot shifts and its
+angular error grows; the aggregate anchor-position error alone decreases.
+Every spatially associated sphere and measured primitive is retained. An initial
+diagnostic reconstruction mismatch of at most 3.638e-12 rad is resolved by using
+the original native float32 velocity arithmetic, without changing its comparison
+or any physical tolerance; the failed reader is preserved.
+
+Two [diagnostic alternatives remain unadopted](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-normal-span-pair-diagnostic-limitations-20261104.json).
+Integrating speed and acceleration together would reduce N's joint forecast,
+but the 0.51 rad/s criterion is sampled, not a hard continuous actuator cap:
+reference clipping is 0.45 rad/s, while maintained actuator limits are much
+higher. Current acceptance cannot supply the missing future invariant.
+Independent normal certificates from all six currently eligible P fits, aligned
+to the unchanged full pose with their original errors, still refuse its exact
+same-sphere response. No favorable plane, smaller uncertainty or position
+exception is adopted.
+
+One finite local CUDA causal replay now processes the available original N/P
+RGB-D captures in order, with each exact final native publication separately
+identified. The shadow design may retain an earlier genuinely observed
+certificate only with its real support/camera/reference clocks, original aging
+and freshness, current root-depth/identity recheck and full-root error ranking.
+It never renews old acquisition times. Only recorded 10 Hz captures are available;
+missing native 30 Hz inputs are not fabricated, and changed-cadence model replay
+cannot establish native-stream equivalence or source qualification. Production
+is unchanged. All earlier actual and design negatives remain; dependent native
+attempts are suspended. No source, matrix attempt or windows are added.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,

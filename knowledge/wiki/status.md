@@ -87,10 +87,18 @@ pass. A shared measured-plane span certificate keeps the complete core's metric
 error and original triangle conditioning/hemisphere checks. Numerical and ten
 recorded D3/D4 state controls pass, including exact N/P response renewal and
 excessive-error refusal. Actual CUDA complete-path and full-producer controls
-also pass. One distinct finite N/P component pair runs on Blackwell/elab2 with
-source `15decf6`; its actual evolving uncertainty, contact, material, scene and
-stop outcomes remain pending. Full observed movement and evolving uncertainty
-remain unqualified; dependent full-source attempts stay suspended. D3-P's exact final inspection sample
+also pass. The distinct finite N/P component pair finishes negative after
+323/170 approach commands. N's future wrist envelope exceeds qualified support
+by 25.962 microradians; P's same-sphere normal growth exceeds its original
+separation margin by 1.403 mm. Both raw/load/clock/RGB, original stops, whole
+transfers and owned cleanup pass. A tighter forecast assuming a continuous
+0.51 rad/s speed cap is not adopted: that value is a sampled acceptance criterion.
+Independent current-normal selection also fails the exact P response. A finite
+local CUDA replay now examines causal previous-certificate retention using only
+available recorded frames and original aging/identity/freshness gates. Missing
+native 30 Hz inputs remain unavailable; production and all bounds are unchanged.
+Full observed movement and evolving uncertainty remain unqualified; dependent
+full-source attempts stay suspended. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
