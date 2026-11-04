@@ -620,6 +620,26 @@ improve the shared bound without selecting a smaller residual subset or changing
 physical tolerances. Numerical and recorded-state controls are separate from
 prospective native motion and full-source qualification.
 
+## Bounded temporal local certificates
+
+A valid fresh local constraint does not require discarding a stronger earlier
+measurement immediately. The tracker may retain one prior certificate with its
+actual camera, support timestamps and fixed map/material reference. It compares
+complete pose plus normal error over the entire original measured root, including
+all original calibration/model/metric terms and actual-age growth. The score is
+independent of the current action or fingertip and grants no admission itself.
+
+Retention requires a valid current native identity and fresh unique local
+constraint, current root-depth consistency, unchanged generation/reference/
+selection and the original finite support horizon. It never renews acquisition
+or availability from the next frame. Current loss, recovery uncertainty or
+missing/ambiguous geometry remains unavailable. Native candidate pose and
+articulation diagnostics keep their current measurement. The published retained
+local pose, calibration pivot and all temporal primitives use the old paired
+camera/support. Expiration and every downstream action/load/material/scene/stop
+gate remain independent. Numerical and saved-publication evidence does not
+qualify complete native motion; see the [[../experiments/act-a1-complete-cycle-collection|campaign]].
+
 ## Contact normal error origins
 
 The local plane constraint preserves the current measured plane centroid and its

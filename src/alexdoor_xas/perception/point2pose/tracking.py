@@ -34,6 +34,7 @@ from alexdoor_xas.perception.material_zone import (
     BoundSource,
     ContactBudget,
     contact_depth_supported,
+    normal_uncertainty_terms,
     object_frame,
     pose_matrix,
     query_slip,
@@ -55,6 +56,20 @@ from alexdoor_xas.perception.scan import (
     supported_material_zone,
     surface_support,
 )
+
+
+@dataclass(frozen=True)
+class LocalSurfaceCertificate:
+    """One measured constraint with its actual camera, support and reference."""
+
+    constraint: SurfacePose
+    camera_world: np.ndarray
+    support: FieldSupport
+    initial_world: np.ndarray
+    map_from_object: np.ndarray
+    object_from_zone: np.ndarray
+    sam3_id: int | None
+    selection: LocalContactSelection | None
 
 
 @dataclass
@@ -80,6 +95,7 @@ class PanelCandidate:
     static_material_witnesses: tuple = ()
     local_constraint: SurfacePose | None = None
     local_constraint_reason: str = "local_surface_not_processed"
+    local_certificate: LocalSurfaceCertificate | None = None
     local_surface: object | None = None
     material_cover: object | None = None
 
@@ -556,7 +572,8 @@ class PanelTracking:
             surfaces=len(result.get("local_surfaces") or []),
         )
         for candidate, raw in zip(self.candidates, result["objects"], strict=True):
-            candidate.local_constraint = None
+            previous = getattr(candidate, "local_certificate", None)
+            candidate.local_constraint = candidate.local_certificate = None
             normal_points = None
             try:
                 if candidate.state != "tracked" or candidate.material_recovery_unverified:
@@ -629,6 +646,7 @@ class PanelTracking:
                 if errors.count(min(errors)) != 1:
                     raise ValueError("missing_or_ambiguous_current_surface")
                 candidate.local_constraint = consistent[int(np.argmin(errors))][1]
+                self.retain_local_certificate(candidate, previous, captured)
                 candidate.local_constraint_reason = ""
             except (ValueError, KeyError) as error:
                 if (
@@ -660,10 +678,16 @@ class PanelTracking:
 
     @staticmethod
     def _constrained_candidate(candidate, constraint):
+        certificate = getattr(candidate, "local_certificate", None)
+        paired = certificate is not None and certificate.constraint is constraint
+        camera = certificate.camera_world if paired else candidate.camera_world
+        support = certificate.support if paired else candidate.support
         return replace(
             candidate,
+            camera_world=camera,
+            support=support,
             pose=transported_zone(
-                candidate.camera_world,
+                camera,
                 constraint.camera_from_map,
                 candidate.map_from_object,
                 candidate.object_from_zone,
@@ -673,6 +697,150 @@ class PanelTracking:
             registration_rotation_rad=constraint.rotation_bound_rad,
             surface=candidate.local_surface or candidate.surface,
         )
+
+    def retain_local_certificate(self, candidate, previous, captured):
+        """Compare whole-root error, never an action margin or fingertip score.
+
+        A valid fresh constraint is mandatory. An older one can only replace it
+        with its own camera and support, current depth/identity confirmation and
+        the original temporal envelope; a measurement never renews an old clock.
+        """
+        support = candidate.support
+        if support is None or candidate.camera_world is None:
+            return
+        current = LocalSurfaceCertificate(
+            candidate.local_constraint,
+            candidate.camera_world.copy(),
+            support,
+            candidate.initial_world.copy(),
+            candidate.map_from_object.copy(),
+            candidate.object_from_zone.copy(),
+            candidate.sam3_id,
+            self.selection,
+        )
+        candidate.local_certificate = current
+        retained, reason = False, "no_previous_certificate"
+        if previous is not None:
+            reason = "current_certificate_preferred"
+            try:
+                if (
+                    previous.support.generation != self.generation
+                    or previous.sam3_id != candidate.sam3_id
+                    or previous.selection != self.selection
+                    or any(
+                        not np.array_equal(getattr(previous, name), getattr(candidate, name))
+                        for name in ("initial_world", "map_from_object", "object_from_zone")
+                    )
+                ):
+                    raise ValueError("local_certificate_reference_changed")
+                now = support.available_s
+                if (
+                    support.acquired_s != float(captured["time_s"])
+                    or support.supported_s != float(captured["time_s"])
+                    or not previous.support.supported_s <= support.supported_s <= now
+                    or not previous.support.available_s <= now
+                    or not 0 <= now - previous.support.supported_s <= MAX_DYNAMIC_AGE_S + 1e-9
+                ):
+                    raise ValueError("local_certificate_support_unavailable")
+                older = replace(
+                    candidate,
+                    local_constraint=previous.constraint,
+                    local_certificate=previous,
+                )
+                local = self._constrained_candidate(older, previous.constraint)
+                if not self.root_consistent(replace(local, surface=candidate.surface), captured):
+                    raise ValueError("local_certificate_current_depth_inconsistent")
+                if self.local_certificate_error(older, now) < self.local_certificate_error(
+                    candidate, now
+                ):
+                    candidate.local_constraint = previous.constraint
+                    candidate.local_certificate = previous
+                    retained, reason = True, "bounded_previous_certificate"
+            except ValueError as error:
+                reason = str(error)
+        self.diagnostics.setdefault("local_certificate", {})[candidate.candidate_id] = dict(
+            retained_previous=retained,
+            reason=reason,
+            acquired_s=candidate.local_certificate.support.acquired_s,
+            available_s=candidate.local_certificate.support.available_s,
+            supported_s=candidate.local_certificate.support.supported_s,
+        )
+
+    def local_certificate_error(self, candidate, now):
+        """Complete pose and normal error on the original measured root."""
+        constraint = candidate.local_constraint
+        local = self._constrained_candidate(candidate, constraint)
+        motion = local.pose @ np.linalg.inv(local.initial_world)
+        points = candidate.surface.points @ motion[:3, :3].T + motion[:3, 3]
+        registration = (
+            local.pose
+            @ np.linalg.inv(local.map_from_object @ local.object_from_zone)
+            @ np.r_[constraint.registration_origin_map, 1.0]
+        )[:3]
+        frame = self.frame_budget(local, now)
+        if frame.displacement_m is None or frame.rotation_rad is None:
+            raise ValueError("local_certificate_error_unavailable")
+        error = 0.0
+        for source in frame.sources:
+            origin = local.camera_world[:3, 3] if source.name == "calibration_fk" else registration
+            lever = np.linalg.norm(points - origin, axis=1).max()
+            error += source.position_m + rotational_travel(lever, source.rotation_rad)
+        geometry_lever = max(
+            np.linalg.norm(points - local.pose[:3, 3], axis=1).max(),
+            np.linalg.norm(points - registration, axis=1).max(),
+        )
+        error += local.geometry.position_bound_m + rotational_travel(
+            geometry_lever, local.geometry.rotation_bound_rad
+        )
+        sources, _ = self.local_normal_bounds(local, constraint, now)
+        if not sources:
+            raise ValueError("local_certificate_normal_unavailable")
+        return error + sum(normal_uncertainty_terms(sources, points).values())
+
+    def local_normal_bounds(self, candidate, constraint, now):
+        """Original measured, model, calibration and actual-age primitives."""
+        if constraint is None or candidate.support is None or candidate.camera_world is None:
+            return (), None
+        age = now - candidate.support.supported_s
+        if not 0 <= age <= MAX_DYNAMIC_AGE_S + 1e-9:
+            return (), None
+        p, a = self.calibration_bound or (None, None)
+        v, w = self.relative_speed_bound or (None, None)
+        linear = 0.0 if age == 0 else None if v is None else age * v
+        angular = 0.0 if age == 0 else None if w is None else age * w
+        angle = None
+        if (
+            a is not None
+            and angular is not None
+            and np.isfinite([a, angular]).all()
+            and min(a, angular) >= 0
+        ):
+            angle = (
+                constraint.normal_rotation_bound_rad
+                + self.config["local_surface_constraint"]["normal_model_bound_rad"]
+                + a
+                + angular
+            )
+        if any(value is None for value in (p, a, linear, angular)) or (
+            not np.isfinite([p, a, linear, angular]).all() or min(p, a, linear, angular) < 0
+        ):
+            return (), angle
+        return (
+            (
+                "measured_plane",
+                constraint.normal_point_bound_m,
+                constraint.normal_rotation_bound_rad,
+                tuple(constraint.normal_origin_world.tolist()),
+            ),
+            (
+                "normal_model",
+                0.0,
+                self.config["local_surface_constraint"]["normal_model_bound_rad"],
+                tuple(constraint.normal_origin_world.tolist()),
+            ),
+            ("calibration_fk", p, a, tuple(candidate.camera_world[:3, 3].tolist())),
+            ("temporal_growth", linear, angular, tuple(candidate.pose[:3, 3])),
+        ), angle
 
     def reobserved_material_points(self, candidate, sensor):
         """Fresh depth on the tracked seed; no other semantic component or old XYZ."""
@@ -924,83 +1092,18 @@ class PanelTracking:
                         else "interface_unobserved_or_occluded",
                         contact_admitted=False,
                     )
-            normal_rotation_bound = None
-            calibration_angle = (self.calibration_bound or (None, None))[1]
-            angular_speed = (self.relative_speed_bound or (None, None))[1]
-            age = None if support is None else max(0.0, now - support.supported_s)
-            angular_growth = (
-                0.0
-                if age == 0
-                else None
-                if age is None or angular_speed is None
-                else age * angular_speed
+            normal_sources, normal_rotation_bound = (
+                self.local_normal_bounds(candidate, constraint, now) if fresh else ((), None)
             )
-            if (
-                constraint is not None
-                and fresh
-                and calibration_angle is not None
-                and angular_growth is not None
-                and np.isfinite([calibration_angle, angular_growth]).all()
-                and min(calibration_angle, angular_growth) >= 0
-            ):
-                normal_rotation_bound = (
-                    constraint.normal_rotation_bound_rad
-                    + self.config["local_surface_constraint"]["normal_model_bound_rad"]
-                    + calibration_angle
-                    + angular_growth
-                )
-            normal_position_bound = None
-            calibration_position = (self.calibration_bound or (None, None))[0]
-            linear_speed = (self.relative_speed_bound or (None, None))[0]
-            linear_growth = (
-                0.0
-                if age == 0
-                else None
-                if age is None or linear_speed is None
-                else age * linear_speed
-            )
-            normal_sources = ()
-            if (
-                normal_rotation_bound is not None
-                and calibration_position is not None
-                and linear_growth is not None
-                and np.isfinite([calibration_position, linear_growth]).all()
-                and min(calibration_position, linear_growth) >= 0
-            ):
-                normal_sources = (
-                    (
-                        "measured_plane",
-                        constraint.normal_point_bound_m,
-                        constraint.normal_rotation_bound_rad,
-                        tuple(constraint.normal_origin_world.tolist()),
-                    ),
-                    (
-                        "normal_model",
-                        0.0,
-                        self.config["local_surface_constraint"]["normal_model_bound_rad"],
-                        tuple(constraint.normal_origin_world.tolist()),
-                    ),
-                    (
-                        "calibration_fk",
-                        calibration_position,
-                        calibration_angle,
-                        tuple(candidate.camera_world[:3, 3].tolist()),
-                    ),
-                    (
-                        "temporal_growth",
-                        linear_growth,
-                        angular_growth,
-                        tuple(candidate.pose[:3, 3]),
-                    ),
-                )
-                # Derive the aggregate at the actual published anchor. Repeating
-                # its camera/map transport separately can differ under native
-                # float32 calibration, even for the same measured primitive.
-                normal_position_bound = sum(
+            normal_position_bound = (
+                sum(
                     translation
                     + rotational_travel(np.linalg.norm(candidate.pose[:3, 3] - origin), angle)
                     for _, translation, angle, origin in normal_sources
                 )
+                if normal_sources
+                else None
+            )
             pose_sources = ()
             if (
                 fresh

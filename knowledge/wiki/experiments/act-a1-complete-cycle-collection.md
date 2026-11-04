@@ -1888,16 +1888,43 @@ to the unchanged full pose with their original errors, still refuse its exact
 same-sphere response. No favorable plane, smaller uncertainty or position
 exception is adopted.
 
-One finite local CUDA causal replay now processes the available original N/P
-RGB-D captures in order, with each exact final native publication separately
-identified. The shadow design may retain an earlier genuinely observed
-certificate only with its real support/camera/reference clocks, original aging
-and freshness, current root-depth/identity recheck and full-root error ranking.
-It never renews old acquisition times. Only recorded 10 Hz captures are available;
-missing native 30 Hz inputs are not fabricated, and changed-cadence model replay
-cannot establish native-stream equivalence or source qualification. Production
-is unchanged. All earlier actual and design negatives remain; dependent native
-attempts are suspended. No source, matrix attempt or windows are added.
+The [completed causal recorded-frame CUDA replay](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-causal-certificate-recorded-frame-replay-local-20261104/independent-causal-readback-review.json)
+processes all 374/399 available P/N observations in order, including each separately
+identified exact final publication and all ten inspection times. Each case retains
+341 unavailable events; P retains three older certificates and refuses three at
+the original horizon, while N retains none. All support clocks and ages pass
+independent readback. Its new P/N references differ from native by 370.884/188.284
+mm, so the smaller replay errors are not evidence of a native correction. Missing
+30 Hz inputs remain unavailable. The closed allocation charges 250.582 GPU seconds
+with verified owned cleanup; all original native negatives remain.
+
+The [exact native certificate diagnosis](../../../outputs/evidence/act-a1-complete-cycle-20261026/native-temporal-and-joint-certificate-static-design-20261104/review.json)
+instead ages the previously published certificate through the real response time,
+retaining every primitive, pivot and support clock. In both P contexts it remains
+current-root consistent, has smaller complete-root error and passes the saved
+response. Original normal-span P combined error is 58.610 versus 66.326 mm.
+All six fresh complete pose/normal alternatives retain that current negative.
+This is a static counterfactual, not delivered motion or future source support.
+
+The shared implementation now retains at most one previous measured local
+certificate after a valid fresh current constraint, current native identity and
+current root-depth check. It pairs the actual constraint with its own camera,
+support, map/reference and selection, ranks complete pose plus normal error on the
+entire original measured root, and pays the original linear/angular aging until
+expiration. Loss, recovery uncertainty, missing/ambiguous current geometry,
+reference/selection/generation changes and expired support cannot use history.
+Native pose and articulation diagnostics remain current. No model, physical,
+load, uncertainty, normal, material, scene or stop criterion changes.
+
+[Numerical/session checks and twelve exact saved-publication controls](../../../outputs/evidence/act-a1-complete-cycle-20261026/bounded-certificate-actual-D3-D4-state-controls-20261104/review.json)
+retain exact single-publication parity with `15decf6`, native pairs/masks/poses and
+all bounds/clocks. Independent whole-root error calculations agree. Two P controls
+reconstructed from their own prior published primitives and actual raw-frame
+camera retain the real 33.333 ms age and pass the saved response; excess consumed
+uncertainty still refuses. Original prior model-pair counts are unavailable and
+no native-stream equivalence is asserted. Actual CUDA producer, complete-motion
+and related-condition qualification remain required before further source
+collection. No source, matrix attempt or windows are added.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,

@@ -93,12 +93,18 @@ by 25.962 microradians; P's same-sphere normal growth exceeds its original
 separation margin by 1.403 mm. Both raw/load/clock/RGB, original stops, whole
 transfers and owned cleanup pass. A tighter forecast assuming a continuous
 0.51 rad/s speed cap is not adopted: that value is a sampled acceptance criterion.
-Independent current-normal selection also fails the exact P response. A finite
-local CUDA replay now examines causal previous-certificate retention using only
-available recorded frames and original aging/identity/freshness gates. Missing
-native 30 Hz inputs remain unavailable; production and all bounds are unchanged.
-Full observed movement and evolving uncertainty remain unqualified; dependent
-full-source attempts stay suspended. D3-P's exact final inspection sample
+Independent current-normal selection also fails the exact P response. The
+completed CUDA recorded-frame replay changes the selected reference by 371/188 mm
+in P/N; its smaller errors cannot establish a native fix. Missing native 30 Hz
+inputs remain unavailable. Exact saved native publication controls instead support
+bounded retention of a previous local certificate with its original camera,
+reference, clocks and full temporal growth, after a valid current constraint and
+root-depth/identity recheck. The shared implementation passes numerical/session
+and twelve exact single-publication controls. Two reconstructed prior P
+publication controls pass their saved response without renewing acquisition;
+unknown original model-pair counts remain unavailable. Actual CUDA producer,
+full-motion and related-condition qualification are still required. Full-source
+attempts stay suspended. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
