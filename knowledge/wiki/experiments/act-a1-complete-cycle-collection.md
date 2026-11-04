@@ -2049,17 +2049,37 @@ proposals on all four complete 0.3 N paths and the 10 N negative prefix. The
 0.5 s candidate time constant is declared for qualification; no favorable
 native parameter selection or trajectory equivalence is inferred from saved
 single-packet proposals. Original clipping and missing later phases remain
-explicit. Distinct complete native required-load and related-condition results
-are still needed; no controller is adopted for collection by these checks.
+explicit. These saved controls alone do not adopt the controller for collection.
 The [four-condition native manifest](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-complete-required-load-manifest-20261104.json)
 assigns each original condition exactly once across elab4/elab3/elab5/Blackwell,
 using frozen source `7bd2ea5`. Actual runtime wiring, required 10 N force and
-GPU UUID/context/PGID/canonical ownership are verified on all four. Approach
-and ramp endpoints pass with the same 0.5 s controller; the remaining motion
-and original continuing stops await actual completion and independent review.
-No matrix/source credit follows from these healthy prefixes. Elab5's initial
-zero-launch Torch preflight failure remains retained; its existing native-job
-Python passed before the sole launch, without installing dependencies.
+GPU UUID/context/PGID/canonical ownership are verified on all four. The
+[independent four-condition closure](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-native-qualified-components-20261104.json)
+now passes all original six phases, frozen residuals, physical/future limits and
+continuous 2+4+2 s/fourteen-shape stops with that single fixed controller. The
+78,384 native motion samples and 7,680 continuing-stop samples are retained.
+Opening position errors are 0.124 mm in N, 0.112 mm in H+, 5.482 mm in H- and
+0.094 mm in P, all within the original 10 mm criterion. H-'s larger error does
+not justify a different tolerance or controller. Whole transfers and actual
+owned cleanup pass. Native costs total 1,299.104 GPU seconds, and the four
+independent CUDA reviews add 36.196 seconds. The earlier 87.570 mm N failure
+remains negative with its original source and cost.
+
+These are complete center-site required-load robot-only components, with ideal
+geometric goals and a composed load. They do not qualify observed door contact,
+the full source or a larger empirical position domain. The changed trajectories
+require [17 new measured joint-side postures](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-whole-motion-10N-support-manifest-20261104.json),
+derived from every actual native sample with one unchanged stop/acceleration/
+measured-velocity allowance. The 68 distinct cases retain unloaded controls,
+center 10 N, face0/+0.2 rad yaw and face1/-0.2 rad yaw, original seven-coordinate
+boundary servo/pulse limits and 204 continuous stop segments. A necessary
+[static CUDA torque-balance check](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-pose-feedback-whole-motion-10N-static-preflight-local-20261104/review.json)
+passes all 68 original physical target reserves; native convergence, residual,
+loaded coverage and stop qualification remain pending. It charges 7.036 GPU
+seconds with owned cleanup. No matrix/source/window credit or calibration
+adoption follows. Elab5's initial zero-launch Torch preflight failure remains
+retained; its existing native-job Python passed before the sole launch, without
+installing dependencies.
 
 The [D3 terminal-view discriminator](../../../outputs/evidence/act-a1-complete-cycle-20261026/D3-common-terminal-view-static-design-local-20261102/all-P-roots-original-union-independent-review.json)
 checks the only original recorded view with available common N/P selector choices,

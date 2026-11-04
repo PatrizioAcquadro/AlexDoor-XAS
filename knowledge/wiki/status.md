@@ -127,9 +127,15 @@ optional measured pose-feedback implementation now preserves a balancing target
 offset under elastic load, with the original default, inner gains, limits and
 stops unchanged. Numerical and actual CUDA saved-path controls pass. Four
 separate complete N/H+/H-/P native qualifications at the original required 10 N
-load are running on distinct compatible hosts, using the same declared 0.5 s
-feedback time constant. Owned startup and approach/ramp endpoints pass; full
-motion and independent review remain pending. D3-P's exact final inspection sample
+load now independently pass with the same declared 0.5 s time constant. All six
+original phases, frozen residuals, physical/future limits and original eight-second,
+fourteen-shape stops pass across 78,384 moving and 7,680 stopped native samples.
+Opening errors range from 0.094 to 5.482 mm within the original 10 mm limit;
+whole transfers and actual owned cleanup pass. This qualifies the robot-only
+controller components. The changed complete histories require 17 new measured
+joint-side postures; 68 distinct original load-site/yaw cases and 204 continuous
+stop segments are prepared, with a passing necessary static CUDA target check.
+Their native qualification and observed full-source contact remain pending. D3-P's exact final inspection sample
 lacks an eligible seed; its older runtime initializes one capture later. Returning
 to the only common earlier N/P selected view still leaves both eligible P
 references with zero material cells under the original operator. These component
