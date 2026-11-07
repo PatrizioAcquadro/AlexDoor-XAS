@@ -292,9 +292,15 @@ still fails one of eight constant-load paths during hold. Neither reference is
 adopted. The perturbation plant preserves all nominal native packets by
 construction and reproduces seven available prior native support outcomes;
 its nonlinear inertia, Coriolis and fixture derivatives remain unqualified.
-Variable-load stress without the observed outer force loop cannot establish
-teacher behavior. Complete motion, original centering geometry, actual outer
-force feedback and delivery-only reference state must be checked together.
+The matched original centering metric returns five of eight model support
+outcomes; the earlier seven of eight also changed that metric. Variable-force
+fixture stress cannot establish teacher contact behavior. The maintained teacher
+uses completed native simulator contact intervals for pressure feedback;
+`GuardedTeacherRecorder` separately admits the proposed movement through the
+observed geometry, contact and residual-load runtime. Prescribed fixture force
+must not be substituted for contact feedback or supplied as an observed input.
+Complete motion, original centering geometry, actual contact feedback and
+delivery-only reference state must be checked together.
 See [[../experiments/act-a1-complete-cycle-collection|the collection experiment]].
 
 When this mode returns to ordinary pose control, its first reference increment
@@ -331,6 +337,26 @@ stiffness/damping are zero for this explicit path: read the actuator object's
 resolved gains. `computed_torque` is the total pre-clipping actuator command;
 `applied_torque` is the clipped effort sent to the solver. Solver projected joint
 output is a separate feedback quantity and is never replaced by either command.
+
+
+Actuator ownership also matters for effort reconstruction. The two passive WSG
+mimic followers have no explicit actuator dispatch; a nonzero feedforward target
+in their buffer does not imply applied simulation effort. Mask unactuated
+followers before reconstructing the full command, while retaining their mass,
+armature, passive damping and physical mimic coupling. Across the eight original
+complete stopped histories, this reconstructs all 20 simulation efforts exactly;
+the constrained one-step velocity error peaks at 3.44 µrad/s. This is diagnostic
+support for the causal equation, not a stopping-position certificate.
+
+Thirty-two recorded stop profiles retain ten empirical future-support refusals
+whose actual stopped ranges plus the original delay fit the existing position
+domain. They also retain the original unstable loaded H− stop. Full-state native
+inertia at 301 saved postures separates the 31 measured hard-motion positives
+from that negative in the frozen physical-tangent model. A stable local matrix
+or a smaller recorded excursion cannot replace the prospective envelope:
+nonlinear geometry, force changes, boundary states and full continuing stops
+must independently qualify any state-dependent proposal. Current physical,
+empirical and numerical guards remain unchanged.
 
 `PurdueIO.stop()` clears admission and calls `env.stop_motion()`. The environment
 clears pending commands, latches measured joint positions once, zeroes velocity

@@ -3609,8 +3609,9 @@ target bounds remain unchanged; the next matched control must preserve the
 original reserved-target centering metric before attributing a design effect.
 
 Both designs retain all four loaded variable-force stress negatives. The plant
-has no observed outer force-admittance loop, so these stress responses do not
-establish the full teacher's variable-load behavior. Hard position, speed and
+has no actual contact-pressure loop, so these stress responses do not establish
+the full teacher's variable-load behavior. The maintained teacher uses completed
+native contact intervals; observed runtime admission remains separate. Hard position, speed and
 acceleration predicates pass all 32 model paths in the second design; empirical
 exits are retained separately. Next work must resolve the full loaded hold,
 actual causal outer force loop and preview/dispatch/antiwindup transitions with
@@ -3620,3 +3621,56 @@ or observed launch. The matrix remains 17/36. Canonical evidence is
 `D4-whole-reference-continuation-isolated-closeout-20261107.json`,
 `D4-causal-virtual-reference-whole-motion-independent-CUDA-review-20261107.json`
 and `D4-transported-joint-reference-whole-motion-independent-CUDA-review-20261107.json`.
+
+
+A matched complete control restores the original reserved-target centering
+metric in the transported joint reference. All sixteen nominal-replay and
+prior-controller histories remain bitwise identical. Original model support
+returns to five of eight: N0/N10/H+10 remain negative during opening, while all
+eight pose endpoints pass. The earlier seven of eight also changed the posture
+metric. Neither result supports production adoption or another centering retry.
+
+A common stop/support audit reads 32 actual 2+4+2 s profiles across five native
+families, preserving 61,440 packets. At all ten empirical-refusal states, the
+actual stopped range plus the original velocity/acceleration delay stays inside
+the original position domain, with a smallest 4.688 mrad margin. The largest
+recorded joint excursion among the 31 hard-motion positives uses 30.15% of its
+original joint stop bound. The failed loaded H− entry-preload stop is preserved
+at 4.470 rad/s. These are retrospective observations, not a smaller prospective
+bound or a waiver. Configuration-only replay also reproduces all ten group and
+terminal refusals in the actual position-support contract; full observed
+geometry/admission is not inferred from that isolated check.
+
+Blackwell independently reads native inertia and Jacobians at 301 complete
+20-joint recorded postures, including anchors and first/maximum-speed/final
+samples from all three stop segments. Every saved joint representation matches
+exactly. The readback advances no dynamics or teacher task. Whole custody closes
+16 original files plus three sidecars, totaling 16,009,808 bytes. Workstation
+analysis runs independently under its own GPU lease.
+
+The stopped-PD reconstruction uses the actual per-recipe gains
+`[2560,1280,640,1280,80,160,100]` and unchanged damping ratios. A first reader
+incorrectly treated feedforward buffers on passive mimic followers as dispatched
+efforts. With the actual actuator mask, all twenty simulation efforts reconstruct
+exactly across 15,360 original stop packets; constrained one-step velocity error
+peaks at 3.437 µrad/s. Followers still contribute mass, armature and passive
+damping through the physical 18-coordinate mimic tangent. Frozen stop matrices
+at all 301 poses have radius below one for all 31 measured hard-motion positives;
+the unstable H−10 anchor has radius 1.018603, reaching 1.019592 along its profile.
+The maximum relative eigenpair backward error is 6.40e-16. This separates the
+recorded control, but unqualified nonlinear inertia, gravity and contact-force
+derivatives still prevent a prospective position certificate.
+
+All six allocations close and add 112.730304 GPU seconds. The initial continuation-
+anchor reader failure, passive-follower effort reconstruction failure, and two
+zero-GPU configuration-input shape preparations remain preserved. No controller,
+calibration, stop envelope or guard changes. Next work is a causal state/command-
+dependent stop-support proposal, using complete nominal, boundary, perturbed and
+variable-load stops, the original 10 N scope and unstable control. Retrospective
+travel and frozen poles alone are insufficient; every original physical gate
+and prior outcome remains. Canonical closeout is
+`D4-original-centering-and-stop-mechanism-closeout-20261107.json`, with
+`D4-whole-native-stop-versus-support-forecast-corrected-CUDA-20261107.json`,
+`D4-stop-profile-causal-PD-masked-momentum-CUDA-20261107.json` and
+`D4-whole-native-stop-inertia-physical-tangent-CUDA-review-20261107.json`.
+The matrix remains 17/36.

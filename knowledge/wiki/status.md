@@ -228,14 +228,21 @@ rate, pose, ramp and hold checks. A native-history perturbation plant reproduces
 all seven available prior finite-reference support outcomes, with pre-release
 joint differences up to 0.138 mrad; it remains an approximate model. Restoring
 only the virtual null coordinate still fails three constant-load paths. A full
-joint reference with transported entry elasticity improves to seven of eight,
-but N10 fails predicted wrist-X lower future support during hold by up to
-0.685 mrad. Both prototypes remain unadopted. Variable-load stress also fails
-in the model, which lacks the teacher's outer force-admittance loop. No new
-native or observed attempt is launched. Next work must preserve the original
-soft centering metric and resolve the entire loaded hold, variable-load loop
-and dispatch transitions before qualification. All owned resources close;
-the matrix remains 17/36.
+joint reference reaches seven of eight only with a changed centering metric;
+restoring the original metric returns five of eight. Both remain unadopted.
+Variable-force fixture stress is not the teacher contact loop: that teacher
+uses completed native contact intervals, while observed admission is separate.
+A whole-stop audit now retains 32 actual profiles and 61,440 native packets.
+All ten empirical-refusal stops remain inside the original position support,
+including the original delay allowance; the unstable H−10 control remains a
+physical negative. Native inertia readback at 301 full-state poses and exact
+PD-command reconstruction on 15,360 stop packets support further modeling.
+The physical mimic-tangent frozen matrices distinguish the 31 measured
+hard-motion positives from that unstable control. Neither retrospective travel
+nor stable frozen poles certifies a smaller future envelope. Next work is a
+prospective state/command-dependent stop-support proposal with complete motion,
+force-domain and perturbation qualification; original bounds and guards remain.
+All owned resources close. No new teacher task is executed; the matrix is 17/36.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection
