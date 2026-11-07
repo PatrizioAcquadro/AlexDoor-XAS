@@ -104,12 +104,17 @@ contact. No component/source or matrix credit is added; dependent variants remai
 suspended pending a shared unilateral-contact and complete-motion diagnosis. A reduced
 CUDA model using 120 measured inertias, original gains and rigid-support moments
 also fails to reproduce native load loss in matched bilateral/unilateral local
-perturbations. This limits the model; it does not validate contact. The first N
-native contact-manifold diagnostic now verifies all 3,484 synchronized packets
-and exactly reproduces all 17 native arrays from its same-host baseline. The
-task remains negative. During push, only 2 of 320 native packets load both
-fingers; the measured pressure center switches between the fingers. Related
-posture diagnostics remain pending before a shared control change.
+perturbations. This limits the model; it does not validate contact. All four native
+contact-manifold diagnostics now verify 16,852 synchronized packets and exactly
+reproduce every saved native array from their same-host baselines. Tasks remain
+negative. Only 2/2/3/15 of 320/1,144/2,436/372 push packets load both fingers in
+N/H+/H−/P; the pressure center switches between fingers in every posture. All
+original outcomes, stops, RGB, whole outputs and owned cleanup are reviewed.
+The active Purdue actuator is explicit PD: commanded efforts reconstruct exactly
+with the preceding native state and gravity. The saved gravity field instead
+contains current-state model gravity; its description is corrected without
+changing data or control. Normal-only contact moments do not identify the missing
+tangential wrench or establish a control correction.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

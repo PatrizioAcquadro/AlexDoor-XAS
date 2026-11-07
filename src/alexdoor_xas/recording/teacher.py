@@ -112,7 +112,7 @@ class TemporalExpertRecorder(ExpertRecorder):
                 target="Delivered position target for preceding native interval",
                 computed_effort="PD plus feedforward before clipping; preceding native interval",
                 applied_effort="Clipped commanded effort sent to solver; not measured joint output",
-                gravity="Gravity feedforward for preceding native interval",
+                gravity="Current-state model gravity, not completed-interval feedforward",
                 policy_observation=False,
             )
         )

@@ -3045,26 +3045,47 @@ This reduced model omits evolving inertia/Jacobians, distributed/frictional
 contacts, jaw compliance and joint-domain clipping. Its favorable result limits
 its explanatory scope and cannot justify a gain change or contact qualification.
 
-The completed recordings retain forces, gaps and actuator diagnostics but lack
+The original recordings retain forces, gaps and actuator diagnostics but lack
 complete native contact-point/normal/actor-pose histories across the terminal
-exception. A prepared diagnostic sidecar writes each original contact packet,
+exception. A diagnostic sidecar now writes each original contact packet,
 measured joints/poses and native inertia at the matching 240 Hz feedback clock.
 It returns the original packet unchanged and saves original fixture data before
-closing the new stream. Essential persistence/parity checks pass. The first original N native run now
-validates all 3,484 sidecar packets against the original pressure stream: clocks,
-phases, q/dq/ddq, Jacobians, targets, expected/feedback torques and actual contact
-force sums agree exactly. Native inertia remains finite and positive, and both
-actual finger poses/full joint states are retained. All 17 saved native arrays
-also exactly match the previous same-host N baseline. Original stops, raw data,
-RGB and whole-transfer/owned cleanup pass. The task remains negative at 0.458°,
-with primary contact loss and a secondary empirical release refusal.
+closing the new stream. All four original N/H+/H−/P runs validate 16,852 sidecar
+packets against their pressure streams: clocks, phases, q/dq/ddq, Jacobians,
+targets, expected/feedback torques and normal-force sums agree exactly. Inertia
+remains positive, and both finger poses/full joint states are retained. All 17
+native arrays in each condition exactly match the previous same-host baseline.
+Original stops, raw data, RGB and whole-transfer/owned cleanup pass; all tasks
+remain negative with primary contact loss and secondary empirical release
+refusals. This validates observability, with no source or matrix credit.
 
-The measured N push has 320 native packets: 236 have positive normal force,
-only 2 load both fingers, and the active pressure center switches eight times
-when zero-force gaps are omitted. Its tool-frame height spans roughly ±19 mm.
-The arm mass matrix changes 0.47% from push entry. Right-jaw displacement reaches
-25.4 µm; the pooled gripper metric also includes the left jaws and cannot identify
-right-jaw motion. These are observations, not a causal fit or a new force
-estimate. H+/H−/P are being measured with identical controller/setup/load bytes
-to examine this distributed contact mechanism across posture. No source or
-matrix cell is admitted; a shared control correction remains pending.
+| Condition | Native push packets | Positive force | Both fingers loaded | Finger switches |
+| --- | ---: | ---: | ---: | ---: |
+| N | 320 | 236 | 2 | 8 |
+| H+ | 1,144 | 942 | 2 | 7 |
+| H− | 2,436 | 2,005 | 3 | 15 |
+| P | 372 | 321 | 15 | 23 |
+
+Switch counts omit intervening zero-force packets; packet counts are not
+qualified loaded windows. The pressure center spans roughly ±19 mm in tool Z.
+Mass-matrix changes from push entry are 0.47/1.64/3.95/0.50%. Actual right-jaw
+motion reaches 25.4/29.0/74.5/27.3 µm; the pooled gripper metric includes left
+jaws and cannot establish right-jaw deformation. Contact moments include measured
+normal forces only, not the complete frictional wrench.
+
+The actual Purdue configuration uses `IdealPDActuatorCfg`. Reconstructing its
+explicit PD calculation from preceding q/dq/gravity and delivered targets exactly
+matches every saved computed effort across all 16,852 packets, including clipping
+to applied efforts. The diagnostic gravity getter records current-state model
+gravity, however; using it as the preceding interval's feedforward introduces up
+to 0.00964 N m error. `TemporalExpertRecorder` now describes that clock correctly;
+no recorded values, controller behavior or criteria change. Normal-only command
+and body-output dynamics retain unexplained contact residuals; friction, other
+constraints and numerical terms remain unseparated. This supports further
+measurement, not a gain change or a new contact qualification.
+
+Evidence: `D4-contact-manifold-four-negative-closeout-20261107.json`,
+`D4-contact-manifold-family-outcome-review-20261107.json` and
+`D4-contact-manifold-native-torque-closure-audit-20261107.json` in the campaign
+evidence directory. Native controller source remains `519c347`; the diagnostic
+clock description and completed-family review follow baseline `57863e4`.
