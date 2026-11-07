@@ -3015,4 +3015,17 @@ maximum geometric offset is below 1 mm and maximum step is 27 µm on these saved
 histories. An additional 1,883 commands in twelve completed contact histories
 satisfy the same geometric identities; four disabled-mode histories stay
 unchanged. These are geometry/control-reference audits, not counterfactual
-physical trajectories. Complete changed native contact must pass before adoption.
+physical trajectories. The complete changed native family from `519c347` also
+closes negative: last-push angles N 0.458°, H+ 1.449°, H− 3.430° and P 0.527°.
+All four lose loaded contact before hold, followed by empirical position refusals
+during abort release. Hold and stabilization remain unattempted. Independent
+review verifies all 16,852 native task samples, 1,184 full-mesh reference operands
+and 1,068 pressure updates. Recorded normal goals agree within 5 nm after
+accounting separately for the geometric reference. This is command parity, not
+contact qualification. Current and single-future empirical exits are retained;
+physical boxes, original 6 s/14-shape stops, raw feedback, actual RGB and whole
+output/owned cleanup reviews pass. The four negative outcomes add no source,
+window or matrix credit. The reference correction alone is insufficient.
+Further dependent variants require a shared diagnosis of unilateral impact,
+pressure sampling, posture and complete transitions, with all original criteria
+and the frozen six-dimensional load model preserved.
