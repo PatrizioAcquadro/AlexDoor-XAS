@@ -52,8 +52,15 @@ and is unadopted. A separate optional teacher mode transports measured material
 motion only along the force axis. Tangential placement, orientation and the
 opening-reference clock remain unchanged; force admittance still supplies
 compression, and unloaded following cannot pass physical continuity. Essential
-numerical and causal coupled-model checks pass. Complete native contact and
-observed qualification remain pending.
+numerical and causal coupled-model checks pass, but all four native contact paths
+also close negative: last-push angles N 0.589°, H+ 4.936°, H− 2.670° and P 0.686°.
+H+ records only 0.617 s of hold and completes an abort release/stabilization;
+required opening and hold fail. The other three retain secondary empirical
+withdrawal refusals after contact loss. Original stops, raw/native/model/current/
+future/physical/clock/RGB and whole-transfer/cleanup reviews are complete.
+Normal-only transport leaves orientation on the reference clock; measured frame
+lag reaches 3.216°. Its distal geometry effect motivates a whole-frame diagnostic,
+not a causal success claim or relaxed tolerance. Observed qualification is open.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

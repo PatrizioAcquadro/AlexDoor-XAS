@@ -2889,5 +2889,14 @@ pose axes, injected disturbance displacement, force compression and every
 physical/continuity/load/stop criterion remain unchanged. Causal native samples
 still determine material placement; unloaded coasting cannot qualify a source.
 Defaults preserve previous behavior. Essential geometric controls and local
-models with completed-interval displacement pass; full original native contact
-paths and observed collection remain unqualified. No actuator gains change.
+models with completed-interval displacement pass. All four complete native
+attempts then close negative: last-push angles 0.589°, 4.936°, 2.670° and 0.686°.
+H+ has 0.617 s of hold and a completed abort release/stabilization; the others
+retain secondary empirical withdrawal refusals. Raw/native/model/all-seven
+current/future/physical/clock, original stops, actual RGB, whole outputs and
+owned cleanup are independently reviewed. No source or matrix credit is added.
+Normal-only transport leaves the gripper orientation on the reference clock.
+The resulting 0.065–3.216° frame mismatch moves distal extrema by 30 µm–1.503 mm
+in the saved geometric diagnostic; this is not counterfactual native evidence.
+It motivates checking coherent material-frame transport before another contact
+attempt. No actuator gains or acceptance limits change.
