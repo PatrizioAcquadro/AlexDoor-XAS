@@ -124,8 +124,16 @@ shared complete-motion control correction remains unqualified. An explicit,
 default-off finite-tangent mode now bounds the other five axes' elastic pose
 feedback while retaining normal force-reference memory. It also removes the
 normal request before the damped tangential solve. Essential numerical and CUDA
-history/dispatch/stop controls pass; the eight original native 0/10 N paths are
-still required before contact adoption.
+history/dispatch/stop controls pass. Independent N/P native reviews now qualify
+the complete 0 N robot-only paths, including the original stops and latest
+previously qualified current/future position support. Both 10 N cases fail the
+original 10 mm ramp endpoint: 11.44 mm for N and 12.53 mm for P. Their normal
+compression margins, orientation, physical limits, frozen model and stops pass;
+opening and later phases remain unavailable. A first position comparison used
+historical in-job bounds and is superseded by the already qualified scoped
+support, with both comparisons retained. H+/H− were left running at the single
+latest ownership check. The complete eight-case family remains unqualified;
+there is no contact or demonstration credit.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

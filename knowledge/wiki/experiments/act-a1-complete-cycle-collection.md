@@ -3175,3 +3175,26 @@ are software controls; full native N/H+/H−/P × 0/10 N paths and original stop
 must still qualify before a new contact attempt. Evidence is in
 `finite-tangent-essential-CUDA-candidate-review-20261107.json` and
 `D4-finite-tangent-controls-local-20261107/review.json`.
+
+The first finished native pairs, N and P at source `700191d`, qualify their
+complete 0 N robot-only paths and original same-latch eight-second, fourteen-shape
+stops. Both required 10 N cases stop at the original ramp endpoint position gate:
+independent FK gives 11.4444 mm and 12.5259 mm against 10 mm. Their separate
+necessary normal compression margins remain positive at 1.3184 mm and 1.3875 mm;
+orientation, physical current/future limits, rates, reserved targets, effort,
+frozen moving/stopped residuals and original stops pass. This preserves a
+loaded tangential tracking failure, rather than reclassifying it as missing
+normal compression. Opening, hold, release, stabilization and the loaded mode
+exit remain unavailable.
+
+All seven current and single-future position coordinates pass using the latest
+condition-specific support already independently qualified before this run. The
+first derived comparison mistakenly used the historical calibration bundled in
+the job; its false refusals and masks are preserved and superseded. Only the
+previously qualified position tolerance and force-cap arrays differ; the frozen
+dynamic model is identical. No support extension, threshold change or extra
+GPU run is introduced. Whole transfers, stable original inventories and actual
+owned process/GPU/lease cleanup pass for both jobs and the local CUDA review.
+The complete family remains unqualified pending H+/H− outcomes; no actual door
+contact or scientific source is credited. The canonical partial-family result
+is `D4-finite-tangent-N-P-independent-outcome-closeout-20261107.json`.
