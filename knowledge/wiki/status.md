@@ -299,9 +299,15 @@ Maintained code now includes an optional stopped-only response, disabled by
 default and in all current collection recipes. It reuses existing torque-origin
 validation and the same component error budget. Cold start, idempotent latch,
 control-tick handoff, pure preview and episode reset pass actual-method numerical
-contracts; the recorder keeps its event sink. All eight original complete native
-paths with the integrated response still require qualification. No stopping bound
-is replaced. All 208 continuation allocations are closed; collection remains 17/36.
+contracts; the recorder keeps its event sink. The integrated response now passes all eight original complete native 0/10 N
+paths and their continuing 2+4+2 s stops. All 172,128 packets retain the original
+motion, physical, current/future empirical, load and 14-shape criteria. Every
+post-cold-start feedback sample is calibrated and actual full-system feedforward
+reconstruction is exact. Peak segment tool travel is 0.259 mm; maximum segment
+terminal joint speed is 0.000306 rad/s. This qualifies a robot-only component,
+not observed contact or a teacher cycle. All 216 continuation allocations are
+closed; collection remains 17/36. The next step is a prospective closed-loop,
+state-dependent stopping-support proposal. No stopping bound is replaced.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

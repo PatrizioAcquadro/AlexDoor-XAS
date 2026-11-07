@@ -417,8 +417,15 @@ replacing recording callbacks. Stopped feedforward adds the certain residual
 correction to gravity; moving targets, gains, feedforward and action guards remain
 unchanged. The latest dispatch receipt remains available on the environment for
 diagnostics. Missing, stale or unsupported inputs produce no correction and
-remain unqualified. Actual-method numerical contracts pass; integration still
-needs all eight complete native paths/stops before collection adoption.
+remain unqualified. Actual-method numerical contracts and all eight original
+complete 0/10 N native paths with continuing 2+4+2 s stops pass. The 15,360
+stopped intervals retain one anchor per case, eight explicit cold-start missing
+inputs, no later calibration rejections and exact full-system feedforward.
+These fixture paths support the maintained component; future arbitrary-force
+support, observed contact and teacher qualification remain separate. Derive a
+prospective bound from current state and calibrated uncertainty before replacing
+the existing geometric stopping allowance; replayed future corrections cannot
+serve as that bound.
 
 Across 48 saved six-phase states, all original physical/tool/joint/14-shape/load
 and current-position checks pass, with zero current load-calibration rejections

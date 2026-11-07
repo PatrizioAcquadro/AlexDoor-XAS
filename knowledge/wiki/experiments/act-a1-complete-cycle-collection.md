@@ -3915,3 +3915,41 @@ native motion or teacher evidence. Canonical lifecycle result is
 campaign evidence directory. All eight original complete 0/10 N paths/stops
 remain the next native qualification; original unsafe and out-of-calibration
 controls stay negative. Collection remains 17/36 and optimizer updates remain zero.
+
+
+### November 7: maintained stopped response passes eight original full paths
+
+Source `968704e` runs all four original robot-only conditions at 0 and 10 N,
+with unchanged motion controller, setup, full six-phase path, 1 mm ramp,
+three-second hold, achieved release and stabilization. The stopped-only response
+is explicitly enabled in these diagnostics. All eight cases and their original
+2+4+2 s continuations pass independent physical, target/effort, current and
+single-future empirical, frozen-load, joint-travel and 14-shape checks. Across
+172,128 native packets, the 15,360 stopped intervals join exact preceding real
+joint-output feedback to the unchanged component error budget and actual
+full-system feedforward. Each case starts with one explicitly missing input;
+no subsequent input leaves calibration. There are 5,760 nonzero corrections.
+One anchor persists across each complete eight-second continuation and episode
+reset clears the observer before the next moving path. Maximum segment tool
+travel is 0.259 mm; maximum segment terminal joint speed is 0.000306 rad/s.
+
+All original output transfers preserve 100 files and twelve sidecars, totaling
+243,986,030 bytes, with actual owned process/GPU absence and canonical lease
+release. Four ordered independent readers per condition check causal dispatch,
+whole outcomes, actuator clock and constrained-dynamics diagnostics. Inherited
+review prose describing only the older moving controller is corrected with the
+original derived reports retained; raw artifacts and numerical outcomes are
+unchanged. Mimic position/velocity identity negatives remain diagnostic, never
+new refusal gates. Eight closed phase allocations cost 2,070.535 GPU seconds;
+all 216 continuation allocations are closed. Canonical closure is
+`D4-maintained-stop-response-whole-family-closeout-20261107.json` in the ignored
+campaign evidence directory, alongside the closed manifest and WHOLE receipts.
+
+This qualifies the maintained response for the tested complete robot-only
+fixture paths. Defaults and current collection recipes remain disabled. There
+is no new observed contact, teacher demonstration, optimizer update or smaller
+geometric stop bound; collection remains 17/36. Next work is a prospective
+closed-loop stopping-support proposal using current state, the original 10 N
+scope and the same calibrated component uncertainty. Unknown future delivered
+corrections must not enter its bound. Retain the unstable H− entry-preload
+control, arbitrary-force/out-of-calibration negatives and frozen-model limits.
