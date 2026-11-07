@@ -253,6 +253,15 @@ original contact outcomes. The measured inertial contribution therefore cannot
 alone explain contact loss. See
 [[../experiments/act-a1-complete-cycle-collection|complete readback evidence]].
 
+Contact-point `J*dq` is a current model-derived velocity, not automatically the
+finite derivative of native recorded poses. Keep original finger link transforms
+and same-material-point displacement checks separate. If door-root poses/body
+twists were not recorded, a prepared hinge supplies only conditional model
+kinematics. Completed-interval average force times endpoint or finite-difference
+velocity is diagnostic scoring; it is not an exact continuous friction-energy
+measurement. Neither positive signed values nor zero-normal/nonzero-friction
+solver packets alone identify an invalid physical law or a replacement controller.
+
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
 error. No parameters or physical/empirical acceptance thresholds are fitted.

@@ -318,7 +318,7 @@ trials are suspended. The initial model screen omitted that terminal criterion;
 rescoring the saved trajectories retains zero complete abrupt-case passes.
 Native and recorded consumers now share the original complete stop scorer,
 which preserves all 27 recorded segment outcomes and names an unsettled stop
-explicitly. All 236 continuation allocations are closed; collection remains
+explicitly. All 237 continuation allocations are closed; collection remains
 17/36. An audit of 5,390 stored observed D3/D4 proposals preserves fourteen
 unsupported-volume and four weak-position refusals. None proves positive complete
 contact-free stopping clearance; weak current load cannot justify a smaller
@@ -365,6 +365,14 @@ short local review's unavailable historical GPU PID remain recorded; process,
 context and lease cleanup is verified. No controller or stopping bound is adopted.
 Next work must distinguish changing-contact/friction memory and sampled control
 using causal inputs, retaining complete posture/material/visibility support.
+A conditional patch-kinematics audit retains all 32 raw tangent reversals in a
+fixed tool frame as well as each endpoint frame. Tool rotation is not their
+explanation. The same 256 intervals preserve 1,024 friction patches, including
+32 actor intervals with zero normal force and nonzero friction. Authored-hinge
+motion and model-derived `J*dq` do not provide exact contact work: displacement-
+based relative velocity differs from the endpoint mean by up to 7.4 mm/s, and
+historical native door-root poses/body twists are unavailable. No instantaneous
+friction law or causal compensation is qualified by this scoring.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

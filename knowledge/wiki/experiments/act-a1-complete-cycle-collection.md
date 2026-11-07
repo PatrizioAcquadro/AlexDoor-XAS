@@ -4182,3 +4182,39 @@ Canonical ignored evidence:
 The five pretrial failures and frame controls have separate preserved records.
 Maintained model source is `01f814a`; no maintained controller changes in this
 readback milestone.
+
+
+### November 7: conditional contact-patch timing control
+
+The same frozen 64 commands/256 intervals support a separate CUDA diagnostic on
+all 1,024 recorded friction patches. Original finger link transforms transport
+the same material point between endpoints, without matching or inventing patch
+identity across intervals. Current full20 finger COM Jacobians and measured
+unprojected velocities supply a separate velocity model. The prepared TRAIN D4
+hinge supplies conditional door-point kinematics; historical native door-root
+poses and body twists are unavailable. Model versus recorded finger link position
+difference peaks at 0.477 µm, without making model-derived velocities direct
+historical body-twist measurements.
+
+All 32 selected raw tangent-force reversals survive both fixed and endpoint tool
+frames. At these selected dispatches, the largest force-coordinate effect of
+tool rotation is 0.0000280 N; normal-force projection into tool tangents peaks
+at 0.00265 N, versus 1.312 N for the friction projection. This distinguishes measured friction effects from
+a coordinate-change explanation but does not identify a causal compensation.
+All 32 zero-normal/nonzero-friction actor intervals remain present. Signed work
+scores are retained without a fitted cutoff. Material-point finite-displacement
+relative velocity differs from the endpoint model mean by up to 0.00741 m/s.
+Consequently interval-average force and endpoint velocity do not provide exact
+continuous contact work or an identified memory law. Neither the signs of these
+scores nor presumed persistence of current force qualifies a controller.
+
+The single owned CUDA review costs 9.0463 GPU seconds. It records its actual
+live PID/UUID/context internally before completion, then closes its process,
+context and lease. Accounting is 237 closed continuation allocations and 8.12830
+GPU hours. No native simulation, controller, tolerance, stopping bound, source,
+optimizer update or demonstration is added; collection remains 17/36. Canonical
+ignored evidence is `D4-moving-contact-patch-timing-complete-closeout-20261107.json`,
+with the frozen plan and complete signed patch results beside it. Source is
+`1b34721`. Next work needs an informative prospective native material/friction
+intervention under the original full-motion and support criteria, after checking
+existing controls and the actual material override interface.
