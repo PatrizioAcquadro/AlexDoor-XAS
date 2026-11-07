@@ -262,6 +262,31 @@ velocity is diagnostic scoring; it is not an exact continuous friction-energy
 measurement. Neither positive signed values nor zero-normal/nonzero-friction
 solver packets alone identify an invalid physical law or a replacement controller.
 
+PhysX `RigidBodyView.get_velocities()` supplies world-frame COM linear/angular
+velocity; `get_coms()` supplies the actor-local COM pose. Combine the latter
+with the actual actor transform before shifting velocity to a contact point:
+`v_point = v_COM + omega cross (point - p_COM)`. Preserve native clocks and the
+complete legacy trajectory when adding these readbacks. Exact packet/array
+pairing permits association with the repeated original trajectory; it does not
+insert measurements into older recordings.
+
+The original-friction paired readbacks confirm full20 `J*dq` at nanometer/s scale,
+while finite position increments retain millimeter/s differences from endpoint
+velocity means. For diagnostic decomposition, project
+`Delta_q/h - (v_before + v_after)/2` through the mean endpoint COM Jacobian.
+Keep nonlinear pose quadrature, Jacobian/velocity covariance and native/model
+pose differences separate. Their sum reconstructs the observed discrepancy;
+future q/poses are scoring truth, not a predictor or a new tolerance.
+
+A friction-zero intervention can establish a relevant friction-dependent
+interaction without identifying a realistic controller or friction law. Nominal
+physical task completion under that intervention leaves the original-friction
+failure, empirical future support and observed-source requirements intact.
+Before changing gains, inspect the active solver configuration. Installed TGS
+warns about noisy velocities when `enable_external_forces_every_iteration` is
+false; the external Alex readiness configuration enables it. A one-flag numerical
+intervention still needs native full-path/load/stop qualification before adoption.
+
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
 error. No parameters or physical/empirical acceptance thresholds are fitted.

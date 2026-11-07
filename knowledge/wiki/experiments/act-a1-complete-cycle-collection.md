@@ -4218,3 +4218,76 @@ with the frozen plan and complete signed patch results beside it. Source is
 `1b34721`. Next work needs an informative prospective native material/friction
 intervention under the original full-motion and support criteria, after checking
 existing controls and the actual material override interface.
+
+
+### November 7: causal friction intervention and direct native pose/velocity pairing
+
+The nominal material control keeps native controller `519c347`, the exact N
+setup/load calibration, original recipe, camera, gains and task/stop criteria.
+It changes static/dynamic friction only on the two right finger rigid bodies
+and Panel, with native material readback; restitution and other bodies remain
+unchanged. All 53,956 native task packets verify exactly zero friction forces,
+including 200,704 returned friction slots. The task reaches 50.550165° against
+50.146446° required, with 180 hold, 360 release and 120 stabilization control
+intervals. Hold remains loaded/contact-valid; its minimum angle is 49.885461°
+under the unchanged hold-variation criterion. Release and the final unloaded
+window pass. Actual RGB pixels show the expected opening sequence; contact
+surfaces remain partly occluded, so images do not certify contact or observed
+material admission.
+
+Independent reconstruction retains positive original 0.1 s load-lower windows
+(minimum 0.056713 N), a 3.602910 N estimated force-upper peak, supported current
+positions, physical/future physical limits and all six-second/fourteen-shape
+stops. Complete pressure-component qualification is nevertheless negative:
+3,296 required-10 N future boxes cross the lower empirical `RIGHT_SHOULDER_X`
+face, first at 131.904167 s. Maximum excess is 0.000726758 rad, with worst future
+lower endpoint −1.147179304 versus supported −1.146452546 rad. No bound, force
+scope, calibration or tolerance is changed. The saved report explicitly excludes
+teacher/data use while preserving its original-criteria physical success flags.
+This is a causal material contrast with N's original 0.458° failure, not a new
+realistic-material solution, source or demonstration. Related friction-zero
+conditions remain suspended.
+
+An independent measurement campaign then adds direct native finger/Panel COM
+velocities, actor-local COM poses and Panel actor transforms to all four original-
+friction histories on their original hosts. It writes no materials, controls or
+physical states. Every legacy contact-packet value and all seventeen saved arrays
+remain byte-identical over 3,484/4,320/5,596/3,452 N/H+/H−/P packets. All four
+original tasks remain negative, including their primary/secondary failures and
+release load-domain errors. Original physical stops and actual RGB pairs are
+reviewed; no unavailable old state is zero-filled or retroactively inserted.
+
+The exact repeated trajectories associate new direct twists with the frozen
+293-state readback. Full20 COM `J*dq` differs from native linear velocity by at
+most 4.322e-9 m/s and angular velocity by 1.019e-8 rad/s. Native contact-point pose
+increments still differ from endpoint velocity means by as much as 0.0173883 m/s
+across the complete histories. On the original 256 selected intervals, the
+largest COM discrepancy is 0.00526159 m/s; projection of measured full-coordinate
+increment minus mean joint velocity contributes up to 0.00525095 m/s. Nonlinear
+pose quadrature and native/readback pose-increment terms peak at 0.00011824 and
+0.00015156 m/s. The explicit decomposition closes within 1.31e-18 m/s arithmetic
+residual and preserves both reversal and matched groups. This locates an omitted
+position-update term; it does not prove a sole contact-loss cause, prospective
+force persistence, exact continuous friction energy or a new stopping bound.
+
+The material control and direct-state campaigns preserve 148 original files and
+15 sidecars, totaling 16,004,910,612 original bytes. All eight native/review GPU
+allocations close, bringing continuation accounting to 245 closed allocations
+and 8.84595 GPU hours. Original masks, interruptions, current/future distinctions
+and all negative qualifications remain. Collection is 17/36, optimizer updates
+zero, and no controller, numerical default or dataset source is adopted.
+
+Canonical ignored evidence:
+`D4-zero-friction-causal-complete-review-closeout-20261107.json`,
+`D4-original-friction-body-and-position-complete-closeout-20261107.json`,
+`D4-original-friction-body-twist-family-independent-review-20261107.json` and
+`D4-original-friction-native-position-increment-review-local-20261107/report.json`.
+Coordinator baseline is `e7c52f5`; native control remains `519c347`.
+
+The next prospective control isolates TGS external-force integration. Actual
+baseline startup logs warn that `enable_external_forces_every_iteration=False`
+may cause noisy velocities. Installed backend documentation recommends the option
+for this symptom, and the external Alex readiness helper enables it. Additional
+stabilization already defaults false, so disabling it again would be unchanged.
+The proposed control changes only the force-integration flag with original
+friction, retaining every existing criterion; it is not yet a validated fix.

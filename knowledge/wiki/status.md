@@ -318,7 +318,7 @@ trials are suspended. The initial model screen omitted that terminal criterion;
 rescoring the saved trajectories retains zero complete abrupt-case passes.
 Native and recorded consumers now share the original complete stop scorer,
 which preserves all 27 recorded segment outcomes and names an unsettled stop
-explicitly. All 237 continuation allocations are closed; collection remains
+explicitly. All 245 continuation allocations are closed; collection remains
 17/36. An audit of 5,390 stored observed D3/D4 proposals preserves fourteen
 unsupported-volume and four weak-position refusals. None proves positive complete
 contact-free stopping clearance; weak current load cannot justify a smaller
@@ -352,27 +352,32 @@ improve in 81 packets, by at most 0.0081 N; the prior weak scalar branch dominat
 most samples. Independent box-corner checks and measured force readbacks support
 the change. No moving compensation or physical contact success is inferred;
 all original task failures and 17/36 collection count remain.
-A subsequent full-system readback closes 293 exact saved joint states around
-32 sign-reversal dispatches and 32 matched same-phase controls. Including the
-measured other-joint accelerations reduces the largest per-joint arm-balance RMS
-from 0.136–4.188 mN·m to 6.6–9.5 µN·m. The omitted inertial contribution occurs
-in both groups and does not identify a sole contact-loss cause. Current full20
-versus arm7 hand response differs by only 2.2–4.8 parts per million; its normalized
-normal/tangent coupling is 0.209–0.225. These are current model descriptors,
-not prospective force guarantees. Native and calibrated frames transport both
-gravity and Jacobians explicitly. All five pretrial reader failures and the
-short local review's unavailable historical GPU PID remain recorded; process,
-context and lease cleanup is verified. No controller or stopping bound is adopted.
-Next work must distinguish changing-contact/friction memory and sampled control
-using causal inputs, retaining complete posture/material/visibility support.
-A conditional patch-kinematics audit retains all 32 raw tangent reversals in a
-fixed tool frame as well as each endpoint frame. Tool rotation is not their
-explanation. The same 256 intervals preserve 1,024 friction patches, including
-32 actor intervals with zero normal force and nonzero friction. Authored-hinge
-motion and model-derived `J*dq` do not provide exact contact work: displacement-
-based relative velocity differs from the endpoint mean by up to 7.4 mm/s, and
-historical native door-root poses/body twists are unavailable. No instantaneous
-friction law or causal compensation is qualified by this scoring.
+Full-system readback at 293 exact states closes the moving arm balance with
+6.6–9.5 µN·m largest-joint RMS residuals. Measured other-joint inertia matters in
+both reversal and matched controls; it is not a sole contact-loss explanation.
+A changed-material nominal control, with only finger/Panel friction set to zero,
+completes the physical task at 50.550° against the original 50.146° requirement,
+including hold, release, stabilization and six-second fourteen-shape stops.
+Its 53,956 native packets retain the original load/physical criteria, but 3,296
+required-10 N future boxes exceed empirical shoulder-X support, by at most
+0.000727 rad. Current positions remain supported. Complete component qualification
+is negative, and changed friction independently excludes teacher/source credit.
+The original-friction nominal baseline remains negative at 0.458°.
+Four additional native measurements preserve every previous contact-packet value
+and all seventeen saved arrays byte-for-byte across 16,852 packets, while adding
+direct COM velocities/local COM poses and Panel frames. All original failures
+and independent stops remain. On the 293 exact states, full20 `J*dq` matches
+native finger COM velocity within 4.4 nm/s; missing twists or a wrong Jacobian
+do not explain the measured displacement discrepancy. Actual contact-point pose
+increments differ from endpoint velocity averages by up to 17.4 mm/s over the
+complete histories. At the frozen 256 intervals, the joint-coordinate increment
+term accounts for the dominant COM discrepancy in both groups; subsequent q and
+poses enter scoring only. No continuous-energy, friction-law or next-step bound
+is inferred. Collection remains 17/36, with no controller/domain adoption.
+Next work tests documented TGS force integration with original friction and all
+existing criteria. Actual baseline logs warn that external-force integration at
+every iteration is disabled; the external Alex readiness configuration enables
+it. The proposed single-flag control remains unqualified.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
