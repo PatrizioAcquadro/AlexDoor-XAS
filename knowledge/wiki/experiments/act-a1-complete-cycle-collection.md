@@ -3232,3 +3232,48 @@ offset is absent. Original full native 0/10 N paths and stops are still required
 no contact or source is qualified by these software controls. Evidence is in
 `finite-tangent-entry-preload-essential-CUDA-screen-20261107.json` and
 `D4-entry-preload-controls-local-20261107/review.json`.
+
+
+The entry-preload native family at `5a5caad` is independently closed across
+141,656 movement samples, 15,360 original stop samples and 97,055,489 original
+bytes. All four 0 N paths pass the full original endpoints, hold, achieved
+release, stabilization, history, physical/model/current/future support and
+same-latch eight-second/fourteen-shape stops. At 10 N, N/H+/P fail the opening
+endpoint at 83.497, 80.858 and 82.883 mm, also beyond the original orientation
+limit. H− fails normal reachability before completing opening, with earlier
+acceleration and empirical-support violations. All four loaded paths leave
+previously qualified position support; later phases stay unavailable. H−'s three
+stop segments fail speed, acceleration and frozen-model criteria. Its shoulder
+velocity alternates near ±4.47 rad/s, independently confirmed by position
+differences. Original failed stop predicates remain explicit in the readback;
+none is discarded because another check fails first. The canonical family result
+is `D4-entry-preload-eight-outcome-closeout-20261107.json`.
+
+Forward-only native inertia readback covers 356 candidate and qualified-baseline
+postures without advancing dynamics. The seven-joint local explicit-PD stop
+linearization has radius 1.0201 at the failed H− stop region, versus at most
+0.9746 for the baseline samples. At the first failed-stop posture, its negative
+pole is −1.01864 and its velocity direction has cosine 0.9999993 with the observed
+alternating mode. The measured early amplitude ratio is 1.01980. This supports
+posture-dependent local stop instability, not a gain change. Full twenty-joint
+unconstrained models also predict instability in stable baseline cases, exposing
+missing constraints; they are rejected as qualification gates.
+
+Whole-path readback separates 78.65–105.15 mm loaded tangential errors from
+18.78–26.31 mm normal error. The cumulative omitted full-offset covector term is
+only 1.01–1.43 mm, so replacing that scalar term alone is unsupported. A separate
+saved-state elastic-reference comparison transports the initial stiffness-
+weighted reference with the measured tool frame. On the independently qualified
+10 N histories, tangential residual RMS falls from 41.6–44.8 mm for a fixed joint
+reference to 2.30–2.74 mm. This static algebra is an unimplemented geometry
+hypothesis, not a corrected trajectory, force-feedback measurement or contact
+qualification. Free motion, changing loads, pure preview/dispatch, normal
+reference transitions and full guarded native paths remain required.
+
+All resources are closed. A completed inertia reader left only its own auxiliary
+Omniverse Hub process in the allocation group; the GPU was already unused. Only
+that verified PID received TERM, with group identity and actual charges retained.
+The first reference-frame algebra run exposed nonorthogonality from float32 FK
+rotation blocks; standard rigid-rotation normalization fixes its representation,
+with that failed preparation retained. No native criterion changes. Evidence is
+in `D4-entry-preload-native-and-mechanism-closeout-20261107.json`.

@@ -171,6 +171,10 @@ stop and reset transitions clear the offset. Essential blocked-load/free-
 reference/nullspace/normal-channel controls and original history math pass,
 including pure preview and exact dispatch. Corrected native full-path 0 N/10 N
 qualification remains required before any contact or source adoption.
+The fixed joint entry reference passes the ramp but fails full loaded opening
+and, on H−, the original continuing stop. It remains unadopted. A geometry-aware
+reference must preserve free motion and existing load support; a saved static
+elastic-reference comparison alone cannot establish those behaviors.
 
 A candidate that canceled the frozen-joint elastic pressure of each full
 reference step (`ea8d5d4`) is withdrawn. Although its single-step algebra preserved

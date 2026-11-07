@@ -140,8 +140,22 @@ impedance only to subsequent elastic displacement. Previews remain pure;
 dispatch commits the offset once, and ordinary/joint/stop/reset transitions clear
 it. Numerical and actual CUDA history/entry/release controls pass. Gains,
 observations, force thresholds and qualification criteria remain unchanged.
-The corrected eight native 0/10 N paths still require independent qualification
-before contact adoption; the scientific matrix remains 17/36.
+The entry-preload family is now independently closed: all four 0 N components
+qualify, but all four required 10 N paths fail during opening. N/H+/P miss the
+original pose endpoint by 80.86–83.50 mm; H− reaches a singular normal direction
+and also fails original acceleration, empirical support and continuing-stop
+criteria. Its stop contains a confirmed alternating shoulder velocity near
+±4.47 rad/s. All later loaded phases remain unavailable; the matrix stays 17/36.
+
+Read-only native inertia measurements at 356 candidate/baseline postures identify
+an unstable local arm stop mode at H−'s failed posture, consistent with the
+measured oscillation; qualified baseline stop modes stay stable. The full
+unconstrained twenty-joint model also predicts instability in stable baselines
+and is rejected as a qualification gate. A missing scalar covector term is too
+small to explain the whole pose error. Transporting an entry elastic reference
+with tool geometry reduces saved-state residuals, but remains an unimplemented
+hypothesis requiring causal/free-motion/history and guarded whole-path controls.
+No dependent contact retry, threshold increase or support extension is ready.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection
