@@ -369,6 +369,16 @@ profiles cannot establish a nonlinear stopping bound. Independent variable-load
 stops at whole-motion boundary states must retain all original physical,
 empirical and 14-shape checks before any runtime use.
 
+Keep the recipe's moving-sweep acceleration and the load model's calibrated
+acceleration domain distinct. In 48 six-phase variable-load stop tests, two
+first-step shoulder peaks exceed the unchanged 7.876929 rad/s² recipe value;
+all 48 remain inside the existing 16.529308 load-calibration domain for that
+joint and pass original stop travel, geometry and load residual checks. These
+are real velocity changes, not derivative-reset artifacts. Preserve both
+legacy recipe negatives; do not infer a hardware limit or silently remove a
+criterion. Next-motion sweep admission and stopped-load evidence require an
+explicit consumer audit before changing either contract.
+
 `PurdueIO.stop()` clears admission and calls `env.stop_motion()`. The environment
 clears pending commands, latches measured joint positions once, zeroes velocity
 targets and retains state-dependent gravity compensation. The previous spring

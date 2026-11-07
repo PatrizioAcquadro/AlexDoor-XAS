@@ -3706,12 +3706,38 @@ join exact native clocks and joint packets; the resulting point Jacobian agrees
 with the original operational feedback within 1.03e-7 m/rad. Corrected model
 inputs replace the rejected link-origin preparation without deleting it.
 Blackwell executes its first two eight-second probes before the other three
-independent hosts are dispatched. Complete custody and original 14-shape,
-empirical, physical and frozen-model reviews remain required. Saved states are
-component trials and provide no complete-path or demonstration credit.
+independent hosts are dispatched. All 48 then complete 144 original stop segments
+and 92,160 native packets. Whole custody closes 216 files plus twelve sidecars,
+122,844,418 bytes, with actual owned cleanup on every host. All original tool,
+joint and 14-shape radial/directional/rotation bounds, physical position/speed,
+frozen-load residuals and current empirical position checks pass. The vectorized
+full-joint geometry agrees with the maintained CPU consumer within 7.78e-16.
+Explicit PD efforts reconstruct exactly; constrained one-step velocity error
+peaks at 50.71 µrad/s under this variable forcing. The frozen model following
+the predeclared input has at most 72.31 µrad position error; all 48 native paths
+stay inside its 10 N model envelope. Unseen force directions, application changes,
+state perturbations and complete new-controller paths remain unqualified.
+
+The unchanged recipe acceleration check passes 46/48 states. N/P approach stops
+from the loaded-labeled histories reach 8.261/10.937 rad/s² at the first native
+step, versus the original 7.876929 recipe value. Direct physical velocity changes
+confirm both peaks; they are not reset-derivative artifacts. All 48 stay inside
+the preexisting main load-calibration acceleration domain (16.529308 rad/s² for
+that joint). Runtime uses recipe acceleration for the next motion sweep and a
+separate acceleration domain in load estimation; neither is an independent
+hardware acceleration specification. Keep both legacy negatives and audit these
+consumer contracts before any change. Thirteen global future forecasts also
+remain negative during already-stopped continuations. No criterion, tolerance,
+calibration or envelope is changed. Saved states provide no complete-path or
+demonstration credit. All ten final native/review allocations close, adding
+896.903017 GPU seconds; the exact continuation ledger is 186 closed allocations
+and 7.069997 GPU hours, including all prior failures.
 Canonical records are `D4-prospective-stop-forecast-local-closeout-20261107.json`,
 `D4-variable-load-stop-pretrial-ProxyArray-closeout-20261107.json`,
 `D4-variable-load-distal-geometry-preflight-closeout-20261107.json`,
 `D4-variable-load-distal-operational-J-native-clock-review-20261107.json` and
 `D4-variable-load-distal-stop-six-phase-native-manifest-20261107.json`.
+The complete result is `D4-variable-load-distal-stop-six-phase-closeout-20261107.json`;
+acceleration evidence is in `D4-variable-load-distal-stop-acceleration-gate-origin-CUDA-20261107.json`
+and `D4-variable-load-distal-stop-acceleration-domain-contracts-CUDA-20261107.json`.
 The collection remains 17/36, with no controller, criterion or support change.

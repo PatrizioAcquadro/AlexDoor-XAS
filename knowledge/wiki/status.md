@@ -243,12 +243,16 @@ nor stable frozen poles certifies a smaller future envelope. A prospective
 causal frozen model follows held-load stops within 57 µrad but underpredicts
 directional excursion after removal by up to 1.019 mrad. An exact finite-horizon
 10 N force-ball envelope contains the eight original profiles in this linear
-model; nonlinear qualification remains open. Forty-eight saved boundary states
-across all six motion phases now support independent variable-load stop tests
-on Blackwell and three elab hosts. Five pretrial preparation failures are
-preserved; the corrected distal point/Jacobian matches native feedback at all
-48 states. These are component tests, with no new controller, bound or teacher
-demonstration. The matrix remains 17/36; original guards stay unchanged.
+model; nonlinear qualification remains open. Forty-eight independent variable-
+load stops now cover all six motion phases and 92,160 native packets. All pass
+original tool/joint/14-shape travel, current position support and load residuals;
+46 pass every legacy recipe predicate. Two approach stops exceed its motion-
+acceleration value, while all 48 remain inside the already calibrated load-model
+acceleration domain. Both results are retained: movement-sweep bounds and stopped-
+load qualification have different consumers. The planned variable-force model
+has at most 72.31 µrad position error, with no frozen-envelope escapes. All owned
+resources close. No new bound or controller is adopted; the matrix stays 17/36.
+The five pretrial failures and corrected distal point/Jacobian proof are retained.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection
