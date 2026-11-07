@@ -330,7 +330,13 @@ class ResidualLoadModel:
         if not np.isclose(np.linalg.norm(normal), 1, atol=1e-6):
             raise ValueError("invalid_load_normal")
         normal_lower = -normal @ wrench[:3] - np.abs(normal) @ radius[:3]
-        upper = np.linalg.norm(wrench[:3]) + np.linalg.norm(radius[:3])
+        # The farthest corner of this same component box bounds force norm.
+        # Retain the old valid radial bound for rounding ties.
+        force_abs_upper = np.abs(wrench[:3]) + radius[:3]
+        upper = min(
+            np.linalg.norm(force_abs_upper),
+            np.linalg.norm(wrench[:3]) + np.linalg.norm(radius[:3]),
+        )
         halo_used = np.stack((q < q_min, q > np.asarray(c.q_max))) & (tolerance > 0)
         halo_cap = float(np.min(halo_caps[halo_used])) if halo_used.any() else np.inf
         if upper > halo_cap:
@@ -344,6 +350,7 @@ class ResidualLoadModel:
                     uncertainty_terms_n=dict(
                         estimated_force_norm=float(np.linalg.norm(wrench[:3])),
                         residual_force_radius=float(np.linalg.norm(radius[:3])),
+                        force_component_abs_upper=force_abs_upper.tolist(),
                     ),
                     position_excess_rad=np.maximum(q_min - q, q - c.q_max).clip(0).tolist(),
                 )
@@ -366,6 +373,7 @@ class ResidualLoadModel:
                     uncertainty_terms_n=dict(
                         estimated_force_norm=float(np.linalg.norm(wrench[:3])),
                         residual_force_radius=float(np.linalg.norm(radius[:3])),
+                        force_component_abs_upper=force_abs_upper.tolist(),
                     ),
                 )
             )

@@ -523,6 +523,16 @@ position envelope. All main position bounds and complete teacher outputs remain
 unchanged. A narrower strong extension also fails its 8 N lateral stop. The final
 panel keeps the original main position recipe; the optional weak-position recipe
 is inactive. Actual new-checkpoint task success remains pending.
+The residual estimator keeps the complete calibrated joint-error propagation.
+For force estimate `F` and nonnegative component radius `r`, its component box
+has maximum norm `||abs(F) + r||₂`. Use the smaller of this bound and the existing
+`||F||₂ + ||r||₂` radial bound to retain rounding-stable prior acceptance.
+This spends the same uncertainty once without assuming that independent worst
+force directions align. Wrench estimation, calibration, normal formulas and
+force caps remain unchanged. A tighter upper bound may activate an already
+qualified weak-normal branch; it never weakens the supported domain. Refusal
+records retain the three absolute component bounds for inspecting the decision.
+
 ### October 19 calibration and stopping correction
 
 The current correction keeps empirical position coverage separate from physical

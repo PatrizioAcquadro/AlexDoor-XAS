@@ -253,6 +253,13 @@ load qualification have different consumers. The planned variable-force model
 has at most 72.31 µrad position error, with no frozen-envelope escapes. All owned
 resources close. No new bound or controller is adopted; the matrix stays 17/36.
 The five pretrial failures and corrected distal point/Jacobian proof are retained.
+Actual production load/position replay finds no acceleration-domain refusal at
+the two stop witnesses. A source correction now bounds force norm by the farthest
+corner of its existing component uncertainty box, retaining the old radial bound
+for rounding ties. Paired replay admits 720 additional packets out of 92,160,
+without losing prior admissions, changing calibrated errors or raising force
+caps. Native-force and independent corner checks pass; this improves numerical
+load admission and adds no teacher demonstrations or conditional stopping bound.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

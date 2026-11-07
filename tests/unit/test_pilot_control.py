@@ -1,6 +1,7 @@
 """Axis-free admission and robot-only load/stop contracts; no physical qualification."""
 
 from dataclasses import replace
+from itertools import product
 from types import SimpleNamespace
 
 import numpy as np
@@ -230,6 +231,49 @@ def test_measured_speed_guard_includes_both_native_substeps():
     )
     safety = ObservedPurdueSafety(io, setup, None)
     assert safety.check(None) == "actual_joint_speed_limit"
+
+
+
+@pytest.mark.parametrize("force", [[0, 0, 0], [4, 0, 0], [-2, 1, 0.5], [1, 2, 3]])
+def test_force_norm_bound_covers_every_component_box_corner(force):
+    model, jac, nominal = load_inputs()
+    error = np.array([0.05, 0.2, 0.3, 0.01, 0.02, 0.03, 0.04])
+    model = ResidualLoadModel(replace(model.calibration, residual_bound_nm=error))
+    feedback = replace(nominal.feedback, torque_nm=np.r_[force, np.zeros(4)])
+    load = model.estimate(
+        feedback, np.zeros(7), jac, np.zeros(7), np.zeros(7), np.zeros(7), [1, 0, 0]
+    )
+    corners = np.asarray(force) + np.array(list(product([-1, 1], repeat=3))) * error[:3]
+    maximum = np.linalg.norm(corners, axis=1).max()
+    assert load.force_upper_n == pytest.approx(maximum)
+    assert load.normal_lower_n == pytest.approx(-force[0] - error[0])
+    assert load.force_upper_n <= np.linalg.norm(force) + np.linalg.norm(error[:3])
+
+
+@pytest.mark.parametrize("cap, admitted", [(4.05, False), (4.06, True)])
+def test_force_box_bound_preserves_supported_cap_without_radial_overestimate(cap, admitted):
+    model, jac, nominal = load_inputs()
+    q = np.zeros(7)
+    q[0] = 1.001
+    model = ResidualLoadModel(
+        replace(
+            model.calibration,
+            position_tolerance_rad=np.full((2, 7), 0.002),
+            position_halo_force_upper_max_n=cap,
+        )
+    )
+    args = (nominal.feedback, np.zeros(7), jac, q, np.zeros(7), np.zeros(7), [1, 0, 0])
+    if admitted:
+        load = model.estimate(*args)
+        assert load.force_upper_n < cap
+        assert load.admission(1, cap).admitted
+        # A corner inside the unchanged error box exceeds the smaller cap.
+        assert np.linalg.norm([4.05, 0.05, 0.05]) > 4.05
+    else:
+        with pytest.raises(ValueError, match="outside_verified_load_envelope") as caught:
+            model.estimate(*args)
+        assert caught.value.decision["quantity"] == "position_halo_force_upper_n"
+        assert caught.value.decision["upper"] == cap
 
 
 def test_dynamic_residual_bounds_cover_coupling_without_inflating_static_load():

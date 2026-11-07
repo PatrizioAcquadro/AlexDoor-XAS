@@ -3741,3 +3741,34 @@ The complete result is `D4-variable-load-distal-stop-six-phase-closeout-20261107
 acceleration evidence is in `D4-variable-load-distal-stop-acceleration-gate-origin-CUDA-20261107.json`
 and `D4-variable-load-distal-stop-acceleration-domain-contracts-CUDA-20261107.json`.
 The collection remains 17/36, with no controller, criterion or support change.
+
+The subsequent actual production-contract replay calls the unchanged NumPy load
+and next-motion methods on all 92,160 packets. It reproduces 2,664 position-halo
+force-upper refusals and 2,040 stop-force-upper refusals; the two acceleration
+witnesses have no production acceleration-domain refusal. This is a method
+replay with recorded robot feedback, not observed geometry/admission.
+
+A general source correction computes the farthest-corner norm of the existing
+three-dimensional force uncertainty box. The old radial bound remains a
+rounding fallback. No calibrated joint error, force cap, motion/geometry/stop
+criterion or estimated wrench changes. Exact paired production calls increase
+load-plus-stop-force acceptance from 87,456 to 88,176 packets: 720 previously
+unnecessary refusals are removed, and every old acceptance is preserved. Load
+estimation alone passes 90,000 packets, versus 89,496 previously. All common
+wrenches, residual errors and residual bounds are bitwise unchanged; normal
+lower bounds never decrease. An existing independently calibrated weak-normal
+formula activates additionally at 453 packets because its force domain can now
+be established more tightly.
+
+Independent CUDA checks cover all eight box corners, 65,536 nominal/boundary/
+perturbed vector cases and every native force norm in these 92,160 packets.
+Minimum recorded force-coverage margin is 0.02494 N. These checks introduce no
+new empirical tolerance; the unit cap tests retain an outside-domain refusal.
+All 165 focused tests and lint pass. Canonical result is
+`D4-force-box-bound-correction-closeout-20261107.json`, with
+`D4-actual-stop-load-and-next-motion-consumer-contracts-20261107.json`,
+`D4-force-box-paired-production-consumer-contracts-20261107.json` and
+`D4-force-box-CUDA-native-and-perturbed-qualification-20261107.json`.
+All prior 46/48 legacy stop outcomes and thirteen stopped-state global future
+negatives remain unchanged. The matrix is 17/36; no native teacher retry is
+justified by replay acceptance alone.
