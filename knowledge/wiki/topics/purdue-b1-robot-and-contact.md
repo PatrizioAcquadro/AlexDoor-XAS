@@ -282,6 +282,21 @@ mode with the midpoint-only centering domain. Preview is pure, ordinary mode
 handoff retains its measured origin, and joint commands, stop and reset keep
 existing history semantics.
 
+A causal virtual joint path can remain inside every supported face while a
+loaded arm following its null coordinate still leaves that support. Whole-motion
+controls reproduce this distinction: the task-space part of the elastic and
+reference deviation can dominate the remaining redundant-coordinate error.
+A full joint reference seeded from delivered targets minus the transported
+entry elasticity avoids that local-only formulation, but its isolated model
+still fails one of eight constant-load paths during hold. Neither reference is
+adopted. The perturbation plant preserves all nominal native packets by
+construction and reproduces seven available prior native support outcomes;
+its nonlinear inertia, Coriolis and fixture derivatives remain unqualified.
+Variable-load stress without the observed outer force loop cannot establish
+teacher behavior. Complete motion, original centering geometry, actual outer
+force feedback and delivery-only reference state must be checked together.
+See [[../experiments/act-a1-complete-cycle-collection|the collection experiment]].
+
 When this mode returns to ordinary pose control, its first reference increment
 uses the current measured tool pose as origin. The maintained intentional
 release rebases its curve to that achieved pose; subtracting the previous ideal

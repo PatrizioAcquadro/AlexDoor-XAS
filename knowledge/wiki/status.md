@@ -222,8 +222,20 @@ the original empirical future predicate. Three loaded cases are unattempted.
 All actual physical/current-position, frozen-model and original stop checks pass.
 The global preference configuration is rejected, with no source adoption and
 all owned resources closed. Whole matched-reference histories show a feasible
-prior posture path at every failure witness; the next design must coordinate
-posture over complete motion rather than optimize another local preference.
+prior posture path at every failure witness. A causal virtual reference now
+passes eight complete recorded programs and all original kinematic support,
+rate, pose, ramp and hold checks. A native-history perturbation plant reproduces
+all seven available prior finite-reference support outcomes, with pre-release
+joint differences up to 0.138 mrad; it remains an approximate model. Restoring
+only the virtual null coordinate still fails three constant-load paths. A full
+joint reference with transported entry elasticity improves to seven of eight,
+but N10 fails predicted wrist-X lower future support during hold by up to
+0.685 mrad. Both prototypes remain unadopted. Variable-load stress also fails
+in the model, which lacks the teacher's outer force-admittance loop. No new
+native or observed attempt is launched. Next work must preserve the original
+soft centering metric and resolve the entire loaded hold, variable-load loop
+and dispatch transitions before qualification. All owned resources close;
+the matrix remains 17/36.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

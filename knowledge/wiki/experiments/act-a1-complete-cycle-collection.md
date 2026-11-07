@@ -3571,3 +3571,52 @@ primary motion, changing load and transitions retained, using the qualified
 paths as controls. The matrix remains 17/36. Evidence is
 `D4-coupled-margin-whole-family-closeout-20261107.json` and
 `D4-coupled-margin-whole-reference-posture-CUDA-diagnosis-20261107.json`.
+
+
+A causal virtual-reference screen receives only each current recorded goal,
+its last delivered virtual state and the first measured configuration. All
+eight complete 4,659-tick programs pass the unchanged supported future box,
+physical reference and rate checks. Independent post-command FK also passes
+the original six pose endpoints, 1 mm ramp and final half-second hold drift.
+These 37,272 virtual ticks are not loaded native motion. The initial screen's
+error samples precede its reference update; delivered endpoint claims use the
+independent post-command readback instead.
+
+A whole-motion perturbation plant then uses each qualified native physics
+packet's measured inertia, mimic constraints and original explicit PD gains.
+Zero perturbations reproduce the nominal recording by construction. For the
+previous finite-reference controller, the model nevertheless reproduces all
+seven independently available native support outcomes: five positives and the
+two N0/H+10 negatives. Pre-release model/native joint differences peak at
+0.138 mrad; predicted first exits precede native refusals by 45.8 and 29.2 ms.
+The original N10 remains unattempted in that native family. These controls
+support rejecting candidates in isolation, not a native position certificate;
+nonlinear inertia, Coriolis and fixture derivatives remain unqualified.
+
+A causal virtual-path null restorer retains only five of eight constant-load
+support outcomes. At its three failure witnesses, task-space deviation dominates
+the remaining null-coordinate difference. A second isolated design instead
+seeds a complete joint reference from delivered targets minus their transported
+six-axis entry elasticity. Current commanded goals advance that reference;
+only bounded delivered motor targets commit its state. The prior sixteen whole
+model control histories remain bitwise identical. Seven of eight constant-load
+paths retain original support, and all eight original pose, ramp and hold
+checks pass in the model. N10 still leaves wrist-X lower future support at
+control tick 3,831 during hold, reaching a 0.685 mrad full-path deficit.
+No production integration or native attempt follows this incomplete result.
+The virtual reference uses the physical joint span for centering while motor
+target bounds remain unchanged; the next matched control must preserve the
+original reserved-target centering metric before attributing a design effect.
+
+Both designs retain all four loaded variable-force stress negatives. The plant
+has no observed outer force-admittance loop, so these stress responses do not
+establish the full teacher's variable-load behavior. Hard position, speed and
+acceleration predicates pass all 32 model paths in the second design; empirical
+exits are retained separately. Next work must resolve the full loaded hold,
+actual causal outer force loop and preview/dispatch/antiwindup transitions with
+all original criteria before production or complete native qualification.
+All five allocations close and add 160.186542 GPU seconds, with no new native
+or observed launch. The matrix remains 17/36. Canonical evidence is
+`D4-whole-reference-continuation-isolated-closeout-20261107.json`,
+`D4-causal-virtual-reference-whole-motion-independent-CUDA-review-20261107.json`
+and `D4-transported-joint-reference-whole-motion-independent-CUDA-review-20261107.json`.
