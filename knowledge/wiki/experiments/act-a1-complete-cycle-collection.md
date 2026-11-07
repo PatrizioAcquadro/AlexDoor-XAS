@@ -3837,3 +3837,62 @@ feedback, original 10 N/physical/14-shape scopes and full coupled dynamics;
 prescribed fixture force must never become observed feedback. Original complete
 controller paths and contact qualification remain necessary. No source bound,
 criterion, controller or demonstration is adopted from these diagnostics.
+
+### November 7: causal calibrated stopped-response prototype
+
+The isolated correction keeps the measured stop target and original gains, then
+adds only the certain part of the previous completed joint-output residual.
+For each joint it applies `-sign(r) * max(abs(r) - b, 0)`, with the unchanged
+calibration's component error budget. No prescribed fixture force is an input.
+The controller checks current main position/speed/acceleration support and exact
+completed-sample time/generation; unsupported input gives zero correction.
+Eleven actual-method contracts cover uncertainty, missing/stale/contradictory
+feedback, pure preview, reset and generation changes.
+
+The coupled-model screen retains 960 trajectories: 48 phase states, five force
+programs and four controller/input conditions. Ideal or conditionally trusted
+residual correction passes 48/48 friction-subset model cases, but the strict
+calibration mode passes only 22/48 under abrupt forcing. Those negatives and
+arbitrary-ball failures remain; conditional inputs are never promoted to verified
+feedback. Smooth rotating friction passes all 48 strict model cases without
+calibration exits. Independent Blackwell auditing joins 44,952 actual original
+native samples: all 44,948 calibrated samples satisfy the existing torque error
+budget. Four out-of-domain samples remain excluded even though their observed
+errors also fit. An initial metadata-adapter failure and short-job historical
+GPU-PID unavailability are preserved in the operational closeout, not fabricated.
+
+A native matched comparison uses identical full initial state, point and smooth
+rotating force, with norm at most 10 N for six seconds and two seconds removed.
+The unchanged control fails original tool, joint-stop and 14-shape checks;
+its maximum segment tool travel is 10.422 mm and a segment terminal speed is
+0.03538 rad/s. The correction passes all original checks, reducing those values
+to 0.545 mm and 0.00329 rad/s. Actual dispatch uses only the preceding measured
+joint-output residual; feedforward and all twenty actuator efforts reconstruct
+exactly, with no calibration rejection or target/gain change.
+
+The first positive is reused through exact full-state/point/force/helper parity.
+Forty-seven further stops on Blackwell and elab2/3/4 complete all 48 saved states
+across the six original motion phases. All 92,160 controlled native packets pass
+original physical position/speed, tool, joint-travel, 14-shape, load residual and
+current-position predicates. All observer inputs stay inside existing main load
+calibration. The two N/P loaded-approach legacy moving-acceleration negatives
+remain: 46/48 pass that stricter historical combination. Maximum segment tool
+travel across the family is 1.032 mm; maximum terminal speed is 0.004968 rad/s.
+Actual controller and feedforward reconstruction errors are zero. Frozen
+replay with the delivered inputs differs by at most 28.64 µrad; this is a
+retrospective model check, not a prospective stopping certificate.
+
+Canonical result is `D4-causal-stop-response-six-phase-closeout-20261107.json`;
+the manifest is `D4-causal-stop-smooth-six-phase-native-manifest-20261107.json`.
+The prototype is `causal_residual_stop_controller_20261107.py` in the ignored
+campaign evidence directory, used by the native workers. WHOLE transfer and
+owned cleanup preserve 239 original files plus fifteen sidecars for the 48
+controlled states. Fifteen closed phase allocations, including the failed
+adapter and all independent reviews, cost 1,163.909 GPU seconds. All 208
+continuation allocations are closed, with no cumulative administrative cap.
+Production software remains `69fce43`, native environment source `6a27ffb` and
+optional posture settings unset. The collection remains 17/36; these stopped
+components add no demonstrations or optimizer updates. Maintained optional
+integration, default/history/reset validation and all eight original complete
+0/10 N controller paths/stops precede source adoption, any smaller geometric
+stop bound, or another observed teacher attempt.

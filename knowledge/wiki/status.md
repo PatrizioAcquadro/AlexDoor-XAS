@@ -281,7 +281,23 @@ travel reaches 6.319 mrad versus the empirical 5.847 mrad bound, an 8.07%
 exceedance. Original hard position/speed, tool and all 14-shape predicates still
 pass. The normal control passes all original predicates. This is a preserved
 empirical stopping-support negative, not a hardware-limit failure. All owned
-resources close; a causal disturbance-aware stop proposal remains unimplemented.
+resources close. A causal stopped-response prototype now compensates only the
+certain portion of the last completed joint-output torque residual, using the
+existing component error budget once. Targets, gains and calibration stay fixed;
+missing, stale or out-of-domain input supplies no correction; conflicting
+clocks or episode identities are rejected.
+A matched native smooth-friction control fails original tool/14-shape/joint
+stop checks, while the prototype passes at identical state, point and force.
+Maximum segment travel falls from 10.422 to 0.545 mm in that pair. Qualification
+now covers 48 independent saved phase states and 92,160 controlled native packets,
+reusing that positive once. All original physical, tool, joint-travel, 14-shape,
+load and current-position checks pass, with no feedback calibration rejections.
+The two legacy moving-acceleration negatives remain; all 48 satisfy the existing
+main load-calibration domain. Peak segment travel is 1.032 mm and terminal speed
+0.004968 rad/s. These are stopped-state components, not complete teacher cycles.
+The prototype remains local; maintained-runtime integration and all eight
+original complete paths are still required. No stopping bound is replaced.
+All 208 continuation allocations are closed; the collection remains 17/36.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

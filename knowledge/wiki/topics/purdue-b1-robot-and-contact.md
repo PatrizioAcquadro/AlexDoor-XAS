@@ -391,6 +391,27 @@ original checks. Preserve the 8.07% empirical exceedance without calling it a
 hardware safety violation or expanding the bound to accept this failed point.
 The source stopping bound remains unchanged.
 
+A separately qualified stopped-response prototype uses joint space directly.
+Its observation is the last completed, healthy joint-output torque minus the
+robot-only expected torque, with the calibrated sign. For residual component
+`r` and existing error bound `b`, compensation is
+`-sign(r) * max(abs(r) - b, 0)`. This subtracts only the portion established by
+that previous interval; it does not assume the next force is unchanged.
+The same whole-arm velocity/acceleration error coefficients are used once.
+No pseudoinverse force estimate, fixture force or future state enters control.
+The fixed measured target, actuator gains and gravity compensation are retained.
+Preview is pure; reset clears history, and unavailable or unsupported input
+produces zero additional effort. Freshness joins the exact completed physics
+interval and episode generation.
+
+Across 48 saved six-phase states, all original physical/tool/joint/14-shape/load
+and current-position checks pass, with zero current load-calibration rejections
+and exact actual feedforward reconstruction. Preserve the two legacy motion-
+acceleration negatives separately. General arbitrary-force model witnesses and
+out-of-calibration observations remain unqualified; these fixtures do not prove
+native door contact, a new runtime stopping envelope or whole teacher paths.
+Maintained integration remains pending and the production bound is unchanged.
+
 Keep the recipe's moving-sweep acceleration and the load model's calibrated
 acceleration domain distinct. In 48 six-phase variable-load stop tests, two
 first-step shoulder peaks exceed the unchanged 7.876929 rad/s² recipe value;
