@@ -2958,5 +2958,33 @@ mean/window selected by the recipe; no force maxima substitute for means.
 Unloading priority, admittance gain, clipping, recovery gating, empirical load
 support, physical limits and all full-task/stop requirements remain unchanged.
 The trace records the actual control gap and its source separately. Moving,
-closing, unavailable and invalid endpoint controls pass; complete changed native
-qualification is required before observed adoption.
+closing, unavailable and invalid endpoint controls pass. All four complete changed
+native paths from `012e826` then close negative: last-push angles N 1.932°,
+H+ 0.464°, H− 1.614° and P 0.486°. Each loses loaded contact before hold and retains
+a secondary abort-release empirical position exit. All 931 recorded endpoint
+operands and original qualification maxima/missing masks independently agree;
+815 reconstructed push normal offsets match original float32 goals within 5 nm.
+Review covers 15,856 native task samples, original 6 s/14-shape stops, every
+current/single-future empirical and physical domain, RGB, whole outputs and owned
+cleanup. No source/matrix credit is added. The timing fix alone is insufficient;
+no thresholds or calibration domains change.
+
+### Whole rigid support point and posture
+
+A saved-data diagnostic uses the unchanged UMI collision convex meshes, canonical
+tool translation and actual completed poses on twelve native contact paths.
+In the endpoint-gap family, orientation changes move the leading rigid support
+by roughly 20–50 µm relative to the tool origin, with per-command changes up to
+11 µm. Scalar 0.1 N elastic deflection is of comparable magnitude; this comparison
+is not measured force or a fitted causal explanation. A local plane predicts
+recorded endpoint gaps only approximately and does not replace finite observed
+material, relief or swept-space certificates.
+
+A separate CUDA FK audit covers all 156,768 native samples of the eight original
+completed 0/10 N robot-only paths, preserving unavailable pose goals and all
+prior outcomes. The normal contact covector includes the moment arm of the
+current rigid support point, unlike the tool-origin position covector. These
+calculations expose a model/control boundary across full posture and load
+histories; they do not qualify a changed controller. Further native variants
+remain suspended while actual shape motion, unilateral pressure, mode transitions
+and original full-task constraints are reconciled.

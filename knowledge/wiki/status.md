@@ -80,7 +80,16 @@ maximum separation after part of that gap had already closed. Control now uses
 the last completed native separation; qualification keeps its original interval
 maximum and missing-data rule. Force means, rate/extent bounds and all acceptance
 limits remain unchanged. Saved operands across ten contact families support this
-timing correction; new complete native qualification is pending.
+timing correction, but all four changed native paths also close negative: last
+push N 1.932°, H+ 0.464°, H− 1.614° and P 0.486°. All lose loaded contact before
+hold, then retain empirical abort-release exits. Endpoint and qualification clocks,
+raw/native/physical/current/future/RGB, original stops and whole owned cleanup are
+independently reviewed. Timing consistency alone does not stabilize contact.
+A whole-mesh diagnostic on twelve contact paths and CUDA FK on all eight original
+0/10 N robot-only paths identifies a further model limit: the actual rigid support
+point moves with gripper orientation, while the normal controller uses the tool
+origin. This remains a geometric hypothesis; new contact variants are suspended
+until the complete shape/contact/control mechanism is reconciled.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
