@@ -260,6 +260,28 @@ for rounding ties. Paired replay admits 720 additional packets out of 92,160,
 without losing prior admissions, changing calibrated errors or raising force
 caps. Native-force and independent corner checks pass; this improves numerical
 load admission and adds no teacher demonstrations or conditional stopping bound.
+A new prospective screen selects worst points and force histories over the 31
+nominal distal-cover candidates at all 48 saved phase states. The unrestricted
+10 N ball predicts original speed/stop-bound failures in every case, so those
+full programs remain unattempted. Every selected sequence includes tension and
+therefore is not a demonstrated door-contact history. A unilateral normal-only
+subset has no model gate failures; adding tangential force up to half the
+compression produces 48 model negatives. This identifies load direction and
+application leverage as a common qualification gap, rather than a reason to
+reduce the force cap or extend support. One protected native impulse passes all
+original hard motion/tool/14-shape checks but exceeds two existing load-model
+acceleration axes. Its frozen prediction differs by at most 18.03 µrad; a late
+4.57 µrad model-envelope escape occurs after force removal. This is a model
+precision/support limitation, not a physical safety failure or a new tolerance.
+A matched native normal-versus-tangent prefix comparison is recorded separately;
+no full disturbance program, controller or demonstration is thereby qualified.
+That matched native comparison keeps initial full state, mass, target and point
+identical. Added tangent increases gripper speed from 0.04876 to 0.40068 rad/s;
+travel reaches 6.319 mrad versus the empirical 5.847 mrad bound, an 8.07%
+exceedance. Original hard position/speed, tool and all 14-shape predicates still
+pass. The normal control passes all original predicates. This is a preserved
+empirical stopping-support negative, not a hardware-limit failure. All owned
+resources close; a causal disturbance-aware stop proposal remains unimplemented.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

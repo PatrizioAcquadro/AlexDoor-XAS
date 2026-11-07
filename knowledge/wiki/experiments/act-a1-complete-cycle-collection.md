@@ -3772,3 +3772,68 @@ All 165 focused tests and lint pass. Canonical result is
 All prior 46/48 legacy stop outcomes and thirteen stopped-state global future
 negatives remain unchanged. The matrix is 17/36; no native teacher retry is
 justified by replay acceptance alone.
+
+### November 7: prospective force direction and distal-cover stress
+
+The next frozen-model screen uses the same 48 full saved phase states, original
+stop gains and support predicates. It selects the worst original supported
+face/time over the operational center and 30 nominal distal-cover vertices,
+then constructs a maximizing world-force history with norm at most 10 N.
+Exact model witnesses agree within 4.45e-16 rad; float32 force commands are
+rounded inward only where necessary. All 48 unrestricted-ball histories
+predict original speed or stop-travel failures, with speed up to 1.828 rad/s;
+five also cross an empirical position face. They remain unattempted. All
+include tensile intervals, so they are mathematical stress witnesses rather
+than demonstrated door-contact histories.
+
+A separate exact support-function screen keeps compression unilateral. A
+normal-only subset has no original model gate failures and peaks at 0.153 rad/s.
+A tangent-to-compression ratio at most 0.5 still produces 48 model gate negatives,
+two empirical-face negatives and peak speed 0.832 rad/s. This ratio is a model
+reference subset, not a new admission rule or measured future-force contract.
+No force cap, support, gain or physical criterion is changed.
+
+Only one protected ball-witness interval was executed natively, followed by
+1,919 unforced intervals. Actual full state, distal-cover application and root/
+mass readback agree. All original tool, physical position/speed, joint-travel,
+14-shape and residual checks pass. The legacy motion-acceleration predicate
+fails, and two samples exceed existing main load-model acceleration support at
+wrist-Z/gripper-Y; those are empirical-domain negatives, not hardware limits.
+Exact PD dispatch matches; one-step full velocity error is 83.2 µrad/s and
+planned position error 18.03 µrad. A 4.565 µrad late frozen-envelope escape at
+7.992 s occurs where its width has decayed to 4.45e-15 rad. No failed-point
+precision floor or additional uncertainty margin is introduced.
+
+The canonical inputs are `D4-force-footprint-stop-six-phase-inputs-20261107.json`
+and `D4-contact-cone-stop-subset-model-screen-20261107.json`. Native evidence is
+`D4-force-footprint-protected-prefix-native-manifest-20261107.json`, its WHOLE
+transfer/independent review, and
+`D4-force-footprint-prefix-acceleration-and-model-defect-20261107.json`.
+A matched normal-versus-added-tangent prefix uses the same full state, point and
+compressive force; it is a separate causal diagnostic, never qualification of
+the suspended full programs. The matrix remains 17/36; no new runtime bound,
+controller, contact-feedback input or demonstration is adopted.
+
+The native matched pair is now closed: full initial q/v, mass and latched targets
+are bitwise identical, application point is identical, and compressive commands
+agree within 0.95 µN float32 rounding. Added tangent peaks at 4.472 N. Gripper
+speed rises from 0.04876 to 0.40068 rad/s. Its 6.319 mrad travel exceeds the
+unchanged empirical 5.847 mrad joint-stop bound by 8.07%; wrist-Z/gripper-Y
+acceleration also leaves main load support at two samples. The normal control
+passes every original predicate. Both retain original hard position/speed, tool,
+14-shape and residual checks. These prefixes are fixtures with load removed
+after four intervals, not actual door-contact episodes or executed full model
+negatives. The finite model predicts speed over 0.51 rad/s for every full
+friction-subset program, which remains unattempted. Whole transfers preserve
+45 original files plus six sidecars across the three prefixes; owned cleanup
+passes. Six closed allocations cost 185.323 GPU seconds including all numerical
+screens and independent reviews. All 193 continuation allocations are closed.
+
+Canonical closure is `D4-force-footprint-and-contact-tangent-closeout-20261107.json`;
+causality is in `D4-contact-tangent-matched-prefix-causal-comparison-20261107.json`
+and the corresponding manifest and independent GPU review. Next work is an
+isolated causal disturbance-aware stopping response using completed joint-output
+feedback, original 10 N/physical/14-shape scopes and full coupled dynamics;
+prescribed fixture force must never become observed feedback. Original complete
+controller paths and contact qualification remain necessary. No source bound,
+criterion, controller or demonstration is adopted from these diagnostics.

@@ -369,6 +369,28 @@ profiles cannot establish a nonlinear stopping bound. Independent variable-load
 stops at whole-motion boundary states must retain all original physical,
 empirical and 14-shape checks before any runtime use.
 
+Force norm alone does not specify contact-force direction, application leverage,
+free moment or temporal variation. An unrestricted ball includes tensile forces
+that unilateral door contact cannot produce. Distinguish that mathematical
+stress domain from a physically supported contact class; neither an asset
+friction value nor a chosen model cone establishes an observed future-force
+contract. Across 48 saved phase states and 31 nominal distal-cover points,
+normal-only model witnesses pass original speed/travel predicates, whereas a
+compressive subset with tangent at most half the normal fails those model
+predicates in all 48. Those full programs are unattempted. A protected native
+impulse confirms the point/Jacobian and actuator response while preserving all
+hard motion and 14-shape bounds; two load-calibration acceleration axes are
+outside support. The frozen envelope also collapses below native position
+resolution after decay and misses the actual position by 4.57 µrad. Keep that
+numerical discrepancy separate from physical limits, without fitting a new
+floor or stacking uncertainty. A matched four-interval native pair confirms
+that added tangent raises gripper speed from 0.04876 to 0.40068 rad/s and travel
+to 6.319 mrad, versus the original empirical 5.847 mrad allowance. All hard
+position/speed, tool and 14-shape bounds pass; the normal control passes all
+original checks. Preserve the 8.07% empirical exceedance without calling it a
+hardware safety violation or expanding the bound to accept this failed point.
+The source stopping bound remains unchanged.
+
 Keep the recipe's moving-sweep acceleration and the load model's calibrated
 acceleration domain distinct. In 48 six-phase variable-load stop tests, two
 first-step shoulder peaks exceed the unchanged 7.876929 rad/s² recipe value;
