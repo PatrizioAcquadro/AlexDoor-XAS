@@ -198,6 +198,16 @@ bitwise coordinate equality; its largest arm-velocity prediction error is
 thresholds are fitted. This supports one-physics-step velocity response, not a
 next-position guarantee or an observed controller using privileged wrench truth.
 These baseline diagnostics add no demonstrations or new controller candidate.
+A causal four-step model has now been checked on 39,184 original control
+intervals and 960 central native intervention pairs at saved states. Position
+prediction remains approximate: its native paired error reaches 11.562
+microradians, dominated by native position updating rather than integrated
+velocity-response error. Two unperturbed restored hold states encounter the
+original empirical future limit; their dependent trials remain unattempted.
+All physical predicates and final stops pass, and owned resources are closed.
+These reset trials establish local response only. A posture proposal must use
+measured margins and retain the original guards; approximate next position is
+not an admission certificate. The matrix remains 17/36.
 No constrained controller is implemented; the optional API defaults unset and
 has no observed-source adoption.
 A separate replay now reconstructs N's last admitted geometric proposal from

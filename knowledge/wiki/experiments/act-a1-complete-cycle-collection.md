@@ -3467,3 +3467,38 @@ the matrix remains 17/36. Evidence is
 `D4-actuator-response-whole-family-closeout-20261107.json`,
 `D4-actuator-response-all-native-packet-joins-20261107.json` and
 `D4-actuator-response-whole-family-constrained-momentum-CUDA-20261107.json`.
+
+
+The isolated four-substep extension uses the supported constrained momentum
+operator, original full gains, retained elastic targets and primary motion. A
+causal load residual uses only the last completed interval. Across 39,184 original
+intervals, its position error reaches 28.664 microradians; even known current
+fixture forcing does not make fixed geometry and position integration exact.
+Algebraic perturbation controls pass without fitting a correction or changing
+criteria. This model remains an approximate proposal, not an admission gate.
+
+Four independent native jobs test 64 saved full states across the original
+conditions, loads and phases. Seven command axes and a command-response task-null
+direction are perturbed with both signs at 0.001 and 0.003 rad. Of 2,176 declared
+trials, 2,078 dispatch; 32 remain unattempted at reserved target boundaries and
+66 follow two zero-perturbation empirical future refusals at loaded N/H− hold
+states. Their physical/current/rate/acceleration predicates pass. The refusals
+are preserved, with no dependent retry. The 960 available central pairs cover
+15,992 native packets, including four original final 2+4+2 s stops. All dispatched
+predicates are independently reproduced, original stop payloads join the
+journal exactly, complete originals transfer, and owned resources close.
+
+Native position-response error peaks at 11.562 microradians and velocity-response
+error at 135.233 microradians/s. Zero-command repeat positions are identical.
+An exact error decomposition using measured native velocities attributes up to
+12.104 microradians to position updating and less than 0.979 microradians to the
+integrated velocity-response model. No precision floor, fitted correction or
+acceptance buffer is inferred. These local interventions do not qualify a new
+controller or continuous trajectory. Next work is a coupled posture preference
+using measured seven-joint margins and approximate actuator response, with
+original guards, gains, history and full-motion qualification preserved. The
+matrix remains 17/36. Evidence is
+`D4-four-substep-response-whole-family-closeout-20261107.json`,
+`D4-four-substep-causal-response-whole-family-CUDA-20261107.json`,
+`D4-four-substep-native-interventions-whole-family-CUDA-20261107.json` and
+`D4-four-substep-native-position-error-decomposition-CUDA-20261107.json`.

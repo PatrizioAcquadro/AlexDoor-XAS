@@ -234,9 +234,25 @@ mimic positions remains recorded rather than becoming a new refusal criterion.
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
 error. No parameters or physical/empirical acceptance thresholds are fitted.
-Position integration and changed-controller behavior remain separate. Fixture
-wrench truth is diagnostic only; an observed controller must use authorized
-causal inputs. See [[experiments/act-a1-complete-cycle-collection|the complete-cycle experiment]]
+Position integration and changed-controller behavior remain separate. A four-step
+fixed-geometry response can retain the full primary target and elastic offset.
+Unknown load can be estimated from the last completed momentum balance rather
+than privileged current fixture truth. On original histories, that causal
+position approximation still has a 28.664 microradian peak error.
+
+Paired native interventions distinguish actuator response from position
+updating. Across 960 central pairs, the largest position-response error is
+11.562 microradians; decomposing it with the actual four native velocities
+finds a position-update component up to 12.104 microradians and an integrated
+velocity-response component below 0.979 microradians. These are observed errors,
+not a universal numerical floor or new safety tolerance. Zero-command repeat
+positions are identical, while two restored hold states fail the original
+empirical future predicate before perturbation. Reset states therefore cannot
+stand in for full-path continuation. A coupled posture proposal may use the
+response as an approximation, with all seven measured margins and unchanged
+actual-state guards; do not certify admission from approximate next position.
+Fixture wrench truth is diagnostic only; an observed controller must use
+authorized causal inputs. See [[experiments/act-a1-complete-cycle-collection|the complete-cycle experiment]]
 for outcomes and limitations. No posture governor is implemented by this audit.
 
 When this mode returns to ordinary pose control, its first reference increment
