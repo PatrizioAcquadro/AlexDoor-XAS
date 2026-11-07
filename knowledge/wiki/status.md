@@ -184,8 +184,16 @@ configured gain is 2.0. Its corrected 48-case screen passes, without changing th
 native rejection. An attempted position/velocity integration model fails its
 arithmetic controls on all 27 histories and cannot qualify reachable motion.
 Anticipatory coupled control still requires independently supported actuator
-response and full-motion qualification. No constrained controller is implemented;
-the optional API defaults unset and has no observed-source adoption.
+response and full-motion qualification. A read-only pre/post native journal now
+passes exact same-host observer parity at original 0/10 N and the original stops:
+2,016 existing feedback packets match, with 5,856 causal journal packets saved.
+The pre-physics explicit-effort clock is verified. Full free-20-joint prediction
+remains unsuitable; a seven-arm-joint approximation with armature is closer on
+these finite controls but is not qualified over whole motion. Four independent
+original-baseline diagnostics are running across Blackwell and elab2/3/4 with
+unchanged paths, loads, gains, guards and stops. They add no demonstrations.
+No constrained controller is implemented; the optional API defaults unset and
+has no observed-source adoption.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

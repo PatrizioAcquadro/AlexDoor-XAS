@@ -3423,3 +3423,38 @@ transitions. Evidence is
 `D4-posture-causal-response-and-model-validity-closeout-20261107.json`,
 `D4-posture-whole-family-causal-response-CUDA-diagnosis-20261107.json` and
 `D4-soft-posture-actual-gain-matched-elastic-plant-CUDA-screen-20261107.json`.
+
+
+A new read-only native actuator journal addresses the missing causal command
+clock without changing control. It copies full-system inertia, armature,
+gravity/Coriolis, actual simulation effort, COM Jacobian and composed wrench
+after scene command writes, then native positions/velocities after state update.
+On original N0/10N finite controls, enabling it preserves all 2,016 existing
+feedback packets exactly, including measured states, targets, Jacobians,
+solver-output torque and expected dynamics. All four original 2+4+2 s stops
+pass. The resulting journal contains 5,856 paired native packets; interrupted
+close handling preserves an unmatched prestate with its poststate unavailable.
+The acquisition methods are unchanged from the native parity test.
+
+CUDA equation controls establish the pre-physics explicit-PD effort clock within
+analytic float32 arithmetic error on every packet. A free-20-joint inverse still
+misrepresents nominal response. Holding other coordinates fixed and including
+armature gives much smaller arm-velocity increment errors on these prefixes and
+stops, about 0.049–0.057 mrad/s peak. That approximation is not yet a whole-motion
+or safety model. No parameters are fitted and no acceptance thresholds change.
+
+Four distinct diagnostics now collect this missing telemetry on all eight
+original qualified measured-release paths: N/H+/H−/P at 0/10 N, with complete
+original phases, loads and stops. They use executable `ab87675` with finite
+tangential impedance and soft posture disabled, retaining the qualified `0edb99f`
+control configuration. Current independently qualified support remains fixed.
+Actual startup confirms owned GPUs, leases, correct flags and healthy movement
+on Blackwell/elab2/3/4. Subsequent progress is unpolled. Finished whole outputs,
+owned cleanup and all original outcome predicates are required before causal
+model qualification or a dependent controller change. These are robot-only
+diagnostics and add no demonstrations. The earlier preparation-path error and
+an owned auxiliary Hub cleanup after the local worker exited are retained,
+including all resource charges. Evidence is
+`D4-native-actuator-journal-contract-and-clock-closeout-20261107.json`,
+`D4-native-actuator-causal-clock-and-response-CUDA-review-20261107.json` and
+`D4-actuator-response-zero-ten-native-manifest-20261107.json`.
