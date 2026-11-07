@@ -1037,6 +1037,17 @@ def observed_pilot_runtime(
     load_calibration = LoadCalibration(**json.loads(Path(config["load_calibration"]).read_text()))
     if load_calibration.verified is not True or load_calibration.stop_verified is not True:
         raise ValueError("unverified_robot_load_or_stop_recipe")
+    stopped_response = config.get("stopped_residual_response", False)
+    if type(stopped_response) is not bool:
+        raise ValueError("invalid_stopped_residual_response_flag")
+    if stopped_response:
+        from alexdoor_xas.perception.stopped_response import CausalResidualStopController
+
+        if not 0 < config["stop_force_domain_n"] <= 10:
+            raise ValueError("unqualified_stopped_response_force_domain")
+        env.stop_response = CausalResidualStopController(load_calibration)
+    else:
+        env.stop_response = None
     robot = RobotGeometry(env.robot.cfg.spawn.asset_path, ARM_JOINTS)
     fk = PurdueFK(env.robot.cfg.spawn.asset_path, str(env.device))
     faces = derive_push_geometry(env.robot.cfg.spawn.asset_path).contact_covers()

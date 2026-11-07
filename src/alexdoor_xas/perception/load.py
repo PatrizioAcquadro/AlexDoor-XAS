@@ -180,6 +180,38 @@ class LoadEstimate:
         )
 
 
+def require_joint_output_feedback(feedback, calibration):
+    """Require the calibrated robot-output origin, units, sign and health contract."""
+    if (
+        feedback.joint_names != ARM_JOINTS
+        or feedback.semantics != "joint_output"
+        or feedback.source not in ("reported_joint_state", "simulated_actuator_feedback")
+        or feedback.units != "N m"
+        or feedback.sign_convention != "positive_joint_coordinate"
+        or feedback.healthy is not True
+        or feedback.reason
+    ):
+        raise ValueError("unverified_torque_semantics")
+    if type(calibration.external_sign) is not int or calibration.external_sign not in (-1, 1):
+        raise ValueError("unverified_feedback_sign")
+
+
+def residual_component_bounds(calibration, dq, ddq, bounds):
+    """Apply the existing coupled dynamic error budget once."""
+    # Dynamics couple the arm: a stationary joint can carry residual error
+    # from another joint's motion. Use whole-arm norms, not its own speed.
+    for coefficient, magnitude in (
+        (calibration.velocity_residual_nm_per_rad_s, np.max(np.abs(dq))),
+        (calibration.acceleration_residual_nm_per_rad_s2, np.max(np.abs(ddq))),
+    ):
+        if coefficient is not None:
+            coefficient = finite_vector(coefficient, 7)
+            if np.any(coefficient < 0):
+                raise ValueError("invalid_dynamic_residual_bound")
+            bounds = bounds + coefficient * magnitude
+    return bounds
+
+
 class ResidualLoadModel:
     def __init__(self, calibration):
         self.calibration = calibration
@@ -203,18 +235,7 @@ class ResidualLoadModel:
         fail closed. Force norm includes tangential load; torque is not called force.
         """
         c = self.calibration
-        if (
-            feedback.joint_names != ARM_JOINTS
-            or feedback.semantics != "joint_output"
-            or feedback.source not in ("reported_joint_state", "simulated_actuator_feedback")
-            or feedback.units != "N m"
-            or feedback.sign_convention != "positive_joint_coordinate"
-            or feedback.healthy is not True
-            or feedback.reason
-        ):
-            raise ValueError("unverified_torque_semantics")
-        if type(c.external_sign) is not int or c.external_sign not in (-1, 1):
-            raise ValueError("unverified_feedback_sign")
+        require_joint_output_feedback(feedback, c)
         q, dq, ddq, bounds = [finite_vector(v, 7) for v in (q, dq, ddq, c.residual_bound_nm)]
         acceleration_max = finite_vector(c.acceleration_max_rad_s2, 7)
         extended_acceleration = c.weak_load_acceleration_max_rad_s2
@@ -299,17 +320,7 @@ class ResidualLoadModel:
             )
         if violations:
             raise LoadEnvelopeError(dict(time_s=feedback.timestamp_s, violations=violations))
-        # Dynamics couple the arm: a stationary joint can carry residual error
-        # from another joint's motion. Use whole-arm norms, not its own speed.
-        for coefficient, magnitude in (
-            (c.velocity_residual_nm_per_rad_s, np.max(np.abs(dq))),
-            (c.acceleration_residual_nm_per_rad_s2, np.max(np.abs(ddq))),
-        ):
-            if coefficient is not None:
-                coefficient = finite_vector(coefficient, 7)
-                if np.any(coefficient < 0):
-                    raise ValueError("invalid_dynamic_residual_bound")
-                bounds = bounds + coefficient * magnitude
+        bounds = residual_component_bounds(c, dq, ddq, bounds)
         jac = np.asarray(jacobian_world, dtype=float)
         if jac.shape != (6, 7) or not np.isfinite(jac).all():
             raise ValueError("invalid_load_jacobian")

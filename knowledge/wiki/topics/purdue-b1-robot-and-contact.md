@@ -404,6 +404,22 @@ Preview is pure; reset clears history, and unavailable or unsupported input
 produces zero additional effort. Freshness joins the exact completed physics
 interval and episode generation.
 
+`CausalResidualStopController` in `perception/stopped_response.py` implements
+this response as an optional environment component. `stopped_residual_response`
+in an observed runtime recipe explicitly enables it within the qualified 10 N
+scope; absent or false leaves it disabled. Existing collection recipes stay
+unchanged. Both the load estimator and response use the same robot-output
+origin/health/units/sign validation and dynamic component error budget. Only
+completed samples collected after the first stop latch enter the controller;
+repeated stops preserve that latch and history, while episode reset clears them.
+The two existing substep/control-tick sample points feed the observer without
+replacing recording callbacks. Stopped feedforward adds the certain residual
+correction to gravity; moving targets, gains, feedforward and action guards remain
+unchanged. The latest dispatch receipt remains available on the environment for
+diagnostics. Missing, stale or unsupported inputs produce no correction and
+remain unqualified. Actual-method numerical contracts pass; integration still
+needs all eight complete native paths/stops before collection adoption.
+
 Across 48 saved six-phase states, all original physical/tool/joint/14-shape/load
 and current-position checks pass, with zero current load-calibration rejections
 and exact actual feedforward reconstruction. Preserve the two legacy motion-

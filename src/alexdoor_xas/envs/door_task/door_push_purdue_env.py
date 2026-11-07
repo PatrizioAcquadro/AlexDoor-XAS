@@ -81,6 +81,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._last_normal_jacobian = None
         self._finite_tangent_tool_reference = None
         self.motion_stopped = False
+        self.stop_response = None
+        self.stop_response_receipt = None
         stop_stiffness = np.asarray(cfg.stop_stiffness, dtype=float)
         if (
             stop_stiffness.shape != (7,)
@@ -589,6 +591,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
         if self.motion_stopped:
             return
         self.motion_stopped = True
+        if self.stop_response is not None:
+            self.stop_response.reset(self.generation)
+        self.stop_response_receipt = None
         measured = tensor(self.robot.data.joint_pos).clone()
         if not bool(torch.isfinite(measured).all()):
             raise RuntimeError("invalid_stop_state")
@@ -708,10 +713,21 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 self, self._time_s + self.cfg.sim.dt * self._physics_actions
             )
             self.load_samples.append(sample)
+            if self.motion_stopped and self.stop_response is not None:
+                self.stop_response.observe(sample, self.generation)
             if self.event_sink is not None:
                 self.event_sink("feedback", sample)
         self.robot.set_joint_position_target_index(target=self.targets)
         gravity = tensor(self.robot.data.gravity_compensation_forces)
+        if self.motion_stopped and self.stop_response is not None:
+            now = self._time_s + self.cfg.sim.dt * self._physics_actions
+            correction, self.stop_response_receipt = self.stop_response.preview(
+                now, self.generation
+            )
+            gravity = gravity.clone()
+            gravity[:, self.arm_ids] += torch.as_tensor(
+                correction, device=self.device, dtype=gravity.dtype
+            )
         self.robot.set_joint_effort_target_index(target=gravity)
         if self.event_sink is not None and self._physics_actions == 0 and not self.motion_stopped:
             self.event_sink("command", self.command_event)
@@ -728,6 +744,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.load_samples = getattr(self, "load_samples", [])
         sample = simulated_load_sample(self, self._time_s)
         self.load_samples.append(sample)
+        if self.motion_stopped and self.stop_response is not None:
+            self.stop_response.observe(sample, self.generation)
         if self.event_sink is not None:
             self.event_sink("feedback", sample)
         if self.contacts is not None:
@@ -778,6 +796,9 @@ class DoorPushPurdueEnv(DirectRLEnv):
     def _reset_idx(self, env_ids):
         super()._reset_idx(env_ids)
         self.generation += 1
+        if self.stop_response is not None:
+            self.stop_response.reset(self.generation)
+        self.stop_response_receipt = None
         self.command_event = None
         self.motion_stopped = False
         for actuator, column, stiffness, damping in self._motion_impedance:

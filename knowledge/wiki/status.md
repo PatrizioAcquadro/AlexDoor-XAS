@@ -295,9 +295,13 @@ load and current-position checks pass, with no feedback calibration rejections.
 The two legacy moving-acceleration negatives remain; all 48 satisfy the existing
 main load-calibration domain. Peak segment travel is 1.032 mm and terminal speed
 0.004968 rad/s. These are stopped-state components, not complete teacher cycles.
-The prototype remains local; maintained-runtime integration and all eight
-original complete paths are still required. No stopping bound is replaced.
-All 208 continuation allocations are closed; the collection remains 17/36.
+Maintained code now includes an optional stopped-only response, disabled by
+default and in all current collection recipes. It reuses existing torque-origin
+validation and the same component error budget. Cold start, idempotent latch,
+control-tick handoff, pure preview and episode reset pass actual-method numerical
+contracts; the recorder keeps its event sink. All eight original complete native
+paths with the integrated response still require qualification. No stopping bound
+is replaced. All 208 continuation allocations are closed; collection remains 17/36.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

@@ -3896,3 +3896,22 @@ components add no demonstrations or optimizer updates. Maintained optional
 integration, default/history/reset validation and all eight original complete
 0/10 N controller paths/stops precede source adoption, any smaller geometric
 stop bound, or another observed teacher attempt.
+
+
+### November 7: maintained stopped-response integration, disabled by default
+
+Baseline `bbd42d9` is tracked clean before implementation. The maintained
+controller and environment now support the qualified causal response without
+changing any current collection recipe, target, gain, calibration or stop bound.
+The load estimator's existing torque-origin validation and component error
+budget are shared directly. Only completed post-latch samples are consumed;
+control-tick handoff, pure preview, repeated stop, reset and moving/default
+feedforward behavior pass numerical checks on the actual environment methods.
+Recording retains its event callback. Essential input tests reject wrong torque
+origin/units/sign/health, contradictory clocks, unverified calibration and
+unsupported position/speed/acceleration. These are software contracts, not new
+native motion or teacher evidence. Canonical lifecycle result is
+`maintained-stop-response-actual-lifecycle-contracts-20261107.json` in the ignored
+campaign evidence directory. All eight original complete 0/10 N paths/stops
+remain the next native qualification; original unsafe and out-of-calibration
+controls stay negative. Collection remains 17/36 and optimizer updates remain zero.
