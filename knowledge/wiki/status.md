@@ -113,12 +113,14 @@ original outcomes, stops, RGB, whole outputs and owned cleanup are reviewed.
 The active Purdue actuator is explicit PD: commanded efforts reconstruct exactly
 with the preceding native state and gravity. The saved gravity field instead
 contains current-state model gravity; its description is corrected without
-changing data or control. A separate nominal diagnostic now measures
-tangential contact forces with exact finger–panel ownership. Its 3,484 packets
-retain exact filtered/raw normal forces and moments and all 17 original native
-arrays. Including friction reduces the largest per-joint push command-dynamics
-RMS residual from 0.0497 to 0.000326 N m. The original task stays negative; related
-posture measurements remain pending before a shared model or control correction.
+changing data or control. All four postures now also have verified
+tangential contact forces with exact finger–panel ownership. Across 16,852 packets,
+filtered/raw normal forces and moments agree exactly, as do all 17 original native
+arrays in every condition. Including friction reduces the largest per-joint push
+command-dynamics RMS residual from 0.0468–0.0621 to 0.000280–0.000334 N m. All
+original tasks remain negative, with raw outcomes, stops, RGB, whole outputs and
+owned cleanup preserved. This resolves a major normal-only model omission; a
+shared complete-motion control correction remains unqualified.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

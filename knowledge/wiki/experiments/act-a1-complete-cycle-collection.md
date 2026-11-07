@@ -3109,9 +3109,48 @@ largest per-joint command-dynamics RMS residual from 0.04968 to 0.000326 N m;
 body-output residuals similarly shrink. This identifies a major omission in the
 normal-only dynamics audit, not a validated controller intervention. The frozen
 six-dimensional load model, gains, actor inputs and scientific criteria remain
-unchanged. H+/H−/P measurement and complete-motion diagnosis remain necessary
-before a shared correction. Evidence is in the nominal run's
+unchanged. The subsequent H+/H−/P measurements independently verify the same readback,
+including exact normal force/moment sums and all 17 baseline native arrays in
+each condition. Complete-motion diagnosis remains necessary before a shared
+correction. Evidence is in the nominal run's
 `independent-native-friction-review.json` and
 `complete-native-friction-observability-and-negative-outcome-closeout.json`.
 The reader's initial NumPy-integer JSON serialization error is retained; its
 correction changes only output encoding and adds no GPU allocation.
+
+The complete four-posture friction review covers 16,852 native packets and
+7,021,207,743 original bytes. All original tasks remain negative at the same
+0.458/1.449/3.430/0.527° last-push angles; no hold, stabilization or source is
+qualified. Every original task/load/current/future/physical check, stop, RGB pair,
+whole transfer and owned cleanup is reviewed, retaining the primary and secondary
+failure masks. Adding the measured tangential wrench changes the largest
+per-joint push command-dynamics RMS residual as follows:
+
+| Condition | Normal-only residual (N m) | Normal plus friction (N m) |
+| --- | ---: | ---: |
+| N | 0.0496753 | 0.000325755 |
+| H+ | 0.0519848 | 0.000279792 |
+| H− | 0.0620566 | 0.000334474 |
+| P | 0.0468029 | 0.000304929 |
+
+These measurements identify why a normal-only local model failed to reproduce
+the native dynamics. They do not identify a stable closed-loop correction by
+themselves. Any elastic compensation must preserve actual free-reference motion;
+the previously withdrawn frozen-q compensation remains rejected. The full-family
+review is `D4-native-friction-family-complete-review-20261107.json`; native
+controller source remains `519c347`, with no gains or criteria changed.
+
+A subsequent CUDA counterexample screens a proposed increment of measured
+joint-target tracking error against the original controller and the withdrawn
+frozen-q correction. Sixteen measured four-posture compliances and the recorded
+friction inputs define 96 matched first-order cases. The proposed correction
+reaches 4.147 mm normal error during free motion, versus 0.122 mm for the original
+and 33.285 mm for the withdrawn correction; its loaded cases also lose force.
+It is rejected before any production edit. The original toy plant now also loses
+force when driven by the recorded friction, unlike the earlier normal-only
+stable model. Prescribed friction, fixed geometry, first-order plant dynamics and
+absence of native joint inertia/contact redistribution limit this result; it
+neither validates a replacement controller nor predicts a new native trajectory.
+The existing feedback time constant is used as a matched plant approximation,
+not an identified native response. All model failures and the owned CUDA charge
+are retained in `D4-causal-elastic-tracking-screen-negative-closeout-20261107.json`.
