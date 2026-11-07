@@ -218,6 +218,27 @@ Static feasible nullspace intervals at saved states do not predict actual next
 joint motion or establish a complete trajectory. Do not replace those checks
 with cost descent or widen support merely to accept the failed path.
 
+For native actuator-response diagnostics, use the effort actually written before
+physics, not a reconstruction from the later state or solver-output feedback.
+Full-system inertia alone is insufficient: include motor armature and the WSG
+mimic constraints. With constant velocity basis `T`, effective inertia `M_e`,
+passive follower damping `D_p` and actual pre-physics forcing `r`, the diagnostic
+predicts
+`v_next = T solve(T^T M_e T + h T^T D_p T, T^T (M_e v + h r))`.
+Here `r` contains simulation effort minus gravity/Coriolis plus the controlled
+fixture wrench. Explicit motor damping is already in simulation effort and must
+not be counted twice. The equation uses actual measured state; bitwise position
+or velocity equality is not an input requirement. A difference between native
+mimic positions remains recorded rather than becoming a new refusal criterion.
+
+The original eight 0/10 N full paths and continuing stops support this velocity
+operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
+error. No parameters or physical/empirical acceptance thresholds are fitted.
+Position integration and changed-controller behavior remain separate. Fixture
+wrench truth is diagnostic only; an observed controller must use authorized
+causal inputs. See [[experiments/act-a1-complete-cycle-collection|the complete-cycle experiment]]
+for outcomes and limitations. No posture governor is implemented by this audit.
+
 When this mode returns to ordinary pose control, its first reference increment
 uses the current measured tool pose as origin. The maintained intentional
 release rebases its curve to that achieved pose; subtracting the previous ideal

@@ -187,11 +187,17 @@ Anticipatory coupled control still requires independently supported actuator
 response and full-motion qualification. A read-only pre/post native journal now
 passes exact same-host observer parity at original 0/10 N and the original stops:
 2,016 existing feedback packets match, with 5,856 causal journal packets saved.
-The pre-physics explicit-effort clock is verified. Full free-20-joint prediction
-remains unsuitable; a seven-arm-joint approximation with armature is closer on
-these finite controls but is not qualified over whole motion. Four independent
-original-baseline diagnostics are running across Blackwell and elab2/3/4 with
-unchanged paths, loads, gains, guards and stops. They add no demonstrations.
+All eight original-baseline diagnostics are now independently closed positive,
+including full phases, all seven current/future predicates, frozen models and
+original stops. Their 172,128 journal packets match original feedback and stop
+records; all owned resources are released. The missing physical ingredients in
+the unconstrained prediction are armature and the WSG mimic constraints. A
+constrained next-momentum equation uses actual measured state without requiring
+bitwise coordinate equality; its largest arm-velocity prediction error is
+7.023 microradians/s over all eight paths and stops. No parameters or acceptance
+thresholds are fitted. This supports one-physics-step velocity response, not a
+next-position guarantee or an observed controller using privileged wrench truth.
+These baseline diagnostics add no demonstrations or new controller candidate.
 No constrained controller is implemented; the optional API defaults unset and
 has no observed-source adoption.
 A separate replay now reconstructs N's last admitted geometric proposal from

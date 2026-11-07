@@ -3425,36 +3425,45 @@ transitions. Evidence is
 `D4-soft-posture-actual-gain-matched-elastic-plant-CUDA-screen-20261107.json`.
 
 
-A new read-only native actuator journal addresses the missing causal command
-clock without changing control. It copies full-system inertia, armature,
-gravity/Coriolis, actual simulation effort, COM Jacobian and composed wrench
-after scene command writes, then native positions/velocities after state update.
-On original N0/10N finite controls, enabling it preserves all 2,016 existing
-feedback packets exactly, including measured states, targets, Jacobians,
-solver-output torque and expected dynamics. All four original 2+4+2 s stops
-pass. The resulting journal contains 5,856 paired native packets; interrupted
-close handling preserves an unmatched prestate with its poststate unavailable.
-The acquisition methods are unchanged from the native parity test.
+A read-only native actuator journal establishes the causal command clock without
+changing control. It copies full-system inertia, armature, gravity/Coriolis,
+actual simulation effort, COM Jacobian and composed wrench after command writes,
+then native states after the physics update. On original N0/10N finite controls,
+all 2,016 existing feedback packets are identical with and without the observer;
+all original continuing stops pass. Its 5,856 initial paired packets also verify
+the pre-physics explicit-PD effort clock. Interrupted close handling preserves
+an unmatched prestate with its poststate unavailable.
 
-CUDA equation controls establish the pre-physics explicit-PD effort clock within
-analytic float32 arithmetic error on every packet. A free-20-joint inverse still
-misrepresents nominal response. Holding other coordinates fixed and including
-armature gives much smaller arm-velocity increment errors on these prefixes and
-stops, about 0.049–0.057 mrad/s peak. That approximation is not yet a whole-motion
-or safety model. No parameters are fitted and no acceptance thresholds change.
+The four full-family diagnostics are now independently closed positive. All
+eight original N/H+/H−/P0N/10N paths pass complete phases, original 1 mm ramp,
+hold, achieved release/stabilization, physical/target/rate/effort, frozen models,
+all seven current/single-future empirical predicates and original 2+4+2 s,
+fourteen-shape stops. The 156,768 movement/settle/preload and 15,360 stop packets
+join the journal exactly. All original files and sidecars are transferred and
+owned resources released. Executable `ab87675` runs the already qualified
+`0edb99f` configuration, with finite tangential impedance and soft posture off.
+This is a baseline response diagnostic, not a new controller or demonstration.
 
-Four distinct diagnostics now collect this missing telemetry on all eight
-original qualified measured-release paths: N/H+/H−/P at 0/10 N, with complete
-original phases, loads and stops. They use executable `ab87675` with finite
-tangential impedance and soft posture disabled, retaining the qualified `0edb99f`
-control configuration. Current independently qualified support remains fixed.
-Actual startup confirms owned GPUs, leases, correct flags and healthy movement
-on Blackwell/elab2/3/4. Subsequent progress is unpolled. Finished whole outputs,
-owned cleanup and all original outcome predicates are required before causal
-model qualification or a dependent controller change. These are robot-only
-diagnostics and add no demonstrations. The earlier preparation-path error and
-an owned auxiliary Hub cleanup after the local worker exited are retained,
-including all resource charges. Evidence is
-`D4-native-actuator-journal-contract-and-clock-closeout-20261107.json`,
-`D4-native-actuator-causal-clock-and-response-CUDA-review-20261107.json` and
-`D4-actuator-response-zero-ten-native-manifest-20261107.json`.
+The unconstrained twenty-coordinate inverse remains inaccurate. The robot URDF
+contains two WSG mimic relations; motor armature must also enter inertia. A
+nominal eighteen-coordinate reduction lowers arm-velocity prediction errors to
+microradians/s. An initial demand for bitwise identical mimic positions fails;
+that stronger-than-needed input test and its charge are retained. Positions are
+not replaced, and no physical tolerance is widened. Projecting next momentum
+instead accepts actual measured state, including tiny native constraint defects.
+The model uses source-defined mimic relations, armature and passive damping,
+with no fitted parameters. Over all 172,128 packets, peak arm-velocity error is
+7.023 microradians/s. Algebraic command-impulse and float32 input perturbations
+pass without imposing a new bitwise state gate.
+
+This supports a causal one-physics-step velocity operator. It does not establish
+next-position integration, a complete changed-controller trajectory or camera,
+material, contact or observed-source admission. Actual wrench truth belongs only
+to this independent diagnostic and cannot become an observed-controller input.
+The next posture proposal must retain delivered target elasticity, primary
+motion, all original future-support faces and mode transitions. Every earlier
+negative, preparation failure, unavailable field and resource charge is retained;
+the matrix remains 17/36. Evidence is
+`D4-actuator-response-whole-family-closeout-20261107.json`,
+`D4-actuator-response-all-native-packet-joins-20261107.json` and
+`D4-actuator-response-whole-family-constrained-momentum-CUDA-20261107.json`.
