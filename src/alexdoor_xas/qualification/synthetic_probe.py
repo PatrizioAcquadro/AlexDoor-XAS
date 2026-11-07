@@ -1096,7 +1096,12 @@ def run_probe(
             # command whose physical feedback first raises the failure latch.
             correction.observe(traces[-1])
         if recorder is not None:
-            recorder.transition(env, goal_p, goal_r, phase, traces[-1])
+            try:
+                recorder.transition(env, goal_p, goal_r, phase, traces[-1])
+            except Exception as error:
+                error.probe_task_failure = failure
+                error.probe_exception_phase = phase
+                raise
         if env.capture is not None and capture_evidence and len(traces) % 30 == 0:
             sample = env.capture.sample
             camera = env.camera.data

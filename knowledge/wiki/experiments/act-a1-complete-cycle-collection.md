@@ -2801,3 +2801,20 @@ negative decision exactly: warm profiled calls average 0.387 s versus 0.430 s
 before the change (about 10% lower) on the local workstation. The first tiled
 candidate was slower and remains a retained negative. These are saved-state
 profiling results; a complete observed collection timing comparison is pending.
+
+
+The three subsequent changing-load actual-door fixtures remain negative. N/H+/P
+lose native contact after 100/91/97 push commands, at about 1.29/1.17/1.25°;
+hold and stabilization are unavailable. The later abort-release guard exceeds
+empirical position support and becomes the outer exception. That terminal error
+must not obscure the preceding contact loss. All original continuous stop reviews
+pass; whole original payloads, masks, RGB and charges are retained.
+
+Collection reports now preserve `task_failure_before_exception` and
+`exception_phase` when a recorder guard raises after the probe failure latch.
+The same exception still terminates collection and remains the error/traceback;
+qualification, control and safety behavior are unchanged. The complete causal
+command readback matches delivered normal increments within 0.03 µm in its
+linearized diagnostic. The next control question is motion/pressure consistency,
+using the existing hinge-damping/speed/lever derivation, rather than extending
+the later release boundary to relabel these failures.

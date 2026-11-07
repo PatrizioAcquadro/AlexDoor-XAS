@@ -674,6 +674,8 @@ def main(argv=None):
                     stop_reason=termination,
                     termination=termination,
                     error=repr(error),
+                    task_failure_before_exception=getattr(error, "probe_task_failure", None),
+                    exception_phase=getattr(error, "probe_exception_phase", None),
                     traceback=traceback.format_exc(),
                 )
                 recorder.interrupt(result)
