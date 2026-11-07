@@ -2988,3 +2988,31 @@ calculations expose a model/control boundary across full posture and load
 histories; they do not qualify a changed controller. Further native variants
 remain suspended while actual shape motion, unilateral pressure, mode transitions
 and original full-task constraints are reconciled.
+
+
+### Rigid support reference relative to mode entry
+
+The optional whole-frame mode now computes the normal support of the unchanged
+full contact convex meshes under the actual and requested orientations. Their
+difference is a geometric origin offset; only its change relative to mode entry
+is applied. It does not integrate old offsets or infer force from target error.
+This preserves the acquired load at entry while accounting for rigid fingertip
+motion that the tool-origin point model omits. Contact orientation and tangential
+reference stay unchanged. History is committed after a delivered mode command;
+ordinary poses, braking and measured-origin return end that history.
+
+The pressure, gap, load-window and continuity implementations are unchanged.
+Compression gains, rates/extents, native force means, actuator impedance, frozen
+six-dimensional residual-load calibration and every original physical/full-task/
+stop criterion remain unchanged. The support geometry does not replace observed
+finite material, relief or clearance evidence. Defaults and normal-only modes
+keep their previous command behavior.
+
+Nominal rotations, active-edge switches, rigid co-motion, fixed geometry and
+invalid-input controls pass. CUDA FK on all 156,768 original native samples
+checks 28,632 prospective mode commands across the complete eight 0/10 N paths;
+maximum geometric offset is below 1 mm and maximum step is 27 µm on these saved
+histories. An additional 1,883 commands in twelve completed contact histories
+satisfy the same geometric identities; four disabled-mode histories stay
+unchanged. These are geometry/control-reference audits, not counterfactual
+physical trajectories. Complete changed native contact must pass before adoption.

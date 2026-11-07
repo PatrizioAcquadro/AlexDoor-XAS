@@ -88,8 +88,13 @@ independently reviewed. Timing consistency alone does not stabilize contact.
 A whole-mesh diagnostic on twelve contact paths and CUDA FK on all eight original
 0/10 N robot-only paths identifies a further model limit: the actual rigid support
 point moves with gripper orientation, while the normal controller uses the tool
-origin. This remains a geometric hypothesis; new contact variants are suspended
-until the complete shape/contact/control mechanism is reconciled.
+origin. The optional whole-frame mode now shifts its contact origin by the change
+in rigid support relative to mode entry, using fresh actual orientation and the
+unchanged contact meshes. Entry has zero offset; fixed relative geometry adds no
+preload. Only delivered commands commit the entry reference, and ordinary poses,
+braking and measured-origin return reset it. Pressure updates, actuator control,
+frozen load model and all qualification gates stay unchanged. Geometric controls
+and complete saved-history audits pass; changed native contact remains unqualified.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

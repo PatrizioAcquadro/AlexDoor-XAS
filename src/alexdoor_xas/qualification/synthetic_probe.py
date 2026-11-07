@@ -360,6 +360,27 @@ def distal_pending_advance(vertices, current_p, current_r, target_p, target_r, n
     return float(np.min(displacement @ normal))
 
 
+def rigid_support_offset(vertices, rotation, reference_rotation, normal):
+    """Normal origin offset keeping the same rigid-shape support plane.
+
+    This accounts for actual orientation, not elastic target error or force.
+    Common rigid rotation of both frames and the normal preserves the result.
+    """
+    vertices, normal = np.asarray(vertices), np.asarray(normal)
+    rotations = [np.asarray(r) for r in (rotation, reference_rotation)]
+    if (
+        vertices.ndim != 2 or vertices.shape[1] != 3 or not len(vertices)
+        or normal.shape != (3,) or not np.isfinite(vertices).all()
+        or not np.isfinite(normal).all()
+        or any(r.shape != (3, 3) or not np.isfinite(r).all() for r in rotations)
+        or np.linalg.norm(normal) == 0
+    ):
+        raise ValueError("Invalid rigid contact support")
+    normal = normal / np.linalg.norm(normal)
+    actual, reference = [float(np.max(vertices @ (r.T @ normal))) for r in rotations]
+    return reference - actual
+
+
 def pre_release_contact_continuity(traces, setup, *, phase_family=None, intermediate_start=False):
     """Full-task qualification, separate from the teacher's bounded recontact control.
 
@@ -875,6 +896,14 @@ def run_probe(
     min_clearance = float("inf")
     traces, raw, images = [], [], []
     distal = np.concatenate(env.push_geometry.distal_faces)
+    support_vertices = (
+        np.unique(np.concatenate([
+            v - env.push_geometry.translation
+            for v in env.push_geometry.finger_vertices.values()
+        ]), axis=0)
+        if setup.force_reference_material_frame else None
+    )
+    shape_reference_origin = None
     window = SustainedAngle(setup.sustain_s)
     contact_load = ContactLoad(
         setup.contact_force_window_s, setup.loaded_force_n, setup.contact_gap_tolerance_m
@@ -993,6 +1022,7 @@ def run_probe(
         goal_p, goal_r, phase, *, injected_pose=None, reference_angle=None
     ):
         nonlocal failure, peak, min_margin, min_clearance, compensation, peak_joint_speed
+        nonlocal shape_reference_origin
         correction_active = correction is not None and failure is None
         applied_compensation = (
             compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
@@ -1072,6 +1102,24 @@ def run_probe(
             and not (correction_active and correction.braking())
             else {}
         )
+        shape_support = None
+        if setup.force_reference_material_frame and normal_options and not (
+            correction_active and correction.position_return_active(phase)
+        ):
+            material_angle = float(tensor(env.door.data.joint_pos)[0, 0])
+            normal = door.contact_pose(
+                material_angle, setup.contact_fraction, setup.contact_height
+            )[1][:, 0]
+            measured_r = Rotation.from_quat(env.tool_pose()[1][0].cpu().numpy()).as_matrix()
+            relative = rigid_support_offset(support_vertices, measured_r, goal_r, normal)
+            origin = relative if shape_reference_origin is None else shape_reference_origin
+            offset = relative - origin
+            if offset != 0:
+                goal_p = goal_p + normal * offset
+            shape_support = dict(
+                relative_support_m=relative, entry_support_m=origin,
+                normal_reference_offset_m=offset, normal_world=normal.tolist(),
+            )
         if controller is None:
             env.command_pose(goal_p, Rotation.from_matrix(goal_r).as_quat(), **normal_options)
             env.step(zero)
@@ -1079,6 +1127,9 @@ def run_probe(
             controller(goal_p, goal_r, phase, joint_brake=True)
         else:
             controller(goal_p, goal_r, phase, **normal_options)
+        # Only a delivered mode command commits the entry reference. Ordinary
+        # poses, braking and measured-origin return end this geometry history.
+        shape_reference_origin = None if shape_support is None else shape_support["entry_support_m"]
         angle = float(tensor(env.door.data.joint_pos)[0, 0])
         speed = float(tensor(env.door.data.joint_vel)[0, 0])
         p, q = [v[0].cpu().numpy() for v in env.tool_pose()]
@@ -1203,6 +1254,7 @@ def run_probe(
                 contact_gap_m=gap,
                 material_normal_flow=normal_flow,
                 material_frame_transport=frame_transport,
+                material_shape_support=shape_support,
                 loaded=loaded,
                 valid=valid,
                 physical_safe=physical_safe,

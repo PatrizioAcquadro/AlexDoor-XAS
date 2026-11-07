@@ -95,6 +95,52 @@ def test_gap_control_keeps_missing_endpoint_unavailable_and_rejects_invalid_valu
             support_gap_feedback({"native_contact_separations_m": [0.0, gap]})
 
 
+def test_rigid_support_reference_preserves_contact_plane_under_relative_rotation():
+    from alexdoor_xas.qualification.synthetic_probe import rigid_support_offset
+
+    # Two distal edges and recessed geometry; use the whole rigid shape.
+    vertices = np.array([[0., -.02, -.01], [0., -.02, .01],
+                         [0., .02, -.01], [0., .02, .01], [-.03, 0., 0.]])
+    for angle in [-.04, -.002, 0., .002, .04]:
+        actual = Rotation.from_euler("z", angle).as_matrix()
+        reference = np.eye(3)
+        normal = np.array([1., 0., 0.])
+        shift = rigid_support_offset(vertices, actual, reference, normal)
+        corrected = vertices @ actual.T + shift*normal
+        assert max(corrected @ normal) == pytest.approx(max(vertices[:, 0]), abs=1e-17)
+        # A common world rotation cannot create another support correction.
+        world = Rotation.from_euler("xyz", [.2, -.3, .7]).as_matrix()
+        moved = rigid_support_offset(vertices, world@actual, world@reference, world@normal)
+        assert moved == pytest.approx(shift, abs=32*np.finfo(float).eps*.03)
+    assert rigid_support_offset(vertices, reference, reference, normal) == 0.
+
+
+def test_rigid_support_reference_is_continuous_at_active_edge_switch_and_has_no_memory():
+    from alexdoor_xas.qualification.synthetic_probe import rigid_support_offset
+
+    vertices = np.array([[0., -.02, 0.], [0., .02, 0.]])
+    values = [rigid_support_offset(vertices, Rotation.from_euler("z", a).as_matrix(),
+                                  np.eye(3), [1, 0, 0]) for a in [-1e-5, 0, 1e-5]]
+    assert values[0] == values[2]
+    assert values[1] == 0
+    assert abs(values[0]) <= .02e-5
+    # A fixed relative orientation produces a constant entry reference, not a
+    # new preload on every command or a response to unrelated force samples.
+    rotation = Rotation.from_euler("y", .01).as_matrix()
+    origin = rigid_support_offset(vertices, rotation, np.eye(3), [1, 0, 0])
+    assert all(rigid_support_offset(vertices, rotation, np.eye(3), [1, 0, 0])-origin == 0
+               for _ in range(20))
+
+
+@pytest.mark.parametrize("vertices,normal", [([], [1, 0, 0]),
+    ([[0., 0., np.nan]], [1, 0, 0]), ([[0., 0., 0.]], [0, 0, 0])])
+def test_rigid_support_reference_rejects_unavailable_geometry(vertices, normal):
+    from alexdoor_xas.qualification.synthetic_probe import rigid_support_offset
+
+    with pytest.raises(ValueError, match="Invalid rigid contact support"):
+        rigid_support_offset(vertices, np.eye(3), np.eye(3), normal)
+
+
 def test_tracking_guard_reserves_hold_margin_but_accepts_stable_bias_and_contact_chatter():
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, tracking_margin_exhausted
 
