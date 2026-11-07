@@ -64,8 +64,17 @@ not a causal success claim or relaxed tolerance. An optional coherent material-f
 mode now rigidly transports the complete contact pose, compression, tangential
 compensation and injected offsets together. Braking and measured-origin return
 keep their existing behavior; the reference clock and all qualification limits
-remain unchanged. Essential numerical and causal-model controls pass. Changed
-complete native contact paths and observed qualification remain pending.
+remain unchanged. Numerical controls pass, but all four complete native contact
+attempts close negative: N 1.606°, H+ 0.471°, H− 1.983° and P 0.511°, without hold.
+N reaches the original 10 N model-domain refusal (10.550 N); the other three lose
+contact before secondary empirical withdrawal refusals. Reviews of original stops,
+raw/native, current/future/physical/clock/RGB and whole-transfer/owned cleanup are
+complete; empirical exits remain failures. Reconstructed normal offsets for all
+836 push commands agree within 5 nm; this validates command geometry in that
+axis, not contact success. Further contact variants
+are suspended pending a whole-motion unilateral-contact and sampled-force audit.
+Fixed-J bilateral model stability does not explain these losses. Observed
+qualification remains open; no task or calibration threshold changes.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

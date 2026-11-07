@@ -2919,4 +2919,21 @@ Essential nominal, perturbed and fixed-frame controls pass. The same local
 bilateral-contact model, now with coherent hinge-driven pose transport and causal
 completed-interval displacement, is stable at all 120 active-force postures.
 These numerical results do not qualify nonlinear native contact or observations.
-Complete changed N/H+/H−/P native paths must pass before any observed adoption.
+All four changed native paths from `0963741` close negative: last-push angles
+N 1.606°, H+ 0.471°, H− 1.983° and P 0.511°; none attempts hold. N first reaches
+the original position-halo force upper bound, 10.550 N against qualified 10 N,
+with physical and current/future position bounds clear. The other three lose
+loaded contact before secondary abort-release empirical position exits. Their
+native force peaks and model force bounds remain distinct; unavailable estimates
+are preserved. No source or matrix credit is added.
+
+Independent review covers 14,940 native task samples, original 6 s/14-shape stops,
+all-seven current and single original future domains, physical limits, causal
+clocks, RGB, whole original payloads and owned resource cleanup. All 836 push
+compression updates reconstructed from the original acquisition ramp and saved
+completed force/gap samples agree with the normal offsets in original float32
+goal packets within 5 nm. Command-frame consistency alone does not establish continuous
+contact. Dependent contact variants are suspended while the full unilateral
+contact, sampled pressure and measured-gap recovery mechanism is audited; the
+stable fixed-J bilateral model excludes these effects. All thresholds and prior
+negative outcomes remain unchanged. Observed qualification remains open.
