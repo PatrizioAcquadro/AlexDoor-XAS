@@ -28,9 +28,11 @@ measured load support during push; H− loses contact. All current/future positi
 and physical boxes and all original continuing stops pass. Whole recordings,
 RGB, missing phases and resource cleanup are independently reviewed. A saved
 CUDA sensitivity audit identifies linear elastic pressure coupling from the
-other five pose axes. Its stiffness/Jacobian-based compensation now passes
-numerical and source checks; complete native requalification remains required
-before any contact or observed-source claim.
+other five pose axes. The resulting compensation (`ea8d5d4`) passes single-step
+algebra but fails native unloaded-pose tracking in all four conditions; it is
+withdrawn and the previous control path restored. All four 10 N cases remain
+unattempted. Original negative and stop reviews are retained. Free reference motion must not be treated as elastic preload;
+no dependent contact or observed-source launch follows this failed candidate.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

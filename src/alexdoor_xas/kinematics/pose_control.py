@@ -95,7 +95,6 @@ def bounded_pose_step(
     compliant_normal=None,
     normal_reference_only=False,
     normal_transport_m=None,
-    motion_stiffness=None,
 ):
     """Bounded pose solve with optional measured-error integration on prior targets.
 
@@ -110,8 +109,7 @@ def bounded_pose_step(
     Reference-only normal mode instead retains elastic support and pays only
     the causal normal goal increment supplied by a force admittance.
     Optional geometric transport updates that existing elastic support as the
-    normal joint covector changes. Motion stiffness also removes the linear
-    elastic pressure caused by the other five pose axes. Preview calls remain pure.
+    normal joint covector changes. Preview calls remain pure.
     """
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
         raise ValueError("Purdue pose control requires a 6x7 Jacobian and six pose errors")
@@ -151,18 +149,6 @@ def bounded_pose_step(
             or not bool(torch.isfinite(normal_transport_m).all())
         ):
             raise ValueError("invalid_normal_transport_increment")
-    if motion_stiffness is not None:
-        if not normal_reference_only:
-            raise ValueError("normal_stiffness_requires_reference_mode")
-        if (
-            not isinstance(motion_stiffness, torch.Tensor)
-            or motion_stiffness.shape != positions.shape
-            or motion_stiffness.device != positions.device
-            or motion_stiffness.dtype != positions.dtype
-            or not bool(torch.isfinite(motion_stiffness).all())
-            or not bool((motion_stiffness > 0).all())
-        ):
-            raise ValueError("invalid_normal_motion_stiffness")
     if compliant_normal is not None:
         if not feedback:
             raise ValueError("compliant_normal_requires_pose_feedback")
@@ -248,25 +234,6 @@ def bounded_pose_step(
     if normal_direction is not None:
         centering = centering - normal_component(centering.unsqueeze(-1)).squeeze(-1)
     delta = primary.squeeze(-1) + centering
-    if motion_stiffness is not None:
-        # Kinematic tangency (n.T J dq = 0) does not preserve normal pressure
-        # under anisotropic joint impedance. C maps a Cartesian wrench to
-        # quasistatic elastic tool displacement. Cancel only the other axes' pressure;
-        # retain the force admittance's requested normal increment.
-        compliance = (jacobian / motion_stiffness.unsqueeze(-2)) @ jacobian.transpose(-1, -2)
-        dual, info = torch.linalg.solve_ex(compliance, normal.unsqueeze(-1))
-        if bool((info != 0).any()):
-            # An unrelated pose axis may be unavailable while this normal is
-            # reachable (already checked above). Do not invent a full-rank gate.
-            dual = torch.linalg.pinv(compliance, hermitian=True) @ normal.unsqueeze(-1)
-        if not bool(torch.isfinite(dual).all()):
-            raise ValueError("unreachable_normal_elastic_coupling")
-        response = (normal.unsqueeze(-2) @ dual).squeeze(-1)
-        if not bool((response > 0).all()):
-            raise ValueError("unreachable_normal_elastic_coupling")
-        tangent = delta - normal_component(delta.unsqueeze(-1)).squeeze(-1)
-        pressure = (dual.transpose(-1, -2) @ jacobian @ tangent.unsqueeze(-1)).squeeze(-1)
-        delta = delta - normal_direction * (pressure / response)
     # Independent velocity clipping leaks nullspace motion into the hand pose.
     # Scale the whole target step to preserve its direction within the bounds.
     reference = positions if previous_targets is None else previous_targets

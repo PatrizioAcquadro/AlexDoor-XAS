@@ -148,20 +148,15 @@ bound the combined request. The option defaults off, preserves the prior mode
 bitwise and requires causal pose feedback. It does not establish changing-load,
 off-center contact, passivity, empirical coverage or source qualification.
 
-In this mode the same option also removes quasistatic pressure introduced by
-steps on the other five pose axes. Kinematic tangency alone does not preserve
-pressure under unequal joint stiffnesses. Let `C = J diag(1/K) J.T`, `n6 = [n,0]`,
-`z = C+ n6`, and let `u` be the existing normal joint direction with `J u = n6`.
-For the tangential/rotational joint step `dq_t`, add
-`-u * (z.T J dq_t) / (z.T n6)`. This preserves those five linearized pose changes
-and the original normal force-reference increment while canceling their linear
-elastic normal-wrench contribution. A pseudoinverse handles an unrelated
-unavailable pose axis without adding a full-rank admission gate. The current
-motion stiffness comes from the existing actuators; no force estimate, fitted
-gain, acceptance limit or learned observation changes. Original target/rate
-bounds still apply after the combined request. This is a local quasistatic
-model; damping, inertia, contact impulses and complete native outcomes require
-independent qualification.
+A candidate that canceled the frozen-joint elastic pressure of each full
+reference step (`ea8d5d4`) is withdrawn. Although its single-step algebra preserved
+the other five pose components, it treated free reference motion as preload.
+Native unloaded opening then missed the original pose endpoint. Existing elastic
+offset and geometry transport must remain distinct from the motion that the
+measured plant follows. A matched free/constant-load elastic-plant regression
+now checks that tangential and rotational references do not cause normal drift.
+The original scalar geometric transport above is restored; changing-load
+contact remains unqualified.
 
 When this mode returns to ordinary pose control, its first reference increment
 uses the current measured tool pose as origin. The maintained intentional

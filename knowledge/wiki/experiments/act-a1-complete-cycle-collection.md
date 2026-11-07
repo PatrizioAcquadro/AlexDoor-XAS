@@ -20,8 +20,12 @@ contact loss). All seven-coordinate current/future boxes and original stops
 pass for the latter four. Full payloads, unavailable phases, RGB and charges
 remain preserved. A whole-command CUDA sensitivity audit finds a nonzero
 quasistatic pressure contribution from tangential/rotational commands under
-unequal joint stiffnesses. Its numerical compensation is implemented; fresh
-whole-path native, changing-load and observed qualification are still pending.
+unequal joint stiffnesses. The single-step compensation (`ea8d5d4`) nevertheless
+fails unloaded native opening in all four conditions, confusing free motion with
+elastic preload. It is withdrawn; the earlier controller is restored and a
+matched-elastic-plant trajectory regression preserves this failure mode. The
+four 10 N counterparts remain unattempted; independent original-stop closeout, changing-load
+and observed qualification remain pending.
 See [[../topics/purdue-b1-robot-and-contact|the control contract]].
 
 D2-RP independently qualifies the real72-command pause/313-command recovery.
