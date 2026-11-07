@@ -173,9 +173,19 @@ Although saved-family algebra, matched plants and history/mode controls pass,
 the midpoint-only configuration is rejected: all four 0 N approaches exhaust
 other coupled future-support faces. All physical/model/current-position and
 original stop checks pass; all four 10 N cases remain unattempted. Resources and
-complete failures are closed. A coupled seven-joint feasibility diagnostic finds
-local repairs, but no constrained whole-motion controller is implemented or
-qualified. The optional API defaults unset and has no observed-source adoption.
+complete failures are closed. Static seven-joint feasibility does not establish
+causal motion: the 27-case/98,569-interval audit finds eight falsely favorable
+future predictions when delivered target increments are treated as measured
+motion. Loaded targets can also lie outside the measured empirical range while
+the actual joints remain inside it. All four same-host approach pairs retain
+exactly identical goals, setups and calibration inputs, isolating the changed
+redundant posture. The original isolated plant screen used gain 0.1; the native
+configured gain is 2.0. Its corrected 48-case screen passes, without changing the
+native rejection. An attempted position/velocity integration model fails its
+arithmetic controls on all 27 histories and cannot qualify reachable motion.
+Anticipatory coupled control still requires independently supported actuator
+response and full-motion qualification. No constrained controller is implemented;
+the optional API defaults unset and has no observed-source adoption.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

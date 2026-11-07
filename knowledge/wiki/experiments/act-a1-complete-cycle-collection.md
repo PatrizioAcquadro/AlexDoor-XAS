@@ -3344,8 +3344,9 @@ original continuing stops. No demonstration or global calibration is added.
 The shared secondary posture objective previously used physical target ranges.
 At both actual refusal witnesses its nullspace step points slightly toward the
 binding empirical edge. An isolated alternative, normalized by already qualified
-condition support, points inward by about 0.33–0.34 mrad per control step while
-leaving all six primary axes unchanged. The all-family CUDA audit covers 23
+condition support, points inward by about 0.33–0.34 mrad per control step at the
+isolated screen's default gain 0.1, while leaving all six primary axes unchanged.
+That scale is not the native configured gain of 2.0. The all-family CUDA audit covers 23
 saved cases and 91,621 boundaries. It checks soft-cost descent and pose
 projection on qualified/current histories; earlier rank-deficient failed states
 remain diagnostic, not qualified controls.
@@ -3388,3 +3389,37 @@ variant is launched. One early-outcome reader initially assumed an approach
 endpoint existed; the missing-field failure and GPU charge are retained, and the
 corrected reader explicitly leaves the unreached endpoints unavailable. All
 owned resources are released; the matrix remains 17/36.
+
+
+The subsequent finished-native response audit covers all 27 actual cases and
+98,569 control intervals, including held-joint stabilization only where reached.
+It preserves the exact identity between measured motion, delivered target change
+and elastic-offset change. Assuming that offset stays constant gives eight
+falsely favorable original future-support predictions; observed offset changes
+reach 5.333 mrad within one control interval. Conversely, 863 intervals have a
+delivered target outside measured empirical support while current measured
+positions remain inside, including qualified H−10N components. Clamping targets
+to measured support would therefore discard valid loaded behavior.
+
+All four same-host unloaded approach pairs have exactly identical native goal
+coordinates/clocks, setups and six relocated input payloads. Their measured
+joint differences reach 0.120–0.173 rad, supporting the changed redundant-posture
+interpretation rather than a changed task reference. The earlier isolated
+midpoint plant/static preference screens used gain 0.1. All native setups use
+2.0; the corrected 48 matched-plant cases pass at that value. These fixed-geometry
+controls still do not qualify native posture evolution or reverse its rejection.
+
+A proposed four-substep position-integration model also fails the original
+float32 arithmetic comparison on every history, with a 3.815 microradian peak
+position/velocity defect. Its conditional acceleration/velocity intervals remain
+model diagnostics and cannot establish native reachability. This is not a new
+numerical tolerance, a universal resolution bound or a change to existing
+qualified stop evidence. Both that model refusal and a prior recipe-path reader
+preparation error are retained. All five new allocations are closed and charged
+once. No controller, native successor, support/criterion change or demonstration
+is added; the matrix remains 17/36. The next coupled posture proposal needs an
+independently supported causal actuator response over complete motion and mode
+transitions. Evidence is
+`D4-posture-causal-response-and-model-validity-closeout-20261107.json`,
+`D4-posture-whole-family-causal-response-CUDA-diagnosis-20261107.json` and
+`D4-soft-posture-actual-gain-matched-elastic-plant-CUDA-screen-20261107.json`.
