@@ -33,11 +33,13 @@ algebra but fails native unloaded-pose tracking in all four conditions; it is
 withdrawn and the previous control path restored. All four 10 N cases remain
 unattempted. All four negative reviews and twelve original stop segments now
 pass independent closeout. Free reference motion must not be treated as elastic
-preload. A distinct four-condition contact fixture uses the restored controller
-and derives a common 0.282°/s speed from the original 0.1 N pressure, actual hinge
-damping and normal lever. Its duration guards preserve the original angular
-budget; opening, continuity, hold, model, physical and stop criteria are unchanged.
-Actual contact and complete observed execution remain unqualified.
+preload. All four slower, pressure-matched contact fixtures also lose contact
+before required opening, then hit a secondary empirical position refusal on
+release. A saved-operand audit identifies pending FK target distance suppressing
+some measured-gap corrections, including zero-force intervals. Force-reference
+mode now retains this elastic target support without crediting it as guaranteed
+gap-closing travel. The pose controller and all task/model/physical/stop criteria
+stay unchanged; complete native qualification and observed execution remain open.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

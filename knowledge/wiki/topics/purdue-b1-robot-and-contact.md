@@ -544,6 +544,16 @@ correction below the target, subtracting normal advance already commanded.
 All four D4 cases still lose early push contact; the recipe is unadopted. Its
 passing physical stops do not establish task contact or full-source success.
 
+In explicit force-reference mode, FK distance from the measured hand to its
+delivered target can include retained elastic load support. It is not guaranteed
+free-space travel that will close a measured gap. `normal_contact_support`
+therefore uses zero pending-distance credit in this mode; ordinary pose mode
+keeps its existing positive pending-motion credit. The raw FK offset and the
+credit actually used are recorded separately. Existing force-error regulation,
+unloading priority, optional one-shot gate, displacement rate/extent and every
+load/contact/stop criterion remain unchanged. This corrects a control assumption;
+full native contact qualification is still required.
+
 Pressure and motion requests must also be physically compatible. In the intended
 normal-only rotational model, steady hinge resistance requires normal force
 `damping * reference angular speed / normal torque lever`. For the original D4

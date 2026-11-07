@@ -26,10 +26,16 @@ elastic preload. It is withdrawn; the earlier controller is restored and a
 matched-elastic-plant trajectory regression preserves this failure mode. The
 four 10 N counterparts remain unattempted. Independent review confirms all four
 negative paths and twelve original stop segments, with frozen moving/stopped
-residuals passing. A separate changing-load fixture now derives a slower common
-reference from the original 0.1 N request, actual damping and lever, preserving
-all task/physical/model/stop criteria; its outcomes and observed qualification
-remain pending.
+residuals passing. The four slower pressure-matched actual-contact fixtures also
+close negative: pre-release contact loss at 0.243–1.793°, followed by secondary
+abort-release position refusals. Their original stops, raw data, RGB and cleanup
+are independently verified. Saved original control operands expose pending FK
+target distance credited against a measured gap even in explicit force-reference
+mode. That distance may include retained elastic support rather than assured
+closing travel; the credit is now zero only in that mode. Ordinary pose control,
+all rates/extents and every qualification criterion remain unchanged. The change
+passes essential unit and saved-operand checks; full native and observed
+qualification remain pending.
 See [[../topics/purdue-b1-robot-and-contact|the control contract]].
 
 D2-RP independently qualifies the real72-command pause/313-command recovery.

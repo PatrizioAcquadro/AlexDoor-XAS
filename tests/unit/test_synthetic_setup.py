@@ -747,3 +747,33 @@ def test_force_controlled_normal_reference_requires_explicit_boolean(invalid):
 
     with pytest.raises(ValueError, match="Force-controlled normal reference"):
         ProbeSetup(force_controlled_normal_reference=invalid)
+
+
+@pytest.mark.parametrize("gap_m", [1e-6, 40e-6, .001])
+@pytest.mark.parametrize("force_n", [0., .02])
+def test_force_reference_does_not_spend_elastic_target_as_gap_travel(gap_m, force_n):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, normal_contact_support
+
+    setup = ProbeSetup(force_controlled_normal_reference=True)
+    dt = 1/60
+    # A pressure-holding target may stay ahead without delivering free-space
+    # travel. Changing that offset cannot erase the measured recovery request.
+    no_credit = normal_contact_support(0, force_n, setup, dt, gap_m=gap_m)
+    for pending in [-2*gap_m, gap_m, 2*gap_m]:
+        assert normal_contact_support(
+            0, force_n, setup, dt, gap_m=gap_m, pending_normal_m=pending
+        ) == no_credit
+    pressure_only = normal_contact_support(0, force_n, setup, dt)
+    assert no_credit > pressure_only
+    assert no_credit <= setup.compression_m/setup.sustain_s*dt
+    # The explicit one-shot gate and force unloading still have priority.
+    assert normal_contact_support(
+        0, force_n, setup, dt, gap_m=gap_m, pending_normal_m=2*gap_m, gap_catchup=False
+    ) == pressure_only
+    assert normal_contact_support(
+        0, 1., setup, dt, gap_m=gap_m, pending_normal_m=2*gap_m
+    ) < 0
+    maximum = setup.position_tolerance-setup.material_drift_guard_m
+    assert normal_contact_support(
+        maximum, force_n, setup, dt, gap_m=gap_m, pending_normal_m=2*gap_m
+    ) == maximum

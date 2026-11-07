@@ -487,7 +487,11 @@ def normal_contact_support(
             # normal rate/extent bounds and force-unloading priority.
             # Gap catch-up restores geometry; it must not replace the positive
             # force-error admittance that establishes load beyond first touch.
-            rate += max(0.0, gap_m - max(0.0, pending_normal_m)) / dt
+            # Force-reference mode retains an elastic target offset as load
+            # support. Its FK distance is not guaranteed travel that will close
+            # this measured gap; ordinary pose mode keeps its pending credit.
+            credit = 0.0 if setup.force_controlled_normal_reference else max(0.0, pending_normal_m)
+            rate += max(0.0, gap_m - credit) / dt
     rate_limit = setup.compression_m / setup.sustain_s
     increment = np.clip(rate, -rate_limit, rate_limit) * dt
     return float(
@@ -874,6 +878,9 @@ def run_probe(
             source=source,
             target_force_n=target_force,
             pending_distal_normal_advance_m=pending,
+            pending_gap_credit_m=(
+                0.0 if setup.force_controlled_normal_reference else max(0.0, pending)
+            ),
             gap_catchup=gap_catchup,
         )
         control_force = force
