@@ -45,7 +45,15 @@ before a secondary empirical withdrawal refusal. P retains the same final angle
 as its paired baseline. All raw/native, physical, original stops, RGB, whole
 transfers and owned cleanup are independently reviewed. Gap credit alone does
 not establish stable combined control; further contact attempts require a
-whole arm/door dynamics diagnosis. Observed qualification remains open.
+whole arm/door dynamics diagnosis. Native inertia readback at 232 saved whole-family
+postures does not establish unstable poles in the unchanged linear model; a
+critical-damping diagnostic can instead destabilize its explicit discretization
+and is unadopted. A separate optional teacher mode transports measured material
+motion only along the force axis. Tangential placement, orientation and the
+opening-reference clock remain unchanged; force admittance still supplies
+compression, and unloaded following cannot pass physical continuity. Essential
+numerical and causal coupled-model checks pass. Complete native contact and
+observed qualification remain pending.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

@@ -53,6 +53,7 @@ class ProbeSetup:
     support_force_source: str = "qualification_window"
     normal_force_lead_s: float = 0.0
     force_controlled_normal_reference: bool = False
+    force_reference_material_flow: bool = False
     support_gap_antiwindup: bool = False
     force_limit_n: float = 80.0
     soft_force_n: float = 50.0
@@ -133,6 +134,10 @@ class ProbeSetup:
             raise ValueError("Teacher motion ramp and gap antiwindup options must be boolean")
         if type(self.force_controlled_normal_reference) is not bool:
             raise ValueError("Force-controlled normal reference option must be boolean")
+        if type(self.force_reference_material_flow) is not bool:
+            raise ValueError("Material normal flow option must be boolean")
+        if self.force_reference_material_flow and not self.force_controlled_normal_reference:
+            raise ValueError("Material normal flow requires force-controlled normal reference")
         if self.support_force_source not in (
             "qualification_window",
             "native_interval_mean",
@@ -300,6 +305,24 @@ def push_speed_scale(elapsed_s, setup, initial_speed=0.0):
         else 0.0
     )
     return float(start + (1.0 - start) * alpha)
+
+
+def material_normal_flow(reference_p, material_p, normal):
+    """Replace only reference-clock normal placement with measured material flow.
+
+    Force admittance still supplies compression. Tangential position, orientation
+    and the reference angle keep their own clock; following an unloaded panel
+    cannot satisfy the unchanged physical contact-continuity qualification.
+    """
+    values = [np.asarray(v, dtype=float) for v in (reference_p, material_p, normal)]
+    if any(v.shape != (3,) or not np.isfinite(v).all() for v in values):
+        raise ValueError("Invalid material normal flow vectors")
+    reference_p, material_p, normal = values
+    length = np.linalg.norm(normal)
+    if length == 0:
+        raise ValueError("Invalid material normal flow axis")
+    normal = normal / length
+    return normal * np.dot(material_p - reference_p, normal)
 
 
 def distal_pending_advance(vertices, current_p, current_r, target_p, target_r, normal):
@@ -914,13 +937,44 @@ def run_probe(
             gap_catchup=gap_catchup,
         )
 
-    def command(goal_p, goal_r, phase, *, injected_pose=None):
+    def command(
+        goal_p, goal_r, phase, *, injected_pose=None, reference_angle=None
+    ):
         nonlocal failure, peak, min_margin, min_clearance, compensation, peak_joint_speed
         correction_active = correction is not None and failure is None
         applied_compensation = (
             compensation.copy() if phase in ("contact", "push", "hold") else np.zeros(3)
         )
         goal_p = goal_p + goal_r @ applied_compensation
+        normal_flow = None
+        if (
+            setup.force_reference_material_flow
+            and normal_feedback is not None
+            and phase in ("push", "hold")
+            and not (
+                correction_active
+                and (correction.braking() or correction.position_return_active(phase))
+            )
+        ):
+            if reference_angle is None or not np.isfinite(reference_angle):
+                raise ValueError("Material normal flow requires a causal reference angle")
+            measured_angle = float(tensor(env.door.data.joint_pos)[0, 0])
+            reference_p, _ = door.contact_pose(
+                reference_angle, setup.contact_fraction, setup.contact_height
+            )
+            material_p, _ = door.contact_pose(
+                measured_angle, setup.contact_fraction, setup.contact_height
+            )
+            flow = material_normal_flow(reference_p, material_p, goal_r[:, 0])
+            goal_p = goal_p + flow
+            if injected_pose is not None:
+                injected_pose = (injected_pose[0] + flow, injected_pose[1])
+            normal_flow = dict(
+                reference_angle_rad=float(reference_angle),
+                measured_angle_rad=measured_angle,
+                displacement_world_m=flow.tolist(),
+                qualification_from_physical_load_unchanged=True,
+            )
         if correction_active:
             gap_target = correction.material_gap_target(phase)
             if gap_target is not None:
@@ -1079,6 +1133,7 @@ def run_probe(
                 else None,
                 normal_reference_only=bool(normal_options),
                 contact_gap_m=gap,
+                material_normal_flow=normal_flow,
                 loaded=loaded,
                 valid=valid,
                 physical_safe=physical_safe,
@@ -1205,6 +1260,7 @@ def run_probe(
                         reference, setup.contact_fraction, setup.contact_height, compression
                     ),
                     "push",
+                    reference_angle=reference,
                     injected_pose=None
                     if advance is None
                     else door.contact_pose(
@@ -1388,6 +1444,7 @@ def run_probe(
                         target, setup.contact_fraction, setup.contact_height, compression
                     ),
                     "hold",
+                    reference_angle=hold_reference(angle, initial_lead, door.mechanical_stop),
                 )
                 traces[-1]["hold_compression_m"] = compression
                 held.update(tick * dt, state[0], state[6])
@@ -1472,6 +1529,7 @@ def run_probe(
                     compression,
                 ),
                 "push",
+                reference_angle=reference,
                 injected_pose=None
                 if advance is None
                 else door.contact_pose(
@@ -1583,6 +1641,7 @@ def run_probe(
                         compression,
                     ),
                     "hold",
+                    reference_angle=hold_reference(angle, initial_lead, door.mechanical_stop),
                 )
                 held.update(tick * dt, state[0], state[6])
                 missing_time = 0.0 if state[5] else missing_time + dt
@@ -1627,6 +1686,9 @@ def run_probe(
                     compression,
                 ),
                 "hold",
+                reference_angle=hold_reference(
+                    angle, float(intermediate["initial_lead"]), door.mechanical_stop
+                ),
             )
             held.update(tick * dt, state[0], state[6])
             if failure:

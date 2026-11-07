@@ -777,3 +777,43 @@ def test_force_reference_does_not_spend_elastic_target_as_gap_travel(gap_m, forc
     assert normal_contact_support(
         maximum, force_n, setup, dt, gap_m=gap_m, pending_normal_m=2*gap_m
     ) == maximum
+
+
+@pytest.mark.parametrize("invalid", [1, "true", None])
+def test_material_flow_requires_explicit_force_reference_mode(invalid):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
+
+    with pytest.raises(ValueError, match="Material normal flow"):
+        ProbeSetup(force_reference_material_flow=invalid)
+    with pytest.raises(ValueError, match="requires force-controlled"):
+        ProbeSetup(force_reference_material_flow=True)
+    assert not ProbeSetup().force_reference_material_flow
+
+
+def test_material_normal_flow_preserves_tangential_goal_and_force_compression():
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.qualification.synthetic_probe import material_normal_flow
+
+    for angle in [0., .7, -1.1]:
+        rotation = Rotation.from_euler("z", angle).as_matrix()
+        normal = rotation[:, 0]
+        reference = np.array([.2, -.3, 1.1])
+        # Include both lagging and leading panels, plus unrelated tangent motion.
+        for normal_distance in [-.002, 0., .003]:
+            material = reference + rotation @ [normal_distance, .01, -.02]
+            flow = material_normal_flow(reference, material, normal)
+            np.testing.assert_allclose(flow, normal * normal_distance, atol=1e-16)
+            for compression in [-.001, .001]:
+                original_goal = reference + normal * compression
+                corrected = original_goal + flow
+                assert np.isclose(np.dot(corrected-material, normal), compression)
+                np.testing.assert_allclose(
+                    (corrected-reference) @ rotation[:, 1:], [0., 0.], atol=1e-16
+                )
+        np.testing.assert_array_equal(
+            material_normal_flow(reference, reference, normal), [0., 0., 0.]
+        )
+    for bad in ([np.nan, 0, 0], [1, 0], [0, 0, 0]):
+        with pytest.raises(ValueError, match="material normal flow"):
+            material_normal_flow([0,0,0], [1,0,0], bad)

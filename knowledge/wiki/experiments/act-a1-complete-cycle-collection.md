@@ -2870,3 +2870,24 @@ requests remain 0.1 N. The mechanical controller is unchanged from qualified
 reuse. No gain, force/model threshold, motion variation or stop criterion changes.
 The original three negatives and earlier pressure-target negatives remain valid;
 new complete changing-load outcomes are required before any observed source.
+
+
+### Material motion on the force axis
+
+After the four negative gap-credit interventions, CUDA native inertia readback
+covers 232 saved postures from all eight original robot-only paths and both
+four-condition contact families. The unchanged local bilateral-contact model
+has no unstable poles in its 120 active-force postures. Increased damping is
+not justified by this result; a derived critical-damping diagnostic destabilizes
+part of the explicit numerical model and remains unadopted. These calculations
+exclude unilateral impacts, nonlinear geometry and friction.
+
+An optional `force_reference_material_flow` teacher mode now replaces only the
+reference-clock normal placement with the current measured material placement.
+It requires explicit force-reference control. The reference angle, other five
+pose axes, injected disturbance displacement, force compression and every
+physical/continuity/load/stop criterion remain unchanged. Causal native samples
+still determine material placement; unloaded coasting cannot qualify a source.
+Defaults preserve previous behavior. Essential geometric controls and local
+models with completed-interval displacement pass; full original native contact
+paths and observed collection remain unqualified. No actuator gains change.
