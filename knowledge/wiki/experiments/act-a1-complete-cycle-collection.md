@@ -4682,3 +4682,33 @@ original elab4/elab3/elab2 hosts with exactly the same bundle and all original
 criteria, in `D4-held-minimum-motor-related-zero-ten-native-manifest-20261107.json`.
 Each outcome still requires whole transfer, owned cleanup and independent
 complete qualification. Contact successors remain suspended.
+
+
+### Related P qualification and missing contact response data (November 7, 2026)
+
+Related P independently passes both minimum motor norm 0/10 N paths with the
+same nominal-qualified bundle and every original complete movement, current and
+single future 10 N support, physical, rate, acceleration, effort, frozen model
+and eight-second fourteen-shape stop criterion. All 9,318 A1 target profiles and
+7,158 current/last-completed proposal and goal-payment joins are exact. The
+43,032-packet native effort clock passes, with 39,192 non-stopped measured
+feedback packets. Whole custody retains 26 original files and three sidecars,
+69,036,841 bytes; actual owned process/GPU absence and lease release pass.
+
+The P native allocation charges 725.051138 GPU seconds and three readers charge
+26.130495 seconds. All 292 completed continuation allocations are closed,
+totaling 9.906682322 GPU hours. H+/H− remain running and unqualified at this
+checkpoint. Their results are independent; P does not qualify either posture.
+The closeout is `D4-held-minimum-motor-P-complete-closeout-20261107.json`.
+
+An independent Blackwell measurement now adds only full native mass, armature,
+targets and actual drive gains to the original same-host contact trace, retaining
+source 519c347, setup, calibration, materials, controller and all criteria. The
+old trace's arm inertia block cannot substitute for the coupled 20-coordinate
+response. This measures missing inputs rather than retrying the negative for
+success. Complete custody, exact original outcome, all seventeen historical
+arrays and all prior contact/body packets are required before associating the
+new data with that trajectory. Missing predecessors remain unavailable.
+The manifest is `D4-original-friction-full20-native-readback-manifest-20261107.json`.
+No changing-pressure, actual-contact, observed source or teacher qualification
+is added. Collection remains 17/36.

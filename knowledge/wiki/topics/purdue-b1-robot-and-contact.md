@@ -375,9 +375,13 @@ recorded-state constraints, software/adapter controls and eight constant-load
 whole-model paths pass, preserving the forty prior histories. The new nominal
 native component now qualifies both complete 0/10 N paths, every original stop,
 exact A1 target profiles and causal input/payment custody. Actual pre-physics
-effort clocks are verified separately. Related postures and placements retain
-their own complete qualification requirement. Models and constant-load
-components do not qualify variable contact pressure or demonstrations.
+effort clocks are verified separately. The related P placement now passes its
+own complete 0/10 N qualification; H+/H− postures remain under qualification.
+Models and constant-load components do not qualify variable contact pressure
+or demonstrations. The old contact traces contain arm-block inertia, but not
+the full current coupled response needed by this operator. A separate read-only
+measurement preserves the original negative and requires exact trajectory
+association before those additional full-system inputs can be used.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction

@@ -455,8 +455,12 @@ changing-load negatives remain. The new nominal native 0/10 N component now
 independently passes every original full-motion and stop criterion. All 9,318 A1
 intervals have four identical targets and exact joint-delta reconstruction;
 all 7,158 causal proposal inputs, current goals and delivered payments join.
-Actual pre-physics effort clocks pass on 43,032 native packets. Independent
-H+/H−/P constant-load whole paths are prepared with the same bundle; changing
+Actual pre-physics effort clocks pass on 43,032 native packets. Related P now
+independently passes both original 0/10 N paths, stops and exact action/input
+checks with the same bundle; H+/H− qualifications are running. A separate
+read-only replay recovers the missing full 20-coordinate response data on the
+original contact negative. Its outcome and historical trajectory must remain
+exact before the new data can inform a causal pressure-loop study. Changing
 pressure and actual contact remain unqualified. No gain, physical limit,
 empirical criterion, interface or source is adopted; the matrix remains 17/36.
 
