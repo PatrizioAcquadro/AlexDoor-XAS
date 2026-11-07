@@ -730,3 +730,13 @@ would make every later A1/A2 pose query unavailable, while preserving the same
 semantic identity, native mask, finite support, tie/overlap and ownership checks.
 The original `largest_visible_surface` selector is unchanged. A low-residual
 TAPIR correspondence fit is not an alternative metric tracking-error calibration.
+
+
+Immutable static RGB-D banks index the count of invalid depth pixels with an
+integral image. Rectangle queries use four indexed counts, then the unchanged
+NumPy minimum on the original depth region only when every pixel is known.
+This avoids repeatedly building finite/positive/valid masks. Static occupied-point
+queries still use the same indexed measured returns, and all ray-pyramid side,
+depth, camera-error, foreground-exclusion and source-clock checks remain intact.
+Adding a view invalidates both static indexes; only fully built indexes publish.
+The index stores counts, not new observations or cached motion decisions.

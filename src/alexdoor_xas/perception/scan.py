@@ -418,6 +418,28 @@ class SpaceSupport:
     support: FieldSupport | None = None
 
 
+class _DepthRectangles:
+    """Exact known-pixel counts over immutable depth rectangles."""
+
+    def __init__(self, depth, valid):
+        self.depth = depth
+        invalid = ~valid | ~np.isfinite(depth) | (depth <= 0)
+        dtype = np.int32 if depth.size < np.iinfo(np.int32).max else np.int64
+        self.invalid = (
+            np.pad(invalid, ((1, 0), (1, 0))).cumsum(0, dtype=dtype).cumsum(1, dtype=dtype)
+        )
+
+    def query(self, lower, upper, *, minimum=True):
+        x0, y0 = lower
+        x1, y1 = upper
+        x1, y1 = x1 + 1, y1 + 1
+        counts = self.invalid
+        bad = int(counts[y1, x1] - counts[y0, x1] - counts[y1, x0] + counts[y0, x0])
+        count = (x1 - x0) * (y1 - y0) - bad
+        value = self.depth[y0:y1, x0:x1].min() if minimum and not bad else None
+        return count, value
+
+
 class ObservedSpace:
     """Covering-ball queries over a bounded bank of calibrated RGB-D rays.
 
@@ -435,6 +457,7 @@ class ObservedSpace:
         from scipy.spatial import cKDTree
 
         self._static_points = {}
+        self._depth_rectangles = {}
         if not self.views:
             return
 
@@ -443,11 +466,12 @@ class ObservedSpace:
             depth, valid = view["depth_m"][..., 0], view["valid_depth"][..., 0]
             v, u = np.nonzero(valid & np.isfinite(depth) & (depth > 0))
             cloud = deproject(depth[v, u], np.c_[u, v], view["intrinsics"], view["camera_world"])
-            return key, (cKDTree(cloud), np.c_[u, v])
+            return key, (cKDTree(cloud), np.c_[u, v]), _DepthRectangles(depth, valid)
 
         with ThreadPoolExecutor(max_workers=min(4, len(self.views))) as executor:
-            indexed = dict(executor.map(build, self.views.items()))
-        self._static_points = indexed
+            indexed = list(executor.map(build, self.views.items()))
+        self._static_points = {key: points for key, points, _ in indexed}
+        self._depth_rectangles = {key: rectangles for key, _, rectangles in indexed}
         for view in self.views.values():
             for value in view.values():
                 if isinstance(value, np.ndarray):
@@ -456,6 +480,7 @@ class ObservedSpace:
     def add(self, sensor, available_s=None):
         if hasattr(self, "_static_points"):
             del self._static_points
+            del self._depth_rectangles
         slot = int(
             np.searchsorted(self.config["inspection"]["sample_times_s"], float(sensor["time_s"]))
         )
@@ -496,10 +521,18 @@ class ObservedSpace:
                 if (lo < 0).any() or hi[0] >= w or hi[1] >= h:
                     continue
                 region = depth[lo[1] : hi[1] + 1, lo[0] : hi[0] + 1]
-                good = (
-                    valid[lo[1] : hi[1] + 1, lo[0] : hi[0] + 1] & np.isfinite(region) & (region > 0)
-                )
-                if good.any():
+                rectangles = getattr(self, "_depth_rectangles", {}).get(view_key)
+                if rectangles is None:
+                    good = (
+                        valid[lo[1] : hi[1] + 1, lo[0] : hi[0] + 1]
+                        & np.isfinite(region)
+                        & (region > 0)
+                    )
+                    any_good, all_good = good.any(), good.all()
+                else:
+                    count, _ = rectangles.query(lo, hi, minimum=False)
+                    any_good, all_good = count > 0, count == region.size
+                if any_good:
                     indexed = getattr(self, "_static_points", {}).get(view_key)
                     if indexed is not None:
                         tree, pixels = indexed
@@ -517,7 +550,7 @@ class ObservedSpace:
                                 <= radius + self.config["plane_tolerance_m"]
                             ).any()
                         )
-                if good.all():
+                if all_good:
                     # A free depth gap alone is not radial clearance: lateral
                     # unseen/occupied rays may be closer. Certify a truncated
                     # ray pyramid, including its side planes, around the ball.
@@ -525,9 +558,15 @@ class ObservedSpace:
                         lower = np.maximum(lo - padding, 0)
                         upper = np.minimum(hi + padding, [w - 1, h - 1])
                         region = depth[lower[1] : upper[1] + 1, lower[0] : upper[0] + 1]
-                        known = valid[lower[1] : upper[1] + 1, lower[0] : upper[0] + 1]
-                        if not (known & np.isfinite(region) & (region > 0)).all():
-                            continue
+                        if rectangles is None:
+                            known = valid[lower[1] : upper[1] + 1, lower[0] : upper[0] + 1]
+                            if not (known & np.isfinite(region) & (region > 0)).all():
+                                continue
+                            minimum = region.min()
+                        else:
+                            count, minimum = rectangles.query(lower, upper)
+                            if count != region.size:
+                                continue
                         planes = np.array(
                             [
                                 k[0] - lower[0] * k[2],
@@ -539,7 +578,7 @@ class ObservedSpace:
                         )
                         lateral = np.min((planes @ optical) / np.linalg.norm(planes, axis=1))
                         margin = float(
-                            min(lateral, region.min() - optical[2])
+                            min(lateral, minimum - optical[2])
                             - radius
                             - self.config["plane_tolerance_m"]
                         )

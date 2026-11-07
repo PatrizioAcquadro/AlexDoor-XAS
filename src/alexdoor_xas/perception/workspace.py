@@ -295,6 +295,7 @@ class ObservedBackground(CommonWorkspace):
                 single = ObservedSpace(space.config)
                 single.views = {key: view}
                 single._static_points = {key: space._static_points[key]}
+                single._depth_rectangles = {key: space._depth_rectangles[key]}
                 views.append(single)
             self.views_by_condition.append(tuple(views))
         self.source_clocks = tuple(
@@ -454,7 +455,7 @@ class ObservedBackground(CommonWorkspace):
                 margins.append(best)
                 continue
             witness = None
-            for view in space.views.values():
+            for key, view in space.views.items():
                 camera, k = view["camera_world"], view["intrinsics"]
                 optical = (vertices - camera[:3, 3]) @ camera[:3, :3]
                 enlarged = (
@@ -470,15 +471,15 @@ class ObservedBackground(CommonWorkspace):
                 uv = corners @ k.T
                 uv = uv[:, :2] / uv[:, 2, None]
                 lo, hi = np.floor(uv.min(0)).astype(int) - 1, np.ceil(uv.max(0)).astype(int) + 1
-                depth, valid = view["depth_m"][..., 0], view["valid_depth"][..., 0]
+                depth = view["depth_m"][..., 0]
                 h, w = depth.shape
                 if (lo < 0).any() or hi[0] >= w or hi[1] >= h:
                     continue
                 for padding in (0, 1, 2, 4, 16, 64):
                     low, up = np.maximum(lo - padding, 0), np.minimum(hi + padding, [w - 1, h - 1])
                     region = depth[low[1] : up[1] + 1, low[0] : up[0] + 1]
-                    known = valid[low[1] : up[1] + 1, low[0] : up[0] + 1]
-                    if not (known & np.isfinite(region) & (region > 0)).all():
+                    count, minimum = space._depth_rectangles[key].query(low, up)
+                    if count != region.size:
                         continue
                     planes = np.array(
                         [
@@ -491,7 +492,7 @@ class ObservedBackground(CommonWorkspace):
                         ]
                     )
                     norm = np.linalg.norm(planes, axis=1)
-                    offsets = np.array([0, 0, 0, 0, 0, float(region.min())]) / norm
+                    offsets = np.array([0, 0, 0, 0, 0, float(minimum)]) / norm
                     planes = planes / norm[:, None]
                     clearance = (
                         float((optical @ planes.T + offsets).min())

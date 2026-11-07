@@ -2790,3 +2790,14 @@ control question for the three supported conditions. The matrix remains 17/36.
 Native execution cost was 1,858.813907 GPU seconds; independent CUDA review cost
 29.234440 seconds, separately recorded from geometric profiling and its failed
 reader preparations.
+
+
+The static-depth query profile identifies repeated recorded-image validity and
+minimum queries as the main D4-P replay cost. An exact integral validity index
+passes the existing occupied/unknown/background and continuous admission tests,
+plus 304 nominal, boundary and perturbed rectangle comparisons against raw pixels.
+The complete saved D4-P producer retains every diagnostic field, query count and
+negative decision exactly: warm profiled calls average 0.387 s versus 0.430 s
+before the change (about 10% lower) on the local workstation. The first tiled
+candidate was slower and remains a retained negative. These are saved-state
+profiling results; a complete observed collection timing comparison is pending.

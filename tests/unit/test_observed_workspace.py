@@ -414,3 +414,34 @@ def test_parallel_indexes_publish_only_complete_results_and_join_failed_builds(m
         observed.index_static_points()
     assert observed._static_points == {}
     assert completed.is_set()
+
+
+def test_static_rectangle_index_matches_full_pixels_at_edges_and_unknown_holes():
+    from alexdoor_xas.perception.scan import _DepthRectangles
+
+    rng = np.random.default_rng(173)
+    depth = rng.uniform(0.1, 4, (79, 113)).astype(np.float32)
+    valid = np.ones(depth.shape, bool)
+    depth[16, 32], depth[40, 70], depth[61, 3] = np.nan, 0, -1
+    valid[7, 90] = False
+    indexed = _DepthRectangles(depth, valid)
+    rectangles = [
+        ([0, 0], [112, 78]),
+        ([16, 16], [31, 31]),
+        ([112, 78], [112, 78]),
+        ([32, 16], [32, 16]),
+    ]
+    for _ in range(300):
+        a, b = rng.integers([0, 0], [113, 79], size=(2, 2))
+        rectangles.append((np.minimum(a, b), np.maximum(a, b)))
+    for lower, upper in rectangles:
+        x0, y0 = lower
+        x1, y1 = np.asarray(upper) + 1
+        region = depth[y0:y1, x0:x1]
+        good = valid[y0:y1, x0:x1] & np.isfinite(region) & (region > 0)
+        count, minimum = indexed.query(lower, upper)
+        assert count == good.sum()
+        if good.all():
+            assert minimum == region.min()
+        else:
+            assert minimum is None
