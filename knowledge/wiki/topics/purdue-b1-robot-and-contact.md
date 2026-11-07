@@ -294,6 +294,25 @@ documented [PGS alternative](https://docs.omniverse.nvidia.com/kit/docs/omni_phy
 can be isolated without changing material friction or acceptance criteria. It
 still needs independent native motion/load/stop qualification.
 
+The isolated nominal PGS run remains negative before hold. Separately, a scalar
+normal elastic-deflection coordinate is not the normal component of the full
+virtual elastic wrench. With delivered offset `e`, stiffness `K` and Jacobian
+`J`, decompose `K*e = J.T*w + tau_null`. Then `jn*e/Cnn` includes normal `w`,
+coupling from the other five wrench coordinates and the retained joint-torque
+null component. These are reference coordinates, not a force sensor. Exact
+current-state algebra does not establish a transport law or a physical cause.
+Test whether a proposed motion projector preserves the other five pose axes
+and excludes normal virtual-effort leakage before changing loaded control.
+
+For the isolated projector, use the six-axis normal `n = (normal_xyz, 0, 0, 0)`,
+`v = pinv(J)*n` and diagonal stiffness `K`. Let `g = K*v`. Removing
+`v*(g.T*delta)/(g.T*v)` from a nonnormal joint increment removes its normal
+virtual elastic-effort component while preserving the other five requested pose
+components. Keep the explicit normal-reference increment and delivered preload
+separate. This identity needs causal command, dynamics, rate/domain and native
+qualification; it is not a contact-force measurement or a physical decoupling
+guarantee. The production projector is unchanged.
+
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
 error. No parameters or physical/empirical acceptance thresholds are fitted.

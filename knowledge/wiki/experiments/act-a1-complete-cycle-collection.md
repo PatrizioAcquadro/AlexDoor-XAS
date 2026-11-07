@@ -4312,3 +4312,48 @@ adopted and no teacher is added. Native plus independent GPU review charge
 result: `D4-TGS-force-feedback-control-closeout-20261107.json`. The common
 position/contact discrepancy remains unresolved; the next preregistered nominal
 control isolates PGS with original materials, feedback and acceptance criteria.
+
+
+The single PGS control is closed negative: 145 push commands reach about 1.02°,
+then contact is lost before hold. Abort release reaches 251 of 360 commands
+before wrist-X empirical refusal; stabilization is unattempted. Independent
+review retains all four current-domain and 210 required-future-10 N domain exits,
+original physical limits and all six-second fourteen-shape stops. Peak native
+normal force is 3.016 N; recomputed supported force upper bound peaks at 3.111 N.
+Actual RGB, whole transfer (29 original files plus three sidecars,
+1,681,899,085 bytes) and owned cleanup are complete. PGS is not adopted.
+
+The largest contact-point displacement/endpoint-velocity component discrepancy
+is 1.866 mm/s versus 4.358 mm/s in original N, on different trajectories. Five
+complete recorded histories contain 20,596 native samples; all applied PD efforts
+reconstruct exactly using preceding gravity. Current elastic-reference algebra
+separates normal virtual wrench, other-axis and joint-torque-null contributions
+to the scalar normal-support coordinate. Other-axis contributions during push
+reach -0.403 to +0.208 N across the original family, versus a 0.1 N target. These
+are virtual reference coordinates, not external-force measurements or a causal
+contact explanation. A geometry-only alternative preserves virtual normal effort
+at 1,353 exact causal dispatch states, but no nonlinear or native qualification
+follows. Its largest increment difference is 0.106 µm; it is not dispatched as a
+contact repair. The next isolated candidate audits the motion projector's
+normal virtual-effort leakage while retaining the other five pose components.
+
+Canonical result: `D4-PGS-and-elastic-coupling-closeout-20261107.json`. Four GPU
+allocations, including three independent readers/screens, charge 248.795149 GPU
+seconds; all 251 continuation allocations are closed. Collection remains 17/36.
+No gains, material coefficients, empirical support, tolerances or task criteria
+change. All failed and unattempted phases and reader-preparation errors remain.
+
+
+An ignored force-orthogonal projector now passes nine essential CUDA controls
+at sixteen recorded whole-family Jacobians, using synthetic goals and preloads.
+The candidate preserves the other five requested pose components, explicit
+normal-reference increment and existing preload; opt-out outputs remain bitwise
+identical. Repeated previews, common rotations, invalid mode and input rate/limit
+algorithms pass. The maximum virtual normal-effort increment in the controlled
+nonnormal test falls from 0.2515 N to arithmetic roundoff. This is a synthetic
+algebra test, not measured external force, actual command replay, nonlinear free
+motion or native load qualification. No maintained source or collection recipe
+changes. Canonical result: `D4-force-orthogonal-projector-controls-closeout-20261107.json`.
+Its 7.030644 GPU seconds are booked once; all 252 continuation allocations are
+closed. Actual causal replay and matched free/perturbed dynamics are the next
+required steps before any native successor.

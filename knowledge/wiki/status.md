@@ -382,9 +382,20 @@ effort by up to 4.276 N·m, versus 9.54 µN·m with the original setting. This i
 diagnostic comparison, not permission to replace feedback with actuator targets
 or fit away the discrepancy. Recording integrity and all original six-second,
 fourteen-shape stops pass; contact, push, hold, release and stabilization remain
-unattempted. The flag is not adopted. The next isolated numerical control uses
-the documented PGS alternative with original friction, load feedback and all
-existing criteria; collection remains 17/36.
+unattempted. The flag is not adopted. The isolated PGS control also loses
+contact before hold, then exits wrist-X empirical support during abort release.
+All original stops pass; PGS is not adopted. Its 3,744 native samples reduce
+the largest observed contact displacement/velocity component discrepancy to
+1.87 mm/s from 4.36 mm/s in original N, on different trajectories. This does not
+resolve the contact mechanism. Across those five recorded histories, exact PD
+reconstruction and elastic-reference decomposition separate normal virtual
+effort, other-axis coupling and joint-torque null components. These are command
+coordinates, not measured contact force. Geometry-only transport identities do
+not qualify a controller. An isolated force-orthogonal projector passes algebra,
+preload, opt-out, preview, coordinate and input-limit controls at sixteen measured
+Jacobians with synthetic goals. Actual command replay and free/perturbed coupled
+dynamics remain pending before any new native assignment. Production source,
+gains, references and criteria are unchanged; collection stays 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
