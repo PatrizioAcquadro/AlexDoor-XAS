@@ -783,3 +783,65 @@ def test_normal_reference_tracks_motion_with_constant_elastic_deflection(force_n
     actual = (jac @ q.unsqueeze(-1)).squeeze(-1)
     assert abs(float(actual[0, 0])) < 1e-12
     assert abs(float(actual[0, moving_axis]-goal[0, moving_axis])) < .00001
+
+
+@pytest.mark.parametrize("angle", [0., .2])
+@pytest.mark.parametrize("sign", [-1., 1.])
+def test_finite_tangent_holds_a_blocked_elastic_pose_without_target_windup(angle, sign):
+    jac = torch.eye(6, 7, dtype=torch.float64)[None]
+    jac[0, 0, 1], jac[0, 1, 0], jac[0, 2, 5] = .4, .15, .2
+    q = torch.zeros(1, 7, dtype=jac.dtype)
+    prior = torch.tensor([[.005, sign*.003, -.002, 0, .001, 0, .004]], dtype=jac.dtype)
+    error = (jac @ prior.unsqueeze(-1)).squeeze(-1)
+    normal = torch.tensor([[np.cos(angle), np.sin(angle), 0.]], dtype=jac.dtype)
+    args = dict(feedback_time_constant_s=.5, reference_delta=torch.zeros_like(error),
+                compliant_normal=normal, normal_reference_only=True, centering_gain=0.)
+    limits = torch.tensor([[[-1., 1.]]*7], dtype=jac.dtype)
+    target = prior.clone()
+    for _ in range(60):
+        target, _ = bounded_pose_step(
+            jac, error, q, limits, torch.ones_like(q), 1/60,
+            previous_targets=target, finite_tangent_impedance=True, **args,
+        )
+    assert torch.equal(target, prior)
+    original, _ = bounded_pose_step(
+        jac, error, q, limits, torch.ones_like(q), 1/60, previous_targets=prior, **args,
+    )
+    assert not torch.equal(original, prior)
+
+
+def test_finite_tangent_normal_reference_keeps_support_and_nullspace_without_pose_leakage():
+    jac = torch.eye(6, 7, dtype=torch.float64)[None]
+    jac[0, 0, 1], jac[0, 1, 0], jac[0, 2, 0] = .4, .15, -.1
+    q = torch.zeros(1, 7, dtype=jac.dtype)
+    prior = q.clone()
+    prior[:, 0], prior[:, 6] = .005, .003
+    normal = torch.tensor([[1., 0., 0.]], dtype=jac.dtype)
+    step = torch.tensor([[.0001, 0., 0., 0., 0., 0.]], dtype=jac.dtype)
+    elastic = (jac @ prior.unsqueeze(-1)).squeeze(-1)
+    target, _ = bounded_pose_step(
+        jac, elastic+step*100, q, torch.tensor([[[-1., 1.]]*7], dtype=jac.dtype),
+        torch.ones_like(q), 1/60, previous_targets=prior,
+        feedback_time_constant_s=.5, reference_delta=step, compliant_normal=normal,
+        normal_reference_only=True, finite_tangent_impedance=True, centering_gain=0.,
+    )
+    torch.testing.assert_close((jac @ (target-prior).unsqueeze(-1)).squeeze(-1), step,
+                               rtol=1e-10, atol=1e-14)
+    assert target[0, 6] == prior[0, 6]
+
+
+@pytest.mark.parametrize("flag, mode, reason", [
+    (1, True, "invalid_finite_tangent_impedance"),
+    (None, True, "invalid_finite_tangent_impedance"),
+    (True, False, "finite_tangent_requires_normal_reference"),
+])
+def test_finite_tangent_requires_explicit_reference_mode(flag, mode, reason):
+    q = torch.zeros(1, 7)
+    with pytest.raises(ValueError, match=reason):
+        bounded_pose_step(
+            torch.eye(6, 7)[None], torch.zeros(1, 6), q,
+            torch.tensor([[[-1., 1.]]*7]), torch.ones_like(q), 1/60,
+            previous_targets=q, feedback_time_constant_s=.5,
+            compliant_normal=torch.tensor([[1., 0., 0.]]),
+            normal_reference_only=mode, finite_tangent_impedance=flag,
+        )

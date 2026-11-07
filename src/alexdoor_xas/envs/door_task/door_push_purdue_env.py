@@ -94,6 +94,12 @@ class DoorPushPurdueEnv(DirectRLEnv):
             cfg.pose_feedback_time_constant_s is None or not cfg.pose_reference_feedforward
         ):
             raise ValueError("normal_transport_requires_causal_pose_feedback")
+        if type(cfg.pose_finite_tangent_impedance) is not bool:
+            raise ValueError("invalid_finite_tangent_impedance")
+        if cfg.pose_finite_tangent_impedance and (
+            cfg.pose_feedback_time_constant_s is None or not cfg.pose_reference_feedforward
+        ):
+            raise ValueError("finite_tangent_requires_causal_pose_feedback")
         self._motion_impedance = []
         super().__init__(cfg, **kwargs)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
@@ -458,6 +464,10 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 ),
                 normal_reference_only=normal_reference_only,
                 normal_transport_m=normal_transport,
+                finite_tangent_impedance=(
+                    normal_reference_only
+                    and getattr(self.cfg, "pose_finite_tangent_impedance", False)
+                ),
                 return_request=with_request,
             )
             target, excess = result[:2]

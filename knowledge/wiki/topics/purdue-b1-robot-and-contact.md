@@ -120,7 +120,7 @@ history math does not establish a changed trajectory or a qualified force range.
 An explicit teacher `Command.normal_reference_only` selects a separate optional
 normal mode: the requested target keeps its delivered elastic offset and adds
 only the normal component of the current minus previous dispatched goal. Normal
-pose error is not integrated again. The other five pose axes, centering, physical/
+pose error is not integrated again. By default the other five pose axes, centering, physical/
 reserved targets and rates retain their existing rules. Cold start pays zero
 normal increment; preview is pure. The option requires causal pose feedback and
 is valid only for absolute pose commands. `force_controlled_normal_reference`
@@ -147,6 +147,24 @@ reset and independent stop clear it. Existing target reserves/rate bounds still
 bound the combined request. The option defaults off, preserves the prior mode
 bitwise and requires causal pose feedback. It does not establish changing-load,
 off-center contact, passivity, empirical coverage or source qualification.
+
+Optional `pose_finite_tangent_impedance` changes only the other five pose axes
+while an explicit normal-reference command is active. It subtracts the visible
+elastic pose `J (delivered_target - q)` from the position-feedback error before
+the existing `dt / tau` update. A fixed goal whose delivered target already
+represents that goal therefore cannot wind up more tangential effort merely
+because friction blocks the measured pose. The normal component is removed
+before the damped pose solve, including from reference feedforward; otherwise
+damping can leak a normal request into tangential motion. The explicit normal
+reference channel still retains elastic support and pays its original increment.
+
+This option leaves inner actuator gains, normal admittance, centering, target/
+rate bounds, covector history, measured release handoff and independent stopping
+unchanged. It adds no controller history or observation, defaults off, and
+requires causal pose feedback. Ordinary poses do not enable it. Essential
+blocked-load/free-reference/nullspace/normal-channel controls and original
+history math pass, including pure preview and exact dispatch. Native full-path
+0 N/10 N qualification remains required before any contact or source adoption.
 
 A candidate that canceled the frozen-joint elastic pressure of each full
 reference step (`ea8d5d4`) is withdrawn. Although its single-step algebra preserved

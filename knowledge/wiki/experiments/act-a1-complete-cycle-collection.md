@@ -3154,3 +3154,24 @@ neither validates a replacement controller nor predicts a new native trajectory.
 The existing feedback time constant is used as a matched plant approximation,
 not an identified native response. All model failures and the owned CUDA charge
 are retained in `D4-causal-elastic-tracking-screen-negative-closeout-20261107.json`.
+
+The next shared intervention addresses the target integrator rather than
+canceling an inferred external load. During explicit normal-reference commands,
+optional finite tangential impedance subtracts `J (target - q)` from the pose
+error before the existing feedback gain, and removes the normal component before
+the damped pose solve and tangential reference feedforward. With a fixed goal
+and an already achieved target, blocked elastic displacement no longer grows the
+target. The explicit normal pressure reference and existing geometric transport
+remain separate. Default/prior modes retain exact saved-history results.
+
+The isolated candidate passes actual-CUDA controls at sixteen measured
+four-posture Jacobians: blocked-target no-windup, no damped-solve normal leakage,
+free tangential reference, nullspace memory, bounds and preview purity. The
+implemented option then passes the operational numerical regressions and 34,392
+original CUDA command-history checks, including actual environment preview,
+dispatch, joint override, reset, stop and all eight measured release handoffs.
+No gains, force thresholds, scientific criteria or actor inputs change. These
+are software controls; full native N/H+/H−/P × 0/10 N paths and original stops
+must still qualify before a new contact attempt. Evidence is in
+`finite-tangent-essential-CUDA-candidate-review-20261107.json` and
+`D4-finite-tangent-controls-local-20261107/review.json`.

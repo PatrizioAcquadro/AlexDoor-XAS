@@ -95,6 +95,7 @@ def bounded_pose_step(
     compliant_normal=None,
     normal_reference_only=False,
     normal_transport_m=None,
+    finite_tangent_impedance=False,
 ):
     """Bounded pose solve with optional measured-error integration on prior targets.
 
@@ -109,7 +110,10 @@ def bounded_pose_step(
     Reference-only normal mode instead retains elastic support and pays only
     the causal normal goal increment supplied by a force admittance.
     Optional geometric transport updates that existing elastic support as the
-    normal joint covector changes. Preview calls remain pure.
+    normal joint covector changes. Optional finite tangential impedance removes
+    elastic pose memory from the other five axes' error integration. Their causal
+    reference increments remain, and the explicit normal channel retains load
+    support. Preview calls remain pure.
     """
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
         raise ValueError("Purdue pose control requires a 6x7 Jacobian and six pose errors")
@@ -136,6 +140,10 @@ def bounded_pose_step(
             raise ValueError("invalid_pose_reference_delta")
     if type(normal_reference_only) is not bool:
         raise ValueError("invalid_normal_reference_mode")
+    if type(finite_tangent_impedance) is not bool:
+        raise ValueError("invalid_finite_tangent_impedance")
+    if finite_tangent_impedance and not normal_reference_only:
+        raise ValueError("finite_tangent_requires_normal_reference")
     if normal_reference_only and compliant_normal is None:
         raise ValueError("normal_reference_requires_axis")
     if normal_transport_m is not None:
@@ -170,8 +178,15 @@ def bounded_pose_step(
     if bool((span <= 0).any()) or dt <= 0 or damping <= 0:
         raise ValueError("invalid control limits, timestep or damping")
     eye = torch.eye(6, device=jacobian.device, dtype=jacobian.dtype)
+    pose_error = error
+    if finite_tangent_impedance:
+        # Position feedback should target a finite elastic pose, rather than
+        # integrate a blocked tangential error into increasing contact effort.
+        elastic_error = (jacobian @ (previous_targets - positions).unsqueeze(-1)).squeeze(-1)
+        pose_error = error - elastic_error
+        pose_error = pose_error - normal * (normal * pose_error).sum(dim=-1, keepdim=True)
     primary = jacobian.transpose(-1, -2) @ torch.linalg.solve(
-        jacobian @ jacobian.transpose(-1, -2) + damping**2 * eye, error.unsqueeze(-1)
+        jacobian @ jacobian.transpose(-1, -2) + damping**2 * eye, pose_error.unsqueeze(-1)
     )
     inverse = torch.linalg.pinv(jacobian, rtol=1e-4)
     projector = torch.eye(7, device=jacobian.device, dtype=jacobian.dtype) - inverse @ jacobian
@@ -223,9 +238,16 @@ def bounded_pose_step(
         if reference_delta is not None:
             # The current pose error already includes this next-tick reference
             # increment. Add only its unpaid fraction, avoiding a one-tick lead.
+            tangent_reference = reference_delta
+            if finite_tangent_impedance:
+                # The normal increment is already delivered by its explicit
+                # reference channel; do not leak it through a damped pose solve.
+                tangent_reference = reference_delta - normal * (
+                    normal * reference_delta
+                ).sum(dim=-1, keepdim=True)
             reference_step = (1 - gain) * jacobian.transpose(-1, -2) @ torch.linalg.solve(
                 jacobian @ jacobian.transpose(-1, -2) + damping**2 * eye,
-                reference_delta.unsqueeze(-1),
+                tangent_reference.unsqueeze(-1),
             )
             if normal_direction is not None:
                 reference_step = reference_step - normal_component(reference_step)

@@ -120,7 +120,12 @@ arrays in every condition. Including friction reduces the largest per-joint push
 command-dynamics RMS residual from 0.0468–0.0621 to 0.000280–0.000334 N m. All
 original tasks remain negative, with raw outcomes, stops, RGB, whole outputs and
 owned cleanup preserved. This resolves a major normal-only model omission; a
-shared complete-motion control correction remains unqualified.
+shared complete-motion control correction remains unqualified. An explicit,
+default-off finite-tangent mode now bounds the other five axes' elastic pose
+feedback while retaining normal force-reference memory. It also removes the
+normal request before the damped tangential solve. Essential numerical and CUDA
+history/dispatch/stop controls pass; the eight original native 0/10 N paths are
+still required before contact adoption.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
