@@ -6,14 +6,18 @@ learned behavior and physical qualification are separate claims.
 
 ## Current execution and measured outcomes
 
-**Collection resumed by explicit human authorization on October 31, 2026**, in
-worktree `23f1` on `PatrizioAcquadro/b1-policy-pilot`. The same scope now permits
-local, Blackwell and elab2–5 jobs after access, resource ownership and runtime
-verification. A transfer-specific human approval covers code, TRAIN door/robot
-assets, configurations/calibration and perception runtimes; the retained D3
-diagnostic episode is transferred only to Blackwell. Scientific criteria and
-historical failures/charges remain unchanged. The existing collection heartbeat
-is ACTIVE and continues this chat; finite jobs are accounted individually.
+**Collection resumed by direct human authorization on November 6, 2026**,
+in worktree `23f1` on `PatrizioAcquadro/b1-policy-pilot`, with this chat as the
+sole coordinator and one agent. The November 4 pause is superseded within the
+existing 36-demonstration teacher scope. The verified matrix is 17/36: D1 8/9,
+D2 9/9, D3 and D4 0/9 (13 ordinary cycles, 4 recoveries). Local, Blackwell and
+elab2–5 work requires fresh resource ownership and runtime checks. Original
+failures, masks, scientific criteria and charges remain preserved. Training,
+learned-policy evaluation and final-test access remain excluded. The existing
+heartbeat targets this chat; no duplicate automation is needed.
+The measured-release correction at `0edb99f` has software/CUDA validation only;
+its eight staged native cases require fresh execution and independent review.
+
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
 recipe then qualifies D2-RP: continuous native contact, the full three-second
