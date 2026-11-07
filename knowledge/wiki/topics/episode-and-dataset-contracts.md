@@ -29,7 +29,10 @@ not reproduce a nonconstant profile. The isolated native-rate geometry component
 exposes this distinction and remains outside qualified A1 sources. The isolated
 causal held-target successor preserves this interface in software and conditional
 models; native custody must still establish that all four applied targets match
-the recorded command and its ordinary A1 joint-delta reconstruction.
+the recorded command and its ordinary A1 joint-delta reconstruction. The first
+native prefix exposed one target differing by one float32 ULP after delta
+encoding. The proposal now uses the existing executor mapping before dispatch;
+the exact replay check remains required, alongside all original physical gates.
 
 Preserved engineering recordings have no measured torque; commands do not substitute for feedback. New recordings retain a
 separate 60 Hz measured feedback channel and 120 Hz robot feedback/dynamics stream,

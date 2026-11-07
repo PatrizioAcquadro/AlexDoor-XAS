@@ -351,9 +351,14 @@ normal coordinate of the tool plus rigid collision support with one constant
 motor target. The endpoint derivative is signed; a negative derivative is not
 an unavailable response. Original target domain and rate faces bound the final
 float32 command, rounded inward without an extra tolerance. Only its actual
-normal reference payment enters delivered-goal memory. Software and adapter
-controls pass, as do eight constant-load conditional whole paths with forty
-prior histories unchanged. Changing-load negatives remain. Native full-path,
+normal reference payment enters delivered-goal memory. The final target also
+passes through the existing A1 float32 joint-delta mapping before dispatch, so
+encoding and reconstructing its action returns the same target. At an original
+domain/rate face, float32 delta neighbors move inward until both the original
+interval and exact replay are satisfied; no tolerance is added. This repairs a
+demonstrated one-ULP native target mismatch. Software and adapter controls pass,
+as do eight constant-load conditional whole paths with forty prior histories
+unchanged. Changing-load negatives remain. Native full-path,
 stop and exact A1 profile checks are still required. Models and constant-load
 components do not qualify variable contact pressure or demonstrations.
 

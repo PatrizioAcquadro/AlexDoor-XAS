@@ -4552,3 +4552,45 @@ complete qualification. Evidence is
 allocations are closed at preflight closure; five new allocations charge
 132.981625 GPU seconds including both failures. Collection remains 17/36, with
 no new source, optimizer update or adopted production controller.
+
+
+### Exact A1 float32 target repair (November 7, 2026)
+
+The first held-target native nominal component stops in unloaded opening at
+42.6 seconds. All four physical targets are identical, but the recorded joint
+delta reconstructs one adjacent float32 value for RIGHT_WRIST_X: the difference
+is 2.3283064365386963e-10 rad, exactly one target ULP. This is a demonstrated
+action representation mismatch, with no observed physical gate failure on the
+available prefix. All eight original native 0/10 N paths reconstruct exactly.
+The new outcome remains negative; its allocation return code zero does not
+override the incomplete report and assertion. It charges 198.291507 GPU seconds.
+
+Whole custody retains 23 original files and three sidecars, 25,916,269 bytes.
+The journal contains 10,228 delivered native movement packets and the saved
+measured-feedback stream 10,224. The final four feedback packets were not saved
+after the assertion; they remain unavailable and are never filled with actuator
+commands. Current and original single-future 10 N position, physical, speed and
+acceleration gates pass on all journal states. Frozen measured residuals pass
+where recorded and in all stopped segments. Independent original latch-frame
+eight-second, fourteen-shape CAD, tool, joint, speed, acceleration and force
+checks pass. Later unloaded phases and the entire loaded case are unattempted.
+
+The proposal now canonicalizes its target through the existing bounded A1
+joint-delta operation before preview, admission and dispatch. The encoded delta
+must replay exactly. At an original rate/domain face, actual float32 delta
+neighbors move inward; no gain, domain, physical criterion or numerical
+acceptance range is relaxed. Only actual delivered normal payment enters goal
+memory. Five controls at 39,589 native states pass 197,945 target cases, including
+both faces, zero crossing and midpoint. Eight software and eight Warp-adapter
+controls pass at 64 states. All eight constant-load conditional whole paths
+retain original predicates, with forty prior histories bitwise identical. Four
+changing-load negatives, including H-minus speed/acceleration, remain.
+
+Evidence is `D4-held-causal-shape-A1-roundtrip-failure-audit-20261107.json`,
+`D4-held-canonical-A1-grid-controls-20261107.json` and
+`D4-held-canonical-A1-preflight-closeout-20261107.json`. The corrected nominal
+native successor is prepared in
+`D4-held-canonical-A1-zero-ten-native-manifest-20261107.json`; all 274 allocations
+are closed at this checkpoint. Its complete original movement, stop, exact
+profile and predictor-input custody remain required before related/contact
+progression. Collection remains 17/36 with no adopted source or controller.

@@ -429,9 +429,14 @@ existing A1 recording/execution boundary. A causal held-target proposal now
 passes eight software and seven adapter controls at 64 native states. Its eight
 constant-load whole-model paths preserve all original predicates; the forty prior
 controls remain bitwise identical. Four changing-load negatives remain, including
-one speed/acceleration failure. A nominal native component is prepared for exact
-target-profile, original complete motion and stop qualification. No interface or
-source is adopted; the matrix remains 17/36.
+one speed/acceleration failure. The first nominal native component stops during
+unloaded opening on a one-ULP A1 target reconstruction difference. Its four actual
+targets are identical; available prefix gates and original eight-second stops
+pass, with four final measured-feedback packets unavailable. Canonicalizing the
+proposal through the existing A1 mapping now passes 197,945 boundary/encoding
+cases and the original constant-load model paths without relaxing exact identity
+or physical criteria. A corrected nominal successor is prepared. No interface
+or source is adopted; the matrix remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
