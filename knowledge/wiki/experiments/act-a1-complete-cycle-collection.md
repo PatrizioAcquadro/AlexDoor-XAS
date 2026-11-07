@@ -4012,3 +4012,46 @@ Collection remains 17/36, with no new demonstrations, optimizer updates,
 implicit controller recipe or geometric stop bound. Next work audits actual
 contact/free-space evidence and geometric stopping consumers before another
 controller variant or observed teacher attempt.
+
+
+### November 7: observed stopping-domain audit and historical-view filtering
+
+Read-only review of 35 nonempty stored D3/D4 admission logs retains all 5,390
+proposals: 5,372 local geometric admissions, fourteen unsupported actual sweep/stop
+volumes and four weak-position future-support refusals. Nineteen empty admission
+logs remain empty, not passes. These heterogeneous historical runs do not form
+an independent success denominator. No recorded complete contact-free stop
+margin is positive. The producer already checks weak position support against
+complete observed stopping clearance and nonzero target motion through its full
+horizon; a weak current force cannot replace the future load domain. Later N
+geometry-admitted proposals still end in native contact loss. No smaller stop
+bound or unchanged contact retry follows from this audit.
+
+A conservative historical-camera filter reduces repeated background-view work.
+It excludes only cameras that cannot contain the queried ball's center, with
+propagated arithmetic bounds and the original padded-image convention. All
+surviving or ambiguous views use the same complete ball/depth/occupancy reader;
+calibration conditions, current material exclusion and source clocks remain
+unchanged. Nominal, image-edge, immediate representable-neighbor, nonstandard
+projection and perturbed camera/unknown-depth controls preserve the original
+reader's outcomes.
+
+One owned workstation GPU allocation reconstructs the exact complete saved N
+admitted and P refused producers, with three calls per mode and original inputs.
+All six paired decisions, proof margins and diagnostics except timing are exact.
+For N, 133,584 old per-view calls reduce to 31,414; 58,911 distinct culled actual
+view/center pairs are independently rejected by the original zero-radius reader.
+Warm profiled N wall time falls from 1.520 s to 1.016 s (33.14%). P uses no
+uncached historical spherical queries in this replay, retains its unsupported
+finger-volume refusal and shows no measured benefit. These are replay timings,
+not native collection throughput. No physics steps, commands, demonstrations or
+optimizer updates are added. The owned GPU process and lease close; its 39.439
+GPU seconds are booked once, bringing continuation accounting to 223 closed
+allocations.
+
+Canonical ignored evidence: `D3-D4-actual-observed-geometry-stop-consumer-audit-20261107.json`
+and `D4-actual-observed-center-frustum-paired-review-20261107.json`. Original
+negative histories, source candidates, paired profiles and actual GPU identity
+remain preserved. Collection is 17/36. Next work addresses material/visibility,
+whole-path empirical support and sustained contact together before new observed
+collection.

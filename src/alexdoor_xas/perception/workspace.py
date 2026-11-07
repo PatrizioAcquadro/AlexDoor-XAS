@@ -298,6 +298,17 @@ class ObservedBackground(CommonWorkspace):
                 single._depth_rectangles = {key: space._depth_rectangles[key]}
                 views.append(single)
             self.views_by_condition.append(tuple(views))
+        self._background_cameras = []
+        for views in self.views_by_condition:
+            sensors = [next(iter(view.views.values())) for view in views]
+            self._background_cameras.append(
+                (
+                    np.array([s["camera_world"][:3, 3] for s in sensors]),
+                    np.array([s["camera_world"][:3, :3] for s in sensors]),
+                    np.array([s["intrinsics"] for s in sensors]),
+                    np.array([s["depth_m"].shape[1::-1] for s in sensors]) - 2,
+                )
+            )
         self.source_clocks = tuple(
             tuple(
                 (
@@ -352,12 +363,56 @@ class ObservedBackground(CommonWorkspace):
             result.source_clocks,
         )
 
+    def _background_view_candidates(self, center, condition):
+        """Reject only views whose padded image cannot contain even the center.
+
+        This is no free-space proof. Surviving and arithmetic-boundary views
+        still use the original complete ball/depth/occupancy reader. Bounds
+        below cover subtraction and two three-term dot products, including
+        cancellation; they are arithmetic guards, not geometric allowances.
+        """
+        cameras, rotations, intrinsics, limits = self._background_cameras[condition]
+        delta = center - cameras
+        optical = np.einsum("vi,vij->vj", delta, rotations)
+        projected = np.einsum("vi,vji->vj", optical, intrinsics)
+        # gamma(8) exceeds the operation count of each stage; propagate the
+        # first stage's error through the second rather than reusing its scale.
+        gamma = 8 * np.finfo(float).eps / (1 - 8 * np.finfo(float).eps)
+        tiny = np.finfo(float).tiny
+        optical_error = (
+            gamma * np.einsum("vi,vij->vj", abs(center) + abs(cameras), abs(rotations)) + tiny
+        )
+        projection_error = (
+            gamma * np.einsum("vi,vji->vj", abs(optical), abs(intrinsics))
+            + np.einsum("vi,vji->vj", optical_error, abs(intrinsics))
+            + tiny
+        )
+        outside = optical[:, 2] + optical_error[:, 2] < 0
+        pinhole = (intrinsics[:, 2] == [0, 0, 1]).all(1)
+        depth = projected[:, 2, None]
+        xy = projected[:, :2]
+        error = projection_error[:, :2]
+        depth_error = projection_error[:, 2, None]
+        lower = xy - depth
+        upper = limits * depth - xy
+        lower_error = error + depth_error + gamma * (abs(xy) + abs(depth))
+        upper_error = error + limits * depth_error + gamma * (abs(limits * depth) + abs(xy))
+        outside |= (
+            pinhole
+            & (optical[:, 2] > optical_error[:, 2])
+            & ((lower < -lower_error).any(1) | (upper < -upper_error).any(1))
+        )
+        return ~outside
+
     def _query_uncached(self, centers, radii):
         margins = []
         for center, radius in zip(centers, radii, strict=True):
-            for views in self.views_by_condition:
+            for condition, views in enumerate(self.views_by_condition):
                 best = None
-                for observed in views:
+                candidates = self._background_view_candidates(center, condition)
+                for observed, candidate in zip(views, candidates, strict=True):
+                    if not candidate:
+                        continue
                     view = next(iter(observed.views.values()))
                     lever = np.linalg.norm(center - view["camera_world"][:3, 3]) + radius
                     enlarged = (

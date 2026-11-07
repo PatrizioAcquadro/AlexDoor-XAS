@@ -611,9 +611,11 @@ enter this extension.
 It spends the declared nonzero target translation and angular rates through the
 full stop duration, in addition to capture age and control-interval growth. A
 small current force alone cannot authorize future contact outside the strong
-position envelope. All main position bounds and complete teacher outputs remain
-unchanged. A narrower strong extension also fails its 8 N lateral stop. The final
-panel keeps the original main position recipe; the optional weak-position recipe
+position envelope. The audit of stored D3/D4 proposals finds no positive complete
+contact-free stop margin; a positive instantaneous separation is insufficient
+once target motion through the full stopping horizon is included. All main
+position bounds and complete teacher outputs remain unchanged. A narrower strong
+extension also fails its 8 N lateral stop. The final panel keeps the original main position recipe; the optional weak-position recipe
 is inactive. Actual new-checkpoint task success remains pending.
 The residual estimator keeps the complete calibrated joint-error propagation.
 For force estimate `F` and nonnegative component radius `r`, its component box
@@ -887,3 +889,21 @@ The distinct D2-H- and D2-DR task-goal sources independently pass their full
 native cycles, unchanged3s holding, original measured variations,2+4s stops,
 real-image review and GPU temporal preparation. This qualifies those two
 recordings; it does not change earlier maximum-reach outcomes or qualify D3/D4.
+
+### Historical background query cost
+
+`ObservedBackground` prefilters immutable historical cameras in batches. If even
+the requested ball's center is certainly behind a camera or outside its padded
+pinhole image, that view cannot prove the entire ball. Only these impossible
+views are skipped. Arithmetic error bounds propagate subtraction and both dot
+products through the test; borderline and nonstandard projections keep the
+original reader. This filter never certifies free space or discards a calibration
+condition. Every remaining view still checks the original complete projected
+volume, valid depth, side/depth clearance and occupied returns, with the same
+calibration growth. Current moving-material exclusion remains mandatory.
+
+Paired complete saved N/P proposal calls preserve decisions, numerical margins,
+query traversal and source clocks exactly. The N background-heavy replay is
+about 33% faster with warm caches; P keeps its original refusal and cost. These
+reconstructed-cache measurements do not establish native collection throughput
+or task success. See [[../experiments/act-a1-complete-cycle-collection|collection evidence]].

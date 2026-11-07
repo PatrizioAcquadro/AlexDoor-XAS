@@ -318,14 +318,26 @@ trials are suspended. The initial model screen omitted that terminal criterion;
 rescoring the saved trajectories retains zero complete abrupt-case passes.
 Native and recorded consumers now share the original complete stop scorer,
 which preserves all 27 recorded segment outcomes and names an unsettled stop
-explicitly. All 222 continuation allocations are closed; collection remains
-17/36. Next work audits contact/free-space evidence and stopping-domain consumers
-together with the actual geometric admission costs. No stopping bound is replaced.
+explicitly. All 223 continuation allocations are closed; collection remains
+17/36. An audit of 5,390 stored observed D3/D4 proposals preserves fourteen
+unsupported-volume and four weak-position refusals. None proves positive complete
+contact-free stopping clearance; weak current load cannot justify a smaller
+future stopping domain. No stopping bound is replaced.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection
 savings remain unmeasured; subdivided background checks dominate the residual
-cost. The original subsequent contact-loss outcome is preserved.
+cost. The original subsequent contact-loss outcome is preserved. A conservative
+historical-view filter now skips only images that cannot contain even the queried
+volume's center. All surviving and arithmetic-boundary views retain the original
+complete ray/depth/occupancy proof, calibration and source clocks. Paired full
+saved N/P producers preserve all six decisions and diagnostics exactly. N's warm
+profile falls from about 1.52 to 1.02 s (33%); P retains its geometry refusal and
+unchanged cost. All 58,911 culled actual view/center pairs are independently
+rejected by the original reader. This is replay cost evidence, not measured
+native collection throughput. Next work must resolve the observed material,
+posture/load-support and sustained-contact mechanisms together, preserving all
+original stop and complete-cycle criteria.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

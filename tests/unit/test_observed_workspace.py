@@ -445,3 +445,60 @@ def test_static_rectangle_index_matches_full_pixels_at_edges_and_unknown_holes()
             assert minimum == region.min()
         else:
             assert minimum is None
+
+
+def test_background_view_filter_keeps_boundary_and_nonstandard_projection():
+    from alexdoor_xas.perception.workspace import ObservedBackground
+
+    background = ObservedBackground([space(2.0, 1.0)], (0.001, 0.001))
+    # The old reader pads floor/ceil by one pixel. Keep exact boundaries and
+    # immediate representable neighbors, including a zero-depth center.
+    for x in [-0.39, np.nextafter(-0.39, -np.inf), 0.38, np.nextafter(0.38, np.inf)]:
+        assert background._background_view_candidates(np.array([x, 0, 1.0]), 0)[0]
+    assert background._background_view_candidates(np.zeros(3), 0)[0]
+    for center in [[2, 0, 1], [0, -2, 1], [0, 0, -1]]:
+        assert not background._background_view_candidates(np.array(center), 0)[0]
+    # The padded-image proof applies only to the conventional pinhole denominator.
+    background._background_cameras[0][2][0, 2] = [0.1, 0, 1]
+    assert background._background_view_candidates(np.array([2, 0, 1]), 0)[0]
+
+
+def test_background_view_filter_preserves_original_ray_reader_on_perturbed_views(monkeypatch):
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.perception.workspace import ObservedBackground
+
+    rng = np.random.default_rng(2711)
+    observed = space(2.0, 1.0)
+    for i in range(12):
+        sensor = next(iter(space(float(rng.uniform(0.8, 3)), 1.0).views.values()))
+        sensor["camera_world"][:3, :3] = Rotation.from_rotvec(rng.normal(0, 0.8, 3)).as_matrix()
+        sensor["camera_world"][:3, 3] = rng.normal(0, 0.5, 3)
+        sensor["intrinsics"][0, 1] = rng.uniform(-10, 10)
+        sensor["valid_depth"][20:24, 30:33] = False
+        observed.views[i + 2] = sensor
+    background = ObservedBackground([observed, space(2.1, 1.0)], (0.001, 0.002))
+    original = background._background_view_candidates
+    skipped = 0
+    centers = np.r_[rng.uniform([-2, -2, -1], [2, 2, 3], (160, 3)), [[0, 0, 1]]]
+    for center in centers:
+        radius = float(rng.uniform(0, 0.08))
+        for condition, views in enumerate(background.views_by_condition):
+            for candidate, view in zip(original(center, condition), views, strict=True):
+                if candidate:
+                    continue
+                sensor = next(iter(view.views.values()))
+                lever = np.linalg.norm(center - sensor["camera_world"][:3, 3]) + radius
+                enlarged = radius + 0.001 + 2 * lever * np.sin(0.002 / 2)
+                assert view.query(center[None], np.array([enlarged])).collision_clearance_m is None
+                skipped += 1
+        actual = background._query_uncached(center[None], np.array([radius]))
+        monkeypatch.setattr(
+            background,
+            "_background_view_candidates",
+            lambda c, i: [True] * len(background.views_by_condition[i]),
+        )
+        expected = background._query_uncached(center[None], np.array([radius]))
+        monkeypatch.setattr(background, "_background_view_candidates", original)
+        assert actual == expected
+    assert skipped > 500
