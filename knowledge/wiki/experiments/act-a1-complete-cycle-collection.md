@@ -2769,3 +2769,24 @@ Completion requires all 36 cells to qualify and pass the temporal consumer.
 Otherwise report the exact partial denominator, retained failures, resource use,
 remaining cells and demonstrated blocker. Reference and teacher success remain
 separate from the historical learned result of 0/22.
+
+
+## November 6 measured-release native qualification
+
+The resumed `0edb99f` family independently passes all eight original N/H+/H−/P
+0/10 N complete six-phase paths and one-latch eight-second, fourteen-shape stops.
+Whole outputs and three sidecars are retained; owned process/GPU absence and
+lease release are verified. The unchanged shoulder acceleration limit is
+7.876929 rad/s²; H+ now peaks at 1.874785 rad/s² at zero load. The historical
+7.929262 failure remains negative. These are robot-only fixed-load components.
+
+The [complete support audit](../../../outputs/evidence/act-a1-complete-cycle-20261026/D4-measured-release-all-eight-closeout-and-support-20261106.json)
+checks all seven coordinates against the latest independently qualified support.
+N, H+ and P have zero current or single-future-interval exits at both loads.
+H− retains 746/1,118 current and 1,381/1,417 future exits at 0/10 N, despite passing
+physical/model/stop checks. Its dependent contact attempts remain suspended;
+no empirical boundary is extended. Changing-load contact is the next independent
+control question for the three supported conditions. The matrix remains 17/36.
+Native execution cost was 1,858.813907 GPU seconds; independent CUDA review cost
+29.234440 seconds, separately recorded from geometric profiling and its failed
+reader preparations.
