@@ -54,6 +54,47 @@ def test_normal_support_removes_excess_preload_and_is_bounded():
     assert normal_contact_support(-maximum, 1.0, setup, 1 / 60) == -maximum
 
 
+@pytest.mark.parametrize("gap", [5e-6, 1e-4, 1e-3])
+def test_gap_control_does_not_repay_completed_closure_or_relax_qualification(gap):
+    from alexdoor_xas.qualification.synthetic_probe import (
+        ContactLoad,
+        ProbeSetup,
+        normal_contact_support,
+        support_gap_feedback,
+    )
+
+    setup = ProbeSetup(force_controlled_normal_reference=True)
+    initial, dt = 0.0, 1 / 60
+    force_only = normal_contact_support(initial, 0.0, setup, dt)
+    closing = {"native_contact_separations_m": [gap, .7*gap, .3*gap, 0.0]}
+    measured = support_gap_feedback(closing)
+    assert normal_contact_support(initial, 0.0, setup, dt, gap_m=measured) == force_only
+    # Increasing separation still requests real endpoint closure, within the
+    # existing rate bound. Excess load still takes priority over closing a gap.
+    opening = {"native_contact_separations_m": [0.0, .3*gap, .7*gap, gap]}
+    measured = support_gap_feedback(opening)
+    recovery = normal_contact_support(initial, 0.0, setup, dt, gap_m=measured)
+    assert force_only < recovery <= setup.compression_m/setup.sustain_s*dt
+    assert normal_contact_support(initial, 1.0, setup, dt, gap_m=measured) < initial
+    # The original worst-interval qualification remains separate and refuses a
+    # large earlier separation, even with a closed control endpoint and load.
+    load = ContactLoad(.1, .02, .0001)
+    qualified = load.update(0.0, .1, max(closing["native_contact_separations_m"]))
+    assert qualified == (gap <= .0001)
+
+
+def test_gap_control_keeps_missing_endpoint_unavailable_and_rejects_invalid_values():
+    from alexdoor_xas.qualification.synthetic_probe import support_gap_feedback
+
+    for trace in [None, {}, {"native_contact_separations_m": []},
+                  {"native_contact_separations_m": [2e-4, 1e-4, None]}]:
+        assert support_gap_feedback(trace) is None
+    assert support_gap_feedback({"native_contact_separations_m": [None, -2e-6]}) == -2e-6
+    for gap in [np.nan, np.inf, -np.inf, True]:
+        with pytest.raises(ValueError, match="Invalid native endpoint"):
+            support_gap_feedback({"native_contact_separations_m": [0.0, gap]})
+
+
 def test_tracking_guard_reserves_hold_margin_but_accepts_stable_bias_and_contact_chatter():
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, tracking_margin_exhausted
 

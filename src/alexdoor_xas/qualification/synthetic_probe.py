@@ -439,6 +439,24 @@ def support_force_feedback(
     return filtered_force, "contact_qualification_window"
 
 
+def support_gap_feedback(previous_trace):
+    """Use the completed interval's endpoint for the next displacement command.
+
+    The interval maximum remains the contact-qualification evidence. Reusing
+    that past maximum as a current gap can pay for closure that already happened.
+    An unavailable endpoint stays unavailable, even if earlier contacts exist.
+    """
+    samples = None if previous_trace is None else previous_trace.get(
+        "native_contact_separations_m"
+    )
+    if samples is None or not len(samples) or samples[-1] is None:
+        return None
+    gap = samples[-1]
+    if isinstance(gap, bool) or not np.isfinite(gap):
+        raise ValueError("Invalid native endpoint contact gap")
+    return float(gap)
+
+
 def support_force_lead(force, previous_force, elapsed_s, lead_s):
     """Causal pressure-control lead; never a measured load or qualification bound.
 
@@ -884,7 +902,7 @@ def run_probe(
 
     def support_normal(compression, phase):
         nonlocal normal_feedback, gap_recovery_active, force_history
-        gap = traces[-1]["contact_gap_m"] if traces else None
+        gap = support_gap_feedback(traces[-1] if traces else None)
         force = contact_load.force
         target_force = normal_force_target(
             setup, phase, maintain_acquisition_load=maintain_acquisition_load
@@ -934,6 +952,10 @@ def run_probe(
                 0.0 if setup.force_controlled_normal_reference else max(0.0, pending)
             ),
             gap_catchup=gap_catchup,
+            gap_m=gap,
+            gap_source=(
+                "preceding_native_endpoint" if gap is not None else "unavailable_native_endpoint"
+            ),
         )
         control_force = force
         if setup.normal_force_lead_s > 0 and phase in ("push", "hold"):
@@ -955,6 +977,7 @@ def run_probe(
             # The measured-origin transition already corrects position error.
             # Do not stack a second gap catch-up; keep force unloading active.
             gap = None
+            normal_feedback.update(gap_m=None, gap_source="position_return_owns_gap")
         return normal_contact_support(
             compression,
             control_force,
@@ -1840,7 +1863,7 @@ def run_probe(
                     setup,
                     dt,
                     target_force=setup.hold_force_n,
-                    gap_m=traces[-1]["contact_gap_m"],
+                    gap_m=support_gap_feedback(traces[-1]),
                 )
                 angle = float(tensor(env.door.data.joint_pos)[0, 0])
                 injected_p, injected_r = door.contact_pose(

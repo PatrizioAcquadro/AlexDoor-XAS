@@ -2937,3 +2937,26 @@ contact. Dependent contact variants are suspended while the full unilateral
 contact, sampled pressure and measured-gap recovery mechanism is audited; the
 stable fixed-J bilateral model excludes these effects. All thresholds and prior
 negative outcomes remain unchanged. Observed qualification remains open.
+
+
+### Completed native gap for control
+
+The whole-family sampled-contact audit identifies a temporal mismatch: pressure
+recovery reused the maximum separation of the preceding native interval as the
+current gap, even when its final sample shows that closure already happened.
+Across 39 completed jobs in ten retained families, 966 of 8,014 saved pressure
+updates change when only that operand is replaced. The largest unnecessary
+closure request is 17 µm. These are single-update diagnostics on recorded inputs,
+not counterfactual trajectories or newly qualified demonstrations.
+
+The next displacement command now uses only the preceding interval's last native
+separation. A missing endpoint remains unavailable; earlier maxima cannot fill
+it. The original interval maximum and full missing-sample mask still determine
+contact qualification. Acquisition, push/hold support and continued-contact
+release recovery share this timing rule. Pressure feedback remains the original
+mean/window selected by the recipe; no force maxima substitute for means.
+Unloading priority, admittance gain, clipping, recovery gating, empirical load
+support, physical limits and all full-task/stop requirements remain unchanged.
+The trace records the actual control gap and its source separately. Moving,
+closing, unavailable and invalid endpoint controls pass; complete changed native
+qualification is required before observed adoption.

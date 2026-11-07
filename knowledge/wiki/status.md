@@ -74,7 +74,13 @@ complete; empirical exits remain failures. Reconstructed normal offsets for all
 axis, not contact success. Further contact variants
 are suspended pending a whole-motion unilateral-contact and sampled-force audit.
 Fixed-J bilateral model stability does not explain these losses. Observed
-qualification remains open; no task or calibration threshold changes.
+qualification remains open; no task or calibration threshold changes. A shared
+sample-timing audit then finds that gap recovery reused the prior interval's
+maximum separation after part of that gap had already closed. Control now uses
+the last completed native separation; qualification keeps its original interval
+maximum and missing-data rule. Force means, rate/extent bounds and all acceptance
+limits remain unchanged. Saved operands across ten contact families support this
+timing correction; new complete native qualification is pending.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
