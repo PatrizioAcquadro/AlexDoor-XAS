@@ -845,3 +845,47 @@ def test_finite_tangent_requires_explicit_reference_mode(flag, mode, reason):
             compliant_normal=torch.tensor([[1., 0., 0.]]),
             normal_reference_only=mode, finite_tangent_impedance=flag,
         )
+
+
+@pytest.mark.parametrize("preload", [-.007, .007])
+def test_finite_tangent_keeps_entry_preload_and_bounds_subsequent_elastic_error(preload):
+    jac = torch.eye(6, 7, dtype=torch.float64)[None]
+    jac[0, 0, 1], jac[0, 1, 0] = .4, .15
+    q = torch.zeros(1, 7, dtype=jac.dtype)
+    anchor = torch.tensor([[preload, -.002, .003, 0., 0., 0., .004]], dtype=jac.dtype)
+    extra = torch.tensor([[0., .001, -.001, 0., .001, 0., 0.]], dtype=jac.dtype)
+    target = anchor + extra
+    error = (jac @ extra.unsqueeze(-1)).squeeze(-1)
+    saved = anchor.clone()
+    for _ in range(60):
+        target, _ = bounded_pose_step(
+            jac, error, q, torch.tensor([[[-1., 1.]]*7], dtype=jac.dtype),
+            torch.ones_like(q), 1/60, previous_targets=target,
+            feedback_time_constant_s=.5, reference_delta=torch.zeros_like(error),
+            compliant_normal=torch.tensor([[1., 0., 0.]], dtype=jac.dtype),
+            normal_reference_only=True, finite_tangent_impedance=True,
+            finite_tangent_reference_offset=anchor, centering_gain=0.,
+        )
+    torch.testing.assert_close(target, anchor+extra, rtol=0, atol=1e-14)
+    assert torch.equal(anchor, saved)
+
+
+@pytest.mark.parametrize("bad", ["shape", "nonfinite", "dtype", "disabled"])
+def test_finite_tangent_entry_offset_requires_valid_active_mode(bad):
+    q = torch.zeros(1, 7, dtype=torch.float64)
+    reference = q.clone()
+    if bad == "shape":
+        reference = reference[:, :6]
+    elif bad == "nonfinite":
+        reference.fill_(float("nan"))
+    elif bad == "dtype":
+        reference = reference.float()
+    with pytest.raises(ValueError, match="finite_tangent"):
+        bounded_pose_step(
+            torch.eye(6, 7, dtype=q.dtype)[None], torch.zeros(1, 6, dtype=q.dtype), q,
+            torch.tensor([[[-1., 1.]]*7], dtype=q.dtype), torch.ones_like(q), 1/60,
+            previous_targets=q, feedback_time_constant_s=.5,
+            compliant_normal=torch.tensor([[1., 0., 0.]], dtype=q.dtype),
+            normal_reference_only=True, finite_tangent_impedance=bad != "disabled",
+            finite_tangent_reference_offset=reference,
+        )

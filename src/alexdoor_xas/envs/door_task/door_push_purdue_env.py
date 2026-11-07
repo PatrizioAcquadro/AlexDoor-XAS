@@ -74,6 +74,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._pending_joints = None
         self._last_world_goal = None
         self._last_normal_jacobian = None
+        self._finite_tangent_reference_offset = None
         self.motion_stopped = False
         stop_stiffness = np.asarray(cfg.stop_stiffness, dtype=float)
         if (
@@ -445,6 +446,15 @@ class DoorPushPurdueEnv(DirectRLEnv):
                     self.targets[:, self.arm_ids] - q,
                     self._last_normal_jacobian,
                 )
+            finite_tangent_reference_offset = None
+            if normal_reference_only and getattr(self.cfg, "pose_finite_tangent_impedance", False):
+                finite_tangent_reference_offset = getattr(
+                    self, "_finite_tangent_reference_offset", None
+                )
+                if finite_tangent_reference_offset is None:
+                    # Preview the same causal preload that dispatch will commit.
+                    # Do not erase an already supported load on mode entry.
+                    finite_tangent_reference_offset = self.targets[:, self.arm_ids] - q
             result = bounded_pose_step(
                 jacobian,
                 error,
@@ -468,6 +478,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
                     normal_reference_only
                     and getattr(self.cfg, "pose_finite_tangent_impedance", False)
                 ),
+                finite_tangent_reference_offset=finite_tangent_reference_offset,
                 return_request=with_request,
             )
             target, excess = result[:2]
@@ -487,6 +498,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._pending_normal_reference_only = False
         self._last_world_goal = None
         self._last_normal_jacobian = None
+        self._finite_tangent_reference_offset = None
         if self.motion_stopped:
             return
         self.motion_stopped = True
@@ -519,6 +531,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
             self._pending_normal_reference_only = False
             self._last_world_goal = None
             self._last_normal_jacobian = None
+            self._finite_tangent_reference_offset = None
             if bool((actions != 0).any()):
                 raise RuntimeError("motion_stopped")
             self.contact_history = []
@@ -556,6 +569,18 @@ class DoorPushPurdueEnv(DirectRLEnv):
             and getattr(self.cfg, "pose_normal_transport", False)
             and self._last_normal_jacobian is not None
         )
+        dispatched_tangent_reference_offset = None
+        if delivered_normal_reference_only and getattr(
+            self.cfg, "pose_finite_tangent_impedance", False
+        ):
+            dispatched_tangent_reference_offset = getattr(
+                self, "_finite_tangent_reference_offset", None
+            )
+            if dispatched_tangent_reference_offset is None:
+                dispatched_tangent_reference_offset = (
+                    self.targets[:, self.arm_ids]
+                    - tensor(self.robot.data.joint_pos)[:, self.arm_ids]
+                ).clone()
         dispatched_normal_jacobian = None
         if delivered_normal_reference_only and getattr(self.cfg, "pose_normal_transport", False):
             dispatched_normal_jacobian = (
@@ -579,6 +604,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         # cannot advance reference history. Joint commands end that history.
         self._last_world_goal = None if goal is None else tuple(value.clone() for value in goal)
         self._last_normal_jacobian = dispatched_normal_jacobian
+        self._finite_tangent_reference_offset = dispatched_tangent_reference_offset
         self.contact_history = []
         self.load_samples = []
         self._physics_actions = 0
@@ -682,6 +708,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.targets = q.clone()
         self._last_world_goal = None
         self._last_normal_jacobian = None
+        self._finite_tangent_reference_offset = None
         self._pending_pose = None
         self._pending_normal_reference_only = False
         self._pending_joints = None

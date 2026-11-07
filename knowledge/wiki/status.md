@@ -124,16 +124,24 @@ shared complete-motion control correction remains unqualified. An explicit,
 default-off finite-tangent mode now bounds the other five axes' elastic pose
 feedback while retaining normal force-reference memory. It also removes the
 normal request before the damped tangential solve. Essential numerical and CUDA
-history/dispatch/stop controls pass. Independent N/P native reviews now qualify
-the complete 0 N robot-only paths, including the original stops and latest
-previously qualified current/future position support. Both 10 N cases fail the
-original 10 mm ramp endpoint: 11.44 mm for N and 12.53 mm for P. Their normal
-compression margins, orientation, physical limits, frozen model and stops pass;
-opening and later phases remain unavailable. A first position comparison used
-historical in-job bounds and is superseded by the already qualified scoped
-support, with both comparisons retained. H+/H− were left running at the single
-latest ownership check. The complete eight-case family remains unqualified;
-there is no contact or demonstration credit.
+history/dispatch/stop controls pass. All eight native outcomes are now closed:
+four complete 0 N robot-only paths qualify, while every required 10 N ramp fails
+the original 10 mm endpoint at 11.07–12.53 mm. Normal compression margins,
+orientation, physical limits, frozen moving/stopped models, all seven latest
+qualified current/future position coordinates and original stops pass. Later
+10 N phases remain unavailable. Historical in-job position comparisons are
+preserved and superseded by already qualified scoped support.
+
+Across all four loaded postures, the measured elastic displacement explains
+the tangential endpoint error within 0.082 mm. The finite feedback was erasing
+preload already delivered by ordinary approach control. The optional mode now
+retains that entry target-minus-measured-joint offset and applies finite
+impedance only to subsequent elastic displacement. Previews remain pure;
+dispatch commits the offset once, and ordinary/joint/stop/reset transitions clear
+it. Numerical and actual CUDA history/entry/release controls pass. Gains,
+observations, force thresholds and qualification criteria remain unchanged.
+The corrected eight native 0/10 N paths still require independent qualification
+before contact adoption; the scientific matrix remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

@@ -96,6 +96,7 @@ def bounded_pose_step(
     normal_reference_only=False,
     normal_transport_m=None,
     finite_tangent_impedance=False,
+    finite_tangent_reference_offset=None,
 ):
     """Bounded pose solve with optional measured-error integration on prior targets.
 
@@ -113,7 +114,9 @@ def bounded_pose_step(
     normal joint covector changes. Optional finite tangential impedance removes
     elastic pose memory from the other five axes' error integration. Their causal
     reference increments remain, and the explicit normal channel retains load
-    support. Preview calls remain pure.
+    support. A causal entry offset preserves already delivered elastic preload;
+    only subsequent tangential elastic displacement supplies finite impedance.
+    Preview calls remain pure.
     """
     if jacobian.shape[-2:] != (6, 7) or error.shape[-1] != 6:
         raise ValueError("Purdue pose control requires a 6x7 Jacobian and six pose errors")
@@ -142,6 +145,17 @@ def bounded_pose_step(
         raise ValueError("invalid_normal_reference_mode")
     if type(finite_tangent_impedance) is not bool:
         raise ValueError("invalid_finite_tangent_impedance")
+    if finite_tangent_reference_offset is not None:
+        if not finite_tangent_impedance:
+            raise ValueError("finite_tangent_offset_requires_impedance")
+        if (
+            not isinstance(finite_tangent_reference_offset, torch.Tensor)
+            or finite_tangent_reference_offset.shape != positions.shape
+            or finite_tangent_reference_offset.device != positions.device
+            or finite_tangent_reference_offset.dtype != positions.dtype
+            or not bool(torch.isfinite(finite_tangent_reference_offset).all())
+        ):
+            raise ValueError("invalid_finite_tangent_reference_offset")
     if finite_tangent_impedance and not normal_reference_only:
         raise ValueError("finite_tangent_requires_normal_reference")
     if normal_reference_only and compliant_normal is None:
@@ -184,6 +198,10 @@ def bounded_pose_step(
         # integrate a blocked tangential error into increasing contact effort.
         elastic_error = (jacobian @ (previous_targets - positions).unsqueeze(-1)).squeeze(-1)
         pose_error = error - elastic_error
+        if finite_tangent_reference_offset is not None:
+            pose_error = pose_error + (
+                jacobian @ finite_tangent_reference_offset.unsqueeze(-1)
+            ).squeeze(-1)
         pose_error = pose_error - normal * (normal * pose_error).sum(dim=-1, keepdim=True)
     primary = jacobian.transpose(-1, -2) @ torch.linalg.solve(
         jacobian @ jacobian.transpose(-1, -2) + damping**2 * eye, pose_error.unsqueeze(-1)

@@ -160,11 +160,17 @@ reference channel still retains elastic support and pays its original increment.
 
 This option leaves inner actuator gains, normal admittance, centering, target/
 rate bounds, covector history, measured release handoff and independent stopping
-unchanged. It adds no controller history or observation, defaults off, and
-requires causal pose feedback. Ordinary poses do not enable it. Essential
-blocked-load/free-reference/nullspace/normal-channel controls and original
-history math pass, including pure preview and exact dispatch. Native full-path
-0 N/10 N qualification remains required before any contact or source adoption.
+unchanged. It defaults off and requires causal pose feedback. Ordinary poses do
+not enable it. At mode entry, preserve the already delivered target-minus-
+measured-joint offset; subtract only subsequent elastic displacement from pose
+feedback. This finite impedance reference prevents erasing preload that the
+approach controller already supplied. It is a causal seven-joint history, not an
+external-force estimate or a frozen actual posture. Pure previews derive the
+same candidate entry offset; only dispatch commits it. Ordinary pose, joint,
+stop and reset transitions clear the offset. Essential blocked-load/free-
+reference/nullspace/normal-channel controls and original history math pass,
+including pure preview and exact dispatch. Corrected native full-path 0 N/10 N
+qualification remains required before any contact or source adoption.
 
 A candidate that canceled the frozen-joint elastic pressure of each full
 reference step (`ea8d5d4`) is withdrawn. Although its single-step algebra preserved
