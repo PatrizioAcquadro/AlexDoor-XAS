@@ -817,3 +817,56 @@ def test_material_normal_flow_preserves_tangential_goal_and_force_compression():
     for bad in ([np.nan, 0, 0], [1, 0], [0, 0, 0]):
         with pytest.raises(ValueError, match="material normal flow"):
             material_normal_flow([0,0,0], [1,0,0], bad)
+
+
+@pytest.mark.parametrize("invalid", [1, "true", None])
+def test_material_frame_requires_a_distinct_force_reference_mode(invalid):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup
+
+    with pytest.raises(ValueError, match="Material frame"):
+        ProbeSetup(force_reference_material_frame=invalid)
+    with pytest.raises(ValueError, match="Material frame requires"):
+        ProbeSetup(force_reference_material_frame=True)
+    with pytest.raises(ValueError, match="Material frame requires"):
+        ProbeSetup(force_controlled_normal_reference=True,
+                   force_reference_material_flow=True, force_reference_material_frame=True)
+
+
+def test_material_frame_preserves_complete_local_contact_and_disturbance_pose():
+    from scipy.spatial.transform import Rotation
+
+    from alexdoor_xas.qualification.synthetic_probe import transport_material_frame
+
+    reference_p = np.array([.2, -.3, 1.1])
+    material_p = np.array([.21, -.28, 1.1])
+    for angle in [0., .7, -1.1]:
+        reference_r = Rotation.from_euler("z", angle).as_matrix()
+        for delta in [-.08, 0., .08]:
+            material_r = Rotation.from_euler("z", angle+delta).as_matrix()
+            for compression in [-.001, 0., .001]:
+                local = np.array([compression, .002, -.001])
+                p = reference_p + reference_r @ local
+                r = reference_r @ Rotation.from_euler("y", .01).as_matrix()
+                result_p, result_r = transport_material_frame(
+                    p, r, reference_p, reference_r, material_p, material_r
+                )
+                np.testing.assert_allclose(material_r.T@(result_p-material_p), local, atol=1e-16)
+                np.testing.assert_allclose(material_r.T@result_r, reference_r.T@r, atol=1e-15)
+                # Both ordinary and perturbed goals use the same rigid transport.
+                disturbance = reference_r @ np.array([.001, -.002, .003])
+                perturbed_p, _ = transport_material_frame(
+                    p+disturbance, r, reference_p, reference_r, material_p, material_r
+                )
+                np.testing.assert_allclose(
+                    material_r.T@(perturbed_p-result_p), [.001, -.002, .003], atol=1e-16
+                )
+                # Fixed material geometry preserves the original goal bitwise;
+                # repeating it cannot accumulate a normal preload or orientation.
+                fixed_p, fixed_r = transport_material_frame(
+                    p, r, reference_p, reference_r, reference_p, reference_r
+                )
+                np.testing.assert_array_equal(fixed_p, p)
+                np.testing.assert_array_equal(fixed_r, r)
+    with pytest.raises(ValueError, match="Invalid material frame"):
+        transport_material_frame([0,0,np.nan], np.eye(3), reference_p, np.eye(3),
+                                 material_p, np.eye(3))

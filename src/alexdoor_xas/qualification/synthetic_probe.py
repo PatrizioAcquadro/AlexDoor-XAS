@@ -54,6 +54,7 @@ class ProbeSetup:
     normal_force_lead_s: float = 0.0
     force_controlled_normal_reference: bool = False
     force_reference_material_flow: bool = False
+    force_reference_material_frame: bool = False
     support_gap_antiwindup: bool = False
     force_limit_n: float = 80.0
     soft_force_n: float = 50.0
@@ -138,6 +139,12 @@ class ProbeSetup:
             raise ValueError("Material normal flow option must be boolean")
         if self.force_reference_material_flow and not self.force_controlled_normal_reference:
             raise ValueError("Material normal flow requires force-controlled normal reference")
+        if type(self.force_reference_material_frame) is not bool:
+            raise ValueError("Material frame option must be boolean")
+        if self.force_reference_material_frame and (
+            not self.force_controlled_normal_reference or self.force_reference_material_flow
+        ):
+            raise ValueError("Material frame requires force reference without normal-only flow")
         if self.support_force_source not in (
             "qualification_window",
             "native_interval_mean",
@@ -323,6 +330,28 @@ def material_normal_flow(reference_p, material_p, normal):
         raise ValueError("Invalid material normal flow axis")
     normal = normal / length
     return normal * np.dot(material_p - reference_p, normal)
+
+
+def transport_material_frame(position, rotation, reference_p, reference_r, material_p, material_r):
+    """Carry a contact pose and its local pressure/compensation in one rigid frame.
+
+    The existing reference clock is not changed. A measured material frame
+    supplies the contact geometry; actual force, opening, hold and release still
+    determine task qualification. Apply this to each fresh goal, never integrate
+    a previous transformed goal as additional preload.
+    """
+    vectors = [np.asarray(v, dtype=float) for v in (position, reference_p, material_p)]
+    matrices = [np.asarray(v, dtype=float) for v in (rotation, reference_r, material_r)]
+    if any(v.shape != (3,) or not np.isfinite(v).all() for v in vectors) or any(
+        v.shape != (3, 3) or not np.isfinite(v).all() for v in matrices
+    ):
+        raise ValueError("Invalid material frame pose")
+    position, reference_p, material_p = vectors
+    rotation, reference_r, material_r = matrices
+    if np.array_equal(reference_p, material_p) and np.array_equal(reference_r, material_r):
+        return position.copy(), rotation.copy()
+    turn = material_r @ reference_r.T
+    return material_p + turn @ (position - reference_p), turn @ rotation
 
 
 def distal_pending_advance(vertices, current_p, current_r, target_p, target_r, normal):
@@ -947,8 +976,9 @@ def run_probe(
         )
         goal_p = goal_p + goal_r @ applied_compensation
         normal_flow = None
+        frame_transport = None
         if (
-            setup.force_reference_material_flow
+            (setup.force_reference_material_flow or setup.force_reference_material_frame)
             and normal_feedback is not None
             and phase in ("push", "hold")
             and not (
@@ -959,22 +989,37 @@ def run_probe(
             if reference_angle is None or not np.isfinite(reference_angle):
                 raise ValueError("Material normal flow requires a causal reference angle")
             measured_angle = float(tensor(env.door.data.joint_pos)[0, 0])
-            reference_p, _ = door.contact_pose(
+            reference_p, reference_r = door.contact_pose(
                 reference_angle, setup.contact_fraction, setup.contact_height
             )
-            material_p, _ = door.contact_pose(
+            material_p, material_r = door.contact_pose(
                 measured_angle, setup.contact_fraction, setup.contact_height
             )
-            flow = material_normal_flow(reference_p, material_p, goal_r[:, 0])
-            goal_p = goal_p + flow
-            if injected_pose is not None:
-                injected_pose = (injected_pose[0] + flow, injected_pose[1])
-            normal_flow = dict(
-                reference_angle_rad=float(reference_angle),
-                measured_angle_rad=measured_angle,
-                displacement_world_m=flow.tolist(),
-                qualification_from_physical_load_unchanged=True,
-            )
+            if setup.force_reference_material_frame:
+                goal_p, goal_r = transport_material_frame(
+                    goal_p, goal_r, reference_p, reference_r, material_p, material_r
+                )
+                if injected_pose is not None:
+                    injected_pose = transport_material_frame(
+                        *injected_pose, reference_p, reference_r, material_p, material_r
+                    )
+                frame_transport = dict(
+                    reference_angle_rad=float(reference_angle),
+                    measured_angle_rad=measured_angle,
+                    rotation_world=(material_r @ reference_r.T).tolist(),
+                    qualification_from_physical_load_unchanged=True,
+                )
+            else:
+                flow = material_normal_flow(reference_p, material_p, goal_r[:, 0])
+                goal_p = goal_p + flow
+                if injected_pose is not None:
+                    injected_pose = (injected_pose[0] + flow, injected_pose[1])
+                normal_flow = dict(
+                    reference_angle_rad=float(reference_angle),
+                    measured_angle_rad=measured_angle,
+                    displacement_world_m=flow.tolist(),
+                    qualification_from_physical_load_unchanged=True,
+                )
         if correction_active:
             gap_target = correction.material_gap_target(phase)
             if gap_target is not None:
@@ -1134,6 +1179,7 @@ def run_probe(
                 normal_reference_only=bool(normal_options),
                 contact_gap_m=gap,
                 material_normal_flow=normal_flow,
+                material_frame_transport=frame_transport,
                 loaded=loaded,
                 valid=valid,
                 physical_safe=physical_safe,

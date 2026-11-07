@@ -2900,3 +2900,23 @@ The resulting 0.065–3.216° frame mismatch moves distal extrema by 30 µm–1.
 in the saved geometric diagnostic; this is not counterfactual native evidence.
 It motivates checking coherent material-frame transport before another contact
 attempt. No actuator gains or acceptance limits change.
+
+
+### Coherent material-frame contact reference
+
+The normal-only negative family exposes a split reference: translation follows
+the moving material while orientation remains on its time-based reference.
+An optional `force_reference_material_frame` now applies one rigid transform to
+the complete fresh contact goal and its local pressure, tangential compensation
+and injected disturbance. It requires force-reference control and is distinct
+from the retained normal-only mode needed by historical saved-data readers.
+It does not transform an already transported goal again. Fixed frames preserve
+goal values exactly; normal compression and full relative pose are conserved.
+Braking, measured-origin return, actuator impedance, empirical/model bounds,
+physical limits and all original task/contact/stop criteria remain unchanged.
+
+Essential nominal, perturbed and fixed-frame controls pass. The same local
+bilateral-contact model, now with coherent hinge-driven pose transport and causal
+completed-interval displacement, is stable at all 120 active-force postures.
+These numerical results do not qualify nonlinear native contact or observations.
+Complete changed N/H+/H−/P native paths must pass before any observed adoption.

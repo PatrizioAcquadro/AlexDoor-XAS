@@ -60,7 +60,12 @@ withdrawal refusals after contact loss. Original stops, raw/native/model/current
 future/physical/clock/RGB and whole-transfer/cleanup reviews are complete.
 Normal-only transport leaves orientation on the reference clock; measured frame
 lag reaches 3.216°. Its distal geometry effect motivates a whole-frame diagnostic,
-not a causal success claim or relaxed tolerance. Observed qualification is open.
+not a causal success claim or relaxed tolerance. An optional coherent material-frame
+mode now rigidly transports the complete contact pose, compression, tangential
+compensation and injected offsets together. Braking and measured-origin return
+keep their existing behavior; the reference clock and all qualification limits
+remain unchanged. Essential numerical and causal-model controls pass. Changed
+complete native contact paths and observed qualification remain pending.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
