@@ -305,9 +305,22 @@ motion, physical, current/future empirical, load and 14-shape criteria. Every
 post-cold-start feedback sample is calibrated and actual full-system feedforward
 reconstruction is exact. Peak segment tool travel is 0.259 mm; maximum segment
 terminal joint speed is 0.000306 rad/s. This qualifies a robot-only component,
-not observed contact or a teacher cycle. All 216 continuation allocations are
-closed; collection remains 17/36. The next step is a prospective closed-loop,
-state-dependent stopping-support proposal. No stopping bound is replaced.
+not observed contact or a teacher cycle. A prospective frozen closed-loop
+support now covers position for all 48 phase states and 31 contact-point
+alternatives, but closes none of the full travel/speed/acceleration conditions
+under independently varying 10 N forces. It is not adopted as a geometric bound.
+A solver-implicit model with the same nominal K/D stabilizes all 301 recorded
+inertia snapshots, including the earlier unstable profile. Its first native
+abrupt-force contract passes physical, joint-travel, 14-shape and unchanged
+residual-budget checks, but retains a 0.06115 rad/s terminal speed at two seconds
+against the original 0.01 criterion. The candidate stays negative and dependent
+trials are suspended. The initial model screen omitted that terminal criterion;
+rescoring the saved trajectories retains zero complete abrupt-case passes.
+Native and recorded consumers now share the original complete stop scorer,
+which preserves all 27 recorded segment outcomes and names an unsettled stop
+explicitly. All 222 continuation allocations are closed; collection remains
+17/36. Next work audits contact/free-space evidence and stopping-domain consumers
+together with the actual geometric admission costs. No stopping bound is replaced.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

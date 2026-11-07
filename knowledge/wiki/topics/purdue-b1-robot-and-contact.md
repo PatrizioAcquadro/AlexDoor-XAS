@@ -427,6 +427,32 @@ prospective bound from current state and calibrated uncertainty before replacing
 the existing geometric stopping allowance; replayed future corrections cannot
 serve as that bound.
 
+The isolated prospective support retains shared force history across the
+one-interval residual delay. Its remainder bound follows from the existing
+feedback interval and confidence deadzone once; it does not add an independent
+second calibration uncertainty. The arbitrary 10 N, 31-point frozen envelope
+closes position support at all 48 anchors but cannot certify the complete
+travel/rate/acceleration domain. Frozen support remains separate from nonlinear
+geometry, original terminal settling and actual contact evidence.
+
+`stop_continuation_outcome` is the shared numerical scorer for complete stop
+samples. It preserves the original 10 mm translation, three-degree rotation and
+0.01 rad/s terminal-speed criteria, existing physical/contact refusals, expected
+sample count and finite-data checks. Native continuation delegates to it;
+recorded/model consumers use the same terminal check. Missing model streams stay
+unavailable rather than becoming zero-filled full-stop evidence. An unsettled
+stop now explicitly reports `stop_not_settled`; all previously recorded decisions
+remain unchanged. This sample outcome still requires separate full-body,
+load-model and input-provenance qualification.
+
+An isolated native solver-implicit prototype keeps the nominal gains and target,
+with physical total-effort capacity reserved between feedforward and the native
+drive. Its internal drive torque is unavailable and must not be equated with the
+explicit actuator buffer. The first abrupt-force state remains negative on the
+original two-second terminal-speed criterion, despite passing the other measured
+physical, joint-travel, 14-shape and residual-error checks. No implicit recipe or
+geometric bound is adopted from that diagnostic.
+
 Across 48 saved six-phase states, all original physical/tool/joint/14-shape/load
 and current-position checks pass, with zero current load-calibration rejections
 and exact actual feedforward reconstruction. Preserve the two legacy motion-

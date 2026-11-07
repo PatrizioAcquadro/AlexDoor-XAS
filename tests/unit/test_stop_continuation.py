@@ -383,3 +383,37 @@ def test_conditioning_uses_physical_force_window_even_when_last_tick_is_zero(gap
     for row in rows:
         row["native_force_n"] = [0.0] * 4
     assert not conditioning_loaded(dict(conditioning=rows), ProbeSetup(), 1 / 60)
+
+
+@pytest.mark.parametrize(
+    "column,value,reason",
+    [
+        (1, np.nextafter(0.01, np.inf), "stop_tool_translation"),
+        (2, np.nextafter(np.deg2rad(3), np.inf), "stop_tool_rotation"),
+        (4, np.nextafter(0.01, np.inf), "stop_not_settled"),
+        (5, np.nan, "nonfinite_stop_samples"),
+    ],
+)
+def test_stop_score_keeps_all_original_boundary_checks(column, value, reason):
+    from alexdoor_xas.qualification.stop import stop_continuation_outcome
+
+    values = np.zeros((2, 6))
+    values[:, 1] = 0.01
+    values[:, 2] = np.deg2rad(3)
+    values[-1, 4] = 0.01
+    assert stop_continuation_outcome(values, expected_ticks=2, step_dt=1)["passed"]
+    values[-1, column] = value
+    result = stop_continuation_outcome(values, expected_ticks=2, step_dt=1)
+    assert not result["passed"] and reason in result["violations"]
+
+
+def test_stop_score_preserves_incomplete_and_missing_outcomes():
+    from alexdoor_xas.qualification.stop import stop_continuation_outcome
+
+    for values in [[], np.zeros((1, 6))]:
+        result = stop_continuation_outcome(values, expected_ticks=2, step_dt=1)
+        assert not result["passed"] and "incomplete_stop_continuation" in result["violations"]
+    result = stop_continuation_outcome(
+        np.zeros((2, 6)), expected_ticks=2, step_dt=1, violations=["forbidden_contact"]
+    )
+    assert not result["passed"] and result["violations"] == ["forbidden_contact"]

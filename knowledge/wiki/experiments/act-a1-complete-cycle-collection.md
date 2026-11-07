@@ -3953,3 +3953,62 @@ closed-loop stopping-support proposal using current state, the original 10 N
 scope and the same calibrated component uncertainty. Unknown future delivered
 corrections must not enter its bound. Retain the unstable H− entry-preload
 control, arbitrary-force/out-of-calibration negatives and frozen-model limits.
+
+
+### November 7: prospective support and implicit-drive negatives; shared stop scoring
+
+The prospective frozen closed-loop envelope uses only initial coupled state,
+31 distal contact-point alternatives, the original 10 N ball at every physics
+interval and the existing component error budget. A change of state coordinates
+retains the shared force history across the causal one-sample compensation delay.
+The certain-residual remainder is bounded by twice the same component interval,
+a consequence of its measurement error and confidence deadzone. An independent
+superset face witness matches within 4.45e-16 rad and all qualified prefixes of
+the earlier synthetic trajectories remain contained. Position support closes at
+48/48 anchors, but no anchor closes all original travel, speed and calibration
+acceleration conditions. This is a negative support proposal, not a new runtime
+bound or evidence of an actual physical violation at every anchor. An initial
+scalar roundoff check used inconsistent units; its failed allocation and script
+are preserved before the operand-based arithmetic check is corrected.
+
+A separate solver-implicit model keeps nominal gains, target, effort limits and
+strict completed-residual feedback. It reproduces the original explicit control
+exactly, then evaluates 480 trajectories and 301 actual inertia snapshots across
+32 old profiles. The implicit frozen physical tangent is stable at all snapshots,
+including the earlier unstable H− profile, whose explicit negative is retained.
+The initial partial screen counts omit terminal settling. Rescoring the saved
+trajectories with the original terminal criterion leaves zero fully screened
+abrupt-friction cases; the original report is retained beside the correction.
+
+One native implicit-drive diagnostic is preserved. An initial API-layer mismatch
+fails before trial dynamics, leaving one unattempted state. The corrected
+Isaac Lab PhysX adapter verifies gains, latched targets, drive-cap readback and
+physical total-effort capacity after reserving feedforward. Its 1,920 completed
+intervals pass physical position/speed, original joint travel, all fourteen
+shapes and the unchanged calibrated torque-error budget. Peak measured residual
+error is 0.004819 N m, with zero budget exceedances, zero input-domain rejections
+and exact feedforward/explicit-buffer reconstruction. Internal solver drive
+torque remains unavailable. The original two-second terminal speed is
+0.06115 rad/s against 0.01, so the candidate stays negative and dependent trials
+are suspended. No physical trial is repeated to repair that outcome.
+
+The maintained `stop_continuation_outcome` centralizes the original complete
+sample contract without changing thresholds or acceptance. It also reports
+`stop_not_settled` explicitly. Replay of 27 complete native segments preserves
+all 26 positives and one negative exactly; absent model channels remain
+unavailable. The shared scorer prevents the isolated terminal-preflight omission
+from being silently promoted to qualification. Focused unit coverage includes
+nominal, exact-boundary, perturbed, nonfinite and missing cases.
+
+Canonical results in the ignored campaign evidence directory are
+`D4-prospective-causal-stop-frozen-support-20261107.json`,
+`D4-solver-implicit-causal-stop-isolated-screen-20261107.json`,
+`D4-prospective-support-and-native-implicit-negative-closeout-20261107.json`
+and `shared-stop-scoring-native-and-model-parity-20261107.json`.
+Both native diagnostic transfers preserve 41 original files plus six sidecars;
+all owned processes, GPU contexts and leases close. All 222 continuation
+allocations, including numerical and pretrial failures, are accounted for.
+Collection remains 17/36, with no new demonstrations, optimizer updates,
+implicit controller recipe or geometric stop bound. Next work audits actual
+contact/free-space evidence and geometric stopping consumers before another
+controller variant or observed teacher attempt.
