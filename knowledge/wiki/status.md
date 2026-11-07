@@ -22,9 +22,15 @@ finite load cases and 24 original stop segments now qualify H−'s two missing
 sides; all eight original paths pass current/future support without changing
 model or physical limits. Three changing-load door fixtures still lose contact
 near 1.2–1.3° before a secondary abort-release position refusal. Their full
-negative and stop reviews are preserved. A four-condition fixture now tests the
-existing damping/speed/lever-derived push request with the coupled controller;
-complete observed execution remains pending.
+negative and stop reviews are preserved. The four damping/speed/lever-derived
+coupled-pressure fixtures also close negative near 4.88–5.18°: N/H+/P exceed
+measured load support during push; H− loses contact. All current/future position
+and physical boxes and all original continuing stops pass. Whole recordings,
+RGB, missing phases and resource cleanup are independently reviewed. A saved
+CUDA sensitivity audit identifies linear elastic pressure coupling from the
+other five pose axes. Its stiffness/Jacobian-based compensation now passes
+numerical and source checks; complete native requalification remains required
+before any contact or observed-source claim.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

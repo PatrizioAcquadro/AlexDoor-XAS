@@ -749,3 +749,67 @@ def test_normal_transport_requires_explicit_valid_reference_increment(defect):
     with pytest.raises(ValueError):
         bounded_pose_step(torch.eye(6, 7)[None], torch.zeros(1, 6), q,
                           torch.tensor([[[-1., 1.]] * 7]), torch.ones_like(q), .02, **options)
+
+
+@pytest.mark.parametrize("sign", [-1., 1.])
+@pytest.mark.parametrize("perturbation", [0., .03])
+@pytest.mark.parametrize("missing_unrelated_axis", [False, True])
+def test_normal_reference_removes_other_axes_elastic_pressure(
+    sign, perturbation, missing_unrelated_axis
+):
+    jac = torch.eye(6, 7, dtype=torch.float64)[None]
+    jac[0, 0, 1] = .4 + perturbation
+    jac[0, 1, 6] = .3
+    jac[0, 5, 0] = .2
+    if missing_unrelated_axis:
+        jac[0, 3] = 0
+    q = torch.zeros(1, 7, dtype=jac.dtype)
+    stiffness = torch.tensor([[320., 26.78, 160., 160., 20., 10., 50.]], dtype=jac.dtype)
+    n = torch.tensor([[1., 0., 0., 0., 0., 0.]], dtype=jac.dtype)
+    options = dict(previous_targets=q + .001, feedback_time_constant_s=.5,
+                   reference_delta=n * (sign * .0001), compliant_normal=n[:, :3],
+                   normal_reference_only=True, return_request=True, centering_gain=2.)
+    limits = torch.tensor([[[-1., 1.]] * 7], dtype=jac.dtype)
+    error = sign * torch.tensor([[.1, .01, -.02, .01, .02, .03]], dtype=jac.dtype)
+    original = bounded_pose_step(jac, error, q, limits, torch.ones_like(q), .02, **options)
+    target, _, request = bounded_pose_step(
+        jac, error, q, limits, torch.ones_like(q), .02,
+        motion_stiffness=stiffness, **options,
+    )
+    before = (jac @ (original[2]-options['previous_targets']).unsqueeze(-1)).squeeze(-1)
+    after = (jac @ (request-options['previous_targets']).unsqueeze(-1)).squeeze(-1)
+    torch.testing.assert_close(after[:, 1:], before[:, 1:], atol=1e-14, rtol=0)
+    compliance = (jac/stiffness.unsqueeze(-2)) @ jac.transpose(-1, -2)
+    inverse_compliance = torch.linalg.pinv(compliance, hermitian=True)
+    wrench_before = (inverse_compliance @ before.unsqueeze(-1)).squeeze(-1)
+    wrench_after = (inverse_compliance @ after.unsqueeze(-1)).squeeze(-1)
+    normal_response = (inverse_compliance @ n.unsqueeze(-1)).squeeze(-1)[:, 0]
+    torch.testing.assert_close(wrench_after[:, 0], normal_response * before[:, 0])
+    assert (wrench_before[:, 0]-wrench_after[:, 0]).abs().max() > .001
+    assert torch.equal(target, request)
+    clipped, _ = bounded_pose_step(
+        jac, error*1000, q, limits, torch.ones_like(q)*.001, .02,
+        motion_stiffness=stiffness, **{k:v for k,v in options.items() if k!='return_request'},
+    )
+    assert ((clipped-options['previous_targets']).abs() <= .001*.02+1e-14).all()
+    assert ((clipped >= limits[..., 0]) & (clipped <= limits[..., 1])).all()
+
+
+@pytest.mark.parametrize("defect", ["mode", "shape", "zero", "nan"])
+def test_normal_elastic_coupling_refuses_unavailable_state(defect):
+    q = torch.zeros(1, 7)
+    jac = torch.eye(6, 7)[None]
+    stiffness = torch.ones_like(q)
+    options = dict(previous_targets=q, feedback_time_constant_s=.5,
+                   compliant_normal=torch.tensor([[1., 0., 0.]]), normal_reference_only=True)
+    if defect == "mode":
+        options['normal_reference_only'] = False
+    elif defect == "shape":
+        stiffness = stiffness[:, :6]
+    elif defect == "zero":
+        stiffness[0, 1] = 0
+    elif defect == "nan":
+        stiffness[0, 1] = float('nan')
+    with pytest.raises(ValueError, match="normal_"):
+        bounded_pose_step(jac, torch.zeros(1, 6), q, torch.tensor([[[-1., 1.]]*7]),
+                          torch.ones_like(q), .02, motion_stiffness=stiffness, **options)

@@ -10,6 +10,20 @@ comprising thirteen ordinary cycles and four complete recoveries. All nine D2
 conditions are qualified.** The retained
 pause baseline remains29full attempts:eight positive and21negative.
 
+The November 6 direct human resume supersedes the November 4 pause. The
+measured-release controller qualifies eight complete robot-only 0/10 N paths;
+two independently measured H− support sides complete their scoped position
+coverage. Actual changing-load contact remains negative: the three 0.1 N
+coupled-pressure fixtures lose contact near 1.2–1.3°, and the four physically
+derived push-pressure fixtures stop near 4.88–5.18° (three load refusals and one
+contact loss). All seven-coordinate current/future boxes and original stops
+pass for the latter four. Full payloads, unavailable phases, RGB and charges
+remain preserved. A whole-command CUDA sensitivity audit finds a nonzero
+quasistatic pressure contribution from tangential/rotational commands under
+unequal joint stiffnesses. Its numerical compensation is implemented; fresh
+whole-path native, changing-load and observed qualification are still pending.
+See [[../topics/purdue-b1-robot-and-contact|the control contract]].
+
 D2-RP independently qualifies the real72-command pause/313-command recovery.
 D1-H- and D2-H- measure20.02mm and19.97mm lower hold heights respectively.
 D2-DR confirms1.3x panel/handle mass and inertia with hinge damping6. The distinct

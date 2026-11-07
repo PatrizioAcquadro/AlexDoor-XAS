@@ -458,6 +458,11 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 ),
                 normal_reference_only=normal_reference_only,
                 normal_transport_m=normal_transport,
+                motion_stiffness=(
+                    self._normal_transport_stiffness
+                    if normal_reference_only and getattr(self.cfg, "pose_normal_transport", False)
+                    else None
+                ),
                 return_request=with_request,
             )
             target, excess = result[:2]
