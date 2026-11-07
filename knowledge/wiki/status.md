@@ -39,7 +39,13 @@ release. A saved-operand audit identifies pending FK target distance suppressing
 some measured-gap corrections, including zero-force intervals. Force-reference
 mode now retains this elastic target support without crediting it as guaranteed
 gap-closing travel. The pose controller and all task/model/physical/stop criteria
-stay unchanged; complete native qualification and observed execution remain open.
+stay unchanged. The four changed actual-contact fixtures also close negative:
+N 2.807°, H+ 1.230°, H− 1.442° and P 0.243°, all from pre-release contact loss
+before a secondary empirical withdrawal refusal. P retains the same final angle
+as its paired baseline. All raw/native, physical, original stops, RGB, whole
+transfers and owned cleanup are independently reviewed. Gap credit alone does
+not establish stable combined control; further contact attempts require a
+whole arm/door dynamics diagnosis. Observed qualification remains open.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

@@ -34,8 +34,14 @@ target distance credited against a measured gap even in explicit force-reference
 mode. That distance may include retained elastic support rather than assured
 closing travel; the credit is now zero only in that mode. Ordinary pose control,
 all rates/extents and every qualification criterion remain unchanged. The change
-passes essential unit and saved-operand checks; full native and observed
-qualification remain pending.
+passes essential unit and saved-operand checks, but the four paired actual-contact
+fixtures remain negative: N 2.807°, H+ 1.230°, H− 1.442° and P 0.243°. Every
+primary failure is pre-release contact loss; later withdrawal exits empirical
+position support. P's final angle equals its baseline. Whole recordings and
+sidecars, raw/native/model/current/future/physical checks, original stops, RGB
+and owned cleanup are reviewed. This is a negative intervention, with no source
+or matrix credit. Coupled arm/door dynamics must be reconciled before another
+contact family; observed qualification remains pending.
 See [[../topics/purdue-b1-robot-and-contact|the control contract]].
 
 D2-RP independently qualifies the real72-command pause/313-command recovery.
