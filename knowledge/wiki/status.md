@@ -163,9 +163,12 @@ paths and stops remain unqualified. The native harness now applies the original
 current/single-future support and physical criteria before dispatch and across
 each completed native interval. Its saved-state controls accept all qualified
 baselines and detect all four prior loaded negatives. One new original 0/10 N
-family is running on four owned GPUs at source `38a8efe`; actual startup confirms
-the new reference and guard flags. Outcomes remain pending. No dependent contact
-retry or support extension is ready.
+family was dispatched at source `38a8efe`. N's 0 N path stops during opening
+at an original future empirical-support exit of 10.71 microradians; current
+support, all physical/model predicates and the original continuing stops pass.
+It remains incomplete and its 10 N case is unattempted. The other three jobs
+were healthy at the single current snapshot and continue without repeated
+polling. No dependent contact retry or support extension is ready.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

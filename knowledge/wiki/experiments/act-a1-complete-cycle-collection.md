@@ -3311,3 +3311,23 @@ The first reference-frame algebra run exposed nonorthogonality from float32 FK
 rotation blocks; standard rigid-rotation normalization fixes its representation,
 with that failed preparation retained. No native criterion changes. Evidence is
 in `D4-entry-preload-native-and-mechanism-closeout-20261107.json`.
+
+
+The first `38a8efe` outcome is an empirical refusal at N0N, not a physical
+failure. At 35.9833 s during opening, three native packets leave the original
+single-future lower shoulder-X support by at most 10.71 microradians. All current
+position, physical, rate/reserve/effort and frozen-model predicates pass, as do
+all original same-latch 2+4+2 s/fourteen-shape stops. Whole transfer and owned
+cleanup are verified. The 10 N case is unattempted; opening remains incomplete
+and hold/release/stabilization unavailable. The canonical result is
+`D4-tool-reference-N-first-refusal-closeout-20261107.json`.
+
+On 1,918 exactly matched original native references, qualified `0edb99f`, fixed
+joint `5a5caad` and tool-frame `38a8efe` have common-prefix opening RMS position
+errors of 0.160, 0.881 and 1.118 mm. The last available errors are 0.180, 1.253 and
+1.688 mm. Available tracking remains inside the original pose criteria, but this
+does not establish the missing complete path. The new empirical refusal is
+preserved without changing support or thresholds. At the single wake snapshot,
+P reports its 0 N case complete and continues at 10 N; H+/H− are healthy at 0 N.
+Those declarations remain unreviewed and later progress is unpolled. Complete
+family outcomes are required before a common mechanism or calibration decision.
