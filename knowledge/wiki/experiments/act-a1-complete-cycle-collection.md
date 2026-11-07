@@ -3502,3 +3502,37 @@ matrix remains 17/36. Evidence is
 `D4-four-substep-causal-response-whole-family-CUDA-20261107.json`,
 `D4-four-substep-native-interventions-whole-family-CUDA-20261107.json` and
 `D4-four-substep-native-position-error-decomposition-CUDA-20261107.json`.
+
+
+The next optional posture implementation uses a coupled all-face preference,
+while retaining the already bounded primary target and original gain 2.0.
+A scalar correction remains in the kinematic Jacobian nullspace; the constrained
+four-substep actuator response supplies its approximate effect on measured
+joint margins. Physical target/rate limits remain separate from empirical
+support. The score uses the original measured-speed allowance once and cannot
+create an admission refusal, even when negative. Loaded targets are not clipped
+to measured support. The API defaults unset and is separate from midpoint-only
+centering.
+
+An initial objective also penalized proposed endpoint speed. Its 34,392
+single-command controls passed, but the 48-case closed-loop posture screen
+failed convergence: a one-tick inward correction could be no better than rest.
+An exact scalar witness retains that failure. The measured-margin correction
+passes the same full-history and 48-case free/changing-load/blocked elastic
+plant controls without changing acceptance criteria. The largest primary-target
+difference is 2.68e-15 in the matched plants, and the largest final redundant
+coordinate falls from 0.85 to 0.45056 rad. These are model controls, not native
+trajectory or contact qualification.
+
+Production math matches the isolated version on all 34,392 commands. The
+unchanged default pose math and disabled actual-method previews retain parity.
+Eight original saved cases pass pure preview, exact dispatch, entry reference,
+no reseeding, rejected-preview invariance, measured-origin exit, joint override,
+idempotent stop and reset controls. One initial method assertion compared a raw
+quaternion with the normalized queued request; its failure and cost remain,
+and canonical-request preview/dispatch equality passes all eight cases. The
+224 focused tests and lint pass. All six allocations, including both failed
+controls, are closed and charged. The new source still requires all eight
+original guarded 0/10 N native full paths and stops before contact or source
+adoption; the matrix remains 17/36. Canonical source-control evidence is
+`D4-measured-coupled-margin-source-controls-closeout-20261107.json`.

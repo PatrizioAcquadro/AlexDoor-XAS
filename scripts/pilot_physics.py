@@ -367,6 +367,14 @@ def main(argv=None):
         cfg.pose_centering_domain_rad = (
             None if centering is None else tuple(map(tuple, centering))
         )
+        posture_support = recipe.get("pose_posture_support_rad")
+        cfg.pose_posture_support_rad = (
+            None if posture_support is None else tuple(map(tuple, posture_support))
+        )
+        stopping_reserve = recipe.get("pose_posture_stopping_reserve_rad")
+        cfg.pose_posture_stopping_reserve_rad = (
+            None if stopping_reserve is None else tuple(stopping_reserve)
+        )
         cfg.pose_feedback_time_constant_s = recipe.get("pose_feedback_time_constant_s")
         cfg.pose_reference_feedforward = recipe.get("pose_reference_feedforward", False)
         cfg.pose_normal_compliance = recipe.get("pose_normal_compliance", False)
@@ -417,6 +425,8 @@ def main(argv=None):
             pose_target_margin_rad=cfg.pose_target_margin_rad,
             pose_target_domain_rad=cfg.pose_target_domain_rad,
             pose_centering_domain_rad=cfg.pose_centering_domain_rad,
+            pose_posture_support_rad=cfg.pose_posture_support_rad,
+            pose_posture_stopping_reserve_rad=cfg.pose_posture_stopping_reserve_rad,
             pose_feedback_time_constant_s=cfg.pose_feedback_time_constant_s,
             pose_reference_feedforward=cfg.pose_reference_feedforward,
             pose_normal_compliance=cfg.pose_normal_compliance,

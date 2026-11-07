@@ -208,8 +208,16 @@ All physical predicates and final stops pass, and owned resources are closed.
 These reset trials establish local response only. A posture proposal must use
 measured margins and retain the original guards; approximate next position is
 not an admission certificate. The matrix remains 17/36.
-No constrained controller is implemented; the optional API defaults unset and
-has no observed-source adoption.
+An optional coupled posture preference is now implemented and defaults unset.
+It preserves the bounded primary target, scores all fourteen support faces using
+current measured velocity once, and uses the constrained actuator response to
+estimate the effect of a kinematic-nullspace correction. An earlier one-tick
+endpoint-speed objective stalled inward motion and is rejected. The corrected
+preference passes 34,392 original-command controls, 48 matched elastic plants
+with load changes and blocking, and eight actual-method history contracts.
+Actual-state admission and all original gains and criteria remain unchanged.
+The new candidate still needs all eight original guarded native paths and stops;
+there is no contact or observed-source adoption.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

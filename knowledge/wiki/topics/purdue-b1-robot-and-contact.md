@@ -253,7 +253,29 @@ response as an approximation, with all seven measured margins and unchanged
 actual-state guards; do not certify admission from approximate next position.
 Fixture wrench truth is diagnostic only; an observed controller must use
 authorized causal inputs. See [[experiments/act-a1-complete-cycle-collection|the complete-cycle experiment]]
-for outcomes and limitations. No posture governor is implemented by this audit.
+for outcomes and limitations.
+
+The optional coupled posture preference preserves the already bounded primary
+target, then chooses a scalar correction in the kinematic Jacobian nullspace.
+Its all-face score uses current measured support and the original stopping plus
+acceleration reserve and measured-speed allowance once. The four-substep
+actuator response predicts the correction's effect; it does not turn target-null
+motion into an exact measured-motion nullspace or certify future admission.
+The scalar optimization respects the primary command's remaining physical and
+rate bounds, with the existing centering gain controlling the preference step.
+An infeasible approximate score adds no refusal, and loaded targets remain
+separate from measured support.
+
+Penalizing the proposed endpoint speed in the same one-tick objective can make
+inward motion no better than rest. That rejected objective has an exact witness
+and a failed closed-loop plant control. The measured-margin version preserves
+the original primary task in matched loaded, changing-load and blocked plants;
+native whole-path qualification remains required. Both
+`pose_posture_support_rad` and `pose_posture_stopping_reserve_rad` default to
+`None`; the latter excludes the velocity term. The recipe cannot combine this
+mode with the midpoint-only centering domain. Preview is pure, ordinary mode
+handoff retains its measured origin, and joint commands, stop and reset keep
+existing history semantics.
 
 When this mode returns to ordinary pose control, its first reference increment
 uses the current measured tool pose as origin. The maintained intentional

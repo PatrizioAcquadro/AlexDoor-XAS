@@ -39,6 +39,10 @@ from alexdoor_xas.kinematics.pose_control import (
     pose_target_limits,
     tool_frame_elastic_reference,
 )
+from alexdoor_xas.kinematics.posture import (
+    coupled_margin_preference,
+    joint_command_position_response,
+)
 from alexdoor_xas.recording.rgbd import RGBDCapture
 
 from .purdue_contacts import ContactObserver
@@ -102,6 +106,12 @@ class DoorPushPurdueEnv(DirectRLEnv):
             cfg.pose_feedback_time_constant_s is None or not cfg.pose_reference_feedforward
         ):
             raise ValueError("finite_tangent_requires_causal_pose_feedback")
+        if (cfg.pose_posture_support_rad is None) != (
+            cfg.pose_posture_stopping_reserve_rad is None
+        ):
+            raise ValueError("posture_support_requires_stopping_reserve")
+        if cfg.pose_posture_support_rad is not None and cfg.pose_centering_domain_rad is not None:
+            raise ValueError("select_one_posture_preference")
         self._motion_impedance = []
         super().__init__(cfg, **kwargs)
         self.arm_ids = self._resolve_joints(ARM_JOINTS)
@@ -140,6 +150,42 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 self.pose_limits, domain=cfg.pose_centering_domain_rad
             )
         )
+        self.pose_posture_support = None
+        if cfg.pose_posture_support_rad is not None:
+            self.pose_posture_support = pose_target_limits(
+                self.limits.to(torch.float64), domain=cfg.pose_posture_support_rad
+            )
+            self._posture_stopping_reserve = torch.as_tensor(
+                cfg.pose_posture_stopping_reserve_rad, device=self.device, dtype=torch.float64
+            )
+            if (self._posture_stopping_reserve.shape != (7,)
+                or not bool(torch.isfinite(self._posture_stopping_reserve).all())
+                or bool((self._posture_stopping_reserve < 0).any())):
+                raise ValueError("invalid_posture_stopping_reserve")
+            names = self.robot.joint_names
+            followers = {row[0] for row in self._posture_mimic_relations}
+            free = [name for name in names if name not in followers]
+            self._posture_basis = torch.zeros(
+                len(names), len(free), device=self.device, dtype=torch.float64
+            )
+            self._posture_passive_damping = torch.zeros(
+                len(names), device=self.device, dtype=torch.float64
+            )
+            for column, name in enumerate(free):
+                self._posture_basis[names.index(name), column] = 1
+            for follower, driver, multiplier, damping in self._posture_mimic_relations:
+                if driver not in free:
+                    raise ValueError("unsupported_chained_posture_mimic")
+                self._posture_basis[names.index(follower), free.index(driver)] = multiplier
+                self._posture_passive_damping[names.index(follower)] = damping
+            self._posture_stiffness = torch.zeros_like(self._posture_passive_damping)
+            self._posture_damping = torch.zeros_like(self._posture_passive_damping)
+            for actuator in self.robot.actuators.values():
+                for column, name in enumerate(actuator.joint_names):
+                    self._posture_stiffness[names.index(name)] = tensor(
+                        actuator.stiffness
+                    )[0, column]
+                    self._posture_damping[names.index(name)] = tensor(actuator.damping)[0, column]
         self.velocities = tensor(self.robot.data.joint_vel_limits)[:, self.arm_ids].clone()
         # Target-rate clipping alone permits tracking overshoot: the pilot
         # measured 0.5183 rad/s under a 0.5 rad/s reference. Retain 10% reference
@@ -212,6 +258,15 @@ class DoorPushPurdueEnv(DirectRLEnv):
         robot_cfg.init_state.pos = (x, y, spec.alex_root_world_z_m)
         robot_cfg.init_state.rot = floor_quat
         joints = ET.parse(robot_cfg.spawn.asset_path).getroot().findall("joint")
+        if self.cfg.pose_posture_support_rad is not None:
+            self._posture_mimic_relations = [
+                (joint.get("name"), joint.find("mimic").get("joint"),
+                 float(joint.find("mimic").get("multiplier", "1")),
+                 float(joint.find("dynamics").get("damping", "0"))
+                 if joint.find("dynamics") is not None else 0.)
+                for joint in joints if joint.find("mimic") is not None
+            ]
+
         defaults = {j.get("name"): 0.0 for j in joints if j.get("type") != "fixed"}
         robot_cfg.init_state.joint_pos = {
             **defaults,
@@ -394,6 +449,25 @@ class DoorPushPurdueEnv(DirectRLEnv):
         world = frame_delta_to_world(delta, frame)
         return self.step(torch.tensor(world, dtype=torch.float32, device=self.device)[None])
 
+    def _coupled_posture_target(self, primary, jacobian, positions):
+        """Pure preference on current robot state; original admission is external."""
+        data = self.robot.data
+        mass = tensor(data.mass_matrix).to(torch.float64) + torch.diag_embed(
+            tensor(data.joint_armature).to(torch.float64)
+        )
+        response = joint_command_position_response(
+            mass, self._posture_basis, self._posture_passive_damping,
+            self._posture_stiffness, self._posture_damping, self.arm_ids,
+            self.cfg.sim.dt, self.cfg.decimation,
+        )
+        target, _ = coupled_margin_preference(
+            jacobian, positions, tensor(data.joint_vel)[:, self.arm_ids], primary,
+            self.targets[:, self.arm_ids], self.pose_limits, self.velocities, self.step_dt,
+            self.pose_posture_support, self._posture_stopping_reserve, response,
+            self.cfg.centering_gain,
+        )
+        return target
+
     def preview_targets(
         self, *, joint_delta=None, world_goal=None, with_request=False,
         normal_reference_only=False,
@@ -469,7 +543,8 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 self.velocities,
                 self.step_dt,
                 previous_targets=self.targets[:, self.arm_ids],
-                centering_gain=self.cfg.centering_gain,
+                centering_gain=(0. if getattr(self, "pose_posture_support", None) is not None
+                                else self.cfg.centering_gain),
                 centering_limits=getattr(self, "pose_centering_limits", None),
                 damping=self.cfg.ik_damping,
                 feedback_time_constant_s=getattr(self.cfg, "pose_feedback_time_constant_s", None),
@@ -489,6 +564,11 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 return_request=with_request,
             )
             target, excess = result[:2]
+            if getattr(self, "pose_posture_support", None) is not None:
+                primary = target
+                target = self._coupled_posture_target(primary, jacobian, q)
+                if with_request:
+                    result = (target, excess, result[2] + (target - primary))
         if with_request:
             requested = q + joint_delta if joint_delta is not None else result[2]
             return target, excess, error, requested

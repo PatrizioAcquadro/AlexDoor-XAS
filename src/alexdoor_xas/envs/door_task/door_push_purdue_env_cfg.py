@@ -36,6 +36,10 @@ class DoorPushPurdueEnvCfg(DirectRLEnvCfg):
     pose_target_domain_rad: tuple | None = None
     # Optional soft nullspace preference; physical and admission bounds stay separate.
     pose_centering_domain_rad: tuple | None = None
+    # Optional coupled preference in measured support; actual admission stays separate.
+    pose_posture_support_rad: tuple | None = None
+    # Existing stopping/acceleration reserve, excluding the measured velocity term.
+    pose_posture_stopping_reserve_rad: tuple | None = None
     # Optional outer pose feedback; inner actuator impedance remains unchanged.
     pose_feedback_time_constant_s: float | None = None
     pose_reference_feedforward: bool = False
