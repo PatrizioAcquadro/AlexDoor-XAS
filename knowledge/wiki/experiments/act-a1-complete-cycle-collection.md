@@ -2836,6 +2836,23 @@ before the change (about 10% lower) on the local workstation. The first tiled
 candidate was slower and remains a retained negative. These are saved-state
 profiling results; a complete observed collection timing comparison is pending.
 
+The actual N terminal snapshot also retains its preceding admitted proposal at
+44.9333 s, one control interval before the preserved 44.95 s physical contact
+loss. Its exact action, world endpoints, estimate and causal publication can be
+combined with the finished raw joint state and original ten RGB-D views. GPU
+endpoint readback agrees within the existing numerical comparison. Three paired
+full-producer replays retain every diagnostic except wall time exactly. Raw-array
+rectangle counting averages 1.577 s over the two warm profiled calls; indexed
+counting averages 1.414 s, a 10.35% reduction. Cold calls are 4.037 and 3.685 s.
+The reconstructed traversal/cache history differs from the original live call,
+which checked 70 volumes; replay queries are 64 cold and 53 warm. These timings
+therefore establish replay cost and proof parity, not native collection savings.
+The remaining profile is dominated by subdivided background checks. Both failed
+GPU preparations and the completed comparison, totaling 45.4055 GPU seconds,
+are retained with owned cleanup. The canonical result is
+`D4-N-reconstructed-producer-paired-cost-review-20261107.json`; no source or matrix
+cell is added, and the original physical failure remains negative.
+
 
 The three subsequent changing-load actual-door fixtures remain negative. N/H+/P
 lose native contact after 100/91/97 push commands, at about 1.29/1.17/1.25°;

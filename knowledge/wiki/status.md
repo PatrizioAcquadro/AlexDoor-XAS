@@ -142,6 +142,11 @@ it. Numerical and actual CUDA history/entry/release controls pass. Gains,
 observations, force thresholds and qualification criteria remain unchanged.
 The corrected eight native 0/10 N paths still require independent qualification
 before contact adoption; the scientific matrix remains 17/36.
+A separate replay now reconstructs N's last admitted geometric proposal from
+its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
+about 10% lower warm producer cost with indexed depth counts. Native collection
+savings remain unmeasured; subdivided background checks dominate the residual
+cost. The original subsequent contact-loss outcome is preserved.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
