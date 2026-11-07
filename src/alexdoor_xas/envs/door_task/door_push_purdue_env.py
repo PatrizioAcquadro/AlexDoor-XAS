@@ -37,6 +37,7 @@ from alexdoor_xas.kinematics.pose_control import (
     bounded_pose_step,
     normal_reference_transport,
     pose_target_limits,
+    tool_frame_elastic_reference,
 )
 from alexdoor_xas.recording.rgbd import RGBDCapture
 
@@ -74,7 +75,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._pending_joints = None
         self._last_world_goal = None
         self._last_normal_jacobian = None
-        self._finite_tangent_reference_offset = None
+        self._finite_tangent_tool_reference = None
         self.motion_stopped = False
         stop_stiffness = np.asarray(cfg.stop_stiffness, dtype=float)
         if (
@@ -448,13 +449,13 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 )
             finite_tangent_reference_offset = None
             if normal_reference_only and getattr(self.cfg, "pose_finite_tangent_impedance", False):
-                finite_tangent_reference_offset = getattr(
-                    self, "_finite_tangent_reference_offset", None
+                finite_tangent_reference_offset, _ = tool_frame_elastic_reference(
+                    jacobian,
+                    self._normal_transport_stiffness,
+                    self.targets[:, self.arm_ids] - q,
+                    matrix_from_quat(self.tool_pose()[1]),
+                    getattr(self, "_finite_tangent_tool_reference", None),
                 )
-                if finite_tangent_reference_offset is None:
-                    # Preview the same causal preload that dispatch will commit.
-                    # Do not erase an already supported load on mode entry.
-                    finite_tangent_reference_offset = self.targets[:, self.arm_ids] - q
             result = bounded_pose_step(
                 jacobian,
                 error,
@@ -498,7 +499,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self._pending_normal_reference_only = False
         self._last_world_goal = None
         self._last_normal_jacobian = None
-        self._finite_tangent_reference_offset = None
+        self._finite_tangent_tool_reference = None
         if self.motion_stopped:
             return
         self.motion_stopped = True
@@ -531,7 +532,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
             self._pending_normal_reference_only = False
             self._last_world_goal = None
             self._last_normal_jacobian = None
-            self._finite_tangent_reference_offset = None
+            self._finite_tangent_tool_reference = None
             if bool((actions != 0).any()):
                 raise RuntimeError("motion_stopped")
             self.contact_history = []
@@ -569,18 +570,22 @@ class DoorPushPurdueEnv(DirectRLEnv):
             and getattr(self.cfg, "pose_normal_transport", False)
             and self._last_normal_jacobian is not None
         )
-        dispatched_tangent_reference_offset = None
+        dispatched_tangent_tool_reference = None
         if delivered_normal_reference_only and getattr(
             self.cfg, "pose_finite_tangent_impedance", False
         ):
-            dispatched_tangent_reference_offset = getattr(
-                self, "_finite_tangent_reference_offset", None
+            dispatched_tangent_tool_reference = getattr(
+                self, "_finite_tangent_tool_reference", None
             )
-            if dispatched_tangent_reference_offset is None:
-                dispatched_tangent_reference_offset = (
+            if dispatched_tangent_tool_reference is None:
+                _, dispatched_tangent_tool_reference = tool_frame_elastic_reference(
+                    self.tool_jacobian(),
+                    self._normal_transport_stiffness,
                     self.targets[:, self.arm_ids]
-                    - tensor(self.robot.data.joint_pos)[:, self.arm_ids]
-                ).clone()
+                    - tensor(self.robot.data.joint_pos)[:, self.arm_ids],
+                    matrix_from_quat(self.tool_pose()[1]),
+                )
+            dispatched_tangent_tool_reference = dispatched_tangent_tool_reference.clone()
         dispatched_normal_jacobian = None
         if delivered_normal_reference_only and getattr(self.cfg, "pose_normal_transport", False):
             dispatched_normal_jacobian = (
@@ -604,7 +609,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         # cannot advance reference history. Joint commands end that history.
         self._last_world_goal = None if goal is None else tuple(value.clone() for value in goal)
         self._last_normal_jacobian = dispatched_normal_jacobian
-        self._finite_tangent_reference_offset = dispatched_tangent_reference_offset
+        self._finite_tangent_tool_reference = dispatched_tangent_tool_reference
         self.contact_history = []
         self.load_samples = []
         self._physics_actions = 0
@@ -708,7 +713,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.targets = q.clone()
         self._last_world_goal = None
         self._last_normal_jacobian = None
-        self._finite_tangent_reference_offset = None
+        self._finite_tangent_tool_reference = None
         self._pending_pose = None
         self._pending_normal_reference_only = False
         self._pending_joints = None

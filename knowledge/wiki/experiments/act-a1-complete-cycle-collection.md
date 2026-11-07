@@ -3266,9 +3266,27 @@ saved-state elastic-reference comparison transports the initial stiffness-
 weighted reference with the measured tool frame. On the independently qualified
 10 N histories, tangential residual RMS falls from 41.6–44.8 mm for a fixed joint
 reference to 2.30–2.74 mm. This static algebra is an unimplemented geometry
-hypothesis, not a corrected trajectory, force-feedback measurement or contact
-qualification. Free motion, changing loads, pure preview/dispatch, normal
-reference transitions and full guarded native paths remain required.
+hypothesis at that checkpoint, not a corrected trajectory, force-feedback
+measurement or contact qualification.
+
+The subsequent isolated candidate passes 48 matched elastic-plant cases with
+free translation/rotation, steady/changing load, fast/slow response and blocked
+motion. At fixed geometry its commands exactly match the prior seeded finite
+controller; blocked targets do not drift. All sixteen saved native geometries
+preserve entry elastic pose, rigid-coordinate invariance and the matched
+transported equilibrium without reseeding from later delivered offsets.
+The optional runtime now retains that six-axis tool-frame elastic reference,
+transporting it with measured tool rotation and stiffness-weighted Jacobians.
+Actual CUDA checks cover all 34,392 original single-command history boundaries,
+eight real entry offsets and eight measured release origins, plus actual-method
+preview/rejection/dispatch/mode-exit/joint/stop/reset semantics and original rate/
+target bounds. Defaults and prior modes remain bitwise unchanged. Evidence is
+`D4-tool-frame-elastic-reference-essential-CUDA-screen-20261107.json` and
+`D4-tool-frame-elastic-reference-controls-local-20261107/review.json`.
+These are software and matched-plant controls, not new native trajectories.
+Original current/single-future empirical support and physical acceleration must
+be guarded prospectively before the next native family; all original full-path
+and continuing-stop criteria remain required before contact/source adoption.
 
 All resources are closed. A completed inertia reader left only its own auxiliary
 Omniverse Hub process in the allocation group; the GPU was already unused. Only

@@ -10,6 +10,7 @@ from alexdoor_xas.kinematics.pose_control import (
     bounded_pose_step,
     normal_reference_transport,
     pose_target_limits,
+    tool_frame_elastic_reference,
 )
 from alexdoor_xas.recording.rgbd import RGBDCapture
 
@@ -889,3 +890,56 @@ def test_finite_tangent_entry_offset_requires_valid_active_mode(bad):
             normal_reference_only=True, finite_tangent_impedance=bad != "disabled",
             finite_tangent_reference_offset=reference,
         )
+
+
+@pytest.mark.parametrize("angle", [0., .4])
+def test_elastic_reference_transports_pose_preload_without_reseeding(angle):
+    jac = torch.eye(6, 7, dtype=torch.float64)[None]
+    jac[0, 0, 1], jac[0, 1, 6] = .25, .15
+    stiffness = torch.tensor([[320., 26.78, 160., 160., 20., 10., 50.]], dtype=jac.dtype)
+    delivered = torch.tensor([[.005, -.002, .003, 0., .001, 0., .004]], dtype=jac.dtype)
+    rotation = torch.eye(3, dtype=jac.dtype)[None]
+    offset, reference = tool_frame_elastic_reference(jac, stiffness, delivered, rotation)
+    torch.testing.assert_close(jac @ offset.unsqueeze(-1), jac @ delivered.unsqueeze(-1))
+    saved = reference.clone()
+    c, s = np.cos(angle), np.sin(angle)
+    moved_rotation = torch.tensor([[[c, -s, 0.], [s, c, 0.], [0., 0., 1.]]], dtype=jac.dtype)
+    moved_jac = jac.clone()
+    moved_jac[0, 0, 1] += .1
+    transported, retained = tool_frame_elastic_reference(
+        moved_jac, stiffness, delivered*3, moved_rotation, reference,
+    )
+    world = torch.cat((moved_rotation @ reference[:, :3, None],
+                       moved_rotation @ reference[:, 3:, None]), dim=1)
+    expected = (moved_jac.transpose(-1, -2) @ world).squeeze(-1) / stiffness
+    torch.testing.assert_close(transported, expected)
+    assert torch.equal(retained, saved) and torch.equal(reference, saved)
+    changed_load, _ = tool_frame_elastic_reference(
+        moved_jac, stiffness, delivered*0, moved_rotation, reference,
+    )
+    assert torch.equal(changed_load, transported)
+
+
+@pytest.mark.parametrize("bad", [
+    "shape", "nonfinite", "stiffness", "dtype", "reference", "singular",
+])
+def test_elastic_reference_rejects_invalid_or_unreachable_entry(bad):
+    jac = torch.eye(6, 7, dtype=torch.float64)[None]
+    stiffness = torch.ones(1, 7, dtype=jac.dtype)
+    offset = torch.zeros_like(stiffness)
+    rotation = torch.eye(3, dtype=jac.dtype)[None]
+    reference = None
+    if bad == "shape":
+        offset = offset[:, :6]
+    elif bad == "nonfinite":
+        rotation.fill_(float("nan"))
+    elif bad == "stiffness":
+        stiffness[0, 0] = 0
+    elif bad == "dtype":
+        offset = offset.float()
+    elif bad == "reference":
+        reference = torch.zeros(1, 5, dtype=jac.dtype)
+    else:
+        jac.zero_()
+    with pytest.raises(ValueError, match="elastic_pose_reference"):
+        tool_frame_elastic_reference(jac, stiffness, offset, rotation, reference)

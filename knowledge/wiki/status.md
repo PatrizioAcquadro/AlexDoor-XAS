@@ -135,11 +135,12 @@ preserved and superseded by already qualified scoped support.
 Across all four loaded postures, the measured elastic displacement explains
 the tangential endpoint error within 0.082 mm. The finite feedback was erasing
 preload already delivered by ordinary approach control. The optional mode now
-retains that entry target-minus-measured-joint offset and applies finite
-impedance only to subsequent elastic displacement. Previews remain pure;
-dispatch commits the offset once, and ordinary/joint/stop/reset transitions clear
-it. Numerical and actual CUDA history/entry/release controls pass. Gains,
-observations, force thresholds and qualification criteria remain unchanged.
+retains the entry elastic pose reference and applies finite impedance only to
+subsequent elastic displacement. The first fixed-joint implementation is the
+closed native family below. Its successor transports that reference with the
+measured tool frame. Previews remain pure; dispatch commits the reference once,
+and ordinary/joint/stop/reset transitions clear it. Gains, observations, force
+thresholds and qualification criteria remain unchanged.
 The entry-preload family is now independently closed: all four 0 N components
 qualify, but all four required 10 N paths fail during opening. N/H+/P miss the
 original pose endpoint by 80.86–83.50 mm; H− reaches a singular normal direction
@@ -153,9 +154,14 @@ measured oscillation; qualified baseline stop modes stay stable. The full
 unconstrained twenty-joint model also predicts instability in stable baselines
 and is rejected as a qualification gate. A missing scalar covector term is too
 small to explain the whole pose error. Transporting an entry elastic reference
-with tool geometry reduces saved-state residuals, but remains an unimplemented
-hypothesis requiring causal/free-motion/history and guarded whole-path controls.
-No dependent contact retry, threshold increase or support extension is ready.
+with tool geometry reduces saved-state residuals. The optional successor is now
+implemented and passes matched free-motion/changing-load/blocked-plant, actual
+CUDA full-history and real-method entry/preview/dispatch/release/stop/reset
+software controls. It stores a six-axis tool-frame elastic reference from the
+already delivered entry targets, not an external-force estimate. New native
+paths and stops remain unqualified. Before movement, qualification must apply
+the original current/single-future support and physical acceleration criteria
+prospectively. No dependent contact retry or support extension is ready.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

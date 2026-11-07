@@ -162,19 +162,28 @@ This option leaves inner actuator gains, normal admittance, centering, target/
 rate bounds, covector history, measured release handoff and independent stopping
 unchanged. It defaults off and requires causal pose feedback. Ordinary poses do
 not enable it. At mode entry, preserve the already delivered target-minus-
-measured-joint offset; subtract only subsequent elastic displacement from pose
-feedback. This finite impedance reference prevents erasing preload that the
-approach controller already supplied. It is a causal seven-joint history, not an
-external-force estimate or a frozen actual posture. Pure previews derive the
-same candidate entry offset; only dispatch commits it. Ordinary pose, joint,
-stop and reset transitions clear the offset. Essential blocked-load/free-
-reference/nullspace/normal-channel controls and original history math pass,
-including pure preview and exact dispatch. Corrected native full-path 0 N/10 N
-qualification remains required before any contact or source adoption.
-The fixed joint entry reference passes the ramp but fails full loaded opening
-and, on H−, the original continuing stop. It remains unadopted. A geometry-aware
-reference must preserve free motion and existing load support; a saved static
-elastic-reference comparison alone cannot establish those behaviors.
+measured-joint elastic pose; subtract only subsequent elastic displacement from
+pose feedback. A fixed seven-joint reference passed the ramp but failed full
+loaded opening and, on H−, the original continuing stop; it remains unadopted.
+
+The optional successor stores a six-axis tool-frame reference. Once on entry,
+with delivered offset `delta`, actual tool Jacobian `J`, rotation `R` and positive
+diagonal actuator stiffness `K`, solve `C w = J delta`, where
+`C = J K^-1 J.T`. Retain the force/moment-shaped coordinate `R.T w` separately
+for translation and rotation. At each preview rotate this same reference into
+the current world frame and map it through `K^-1 J.T`. This preserves the entry
+elastic pose without pretending to infer joint-nullspace preload. The coordinate
+is an internal elastic reference, not an external-force reading or frozen actual
+posture. A changed load cannot reseed it. Singular entry compliance is refused.
+The explicit normal channel and scalar covector transport are unchanged.
+
+Pure previews derive the same candidate reference; only dispatch commits it.
+Ordinary pose, joint, stop and reset transitions clear it. Matched free-motion,
+changing-load and blocked-plant controls, original saved-history math and actual
+environment method controls pass, including entry support, pure preview and
+exact dispatch. New native full-path 0 N/10 N qualification and original stops
+remain required before any contact or source adoption. Saved-state algebra and
+software tests do not establish dynamic stability or physical success.
 
 A candidate that canceled the frozen-joint elastic pressure of each full
 reference step (`ea8d5d4`) is withdrawn. Although its single-step algebra preserved

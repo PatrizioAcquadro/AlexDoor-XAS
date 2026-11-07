@@ -78,6 +78,44 @@ def normal_reference_transport(normal_jacobian, stiffness, delivered_offset, pre
     return increment
 
 
+def tool_frame_elastic_reference(jacobian, stiffness, delivered_offset, rotation, reference=None):
+    """Return joint pose bias and its retained six-axis tool-frame reference.
+
+    Initialize only from already delivered target minus measured joints. The
+    wrench-shaped coordinate represents an elastic pose reference, not a sensor
+    reading or external-force estimate. Joint-nullspace preload is not inferred.
+    Callers supply the current rigid tool rotation and commit only on dispatch.
+    """
+    if not isinstance(jacobian, torch.Tensor) or jacobian.shape[-2:] != (6, 7):
+        raise ValueError("invalid_elastic_pose_reference")
+    batch = jacobian.shape[:-2]
+    values = [(jacobian, batch+(6, 7)), (stiffness, batch+(7,)),
+              (delivered_offset, batch+(7,)), (rotation, batch+(3, 3))]
+    if reference is not None:
+        values.append((reference, batch+(6,)))
+    if not all(isinstance(v, torch.Tensor) and v.shape == shape
+               and v.device == jacobian.device and v.dtype == jacobian.dtype
+               and bool(torch.isfinite(v).all()) for v, shape in values):
+        raise ValueError("invalid_elastic_pose_reference")
+    if not bool((stiffness > 0).all()):
+        raise ValueError("invalid_elastic_pose_reference")
+    if reference is None:
+        compliance = (jacobian / stiffness.unsqueeze(-2)) @ jacobian.transpose(-1, -2)
+        pose_bias = jacobian @ delivered_offset.unsqueeze(-1)
+        wrench, info = torch.linalg.solve_ex(compliance, pose_bias)
+        if bool((info != 0).any()) or not bool(torch.isfinite(wrench).all()):
+            raise ValueError("unreachable_elastic_pose_reference")
+        wrench = wrench.squeeze(-1)
+        reference = torch.cat(tuple((rotation.transpose(-1, -2) @ part.unsqueeze(-1)).squeeze(-1)
+                                    for part in (wrench[..., :3], wrench[..., 3:])), -1)
+    world = torch.cat(tuple((rotation @ part.unsqueeze(-1)).squeeze(-1)
+                            for part in (reference[..., :3], reference[..., 3:])), -1)
+    offset = (jacobian.transpose(-1, -2) @ world.unsqueeze(-1)).squeeze(-1) / stiffness
+    if not bool(torch.isfinite(offset).all()):
+        raise ValueError("invalid_elastic_pose_reference")
+    return offset, reference
+
+
 def bounded_pose_step(
     jacobian,
     error,
