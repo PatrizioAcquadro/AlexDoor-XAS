@@ -3089,3 +3089,29 @@ Evidence: `D4-contact-manifold-four-negative-closeout-20261107.json`,
 `D4-contact-manifold-native-torque-closure-audit-20261107.json` in the campaign
 evidence directory. Native controller source remains `519c347`; the diagnostic
 clock description and completed-family review follow baseline `57863e4`.
+
+A separate nominal native diagnostic adds a filtered Tensor API view for the two
+exact finger–panel pairs, recording normal and tangential patches at the original
+240 Hz clock. Normal and friction getters share count/start buffers, so every
+returned array is copied before the next getter. All 3,484 completed packets
+verify; filtered and original normal force/moment sums agree exactly, and all 17
+saved native arrays exactly match the previous same-host nominal recording.
+The additional measurement therefore preserves this failed trajectory. Raw data,
+original load/current/future/physical checks, 6-second fourteen-shape stops, RGB,
+whole transfer and owned cleanup are independently reviewed. The task remains
+negative at 0.458°, with no new demonstration or matrix cell.
+
+During 320 push packets, friction is nonzero in 264 and normal force is positive
+in 236. The 28 zero-normal/nonzero-friction packets reach only 0.00807 N friction;
+retain these solver readbacks instead of reconstructing them from an assumed
+instantaneous Coulomb cone. Adding the measured tangential wrench reduces the
+largest per-joint command-dynamics RMS residual from 0.04968 to 0.000326 N m;
+body-output residuals similarly shrink. This identifies a major omission in the
+normal-only dynamics audit, not a validated controller intervention. The frozen
+six-dimensional load model, gains, actor inputs and scientific criteria remain
+unchanged. H+/H−/P measurement and complete-motion diagnosis remain necessary
+before a shared correction. Evidence is in the nominal run's
+`independent-native-friction-review.json` and
+`complete-native-friction-observability-and-negative-outcome-closeout.json`.
+The reader's initial NumPy-integer JSON serialization error is retained; its
+correction changes only output encoding and adds no GPU allocation.
