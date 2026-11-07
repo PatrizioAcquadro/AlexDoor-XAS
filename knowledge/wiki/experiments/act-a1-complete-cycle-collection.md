@@ -3284,9 +3284,25 @@ target bounds. Defaults and prior modes remain bitwise unchanged. Evidence is
 `D4-tool-frame-elastic-reference-essential-CUDA-screen-20261107.json` and
 `D4-tool-frame-elastic-reference-controls-local-20261107/review.json`.
 These are software and matched-plant controls, not new native trajectories.
-Original current/single-future empirical support and physical acceleration must
-be guarded prospectively before the next native family; all original full-path
-and continuing-stop criteria remain required before contact/source adoption.
+The qualification harness now applies original current/single-future empirical
+support and physical predicates before dispatch/wrench updates and after each
+completed four-sample native interval. The existing single future allowance is
+paid once, using the latest already qualified scoped support. All eight positive
+baselines and four earlier 0 N components pass the guard; all four earlier 10 N
+negatives are detected first at future-support exits. Empirical refusal remains
+distinct from physical safety. Float32-rounded boundary-test preparations and an
+old metadata-field preflight refusal are preserved; only test representation and
+the actual closure-field reference were corrected.
+
+At `38a8efe`, all eight unchanged original 0/10 N cases were dispatched once on
+Blackwell and elab2–4. Fresh archive/runtime/UUID/ownership/capacity checks pass.
+One actual startup snapshot confirms four owned running allocations and the
+new reference/guard flags, with no reported error. Later progress is unpolled;
+no path, stop or source is newly qualified. The checkpoint is
+`D4-tool-reference-software-and-owned-startup-checkpoint-20261107.json`.
+All original full-path and continuing-stop criteria remain required before
+contact/source adoption. Refusals retain actual completed intervals and leave
+unexecuted phases unavailable; counters advance only for delivered commands.
 
 All resources are closed. A completed inertia reader left only its own auxiliary
 Omniverse Hub process in the allocation group; the GPU was already unused. Only

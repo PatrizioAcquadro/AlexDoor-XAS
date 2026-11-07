@@ -159,9 +159,13 @@ implemented and passes matched free-motion/changing-load/blocked-plant, actual
 CUDA full-history and real-method entry/preview/dispatch/release/stop/reset
 software controls. It stores a six-axis tool-frame elastic reference from the
 already delivered entry targets, not an external-force estimate. New native
-paths and stops remain unqualified. Before movement, qualification must apply
-the original current/single-future support and physical acceleration criteria
-prospectively. No dependent contact retry or support extension is ready.
+paths and stops remain unqualified. The native harness now applies the original
+current/single-future support and physical criteria before dispatch and across
+each completed native interval. Its saved-state controls accept all qualified
+baselines and detect all four prior loaded negatives. One new original 0/10 N
+family is running on four owned GPUs at source `38a8efe`; actual startup confirms
+the new reference and guard flags. Outcomes remain pending. No dependent contact
+retry or support extension is ready.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection
