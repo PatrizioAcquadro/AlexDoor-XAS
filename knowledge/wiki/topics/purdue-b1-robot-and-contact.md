@@ -204,11 +204,19 @@ or change admission support. A valid target outside the preference remains
 allowed. With no preference, the original centering is bitwise unchanged.
 The operational recipe records this option explicitly; it adds no policy input.
 
-Using already qualified condition support as that preference addresses the
-shared tendency to drift toward an empirical edge without enlarging support or
-changing actuator/centering gains. Six-axis motion and normal reference remain
-primary. Static projection and matched-plant tests do not establish new native
-stability; every original path, support, rate, model and stop criterion remains.
+Using qualified condition support as a midpoint preference is insufficient to
+preserve the coupled operational domain. It moves inward at two binding opening
+witnesses, but the changed approach then exhausts other joint faces. That
+midpoint-only configuration is rejected after all four native 0 N approaches
+refuse empirical future support. Physical/model/current-position and original
+stop checks still pass; the four 10 N cases are unattempted. This optional API
+remains unset by default and unadopted for contact or observed sources.
+
+A valid posture controller must consider all seven original future-support
+faces together with primary motion, load elasticity and phase transitions.
+Static feasible nullspace intervals at saved states do not predict actual next
+joint motion or establish a complete trajectory. Do not replace those checks
+with cost descent or widen support merely to accept the failed path.
 
 When this mode returns to ordinary pose control, its first reference increment
 uses the current measured tool pose as origin. The maintained intentional

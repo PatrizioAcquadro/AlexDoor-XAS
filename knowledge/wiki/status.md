@@ -169,8 +169,13 @@ which can point toward an empirical edge. A separate optional nullspace
 preference now uses an explicitly supplied, already qualified posture range.
 It changes the secondary objective only; physical/target/rate bounds, guards,
 normal reference, actuator/centering gains and qualification criteria stay fixed.
-Full saved-family algebra, matched plants and actual history/mode controls pass.
-New native paths and stops remain required before contact/source adoption.
+Although saved-family algebra, matched plants and history/mode controls pass,
+the midpoint-only configuration is rejected: all four 0 N approaches exhaust
+other coupled future-support faces. All physical/model/current-position and
+original stop checks pass; all four 10 N cases remain unattempted. Resources and
+complete failures are closed. A coupled seven-joint feasibility diagnostic finds
+local repairs, but no constrained whole-motion controller is implemented or
+qualified. The optional API defaults unset and has no observed-source adoption.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

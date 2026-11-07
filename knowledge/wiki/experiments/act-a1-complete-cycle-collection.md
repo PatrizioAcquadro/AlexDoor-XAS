@@ -3361,3 +3361,30 @@ preserve primary motion while allowing redundant-posture movement. Evidence is
 `D4-soft-posture-matched-elastic-plant-CUDA-screen-20261107.json`.
 This is software qualification; new guarded native paths/stops remain required.
 No failed-point support extension, criterion change or unchanged retry is made.
+
+
+The `ab87675` midpoint-preference configuration is independently closed negative
+in `D4-soft-posture-negative-whole-family-closeout-20261107.json`. Four actual
+0 N approaches refuse only original single-future empirical support at
+7.23–7.67 s. The binding upper joint is wrist X for N/H+/H− and shoulder Z for P.
+Current empirical support, all physical/target/rate/effort and frozen-model
+predicates pass, as do all original 2+4+2 s/fourteen-shape stops. The complete
+7,152 movement and 7,680 stop samples are preserved. All four required 10 N cases
+are unattempted. Normal-reference/preload mode is never entered; its fields stay
+unavailable, rather than being treated as failed or completed mode evidence.
+
+The configuration is rejected. The prior weighted cost can descend while a
+different coupled face is exhausted; task-null projection alone cannot certify
+operational support through the motion. The next diagnosis examines all seven
+future faces jointly over 27 saved cases and 92,449 boundaries, including all
+six actual refusal witnesses. At each witness, a rate-bounded scalar nullspace
+interval can restore the existing future box with negligible pose projection
+error. This is static algebra, not an actuator prediction or implemented
+controller; it does not establish future velocity, load evolution or complete
+motion. Evidence is
+`D4-posture-whole-family-coupled-feasibility-CUDA-diagnosis-20261107.json`.
+No threshold, support, gain or phase relaxation is made, and no further native
+variant is launched. One early-outcome reader initially assumed an approach
+endpoint existed; the missing-field failure and GPU charge are retained, and the
+corrected reader explicitly leaves the unreached endpoints unavailable. All
+owned resources are released; the matrix remains 17/36.
