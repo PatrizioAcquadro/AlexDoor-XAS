@@ -358,6 +358,17 @@ nonlinear geometry, force changes, boundary states and full continuing stops
 must independently qualify any state-dependent proposal. Current physical,
 empirical and numerical guards remain unchanged.
 
+A prospective frozen stopped-PD forecast must include future disturbance
+variation. A completed momentum residual predicts the original held-load stops
+within 57 µrad, yet underpredicts directional travel after removal by up to
+1.019 mrad. An arbitrary 10 N force ball gives an exact finite-horizon envelope
+only for frozen inertia, Jacobians, bias and the specified application point.
+It does not cover unrestricted free moments, changing geometry or multiple
+contacts by itself. Local linear input witnesses and containment of recorded
+profiles cannot establish a nonlinear stopping bound. Independent variable-load
+stops at whole-motion boundary states must retain all original physical,
+empirical and 14-shape checks before any runtime use.
+
 `PurdueIO.stop()` clears admission and calls `env.stop_motion()`. The environment
 clears pending commands, latches measured joint positions once, zeroes velocity
 targets and retains state-dependent gravity compensation. The previous spring

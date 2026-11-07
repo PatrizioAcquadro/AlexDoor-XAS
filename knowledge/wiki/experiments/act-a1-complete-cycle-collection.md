@@ -3674,3 +3674,44 @@ and prior outcome remains. Canonical closeout is
 `D4-stop-profile-causal-PD-masked-momentum-CUDA-20261107.json` and
 `D4-whole-native-stop-inertia-physical-tangent-CUDA-review-20261107.json`.
 The matrix remains 17/36.
+
+An isolated prospective stopped-PD model uses full current state, native inertia,
+the physical mimic tangent and only the last completed momentum residual.
+Across eight original complete stop profiles (15,360 native packets), the first
+six seconds have at most 56.76 µrad position error. Load removal raises position
+error to 2.776 mrad and directional excursion underprediction to 1.019 mrad;
+constant residual is therefore not a stopping envelope. The frozen model's
+arbitrary time-varying force ball (norm at most 10 N at the known application
+point) contains these eight profiles. Fifty-six independently maximizing input
+sequences reach its final faces with 1.46e-16 rad arithmetic defect. This is a
+finite-horizon linear-model property, not a nonlinear physical bound. The other
+24 profiles retain unavailable full causal inputs; the original unstable control
+remains rejected.
+
+Native qualification selects the smallest original future-support margin in
+each of six phases of all eight complete baseline histories: 48 exact full-state
+inputs, all locally stable, with the closest original margin about 34 nrad.
+A predeclared smooth 2 Hz unilateral 0–10 N load runs for six seconds, followed
+by two seconds without load, under original stopped gains and 2+4+2 s artifacts.
+The first four workers failed before their first trial on a ProxyArray/Tensor
+adapter mismatch. A Blackwell preflight then caught confusion between the
+gripper-link origin and distal UMI point (245 mm apart). All five failures,
+68+17 original files, 12+3 sidecars, charges and unattempted trials are preserved.
+Zero exit codes never override the incomplete/error reports. Three dependent
+workers stayed unlaunched after the frame mismatch.
+
+The common correction uses the maintained URDF operational offset and rotation
+for application point, normal and COM-to-point Jacobian. All 48 source states
+join exact native clocks and joint packets; the resulting point Jacobian agrees
+with the original operational feedback within 1.03e-7 m/rad. Corrected model
+inputs replace the rejected link-origin preparation without deleting it.
+Blackwell executes its first two eight-second probes before the other three
+independent hosts are dispatched. Complete custody and original 14-shape,
+empirical, physical and frozen-model reviews remain required. Saved states are
+component trials and provide no complete-path or demonstration credit.
+Canonical records are `D4-prospective-stop-forecast-local-closeout-20261107.json`,
+`D4-variable-load-stop-pretrial-ProxyArray-closeout-20261107.json`,
+`D4-variable-load-distal-geometry-preflight-closeout-20261107.json`,
+`D4-variable-load-distal-operational-J-native-clock-review-20261107.json` and
+`D4-variable-load-distal-stop-six-phase-native-manifest-20261107.json`.
+The collection remains 17/36, with no controller, criterion or support change.

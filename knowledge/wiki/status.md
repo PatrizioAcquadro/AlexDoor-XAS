@@ -239,10 +239,16 @@ physical negative. Native inertia readback at 301 full-state poses and exact
 PD-command reconstruction on 15,360 stop packets support further modeling.
 The physical mimic-tangent frozen matrices distinguish the 31 measured
 hard-motion positives from that unstable control. Neither retrospective travel
-nor stable frozen poles certifies a smaller future envelope. Next work is a
-prospective state/command-dependent stop-support proposal with complete motion,
-force-domain and perturbation qualification; original bounds and guards remain.
-All owned resources close. No new teacher task is executed; the matrix is 17/36.
+nor stable frozen poles certifies a smaller future envelope. A prospective
+causal frozen model follows held-load stops within 57 µrad but underpredicts
+directional excursion after removal by up to 1.019 mrad. An exact finite-horizon
+10 N force-ball envelope contains the eight original profiles in this linear
+model; nonlinear qualification remains open. Forty-eight saved boundary states
+across all six motion phases now support independent variable-load stop tests
+on Blackwell and three elab hosts. Five pretrial preparation failures are
+preserved; the corrected distal point/Jacobian matches native feedback at all
+48 states. These are component tests, with no new controller, bound or teacher
+demonstration. The matrix remains 17/36; original guards stay unchanged.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection
