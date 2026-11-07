@@ -33,6 +33,13 @@ the recorded command and its ordinary A1 joint-delta reconstruction. The first
 native prefix exposed one target differing by one float32 ULP after delta
 encoding. The proposal now uses the existing executor mapping before dispatch;
 the exact replay check remains required, alongside all original physical gates.
+The corrected native run passes exact replay on its available targets but remains
+incomplete after a loaded physical acceleration refusal. Its final interval has
+one delivered native step, with three not advanced. It must not be described as
+an undispatched command or a complete four-step profile. The final measured
+feedback and declared goal position are unavailable; commands never fill those
+gaps. Derived full-motion qualification is explicitly scoped to the completed
+0 N case. A passing process exit or prefix reader cannot qualify the whole run.
 
 Preserved engineering recordings have no measured torque; commands do not substitute for feedback. New recordings retain a
 separate 60 Hz measured feedback channel and 120 Hz robot feedback/dynamics stream,

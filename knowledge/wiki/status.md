@@ -435,8 +435,26 @@ targets are identical; available prefix gates and original eight-second stops
 pass, with four final measured-feedback packets unavailable. Canonicalizing the
 proposal through the existing A1 mapping now passes 197,945 boundary/encoding
 cases and the original constant-load model paths without relaxing exact identity
-or physical criteria. A corrected nominal successor is prepared. No interface
-or source is adopted; the matrix remains 17/36.
+or physical criteria. The corrected nominal native component now qualifies the
+complete 0 N movement and stops. At 10 N it stops during opening at 59.820833 s:
+shoulder acceleration is 8.162395 rad/s² against the original 7.876929 rad/s²
+limit. Its last command delivered one of four native steps; later loaded phases
+and the final measured-feedback packet remain unavailable. Exact held-target A1
+replay and causal inputs pass where recorded; all original continuing stops pass.
+The whole 0/10 N component remains negative.
+
+The failure identifies a nearly zero endpoint response along the proposal's
+single kinematic normal direction. Its inverse requests a 62.5 mrad motor
+correction for a 20.9 nm endpoint increment. A new minimum motor norm solution
+uses the endpoint response within the nullspace of the other five reference
+axes. At that same recorded state it requests at most 17.93 µrad per motor.
+Eight software and eight adapter controls pass at 64 states; constraints pass on
+all 6,569 actual proposal states. Eight constant-load conditional whole paths
+pass original predicates with forty prior histories bitwise identical. Four
+changing-load negatives remain. Only a nominal native 0/10 N successor is
+prepared; its full original movement, stops and action custody remain required.
+No gain, physical limit, empirical criterion, interface or source is adopted;
+the matrix remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

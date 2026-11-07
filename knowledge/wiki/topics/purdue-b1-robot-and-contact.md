@@ -358,9 +358,24 @@ domain/rate face, float32 delta neighbors move inward until both the original
 interval and exact replay are satisfied; no tolerance is added. This repairs a
 demonstrated one-ULP native target mismatch. Software and adapter controls pass,
 as do eight constant-load conditional whole paths with forty prior histories
-unchanged. Changing-load negatives remain. Native full-path,
-stop and exact A1 profile checks are still required. Models and constant-load
-components do not qualify variable contact pressure or demonstrations.
+unchanged. Changing-load negatives remain. Native nominal 0 N now passes the
+complete original motion and stops; 10 N fails the original shoulder acceleration
+gate during opening. Exact A1 targets remain consistent. The whole component is
+negative, and the partial final interval remains a delivered action.
+
+The original proposal restricts correction to one kinematic pure-normal
+direction. Its four-step dynamic endpoint derivative can approach zero even
+when the remaining motor directions provide a finite response. The successor
+projects the endpoint command-response row into the nullspace of the other five
+instantaneous reference axes, then solves that one endpoint constraint with
+minimum motor norm. It retains the current coupled response, only the last
+completed residual, original pseudoinverse cutoff, A1 mapping and target/rate
+limits. It introduces no fitted gain, damping or acceptance range. All 6,569
+recorded-state constraints, software/adapter controls and eight constant-load
+whole-model paths pass, preserving the forty prior histories. Native complete
+motion, stops and exact action/input custody remain required. Models and
+constant-load components do not qualify variable contact pressure or
+demonstrations.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction

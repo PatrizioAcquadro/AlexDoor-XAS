@@ -4594,3 +4594,56 @@ native successor is prepared in
 are closed at this checkpoint. Its complete original movement, stop, exact
 profile and predictor-input custody remain required before related/contact
 progression. Collection remains 17/36 with no adopted source or controller.
+
+
+### Loaded response singularity and minimum motor correction (November 7, 2026)
+
+The canonical A1 held-target nominal native run completes and independently
+qualifies its original 0 N motion and stops. Its 10 N case fails during opening
+at native time 59.820833 s, control interval start 59.816667 s. RIGHT_SHOULDER_Y
+acceleration is 8.1623945236 rad/s², above the original 7.8769288063 rad/s² limit.
+Physical acceleration is the only failed predicate; available current and single
+future 10 N support, physical position, speed and frozen moving/stopped residuals
+pass. Independent original eight-second, fourteen-shape continuous stops pass.
+Later loaded opening, hold, release and stabilization remain unavailable.
+
+One of four native steps in the last held-target interval was delivered before
+the guard refused further advance. Its final measured feedback and declared
+goal position were not recorded. Whole transfer preserves 26 original files and
+three sidecars, 62,221,373 bytes; actual owned process/GPU absence and canonical
+lease release pass. The process return code zero does not override the negative
+whole report. All 6,569 causal proposal inputs and actual motor targets replay
+exactly; 6,568 available declared goal positions join exactly. All complete
+intervals retain four identical targets and exact ordinary A1 reconstruction.
+Readers preserve the partial interval and scope full qualification to 0 N.
+Earlier reader preparation failures and misleading inherited positive summaries
+are retained alongside their corrections; no native rerun repairs metadata.
+
+The common failure is the inverse of a nearly zero dynamic endpoint response
+along one kinematic pure-normal direction. At the refused state a 20.9 nm desired
+endpoint increment produces an unbounded 62.5 mrad motor request before the
+original target/rate limits. The successor uses the minimum motor norm solution
+within the nullspace of the other five instantaneous reference axes. It retains
+the same current coupled 20-coordinate response and last completed residual,
+original gains, pseudoinverse cutoff, target/rate domain, A1 mapping and all
+physical and empirical criteria. No damping or threshold is fitted to the failure.
+
+On all 6,569 actual proposal states, the old targets reconstruct exactly and the
+new unbounded solution satisfies the endpoint and other-axis constraints with
+no larger motor norm. At the refused state the largest proposed motor correction
+is 17.93 µrad. This is a frozen-current counterfactual, not executed physics.
+Eight software and eight Warp-adapter controls pass at 64 recorded states.
+The 52-path conditional model retains forty prior histories bitwise and passes
+all original predicates on eight new constant 0/10 N paths. All four changing-load
+negatives remain, including H-minus speed/acceleration. The outer pressure loop
+and changed nonlinear contact response remain unqualified.
+
+Evidence is `D4-held-canonical-A1-mixed-native-closeout-20261107.json`,
+`D4-held-minimum-motor-current-response-local-20261107/report.json` and
+`D4-held-minimum-motor-preflight-closeout-20261107.json`. At this checkpoint all
+284 continuation allocations are closed, charging 9.493105594 GPU hours. The
+nominal robot-only successor is prepared in
+`D4-held-minimum-motor-zero-ten-native-manifest-20261107.json`. Related conditions
+and contact successors remain suspended pending complete independent nominal
+motion, stop and action/input qualification. No controller, source, calibration
+or demonstration is adopted. Collection remains 17/36.
