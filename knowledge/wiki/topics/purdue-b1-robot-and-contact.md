@@ -626,6 +626,18 @@ force directions align. Wrench estimation, calibration, normal formulas and
 force caps remain unchanged. A tighter upper bound may activate an already
 qualified weak-normal branch; it never weakens the supported domain. Refusal
 records retain the three absolute component bounds for inspecting the decision.
+For a requested unit normal `n` and wrench inverse `A = pinv(J.T)`, project the
+same joint-error box directly: its scalar radius is `abs(n @ A[:3]) @ b`.
+Take the smaller of this radius and the existing `abs(n) @ (abs(A) @ b)[:3]`
+bound for floating-point ties. The latter combines world-axis extrema whose
+joint-error signs may conflict. This does not reduce `b` or change force-norm
+limits, calibration support or the independently qualified weak scalar branch.
+Transport of the weak scalar calibration to another requested normal likewise
+uses `abs((n - n_tool) @ A[:3]) @ b`, capped by the existing valid norm bound.
+The original weak scalar coefficients and force cap remain mandatory; this
+transport neither replaces that calibration nor drops its uncertainty.
+The existing normal-angle and sample-age reserves still apply afterward.
+A current scalar force bound is not a future disturbance prediction.
 
 ### October 19 calibration and stopping correction
 

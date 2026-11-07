@@ -1474,3 +1474,79 @@ def test_unloaded_sphere_margins_require_complete_matching_original_proof(margin
     )
     assert not receipt.admitted
     assert receipt.reason == "invalid_unloaded_normal_margins"
+
+
+@pytest.mark.parametrize("direction", [[1, 1, 0], [1, 0, 0], [0, 0, 1], [1, -2, 3]])
+@pytest.mark.parametrize("error_scale", [0.0, 0.1])
+def test_normal_support_projects_same_joint_error_box_before_world_axis_maxima(
+    direction, error_scale
+):
+    model, _, load = load_inputs()
+    bounds = np.arange(1, 8) * error_scale
+    model = ResidualLoadModel(replace(model.calibration, residual_bound_nm=bounds))
+    jac = np.c_[np.eye(6), np.zeros(6)]
+    jac[:2, :2] = [[1, 1], [1, -1]]
+    normal = np.asarray(direction, float)
+    normal /= np.linalg.norm(normal)
+    wrench = np.r_[-4 * normal, np.zeros(3)]
+    residual = jac.T @ wrench
+    feedback = replace(load.feedback, torque_nm=residual / model.calibration.external_sign)
+    zero = np.zeros(7)
+    result = model.estimate(feedback, zero, jac, zero, zero, zero, normal)
+    inverse = np.linalg.pinv(jac.T)
+    errors = np.array(list(product([-1, 1], repeat=7))) * bounds
+    possible = (residual + errors) @ inverse.T
+    worst_compression = (-possible[:, :3] @ normal).min()
+    assert result.normal_lower_n == pytest.approx(worst_compression, abs=1e-13)
+    previous = -normal @ result.wrench[:3] - abs(normal) @ (abs(inverse) @ bounds)[:3]
+    assert result.normal_lower_n >= previous
+    if error_scale and direction == [1, 1, 0]:
+        assert result.normal_lower_n > previous + 0.1
+    # The normal improvement does not change the force-norm safety bound.
+    radius = abs(inverse) @ bounds
+    expected_upper = min(
+        np.linalg.norm(abs(result.wrench[:3]) + radius[:3]),
+        np.linalg.norm(result.wrench[:3]) + np.linalg.norm(radius[:3]),
+    )
+    assert result.force_upper_n == expected_upper
+
+
+def test_weak_normal_scalar_transport_uses_same_box_for_observed_normal_difference():
+    model, _, load = load_inputs()
+    bounds = np.array([0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1])
+    model = ResidualLoadModel(
+        replace(
+            model.calibration,
+            residual_bound_nm=bounds,
+            tool_normal_residual_n=[0.03, 0, 0],
+            tool_normal_force_upper_max_n=1.0,
+        )
+    )
+    jac = np.c_[np.eye(6), np.zeros(6)]
+    jac[:2, :2] = [[1, 1], [1, -1]]
+    tool_normal = np.array([1.0, 0, 0])
+    normal = np.array([np.cos(0.2), np.sin(0.2), 0])
+    wrench = np.r_[-0.4 * normal, np.zeros(3)]
+    residual = jac.T @ wrench
+    feedback = replace(load.feedback, torque_nm=residual / model.calibration.external_sign)
+    zero = np.zeros(7)
+    result = model.estimate(
+        feedback, zero, jac, zero, zero, zero, normal, tool_normal_world=tool_normal
+    )
+    inverse = np.linalg.pinv(jac.T)
+    difference_radius = abs((normal - tool_normal) @ inverse[:3]) @ bounds
+    expected = -normal @ result.wrench[:3] - 0.03 - difference_radius
+    assert result.normal_lower_n == pytest.approx(expected)
+    previous = (
+        -normal @ result.wrench[:3]
+        - 0.03
+        - np.linalg.norm(normal - tool_normal) * np.linalg.norm((abs(inverse) @ bounds)[:3])
+    )
+    assert result.normal_lower_n > previous
+    # Samples must satisfy BOTH independently qualified error constraints;
+    # neither the scalar calibration nor the original joint box is discarded.
+    error = np.random.default_rng(711).uniform(-bounds, bounds, (4096, 7))
+    force_error = error @ inverse[:3].T
+    supported = abs(force_error @ tool_normal) <= 0.03
+    possible = result.wrench[:3] + force_error[supported]
+    assert supported.any() and np.all(result.normal_lower_n <= -possible @ normal)

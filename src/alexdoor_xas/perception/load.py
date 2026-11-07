@@ -340,7 +340,14 @@ class ResidualLoadModel:
         normal = finite_vector(normal_world, 3)
         if not np.isclose(np.linalg.norm(normal), 1, atol=1e-6):
             raise ValueError("invalid_load_normal")
-        normal_lower = -normal @ wrench[:3] - np.abs(normal) @ radius[:3]
+        # Project the same joint-error box once onto the requested normal.
+        # Summing the three independent world-axis maxima can pay conflicting
+        # joint-error signs; retain that valid bound for floating-point ties.
+        normal_radius = min(
+            np.abs(normal @ inverse[:3]) @ bounds,
+            np.abs(normal) @ radius[:3],
+        )
+        normal_lower = -normal @ wrench[:3] - normal_radius
         # The farthest corner of this same component box bounds force norm.
         # Retain the old valid radial bound for rounding ties.
         force_abs_upper = np.abs(wrench[:3]) + radius[:3]
@@ -407,7 +414,13 @@ class ResidualLoadModel:
                 if not np.isclose(np.linalg.norm(tool_normal), 1, atol=1e-6):
                     raise ValueError("invalid_robot_tool_normal")
                 normal_error = coefficients @ [1.0, np.max(np.abs(dq)), np.max(np.abs(ddq))]
-                normal_error += np.linalg.norm(normal - tool_normal) * np.linalg.norm(radius[:3])
+                # Transport the calibrated scalar bound with the same joint
+                # box, without independent world-axis maxima in the difference.
+                difference = normal - tool_normal
+                normal_error += min(
+                    np.abs(difference @ inverse[:3]) @ bounds,
+                    np.linalg.norm(difference) * np.linalg.norm(radius[:3]),
+                )
                 normal_lower = max(normal_lower, -normal @ wrench[:3] - normal_error)
 
         return LoadEstimate(

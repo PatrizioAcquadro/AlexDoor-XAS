@@ -4055,3 +4055,65 @@ negative histories, source candidates, paired profiles and actual GPU identity
 remain preserved. Collection is 17/36. Next work addresses material/visibility,
 whole-path empirical support and sustained contact together before new observed
 collection.
+
+
+### November 7: current moving-force observability and direct normal support
+
+All 16,852 original four-posture friction packets are joined exactly to recorded
+robot-feedback acquisition and availability. The unchanged calibration and actual
+production load contracts retain 16,842 supported packets and ten position-domain
+refusals. Only completed joint-output torque, expected robot dynamics, Jacobian
+and robot tool orientation enter the estimator. Independently measured normal
+and friction wrenches enter scoring afterward. Direct projection of the same
+seven-joint error box into tool axes identifies a nonzero tangential external
+force at 477 accepted push dispatches. No calibrated current component has the
+wrong sign. At 32 of these dispatches, at least one certain component changes
+sign in the following 240 Hz interval. This refutes a guaranteed unchanged future
+sign; it neither predicts a counterfactual controller failure nor identifies
+material-frame friction from robot tool axes. A moving cancellation law is not
+adopted.
+
+The current normal-force lower bound had summed separate worst-case world-axis
+errors before projection onto the requested normal. Those maxima can require
+conflicting signs of the same joint-error variables. The maintained estimator
+now uses the exact scalar support `abs(n @ pinv(J.T)[:3]) @ b`, retaining the
+existing valid bound for floating-point ties. The same projection transports
+the weak scalar calibration through the difference between requested and tool
+normals. Its independently calibrated scalar coefficients and force cap remain
+mandatory. Calibration, force-norm upper limits, weak-position/acceleration
+domains and normal-angle/sample-age reserves remain unchanged.
+
+Paired old/current production calls retain every original domain refusal and
+all wrench, force-upper, residual-error/budget, position-halo and scope outputs
+exactly. Normal lower bounds never decrease and remain below independently
+measured total compression on all supported packets. The final bound is tighter
+in 7/20/48/6 N/H+/H−/P packets, with maximum gain 0.008081 N. The separately
+qualified weak scalar branch dominates most packets; the mathematical improvement
+does not resolve the physical contact losses.
+
+Independent CUDA enumeration covers 58,748 native or generic normal/mapping
+cases, with all 128 vertices of each identical error box. Generic cases reject
+the zero-uncertainty negative control; corner-support defects remain within
+operand-scaled arithmetic bounds. The final full-branch pair additionally checks
+50,556 production calls at the original tool normal and two predeclared ±3°
+diagonal perturbations, preserving the same ten domain refusals per normal and
+all upper-force/wrench/error/scope outputs. All supported lower bounds still
+cover measured total compression. These perturbations are numerical controls,
+not a newly qualified normal domain. Enumeration of both normal and difference
+projections covers 101,112 cases, including zero and nonunit differences, with
+all 128 error-box vertices. Three owned local CUDA allocations cost
+51.3286 GPU seconds in total. The first two actual monitor identities are
+recovered after completion and preserved alongside the coordinator's already-finished
+snapshots; no live identity is invented. Processes and leases close, and all
+226 continuation allocations are accounted for. No physics steps, commands,
+demonstrations or optimizer updates are added.
+
+Canonical ignored evidence: `D4-moving-observability-and-direct-normal-support-closeout-20261107.json`,
+`D4-moving-tangent-residual-observability-local-20261107/report.json`,
+`D4-direct-normal-support-paired-local-20261107/report.json` and
+`D4-direct-normal-transport-paired-local-20261107/report.json`. Original measured
+failures, all masks, paired bounds, pre-change source and charges are preserved.
+Collection remains 17/36. Further contact work must model the changing
+normal/tangential dynamics and causal sample timing together with complete
+posture/material/visibility support; this bound correction alone does not
+justify another unchanged native teacher attempt.

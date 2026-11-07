@@ -318,7 +318,7 @@ trials are suspended. The initial model screen omitted that terminal criterion;
 rescoring the saved trajectories retains zero complete abrupt-case passes.
 Native and recorded consumers now share the original complete stop scorer,
 which preserves all 27 recorded segment outcomes and names an unsettled stop
-explicitly. All 223 continuation allocations are closed; collection remains
+explicitly. All 226 continuation allocations are closed; collection remains
 17/36. An audit of 5,390 stored observed D3/D4 proposals preserves fourteen
 unsupported-volume and four weak-position refusals. None proves positive complete
 contact-free stopping clearance; weak current load cannot justify a smaller
@@ -338,6 +338,20 @@ rejected by the original reader. This is replay cost evidence, not measured
 native collection throughput. Next work must resolve the observed material,
 posture/load-support and sustained-contact mechanisms together, preserving all
 original stop and complete-cycle criteria.
+A completed-feedback audit now verifies current tangential external-force
+observability in the robot tool frame, using the original uncertainty once.
+At 477 accepted push dispatches at least one tangential component excludes zero;
+in 32, one such component changes sign in the next native interval. These are
+current observations, not identified material friction or future force guarantees.
+The normal-force estimator now projects the same joint-error box directly onto
+the requested normal before taking component maxima, including the difference
+from the tool normal in the weak scalar branch. Paired original/current
+production calls preserve all 16,852 domain outcomes, including ten position
+refusals, and all force-norm upper bounds exactly. Final normal lower bounds
+improve in 81 packets, by at most 0.0081 N; the prior weak scalar branch dominates
+most samples. Independent box-corner checks and measured force readbacks support
+the change. No moving compensation or physical contact success is inferred;
+all original task failures and 17/36 collection count remain.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
