@@ -4424,3 +4424,61 @@ remains 17/36, with no maintained controller, recipe, domain or criterion change
 Next work concerns contact-surface normal kinematics and the actual four-substep
 motion response, including finger/jaw rotation and changing load, while retaining
 full free-reference motion, achieved release and the causal pressure/gap loop.
+
+
+A subsequent CUDA collision-support audit closes all 20,596 actual native samples
+across the original four histories and PGS. It compares closed-finger geometry,
+measured jaw-position FK and direct recorded actor collision geometry at exact
+clocks. Zero-jaw, independent vertex, axis-boundary/perturbed and rigid-coordinate
+controls pass. During push, jaw changes relative to normal-mode entry peak at
+45.99 nm and direct-body differences from the closed model at 106.13 nm. These
+results do not justify a jaw patch. Rigid angular support changes span maxima
+of 1.33–5.06 µm per native step across the histories. A first reader failed its
+independent vertex-control batch dimension before reading native histories;
+its script, log and 7.026087 GPU seconds remain. The corrected audit charges
+10.057673 seconds. Evidence is
+`D4-contact-surface-jaw-geometry-v2-local-20261107/report.json`.
+
+A forty-path conditional model then compares the existing 60 Hz teacher shape
+reference with the same reference plus native-step rigid shape transport. All
+sixteen previous nominal-replay/original-controller histories remain bitwise
+identical. Both shape clocks preserve all eight constant-load 0/10 N paths,
+including original base-goal endpoints, 1 mm ramp, support, physical position,
+speed, acceleration and right-arm effort caps. Each retains four changing-load
+negatives; the model has no actual outer contact-pressure loop, and one H− stress
+case per clock also fails a modeled physical predicate. Late post-refusal paths
+remain diagnostic continuations. Neither variable contact behavior nor native
+stops are qualified by this model.
+
+The intermediate update retains the pure-normal pose direction and original
+native rate, joint-target domain and total control-interval budget. Saturation
+commits only the pose motion actually delivered by the quantized target. The
+last world goal includes that payment before the next absolute outer command,
+avoiding a second payment of the same shape change. Other requested pose-axis
+defect peaks at 1.52e-18 in the double-precision model. Limited updates remain
+recorded. Eight isolated CUDA controls at 448 recorded Jacobian/target postures
+cover fixed geometry, preview purity, float32 target arithmetic, original limits,
+saturation, coordinate rotation and the outer-command boundary. The actual
+float32 other-axis defect peaks at 1.542e-7 in pose units, checked against an
+operand-derived arithmetic allowance rather than a physical tolerance.
+
+The first nominal native 0/10 N component is dispatched once on owned Blackwell
+with frozen source `ab87675` plus the isolated geometry hook. Every new native
+increment also runs the original movement guard; base-goal endpoints, measured
+release, frozen models, 10 N current/future support and original eight-second
+fourteen-shape stops remain required. The causal journal records each actual
+physics target; a final target is not copied onto earlier substeps. Original
+preview equality is checked against the first actual native target, with later
+geometry payments retained separately. All related conditions and contact
+successors remain suspended pending the complete nominal outcome and independent
+review. This is a robot-only component, with no source or demonstration credit;
+the 60 Hz action-recording/execution contract must also cover any native-rate
+supervisory targets before a teacher source can qualify.
+
+Evidence is `D4-native-rate-shape-preflight-closeout-20261107.json`,
+`D4-native-rate-shape-matched-model-local-20261107/report.json`,
+`D4-native-rate-shape-software-controls-local-20261107/report.json` and
+`D4-native-rate-shape-zero-ten-native-manifest-20261107.json`. The model and
+software controls charge 62.485277 and 7.031963 GPU seconds. All 259 prior
+continuation allocations are closed and the nominal native component is active.
+The verified matrix remains 17/36: thirteen ordinary and four recovery cycles.

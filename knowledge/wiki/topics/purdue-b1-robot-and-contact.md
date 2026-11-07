@@ -330,6 +330,18 @@ cannot replace the free-motion and loaded-motion requirements. Preserve the
 actual causal outer pressure/gap loop; diagnose contact-surface displacement,
 including angular and jaw motion, before another controller intervention.
 
+For a rigid collision support `h(R,n) = max_v n.T*R*v`, a measured angular change
+can alter normal surface placement within a control interval. The isolated
+native-rate prototype pays `-n*(h_new-h_previous)` at each intermediate physics
+step, using the existing pure-normal pose direction and unchanged target domain,
+native rate and total control-interval target budget. Only the actual quantized
+target's normal pose payment enters the last delivered world goal; the next
+absolute outer goal therefore subtracts the amount already delivered. Stops and
+ordinary joint commands end this geometry history. This is geometric reference
+transport, with no force cancellation or new gain. Native free/load/full-stop
+and recording/execution contracts remain separate requirements. Models alone do
+not qualify variable contact pressure or demonstrations.
+
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
 error. No parameters or physical/empirical acceptance thresholds are fitted.

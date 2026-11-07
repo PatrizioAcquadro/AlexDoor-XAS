@@ -411,6 +411,19 @@ doubled outer correction. Next work must address contact-surface motion and
 changing load while retaining the full free reference and original criteria.
 Production source and collection recipes are unchanged; collection stays 17/36.
 
+A complete 20,596-sample collision-support audit finds measured jaw translation
+changes the entry-referenced normal support by at most 46 nm, and direct body
+geometry differs by at most 107 nm. No jaw correction is justified. Angular
+support changes reach 5.06 µm per native step. A matched conditional model keeps
+all sixteen prior controls bitwise identical; both 60 Hz and native-rate shape
+transport preserve all eight constant 0/10 N paths. Both retain changing-load
+negatives without the teacher's outer pressure loop. Eight CUDA software controls
+pass at 448 recorded postures. The first isolated native-rate nominal 0/10 N
+component is under guarded qualification on Blackwell; related and contact
+successors remain suspended. Full original stops and consistency of 60 Hz learned
+actions with native-rate supervisory targets still require qualification before
+any source credit. The matrix remains 17/36.
+
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
 recipe then qualifies D2-RP: continuous native contact, the full three-second
