@@ -31,8 +31,13 @@ CUDA sensitivity audit identifies linear elastic pressure coupling from the
 other five pose axes. The resulting compensation (`ea8d5d4`) passes single-step
 algebra but fails native unloaded-pose tracking in all four conditions; it is
 withdrawn and the previous control path restored. All four 10 N cases remain
-unattempted. Original negative and stop reviews are retained. Free reference motion must not be treated as elastic preload;
-no dependent contact or observed-source launch follows this failed candidate.
+unattempted. All four negative reviews and twelve original stop segments now
+pass independent closeout. Free reference motion must not be treated as elastic
+preload. A distinct four-condition contact fixture uses the restored controller
+and derives a common 0.282°/s speed from the original 0.1 N pressure, actual hinge
+damping and normal lever. Its duration guards preserve the original angular
+budget; opening, continuity, hold, model, physical and stop criteria are unchanged.
+Actual contact and complete observed execution remain unqualified.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

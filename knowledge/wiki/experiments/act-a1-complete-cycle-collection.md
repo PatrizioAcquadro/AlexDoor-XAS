@@ -24,8 +24,12 @@ unequal joint stiffnesses. The single-step compensation (`ea8d5d4`) nevertheless
 fails unloaded native opening in all four conditions, confusing free motion with
 elastic preload. It is withdrawn; the earlier controller is restored and a
 matched-elastic-plant trajectory regression preserves this failure mode. The
-four 10 N counterparts remain unattempted; independent original-stop closeout, changing-load
-and observed qualification remain pending.
+four 10 N counterparts remain unattempted. Independent review confirms all four
+negative paths and twelve original stop segments, with frozen moving/stopped
+residuals passing. A separate changing-load fixture now derives a slower common
+reference from the original 0.1 N request, actual damping and lever, preserving
+all task/physical/model/stop criteria; its outcomes and observed qualification
+remain pending.
 See [[../topics/purdue-b1-robot-and-contact|the control contract]].
 
 D2-RP independently qualifies the real72-command pause/313-command recovery.
