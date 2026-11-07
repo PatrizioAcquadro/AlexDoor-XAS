@@ -3029,3 +3029,27 @@ window or matrix credit. The reference correction alone is insufficient.
 Further dependent variants require a shared diagnosis of unilateral impact,
 pressure sampling, posture and complete transitions, with all original criteria
 and the frozen six-dimensional load model preserved.
+
+
+### Limits of reduced unilateral dynamics
+
+A CUDA diagnostic extends the fixed-posture model with a frictionless unilateral
+normal impulse, original native mass matrices and actuator gains, full rigid
+support moments, measured-frame motion, causal pressure updates and tangential
+correction. At 120 previously measured postures, three local initial conditions
+are compared over 20 seconds with matched bilateral runs: equilibrium, 2 µm
+separation and 0.2 mm/s opening-velocity perturbation. The unilateral cases reach
+8.112 µm gaps but retain at least 0.0667 N in the original 0.1 s force window;
+none reproduces the native loss below 0.02 N. Native failures remain decisive.
+This reduced model omits evolving inertia/Jacobians, distributed/frictional
+contacts, jaw compliance and joint-domain clipping. Its favorable result limits
+its explanatory scope and cannot justify a gain change or contact qualification.
+
+The completed recordings retain forces, gaps and actuator diagnostics but lack
+complete native contact-point/normal/actor-pose histories across the terminal
+exception. A prepared diagnostic sidecar writes each original contact packet,
+measured joints/poses and native inertia at the matching 240 Hz feedback clock.
+It returns the original packet unchanged and saves original fixture data before
+closing the new stream. Essential persistence/parity checks pass; native runtime
+validation and synchronization with the complete failed task remain pending.
+No new native contact family or observed source is admitted by this preparation.
