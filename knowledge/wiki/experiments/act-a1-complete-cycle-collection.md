@@ -4712,3 +4712,29 @@ new data with that trajectory. Missing predecessors remain unavailable.
 The manifest is `D4-original-friction-full20-native-readback-manifest-20261107.json`.
 No changing-pressure, actual-contact, observed source or teacher qualification
 is added. Collection remains 17/36.
+
+
+### Full20 contact inputs recovered with exact trajectory association (November 7, 2026)
+
+The read-only Blackwell measurement preserves all seventeen historical arrays
+in both values and bytes, every prior contact/body packet, and the original
+outcome on all 3,484 native states. Primary pre-release contact loss and secondary
+load-envelope refusal remain negative; the original process return code one is
+retained. All added full mass, armature, targets, drive gains and current q/dq
+fields are finite and available. Their original arm-block subsets are exact.
+There are 3,483 adjacent native intervals; the first predecessor is unavailable.
+No missing state is zero-filled and no forward response is yet qualified.
+
+Whole custody retains 28 original files and three sidecars, 1,663,908,509 bytes,
+with actual owned process/GPU absence and canonical lease release. The allocation
+charges 234.784750 GPU seconds. All 293 completed continuation allocations are
+closed, totaling 9.971900308 GPU hours; H+/H− are the two remaining active native
+qualifications at this checkpoint. The closeout is
+`D4-original-friction-full20-readback-closeout-20261107.json`.
+
+Source inspection confirms that expected load already uses full mass times full
+acceleration plus gravity and Coriolis. This is not an omitted arm/non-arm inertia
+term to patch. Next analysis uses the recovered inputs for the causal controller
+response and pressure/geometry interaction, preserving both old failures and
+all original physical, empirical and stop criteria. No teacher source is added;
+collection remains 17/36.

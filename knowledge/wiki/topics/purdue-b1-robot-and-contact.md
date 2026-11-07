@@ -380,8 +380,11 @@ own complete 0/10 N qualification; H+/H− postures remain under qualification.
 Models and constant-load components do not qualify variable contact pressure
 or demonstrations. The old contact traces contain arm-block inertia, but not
 the full current coupled response needed by this operator. A separate read-only
-measurement preserves the original negative and requires exact trajectory
-association before those additional full-system inputs can be used.
+measurement now recovers those full-system inputs on 3,484 states, with exact
+historical array, contact-packet and outcome association. The existing expected
+load already uses full mass times full acceleration, gravity and Coriolis; an
+additional arm-only correction would double count dynamics. The new data support
+controller-response analysis, not a newly qualified load or stop bound.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
