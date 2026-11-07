@@ -3331,3 +3331,33 @@ preserved without changing support or thresholds. At the single wake snapshot,
 P reports its 0 N case complete and continues at 10 N; H+/H− are healthy at 0 N.
 Those declarations remain unreviewed and later progress is unpolled. Complete
 family outcomes are required before a common mechanism or calibration decision.
+
+
+The complete tool-frame family is closed in
+`D4-tool-reference-whole-family-closeout-20261107.json`: seven actual cases and
+one unattempted N10N case, with 114,620 movement and 13,440 stop samples. H−/P0N
+and 10N, plus H+0N, qualify as five complete robot-only components. H+10N refuses
+future empirical support at 33.35 s; N0N retains its earlier refusal. All seven
+actual cases pass physical limits, frozen models, current position support and
+original continuing stops. No demonstration or global calibration is added.
+
+The shared secondary posture objective previously used physical target ranges.
+At both actual refusal witnesses its nullspace step points slightly toward the
+binding empirical edge. An isolated alternative, normalized by already qualified
+condition support, points inward by about 0.33–0.34 mrad per control step while
+leaving all six primary axes unchanged. The all-family CUDA audit covers 23
+saved cases and 91,621 boundaries. It checks soft-cost descent and pose
+projection on qualified/current histories; earlier rank-deficient failed states
+remain diagnostic, not qualified controls.
+
+The optional soft preference is now implemented with default behavior preserved.
+It retains the existing centering gain and physical/target/rate bounds. Actual
+CUDA original-history, entry/preview/dispatch/reset/stop and all eight measured
+release controls pass. Matched free/changed-load/blocked-task elastic plants
+preserve primary motion while allowing redundant-posture movement. Evidence is
+`D4-tool-reference-whole-family-soft-posture-objective-CUDA-screen-20261107.json`,
+`D4-soft-posture-controls-local-20261107/review.json`,
+`D4-soft-posture-eight-actual-handoff-controls-CUDA-20261107.json` and
+`D4-soft-posture-matched-elastic-plant-CUDA-screen-20261107.json`.
+This is software qualification; new guarded native paths/stops remain required.
+No failed-point support extension, criterion change or unchanged retry is made.

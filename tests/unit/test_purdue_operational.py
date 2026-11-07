@@ -943,3 +943,58 @@ def test_elastic_reference_rejects_invalid_or_unreachable_entry(bad):
         jac.zero_()
     with pytest.raises(ValueError, match="elastic_pose_reference"):
         tool_frame_elastic_reference(jac, stiffness, offset, rotation, reference)
+
+
+@pytest.mark.parametrize("loaded", [False, True])
+def test_soft_centering_changes_only_redundant_posture_with_original_bounds(loaded):
+    jac = torch.eye(6, 7, dtype=torch.float64)[None]
+    jac[0, 1, 6] = .25
+    q = torch.zeros(1, 7, dtype=jac.dtype)
+    prior = q.clone()
+    if loaded:
+        prior[0, 0] = .005
+    limits = torch.tensor([[[-2., 2.]]*7], dtype=jac.dtype)
+    preference = torch.tensor([[[-.5, .5]]*6+[[0., 1.]]], dtype=jac.dtype)
+    options = dict(centering_gain=.1, previous_targets=prior,
+                   feedback_time_constant_s=.5, reference_delta=torch.zeros(1,6,dtype=q.dtype),
+                   compliant_normal=torch.tensor([[1., 0., 0.]], dtype=q.dtype),
+                   normal_reference_only=True, finite_tangent_impedance=True,
+                   finite_tangent_reference_offset=prior)
+    original = bounded_pose_step(jac, torch.zeros(1,6,dtype=q.dtype), q, limits,
+                                 torch.ones_like(q), 1/60, **options)
+    candidate = bounded_pose_step(jac, torch.zeros(1,6,dtype=q.dtype), q, limits,
+                                  torch.ones_like(q), 1/60,
+                                  centering_limits=preference, **options)
+    step = candidate[0]-original[0]
+    torch.testing.assert_close(jac @ step.unsqueeze(-1), torch.zeros(1,6,1,dtype=q.dtype),
+                               rtol=0, atol=1e-14)
+    assert step[0,6] > 0
+    assert ((candidate[0]-prior).abs() <= 1/60).all()
+    assert (candidate[0] >= limits[...,0]).all() and (candidate[0] <= limits[...,1]).all()
+    # Preference endpoints are not target limits: legitimate delivered preload
+    # outside the preference remains, with the original physical bounds only.
+    prior[0,0] = .6
+    candidate = bounded_pose_step(jac, torch.zeros(1,6,dtype=q.dtype), q, limits,
+                                  torch.ones_like(q), 1/60,
+                                  centering_limits=preference, **options)
+    assert candidate[0][0,0] == prior[0,0]
+
+
+@pytest.mark.parametrize("bad", ["shape", "nan", "dtype", "empty", "outside"])
+def test_soft_centering_requires_a_valid_preference_inside_physical_targets(bad):
+    q = torch.zeros(1,7,dtype=torch.float64)
+    limits = torch.tensor([[[-1.,1.]]*7],dtype=q.dtype)
+    soft = limits*.5
+    if bad == "shape":
+        soft = soft[:,:6]
+    elif bad == "nan":
+        soft.fill_(float("nan"))
+    elif bad == "dtype":
+        soft = soft.float()
+    elif bad == "empty":
+        soft.zero_()
+    else:
+        soft *= 3
+    with pytest.raises(ValueError, match="pose_centering_limits"):
+        bounded_pose_step(torch.eye(6,7,dtype=q.dtype)[None],torch.zeros(1,6,dtype=q.dtype),
+                          q,limits,torch.ones_like(q),1/60,centering_limits=soft)

@@ -158,17 +158,19 @@ with tool geometry reduces saved-state residuals. The optional successor is now
 implemented and passes matched free-motion/changing-load/blocked-plant, actual
 CUDA full-history and real-method entry/preview/dispatch/release/stop/reset
 software controls. It stores a six-axis tool-frame elastic reference from the
-already delivered entry targets, not an external-force estimate. New native
-paths and stops remain unqualified. The native harness now applies the original
-current/single-future support and physical criteria before dispatch and across
-each completed native interval. Its saved-state controls accept all qualified
-baselines and detect all four prior loaded negatives. One new original 0/10 N
-family was dispatched at source `38a8efe`. N's 0 N path stops during opening
-at an original future empirical-support exit of 10.71 microradians; current
-support, all physical/model predicates and the original continuing stops pass.
-It remains incomplete and its 10 N case is unattempted. The other three jobs
-were healthy at the single current snapshot and continue without repeated
-polling. No dependent contact retry or support extension is ready.
+already delivered entry targets, not an external-force estimate. The `38a8efe`
+native family is closed: H− and P pass complete original 0/10 N paths and stops;
+H+ passes 0 N. N0N and H+10N refuse original future empirical support, with all
+current positions, physical/model predicates and original stops passing. N10N
+remains unattempted. These five robot-only components add no demonstrations.
+
+The two refusals expose a posture preference aimed at physical-range centers,
+which can point toward an empirical edge. A separate optional nullspace
+preference now uses an explicitly supplied, already qualified posture range.
+It changes the secondary objective only; physical/target/rate bounds, guards,
+normal reference, actuator/centering gains and qualification criteria stay fixed.
+Full saved-family algebra, matched plants and actual history/mode controls pass.
+New native paths and stops remain required before contact/source adoption.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

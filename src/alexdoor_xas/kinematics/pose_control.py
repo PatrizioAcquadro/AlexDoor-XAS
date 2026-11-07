@@ -135,6 +135,7 @@ def bounded_pose_step(
     normal_transport_m=None,
     finite_tangent_impedance=False,
     finite_tangent_reference_offset=None,
+    centering_limits=None,
 ):
     """Bounded pose solve with optional measured-error integration on prior targets.
 
@@ -272,7 +273,23 @@ def bounded_pose_step(
             normal_jacobian * (previous_targets - positions)
         ).sum(dim=-1, keepdim=True)
         primary = primary - normal_component(primary)
-    center = ((lo + hi) / 2 - positions) / span.square()
+    center_lo, center_hi = lo, hi
+    if centering_limits is not None:
+        if (
+            not isinstance(centering_limits, torch.Tensor)
+            or centering_limits.shape != limits.shape
+            or centering_limits.device != positions.device
+            or centering_limits.dtype != positions.dtype
+            or not bool(torch.isfinite(centering_limits).all())
+            or not bool((centering_limits[..., 0] < centering_limits[..., 1]).all())
+            or bool((centering_limits[..., 0] < lo).any())
+            or bool((centering_limits[..., 1] > hi).any())
+        ):
+            raise ValueError("invalid_pose_centering_limits")
+        center_lo, center_hi = centering_limits[..., 0], centering_limits[..., 1]
+    # A soft posture preference in the existing Jacobian nullspace. Its domain
+    # does not clip targets or replace the physical/admission limits below.
+    center = ((center_lo + center_hi) / 2 - positions) / (center_hi - center_lo).square()
     if feedback:
         gain = dt / feedback_time_constant_s
         primary = primary * gain

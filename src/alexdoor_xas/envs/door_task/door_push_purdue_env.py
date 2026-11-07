@@ -135,6 +135,11 @@ class DoorPushPurdueEnv(DirectRLEnv):
         self.pose_limits = pose_target_limits(
             self.limits, cfg.pose_target_margin_rad, domain=cfg.pose_target_domain_rad
         )
+        self.pose_centering_limits = (
+            None if cfg.pose_centering_domain_rad is None else pose_target_limits(
+                self.pose_limits, domain=cfg.pose_centering_domain_rad
+            )
+        )
         self.velocities = tensor(self.robot.data.joint_vel_limits)[:, self.arm_ids].clone()
         # Target-rate clipping alone permits tracking overshoot: the pilot
         # measured 0.5183 rad/s under a 0.5 rad/s reference. Retain 10% reference
@@ -465,6 +470,7 @@ class DoorPushPurdueEnv(DirectRLEnv):
                 self.step_dt,
                 previous_targets=self.targets[:, self.arm_ids],
                 centering_gain=self.cfg.centering_gain,
+                centering_limits=getattr(self, "pose_centering_limits", None),
                 damping=self.cfg.ik_damping,
                 feedback_time_constant_s=getattr(self.cfg, "pose_feedback_time_constant_s", None),
                 reference_delta=reference_delta,

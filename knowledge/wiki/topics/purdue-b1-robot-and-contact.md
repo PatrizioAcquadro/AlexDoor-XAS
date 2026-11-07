@@ -195,6 +195,21 @@ now checks that tangential and rotational references do not cause normal drift.
 The original scalar geometric transport above is restored; changing-load
 contact remains unqualified.
 
+An optional `pose_centering_domain_rad` supplies a soft redundant-posture
+preference. Intersect it with the existing physical pose-target domain once at
+initialization, then use its midpoint and span in the existing Jacobian-nullspace
+centering objective. `centering_limits` in the numerical solver must match the
+physical-limit tensor and lie inside it. The preference does not clip targets
+or change admission support. A valid target outside the preference remains
+allowed. With no preference, the original centering is bitwise unchanged.
+The operational recipe records this option explicitly; it adds no policy input.
+
+Using already qualified condition support as that preference addresses the
+shared tendency to drift toward an empirical edge without enlarging support or
+changing actuator/centering gains. Six-axis motion and normal reference remain
+primary. Static projection and matched-plant tests do not establish new native
+stability; every original path, support, rate, model and stop criterion remains.
+
 When this mode returns to ordinary pose control, its first reference increment
 uses the current measured tool pose as origin. The maintained intentional
 release rebases its curve to that achieved pose; subtracting the previous ideal
