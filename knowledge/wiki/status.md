@@ -216,8 +216,14 @@ endpoint-speed objective stalled inward motion and is rejected. The corrected
 preference passes 34,392 original-command controls, 48 matched elastic plants
 with load changes and blocking, and eight actual-method history contracts.
 Actual-state admission and all original gains and criteria remain unchanged.
-The new candidate still needs all eight original guarded native paths and stops;
-there is no contact or observed-source adoption.
+All eight declared native outcomes are now closed: H−0N qualifies as one
+robot-only component; N/H+/P0N stop during approach and H−10N during hold on
+the original empirical future predicate. Three loaded cases are unattempted.
+All actual physical/current-position, frozen-model and original stop checks pass.
+The global preference configuration is rejected, with no source adoption and
+all owned resources closed. Whole matched-reference histories show a feasible
+prior posture path at every failure witness; the next design must coordinate
+posture over complete motion rather than optimize another local preference.
 A separate replay now reconstructs N's last admitted geometric proposal from
 its terminal snapshot and raw recording. Exact paired proof diagnostics confirm
 about 10% lower warm producer cost with indexed depth counts. Native collection

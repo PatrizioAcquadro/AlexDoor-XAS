@@ -3536,3 +3536,38 @@ controls, are closed and charged. The new source still requires all eight
 original guarded 0/10 N native full paths and stops before contact or source
 adoption; the matrix remains 17/36. Canonical source-control evidence is
 `D4-measured-coupled-margin-source-controls-closeout-20261107.json`.
+
+
+All eight declared `6a27ffb` native outcomes are closed. H−0N passes the original
+six phases, 1 mm ramp, hold, achieved release/stabilization, frozen models, all
+seven current/future predicates and original fourteen-shape 2+4+2 s stops.
+N/H+/P0N stop during approach at 7.50/7.05/7.167 s; H−10N stops during hold at
+68.333 s. All four failures are original empirical single-future refusals;
+current measured support and every physical, speed, acceleration, effort,
+reserved-target, frozen-model and stop predicate pass. The other three 10 N
+cases remain unattempted. The global preference configuration is rejected;
+one robot-only component adds zero demonstrations.
+
+The complete custody review retains 41,208 movement and 9,600 stop packets,
+83 original files plus twelve sidecars, and 58,362,101 original bytes. All owned
+resources close. The readout's initial obsolete midpoint metadata assertion,
+its allocation, and a closeout return-code assumption are retained. Native
+processes return zero after preserving a guarded negative report; scientific
+outcomes come from the report and independent predicates. No outcome is inferred
+from process exit alone.
+
+A whole-reference audit compares all five actual cases with prior paths using
+identical setups, programs and calibration inputs. All four failure witnesses
+have exactly identical goal coordinates, phases and control clocks. The prior
+path retains 2.718/8.076/6.461 mrad at the terminal Y lower face for N/H+/P,
+and 9.645 mrad at the shoulder Y lower face for H−10N. The new loaded posture
+differs by up to 0.13024 rad in one joint. This is whole-trajectory drift, not
+support for a new precision floor or a failed-point calibration extension.
+The completed H−0N release is based on its achieved pose, so its differing
+release goals are explicitly excluded from an exact paired-goal interpretation.
+Nullspace decomposition is diagnostic and does not supply an executable
+one-tick repair. Next work is whole-motion posture/reference continuation with
+primary motion, changing load and transitions retained, using the qualified
+paths as controls. The matrix remains 17/36. Evidence is
+`D4-coupled-margin-whole-family-closeout-20261107.json` and
+`D4-coupled-margin-whole-reference-posture-CUDA-diagnosis-20261107.json`.

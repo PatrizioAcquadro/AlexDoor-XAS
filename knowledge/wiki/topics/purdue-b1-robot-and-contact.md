@@ -269,8 +269,13 @@ separate from measured support.
 Penalizing the proposed endpoint speed in the same one-tick objective can make
 inward motion no better than rest. That rejected objective has an exact witness
 and a failed closed-loop plant control. The measured-margin version preserves
-the original primary task in matched loaded, changing-load and blocked plants;
-native whole-path qualification remains required. Both
+the original primary task in matched loaded, changing-load and blocked plants.
+Its global native configuration is nevertheless rejected: three free approaches
+and one loaded hold exhaust original future support. One complete unloaded
+component passes; this does not establish full-family or observed-source support.
+Whole reference histories, varying geometry and load, and phase transitions
+must guide the next posture design. Local score improvement and fixed-geometry
+plant invariance do not establish whole-motion feasibility. Both
 `pose_posture_support_rad` and `pose_posture_stopping_reserve_rad` default to
 `None`; the latter excludes the velocity term. The recipe cannot combine this
 mode with the midpoint-only centering domain. Preview is pure, ordinary mode
