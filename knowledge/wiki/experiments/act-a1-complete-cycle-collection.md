@@ -4291,3 +4291,24 @@ for this symptom, and the external Alex readiness helper enables it. Additional
 stabilization already defaults false, so disabling it again would be unchanged.
 The proposed control changes only the force-integration flag with original
 friction, retaining every existing criterion; it is not yet a validated fix.
+
+
+The single-flag native control is now closed negative before contact. All four
+samples of its first approach command reproduce `inconsistent_single_tool_wrench`
+against the original calibration, with consistency error about 201 times its
+existing bound. All native normal and friction patches are empty. At 34.4 s,
+stationary q and gravity feedforward are exactly equal to the original-friction
+baseline, but projected joint force minus applied effort peaks at 4.275786 N·m,
+versus 9.536743 µN·m originally. The applied-effort comparison is diagnostic only;
+no replacement feedback, bias fit, new tolerance or calibration is introduced.
+
+The complete original recording and sidecars are preserved (26 files plus three
+sidecars, 1,085,096,490 bytes). Integrity, independent six-second fourteen-shape
+stops, actual precontact RGB and owned-resource cleanup pass. Contact, push,
+hold, release and stabilization remain unattempted, so contact timing and the
+full-cycle response under this flag are unavailable. No numerical default is
+adopted and no teacher is added. Native plus independent GPU review charge
+180.339617 GPU seconds; all 247 continuation allocations are closed. Canonical
+result: `D4-TGS-force-feedback-control-closeout-20261107.json`. The common
+position/contact discrepancy remains unresolved; the next preregistered nominal
+control isolates PGS with original materials, feedback and acceptance criteria.

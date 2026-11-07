@@ -374,10 +374,17 @@ complete histories. At the frozen 256 intervals, the joint-coordinate increment
 term accounts for the dominant COM discrepancy in both groups; subsequent q and
 poses enter scoring only. No continuous-energy, friction-law or next-step bound
 is inferred. Collection remains 17/36, with no controller/domain adoption.
-Next work tests documented TGS force integration with original friction and all
-existing criteria. Actual baseline logs warn that external-force integration at
-every iteration is disabled; the external Alex readiness configuration enables
-it. The proposed single-flag control remains unqualified.
+The single TGS force-integration flag control stops at the first approach
+command, before contact: all four native samples fail the original single-wrench
+consistency bound by about 201 times. At the exact same stationary q and gravity
+feedforward as the original run, projected joint force differs from applied
+effort by up to 4.276 N·m, versus 9.54 µN·m with the original setting. This is a
+diagnostic comparison, not permission to replace feedback with actuator targets
+or fit away the discrepancy. Recording integrity and all original six-second,
+fourteen-shape stops pass; contact, push, hold, release and stabilization remain
+unattempted. The flag is not adopted. The next isolated numerical control uses
+the documented PGS alternative with original friction, load feedback and all
+existing criteria; collection remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

@@ -286,6 +286,13 @@ Before changing gains, inspect the active solver configuration. Installed TGS
 warns about noisy velocities when `enable_external_forces_every_iteration` is
 false; the external Alex readiness configuration enables it. A one-flag numerical
 intervention still needs native full-path/load/stop qualification before adoption.
+In the installed stack, that flag alone produces a precontact projected-force
+contract failure at the first nominal approach command. Preserve the sensor
+failure and unattempted phases; comparing projected force with applied effort
+diagnoses a discrepancy but does not make effort targets valid feedback. The
+documented [PGS alternative](https://docs.omniverse.nvidia.com/kit/docs/omni_physics/110.0/dev_guide/simulation_control/simulation_control.html#physics-solver)
+can be isolated without changing material friction or acceptance criteria. It
+still needs independent native motion/load/stop qualification.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
