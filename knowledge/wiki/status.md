@@ -318,7 +318,7 @@ trials are suspended. The initial model screen omitted that terminal criterion;
 rescoring the saved trajectories retains zero complete abrupt-case passes.
 Native and recorded consumers now share the original complete stop scorer,
 which preserves all 27 recorded segment outcomes and names an unsettled stop
-explicitly. All 226 continuation allocations are closed; collection remains
+explicitly. All 236 continuation allocations are closed; collection remains
 17/36. An audit of 5,390 stored observed D3/D4 proposals preserves fourteen
 unsupported-volume and four weak-position refusals. None proves positive complete
 contact-free stopping clearance; weak current load cannot justify a smaller
@@ -352,6 +352,19 @@ improve in 81 packets, by at most 0.0081 N; the prior weak scalar branch dominat
 most samples. Independent box-corner checks and measured force readbacks support
 the change. No moving compensation or physical contact success is inferred;
 all original task failures and 17/36 collection count remain.
+A subsequent full-system readback closes 293 exact saved joint states around
+32 sign-reversal dispatches and 32 matched same-phase controls. Including the
+measured other-joint accelerations reduces the largest per-joint arm-balance RMS
+from 0.136–4.188 mN·m to 6.6–9.5 µN·m. The omitted inertial contribution occurs
+in both groups and does not identify a sole contact-loss cause. Current full20
+versus arm7 hand response differs by only 2.2–4.8 parts per million; its normalized
+normal/tangent coupling is 0.209–0.225. These are current model descriptors,
+not prospective force guarantees. Native and calibrated frames transport both
+gravity and Jacobians explicitly. All five pretrial reader failures and the
+short local review's unavailable historical GPU PID remain recorded; process,
+context and lease cleanup is verified. No controller or stopping bound is adopted.
+Next work must distinguish changing-contact/friction memory and sampled control
+using causal inputs, retaining complete posture/material/visibility support.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

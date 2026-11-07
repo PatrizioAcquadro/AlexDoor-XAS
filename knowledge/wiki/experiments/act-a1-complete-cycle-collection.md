@@ -4117,3 +4117,68 @@ Collection remains 17/36. Further contact work must model the changing
 normal/tangential dynamics and causal sample timing together with complete
 posture/material/visibility support; this bound correction alone does not
 justify another unchanged native teacher attempt.
+
+
+### November 7: complete moving-contact inertia and frame-covariant readback
+
+Before the readback, selection freezes all 32 calibrated push dispatches with a
+certain tangent component reversing in the next 240 Hz interval, and 32 nearest
+distinct calibrated nonreversal controls in the same push. Five native endpoints
+per command deduplicate to 293 exact full20 joint states: 61/100/113/19 for
+N/H+/H−/P. Four owned hosts read full mass, armature, gravity/Coriolis and tool/
+finger COM Jacobians after ordinary bootstrap, without a new contact motion
+trial. These are current robot-model readbacks, not original historical full20
+dynamics measurements. Original clocks and full q/dq write/read are exact.
+
+The first four readers fail before reading any saved state because of an
+unjustified bitwise root-frame equality requirement. A corrected nominal-only
+reader then fails before its 61 states on an equally overstrict untransformed
+gravity-invariance control. All five failures, 354 unattempted state reads and
+original payloads remain preserved. The common correction records both root
+frames and transforms gravity as well as Jacobians/wrenches. A mass-weighted COM
+gravity map retains raw native gravity and derives its canonical-source
+representation separately. Independent frame controls reject the unchanged-
+gravity negative control. No physical, empirical or numerical acceptance domain
+is widened to obtain a pass.
+
+Independent CUDA scoring covers all 64 commands and 256 actual native intervals.
+Full measured velocity differences, actual applied arm efforts and distributed
+normal/friction patches close the seven arm rows. Measured mimic velocity
+nonidentity remains present, with a 0.00166 m/s peak; the constrained eighteen-
+coordinate response uses the physical mimic basis without altering measured
+states. Unrecorded historical other-joint motor efforts are never zero-filled.
+The largest per-joint RMS residual ranges from 0.136 to 4.188 mN·m using only the
+arm block, versus 6.626 to 9.460 µN·m with the measured other-joint inertia term.
+That contribution peaks at 0.01602 N·m and occurs in reversals and controls alike.
+It explains the old balance residual but does not establish the cause of contact
+loss. Subsequent effort, force and acceleration remain scoring-only truth.
+
+The frozen current hand-response operator includes full inertia, armature,
+physical mimic coupling and passive follower damping. Its relative difference
+from the consistent arm7 operator is only 2.2–4.8 parts per million. Normal/tangent
+normalized coupling spans 0.209–0.225; this dimensionless descriptor is not a
+failure fraction or prospective contact certificate. Positive reduced inertia
+and an independent zero cross-mass-block control support the calculation.
+Changing contact/friction memory and sampled control remain unresolved together
+with full posture/material/visibility support; another unchanged teacher trial
+is not justified.
+
+All four successful readers, five failed readers and the independent local review
+close, costing 136.2783 GPU seconds. WHOLE transfer preserves 144 original files
+and 27 sidecars, totaling 106,191,822 original bytes. The short local CUDA review
+finishes between monitor samples: its historical GPU PID is unavailable, while
+the actual CUDA device result, wrapper UUID/owned process-group launch and cleanup
+remain recorded. An initial closeout assertion on this missing receipt is
+preserved, then resolved by recording the unavailable state without a rerun or
+invented identity. Fresh six-host inspection finds no compute contexts or active
+episode leases. Continuation accounting is 236 closed allocations and 8.12579 GPU
+hours. Collection remains 17/36; all original physical/contact/load/stop negatives,
+zero optimizer updates and unadopted controller/stop-bound status remain.
+
+Canonical ignored evidence:
+`D4-current-full20-moving-contact-complete-closeout-20261107.json`,
+`D4-moving-contact-full20-covariant-native-manifest-20261107.json` and
+`D4-current-full20-moving-contact-review-local-20261107/report.json`.
+The five pretrial failures and frame controls have separate preserved records.
+Maintained model source is `01f814a`; no maintained controller changes in this
+readback milestone.

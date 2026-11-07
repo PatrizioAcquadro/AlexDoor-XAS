@@ -231,6 +231,28 @@ not be counted twice. The equation uses actual measured state; bitwise position
 or velocity equality is not an input requirement. A difference between native
 mimic positions remains recorded rather than becoming a new refusal criterion.
 
+For a fixed-state model readback, retain the actual native root transform and
+explicitly map it into the calibrated source frame. Transform spatial Jacobians,
+contact points, wrenches and gravity together. A tiny fixed-root bootstrap
+rotation does not justify demanding bitwise equality with nominal calibration,
+or silently treating world gravity as invariant under that rotation. Preserve
+raw model gravity separately from its canonical-frame equivalent, reconstructed
+through mass-weighted COM linear Jacobians. Exact saved joint write/read and
+native clocks can still be checked independently; bootstrap includes physics.
+
+The moving arm-row diagnostic is
+`M_aa Δv_a/h + M_ah Δv_h/h = tau_a - G_a - C_a + tau_contact,a`.
+Use the full mass matrix plus armature, distributed finger patch Jacobians and
+measured velocities, without projecting away native mimic differences. The
+physical mimic tangent belongs in the constrained response operator. Subsequent
+measured motor effort, force and other-joint acceleration are scoring inputs;
+this equation does not make them causally available to a controller. Unrecorded
+other-joint motor efforts stay unavailable. Matched reversal/nonreversal cases
+close this balance with micro-newton-meter residuals while retaining both groups'
+original contact outcomes. The measured inertial contribution therefore cannot
+alone explain contact loss. See
+[[../experiments/act-a1-complete-cycle-collection|complete readback evidence]].
+
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
 error. No parameters or physical/empirical acceptance thresholds are fitted.
