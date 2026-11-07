@@ -4333,9 +4333,12 @@ reach -0.403 to +0.208 N across the original family, versus a 0.1 N target. Thes
 are virtual reference coordinates, not external-force measurements or a causal
 contact explanation. A geometry-only alternative preserves virtual normal effort
 at 1,353 exact causal dispatch states, but no nonlinear or native qualification
-follows. Its largest increment difference is 0.106 µm; it is not dispatched as a
-contact repair. The next isolated candidate audits the motion projector's
-normal virtual-effort leakage while retaining the other five pose components.
+follows. The original reader incorrectly permuted native `xyzw` quaternions as
+`wxyz`; its commanded-normal interpretation is invalidated and retained. The
+corrected reader checks the normal against recorded material-reference axes and
+finds a largest increment difference of 0.0691 µm, superseding 0.106 µm. The
+transport alternative is not dispatched as a contact repair. The next isolated
+candidate audits the motion projector's normal virtual-effort leakage while retaining the other five pose components.
 
 Canonical result: `D4-PGS-and-elastic-coupling-closeout-20261107.json`. Four GPU
 allocations, including three independent readers/screens, charge 248.795149 GPU
@@ -4357,3 +4360,67 @@ changes. Canonical result: `D4-force-orthogonal-projector-controls-closeout-2026
 Its 7.030644 GPU seconds are booked once; all 252 continuation allocations are
 closed. Actual causal replay and matched free/perturbed dynamics are the next
 required steps before any native successor.
+
+
+The corrected quaternion reader and actual causal command replay are closed in
+`D4-force-projector-causal-replay-closeout-20261107.json`. The transport identity
+still covers 1,353 states, with a 3.33e-16 N virtual-reference algebra defect.
+Original wrong-axis results and charges remain available through
+`normal-wrench-screen-quaternion-invalidation-20261107.json`.
+
+The separate command replay reconstructs 5,144 actual requests across original
+N/H+/H-/P and nominal PGS histories. Exactly one first approach state per history
+is unavailable; no nearest or future state fills it. Exact current q, Jacobian,
+previous delivered target, command clock and dispatched normal history reproduce
+the original requested and delivered targets within 2.384e-7 rad, supported by
+float32 arithmetic. Candidate opt-out remains bitwise identical and all five
+release handoffs retain the achieved-pose semantics. Maximum nonnormal virtual
+normal-effort increments fall from 0.0202–0.0593 N across the histories to
+6.24e-5–6.54e-5 N, including float32 requested-target rounding. Maximum requested
+joint changes are 2.12e-5–6.15e-5 rad. These are single-command counterfactuals on
+fixed recorded states, not measured contact force or changed-path qualification.
+The two GPU allocations charge 17.082159 seconds and are closed; matched coupled
+motion is still required before any native candidate assignment.
+
+
+The subsequent conditional full-motion model rejects the isolated projector
+before native assignment. Twenty-eight 4,659-control-tick paths include eight
+nominal zero-perturbation replays, eight original-controller controls, eight
+candidate 0/10 N paths and four candidate changing-load paths. Nominal replay
+is exact by construction. All eight original controls pass the modeled original
+predicates. The candidate misses at least one pose endpoint in all eight
+constant-load paths, leaves required future support in seven and fails the
+original 1 mm ramp in three. All four changing-load paths also fail; matching
+original variable-load controls were not run. All 28 modeled physical position,
+speed, acceleration and right-arm effort-cap predicates pass.
+
+The projector changes normal pose displacement while preserving the other five
+requested pose components. In the model, normal error accounts for 99.03% to
+almost 100% of opening-position error, including unloaded cases. Removing a
+virtual target-effort increment does not preserve actual free motion or contact
+force. Trajectories after a first modeled refusal are diagnostic continuations,
+not guarded native dispatches; late large errors are conditional on the frozen
+inertia/forcing and position-integration assumptions. Full fourteen-shape stops,
+other-joint effort caps and changed contact physics are unqualified. No native
+candidate or dependent contact trial is launched.
+
+A separate read-only scalar audit reconstructs the original outer loop across
+the five completed teacher histories. All 1,358 pressure/gap calls use exactly
+the previous completed interval's recorded feedback. The four replayed helpers
+are AST-identical to frozen source `519c347`. Original ramp and feedback history
+recover compression omitted from the transition trace; 2,113 contact/push goals
+reconstruct against recorded panel poses and shape offsets with a 50.63 nm
+maximum discrepancy. One declared precontact approach sets only the material
+plane origin; this is not a fitted calibration or physical tolerance. Pending
+advance remains a recorded past input, not independently recomputed geometry.
+No omitted or duplicated outer correction is identified, and no future force
+or counterfactual contact response is qualified.
+
+Evidence is `D4-force-projector-whole-model-and-teacher-chain-closeout-20261107.json`,
+`D4-force-projector-whole-coupled-model-local-20261107/report.json` and
+`D4-teacher-normal-command-chain-review-20261107.json`. The model charges
+46.356157 GPU seconds; all 255 continuation allocations are closed. Collection
+remains 17/36, with no maintained controller, recipe, domain or criterion change.
+Next work concerns contact-surface normal kinematics and the actual four-substep
+motion response, including finger/jaw rotation and changing load, while retaining
+full free-reference motion, achieved release and the causal pressure/gap loop.

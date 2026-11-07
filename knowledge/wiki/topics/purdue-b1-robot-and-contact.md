@@ -313,6 +313,23 @@ separate. This identity needs causal command, dynamics, rate/domain and native
 qualification; it is not a contact-force measurement or a physical decoupling
 guarantee. The production projector is unchanged.
 
+Native pose commands and the installed Isaac Lab pose-error functions use
+`xyzw` quaternions. Replay must verify that convention against the actual
+commanded normal, join the exact precommand state and previous delivered target,
+and use only dispatched normal history. All five recorded release handoffs and
+5,144 requested/delivered commands now close within float32 arithmetic. Such a
+single-command comparison holds recorded states fixed; it does not establish
+changed-controller motion or physical force decoupling.
+
+The whole-motion model rejects this projector. Changing from the pose-normal
+projection `I - v*jn` to `I - v*g.T/(g.T*v)` changes normal pose displacement,
+even while preserving the other five pose components. With an incremental
+normal-reference channel, that displacement can accumulate without absolute
+normal position correction. Virtual target-effort orthogonality therefore
+cannot replace the free-motion and loaded-motion requirements. Preserve the
+actual causal outer pressure/gap loop; diagnose contact-surface displacement,
+including angular and jaw motion, before another controller intervention.
+
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
 error. No parameters or physical/empirical acceptance thresholds are fitted.

@@ -393,9 +393,23 @@ effort, other-axis coupling and joint-torque null components. These are command
 coordinates, not measured contact force. Geometry-only transport identities do
 not qualify a controller. An isolated force-orthogonal projector passes algebra,
 preload, opt-out, preview, coordinate and input-limit controls at sixteen measured
-Jacobians with synthetic goals. Actual command replay and free/perturbed coupled
-dynamics remain pending before any new native assignment. Production source,
-gains, references and criteria are unchanged; collection stays 17/36.
+Jacobians with synthetic goals. Actual replay now reconstructs 5,144 commands
+from the five histories, including all five release handoffs, within float32
+arithmetic of the native requested and delivered targets. The first approach
+state of each history remains unavailable. The isolated projector reduces
+virtual normal-effort interference on those fixed recorded states; this is not
+changed-path or contact qualification. A separate transport reader's quaternion
+permutation was wrong: corrected `xyzw` results supersede its numerical summary,
+with the original evidence retained. The coupled model rejects the projector:
+all eight original controls pass, while the candidate misses a pose endpoint in
+all eight constant-load paths and leaves future support in seven. Its normal
+pose drift explains nearly all opening-position error; no native successor is
+assigned. A separate scalar replay verifies 1,358 causal pressure/gap updates
+and 2,113 actual contact/push goals against the recorded panel frame, with a
+50.6 nm maximum command reconstruction discrepancy. It finds no omitted or
+doubled outer correction. Next work must address contact-surface motion and
+changing load while retaining the full free reference and original criteria.
+Production source and collection recipes are unchanged; collection stays 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
