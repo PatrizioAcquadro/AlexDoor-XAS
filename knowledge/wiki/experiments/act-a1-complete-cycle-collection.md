@@ -3050,6 +3050,21 @@ complete native contact-point/normal/actor-pose histories across the terminal
 exception. A prepared diagnostic sidecar writes each original contact packet,
 measured joints/poses and native inertia at the matching 240 Hz feedback clock.
 It returns the original packet unchanged and saves original fixture data before
-closing the new stream. Essential persistence/parity checks pass; native runtime
-validation and synchronization with the complete failed task remain pending.
-No new native contact family or observed source is admitted by this preparation.
+closing the new stream. Essential persistence/parity checks pass. The first original N native run now
+validates all 3,484 sidecar packets against the original pressure stream: clocks,
+phases, q/dq/ddq, Jacobians, targets, expected/feedback torques and actual contact
+force sums agree exactly. Native inertia remains finite and positive, and both
+actual finger poses/full joint states are retained. All 17 saved native arrays
+also exactly match the previous same-host N baseline. Original stops, raw data,
+RGB and whole-transfer/owned cleanup pass. The task remains negative at 0.458°,
+with primary contact loss and a secondary empirical release refusal.
+
+The measured N push has 320 native packets: 236 have positive normal force,
+only 2 load both fingers, and the active pressure center switches eight times
+when zero-force gaps are omitted. Its tool-frame height spans roughly ±19 mm.
+The arm mass matrix changes 0.47% from push entry. Right-jaw displacement reaches
+25.4 µm; the pooled gripper metric also includes the left jaws and cannot identify
+right-jaw motion. These are observations, not a causal fit or a new force
+estimate. H+/H−/P are being measured with identical controller/setup/load bytes
+to examine this distributed contact mechanism across posture. No source or
+matrix cell is admitted; a shared control correction remains pending.

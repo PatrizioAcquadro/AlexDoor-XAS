@@ -104,8 +104,12 @@ contact. No component/source or matrix credit is added; dependent variants remai
 suspended pending a shared unilateral-contact and complete-motion diagnosis. A reduced
 CUDA model using 120 measured inertias, original gains and rigid-support moments
 also fails to reproduce native load loss in matched bilateral/unilateral local
-perturbations. This limits the model; it does not validate contact. Persistent
-native contact-manifold diagnostics are prepared but await native validation.
+perturbations. This limits the model; it does not validate contact. The first N
+native contact-manifold diagnostic now verifies all 3,484 synchronized packets
+and exactly reproduces all 17 native arrays from its same-host baseline. The
+task remains negative. During push, only 2 of 320 native packets load both
+fingers; the measured pressure center switches between the fingers. Related
+posture diagnostics remain pending before a shared control change.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
