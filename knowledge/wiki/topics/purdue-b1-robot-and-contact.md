@@ -338,9 +338,13 @@ native rate and total control-interval target budget. Only the actual quantized
 target's normal pose payment enters the last delivered world goal; the next
 absolute outer goal therefore subtracts the amount already delivered. Stops and
 ordinary joint commands end this geometry history. This is geometric reference
-transport, with no force cancellation or new gain. Native free/load/full-stop
-and recording/execution contracts remain separate requirements. Models alone do
-not qualify variable contact pressure or demonstrations.
+transport, with no force cancellation or new gain. The nominal 0/10 N native
+component passes the original complete path and stops, but the prototype's
+intermediate targets differ from the single held target in current A1 recording
+and joint execution. It cannot qualify an A1 source without consistent recording
+and execution. A source-compatible 60 Hz correction remains the next work.
+Models and constant-load components do not qualify variable contact pressure or
+demonstrations.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction

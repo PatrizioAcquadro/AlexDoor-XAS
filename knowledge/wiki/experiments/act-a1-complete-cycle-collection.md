@@ -4462,23 +4462,49 @@ saturation, coordinate rotation and the outer-command boundary. The actual
 float32 other-axis defect peaks at 1.542e-7 in pose units, checked against an
 operand-derived arithmetic allowance rather than a physical tolerance.
 
-The first nominal native 0/10 N component is dispatched once on owned Blackwell
-with frozen source `ab87675` plus the isolated geometry hook. Every new native
-increment also runs the original movement guard; base-goal endpoints, measured
-release, frozen models, 10 N current/future support and original eight-second
-fourteen-shape stops remain required. The causal journal records each actual
-physics target; a final target is not copied onto earlier substeps. Original
-preview equality is checked against the first actual native target, with later
-geometry payments retained separately. All related conditions and contact
-successors remain suspended pending the complete nominal outcome and independent
-review. This is a robot-only component, with no source or demonstration credit;
-the 60 Hz action-recording/execution contract must also cover any native-rate
-supervisory targets before a teacher source can qualify.
+The nominal native 0/10 N component completes once on owned Blackwell with
+frozen source `ab87675` plus the isolated geometry hook. Both cases pass the
+independent original six phases, base-goal endpoints and 1 mm ramp, three-second
+hold, measured release/stabilization, current/single-future 10 N support,
+physical/rate/acceleration/effort limits, frozen moving/stopped models and
+one-latch eight-second fourteen-shape stops. Every new native increment also
+runs the original movement guard. The causal journal retains 43,032 packets,
+including 3,840 stopped packets, and independently joins all 21,474 intermediate
+targets. Geometric increment reconstruction differs by at most 7.71 nm, normal
+payment by 1.22e-15 m, and archived float32 world goals reproduce exactly. Original
+preview equality is checked against the first actual native target; final
+targets are not copied onto earlier substeps.
+
+The first motion reader compared a shape-adjusted controller goal against a
+reported original base-goal endpoint. That reference-association failure and
+its 7.030110 GPU seconds remain. Reconstructing original base goals from the
+unchanged plan repairs the comparison for all normal phases, preserving the
+original thresholds and controller-goal diagnostics. No native run is repeated.
+Whole custody closes 26 original files and three sidecars, 76,332,001 bytes, with
+actual GPU/PGID/lease ownership and release established. The successful motion
+and causal-clock reviews charge 11.062401 and 7.027951 GPU seconds; target custody
+charges 13.080754 seconds and the native job 441.873830 seconds.
+
+A separate static code and data audit blocks A1 source adoption. In 3,554 of
+3,579 unloaded intervals and 3,576 of 3,579 loaded intervals, targets vary across
+the four native steps. Maximum changes from the first target are 64.37 and
+76.53 microradians. The current teacher records one first command at 60 Hz;
+the A1 joint executor clears normal pose mode and does not run this prototype.
+No single first, final or mean target reproduces the exact nonconstant profile.
+This audit runs no policy evaluation, training or additional physics. All related
+conditions and contact successors remain suspended while the common A1 source
+boundary is unresolved. Next work preserves the existing held 60 Hz motor-target
+and recording contract through a causal command correction. This qualified
+robot-only component adds no source, observation, variable-contact or teacher
+credit.
 
 Evidence is `D4-native-rate-shape-preflight-closeout-20261107.json`,
 `D4-native-rate-shape-matched-model-local-20261107/report.json`,
 `D4-native-rate-shape-software-controls-local-20261107/report.json` and
 `D4-native-rate-shape-zero-ten-native-manifest-20261107.json`. The model and
-software controls charge 62.485277 and 7.031963 GPU seconds. All 259 prior
-continuation allocations are closed and the nominal native component is active.
-The verified matrix remains 17/36: thirteen ordinary and four recovery cycles.
+software controls charge 62.485277 and 7.031963 GPU seconds. Complete nominal
+custody and the A1 limit are recorded in
+`D4-native-rate-shape-nominal-complete-closeout-20261107.json` and
+`D4-native-rate-shape-A1-action-contract-audit-20261107.json`. All 264 continuation
+allocations are closed, with no active or prepared job. The verified matrix
+remains 17/36: thirteen ordinary and four recovery cycles.

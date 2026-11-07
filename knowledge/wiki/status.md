@@ -418,11 +418,15 @@ support changes reach 5.06 µm per native step. A matched conditional model keep
 all sixteen prior controls bitwise identical; both 60 Hz and native-rate shape
 transport preserve all eight constant 0/10 N paths. Both retain changing-load
 negatives without the teacher's outer pressure loop. Eight CUDA software controls
-pass at 448 recorded postures. The first isolated native-rate nominal 0/10 N
-component is under guarded qualification on Blackwell; related and contact
-successors remain suspended. Full original stops and consistency of 60 Hz learned
-actions with native-rate supervisory targets still require qualification before
-any source credit. The matrix remains 17/36.
+pass at 448 recorded postures. The isolated native-rate nominal 0/10 N component
+now passes independent original full-path, base 1 mm ramp, current/future support,
+frozen-model and eight-second fourteen-shape stop checks. All 21,474 intermediate
+targets and reference payments join the actual causal journal. It remains
+ineligible as an A1 source: the current recorder and joint executor use one held
+60 Hz target, while most prototype intervals apply several targets. Related
+conditions and contact successors remain suspended. Next work retains the
+existing A1 recording/execution boundary with a causal 60 Hz motor-target
+correction. No interface or source is adopted; the matrix remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

@@ -21,8 +21,14 @@ The existing matched/pilot formats and prior efficiency results are unchanged.
 
 The RGB-D engineering interface is documented in
 [[shared-door-perception|Shared Door Perception]]. Sensor observations, applied
-commands and evaluator annotations remain separate. Preserved engineering recordings have no
-measured torque; commands do not substitute for feedback. New recordings retain a
+commands and evaluator annotations remain separate. A teacher's applied target
+profile must match the declared action interval and execution path. A controller
+that changes motor targets between control boundaries needs corresponding
+recording and executor support; selecting its first, final or mean target does
+not reproduce a nonconstant profile. The isolated native-rate geometry component
+exposes this distinction and remains outside qualified A1 sources.
+
+Preserved engineering recordings have no measured torque; commands do not substitute for feedback. New recordings retain a
 separate 60 Hz measured feedback channel and 120 Hz robot feedback/dynamics stream,
 including source, joint-output semantics, support times and canonical joint order.
 The B1 writer retains lossless single-frame LZF RGB/depth/mask chunks and buffers
