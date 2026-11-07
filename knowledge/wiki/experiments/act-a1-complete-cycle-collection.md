@@ -4647,3 +4647,38 @@ nominal robot-only successor is prepared in
 and contact successors remain suspended pending complete independent nominal
 motion, stop and action/input qualification. No controller, source, calibration
 or demonstration is adopted. Collection remains 17/36.
+
+
+### Minimum motor nominal native qualification (November 7, 2026)
+
+The minimum motor norm held-60-Hz nominal component independently passes both
+original 0 N and 10 N paths: all six phases, original base 1 mm normal ramp,
+three-second hold, achieved-pose release, stabilization, current and single
+future 10 N support, physical limits, speed, acceleration, effort and frozen
+moving/stopped models. Both continuing stops pass the original one-latch
+eight-second, fourteen-shape CAD, tool, joint, rotation and force criteria.
+The earlier scalar-direction inversion failure and all original bounds remain.
+
+All 9,318 control intervals contain exactly four identical native motor targets
+and reproduce the ordinary A1 joint-delta target exactly. All 7,158 correction
+receipts reconstruct from current coupled state and only the last completed
+residual; actual targets, declared current goals and delivered payments join
+exactly. The journal has 43,032 native packets, including stops; all 39,192
+non-stopped feedback packets are verified. The pre-physics PD effort clock is
+independently checked. Effort commands remain distinct from measured feedback.
+
+Whole transfer preserves 26 original files and three sidecars, 69,459,609 bytes,
+with actual owned process/GPU absence and canonical lease release. The native
+allocation charges 711.572580 GPU seconds; three independent GPU readers charge
+26.122010 seconds. All 288 completed continuation allocations are closed,
+totaling 9.698020758 GPU hours. No changing-load, pressure-loop, actual contact,
+observation, source, policy or teacher qualification follows from these components.
+Collection remains 17/36.
+
+Evidence is `D4-held-minimum-motor-nominal-complete-closeout-20261107.json` and
+the nominal run's independent motion, held-profile, proposal and actuator-clock
+reviews. Independent H+/H−/P 0/10 N whole-path components are prepared on the
+original elab4/elab3/elab2 hosts with exactly the same bundle and all original
+criteria, in `D4-held-minimum-motor-related-zero-ten-native-manifest-20261107.json`.
+Each outcome still requires whole transfer, owned cleanup and independent
+complete qualification. Contact successors remain suspended.

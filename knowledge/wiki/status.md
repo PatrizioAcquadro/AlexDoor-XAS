@@ -451,10 +451,14 @@ axes. At that same recorded state it requests at most 17.93 µrad per motor.
 Eight software and eight adapter controls pass at 64 states; constraints pass on
 all 6,569 actual proposal states. Eight constant-load conditional whole paths
 pass original predicates with forty prior histories bitwise identical. Four
-changing-load negatives remain. Only a nominal native 0/10 N successor is
-prepared; its full original movement, stops and action custody remain required.
-No gain, physical limit, empirical criterion, interface or source is adopted;
-the matrix remains 17/36.
+changing-load negatives remain. The new nominal native 0/10 N component now
+independently passes every original full-motion and stop criterion. All 9,318 A1
+intervals have four identical targets and exact joint-delta reconstruction;
+all 7,158 causal proposal inputs, current goals and delivered payments join.
+Actual pre-physics effort clocks pass on 43,032 native packets. Independent
+H+/H−/P constant-load whole paths are prepared with the same bundle; changing
+pressure and actual contact remain unqualified. No gain, physical limit,
+empirical criterion, interface or source is adopted; the matrix remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

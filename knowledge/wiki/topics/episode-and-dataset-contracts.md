@@ -40,6 +40,11 @@ an undispatched command or a complete four-step profile. The final measured
 feedback and declared goal position are unavailable; commands never fill those
 gaps. Derived full-motion qualification is explicitly scoped to the completed
 0 N case. A passing process exit or prefix reader cannot qualify the whole run.
+The later minimum motor norm nominal component completes both cases: all 9,318
+control intervals retain four identical native targets and exact A1 replay, and
+all 7,158 geometric proposals join their current declared goals and delivered
+payments. This qualifies the component's action profile; observed recordings,
+actual contact and full teacher-source admission remain separate requirements.
 
 Preserved engineering recordings have no measured torque; commands do not substitute for feedback. New recordings retain a
 separate 60 Hz measured feedback channel and 120 Hz robot feedback/dynamics stream,

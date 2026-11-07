@@ -372,10 +372,12 @@ minimum motor norm. It retains the current coupled response, only the last
 completed residual, original pseudoinverse cutoff, A1 mapping and target/rate
 limits. It introduces no fitted gain, damping or acceptance range. All 6,569
 recorded-state constraints, software/adapter controls and eight constant-load
-whole-model paths pass, preserving the forty prior histories. Native complete
-motion, stops and exact action/input custody remain required. Models and
-constant-load components do not qualify variable contact pressure or
-demonstrations.
+whole-model paths pass, preserving the forty prior histories. The new nominal
+native component now qualifies both complete 0/10 N paths, every original stop,
+exact A1 target profiles and causal input/payment custody. Actual pre-physics
+effort clocks are verified separately. Related postures and placements retain
+their own complete qualification requirement. Models and constant-load
+components do not qualify variable contact pressure or demonstrations.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
