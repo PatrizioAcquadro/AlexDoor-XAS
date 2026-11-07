@@ -17,9 +17,14 @@ learned-policy evaluation and final-test access remain excluded. The existing
 heartbeat targets this chat; no duplicate automation is needed.
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside
-the latest measured current/future position support. H− retains empirical
-position exits; physical path/stop success does not extend that calibration.
-Actual changing-load door contact and complete observed execution remain pending.
+the latest measured current/future position support. Eight further independent
+finite load cases and 24 original stop segments now qualify H−'s two missing
+sides; all eight original paths pass current/future support without changing
+model or physical limits. Three changing-load door fixtures still lose contact
+near 1.2–1.3° before a secondary abort-release position refusal. Their full
+negative and stop reviews are preserved. A four-condition fixture now tests the
+existing damping/speed/lever-derived push request with the coupled controller;
+complete observed execution remains pending.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

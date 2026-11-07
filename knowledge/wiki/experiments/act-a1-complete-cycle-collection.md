@@ -2818,3 +2818,21 @@ command readback matches delivered normal increments within 0.03 µm in its
 linearized diagnostic. The next control question is motion/pressure consistency,
 using the existing hinge-damping/speed/lever derivation, rather than extending
 the later release boundary to relabel these failures.
+
+
+The two whole-family-derived H− sides now pass eight independently reviewed
+finite 0/10 N center/face-yaw cases and all 24 original same-latch stop segments.
+Only those two position-support sides are added at the verified 10 N cap; all
+other calibration fields and the previous 17 sides remain unchanged. All
+156,768 original trajectory states and their single original future intervals
+pass the resulting support audit; outside-position and 11 N controls refuse.
+This is scoped model support, not an observed demonstration or a Cartesian box.
+
+The next four-condition actual-contact fixture uses the existing physical rule
+`max(contact_guard, hinge_damping * planned_angular_speed / normal_torque_lever)`:
+4 Nm·s/rad, 1°/s and 0.197141 m imply a 0.354129 N push request. Contact and hold
+requests remain 0.1 N. The mechanical controller is unchanged from qualified
+`0edb99f`; `8bc4571` adds diagnostic failure context and exact static-depth query
+reuse. No gain, force/model threshold, motion variation or stop criterion changes.
+The original three negatives and earlier pressure-target negatives remain valid;
+new complete changing-load outcomes are required before any observed source.
