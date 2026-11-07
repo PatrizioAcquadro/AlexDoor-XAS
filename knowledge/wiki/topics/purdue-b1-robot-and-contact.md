@@ -342,9 +342,20 @@ transport, with no force cancellation or new gain. The nominal 0/10 N native
 component passes the original complete path and stops, but the prototype's
 intermediate targets differ from the single held target in current A1 recording
 and joint execution. It cannot qualify an A1 source without consistent recording
-and execution. A source-compatible 60 Hz correction remains the next work.
-Models and constant-load components do not qualify variable contact pressure or
-demonstrations.
+and execution.
+
+The isolated held-60-Hz proposal predicts that bounded four-step profile using
+the current full coupled mass/armature/impedance response and only the last
+completed velocity and position residual. It matches the predicted endpoint
+normal coordinate of the tool plus rigid collision support with one constant
+motor target. The endpoint derivative is signed; a negative derivative is not
+an unavailable response. Original target domain and rate faces bound the final
+float32 command, rounded inward without an extra tolerance. Only its actual
+normal reference payment enters delivered-goal memory. Software and adapter
+controls pass, as do eight constant-load conditional whole paths with forty
+prior histories unchanged. Changing-load negatives remain. Native full-path,
+stop and exact A1 profile checks are still required. Models and constant-load
+components do not qualify variable contact pressure or demonstrations.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction

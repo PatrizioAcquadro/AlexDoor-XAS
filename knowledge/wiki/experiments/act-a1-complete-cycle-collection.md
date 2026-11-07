@@ -4508,3 +4508,47 @@ custody and the A1 limit are recorded in
 `D4-native-rate-shape-A1-action-contract-audit-20261107.json`. All 264 continuation
 allocations are closed, with no active or prepared job. The verified matrix
 remains 17/36: thirteen ordinary and four recovery cycles.
+
+
+### Causal held-target shape proposal preflight (November 7, 2026)
+
+The native-rate reference cannot supply the existing A1 action contract. An
+isolated successor therefore keeps one float32 motor target for each 60 Hz
+interval. Current full twenty-coordinate mass, armature, impedance and measured
+state, together with only the last completed affine response residual, predict a
+bounded four-step shape-transport reference. A scalar correction matches its
+predicted endpoint normal coordinate of tool position plus rigid collision
+support. No future plant geometry or fixture-force schedule enters the proposal.
+The model remains a controller preference, with no new force, support or stop
+certificate. All gains and original criteria remain unchanged.
+
+The endpoint derivative can have either sign. The initial positive-only check
+was an unjustified refusal, corrected to use the finite nonzero signed response.
+That failure and its 8.036316 GPU seconds remain. A later fixed-geometry test
+passed the wrong positional argument; its original reader and 8.037706 seconds
+remain, with no native rerun. Eight software controls then pass at 64 actual
+states, including strict inward float32 rounding at original rate/domain faces,
+pure previews, fixed geometry, other-axis numerical closure and the coupled
+four-step response. Seven adapter controls at the same states establish pure
+preview/dispatch identity, one target across four dispatches, explicit incomplete
+past-packet rejection, ordinary A1 bypass and unchanged float32 simulator default.
+
+All 52 conditional whole paths reach 4,659 control ticks. Forty prior histories
+remain bitwise identical. All eight new constant 0/10 N paths pass the original
+base endpoints, 1 mm ramp, current/future support, position, speed, acceleration
+and arm-effort predicates. Four changing-load paths remain negative; H-minus
+also fails original speed and acceleration. The teacher outer pressure loop is
+absent, and post-refusal continuations are diagnostic model paths only. These
+results do not qualify native motion, changing contact, stops or demonstrations.
+
+The nominal native 0/10 N successor is prepared with the unchanged full program
+and original eight-second fourteen-shape stops. It additionally requires all
+four actual journal targets to equal the preview and an exact ordinary A1
+joint-delta roundtrip. Related and contact jobs remain suspended until informative
+complete qualification. Evidence is
+`D4-held-causal-shape-preflight-closeout-20261107.json`,
+`D4-held-causal-shape-matched-model-local-20261107/report.json` and
+`D4-held-causal-shape-zero-ten-native-manifest-20261107.json`. All 269 continuation
+allocations are closed at preflight closure; five new allocations charge
+132.981625 GPU seconds including both failures. Collection remains 17/36, with
+no new source, optimizer update or adopted production controller.

@@ -425,8 +425,13 @@ targets and reference payments join the actual causal journal. It remains
 ineligible as an A1 source: the current recorder and joint executor use one held
 60 Hz target, while most prototype intervals apply several targets. Related
 conditions and contact successors remain suspended. Next work retains the
-existing A1 recording/execution boundary with a causal 60 Hz motor-target
-correction. No interface or source is adopted; the matrix remains 17/36.
+existing A1 recording/execution boundary. A causal held-target proposal now
+passes eight software and seven adapter controls at 64 native states. Its eight
+constant-load whole-model paths preserve all original predicates; the forty prior
+controls remain bitwise identical. Four changing-load negatives remain, including
+one speed/acceleration failure. A nominal native component is prepared for exact
+target-profile, original complete motion and stop qualification. No interface or
+source is adopted; the matrix remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
