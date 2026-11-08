@@ -6249,8 +6249,9 @@ records 50.478609° versus 50.146446° required and a passing opening requiremen
 but hold ends at 2.65 s with no qualified held angle and pre-release contact
 loss. Abort release and stabilization are recorded; the original direct stop
 reports pass. Full independent force, empirical current/single-future support,
-physical and six-second/fourteen-shape stopping reviews remain pending in the
-one running elab3 review. Related physical variants remain suspended; no
+physical and six-second/fourteen-shape stopping reviews are complete. Physical,
+position support, required-10 N support and original stops pass; the complete
+task and 133 calibrated hold lower windows remain negative. Related physical variants remain suspended; no
 observed teacher source is admitted.
 
 For the preceding acceleration-aware negative, whole custody verifies 48 files /
@@ -6259,8 +6260,8 @@ Native, independent reader and forecast allocations charge 803.092604,
 63.264163 and 14.208161 GPU seconds; all three owned resource groups close.
 The completed model, caller and reader allocations additionally charge
 124.088554, 133.769495 and 122.289329 GPU seconds, preserving every earlier cost.
-Continuation totals are 403 closed allocations / 17.041497 GPU hours plus one
-running independent review. Collection remains 17/36, with no new source or window.
+Continuation totals are 405 closed allocations / 17.095649 GPU hours, with no
+active owned job. Collection remains 17/36, with no new source or window.
 Evidence is `D4-acceleration-aware-recontact-N-native-closeout-20261108.json` and
 `D4-preserve-planned-approach-native-readiness-closeout-20261108.json`.
 
@@ -6319,7 +6320,40 @@ are preserved. Transferring the exact source HDF5 into a new inode and reopening
 it passes the full SHA256 check, followed by complete stable-source/replica
 verification. No cause is inferred and the Blackwell original is untouched.
 The native allocation charges 1,984.000518 GPU seconds and its known owned
-processes and lease close once. The single independent original-reader review
-is running; manual causal RGB and the prepared unchanged whole-path forecast
-remain pending. No native successor or teacher cell is added. Evidence is
-`D4-preserve-planned-approach-N-native-progress-closeout-20261108.json`.
+processes and lease close once. The independent original-reader review, eleven causal original RGB selections
+and unchanged whole-path CUDA forecast are complete. No native successor or
+teacher cell is added. Evidence is
+`D4-preserve-planned-approach-N-native-closeout-20261108.json`.
+
+
+The final independent review reproduces all 14,155 delivered normal-mode targets
+and paid references, including 742 eligible recovery inputs and 273 actual
+changes. All 56,504 original native 100 ms force windows are positive, minimum
+0.024095 N. The calibrated lower windows are positive throughout push
+(minimum 0.010793 N), but 133 of 636 hold windows are nonpositive, minimum
+-0.438486 N, starting at absolute 278.283333 s. None is unavailable. The frozen
+model upper peak is 9.179812 N, distinct from the actual normal peak 8.005346 N.
+Current and single-future empirical position support, original required-10 N
+support, physical boxes and all original six-second/fourteen-shape stops pass.
+These results preserve the complete hold/posture/continuity negative.
+
+The unchanged causal predictor scores all 14,155 normal intervals on actual
+owned CUDA, with future states and forces used only for scoring. Push/hold retain
+734/11 all-four-zero-force intervals; peak surface forecast errors are
+49.037324/38.579715 µm. Predicted and actual acceleration-domain exits are zero.
+At the final hold interval the preceding published force is 0.351135 N, so the
+zero-force recovery is inactive, while the nominal forecast opens to 143.741521 µm.
+Actual rigid-surface scoring reaches 143.884743 µm; the native contact separation
+is a distinct measurement. This association does not prove an alternative
+control would succeed, and no new gate, force law or physical retry follows.
+The two final independent allocations charge 167.376227 and 27.569386 GPU seconds;
+all owned resources close. The original HDF5 transfer anomaly remains preserved.
+
+The user then closes this coordinator campaign for independent friction review
+and D4/D3 assignment in “Astra2”. The heartbeat is verified paused; all six host
+GPU contexts and checked GPU/project locks are released. No new experiment,
+variant or scientific analysis starts after that request. The earlier matched
+smooth-friction candidate comparison has already completed, followed by the
+48-state stopped-component and eight whole robot-only path qualifications;
+these must not be described as an unexecuted candidate or a teacher success.
+The final handoff is `FINAL-HANDOFF-20261108.md` in the campaign evidence folder.

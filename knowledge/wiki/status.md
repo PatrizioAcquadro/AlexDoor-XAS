@@ -6,15 +6,17 @@ learned behavior and physical qualification are separate claims.
 
 ## Current execution and measured outcomes
 
-**Collection resumed by direct human authorization on November 6, 2026**,
+**Collection paused by direct human request on November 8, 2026**,
 in worktree `23f1` on `PatrizioAcquadro/b1-policy-pilot`, with this chat as the
-sole coordinator and one agent. The November 4 pause is superseded within the
-existing 36-demonstration teacher scope. The verified matrix is 17/36: D1 8/9,
+sole coordinator and one agent. This closure supersedes the November 6 resume;
+no automatic restart is authorized. Further diagnosis and D4/D3 assignment belong
+to the user chat “Astra2”. The original 36-demonstration teacher scope is incomplete.
+The verified matrix is 17/36: D1 8/9,
 D2 9/9, D3 and D4 0/9 (13 ordinary cycles, 4 recoveries). Local, Blackwell and
 elab2–5 work requires fresh resource ownership and runtime checks. Original
 failures, masks, scientific criteria and charges remain preserved. Training,
 learned-policy evaluation and final-test access remain excluded. The existing
-heartbeat targets this chat; no duplicate automation is needed.
+heartbeat is paused; this coordinator has no further execution assignment.
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside
 the latest measured current/future position support. Eight further independent
@@ -993,14 +995,22 @@ physical variants remain suspended pending the coupled hold/posture/reference
 and door-motion diagnosis.
 
 The whole payload and three sidecars comprise 49 files / 10,395,037,705 bytes
-and now match SHA256 on Blackwell and elab3. A one-byte divergent initial HDF5 replica
-is retained in full; a new-inode source transfer passes complete re-verification.
+and now match SHA256 on Blackwell and elab3. A one-byte divergent initial HDF5
+replica is retained in full; a new-inode source transfer passes complete re-verification.
 The cause is unknown. Native resources close with 1,984.000518 GPU seconds
-charged. One independent complete-output review is running on owned elab3;
-its scientific force/support/stopping outcomes and manual causal RGB remain
-pending. The prepared unchanged whole-path forecast is not launched yet.
+charged. Complete independent review, eleven causal original RGB selections
+and the unchanged CUDA whole-path forecast are now closed. All current and
+single-future position support, physical checks, original required-10 N support
+and continuous six-second/fourteen-shape stops pass. All 56,504 actual 100 ms
+force means are positive, minimum 0.024095 N; 133 calibrated lower windows in
+hold remain nonpositive, minimum -0.438486 N, with no unavailable window.
+All 14,155 targets and paid references reconstruct exactly, including 742
+eligible recoveries and 273 changed candidates. The unchanged predictor has
+zero predicted or actual acceleration-domain exit. Its final forecast separates
+while the preceding measured force is positive; this is a diagnosis input,
+not a changed control, force bound or physical counterfactual.
 Current evidence is
-`D4-preserve-planned-approach-N-native-progress-closeout-20261108.json`.
+`D4-preserve-planned-approach-N-native-closeout-20261108.json`.
 
 For the preceding acceleration-aware negative, whole custody verifies 48 files /
 4,685,718,741 bytes on Blackwell and elab3.
@@ -1008,8 +1018,9 @@ Native, independent reader and forecast allocations charge 803.092604,
 63.264163 and 14.208161 GPU seconds; all three owned resource groups close.
 The completed model, caller and reader allocations additionally charge
 124.088554, 133.769495 and 122.289329 GPU seconds, preserving every earlier cost.
-Continuation totals are 403 closed allocations / 17.041497 GPU hours plus one
-running independent review. Collection remains 17/36, with no new source or window.
+Continuation totals are 405 closed allocations / 17.095649 GPU hours, with no
+active owned job. All six hosts have no remaining GPU context or held checked
+GPU/project lock at closure. Collection remains 17/36, with no new source or window.
 Evidence is `D4-acceleration-aware-recontact-N-native-closeout-20261108.json` and
 `D4-preserve-planned-approach-native-readiness-closeout-20261108.json`.
 
