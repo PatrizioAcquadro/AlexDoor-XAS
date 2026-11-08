@@ -6244,17 +6244,23 @@ Twelve wrong pressure-reader lineages reject, while every scientific pressure
 predicate remains identical. The exact corrected recorder fixture-model binding,
 original lifecycle and all setup/load/material/control criteria remain unchanged.
 Fresh official Blackwell preflight and local/native/elab3 source parity pass.
-Exactly one full nominal changed qualifier is dispatched. Its complete motion,
-force/support and stopping outcome remains pending; related variants stay
-suspended and no observed teacher source is admitted.
+The one changed full nominal qualifier closes negative. Its original report
+records 50.478609° versus 50.146446° required and a passing opening requirement,
+but hold ends at 2.65 s with no qualified held angle and pre-release contact
+loss. Abort release and stabilization are recorded; the original direct stop
+reports pass. Full independent force, empirical current/single-future support,
+physical and six-second/fourteen-shape stopping reviews remain pending in the
+one running elab3 review. Related physical variants remain suspended; no
+observed teacher source is admitted.
 
-Whole custody verifies 48 files / 4,685,718,741 bytes on Blackwell and elab3.
+For the preceding acceleration-aware negative, whole custody verifies 48 files /
+4,685,718,741 bytes on Blackwell and elab3.
 Native, independent reader and forecast allocations charge 803.092604,
 63.264163 and 14.208161 GPU seconds; all three owned resource groups close.
 The completed model, caller and reader allocations additionally charge
 124.088554, 133.769495 and 122.289329 GPU seconds, preserving every earlier cost.
-Continuation totals are 402 closed allocations / 16.490386 GPU hours plus one
-new native allocation. Collection remains 17/36, with no new source or window.
+Continuation totals are 403 closed allocations / 17.041497 GPU hours plus one
+running independent review. Collection remains 17/36, with no new source or window.
 Evidence is `D4-acceleration-aware-recontact-N-native-closeout-20261108.json` and
 `D4-preserve-planned-approach-native-readiness-closeout-20261108.json`.
 
@@ -6279,3 +6285,41 @@ are retained and pass on all four histories. Full native and observed-source
 qualification remain pending. A CPU audit's initial missing
 remote source path is preserved with zero GPU/native allocations; the exact
 original Git AST fixes only its source loading.
+
+
+The new CPU reconstruction exactly reproduces all 15,146 original load-filter
+values and loaded flags, including 13,967 push and 159 hold rows. Push has 734
+all-four-zero-force intervals but no missing gap or gap-tolerance exit; its
+minimum filtered load is 0.031147 N. Hold has eleven all-four-zero intervals.
+At the only post-establishment loss, probe-relative 244.416667 s / absolute
+278.833333 s, all four forces are zero and their separations rise from 4.410748
+to 106.379397 µm. The original 100 ms filtered force is still 0.110512 N,
+above the 0.02 N loaded minimum. The original maximum-gap predicate fails;
+no force floor, gap tolerance or filter is changed.
+
+The whole transition already loses task posture validity at hold 2.20 s,
+while loaded contact and the physical checks still pass. Material error then
+crosses 10 mm; at contact loss it reaches 15.206833 mm with orientation error
+0.066520 rad. Every hold footprint and physical row remains inside its original
+checks. Door speed rises from 0.197629°/s at hold entry to 0.667217°/s at loss.
+The final raw row is 51.163864°; it is a diagnostic sample, distinct from the
+original report's opening statistic and absent held endpoint.
+The original last-0.5-second conditioning trend is -0.002552163 per second;
+its unchanged nine-second hold/release reserve projects sigma to 0.019956498,
+below twice the original 0.01 damping. Actual hold sigma never crosses 0.02.
+This is a controller planning reserve, not a physical safety violation or a
+proof of global unreachability. The next correction must address the combined
+posture, paid reference, pressure and moving door across the transition.
+
+Whole custody now matches the complete payload and three sidecars: 49 files /
+10,395,037,705 bytes across Blackwell and elab3. The initial HDF5 replica differs in one
+byte. Two circumscribed write/read checks do not survive subsequent complete
+re-verification; their failures, divergent block and complete divergent replica
+are preserved. Transferring the exact source HDF5 into a new inode and reopening
+it passes the full SHA256 check, followed by complete stable-source/replica
+verification. No cause is inferred and the Blackwell original is untouched.
+The native allocation charges 1,984.000518 GPU seconds and its known owned
+processes and lease close once. The single independent original-reader review
+is running; manual causal RGB and the prepared unchanged whole-path forecast
+remain pending. No native successor or teacher cell is added. Evidence is
+`D4-preserve-planned-approach-N-native-progress-closeout-20261108.json`.

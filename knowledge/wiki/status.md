@@ -981,17 +981,35 @@ fixtures, not changed physical trajectories.
 
 Fresh official Blackwell preflight passes the unchanged setup, constructed load
 binding, original outside/support controls, source and recorder lifecycle checks.
-Local/native/elab3 sources match. Exactly one full nominal qualifier using the
-correction is dispatched; complete physical outcome and independent review remain
-pending. Related physical variants remain suspended.
+Local/native/elab3 sources match. The one changed full nominal qualifier closes
+negative. The original report records 50.478609° against 50.146446° required,
+but only 2.65 s of hold, no qualified held angle and pre-release contact loss.
+The exact load-filter reconstruction passes the 0.02 N force check at loss
+(0.110512 N) while the native maximum gap reaches 106.379397 µm against the
+unchanged 100 µm tolerance. Hold posture validity already fails at 2.20 s;
+contact alone cannot explain or qualify the complete motion. The original
+conditioning-reserve guard is reconstructed and remains unchanged. Related
+physical variants remain suspended pending the coupled hold/posture/reference
+and door-motion diagnosis.
 
-Whole custody verifies 48 files / 4,685,718,741 bytes on Blackwell and elab3.
+The whole payload and three sidecars comprise 49 files / 10,395,037,705 bytes
+and now match SHA256 on Blackwell and elab3. A one-byte divergent initial HDF5 replica
+is retained in full; a new-inode source transfer passes complete re-verification.
+The cause is unknown. Native resources close with 1,984.000518 GPU seconds
+charged. One independent complete-output review is running on owned elab3;
+its scientific force/support/stopping outcomes and manual causal RGB remain
+pending. The prepared unchanged whole-path forecast is not launched yet.
+Current evidence is
+`D4-preserve-planned-approach-N-native-progress-closeout-20261108.json`.
+
+For the preceding acceleration-aware negative, whole custody verifies 48 files /
+4,685,718,741 bytes on Blackwell and elab3.
 Native, independent reader and forecast allocations charge 803.092604,
 63.264163 and 14.208161 GPU seconds; all three owned resource groups close.
 The completed model, caller and reader allocations additionally charge
 124.088554, 133.769495 and 122.289329 GPU seconds, preserving every earlier cost.
-Continuation totals are 402 closed allocations / 16.490386 GPU hours plus one
-new native allocation. Collection remains 17/36, with no new source or window.
+Continuation totals are 403 closed allocations / 17.041497 GPU hours plus one
+running independent review. Collection remains 17/36, with no new source or window.
 Evidence is `D4-acceleration-aware-recontact-N-native-closeout-20261108.json` and
 `D4-preserve-planned-approach-native-readiness-closeout-20261108.json`.
 
