@@ -5679,3 +5679,34 @@ allocations are closed at 14.361238 GPU hours, with no owned job open. Collectio
 remains 17/36. Shared unilateral pressure/reference/recontact stability and full
 observed motion remain open; no contact retry, gain/filter fit or criterion
 relaxation follows from the support qualification.
+
+
+The five-history virtual-reference factorization closes with 39,616 original
+normal-mode updates (12,274 / 11,396 / 7,332 / 1,645 / 6,969). Source helper AST
+parity, native-before/command/trace-after clocks, previous delivered targets and
+actual moving stiffness are verified. With full compliance C = J K^-1 Jᵀ,
+virtual wrench W = C^-1 J(target − q), and unit pose normal n, the existing scalar
+is nᵀCW / nᵀCn. It contains nᵀW plus compliance coupling from the other five
+axes. W is virtual elastic state, not measured contact force. Direct scalar output
+is unavailable; reconstructed source math is labeled accordingly.
+
+All five analytical diagonal/coupled/rotated/zero-reference controls pass, with
+fixed-geometry transport exactly zero. Across all originals, displacement
+reconstruction defect is at most 5.56e-17 m or rad, scalar decomposition defect
+2.23e-15 N, and source-float32 versus independent-float64 transport difference
+0.287 nm. Larger older hold components are retained, including 29.701 µm in the
+bound-combined history; they do not by themselves establish a causal defect.
+In the latest path the other-five contribution is at most 14.572 nm per update.
+The final five zero-feedback controls have 13.662 nm absolute transport-component
+sum and 27.515 µm additional measured gap growth. Component sums are not bounds
+on a changed nonlinear physical outcome. No transport, controller, gain,
+threshold, model, original result or source membership changes.
+
+An initial extraction selected a reports-only local directory and failed before
+any GPU allocation; that failure is preserved. Corrected extraction reads the
+original complete remote custody. The single CUDA allocation, its full outputs,
+known PGID/GPU context absence and canonical lease release are verified. Its
+7.051108 GPU seconds are charged once: all 364 continuation allocations close
+at 14.363197 GPU hours, collection still 17/36. Evidence is
+`D4-elastic-reference-factorization-closeout-20261108.json`; the shared sustained
+separation/reference/recontact question remains open without an unchanged retry.

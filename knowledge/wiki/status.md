@@ -683,6 +683,20 @@ pressure/reference/recontact stability across the five histories and full phase
 transitions, together with posture/material geometry and observed camera/perception
 support; no unchanged contact retry or fitted gain/filter/threshold follows.
 
+A CUDA factorization of all 39,616 available normal-reference updates across the
+five finished N histories separates the virtual normal reference from coupling
+through the other five pose axes. Exact original clocks, delivered targets and
+actual motion gains are retained; the scalar output itself was not recorded.
+The maximum factorization defect is 2.23e-15 N. Coupling is expected in the full
+compliance and does not identify a force-sensor error. In the latest path its
+transport contribution peaks at 14.6 nm per update; over the terminal five
+zero-feedback controls its absolute sum is 13.7 nm, alongside 27.515 µm further
+measured gap growth. These are reference quantities, not a physical effect bound.
+No controller change follows. The reader and owned resources close at 364
+continuation allocations / 14.363197 GPU h; collection stays 17/36. Next work
+examines sustained-separation recovery and reference accounting with actual
+held-target motion, preserving all original contact/hold/support/stop criteria.
+
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
 recipe then qualifies D2-RP: continuous native contact, the full three-second
