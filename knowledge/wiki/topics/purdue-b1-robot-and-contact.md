@@ -406,11 +406,17 @@ The timing intervention is now negative with exact request/target custody:
 97 push intervals reach 0.612° before loss. A whole-history integration audit
 retains semiimplicit Euler over explicit or trapezoidal alternatives on the
 qualified robot-only paths; measured future velocity is scoring only. The next
-scoped experiment tests existing finite tangential impedance during the unchanged
-actual-contact task. It addresses accumulated tangential elastic pose error,
-leaves the normal pressure law and gains fixed, and retains all four original
-10 N endpoint failures. Those failures prevent a full 10 N controller claim;
-actual-contact criteria and every empirical future/stop gate stay unchanged.
+scoped experiment of existing finite tangential impedance completes the unchanged
+actual-contact task through opening, hold, release and stabilization. It limits
+accumulated tangential elastic pose error while retaining normal pressure control
+and gains. This mechanical improvement does not establish strict pressure
+qualification: one full 100 ms native window has zero normal force, and required
+future shoulder-X and wrist-X positions lack empirical 10 N support. All physical
+boxes and original continuing stops pass. The already maintained uncertainty
+projection improves bounds but does not remove the force gap. All four historical
+10 N endpoint failures remain; neither their controller domain nor the observed
+teacher source is qualified. Further work must preserve the completed movement,
+resolve the causal gap and independently establish missing support.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction

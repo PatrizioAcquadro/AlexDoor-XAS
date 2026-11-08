@@ -4889,3 +4889,51 @@ not a replacement qualification for that domain. Expected 0.1 N pressure targets
 never replace measured load or the unchanged 10 N future/stop audits. All related
 conditions remain suspended and no teacher/source credit is permitted. Collection
 remains 17/36.
+
+
+### Completed finite-tangent contact task with strict qualification failures (November 8, 2026 UTC)
+
+The single nominal experiment from `c968deb`, isolated source `700191d` plus the
+unchanged minimum motor norm held-target bundle, completes 50.522076° opening
+against 50.146446°, three-second hold, six-second achieved release and two-second
+stabilization. Original materials, setup, gains, native feedback, pressure/gap
+law, normal activation, load model and acceptance criteria remain unchanged;
+material anticipation is off. The original report passes the complete task.
+
+Independent readers verify all 13,265 exact A1 intervals, 53,060 native packets,
+12,274 bitwise-exact current-root causal proposals and paid goals, explicit
+pre-physics effort clocks, native state/contact sums, and the original continuous
+six-second fourteen-shape stop. There are no unavailable or partial intervals.
+All current empirical positions and original future physical boxes pass. Frozen
+load estimates remain within 10 N, with a 4.690655 N upper peak and a 4.049628 N
+actual normal-force peak. Eight selected original RGB frames across all six
+movement phases were visually reviewed; their visible panel/gripper motion does
+not establish micron contact, force continuity or observation identity.
+
+Strict independent pressure qualification is negative. The original future box
+has 3,717 shoulder-X lower-support exits during push, at most 1.264 mrad, and 287
+wrist-X lower-support exits during hold/release, at most 6.724 mrad. These are
+empirical support gaps, not physical limit violations. Of 48,980 push/hold
+100 ms force-lower windows, two are nonpositive, with a −0.016776 N minimum.
+One corresponding actual native normal-force window is zero. The original
+control-level continuity flag stays positive and is preserved separately;
+it cannot replace this independent native-window check. Applying maintained
+`01f814a` uncertainty arithmetic to the same data improves the lower bound but
+retains both nonpositive windows. No threshold, support domain or error budget
+is changed, and no force gap is relabeled as uncertainty alone.
+
+The full 40-file output and three sidecars (9,205,859,826 bytes), original
+outcomes, failures and owned cleanup are retained. Three allocations close once,
+bringing continuation accounting to 317 closed allocations and 11.376352 GPU h.
+The closeout is `D4-finite-tangent-actual-contact-closeout-20261108.json`; causal
+support/normal comparison is `independent-saved-support-and-normal-diagnostic.json`
+inside its finished run. The 1 GB native sidecar is reviewed incrementally with
+the original comparisons and denominators, without retaining all raw rows.
+
+All four historical finite-tangent 10 N endpoint failures remain failed and that
+controller domain remains unqualified. The completed physical task does not
+qualify pressure, observed geometry/identity/material/finite stopping, a source
+or a teacher demonstration. Related contact successors remain suspended.
+Collection stays 17/36. Next work separates independent original-10-N empirical
+support measurement from causal diagnosis of the actual 100 ms gap, preserving
+full movement, realistic load variation, original force and stop criteria.

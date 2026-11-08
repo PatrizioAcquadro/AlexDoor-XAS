@@ -491,14 +491,20 @@ reconstruction in the new scope.
 A 180,220-packet integration audit finds that explicit and trapezoidal formulas
 worsen the eight qualified robot-only paths. The existing semiimplicit residual
 is much larger during actual contact; no fitted formula or error allowance is
-adopted. One scoped nominal experiment is prepared with the existing `700191d`
-finite-tangent mode, leaving material anticipation off. It limits accumulated
-elastic pose error on the other five axes while retaining the normal pressure
-channel, gains, materials and all actual task/load/current/single-future/stop
-criteria. Its four historical 10 N tracking failures remain failed and the full
-10 N controller domain remains unqualified. This experiment grants no global,
-observed-source or teacher qualification. Related actual-contact successors
-remain suspended; the matrix remains 17/36.
+adopted. The scoped nominal `700191d` finite-tangent contact experiment now
+completes 50.522° opening, three-second hold, release, stabilization and original
+six-second fourteen-shape stops with unchanged gains, materials and criteria.
+All 13,265 A1 profiles, 12,274 current-root proposals and native effort clocks
+pass independent checks. Strict pressure qualification still fails: 4,004
+single-future intervals lack empirical shoulder-X or wrist-X support, although
+physical boxes are clear. Two 100 ms force-lower windows are nonpositive; one
+also has zero actual native normal force. The maintained uncertainty correction
+does not resolve that gap. All original data and outcomes are preserved in
+`D4-finite-tangent-actual-contact-closeout-20261108.json`. Its four historical
+10 N tracking failures and full 10 N controller domain remain unqualified.
+Related contact successors stay suspended while causal gap control and missing
+empirical support are investigated. No global, observed-source or teacher
+qualification is granted; the matrix remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
