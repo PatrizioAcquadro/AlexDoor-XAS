@@ -544,6 +544,39 @@ Numerical checks require forecast margin to survive ordinary aging through the
 whole interval for spheres, boxes, offsets and relief. Reproducing the saved
 producer with the corrected reserve refines the full physical volumes and passes
 beginning, midpoint and endpoint receipt checks. It adds no qualified motion.
-Complete nominal-path controls, including interval-end aging on four observed
-states, are in progress before any further native attempt. Evidence is in
-`outputs/evidence/d3-observed-cycles-20261108/axis-cell-cycle-review/`.
+Complete path controls at 1.13 m retain material negatives on two of four
+observed states. At 1.15 m and fraction 0.49075, three complete paths pass but
+the fourth refuses during the contact ramp. Finer robot cells, a vertex-bound
+prototype, complete-stop-box refinement and a positive-cell-union calculation
+do not independently resolve those original negatives. None of those prototype
+algorithms is adopted. Sparse lateral translations identify a possible placement
+region but are not re-solved kinematic trajectories or complete-path evidence.
+
+The existing exact model at 1.15 m and fraction 0.49 preserves the original
+physical, pose, speed and empirical posture limits. With a 2.5 mm numerical
+robot covering cutoff, all 4,336 intervals pass on each of four saved observations,
+including interval-end aging: 17,344 complete design intervals. Two paths already
+pass at 5 mm and retain the same accepted cells with the finer cutoff; the two
+critical paths are fully recomputed at 2.5 mm. Their original 5 mm negatives at
+opening onset and release remain preserved. The cutoff bounds enclosure
+approximation, not contact tolerance, sensor precision or a physical limit.
+Every physical cell, full stopping volume and uncertainty reserve remains present.
+Small residual certificate margins do not imply submicrometer physical accuracy.
+
+The saved complete producer also passes beginning, midpoint and endpoint receipt
+with the proposed cutoff. A separate stress calculation transfers the 259 measured
+unloaded approach deviations onto the new ideal prefix; the original empirical
+future-posture margin remains positive. This is a prefix diagnostic, not a new
+calibration or native transfer proof. The candidate changes only nominal height,
+contact fraction and numerical covering resolution. Root, camera, prompt,
+withdrawal, physical/contact/load/stop/task limits and measured uncertainties stay
+unchanged. The original height perturbation negatives and other eight excluded
+TRAIN conditions remain separate.
+
+One fresh nominal is prepared from the temporal correction, with a run-local
+capture of the current safety estimate, preceding admission and actual robot state
+if execution raises. This closes the missing terminal-receipt diagnostic without
+changing admission. It still needs its own complete observed cycle and independent
+review. Evidence and readers are in
+`outputs/evidence/d3-observed-cycles-20261108/temporal-path-review/`; the original
+native and saved temporal witness remain in `axis-cell-cycle-review/`.

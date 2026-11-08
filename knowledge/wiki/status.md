@@ -13,21 +13,21 @@ then stops on interval-receipt material support at 42.3167 s, before physical
 contact. Raw/native coverage, declared inputs, images, original continuing stops
 and GPU cleanup pass independently. Every later task phase remains unqualified.
 
-Directional measured-axis bounds and complete-cell raster coverage are
-implemented. Three complete ideal nominal paths pass across independent observed
-acquisitions at contact fraction 0.49075; five of six height controls pass, with
-the latest lower-height release negative preserved. Model/component support is
-not a complete observed demonstration. The other eight TRAIN conditions remain
-excluded from collection; no training, final-test access or push is authorized.
+Directional measured-axis bounds, complete-cell raster coverage and consistent
+temporal pivot/normal-offset forecasts are implemented. The original nominal
+placement retains material-support negatives under the corrected temporal budget.
+The prospective 1.15 m height, 0.49 contact fraction and 2.5 mm numerical covering
+cutoff support all 4,336 ideal intervals on each of four saved observations,
+including interval-end receipts. Original physical, measurement, force, stop and
+task limits remain unchanged; the finer cutoff only refines enclosure geometry.
+The negative controls are preserved. No prototype geometry algorithm is adopted.
 
-A saved command exposes a predictable interval-aging inconsistency: forecast and
-receipt use different rotation origins. The corrected pre-command reserve keeps
-both origins and the normal-model offset, with unchanged physical/measurement
-limits. Numerical and saved producer/endpoint-receipt controls pass. Complete
-nominal-path temporal controls across four observed states are running; no native
-retry or GPU allocation is active. See
-[[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]] for the preserved
-failures, criterion classifications and remaining qualification gate.
+One fresh D3-N is prepared; no GPU allocation is active. Model and saved-state
+support add no qualified demonstration. The other eight TRAIN conditions remain
+excluded from collection; no training, final-test access or push is authorized.
+The next gate is this candidate's own complete observed cycle and independent
+raw, task, load, image and continuing-stop review. See
+[[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]].
 
 The prior coordinator's pause below remains in force for that separate campaign.
 
