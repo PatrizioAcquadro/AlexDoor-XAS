@@ -643,6 +643,12 @@ with exact ordinary-mode parity. The existing loaded-force/distance acceptance,
 gains, rate/extent, support and stop requirements stay unchanged. Essential
 boundary/repeated/recontact/acquisition-transition checks pass. These are
 software and saved-input results; the changed native trajectory is unqualified.
+One distinct nominal native qualification is running on owned Blackwell. The
+actual isolated source and constructed scoped N support are verified before
+movement; the original pressure targets/coefficient, low-level bundle, material
+clock, setup and acceptance criteria are unchanged. Independent finished-data
+review is prepared on elab3. Support-phase behavior and the full outcome remain
+pending; 359 closed allocations are separate from this one open allocation.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

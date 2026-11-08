@@ -5589,3 +5589,19 @@ These checks establish the software intervention and preserved criteria, not
 an alternative physical trajectory, stable nonlinear contact or a teacher source.
 A distinct isolated full native qualification is required before related
 conditions proceed. Collection remains 17/36 and prior negatives remain intact.
+
+
+The one nominal qualification is dispatched under
+`D4-force-only-small-gap-N-native-manifest-20261108.json`. Its source revision
+`700191d-force-only-gap-20f89ed` changes only the recovery helper from the preceding
+`700191d-outer-gap-a182f0b` archive; restoring the prior helper reproduces every
+module byte. The loaded helper matches the committed implementation. All setup,
+load support, low-level controller bundle and material-clock bytes are identical.
+Actual source and constructed support are bound before movement, and the real
+GPU process, UUID, PGID and canonical lease are verified. First support and the
+complete native outcome remain pending. The read-only observer also retains the
+first actual positive-gap recovery when available; it never supplies scientific
+acceptance. Complete independent original-criteria/route/outer/clock/force/RGB
+readers, including their original planning context, are prepared on elab3 and
+require finished whole custody and owned cleanup. Related variants remain
+suspended; this open allocation does not change the 359 closed costs or 17/36.
