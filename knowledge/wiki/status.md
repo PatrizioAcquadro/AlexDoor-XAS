@@ -586,13 +586,22 @@ qualification of this correction remain pending. A complete prior negative is
 now preserved on elab3 with every original file and sidecar verified by SHA256.
 The remote readers reproduce all original force/support decision masks and
 stop outcomes. Their first runtime failure and small derived floating-point
-differences remain recorded; no physical threshold changes. One distinct nominal
-Blackwell intervention is running as of its latest owned-health checkpoint,
-with the exact isolated source, actual load model and first retained outer offset
-verified. Related conditions remain suspended. Collection stays 17/36; 352
-continuation allocations close / 13.488624 GPU h, plus that open native job.
-Complete outcome, full remote custody, independent original-criteria reviews,
-RGB and owned cleanup are required before any qualification or expansion.
+differences remain recorded; no physical threshold changes. The distinct nominal
+Blackwell intervention is independently closed negative. All 7,332 actual finite
+updates retain their offset and 151 ordinary updates match the original helper,
+but push stops at 32.457° after an 11.943 N native impact / 13.471 N upper estimate
+exceeds the original 10 N verified load support. One original native 100 ms
+window has zero force; 2,228 original single-future support checks also refuse.
+Physical limits, exact A1/effort/proposal/reference clocks and original six-second
+fourteen-shape stops pass. Hold, release and stabilization are unavailable.
+All original files, six available phase RGB views and owned cleanup are reviewed;
+related conditions remain suspended. Collection stays 17/36; 354 continuation
+allocations close / 13.811090 GPU h. A saved-input audit of 31,002 normal-feedback
+rows finds that below-tolerance geometric gap recovery supplies 73–79% of the
+positive push rate-stage travel, before extent clipping. Original post-command
+compression is absent from these traces, so delivered-command parity and a
+physical alternative are not inferred. Shared pressure/reference and whole-path
+support qualification remain open.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

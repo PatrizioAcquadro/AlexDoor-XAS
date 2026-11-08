@@ -5368,3 +5368,57 @@ Evidence is `D4-remote-WHOLE-review-readiness-closeout-20261108.json`,
 `D4-retained-outer-tangent-N-native-manifest-20261108.json`.
 There are 352 closed continuation allocations / 13.488624 GPU h, plus the open
 native job. The matrix remains 17/36 and optimizer updates remain zero.
+
+
+### Retained outer offset native negative and normal-gap rate diagnosis (November 8, 2026 UTC)
+
+The single `700191d-outer-016f5ef` component is independently closed negative.
+Actual source and constructed scoped N load support match before motion. All
+7,483 outer updates join exact native/teacher clocks: 7,332 finite-mode offsets
+remain unchanged and 151 ordinary updates reproduce the original helper. This
+confirms the implemented routing, not physical contact qualification.
+
+Push ends at 32.457127° versus the unchanged 50.146446° requirement. The last
+native impact is 11.942854 N and the independently recomputed upper estimate is
+13.470716 N, beyond the original 10 N verified support. This is not a small
+numerical excursion. Actual physical limits and current joint-position support
+pass, while 2,228 original single-future position-support checks refuse. One
+original 24-packet / 100 ms native force window is zero immediately before the
+impact; the strict lower-force minimum is −0.027046 N with no unavailable
+estimates. Hold, release and stabilization never execute and remain unavailable.
+No broader load support or threshold change follows from this failure.
+
+Independent reviews verify 7,843 exact A1 profiles, 31,372 native actuator packets,
+7,332 causal proposals, 7,303 material requests and the original six-second
+fourteen-shape stops. Six causally available original RGB selections are reviewed;
+the gripper and door remain visible, but pixels do not establish force or
+observed material ownership. Whole direct remote custody verifies 36 original
+files plus three sidecars / 5,919,844,403 bytes with source stability and exact
+SHA256. Native and reader resources close once, reaching 354 continuation
+allocations / 13.811090 GPU h. All original failures and charges remain, with
+zero new demonstrations and the matrix still 17/36.
+
+The next scalar audit uses all 12,274 finite-only, 11,396 bound-combined and 7,332
+retained-outer normal-feedback inputs. It verifies 30,915 preceding native-force
+and endpoint-gap joins. Frozen rate-stage arithmetic exactly reconstructs every
+one of those 31,002 inputs. The geometric gap term supplies 73.1%, 78.9% and
+78.6% of positive push rate-stage travel, respectively, even though all positive
+gap corrections are within the original 100 µm contact tolerance. It supplies
+97.7% in the bound-combined failed hold. This identifies a substantial shared
+normal-reference input, not the cause of the native outcome or a qualified fix.
+
+The original teacher trace is recorded before the caller adds post-command
+compression. An initial reader fails on phase-free metadata; a subsequent empty
+direct-compression comparison is explicitly rejected as evidence. Both attempts
+remain. The final audit therefore isolates the exact rate stage at a neutral
+compression strictly inside the original extent; it does not claim actual
+extent clipping, delivered compression or a replayed physical alternative.
+The existing separated-gap recovery gate would not trigger on these inputs,
+but that same-input comparison is not adopted. Full unilateral release/recontact,
+variable-load/posture response and phase transitions still require support.
+The original predictor is prepared for scoring on the complete newly available
+push prefix, with missing hold explicit and future physical values scoring only.
+
+Evidence is `D4-retained-outer-tangent-contact-closeout-20261108.json` and
+`D4-three-history-normal-gap-rates-20261108/report.json`, with complete inputs,
+original rejections, source readers and remote original custody preserved.
