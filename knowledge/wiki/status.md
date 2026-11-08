@@ -510,14 +510,21 @@ A saved full-path audit scores known current-velocity material-reference motion
 at 0.881 µm peak normal error across 12,065 push commands, versus 19.584 µm
 when holding the current reference frame. This is a virtual-reference forecast,
 not contact force or a physical bound. One explicit combined finite-tangent plus
-material-clock nominal mechanism test is active. Independent original 10 N
+material-clock nominal mechanism test is now closed: it reaches 51.851° and
+records 2.75 s of hold before four elbow samples leave original empirical
+position support by at most 0.706 mrad. Every available 100 ms force-lower
+window stays positive (minimum 0.006122 N); the final four are unavailable
+under that guard. Actual normal-force windows are all positive, but full hold,
+release and stabilization remain unqualified. All 11,899 A1 profiles, 11,388
+causal proposals, 11,359 predicted requests and original stops pass. Independent
+original 10 N
 fixtures examine the missing shoulder-X and wrist-X future postures on separate
 hosts, with all original load, motion and continuous stops. Both finite postures
 now pass all eight independent cases and 24 original stop segments. A prepared
 N-path support artifact changes only those two measured lower extents; all
 53,060 current and single-future seven-coordinate 10 N checks pass, while
 outside-position/load controls still refuse. Original failures are preserved.
-The maintained recipes and running combined test are untouched; this support
+The maintained recipes and original combined inputs are untouched; this support
 is limited to the completed N path and qualified postures. Its strict force
 failure, the broader 10 N controller domain and observed teacher source remain
 unqualified. Related collection conditions stay suspended.

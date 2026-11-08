@@ -5024,3 +5024,47 @@ Maintained recipes and the running combined contact test retain their original
 inputs. The completed task's strict force failure, including the actual 100 ms
 zero-force window, remains negative. No pressure, global controller,
 observed-source or teacher qualification follows; collection stays 17/36.
+
+
+### Combined contact timing outcome and remaining empirical support (November 8, 2026 UTC)
+
+The combined finite-tangent/current-material-clock N trial from `2c78f31` is
+independently closed negative during hold. It reaches 51.850548° after 11,194
+push commands, then records only 165 hold commands (2.75 of the required 3 s).
+Four final samples exceed original elbow upper empirical support by at most
+0.706166 mrad; no preceding task failure is reported. Release and stabilization
+are unavailable. All physical current states and original future boxes pass.
+
+All 11,899 A1 intervals, 47,596 native packets, 11,388 exact current-root causal
+proposals and paid goals, 11,359 current-input/predicted requests, native effort
+clocks, contact-stream sums and original continuous six-second fourteen-shape
+stops pass independent checks. Every available push/hold 100 ms force-lower
+window is positive, with a 0.006122 N frozen minimum; four final windows remain
+unavailable under the position guard. Actual native force-window minimum is
+0.021709 N, with no complete 100 ms zero window; the longest zero run is 23
+native samples (95.833 ms). This is prefix evidence, not complete qualification
+or permission to change the original window criterion.
+
+Original future support has 3,556 excluded intervals. Numeric comparison with
+the separately prepared finite-only N support removes shoulder exits but leaves
+286 future intervals and the same four current elbow failures. That artifact
+is not automatically transferred to the new trajectory. Frozen/modeled upper
+force peaks at 7.782284 N versus 7.028226 N actual. Available RGB frames across
+approach/contact/push/partial hold remain visible; later phases are missing.
+
+Whole output is 33 files plus three sidecars / 8,201,361,396 bytes; all owned
+resources are released. The native job and three GPU readers close once:
+326 continuation allocations / 12.081889 GPU h. Evidence is
+`D4-finite-tangent-material-contact-closeout-20261108.json` and its run's
+`independent-combined-support-force-diagnostic.json`. Historical finite-only
+force failure, all 10 N tracking negatives, unavailable states and all original
+criteria are retained. No source, pressure, global controller or teacher
+qualification is granted; collection remains 17/36.
+
+Earlier independently measured H− elbow-upper and wrist-lower frontiers are
+broader and use identical frozen dynamic-model fields. Their condition/posture
+scope prevents automatic N adoption. The next support study tests those
+pre-existing frontiers at the actual combined-N coupled postures, with original
+three-site 10 N perturbations and continuous stops, rather than expanding a
+threshold to the failed contact point. Dependent contact retries remain
+suspended until informative independent support verification.
