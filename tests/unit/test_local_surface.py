@@ -239,6 +239,11 @@ def test_current_normal_bounds_do_not_invent_between_capture_speed():
     )
     tracking.candidates = [candidate]
     current = tracking.local_state(1).patches[0]
+    assert current.pose_rotation_axis_bounds is not None
+    np.testing.assert_allclose(
+        current.pose_rotation_axis_bounds.basis_world, constraint.rotation_basis_world
+    )
+    assert current.pose_rotation_axis_bounds.rotation_bound_rad == constraint.rotation_bound_rad
     assert current.normal_position_bound_m > 0
     assert current.normal_rotation_bound_rad > 0
     later = tracking.local_state(1.01).patches[0]
@@ -472,3 +477,45 @@ def test_normal_spans_tighten_conditioned_plane_without_erasing_point_error():
     assert 0.001 < bound < 0.003
     _, _, larger = observed_basis(observed, 0.004)
     assert larger > bound
+
+
+def test_measured_axis_bounds_cover_noisy_plane_edge_inverse_transport():
+    from alexdoor_xas.perception.contracts import AxisRotationBounds
+
+    rng = np.random.default_rng(48)
+    for angle in np.linspace(-0.5, 0.5, 9):
+        true_initial = Rotation.from_euler("zy", [0.2, -0.1]).as_matrix()
+        true_current = Rotation.from_euler("zy", [angle, 0.1]).as_matrix()
+        measured = []
+        for rotation in (true_initial, true_current):
+            observed = surface(rotation, np.array([1, 0, 0]))
+            observed.points += rng.uniform(-0.0005, 0.0005, observed.points.shape)
+            # The fitted normal is also imperfect; all point errors remain bounded.
+            observed.normal = Rotation.from_rotvec([0, 0.0002, -0.0003]).apply(rotation[:, 0])
+            observed.offset = observed.points.mean(0) @ observed.normal
+            measured.append(observed)
+        initial, current = measured
+        source, target = initial.points[::20], current.points[::20]
+        pose = constrained_surface_pose(
+            initial,
+            current,
+            np.eye(4),
+            np.eye(4),
+            source,
+            target,
+            0.004,
+            map_anchor=initial.points.mean(0),
+        )
+        bi, ai, _ = observed_basis(initial, 0.004)
+        bc, ac, _ = observed_basis(current, 0.004)
+        assert pose.rotation_bound_rad == ai + ac
+        np.testing.assert_allclose(pose.camera_from_map[:3, :3], bc @ bi.T)
+        axes = AxisRotationBounds(
+            tuple(map(tuple, pose.rotation_basis_world)),
+            tuple(pose.rotation_axis_chord_bounds),
+            pose.rotation_bound_rad,
+        )
+        vectors = rng.normal(size=(50, 3))
+        error = true_initial @ true_current.T - bi @ bc.T
+        for v in vectors:
+            assert np.linalg.norm(error @ v) <= axes.displacement_bound([v], 0, ai + ac)

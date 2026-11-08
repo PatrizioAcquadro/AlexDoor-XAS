@@ -198,3 +198,41 @@ def test_initial_world_grid_does_not_rotate_again_with_the_shared_object_basis()
         c0 @ np.linalg.inv(motion) @ np.linalg.inv(ct),
         atol=1e-15,
     )
+
+
+def test_axis_transport_keeps_legacy_fallback_and_revalidates_current_source_at_receipt():
+    from alexdoor_xas.perception.contracts import AxisRotationBounds
+
+    estimate, proposal, evidence, limits = local_inputs()
+    patch = estimate.local.patches[0]
+    cert = finite_grid(patch)
+    legacy = cert.margin(patch)
+    angle = patch.pose_support.rotation_bound_rad
+    origin = tuple(patch.world_pose.origin)
+    patch = replace(
+        patch,
+        pose_uncertainty_sources=(("dynamic_pose", 0.004, angle, 0.0, origin),),
+    )
+    assert cert.margin(patch) == legacy
+    patch = replace(
+        patch,
+        pose_rotation_axis_bounds=AxisRotationBounds(
+            tuple(map(tuple, np.eye(3))), (0.001, 0.002, 0.001), angle
+        ),
+    )
+    estimate = replace(estimate, local=replace(estimate.local, patches=(patch,)))
+    evidence = replace(evidence, material_motion_support=cert, swept_collision_margin_m=0.01)
+    result = admit_local_action(estimate, proposal, evidence, limits, 1, generation=0)
+    assert result.admitted
+    require_current_admission(result, estimate, proposal.times_s[-1])
+    # A new larger source cannot retain an old, finer directional certificate.
+    changed = replace(
+        patch,
+        pose_support=replace(patch.pose_support, rotation_bound_rad=angle * 2),
+        pose_uncertainty_sources=(("dynamic_pose", 0.004, angle * 2, 0.0, origin),),
+    )
+    current = replace(estimate, local=replace(estimate.local, patches=(changed,)))
+    with pytest.raises(ValueError, match="stale_axis_rotation_bound"):
+        require_current_admission(result, current, proposal.times_s[-1])
+    with pytest.raises(ValueError, match="invalid_axis_rotation_source"):
+        cert.margin(replace(patch, pose_uncertainty_sources=()))

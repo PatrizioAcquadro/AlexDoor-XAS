@@ -17,6 +17,8 @@ class SurfacePose:
     pairs: int
     normal_origin_world: np.ndarray
     normal_point_bound_m: float
+    rotation_basis_world: np.ndarray | None = None
+    rotation_axis_chord_bounds: np.ndarray | None = None
 
 
 def _angle(a, b):
@@ -62,7 +64,7 @@ def _normal_span_bound(points, normal, first, error):
     return float(np.arcsin(min(1.0, sine)))
 
 
-def observed_basis(surface, point_error_m, *, normal_points=None):
+def _observed_basis_axes(surface, point_error_m, *, normal_points=None):
     """Bound a plane/edge basis using finite baselines, not fit residual alone.
 
     The caller must justify the metric point-error bound. A rigid planar surface
@@ -171,13 +173,27 @@ def observed_basis(surface, point_error_m, *, normal_points=None):
         bound = min(old_bound, _orthogonal_rotation_bound(normal_bound, edge_from_z))
         z = direction - normal * (normal @ direction)
         z /= np.linalg.norm(z)
-        alternatives.append((bound, np.column_stack((normal, np.cross(z, normal), z))))
+        # Keep the original normal/edge errors separately. The cross-product
+        # column is bounded by their chord sum; the scalar SO(3) bound remains
+        # an independent ceiling for every column. No independence is assumed.
+        normal_chord = 2 * np.sin(min(normal_bound, np.pi) / 2)
+        edge_chord = 2 * np.sin(min(edge_from_z, np.pi) / 2)
+        axes = np.minimum(
+            2 * np.sin(bound / 2),
+            [normal_chord, normal_chord + edge_chord, edge_chord],
+        )
+        alternatives.append((bound, np.column_stack((normal, np.cross(z, normal), z)), axes))
     if not alternatives:
         raise ValueError("missing_conditioned_observed_edge")
-    bound, basis = min(alternatives, key=lambda item: item[0])
+    bound, basis, axes = min(alternatives, key=lambda item: item[0])
     if bound >= np.pi / 2:
         raise ValueError("unconditioned_observed_basis")
-    return basis, float(bound), float(normal_bound)
+    return basis, float(bound), float(normal_bound), axes
+
+
+def observed_basis(surface, point_error_m, *, normal_points=None):
+    """Preserve the public scalar basis contract and its original bounds."""
+    return _observed_basis_axes(surface, point_error_m, normal_points=normal_points)[:3]
 
 
 def constrained_surface_pose(
@@ -198,8 +214,10 @@ def constrained_surface_pose(
     complete bound. Calibration, initial geometry, temporal growth and collision
     model disagreement remain separate contributions at the consumer.
     """
-    initial_basis, initial_error, _ = observed_basis(initial_surface, point_error_m)
-    current_basis, current_error, normal_error = observed_basis(
+    initial_basis, initial_error, _, initial_axes = _observed_basis_axes(
+        initial_surface, point_error_m
+    )
+    current_basis, current_error, normal_error, current_axes = _observed_basis_axes(
         current_surface, point_error_m, normal_points=current_normal_points
     )
     source, current = np.asarray(source_points, float), np.asarray(current_points, float)
@@ -256,4 +274,9 @@ def constrained_surface_pose(
         len(source),
         normal_origin,
         normal_point_bound,
+        current_basis.copy(),
+        np.minimum(
+            2 * np.sin(min(np.pi, initial_error + current_error) / 2),
+            initial_axes + current_axes,
+        ),
     )

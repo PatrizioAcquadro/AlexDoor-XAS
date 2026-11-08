@@ -41,8 +41,10 @@ remain unchanged. Native raw integrity, original continuing stops, images and
 cleanup are reviewed. The centered native at `433211b` again stops at 44.8833 s
 before physical contact after 413 delivered commands; D3-N remains 0/1. A saved
 geometry experiment identifies loss of measured axis-direction information in
-the scalar rotation bound. Conservative directional transport is under validation;
-no further native attempt is queued. The full-cycle reader
+the scalar rotation bound. Conservative directional transport is implemented and both saved refusals pass
+producer and receipt controls with unchanged measurement bounds. Complete-path
+controls on the newest atlas remain negative; finite-box rotation conservatism
+is the next discriminator. No further native attempt is queued. The full-cycle reader
 passes an archived positive and rejects failure/component controls. The other
 eight TRAIN conditions are excluded. No GPU allocation is active.
 A decision-equivalent occupancy

@@ -11,6 +11,7 @@ from alexdoor_xas.action.frames import ObjectFrame
 from alexdoor_xas.perception.admission import rotational_travel
 from alexdoor_xas.perception.contracts import (
     MAX_DYNAMIC_AGE_S,
+    AxisRotationBounds,
     FieldSupport,
     LocalContactSelection,
     LocalMaterialState,
@@ -1242,6 +1243,17 @@ class PanelTracking:
                         None,
                     ),
                     pose_uncertainty_sources=pose_sources,
+                    pose_rotation_axis_bounds=(
+                        AxisRotationBounds(
+                            tuple(map(tuple, constraint.rotation_basis_world)),
+                            tuple(constraint.rotation_axis_chord_bounds),
+                            constraint.rotation_bound_rad,
+                        )
+                        if fresh
+                        and getattr(constraint, "rotation_basis_world", None) is not None
+                        and getattr(constraint, "rotation_axis_chord_bounds", None) is not None
+                        else None
+                    ),
                     uncertainty_sources=tuple(
                         (s.name, s.position_m, s.rotation_rad, s.lever_m) for s in budget.sources
                     ),

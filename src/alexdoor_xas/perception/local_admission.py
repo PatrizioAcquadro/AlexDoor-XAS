@@ -13,6 +13,7 @@ from alexdoor_xas.action.spaces import A1_JOINT_DELTA, A2_EE_DELTA
 from alexdoor_xas.perception.admission import ActionAdmission, nonnegative, rotational_travel
 from alexdoor_xas.perception.contracts import (
     TIME_ROUNDOFF_S,
+    AxisRotationBounds,
     FieldSupport,
     same_pose,
     validate_local_contact,
@@ -29,6 +30,12 @@ def _material_point_terms(patch, world_poses, radius):
     pose_position = patch.pose_support.position_bound_m
     pose_rotation = rotational_travel(material_lever, patch.pose_support.rotation_bound_rad)
     sources = getattr(patch, "pose_uncertainty_sources", ())
+    axes = getattr(patch, "pose_rotation_axis_bounds", None)
+    if axes is not None and (
+        not isinstance(axes, AxisRotationBounds)
+        or not any(source[0] == "dynamic_pose" for source in sources)
+    ):
+        raise ValueError("invalid_axis_rotation_source")
     if sources:
         pose_position = pose_rotation = 0.0
         names = set()
@@ -45,7 +52,13 @@ def _material_point_terms(patch, world_poses, radius):
             frame_position += position + rotational_travel(frame_lever, angle)
             frame_rotation += angle
             pose_position += position
-            pose_rotation += rotational_travel(lever, angle)
+            pose_rotation += (
+                axes.displacement_bound(
+                    [pose.origin - origin for pose in world_poses], radius, angle
+                )
+                if name == "dynamic_pose" and axes is not None
+                else rotational_travel(lever, angle)
+            )
             if name != "calibration_fk":
                 geometry_lever = max(geometry_lever, lever)
         # Consistency of the same published primitives, not a physical tolerance.

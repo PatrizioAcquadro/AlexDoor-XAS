@@ -451,3 +451,36 @@ This is a possible representation correction, with unchanged point, plane, edge,
 calibration, age and normal-contact errors. It has not yet changed production
 behavior or qualified a motion. Implementation must validate the axis composition,
 complete physical volumes and current-state receipt before any native successor.
+
+
+## Directional rotation uncertainty
+
+The production constraint now retains the measured normal and straight-edge
+column errors instead of discarding them after forming the original global
+rotation bound. For estimated bases Bi and Bc and current-world vector v, write
+u = Bc^T v. The inverse-transport displacement is bounded by the sum of
+|u_j| times the initial-plus-current column chord bounds. This follows from
+orthogonal norm invariance and the triangle inequality; correlated errors are
+allowed. Each column also retains the original global rotation ceiling. A finite
+ball adds its full radius times that global chord. The smaller of this bound and
+the original scalar bound is conservative. Metric measurement, calibration,
+temporal, normal-contact and physical-motion bounds remain unchanged.
+
+Publication attaches this optional evidence to the same dynamic-pose primitive.
+Admission and receipt use the shared calculation and reject stale or invalid
+axis evidence. Missing optional evidence retains the original scalar behavior.
+Numerical controls cover arbitrary paired frames, correlated errors, whole balls,
+world rotations, measured noisy planes/edges and current-source changes.
+
+Both saved native refusals now pass the complete producer and independent
+receipt checks with exactly reconstructed original poses and scalar errors. The
+latest contact monitor still reports observed geometric separation. These are
+component reassessments, not native continuations or qualified demonstrations.
+The original negatives remain intact. A complete ideal-path check on the latest
+atlas still refuses the positive finger at contact ramp for fraction 0.4925;
+nearby 0.49125 and original 0.49 exchange limiting fingers at opening onset.
+No native successor is authorized by these component positives alone. The next
+check concerns conservatism from wrapping a complete physical box in a sphere
+for rotation uncertainty, while retaining the full box, stopping reserve and
+all observed errors. Evidence is in
+`outputs/evidence/d3-observed-cycles-20261108/axis-transport-review/`.
