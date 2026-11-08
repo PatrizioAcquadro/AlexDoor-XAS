@@ -697,6 +697,27 @@ continuation allocations / 14.363197 GPU h; collection stays 17/36. Next work
 examines sustained-separation recovery and reference accounting with actual
 held-target motion, preserving all original contact/hold/support/stop criteria.
 
+An isolated endpoint-gap response prototype now credits the existing four-step
+full-system forecast before asking for remaining gap closure. Only zero preceding
+native interval-mean force with a positive latest endpoint gap enables it; positive
+force keeps the original pressure/unloading target. The original normal rate sets
+net desired closure, and all seven motor rate/domain limits remain. Across the
+completed N path, 129 of 329 eligible controls change; all other 6,840 targets stay
+identical. Ten analytical controls pass, and the shared helper matches the
+independent proposal on all 6,969 normal-mode intervals. The actual recorder
+callback/propose code also passes nine selected original input cases, phase,
+loaded/missing/nonpositive-gap/stale-feedback and pure-repeat controls. Constructor
+and native physics are unexecuted. The unchanged original predictor still has a
+25.800 µm worst surface error, so nominal candidate endpoint predictions do not
+establish contact, force limits or a changed physical trajectory.
+Two reader failures remain recorded: a dtype assignment before the first result,
+and a reporting variable conflict after successful actual-caller checks. Their
+costs are retained; exact comparison of all nineteen saved proposal fields recovers
+the latter's completed evidence without a GPU rerun. All 368 continuation
+allocations close at 14.382391 GPU h. The native bundle remains local with launch
+readiness false pending complete-output readers and actual-consumer preflight.
+Collection stays 17/36, with no controller adoption or teacher/source credit.
+
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
 recipe then qualifies D2-RP: continuous native contact, the full three-second

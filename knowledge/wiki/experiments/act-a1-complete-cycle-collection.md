@@ -5710,3 +5710,50 @@ known PGID/GPU context absence and canonical lease release are verified. Its
 at 14.363197 GPU hours, collection still 17/36. Evidence is
 `D4-elastic-reference-factorization-closeout-20261108.json`; the shared sustained
 separation/reference/recontact question remains open without an unchanged retry.
+
+
+The causal endpoint-gap prototype uses the original full-system four-step
+current-inertia model and last completed affine residual. A current native
+interval-mean force of zero and a positive last endpoint gap enable it. The
+measured material frame keeps its original one-control-interval velocity forecast.
+The desired remaining gap is g − min(g, original normal rate × dt); only its
+positive deficit against predicted existing surface travel requests another motor
+target correction. This is a stateless geometry proposal, not another accumulated
+gap reference or a force/contact/stopping bound. Positive-force unloading, original
+pressure scalar/gains/rate/extent, ordinary/acquisition/release phases and all seven
+motor rate/domain limits remain unchanged.
+
+The whole completed N record supplies 6,969 normal-mode intervals. Of 329 eligible
+zero-force positive-gap inputs, 129 proposals change and none reaches motor
+rate/domain saturation; the other 6,840 targets remain identical. Ten nominal,
+rate-boundary, already-covered, perturbed, missing, positive-force and nonpositive
+gap controls pass. The actual shared helper and material planes reproduce the
+independent proposal's canonical float32 targets exactly on all intervals. The
+changed recorder callback and native propose method then execute on nine selected
+original cases, including acquisition, loaded/covered separation and the five
+terminal zero-feedback controls. Scalar source targets, callback provenance,
+payment, repeated preview purity, phase/no-op branches and stale-feedback refusal
+pass. The constructor, dispatch physics and changed native contact remain untested.
+The unchanged original predictor's worst surface error is 25.800 µm; all original
+zero-force windows and missing hold remain negative. Candidate nominal endpoint
+residuals do not establish nonlinear contact or force performance.
+
+The first reader fails on float32-to-float64 indexed assignment and retains its
+original source, error and charge. A distinct corrected reader succeeds. A later
+actual-caller reader saves passing scientific controls and proposal arrays, then
+fails on a reporting variable shadowing the phase vector. That nonzero return
+remains intact. Exact CPU comparison of all nineteen saved array fields against
+the successful shared-helper run, plus a control on the repaired reporting loop,
+recovers the already completed evidence without a GPU rerun; the missing original
+forecast report is referenced to its prior successful run, not relabeled.
+All four allocations and owned cleanup records remain preserved, adding 69.101278
+GPU seconds. All 368 continuation allocations close at 14.382391 GPU hours.
+Evidence is `D4-endpoint-gap-response-prototype-closeout-20261108.json`.
+
+The candidate native bundle is prepared locally with launch readiness false. It
+retains the frozen outer pressure module, original shape operator, full-system
+model, material clock and setup. Its explicit load artifact adds only the previously
+independently measured shoulder-X lower side. Complete-output proposal/context/
+paid-goal readers and actual-consumer preflight remain required before one full
+nominal native qualifier. No maintained recipe, source membership, teacher,
+optimizer update or matrix cell changes; collection stays 17/36.
