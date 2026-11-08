@@ -5979,3 +5979,59 @@ qualification. Collection remains 17/36, with no source membership, teacher or
 optimizer update added. Operational evidence is
 `D4-whole-interval-finished-reader-lineage-controls-20261108.json`, the completed
 native WHOLE/cleanup receipts and `continuation-cost-and-state-20261106.json`.
+
+
+The original whole-interval N independent closeout now completes negative. All
+12,109 delivered targets and paid goals reconstruct bitwise; all 12,080 push
+contexts and material-clock requests match. Nine causal original RGB selections
+are manually inspected, covering eight distinct capture indices: push-last and
+release-first share one available frame. All are readable and retain door/tool
+visibility; this is no pixel-scale contact/force or observed-source certificate.
+Hold images and the physical hold remain unavailable. Actual native force means
+are positive across all 48,320 original 100 ms windows, but 29 original calibrated
+lower windows are nonpositive, with minimum −0.048805 N. The 1,015 original
+single-future empirical support exits all occur during push, starting at absolute
+time 151.654167 s; current measured support and hard physical boxes remain clear.
+All original six-second fourteen-shape stops pass. None repairs incomplete
+opening, lost continuity or missing hold.
+
+An unchanged causal four-step predictor scores the complete 12,109-interval path
+using only current state/inertia, the dispatched target and the last completed
+residual. Future recorded states and forces are scoring targets only. Worst
+surface defect is 93.921229 µm. Across 12,080 push contexts, 1,868 nominal
+trajectories cross internally without a negative endpoint; 2,974 intervals have
+positive recorded force despite all four nonnegative nominal gaps. These are
+diagnostic geometry classes, not contact or safety criteria. At the final
+interval the predicted gaps are 84.695, 112.933, 139.058 and 161.489 µm; recorded
+rigid-surface scores are 84.270, 112.366, 138.503 and 160.868 µm, and all four
+actual native forces are zero. The predictor therefore already represents the
+terminal separation; its largest final defect is only 0.621059 µm. This does not
+prove a force law or replacement trajectory.
+
+A separate authority audit reconstructs every eligible original scalar target
+exactly and retains all seven original motor domain/rate limits plus all four
+nominal gap inequalities. Removing only the exact-other-five commanded-pose
+equality makes the requested endpoint nominally attainable in all 157 eligible
+inputs, including the four previously infeasible polygons. At the final interval
+that equality permits only 26.944925 µm closing response of 187.516031 µm requested;
+the seven-variable model can attain the endpoint. Its quadratic minimizer,
+however, reports 21 unresolved status flags despite small primal defects. The
+linear command-reference changes reach 11.473522 mm off axis and 0.027425476 rad;
+they are not achieved physical pose deviations or qualified task tolerances.
+Five nominal, boundary, limited, perturbed and infeasible solver controls pass in
+both official runtimes. A local preparation syntax failure is retained separately,
+without GPU allocation or native attempt.
+
+The current native adapter pays only the normal component into its reference
+history, relying on exact preservation of the other five command components.
+An unrestricted seven-motor correction would invalidate that assumption. The
+model result is therefore not adopted: a reliable joint pose/recovery allocation,
+consistent reference payment and complete mode/history validation are needed
+before a native successor. Preserve original pressure, empirical/physical limits,
+full-cycle and stopping criteria; do not widen support or fit gains/thresholds to
+these negatives. The native run, failed first reader, corrected reader and two
+diagnostics retain all costs and release their known owned resources. All 383
+continuation allocations close at 15.367263 GPU hours, with no active or prepared
+GPU job, new teacher, source membership or optimizer update. Evidence is
+`D4-whole-interval-recontact-N-native-closeout-20261108.json`; collection stays
+17/36. D3/D4 complete observed paths and real collection geometry cost remain open.

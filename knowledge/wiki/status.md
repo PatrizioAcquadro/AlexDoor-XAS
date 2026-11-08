@@ -808,25 +808,44 @@ The finished pressure reader initially rejects a stale immediate-predecessor
 binding. That failed allocation and log remain preserved. A separate corrected
 reader accepts only the exact whole-interval/endpoint-v2 lineage and unchanged
 original controller/planning constants; eight wrong-lineage controls reject.
-Completed custody and continuous-stop reports are reused byte-for-byte. The
-remaining original-criteria review is running on owned elab3; full target/context,
-paid-goal/request and causal RGB closeout are still pending, so no complete
-independent qualification is claimed.
+Completed custody and continuous-stop reports are reused byte-for-byte. All
+remaining original readers now complete. Every one of the 12,109 held targets
+and paid goals reconstructs bitwise, all 12,080 push contexts and material-clock
+requests match, and nine causal RGB selections are inspected (eight distinct
+captures, with one shared across the push/release boundary). Hold views remain
+unavailable. The original complete demonstration and pressure component remain
+negative.
 
-Its completed pressure readback is also negative. All 48,320 actual native 100 ms
-push windows are positive, minimum 0.022398 N, but their original calibrated load
-lower windows reach −0.048805 N. All frozen upper-load estimates remain within
-the original 10 N domain, peaking at 7.754009 N; the normal component peaks at
-7.234842 N during withdrawal. Current measured position support has zero exits,
-while 1,015 original single-future boxes leave empirical support. Hard physical
-boxes and the original six-second fourteen-shape stops pass. These distinctions
-do not repair the full task or authorize empirical/support threshold widening.
-The 380 closed continuation allocations total 15.326967 GPU hours, plus one open
-corrected reviewer. Related physical variants remain suspended. Collection stays
-17/36. Readiness evidence remains
-`D4-whole-interval-native-readiness-closeout-20261108.json`; the new original
-outcome and pending independent checks are recorded in
-`continuation-cost-and-state-20261106.json`.
+All 48,320 actual native 100 ms push windows are positive, minimum 0.022398 N,
+but 29 original calibrated lower windows are nonpositive, minimum −0.048805 N.
+The frozen upper-load peak is 7.754009 N within the original 10 N domain; the
+normal component peaks at 7.234842 N during abort withdrawal. Current measured
+position support has zero exits, while 1,015 original single-future boxes leave
+empirical support. Hard physical boxes and original six-second fourteen-shape
+stops pass. These positives do not repair contact continuity, opening or hold,
+or authorize changes to empirical support or acceptance thresholds.
+
+The complete saved-path score finds a worst surface forecast defect of 93.921 µm,
+which is not a force or safety bound. At the final zero-force interval it already
+predicts a 161.489 µm remaining gap, versus a 160.868 µm recorded rigid-surface
+score. The exact-other-five command constraint allows only 26.945 µm of the
+187.516 µm requested closing response. A separate current-input audit retains
+all seven original motor bounds and all four nominal gap inequalities, but omits
+that pose equality: all 157 eligible endpoints become nominally attainable,
+including four previously infeasible cases. This is a model constraint diagnosis,
+not an alternative physical trajectory. Linear off-axis command changes reach
+11.474 mm and 0.027425 rad, and the quadratic minimizer reports 21 unresolved
+status flags despite small primal defects. The native adapter currently pays only
+the normal reference increment and relies on the other five components being
+preserved. Removing that equality alone would leave their reference changes
+unhandled. A reliable joint pose/recovery/reference correction and full history
+validation are required before a native successor; the unrestricted model result
+is not adopted.
+
+All owned resources are released. The 383 closed continuation allocations total
+15.367263 GPU hours; failures and costs remain preserved. Related physical
+variants remain suspended and collection stays 17/36. Complete evidence is
+`D4-whole-interval-recontact-N-native-closeout-20261108.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
