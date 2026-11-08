@@ -404,3 +404,32 @@ No motion correction is supported by that comparison. The next design screen
 must seek full-path contact placement supported across both independent observed
 atlases, retaining original physical and empirical posture limits and perturbed
 controls. No unchanged native retry or other TRAIN condition is queued.
+
+
+## Centered contact design
+
+A further 168-path CUDA screen varies contact height, lateral root placement and
+contact fraction. Higher alternatives mostly leave the existing calibrated
+posture support; remaining material failures exchange which finger is limiting.
+A focused 18-path CUDA control centers the contact between those two finite
+margins while retaining the original root, 1.13 m nominal height and 45 mm
+withdrawal. Three nearby contact fractions preserve original physical, pose,
+speed and empirical support in nominal and ±20 mm height designs. These are
+ideal controls, not additional TRAIN collection or native motion qualification.
+
+The middle fraction, 0.4925 instead of 0.49, shifts the intended contact by about
+2 mm. Every one of its 4,336 nominal material intervals passes separately on
+both independent observed acquisitions at ordinary 1/60 s age. The upper-height
+controls also pass on both. The lower-height control passes on the latest native
+atlas but retains a 0.0175 mm enclosure deficit on the first stationary atlas;
+that confidence negative is preserved without changing any threshold. It does
+not authorize that TRAIN variant, which remains outside this assignment.
+
+Only the nominal contact fraction changes prospectively. Camera, prompt, root,
+height, withdrawal, physical/contact/load/stop/task limits and covering resolution
+remain unchanged. This is a contact-placement correction supported by complete
+nominal paths across the measured acquisition variation, not a relaxed tolerance
+or a claim of universal future observation support. The live nominal must still
+obtain its own full observed task and independent review. Evidence is in
+`D3-N-observation-robust-placement-model-elab2-20261108/` and
+`D3-N-centered-contact-model-elab2-20261108/` under the D3 evidence directory.

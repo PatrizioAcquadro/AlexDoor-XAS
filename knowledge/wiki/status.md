@@ -33,9 +33,12 @@ subdivision. The original resolution and all uncertainty bounds remain unchanged
 The fresh nominal at `f79580a` completes approach and 53 contact-ramp commands,
 then refuses finite material support at 44.8833 s while still physically separated.
 A saved-input comparison attributes the deficit mainly to changed observed
-coverage/registration, with negligible motor-model contribution. Complete-path
-placement must now account for both observed acquisitions. Native raw integrity,
-original continuing stops, images and cleanup are reviewed; D3-N remains 0/1. The full-cycle reader
+coverage/registration, with negligible motor-model contribution. Centered contact fraction 0.4925 now has complete nominal material-path support
+on both acquisitions, retaining original physical and empirical model checks.
+The lower-height stationary control remains negative and is not authorized for
+collection. Only the nominal contact fraction changes prospectively; all limits
+remain unchanged. Native raw integrity, original continuing stops, images and
+cleanup are reviewed; D3-N remains 0/1 pending a fresh complete cycle. The full-cycle reader
 passes an archived positive and rejects failure/component controls. The other
 eight TRAIN conditions are excluded. No GPU allocation is active.
 A decision-equivalent occupancy
