@@ -5068,3 +5068,17 @@ pre-existing frontiers at the actual combined-N coupled postures, with original
 three-site 10 N perturbations and continuous stops, rather than expanding a
 threshold to the failed contact point. Dependent contact retries remain
 suspended until informative independent support verification.
+
+
+The prospective transfer study is staged as
+`D4-shared10N-frontier-N-transfer-manifest-20261108.json`: elbow upper
+−0.312805806 rad and wrist lower −0.914791286 rad are taken from the earlier
+qualified H− calibration, not fitted to the new N refusal. The new combined N
+prefix requires −0.416832882 rad elbow upper and −0.913824428 rad wrist lower
+under the unchanged original future allowance. At each selected complete N
+posture, all other measured coordinates are retained. The fixture checks
+unloaded and three 10 N sites/yaws, seven-joint 0.5 mrad motion, frozen residuals,
+physical/rate/acceleration/effort/feedback limits and the original continuous
+eight-second fourteen-shape stops. Both four-case jobs are dispatched once on
+separate coordinated hosts; outcomes and calibration transfer remain pending.
+No live recipe, default calibration or contact trial is changed by preparation.

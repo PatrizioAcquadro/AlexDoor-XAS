@@ -528,6 +528,10 @@ The maintained recipes and original combined inputs are untouched; this support
 is limited to the completed N path and qualified postures. Its strict force
 failure, the broader 10 N controller domain and observed teacher source remain
 unqualified. Related collection conditions stay suspended.
+Two independent transfer jobs now test the earlier measured H− elbow-upper and
+wrist-lower 10 N frontiers at the combined N coupled postures. Identical dynamic
+model fields do not by themselves establish position support at another posture;
+all original fixture and stop criteria must pass before any N-scoped adoption.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
