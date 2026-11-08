@@ -479,8 +479,36 @@ component reassessments, not native continuations or qualified demonstrations.
 The original negatives remain intact. A complete ideal-path check on the latest
 atlas still refuses the positive finger at contact ramp for fraction 0.4925;
 nearby 0.49125 and original 0.49 exchange limiting fingers at opening onset.
-No native successor is authorized by these component positives alone. The next
+These component positives alone do not justify a native successor. The next
 check concerns conservatism from wrapping a complete physical box in a sphere
 for rotation uncertainty, while retaining the full box, stopping reserve and
 all observed errors. Evidence is in
 `outputs/evidence/d3-observed-cycles-20261108/axis-transport-review/`.
+
+
+## Complete-cell raster coverage
+
+A separate convex-vertex uncertainty experiment does not resolve the negative
+paths and is not adopted. Further contact-placement controls preserve the same
+physical and empirical limits; their scalar-cell checks still fail on the
+newest acquisition. No native retries follow those negative screens.
+
+The material grid already certifies complete pixel cells. Its distance transform
+measures distance to unknown cell centers, then subtracts a full cell diagonal:
+one half-diagonal covers the queried point within its cell, and the other covers
+the unknown square. The finite-box consumer previously took floor/ceil of the
+box coordinates as if they were pixel boundaries, including exterior cell
+centers. It now includes exactly every closed pixel cell intersecting the full
+projected box: ceil(lower - 1/2) through floor(upper + 1/2). Boundary ties and
+interior holes remain included. Original erosion, metric uncertainty, full stop
+reserve, normal/contact checks and future-motion allowance are unchanged.
+
+Independent numerical controls compare the resulting certificate against exact
+rectangle-to-unknown-square distances at nominal and both sides of pixel
+boundaries, with holes and varying stop radii. The shared producer/receipt
+calculation is also checked on both saved native refusals. Full-path checks on
+all three independent observations are in progress for prospective contact
+fraction 0.49075, retaining 1.13 m nominal height and the original root, camera,
+withdrawal and task recipe. Sampled nominal and height controls pass, but full
+native contact and task qualification remain absent. Other TRAIN conditions
+remain excluded from collection.

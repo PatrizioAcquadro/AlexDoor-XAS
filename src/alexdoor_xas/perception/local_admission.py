@@ -199,12 +199,14 @@ class MaterialMotionSupport:
                 project = basis.T @ mapping[:3, :3] @ axes
                 tangent = project @ midpoint + basis.T @ mapping[:3, 3]
                 span = np.abs(project) @ half
-                first = np.floor((tangent - span - lower) / self.cell_m).astype(int)
-                last = np.ceil((tangent + span - lower) / self.cell_m).astype(int)
+                first = np.ceil((tangent - span - lower) / self.cell_m - 0.5).astype(int)
+                last = np.floor((tangent + span - lower) / self.cell_m + 0.5).astype(int)
                 if (first >= 0).all() and (last < np.array(grid.shape)[::-1]).all():
-                    # Every raster cell of the full projected box is retained,
-                    # including interior holes. Grid clearance already pays its
-                    # cell diagonal; no empty corners of the sphere are needed.
+                    # Include every closed pixel cell intersecting the full box,
+                    # including boundary ties and interior holes. Clearance is
+                    # a lower bound over the WHOLE cell: its producer subtracts
+                    # the cell diagonal from distance to unknown cell centers.
+                    # Floor/ceil of center coordinates would add exterior cells.
                     inside = grid[first[1] : last[1] + 1, first[0] : last[0] + 1].min()
                     margin = max(margin, float(inside - scale * (reserve + error + future)))
             margins.append(margin)

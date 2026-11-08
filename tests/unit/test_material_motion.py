@@ -236,3 +236,57 @@ def test_axis_transport_keeps_legacy_fallback_and_revalidates_current_source_at_
         require_current_admission(result, current, proposal.times_s[-1])
     with pytest.raises(ValueError, match="invalid_axis_rotation_source"):
         cert.margin(replace(patch, pose_uncertainty_sources=()))
+
+
+def test_complete_cell_box_coverage_preserves_holes_boundaries_and_stop_radius():
+    from itertools import product
+
+    from scipy.ndimage import distance_transform_edt
+
+    from alexdoor_xas.perception.local_admission import TargetReliefBox
+
+    estimate, _, _, _ = local_inputs()
+    patch = estimate.local.patches[0]
+    zero = replace(patch.pose_support, position_bound_m=0.0, rotation_bound_rad=0.0)
+    patch = replace(
+        patch,
+        world_pose=ObjectFrame(np.zeros(3), np.eye(3)),
+        geometry_support=zero,
+        pose_support=zero,
+    )
+    cell = 0.01
+    known = np.ones((9, 9), bool)
+    known[[0, -1], :] = False
+    known[:, [0, 6, 7, 8]] = False
+    clearance = np.maximum(0, distance_transform_edt(known) * cell - np.sqrt(2) * cell)
+    cert = replace(
+        finite_grid(patch),
+        lower_m=(0.0, 0.0),
+        cell_m=cell,
+        clearance_m=clearance,
+        spheres=((0.0, 0.0, 0.0, 1.0),),
+    )
+    box = TargetReliefBox(
+        tuple(map(tuple, np.eye(3))), (-0.2, 0.032, 0.039), (0.2, 0.034, 0.041), 0.01
+    )
+    assert replace(cert, boxes=(box,)).require(patch) > 0
+    # The discarded exterior column is not crossed, even by the reserved stop.
+    assert clearance[4, 4] - box.radius_m < 0
+    for low, high, radius in product(
+        [0.0249, 0.025, 0.0251, 0.032], [0.0349, 0.035, 0.0351, 0.055], [0, 0.005, 0.02]
+    ):
+        for hole in (False, True):
+            mask = known.copy()
+            if hole:
+                mask[4, 3] = False
+            grid = np.maximum(0, distance_transform_edt(mask) * cell - np.sqrt(2) * cell)
+            unknown = np.argwhere(~mask)[:, ::-1] * cell
+            lo, hi = np.array([low, 0.039]), np.array([high, 0.041])
+            # Independent exact distance from the rectangle to every unknown square.
+            gaps = np.maximum(np.maximum(unknown - cell / 2 - hi, lo - (unknown + cell / 2)), 0)
+            exact = np.linalg.norm(gaps, axis=1).min() - radius
+            changed = replace(box, lower_m=(-0.2, *lo), upper_m=(0.2, *hi), radius_m=radius)
+            measured = replace(cert, clearance_m=grid, boxes=(changed,)).margin(patch)
+            assert measured <= exact + 1e-14
+            if exact <= 0:
+                assert measured <= 0
