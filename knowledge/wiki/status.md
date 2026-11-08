@@ -918,22 +918,43 @@ retains five tiny crossed scalar intervals caused by the first stage's certified
 primal error; all other inputs solve and predicted acceleration exits remain
 zero. Both screens and every fallback remain preserved.
 
-A further isolated numerical correction retains a candidate at such a crossing
-only if the same original independent primal, equality and stationarity contract
-passes. It adds no numerical tolerance or physical margin. Eleven library-only
-controls, including rejection of a material anchor defect, pass on Blackwell's
-existing runtime. Its full three-history CUDA screen is running on elab3. The
-actual constructor/recorder/preview/dispatch/apply family is prepared, including
-all nineteen earlier numerical fallback fixtures, and remains unlaunched until
-the model result qualifies. The caller receives the original constructed load
-model's acceleration calibration explicitly. Complete changing-trajectory,
-pressure/support, stopping, output-reader and observed-source qualification are
-still pending; related physical variants stay suspended.
+The corrected solver passes all 1,096 eligible inputs with no numerical fallback
+and no quantized predicted acceleration-domain exit. Every original independent
+primal, equality and stationarity contract passes, including the five earlier
+crossings. The eleven library controls also retain rejection of a material
+anchor defect. These numerical checks do not create a physical response bound;
+nonlinear nominal gap can still reach −24.724895 µm on the old whole-interval
+history.
 
-All completed model resources close; 393 continuation allocations total
-16.051969 GPU hours, plus that one open model allocation. Collection remains
-17/36. Evidence is `D4-acceleration-aware-model-software-closeout-20261108.json`
-and `D4-pose-aware-recontact-N-native-closeout-20261108.json`.
+The actual constructor/recorder/propose/preview/pre/apply family passes 65
+fixtures from all three histories, including all nineteen earlier fallback
+inputs, pure preview, dispatched six-axis reference payment, phase/feedback
+branches, mode exit and four held apply callbacks. The same production
+reconstruction function passes all 33,939 archived held inputs, matching all
+1,096 scalar candidates and preserving inactive original targets and reference
+memory exactly. These use original-state fixtures and an explicit dispatch shim,
+not changed physical trajectories.
+
+Before native launch, source inspection catches an unexecuted installer binding
+to an environment attribute that does not exist. It is corrected to the actual
+recorder's constructed fixture load model. The real source expression passes
+with the original path/parameter guard and rejects both the old expression and
+an altered calibration. The original inspection/physical lifecycle methods
+remain identical. Eleven wrong pressure-reader lineages reject; all scientific
+pressure predicates remain identical. Fresh Blackwell preflight passes the
+original setup, qualified support/outside cases, constructed load guard, source,
+force-only caller and lifecycle checks. Local/native/elab3 source hashes match.
+
+Exactly one full nominal acceleration-aware D4 native qualifier is now running
+on an owned Blackwell GPU. Its single startup snapshot verifies the actual
+process group/UUID/owner, unchanged materials and actual constructed calibration
+binding before physical pose motion. First noninspection controller installation
+and the complete movement, force/support and stop outcomes remain pending. All
+related variants stay suspended; no observed teacher source is admitted. All
+396 completed continuation allocations close at 16.140188 GPU hours, plus the
+one new native allocation. Collection remains 17/36. Evidence is
+`D4-acceleration-aware-native-readiness-closeout-20261108.json` and
+`D4-pose-aware-recontact-N-native-closeout-20261108.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

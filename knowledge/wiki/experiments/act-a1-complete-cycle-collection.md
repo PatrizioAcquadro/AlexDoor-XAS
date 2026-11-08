@@ -6158,25 +6158,70 @@ The allocations charge 115.822105 and 113.657429 GPU seconds and release their
 known owned GPU contexts, process groups and canonical leases, closing accounting
 at 393 continuation allocations / 16.051969 GPU hours.
 
-A further isolated correction treats a crossed interval only through the SAME
-original full numerical certificate: an anchor error inside the existing
-accuracy can pass, while a material defect must reject. No solver tolerance,
-empirical domain, physical limit, force threshold or gain is enlarged. Eleven
-independent library-only controls pass on Blackwell's existing numerical runtime;
-this CPU algebra is separate from the CUDA dynamic-model screen. One new
-three-history CUDA screen is running on elab3. Its complete result remains
-pending. The actual constructor/recorder/propose/preview/pre/apply and full6
-reference-payment family is prepared on all three histories, explicitly including
-the earlier nineteen fallback fixtures. It receives acceleration bounds from the
-constructed original load model, with no inferred or default calibration. Its
-lifecycle and source binding still require execution and official preflight.
+The corrected numerical-anchor solver retains a candidate only under the SAME
+original independent primal, equality and stationarity contract. No tolerance,
+empirical domain, physical limit, force threshold or gain is enlarged. All 1,096
+eligible inputs now solve, including all nineteen original energy-stage fallback
+inputs and all five crossed scalar intervals, with no quantized predicted
+acceleration-domain exit. Eleven numerical-library controls pass on Blackwell,
+including rejection of a material anchor defect. The maximum energy-stage primal
+residual is 2.150587e−10 within its stated numerical contract. Preserve all prior
+numerical failures and source versions. Nominal nonlinear gap remains as low as
+−24.724895 µm on the old whole-interval path, not an adopted physical tolerance.
 
-Nominal constraints and archived fixtures do not certify actual motion or
-stopping. Original eleven finite nonpositive lower-force windows, four unavailable
-windows, 2,568 future empirical position exits and missing hold/release/stabilize
-remain unresolved native outcomes. Contact, posture, variable load, camera,
-perception, transitions and full movement remain coupled requirements. No source,
-maintained controller, calibration or teacher is adopted. Collection remains
+The actual constructor/recorder/context/propose/preview/pre/apply family passes
+19 new-history, 17 whole-interval and 29 older-endpoint fixtures: 65 total,
+including all nineteen earlier numerical fallback inputs. Exact URDF/gains,
+current/last-completed state, pure preview, exact target and dispatched full6
+reference payment, original inactive/loaded/missing/nonpositive/stale controls,
+phase exits and four identical held apply callbacks pass. The original-dispatch
+shim does not execute native physics. The same production reconstruction function
+then passes every one of 13,162 + 12,109 + 8,668 = 33,939 original held inputs.
+Its 1,096 eligible candidates match independent scalar proposals; all inactive
+targets and paid memory remain identical to the originals. Quaternion payment
+retains independent Hamilton-product and operation-count checks.
+
+While preparing native wiring, source inspection catches an unexecuted recorder
+installer reading `env.load_model`, which the native environment does not expose.
+The recorder actually constructs `self.fixture_model` under its existing exact
+path/parameter guard. Only that domain-source expression is corrected; the
+qualified real adapter constructor, controller helpers and recorder lifecycle
+methods remain unchanged. CPU execution of the real expression with the actual
+guard-bound original model passes and rejects the old environment expression
+and an altered calibration. An initial library-control import-path error is
+preserved as zero GPU work and zero native attempts; the exact frozen source
+path fixes the control's startup. No native error is relabeled or removed.
+
+Eleven wrong pressure-reader lineages reject, while every scientific pressure
+predicate remains identical to the completed original reader. The native
+recorder's remaining differences are descriptive mode/calibration readback;
+inverse substitution restores the corrected source. Setup, qualified load,
+shape/clock, original pressure recorder, materials and frozen low-level source
+bytes remain identical. Local, Blackwell and future elab3 reviewer hashes match.
+Fresh official-runtime preflight passes original support and outside cases,
+constructed calibration path/parameters and real recorder call, outer/source
+binding, force-only caller, inspection lifecycle and existing solver-library
+checks. No dependency is installed.
+
+One full nominal acceleration-aware native qualifier is dispatched on Blackwell.
+A single bounded startup snapshot verifies the actual owned GPU/process group,
+original material readback and exact actual constructed calibration before
+physical pose motion. First noninspection controller installation and the full
+native outcome remain pending. The earlier eleven finite nonpositive calibrated
+lower windows, four unavailable windows, 2,568 future empirical position exits,
+independent stop acceleration failure and missing hold/release/stabilization are
+retained as independent original outcomes. Related variants stay suspended until
+complete native and independent review; no observed teacher admission follows
+from software or a privileged component.
+
+The three completed allocations charge 114.695579 GPU seconds for the corrected
+model, 86.930364 for the caller, and 115.963575 for complete reader assembly.
+Their known owned process groups, GPU contexts and canonical leases close.
+Continuation accounting is 396 closed allocations / 16.140188 GPU hours plus
+one new native allocation. All earlier charges and failures remain; no cumulative
+administrative GPU-hour, launch or storage cap is introduced. Collection stays
 17/36, with 17 sources, 100,295 overlapping windows and zero optimizer updates.
-Evidence is `D4-acceleration-aware-model-software-closeout-20261108.json` and
-`D4-pose-aware-recontact-N-native-closeout-20261108.json`.
+Evidence is `D4-acceleration-aware-native-readiness-closeout-20261108.json`.
+Next work is the complete new physical outcome, whole remote custody, every
+original pressure/support/task/stop/source/clock reader and causal RGB/missing
+review before any related expansion or observed teacher retry.
