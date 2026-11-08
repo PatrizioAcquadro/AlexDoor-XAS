@@ -16,8 +16,13 @@ coverage and all original continuing-stop checks pass. No collision is establish
 contact and every later phase remain unqualified. Exact saved operands reproduce
 the refusal. A separate finite-material screen remains negative even with ideal
 pose support at N/H±; the visible pane and collider also differ by 7.458 mm.
-A joint finite motion/interface certificate is required before another native
-attempt. No GPU allocation remains active. A decision-equivalent occupancy
+The nominal-only continuation implements a finite physical material-motion
+certificate with receipt revalidation and explicit world-grid uncertainty
+accounting. The original low-layout witness remains negative. A lateral +0.10 m
+root shift and 1.15 m contact height pass complete ideal model checks with height
+perturbations; fresh observed execution remains pending. The full-cycle reader
+passes an archived positive and rejects failure/component controls. The other
+eight TRAIN conditions are excluded. No GPU allocation remains active. A decision-equivalent occupancy
 simplification is validated only as a component; full-cycle performance is open.
 See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]] for criterion
 classification, preserved failures and the next complete-cycle discriminator.

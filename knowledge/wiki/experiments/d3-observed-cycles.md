@@ -232,3 +232,58 @@ conditions.
 Related: [[act-a1-complete-cycle-collection|prior collection]],
 [[../topics/shared-door-perception|shared perception]], and
 [[../implementation_phases/phase-6-perception-actions-and-demonstrations|Phase 6]].
+
+## Nominal-only continuation: complete finite motion support
+
+The current assignment is one complete D3 nominal. The other eight TRAIN
+conditions are excluded. The full-cycle reader now passes an archived qualified
+D1-DL positive and rejects both the interrupted D3 nominal and a stationary
+acquisition. It reconstructs the original native means and continuity, handles
+older traces without newer force fields, and compares recorded annotations.
+It does not replace independent geometric stops, phase-image review or the
+original task result; no cell is added by these reader controls.
+
+The finite material producer now has an explicit alternative to nominal endpoint
+allowances. Every physical volume is either separated from the target or fully
+contained in measured material, including actual velocity, acceleration, robot
+model error and the existing calibrated stop. The latter volumes are retained
+and checked again against current pose uncertainty when the command is received.
+Complete projected boxes can replace enclosing spheres without filling grid
+holes or authorizing the sphere's empty corners. Both nominal finite fingers
+and the independent robot/background proof remain required.
+
+The material atlas is a measured initial-world grid. If the initial and current
+zone transforms are `T0=C0 M O` and `Tt=Ct R M O`, their transport is
+`T0 inv(Tt)=C0 inv(R) inv(Ct)`: the common object/zone basis cancels. A second
+rotation of the measured grid by its initial ideal-frame geometry error is
+therefore inapplicable. Registration, including both measured plane/edge bases,
+camera/FK uncertainty, aging and future target response remain charged. Complete
+depth columns and original metric/raster erosion retain local geometry error.
+The legacy nominal-footprint path retains its original accounting.
+
+The calibrated planar body-order proof can use a finite cover with no observed
+relief only when its complete measured depth span also fits the existing
+planarity model. This is not global empty space. The original absolute front
+bound, normal uncertainty, unsafe contacts, force limits and stop calibration
+remain unchanged. An independent TRAIN collider check verifies one common
+planar convex face over the entire old observed atlas bounding rectangle, with
+no internal obstruction. Its visual/collider offset remains about 7.458 mm;
+relative planarity does not replace that absolute offset.
+
+The original saved 38.95 s state still refuses after this correction: additional
+finite volumes are proved, but the old low contact layout remains unsupported.
+That negative is preserved. A new actual-CUDA design compares twelve nominal
+root/height layouts, with two height perturbations and separate physical versus
+existing empirical target domains. Moving the root laterally by +0.10 m and
+raising the contact to 1.15 m gives complete ideal paths inside the original
+physical, pose, speed and empirical support checks in all three designs. The
+existing camera/registration uncertainty is also being checked on the complete
+modeled material path. These are designs, not future observations or native
+contact qualification. No native successor is authorized by a saved-state PASS
+alone; the prospective nominal must obtain its own complete observed evidence.
+
+Evidence remains under `outputs/evidence/d3-observed-cycles-20261108/`, including
+`evaluator-controls/`, `contact-regions/` and
+`D3-N-finite-material-placement-model-elab2-20261108/`. The first material-path
+reader used an incomplete hinge origin; that diagnostic is retained and corrected
+separately using the published TRAIN hinge. It is not a scientific task result.

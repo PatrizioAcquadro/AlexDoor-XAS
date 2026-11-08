@@ -70,6 +70,130 @@ def _material_point_terms(patch, world_poses, radius):
 
 
 @dataclass(frozen=True)
+class MaterialMotionSupport:
+    """Finite observed material for complete physical contact-capable volumes.
+
+    Spheres include measured-state velocity, acceleration, robot-model error and
+    the independently calibrated full stop. Nominal target-tracking and generic
+    stop allowances do not describe a second motion of those same volumes.
+    Pose, geometry, calibration and target response are still spent here. This
+    certificate proves tangent coverage only, never normal contact or free space.
+
+    The grid is measured in the initial WORLD frame, not an ideal object frame.
+    For T0=C0 M O and Tt=Ct R M O, T0 inv(Tt)=C0 inv(R) inv(Ct): the shared
+    initial object/zone basis cancels. Its orientation error must not rotate the
+    measured grid again. Native registration (including both measured bases),
+    camera/FK error and aging remain in pose sources. The grid's measured depth
+    columns and erosion pay local geometry; normal/interface bounds stay separate.
+    """
+
+    reference_pose: ObjectFrame
+    tangent_basis: tuple[tuple[float, float], ...]
+    lower_m: tuple[float, float]
+    cell_m: float
+    clearance_m: np.ndarray
+    spheres: tuple[tuple[float, float, float, float], ...]
+    interval_motion_m_rad: tuple[float, float]
+    geometry_position_prepaid_m: float = 0.0
+    boxes: tuple["TargetReliefBox | None", ...] = ()
+
+    def margin(self, patch, *, remaining_fraction=1.0):
+        from alexdoor_xas.perception.material_zone import pose_matrix
+
+        checked_pose(self.reference_pose)
+        checked_pose(patch.world_pose)
+        basis = np.asarray(self.tangent_basis, float)
+        lower = np.asarray(self.lower_m, float)
+        grid = np.asarray(self.clearance_m, float)
+        spheres = np.asarray(self.spheres, float)
+        motion = np.asarray(self.interval_motion_m_rad, float)
+        if (
+            basis.shape != (3, 2)
+            or not np.allclose(basis.T @ basis, np.eye(2), atol=32 * np.finfo(float).eps, rtol=0)
+            or lower.shape != (2,)
+            or grid.ndim != 2
+            or not grid.size
+            or spheres.ndim != 2
+            or spheres.shape[1:] != (4,)
+            or not len(spheres)
+            or motion.shape != (2,)
+            or not np.isfinite(
+                np.r_[
+                    basis.ravel(),
+                    lower,
+                    grid.ravel(),
+                    spheres.ravel(),
+                    motion,
+                    self.cell_m,
+                    remaining_fraction,
+                ]
+            ).all()
+            or np.any(grid < 0)
+            or np.any(spheres[:, 3] < 0)
+            or np.any(motion < 0)
+            or self.cell_m <= 0
+            or not 0 <= remaining_fraction <= 1
+        ):
+            raise ValueError("invalid_material_motion_support")
+        prepaid = nonnegative(self.geometry_position_prepaid_m, "invalid_prepaid_geometry_error")
+        if prepaid > patch.geometry_support.position_bound_m:
+            raise ValueError("invalid_prepaid_geometry_error")
+        mapping = pose_matrix(self.reference_pose) @ np.linalg.inv(pose_matrix(patch.world_pose))
+        scale = max(1.0, float(np.linalg.norm(mapping[:3, :3], ord=2)))
+        if self.boxes and len(self.boxes) != len(spheres):
+            raise ValueError("invalid_material_motion_boxes")
+        margins = []
+        for index, (center, radius) in enumerate(zip(spheres[:, :3], spheres[:, 3], strict=True)):
+            terms = _material_point_terms(patch, (ObjectFrame(center, np.eye(3)),), radius)
+            error = (
+                sum(value for name, value in terms.items() if name != "geometry_rotation_m")
+                - prepaid
+            )
+            lever = np.linalg.norm(center - patch.world_pose.origin) + radius
+            future = remaining_fraction * (motion[0] + lever * motion[1])
+            tangent = (mapping[:3, :3] @ center + mapping[:3, 3]) @ basis
+            uv = np.rint((tangent - lower) / self.cell_m).astype(int)
+            if (uv < 0).any() or (uv >= np.array(grid.shape)[::-1]).any():
+                return -np.inf
+            rounding = np.linalg.norm(tangent - (lower + uv * self.cell_m))
+            margin = float(grid[uv[1], uv[0]] - rounding - scale * (radius + error + future))
+            box = self.boxes[index] if self.boxes else None
+            if margin <= 0 and box is not None:
+                axes, lo, hi, reserve = box.parameters()
+                midpoint, half = (lo + hi) / 2, (hi - lo) / 2
+                center = axes @ midpoint
+                radius = float(np.linalg.norm(axes, ord=2) * np.linalg.norm(half) + reserve)
+                terms = _material_point_terms(patch, (ObjectFrame(center, np.eye(3)),), radius)
+                error = (
+                    sum(value for name, value in terms.items() if name != "geometry_rotation_m")
+                    - prepaid
+                )
+                lever = np.linalg.norm(center - patch.world_pose.origin) + radius
+                future = remaining_fraction * (motion[0] + lever * motion[1])
+                project = basis.T @ mapping[:3, :3] @ axes
+                tangent = project @ midpoint + basis.T @ mapping[:3, 3]
+                span = np.abs(project) @ half
+                first = np.floor((tangent - span - lower) / self.cell_m).astype(int)
+                last = np.ceil((tangent + span - lower) / self.cell_m).astype(int)
+                if (first >= 0).all() and (last < np.array(grid.shape)[::-1]).all():
+                    # Every raster cell of the full projected box is retained,
+                    # including interior holes. Grid clearance already pays its
+                    # cell diagonal; no empty corners of the sphere are needed.
+                    inside = grid[first[1] : last[1] + 1, first[0] : last[0] + 1].min()
+                    margin = max(margin, float(inside - scale * (reserve + error + future)))
+            margins.append(margin)
+        return min(margins)
+
+    def require(self, patch, *, remaining_fraction=1.0):
+        margin = self.margin(patch, remaining_fraction=remaining_fraction)
+        if margin <= 0:
+            error = ValueError("material_motion_support_exhausted")
+            error.decision = dict(material_motion_margin_m=margin)
+            raise error
+        return margin
+
+
+@dataclass(frozen=True)
 class TargetReliefBox:
     """Compact enclosure of the same complete physical motion and stop volume."""
 
@@ -357,6 +481,7 @@ class LocalActionSupport:
     # independently of normal-only separation and finite contact receipts.
     target_relief_exclusion: TargetReliefExclusion | None = None
     target_height_exclusions: tuple[TargetFrontHeightExclusion, ...] = ()
+    material_motion_support: MaterialMotionSupport | None = None
 
 
 def _local_error_terms(patch, evidence, limits, now, duration):
@@ -532,6 +657,31 @@ def admit_local_action(estimate, proposal, evidence, limits, now, *, generation)
             decision = dict(
                 margin_kind="unloaded_whole_robot_separation",
                 separation_margin_m=clearance,
+                independent_robot_sweep_margin_m=sweep_margin,
+            )
+        elif getattr(evidence, "material_motion_support", None) is not None:
+            if not proposal.loaded or sweep_margin is None:
+                raise ValueError("material_motion_requires_loaded_full_robot_proof")
+            if nonnegative(sweep_margin, "invalid_robot_sweep_margin") <= 0:
+                raise ValueError("insufficient_robot_sweep_margin")
+            # Both nominal finite faces must exist. The continuous physical
+            # motion proof, rather than nominal endpoint error, covers every
+            # volume which can actually contact during this command and stop.
+            if (
+                min(
+                    nonnegative(v, "missing_relevant_clearance")
+                    for v in evidence.finger_clearance_m
+                )
+                <= 0
+            ):
+                raise ValueError("missing_two_finger_material_support")
+            clearance = evidence.material_motion_support.require(patch)
+            error = 0.0
+            decision = dict(
+                margin_kind="complete_physical_material_motion",
+                material_id=patch.patch_id,
+                material_margin_m=clearance,
+                contact_capable_volumes=len(evidence.material_motion_support.spheres),
                 independent_robot_sweep_margin_m=sweep_margin,
             )
         else:
@@ -732,6 +882,11 @@ def require_current_local_admission(admission, estimate, now):
                 normal_sphere_index=index if evidence.unloaded_normal_spheres else None,
             )
             raise error
+        return
+    if getattr(evidence, "material_motion_support", None) is not None:
+        evidence.material_motion_support.require(patch, remaining_fraction=fraction)
+        if any(value is None or value <= 0 for value in patch.finger_clearance_m):
+            raise ValueError("admitted_material_support_lost")
         return
     old_error = _local_error(before, evidence, admission.limits, start, end - start)
     current_error = _local_error(patch, evidence, admission.limits, now, end - now)
