@@ -5250,3 +5250,39 @@ run's `independent-pressure-review.json`,
 unilateral support, material/hold reference, finite elastic response and phase
 transition before another informative native intervention. No unchanged retry,
 threshold relaxation, broad 10 N qualification or observed-source adoption follows.
+
+
+### Whole-path unilateral response forecast diagnosis (November 8, 2026 UTC)
+
+Actual CUDA scoring covers all 23,670 normal-mode intervals of the combined and
+finite-only complete recordings. Each prediction uses the current full-torso
+state/inertia, already dispatched held target and last completed affine residual.
+Future physical state and force enter scoring only. No controller parameter,
+integration law, gain or qualification criterion is fitted or changed.
+
+The largest rigid-support surface errors occur immediately after recontact:
+78.313 µm combined and 44.006 µm finite-only. The preceding native force is
+3.489 N / 3.166 N, while all four next forces fall to about 0.170–0.426 N.
+The frozen affine term carries that impact through the next four predicted
+steps. These are contact-transition prediction errors, not new physical bounds.
+The final failed combined hold interval itself has only 1.065 µm surface error,
+despite its zero force and roughly 40–52 µm positive native gap. Model error at
+earlier impacts therefore does not by itself establish the cause of final loss.
+
+A matched saved-data alternative averages only the four native residuals in the
+already completed control interval, with identical current state, target and
+future scoring arrays. It reduces combined push/hold surface RMS from
+1.973/5.185 to 1.040/1.892 µm, and finite-only push/hold RMS from 1.750/3.697 to
+0.800/1.224 µm. However, both initial-contact transients regress: peak error rises
+from 5.309 to 20.606 µm and RMS from 1.318 to 2.294 µm. The alternative is not
+adopted and does not justify another native contact retry. Whole pose/normal
+pressure, material reference and phase-transition behavior remain unresolved;
+the combined hold's measured material error grows from 0.085 to 6.632 mm.
+
+Both original 100 ms zero-force windows and all task/support failures remain.
+Four saved-data GPU allocations close with owned cleanup, reaching 349
+continuation allocations / 13.457394 GPU h. Evidence is
+`D4-whole-contact-causal-forecast-closeout-20261108.json` and
+`D4-whole-contact-mean-residual-forecast-closeout-20261108.json`, with complete
+scored arrays, transition masks and copied reader sources. These are model
+diagnostics; source, contact qualification and the 17/36 matrix do not advance.

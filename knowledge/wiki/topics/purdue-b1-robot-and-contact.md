@@ -428,7 +428,11 @@ and twelve nonpositive strict lower windows. Its completed release/stabilization
 and passing original stops remain separate from the failed hold. Thus measured
 support resolves admission but does not establish stable unilateral contact;
 further work must diagnose the whole reference/elastic response and transitions
-with the original force and task criteria.
+with the original force and task criteria. Whole-path forecast scoring exposes
+another limit: a single completed native affine residual can retain a recontact
+impulse after force has already fallen. Averaging the completed control interval
+improves push/hold prediction but regresses contact acquisition, so it remains
+unadopted. A smaller prediction error is not evidence of stable physical contact.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction

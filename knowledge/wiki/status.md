@@ -568,8 +568,14 @@ release and two-second stabilization complete, without converting that failure
 into success. Whole output, all available phase RGB and owned cleanup are
 verified. All control, setup, material, force, physical and original task/stop
 criteria stay unchanged. Related conditions remain suspended pending a shared
-whole-path contact/hold-transition diagnosis. Collection stays 17/36; 345
-continuation allocations close / 13.438652 GPU h, with no active owned job.
+whole-path contact/hold-transition diagnosis. Whole saved-path scoring now finds
+that the fixed-current predictor carries a measured recontact impulse into the
+next interval, with peak surface forecast errors of 78.313 µm and 44.006 µm on
+the combined and finite-only paths. Averaging the four strictly past residuals
+improves push/hold scores but worsens initial contact; it is not adopted. Small
+forecast error in the final unloaded interval also prevents attributing hold
+failure to that model alone. Collection stays 17/36; 349 continuation allocations
+close / 13.457394 GPU h, with no active owned job.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
