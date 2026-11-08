@@ -25,9 +25,14 @@ perturbations pass against the old atlas. The fresh nominal at `6b6b92f` stops
 after 221 approach commands because the contact monitor reserve was not included
 in finite-volume production. That integration is corrected without changing the
 reserve or normal interval; exact saved-state geometry/contact controls pass.
-Full ideal paths against the new narrower atlas still fail during contact, so
-observed whole-path support must improve before another nominal. Raw/native
-integrity, original continuing stops, images and cleanup are reviewed. The full-cycle reader
+The narrower atlas retains a full-path negative. A prospective 0.48 rad scan
+and fixed `large central glass pane` prompt now produce valid native observed
+material. Its complete ideal material paths pass in N/H± with ordinary 1/60 s
+observation age; 1/30 s age remains unsupported, including with finer covering
+subdivision. The original resolution and all uncertainty bounds remain unchanged.
+A fresh complete nominal is prepared, requiring its own live support and full
+physical task evidence. Stationary raw/native integrity, original continuing
+stops, images and cleanup are reviewed. The full-cycle reader
 passes an archived positive and rejects failure/component controls. The other
 eight TRAIN conditions are excluded. No GPU allocation is active.
 A decision-equivalent occupancy

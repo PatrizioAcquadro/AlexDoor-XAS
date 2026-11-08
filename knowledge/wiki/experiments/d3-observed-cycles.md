@@ -340,3 +340,44 @@ controls. Compared with the old inspection, positive atlas width drops from abou
 negative and this design negative remain separate. Another unchanged native retry
 is not justified; the next discriminator must improve actual observed support
 for the complete path before executing another nominal.
+
+
+## Central-pane view and observation cadence
+
+A lower inspection pitch of 0.55 rad is rejected before simulation by the
+original 0.488692 rad physical neck limit. The prospective 0.48 rad scan passes
+that limit and retains the original timing. With the earlier `glass pane`
+prompt, its selected mask covers outer wood and remains ownership-ambiguous;
+no arm proposal is made. A material calculation on that ambiguous patch is an
+invalid-input diagnostic, not intended-target path evidence. Subsequent readers
+validate local identity and ownership before using the measured atlas.
+
+A CUDA prompt comparison on all 381 retained RGB frames selects
+`large central glass pane` as a prospective fixed description. This 10 Hz saved
+stream is not the complete 30 Hz native input or an exact identity replay.
+The fresh native stationary acquisition at `0516599` independently selects one
+semantic identity and publishes valid observed rigid material, with zero arm
+proposals. Raw/native coverage, initial state, inspection, preroll, original
+continuing stops, actual images and owned cleanup pass. The independent TRAIN
+collider reader also verifies the complete new finite atlas bounding rectangle
+against the same planar face; its approximately 7.458 mm visual/collider offset
+remains covered by the original absolute front model and is not actor input.
+
+The new measured atlas supports all 4,336 ideal intervals in nominal and each
+of two height controls. Recomputing the publication with the actual tracking
+primitives and 1/60 s age also supports all 13,008 intervals, including release
+and stabilization. This is the ordinary interleaved action interval for 30 Hz
+observations and 60 Hz control; the prior native failure snapshot has precisely
+that age, not 0.0833 s. No registration, calibration, contact or temporal reserve
+is removed. Residual margins after adaptive subdivision can be only a few
+micrometers; they are conservative enclosure residuals, not physical tracking
+precision requirements or evidence of robust future observations.
+
+At 1/30 s age all three paths retain unsupported contact/opening intervals.
+Reducing the covering cutoff from 5 to 2.5 mm does not resolve those negatives,
+so the runtime keeps its original 5 mm cutoff. Neither that longer delay nor
+future changed/occluded observations are qualified. The complete nominal must
+retain the live support checks and acquire its own continuous contact, opening,
+hold, release and stabilization evidence. Only D3-N is prepared; the other eight
+TRAIN conditions remain excluded. Compact evidence and readers are in
+`outputs/evidence/d3-observed-cycles-20261108/central-pane-view-review/`.
