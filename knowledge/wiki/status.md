@@ -506,6 +506,16 @@ Related contact successors stay suspended while causal gap control and missing
 empirical support are investigated. No global, observed-source or teacher
 qualification is granted; the matrix remains 17/36.
 
+A saved full-path audit scores known current-velocity material-reference motion
+at 0.881 µm peak normal error across 12,065 push commands, versus 19.584 µm
+when holding the current reference frame. This is a virtual-reference forecast,
+not contact force or a physical bound. One explicit combined finite-tangent plus
+material-clock nominal mechanism test is active. Independent original 10 N
+fixtures examine the missing shoulder-X and wrist-X future postures on separate
+hosts, with all original load, motion and continuous stops. Neither their finite
+postures nor the combined test automatically qualify a calibration, controller
+domain or teacher source. Related collection conditions remain suspended.
+
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
 recipe then qualifies D2-RP: continuous native contact, the full three-second

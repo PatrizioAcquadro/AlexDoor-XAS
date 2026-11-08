@@ -4937,3 +4937,49 @@ or a teacher demonstration. Related contact successors remain suspended.
 Collection stays 17/36. Next work separates independent original-10-N empirical
 support measurement from causal diagnosis of the actual 100 ms gap, preserving
 full movement, realistic load variation, original force and stop criteria.
+
+
+### Separate support measurement and coupled timing test (November 8, 2026 UTC)
+
+A streaming audit of the completed finite-tangent trajectory retains 4,618
+push/hold native zero-force runs. The longest has 24 samples, exactly 100 ms,
+with a 37.812 µm maximum observed separation in the surrounding 17 control
+commands. Its causal operands show normal unloading after a force peak,
+followed by delayed gap recovery. These observations do not identify a unique
+plant cause or establish a new tolerance. The full native force and the
+original control-level loaded flags remain separate.
+
+Across all 12,065 push commands, current-velocity prediction of the already
+known virtual material reference has 0.264 µm RMS / 0.881 µm peak normal error,
+versus 14.337 / 19.584 µm for the held current frame. On the seven reference
+commands overlapping the zero-force window, peak error changes from 12.720 to
+0.717 µm. Adding last-completed acceleration has worse full-path peak error;
+no parameters are fitted. Actual future door motion is scoring only. This
+reference forecast does not establish force or a physical response bound.
+The audit is `D4-finite-contact-material-clock-diagnostic-local-20261108/report.json`;
+its one closed allocation brings continuation accounting to 318 / 11.380265 GPU h.
+
+One explicit fourth cell of the two-factor nominal contact experiment is
+prepared and dispatched once: `700191d` finite tangential impedance plus the
+already verified current-velocity material-reference clock. Neither factor
+alone established strict contact qualification: the earlier minimum-motor and
+timing-only trials lost contact; finite tangent alone completed the physical
+task but failed strict force/support checks. The combined trial changes no
+setup, gain, material, pressure/gap law, empirical/physical limit, full-task or
+original six-second stop criterion. Its manifest is
+`D4-finite-tangent-material-clock-native-manifest-20261108.json`. All historical
+10 N tracking failures remain failed; this diagnostic grants no controller,
+observed-source or teacher qualification. Related conditions stay suspended.
+
+Independently, the original joint/load fixture tests the actual coupled
+shoulder-X/push and wrist-X/release future extrema, preserving all other measured
+coordinates. Each posture has unloaded, center-10-N, and two distal-face/yaw-10-N
+cases, original 0.5 mrad seven-joint pulses, frozen residuals and continuous
+2+4+2 s fourteen-shape stops. These jobs are separate from contact control and
+cannot automatically establish a Cartesian envelope or adopt calibration.
+The manifest is `D4-finite-contact-N-required10N-support-manifest-20261108.json`.
+Initial preflight schema/static-copy errors and one unsupported driver-purpose
+rejection are preserved with zero GPU charge. The rejected driver had no native
+allocation, live launcher or lease; the corrected label uses the supported
+mechanism purpose. Actual GPU PIDs, UUIDs and separate canonical leases are
+verified for started jobs in each deployment.

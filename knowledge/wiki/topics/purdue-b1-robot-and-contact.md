@@ -405,7 +405,7 @@ must establish the effect before any family successor or source adoption.
 The timing intervention is now negative with exact request/target custody:
 97 push intervals reach 0.612° before loss. A whole-history integration audit
 retains semiimplicit Euler over explicit or trapezoidal alternatives on the
-qualified robot-only paths; measured future velocity is scoring only. The next
+qualified robot-only paths; measured future velocity is scoring only. The
 scoped experiment of existing finite tangential impedance completes the unchanged
 actual-contact task through opening, hold, release and stabilization. It limits
 accumulated tangential elastic pose error while retaining normal pressure control
