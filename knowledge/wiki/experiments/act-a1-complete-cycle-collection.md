@@ -5477,3 +5477,18 @@ and `D4-force-reference-separated-gap-software-closeout-20261108.json`.
 This is a common control-routing correction with native qualification still
 pending. It adds no source, broad controller domain or demonstration; related
 contact variants remain suspended and collection stays 17/36.
+
+One nominal successor is dispatched once under
+`D4-separated-gap-force-reference-N-native-manifest-20261108.json`. The native
+archive retains the preceding `700191d-outer-016f5ef` code except the actual
+force-reference gap-routing condition from `a182f0b`; removing that change
+reproduces the preceding module byte for byte. Its complete support closure
+matches the committed implementation. Before motion, the live source and
+constructed scoped N model match their intended inputs, and actual GPU/PGID/lease
+ownership is verified. The read-only recorder checks the used feedback route
+and preserves its first actual support update. This is a pending full-path
+qualification; initial inspection and startup are not contact or teacher success.
+All original task/load/physical/stop criteria remain. Finished whole custody,
+independent original-criteria/outer/gap-route readers and original RGB review
+are prepared on elab3; they require completion and owned cleanup before running.
+The 355 closed continuation allocations remain separate from this open job.

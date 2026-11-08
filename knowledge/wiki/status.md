@@ -610,7 +610,12 @@ qualification of this correction remains pending. The original predictor also sc
 7,332 newly available normal-mode intervals on CUDA. Its final impact interval
 surface error is only 1.119 µm despite the 11.943 N impulse; position forecast
 error alone does not establish the cause. Shared unilateral pressure/reference
-and whole-path support qualification remain open; all owned resources are released.
+and whole-path support qualification remain open. One distinct nominal successor
+with the separated-gap route is running on owned Blackwell. Exact actual source
+and constructed load support are verified before movement; independent complete
+remote review is prepared. First support-phase behavior and the full physical
+outcome remain pending. The 355 closed allocations are separate from this open
+native job; related conditions remain suspended.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
