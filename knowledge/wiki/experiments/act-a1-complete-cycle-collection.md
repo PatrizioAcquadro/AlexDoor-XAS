@@ -17,15 +17,37 @@ Jacobian-nullspace redistribution at the initial bound contacts, preserving the
 six-axis linear task and all original target/rate bounds. Later recorded states
 can still be infeasible; no physical recovery follows from the saved audit.
 
-An isolated candidate redistributes only feasible normal-mode requests and keeps
-the original fallback otherwise. Nominal, boundary, perturbed, rank-deficient
-and actual recorder-wrapper checks pass on GPU, including 28,409 recorded
-inputs across both paths. The unchanged native preflight passes with a new
-source-specific software proof; its initial refusal on the inherited recorder
-hash remains preserved. A complete native nominal discriminator is running on
-Blackwell. This is privileged component work: observed identity, material,
-perception, motion admission and complete teacher qualification remain required.
-No force, physical, empirical-support or task criterion is changed.
+The isolated candidate passes software checks and preserves its linear task and
+original target/rate limits in the native run, but is **not adopted**. Independent
+readback confirms 71 redistributed commands and eight infeasible fallbacks.
+The run reaches 50.641 degrees and two seconds of hold, with material error
+2.262 mm rather than the earlier 15 mm drift. It then reports pre-release contact
+loss at a 108 micrometre gap and an empirical load-model refusal on one shoulder-Z
+acceleration sample (51.55 versus 40.26 rad/s²). Release and stabilization are
+unavailable. Every actual 100 ms native-force window remains positive; 253
+calibrated lower-force windows are nonpositive and four are unavailable. These
+are overlapping confidence evaluations, not independent failures or proof of
+zero physical force.
+
+The ordinary stop passes. The independent six-second, fourteen-shape review
+passes displacement, direction, joint travel, tool, rotation, speed and force,
+but fails its empirical acceleration domain. No collision or hard joint-limit
+violation is established. The original negative criteria are preserved, along
+with the complete 9.85 GB source/data copy on elab3, exact hashes and released
+owned processes/locks. Compact reviews are under the separate continuation
+folder's `nullspace-native-review/`.
+
+Under the updated proportional-acceptance guidance, the next step audits the
+remaining observation-confidence requirement before adding controller layers.
+The simpler earlier finite-tangent candidate already completes 50.522 degrees,
+three seconds of hold, release and stabilization. A separate CUDA reassessment
+of all 53,060 native samples now passes current/future ten-newton position support
+and physical boxes using the independently qualified support extensions. Only
+position support changes; its force, residual and acceleration models remain
+identical. Its original negative qualification is not overwritten. Complete
+observed admission and useful source data are still required; D4 remains 0/9.
+The nine original TRAIN variations are prepared but unlaunched. The 0.545 mm
+historical stop is already acceptable and is not an optimization target.
 
 ## Question and current outcome
 

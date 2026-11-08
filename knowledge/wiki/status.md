@@ -17,7 +17,12 @@ The verified matrix remains **17/36: D1 8/9, D2 9/9, D3 0/9, D4 0/9**.
 Historical failures, masks, scientific criteria and resource charges remain
 preserved. Training, learned-policy comparisons, development/final test and push
 are excluded. See [[experiments/act-a1-complete-cycle-collection|the experiment]]
-for the current discriminator and its limits.
+for the current evidence and its limits. The wrist-nullspace discriminator closes
+negative after two seconds of hold; no release/stabilization or observed source
+is qualified. The next step reviews contact-confidence criteria on the simpler
+candidate that already completes the physical task. Its complete current/future
+position support now passes with independently measured extensions; historical
+negative qualification remains preserved. Current D4 jobs are closed.
 
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside
