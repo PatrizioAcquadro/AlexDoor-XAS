@@ -970,16 +970,30 @@ plane within the original acceleration domain. At the failure, the solver remove
 mechanism, not a verified physical counterfactual. An isolated correction retains
 the original target and payment when that additional recovery is unnecessary;
 the original solver and all physical, empirical, force, phase and stop criteria
-remain unchanged. One four-history CUDA model screen is running on elab3 before
-real-caller or changed-native qualification. Related physical variants remain
-suspended.
+remain unchanged. All 1,176 four-history model cases pass with zero fallback or
+quantized predicted acceleration-domain exit. All 825 already sufficient
+approaches retain their original targets and extra reference payment exactly.
+The real constructor/recorder/preview/pre/apply family passes 148 fixtures,
+including all eighty newest eligible inputs and previous numerical fallback
+inputs. Complete production-reader assembly passes all 38,492 archived inputs,
+with independent scalar and six-axis reference checks. These remain software
+fixtures, not changed physical trajectories.
+
+Fresh official Blackwell preflight passes the unchanged setup, constructed load
+binding, original outside/support controls, source and recorder lifecycle checks.
+Local/native/elab3 sources match. Exactly one full nominal qualifier using the
+correction is dispatched; complete physical outcome and independent review remain
+pending. Related physical variants remain suspended.
 
 Whole custody verifies 48 files / 4,685,718,741 bytes on Blackwell and elab3.
 Native, independent reader and forecast allocations charge 803.092604,
 63.264163 and 14.208161 GPU seconds; all three owned resource groups close.
-Continuation totals are 399 closed allocations / 16.384789 GPU hours plus the
-one new model allocation. Collection remains 17/36, with no new source or window.
-Evidence is `D4-acceleration-aware-recontact-N-native-closeout-20261108.json`.
+The completed model, caller and reader allocations additionally charge
+124.088554, 133.769495 and 122.289329 GPU seconds, preserving every earlier cost.
+Continuation totals are 402 closed allocations / 16.490386 GPU hours plus one
+new native allocation. Collection remains 17/36, with no new source or window.
+Evidence is `D4-acceleration-aware-recontact-N-native-closeout-20261108.json` and
+`D4-preserve-planned-approach-native-readiness-closeout-20261108.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

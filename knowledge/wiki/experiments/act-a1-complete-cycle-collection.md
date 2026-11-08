@@ -6228,16 +6228,35 @@ plane within the original acceleration domain. At the failure, the solver remove
 mechanism, not a verified physical counterfactual. An isolated correction retains
 the original target and payment when that additional recovery is unnecessary;
 the original solver and all physical, empirical, force, phase and stop criteria
-remain unchanged. One four-history CUDA model screen is running on elab3 before
-real-caller or changed-native qualification. Related physical variants remain
-suspended.
+remain unchanged. Complete four-history CUDA qualification now passes all 1,176
+eligible model inputs with zero fallback or quantized predicted acceleration-domain
+exit. All 825 already sufficient original approaches retain their target and zero
+extra payment exactly. The actual constructor, recorder context, pure preview,
+dispatch, mode exit and four held apply callbacks pass 83 + 19 + 16 + 30 = 148
+fixtures, including every newest eligible input and all earlier numerical fallback
+fixtures. The explicit original-dispatch shim executes no native physics.
+Complete production-reader assembly passes all 38,492 held inputs, with all 1,176
+independent scalar candidates, exact inactive targets/reference memory and
+independent quaternion-operation checks. The same reconstruction function is used
+in the prepared finished reader.
+
+Twelve wrong pressure-reader lineages reject, while every scientific pressure
+predicate remains identical. The exact corrected recorder fixture-model binding,
+original lifecycle and all setup/load/material/control criteria remain unchanged.
+Fresh official Blackwell preflight and local/native/elab3 source parity pass.
+Exactly one full nominal changed qualifier is dispatched. Its complete motion,
+force/support and stopping outcome remains pending; related variants stay
+suspended and no observed teacher source is admitted.
 
 Whole custody verifies 48 files / 4,685,718,741 bytes on Blackwell and elab3.
 Native, independent reader and forecast allocations charge 803.092604,
 63.264163 and 14.208161 GPU seconds; all three owned resource groups close.
-Continuation totals are 399 closed allocations / 16.384789 GPU hours plus the
-one new model allocation. Collection remains 17/36, with no new source or window.
-Evidence is `D4-acceleration-aware-recontact-N-native-closeout-20261108.json`.
+The completed model, caller and reader allocations additionally charge
+124.088554, 133.769495 and 122.289329 GPU seconds, preserving every earlier cost.
+Continuation totals are 402 closed allocations / 16.490386 GPU hours plus one
+new native allocation. Collection remains 17/36, with no new source or window.
+Evidence is `D4-acceleration-aware-recontact-N-native-closeout-20261108.json` and
+`D4-preserve-planned-approach-native-readiness-closeout-20261108.json`.
 
 The load-filter audit exactly reconstructs all 5,544 recorded trace values and
 loaded flags. The final four native forces are all zero, their largest measured
@@ -6256,7 +6275,7 @@ zero-gap equality. This is neither an inferred force law nor evidence of a chang
 physical trajectory. The additional-recovery solver, numerical contracts,
 calibration, native gains, material properties and all original qualification
 criteria stay unchanged. Eleven algebra controls and four inactive-input controls
-are retained in the prepared model reader; the new four-history execution and
-subsequent real-caller qualification remain pending. A CPU audit's initial missing
+are retained and pass on all four histories. Full native and observed-source
+qualification remain pending. A CPU audit's initial missing
 remote source path is preserved with zero GPU/native allocations; the exact
 original Git AST fixes only its source loading.
