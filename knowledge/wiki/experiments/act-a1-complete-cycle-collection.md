@@ -5478,17 +5478,74 @@ This is a common control-routing correction with native qualification still
 pending. It adds no source, broad controller domain or demonstration; related
 contact variants remain suspended and collection stays 17/36.
 
-One nominal successor is dispatched once under
-`D4-separated-gap-force-reference-N-native-manifest-20261108.json`. The native
-archive retains the preceding `700191d-outer-016f5ef` code except the actual
-force-reference gap-routing condition from `a182f0b`; removing that change
-reproduces the preceding module byte for byte. Its complete support closure
-matches the committed implementation. Before motion, the live source and
-constructed scoped N model match their intended inputs, and actual GPU/PGID/lease
-ownership is verified. The read-only recorder checks the used feedback route
-and preserves its first actual support update. This is a pending full-path
-qualification; initial inspection and startup are not contact or teacher success.
-All original task/load/physical/stop criteria remain. Finished whole custody,
-independent original-criteria/outer/gap-route readers and original RGB review
-are prepared on elab3; they require completion and owned cleanup before running.
-The 355 closed continuation allocations remain separate from this open job.
+The isolated native successor retains the preceding `700191d-outer-016f5ef`
+archive except the actual force-reference gap-routing condition from `a182f0b`;
+removing it reproduces the preceding module exactly. Its complete support closure
+matches the committed implementation. Actual source and constructed scoped N
+support are verified before movement. Finished independent review confirms all
+1,616 consumed gap-route updates: none requests geometric recovery, including
+374 positive inputs below the original 100 µm tolerance. All 1,645 actual finite
+outer-offset updates retain their value; 151 ordinary updates match the original
+helper. These implementation checks pass while physical qualification fails.
+
+Push ends at 5.331619° controlled opening versus the unchanged 50.146446° goal.
+The original causal loaded-contact gate fails at probe time 35.916667 s:
+0.008206662 N filtered force versus the unchanged 0.02 N minimum. Its measured
+6.332997 µm gap, footprint, material position/orientation and physical state pass.
+All 6,464 native 100 ms windows remain strictly positive, with that same minimum,
+but one original empirical lower window reaches −0.007533418 N. Forty push
+control intervals have four zero-force packets; the longest run is five control
+intervals, 83.333 ms. There are no unavailable lower-window inputs. These distinct
+force and geometry criteria remain intact; positive past force cannot establish
+current stable pressure or repair loaded-contact loss.
+
+All 10,544 task-native packets and 2,636 control intervals have complete feedback.
+Current and original single-future support/physical checks pass for all seven
+joints, with no model failure or support-domain exit. Peak actual force is
+4.049628 N and recomputed upper force is 4.230325 N. The original six-second,
+fourteen-shape stops pass. Hold is absent. The 360 release and 120 stabilization
+commands are preserved after the failure; they do not complete the missing hold
+or restore full-task continuity. All 47 original payload/sidecar files,
+2,831,045,008 bytes, remain on Blackwell and match the elab3 replica by SHA256.
+All nine available causal same-generation RGB selections are inspected; the two
+hold selections remain unavailable. The images show approach, modest panel motion
+and withdrawal, without establishing micrometer gaps, force or observed-source
+perception qualification.
+
+Original ramp/acquisition and feedback reconstruct the new scalar reference.
+All 1,616 available push world requests match their original pre-clock inputs
+within the existing float64 arithmetic budget, maximum difference 2.78e−17 m;
+the separate complete reader already joins those requests to actual Temporal
+commands. The 180 contact requests remain outside this direct comparison. No
+regulated reference reaches its original extent and the gated gap contribution
+is zero. Independently replaying every original loaded-gate update exactly
+reproduces the pressure refusal. Requested/reference parity remains separate
+from achieved contact. The earlier three histories and their negatives remain.
+
+The unchanged fixed-current full-system four-step predictor also scores all
+1,645 newly available normal-mode intervals on CUDA: 29 contact and 1,616 push.
+Its worst surface discrepancy is 15.864 µm; the final unloaded interval is only
+1.053 µm despite four zero-force packets. Hold and a release forecast are
+unavailable in this receipt set. These scores are not a contact-force predictor,
+physical response bound or explanation of unilateral pressure stability.
+
+The first independent review stops on missing immutable planning context. Its
+reader also carried the old `gap_catchup is None` expectation. The repaired reader
+checks the actual routing with the unchanged original recovery helper; all force,
+physical, support and task acceptance criteria remain. Original planning constants
+are verified against the original baseline plan. Completed profile/stop readers
+are reused. Both the failed allocation and a CPU preflight missing-plan error
+are retained. A separate arithmetic reader's variable-shadowing error and partial
+output are also retained before its corrected namespace completes; no experiment
+or control change results from those reader repairs.
+
+All four allocations close, including the failed reader: 497.197955 GPU seconds.
+The continuation ledger now has 359 closed allocations / 13.954006 GPU h, with
+all owned PGIDs/GPU contexts absent and canonical leases released. Evidence is
+`D4-separated-gap-force-reference-contact-closeout-20261108.json`,
+`D4-separated-gap-normal-reference-reconstruction-v2-20261108/report.json` and
+`D4-separated-gap-whole-contact-forecast-elab3-20261108-health.json`.
+The matrix stays 17/36. Next work addresses shared causal unilateral pressure
+stability across the four whole histories and phase transitions. Related native
+variants remain suspended; no unchanged retry, gain/filter fit solely to pass,
+empirical-support widening, criterion relaxation or teacher credit follows.

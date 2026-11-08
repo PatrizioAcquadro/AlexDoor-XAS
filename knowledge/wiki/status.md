@@ -610,12 +610,28 @@ qualification of this correction remains pending. The original predictor also sc
 7,332 newly available normal-mode intervals on CUDA. Its final impact interval
 surface error is only 1.119 µm despite the 11.943 N impulse; position forecast
 error alone does not establish the cause. Shared unilateral pressure/reference
-and whole-path support qualification remain open. One distinct nominal successor
-with the separated-gap route is running on owned Blackwell. Exact actual source
-and constructed load support are verified before movement; independent complete
-remote review is prepared. First support-phase behavior and the full physical
-outcome remain pending. The 355 closed allocations are separate from this open
-native job; related conditions remain suspended.
+and whole-path support qualification remain open. The separated-gap nominal
+successor is now independently closed negative.
+All 1,616 actual gap-route decisions and 1,645 finite outer-offset updates match
+independent reconstruction. Push loses the original loaded-contact condition at
+35.916667 s: the 100 ms mean is 0.008207 N versus the unchanged 0.02 N minimum,
+while its 6.333 µm geometric gap, footprint and pose remain valid. Controlled
+opening is 5.331619° versus the required 50.146446°. All 6,464 actual native 100 ms
+windows stay positive, but one original empirical lower window is negative;
+neither observation repairs the failed loaded-contact criterion. All seven
+current/single-future support checks, physical states and original six-second
+fourteen-shape stops pass. Hold is unavailable; the completed release and
+stabilization preserve the earlier failure. Every original file and sidecar is
+retained on Blackwell and verified on elab3, with all nine available RGB selections
+reviewed. Exact reconstruction of all 1,616 available push references and 2,636
+loaded-gate updates confirms the consumed commands and refusal. The unchanged
+full-system predictor scores all 1,645 available normal-mode intervals on CUDA;
+its final surface error is only 1.053 µm with four zero-force packets, so position
+forecast error alone still does not establish the cause of pressure loss.
+Reader failures and their costs are retained. All owned resources close:
+359 continuation allocations / 13.954006 GPU h, collection still 17/36. Shared
+unilateral pressure stability remains unresolved; related conditions stay
+suspended without an unchanged retry or threshold/support adjustment.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
