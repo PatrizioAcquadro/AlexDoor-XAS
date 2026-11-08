@@ -5598,10 +5598,46 @@ The one nominal qualification is dispatched under
 module byte. The loaded helper matches the committed implementation. All setup,
 load support, low-level controller bundle and material-clock bytes are identical.
 Actual source and constructed support are bound before movement, and the real
-GPU process, UUID, PGID and canonical lease are verified. First support and the
-complete native outcome remain pending. The read-only observer also retains the
-first actual positive-gap recovery when available; it never supplies scientific
-acceptance. Complete independent original-criteria/route/outer/clock/force/RGB
-readers, including their original planning context, are prepared on elab3 and
-require finished whole custody and owned cleanup. Related variants remain
-suspended; this open allocation does not change the 359 closed costs or 17/36.
+GPU process, UUID, PGID and canonical lease are verified. The completed native
+outcome is negative: controlled opening is 24.590940° against 50.146446° required,
+with pre-release contact loss at 124.650 s. Hold is unavailable. Abort release
+and stabilization complete but do not repair the original loss.
+
+Finished-only independent elab3 review verifies all 6,940 actual gap decisions
+against a separate literal rule, including 208 real recovery pulses, and exact
+retention on 6,969 finite outer-offset updates plus 151 ordinary updates. All
+31,840 task native packets have valid feedback and frozen load-model estimates
+within the original 10 N range; actual force peaks at 6.603082 N and the
+recomputed upper bound at 7.423907 N. Four original 100 ms windows (native indices
+29,916–29,919) have zero mean force. The strict empirical lower bound reaches
+−0.018070 N, with no unavailable samples. Current positions pass; 2,397 original
+single-future boxes exceed only measured shoulder-X lower support. Its required
+minimum is −1.148206770 rad versus measured −1.147716284 rad, a 0.000490486 rad
+support deficit, not a physical-limit violation or permission to widen support.
+All physical states, fourteen-shape six-second stops, actuator clock, causal
+proposal and material-request readers pass. All original acceptance criteria and
+negative outcomes remain unchanged.
+
+Whole custody preserves 45 original run files and three sidecars totaling
+6,158,972,694 bytes on Blackwell and elab3, with identical source-before/after
+and destination SHA256 inventories. All nine available causal same-generation
+RGB selections are inspected; hold images remain unavailable. Pixels do not
+establish micrometer gap, load support or observed-source qualification. Native
+and review PGIDs, known GPU contexts and canonical leases are released. The two
+actual allocations add 1,156.683692 GPU seconds; all 361 continuation allocations
+are closed at 14.275307 GPU hours. No source, teacher, label or matrix credit is
+added; collection remains 17/36. Evidence is
+`D4-force-only-small-gap-contact-closeout-20261108.json`.
+
+A common saved-input audit covers 39,471 original push/hold controls across the
+five actual-contact histories. The changed path has 329 zero-feedback inputs in
+208 episodes, with 208 actual recovery pulses and 40 episodes of further positive
+gap growth. Its final episode begins with a 35.390 µm pulse and reaches a measured
+62.905 µm input gap, 27.515 µm beyond the first value. Original pending FK advance
+is retained separately; it is not guaranteed delivered gap-closing travel.
+These records identify a sustained-separation/reference question, not a causal
+failure certificate or a simulated alternative physical outcome. Evidence is
+`D4-five-history-zero-force-episode-audit-20261108/report.json`. Further work must
+address unilateral pressure/recontact stability, variable-load posture support,
+material geometry and full phase transitions together. Related native variants
+remain suspended; no unchanged retry or gain/filter/threshold fit follows.

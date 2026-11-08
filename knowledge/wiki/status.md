@@ -643,12 +643,27 @@ with exact ordinary-mode parity. The existing loaded-force/distance acceptance,
 gains, rate/extent, support and stop requirements stay unchanged. Essential
 boundary/repeated/recontact/acquisition-transition checks pass. These are
 software and saved-input results; the changed native trajectory is unqualified.
-One distinct nominal native qualification is running on owned Blackwell. The
-actual isolated source and constructed scoped N support are verified before
-movement; the original pressure targets/coefficient, low-level bundle, material
-clock, setup and acceptance criteria are unchanged. Independent finished-data
-review is prepared on elab3. Support-phase behavior and the full outcome remain
-pending; 359 closed allocations are separate from this one open allocation.
+The distinct nominal native qualification now closes negative at 24.591° against
+50.146° required: contact is lost at 124.650 s, before hold. Independent review
+verifies the actual source/load binding, all 6,940 recovery decisions, 208 real
+recovery pulses and exact retained outer offsets. Four original native 100 ms
+windows have zero mean force. Current states and physical limits pass, but
+2,397 required single-future position boxes exceed measured shoulder-X lower
+support, by at most 0.0004905 rad; this empirical gap is separate from safety.
+Original six-second fourteen-shape stops pass. Abort release/stabilization does
+not repair the missing hold or prior contact loss. All 48 original files and
+sidecars (6,158,972,694 bytes), nine causal RGB selections and owned cleanup are
+reviewed. Both actual allocations are closed: 361 continuation allocations /
+14.275307 GPU h; collection remains 17/36.
+A five-history audit of 39,471 original push/hold controls retains every outcome.
+The final zero-feedback episode has one 35.390 µm recovery pulse followed by
+27.515 µm further measured gap growth. Forty episodes in the changed path show
+positive gap growth. These observations motivate a shared sustained-separation,
+pressure/reference and recontact diagnosis; they do not prove a causal defect or
+a successful alternative trajectory. Scoped future support, posture/material
+motion, camera/perception and complete phase transitions remain required.
+Related native variants stay suspended without unchanged retries or fitted
+criteria, gains, filters or empirical-support widening.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
