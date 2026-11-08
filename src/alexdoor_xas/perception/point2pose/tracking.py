@@ -449,7 +449,11 @@ class PanelTracking:
         semantic mask, frozen pose or unmeasured point for metric evidence.
         """
         constraint = self.config.get("local_surface_constraint")
-        if constraint is None or candidate.material_recovery_unverified:
+        if (
+            constraint is None
+            or candidate.material_recovery_unverified
+            or len(obj["source_points"]) < 5
+        ):
             return None, None
         measured = (
             obj.get("measured_correspondences", np.zeros(len(obj["source_points"]), bool))

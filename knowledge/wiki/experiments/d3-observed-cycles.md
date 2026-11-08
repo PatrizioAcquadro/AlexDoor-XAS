@@ -116,6 +116,14 @@ state with about 7.28 mm frame-origin position bound and 0.0355 rad rotation bou
 This is counterfactual component evidence, not new native action qualification;
 the original failed recording remains unchanged.
 
+A subsequent native attempt exposes an empty-seed integration bug at 34.0 s:
+Point2Pose has no measured pairs yet and exports an empty floating-point inlier
+array. The adapter now retains unavailable support before combining masks. A
+native CUDA two-capture control confirms the empty seed remains unavailable and
+the subsequent measured frame supplies ten pairs and a valid local constraint.
+The interrupted attempt remains negative, with 8,161 native feedback samples and
+verified original stops; no arm command was admitted.
+
 The eight-path central-contact model passes nominal screening in both physical
 and existing 10 N support modes. H− exceeds the original pose-screening tolerance
 when restricted to that empirical domain; unconstrained physical models remain

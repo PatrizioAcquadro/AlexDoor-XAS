@@ -156,3 +156,19 @@ def test_geometry_cannot_replace_missing_identity_or_metric_evidence(missing):
     assert candidate.state == "tracking_lost"
     assert candidate.support is None
     assert not tracker.diagnostics["loaded_contact_admitted"]
+
+
+def test_native_seed_with_empty_float_inliers_waits_for_real_correspondences():
+    tracker, candidate, current, result = observed_case()
+    seeded = dict(result, objects=[dict(result["objects"][0])])
+    obj = seeded["objects"][0]
+    obj.update(
+        source_points=np.empty((0, 3)),
+        current_points=np.empty((0, 3)),
+        measured_correspondences=np.empty(0, bool),
+        inliers=np.array([]),
+    )
+    tracker.consume(current, seeded, 1.0)
+    assert candidate.state == "tracking_lost" and candidate.support is None
+    tracker.consume(current, result, 1.0)
+    assert candidate.state == "tracked" and candidate.support is not None
