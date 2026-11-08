@@ -184,12 +184,23 @@ class PanelTracking:
         self.diagnostics["seed_state"] = "insufficient_geometry"
         self.diagnostics["initialization_rejections"] = []
         self.initialization_options = []
+        conditioned = self.config.get("reference_selection") in (
+            "largest_conditioned_surface",
+            "best_conditioned_surface",
+        )
+        # Conditioned selectors measure plane/edge uncertainty below. Fixed
+        # dimensions are only the legacy initialization proxy, not contact limits.
         roots = [
             s
             for s in candidates
             if abs(s.normal[2]) < 0.3
-            and np.ptp(s.points @ s.basis, axis=0)[1] > 0.2
-            and np.ptp(s.points @ s.basis, axis=0)[2] > 0.3
+            and (
+                conditioned
+                or (
+                    np.ptp(s.points @ s.basis, axis=0)[1] > 0.2
+                    and np.ptp(s.points @ s.basis, axis=0)[2] > 0.3
+                )
+            )
         ]
         identifiers = {id(s): f"candidate-{i}" for i, s in enumerate(roots)}
         eligible = []
@@ -209,10 +220,7 @@ class PanelTracking:
                 )
                 if whole_leaf_mask is not None:
                     verify_candidate(observation.mask(), whole_leaf_mask, references)
-                if self.config.get("reference_selection") in (
-                    "largest_conditioned_surface",
-                    "best_conditioned_surface",
-                ):
+                if conditioned:
                     observed_basis(
                         surface, self.config["local_surface_constraint"]["point_error_m"]
                     )

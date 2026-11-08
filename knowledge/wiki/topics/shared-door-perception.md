@@ -120,8 +120,10 @@ a request. Automatic selection must be explicit in the recipe: `largest_visible_
 requires a unique visible-area maximum; `largest_conditioned_surface` additionally
 requires a measured plane/edge basis. `best_conditioned_surface` instead minimizes
 the existing complete measured basis angular bound at the declared metric point
-error. It preserves the same eligible current roots, rejects equal bounds and
-requires a pixel exclusive to the winner. A padded interior-distance query respects
+error. Both conditioned selectors use this measured conditioning instead of the
+legacy 0.20 m width / 0.30 m height initialization proxy. They retain the vertical
+orientation requirement, preserve selection ties and require a pixel exclusive
+to the winner. A padded interior-distance query respects
 all original mask holes. These are seed choices; native whole-leaf input, finite
 root perimeters, material ownership, current pose/error and contact gates remain
 independent. No first-root or semantic-score fallback resolves ambiguity.
@@ -723,9 +725,9 @@ prospective door-specific semantic prompt keep its own explicit recipe; identity
 finite support, tracking and admission checks retain the same implementation.
 
 
-The explicit `largest_conditioned_surface` reference selector applies the existing
+The explicit conditioned reference selectors apply the existing
 measured plane/edge conditioning test before duplicate/root pruning and automatic
-reference selection. It avoids freezing a local-pose seed whose missing edge
+reference selection. This avoids freezing a local-pose seed whose missing edge
 would make every later A1/A2 pose query unavailable, while preserving the same
 semantic identity, native mask, finite support, tie/overlap and ownership checks.
 The original `largest_visible_surface` selector is unchanged. A low-residual

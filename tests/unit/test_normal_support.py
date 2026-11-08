@@ -205,7 +205,9 @@ def test_normal_primitives_cover_complete_robot_spheres_without_anchor_detour(ra
 
 
 @pytest.mark.parametrize("reject_best", [False, True])
-def test_plane_choice_minimizes_whole_root_pose_error_after_identity_filter(monkeypatch, reject_best):
+def test_plane_choice_minimizes_whole_root_pose_error_after_identity_filter(
+    monkeypatch, reject_best
+):
     from dataclasses import replace
 
     from alexdoor_xas.action.frames import ObjectFrame
@@ -279,6 +281,42 @@ def test_conditioned_seed_selection_skips_missing_edges_before_duplicate_pruning
     tracker.config = dict(config, reference_selection="largest_conditioned_surface")
     assert tracker.eligible_surfaces([bad, good], sample)[0] == [good]
     assert tracker.eligible_surfaces([bad], sample)[0] == []
+    assert tracker.diagnostics["initialization_rejections"][0]["reason"] == (
+        "missing_conditioned_observed_edge"
+    )
+
+
+@pytest.mark.parametrize("mode", ["largest_conditioned_surface", "best_conditioned_surface"])
+@pytest.mark.parametrize("width_pixels", [24, 26])
+@pytest.mark.parametrize("noise_m", [0.0, 0.0002])
+def test_conditioned_seed_measures_support_across_legacy_size_boundary(mode, width_pixels, noise_m):
+    sample = camera_sensor()
+    mask = np.zeros((240, 240), bool)
+    mask[75:160, 105 : 105 + width_pixels] = True
+    row, col = np.indices(mask.shape)
+    sample["depth_m"][mask, 0] = 1 + noise_m * np.sin(row[mask] + col[mask])
+    config = dict(
+        recipe().config,
+        local_surface_constraint=dict(point_error_m=0.001, normal_model_bound_rad=0.001),
+    )
+    cue = dict(shape=mask.shape, masks=[np.packbits(mask).tobytes()], ids=[3], latency_s=0.0)
+    measured = surfaces(cue, sample, config)[0]
+    width = np.ptp(measured.points @ measured.basis, axis=0)[1]
+    assert (width < 0.2) == (width_pixels == 24)
+    _, basis_bound, _ = observed_basis(measured, 0.001)
+    assert basis_bound < 0.03
+    original_mask = measured.observations[0].mask().copy()
+    tracker = PanelTracking(SimpleNamespace(reset=lambda: None), config)
+    assert bool(tracker.eligible_surfaces([measured], sample, mask)[0]) == (width_pixels == 26)
+    tracker.config = dict(config, reference_selection=mode)
+    assert tracker.eligible_surfaces([measured], sample, mask)[0] == [measured]
+    assert not tracker.candidates and tracker.selection is None
+    assert not tracker.diagnostics["loaded_contact_admitted"]
+    np.testing.assert_array_equal(measured.observations[0].mask(), original_mask)
+    # Geometry does not replace semantic ownership or invent an observed edge.
+    assert tracker.eligible_surfaces([measured], sample, np.zeros_like(mask))[0] == []
+    measured.edge_points = {}
+    assert tracker.eligible_surfaces([measured], sample, mask)[0] == []
     assert tracker.diagnostics["initialization_rejections"][0]["reason"] == (
         "missing_conditioned_observed_edge"
     )

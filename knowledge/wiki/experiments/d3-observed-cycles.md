@@ -35,7 +35,10 @@ bounded memory, unbounded memory and native reconditioning. This is a 10 Hz
 sampled control; the original 30 Hz native stream is distinct and unchanged.
 Fresh SAM3 sessions with the unchanged `door` prompt also exclude the contact
 in all six tested nominal/perturbed images. Two predeclared alternatives, `door panel` and `glass door`, also recover no
-contact membership in these six image controls. No prompt change is adopted.
+contact membership in these six image controls. A further visible-part control
+finds the central inset with `glass pane` in both central N/P images; `window`
+finds none. This is part segmentation only, without native temporal identity,
+door ownership, contact or motion qualification. No common prompt is changed.
 
 The 144 complete ideal paths cover 18 root/height families, N/H+/H-/P and two
 separate target-bound modes. Moving the root backward by 0.10–0.20 m produces
@@ -66,6 +69,25 @@ review, without filling unobserved holes or adopting privileged object ownership
 Any shared acceptance change requires separate nominal, boundary and perturbed
 validation, with the original results retained.
 
+## Measured seed conditioning
+
+The observed central inset spans 0.1914 m in N and 0.1930 m in P. Both have valid
+metric plane/edge bases (about 0.014 rad total angular bound), but the original
+0.20 m width initialization heuristic rejects them before testing those bases.
+The two explicitly conditioned selectors now use their measured conditioning
+instead of the fixed width/height proxy. Legacy selectors retain that proxy;
+vertical orientation, semantic membership, synchronization, finite material,
+pose uncertainty, contact and action admission remain independent checks.
+
+Nominal, perturbed and both-side-of-boundary numerical cases retain missing-edge
+and semantic-mismatch refusals. Re-reading the unchanged N/P depth and image
+masks yields eligible geometry with identical measured bounds and material
+clearances. Narrow side panes also become geometric alternatives; they do not
+support the prescribed contact. The original off-center contact has only about
+7.6 mm minimum finger clearance on the central pane before pose/motion error,
+so seed eligibility does not admit this contact. A new native acquisition must
+establish a continuous observed identity and sufficient complete action support.
+
 ## Evidence and next discriminator
 
 Compact inputs/readers/results are in
@@ -77,8 +99,9 @@ Reader startup/serialization failures are retained separately and do not
 change native outcomes. Each GPU job holds the canonical exclusive host lease
 and records its complete process wall time and verified release.
 
-The semantic controls show that changing memory, resetting a frame or these
-two generic descriptions does not recover the contact region. In all six native
+The semantic controls show that changing memory, resetting a frame or the
+two door descriptions does not recover the contact region. The visible-part
+control supplies a prospective observation hypothesis only. In all six native
 images the omission is open to the mask exterior, so filling enclosed holes
 would not address it. The next diagnosis must jointly consider observed contact
 placement and the utility of reference/material restrictions; it must not turn
