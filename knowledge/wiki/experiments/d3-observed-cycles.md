@@ -506,9 +506,12 @@ reserve, normal/contact checks and future-motion allowance are unchanged.
 Independent numerical controls compare the resulting certificate against exact
 rectangle-to-unknown-square distances at nominal and both sides of pixel
 boundaries, with holes and varying stop radii. The shared producer/receipt
-calculation is also checked on both saved native refusals. Full-path checks on
-all three independent observations are in progress for prospective contact
-fraction 0.49075, retaining 1.13 m nominal height and the original root, camera,
-withdrawal and task recipe. Sampled nominal and height controls pass, but full
-native contact and task qualification remain absent. Other TRAIN conditions
-remain excluded from collection.
+calculation is also checked on both saved native refusals. All 4,336 nominal intervals now pass on each of the three independent
+observations for contact fraction 0.49075, retaining 1.13 m nominal height and
+the original root, camera, withdrawal and task recipe. Five of six height-control
+paths also pass. The latest lower-height control retains a 0.0064 mm enclosure
+deficit during release; its remaining intervals are unverified. This confidence
+negative is preserved without changing any tolerance and does not authorize
+that TRAIN variant. The three nominal paths justify one fresh native nominal,
+now running from `992301d`; they do not establish contact or task qualification.
+Other TRAIN conditions remain excluded from collection.

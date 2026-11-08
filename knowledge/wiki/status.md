@@ -45,11 +45,13 @@ the scalar rotation bound. Conservative directional transport is implemented and
 producer and receipt controls with unchanged measurement bounds. Complete-path
 controls expose excess raster coverage: the producer already bounds each whole
 cell, while the consumer includes exterior cells. The corrected intersection
-rule retains erosion and all physical reserves. Complete-path checks across
-three acquisitions are running for contact fraction 0.49075; a fresh native
-cycle still requires those controls. No further native attempt is queued. The full-cycle reader
+rule retains erosion and all physical reserves. All three complete nominal paths pass for contact fraction 0.49075. Five of six
+height controls pass; the latest lower-height release remains a preserved
+confidence negative. One fresh nominal is now running from `992301d`, with all
+original task and physical limits. No new native qualification is claimed. The full-cycle reader
 passes an archived positive and rejects failure/component controls. The other
-eight TRAIN conditions are excluded. No GPU allocation is active.
+eight TRAIN conditions are excluded. Only the owned D3 nominal allocation on
+elab2 is active.
 A decision-equivalent occupancy
 simplification is validated only as a component; full-cycle performance is open.
 See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]] for criterion
