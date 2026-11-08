@@ -598,9 +598,15 @@ All original files, six available phase RGB views and owned cleanup are reviewed
 related conditions remain suspended. Collection stays 17/36; 355 continuation
 allocations close / 13.815895 GPU h. A saved-input audit of 31,002 normal-feedback
 rows finds that below-tolerance geometric gap recovery supplies 73–79% of the
-positive push rate-stage travel, before extent clipping. Original post-command
-compression is absent from these traces, so delivered-command parity and a
-physical alternative are not inferred. The original predictor also scores all
+positive push rate-stage travel, before extent clipping. Post-command compression is absent from the raw
+trace, but original ramp/acquisition and feedback now reconstruct it with 31,095
+independent world-request checks. No regulated reference reaches the original
+extent. This verifies the requested reference, not physical tracking. Force-
+reference push/hold now uses the existing stateful separated-gap recovery;
+pressure regulation owns compression inside the original contact tolerance.
+Acquisition, ordinary mode, gains and all physical/support/task/stop criteria
+stay unchanged. Actual caller boundary/transition checks pass; complete native
+qualification of this correction remains pending. The original predictor also scores all
 7,332 newly available normal-mode intervals on CUDA. Its final impact interval
 surface error is only 1.119 µm despite the 11.943 N impulse; position forecast
 error alone does not establish the cause. Shared unilateral pressure/reference

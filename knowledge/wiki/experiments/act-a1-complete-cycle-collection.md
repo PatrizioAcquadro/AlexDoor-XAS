@@ -5437,3 +5437,43 @@ This reader closes with actual GPU/PGID absence and canonical lease release:
 elab3, with the local report and source under
 `D4-retained-outer-whole-contact-forecast-closeout-20261108.json` and the saved
 remote review kit. Collection remains 17/36.
+
+
+### Recovered compression and separated-gap force-reference routing (November 8, 2026 UTC)
+
+The original scalar reference is now recoverable without inventing missing trace
+fields. The frozen contact ramp and its first loaded-contact latch initialize
+compression; all subsequent recorded force/gap inputs reproduce its bounded
+updates. Independent original USD reads verify units, contact point, frame and
+hinge. The reconstructed complete request includes the actual tangent offset,
+material-frame transport and rigid-shape support correction. All 12,425 available
+finite-only float32 world requests match exactly. All 11,367 bound-combined and
+7,303 retained-outer pre-clock world requests match within the existing float64
+arithmetic budget, maximum difference 5.56e−17 m; their complete request-to-native
+clock associations were already independently verified. The 360 early contact
+requests in those two remote recordings remain outside this direct comparison.
+
+No regulated normal reference reaches its original extent. The geometric gap
+term therefore contributes the same 73–79% of positive push reference travel
+identified before extent clipping; this is no longer a neutral-reference-rate
+assumption. Requested poses still do not establish actual physical tracking or
+contact. All original force gaps, impacts, empirical-support failures and missing
+phases remain negative.
+
+The actual force-reference push/hold caller now uses the existing stateful
+separated-gap recovery. Inside the original contact tolerance, force-error
+admittance establishes pressure; geometry recovery acts once on a measured
+separation and resets after actual native recontact. The ramp/acquisition and
+ordinary pose routes retain their original behavior. Force targets, pressure
+coefficient, unloading, rate/extent limits, setup, materials and all original
+physical/support/contact/full-task/stop criteria remain unchanged. Actual-caller
+checks cover missing/negative/nominal/boundary/perturbed gaps, repeated separation,
+recontact, unloading and acquisition/support transitions. The first test had
+incorrectly assumed push and default hold targets were equal; that test error
+is preserved and corrected without changing either target.
+
+Evidence is `D4-original-normal-compression-and-world-request-recovery-20261108/report.json`
+and `D4-force-reference-separated-gap-software-closeout-20261108.json`.
+This is a common control-routing correction with native qualification still
+pending. It adds no source, broad controller domain or demonstration; related
+contact variants remain suspended and collection stays 17/36.

@@ -971,8 +971,11 @@ def run_probe(
                 normal,
             )
         gap_catchup = None
+        # Inside contact tolerance the force reference owns compression.
+        # Stateful geometric recovery must not add a second gap integral.
         if (
-            setup.support_force_source == "guarded_qualification_window"
+            setup.force_controlled_normal_reference
+            or setup.support_force_source == "guarded_qualification_window"
             or setup.normal_force_lead_s > 0
         ) and phase in ("push", "hold"):
             native_force = traces[-1]["native_mean_normal_force_n"]

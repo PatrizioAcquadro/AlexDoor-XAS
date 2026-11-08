@@ -980,3 +980,70 @@ def test_material_frame_preserves_complete_local_contact_and_disturbance_pose():
     with pytest.raises(ValueError, match="Invalid material frame"):
         transport_material_frame([0,0,np.nan], np.eye(3), reference_p, np.eye(3),
                                  material_p, np.eye(3))
+
+
+@pytest.mark.parametrize("phase", ["push", "hold"])
+def test_force_reference_routes_separated_gap_recovery_once_and_keeps_pressure(phase):
+    import ast
+    import inspect
+    import textwrap
+    from types import SimpleNamespace
+    import alexdoor_xas.qualification.synthetic_probe as probe
+
+    # Execute the actual stateful support closure: this checks caller routing,
+    # acquisition/support transitions and feedback, not a duplicate controller.
+    tree = ast.parse(inspect.getsource(probe.run_probe))
+    support = next(n for n in tree.body[0].body
+                   if isinstance(n, ast.FunctionDef) and n.name == "support_normal")
+    factory = ("def make_support():\n"
+               "    normal_feedback = None\n"
+               "    gap_recovery_active = False\n"
+               "    force_history = None\n"
+               + textwrap.indent(ast.unparse(support), "    ")
+               + "\n    return support_normal, lambda: normal_feedback\n")
+    setup = probe.ProbeSetup(
+        force_controlled_normal_reference=True,
+        support_force_source="native_interval_mean",
+    )
+    traces = [{}]
+    contact_load = SimpleNamespace(force=0.)
+    namespace = dict(vars(probe), setup=setup, dt=1/60, traces=traces,
+                     contact_load=contact_load, correction=None,
+                     maintain_acquisition_load=False, pace_exit_active=False)
+    exec(compile(factory, probe.__file__, "exec"), namespace)
+    update, feedback = namespace["make_support"]()
+
+    def step(gap, force=0., phase_name=phase):
+        traces[-1] = dict(native_contact_separations_m=[gap],
+                          native_mean_normal_force_n=force, time=0.)
+        contact_load.force = force
+        return update(0., phase_name)
+
+    target_force = probe.normal_force_target(setup, phase)
+    pressure_only = probe.normal_contact_support(
+        0., 0., setup, 1/60, target_force=target_force
+    )
+    tolerance = setup.contact_gap_tolerance_m
+    for gap in [None, -1e-6, 0., tolerance/2, tolerance]:
+        assert step(gap) == pressure_only
+        assert feedback()["gap_catchup"] is False
+    separated = np.nextafter(tolerance, np.inf)
+    assert step(separated) > pressure_only
+    assert feedback()["gap_catchup"] is True
+    # No repeated gap integral while the same separation is being recovered.
+    assert step(2*separated) == pressure_only
+    assert feedback()["gap_catchup"] is False
+    assert step(separated, 1.) < 0.  # Original force unloading has priority.
+    assert feedback()["gap_catchup"] is False
+    assert step(separated) > pressure_only  # New loss after actual recontact.
+    assert feedback()["gap_catchup"] is True
+    # Acquisition retains the original ramp/filtered-force behavior.
+    expected = probe.normal_contact_support(0., 0., setup, 1/60, gap_m=tolerance/2)
+    assert step(tolerance/2, phase_name="contact") == expected
+    assert feedback()["gap_catchup"] is None
+    # Ordinary pose mode keeps its existing repeated geometric correction.
+    setup.force_controlled_normal_reference = False
+    assert step(tolerance/2) == probe.normal_contact_support(
+        0., 0., setup, 1/60, gap_m=tolerance/2, target_force=target_force
+    )
+    assert feedback()["gap_catchup"] is None
