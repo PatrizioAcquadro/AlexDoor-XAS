@@ -713,10 +713,27 @@ establish contact, force limits or a changed physical trajectory.
 Two reader failures remain recorded: a dtype assignment before the first result,
 and a reporting variable conflict after successful actual-caller checks. Their
 costs are retained; exact comparison of all nineteen saved proposal fields recovers
-the latter's completed evidence without a GPU rerun. All 368 continuation
-allocations close at 14.382391 GPU h. The native bundle remains local with launch
-readiness false pending complete-output readers and actual-consumer preflight.
-Collection stays 17/36, with no controller adoption or teacher/source credit.
+the latter's completed evidence without a GPU rerun. No model result qualifies
+contact or teacher/source membership.
+
+The complete-output reader is now prepared. It independently joins all 6,940
+push/hold feedback contexts in the original record; a new CUDA assembly check
+reconstructs all 6,969 original shape targets exactly, retains inactive targets
+and all seven motor rate/domain limits, and matches independently extracted
+pressure operands. The actual-consumer preflight also passes the explicitly
+measured additional shoulder side and all existing outside-support controls.
+The first native qualifier then fails on its first inspection transition because
+that phase intentionally supplies no contact-force field. Its complete original
+recording, missing task phases, exception, continuing stops and charge are
+preserved, with whole payload and sidecars verified on elab3. A narrow lifecycle
+repair clears the unavailable cache only after the original inspection transition;
+physical phases still require their original feedback, and failures do not advance
+it. Nine actual-transition CPU controls and the repeated official-runtime
+preflight pass. One corrected nominal qualifier is now running on owned Blackwell,
+with the real qualified load and outer-source bindings verified. Complete contact,
+hold/release/stabilization, force/support, original stops and RGB remain pending;
+related variants stay suspended. There are 370 closed continuation allocations
+at 14.402624 GPU hours plus this one open job. Collection remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

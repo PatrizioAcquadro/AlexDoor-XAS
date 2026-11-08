@@ -5757,3 +5757,48 @@ independently measured shoulder-X lower side. Complete-output proposal/context/
 paid-goal readers and actual-consumer preflight remain required before one full
 nominal native qualifier. No maintained recipe, source membership, teacher,
 optimizer update or matrix cell changes; collection stays 17/36.
+
+
+Complete native-output reader readiness now passes independent original-trace
+reconstruction for all 6,940 push/hold contexts, including 329 zero-force positive
+endpoint gaps. A separate CUDA run validates the new original-shape-plus-gap
+reader assembly on all 6,969 normal-mode intervals: original shape targets are
+bitwise exact, inactive targets and all seven motor rate/domain limits remain,
+and rebuilt contexts equal separately extracted original pressure operands. It
+retains 129 changed numerical proposals, without inferring a physical trajectory.
+The finished-only driver preserves the original custody, profile, effort, material
+request, outer/scalar-gap, pressure, support and continuous-stop readers. The
+official-runtime preflight passes the actual source/model/path guards and the
+explicit independently measured additional shoulder lower side, with force caps
+and outside-support refusals unchanged.
+
+The first native qualifier fails before contact on the first common inspection
+transition: `KeyError('native_mean_normal_force_n')`. The new cache consumer had
+assumed every transition carried contact feedback, while inspection intentionally
+supplies only its validity result. The original recording retains two states, one
+inspection command and 0.016667 s; all task phases and endpoint controller use
+are unavailable. Original two-plus-four-second continuing stop reports pass,
+without constituting a new independent fourteen-shape or contact certificate.
+All 25 original run files and three sidecars (4,941,250 bytes) are SHA-verified
+before/after transfer and on elab3. Nonzero return, traceback, unavailable phases,
+known process/GPU cleanup, released lease and 45.323851 GPU seconds remain intact.
+Evidence is `D4-endpoint-gap-inspection-startup-failure-20261108.json`.
+
+A separate v2 bundle clears the unavailable endpoint cache and returns after the
+unchanged successful inspection transition. Every physical phase retains required
+published force/endpoint input, and an original transition failure cannot advance
+the cache. Nine essential CPU controls execute the real transition method across
+inspection, six physical phases, missing noninspection force and original-super
+failure. The recorder's start, installation, context and close methods and all
+numerical target math remain unchanged; no saved-model GPU screen is repeated.
+Preparation harness errors are retained separately without GPU allocations. The
+new official-runtime preflight passes. One corrected full nominal qualifier is
+running on owned Blackwell; actual load-model/path and outer-source bindings
+are verified at startup, with complete contact/force/support/task/stops/RGB pending.
+The elab3 finished-only review plan and deployment metadata are staged, gated on
+complete WHOLE custody and native owned cleanup. Related variants remain suspended.
+
+The new reader's 27.514034 GPU seconds and failed bootstrap are charged once;
+370 continuation allocations close at 14.402624 GPU hours plus one open native
+job. All earlier outcomes and criteria remain; no teacher, source, matrix or
+optimizer credit is added. Collection is still 17/36.
