@@ -5931,3 +5931,51 @@ and three-sidecar custody, and actual owned cleanup before dispatch. All related
 contact variants remain suspended. Evidence is
 `D4-whole-interval-native-readiness-closeout-20261108.json`; collection remains
 17/36, with one open native allocation and no optimizer update.
+
+
+The full nominal whole-interval native successor ends negative at 45.067589° of
+50.146446° required. Contact continuity fails at probe time 210.316667 s during
+push; hold is absent. The original abort withdrawal and two-second stabilization
+complete. They do not establish full opening, a held task or repaired continuity.
+The original report records no exception or physical violation. Its 52,400 native
+samples and all original 45 run files plus three sidecars are preserved; source
+before/after and the elab3 replica match for all 9,190,437,020 bytes. Blackwell
+originals remain retained, with no local bulk copy. Actual owned native processes,
+GPU context and canonical lease are released; 1,715.110170 GPU seconds are booked
+once.
+
+The first finished reader stops at an obsolete immediate-predecessor assertion:
+it expects the finite-tangent baseline, whereas this successor correctly records
+the endpoint-gap v2 predecessor. The base controller itself matches. The failure,
+32.580063 GPU seconds and completed original profile/stop outputs remain retained.
+A distinct corrected pressure reader validates the exact current lineage and
+unchanged planning ancestor; its valid case passes and eight wrong-lineage cases
+reject. All pressure, calibrated support, physical and task/stop predicates remain
+unchanged. Completed custody and continuous-stop reports are reused byte-for-byte.
+The corrected remaining review is running on owned elab3. Full target/context,
+paid-goal/request and manual causal RGB closeout are pending; no complete
+independent qualification is inferred from the partial review.
+
+The pressure readback already establishes additional negatives. All 48,320
+original native 100 ms push means are positive, minimum 0.022398 N, while their
+original calibrated lower windows reach −0.048805 N. The independent frozen load
+upper peak is 7.754009 N and remains within the original 10 N domain; its maximum
+recomputation defect is 7.994e−15 N. Estimator and fixture model failures are zero.
+The actual normal component peaks at 7.234842 N during withdrawal. Current
+measured position support has zero exits, but 1,015 original single-future boxes
+leave empirical support, requiring shoulder joint 1 down to −1.149035743 rad.
+That empirical deficit is distinct from physical safety: hard physical boxes,
+control states and original six-second fourteen-shape stops pass independently.
+One measured release handoff is retained, without treating abort completion as
+a successful demonstration. No support range, gain, filter or tolerance is changed.
+
+The 380 closed continuation allocations total 15.326967 GPU hours, plus one open
+corrected reviewer. An unchanged full-four-step predictor score is prepared for
+the complete new path after the running review closes and fresh ownership is
+verified. It will compare original geometry and force outcomes without claiming
+a force bound or changed physical trajectory. Related physical trials remain
+suspended pending a shared contact/reference/pose mechanism correction and
+qualification. Collection remains 17/36, with no source membership, teacher or
+optimizer update added. Operational evidence is
+`D4-whole-interval-finished-reader-lineage-controls-20261108.json`, the completed
+native WHOLE/cleanup receipts and `continuation-cost-and-state-20261106.json`.

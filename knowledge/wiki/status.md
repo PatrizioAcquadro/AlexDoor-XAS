@@ -795,16 +795,38 @@ physical, pressure and full-cycle/stopping checks. The original inspection
 transition is byte-identical to the previously tested nine-case lifecycle body;
 changed callback and proposal behavior has its separate twelve-fixture proof.
 
-One new full nominal N native qualifier now runs on Blackwell. Its first bounded
-startup snapshot verifies the actual owned GPU/process group, canonical lease,
-constructed qualified load and original outer source before physical motion.
-The whole-interval controller installation and full native outcome are still
-pending at that snapshot. No related variants are launched. Original gains,
-pressure, empirical support, physical and full-cycle/stopping criteria remain
-unchanged. All 378 completed continuation allocations close at 14.841497 GPU
-hours, plus this one open native job. Collection stays 17/36. Software evidence is
-`D4-whole-interval-recontact-model-closeout-20261108.json`; reader/preflight/startup
-boundaries are in `D4-whole-interval-native-readiness-closeout-20261108.json`.
+The full nominal N whole-interval native qualifier ends negative at 45.067589°
+of 50.146446° required: contact continuity fails during push at probe time
+210.316667 s. No hold is executed. Abort withdrawal and stabilization complete,
+without repairing the missing opening, hold or earlier contact loss. The original
+report has no exception and records no physical violation. All 45 original run
+files plus three sidecars, 9,190,437,020 bytes, match source-before/after and the
+elab3 replica. Originals remain on Blackwell; no local bulk copy is made. The
+native allocation is closed with actual owned cleanup and its full cost retained.
+
+The finished pressure reader initially rejects a stale immediate-predecessor
+binding. That failed allocation and log remain preserved. A separate corrected
+reader accepts only the exact whole-interval/endpoint-v2 lineage and unchanged
+original controller/planning constants; eight wrong-lineage controls reject.
+Completed custody and continuous-stop reports are reused byte-for-byte. The
+remaining original-criteria review is running on owned elab3; full target/context,
+paid-goal/request and causal RGB closeout are still pending, so no complete
+independent qualification is claimed.
+
+Its completed pressure readback is also negative. All 48,320 actual native 100 ms
+push windows are positive, minimum 0.022398 N, but their original calibrated load
+lower windows reach −0.048805 N. All frozen upper-load estimates remain within
+the original 10 N domain, peaking at 7.754009 N; the normal component peaks at
+7.234842 N during withdrawal. Current measured position support has zero exits,
+while 1,015 original single-future boxes leave empirical support. Hard physical
+boxes and the original six-second fourteen-shape stops pass. These distinctions
+do not repair the full task or authorize empirical/support threshold widening.
+The 380 closed continuation allocations total 15.326967 GPU hours, plus one open
+corrected reviewer. Related physical variants remain suspended. Collection stays
+17/36. Readiness evidence remains
+`D4-whole-interval-native-readiness-closeout-20261108.json`; the new original
+outcome and pending independent checks are recorded in
+`continuation-cost-and-state-20261106.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
