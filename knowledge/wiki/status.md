@@ -757,8 +757,41 @@ Across the path, 945 model intervals cross internally without a negative endpoin
 These diagnostic geometry classes do not define acceptance thresholds. Full
 unilateral recontact, pressure/reference history, coupled pose/material motion
 and normal/friction load response need a shared correction before another contact
-trial. Related variants remain suspended. All owned resources are released;
-373 continuation allocations close at 14.787168 GPU hours. Collection stays 17/36.
+trial. Related variants remain suspended.
+
+A new exact target/reference audit separates base, shape and endpoint drive spring
+storage on the same actual state. Endpoint target changes add up to 3.016 mJ of
+virtual spring energy; this is neither measured contact work nor force. At the
+last force peak, the previous paid normal memory is 149.207 µm, against a
+22.519 µm raw reference increment, yielding a −126.688 µm effective increment.
+Current extra correction is already zero. Kinematic payment prevents accumulation;
+removing it is not justified by these observations, which do not prove a unique
+physical cause.
+
+An isolated successor uses all four nominal native gap predictions and can back
+off an already predicted crossing. It selects one held target in the actual
+commanded other-five-axis nullspace, first matching the closest attainable
+original-rate endpoint under the original seven motor bounds and four nominal
+gap inequalities, then minimizing stiffness-weighted command increment energy.
+An infeasible nominal proposal falls back to the original target without a new
+admission refusal. Nine analytical controls pass. All 8,668 original targets and
+paid goals reconstruct exactly; all 609 eligible proposals are feasible and
+scalar/batch identical, including 388 backoffs. Loaded, missing and nonpositive-gap
+branches remain exact. The first material-frame prototype is retained separately;
+the successor explicitly verifies the actual commanded reference frame and
+separates delivered quantization error from nullspace roundoff. Nonlinear nominal
+gaps reach −2.126 nm after rounding; these model values establish no physical
+contact tolerance, force bound or alternative trajectory.
+
+Twelve original-input fixtures execute the actual staged recorder, proposal,
+preview and dispatch adapter with an explicit underlying dispatch shim. Targets,
+four material clocks and paid-goal memory pass; construction and native physics
+remain unexecuted. Original gains, pressure, empirical support, physical and
+full-cycle/stopping criteria are unchanged. Complete-output reader readiness and
+official-runtime preflight are next, before one new full native qualifier.
+All owned resources are released; 377 continuation allocations close at
+14.829828 GPU hours. Collection stays 17/36. Evidence is
+`D4-whole-interval-recontact-model-closeout-20261108.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

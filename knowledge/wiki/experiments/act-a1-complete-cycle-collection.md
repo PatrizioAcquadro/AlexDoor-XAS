@@ -5856,3 +5856,47 @@ coupled material/pose motion, normal-plus-friction load and feedback delay befor
 another physical successor; retain the 52 empirical support exits separately.
 No thresholds, gains, filters, recipes or calibration are changed to pass this
 negative. Related variants remain suspended; collection stays 17/36.
+
+
+The subsequent current-state spring/reference audit reconstructs all 8,668 source
+targets and paid goals exactly. Base, original shape and endpoint contributions
+use the same actual measured state and drive stiffness. The endpoint addition
+changes virtual spring storage by up to 3.015830 mJ; this is not measured contact
+energy, work or force. At the final force peak, prior paid normal memory is
+149.207034 µm, raw reference increment 22.519072 µm and effective increment
+−126.687962 µm, while the current extra correction is already zero. Algebraic
+spring/task/null and reference identities pass. Kinematic payment prevents
+accumulation and does not measure actual travel; removing it is not a justified
+repair. Evidence is `D4-endpoint-reference-energy-closeout-20261108.json`.
+
+The isolated whole-interval successor treats recontact bidirectionally across all
+four native predictions. It preserves the actual commanded other-five reference
+axes, uses original seven motor domain/rate bounds and four nominal nonpenetration
+inequalities, first chooses the closest attainable original-rate endpoint and then
+minimizes stiffness-weighted command increment energy in the two-dimensional
+nullspace. Empty or degenerate nominal feasibility falls back to the original
+command; it introduces no physical or empirical admission refusal. These are
+causal model guidance constraints, not a contact-force law or safety certificate.
+The initial material-axis-frame result remains intact; the successor corrects the
+frame to the actual command quaternion and independently checks nullspace and
+quantization contributions. Nine analytical nominal/boundary/coupled/infeasible
+controls pass. All 609 eligible proposals are feasible, changed and scalar/batch
+bitwise identical, with 388 backoffs; loaded, missing and nonpositive-gap branches
+and original A1 replay/motor bounds pass. Nonlinear nominal gap minimum is
+−2.125330 nm, and maximum linearization defect 0.182655 µm, without interpreting
+either as a physical margin. The maximum virtual target spring storage decreases
+from 4.938951 to 4.376180 mJ on these saved inputs, but mean increment energy rises;
+no blanket energy reduction or changed-trajectory claim follows.
+
+The actual staged recorder context and adapter proposal/preview/dispatch methods
+pass twelve original-input fixtures, including acquisition, advance, backoff,
+loaded and final controls. Four material clocks, targets and paid-goal memory are
+exact; loaded/missing/nonpositive/stale and all excluded-phase controls pass.
+Dispatch uses an explicit underlying shim; constructor, native physics, contact
+forces and complete task behavior remain unqualified. No maintained runtime,
+gain, pressure law, calibration, physical/empirical criterion or observed source
+is changed. Four allocations add 153.578649 GPU seconds and close their known
+process/GPU contexts and canonical leases. All 377 continuation allocations close
+at 14.829828 GPU hours. Complete-output reader assembly and official-runtime
+preflight are required before a new native qualifier. Evidence is
+`D4-whole-interval-recontact-model-closeout-20261108.json`; collection stays 17/36.
