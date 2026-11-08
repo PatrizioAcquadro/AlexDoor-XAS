@@ -856,22 +856,38 @@ all six reference axes only on dispatch; the original shape payment retains its
 normal-only arithmetic. Seven solver controls and independent reference-math
 controls pass. No native motion or controller adoption follows from this screen.
 
-The first actual-callback fixture review stops on cross-process quaternion
-bitwise equality. A targeted diagnosis confirms identical targets, Jacobians,
-translation and extra payment; one quaternion component differs by 8.88e−16.
-Isaac's reduced quaternion product subtracts order-one terms for tiny components.
-An independent Hamilton product with an operation-count roundoff contract passes
-384 nominal, tiny-angle, perturbed and rejecting controls. This numerical reader
-correction leaves the prototype and all physical criteria unchanged. Its complete
-constructor/recorder/preview/dispatch/mode review is running under one owned
-elab3 allocation; native readiness remains false.
+The first actual-callback fixture review and a targeted diagnosis preserve a
+cross-process quaternion comparison failure: target, Jacobian, translation and
+extra payment are identical, while one quaternion component differs by 8.88e−16.
+Isaac's reduced product subtracts order-one terms for tiny components. An
+independent Hamilton product with an operation-count roundoff contract passes
+384 nominal, tiny-angle, perturbed and rejecting controls. This changes only
+numerical comparison. The corrected real constructor/recorder/propose/preview/
+dispatch/apply review passes all 34 selected fixtures from both archived paths,
+including four identical held targets, mode exit and inactive feedback branches.
+Its original-dispatch shim does not execute physical trajectories.
 
-The original native closeout releases all its resources at 383 closed continuation
-allocations. Three subsequent software allocations close with all failures and
-costs retained: 386 closed allocations total 15.402778 GPU hours, plus the one
-pending callback review. Related physical variants remain suspended; collection
-stays 17/36. Evidence is `D4-pose-aware-recontact-software-milestone-20261108.json`
-and `D4-whole-interval-recontact-N-native-closeout-20261108.json`.
+The same new production finished reader passes all 20,777 original held inputs
+(12,109 whole-interval and 8,668 prior endpoint inputs). All 766 eligible targets
+match the independent scalar proposal; inactive targets and paid memory match
+the originals exactly. Position and full quaternion reference payment are checked
+separately. Ten wrong-lineage controls reject. Blackwell's existing OSQP runtime
+passes all seven solver controls without installing dependencies. Official
+preflight then passes the original setup/clock, constructed calibration binding,
+measured support and rejecting outside cases, source and lifecycle checks. Local,
+Blackwell and future elab3 reviewer bundle hashes match.
+
+Exactly one full nominal D4 native pose-aware qualifier is dispatched on
+Blackwell. One bounded startup check verifies the actual owned GPU/process
+group, unchanged material readback and real calibration/source binding before
+physical pose motion. The pose-aware controller installs before the first
+noninspection command and is still pending at that checkpoint. The complete
+physical outcome remains pending; all related variants stay suspended. The component cannot add teacher cells.
+All earlier negatives, masks and costs remain: 388 closed continuation
+allocations total 15.439253 GPU hours, plus the one new native allocation.
+Collection stays 17/36. Evidence is
+`D4-pose-aware-native-readiness-closeout-20261108.json` and
+`D4-whole-interval-recontact-N-native-closeout-20261108.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

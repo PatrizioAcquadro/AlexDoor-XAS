@@ -1150,7 +1150,9 @@ translation and orientation, so both must be paid into the delivered reference
 history after dispatch. Only the original shape correction keeps normal-only
 payment. Previews cannot advance either history. This software/model interface
 does not qualify force, achieved pose, empirical support or complete contact.
-The independent callback/history and native readiness boundary is recorded in
+The actual callback fixtures and complete archived-input reader assembly pass;
+the new changed native trajectory remains under qualification. Results and the
+native readiness boundary are recorded in
 [[../experiments/act-a1-complete-cycle-collection|collection evidence]].
 
 ### Historical background query cost

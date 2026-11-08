@@ -6071,17 +6071,48 @@ subtracts order-one intermediates when producing tiny vector components. A
 separate operation-count bound and independent Hamilton product pass 384 controls,
 each with a rejecting out-of-bound perturbation. This changes only numerical
 comparison, not a pose tolerance or the controller. The corrected actual
-constructor/recorder/propose/preview/pre/apply review is healthy at its one bounded
-checkpoint on elab3. It uses original fixtures and an explicit original-dispatch
-shim; native physics, complete changed reference history and readiness remain
-unqualified.
+constructor/recorder/propose/preview/pre/apply review now passes all 34 fixtures,
+17 from each archived source. Real constructor wiring uses the actual URDF and
+gains. Pure preview, exact target, dispatched six-axis payment, mode exit, all
+four held apply callbacks, material clocks and loaded/missing/nonpositive/stale
+feedback controls pass. An explicit original-dispatch shim and original state
+fixtures do not qualify changed physical history.
 
-The model family and two failed diagnostic allocations release their known owned
-resources and retain 80.042759, 24.359907 and 23.449124 GPU seconds, respectively.
-Continuation accounting is 386 closed allocations / 15.402778 GPU hours plus one
-running callback review. The matrix, 17 observed sources, 100,295 overlapping
-windows and zero optimizer updates are unchanged. All prior complete native
-negatives, empirical support exits, force masks and missing hold remain. Evidence
-is `D4-pose-aware-recontact-software-milestone-20261108.json`; next work is complete
-callback/reference history and native-reader readiness before one informative
-physical qualifier. No threshold, gain, support domain or final-test access changes.
+The same production finished reader independently assembles all 20,777 held
+inputs from both complete archived prefixes. All 766 eligible targets match the
+independent scalar model; every inactive target, zero extra payment and paid
+reference remain bitwise identical to the original. Full reference translation
+and an independent quaternion numerical contract pass. The reader retains
+original causal native state/inertia, last-completed residual and material clock;
+no future physical pose or force enters a proposal. Ten wrong pressure-reader
+lineages reject without changing any scientific pressure predicate. The real
+recorder's only difference from the tested source is descriptive mode metadata;
+its exact inverse substitution restores the complete tested source. Original
+inspection/feedback method bodies remain identical.
+
+Blackwell's existing OSQP 1.0.5 and SciPy runtime passes all seven library
+controls; no dependency is installed. Fresh official-runtime preflight passes
+the unchanged setup/clock, original measured support and outside controls,
+actual constructed calibration/path binding, loaded force-only caller, source
+and inspection lifecycle checks. Native, local and future reviewer bundle hashes
+match before launch. Exactly one full nominal pose-aware native qualifier is
+then dispatched on Blackwell, preserving all original physical, force, empirical,
+full-cycle and stop criteria. A single bounded checkpoint confirms the owned
+process group and actual GPU, unchanged material readback, constructed calibration
+and source binding before physical pose motion. First noninspection controller
+installation and the complete physical outcome remain pending; related variants
+stay suspended. A stale campaign pointer to already-closed frontier jobs is
+reconciled with the current ledger, preserving the entire prior state snapshot
+and unchanged matrix membership. No old job is relaunched. The prepared independent reviewer requires
+finished original output, owned cleanup and complete remote custody first.
+
+The corrected callback and reader-assembly allocations release both known owned
+GPU contexts and process groups, charging 53.240846 and 78.070286 GPU seconds.
+All earlier reader failures and charges remain. Continuation accounting is 388
+closed allocations / 15.439253 GPU hours plus the one new native allocation.
+The matrix, 17 observed sources, 100,295 overlapping windows and zero optimizer
+updates remain unchanged. No threshold, gain, support domain, source admission
+or final-test access changes. Evidence is
+`D4-pose-aware-native-readiness-closeout-20261108.json`; next work is the complete
+new physical outcome, original independent readers, RGB/missing-phase review and
+resource closeout before any related expansion or observed teacher attempt.
