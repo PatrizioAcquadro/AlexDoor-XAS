@@ -287,3 +287,27 @@ Evidence remains under `outputs/evidence/d3-observed-cycles-20261108/`, includin
 `D3-N-finite-material-placement-model-elab2-20261108/`. The first material-path
 reader used an incomplete hinge origin; that diagnostic is retained and corrected
 separately using the published TRAIN hinge. It is not a scientific task result.
+
+
+The complete material-path check exposes a release-design issue before native
+execution: the 30 mm withdrawal still leaves potentially contacting stopped
+volumes outside the finite atlas during rotation. `release_reference` now keeps
+the declared withdrawal while rotating toward the achieved retreat orientation;
+its tangential destination remains the recorded prior pose. An already farther
+retreat is unchanged. This is a controller path correction, not a relaxed score.
+
+The 60 mm design clears material but leaves the existing empirical posture
+support, so it is not adopted. Joint placement/withdrawal screening selects a
++0.12 m lateral root shift, 1.13 m contact height and 45 mm precontact/withdrawal.
+Complete physical-target model paths for nominal and ±20 mm height controls
+meet the original physical, speed, pose and empirical support checks. Their
+minimum empirical margin is only about 0.00043 rad and remains an empirical
+support bound, not a physical collision margin. The prospective runtime must
+use the same interior target margin as this model: original joint-stop bound,
+control-interval acceleration and maximum-speed travel. Actual control, sensing,
+contact and stops remain to be qualified in the complete observed nominal.
+
+The CPU material reader originally decompressed the whole NPZ repeatedly per
+step. It now loads each array once, preserving identical values. The original
+reader was stopped after the exact release negative was retained; no partial
+control is relabeled as a completed whole-path result.

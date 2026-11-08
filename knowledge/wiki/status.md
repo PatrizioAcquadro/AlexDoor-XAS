@@ -18,9 +18,10 @@ the refusal. A separate finite-material screen remains negative even with ideal
 pose support at N/H±; the visible pane and collider also differ by 7.458 mm.
 The nominal-only continuation implements a finite physical material-motion
 certificate with receipt revalidation and explicit world-grid uncertainty
-accounting. The original low-layout witness remains negative. A lateral +0.10 m
-root shift and 1.15 m contact height pass complete ideal model checks with height
-perturbations; fresh observed execution remains pending. The full-cycle reader
+accounting. The original low-layout witness remains negative. A release-path check leads to preserving withdrawal during retreat rotation.
+The current candidate uses a lateral +0.12 m root shift, 1.13 m contact height
+and 45 mm precontact/withdrawal; complete ideal model checks with height
+perturbations pass, while fresh observed execution remains pending. The full-cycle reader
 passes an archived positive and rejects failure/component controls. The other
 eight TRAIN conditions are excluded. No GPU allocation remains active. A decision-equivalent occupancy
 simplification is validated only as a component; full-cycle performance is open.

@@ -622,7 +622,12 @@ def release_reference(start_p, start_r, retreat_p, retreat_r, elapsed, setup):
     from scipy.spatial.transform import Rotation, Slerp
 
     halfway = setup.release_s / 2
-    withdrawn = start_p - setup.precontact_m * start_r[:, 0]
+    normal = start_r[:, 0]
+    withdrawn = start_p - setup.precontact_m * normal
+    # A prior achieved contact pose may be closer to the current surface than
+    # the declared withdrawal. Keep its tangential position and orientation,
+    # while preserving that clearance throughout the subsequent rotation.
+    retreat_p = np.asarray(retreat_p) - normal * max(0.0, (retreat_p - withdrawn) @ normal)
     if elapsed <= halfway:
         u = float(np.clip(elapsed / (halfway * 0.7), 0.0, 1.0))
         return start_p + (withdrawn - start_p) * u * u * (3 - 2 * u), start_r
