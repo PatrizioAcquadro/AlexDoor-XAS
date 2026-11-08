@@ -21,9 +21,16 @@ certificate with receipt revalidation and explicit world-grid uncertainty
 accounting. The original low-layout witness remains negative. A release-path check leads to preserving withdrawal during retreat rotation.
 The current candidate uses a lateral +0.12 m root shift, 1.13 m contact height
 and 45 mm precontact/withdrawal; complete ideal model checks with height
-perturbations pass, while fresh observed execution remains pending. The full-cycle reader
+perturbations pass against the old atlas. The fresh nominal at `6b6b92f` stops
+after 221 approach commands because the contact monitor reserve was not included
+in finite-volume production. That integration is corrected without changing the
+reserve or normal interval; exact saved-state geometry/contact controls pass.
+Full ideal paths against the new narrower atlas still fail during contact, so
+observed whole-path support must improve before another nominal. Raw/native
+integrity, original continuing stops, images and cleanup are reviewed. The full-cycle reader
 passes an archived positive and rejects failure/component controls. The other
-eight TRAIN conditions are excluded. No GPU allocation remains active. A decision-equivalent occupancy
+eight TRAIN conditions are excluded. No GPU allocation is active.
+A decision-equivalent occupancy
 simplification is validated only as a component; full-cycle performance is open.
 See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]] for criterion
 classification, preserved failures and the next complete-cycle discriminator.

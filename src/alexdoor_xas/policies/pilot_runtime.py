@@ -332,6 +332,7 @@ class PilotMotionEvidence:
                 (temporal_p, temporal_a),
                 self.provider.config["plane_tolerance_m"],
                 tuple(boxes),
+                self.config["contact_monitor"]["normal_model_bound_m"],
             )
 
         def relief_certificate(spheres, boxes=()):

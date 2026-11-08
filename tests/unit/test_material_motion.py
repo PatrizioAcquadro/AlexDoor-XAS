@@ -121,6 +121,7 @@ def test_boundary_and_motion_are_not_fitted_tolerances():
         dict(spheres=((1.0, 0.0, 1.1, -0.01),)),
         dict(interval_motion_m_rad=(-0.1, 0)),
         dict(geometry_position_prepaid_m=0.1),
+        dict(normal_model_bound_m=-0.01),
     ],
 )
 def test_missing_or_invalid_volume_does_not_supply_support(changes):

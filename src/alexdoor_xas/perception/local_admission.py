@@ -96,6 +96,16 @@ class MaterialMotionSupport:
     interval_motion_m_rad: tuple[float, float]
     geometry_position_prepaid_m: float = 0.0
     boxes: tuple["TargetReliefBox | None", ...] = ()
+    normal_model_bound_m: float = 0.0
+
+    def normal_tangent_reserve(self, patch):
+        """The contact model's normal offset also has uncertain tangent direction."""
+        angle = nonnegative(
+            patch.geometry_support.rotation_bound_rad, "missing_geometry_rotation_bound"
+        ) + nonnegative(patch.pose_support.rotation_bound_rad, "missing_pose_rotation_bound")
+        return nonnegative(
+            self.normal_model_bound_m, "invalid_contact_normal_model_bound"
+        ) * np.sin(min(angle, np.pi / 2))
 
     def margin(self, patch, *, remaining_fraction=1.0):
         from alexdoor_xas.perception.material_zone import pose_matrix
@@ -138,6 +148,7 @@ class MaterialMotionSupport:
         prepaid = nonnegative(self.geometry_position_prepaid_m, "invalid_prepaid_geometry_error")
         if prepaid > patch.geometry_support.position_bound_m:
             raise ValueError("invalid_prepaid_geometry_error")
+        normal_tangent = self.normal_tangent_reserve(patch)
         mapping = pose_matrix(self.reference_pose) @ np.linalg.inv(pose_matrix(patch.world_pose))
         scale = max(1.0, float(np.linalg.norm(mapping[:3, :3], ord=2)))
         if self.boxes and len(self.boxes) != len(spheres):
@@ -148,6 +159,7 @@ class MaterialMotionSupport:
             error = (
                 sum(value for name, value in terms.items() if name != "geometry_rotation_m")
                 - prepaid
+                + normal_tangent
             )
             lever = np.linalg.norm(center - patch.world_pose.origin) + radius
             future = remaining_fraction * (motion[0] + lever * motion[1])
@@ -167,6 +179,7 @@ class MaterialMotionSupport:
                 error = (
                     sum(value for name, value in terms.items() if name != "geometry_rotation_m")
                     - prepaid
+                    + normal_tangent
                 )
                 lever = np.linalg.norm(center - patch.world_pose.origin) + radius
                 future = remaining_fraction * (motion[0] + lever * motion[1])

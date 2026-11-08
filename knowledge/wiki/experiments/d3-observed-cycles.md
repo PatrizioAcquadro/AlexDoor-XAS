@@ -203,7 +203,8 @@ simply be subtracted because another collision proof exists. Replacing them
 requires an explicit certificate for the complete contact-capable volumes and
 its receipt, with each uncertainty charged once. Validate this shared mechanism
 on nominal, boundary and perturbed cases, plus the original refusals, before
-another full nominal run. No such replacement is implemented or qualified yet.
+another full nominal run. At this historical checkpoint no replacement was implemented;
+the nominal-only continuation below records the later implementation.
 The eight remaining TRAIN variants stay unlaunched.
 
 ## Evidence and next discriminator
@@ -226,8 +227,8 @@ placement and the utility of reference/material restrictions; it must not turn
 missing object association into a physical collision claim.
 Before another native attempt, diagnose the saved complete sweep refusal and its
 shared implications through contact, opening, hold, release and stabilization.
-Only a complete observed nominal qualification unlocks the remaining eight TRAIN
-conditions.
+The current nominal-only assignment excludes the remaining eight TRAIN
+conditions even if its nominal qualifies.
 
 Related: [[act-a1-complete-cycle-collection|prior collection]],
 [[../topics/shared-door-perception|shared perception]], and
@@ -244,7 +245,7 @@ It does not replace independent geometric stops, phase-image review or the
 original task result; no cell is added by these reader controls.
 
 The finite material producer now has an explicit alternative to nominal endpoint
-allowances. Every physical volume is either separated from the target or fully
+allowances. Every physical volume is either separated from the target or has its complete tangential projection
 contained in measured material, including actual velocity, acceleration, robot
 model error and the existing calibrated stop. The latter volumes are retained
 and checked again against current pose uncertainty when the command is received.
@@ -311,3 +312,31 @@ The CPU material reader originally decompressed the whole NPZ repeatedly per
 step. It now loads each array once, preserving identical values. The original
 reader was stopped after the exact release negative was retained; no partial
 control is relabeled as a completed whole-path result.
+
+The selected design completes 13,008 material intervals across nominal and two
+height controls with no unsupported interval, using the old measured atlas and
+frozen uncertainty. This supports prospective execution only. The fresh nominal at `6b6b92f` delivers 221 approach commands before the
+contact monitor rejects the next at 38.0833 s. No remaining condition is launched.
+Raw/native integrity, original continuing stops and owned cleanup pass; all later
+motor phases remain absent. This is still 0/1 for the nominal-only assignment.
+
+
+The refusal is an integration omission: complete-volume production did not spend
+the contact monitor's existing projected normal-model reserve. The monitor then
+requires 0.276 mm against 0.223 mm remaining material margin. The producer now
+includes that unchanged reserve before subdivision; receipt validation recomputes
+it from the current pose, and the monitor verifies that its model bound is covered
+without spending it twice. The complete normal contact interval, load history,
+identity, continuity and physical limits are unchanged. A larger monitor model or
+new pose uncertainty still refuses. Only the certificate path changes; the legacy
+nominal-footprint path keeps its existing check.
+
+On the exact saved operands, another complete convex proof leaves 0.116 mm after
+all reserves and the monitor correctly reports geometric separation. This is a
+component result, not a native continuation. A full ideal-path check against the
+new inspection still fails during the predicted contact ramp in N and both height
+controls. Compared with the old inspection, positive atlas width drops from about
+151 to 136 mm and pose angular support grows from 0.0384 to 0.0479 rad. The native
+negative and this design negative remain separate. Another unchanged native retry
+is not justified; the next discriminator must improve actual observed support
+for the complete path before executing another nominal.

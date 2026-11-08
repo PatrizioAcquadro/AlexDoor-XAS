@@ -283,6 +283,15 @@ class ObservedContactMonitor:
                 not admission.proposal.loaded
                 and admission.local_evidence.unloaded_separation_margin_m is not None
             )
+            prepaid_tangent = 0.0
+            material_motion = getattr(admission.local_evidence, "material_motion_support", None)
+            if material_motion is not None:
+                # The producer subdivides complete volumes until this same
+                # contact reserve fits. Receipt validation above recomputes it
+                # with the current pose; spending it again would double count it.
+                if material_motion.normal_model_bound_m < self.config.normal_model_bound_m:
+                    raise ValueError("contact_model_exceeds_admitted_certificate")
+                prepaid_tangent, extra = extra, 0.0
             decision = dict(
                 material_id=patch.patch_id,
                 material_margin_m=(
@@ -294,6 +303,7 @@ class ObservedContactMonitor:
                 normal_model_bound_m=self.config.normal_model_bound_m,
                 normal_direction_bound_rad=float(normal_angle),
                 additional_tangent_uncertainty_m=float(extra),
+                prepaid_tangent_uncertainty_m=float(prepaid_tangent),
                 numerical_tolerance_m=0.0,
                 directional_projection=directional,
                 independent_robot_sweep_margin_m=(
