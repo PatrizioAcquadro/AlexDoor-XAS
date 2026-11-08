@@ -785,13 +785,26 @@ contact tolerance, force bound or alternative trajectory.
 
 Twelve original-input fixtures execute the actual staged recorder, proposal,
 preview and dispatch adapter with an explicit underlying dispatch shim. Targets,
-four material clocks and paid-goal memory pass; construction and native physics
-remain unexecuted. Original gains, pressure, empirical support, physical and
-full-cycle/stopping criteria are unchanged. Complete-output reader readiness and
-official-runtime preflight are next, before one new full native qualifier.
-All owned resources are released; 377 continuation allocations close at
-14.829828 GPU hours. Collection stays 17/36. Evidence is
-`D4-whole-interval-recontact-model-closeout-20261108.json`.
+four material clocks and paid-goal memory pass. The new complete-output reader
+then independently reconstructs all 8,668 original-input shape/candidate targets,
+8,639 causal push contexts and added payments exactly against the separately
+verified proposal. Actual tested source hashes match the native bundle and the
+future reviewer copy. Official-runtime preflight passes the original constructed
+load, measured support/outside controls, source/phase bindings and all existing
+physical, pressure and full-cycle/stopping checks. The original inspection
+transition is byte-identical to the previously tested nine-case lifecycle body;
+changed callback and proposal behavior has its separate twelve-fixture proof.
+
+One new full nominal N native qualifier now runs on Blackwell. Its first bounded
+startup snapshot verifies the actual owned GPU/process group, canonical lease,
+constructed qualified load and original outer source before physical motion.
+The whole-interval controller installation and full native outcome are still
+pending at that snapshot. No related variants are launched. Original gains,
+pressure, empirical support, physical and full-cycle/stopping criteria remain
+unchanged. All 378 completed continuation allocations close at 14.841497 GPU
+hours, plus this one open native job. Collection stays 17/36. Software evidence is
+`D4-whole-interval-recontact-model-closeout-20261108.json`; reader/preflight/startup
+boundaries are in `D4-whole-interval-native-readiness-closeout-20261108.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

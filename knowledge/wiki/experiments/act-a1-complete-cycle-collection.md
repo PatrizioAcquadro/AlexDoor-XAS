@@ -5900,3 +5900,34 @@ process/GPU contexts and canonical leases. All 377 continuation allocations clos
 at 14.829828 GPU hours. Complete-output reader assembly and official-runtime
 preflight are required before a new native qualifier. Evidence is
 `D4-whole-interval-recontact-model-closeout-20261108.json`; collection stays 17/36.
+
+
+The new whole-interval complete-output reader assembly independently matches all
+8,668 raw-input shape/candidate targets and added reference payments to the
+separately verified proposal, with 8,639 preceding-feedback/current-clock push
+contexts and 609 eligible inputs. Original motor bounds and inactive behavior
+pass. The original archived physical outcome is not rewritten. Its 42.007259 GPU
+seconds close once with known process/GPU absence and canonical release, bringing
+378 completed continuation allocations to 14.841497 GPU hours. Exact source hashes
+bind the actually exercised callback/adapter/helper to the new native bundle and
+its future finished-review copy. Official-runtime preflight passes actual
+constructed-model binding, original measured-support/outside controls, pressure,
+source, phase and existing physical/stopping criteria. The inspection transition
+body is byte-identical to the previously exercised nine-case lifecycle; changed
+callback/proposal methods retain their separate twelve-fixture scope.
+
+One new full nominal N native qualifier is dispatched on Blackwell using the
+shared bidirectional four-step proposal and the same original setup, calibrated
+load, pressure and full-cycle/stopping criteria. The actual initial GPU/process
+group and canonical ownership are verified, along with constructed qualified
+load and original outer-source bindings before physical motion. Whole-interval
+controller installation and complete native outcome remain pending at this first
+snapshot; neither the software proof nor startup qualifies contact or a teacher.
+The original complete force/current-plus-singlefuture/physical/task/hold/release/
+stabilization/continuous-six-second-fourteen-shape and RGB readers are prepared,
+with the new target/context/paid-goal reconstruction replacing only the prior
+endpoint proposal reader. They require finished original evidence, whole payload
+and three-sidecar custody, and actual owned cleanup before dispatch. All related
+contact variants remain suspended. Evidence is
+`D4-whole-interval-native-readiness-closeout-20261108.json`; collection remains
+17/36, with one open native allocation and no optimizer update.
