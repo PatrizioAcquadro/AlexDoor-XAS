@@ -19,10 +19,13 @@ preserved. Training, learned-policy comparisons, development/final test and push
 are excluded. See [[experiments/act-a1-complete-cycle-collection|the experiment]]
 for the current evidence and its limits. The wrist-nullspace discriminator closes
 negative after two seconds of hold; no release/stabilization or observed source
-is qualified. The next step reviews contact-confidence criteria on the simpler
-candidate that already completes the physical task. Its complete current/future
-position support now passes with independently measured extensions; historical
-negative qualification remains preserved. Current D4 jobs are closed.
+is qualified. The simpler physically complete candidate now runs through the
+unchanged observed guard on Blackwell. Its current/future position support passes
+with independently measured extensions. The unchanged contact monitor also
+passes all 12,245 saved push/hold decision windows at the actual control clock;
+observed-normal uncertainty remains unverified until this new run. Historical
+native-offset negatives remain preserved. The other eight conditions are waiting
+for a complete observed nominal and independent data review.
 
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside

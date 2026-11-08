@@ -37,8 +37,8 @@ with the complete 9.85 GB source/data copy on elab3, exact hashes and released
 owned processes/locks. Compact reviews are under the separate continuation
 folder's `nullspace-native-review/`.
 
-Under the updated proportional-acceptance guidance, the next step audits the
-remaining observation-confidence requirement before adding controller layers.
+Under the updated proportional-acceptance guidance, observation confidence is
+reviewed before adding controller layers.
 The simpler earlier finite-tangent candidate already completes 50.522 degrees,
 three seconds of hold, release and stabilization. A separate CUDA reassessment
 of all 53,060 native samples now passes current/future ten-newton position support
@@ -46,8 +46,28 @@ and physical boxes using the independently qualified support extensions. Only
 position support changes; its force, residual and acceleration models remain
 identical. Its original negative qualification is not overwritten. Complete
 observed admission and useful source data are still required; D4 remains 0/9.
-The nine original TRAIN variations are prepared but unlaunched. The 0.545 mm
-historical stop is already acceptable and is not an optimization target.
+The 0.545 mm historical stop is already acceptable and is not an optimization
+target.
+
+Replaying the unchanged contact monitor at its actual 60 Hz decision clock gives
+12,245 positive push/hold windows, with minimum calibrated lower force 0.0213 N.
+The two original nonpositive native-offset windows remain negative, both inside
+a control interval. Complete negative-window controls still reject, duplicate
+checks do not add evidence, and no threshold or filter changes. This diagnostic
+uses recorded privileged normals; uncertainty from images is still untested.
+
+The new nominal `D4-observed-finite-tangent-N-blackwell-20261108` is running with
+actual image perception and maintained observed admission on Blackwell. Its
+small recorder adapter installs the original finite-tangent controller before
+the first admission preview. It adds no material forecast or nullspace control.
+Nine dispatch/refusal checks pass; controller sources, nominal setup, contact
+monitor and entry-point qualification logic are unchanged. The original pressure
+fixture remains an additional diagnostic guard, not an observation certificate.
+The initial wiring test's incorrect inheritance-position assumption is retained
+and corrected without a runtime change. This run is not yet qualified; the other
+eight original conditions remain unlaunched pending complete nominal review.
+Evidence includes `complete-finite-contact-clock-review.json` and the nominal
+plan, wiring review and allocation in the separate continuation folder.
 
 ## Question and current outcome
 
