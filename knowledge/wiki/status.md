@@ -496,7 +496,7 @@ completes 50.522° opening, three-second hold, release, stabilization and origin
 six-second fourteen-shape stops with unchanged gains, materials and criteria.
 All 13,265 A1 profiles, 12,274 current-root proposals and native effort clocks
 pass independent checks. Strict pressure qualification still fails: 4,004
-single-future intervals lack empirical shoulder-X or wrist-X support, although
+single-future intervals lack original frozen empirical shoulder-X or wrist-X support, although
 physical boxes are clear. Two 100 ms force-lower windows are nonpositive; one
 also has zero actual native normal force. The maintained uncertainty correction
 does not resolve that gap. All original data and outcomes are preserved in
@@ -512,12 +512,15 @@ when holding the current reference frame. This is a virtual-reference forecast,
 not contact force or a physical bound. One explicit combined finite-tangent plus
 material-clock nominal mechanism test is active. Independent original 10 N
 fixtures examine the missing shoulder-X and wrist-X future postures on separate
-hosts, with all original load, motion and continuous stops. The finite shoulder-X
-posture now passes all four independent cases, including three 10 N loads and
-same-latch eight-second fourteen-shape stops. Wrist-X remains in progress.
-Neither finite posture evidence nor the combined test automatically qualifies
-a calibration, controller domain or teacher source. Related collection
-conditions remain suspended.
+hosts, with all original load, motion and continuous stops. Both finite postures
+now pass all eight independent cases and 24 original stop segments. A prepared
+N-path support artifact changes only those two measured lower extents; all
+53,060 current and single-future seven-coordinate 10 N checks pass, while
+outside-position/load controls still refuse. Original failures are preserved.
+The maintained recipes and running combined test are untouched; this support
+is limited to the completed N path and qualified postures. Its strict force
+failure, the broader 10 N controller domain and observed teacher source remain
+unqualified. Related collection conditions stay suspended.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

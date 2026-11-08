@@ -411,8 +411,13 @@ actual-contact task through opening, hold, release and stabilization. It limits
 accumulated tangential elastic pose error while retaining normal pressure control
 and gains. This mechanical improvement does not establish strict pressure
 qualification: one full 100 ms native window has zero normal force, and required
-future shoulder-X and wrist-X positions lack empirical 10 N support. All physical
-boxes and original continuing stops pass. The already maintained uncertainty
+future shoulder-X and wrist-X positions initially lack frozen empirical 10 N
+support. Independent original-load fixtures now qualify both finite postures;
+a two-side N-path support artifact covers the completed trajectory's current
+and original future checks. This adds measured support rather than changing
+force, residual or physical criteria. Original refusals remain preserved, and
+other trajectories or Cartesian envelopes are not automatically qualified.
+All physical boxes and original continuing stops pass. The already maintained uncertainty
 projection improves bounds but does not remove the force gap. All four historical
 10 N endpoint failures remain; neither their controller domain nor the observed
 teacher source is qualified. Further work must preserve the completed movement,

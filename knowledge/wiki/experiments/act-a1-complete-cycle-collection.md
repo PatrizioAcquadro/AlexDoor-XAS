@@ -4994,3 +4994,33 @@ plus three sidecars / 14,761,553 bytes; owned cleanup passes. The closeout is
 once, bringing continuation accounting to 320 / 11.458237 GPU h. Wrist-X is still
 running. No calibration or Cartesian support is adopted; the original completed
 contact task's strict force/support failures and matrix 17/36 are preserved.
+
+
+### Qualified finite nominal future-position support (November 8, 2026 UTC)
+
+Wrist-X independently passes all four original unloaded/10 N cases and loaded
+boundary/stop coverage, with no frozen residual exceedance, clipping, physical,
+rate, acceleration, feedback or original continuous eight-second fourteen-shape
+stop failure. Both coupled postures therefore pass eight cases and 24 stop
+segments. Whole originals are 56 files plus six sidecars / 30,091,303 bytes;
+all support-job resources are released. Only the new wrist allocation and its
+GPU reader are booked here: continuation accounting reaches 322 closed
+allocations / 11.632135 GPU h. Shoulder costs are not charged again.
+
+`D4-finite-contact-N-qualified-required10N-support-20261108/qualification.json`
+prepares condition/path-scoped support from that independent evidence. Only the
+lower shoulder-X and wrist-X position extents change; all other calibration
+fields, force caps and previous support are identical. All 53,060 completed
+finite-tangent N native samples pass current and the original single-future
+seven-coordinate checks at the required 10 N. Both exact qualified boundaries
+pass; 11 N and one original 0.5 mrad pulse beyond each boundary still refuse.
+The original calibration's 4,004 future refusals remain recorded separately.
+No current sample needs the newly added band, and no residual, force, physical
+or stop criterion is altered. This is finite measured-posture/path support,
+not an arbitrary Cartesian envelope or automatic transfer to another trajectory.
+
+The closeout is `D4-finite-contact-N-required10N-support-closeout-20261108.json`.
+Maintained recipes and the running combined contact test retain their original
+inputs. The completed task's strict force failure, including the actual 100 ms
+zero-force window, remains negative. No pressure, global controller,
+observed-source or teacher qualification follows; collection stays 17/36.
