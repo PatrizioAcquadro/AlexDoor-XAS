@@ -290,3 +290,52 @@ def test_complete_cell_box_coverage_preserves_holes_boundaries_and_stop_radius()
             assert measured <= exact + 1e-14
             if exact <= 0:
                 assert measured <= 0
+
+
+@pytest.mark.parametrize("origin", [(0, 0, 0), (0.2, -0.3, 0.8)])
+@pytest.mark.parametrize("kind", ["material_sphere", "material_box", "relief"])
+def test_interval_forecast_pays_same_pivot_and_normal_offset_as_aging_receipt(origin, kind):
+    from alexdoor_xas.perception.local_admission import TargetReliefBox, TargetReliefExclusion
+
+    estimate, _, _, _ = local_inputs()
+    original = estimate.local.patches[0]
+    zero = replace(original.pose_support, position_bound_m=0.0, rotation_bound_rad=0.0)
+    patch = replace(
+        original,
+        world_pose=ObjectFrame(np.zeros(3), np.eye(3)),
+        geometry_support=zero,
+        pose_support=zero,
+    )
+    motion = (0.1 / 60, 0.15 / 60)
+    if kind == "relief":
+        cert = TargetReliefExclusion(
+            patch.world_pose,
+            ((0, 0), (1, 0), (0, 1)),
+            (-0.01, -0.01),
+            (0.01, 0.01),
+            ((0, 0.1, 0, 0.01),),
+            motion,
+        )
+    else:
+        cert = replace(finite_grid(patch), interval_motion_m_rad=motion, normal_model_bound_m=0.003)
+        if kind == "material_box":
+            box = TargetReliefBox(
+                tuple(map(tuple, np.eye(3))), (-0.2, -0.01, -0.01), (0.2, 0.01, 0.01), 0.001
+            )
+            cert = replace(cert, spheres=((0, 0, 0, 0.21),), boxes=(box,))
+    margins = []
+    for elapsed in [0, 0.25, 0.5, 1]:
+        position, angle = elapsed * np.array(motion)
+        lever = np.linalg.norm(origin)
+        aged = replace(
+            patch,
+            pose_support=replace(
+                zero,
+                position_bound_m=position + 2 * lever * np.sin(angle / 2),
+                rotation_bound_rad=angle,
+            ),
+            pose_uncertainty_sources=(("temporal_growth", position, angle, lever, origin),),
+        )
+        margins.append(cert.margin(aged, remaining_fraction=1 - elapsed))
+    assert margins[0] > 0
+    assert np.all(np.diff(margins) >= -1e-14)

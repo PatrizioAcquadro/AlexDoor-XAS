@@ -82,6 +82,21 @@ def _material_point_terms(patch, world_poses, radius):
     )
 
 
+def _material_motion_lever(patch, center, radius):
+    """Cover both the declared material origin and its published aging pivot.
+
+    Registration and selected-zone origins need not coincide. The forecast must
+    pay the same temporal growth that receipt will observe after the interval.
+    """
+    origins = [patch.world_pose.origin]
+    origins.extend(
+        source[4]
+        for source in getattr(patch, "pose_uncertainty_sources", ())
+        if source[0] == "temporal_growth"
+    )
+    return radius + max(np.linalg.norm(center - np.asarray(origin)) for origin in origins)
+
+
 @dataclass(frozen=True)
 class MaterialMotionSupport:
     """Finite observed material for complete physical contact-capable volumes.
@@ -174,7 +189,8 @@ class MaterialMotionSupport:
                 - prepaid
                 + normal_tangent
             )
-            lever = np.linalg.norm(center - patch.world_pose.origin) + radius
+            # Aging also rotates the already-paid contact-model normal offset.
+            lever = _material_motion_lever(patch, center, radius) + self.normal_model_bound_m
             future = remaining_fraction * (motion[0] + lever * motion[1])
             tangent = (mapping[:3, :3] @ center + mapping[:3, 3]) @ basis
             uv = np.rint((tangent - lower) / self.cell_m).astype(int)
@@ -194,7 +210,7 @@ class MaterialMotionSupport:
                     - prepaid
                     + normal_tangent
                 )
-                lever = np.linalg.norm(center - patch.world_pose.origin) + radius
+                lever = _material_motion_lever(patch, center, radius) + self.normal_model_bound_m
                 future = remaining_fraction * (motion[0] + lever * motion[1])
                 project = basis.T @ mapping[:3, :3] @ axes
                 tangent = project @ midpoint + basis.T @ mapping[:3, 3]
@@ -327,7 +343,7 @@ class TargetReliefExclusion:
             center, radius = sphere[:3], sphere[3]
             point = ObjectFrame(center, np.eye(3))
             error = sum(_material_point_terms(patch, (point,), radius).values())
-            lever = np.linalg.norm(center - patch.world_pose.origin) + radius
+            lever = _material_motion_lever(patch, center, radius)
             future = remaining_fraction * (motion[0] + lever * motion[1])
             mapped = mapping[:3, :3] @ center + mapping[:3, 3]
             tangent = mapped @ basis
@@ -352,7 +368,7 @@ class TargetReliefExclusion:
                     radius = axes_scale * np.linalg.norm(half) + reserve
                     point = ObjectFrame(center, np.eye(3))
                     error = sum(_material_point_terms(patch, (point,), radius).values())
-                    lever = np.linalg.norm(center - patch.world_pose.origin) + radius
+                    lever = _material_motion_lever(patch, center, radius)
                     future = remaining_fraction * (motion[0] + lever * motion[1])
                     tangent, span = project @ midpoint + offset, np.abs(project) @ half
                     distance = np.linalg.norm(

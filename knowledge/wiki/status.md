@@ -6,56 +6,29 @@ learned behavior and physical qualification are separate claims.
 
 ## Current execution and measured outcomes
 
-The independent **D3 assignment is active** in
-`PatrizioAcquadro/d3-observed-cycles`, using the workstation, elab2 and elab5.
-D3 remains **0/9**. Prospective observations now identify a central pane with
-finite material coverage, native pose support and multiple static witnesses.
-The budget-corrected attempt delivers 273 admitted approach commands, then
-refuses an unsupported complete finger sweep and stop at 38.95 s. Raw/native
-coverage and all original continuing-stop checks pass. No collision is established;
-contact and every later phase remain unqualified. Exact saved operands reproduce
-the refusal. A separate finite-material screen remains negative even with ideal
-pose support at N/H±; the visible pane and collider also differ by 7.458 mm.
-The nominal-only continuation implements a finite physical material-motion
-certificate with receipt revalidation and explicit world-grid uncertainty
-accounting. The original low-layout witness remains negative. A release-path check leads to preserving withdrawal during retreat rotation.
-The current candidate uses a lateral +0.12 m root shift, 1.13 m contact height
-and 45 mm precontact/withdrawal; complete ideal model checks with height
-perturbations pass against the old atlas. The fresh nominal at `6b6b92f` stops
-after 221 approach commands because the contact monitor reserve was not included
-in finite-volume production. That integration is corrected without changing the
-reserve or normal interval; exact saved-state geometry/contact controls pass.
-The narrower atlas retains a full-path negative. A prospective 0.48 rad scan
-and fixed `large central glass pane` prompt now produce valid native observed
-material. Its complete ideal material paths pass in N/H± with ordinary 1/60 s
-observation age; 1/30 s age remains unsupported, including with finer covering
-subdivision. The original resolution and all uncertainty bounds remain unchanged.
-The fresh nominal at `f79580a` completes approach and 53 contact-ramp commands,
-then refuses finite material support at 44.8833 s while still physically separated.
-A saved-input comparison attributes the deficit mainly to changed observed
-coverage/registration, with negligible motor-model contribution. Centered contact fraction 0.4925 now has complete nominal material-path support
-on both acquisitions, retaining original physical and empirical model checks.
-The lower-height stationary control remains negative and is not authorized for
-collection. Only the nominal contact fraction changes prospectively; all limits
-remain unchanged. Native raw integrity, original continuing stops, images and
-cleanup are reviewed. The centered native at `433211b` again stops at 44.8833 s
-before physical contact after 413 delivered commands; D3-N remains 0/1. A saved
-geometry experiment identifies loss of measured axis-direction information in
-the scalar rotation bound. Conservative directional transport is implemented and both saved refusals pass
-producer and receipt controls with unchanged measurement bounds. Complete-path
-controls expose excess raster coverage: the producer already bounds each whole
-cell, while the consumer includes exterior cells. The corrected intersection
-rule retains erosion and all physical reserves. All three complete nominal paths pass for contact fraction 0.49075. Five of six
-height controls pass; the latest lower-height release remains a preserved
-confidence negative. One fresh nominal is now running from `992301d`, with all
-original task and physical limits. No new native qualification is claimed. The full-cycle reader
-passes an archived positive and rejects failure/component controls. The other
-eight TRAIN conditions are excluded. Only the owned D3 nominal allocation on
-elab2 is active.
-A decision-equivalent occupancy
-simplification is validated only as a component; full-cycle performance is open.
-See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]] for criterion
-classification, preserved failures and the next complete-cycle discriminator.
+The independent **D3 nominal-only assignment is active** in
+`PatrizioAcquadro/d3-observed-cycles`. The assignment remains **0/1** and historical
+D3 remains **0/9**. Its latest native at `992301d` delivers 259 approach commands,
+then stops on interval-receipt material support at 42.3167 s, before physical
+contact. Raw/native coverage, declared inputs, images, original continuing stops
+and GPU cleanup pass independently. Every later task phase remains unqualified.
+
+Directional measured-axis bounds and complete-cell raster coverage are
+implemented. Three complete ideal nominal paths pass across independent observed
+acquisitions at contact fraction 0.49075; five of six height controls pass, with
+the latest lower-height release negative preserved. Model/component support is
+not a complete observed demonstration. The other eight TRAIN conditions remain
+excluded from collection; no training, final-test access or push is authorized.
+
+A saved command exposes a predictable interval-aging inconsistency: forecast and
+receipt use different rotation origins. The corrected pre-command reserve keeps
+both origins and the normal-model offset, with unchanged physical/measurement
+limits. Numerical and saved producer/endpoint-receipt controls pass. Complete
+nominal-path temporal controls across four observed states are running; no native
+retry or GPU allocation is active. See
+[[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]] for the preserved
+failures, criterion classifications and remaining qualification gate.
+
 The prior coordinator's pause below remains in force for that separate campaign.
 
 **Collection paused by direct human request on November 8, 2026**,

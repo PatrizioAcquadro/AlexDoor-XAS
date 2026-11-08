@@ -515,3 +515,35 @@ negative is preserved without changing any tolerance and does not authorize
 that TRAIN variant. The three nominal paths justify one fresh native nominal,
 now running from `992301d`; they do not establish contact or task qualification.
 Other TRAIN conditions remain excluded from collection.
+
+
+## Temporal reserve and receipt consistency
+
+The fresh native at `992301d` delivers 259 approach commands, then stops at
+42.3167 s on `invalid_perception`. Its detailed reason is a -0.173 mm finite
+material margin when rechecking the previous command at the interval end.
+The producer had admitted that command. Physical contact remains absent, and
+all later phases are missing. Raw/native integrity, original continuing stops,
+declared setup, images and cleanup pass independently. The observed force upper
+peak is 0.189 N within the unchanged 10 N domain. D3-N remains 0/1.
+
+A saved earlier material command at 41.9833 s reproduces a temporal inconsistency
+without changing measurements: its margin falls from +0.115 mm at admission to
+-0.096 mm at the interval end. This is a separate saved-state witness, not an
+exact replay of the unsaved terminal receipt. Pose aging rotates about the
+published registration origin, but the forecast used the selected-zone origin;
+these measured origins need not coincide. Aging also rotates the prepaid
+contact-model normal offset. The shortfall can prevent receipt even though it
+was predictable before producing the command.
+
+Material and relief forecasts now cover the larger lever about the selected
+zone and the published temporal pivot. Material support additionally covers
+rotation of the unchanged normal-model offset. This strengthens the pre-command
+budget before adaptive subdivision; receipt and its uncertainty remain unchanged.
+Numerical checks require forecast margin to survive ordinary aging through the
+whole interval for spheres, boxes, offsets and relief. Reproducing the saved
+producer with the corrected reserve refines the full physical volumes and passes
+beginning, midpoint and endpoint receipt checks. It adds no qualified motion.
+Complete nominal-path controls, including interval-end aging on four observed
+states, are in progress before any further native attempt. Evidence is in
+`outputs/evidence/d3-observed-cycles-20261108/axis-cell-cycle-review/`.
