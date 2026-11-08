@@ -5642,11 +5642,40 @@ address unilateral pressure/recontact stability, variable-load posture support,
 material geometry and full phase transitions together. Related native variants
 remain suspended; no unchanged retry or gain/filter/threshold fit follows.
 
-One separate four-case 0/10 N fixture is now running on owned elab3 to measure
-the exact additional shoulder-X lower support at its original coupled posture.
-The extreme required future box occurs during abort release. The original
-fixture controller, all seven joint pulses, frozen residual/physical criteria
-and same-latch eight-second fourteen-shape stops stay fixed. Complete independent
-review is prepared and requires finished whole custody and owned cleanup. This
-one open allocation does not change the 361 closed charges or contact failure;
-no calibration or teacher qualification is adopted from a plan.
+The separate shoulder-X lower-support fixture now closes positive after
+independent review of all four original cases: unloaded, center 10 N, face0 with
++0.2 rad yaw and face1 with −0.2 rad yaw. All seven original 0.5 mrad joint pulses,
+frozen residual/feedback/effort/physical/speed/acceleration criteria and four
+continuous eight-second stops pass. Their twelve segments retain one latch per
+case and all fourteen shape covers. All three loaded motion and loaded-stop
+cases cover the exact −1.148206770 rad boundary at the
+original coupled posture; the extreme required future box occurs during abort
+release. No original physical or acceptance limit changes.
+
+Whole custody preserves all 28 run files and three sidecars, 14,756,201 bytes,
+with source-before/after and local SHA256 inventories identical. The first reader
+wrapper refuses an unsupported purpose name before allocation, GPU context or
+lease acquisition. That failed plan, log and zero-GPU result remain preserved.
+A distinct corrected attempt uses the existing numerical-review category and
+the identical scientific reader; no wrapper acceptance list or scoring rule is
+changed. The reader's actual CUDA identity, original outputs and both owned
+native/review cleanup records are retained.
+
+A separate artifact changes only the prior calibration's measured shoulder-X
+lower position support, preserving all other position sides and every force,
+residual, speed/acceleration, physical and task field. Its scope is the completed
+force-only N trajectory and the independently qualified coupled posture, with no
+arbitrary joint-product box, other condition or unseen phase guarantee. Original
+packet rescoring verifies all 63,680 current and exactly one original future
+position checks, with zero new refusals. The original 2,397 support refusals
+remain in their original review; the contact failure, zero force windows and
+missing hold remain negative. Original actor inputs and maintained recipes are
+untouched. Evidence is
+`D4-force-only-small-gap-N-qualified-scoped-support-20261108/qualification.json`
+and `D4-force-only-small-gap-required-support-closeout-20261108.json`.
+
+The two real allocations add 309.350929 GPU seconds. All 363 continuation
+allocations are closed at 14.361238 GPU hours, with no owned job open. Collection
+remains 17/36. Shared unilateral pressure/reference/recontact stability and full
+observed motion remain open; no contact retry, gain/filter fit or criterion
+relaxation follows from the support qualification.

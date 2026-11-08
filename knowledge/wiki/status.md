@@ -648,8 +648,9 @@ The distinct nominal native qualification now closes negative at 24.591° agains
 verifies the actual source/load binding, all 6,940 recovery decisions, 208 real
 recovery pulses and exact retained outer offsets. Four original native 100 ms
 windows have zero mean force. Current states and physical limits pass, but
-2,397 required single-future position boxes exceed measured shoulder-X lower
-support, by at most 0.0004905 rad; this empirical gap is separate from safety.
+2,397 required single-future position boxes exceeded the then-qualified measured
+shoulder-X lower support by at most 0.0004905 rad; this empirical gap is separate
+from safety.
 Original six-second fourteen-shape stops pass. Abort release/stabilization does
 not repair the missing hold or prior contact loss. All 48 original files and
 sidecars (6,158,972,694 bytes), nine causal RGB selections and owned cleanup are
@@ -665,14 +666,22 @@ motion, camera/perception and complete phase transitions remain required.
 Related native variants stay suspended without unchanged retries or fitted
 criteria, gains, filters or empirical-support widening.
 
-One separate four-case 0/10 N fixture is now running on owned elab3 to measure
-the exact additional shoulder-X lower support at its original coupled posture.
-The extreme required future box occurs during abort release. The original
-fixture controller, all seven joint pulses, frozen residual/physical criteria
-and same-latch eight-second fourteen-shape stops stay fixed. Complete independent
-review is prepared and requires finished whole custody and owned cleanup. This
-one open allocation does not change the 361 closed charges or contact failure;
-no calibration or teacher qualification is adopted from a plan.
+The separate shoulder-X lower-support fixture now independently qualifies all
+four original 0/10 N cases and four continuous eight-second stops, comprising
+twelve segments with one latch per case and all fourteen shape covers, with zero
+frozen-model residual exceedances. Loaded motion and loaded stops cover the exact additional boundary at its original coupled posture,
+including the extreme future box during abort release. A separate path-scoped
+support artifact changes only this measured position side; model residuals,
+force limits, all other support and every task/physical/stop criterion stay fixed.
+All 63,680 original current and single-future position checks now pass with that
+artifact. The original 2,397 support refusals and negative contact outcome remain
+preserved. This qualifies measured support for the completed N path; it does not
+establish an unseen posture domain or a complete teacher. Both real allocations
+are closed, with 363 continuation allocations / 14.361238 GPU h and no owned
+jobs open. Collection remains 17/36. Next work addresses common unilateral
+pressure/reference/recontact stability across the five histories and full phase
+transitions, together with posture/material geometry and observed camera/perception
+support; no unchanged contact retry or fitted gain/filter/threshold follows.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
