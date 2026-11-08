@@ -52,7 +52,17 @@ The actual-contact Temporal format records absolute world-pose requests as kind
 applied target. These known command inputs must be joined to the preceding
 completed native state. Post-command force, pose and contact-loss fields are
 outcomes, never predictor inputs. A missing preceding mass sample remains
-unavailable even when a later control-state row is present.
+unavailable even when a later control-state row is present. A later contact
+intervention has 1,135 exact held A1 profiles and 4,540 matched native feedback
+packets, despite its negative task outcome. Its independent geometric proposal
+reconstruction matches only 368/374 targets; six one-step float32 disagreements
+remain distinct from the exact recorded action profile. Quaternion normalization
+alone does not resolve them. The next diagnostic journal retains the actual
+pre-physics root quaternion and position as current model inputs; configured
+calibration must not be fitted to later achieved tool poses. For predicted
+material references, the causal receipt must join original program input,
+current measured motion and the actual Temporal dispatched request. Predicted
+future pose never becomes measured state.
 
 Preserved engineering recordings have no measured torque; commands do not substitute for feedback. New recordings retain a
 separate 60 Hz measured feedback channel and 120 Hz robot feedback/dynamics stream,

@@ -391,8 +391,17 @@ acceleration exits. The original four-step surface forecast nevertheless differs
 from the real endpoint by up to 12.2 µm. The proposed geometry change reaches
 0.219 µm, and absolute model/native surface closure differs by up to 0.261 µm.
 Those errors are diagnostics, not adopted tolerances or a stopping certificate.
-A nominal native contact intervention must establish the effect while retaining
-the original pressure law, load model, materials and complete task/stop gates.
+The nominal native contact intervention prolongs push from 80 to 345 commands,
+but still loses contact before hold and later leaves empirical position support
+during release. Its original six-second stops and exact A1 action profiles pass.
+New surface forecast error reaches 10.9 µm, while the predicted geometric
+correction stays below 0.21 µm. The known current material frame moves a virtual
+reference point up to 28.5 µm per control interval; current velocity forecasts
+that travel within 0.285 µm on recorded pushes. This motivates a single nominal
+sampling-clock intervention, not a contact response bound. Only active push/hold
+requests are advanced over one existing control interval; pressure, gains,
+materials, task and stop gates remain unchanged. The changing-contact outcome
+must establish the effect before any family successor or source adoption.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction

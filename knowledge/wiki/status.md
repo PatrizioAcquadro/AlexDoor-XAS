@@ -467,11 +467,25 @@ first lacks a preceding mass sample. All 109 actual normal-reference commands
 support the proposal algebra and remain within original limits in the frozen
 forecast. Forecast surface error reaches 12.2 µm, versus a proposed geometry
 change up to 0.219 µm. This cannot establish contact success or a response bound.
-One nominal actual-contact intervention is prepared with the same qualified
-geometry operator and unchanged pressure/gap law, feedback, gains, materials
-and criteria. Related actual-contact successors remain suspended. No gain,
-physical limit, empirical criterion, interface or source is adopted; the matrix
-remains 17/36.
+The nominal actual-contact intervention remains negative: 345 push commands
+reach 1.957° versus the original 80 commands/0.458°, then contact is lost before
+hold and the release again leaves load-model position support. All 1,135 A1
+profiles, 4,540 feedback clocks and original six-second fourteen-shape stops
+pass. Independent causal proposal reconstruction matches 368/374 targets;
+six disagreements reach one float32 step. They remain unqualified, with no new
+tolerance. Plant surface forecast error reaches 10.9 µm versus a predicted
+geometry change below 0.21 µm.
+
+A known-current material-motion audit finds reference-point travel up to 28.5 µm
+per control interval. Current velocity forecasts it with a 0.285 µm maximum
+normal error on recorded push intervals; this scores a virtual reference,
+not actual contact or a safe bound. One new nominal component is prepared to
+advance only active push/hold material-frame requests over the next existing
+control interval, using current measured velocity. It retains the original
+pressure/gap law, feedback, gains, materials and every task/load/stop criterion.
+Exact pre-physics root inputs are added to the read-only journal. Related
+actual-contact successors remain suspended. No physical limit, empirical
+criterion, interface or source is adopted; the matrix remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

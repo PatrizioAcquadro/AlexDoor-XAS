@@ -4788,3 +4788,55 @@ is unchanged; installation precedes the first physical pose command. Read-only
 native target and response journals preserve causal custody. This is a
 privileged component with no observed-source or teacher credit. Related contact
 successors remain suspended. Collection remains 17/36.
+
+
+### Actual contact outcome and material sampling clock (November 8, 2026)
+
+The single nominal minimum motor norm intervention from local milestone
+`a18e8f5` remains negative. Original push has 80 commands and ends at 0.458°;
+the new path has 345 commands and reaches 1.957°. Both lose contact before
+hold and encounter a secondary empirical position refusal during abort release.
+The new path records every one of its 4,540 native packets and 1,135 complete,
+exact A1 intervals. Original six-second fourteen-shape continuing stops and
+actual pre-physics effort clocks pass. Current position support has two exits;
+the unchanged single-future support audit has 147. Physical future boxes remain
+clear. Positive contact lower-force windows do not pass. No hold, stabilization,
+complete task, pressure component or source is qualified.
+
+All original outputs transfer whole, 32 files plus three sidecars, totaling
+1,833,669,240 bytes; owned GPU/process cleanup and lease release pass. Native
+contact normal sums, filtered/raw forces, full-state clocks and friction data
+are independently checked. Recorded head RGB preserves the door and gripper
+view at push and abort release, but cannot establish micron-scale contact or
+observed-source admission. All six new allocations close, including failed
+proposal-reconstruction controls, bringing the continuation ledger to 309
+allocations/10.811842272 GPU hours. The closeout is
+`D4-actual-contact-minimum-motor-closeout-20261107.json`.
+
+Independent scalar reconstruction retains six target disagreements among
+374 proposals, up to 1.1921e−7 rad; the remaining 368 are exact. A reader's
+extra quaternion normalization is corrected and its original result retained,
+but this does not resolve the disagreement. Cross-device arithmetic and missing
+actual root quaternion remain separate unresolved inputs; no numerical tolerance
+is adopted. Original physical task negatives do not depend on this control.
+The next read-only journal adds actual pre-physics root pose.
+
+The executed-target surface forecast differs from the achieved surface by up to
+10.9 µm during push, versus a predicted geometric correction below 0.21 µm.
+The material-clock audit independently advects the already declared virtual
+reference point around the known hinge. It uses completed current angle/velocity
+or the last completed acceleration; actual next angle is scoring only. The
+reference moves up to 28.5 µm per interval. Current velocity forecasts its normal
+travel with 0.107 µm RMS/0.285 µm peak error during push; adding completed
+acceleration has 0.131 µm RMS/0.538 µm peak error. These are reference-motion
+scores, not fitted contact predictions or a physical bound.
+
+One new nominal component is prepared in
+`D4-causal-material-clock-native-manifest-20261107.json`. Only active push/hold
+material-frame requests are advanced by current measured hinge velocity over
+exactly one existing control interval. Essential rigid point/orientation,
+handedness, inverse, zero-speed identity and invalid-clock controls pass. All
+original setup, geometry proposal, pressure/gap law, gains, material, load,
+physical, task, release and continuing-stop criteria remain unchanged. Related
+native contact conditions stay suspended. Collection remains 17/36; no observed
+source or teacher credit is added.
