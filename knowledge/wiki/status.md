@@ -512,9 +512,12 @@ when holding the current reference frame. This is a virtual-reference forecast,
 not contact force or a physical bound. One explicit combined finite-tangent plus
 material-clock nominal mechanism test is active. Independent original 10 N
 fixtures examine the missing shoulder-X and wrist-X future postures on separate
-hosts, with all original load, motion and continuous stops. Neither their finite
-postures nor the combined test automatically qualify a calibration, controller
-domain or teacher source. Related collection conditions remain suspended.
+hosts, with all original load, motion and continuous stops. The finite shoulder-X
+posture now passes all four independent cases, including three 10 N loads and
+same-latch eight-second fourteen-shape stops. Wrist-X remains in progress.
+Neither finite posture evidence nor the combined test automatically qualifies
+a calibration, controller domain or teacher source. Related collection
+conditions remain suspended.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

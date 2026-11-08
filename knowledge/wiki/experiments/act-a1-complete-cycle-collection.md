@@ -4983,3 +4983,14 @@ rejection are preserved with zero GPU charge. The rejected driver had no native
 allocation, live launcher or lease; the corrected label uses the supported
 mechanism purpose. Actual GPU PIDs, UUIDs and separate canonical leases are
 verified for started jobs in each deployment.
+
+
+The finite shoulder-X support subset is independently qualified: all four cases,
+three required 10 N loaded boundary and stopped-coverage checks, original frozen
+moving/stopped residuals, seven-joint physical/rate/acceleration/effort criteria
+and same-latch eight-second fourteen-shape stops pass. Whole output is 28 files
+plus three sidecars / 14,761,553 bytes; owned cleanup passes. The closeout is
+`D4-finite-contact-N-j1-support-closeout-20261108.json`. Two allocations close
+once, bringing continuation accounting to 320 / 11.458237 GPU h. Wrist-X is still
+running. No calibration or Cartesian support is adopted; the original completed
+contact task's strict force/support failures and matrix 17/36 are preserved.
