@@ -14,8 +14,10 @@ The budget-corrected attempt delivers 273 admitted approach commands, then
 refuses an unsupported complete finger sweep and stop at 38.95 s. Raw/native
 coverage and all original continuing-stop checks pass. No collision is established;
 contact and every later phase remain unqualified. Exact saved operands reproduce
-the refusal and are being used to separate physical motion, observed support and
-uncertainty. No GPU allocation remains active. A decision-equivalent occupancy
+the refusal. A separate finite-material screen remains negative even with ideal
+pose support at N/H±; the visible pane and collider also differ by 7.458 mm.
+A joint finite motion/interface certificate is required before another native
+attempt. No GPU allocation remains active. A decision-equivalent occupancy
 simplification is validated only as a component; full-cycle performance is open.
 See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]] for criterion
 classification, preserved failures and the next complete-cycle discriminator.

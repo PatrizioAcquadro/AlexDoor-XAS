@@ -160,6 +160,52 @@ when restricted to that empirical domain; unconstrained physical models remain
 separate from calibrated support. Nominal tracking error is already acceptable
 and is not being optimized further.
 
+## Joint sweep, interface and material diagnosis
+
+Exact saved operands reproduce the 38.95 s refusal. The final directional-stop
+sphere has a 18.65 mm physical/model radius, 16.33 mm normal/motion error and the
+unchanged 14.00 mm observed front allowance. Its front separation is −0.366 mm;
+the complete convex alternative is also unsupported. Full-pose mapping enlarges
+that sphere by another 43.99 mm for the separate observed-ray fallback. These
+are different proof paths, not quantities to sum into one physical penetration.
+The last native state and original independent stops remain physically accepted.
+
+The selected pane has no measured protrusion inside its observed finite extent.
+The maintained runtime deliberately leaves the relief exclusion unavailable in
+that case, so its relative planar finger-body proof cannot supply a complete
+contact certificate. Absence of a detected protrusion alone cannot be promoted
+to a global empty-space claim. Any replacement must retain finite observed
+coverage, unknown regions, physical motion/stopping and receipt revalidation.
+
+A separate read-only TRAIN-asset audit finds the visible glazing at x = 9.569 mm
+and its component-7 collider at x = 2.111 mm. The 7.458 mm offset is present at
+all nine checked lateral/height locations, including nominal and ±20 mm heights;
+saved depth agrees with the visible mesh. No asset or actor input is changed.
+The existing 14 mm front allowance covers this offset. Reducing it to the 0.5 mm
+planarity allowance would conflate absolute surface offset with relative
+flatness and would not be justified by the measurements.
+
+There is a second, independent obstruction to an unchanged retry. At the saved
+state, a nominal finite-material calculation yields about 40.6 mm clearance
+against 74.5 mm total uncertainty/response/stop allowance. A deliberately
+optimistic design screen sets pose uncertainty and age to zero while retaining
+static geometry, material response, the 13 mm nominal robot response and 20 mm
+stop bounds. Across 144 lateral samples at each of three heights, the best
+margins remain −4.54 mm (H−), −3.66 mm (N), and −2.78 mm (H+). These sampled,
+perfect-pose calculations are not observed motions or a proof of global physical
+infeasibility. They show why fixing only the current submillimeter sweep refusal
+or making tracking more precise is insufficient for this contact layout.
+
+The next correction must jointly justify the finite contact region and the
+actual physical motion/stop enclosure. The aggregate robot-response and stop
+allowances currently protect nominal endpoint footprint queries; they cannot
+simply be subtracted because another collision proof exists. Replacing them
+requires an explicit certificate for the complete contact-capable volumes and
+its receipt, with each uncertainty charged once. Validate this shared mechanism
+on nominal, boundary and perturbed cases, plus the original refusals, before
+another full nominal run. No such replacement is implemented or qualified yet.
+The eight remaining TRAIN variants stay unlaunched.
+
 ## Evidence and next discriminator
 
 Compact inputs/readers/results are in
