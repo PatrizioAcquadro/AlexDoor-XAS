@@ -582,8 +582,17 @@ already applied material offset only while an actual normal-reference command
 and finite tangential impedance are both active. Ordinary compensation and mode
 exit retain their prior behavior. Exact legacy-update parity and reduced free/
 blocked CUDA controls pass; native robot/contact/stop and observed-source
-qualification of this correction remain pending. Collection stays 17/36; 350
-continuation allocations close / 13.459906 GPU h, with no active GPU job.
+qualification of this correction remain pending. A complete prior negative is
+now preserved on elab3 with every original file and sidecar verified by SHA256.
+The remote readers reproduce all original force/support decision masks and
+stop outcomes. Their first runtime failure and small derived floating-point
+differences remain recorded; no physical threshold changes. One distinct nominal
+Blackwell intervention is running as of its latest owned-health checkpoint,
+with the exact isolated source, actual load model and first retained outer offset
+verified. Related conditions remain suspended. Collection stays 17/36; 352
+continuation allocations close / 13.488624 GPU h, plus that open native job.
+Complete outcome, full remote custody, independent original-criteria reviews,
+RGB and owned cleanup are required before any qualification or expansion.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

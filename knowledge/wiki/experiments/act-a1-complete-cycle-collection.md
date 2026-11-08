@@ -5323,3 +5323,48 @@ Evidence is `D4-outer-tangent-integral-whole-path-audit-20261108.json`,
 `D4-outer-tangent-mode-CUDA-controls-20261108/report.json`. Its GPU allocation
 closes with owned cleanup: 350 continuation allocations / 13.459906 GPU h.
 The matrix remains 17/36, with no source or broad 10 N controller adoption.
+
+
+### Remote whole-evidence review and isolated native successor (November 8, 2026 UTC)
+
+The workstation cannot currently hold another complete native payload. A full
+copy of the prior negative, 40 original files plus three sidecars /
+8,684,783,180 bytes, is streamed directly from Blackwell to elab3 without local
+large-file staging or deleting either original. Before/after source inventories
+and every destination SHA256 match. Actual destination capacity is checked;
+no cumulative storage or GPU-hour ceiling is introduced.
+
+Independent readers run against the whole replica with frozen `700191d` math.
+The first attempt fails before reading data because its child environment loses
+the installed Isaac Sim `h5py` path. Preserving the official runtime's inherited
+Python path repairs this infrastructure fault. Both attempts and their charges
+remain. The complete rerun executes all original A1, pressure, current/single-
+future, physical, effort, proposal, material-request and six-second fourteen-
+shape stop readers. All 49,548 time/phase, availability, upper-force and strict
+100 ms lower-force decision masks match exactly; the twelve failed lower-force
+windows and native negative remain. A metadata assertion originally demanded
+bit identity of derived cross-host scalars. Its two-ULP minimum difference and
+complete maximum array differences are recorded, with no changed input,
+criterion, outcome or additional GPU allocation. Review resources are released.
+This establishes review readiness, not another demonstration.
+
+One nominal successor is dispatched once on owned Blackwell. Its source is the
+original `700191d` controller with only the `016f5ef` outer-helper and actual-caller
+change overlaid. Restoring those two edits reconstructs the original module AST;
+the minimum-motor bundle, material clock, scoped N load support, physical setup,
+materials, gains and every original force/task/stop criterion stay unchanged.
+Before motion, live readback verifies the exact source and constructed load
+model. Its first actual finite-mode update retains the applied offset exactly.
+The latest bounded health check verifies the owned GPU PID and process group;
+the complete physical outcome is still open. Related H+/H-/P tests remain
+suspended. The prepared remote review includes the actual outer consumer and
+original full-task force/phase/RGB checks, after finished whole custody and owned
+cleanup. Partial motion cannot qualify this privileged component or an observed
+source.
+
+Evidence is `D4-remote-WHOLE-review-readiness-closeout-20261108.json`,
+`D4-remote-review-runtime-environment-failure-20261108.json`,
+`D4-retained-outer-source-overlay-isolation-review-20261108.json` and
+`D4-retained-outer-tangent-N-native-manifest-20261108.json`.
+There are 352 closed continuation allocations / 13.488624 GPU h, plus the open
+native job. The matrix remains 17/36 and optimizer updates remain zero.
