@@ -8,12 +8,15 @@ learned behavior and physical qualification are separate claims.
 
 The independent **D3 assignment is active** in
 `PatrizioAcquadro/d3-observed-cycles`, using the workstation, elab2 and elab5.
-D3 remains **0/9**. Three reviewed stationary acquisitions retain all requested
-views and pass original stops, but produce no selectable reference. The
-contact region is visible in measured depth yet excluded from the tested
-semantic masks. Whole-path ideal design and perception controls remain
-component evidence. See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]]
-for criterion classification, preserved failures and the next discriminator.
+D3 remains **0/9**. Prospective observations now identify a central pane with
+finite material coverage, native pose support and multiple static witnesses.
+The latest attempt delivers 235 admitted approach commands, then stops deliberately
+because an inherited episode budget cannot contain the full task. Recording and
+original stops pass; contact and every later phase remain unqualified. Prospective
+plans correct that effective budget. An equivalent occupancy-query simplification
+addresses measured geometric cost, with native whole-cycle performance still open.
+See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]] for criterion
+classification, preserved failures and the next complete-cycle discriminator.
 The prior coordinator's pause below remains in force for that separate campaign.
 
 **Collection paused by direct human request on November 8, 2026**,

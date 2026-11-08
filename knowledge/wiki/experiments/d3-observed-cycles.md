@@ -60,8 +60,10 @@ Perfect target tracking proves neither contact nor native task completion.
 | Ideal pose residuals | Design-screening diagnostics, not exact teacher imitation requirements. The accepted 2.7 mm residual is not being optimized further. |
 | Continuing-stop bounds | Existing measured acceptance; all new stationary stops pass. No smaller-error stop optimization is needed. |
 
-The current zero-candidate refusal occurs before local action-error summation;
-no double-paid uncertainty has been demonstrated as its cause. The maintained
+The original zero-candidate refusal occurs before local action-error summation;
+no double-paid uncertainty has been demonstrated as its cause. Subsequent measured
+pose support now admits early approach, while contact and the complete cycle
+remain unqualified. The maintained
 admission already credits recorded temporal growth and explicitly prepaid
 geometry. The material cover still restricts coverage to measured support and
 the reference perimeter. That perimeter and semantic omission rules are under
@@ -123,6 +125,23 @@ native CUDA two-capture control confirms the empty seed remains unavailable and
 the subsequent measured frame supplies ten pairs and a valid local constraint.
 The interrupted attempt remains negative, with 8,161 native feedback samples and
 verified original stops; no arm command was admitted.
+
+The next attempt preserves continuous observed material identity and delivers
+235 admitted approach commands. A further decision is admitted but not delivered
+after an orderly operator interruption. The inherited episode budget still
+specified 75 simulated seconds and overrode the longer top-level plan; this could
+not contain the complete task. Original inputs and the interrupted recording are
+preserved, with 9,197 native feedback samples and all original continuing-stop
+checks passing. There is no contact or complete task success.
+
+Geometry consumes about 507 seconds across 236 decisions, with individual calls
+reaching 21.4 seconds as retained cover subdivisions accumulate. A small shared
+optimization skips redundant occupancy predicates once their OR is already true;
+free-ray, unknown-space, source-clock and margin computations continue unchanged.
+All support fields match on 322 saved-ray queries covering occupied, free and
+unknown regions. This is a component comparison, not a native cycle speed claim.
+Prospective plans now set the effective episode budget explicitly and retain
+late-stage diagnostic operands; complete native performance remains open.
 
 The eight-path central-contact model passes nominal screening in both physical
 and existing 10 N support modes. H− exceeds the original pose-screening tolerance

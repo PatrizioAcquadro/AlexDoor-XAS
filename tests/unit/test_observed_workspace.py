@@ -502,3 +502,22 @@ def test_background_view_filter_preserves_original_ray_reader_on_perturbed_views
         monkeypatch.setattr(background, "_background_view_candidates", original)
         assert actual == expected
     assert skipped > 500
+
+
+@pytest.mark.parametrize("indexed", [False, True])
+@pytest.mark.parametrize("order", [(0, 1, 2), (2, 0, 1), (1, 2, 0)])
+def test_occupied_batch_keeps_later_unknown_support_and_source_clocks(indexed, order):
+    observed = space(2.0, 1.0)
+    observed.views.update(space(2.1, 2.0).views)
+    if indexed:
+        observed.index_static_points()
+    centers = np.array([[0.0, 0.0, 2.0], [0.0, 0.0, 1.0], [20.0, 0.0, 1.0]])
+    separate = [observed.query(center[None], [0.01]) for center in centers]
+    combined = observed.query(centers[list(order)], [0.01] * 3)
+    assert combined.occupied == any(s.occupied for s in separate)
+    assert combined.unknown_in_envelope == any(s.unknown_in_envelope for s in separate)
+    assert combined.occupied and combined.unknown_in_envelope
+    assert combined.collision_clearance_m is None
+    assert combined.reason == "observed_occupied_space"
+    assert combined.support.acquired_s == 1.0
+    assert combined.support.available_s == combined.support.supported_s == 2.0

@@ -532,7 +532,9 @@ class ObservedSpace:
                 else:
                     count, _ = rectangles.query(lo, hi, minimum=False)
                     any_good, all_good = count > 0, count == region.size
-                if any_good:
+                # Occupancy is an OR over all views and balls. Once established,
+                # only free/unknown support still needs evaluation below.
+                if any_good and not occupied:
                     indexed = getattr(self, "_static_points", {}).get(view_key)
                     if indexed is not None:
                         tree, pixels = indexed
