@@ -5167,7 +5167,48 @@ exact previous combined `700191d` controller, held minimum-motor bundle,
 current-velocity material reference, initial setup, original materials, force and
 gap laws, physical limits and all original task/three-second hold/achieved release/
 stabilization/current/single-future/strict force/six-second fourteen-shape stop
-criteria. Only the independently measured N position support changes. All other
-conditions remain suspended until an informative complete independent review.
+criteria. The intended change was independently measured N position support. However,
+the finished consumer audit below shows that this file was not actually selected.
+All other conditions remain suspended until an informative complete independent review.
 This privileged component grants no observed geometry, source, global 10 N
 controller or teacher qualification; the matrix remains 17/36.
+
+
+### Actual load-calibration consumer binding (November 8, 2026 UTC)
+
+The first qualified-support nominal successor is negative in hold at the same
+51.85055° / 2.75 s point as its baseline. The intended support file existed in its
+new deployment, but `recipe.load_calibration` retained the older rigid-support
+deployment's absolute path. The actual remote file predates the allocation and
+matches the original baseline, not the intended qualified artifact. Preflight
+checked that referenced inputs existed and separately validated the new JSON;
+it did not compare the real consumer's constructed model with that artifact.
+The runtime correctly refused the old domain. This rollout therefore does not
+exercise or invalidate the independently qualified support.
+
+All 94 compared pressure, full-torso actuator and both stop-array fields exactly
+match the previous same-host negative, including missing-value masks. Independent
+reviews verify 11,899 exact A1 profiles, 47,596 native packets, 11,388 causal
+proposals, 11,359 material requests, effort clocks and original six-second
+fourteen-shape stops. The four current estimator refusals and 3,556 original
+future refusals remain. Actual RGB selections across available phases were
+reviewed; their pixels are not identical to the earlier rendering. Release and
+stabilization remain unavailable. Whole transfer is 33 original files plus three
+sidecars / 8,201,427,541 bytes, with owned cleanup. The native job and three GPU
+readers close once: 341 continuation allocations / 12.977673 GPU h. Evidence is
+`D4-misbound-qualified-support-contact-closeout-20261108.json` and the deployment's
+`actual-consumed-calibration-path-diagnosis.json`.
+
+The correction explicitly points the recipe at its deployment's qualified
+`load.json`. The pressure fixture uses a shared loader guard that compares the
+resolved path and complete parameters before constructing its model. Preflight
+executes that exact consumer function: the nominal input passes, while the
+historical path and changed parameters refuse. Before the first physical pose,
+the live fixture separately checks and records the constructed model in
+`actual-load-model-binding.json`. This closes the missed input connection; it
+changes no force estimate, residual bound, physical limit, controller, material,
+gain, setup or task/stop criterion. A distinct single nominal component is
+dispatched once under `D4-bound-qualified-support-contact-N-native-manifest-20261108.json`.
+Fresh preflight passes; actual CUDA ownership and before-motion readback confirm
+the resolved intended path and exact constructed model. Its complete outcome and original independent audits remain required, with all
+related conditions suspended and no source, controller-domain or teacher credit.

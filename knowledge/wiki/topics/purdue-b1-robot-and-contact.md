@@ -859,7 +859,13 @@ allowances are paid once in that screen and never replace dynamic validation or
 relax physical targets. Future side-support predicates also do not replace the
 current-state residual-load estimator: a zero-tolerance side is still subject to
 its main position-domain check. Independently verify current load estimates and
-complete future intervals after preparing any qualified support update. See
+complete future intervals after preparing any qualified support update.
+Validation of a nearby calibration JSON is insufficient: verify the resolved
+recipe path and the model actually constructed by its consumer. A copied recipe
+can retain an older absolute path even when the intended file is staged correctly.
+Exercise the same loader with nominal, wrong-path and wrong-parameter inputs,
+then record its actual model before physical motion. These checks establish the
+intended input; they do not replace force, task or stopping qualification. See
 [[../experiments/act-a1-complete-cycle-collection|collection evidence]].
 
 The separate local recipe in

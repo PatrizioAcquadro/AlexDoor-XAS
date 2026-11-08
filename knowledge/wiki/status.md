@@ -547,12 +547,20 @@ sample; all 45,436 strict push/hold force-lower windows are positive, including
 the previously unavailable final four estimates. Original refusals and masks stay
 unchanged in their original reports. The broader wrist transfer remains negative,
 and hold completion, release, stabilization and observed source remain unqualified.
-One nominal complete-contact successor is running on Blackwell after fresh
-source/runtime/UUID/owner/capacity preflight, with only this independently
-measured position support changed; controller, setup, materials, gains, force,
-physical and original stop/task criteria are identical. Other conditions stay
-suspended. Collection is still 17/36; 337 continuation allocations close /
-12.528750 GPU h before that new native allocation.
+The first nominal successor closes negative because its copied recipe still
+referenced an older absolute calibration path. The intended qualified file was
+present but unused; all 94 compared native/stop-array fields exactly reproduce
+the prior baseline, including its four hold-phase elbow refusals. All original
+stops and causal audits pass; the qualified support itself remains untested in
+that rollout. Its complete output and costs are preserved. The corrected recipe
+now binds the actual consumer to the intended artifact. Preflight executes that
+same loader and rejects both an old path and mismatched parameters; the runtime
+also checks and records the constructed model before its first physical pose.
+One corrected nominal component is running on Blackwell; its before-motion
+readback confirms the exact intended path and constructed model. All control,
+setup, material, force, physical and original task/stop criteria are unchanged. Other conditions stay
+suspended. Collection remains 17/36; 341 continuation allocations close /
+12.977673 GPU h before the corrected native allocation.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
