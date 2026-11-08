@@ -5641,3 +5641,12 @@ failure certificate or a simulated alternative physical outcome. Evidence is
 address unilateral pressure/recontact stability, variable-load posture support,
 material geometry and full phase transitions together. Related native variants
 remain suspended; no unchanged retry or gain/filter/threshold fit follows.
+
+One separate four-case 0/10 N fixture is now running on owned elab3 to measure
+the exact additional shoulder-X lower support at its original coupled posture.
+The extreme required future box occurs during abort release. The original
+fixture controller, all seven joint pulses, frozen residual/physical criteria
+and same-latch eight-second fourteen-shape stops stay fixed. Complete independent
+review is prepared and requires finished whole custody and owned cleanup. This
+one open allocation does not change the 361 closed charges or contact failure;
+no calibration or teacher qualification is adopted from a plan.
