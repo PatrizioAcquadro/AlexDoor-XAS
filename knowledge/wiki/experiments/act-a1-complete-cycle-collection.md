@@ -5422,3 +5422,18 @@ push prefix, with missing hold explicit and future physical values scoring only.
 Evidence is `D4-retained-outer-tangent-contact-closeout-20261108.json` and
 `D4-three-history-normal-gap-rates-20261108/report.json`, with complete inputs,
 original rejections, source readers and remote original custody preserved.
+
+The prepared original-predictor review now scores all 7,332 normal-mode intervals
+of the new completed prefix on actual elab3 CUDA. It uses the known held target,
+current full-torso inertia/state and last completed residual; future state and
+force enter scoring only. The worst support-surface error is 84.779 µm, with
+532 push intervals having four zero-force native packets. The final interval's
+surface error reaches only 1.119 µm while its four native forces are
+0/0/0/11.942854 N. A small position-forecast discrepancy therefore does not
+establish the cause of the pressure impact. Missing hold stays explicit. No
+model, gap gate, controller, gain, support domain or threshold is adopted.
+This reader closes with actual GPU/PGID absence and canonical lease release:
+355 continuation allocations / 13.815895 GPU h. Its complete scores remain on
+elab3, with the local report and source under
+`D4-retained-outer-whole-contact-forecast-closeout-20261108.json` and the saved
+remote review kit. Collection remains 17/36.

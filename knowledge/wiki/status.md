@@ -595,13 +595,16 @@ window has zero force; 2,228 original single-future support checks also refuse.
 Physical limits, exact A1/effort/proposal/reference clocks and original six-second
 fourteen-shape stops pass. Hold, release and stabilization are unavailable.
 All original files, six available phase RGB views and owned cleanup are reviewed;
-related conditions remain suspended. Collection stays 17/36; 354 continuation
-allocations close / 13.811090 GPU h. A saved-input audit of 31,002 normal-feedback
+related conditions remain suspended. Collection stays 17/36; 355 continuation
+allocations close / 13.815895 GPU h. A saved-input audit of 31,002 normal-feedback
 rows finds that below-tolerance geometric gap recovery supplies 73–79% of the
 positive push rate-stage travel, before extent clipping. Original post-command
 compression is absent from these traces, so delivered-command parity and a
-physical alternative are not inferred. Shared pressure/reference and whole-path
-support qualification remain open.
+physical alternative are not inferred. The original predictor also scores all
+7,332 newly available normal-mode intervals on CUDA. Its final impact interval
+surface error is only 1.119 µm despite the 11.943 N impulse; position forecast
+error alone does not establish the cause. Shared unilateral pressure/reference
+and whole-path support qualification remain open; all owned resources are released.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
