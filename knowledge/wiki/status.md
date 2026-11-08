@@ -6,17 +6,19 @@ learned behavior and physical qualification are separate claims.
 
 ## Current execution and measured outcomes
 
-**Collection paused by direct human request on November 8, 2026**,
-in worktree `23f1` on `PatrizioAcquadro/b1-policy-pilot`, with this chat as the
-sole coordinator and one agent. This closure supersedes the November 6 resume;
-no automatic restart is authorized. Further diagnosis and D4/D3 assignment belong
-to the user chat “Astra2”. The original 36-demonstration teacher scope is incomplete.
-The verified matrix is 17/36: D1 8/9,
-D2 9/9, D3 and D4 0/9 (13 ordinary cycles, 4 recoveries). Local, Blackwell and
-elab2–5 work requires fresh resource ownership and runtime checks. Original
-failures, masks, scientific criteria and charges remain preserved. Training,
-learned-policy evaluation and final-test access remain excluded. The existing
-heartbeat is paused; this coordinator has no further execution assignment.
+**A separate D4 continuation is authorized on November 8, 2026**, in worktree
+`23f1` on `PatrizioAcquadro/b1-policy-pilot`, baseline `aa328df`, with one agent.
+Its assignment is a complete observed nominal D4 cycle followed by the nine
+original D4 TRAIN conditions. The previous coordinator is closed and its
+heartbeat remains PAUSED. D3 has a separate checkout and host assignment;
+this continuation uses only Blackwell/elab3/elab4 and temporary exclusive GPU
+locks, with separate accounting and unchanged shared authorization lists.
+The verified matrix remains **17/36: D1 8/9, D2 9/9, D3 0/9, D4 0/9**.
+Historical failures, masks, scientific criteria and resource charges remain
+preserved. Training, learned-policy comparisons, development/final test and push
+are excluded. See [[experiments/act-a1-complete-cycle-collection|the experiment]]
+for the current discriminator and its limits.
+
 The measured-release correction at `0edb99f` now passes all eight original
 complete native 0/10 N paths and original stops. N, H+ and P also remain inside
 the latest measured current/future position support. Eight further independent

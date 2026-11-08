@@ -1,5 +1,32 @@
 # ACT A1 Complete-Cycle Collection
 
+## Separate D4 continuation — November 8
+
+The new D4 assignment starts from `aa328df`; the closed coordinator and paused
+heartbeat remain unchanged. Evidence and job accounting are separate under
+`outputs/evidence/act-a1-d4-continuation-20261108/`. The matrix remains 17/36,
+including zero qualified D4 sources. Native data stay remote because local
+capacity is nearly exhausted.
+
+Both the physically complete finite-tangent nominal and the latest failed hold
+reach the same reserved wrist-X target boundary, −0.885225 rad, before their
+late pose error grows. The earlier saved clipping audit remains valid: clipping
+could not explain its then-current push failures. The latest full hold is a
+separate case. A CUDA audit of both complete records finds feasible
+Jacobian-nullspace redistribution at the initial bound contacts, preserving the
+six-axis linear task and all original target/rate bounds. Later recorded states
+can still be infeasible; no physical recovery follows from the saved audit.
+
+An isolated candidate redistributes only feasible normal-mode requests and keeps
+the original fallback otherwise. Nominal, boundary, perturbed, rank-deficient
+and actual recorder-wrapper checks pass on GPU, including 28,409 recorded
+inputs across both paths. The unchanged native preflight passes with a new
+source-specific software proof; its initial refusal on the inherited recorder
+hash remains preserved. A complete native nominal discriminator is running on
+Blackwell. This is privileged component work: observed identity, material,
+perception, motion admission and complete teacher qualification remain required.
+No force, physical, empirical-support or task criterion is changed.
+
 ## Question and current outcome
 
 Can four existing train doors supply 36 independently qualified full-cycle and
