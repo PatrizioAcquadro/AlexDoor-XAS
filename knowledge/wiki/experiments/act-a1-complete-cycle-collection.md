@@ -6090,29 +6090,61 @@ recorder's only difference from the tested source is descriptive mode metadata;
 its exact inverse substitution restores the complete tested source. Original
 inspection/feedback method bodies remain identical.
 
-Blackwell's existing OSQP 1.0.5 and SciPy runtime passes all seven library
-controls; no dependency is installed. Fresh official-runtime preflight passes
-the unchanged setup/clock, original measured support and outside controls,
-actual constructed calibration/path binding, loaded force-only caller, source
-and inspection lifecycle checks. Native, local and future reviewer bundle hashes
-match before launch. Exactly one full nominal pose-aware native qualifier is
-then dispatched on Blackwell, preserving all original physical, force, empirical,
-full-cycle and stop criteria. A single bounded checkpoint confirms the owned
-process group and actual GPU, unchanged material readback, constructed calibration
-and source binding before physical pose motion. First noninspection controller
-installation and the complete physical outcome remain pending; related variants
-stay suspended. A stale campaign pointer to already-closed frontier jobs is
-reconciled with the current ledger, preserving the entire prior state snapshot
-and unchanged matrix membership. No old job is relaunched. The prepared independent reviewer requires
-finished original output, owned cleanup and complete remote custody first.
+Blackwell's existing solver runtime and fresh official preflight pass without
+installing dependencies. Exactly one full nominal pose-aware native qualifier
+then executes with the original physical, force, empirical, full-cycle and stop
+criteria. It ends negative during push at absolute 262.270833 s: shoulder Z
+acceleration −45.513767 rad/s² is outside ±40.259247, and gripper Y −39.205082 is
+outside ±38.197281. The model upper load is unavailable there; the finite upper
+peak elsewhere is 6.137695 N. The refusal is an empirical-support failure, not
+independent evidence of unsafe physical force. The exception report has no final
+opening outcome; its last diagnostic trace reaches 47.492645° versus 50.146446°
+required. Hold, release and stabilization remain unavailable.
 
-The corrected callback and reader-assembly allocations release both known owned
-GPU contexts and process groups, charging 53.240846 and 78.070286 GPU seconds.
-All earlier reader failures and charges remain. Continuation accounting is 388
-closed allocations / 15.439253 GPU hours plus the one new native allocation.
-The matrix, 17 observed sources, 100,295 overlapping windows and zero optimizer
-updates remain unchanged. No threshold, gain, support domain, source admission
-or final-test access changes. Evidence is
-`D4-pose-aware-native-readiness-closeout-20261108.json`; next work is the complete
-new physical outcome, original independent readers, RGB/missing-phase review and
-resource closeout before any related expansion or observed teacher attempt.
+The complete original readers validate raw integrity, all native feedback,
+13,162 exact actual targets/reference positions, 13,133 causal push contexts and
+330 scalar recovery proposals, including independent quaternion payment checks.
+Actual 100 ms force means are positive across all 52,532 required native windows,
+minimum 0.019679 N. Preserve eleven finite nonpositive calibrated lower windows,
+minimum −0.039807 N, plus four unavailable windows. Current position support has
+zero exits; the original single-future audit retains 2,568 empirical exits.
+Hard physical boxes pass. The direct stop report remains positive, while the
+independent original six-second, fourteen-shape audit fails the empirical
+shoulder Z acceleration face at 45.265678 rad/s²; all its other original bounds
+pass. Six causal original RGB selections are manually viewed; no missing phase,
+microscopic force, material or observed-source claim is inferred from pixels.
+
+Whole custody passes all 42 original payload/sidecar files totaling 9,300,585,333
+bytes, with source-before/source-after/elab3 replica hashes identical. Blackwell
+originals and the elab3 replica remain retained, with no bulk local copy or
+removal. The native allocation charges 1,815.732883 GPU seconds, the complete
+independent review 135.023984, and the whole-motion forecast 25.540352. All three
+owned process groups, GPU contexts and canonical leases close; all failures and
+masks remain. Continuation accounting is 391 closed allocations / 15.988224 GPU
+hours before the next isolated model screen.
+
+The unchanged full20 causal CUDA predictor scores all 13,162 normal intervals
+using current state/inertia, the last completed residual and the already known
+held target. Future physical state and force are scoring targets only. Preserve
+333 all-four-zero-force push intervals and 140.815407 µm worst surface error.
+At the sole acceleration guard interval, the predictor independently anticipates
+−45.517582 rad/s² shoulder Z and −39.205383 gripper Y before dispatch. Thus the
+position/rate and four nominal gap constraints omit an already predictable
+original-domain acceleration failure; neither an empirical extension nor a
+newly fitted controller gain is justified.
+
+An isolated successor keeps the same lexicographic pose/motor objective and
+four nominal gap inequalities, adding the affine acceleration response of every
+arm joint at all four native steps within the unchanged calibrated domain. It
+retains original quantization and full six-axis extra reference payment, with
+original-proposal fallback for an empty nominal polytope. Nominal constraints do
+not certify actual motion or stopping. One CUDA screen on the three complete
+archived histories is running on elab3; four algebra controls, inactive branches,
+all solver outcomes and quantized faces are to be reviewed before caller/native
+qualification. No source, calibration, threshold, gain or maintained controller
+is adopted. Contact, posture/future support, variable load, transitions and full
+movement remain coupled unresolved requirements; related native variants stay
+suspended. Collection remains 17/36, with 17 sources, 100,295 overlapping windows
+and zero optimizer updates. Evidence is
+`D4-pose-aware-recontact-N-native-closeout-20261108.json` and
+`D4-acceleration-aware-recontact-model-family-elab3-20261108-plan.json`.

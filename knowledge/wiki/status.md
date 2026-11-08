@@ -877,17 +877,46 @@ preflight then passes the original setup/clock, constructed calibration binding,
 measured support and rejecting outside cases, source and lifecycle checks. Local,
 Blackwell and future elab3 reviewer bundle hashes match.
 
-Exactly one full nominal D4 native pose-aware qualifier is dispatched on
-Blackwell. One bounded startup check verifies the actual owned GPU/process
-group, unchanged material readback and real calibration/source binding before
-physical pose motion. The pose-aware controller installs before the first
-noninspection command and is still pending at that checkpoint. The complete
-physical outcome remains pending; all related variants stay suspended. The component cannot add teacher cells.
-All earlier negatives, masks and costs remain: 388 closed continuation
-allocations total 15.439253 GPU hours, plus the one new native allocation.
-Collection stays 17/36. Evidence is
-`D4-pose-aware-native-readiness-closeout-20261108.json` and
-`D4-whole-interval-recontact-N-native-closeout-20261108.json`.
+The full nominal D4 native pose-aware qualifier closes negative during push.
+At 262.270833 s, shoulder Z acceleration is −45.513767 rad/s² against the
+original empirical ±40.259247 domain; gripper Y is −39.205082 against
+±38.197281. The load estimate is unavailable at that sample. This empirical
+refusal does not independently establish physical unsafety. Original physical
+boxes pass, but hold, release and stabilization are absent. The last trace shows
+47.492645° against 50.146446° required; the original exception report has no
+completed-angle outcome. Its direct stop report remains positive, while the
+independent original six-second, fourteen-shape audit fails the shoulder Z
+acceleration domain (45.265678 rad/s²). Its other geometric, speed and force
+checks pass.
+
+All 13,162 actual held targets and reference positions reconstruct exactly;
+330 active recovery proposals and their independent quaternion payment checks
+pass. All 52,532 available actual 100 ms force means are positive, minimum
+0.019679 N. The original calibrated lower criterion retains eleven finite
+nonpositive windows (minimum −0.039807 N) and four unavailable windows. Current
+position exits are zero; 2,568 original single-future empirical position exits
+remain. Six causal RGB selections are manually reviewed; missing phases and
+observed-source exclusion remain explicit. All 42 whole payload/sidecar files,
+9,300,585,333 bytes, have exact Blackwell/elab3 custody. Original files remain
+remote. No teacher cell or usable window is added.
+
+The unchanged causal CUDA predictor scores all 13,162 completed normal-mode
+intervals. Its largest surface error is 140.815407 µm, so it is not a physical
+response bound. Before the failed command, it already predicts shoulder Z
+−45.517582 and gripper Y −39.205383 rad/s². Position/rate and nominal gap
+constraints alone therefore do not enforce the existing acceleration domain.
+An isolated successor adds all four predicted native-step acceleration faces
+from the original calibration to the same pose-aware allocation. No empirical
+limit, physical gate, force threshold, gain or reference-payment rule changes.
+One three-history archived-input model screen is running on elab3; solver,
+quantization, caller, complete native contact and stopping qualification remain
+pending. Related physical variants stay suspended.
+
+All native and finished-review resources close; 391 continuation allocations
+total 15.988224 GPU hours, plus that one open model allocation. Collection
+remains 17/36. Evidence is
+`D4-pose-aware-recontact-N-native-closeout-20261108.json` and
+`D4-acceleration-aware-recontact-model-family-elab3-20261108-plan.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
