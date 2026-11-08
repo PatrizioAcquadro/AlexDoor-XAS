@@ -765,6 +765,36 @@ def test_guarded_geometric_gap_recovery_uses_existing_boundary_and_rearms(tolera
     assert support_gap_recovery(0.1, gap, True, setup) == (False, False)
     assert support_gap_recovery(0.0, gap, False, setup) == (True, True)
 
+@pytest.mark.parametrize("gap", [np.nextafter(0., np.inf), 1e-7, 6.333e-6, 99e-6, 100e-6])
+def test_force_only_gap_recovery_is_one_shot_and_does_not_relax_contact_qualification(gap):
+    from alexdoor_xas.qualification.synthetic_probe import (
+        ContactLoad, ProbeSetup, normal_contact_support, support_gap_recovery,
+    )
+
+    setup = ProbeSetup(force_controlled_normal_reference=True)
+    catchup, active = support_gap_recovery(0., gap, False, setup)
+    assert catchup and active
+    assert support_gap_recovery(0., gap*2, active, setup) == (False, True)
+    assert support_gap_recovery(0., None, active, setup) == (False, True)
+    assert support_gap_recovery(0.1, gap, active, setup) == (False, False)
+    assert support_gap_recovery(0., gap, False, setup) == (True, True)
+    # Even a small positive measured force owns unloading/pressure regulation.
+    assert support_gap_recovery(np.nextafter(0., np.inf), gap, False, setup) == (False, False)
+    for force in [0.0, 0.008206662411491076]:
+        gate = ContactLoad(setup.contact_force_window_s, setup.loaded_force_n,
+                           setup.contact_gap_tolerance_m)
+        assert not gate.update(0., force, gap)
+    gate = ContactLoad(setup.contact_force_window_s, setup.loaded_force_n,
+                       setup.contact_gap_tolerance_m)
+    assert gate.update(0., setup.loaded_force_n, gap)
+    # Existing pressure rate/extent and excess-force unloading remain intact.
+    dt = 1/60
+    assert normal_contact_support(0., 0., setup, dt, gap_m=1., gap_catchup=True) == (
+        setup.compression_m / setup.sustain_s * dt
+    )
+    assert normal_contact_support(0., 1., setup, dt, gap_m=gap, gap_catchup=False) < 0.
+
+
 def test_online_continuity_refusal_matches_posthoc_first_loss_and_keeps_release_scope():
     from alexdoor_xas.qualification.synthetic_probe import (
         ContactContinuity,
@@ -1024,9 +1054,21 @@ def test_force_reference_routes_separated_gap_recovery_once_and_keeps_pressure(p
         0., 0., setup, 1/60, target_force=target_force
     )
     tolerance = setup.contact_gap_tolerance_m
-    for gap in [None, -1e-6, 0., tolerance/2, tolerance]:
+    for gap in [None, -1e-6, 0.]:
         assert step(gap) == pressure_only
         assert feedback()["gap_catchup"] is False
+    # Normal position feedback is absent in this mode. Qualification distance
+    # tolerance must not hide a small measured gap after actual force loss.
+    for gap in [np.nextafter(0., np.inf), tolerance/2, tolerance]:
+        assert step(gap, 1.) < 0.  # Actual recontact rearms, without gap loading.
+        assert step(gap) == probe.normal_contact_support(
+            0., 0., setup, 1/60, target_force=target_force,
+            gap_m=gap, gap_catchup=True,
+        )
+        assert feedback()["gap_catchup"] is True
+        assert step(2*gap) == pressure_only
+        assert feedback()["gap_catchup"] is False
+    assert step(tolerance, 1.) < 0.
     separated = np.nextafter(tolerance, np.inf)
     assert step(separated) > pressure_only
     assert feedback()["gap_catchup"] is True

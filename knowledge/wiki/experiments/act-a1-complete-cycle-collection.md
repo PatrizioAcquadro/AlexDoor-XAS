@@ -5549,3 +5549,43 @@ The matrix stays 17/36. Next work addresses shared causal unilateral pressure
 stability across the four whole histories and phase transitions. Related native
 variants remain suspended; no unchanged retry, gain/filter fit solely to pass,
 empirical-support widening, criterion relaxation or teacher credit follows.
+
+
+### Force-only recovery inside the qualification distance tolerance (November 8, 2026 UTC)
+
+The four retained histories expose a control-mode distinction. Ordinary position
+control already closes normal pose error; explicit force-reference mode removes
+that action. Reusing the contact-qualification distance tolerance as a deadband
+in the latter mode leaves small measured zero-force gaps to pressure-reference
+accumulation. The new negative has nine such recorded inputs whose reference-only
+travel time at zero force exceeds the original force window. That calculation
+ignores queued actuator and panel motion and is not a physical latency bound.
+The earlier D2 impulse negative and qualified D2 ordinary-position behavior
+remain decisive boundaries against a general reversal of the recovery rule.
+
+The actual helper now permits one geometric recovery for a positive available
+endpoint gap after actual zero native force only in explicit force-reference
+mode. It retains state until positive native recontact rearms it. No recovery
+starts from positive force, a missing gap or a zero/negative gap. Ordinary
+position mode keeps the original contact-tolerance boundary. Contact acquisition,
+normal targets/gain, unloading, rate/extent, material model, empirical support
+and all original force/physical/full-task/stop acceptance criteria stay fixed;
+the 100 µm qualification distance and 0.02 N loaded minimum are unchanged.
+
+The independent saved-input audit covers 32,531 original push/hold updates.
+It identifies 203/273/325/24 additional one-shot opportunities across finite-only,
+bound-combined, retained-outer and separated-gap histories, respectively.
+Production helper decisions agree with the independent rule for every input;
+ordinary-position decisions agree exactly with the frozen helper. Replacing
+only the helper restores baseline `8293497` module bytes. Ninety numerical
+probe checks pass, including actual support-closure execution for push/hold,
+small positive/boundary/perturbed gaps, repeated separation, missing observations,
+recontact, unloading and acquisition/mode transitions. Contact qualification
+still refuses unloaded samples that satisfy the distance tolerance.
+
+Evidence is `D4-force-reference-recovery-deadband-audit-20261108/report.json`
+and `D4-force-only-small-gap-production-history-review-20261108.json`.
+These checks establish the software intervention and preserved criteria, not
+an alternative physical trajectory, stable nonlinear contact or a teacher source.
+A distinct isolated full native qualification is required before related
+conditions proceed. Collection remains 17/36 and prior negatives remain intact.

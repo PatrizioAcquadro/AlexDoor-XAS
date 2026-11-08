@@ -632,6 +632,17 @@ Reader failures and their costs are retained. All owned resources close:
 359 continuation allocations / 13.954006 GPU h, collection still 17/36. Shared
 unilateral pressure stability remains unresolved; related conditions stay
 suspended without an unchanged retry or threshold/support adjustment.
+A mode-specific correction now separates contact qualification from geometric
+recovery in explicit force-reference control. This mode has no absolute normal
+position feedback, so a positive measured gap after actual zero native force
+can request one existing recovery pulse even inside the qualification tolerance.
+Positive native force rearms recovery and retains pressure/unloading authority;
+ordinary-position behavior remains unchanged. Production decisions match an
+independent audit of 32,531 original push/hold inputs across four histories,
+with exact ordinary-mode parity. The existing loaded-force/distance acceptance,
+gains, rate/extent, support and stop requirements stay unchanged. Essential
+boundary/repeated/recontact/acquisition-transition checks pass. These are
+software and saved-input results; the changed native trajectory is unqualified.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

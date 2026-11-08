@@ -498,9 +498,11 @@ def support_gap_recovery(native_force, gap_m, active, setup):
     """Separate geometric gap recovery from force regulation inside contact tolerance."""
     if native_force > 0:
         active = False
-    separated = (
-        native_force == 0 and gap_m is not None and gap_m > setup.contact_gap_tolerance_m
-    )
+    # A force-only normal reference has no absolute position feedback to close
+    # small unloaded gaps. Contact tolerance remains a qualification boundary;
+    # ordinary position control keeps its previously qualified recovery rule.
+    boundary = 0.0 if setup.force_controlled_normal_reference else setup.contact_gap_tolerance_m
+    separated = native_force == 0 and gap_m is not None and gap_m > boundary
     catchup = separated and not active
     return catchup, active or catchup
 

@@ -1103,23 +1103,27 @@ startup acceleration, friction and full nonlinear contact still require complete
 related-condition qualification. Privileged native normal feedback never
 qualifies an observed source.
 
-The prospective guarded controller reserves one-shot geometric gap recovery for
-zero native force with separation beyond the setup's existing contact-gap
-tolerance. Inside that tolerance, ordinary force-error admittance remains active;
-target force, gain, rate/extent bounds and all qualification thresholds are
-unchanged. This avoids treating a sub-tolerance gap as a geometric loss solely
-because one native interval has zero force. The D2-H+ negative contains a10.726N
-native impulse after such a recovery and correctly refuses its12.847N estimated
-upper bound against the unchanged10N stopping model. Related qualified D2 sources
-also contain sub-tolerance recoveries, so saved correlation does not establish
-causality or controller transfer. Source `2cd8697` now passes the complete native
-D2 nominal/H+ pair: motion, contact, hold, release, stabilization and original
-six-second stops for all 14 shapes, with all 48,584 task-native load estimates
-inside the original 10 N domain. The measured hold-height difference is 19.981 mm
-against the original 20 mm variation. A distinct guarded observed H+ source is
-running after this paired component qualification. Privileged native door
-normals do not qualify observed geometry, identity, material or source admission;
-transfer beyond this native pair remains a separate requirement.
+The guarded ordinary-position controller reserves one-shot geometric recovery
+for zero native force with separation beyond the existing contact-gap tolerance.
+Inside that tolerance, its position feedback and ordinary force-error admittance
+remain active. This previously qualified behavior is preserved: source `2cd8697`
+passes complete native D2 nominal/H+ motion, contact, hold, release, stabilization
+and the original six-second stops for all 14 shapes. The earlier D2 impulse
+negative and its unchanged 10 N empirical support refusal remain historical
+evidence. Native door normals never establish observed-source qualification.
+
+Explicit `force_controlled_normal_reference` removes absolute normal position
+feedback. In this mode the qualification distance tolerance is not a geometric
+closing action: a small positive gap with actual zero native force can persist
+while force admittance slowly advances the reference. Recovery therefore uses
+an available positive endpoint gap after actual zero force, once per separation
+episode; positive native recontact rearms it. Positive force, zero/negative or
+unavailable gaps do not start geometric recovery. The ordinary-position branch
+retains its existing tolerance boundary. Acquisition, pressure targets/gain,
+unloading, rate/extent and every physical/load/contact/full-task/stop criterion
+remain unchanged. In particular, contact qualification still requires the same
+distance and loaded-force bounds. Saved-input and transition checks validate
+software behavior; full native contact qualification remains required.
 
 
 
