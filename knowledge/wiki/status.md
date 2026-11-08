@@ -455,15 +455,23 @@ changing-load negatives remain. The new nominal native 0/10 N component now
 independently passes every original full-motion and stop criterion. All 9,318 A1
 intervals have four identical targets and exact joint-delta reconstruction;
 all 7,158 causal proposal inputs, current goals and delivered payments join.
-Actual pre-physics effort clocks pass on 43,032 native packets. Related P now
-independently passes both original 0/10 N paths, stops and exact action/input
-checks with the same bundle; H+/H− qualifications are running. A separate
-read-only replay has recovered the missing full 20-coordinate response data on
-3,484 original contact states. All seventeen historical arrays, prior contact
-and body packets, and the negative outcome remain exact. These inputs can now
-support a causal pressure-loop study; they do not qualify a response bound. Changing
-pressure and actual contact remain unqualified. No gain, physical limit,
-empirical criterion, interface or source is adopted; the matrix remains 17/36.
+All eight N/H+/H−/P 0/10 N native paths now independently pass every original
+movement and stop criterion. All 37,272 A1 intervals and 28,632 causal proposal,
+current-goal and payment joins are exact; effort clocks pass on 172,128 native
+packets. All owned native resources are released.
+
+A separate read-only replay recovers full coupled inputs on 3,484 original
+contact states with exact historical arrays, packets and negative outcome.
+Temporal request/state/application clocks join 870 physical pose commands; the
+first lacks a preceding mass sample. All 109 actual normal-reference commands
+support the proposal algebra and remain within original limits in the frozen
+forecast. Forecast surface error reaches 12.2 µm, versus a proposed geometry
+change up to 0.219 µm. This cannot establish contact success or a response bound.
+One nominal actual-contact intervention is prepared with the same qualified
+geometry operator and unchanged pressure/gap law, feedback, gains, materials
+and criteria. Related actual-contact successors remain suspended. No gain,
+physical limit, empirical criterion, interface or source is adopted; the matrix
+remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

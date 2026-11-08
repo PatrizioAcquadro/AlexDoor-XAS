@@ -375,8 +375,8 @@ recorded-state constraints, software/adapter controls and eight constant-load
 whole-model paths pass, preserving the forty prior histories. The new nominal
 native component now qualifies both complete 0/10 N paths, every original stop,
 exact A1 target profiles and causal input/payment custody. Actual pre-physics
-effort clocks are verified separately. The related P placement now passes its
-own complete 0/10 N qualification; H+/H− postures remain under qualification.
+effort clocks are verified separately. All four N/H+/H−/P conditions now pass
+their complete original 0/10 N paths, stops and exact action/input checks.
 Models and constant-load components do not qualify variable contact pressure
 or demonstrations. The old contact traces contain arm-block inertia, but not
 the full current coupled response needed by this operator. A separate read-only
@@ -385,6 +385,14 @@ historical array, contact-packet and outcome association. The existing expected
 load already uses full mass times full acceleration, gravity and Coriolis; an
 additional arm-only correction would double count dynamics. The new data support
 controller-response analysis, not a newly qualified load or stop bound.
+On 109 recorded normal-reference commands, the proposal preserves the endpoint
+and other-axis constraints with no predicted original physical, speed or
+acceleration exits. The original four-step surface forecast nevertheless differs
+from the real endpoint by up to 12.2 µm. The proposed geometry change reaches
+0.219 µm, and absolute model/native surface closure differs by up to 0.261 µm.
+Those errors are diagnostics, not adopted tolerances or a stopping certificate.
+A nominal native contact intervention must establish the effect while retaining
+the original pressure law, load model, materials and complete task/stop gates.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction

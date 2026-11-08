@@ -4738,3 +4738,53 @@ term to patch. Next analysis uses the recovered inputs for the causal controller
 response and pressure/geometry interaction, preserving both old failures and
 all original physical, empirical and stop criteria. No teacher source is added;
 collection remains 17/36.
+
+
+### Eight held-target paths and actual-contact causal inputs (November 7, 2026)
+
+H+/H− independently pass their original complete 0/10 N movements and continuing
+stops, completing the eight-path N/H+/H−/P minimum motor norm component family.
+Every original base 1 mm ramp, endpoint, three-second hold, achieved release,
+stabilization, current/single-future 10 N support, physical, rate, acceleration,
+effort, frozen moving/stopped model and one-latch eight-second fourteen-shape
+stop criterion passes. All 37,272 A1 profiles, 28,632 causal proposal/goal/payment
+joins and 172,128 native effort-clock packets pass. Their 156,768 non-stopped
+feedback packets are verified. Both H whole transfers and owned cleanup pass.
+Earlier negatives and all four changing-load model failures remain preserved.
+The family closeout is `D4-held-minimum-motor-full-family-closeout-20261107.json`.
+
+The real-contact Temporal recording provides 871 declared physical world-pose
+commands. Exact request/state/dispatch/application and applied-target custody
+joins 870 to current full-system state and completed predecessors. The first
+has no preceding native mass sample and stays unavailable. The 109 active
+normal-reference commands, 29 contact and 80 push, all have complete causal
+inputs. No images are read and no later force or pose enters the proposal.
+Actual subsequent states and contact loss are retained solely for scoring.
+
+The fixed-current, last-completed-residual proposal satisfies every endpoint
+and other-five-axis linear constraint. All 109 proposed four-step forecasts
+remain inside original physical, speed and acceleration limits; none is target
+limited. The largest quantized motor correction is 6.44 µrad. The predicted
+geometry change reaches 0.219 µm, while original endpoint surface prediction
+error reaches 12.2 µm and model/native surface closure differs by 0.261 µm.
+These observations cannot establish a response or safety bound, a new closed
+path, pressure stability or contact success. The original primary contact loss
+and secondary load-model refusal remain negative.
+
+The initial analysis used a remote-only asset path and failed before proposals;
+its charge and original script are retained. The corrected analysis requires an
+identical local URDF hash. Across these two allocations all 303 completed
+continuation allocations are closed, totaling 10.723980664 GPU hours. Evidence
+is `D4-actual-contact-current-input-custody-20261107/report.json`,
+`D4-actual-contact-minimum-motor-response-v2-local-20261107/report.json` and
+`D4-actual-contact-causal-response-study-closeout-20261107.json`.
+
+One nominal actual-contact intervention is prepared in
+`D4-held-minimum-motor-actual-contact-native-manifest-20261107.json`. It applies
+the same eight-path-qualified geometry operator while retaining original source
+519c347, setup, pressure/gap/feedback law, normal-mode activation, gains,
+materials, calibration, complete task and original stops. Joint-only inspection
+is unchanged; installation precedes the first physical pose command. Read-only
+native target and response journals preserve causal custody. This is a
+privileged component with no observed-source or teacher credit. Related contact
+successors remain suspended. Collection remains 17/36.
