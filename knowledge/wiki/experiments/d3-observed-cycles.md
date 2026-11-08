@@ -433,3 +433,21 @@ or a claim of universal future observation support. The live nominal must still
 obtain its own full observed task and independent review. Evidence is in
 `D3-N-observation-robust-placement-model-elab2-20261108/` and
 `D3-N-centered-contact-model-elab2-20261108/` under the D3 evidence directory.
+
+
+The centered native at `433211b` uses the requested fraction but again stops
+after 360 approach and 53 contact-ramp commands, at 44.8833 s before physical
+contact. Raw/native coverage, declared inputs, original continuing stops, phase
+images and cleanup pass. The latest observed force upper peak is 0.192 N within
+the unchanged 10 N domain. The native task remains negative and D3-N stays 0/1.
+
+Centering increases the rejected box's material clearance, but this acquisition
+has larger measured orientation uncertainty: its dynamic rotation contribution
+is about 13.1 mm. A saved-data experiment exactly reconstructs the original pose
+and scalar bound while retaining the already measured normal and edge axis
+bounds. The corresponding conservative finite-ball rotation bound is about
+9.4 mm; the preceding native witness similarly improves from 9.8 to 8.6 mm.
+This is a possible representation correction, with unchanged point, plane, edge,
+calibration, age and normal-contact errors. It has not yet changed production
+behavior or qualified a motion. Implementation must validate the axis composition,
+complete physical volumes and current-state receipt before any native successor.

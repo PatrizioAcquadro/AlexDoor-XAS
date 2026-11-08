@@ -38,7 +38,11 @@ on both acquisitions, retaining original physical and empirical model checks.
 The lower-height stationary control remains negative and is not authorized for
 collection. Only the nominal contact fraction changes prospectively; all limits
 remain unchanged. Native raw integrity, original continuing stops, images and
-cleanup are reviewed; D3-N remains 0/1 pending a fresh complete cycle. The full-cycle reader
+cleanup are reviewed. The centered native at `433211b` again stops at 44.8833 s
+before physical contact after 413 delivered commands; D3-N remains 0/1. A saved
+geometry experiment identifies loss of measured axis-direction information in
+the scalar rotation bound. Conservative directional transport is under validation;
+no further native attempt is queued. The full-cycle reader
 passes an archived positive and rejects failure/component controls. The other
 eight TRAIN conditions are excluded. No GPU allocation is active.
 A decision-equivalent occupancy
