@@ -479,13 +479,26 @@ geometry change below 0.21 µm.
 A known-current material-motion audit finds reference-point travel up to 28.5 µm
 per control interval. Current velocity forecasts it with a 0.285 µm maximum
 normal error on recorded push intervals; this scores a virtual reference,
-not actual contact or a safe bound. One new nominal component is prepared to
-advance only active push/hold material-frame requests over the next existing
-control interval, using current measured velocity. It retains the original
-pressure/gap law, feedback, gains, materials and every task/load/stop criterion.
-Exact pre-physics root inputs are added to the read-only journal. Related
-actual-contact successors remain suspended. No physical limit, empirical
-criterion, interface or source is adopted; the matrix remains 17/36.
+not actual contact or a safe bound. That current-velocity intervention is now
+independently closed negative:
+97 push commands reach 0.612°, then contact loss and the secondary release
+support refusal recur. All 888 A1 profiles, 126 current-root proposals, 97
+current-input/predicted requests, native effort clocks and original stops pass.
+Correct reference timing alone does not resolve contact. The six prior proposal
+disagreements remain historical; exact native root inputs permit complete
+reconstruction in the new scope.
+
+A 180,220-packet integration audit finds that explicit and trapezoidal formulas
+worsen the eight qualified robot-only paths. The existing semiimplicit residual
+is much larger during actual contact; no fitted formula or error allowance is
+adopted. One scoped nominal experiment is prepared with the existing `700191d`
+finite-tangent mode, leaving material anticipation off. It limits accumulated
+elastic pose error on the other five axes while retaining the normal pressure
+channel, gains, materials and all actual task/load/current/single-future/stop
+criteria. Its four historical 10 N tracking failures remain failed and the full
+10 N controller domain remains unqualified. This experiment grants no global,
+observed-source or teacher qualification. Related actual-contact successors
+remain suspended; the matrix remains 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

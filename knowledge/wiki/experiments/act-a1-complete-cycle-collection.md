@@ -4840,3 +4840,52 @@ original setup, geometry proposal, pressure/gap law, gains, material, load,
 physical, task, release and continuing-stop criteria remain unchanged. Related
 native contact conditions stay suspended. Collection remains 17/36; no observed
 source or teacher credit is added.
+
+
+### Material-clock negative and scoped tangential-impedance experiment (November 8, 2026)
+
+The causal material-clock N intervention from `e4a1c15` is independently closed
+negative. It has 97 push commands/0.612° before primary contact loss, followed by
+the original release position-support refusal. All 888 complete A1 profiles,
+126 geometric proposals/paid goals and 97 current-motion/predicted-request joins
+are exact; actual pre-physics effort and all original six-second fourteen-shape
+stops pass. Native root inputs remove reconstruction ambiguity in this recording;
+the earlier six mismatches stay preserved. Correctly applying a current-velocity
+reference forecast does not establish stable contact.
+
+All 3,552 native packets, contact force sums, current/full-state clocks and
+original pressure/current/single-future audits are retained. Whole transfer is
+33 files plus three sidecars/1,678,972,629 bytes, with owned process/GPU absence
+and lease release verified. Four new allocation charges plus the integration
+audit close once, bringing the continuation ledger to 314 completed
+allocations/10.887384493 GPU hours. Evidence is
+`D4-causal-material-clock-closeout-20261108.json`.
+
+The separate saved-data integration audit covers 180,220 packets over all eight
+qualified robot-only paths and both actual-contact negatives. Semiimplicit Euler
+has roughly 0.96–1.40 µrad RMS arm error during original opening/release;
+explicit and trapezoidal alternatives are worse. Actual-contact push has larger
+semiimplicit residuals, up to 115.8 µrad, and last-completed residual changes up
+to 128.9 µrad. These formulas use measured post-velocity solely for diagnostic
+scoring. No new causal model, fitted coefficient, safety margin or precision
+allowance is adopted.
+
+One nominal actual-contact experiment is prepared in
+`D4-finite-tangent-actual-contact-native-manifest-20261108.json`. It enables
+only the existing `700191d` finite tangential impedance, keeps the prior
+minimum-motor geometric proposal, and disables material anticipation. This
+addresses the common coupling between accumulated other-axis elastic pose error
+and unilateral normal contact. The original normal pressure/gap law, native
+feedback, gains, materials, setup, complete task and all physical, empirical,
+single-future and continuing-stop criteria remain unchanged. The load model is
+identical to `519c347` by source comparison; that revision adds only the optional
+pose mode and its recording metadata.
+
+The prior `700191d` family passed all four complete 0 N paths but failed every
+10 N ramp tracking endpoint at 11.07–12.53 mm. Those original tracking criteria
+and failures remain unchanged and the full 10 N controller domain remains
+unqualified. This single actual-contact experiment is a mechanism diagnostic,
+not a replacement qualification for that domain. Expected 0.1 N pressure targets
+never replace measured load or the unchanged 10 N future/stop audits. All related
+conditions remain suspended and no teacher/source credit is permitted. Collection
+remains 17/36.

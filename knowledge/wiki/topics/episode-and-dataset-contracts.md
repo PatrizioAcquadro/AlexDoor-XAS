@@ -62,7 +62,12 @@ pre-physics root quaternion and position as current model inputs; configured
 calibration must not be fitted to later achieved tool poses. For predicted
 material references, the causal receipt must join original program input,
 current measured motion and the actual Temporal dispatched request. Predicted
-future pose never becomes measured state.
+future pose never becomes measured state. The completed timing experiment
+joins all 97 current material inputs to their actual predicted requests and
+reconstructs all 126 geometric targets and paid goals exactly using native root
+inputs. Its 888 action profiles pass despite the negative task. This resolves
+the input ambiguity for that recording only; the six previous disagreements
+are not retroactively relabelled.
 
 Preserved engineering recordings have no measured torque; commands do not substitute for feedback. New recordings retain a
 separate 60 Hz measured feedback channel and 120 Hz robot feedback/dynamics stream,

@@ -402,6 +402,15 @@ sampling-clock intervention, not a contact response bound. Only active push/hold
 requests are advanced over one existing control interval; pressure, gains,
 materials, task and stop gates remain unchanged. The changing-contact outcome
 must establish the effect before any family successor or source adoption.
+The timing intervention is now negative with exact request/target custody:
+97 push intervals reach 0.612° before loss. A whole-history integration audit
+retains semiimplicit Euler over explicit or trapezoidal alternatives on the
+qualified robot-only paths; measured future velocity is scoring only. The next
+scoped experiment tests existing finite tangential impedance during the unchanged
+actual-contact task. It addresses accumulated tangential elastic pose error,
+leaves the normal pressure law and gains fixed, and retains all four original
+10 N endpoint failures. Those failures prevent a full 10 N controller claim;
+actual-contact criteria and every empirical future/stop gate stay unchanged.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction
