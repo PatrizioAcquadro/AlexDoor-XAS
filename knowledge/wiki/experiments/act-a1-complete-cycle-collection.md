@@ -6203,25 +6203,60 @@ constructed calibration path/parameters and real recorder call, outer/source
 binding, force-only caller, inspection lifecycle and existing solver-library
 checks. No dependency is installed.
 
-One full nominal acceleration-aware native qualifier is dispatched on Blackwell.
-A single bounded startup snapshot verifies the actual owned GPU/process group,
-original material readback and exact actual constructed calibration before
-physical pose motion. First noninspection controller installation and the full
-native outcome remain pending. The earlier eleven finite nonpositive calibrated
-lower windows, four unavailable windows, 2,568 future empirical position exits,
-independent stop acceleration failure and missing hold/release/stabilization are
-retained as independent original outcomes. Related variants stay suspended until
-complete native and independent review; no observed teacher admission follows
-from software or a privileged component.
+The full nominal acceleration-aware D4 qualifier closes negative at 15.580474°
+versus 50.146446° required, with contact loss at probe-relative 84.383333 s.
+Hold is absent; abort release, stabilization and the original continuous
+six-second/fourteen-shape stops pass. All 18,096 actual 100 ms force means are
+positive, minimum 0.016101 N; calibrated lower means are positive, minimum
+0.002375 N, with no unavailable window. Current and single-future empirical
+position support, physical boxes and original required-10 N support all pass.
+The exact original load-filter reconstruction nevertheless falls below the
+unchanged 0.02 N loaded-force floor. Positive force and qualified sustained
+load are distinct criteria; neither threshold changes.
 
-The three completed allocations charge 114.695579 GPU seconds for the corrected
-model, 86.930364 for the caller, and 115.963575 for complete reader assembly.
-Their known owned process groups, GPU contexts and canonical leases close.
-Continuation accounting is 396 closed allocations / 16.140188 GPU hours plus
-one new native allocation. All earlier charges and failures remain; no cumulative
-administrative GPU-hour, launch or storage cap is introduced. Collection stays
-17/36, with 17 sources, 100,295 overlapping windows and zero optimizer updates.
-Evidence is `D4-acceleration-aware-native-readiness-closeout-20261108.json`.
-Next work is the complete new physical outcome, whole remote custody, every
-original pressure/support/task/stop/source/clock reader and causal RGB/missing
-review before any related expansion or observed teacher retry.
+All 4,553 delivered targets and paid references reconstruct exactly, including
+80 eligible recovery proposals; all 4,524 material requests and nine causal RGB
+selections are reviewed. Hold remains unavailable. The unchanged full-path
+predictor retains 81 all-four-zero-force push intervals and 29.546677 µm worst
+surface error. Predicted and actual original-domain acceleration exits are zero;
+this nominal model is not a physical response or force bound.
+
+A complete proposal audit finds that 56 of 80 recoveries remove existing planned
+approach even though the original nominal endpoint already reaches the requested
+plane within the original acceleration domain. At the failure, the solver removes
+4.114936 µm of predicted approach to impose zero endpoint gap. This is a command
+mechanism, not a verified physical counterfactual. An isolated correction retains
+the original target and payment when that additional recovery is unnecessary;
+the original solver and all physical, empirical, force, phase and stop criteria
+remain unchanged. One four-history CUDA model screen is running on elab3 before
+real-caller or changed-native qualification. Related physical variants remain
+suspended.
+
+Whole custody verifies 48 files / 4,685,718,741 bytes on Blackwell and elab3.
+Native, independent reader and forecast allocations charge 803.092604,
+63.264163 and 14.208161 GPU seconds; all three owned resource groups close.
+Continuation totals are 399 closed allocations / 16.384789 GPU hours plus the
+one new model allocation. Collection remains 17/36, with no new source or window.
+Evidence is `D4-acceleration-aware-recontact-N-native-closeout-20261108.json`.
+
+The load-filter audit exactly reconstructs all 5,544 recorded trace values and
+loaded flags. The final four native forces are all zero, their largest measured
+gap is 0.536436 µm within the original 100 µm gap tolerance, and the footprint,
+material position/orientation and physical checks pass. The preceding normal
+feedback is already zero with positive gap. Across the complete push there are
+81 zero-force intervals, zero missing gaps and zero gap-tolerance exits. The
+failure therefore cannot be replaced by a gap-tolerance or physical-safety
+claim. The original filtered load is 0.016100931 N against 0.02 N required.
+
+The proposal audit retains all eighty inputs: fifty-six have negative additional
+closure, up to 7.539756 µm, while the original nominal endpoint already meets the
+recovery goal within the unchanged acceleration domain. The isolated correction
+preserves that existing pressure approach exactly, rather than demanding another
+zero-gap equality. This is neither an inferred force law nor evidence of a changed
+physical trajectory. The additional-recovery solver, numerical contracts,
+calibration, native gains, material properties and all original qualification
+criteria stay unchanged. Eleven algebra controls and four inactive-input controls
+are retained in the prepared model reader; the new four-history execution and
+subsequent real-caller qualification remain pending. A CPU audit's initial missing
+remote source path is preserved with zero GPU/native allocations; the exact
+original Git AST fixes only its source loading.
