@@ -528,10 +528,22 @@ The maintained recipes and original combined inputs are untouched; this support
 is limited to the completed N path and qualified postures. Its strict force
 failure, the broader 10 N controller domain and observed teacher source remain
 unqualified. Related collection conditions stay suspended.
-Two independent transfer jobs now test the earlier measured H− elbow-upper and
-wrist-lower 10 N frontiers at the combined N coupled postures. Identical dynamic
-model fields do not by themselves establish position support at another posture;
-all original fixture and stop criteria must pass before any N-scoped adoption.
+The earlier H− frontier transfer closes mixed: elbow upper passes all four
+cases; wrist lower completes two cases, refuses a physical target during lateral
+10 N conditioning and leaves the last case unattempted. All 21 available original
+stop segments, frozen residuals and physical/feedback checks independently pass.
+The broader wrist frontier remains unqualified. Reconstructing every delivered
+conditioning target identifies exhaustion of the unchanged 0.5 mrad target
+reserve; no limit is relaxed. A static screen of both entire saved N paths finds
+the smaller original future requirement feasible, with only about 0.065 mrad of
+wrist margin after one frozen stationary residual allowance. This is a planning
+screen, not native qualification. Fresh independent four-case shoulder and wrist
+studies now target the combined path's coupled postures: the shoulder transfers
+its prior N extent; the wrist tests the actual whole-path requirement. The elbow
+result is retained. No contact retry or calibration adoption is authorized by
+these components; dependent contact conditions remain suspended. Collection is
+still 17/36, with 333 continuation allocations closed / 12.280223 GPU h before
+the two new native allocations.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

@@ -5079,6 +5079,43 @@ under the unchanged original future allowance. At each selected complete N
 posture, all other measured coordinates are retained. The fixture checks
 unloaded and three 10 N sites/yaws, seven-joint 0.5 mrad motion, frozen residuals,
 physical/rate/acceleration/effort/feedback limits and the original continuous
-eight-second fourteen-shape stops. Both four-case jobs are dispatched once on
-separate coordinated hosts; outcomes and calibration transfer remain pending.
-No live recipe, default calibration or contact trial is changed by preparation.
+eight-second fourteen-shape stops. The complete transfer study closes mixed. Elbow upper passes all four cases;
+wrist lower completes unloaded and center cases, fails the face0/yaw +0.2 case
+while conditioning and leaves face1/yaw −0.2 unattempted. The wrist's broad
+frontier is not qualified. Every available native sample passes frozen residual,
+physical, rate, acceleration, effort, feedback and clock checks; all 21 original
+continuous stop segments, including the failed case's same-latch eight seconds
+and fourteen-shape covers, independently pass. Whole transfer is 53 original
+files plus six sidecars / 28,816,788 bytes, with owned resources released. The
+native reports determine scientific outcomes even though both outer allocation
+records return zero. Evidence is `D4-shared-frontier-mixed-outcome-closeout-20261108.json`.
+
+Reconstructing all 1,834 conditioning intervals across the three wrist cases
+matches delivered targets within 0.120 µrad. The first undelivered wrist target
+would spend the original 0.5 mrad physical reserve by 1.198 µrad. The failed
+transferred frontier lies 0.967 mrad beyond the maximum original wrist future
+requirement of either the completed finite-only path or combined prefix. The
+failure remains a physical target refusal; neither its desired tracking band nor
+its pulse/reserve is changed. Static force-balance screens retain all measured
+other-joint coordinates, the original four load/site cases, fixed stiffness and
+one frozen stationary residual allowance. They reject the broad frontier but
+leave approximately 0.065 mrad minimum wrist margin at the original path's actual
+future requirement across both entire saved paths. Zero load, signed load and
+native-wrench controls pass; the largest saved static-wrench discrepancy is
+0.0000374 N m. This approximation does not qualify dynamic pulses, conditioning,
+contact or stopping.
+
+The separate `D4-combined-N-scoped-support-manifest-20261108.json` therefore
+prepares two informative studies: transfer the earlier N shoulder-lower extent
+at the changed combined-path posture, and qualify its complete/prefix-derived
+wrist-lower requirement. All other measured posture coordinates are retained;
+all eight exact planned cases pass the static target-reserve preflight. Both use
+the unchanged original fixture, seven-joint 0.5 mrad pulse, three 10 N sites/yaws,
+frozen model and continuous eight-second fourteen-shape stops. Fresh host/source/
+capacity/UUID/lease preflights pass. There is no automatic transfer from the
+finite-only shoulder posture, no reuse of the failed broader wrist extent and no
+new force, residual, physical or acceptance threshold. Original missing hold,
+release and stabilization, historical 10 N tracking negatives and strict force
+failures remain. Before the two new native allocations, 333 continuation
+allocations close / 12.280223 GPU h. No maintained recipe, default calibration,
+source, teacher or matrix claim changes; collection remains 17/36.

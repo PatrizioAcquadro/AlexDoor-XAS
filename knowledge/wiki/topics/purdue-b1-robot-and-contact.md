@@ -847,6 +847,17 @@ retained D2-H- refusal differed by only 1.6e-12 rad. This numerical comparison
 does not enlarge physical travel, change force caps or clip actual feedback.
 An unqualified side receives no credit; a further representable exit still refuses.
 
+A measured frontier does not transfer automatically between coupled postures or
+conditions merely because dynamic residual coefficients match. A fixture may
+also require more static actuator displacement than the empirical position
+range suggests: commanded targets must preserve the original physical pulse
+reserve under every declared load site. Preserve such a refusal as negative.
+A smaller domain derived independently from an entire recorded path's original
+future requirement may be screened for feasibility, but still needs fresh native
+motion, loaded coverage and continuous stop qualification. Static residual
+allowances are paid once in that screen and never replace dynamic validation or
+relax physical targets. See [[../experiments/act-a1-complete-cycle-collection|collection evidence]].
+
 The separate local recipe in
 `outputs/evidence/act-a1-calibration-stop-20261019/runtime-recipe.json` supports
 8.5 mrad at lower RIGHT_WRIST_Z and upper RIGHT_SHOULDER_Z with loaded 10 N stop
