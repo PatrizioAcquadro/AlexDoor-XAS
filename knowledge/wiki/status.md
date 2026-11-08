@@ -10,11 +10,13 @@ The independent **D3 assignment is active** in
 `PatrizioAcquadro/d3-observed-cycles`, using the workstation, elab2 and elab5.
 D3 remains **0/9**. Prospective observations now identify a central pane with
 finite material coverage, native pose support and multiple static witnesses.
-The latest attempt delivers 235 admitted approach commands, then stops deliberately
-because an inherited episode budget cannot contain the full task. Recording and
-original stops pass; contact and every later phase remain unqualified. Prospective
-plans correct that effective budget. An equivalent occupancy-query simplification
-addresses measured geometric cost, with native whole-cycle performance still open.
+The budget-corrected attempt delivers 273 admitted approach commands, then
+refuses an unsupported complete finger sweep and stop at 38.95 s. Raw/native
+coverage and all original continuing-stop checks pass. No collision is established;
+contact and every later phase remain unqualified. Exact saved operands reproduce
+the refusal and are being used to separate physical motion, observed support and
+uncertainty. No GPU allocation remains active. A decision-equivalent occupancy
+simplification is validated only as a component; full-cycle performance is open.
 See [[experiments/d3-observed-cycles|D3 observed-cycle diagnosis]] for criterion
 classification, preserved failures and the next complete-cycle discriminator.
 The prior coordinator's pause below remains in force for that separate campaign.

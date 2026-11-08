@@ -143,6 +143,17 @@ unknown regions. This is a component comparison, not a native cycle speed claim.
 Prospective plans now set the effective episode budget explicitly and retain
 late-stage diagnostic operands; complete native performance remains open.
 
+The budget-corrected attempt at `58af19d` delivers 273 approach commands before
+`unsupported_actual_robot_sweep_and_stop` at 38.95 s. All 9,349 native feedback
+samples are healthy; independent original radial, directional, joint, tool,
+rotation, speed, acceleration and force stop checks pass. There is no contact,
+opening or later-phase evidence. The refusal identifies unsupported foreground
+and unknown space for a negative finger's complete motion/stop envelope; it does
+not establish physical collision. A CPU geometry evaluation of the exact saved
+operands reproduces the decision and reason with fresh caches. This is a diagnostic
+re-evaluation, not a native replay or cycle. The full allocation takes 1,092.62 s
+(1,097.62 charged GPU seconds), with cleanup and lease release verified.
+
 The eight-path central-contact model passes nominal screening in both physical
 and existing 10 N support modes. H− exceeds the original pose-screening tolerance
 when restricted to that empirical domain; unconstrained physical models remain
@@ -167,9 +178,10 @@ images the omission is open to the mask exterior, so filling enclosed holes
 would not address it. The next diagnosis must jointly consider observed contact
 placement and the utility of reference/material restrictions; it must not turn
 missing object association into a physical collision claim.
-A fresh nominal observed cycle must now test the combined pose support through
-actual approach, contact, opening, hold, release and stabilization before the
-remaining eight TRAIN conditions.
+Before another native attempt, diagnose the saved complete sweep refusal and its
+shared implications through contact, opening, hold, release and stabilization.
+Only a complete observed nominal qualification unlocks the remaining eight TRAIN
+conditions.
 
 Related: [[act-a1-complete-cycle-collection|prior collection]],
 [[../topics/shared-door-perception|shared perception]], and
