@@ -158,6 +158,17 @@ before the damped pose solve, including from reference feedforward; otherwise
 damping can leak a normal request into tangential motion. The explicit normal
 reference channel still retains elastic support and pays its original increment.
 
+The teacher's separate tangential tracking compensator must obey the same mode.
+An outer integral of measured blocked material error would keep moving the pose
+reference even when the inner elastic feedback is finite. During an actual
+normal-reference command with `pose_finite_tangent_impedance` enabled, retain the
+already applied material-coordinate compensation offset. Do not zero its entry
+preload or accumulate another reference. Acquisition in ordinary pose mode and
+later ordinary commands keep the original bounded integral. Normal pressure,
+geometry, uncertainty and physical/task/stop criteria are unchanged. Saved-update
+parity and reduced control tests establish this software boundary; they do not
+qualify the changed native path or observed teacher source.
+
 This option leaves inner actuator gains, normal admittance, centering, target/
 rate bounds, covector history, measured release handoff and independent stopping
 unchanged. It defaults off and requires causal pose feedback. Ordinary poses do

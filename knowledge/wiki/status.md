@@ -574,8 +574,16 @@ next interval, with peak surface forecast errors of 78.313 µm and 44.006 µm on
 the combined and finite-only paths. Averaging the four strictly past residuals
 improves push/hold scores but worsens initial contact; it is not adopted. Small
 forecast error in the final unloaded interval also prevents attributing hold
-failure to that model alone. Collection stays 17/36; 349 continuation allocations
-close / 13.457394 GPU h, with no active owned job.
+failure to that model alone. A separate whole-path audit reconstructs 23,668
+delivered outer tangential-compensation updates: the combined path accumulates
+6.173 mm during hold and reaches its original 7.5 mm extent. This outer integral
+remains active above finite tangential impedance. The teacher now retains its
+already applied material offset only while an actual normal-reference command
+and finite tangential impedance are both active. Ordinary compensation and mode
+exit retain their prior behavior. Exact legacy-update parity and reduced free/
+blocked CUDA controls pass; native robot/contact/stop and observed-source
+qualification of this correction remain pending. Collection stays 17/36; 350
+continuation allocations close / 13.459906 GPU h, with no active GPU job.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

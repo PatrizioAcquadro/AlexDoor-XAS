@@ -5286,3 +5286,40 @@ continuation allocations / 13.457394 GPU h. Evidence is
 `D4-whole-contact-mean-residual-forecast-closeout-20261108.json`, with complete
 scored arrays, transition masks and copied reader sources. These are model
 diagnostics; source, contact qualification and the 17/36 matrix do not advance.
+
+
+### Outer tangential integral above finite impedance (November 8, 2026 UTC)
+
+The next audit reconstructs all 23,668 original offset updates followed by a
+supported-phase command on both complete N histories, using frozen `700191d`
+code and original geometry/pose/error/enable operands. The two unused final
+post-hold updates are outside this delivered-update denominator. The combined
+path integrates 6.173 mm of tangential compensation during its incomplete hold
+and reaches the original 7.5 mm extent; the finite-only path integrates 1.632 mm
+during hold and peaks at 2.807 mm over the whole path. All original outcomes remain.
+
+The outer compensator was still integrating measured material-position error
+while the inner controller explicitly removed tangential elastic-error
+integration. The correction retains the already applied material offset during
+the actual normal-reference plus finite-impedance mode. It preserves entry
+preload, ordinary compensation, existing pressure control, gains, materials,
+support, physical limits and all original task/contact/stop criteria. No new
+setup flag or filter parameter is introduced. The actual caller's four mode
+combinations route this behavior only when both existing flags are active.
+
+Default and explicitly nonfinite behavior is bitwise identical to all 23,668
+reconstructed original updates. Entry-boundary, blocked-error reversal and mode
+exit regressions pass. Actual CUDA tests compare both outer loops on 20 free and
+20 blocked reduced plants, with rotated frames and perturbed Jacobian metrics.
+Retaining the offset prevents additional blocked-reference accumulation. The
+largest free tracking error is 0.999 mm, versus 0.374 mm with the old integral;
+both stay inside the original 2.5 mm material-drift guard. Supplied reduced-model
+position limits and the original rate limit pass. These are control design
+tests, not native robot dynamics, force, friction, load-support or stop
+qualification. The changed complete contact path is still untested.
+
+Evidence is `D4-outer-tangent-integral-whole-path-audit-20261108.json`,
+`D4-outer-tangent-integral-correction-closeout-20261108.json` and
+`D4-outer-tangent-mode-CUDA-controls-20261108/report.json`. Its GPU allocation
+closes with owned cleanup: 350 continuation allocations / 13.459906 GPU h.
+The matrix remains 17/36, with no source or broad 10 N controller adoption.

@@ -594,9 +594,16 @@ def normal_contact_support(
     )
 
 
-def tangential_compensation(offset, error, enabled, setup, dt):
-    """Bounded integral correction of tracking bias along the leaf surface."""
-    if not enabled:
+def tangential_compensation(
+    offset, error, enabled, setup, dt, *, finite_tangent_impedance=False
+):
+    """Correct ordinary tracking bias; retain its offset during finite impedance.
+
+    An outer integral of blocked material error would defeat the inner finite
+    elastic reference. Keep the already delivered material offset at entry,
+    without resetting preload or accumulating another tangential reference.
+    """
+    if not enabled or finite_tangent_impedance:
         return offset.copy()
     error = np.asarray(error).copy()
     error[0] = 0.0  # Normal loading remains the separate compression controller.
@@ -1213,6 +1220,10 @@ def run_probe(
                 (phase == "contact" or loaded) and orientation_error <= setup.orientation_tolerance,
                 setup,
                 dt,
+                finite_tangent_impedance=(
+                    normal_options.get("normal_reference_only", False)
+                    and getattr(env.cfg, "pose_finite_tangent_impedance", False)
+                ),
             )
         min_clearance = min(min_clearance, clearance.measure(door, angle))
         visibility = None

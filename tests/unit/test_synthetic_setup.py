@@ -189,6 +189,29 @@ def test_tangential_bias_correction_freezes_when_disabled_and_limits_rate_and_ex
     assert correction[0] == 0
 
 
+@pytest.mark.parametrize("entry", [[0, 0, 0], [0, .001, -.0005], [0, .0075, 0]])
+def test_finite_tangent_mode_retains_entry_bias_during_blocked_error_and_resumes(entry):
+    from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, tangential_compensation
+
+    setup = ProbeSetup()
+    entry = np.asarray(entry, dtype=float)
+    retained = entry.copy()
+    # Changing and reversing blocked errors must not create another elastic
+    # reference above the finite inner loop, including an entry on its bound.
+    for error in ([.1, .0064, -.001], [-.1, -.004, .002], [0, 0, 0]) * 60:
+        updated = tangential_compensation(
+            retained, error, True, setup, 1 / 60, finite_tangent_impedance=True
+        )
+        np.testing.assert_array_equal(updated, entry)
+        assert not np.shares_memory(updated, retained)
+        retained = updated
+    # Leaving finite mode resumes the existing correction without a preload reset.
+    resumed = tangential_compensation(retained, [0, -.004, .002], True, setup, 1 / 60)
+    expected = tangential_compensation(entry, [0, -.004, .002], True, setup, 1 / 60)
+    np.testing.assert_array_equal(resumed, expected)
+    assert not np.array_equal(resumed, retained)
+
+
 @pytest.mark.parametrize("sign", [-1, 1])
 def test_release_clears_surface_before_rotating_in_either_opening_direction(sign):
     from alexdoor_xas.qualification.synthetic_probe import ProbeSetup, release_reference
