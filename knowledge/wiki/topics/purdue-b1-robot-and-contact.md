@@ -420,8 +420,15 @@ other trajectories or Cartesian envelopes are not automatically qualified.
 All physical boxes and original continuing stops pass. The already maintained uncertainty
 projection improves bounds but does not remove the force gap. All four historical
 10 N endpoint failures remain; neither their controller domain nor the observed
-teacher source is qualified. Further work must preserve the completed movement,
-resolve the causal gap and independently establish missing support.
+teacher source is qualified. Subsequent combined-posture qualification and an
+actual recipe-to-model binding check now remove all current/future support
+refusals on a complete nominal successor. That successor still loses physical
+contact at 2.883333 of the required 3 s hold, with one zero-force 100 ms window
+and twelve nonpositive strict lower windows. Its completed release/stabilization
+and passing original stops remain separate from the failed hold. Thus measured
+support resolves admission but does not establish stable unilateral contact;
+further work must diagnose the whole reference/elastic response and transitions
+with the original force and task criteria.
 
 The original eight 0/10 N full paths and continuing stops support this velocity
 operator on 172,128 native packets, with a 7.023 microradian/s peak arm prediction

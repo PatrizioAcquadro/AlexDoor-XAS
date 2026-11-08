@@ -556,11 +556,20 @@ that rollout. Its complete output and costs are preserved. The corrected recipe
 now binds the actual consumer to the intended artifact. Preflight executes that
 same loader and rejects both an old path and mismatched parameters; the runtime
 also checks and records the constructed model before its first physical pose.
-One corrected nominal component is running on Blackwell; its before-motion
-readback confirms the exact intended path and constructed model. All control,
-setup, material, force, physical and original task/stop criteria are unchanged. Other conditions stay
-suspended. Collection remains 17/36; 341 continuation allocations close /
-12.977673 GPU h before the corrected native allocation.
+The corrected nominal component is now independently closed negative. Its actual
+consumer uses the qualified artifact: all 49,548 native current estimates and
+original single-future seven-coordinate 10 N checks pass, with no missing model
+values or physical exits. Exact A1, effort, causal proposal/material clocks and
+original six-second fourteen-shape stops pass. Controlled opening reaches
+51.37907° against 50.14645° required, but hold loses loaded contact after
+2.883333 of the required 3 s. One complete native 100 ms window has zero force;
+twelve original strict force-lower windows are nonpositive. The achieved six-second
+release and two-second stabilization complete, without converting that failure
+into success. Whole output, all available phase RGB and owned cleanup are
+verified. All control, setup, material, force, physical and original task/stop
+criteria stay unchanged. Related conditions remain suspended pending a shared
+whole-path contact/hold-transition diagnosis. Collection stays 17/36; 345
+continuation allocations close / 13.438652 GPU h, with no active owned job.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure

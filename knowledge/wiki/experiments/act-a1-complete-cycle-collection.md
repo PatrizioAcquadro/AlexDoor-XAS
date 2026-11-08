@@ -5209,6 +5209,44 @@ the live fixture separately checks and records the constructed model in
 changes no force estimate, residual bound, physical limit, controller, material,
 gain, setup or task/stop criterion. A distinct single nominal component is
 dispatched once under `D4-bound-qualified-support-contact-N-native-manifest-20261108.json`.
-Fresh preflight passes; actual CUDA ownership and before-motion readback confirm
-the resolved intended path and exact constructed model. Its complete outcome and original independent audits remain required, with all
-related conditions suspended and no source, controller-domain or teacher credit.
+Fresh preflight and actual CUDA ownership pass; before-motion readback confirms
+the resolved intended path and exact constructed model. The completed original
+output is now independently reviewed below. Related conditions stay suspended;
+this component adds no source, controller-domain or teacher credit.
+
+### Bound support resolves admission; hold still loses contact (November 8, 2026 UTC)
+
+The corrected `700191d` nominal component actually consumes the independently
+qualified N calibration. All 49,548 native current estimates are available and
+inside 10 N, peak 7.782284 N; every original single-future seven-coordinate box
+passes measured support and physical limits. The native force peak is 7.028226 N.
+The previous calibration exception is eliminated, without changing control,
+material, gains, pressure, uncertainty, physical or task/stop criteria.
+
+The task remains negative: independently reconstructed controlled opening is
+51.379074° versus 50.146446° required, but hold records 173 intervals / 2.883333 s
+of its required 3 s before pre-release contact loss. One complete original native
+100 ms force window is zero. Twelve strict force-lower windows are nonpositive,
+minimum −0.243347 N, with zero unavailable estimates. The original continuity
+failure reproduces from contact manifolds with no loaded/valid annotation mismatch.
+The six-second achieved release completes, followed by two seconds of stable
+unloaded motion. Final separation is at least 22.243 mm; release and stabilization
+do not repair the earlier failed hold. The native report has no exception.
+
+Independent readers verify all 12,387 exact A1 profiles, 49,548 full actuator
+packets, 11,396 causal proposals and 11,367 material requests. Original six-second
+fourteen-shape stops and all physical states pass. Nine original RGB selections
+across all available approach/contact/push/hold/release/stabilization phases are
+reviewed with causal capture availability; visibility does not establish force.
+Whole transfer preserves 40 original files plus three sidecars / 8,684,783,180
+bytes. The native job and three GPU readers close once with owned cleanup:
+345 continuation allocations / 13.438652 GPU h. All prior failures, interruptions,
+unavailable states and charges remain; the matrix stays 17/36.
+
+Evidence is `D4-bound-qualified-support-contact-closeout-20261108.json` and the
+run's `independent-pressure-review.json`,
+`independent-negative-complete-native-outcome.json` and
+`independent-contact-loss-operands.json`. Next work diagnoses whole-path
+unilateral support, material/hold reference, finite elastic response and phase
+transition before another informative native intervention. No unchanged retry,
+threshold relaxation, broad 10 N qualification or observed-source adoption follows.
