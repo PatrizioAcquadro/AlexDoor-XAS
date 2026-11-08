@@ -6035,3 +6035,53 @@ continuation allocations close at 15.367263 GPU hours, with no active or prepare
 GPU job, new teacher, source membership or optimizer update. Evidence is
 `D4-whole-interval-recontact-N-native-closeout-20261108.json`; collection stays
 17/36. D3/D4 complete observed paths and real collection geometry cost remain open.
+
+
+The isolated pose-aware successor now has a complete software/model screen, not
+a native qualification. It keeps the original seven motor bounds and four linear
+nominal surface inequalities. A first quadratic stage minimizes the other five
+command axes' elastic energy using the native coupled compliance; a second
+minimizes motor spring increment energy while retaining that task displacement
+and endpoint. No arbitrary translation/rotation weighting is added. Existing
+OSQP supplies independently checked primal and stationarity residuals; an
+unqualified numerical result falls back to the original proposal. The CPU-only
+LP/QP library algebra follows the unchanged CUDA state/inertia/response model;
+no physics or GPU model is moved to CPU.
+
+All 157 eligible whole-interval inputs and 609 prior endpoint inputs solve, with
+zero candidate or old-objective OSQP failures. The old 21 SLSQP status flags
+remain in their original diagnostic; they are no longer used as evidence of a
+minimum. Quantized targets retain the original domain/rate bounds and exact A1
+replay. The whole-interval model's largest other-five increments are 2.185439 mm
+and 0.006970938 rad; the prior endpoint path preserves those axes to numerical
+precision. Linear gap constraints are nominal guidance: nonlinear prediction
+still reaches −24.724895 µm, and no force or physical error bound is inferred.
+These frozen-input scores do not execute an alternative trajectory.
+
+The prototype pays only the original normal shape increment, plus all six axes
+of the additional recovery command. Translation and a left world-frame XYZW
+rotation commit after dispatch, while preview remains pure. Seven nominal,
+boundary, perturbed, duplicate-constraint and infeasible solver controls pass.
+Zero-extra arithmetic, independent Hamilton-product and pure-repeat checks pass.
+The first constructor/callback family retains a failed cross-reader bitwise
+quaternion check and leaves its second source unexecuted. A single-fixture
+diagnosis shows bitwise-identical target, Jacobian, translation and extra payment,
+with an 8.88e−16 quaternion difference. The installed reduced quaternion product
+subtracts order-one intermediates when producing tiny vector components. A
+separate operation-count bound and independent Hamilton product pass 384 controls,
+each with a rejecting out-of-bound perturbation. This changes only numerical
+comparison, not a pose tolerance or the controller. The corrected actual
+constructor/recorder/propose/preview/pre/apply review is healthy at its one bounded
+checkpoint on elab3. It uses original fixtures and an explicit original-dispatch
+shim; native physics, complete changed reference history and readiness remain
+unqualified.
+
+The model family and two failed diagnostic allocations release their known owned
+resources and retain 80.042759, 24.359907 and 23.449124 GPU seconds, respectively.
+Continuation accounting is 386 closed allocations / 15.402778 GPU hours plus one
+running callback review. The matrix, 17 observed sources, 100,295 overlapping
+windows and zero optimizer updates are unchanged. All prior complete native
+negatives, empirical support exits, force masks and missing hold remain. Evidence
+is `D4-pose-aware-recontact-software-milestone-20261108.json`; next work is complete
+callback/reference history and native-reader readiness before one informative
+physical qualifier. No threshold, gain, support domain or final-test access changes.

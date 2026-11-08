@@ -1141,6 +1141,18 @@ native cycles, unchanged3s holding, original measured variations,2+4s stops,
 real-image review and GPU temporal preparation. This qualifies those two
 recordings; it does not change earlier maximum-reach outcomes or qualify D3/D4.
 
+### Experimental coupled recontact reference
+
+The isolated D4 pose-aware prototype retains original motor and nominal surface
+constraints while minimizing off-axis command energy through native compliance,
+then motor increment energy at the selected pose. Its extra recovery can change
+translation and orientation, so both must be paid into the delivered reference
+history after dispatch. Only the original shape correction keeps normal-only
+payment. Previews cannot advance either history. This software/model interface
+does not qualify force, achieved pose, empirical support or complete contact.
+The independent callback/history and native readiness boundary is recorded in
+[[../experiments/act-a1-complete-cycle-collection|collection evidence]].
+
 ### Historical background query cost
 
 `ObservedBackground` prefilters immutable historical cameras in batches. If even

@@ -842,10 +842,36 @@ unhandled. A reliable joint pose/recovery/reference correction and full history
 validation are required before a native successor; the unrestricted model result
 is not adopted.
 
-All owned resources are released. The 383 closed continuation allocations total
-15.367263 GPU hours; failures and costs remain preserved. Related physical
-variants remain suspended and collection stays 17/36. Complete evidence is
-`D4-whole-interval-recontact-N-native-closeout-20261108.json`.
+The next isolated software prototype replaces the exact-other-five equality
+with a lexicographic allocation: satisfy the attainable nominal endpoint, minimize
+the other five axes' native elastic pose energy, then minimize motor spring
+increment energy at that pose. All seven original motor domain/rate bounds and
+four linear nominal gap inequalities remain. Existing OSQP solves all 766
+eligible saved inputs from both complete D4 histories, including the old
+minimum-energy objective with zero unresolved solver flags. The whole-interval
+path requires off-axis command increments up to 2.185439 mm and 0.006970938 rad.
+These are virtual command changes, not achieved pose or physical tolerances;
+nonlinear predicted gap can still reach −24.724895 µm. The extra recovery pays
+all six reference axes only on dispatch; the original shape payment retains its
+normal-only arithmetic. Seven solver controls and independent reference-math
+controls pass. No native motion or controller adoption follows from this screen.
+
+The first actual-callback fixture review stops on cross-process quaternion
+bitwise equality. A targeted diagnosis confirms identical targets, Jacobians,
+translation and extra payment; one quaternion component differs by 8.88e−16.
+Isaac's reduced quaternion product subtracts order-one terms for tiny components.
+An independent Hamilton product with an operation-count roundoff contract passes
+384 nominal, tiny-angle, perturbed and rejecting controls. This numerical reader
+correction leaves the prototype and all physical criteria unchanged. Its complete
+constructor/recorder/preview/dispatch/mode review is running under one owned
+elab3 allocation; native readiness remains false.
+
+The original native closeout releases all its resources at 383 closed continuation
+allocations. Three subsequent software allocations close with all failures and
+costs retained: 386 closed allocations total 15.402778 GPU hours, plus the one
+pending callback review. Related physical variants remain suspended; collection
+stays 17/36. Evidence is `D4-pose-aware-recontact-software-milestone-20261108.json`
+and `D4-whole-interval-recontact-N-native-closeout-20261108.json`.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
