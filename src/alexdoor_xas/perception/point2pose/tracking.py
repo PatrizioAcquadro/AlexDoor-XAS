@@ -440,6 +440,71 @@ class PanelTracking:
         validate_local_transition(self.selection, selection)
         self.selection = selection
 
+    def surface_registration_bound(self, candidate, captured, obj, current_surfaces):
+        """Bound the unchanged native pose using measured orientation and pairs.
+
+        Collinear native points can constrain translation once a measured
+        plane/edge basis supplies rotation. Transport that complete certificate
+        to the native pose at the same registration origin; never substitute a
+        semantic mask, frozen pose or unmeasured point for metric evidence.
+        """
+        constraint = self.config.get("local_surface_constraint")
+        if constraint is None or candidate.material_recovery_unverified:
+            return None, None
+        measured = (
+            obj.get("measured_correspondences", np.zeros(len(obj["source_points"]), bool))
+            & obj["inliers"]
+        )
+        initial_camera = candidate.initial_world @ np.linalg.inv(candidate.map_from_object)
+        points = (candidate.surface.points - initial_camera[:3, 3]) @ initial_camera[:3, :3]
+        native = obj["camera_from_map"]
+        bounds = []
+        for current in current_surfaces or ():
+            observation = current.observations[0]
+            if (
+                observation.semantic_id != candidate.sam3_id
+                or observation.frame != int(captured["frame"])
+                or observation.acquired_s != float(captured["time_s"])
+            ):
+                continue
+            try:
+                fit = constrained_surface_pose(
+                    candidate.surface,
+                    current,
+                    initial_camera,
+                    captured["camera_world"],
+                    obj["source_points"][measured],
+                    obj["current_points"][measured],
+                    constraint["point_error_m"],
+                    map_anchor=(candidate.map_from_object @ candidate.object_from_zone)[:3, 3],
+                )
+                pose = transported_zone(
+                    captured["camera_world"],
+                    fit.camera_from_map,
+                    candidate.map_from_object,
+                    candidate.object_from_zone,
+                )
+                if not self.root_consistent(replace(candidate, pose=pose), captured):
+                    continue
+                origin = np.r_[fit.registration_origin_map, 1.0]
+                position = fit.position_bound_m + np.linalg.norm(
+                    (native @ origin - fit.camera_from_map @ origin)[:3]
+                )
+                relative = native[:3, :3] @ fit.camera_from_map[:3, :3].T
+                angle = np.arccos(np.clip((np.trace(relative) - 1) / 2, -1, 1))
+                rotation = min(np.pi, fit.rotation_bound_rad + angle)
+                lever = np.linalg.norm(points - fit.registration_origin_map, axis=1).max()
+                bounds.append((position + rotational_travel(lever, rotation), position, rotation))
+            except ValueError:
+                continue
+        if not bounds:
+            return None, None
+        scores = [bound[0] for bound in bounds]
+        if scores.count(min(scores)) != 1:
+            return None, None
+        _, position, rotation = bounds[int(np.argmin(scores))]
+        return float(position), float(rotation)
+
     def consume(self, captured, result, ready, *, clock=None):
         started = time.perf_counter()
         if len(result["objects"]) != len(self.candidates):
@@ -465,7 +530,19 @@ class PanelTracking:
             # Distributed native references estimate candidate pose. The uniform
             # contact face does not need its own visual features or point tracks.
             source, p, a = measured_registration(obj, self.config["plane_tolerance_m"])
+            bound_source = "native_pairs"
+            if (
+                (p is None or a is None)
+                and not obj["lost"]
+                and not result.get("semantic_absent", False)
+            ):
+                p, a = self.surface_registration_bound(
+                    candidate, captured, obj, result.get("local_surfaces")
+                )
+                if p is not None and a is not None:
+                    bound_source = "native_pairs_and_observed_surface"
             self.diagnostics.setdefault("support_by_candidate", {})[candidate.candidate_id] = dict(
+                registration_bound_source=bound_source,
                 measured_candidate_pairs=len(source),
                 native_lost=bool(obj["lost"]),
                 registration_position_m=p,

@@ -88,6 +88,40 @@ support the prescribed contact. The original off-center contact has only about
 so seed eligibility does not admit this contact. A new native acquisition must
 establish a continuous observed identity and sufficient complete action support.
 
+## Native central-pane attempts and pose support
+
+Two subsequent complete nominal attempts use `glass pane`, the original root/arm,
+and contact fraction 0.49. The first latches a transient initial semantic ID,
+which disappears during inspection; it stops with no selected reference. The
+second defers selection until inspection completion, choosing the current unique
+largest mask. It initializes the central pane, retains five independent static
+material witnesses and preserves semantic identity. Both stop before any admitted
+approach command, retain 8,257 native feedback samples, and pass the original
+initial-state, inspection and continuing-stop checks. Neither is a demonstration.
+
+The second attempt fails because its nine measured native point pairs have only
+1.21 mm transverse standard span. They cannot bound rotation independently of
+geometry. A saved-data diagnostic finds a finite complete pose from the existing
+measured plane/edge constraint and the same pairs. Two whole-door descriptions
+(`wooden door`, `door with glass panes`) fail to recover contact membership in the
+six image controls; no common prompt is changed.
+
+The adapter now allows that independently conditioned orientation to bound the
+unchanged native transform when point-only registration has insufficient span.
+Known-pose tests cover stationary/moving planes, perturbed correspondences and
+the minimum five-pair boundary; missing geometry, identity, timing, depth, metric
+recipe, native tracking or verified recovery remain unavailable. Full-root ties
+also remain ambiguous. A separate saved-operand re-evaluation recovers the local
+state with about 7.28 mm frame-origin position bound and 0.0355 rad rotation bound.
+This is counterfactual component evidence, not new native action qualification;
+the original failed recording remains unchanged.
+
+The eight-path central-contact model passes nominal screening in both physical
+and existing 10 N support modes. H− exceeds the original pose-screening tolerance
+when restricted to that empirical domain; unconstrained physical models remain
+separate from calibrated support. Nominal tracking error is already acceptable
+and is not being optimized further.
+
 ## Evidence and next discriminator
 
 Compact inputs/readers/results are in
@@ -106,8 +140,9 @@ images the omission is open to the mask exterior, so filling enclosed holes
 would not address it. The next diagnosis must jointly consider observed contact
 placement and the utility of reference/material restrictions; it must not turn
 missing object association into a physical collision claim.
-A useful observed contact region and whole-motion setup must precede the fresh
-nominal observed cycle, followed by the remaining eight TRAIN conditions.
+A fresh nominal observed cycle must now test the combined pose support through
+actual approach, contact, opening, hold, release and stabilization before the
+remaining eight TRAIN conditions.
 
 Related: [[act-a1-complete-cycle-collection|prior collection]],
 [[../topics/shared-door-perception|shared perception]], and

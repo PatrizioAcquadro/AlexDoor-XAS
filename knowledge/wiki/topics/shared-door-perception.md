@@ -274,6 +274,22 @@ same finite conditioning, complete native-pair residual, root-depth consistency,
 material identity and ambiguity checks. Missing support remains unavailable;
 no native pose, controller, metric point-error assumption or admission threshold is rewritten.
 
+When measured native pairs lack the transverse span needed to bound rotation
+alone, an explicitly configured local plane/edge recipe may supply that missing
+orientation. At least five measured native inliers, the same semantic identity,
+a synchronized measured surface, finite conditioning, all-pair residuals and
+current root-depth consistency remain mandatory. Lost native tracking, missing
+semantic identity and unverified material recovery cannot use this path.
+
+The adapter transports the resulting complete pose bound to the **unchanged**
+native transform at the measured registration origin: it adds the displacement
+between the transforms at that origin and their angular difference. It ranks
+valid alternatives by full-root error and preserves ties as unavailable. The
+existing local constraint and every downstream identity, footprint, load and
+motion check still run. This combines independently observed geometry with native
+correspondence; it does not relax the point-only conditioning rule or rewrite a
+native pose. The assumed metric point-error/model bounds remain explicit.
+
 The current normal additionally uses fresh depth measurements at reprojected
 points of the same original tracked material. The unchanged native motion predicts
 where to query; only valid current depth within the existing root-consistency
