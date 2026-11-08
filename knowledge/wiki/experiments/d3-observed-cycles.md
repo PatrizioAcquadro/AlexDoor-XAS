@@ -381,3 +381,26 @@ retain the live support checks and acquire its own continuous contact, opening,
 hold, release and stabilization evidence. Only D3-N is prepared; the other eight
 TRAIN conditions remain excluded. Compact evidence and readers are in
 `outputs/evidence/d3-observed-cycles-20261108/central-pane-view-review/`.
+
+
+The fresh complete nominal at `f79580a` selects a unique native mask without
+evaluator identity input, delivers all 360 approach commands and 53 contact-ramp
+commands, then refuses at 44.8833 s on unsupported actual robot sweep and stop.
+It remains physically separated with zero native contact force. Raw/native
+coverage, declared inputs, original continuing stops, actual phase images and
+GPU cleanup pass; opening, hold, release and stabilization are absent. The
+observed load upper peak is 0.191 N inside the original 10 N model domain.
+The assignment remains 0/1 and historical D3 remains 0/9.
+
+Exact CPU reconstruction preserves the refusal. The unsupported finite box has
+about -0.783 mm material margin with the native observation, versus +1.887 mm
+with the prior stationary observation at the same age. Replacing actual motor
+state with its corresponding ideal prediction changes those margins by less
+than 0.008 mm. The new finite atlas has the same outer bounds but local coverage
+and measured registration differ: the box loses about 2 mm of grid clearance
+and spends additional observed pose uncertainty. This is an observation-support
+limit, not proof of physical collision or a reason to relax uncertainty bounds.
+No motion correction is supported by that comparison. The next design screen
+must seek full-path contact placement supported across both independent observed
+atlases, retaining original physical and empirical posture limits and perturbed
+controls. No unchanged native retry or other TRAIN condition is queued.

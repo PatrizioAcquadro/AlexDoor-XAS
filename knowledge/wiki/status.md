@@ -30,9 +30,12 @@ and fixed `large central glass pane` prompt now produce valid native observed
 material. Its complete ideal material paths pass in N/H± with ordinary 1/60 s
 observation age; 1/30 s age remains unsupported, including with finer covering
 subdivision. The original resolution and all uncertainty bounds remain unchanged.
-A fresh complete nominal is prepared, requiring its own live support and full
-physical task evidence. Stationary raw/native integrity, original continuing
-stops, images and cleanup are reviewed. The full-cycle reader
+The fresh nominal at `f79580a` completes approach and 53 contact-ramp commands,
+then refuses finite material support at 44.8833 s while still physically separated.
+A saved-input comparison attributes the deficit mainly to changed observed
+coverage/registration, with negligible motor-model contribution. Complete-path
+placement must now account for both observed acquisitions. Native raw integrity,
+original continuing stops, images and cleanup are reviewed; D3-N remains 0/1. The full-cycle reader
 passes an archived positive and rejects failure/component controls. The other
 eight TRAIN conditions are excluded. No GPU allocation is active.
 A decision-equivalent occupancy
