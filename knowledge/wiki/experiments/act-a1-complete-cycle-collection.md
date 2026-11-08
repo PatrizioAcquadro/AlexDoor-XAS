@@ -5802,3 +5802,57 @@ The new reader's 27.514034 GPU seconds and failed bootstrap are charged once;
 370 continuation allocations close at 14.402624 GPU hours plus one open native
 job. All earlier outcomes and criteria remain; no teacher, source, matrix or
 optimizer credit is added. Collection is still 17/36.
+
+
+The corrected complete nominal endpoint-gap native qualifier closes negative at
+32.432183° of 50.146446° required, in push at probe time 152.966667 s. A single
+native sample exceeds the existing verified 10 N upper load domain: 10.448960 N,
+with independent frozen-estimator recomputation matching to rounding. Estimator
+exception count is zero; that is distinct from the failed force-domain predicate.
+The measured normal component peaks at 8.371987 N and cannot stand for total
+normal-plus-friction load. All 34,556 original 100 ms native force means remain
+positive, minimum 0.038542 N; original calibrated lower windows remain positive,
+minimum 0.022403 N. The original current position support has zero exits, while
+52 single-future empirical position boxes leave measured support. Original hard
+physical boxes and all six-second fourteen-shape continuing stop predicates pass.
+Hold, release and stabilization are unavailable after the push exception. None
+of these component positives establishes a complete demonstration.
+
+All finished custody/profile/effort/material-request/outer/scalar-gap/proposal
+readers execute. Actual contexts reconstruct from preceding published feedback
+and current material clock for all 8,639 push controls. All 8,668 held normal
+targets and paid goals are bitwise exact, with zero disagreements; 609 contexts
+are eligible and 215 change targets. All 39 original run files and three sidecars
+(6,721,834,622 bytes) match source-before/after and the elab3 replica. Six causal
+same-generation RGB views are manually inspected across inspection, approach,
+contact and available push; they are readable and retain door/tool visibility,
+without pixel-scale force/contact or observed-source claims. Missing later views
+are preserved. Native and original-reader allocations add 1,365.064685 GPU seconds;
+their known owned process groups/GPU contexts and canonical leases are released.
+
+A separate CUDA score uses the existing current-full20/last-completed-residual
+predictor with the actual known dispatched target, scoring all four subsequent
+native states and forces only after prediction. This is the first such score on
+the changed complete path. Worst surface prediction error is 82.475 µm, not a
+physical bound. At the final interval, predicted anchored gaps are 1.470, −0.907,
+−3.350 and −5.856 µm; actual normal forces are 0.347, 8.372, 0 and 0 N. The new
+endpoint response adds no correction in this current interval because the model
+already predicts closure. The largest eight actual force intervals likewise add
+no current extra correction, and six follow a changed one; effects of prior
+targets and reference memory remain possible, without a causal conclusion.
+Across all 8,639 available gap contexts, 945 model trajectories have a negative
+interior gap without a negative endpoint, and 1,619 intervals record force while
+all four model gaps are nonnegative. These are diagnostic geometry classes, not
+new contact, safety or acceptance rules. Endpoint closure alone is not a contact
+force model; neither disabling a current correction at the peak nor clipping only
+an endpoint is justified as a complete mechanism repair.
+
+The diagnostic adds 19.292041 GPU seconds and closes its owned resources. All
+373 continuation allocations close at 14.787168 GPU hours, with no active job,
+new teacher/source membership, matrix cell or optimizer update. Evidence is
+`D4-endpoint-gap-response-N-native-closeout-20261108.json`. Further work must address
+shared unilateral recontact over the held interval, elastic reference/payment,
+coupled material/pose motion, normal-plus-friction load and feedback delay before
+another physical successor; retain the 52 empirical support exits separately.
+No thresholds, gains, filters, recipes or calibration are changed to pass this
+negative. Related variants remain suspended; collection stays 17/36.

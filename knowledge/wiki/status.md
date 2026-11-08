@@ -729,11 +729,36 @@ preserved, with whole payload and sidecars verified on elab3. A narrow lifecycle
 repair clears the unavailable cache only after the original inspection transition;
 physical phases still require their original feedback, and failures do not advance
 it. Nine actual-transition CPU controls and the repeated official-runtime
-preflight pass. One corrected nominal qualifier is now running on owned Blackwell,
-with the real qualified load and outer-source bindings verified. Complete contact,
-hold/release/stabilization, force/support, original stops and RGB remain pending;
-related variants stay suspended. There are 370 closed continuation allocations
-at 14.402624 GPU hours plus this one open job. Collection remains 17/36.
+preflight pass.
+
+The corrected nominal endpoint-gap qualifier also closes negative at 32.432° of
+50.146° required, during push at 152.967 s. Its calibrated upper force reaches
+10.449 N, beyond the original 10 N verified domain; the measured normal component
+peaks at 8.372 N and must not be substituted for total load. All 34,556 original
+100 ms force windows are positive (minimum 0.038542 N), as are their original
+calibrated lower bounds (minimum 0.022403 N). This does not repair the domain
+failure, 52 original single-future empirical position exits or missing hold,
+release and stabilization. Current measured support, hard physical limits and
+all original six-second fourteen-shape continuing stops pass independently.
+All 8,668 delivered normal targets and paid goals reconstruct bitwise, with exact
+prior-feedback/material-clock contexts, 609 eligible controls and 215 changed
+endpoint targets. All original readers, six causal RGB views and complete
+39-file payload plus three sidecars are reviewed; 6,721,834,622 bytes match on
+Blackwell and elab3. No teacher or source membership is added.
+
+A whole-path CUDA audit scores all four native substeps of the unchanged existing
+predictor. Surface error reaches 82.475 µm; it is not a force bound. The largest
+eight actual force intervals add no new endpoint correction in that current
+control, although six follow one; this association does not identify a unique
+cause. At the final interval the predicted gap crosses the plane on substep two,
+which records the 8.372 N normal peak, and the recorded contact then unloads.
+Across the path, 945 model intervals cross internally without a negative endpoint;
+1,619 intervals record force despite nonnegative model gaps at all four samples.
+These diagnostic geometry classes do not define acceptance thresholds. Full
+unilateral recontact, pressure/reference history, coupled pose/material motion
+and normal/friction load response need a shared correction before another contact
+trial. Related variants remain suspended. All owned resources are released;
+373 continuation allocations close at 14.787168 GPU hours. Collection stays 17/36.
 
 The synchronized D2-RP diagnostic reproduced its 152.0 s refusal with durable
 force/feedback evidence and passing independent stops. The prospective pressure
